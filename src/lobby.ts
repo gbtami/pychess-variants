@@ -31,12 +31,7 @@ class LobbyController {
 
         // TODO: use auto reconnecting sockette in lobby and round ctrl instead
         // ping-pong és zold/szurke potty is jó lenne
-        //try {
-        //    var wsUri = "ws://" + location.host + "/ws";
-        //}
-        //catch(err){
-            var wsUri = "wss://" + location.host + "/ws";
-        //}
+        var wsUri = "wss://" + location.host + "/ws";
         this.sock = new WebSocket(wsUri);
 
         this.model = model;
