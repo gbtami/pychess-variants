@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 
 import jinja2
 from aiohttp import web
@@ -38,7 +39,7 @@ def make_app():
 
 
 async def shutdown(app):
-    for user in users:
+    for user in app["users"]:
         for ws in user.game_sockets:
             await ws.close()
         user.game_sockets.clear()
@@ -58,4 +59,4 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
     app = make_app()
-    web.run_app(app)
+    web.run_app(app, port=os.environ.get('PORT', 8080))
