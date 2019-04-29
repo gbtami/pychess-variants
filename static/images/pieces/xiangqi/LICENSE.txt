@@ -1,0 +1,21 @@
+Derived from:
+	Original source SVGs of playing pieces as seen on the PlayOK website.
+	Thanks a lot for sharing and for the extra-liberal licensing!
+
+	Author
+		PlayOK -- Free Online Games
+		http://www.playok.com/
+
+	License
+		CC0 1.0 Universal: Public Domain Dedication
+		https://creativecommons.org/publicdomain/zero/1.0/
+
+	Font used
+		WenQuanYi Micro Hei at 42pt
+		http://sourceforge.net/projects/wqy/
+
+Author
+	Sebastian Pipping
+
+License of derivative
+	<same as original>

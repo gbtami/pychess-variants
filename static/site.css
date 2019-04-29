@@ -1,0 +1,314 @@
+html {
+  min-height: 100%;
+}
+body {
+  font: 16px 'Noto Sans', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, Sans-Serif;
+  margin: 0;
+  color: #707070;
+  background: #eee;
+  background-image: linear-gradient(to bottom, #d7d7d7 0%, #eeeeee 116px);
+  overflow-x: hidden;
+  cursor: default;
+}
+body.no-select {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+
+div#preload {
+    /* preload board .svg images */
+    display: none;
+}
+
+.main-wrapper{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+header{
+  height: 32px;
+}
+.content {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+}
+.columns{
+  display: flex;
+  flex:1;
+}
+.main{
+  margin:30px;
+  flex:1;
+  order: 2;
+}
+.sidebar-first{
+  flex:1;
+  order: 1;
+}
+.sidebar-second{
+  flex:1;
+  order: 3;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+}
+
+a:link, a:visited {
+    background-color: DarkGray;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+a:hover, a:active {
+    background-color: LightSlateGray;
+}
+
+result {
+    width: 280px;
+    height: 40px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.button {
+  width: 280px;
+  background-color: Gray;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px;
+  margin: 4px 2px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.button:hover {
+  background-color: LightGray;
+}
+
+i {
+    font-size: 18px;
+}
+
+ul {
+    list-style: none;
+}
+ul.header {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+li.header {
+    float: right;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover:not(.active) {
+    background-color: #111;
+}
+
+.topnav {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  line-height: 40px;
+  color: white;
+  background-color: DimGray;
+  text-align: center;
+}
+
+.topnav a {
+  float: left;
+  display: block;
+  height: 40px;
+  padding: 0px 4px 0px 4px;
+  color: white;
+  background-color: DimGray;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: LightSlateGray;
+}
+
+.topnav .tool-container #username {
+  padding: 0px 4px 0px 4px;
+  float: right;
+}
+
+.topnav .tool-container button {
+  float: right;
+  width: 40px;
+  height: 40px;
+  padding: 0px 4px 0px 4px;
+  background-color: DimGray;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.topnav .tool-container button:hover {
+  background: LightSlateGray;
+}
+
+table#seeks {
+  width: 500px;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border-radius: 3px;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#seeks thead tr{
+  display:block;
+}
+
+#seeks tbody {
+  height: 500px;
+  display:block;
+  overflow-y: auto;
+}
+
+#seeks td, #seeks th {
+  padding: 8px;
+  width:100%;
+  line-height: 28px;
+}
+
+#seeks tr {
+  border: 1px solid #ddd;
+}
+
+#seeks tr:nth-child(even) {
+  width:100%;
+  background-color: #f2f2f2;
+}
+
+#seeks tbody tr:hover {
+  width:100%;
+  background-color: #ddd;
+}
+
+#seeks th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: Gray;
+  color: white;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  padding-top: 60px;
+}
+
+/* Input fields */
+select, input {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* Center the image and position the close button */
+#closecontainer {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.container {
+  text-align: center;
+  padding: 24px;
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 10 auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border-radius: 3px;
+  width: 30%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button (x) */
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: -16px;
+  top: -16px;
+  color: DimGray;
+  background: #fff;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  border-radius: 50%;
+}
+
+.close:hover, .close:focus {
+  cursor: "pointer";
+  background: red;
+}
+
+/* Clock */
+.clock {
+  display: flex;
+  justify-content: "space-between";
+  flex-wrap: nowrap;
+  width: 120px;
+  text-align: center;
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 40px;
+  background-color: LightGray;
+}
+
+.clock.running {
+  background-color: LightYellow;
+}
+
+.clock.hurry {
+  background-color: MistyRose;
+  width: 150px;
+}
+
+.clock .sep {
+  flex-basis: 10%;
+  opacity: 0.5;
+}
+
+.clock.running .sep.low {
+  opacity: 0.15;
+}

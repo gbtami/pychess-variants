@@ -1,0 +1,39 @@
+.gridx .cg-board-wrap {
+  background-image: url('images/board/sittuyin.svg');
+}
+.makruk .cg-board-wrap piece.pawn.white {
+  background-image: url('images/pieces/makruk/wp.svg');
+}
+.makruk .cg-board-wrap piece.silver.white {
+  background-image: url('images/pieces/makruk/wb.svg');
+}
+.makruk .cg-board-wrap piece.knight.white {
+  background-image: url('images/pieces/makruk/wn.svg');
+}
+.makruk .cg-board-wrap piece.rook.white {
+  background-image: url('images/pieces/makruk/wr.svg');
+}
+.makruk .cg-board-wrap piece.ferz.white {
+  background-image: url('images/pieces/makruk/wq.svg');
+}
+.makruk .cg-board-wrap piece.king.white {
+  background-image: url('images/pieces/makruk/wk.svg');
+}
+.makruk .cg-board-wrap piece.pawn.black {
+  background-image: url('images/pieces/makruk/bp.svg');
+}
+.makruk .cg-board-wrap piece.silver.black {
+  background-image: url('images/pieces/makruk/bb.svg');
+}
+.makruk .cg-board-wrap piece.knight.black {
+  background-image: url('images/pieces/makruk/bn.svg');
+}
+.makruk .cg-board-wrap piece.rook.black {
+  background-image: url('images/pieces/makruk/br.svg');
+}
+.makruk .cg-board-wrap piece.ferz.black {
+  background-image: url('images/pieces/makruk/bq.svg');
+}
+.makruk .cg-board-wrap piece.king.black {
+  background-image: url('images/pieces/makruk/bk.svg');
+}

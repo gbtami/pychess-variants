@@ -1,0 +1,25 @@
+{
+  "name": "pychess-variants",
+  "version": "0.0.1",
+  "description": "Play different chess variants not available on lichess",
+  "main": "static/pychess-variants.js",
+  "author": "Bajusz Tamás",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "chessgroundx": "^7.3",
+    "snabbdom": "^0.7",
+    "sockette": "^2.0"
+  },
+  "devDependencies": {
+    "browserify": "^14",
+    "gulp": "^3",
+    "gulp-sourcemaps": "^2",
+    "gulp-typescript": "^3",
+    "gulp-util": "^3",
+    "tsify": "^3",
+    "typescript": "^2",
+    "vinyl-buffer": "^1",
+    "vinyl-source-stream": "^1",
+    "watchify": "^3"
+  }
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 468 540">
+   <defs>
+      <pattern id="grid" width="52" height="60" patternUnits="userSpaceOnUse">
+        <rect width="52" height="60" style="fill:#FDD775;stroke-width:2;stroke:black"/>
+      </pattern>
+    </defs>
+    <rect width="468" height="540" fill="url(#grid)" />
+    <circle cx="156" cy="180" r="4"/>
+    <circle cx="156" cy="360" r="4"/>
+    <circle cx="312" cy="180" r="4"/>
+    <circle cx="312" cy="360" r="4"/>
+</svg>

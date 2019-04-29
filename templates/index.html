@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/chessground.css">
+    <link rel="stylesheet" href="/static/standard.css">
+    <link rel="stylesheet" href="/static/extensions.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/site.css">
+  </head>
+  <div id="preload">
+    <img src="/static/images/board/brown.svg"/>
+    <img src="/static/images/board/xiangqi.svg"/>
+    <img src="/static/images/board/capablanca.svg"/>
+    <img src="/static/images/board/makruk.svg"/>
+    <img src="/static/images/board/sittuyin.svg"/>
+    <img src="/static/images/board/shogi.svg"/>
+  </div>
+  <body id="pychess-variants" data-home="{{ home }}" data-username="{{ username }}" data-country="{{ country }}" data-gameid="{{ gameid }}", data-tv="{{ tv }}",  data-variant="{{ variant }}", data-wplayer="{{ wplayer }}", data-bplayer="{{ bplayer }}", data-fen="{{ fen }}">
+    <div class="topnav">
+      <a class="active" href="/">PyChess</a>
+      <a href="/tv">Tv</a>
+      <div class="tool-container">
+        <button id="btn-flip"></button>
+        <button id="btn-sound" onclick="toggleAudio();" title="Toggle sound"><div class="icon icon-volume-up"></div></button>
+        <div id="username"></div>
+        <button id="btn-login" onclick="loginFunction()"><div class="icon icon-sign-in"></div></button>
+      </div>
+    </div>
+    <div id="placeholder" class="main-wrapper"></div>
+  </body>
+</html>
+
+<script src="/static/pychess-variants.js"></script>
+
+<script>
+var silence = false;
+
+function toggleAudio() {
+    silence = !silence;
+    var snd_btn = document.getElementById("btn-sound");
+    var allaudio = document.getElementsByTagName('audio');
+    if (silence) snd_btn.innerHTML = '<div class="icon icon-volume-off"></div>';
+    else snd_btn.innerHTML = '<div class="icon icon-volume-up"></div>';
+    for (var j = 0; j < allaudio.length; j++) allaudio[j].muted = silence;
+}
+
+function loginFunction() {
+  console.log("LOGIN WITH LICHESS");
+  home = document.querySelector("body").getAttribute("data-home");
+  window.location.assign(home + '/login');
+}
+</script>

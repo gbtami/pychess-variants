@@ -1,0 +1,150 @@
+#extension_choice {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  background: rgba(250, 250, 250, 0.7);
+  text-align: center;
+  z-index: 5;
+}
+#extension_choice square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12.5%;
+  height: 12.5%;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: #b0b0b0;
+  box-shadow: inset 0 0 25px 3px #808080;
+  box-sizing: border-box;
+  transition: 0.2s;
+}
+.cg-640 #extension_choice square {
+  width: 10%;
+}
+.cg-576 #extension_choice square {
+  height: 11.11%;
+  width: 11.11%;
+}
+#extension_choice piece {
+  pointer-events: auto;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: 0.2s;
+  transform: scale(0.8);
+}
+#extension_choice square:hover {
+  box-shadow: inset 0 0 48px 8px #d85000;
+  border-radius: 0%;
+  transform: none;
+}
+
+.cg-board-wrap.pocket {
+  display: inline;
+}
+
+.pocket {
+  border-radius: 3px;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.3) inset;
+  width: 280px;
+  background: #888;
+  white-space: nowrap;
+  display: flex;
+}
+.shogi .pocket {
+  width: 380px;
+}
+.pocket.top {
+  margin-bottom: 10px;
+}
+.pocket.bottom {
+  margin-top: 10px;
+}
+.pocket piece {
+  flex: 0 0 20%;
+  height: 56px!important; /* 100% fails on older chrome */
+  width: auto!important;
+  position: relative!important;
+  background-position: center;
+}
+.shogi .pocket piece {
+  flex: 0 0 14.29%;
+}
+.pocket.usable piece:first-child:hover {
+  border-radius: 3px 0 0 3px;
+}
+.pocket.usable piece {
+  cursor: pointer;
+  pointer-events: auto;
+}
+.pocket.usable piece:hover {
+  background-color: #999;
+  transition: background-color 0.13s;
+}
+.pocket.usable piece.premove {
+  background-color: #555;
+}
+.pocket.usable piece.premove:hover {
+  background-color: #666;
+}
+.blindfold .pocket:not(.usable) {
+  opacity: 0;
+}
+.pocket piece[data-nb='0'] {
+  cursor: auto;
+  opacity: 0.1;
+}
+.pocket piece::after {
+  content: attr(data-nb);
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  line-height: 14px;
+  padding: 3px 5px 4px 5px;
+  font-weight: bold;
+  border-radius: 2px;
+  font-size: 18px;
+}
+.pocket piece[data-nb='0']::after {
+  content: none;
+}
+.pocket piece::after {
+  color: #fff !important;
+  text-shadow: 0 1px 0 #000 !important;
+  background: #d85000 !important;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
+}
+
+.shogi .cg-board-wrap coords.files {
+  left: auto;
+  right: -15px;
+  top: 0;
+  flex-flow: column-reverse;
+  height: 100%;
+  width: 12px;
+}
+.shogi .cg-board-wrap coords.files.black {
+  flex-flow: column;
+}
+.shogi .cg-board-wrap coords.ranks {
+  top: -25px;
+  left: 0;
+  flex-flow: row;
+  width: 100%;
+  height: 16px;
+  text-align: center;
+}
+.shogi .cg-board-wrap coords.ranks.black {
+  flex-flow: row-reverse;
+}
+.shogi .cg-board-wrap coords coord {
+  flex: 1 1 auto;
+}
+.shogi .cg-board-wrap coords.files coord {
+  transform: translateY(39%);
+}

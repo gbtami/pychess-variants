@@ -1,0 +1,6 @@
+__pycache__/
+node_modules/
+static/pychess-variants.js
+package-lock.json
+yarn.lock
+server.sh
