@@ -1,6 +1,7 @@
 aioauth-client==0.16
 aiohttp-session==2.7.0
 aiohttp==3.5.4
+cryptography==2.6.1 
 jinja2==2.10.1
 htmlmin==0.1.12
 pyffish==0.0.2
