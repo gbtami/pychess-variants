@@ -13,7 +13,7 @@ import aiohttp_session
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from bot_api import profile, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
-    seek_create, challenge_create
+    seek_create, challenge_create, bot_pong
 from utils import get_seeks, create_seek, accept_seek, challenge,\
     play_move, get_board, start, abort, draw, resign, flag, User, STARTED
 
@@ -413,4 +413,5 @@ post_routes = (
     ("/api/challenge/{challengeId}/accept", challenge_accept),
     ("/api/challenge/{challengeId}/decline", challenge_decline),
     ("/api/seek", seek_create),
+    ("/api/pong", bot_pong),
 )

@@ -117,6 +117,12 @@ async def seek_create(request):
     return web.json_response({"ok": True})
 
 
+async def ping_bot(event_queue):
+    while True:
+        await event_queue.put('{"type": "ping"}\n')
+        await asyncio.sleep(50)
+
+
 async def event_stream(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5:]
@@ -127,7 +133,6 @@ async def event_stream(request):
 
     resp = web.StreamResponse()
     resp.content_type = "text/plain"
-    resp.headers['Connection'] = 'keep-alive'
     await resp.prepare(request)
 
     bot_player = User(event_stream=resp, username=username)
@@ -135,6 +140,9 @@ async def event_stream(request):
     bot_player.event_queue = asyncio.Queue()
 
     log.info("+++ BOT %s connected" % bot_player.username)
+
+    loop = asyncio.get_event_loop()
+    ping_bot_task = loop.create_task(ping_bot(bot_player.event_queue))
 
     # some test position
     if 0:  # username == "FairyStockfish":
@@ -179,6 +187,7 @@ async def event_stream(request):
         await resp.write(answer.encode("utf-8"))
         await resp.drain()
 
+    ping_bot_task.cancel()
     await resp.write_eof()
     return resp
 
@@ -196,7 +205,6 @@ async def game_stream(request):
 
     resp = web.StreamResponse()
     resp.content_type = "application/json"
-    resp.headers['Connection'] = 'keep-alive'
     await resp.prepare(request)
 
     bot_player = users[username]
@@ -315,4 +323,9 @@ async def bot_chat(request):
     if request.headers.get("Authorization") is None:
         return web.HTTPForbidden()
 
+    return web.json_response({"ok": True})
+
+
+async def bot_pong(request):
+    print("got BOT pong")
     return web.json_response({"ok": True})
