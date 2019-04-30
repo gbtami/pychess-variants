@@ -127,6 +127,7 @@ async def event_stream(request):
 
     resp = web.StreamResponse()
     resp.content_type = "text/plain"
+    resp.headers['Connection'] = 'keep-alive'
     await resp.prepare(request)
 
     bot_player = User(event_stream=resp, username=username)
@@ -195,6 +196,7 @@ async def game_stream(request):
 
     resp = web.StreamResponse()
     resp.content_type = "application/json"
+    resp.headers['Connection'] = 'keep-alive'
     await resp.prepare(request)
 
     bot_player = users[username]

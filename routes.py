@@ -163,7 +163,7 @@ async def websocket_handler(request):
     seeks = request.app["seeks"]
     games = request.app["games"]
 
-    ws = web.WebSocketResponse()
+    ws = web.WebSocketResponse(heartbeat=50)
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
