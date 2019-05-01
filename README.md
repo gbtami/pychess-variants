@@ -29,3 +29,5 @@ yarn install
 gulp dev
 python3 server.py
 ```
+
+If you are brave enough you can try an experimental version [here](https://pychess-variants.herokuapp.com)
