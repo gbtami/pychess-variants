@@ -59,4 +59,4 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
     app = make_app()
-    web.run_app(app, host=os.environ.get("HOST", "127.0.0.1"), port=os.environ.get("PORT", 8080))
+    web.run_app(app, port=os.environ.get("PORT", 8080))
