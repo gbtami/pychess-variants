@@ -39,8 +39,8 @@ def make_app():
 
 
 async def shutdown(app):
-    for user in app["users"]:
-        for ws in user.game_sockets:
+    for user in app["users"].values():
+        for ws in user.game_sockets.values():
             await ws.close()
         user.game_sockets.clear()
 
