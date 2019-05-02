@@ -138,6 +138,7 @@ async def index(request):
         "home": URI,
         "username": user.username,
         "country": params["country"] if "country" in params else "",
+        "guest": not logged_in_username,
         "tv": tv,
         "gameid": gameId if gameId is not None else "",
         "variant": game.variant if gameId is not None else "",
