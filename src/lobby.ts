@@ -28,11 +28,13 @@ class LobbyController {
 
     constructor(el, model, handler) {
         console.log("LobbyController constructor", el, model);
-
-        // TODO: use auto reconnecting sockette in lobby and round ctrl instead
-        // ping-pong és zold/szurke potty is jó lenne
-        var wsUri = "wss://" + location.host + "/ws";
-        this.sock = new WebSocket(wsUri);
+        // TODO: use auto reconnecting sockette in lobby and round ctrl
+        try {
+            this.sock = new WebSocket("ws://" + location.host + "/ws");
+        }
+        catch(err) {
+            this.sock = new WebSocket("wss://" + location.host + "/ws");
+        }
 
         this.model = model;
         this.evtHandler = handler
@@ -76,7 +78,6 @@ class LobbyController {
     }
 
     createSeek (color) {
-        console.log('Black');
         document.getElementById('id01')!.style.display='none';
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;

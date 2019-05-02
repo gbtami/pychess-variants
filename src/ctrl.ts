@@ -52,10 +52,14 @@ export default class RoundController {
     tv: string;
 
     constructor(el, model) {
-        // TODO: use auto reconnecting sockette in lobby and round ctrl instead
-        // ping-pong és zold/szurke potty is jó lenne
-        var wsUri = "wss://" + location.host + "/ws";
-        this.sock = new WebSocket(wsUri);
+        // TODO: use auto reconnecting sockette in lobby and round ctrl
+        try {
+            this.sock = new WebSocket("ws://" + location.host + "/ws");
+        }
+        catch(err) {
+            this.sock = new WebSocket("wss://" + location.host + "/ws");
+        }
+
         this.sock.onmessage = (evt) => { this.onMessage(evt) };
 
         this.model = model;
@@ -163,7 +167,6 @@ export default class RoundController {
         }
 
         // initialize clocks
-        // 74 sec game
         const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement);
         const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement);
         this.clocks = [c0, c1];
@@ -202,7 +205,6 @@ export default class RoundController {
             }
         }
 
-        // render tool buttons
         // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
         // TODO: add western pieces theme button for xiangqui, shogi, makruk, sittuyin
         var container = document.getElementById('btn-flip') as HTMLElement;
@@ -274,9 +276,7 @@ export default class RoundController {
         if (!this.spectator) sound.genericNotify();
     }
 
-    // #after-game
     private newOpponent = (home) => {
-        // TODO: window.location.assign(window.location.hostname + ':' + window.location.port);
         window.location.assign(home);
     }
 
@@ -444,7 +444,7 @@ export default class RoundController {
                     this.clocks[myclock].start(clocks[this.mycolor]);
                     console.log('MY CLOCK STARTED');
                 }
-                console.log("now play premove....");
+                // console.log("trying to play premove....");
                 if (this.premove) this.performPremove();
                 if (this.predrop) this.performPredrop();
             } else {
