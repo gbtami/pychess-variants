@@ -25,6 +25,7 @@ class LobbyController {
     evtHandler;
     player;
     logged_in;
+    challengeAI;
 
     constructor(el, model, handler) {
         console.log("LobbyController constructor", el, model);
@@ -37,7 +38,8 @@ class LobbyController {
         }
 
         this.model = model;
-        this.evtHandler = handler
+        this.evtHandler = handler;
+        this.challengeAI = false;
 
         const onOpen = (evt) => {
             console.log("---CONNECTED", evt);
@@ -77,6 +79,18 @@ class LobbyController {
             color: color });
     }
 
+    createBotChallengeMsg (variant, color, fen, minutes, increment, level) {
+        this.doSend({
+            type: "create_ai_challenge",
+            user: this.model["username"],
+            variant: variant,
+            fen: fen,
+            minutes: minutes,
+            increment: increment,
+            level: level,
+            color: color });
+    }
+
     createSeek (color) {
         document.getElementById('id01')!.style.display='none';
         let e;
@@ -92,7 +106,13 @@ class LobbyController {
         e = document.getElementById('inc') as HTMLInputElement;
         const increment = parseInt(e.value);
 
-        this.createSeekMsg(variant, color, fen, minutes, increment)
+        if (this.challengeAI) {
+            const form = document.getElementById('ailevel') as HTMLFormElement;
+            const level = parseInt(form.elements['level'].value);
+            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level)
+        } else {
+            this.createSeekMsg(variant, color, fen, minutes, increment)
+        }
     }
 
     renderSeekButtons () {
@@ -114,38 +134,75 @@ class LobbyController {
               h('span.close', { on: { click: () => document.getElementById('id01')!.style.display='none' }, attrs: {'data-icon': 'j'}, props: {title: "Cancel"} }),
             ]),
             h('div.container', [
-                h('h2', "Create a game"),
-                h('label', { props: {for: "variant"} }, "Variant"),
+                // h('h2', "Create a game"),
+                h('label', { attrs: {for: "variant"} }, "Variant"),
                 h('select#variant', { props: {name: "variant"} }, variants.map((variant) => h('option', { props: {value: variant} }, variant))),
-                h('label', { props: {for: "fen"} }, "Start position"),
+                h('label', { attrs: {for: "fen"} }, "Start position"),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here'} }),
-                h('label', { props: {for: "tc"} }, "Time Control"),
+                h('label', { attrs: {for: "tc"} }, "Time Control"),
                 h('select#timecontrol', { props: {name: "timecontrol"} }, [
                     h('option', { props: {value: "1", selected: true} }, "Real time"),
                     h('option', { props: {value: "2"} }, "Unlimited"),
                 ]),
-                h('label', { props: {for: "min"} }, "Minutes per side:"),
+                h('label', { attrs: {for: "min"} }, "Minutes per side:"),
                 h('span#minutes'),
                 h('input#min', {
-                    attrs: {name: "min", type: "range", min: 0, max: 180, value: 3},
-                    on: { input(e) { setMinutes((e.target as HTMLInputElement).value); } }
+                    props: {name: "min", type: "range", min: 0, max: 180, value: 3},
+                    on: { input: (e) => setMinutes((e.target as HTMLInputElement).value) },
+                    hook: {insert: (vnode) => setMinutes((vnode.elm as HTMLInputElement).value) },
                 }),
-                h('label', { props: {for: "inc"} }, "Increment in seconds:"),
+                h('label', { attrs: {for: "inc"} }, "Increment in seconds:"),
                 h('span#increment'),
                 h('input#inc', {
-                    attrs: {name: "inc", type: "range", min: 0, max: 180, value: 2},
-                    on: { input(e) { setIncrement((e.target as HTMLInputElement).value); } }
+                    props: {name: "inc", type: "range", min: 0, max: 180, value: 2},
+                    on: { input: (e) => setIncrement((e.target as HTMLInputElement).value) },
+                    hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
                 }),
                 // if play with the machine
                 // A.I.Level (1-8 buttons)
-                h('button.icon.icon-circle', { props: {type: "button", title: "Black"}, on: {click: () => this.createSeek('b') } }),
-                h('button.icon.icon-adjust', { props: {type: "button", title: "Random"}, on: {click: () => this.createSeek('r')} }),
-                h('button.icon.icon-circle-o', { props: {type: "button", title: "White"}, on: {click: () => this.createSeek('w')} }),
+                h('form#ailevel', [
+                h('h4', "A.I. Level"),
+                h('div.radio-group', [
+                    h('input#ai1', { props: { type: "radio", name: "level", value: "1", checked: "checked"} }),
+                    h('label.level-ai.ai1', { attrs: {for: "ai1"} }, "1"),
+                    h('input#ai2', { props: { type: "radio", name: "level", value: "2"} }),
+                    h('label.level-ai.ai2', { attrs: {for: "ai2"} }, "2"),
+                    h('input#ai3', { props: { type: "radio", name: "level", value: "3"} }),
+                    h('label.level-ai.ai3', { attrs: {for: "ai3"} }, "3"),
+                    h('input#ai4', { props: { type: "radio", name: "level", value: "4"} }),
+                    h('label.level-ai.ai4', { attrs: {for: "ai4"} }, "4"),
+                    h('input#ai5', { props: { type: "radio", name: "level", value: "5"} }),
+                    h('label.level-ai.ai5', { attrs: {for: "ai5"} }, "5"),
+                    h('input#ai6', { props: { type: "radio", name: "level", value: "6"} }),
+                    h('label.level-ai.ai6', { attrs: {for: "ai6"} }, "6"),
+                    h('input#ai7', { props: { type: "radio", name: "level", value: "7"} }),
+                    h('label.level-ai.ai7', { attrs: {for: "ai7"} }, "7"),
+                    h('input#ai8', { props: { type: "radio", name: "level", value: "8"} }),
+                    h('label.level-ai.ai8', { attrs: {for: "ai8"} }, "8"),
+                ]),
+                ]),
+                h('div.button-group', [
+                    h('button.icon.icon-circle', { props: {type: "button", title: "Black"}, on: {click: () => this.createSeek('b') } }),
+                    h('button.icon.icon-adjust', { props: {type: "button", title: "Random"}, on: {click: () => this.createSeek('r')} }),
+                    h('button.icon.icon-circle-o', { props: {type: "button", title: "White"}, on: {click: () => this.createSeek('w')} }),
+                ]),
             ]),
           ]),
         ]),
-        h('button', { class: {'button': true}, on: { click: () => document.getElementById('id01')!.style.display='block' } }, "Create a game"),
-        h('button', { class: {'button': true}, on: { click: () => document.getElementById('id01')!.style.display='block' } }, "Play with the machine"),
+        h('button', { class: {'button': true}, on: {
+            click: () => {
+                this.challengeAI = false;
+                document.getElementById('ailevel')!.style.display='none';
+                document.getElementById('id01')!.style.display='block';
+                }
+            } }, "Create a game"),
+        h('button', { class: {'button': true}, on: {
+            click: () => {
+                this.challengeAI = true;
+                document.getElementById('ailevel')!.style.display='inline-block';
+                document.getElementById('id01')!.style.display='block';
+                }
+            } }, "Play with the machine"),
         ];
     }
 

@@ -13,9 +13,9 @@ import aiohttp_session
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from bot_api import profile, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
-    seek_create, challenge_create, bot_pong
+    create_bot_seek, challenge_create, bot_pong
 from utils import get_seeks, create_seek, accept_seek, challenge,\
-    play_move, get_board, start, abort, draw, resign, flag, User, STARTED
+    play_move, get_board, start, abort, draw, resign, flag, User, Seek, STARTED
 
 
 try:
@@ -60,6 +60,10 @@ async def oauth(request):
 
 async def login(request):
     """ Login with lichess.org oauth. """
+    if REDIRECT_PATH is None:
+        log.error("Set REDIRECT_PATH env var if you want lichess OAuth login!")
+        return web.HTTPFound("/")
+
     # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
     if "token" not in session:
@@ -73,8 +77,8 @@ async def login(request):
     try:
         user, info = await client.user_info()
     except Exception:
-        log.info("!!! Can't get user info !!!")
-        raise
+        log.error("Failed to get user info from lichess.org")
+        return web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
 
@@ -115,7 +119,7 @@ async def index(request):
 
     gameId = request.match_info.get("gameId")
 
-    # TODO: tv for @player or variant
+    # TODO: tv for @player and for variants
     tv = ""
     if request.path == "/tv" and len(games) > 0:
         # TODO: get highest rated game
@@ -317,6 +321,28 @@ async def websocket_handler(request):
                         response = get_seeks(seeks)
                         await ws.send_json(response)
 
+                    elif data["type"] == "create_ai_challenge":
+                        variant = data["variant"]
+                        if variant == "seirawan":
+                            engine = users.get("Seirawan-Stockfish")
+                        elif variant == "xiangqi":
+                            engine = users.get("Elephant-Eye")
+                        else:
+                            engine = users.get("Fairy-Stockfish")
+
+                        if engine is None or not engine.active:
+                            continue
+
+                        seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
+                        seeks[seek.id] = seek
+
+                        response = accept_seek(seeks, games, engine, seek.id)
+                        await ws.send_json(response)
+
+                        await engine.event_queue.put(challenge(seek, response))
+                        gameId = response["gameId"]
+                        engine.game_queues[gameId] = asyncio.Queue()
+
                     elif data["type"] == "create_seek":
                         response = create_seek(seeks, user, data)
                         for client_ws in sockets.values():
@@ -331,10 +357,10 @@ async def websocket_handler(request):
                                 await client_ws.send_json(response)
 
                     elif data["type"] == "accept_seek":
+                        seek = seeks[data["seekID"]]
                         response = accept_seek(seeks, games, user, data["seekID"])
                         await ws.send_json(response)
 
-                        seek = seeks[data["seekID"]]
                         if seek.user.lobby_ws is not None:
                             await seek.user.lobby_ws.send_json(response)
 
@@ -343,8 +369,7 @@ async def websocket_handler(request):
                             gameId = response["gameId"]
                             seek.user.game_queues[gameId] = asyncio.Queue()
 
-                        # delete accepted seek and inform others
-                        del seeks[data["seekID"]]
+                        # Inform others, accept-seek() deleted accepted seek allready.
                         response = get_seeks(seeks)
                         for client_ws in sockets.values():
                             if client_ws is not None:
@@ -413,6 +438,6 @@ post_routes = (
     ("/api/challenge/{username}", challenge_create),
     ("/api/challenge/{challengeId}/accept", challenge_accept),
     ("/api/challenge/{challengeId}/decline", challenge_decline),
-    ("/api/seek", seek_create),
+    ("/api/seek", create_bot_seek),
     ("/api/pong", bot_pong),
 )

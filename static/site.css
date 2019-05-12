@@ -312,3 +312,46 @@ select, input {
 .clock.running .sep.low {
   opacity: 0.15;
 }
+
+/* Playing color */
+button.icon {
+  margin: 5px;
+  padding: 5px;
+}
+button.icon.icon-circle, button.icon.icon-circle-o {
+    font-size: 24px;
+}
+button.icon.icon-adjust {
+    font-size: 36px;
+}
+
+
+/* A.I. Level https://codepen.io/skeddles/pen/PbROLK */
+input[type=radio] {
+  position: absolute;
+  visibility: hidden;
+  display: none;
+}
+
+label {
+  color: #9a929e;
+  display: inline-block;
+  cursor: pointer;
+  padding: 5px 12px;
+}
+
+input[type=radio]:checked + label {
+  color: #ccc8ce;
+  background: #675f6b;
+}
+
+label + input[type=radio] + label {
+  border-left: solid 1px #675f6b;
+}
+
+.radio-group {
+  border: solid 1px #675f6b;
+  display: inline-block;
+  margin: 12px;
+  overflow: hidden;
+}

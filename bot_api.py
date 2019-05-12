@@ -54,7 +54,7 @@ async def challenge_decline(request):
         return web.json_response({"ok": True})
 
 
-async def seek_create(request):
+async def create_bot_seek(request):
     if request.headers.get("Authorization") is None:
         return web.HTTPForbidden()
 
@@ -72,9 +72,10 @@ async def seek_create(request):
 
     log.info("+++ %s created %s seek" % (bot_player.username, data["variant"]))
 
+    # Try to create BOT vs BOT game to test TV
     matching_seek = None
     for seek in seeks.values():
-        if seek.variant == data["variant"] and seek.user.is_bot and seek.user.active:
+        if seek.variant == data["variant"] and seek.user.is_bot and seek.user.active and seek.user.username != username:
             log.debug("MATCHING BOT SEEK %s FOUND!" % seek.id)
             matching_seek = seek
             break

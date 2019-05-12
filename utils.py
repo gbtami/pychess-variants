@@ -23,7 +23,7 @@ def usi2uci(move):
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=1, inc=0, rated=False):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=1, rated=False):
         self.user = user
         self.variant = variant
         self.color = color
@@ -31,7 +31,7 @@ class Seek:
         self.rated = rated
         self.base = base
         self.inc = inc
-        self.active = True
+        self.level = level
 
         Seek.gen_id += 1
         self.id = self.gen_id
@@ -74,7 +74,7 @@ CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, 
 
 
 class Game:
-    def __init__(self, variant, initial_fen, wplayer, bplayer, base=1, inc=0, rated=False):
+    def __init__(self, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=20, rated=False):
         self.variant = variant
         self.initial_fen = initial_fen
         self.wplayer = wplayer
@@ -82,6 +82,7 @@ class Game:
         self.rated = rated
         self.base = base
         self.inc = inc
+        self.skill_level = level
         self.spectators = set()
 
         self.ply_clocks = [{"black": base * 1000 * 60, "white": base * 1000 * 60, "movetime": 0}]
@@ -238,7 +239,7 @@ class Game:
 
     @property
     def game_start(self):
-        return '{"type": "gameStart", "game": {"id": "%s"}}\n' % self.id
+        return '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s"}}\n' % (self.id, self.skill_level)
 
     @property
     def game_end(self):
@@ -299,7 +300,7 @@ def flag(games, user, data):
 
 
 def challenge(seek, response):
-    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}}}\n' % (response["gameId"], seek.user.username, seek.variant)
+    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s}}\n' % (response["gameId"], seek.user.username, seek.variant, seek.level)
 
 
 def create_seek(seeks, user, data):
@@ -316,8 +317,6 @@ def get_seeks(seeks):
 def accept_seek(seeks, games, user, seek_id):
     log.info("+++ Seek %s accepted by%s" % (seek_id, user.username))
     seek = seeks[seek_id]
-    if not seek.active:
-        return {"type": "accept_seek", "ok": False}
 
     if seek.color == "r":
         wplayer = random.choice((user, seek.user))
@@ -326,10 +325,12 @@ def accept_seek(seeks, games, user, seek_id):
         wplayer = seek.user if seek.color == "w" else user
         bplayer = seek.user if seek.color == "b" else user
 
-    new_game = Game(seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc)
+    new_game = Game(seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
     seek.fen = new_game.board.fen
     games[new_game.id] = new_game
-
+    print(user.username, user.is_bot, seek.user.username, seek.user.is_bot)
+    if not seek.user.is_bot:
+        del seeks[seek_id]
     return {"type": "accept_seek", "ok": True, "variant": seek.variant, "gameId": new_game.id, "wplayer": wplayer.username, "bplayer": bplayer.username, "fen": seek.fen, "base": seek.base, "inc": seek.inc}
 
 
