@@ -40,9 +40,10 @@ def make_app():
 
 async def shutdown(app):
     for user in app["users"].values():
-        for ws in user.game_sockets.values():
-            await ws.close()
-        user.game_sockets.clear()
+        if not user.is_bot:
+            for ws in user.game_sockets.values():
+                await ws.close()
+            user.game_sockets.clear()
 
     for ws in app['websockets'].values():
         await ws.close()
