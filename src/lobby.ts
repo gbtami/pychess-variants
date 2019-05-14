@@ -10,6 +10,7 @@ import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import { renderUsername } from './user';
+import { chatMessage, chatView } from './chat';
 import { variants } from './chess';
 
 export const ACCEPT = Symbol("Accept");
@@ -60,6 +61,7 @@ class LobbyController {
             this.doSend({ type: "get_seeks" });
         };
         patch(document.getElementById('seekbuttons') as HTMLElement, h('ul#seekbuttons', this.renderSeekButtons()));
+        patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
     }
 
 
@@ -261,6 +263,10 @@ class LobbyController {
         renderUsername(this.model["home"], this.model["username"]);
     }
 
+    private onMsgChat = (msg) => {
+        chatMessage(msg.user, msg.message, "lobbychat");
+    }
+
     onMessage (evt) {
         console.log("<+++ lobby onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -276,6 +282,9 @@ class LobbyController {
                 break;
             case "lobby_user_connected":
                 this.onMsgUserConnected(msg);
+                break;
+            case "lobbychat":
+                this.onMsgChat(msg);
                 break;
         }
     }
@@ -300,8 +309,8 @@ export function lobbyView(model, handler): VNode {
     }
 
     return h('div.columns', [
+            h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
             h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model, handler) } }) ]),
-            h('aside.sidebar-first', ""),
             h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
         ]);
 }

@@ -263,6 +263,7 @@ async def websocket_handler(request):
                         if opp_player.is_bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
 
                         if game.spectators:
@@ -279,6 +280,7 @@ async def websocket_handler(request):
                         if opp_player.is_bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
 
                         if game.spectators:
@@ -295,6 +297,7 @@ async def websocket_handler(request):
                         if opp_player.is_bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
 
                         if game.spectators:
@@ -311,6 +314,7 @@ async def websocket_handler(request):
                         if opp_player.is_bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
 
                         if game.spectators:
@@ -390,6 +394,28 @@ async def websocket_handler(request):
                         user.game_sockets[data["gameId"]] = ws
                         response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"]}
                         await ws.send_json(response)
+
+                    elif data["type"] == "lobbychat":
+                        user = users[session_user]
+                        response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                        for client_ws in sockets.values():
+                            if client_ws is not None:
+                                await client_ws.send_json(response)
+
+                    elif data["type"] == "roundchat":
+                        user = users[session_user]
+                        response = {"type": "roundchat", "user": user.username, "message": data["message"]}
+                        await ws.send_json(response)
+
+                        game = games[data["gameId"]]
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+                        if opp_player.is_bot:
+                            await opp_player.game_queues[data["gameId"]].put('{"type": "chatLine", "username": "%s", "room": "player", "text": "%s"}\n' % (user.username, data["message"]))
+                        else:
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                            await opp_ws.send_json(response)
+
             else:
                 log.debug("type(msg.data) != str %s" % msg)
         elif msg.type == aiohttp.WSMsgType.ERROR:

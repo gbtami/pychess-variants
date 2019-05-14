@@ -44,10 +44,16 @@ header{
   order: 2;
 }
 .sidebar-first{
+  margin: 60px;
   flex:1;
   order: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: right;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 .sidebar-second{
+  margin: 60px;
   flex:1;
   order: 3;
   display: flex;
@@ -85,7 +91,7 @@ result {
   font-size: 18px;
   margin: 4px 2px;
   cursor: pointer;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
 .button:hover {
@@ -174,7 +180,7 @@ table#seeks {
   border-spacing: 0;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
 #seeks thead tr{
@@ -354,4 +360,38 @@ label + input[type=radio] + label {
   display: inline-block;
   margin: 12px;
   overflow: hidden;
+}
+
+/* Chat */
+.chat {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  background: White;
+}
+
+ol {
+  display: flex;
+  order: 1;
+  flex: 10;
+  max-height: 460px;
+  overflow:auto;
+  margin: 0;
+  padding: 0;
+}
+
+li.chat {
+  overflow-wrap: word-break;
+  padding: 3px;
+  font-size: .9em;
+}
+
+#chat-entry {
+  display: flex;
+  order: 2;
+  flex: 0 1 28px;
+  border: 1px solid #ddd;
+  margin: 0;
+  padding: 3px;
 }

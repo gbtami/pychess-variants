@@ -315,14 +315,30 @@ async def bot_resign(request):
 
 
 async def bot_chat(request):
-    # Request Body schema: application/x-www-form-urlencoded
-    # room required string
-    # Enum:"player" "spectator"
-    # text required string
-
     # TODO: use lichess oauth
     if request.headers.get("Authorization") is None:
         return web.HTTPForbidden()
+
+    user_agent = request.headers.get("User-Agent")
+    username = user_agent[user_agent.find("user:") + 5:]
+
+    data = await request.post()
+
+    gameId = request.match_info["gameId"]
+    room = data["room"]
+    message = data["text"]
+
+    users = request.app["users"]
+    games = request.app["games"]
+
+    game = games[gameId]
+
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+
+    if not users[opp_name].is_bot:
+        opp_ws = users[opp_name].game_sockets[gameId]
+        response = {"type": "roundchat", "user": username, "room": room, "message": message}
+        await opp_ws.send_json(response)
 
     return web.json_response({"ok": True})
 

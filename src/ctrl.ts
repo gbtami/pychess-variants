@@ -17,6 +17,7 @@ import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound, changeCSS } from './sound';
 import { hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './chess';
 import { renderUsername } from './user';
+import { chatMessage, chatView } from './chat';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -257,6 +258,8 @@ export default class RoundController {
         } else {
             this.controls = patch(container, h('div'));
         }
+
+        patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
@@ -649,6 +652,10 @@ export default class RoundController {
         }
     }
 
+    private onMsgChat = (msg) => {
+        chatMessage(msg.user, msg.message, "roundchat");
+    }
+
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -664,6 +671,9 @@ export default class RoundController {
                 break;
             case "game_user_connected":
                 this.onMsgUserConnected(msg);
+                break;
+            case "roundchat":
+                this.onMsgChat(msg);
                 break;
         }
     }

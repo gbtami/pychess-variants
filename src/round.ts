@@ -25,6 +25,7 @@ export function roundView(model, handler): VNode {
         playerBottom = model["username"];
     }
     return h('div.columns', [
+            h('aside.sidebar-first', [ h('div.roundchat#roundchat') ]),
             h('main.main', [
                 h(`selection.${VARIANTS[model["variant"]].board}.${VARIANTS[model["variant"]].pieces}`, [
                     h(`div.cg-board-wrap.${VARIANTS[model["variant"]].cg}`,
@@ -32,7 +33,6 @@ export function roundView(model, handler): VNode {
                     }),
                 ]),
             ]),
-            h('aside.sidebar-first', ""),
             h('aside.sidebar-second', [
                 h('div#pocket-wrapper', [
                     h(`div.${VARIANTS[model["variant"]].pieces}`, [

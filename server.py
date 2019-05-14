@@ -15,8 +15,6 @@ def make_app():
     app = web.Application()
     setup(app, EncryptedCookieStorage(SECRET_KEY))
     app["users"] = {}
-    # TODO: use 2 sockets dict, one for games and another for lobby
-    # on client side move 1 ws from site to 1 ws in lobby.ts and 1 ws on round ctrl.ts
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
