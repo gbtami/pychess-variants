@@ -371,6 +371,11 @@ label + input[type=radio] + label {
   background: White;
 }
 
+user {
+  margin-right: 4px;
+  font-weight: bold;
+}
+
 ol {
   display: flex;
   order: 1;
@@ -381,7 +386,7 @@ ol {
   padding: 0;
 }
 
-li.chat {
+li.message {
   overflow-wrap: word-break;
   padding: 3px;
   font-size: .9em;

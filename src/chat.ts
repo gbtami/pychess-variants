@@ -38,7 +38,7 @@ export function chatMessage (user, message, chatType) {
     const isScrolled = myDiv.scrollTop == myDiv.scrollHeight - myDiv.offsetHeight;
 
     var container = document.getElementById('message') as HTMLElement;
-    patch(container, h('div', [ h("li.chat", user +  ": " + message), h("div#message") ]));
+    patch(container, h('div', [ h("li.message", [h("user", user), h("t", message)]), h("div#message") ]));
 
     if (isScrolled) myDiv.scrollTop = myDiv.scrollHeight;
 }
