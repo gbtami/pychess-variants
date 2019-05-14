@@ -11,7 +11,7 @@ class SeirawanBoard:
     def __init__(self, initial_fen=""):
         self.initial_fen = initial_fen if initial_fen else FEN_START
         self.move_stack = []
-        self.color = WHITE if initial_fen and initial_fen.split()[1] == "w" else BLACK
+        self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
         self.fen = self.initial_fen
 
     def push(self, move):

@@ -411,7 +411,7 @@ async def websocket_handler(request):
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.is_bot:
-                            await opp_player.game_queues[data["gameId"]].put('{"type": "chatLine", "username": "%s", "room": "player", "text": "%s"}\n' % (user.username, data["message"]))
+                            await opp_player.game_queues[data["gameId"]].put('{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n' % (user.username, data["message"]))
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
