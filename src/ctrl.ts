@@ -40,7 +40,8 @@ export default class RoundController {
     pockets: any;
     vpocket0: any;
     vpocket1: any;
-    controls: any;
+    gameControls: any;
+    moveControls: any;
     gating: any;
     promotion: any;
     dests: Dests;
@@ -249,15 +250,41 @@ export default class RoundController {
 
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
-            this.controls = patch(container, h('div', [
+            this.gameControls = patch(container, h('div', [
                 h('button#abort', { on: { click: () => abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-times": true} } ), ]),
                 h('button#draw', { on: { click: () => draw() }, props: {title: "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
                 h('button#resign', { on: { click: () => resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
                 ])
             );
         } else {
-            this.controls = patch(container, h('div'));
+            this.gameControls = patch(container, h('div'));
         }
+
+        const fastBackward = () => {
+            console.log("fastBackward");
+            this.doSend({ type: "fastBackward", gameId: this.model["gameId"] });
+        }
+        const stepBackward = () => {
+            console.log("stepBackward");
+            this.doSend({ type: "stepBackward", gameId: this.model["gameId"] });
+        }
+        const stepForward = () => {
+            console.log("stepForward");
+            this.doSend({ type: "stepForward", gameId: this.model["gameId"] });
+        }
+        const fastForward = () => {
+            console.log("fastForward");
+            this.doSend({ type: "fastForward", gameId: this.model["gameId"] });
+        }
+
+        var container = document.getElementById('move-controls') as HTMLElement;
+        this.moveControls = patch(container, h('div', [
+                h('button#fastbackward', { on: { click: () => fastBackward() } }, [h('i', {class: {"icon": true, "icon-fast-backward": true} } ), ]),
+                h('button#stepbackward', { on: { click: () => stepBackward() } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
+                h('button#stepforward', { on: { click: () => stepForward() } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
+                h('button#fastforward', { on: { click: () => fastForward() } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
+            ])
+        );
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
@@ -284,7 +311,7 @@ export default class RoundController {
     }
 
     private gameOver = () => {
-        this.controls = patch(this.controls, h('div'));
+        this.gameControls = patch(this.gameControls, h('div'));
 
         var container = document.getElementById('result') as HTMLElement;
         patch(container, h('result', this.result));

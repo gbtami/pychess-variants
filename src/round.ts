@@ -43,6 +43,8 @@ export function roundView(model, handler): VNode {
                 ]),
                 h('div#clock0'),
                 h('h1', playerTop + " (1500?)"),
+                h('div#move-controls'),
+                h('div#movelist'),
                 h('div#result'),
                 h('div#after-game'),
                 h('div#game-controls'),
