@@ -18,6 +18,7 @@ import { sound, changeCSS } from './sound';
 import { hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
+import { movelistView, updateMovelist } from './movelist';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -52,6 +53,8 @@ export default class RoundController {
     flip: boolean;
     spectator: boolean;
     tv: string;
+    positions;
+    ply: number;
 
     constructor(el, model) {
         // TODO: use auto reconnecting sockette in lobby and round ctrl
@@ -72,6 +75,8 @@ export default class RoundController {
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
         this.tv = model["tv"] as string;
+        this.positions = [];
+        this.ply = 0;
 
         this.flip = false;
 
@@ -214,7 +219,7 @@ export default class RoundController {
 
         var container = document.getElementById('zoom') as HTMLElement;
         const setZoom = (zoom: number) => {
-            const el = document.querySelector('.cg-board-wrap') as HTMLElement;
+            const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
                 const baseWidth = dimensions[VARIANTS[this.variant].geom].width * (this.variant === "shogi" ? 52 : 64);
                 const baseHeight = dimensions[VARIANTS[this.variant].geom].height * (this.variant === "shogi" ? 60 : 64);
@@ -260,31 +265,7 @@ export default class RoundController {
             this.gameControls = patch(container, h('div'));
         }
 
-        const fastBackward = () => {
-            console.log("fastBackward");
-            this.doSend({ type: "fastBackward", gameId: this.model["gameId"] });
-        }
-        const stepBackward = () => {
-            console.log("stepBackward");
-            this.doSend({ type: "stepBackward", gameId: this.model["gameId"] });
-        }
-        const stepForward = () => {
-            console.log("stepForward");
-            this.doSend({ type: "stepForward", gameId: this.model["gameId"] });
-        }
-        const fastForward = () => {
-            console.log("fastForward");
-            this.doSend({ type: "fastForward", gameId: this.model["gameId"] });
-        }
-
-        var container = document.getElementById('move-controls') as HTMLElement;
-        this.moveControls = patch(container, h('div', [
-                h('button#fastbackward', { on: { click: () => fastBackward() } }, [h('i', {class: {"icon": true, "icon-fast-backward": true} } ), ]),
-                h('button#stepbackward', { on: { click: () => stepBackward() } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
-                h('button#stepforward', { on: { click: () => stepForward() } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
-                h('button#fastforward', { on: { click: () => fastForward() } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
-            ])
-        );
+        patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
@@ -297,8 +278,6 @@ export default class RoundController {
 
     getGround = () => this.chessground;
     getDests = () => this.dests;
-
-    redraw = () => false;
 
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);
@@ -398,10 +377,22 @@ export default class RoundController {
         this.dests = msg.dests;
         const clocks = msg.clocks;
 
+        if (msg.ply === this.ply + 1) {
+            this.positions.push({
+                'move': msg.lastMove[0] + msg.lastMove[1],
+                'fen': msg.fen,
+                'lastMove': msg.lastMove,
+                'check': msg.check,
+                'turnColor': this.turnColor,
+                });
+            this.ply = this.ply + 1
+            updateMovelist(this);
+        }
+
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
         this.abortable = Number(parts[parts.length - 1]) <= 1;
-        if (!this.spectator && !this.abortable) {
+        if (!this.spectator && !this.abortable && this.result === "") {
             var container = document.getElementById('abort') as HTMLElement;
             patch(container, h('button#abort', { props: {disabled: true} }));
         }
@@ -414,7 +405,6 @@ export default class RoundController {
         // drop lastMove causing scrollbar flicker,
         // so we remove from part to avoid that
         if (lastMove !== null && lastMove[0][1] === '@') lastMove = [lastMove[1]];
-        console.log("...",msg.lastMove, lastMove);
         // save capture state before updating chessground
         const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]]
 
@@ -493,6 +483,16 @@ export default class RoundController {
                 }
             };
         };
+    }
+
+    goPly = (ply) => {
+        const position = this.positions[ply - 1];
+        this.chessground.set({
+            fen: position['fen'],
+            turnColor: position['turnColor'],
+            check: position['check'],
+            lastMove: position['lastMove'],
+        });
     }
 
     private doSend = (message) => {
