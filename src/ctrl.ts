@@ -112,6 +112,11 @@ export default class RoundController {
             changeCSS('/static/' + VARIANTS[this.variant].css + '.css', 1);
         };
 
+        this.positions.push({
+            'fen': fen_placement,
+            'turnColor': this.turnColor,
+            });
+
         this.chessground = Chessground(el, {
             fen: fen_placement,
             geometry: VARIANTS[this.variant].geom,
@@ -373,11 +378,15 @@ export default class RoundController {
         if (msg["status"] === 0) return;
 
         // console.log("got board msg:", msg);
+        this.ply = msg.ply
         this.fullfen = msg.fen;
         this.dests = msg.dests;
         const clocks = msg.clocks;
 
-        if (msg.ply === this.ply + 1) {
+        const parts = msg.fen.split(" ");
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+
+        if (msg.ply === this.positions.length) {
             this.positions.push({
                 'move': msg.lastMove[0] + msg.lastMove[1],
                 'fen': msg.fen,
@@ -385,12 +394,9 @@ export default class RoundController {
                 'check': msg.check,
                 'turnColor': this.turnColor,
                 });
-            this.ply = this.ply + 1
             updateMovelist(this);
         }
 
-        const parts = msg.fen.split(" ");
-        this.turnColor = parts[1] === "w" ? "white" : "black";
         this.abortable = Number(parts[parts.length - 1]) <= 1;
         if (!this.spectator && !this.abortable && this.result === "") {
             var container = document.getElementById('abort') as HTMLElement;
@@ -486,13 +492,19 @@ export default class RoundController {
     }
 
     goPly = (ply) => {
-        const position = this.positions[ply - 1];
+        const position = this.positions[ply];
         this.chessground.set({
             fen: position['fen'],
             turnColor: position['turnColor'],
+            movable: {
+                free: false,
+                color: this.spectator ? undefined : position['turnColor'],
+                dests: ply === this.positions.length - 1 ? this.dests : undefined,
+                },
             check: position['check'],
             lastMove: position['lastMove'],
         });
+        this.ply = ply
     }
 
     private doSend = (message) => {
