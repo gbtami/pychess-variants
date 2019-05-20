@@ -74,13 +74,13 @@ export default function(ctrl) {
     }
 
     function draw_promo(dest, color, orientation) {
-        var container = toVNode(document.querySelector('.extension') as Node);
+        var container = toVNode(document.querySelector('extension') as Node);
         patch(container, renderPromotion(dest, color, orientation));
     }
 
     function draw_no_promo() {
         var container = document.getElementById('extension_choice') as HTMLElement;
-        patch(container, h('div.extension'));
+        patch(container, h('extension'));
     }
 
     function finish(role) {

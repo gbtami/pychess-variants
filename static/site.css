@@ -400,3 +400,30 @@ li.message {
   margin: 0;
   padding: 3px;
 }
+
+/* movelist */
+.moves {
+  display: inline;
+  background: White;
+  height: 100px;
+  border: 1px solid #ddd;
+  overflow: auto;
+}
+
+ol.movelist {
+  display: inline;
+  width: 60px;
+  margin-bottom: 20px;
+  border-top: 1px solid #ccc;
+}
+li.move {
+  line-height: 1.5em;
+  border-bottom: 1px solid #ccc;
+  float: left;
+  display: inline;
+  width: 50%;
+}
+
+li.move:hover, li.move:active {
+    background-color: LightSlateGray;
+}

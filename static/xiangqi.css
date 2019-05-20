@@ -1,46 +1,46 @@
-.river .cg-board-wrap {
+.river .cg-wrap {
   background-image: url('images/board/xiangqi.svg');
 }
-.xiangqi .cg-board-wrap piece.pawn.white {
+.xiangqi .cg-wrap piece.pawn.white {
   background-image: url('images/pieces/xiangqi/red_pawn.svg');
 }
-.xiangqi .cg-board-wrap piece.bishop.white {
+.xiangqi .cg-wrap piece.bishop.white {
   background-image: url('images/pieces/xiangqi/red_elephant.svg');
 }
-.xiangqi .cg-board-wrap piece.knight.white {
+.xiangqi .cg-wrap piece.knight.white {
   background-image: url('images/pieces/xiangqi/red_horse.svg');
 }
-.xiangqi .cg-board-wrap piece.rook.white {
+.xiangqi .cg-wrap piece.rook.white {
   background-image: url('images/pieces/xiangqi/red_chariot.svg');
 }
-.xiangqi .cg-board-wrap piece.advisor.white {
+.xiangqi .cg-wrap piece.advisor.white {
   background-image: url('images/pieces/xiangqi/red_advisor.svg');
 }
-.xiangqi .cg-board-wrap piece.cannon.white {
+.xiangqi .cg-wrap piece.cannon.white {
   background-image: url('images/pieces/xiangqi/red_cannon.svg');
 }
-.xiangqi .cg-board-wrap piece.king.white {
+.xiangqi .cg-wrap piece.king.white {
   background-image: url('images/pieces/xiangqi/red_king.svg');
 }
 
-.xiangqi .cg-board-wrap piece.pawn.black {
+.xiangqi .cg-wrap piece.pawn.black {
   background-image: url('images/pieces/xiangqi/black_pawn.svg');
 }
-.xiangqi .cg-board-wrap piece.bishop.black {
+.xiangqi .cg-wrap piece.bishop.black {
   background-image: url('images/pieces/xiangqi/black_elephant.svg');
 }
-.xiangqi .cg-board-wrap piece.knight.black {
+.xiangqi .cg-wrap piece.knight.black {
   background-image: url('images/pieces/xiangqi/black_horse.svg');
 }
-.xiangqi .cg-board-wrap piece.rook.black {
+.xiangqi .cg-wrap piece.rook.black {
   background-image: url('images/pieces/xiangqi/black_chariot.svg');
 }
-.xiangqi .cg-board-wrap piece.advisor.black {
+.xiangqi .cg-wrap piece.advisor.black {
   background-image: url('images/pieces/xiangqi/black_advisor.svg');
 }
-.xiangqi .cg-board-wrap piece.cannon.black {
+.xiangqi .cg-wrap piece.cannon.black {
   background-image: url('images/pieces/xiangqi/black_cannon.svg');
 }
-.xiangqi .cg-board-wrap piece.king.black {
+.xiangqi .cg-wrap piece.king.black {
   background-image: url('images/pieces/xiangqi/black_king.svg');
 }

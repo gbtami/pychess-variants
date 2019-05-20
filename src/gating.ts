@@ -60,13 +60,13 @@ export default function(ctrl) {
     }
 
     function draw_gating(origs, color, orientation) {
-        var container = toVNode(document.querySelector('.extension') as Node);
+        var container = toVNode(document.querySelector('extension') as Node);
         patch(container, renderGating(origs, color, orientation));
     }
 
     function draw_no_gating() {
         var container = document.getElementById('extension_choice') as HTMLElement;
-        patch(container, h('div.extension'));
+        patch(container, h('extension'));
     }
 
     function finish(role, index) {
