@@ -199,7 +199,7 @@ export default class RoundController {
         patch(container, h('div#result', this.variant));
 
         // flip
-        // TODO: clocks
+        // TODO: players, clocks
         const toggleOrientation = () => {
             this.flip = !this.flip;
             this.chessground.toggleOrientation();
@@ -499,11 +499,12 @@ export default class RoundController {
             movable: {
                 free: false,
                 color: this.spectator ? undefined : position['turnColor'],
-                dests: ply === this.positions.length - 1 ? this.dests : undefined,
+                dests: this.result === "" && ply === this.positions.length - 1 ? this.dests : undefined,
                 },
             check: position['check'],
             lastMove: position['lastMove'],
         });
+        // TODO: play sound if ply == this.ply + 1
         this.ply = ply
     }
 

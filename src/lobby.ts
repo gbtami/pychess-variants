@@ -141,11 +141,11 @@ class LobbyController {
                 h('select#variant', { props: {name: "variant"} }, variants.map((variant) => h('option', { props: {value: variant} }, variant))),
                 h('label', { attrs: {for: "fen"} }, "Start position"),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here'} }),
-                h('label', { attrs: {for: "tc"} }, "Time Control"),
-                h('select#timecontrol', { props: {name: "timecontrol"} }, [
-                    h('option', { props: {value: "1", selected: true} }, "Real time"),
-                    h('option', { props: {value: "2"} }, "Unlimited"),
-                ]),
+                //h('label', { attrs: {for: "tc"} }, "Time Control"),
+                //h('select#timecontrol', { props: {name: "timecontrol"} }, [
+                //    h('option', { props: {value: "1", selected: true} }, "Real time"),
+                //    h('option', { props: {value: "2"} }, "Unlimited"),
+                //]),
                 h('label', { attrs: {for: "min"} }, "Minutes per side:"),
                 h('span#minutes'),
                 h('input#min', {
