@@ -53,7 +53,7 @@ export default class RoundController {
     flip: boolean;
     spectator: boolean;
     tv: string;
-    positions;
+    steps;
     ply: number;
 
     constructor(el, model) {
@@ -75,7 +75,7 @@ export default class RoundController {
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
         this.tv = model["tv"] as string;
-        this.positions = [];
+        this.steps = [];
         this.ply = 0;
 
         this.flip = false;
@@ -112,8 +112,10 @@ export default class RoundController {
             changeCSS('/static/' + VARIANTS[this.variant].css + '.css', 1);
         };
 
-        this.positions.push({
+        this.steps.push({
             'fen': fen_placement,
+            'move': undefined,
+            'check': false,
             'turnColor': this.turnColor,
             });
 
@@ -386,14 +388,14 @@ export default class RoundController {
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        if (msg.ply === this.positions.length) {
-            this.positions.push({
-                'move': msg.lastMove[0] + msg.lastMove[1],
+        if (msg.ply === this.steps.length) {
+            const step = {
                 'fen': msg.fen,
-                'lastMove': msg.lastMove,
+                'move': msg.lastMove[0] + msg.lastMove[1],
                 'check': msg.check,
                 'turnColor': this.turnColor,
-                });
+                };
+            this.steps.push(step);
             updateMovelist(this);
         }
 
@@ -492,17 +494,17 @@ export default class RoundController {
     }
 
     goPly = (ply) => {
-        const position = this.positions[ply];
+        const step = this.steps[ply];
         this.chessground.set({
-            fen: position['fen'],
-            turnColor: position['turnColor'],
+            fen: step.fen,
+            turnColor: step.turnColor,
             movable: {
                 free: false,
-                color: this.spectator ? undefined : position['turnColor'],
-                dests: this.result === "" && ply === this.positions.length - 1 ? this.dests : undefined,
+                color: this.spectator ? undefined : step.turnColor,
+                dests: this.result === "" && ply === this.steps.length - 1 ? this.dests : undefined,
                 },
-            check: position['check'],
-            lastMove: position['lastMove'],
+            check: step.check,
+            lastMove: step.move === undefined ? undefined : [step.move.slice(0, 2), step.move.slice(2, 4)],
         });
         // TODO: play sound if ply == this.ply + 1
         this.ply = ply

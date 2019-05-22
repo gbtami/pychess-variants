@@ -13,8 +13,8 @@ export function movelistView (ctrl) {
     ctrl.moveControls = patch(container, h('div', [
             h('button#fastbackward', { on: { click: () => ctrl.goPly(0) } }, [h('i', {class: {"icon": true, "icon-fast-backward": true} } ), ]),
             h('button#stepbackward', { on: { click: () => ctrl.goPly(Math.max(ctrl.ply - 1, 0)) } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
-            h('button#stepforward', { on: { click: () => ctrl.goPly(Math.min(ctrl.ply + 1, ctrl.positions.length - 1)) } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
-            h('button#fastforward', { on: { click: () => ctrl.goPly(ctrl.positions.length - 1) } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
+            h('button#stepforward', { on: { click: () => ctrl.goPly(Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
+            h('button#fastforward', { on: { click: () => ctrl.goPly(ctrl.steps.length - 1) } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
         ])
     );
     return h('div.moves', [h('ol.movelist#movelist')])
@@ -22,6 +22,7 @@ export function movelistView (ctrl) {
 
 export function updateMovelist (ctrl) {
     var container = document.getElementById('movelist') as HTMLElement;
-    const ply = ctrl.positions.length - 1;
-    patch(container, h('ol.movelist#movelist', [h('li.move', {attrs: {ply: ply}, on: { click: () => ctrl.goPly(ply) }}, ctrl.positions[ply]['move'])]));
+    const ply = ctrl.steps.length - 1;
+    const move = ctrl.steps[ply]['move'];
+    patch(container, h('ol.movelist#movelist', [h('li.move', {attrs: {ply: ply}, on: { click: () => ctrl.goPly(ply) }}, move)]));
 }
