@@ -40,6 +40,9 @@ class FairyBoard:
         else:
             return sf.get_fen(self.variant, self.initial_fen, self.move_stack)
 
+    def get_san(self, move):
+        return sf.get_san(self.variant, self.fen, move)
+
     def legal_moves(self):
         return sf.legal_moves(self.variant, self.initial_fen, self.move_stack)
 

@@ -394,6 +394,7 @@ export default class RoundController {
                 'move': msg.lastMove[0] + msg.lastMove[1],
                 'check': msg.check,
                 'turnColor': this.turnColor,
+                'san': msg.san,
                 };
             this.steps.push(step);
             updateMovelist(this);

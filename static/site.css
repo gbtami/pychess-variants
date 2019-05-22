@@ -424,6 +424,9 @@ li.move {
   width: 50%;
 }
 
-li.move:hover, li.move:active {
-    background-color: LightSlateGray;
+li.move:hover {
+    background-color: LightSkyBlue;
+}
+li.move.selected {
+    background-color: LightBlue;
 }

@@ -88,6 +88,7 @@ class Game:
         self.ply_clocks = [{"black": base * 1000 * 60, "white": base * 1000 * 60, "movetime": 0}]
         self.dests = {}
         self.lastmove = None
+        self.san = None
         self.check = False
         self.status = CREATED
         self.result = "*"
@@ -163,6 +164,7 @@ class Game:
                     self.check_status()
 
         if self.status != FLAG:
+            self.san = self.board.get_san(move)
             self.lastmove = (move[0:2], move[2:4])
             self.board.push(move)
             self.ply_clocks.append(clocks)
@@ -351,6 +353,7 @@ def get_board(games, data):
             "result": game.result,
             "fen": game.board.fen,
             "lastMove": game.lastmove,
+            "san": game.san,
             "dests": game.dests,
             "check": game.check,
             "ply": game.ply,
