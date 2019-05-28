@@ -19,7 +19,6 @@ export default function(ctrl) {
     function start(fen, orig, dest, meta) {
         const ground = ctrl.getGround();
         const gatable = canGate(fen, ground.state.pieces[dest], orig, dest, meta)
-        // console.log("canGate() returned:", gatable);
         if (gatable[0] || gatable[1]) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;
@@ -72,7 +71,8 @@ export default function(ctrl) {
     function finish(role, index) {
         if (gating) {
             draw_no_gating();
-            gate(ctrl, gating.origs[index], gating.dest, role);
+            if (role) gate(ctrl, gating.origs[index], gating.dest, role);
+            else index = 0;
             const gated = role ? roleToSan[role].toLowerCase() : "";
             if (gating.callback) gating.callback(gating.origs[index], index === 0 ? gating.dest : gating.rookDest, gated);
             gating = false;
