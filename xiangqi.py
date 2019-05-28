@@ -52,6 +52,10 @@ class XiangqiBoard:
     def get_fen(self):
         return tools.renderFEN(self.pos)
 
+    def get_san(self, move):
+        # TODO
+        return move
+
     def legal_moves(self):
         moves = []
         for move, pos in tools.gen_legal_moves(self.pos):
