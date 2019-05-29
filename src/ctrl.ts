@@ -496,6 +496,7 @@ export default class RoundController {
 
     goPly = (ply) => {
         const step = this.steps[ply];
+        // TODO: update pockets !!!
         this.chessground.set({
             fen: step.fen,
             turnColor: step.turnColor,
