@@ -8,34 +8,57 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
+function selectMove (ctrl, ply) {
+    const active = document.querySelector('li.move.active');
+    if (active) active.classList.remove('active');
+    const elPly = document.querySelector(`li.move[ply="${ply}"]`);
+    if (elPly) elPly.classList.add('active');
+    ctrl.goPly(ply)
+    scrollToPly(ctrl);
+}
+
+function scrollToPly (ctrl) {
+    if (ctrl.steps.length < 9) return;
+    const movesEl = document.getElementById('moves') as HTMLElement;
+    let st: number | undefined = undefined;
+    const plyEl = movesEl.querySelector('li.move.active') as HTMLElement | undefined;
+    if (ctrl.ply == 0) st = 0;
+    else if (ctrl.ply == ctrl.steps.length - 1) st = 99999;
+    else {
+        if (plyEl) st = plyEl.offsetTop - movesEl.offsetHeight + plyEl.offsetHeight;
+    }
+    console.log("scrollToPly", ctrl.ply, st);
+    if (typeof st == 'number') {
+        if (st == 0 || st == 99999) movesEl.scrollTop = st;
+        else if (plyEl) {
+            var isSmoothScrollSupported = 'scrollBehavior' in document.documentElement.style;
+            if(isSmoothScrollSupported) {
+                plyEl.scrollIntoView({behavior: "smooth", block: "center"});
+            } else {
+                plyEl.scrollIntoView(false);
+            }
+        }
+    }
+}
+
 export function movelistView (ctrl) {
     var container = document.getElementById('move-controls') as HTMLElement;
-    // TODO: on click selection
     ctrl.moveControls = patch(container, h('div', [
-            h('button#fastbackward', { on: { click: () => ctrl.goPly(0) } }, [h('i', {class: {"icon": true, "icon-fast-backward": true} } ), ]),
-            h('button#stepbackward', { on: { click: () => ctrl.goPly(Math.max(ctrl.ply - 1, 0)) } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
-            h('button#stepforward', { on: { click: () => ctrl.goPly(Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
-            h('button#fastforward', { on: { click: () => ctrl.goPly(ctrl.steps.length - 1) } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
+            h('button#fastbackward', { on: { click: () => selectMove(ctrl, 0) } }, [h('i', {class: {"icon": true, "icon-fast-backward": true} } ), ]),
+            h('button#stepbackward', { on: { click: () => selectMove(ctrl, Math.max(ctrl.ply - 1, 0)) } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
+            h('button#stepforward', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
+            h('button#fastforward', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
         ])
     );
-    return h('div.moves', [h('ol.movelist#movelist')])
+    return h('div#moves', [h('ol.movelist#movelist')])
     }
 
-// TODO: scoll to bottom when new row inserted
 export function updateMovelist (ctrl) {
     var container = document.getElementById('movelist') as HTMLElement;
     const ply = ctrl.steps.length - 1;
-    // TODO: on click selection
-    const selectMove = function () {
-        //console.log(ply, ev, vnode);
-        const selected= document.querySelector('li.move.selected');
-        if(selected) selected.className = 'move';
-        //vnode.elm.className = 'move selected';
-        ctrl.goPly(ply)
-    }
-
     const move = ctrl.steps[ply]['san'];
-    const selected= document.querySelector('li.move.selected');
-    if(selected) selected.className= 'move';
-    patch(container, h('ol.movelist#movelist', [h('li.move', {class: {selected: true}, attrs: {ply: ply}, on: { click: () => selectMove() }}, move)]));
+    const active = document.querySelector('li.move.active');
+    if (active) active.classList.remove('active');
+    patch(container, h('ol.movelist#movelist', [h('li.move', {class: {active: true}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, ply) }}, move)]));
+    scrollToPly(ctrl);
 }

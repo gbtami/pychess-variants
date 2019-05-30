@@ -59,6 +59,7 @@ header{
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
 a:link, a:visited {
@@ -401,20 +402,17 @@ li.message {
   padding: 3px;
 }
 
-/* movelist */
-.moves {
+/* movelist border: 1px solid #ddd; */
+#moves {
   display: inline;
   background: White;
   height: 100px;
-  border: 1px solid #ddd;
   overflow: auto;
 }
 
 ol.movelist {
   display: inline;
   width: 60px;
-  margin-bottom: 20px;
-  border-top: 1px solid #ccc;
 }
 li.move {
   line-height: 1.5em;
@@ -427,6 +425,6 @@ li.move {
 li.move:hover {
     background-color: LightSkyBlue;
 }
-li.move.selected {
+li.move.active {
     background-color: LightBlue;
 }
