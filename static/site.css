@@ -207,6 +207,7 @@ table#seeks {
 }
 
 #seeks tr {
+  height: 28px;
   border: 1px solid #ddd;
 }
 
