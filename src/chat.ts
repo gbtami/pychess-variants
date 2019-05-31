@@ -18,7 +18,7 @@ export function chatView (ctrl, chatType) {
     }
 
     return h(`div.${chatType}#${chatType}`, { class: {"chat": true} }, [
-                h(`ol#${chatType}-messages`, [ h("div#message")]),
+                h(`ol#${chatType}-messages`, [ h("div#messages")]),
                 h('input#chat-entry', {
                     props: {
                         type: "text",
@@ -37,8 +37,8 @@ export function chatMessage (user, message, chatType) {
     // You must add border widths, padding and margins to the right.
     const isScrolled = myDiv.scrollTop == myDiv.scrollHeight - myDiv.offsetHeight;
 
-    var container = document.getElementById('message') as HTMLElement;
-    patch(container, h('div', [ h("li.message", [h("user", user), h("t", message)]), h("div#message") ]));
+    var container = document.getElementById('messages') as HTMLElement;
+    patch(container, h('div#messages', [ h("li.message", [h("user", user), h("t", message)]) ]));
 
     if (isScrolled) myDiv.scrollTop = myDiv.scrollHeight;
 }
