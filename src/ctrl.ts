@@ -198,7 +198,7 @@ export default class RoundController {
 
         // render game data
         var container = document.getElementById('result') as HTMLElement;
-        patch(container, h('div#result', this.variant));
+        patch(container, h('result#result', this.variant));
 
         // flip
         // TODO: players, clocks
@@ -262,7 +262,7 @@ export default class RoundController {
 
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
-            this.gameControls = patch(container, h('div', [
+            this.gameControls = patch(container, h('div.btn-controls', [
                 h('button#abort', { on: { click: () => abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-times": true} } ), ]),
                 h('button#draw', { on: { click: () => draw() }, props: {title: "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
                 h('button#resign', { on: { click: () => resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),

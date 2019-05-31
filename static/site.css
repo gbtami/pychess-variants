@@ -35,33 +35,33 @@ header{
   justify-content: center;
 }
 .columns{
-  display: flex;
-  flex:1;
+  display: grid;
+  grid-template-columns: 400px auto 400px;
+  grid-template-rows: minmax(0, 1fr) 40px;
+  grid-gap: 30px;
 }
 .main{
-  margin:30px;
+  margin-top:30px;
   flex:1;
-  order: 2;
 }
 .sidebar-first{
-  margin: 60px;
+  margin-top: 30px;
   flex:1;
-  order: 1;
   display: flex;
   flex-flow: column nowrap;
   justify-content: right;
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 .sidebar-second{
-  margin: 60px;
+  margin-top: 30px;
   flex:1;
-  order: 3;
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
-
+.under-stuff{
+  grid-row-start: 2;
+}
 a:link, a:visited {
     background-color: DarkGray;
     color: white;
@@ -73,14 +73,21 @@ a:hover, a:active {
     background-color: LightSlateGray;
 }
 
-result {
-    width: 280px;
-    height: 40px;
-    font-size: 18px;
-    text-align: center;
+.round-data{
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  background: White;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
-.button {
+result {
+  height: 40px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.lobby-button {
   width: 280px;
   background-color: Gray;
   border: none;
@@ -88,14 +95,13 @@ result {
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
   font-size: 18px;
   margin: 4px 2px;
   cursor: pointer;
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
-.button:hover {
+.lobby-button:hover {
   background-color: LightGray;
 }
 
@@ -290,6 +296,32 @@ select, input {
   background: red;
 }
 
+div.btn-controls {
+  display: flex;
+  justify-content: space-between;
+  background-color: WhiteSmoke;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+}
+
+.btn-controls button {
+  flex: 1;
+  height: 40px;
+  border: none;
+  background-color: WhiteSmoke;
+  cursor: pointer;
+}
+
+.btn-controls button:hover {
+  background-color: DarkSeaGreen;
+}
+
+.btn-controls button:focus {
+  outline:none;
+}
+.btn-controls button::-moz-focus-inner {
+  border:0;
+}
+
 /* Clock */
 .clock {
   display: flex;
@@ -299,11 +331,12 @@ select, input {
   text-align: center;
   font-family: "Roboto Mono", "Roboto";
   font-size: 40px;
-  background-color: LightGray;
+  background-color: White;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
 .clock.running {
-  background-color: LightYellow;
+  background-color: rgb(208, 224, 189);
 }
 
 .clock.hurry {
@@ -314,10 +347,12 @@ select, input {
 .clock .sep {
   flex-basis: 10%;
   opacity: 0.5;
+  box-shadow: none;
 }
 
 .clock.running .sep.low {
   opacity: 0.15;
+  box-shadow: none;
 }
 
 /* Playing color */
@@ -377,18 +412,20 @@ user {
   font-weight: bold;
 }
 
+/* hack: max-height = seek table th+tr height */
 ol {
   display: flex;
   order: 1;
-  flex: 10;
-  max-height: 460px;
-  overflow:auto;
+  overflow-x:hide;
+  overflow-y:auto;
+  max-height: 520px;
   margin: 0;
   padding: 0;
 }
 
 li.message {
   overflow-wrap: word-break;
+  word-break: break-word;
   padding: 3px;
   font-size: .9em;
 }
@@ -396,10 +433,10 @@ li.message {
 #chat-entry {
   display: flex;
   order: 2;
-  flex: 0 1 28px;
   border: 1px solid #ddd;
   margin: 0;
   padding: 3px;
+  margin-top: auto;
 }
 
 /* movelist border: 1px solid #ddd; */
@@ -407,6 +444,7 @@ li.message {
   display: inline;
   background: White;
   height: 100px;
+  max-height: 100px;
   overflow: auto;
 }
 
@@ -416,7 +454,6 @@ ol.movelist {
 }
 li.move {
   line-height: 1.5em;
-  border-bottom: 1px solid #ccc;
   float: left;
   display: inline;
   width: 50%;

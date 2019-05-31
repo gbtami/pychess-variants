@@ -191,14 +191,14 @@ class LobbyController {
             ]),
           ]),
         ]),
-        h('button', { class: {'button': true}, on: {
+        h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = false;
                 document.getElementById('ailevel')!.style.display='none';
                 document.getElementById('id01')!.style.display='block';
                 }
             } }, "Create a game"),
-        h('button', { class: {'button': true}, on: {
+        h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = true;
                 document.getElementById('ailevel')!.style.display='inline-block';
@@ -312,5 +312,6 @@ export function lobbyView(model, handler): VNode {
             h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
             h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model, handler) } }) ]),
             h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
+            h('under-stuff', "Spectators"),
         ]);
 }
