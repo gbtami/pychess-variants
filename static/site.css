@@ -297,6 +297,11 @@ select, input {
   background: red;
 }
 
+player {
+  padding: 4px;
+  font-size: 18px;
+}
+
 div.btn-controls {
   display: flex;
   justify-content: space-between;
@@ -326,34 +331,41 @@ div.btn-controls {
 /* Clock */
 .clock {
   display: flex;
-  justify-content: "space-between";
   flex-wrap: nowrap;
-  width: 120px;
   text-align: center;
   font-family: "Roboto Mono", "Roboto";
-  font-size: 40px;
-  background-color: White;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  font-size: 50px;
 }
 
-.clock.running {
+.clock.time {
+  color: DarkGray;
+  background-color: White;
+  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+}
+.clock.time.min {
+  padding-left: 12px;
+  box-sizing: border-box;
+}
+.clock.time.sec {
+  padding-right: 12px;
+  box-sizing: border-box;
+}
+.clock.sep {
+  background-color: White;
+  color: DarkGray;
+  box-shadow: 3px 0 2px 0 rgba(0,0,0,0.2);
+}
+
+.clock.time.running, .clock.sep.running {
+  color: Black;
   background-color: rgb(208, 224, 189);
 }
+.clock.sep.running.low {
+  color: Gray;
+}
 
-.clock.hurry {
+.clock.time.hurry, .clock.sep.hurry {
   background-color: MistyRose;
-  width: 150px;
-}
-
-.clock .sep {
-  flex-basis: 10%;
-  opacity: 0.5;
-  box-shadow: none;
-}
-
-.clock.running .sep.low {
-  opacity: 0.15;
-  box-shadow: none;
 }
 
 /* Playing color */

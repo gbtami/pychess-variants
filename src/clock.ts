@@ -121,9 +121,9 @@ export function renderTime(clock, time) {
 
     const date = new Date(time);
     const millis = date.getUTCMilliseconds();
-    clock.el = patch(clock.el, h('div.clock', {class: {running: clock.running, hurry: time < 10000}}, [
-        h('div', parsed.minutes),
+    clock.el = patch(clock.el, h('div.clock', [
+        h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000}}, parsed.minutes),
         h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500}} , ':'),
-        h('div', parsed.seconds),
+        h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000}}, parsed.seconds),
         ]));
 }
