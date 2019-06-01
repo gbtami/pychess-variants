@@ -38,7 +38,7 @@ header{
   display: grid;
   grid-template-columns: 400px auto 400px;
   grid-template-rows: minmax(0, 1fr) 40px;
-  grid-gap: 30px;
+  grid-gap: 16px;
 }
 .main{
   margin-top:30px;
@@ -306,7 +306,7 @@ div.btn-controls {
   display: flex;
   justify-content: space-between;
   background-color: WhiteSmoke;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
 }
 
 .btn-controls button {
@@ -463,13 +463,20 @@ li.message {
 
 ol.movelist {
   display: inline;
-  width: 60px;
 }
 li.move {
   line-height: 1.5em;
   float: left;
   display: inline;
-  width: 50%;
+  width: 42%;
+  padding-left: 6px;
+  box-sizing: border-box;
+  justify-content: center;
+}
+li.move.counter {
+  width: 16%;
+  background-color: WhiteSmoke;
+  text-align: center;
 }
 
 li.move:hover {

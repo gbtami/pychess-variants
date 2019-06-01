@@ -59,6 +59,11 @@ export function updateMovelist (ctrl) {
     const move = ctrl.steps[ply]['san'];
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
-    patch(container, h('ol.movelist#movelist', [h('li.move', {class: {active: true}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, ply) }}, move)]));
+    const el = h('li.move', {class: {active: true}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, ply) }}, move);
+    if (ply % 2 == 0) {
+        patch(container, h('ol.movelist#movelist', [el]));
+    } else {
+        patch(container, h('ol.movelist#movelist', [h('li.move.counter', (ply + 1) / 2), el]));
+    }
     scrollToPly(ctrl);
 }
