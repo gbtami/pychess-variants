@@ -19,6 +19,7 @@ import { hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './che
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { movelistView, updateMovelist } from './movelist';
+import resizeHandle from './resize';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -126,6 +127,9 @@ export default class RoundController {
             turnColor: this.turnColor,
             animation: {
                 enabled: true,
+            },
+            events: {
+                insert(elements) {resizeHandle(elements);}
             }
         });
 
@@ -225,24 +229,14 @@ export default class RoundController {
         patch(container, h('button', { on: { click: () => toggleOrientation() }, props: {title: 'Flip board'} }, [h('i', {class: {"icon": true, "icon-refresh": true} } ), ]));
 
         var container = document.getElementById('zoom') as HTMLElement;
-        const setZoom = (zoom: number) => {
-            const el = document.querySelector('.cg-wrap') as HTMLElement;
-            if (el) {
-                const baseWidth = dimensions[VARIANTS[this.variant].geom].width * (this.variant === "shogi" ? 52 : 64);
-                const baseHeight = dimensions[VARIANTS[this.variant].geom].height * (this.variant === "shogi" ? 60 : 64);
-                const pxw = `${zoom / 100 * baseWidth}px`;
-                const pxh = `${zoom / 100 * baseHeight}px`;
-                el.style.width = pxw;
-                el.style.height = pxh;
-                const ev = document.createEvent('Event');
-                ev.initEvent('chessground.resize', false, false);
-                document.body.dispatchEvent(ev);
-            }
-        }
         patch(container, h('input', {
             attrs: { width: '280px', type: 'range', value: 100, min: 50, max: 150 },
-            on: { input(e) { setZoom(parseFloat((e.target as HTMLInputElement).value)); } } })
+            on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } } })
         );
+
+        //const onResize = () => {console.log("onResize()");}
+        //var elmnt = document.getElementById('cgwrap') as HTMLElement;
+        //elmnt.addEventListener("resize", onResize);
 
         const abort = () => {
             // TODO: disable when ply > 2
@@ -285,6 +279,21 @@ export default class RoundController {
 
     getGround = () => this.chessground;
     getDests = () => this.dests;
+
+    private setZoom = (zoom: number) => {
+        const el = document.querySelector('.cg-wrap') as HTMLElement;
+        if (el) {
+            const baseWidth = dimensions[VARIANTS[this.variant].geom].width * (this.variant === "shogi" ? 52 : 64);
+            const baseHeight = dimensions[VARIANTS[this.variant].geom].height * (this.variant === "shogi" ? 60 : 64);
+            const pxw = `${zoom / 100 * baseWidth}px`;
+            const pxh = `${zoom / 100 * baseHeight}px`;
+            el.style.width = pxw;
+            el.style.height = pxh;
+            const ev = document.createEvent('Event');
+            ev.initEvent('chessground.resize', false, false);
+            document.body.dispatchEvent(ev);
+        }
+    }
 
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);

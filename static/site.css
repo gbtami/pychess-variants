@@ -485,3 +485,50 @@ li.move:hover {
 li.move.active {
     background-color: LightBlue;
 }
+
+/* cg-resize */
+body.resizing {
+ -webkit-user-select:none;
+ -moz-user-select:none;
+ -ms-user-select:none;
+ user-select:none
+}
+cg-resize {
+ display:none
+}
+@media (min-width: 800px) {
+ cg-resize {
+  display:block;
+  position:absolute;
+  right:-9px;
+  bottom:-9px;
+  width:22px;
+  height:22px;
+  cursor:nwse-resize
+ }
+ cg-resize::before,
+ cg-resize::after {
+  background:#000;
+  content:'';
+  position:absolute;
+  width:12px;
+  height:1px
+ }
+ cg-resize::before {
+  width:5px;
+  -webkit-transform:translate(7px, 8px) rotate(-45deg);
+  transform:translate(7px, 8px) rotate(-45deg)
+ }
+ cg-resize::after {
+  -webkit-transform:translate(1px, 6px) rotate(-45deg);
+  transform:translate(1px, 6px) rotate(-45deg)
+ }
+ cg-resize:hover {
+  border-radius:50%;
+  background:rgba(214,79,0,0.5)
+ }
+ .resizing cg-resize {
+  border-radius:50%;
+  background:rgba(98,153,36,0.5)
+ }
+}
