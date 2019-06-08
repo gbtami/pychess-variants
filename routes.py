@@ -168,7 +168,7 @@ async def websocket_handler(request):
     seeks = request.app["seeks"]
     games = request.app["games"]
 
-    ws = web.WebSocketResponse(heartbeat=50)
+    ws = web.WebSocketResponse()
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -181,13 +181,15 @@ async def websocket_handler(request):
     user = users[session_user] if session_user else None
 
     async for msg in ws:
-        log.debug("Websocket (%s) message: %s" % (id(ws), msg))
         if msg.type == aiohttp.WSMsgType.TEXT:
             if type(msg.data) == str:
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")
+                    break
                 else:
                     data = json.loads(msg.data)
+                    if not data["type"] == "pong":
+                        log.debug("Websocket (%s) message: %s" % (id(ws), msg))
 
                     if data["type"] == "move":
                         log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
@@ -252,6 +254,10 @@ async def websocket_handler(request):
                         board_response = get_board(games, data)
                         log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                         await ws.send_json(board_response)
+
+                    elif data["type"] == "pong":
+                        user = users[session_user]
+                        user.ping_counter -= 1
 
                     elif data["type"] == "abort":
                         game = games[data["gameId"]]
@@ -388,6 +394,9 @@ async def websocket_handler(request):
                         response = {"type": "lobby_user_connected", "username": user.username}
                         await ws.send_json(response)
 
+                        loop = asyncio.get_event_loop()
+                        loop.create_task(user.pinger(sockets, seeks))
+
                     elif data["type"] == "game_user_connected":
                         user = users[session_user]
                         # update websocket
@@ -424,22 +433,9 @@ async def websocket_handler(request):
             log.debug("other msg.type %s %s" % (msg.type, msg))
 
     log.info("--- Websocket %s closed" % id(ws))
-    has_seek = len(user.seeks) > 0
-    if has_seek:
-        for seek in user.seeks:
-            del seeks[seek]
-        user.seeks.clear()
 
-    user.online = False
-    del sockets[user.username]
+    await user.quit(sockets, seeks)
 
-    if has_seek:
-        response = get_seeks(seeks)
-        for client_ws in sockets.values():
-            if client_ws is not None:
-                await client_ws.send_json(response)
-
-    await ws.close()
     return ws
 
 

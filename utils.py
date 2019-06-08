@@ -1,7 +1,8 @@
+import asyncio
 import logging
 import random
 import string
-from time import monotonic
+from time import monotonic, time
 
 import fairy
 import seirawan
@@ -59,6 +60,7 @@ class User:
         else:
             self.game_sockets = {}
         self.online = True
+        self.ping_counter = 0
 
     @property
     def id(self):
@@ -67,6 +69,39 @@ class User:
     @property
     def is_bot(self):
         return self.event_stream is not None
+
+    async def quit(self, sockets, seeks):
+        print(self.username, "quit()")
+        has_seek = len(self.seeks) > 0
+        if has_seek:
+            for seek in self.seeks:
+                del seeks[seek]
+            self.seeks.clear()
+
+        self.online = False
+        if self.username in sockets:
+            del sockets[self.username]
+
+        if has_seek:
+            response = get_seeks(seeks)
+            for client_ws in sockets.values():
+                if client_ws is not None:
+                    await client_ws.send_json(response)
+
+    async def pinger(self, sockets, seeks):
+        while True:
+            if self.ping_counter > 3:
+                log.info("%s went offline" % self.username)
+                await self.quit(sockets, seeks)
+                break
+
+            if self.is_bot:
+                await self.event_queue.put('{"type": "ping", "timestamp": "%s"}\n' % time())
+            else:
+                await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
+            self.ping_counter += 1
+
+            await asyncio.sleep(2)
 
     def __str__(self):
         return self.username
@@ -334,6 +369,8 @@ def accept_seek(seeks, games, user, seek_id):
     print(user.username, user.is_bot, seek.user.username, seek.user.is_bot)
     if not seek.user.is_bot:
         del seeks[seek_id]
+        if seek_id in seek.user.seeks:
+            del seek.user.seeks[seek_id]
     return {"type": "accept_seek", "ok": True, "variant": seek.variant, "gameId": new_game.id, "wplayer": wplayer.username, "bplayer": bplayer.username, "fen": seek.fen, "base": seek.base, "inc": seek.inc}
 
 

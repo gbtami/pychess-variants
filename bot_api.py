@@ -120,12 +120,6 @@ async def create_bot_seek(request):
     return web.json_response({"ok": True})
 
 
-async def ping_bot(event_queue):
-    while True:
-        await event_queue.put('{"type": "ping"}\n')
-        await asyncio.sleep(50)
-
-
 async def event_stream(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5:]
@@ -145,38 +139,7 @@ async def event_stream(request):
     log.info("+++ BOT %s connected" % bot_player.username)
 
     loop = asyncio.get_event_loop()
-    ping_bot_task = loop.create_task(ping_bot(bot_player.event_queue))
-
-    # some test position
-    if 0:  # username == "FairyStockfish":
-        variant_name = "crazyhouse"
-        color = "b"
-        fen = "r2qk3/ppp3p1/4p1n1/4P2Q/3p3b/P2Pp1p1/1PP2pB1/R1B2K2[RPBNPrnn] b q - 47 24"
-
-        seek = Seek(bot_player, variant_name, color=color, fen=fen)
-        seeks[seek.id] = seek
-        bot_player.seeks[seek.id] = seek
-
-    if 0:  # username == "FairyStockfish":
-        variant_name = "sittuyin"
-        color = "w"
-        fen = "8/4f1P1/3kp3/pp3p2/5P2/Pr1Pn3/8/K7 w - - 0 31"
-
-        seek = Seek(bot_player, variant_name, color=color, fen=fen)
-        seeks[seek.id] = seek
-        bot_player.seeks[seek.id] = seek
-
-    if 0:  # username == "FairyStockfish":
-        variant_name = "standard"
-        color = "w"
-        # castling "4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1"
-        # promotion "8/P5P1/3k4/8/8/4K3/p6p/8 w - - 0 1"
-        # enpassant "4k3/8/8/Pp6/8/8/8/4K3 b - b6 0 1"
-        fen = "8/P5P1/3k4/8/8/4K3/p6p/8 w - - 0 1"
-
-        seek = Seek(bot_player, variant_name, color=color, fen=fen)
-        seeks[seek.id] = seek
-        bot_player.seeks[seek.id] = seek
+    loop.create_task(bot_player.pinger(sockets, seeks))
 
     # inform others
     response = get_seeks(seeks)
@@ -185,13 +148,11 @@ async def event_stream(request):
             await client_ws.send_json(response)
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
-    while True:
+    while bot_player.online:
         answer = await bot_player.event_queue.get()
         await resp.write(answer.encode("utf-8"))
         await resp.drain()
 
-    ping_bot_task.cancel()
-    await resp.write_eof()
     return resp
 
 
@@ -211,7 +172,6 @@ async def game_stream(request):
     await resp.prepare(request)
 
     bot_player = users[username]
-    # bot_player.game_queues[gameId] = asyncio.Queue()
 
     log.info("+++ %s connected to %s game stream" % (bot_player.username, gameId))
 
@@ -239,10 +199,8 @@ async def bot_move(request):
     game = games[gameId]
 
     invalid_move = False
-    log.info("Got BOT move %s %s %s %s - %s" % (username, gameId, move, game.wplayer.username, game.bplayer.username))
-    # await asyncio.sleep(1)
+    log.info("BOT move %s %s %s %s - %s" % (username, gameId, move, game.wplayer.username, game.bplayer.username))
     if game.status <= STARTED:
-        # TODO: bot moves doesn't take time?
         try:
             game.play_move(move)
         except SystemError:
@@ -274,16 +232,10 @@ async def bot_move(request):
         if game.status > STARTED:
             await opp_ws.send_json(game.game_end)
 
-    print("!!!!!! send move to spectators: %s" % move)
     if game.spectators and not invalid_move:
-        print("  there are some...")
         for spectator in game.spectators:
-            print("      ", spectator.username)
             if gameId in spectator.game_sockets:
-                print("         gameId in spectator.game_sockets", )
                 await spectator.game_sockets[gameId].send_json(board_response)
-            else:
-                print("         gameId NOT in spectator.game_sockets", )
 
     return web.json_response({"ok": True})
 
@@ -347,5 +299,13 @@ async def bot_chat(request):
 
 
 async def bot_pong(request):
-    print("got BOT pong")
+    # TODO: use lichess oauth
+    if request.headers.get("Authorization") is None:
+        return web.HTTPForbidden()
+
+    user_agent = request.headers.get("User-Agent")
+    username = user_agent[user_agent.find("user:") + 5:]
+    users = request.app["users"]
+    bot_player = users[username]
+    bot_player.ping_counter -= 1
     return web.json_response({"ok": True})

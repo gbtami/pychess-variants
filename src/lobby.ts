@@ -267,6 +267,10 @@ class LobbyController {
         chatMessage(msg.user, msg.message, "lobbychat");
     }
 
+    private onMsgPing = (msg) => {
+        this.doSend({type: "pong", timestamp: msg.timestamp});
+    }
+
     private onMsgShutdown = (msg) => {
         alert(msg.message);
     }
@@ -289,6 +293,9 @@ class LobbyController {
                 break;
             case "lobbychat":
                 this.onMsgChat(msg);
+                break;
+            case "ping":
+                this.onMsgPing(msg);
                 break;
             case "shutdown":
                 this.onMsgShutdown(msg);
