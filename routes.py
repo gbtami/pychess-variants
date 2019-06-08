@@ -334,7 +334,7 @@ async def websocket_handler(request):
                         else:
                             engine = users.get("Fairy-Stockfish")
 
-                        if engine is None or not engine.active:
+                        if engine is None or not engine.online:
                             continue
 
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
@@ -424,20 +424,20 @@ async def websocket_handler(request):
             log.debug("other msg.type %s %s" % (msg.type, msg))
 
     log.info("--- Websocket %s closed" % id(ws))
-
-    # TODO: use this when logout or real disconnection detected (many PING-PONG without PONG)
-    if 0:
-        has_seek = len(user.seeks) > 0
+    has_seek = len(user.seeks) > 0
+    if has_seek:
+        for seek in user.seeks:
+            del seeks[seek]
         user.seeks.clear()
 
-        del users[user.username]
-        del sockets[user.username]
+    user.online = False
+    del sockets[user.username]
 
-        if has_seek:
-            response = get_seeks(seeks)
-            for client_ws in sockets.values():
-                if client_ws is not None:
-                    await client_ws.send_json(response)
+    if has_seek:
+        response = get_seeks(seeks)
+        for client_ws in sockets.values():
+            if client_ws is not None:
+                await client_ws.send_json(response)
 
     await ws.close()
     return ws

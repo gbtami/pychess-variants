@@ -77,7 +77,7 @@ async def create_bot_seek(request):
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
-            if seek.variant == data["variant"] and seek.user.is_bot and seek.user.active and seek.user.username != username:
+            if seek.variant == data["variant"] and seek.user.is_bot and seek.user.online and seek.user.username != username:
                 log.debug("MATCHING BOT SEEK %s FOUND!" % seek.id)
                 matching_seek = seek
                 break
@@ -250,7 +250,7 @@ async def bot_move(request):
             log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, username))
             game.status = INVALIDMOVE
             game.result = "0-1" if username == game.wplayer.username else "1-0"
-            bot_player.active = False
+            bot_player.online = False
 
     await bot_player.game_queues[gameId].put(game.game_state)
 

@@ -58,7 +58,7 @@ class User:
             self.game_queues = {}
         else:
             self.game_sockets = {}
-        self.active = True
+        self.online = True
 
     @property
     def id(self):
