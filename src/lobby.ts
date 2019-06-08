@@ -267,6 +267,10 @@ class LobbyController {
         chatMessage(msg.user, msg.message, "lobbychat");
     }
 
+    private onMsgShutdown = (msg) => {
+        alert(msg.message);
+    }
+
     onMessage (evt) {
         console.log("<+++ lobby onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -285,6 +289,9 @@ class LobbyController {
                 break;
             case "lobbychat":
                 this.onMsgChat(msg);
+                break;
+            case "shutdown":
+                this.onMsgShutdown(msg);
                 break;
         }
     }

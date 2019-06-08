@@ -68,6 +68,9 @@ class User:
     def is_bot(self):
         return self.event_stream is not None
 
+    def __str__(self):
+        return self.username
+
 
 CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, \
     NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 12)
@@ -256,6 +259,11 @@ class Game:
         clocks = self.clocks
         return '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s}\n' % (" ".join(self.board.move_stack), clocks["white"], clocks["black"], self.inc, self.inc)
 
+    def abort(self):
+        self.status = ABORTED
+        self.check_status()
+        return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id}
+
 
 def start(games, data):
     # game = games[data["gameId"]]
@@ -265,13 +273,6 @@ def start(games, data):
 def end(games, data):
     game = games[data["gameId"]]
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"]}
-
-
-def abort(games, data):
-    game = games[data["gameId"]]
-    game.status = ABORTED
-    game.check_status()
-    return {"type": "gameEnd", "status": game.status, "result": "Game aborted.", "gameId": data["gameId"]}
 
 
 def draw(games, data):

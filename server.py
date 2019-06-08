@@ -37,11 +37,33 @@ def make_app():
 
 
 async def shutdown(app):
+    # notify users
+    msg = "Server update started. Sorry for the inconvenience!"
+    response = {"type": "shutdown", "message": msg}
+    for user in app["users"].values():
+        if user.username in app["websockets"]:
+            ws = app["websockets"][user.username]
+            await ws.send_json(response)
+        if user.is_bot:
+            await user.event_queue.put({"type": "terminated"})
+
+    # delete seeks
+    app["seeks"] = {}
+
+    # abort games
+    for game in app["games"].values():
+        for player in (game.wplayer, game.bplayer):
+            response = game.abort()
+            if not player.is_bot:
+                ws = player.game_sockets[game.id]
+                await ws.send_json(response)
+    app["games"] = {}
+
+    # close websockets
     for user in app["users"].values():
         if not user.is_bot:
             for ws in user.game_sockets.values():
                 await ws.close()
-            user.game_sockets.clear()
 
     for ws in app['websockets'].values():
         await ws.close()

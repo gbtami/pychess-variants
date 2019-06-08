@@ -15,7 +15,7 @@ from bot_api import profile, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong
 from utils import get_seeks, create_seek, accept_seek, challenge,\
-    play_move, get_board, start, abort, draw, resign, flag, User, Seek, STARTED
+    play_move, get_board, start, draw, resign, flag, User, Seek, STARTED
 
 
 try:
@@ -235,7 +235,7 @@ async def websocket_handler(request):
                                 while True:
                                     if (loop.time() + 1.0) >= end_time:
                                         log.debug("Game %s aborted because user %s is not ready." % (data["gameId"], opp_name))
-                                        response = abort(games, data)
+                                        response = game.abort()
                                         await ws.send_json(response)
                                         break
                                     await asyncio.sleep(1)
@@ -254,10 +254,10 @@ async def websocket_handler(request):
                         await ws.send_json(board_response)
 
                     elif data["type"] == "abort":
-                        response = abort(games, data)
+                        game = games[data["gameId"]]
+                        response = game.abort()
                         await ws.send_json(response)
 
-                        game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.is_bot:

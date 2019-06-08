@@ -297,6 +297,7 @@ async def bot_abort(request):
     gameId = request.match_info["gameId"]
     game = games[gameId]
     game.status = ABORTED
+    game.check_status()
     return web.json_response({"ok": True})
 
 
