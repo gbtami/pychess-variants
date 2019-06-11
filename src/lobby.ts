@@ -12,8 +12,8 @@ import { VNode } from 'snabbdom/vnode';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { variants } from './chess';
+import ACCEPT from './site';
 
-export const ACCEPT = Symbol("Accept");
 export const ADD = Symbol('Add');
 export const DELETE = Symbol('Delete');
 export const UPDATE = Symbol('Update');
@@ -136,7 +136,6 @@ class LobbyController {
               h('span.close', { on: { click: () => document.getElementById('id01')!.style.display='none' }, attrs: {'data-icon': 'j'}, props: {title: "Cancel"} }),
             ]),
             h('div.container', [
-                // h('h2', "Create a game"),
                 h('label', { attrs: {for: "variant"} }, "Variant"),
                 h('select#variant', { props: {name: "variant"} }, variants.map((variant) => h('option', { props: {value: variant} }, variant))),
                 h('label', { attrs: {for: "fen"} }, "Start position"),

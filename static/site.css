@@ -82,7 +82,7 @@ a:hover, a:active {
 }
 
 result {
-  height: 40px;
+  padding: 12px 0;
   font-size: 18px;
   text-align: center;
 }
@@ -100,9 +100,36 @@ result {
   cursor: pointer;
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
-
 .lobby-button:hover {
   background-color: LightGray;
+}
+
+.after-game{
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  background: White;
+  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+}
+
+button.rematch {
+  border: none;
+  background-color: WhiteSmoke;
+  padding: 24px 0;
+  cursor: pointer;
+}
+button.rematch:hover {
+  background-color: LightSkyBlue ;
+}
+
+button.newopp {
+  border: none;
+  background-color: white;
+  padding: 12px 0;
+  cursor: pointer;
+}
+button.newopp:hover {
+  background-color: DarkSeaGreen;
 }
 
 i {

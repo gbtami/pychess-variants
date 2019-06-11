@@ -1,8 +1,11 @@
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
-import { lobbyView, ACCEPT } from './lobby';
-import { roundView, BACK } from './round';
+import { lobbyView } from './lobby';
+import { roundView } from './round';
+
+export const ACCEPT = Symbol("Accept");
+export const BACK = Symbol('Back');
 
 // model : {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", base: "", inc: "", seeks: [seek], tv: ""}
 

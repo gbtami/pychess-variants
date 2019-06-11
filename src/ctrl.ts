@@ -20,12 +20,15 @@ import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { movelistView, updateMovelist } from './movelist';
 import resizeHandle from './resize';
+// import { ACCEPT, BACK} from './site';
 
 const patch = init([klass, attributes, properties, listeners]);
+
 
 export default class RoundController {
     model;
     sock;
+    evtHandler;
     chessground: Api;
     fullfen: string;
     wplayer: string;
@@ -57,7 +60,7 @@ export default class RoundController {
     steps;
     ply: number;
 
-    constructor(el, model) {
+    constructor(el, model, handler) {
         // TODO: use auto reconnecting sockette in lobby and round ctrl
         try {
             this.sock = new WebSocket("ws://" + location.host + "/ws");
@@ -69,6 +72,7 @@ export default class RoundController {
         this.sock.onmessage = (evt) => { this.onMessage(evt) };
 
         this.model = model;
+        this.evtHandler = handler;
         this.variant = model["variant"] as string;
         this.fullfen = model["fen"] as string;
         this.wplayer = model["wplayer"] as string;
@@ -200,9 +204,9 @@ export default class RoundController {
         }
         this.clocks[1].onFlag(flagCallback);
 
-        // render game data
-        var container = document.getElementById('result') as HTMLElement;
-        patch(container, h('result#result', this.variant));
+        // TODO: render game info data (players, timecontrol, variant) in upper left box
+        // var container = document.getElementById('game-info') as HTMLElement;
+        // patch(container, h('div.game-info', this.variant));
 
         // flip
         // TODO: players, clocks
@@ -301,20 +305,35 @@ export default class RoundController {
         if (!this.spectator) sound.genericNotify();
     }
 
+    private onMsgAcceptSeek = (msg) => {
+        console.log("GameController.onMsgAcceptSeek()", this.model["gameId"])
+        // this.evtHandler({ type: ACCEPT });
+        window.location.assign(this.model["home"] + '/' + msg["gameId"]);
+    }
+
+    private rematch = () => {
+        console.log("REMATCH");
+        this.doSend({ type: "rematch", gameId: this.model["gameId"] });
+        // window.location.assign(home);
+    }
+
     private newOpponent = (home) => {
+        // this.evtHandler({ type: BACK });
         window.location.assign(home);
     }
 
     private gameOver = () => {
         this.gameControls = patch(this.gameControls, h('div'));
 
-        var container = document.getElementById('result') as HTMLElement;
-        patch(container, h('result', this.result));
-
-        if (!this.spectator) {
-            var container = document.getElementById('after-game') as HTMLElement;
-            // TODO: rematch button
-            patch(container, h('button', { on: { click: () => this.newOpponent(this.model["home"]) } }, "New opponent"));
+        var container = document.getElementById('after-game') as HTMLElement;
+        if (this.spectator) {
+            patch(container, h('div.after-game', [h('result', this.result)]));
+        } else {
+            patch(container, h('div.after-game', [
+                h('result', this.result),
+                h('button.rematch', { on: { click: () => this.rematch() } }, "REMATCH"),
+                h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, "NEW OPPONENT"),
+            ]));
         }
     }
 
@@ -727,6 +746,9 @@ export default class RoundController {
                 break;
             case "roundchat":
                 this.onMsgChat(msg);
+                break;
+            case "accept_seek":
+                this.onMsgAcceptSeek(msg);
                 break;
         }
     }

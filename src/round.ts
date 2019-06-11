@@ -3,18 +3,16 @@ import { VNode } from 'snabbdom/vnode';
 import RoundController from './ctrl';
 import { VARIANTS } from './chess';
 
-export const BACK = Symbol('Back');
-// export const RESIGN = Symbol('Resign');
 
-function runGround(vnode: VNode, model) {
+function runGround(vnode: VNode, model, handler) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new RoundController(el, model);
+    const ctrl = new RoundController(el, model, handler);
     const cg = ctrl.chessground;
     window['cg'] = cg;
 }
 
 export function roundView(model, handler): VNode {
-    console.log(".......roundView(model, handler)", model, handler);
+    // console.log(".......roundView(model, handler)", model, handler);
     var playerTop, playerBottom;
     if (model["username"] !== model["wplayer"] && model["username"] !== model["bplayer"]) {
         // spectator game view
@@ -29,7 +27,7 @@ export function roundView(model, handler): VNode {
             h('main.main', [
                 h(`selection.${VARIANTS[model["variant"]].board}.${VARIANTS[model["variant"]].pieces}`, [
                     h(`div.cg-wrap.${VARIANTS[model["variant"]].cg}`,
-                        { hook: { insert: (vnode) => runGround(vnode, model)},
+                        { hook: { insert: (vnode) => runGround(vnode, model, handler)},
                     }),
                 ]),
             ]),
@@ -46,7 +44,6 @@ export function roundView(model, handler): VNode {
                     h('player', playerTop + " (1500?)"),
                     h('div#move-controls'),
                     h('div#movelist'),
-                    h('div#result'),
                     h('div#after-game'),
                     h('div#game-controls'),
                     h('player', playerBottom + " (1500?)"),

@@ -111,6 +111,7 @@ async def index(request):
             # TODO: use redis aiohttp-session storage ?
             user = User(username=session_user)
             users[user.username] = user
+        user.ping_counter = 0
     else:
         user = User()
         log.info("+++ New user %s connected." % user.username)
@@ -258,6 +259,40 @@ async def websocket_handler(request):
                     elif data["type"] == "pong":
                         user = users[session_user]
                         user.ping_counter -= 1
+
+                    elif data["type"] == "rematch":
+                        # give time to user to go back to lobby
+                        await asyncio.sleep(1)
+
+                        game = games[data["gameId"]]
+
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+                        if opp_player.is_bot:
+                            variant = game.variant
+                            if variant == "seirawan":
+                                engine = users.get("Seirawan-Stockfish")
+                            elif variant == "xiangqi":
+                                engine = users.get("Elephant-Eye")
+                            else:
+                                engine = users.get("Fairy-Stockfish")
+
+                            if engine is None or not engine.online:
+                                continue
+
+                            color = "w" if game.wplayer == opp_name else "b"
+                            seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level)
+                            seeks[seek.id] = seek
+
+                            response = accept_seek(seeks, games, engine, seek.id)
+                            await ws.send_json(response)
+
+                            await engine.event_queue.put(challenge(seek, response))
+                            gameId = response["gameId"]
+                            engine.game_queues[gameId] = asyncio.Queue()
+                        else:
+                            # TODO
+                            print("TODO: send rematch offer to human opp")
 
                     elif data["type"] == "abort":
                         game = games[data["gameId"]]
