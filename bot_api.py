@@ -3,7 +3,7 @@ import logging
 
 from aiohttp import web
 
-from utils import STARTED, ABORTED, RESIGN, INVALIDMOVE, \
+from utils import STARTED, RESIGN, INVALIDMOVE, \
     get_board, accept_seek, challenge, get_seeks, User, Seek
 
 log = logging.getLogger(__name__)
@@ -139,7 +139,7 @@ async def event_stream(request):
     log.info("+++ BOT %s connected" % bot_player.username)
 
     loop = asyncio.get_event_loop()
-    loop.create_task(bot_player.pinger(sockets, seeks))
+    pinger_task = loop.create_task(bot_player.pinger(sockets, seeks))
 
     # inform others
     response = get_seeks(seeks)
@@ -153,6 +153,7 @@ async def event_stream(request):
         await resp.write(answer.encode("utf-8"))
         await resp.drain()
 
+    pinger_task.cancel()
     return resp
 
 
@@ -177,12 +178,22 @@ async def game_stream(request):
 
     await bot_player.game_queues[gameId].put(game.game_full)
 
+    async def pinger():
+        while True:
+            await bot_player.game_queues[gameId].put("\n")
+            await asyncio.sleep(5)
+
+    loop = asyncio.get_event_loop()
+    pinger_task = loop.create_task(pinger())
+
     while True:
         answer = await bot_player.game_queues[gameId].get()
         await resp.write(answer.encode("utf-8"))
         await resp.drain()
 
     await resp.write_eof()
+    pinger_task.cancel()
+
     return resp
 
 
@@ -244,12 +255,31 @@ async def bot_abort(request):
     # TODO: use lichess oauth
     if request.headers.get("Authorization") is None:
         return web.HTTPForbidden()
+    user_agent = request.headers.get("User-Agent")
+    username = user_agent[user_agent.find("user:") + 5:]
 
     games = request.app["games"]
     gameId = request.match_info["gameId"]
     game = games[gameId]
-    game.status = ABORTED
-    game.check_status()
+
+    users = request.app["users"]
+    bot_player = users[username]
+
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    opp_player = users[opp_name]
+
+    response = game.abort()
+    await bot_player.game_queues[gameId].put(game.game_end)
+    if opp_player.is_bot:
+        await opp_player.game_queues[gameId].put(game.game_end)
+    else:
+        opp_ws = users[opp_name].game_sockets[gameId]
+        await opp_ws.send_json(response)
+
+    if game.spectators:
+        for spectator in game.spectators:
+            await users[spectator.username].game_sockets[gameId].send_json(response)
+
     return web.json_response({"ok": True})
 
 

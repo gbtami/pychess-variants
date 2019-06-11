@@ -96,12 +96,17 @@ class User:
                 break
 
             if self.is_bot:
-                await self.event_queue.put('{"type": "ping", "timestamp": "%s"}\n' % time())
+                await self.event_queue.put("\n")
             else:
                 await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
             self.ping_counter += 1
 
-            await asyncio.sleep(2)
+            if self.is_bot:
+                # heroku needs this to not close BOT connections (stream events) on server side
+                await asyncio.sleep(50)
+            else:
+                # TODO: measure lag, indicate online status on web ui
+                await asyncio.sleep(1)
 
     def __str__(self):
         return self.username
