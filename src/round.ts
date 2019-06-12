@@ -11,7 +11,7 @@ function runGround(vnode: VNode, model, handler) {
     window['cg'] = cg;
 }
 
-export function roundView(model, handler): VNode {
+export function roundView(model, handler): VNode[] {
     // console.log(".......roundView(model, handler)", model, handler);
     var playerTop, playerBottom;
     if (model["username"] !== model["wplayer"] && model["username"] !== model["bplayer"]) {
@@ -22,8 +22,7 @@ export function roundView(model, handler): VNode {
         playerTop = model["username"] === model["wplayer"] ? model["bplayer"] : model["wplayer"];
         playerBottom = model["username"];
     }
-    return h('div.columns', [
-            h('aside.sidebar-first', [ h('div.roundchat#roundchat') ]),
+    return [h('aside.sidebar-first', [ h('div.roundchat#roundchat') ]),
             h('main.main', [
                 h(`selection.${VARIANTS[model["variant"]].board}.${VARIANTS[model["variant"]].pieces}`, [
                     h(`div.cg-wrap.${VARIANTS[model["variant"]].cg}`,
@@ -59,5 +58,5 @@ export function roundView(model, handler): VNode {
                 h('div#flip'),
                 h('div#zoom'),
             ]),
-        ]);
+        ];
 }

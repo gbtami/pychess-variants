@@ -20,29 +20,20 @@ div#preload {
     display: none;
 }
 
-.main-wrapper{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 header{
   height: 32px;
 }
-.content {
-  display: flex;
-  flex: 1;
-  justify-content: center;
-}
-.columns{
+
+.main-wrapper{
   display: grid;
   grid-template-columns: 400px auto 400px;
   grid-template-rows: minmax(0, 1fr) 40px;
   grid-gap: 16px;
+  justify-content: center;
 }
+
 .main{
   margin-top:30px;
-  flex:1;
 }
 .sidebar-first{
   margin-top: 30px;
@@ -458,7 +449,7 @@ ol {
   order: 1;
   overflow-x:hide;
   overflow-y:auto;
-  max-height: 520px;
+  max-height: calc(100% - 30px);
   margin: 0;
   padding: 0;
 }

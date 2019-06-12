@@ -309,7 +309,7 @@ function runSeeks(vnode: VNode, model, handler) {
     console.log("lobbyView() -> runSeeks()", el, model, ctrl);
 }
 
-export function lobbyView(model, handler): VNode {
+export function lobbyView(model, handler): VNode[] {
     // console.log(".......lobbyView(model, handler)", model, handler);
     // Get the modal
     const modal = document.getElementById('id01')!;
@@ -321,10 +321,9 @@ export function lobbyView(model, handler): VNode {
         }
     }
 
-    return h('div.columns', [
-            h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
+    return [h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
             h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model, handler) } }) ]),
             h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
             h('under-stuff', "Spectators"),
-        ]);
+        ];
 }

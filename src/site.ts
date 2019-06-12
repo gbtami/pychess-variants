@@ -36,9 +36,7 @@ export function view(model, handler): VNode {
         };
     }
 
-    return h('div#placeholder.main-wrapper', [
-        h('section.content', [ model.variant ? roundView(model, handler) : lobbyView(model, handler), ]),
-    ]);
+    return h('div#placeholder.main-wrapper', model.variant ? roundView(model, handler) : lobbyView(model, handler));
 }
 
 function init() {
