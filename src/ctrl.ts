@@ -293,6 +293,8 @@ export default class RoundController {
             const pxh = `${zoom / 100 * baseHeight}px`;
             el.style.width = pxw;
             el.style.height = pxh;
+            console.log("setZoom() HEIGHT=", pxh);
+            document.body.setAttribute('style', '--cgwrapheight:' + pxh);
             const ev = document.createEvent('Event');
             ev.initEvent('chessground.resize', false, false);
             document.body.dispatchEvent(ev);

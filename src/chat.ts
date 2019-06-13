@@ -11,7 +11,7 @@ import h from 'snabbdom/h';
 export function chatView (ctrl, chatType) {
     function onKeyPress (e) {
         const message = (e.target as HTMLInputElement).value
-        if (e.keyCode == 13 || e.which == 13) {
+        if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
             ctrl.sock.send(JSON.stringify({"type": chatType, "message": message, "gameId": ctrl.model["gameId"] }));
             (e.target as HTMLInputElement).value = "";
         }
