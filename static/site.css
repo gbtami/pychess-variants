@@ -449,9 +449,16 @@ ol {
   order: 1;
   overflow-x:hide;
   overflow-y:auto;
-  max-height: calc(100% - 30px);
   margin: 0;
   padding: 0;
+}
+
+ol#lobbychat-messages {
+  max-height: 512px;
+}
+
+ol#roundchat-messages {
+  max-height: calc(var(--cgwrapheight) - 28px);
 }
 
 li.message {
