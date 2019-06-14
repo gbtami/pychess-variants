@@ -127,6 +127,8 @@ class Game:
         self.inc = inc
         self.skill_level = level
         self.spectators = set()
+        self.draw_offers = set()
+        self.rematch_offers = set()
 
         self.ply_clocks = [{"black": base * 1000 * 60, "white": base * 1000 * 60, "movetime": 0}]
         self.dests = {}

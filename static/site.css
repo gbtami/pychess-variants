@@ -468,6 +468,10 @@ li.message {
   font-size: .9em;
 }
 
+li.message.offer {
+  color: LightSkyBlue;
+}
+
 #chat-entry {
   display: flex;
   order: 2;

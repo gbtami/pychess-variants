@@ -150,6 +150,8 @@ async def index(request):
         "wplayer": game.wplayer.username if gameId is not None else "",
         "bplayer": game.bplayer.username if gameId is not None else "",
         "fen": game.board.fen if gameId is not None else "",
+        "base": game.base if gameId is not None else "",
+        "inc": game.inc if gameId is not None else "",
     }
     text = template.render(render)
 
@@ -265,9 +267,9 @@ async def websocket_handler(request):
                         await asyncio.sleep(1)
 
                         game = games[data["gameId"]]
-
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
+
                         if opp_player.is_bot:
                             variant = game.variant
                             if variant == "seirawan":
@@ -291,8 +293,20 @@ async def websocket_handler(request):
                             gameId = response["gameId"]
                             engine.game_queues[gameId] = asyncio.Queue()
                         else:
-                            # TODO
-                            print("TODO: send rematch offer to human opp")
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                            if opp_name in game.rematch_offers:
+                                color = "w" if game.wplayer == opp_name else "b"
+                                seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level, game.rated)
+                                seeks[seek.id] = seek
+
+                                response = accept_seek(seeks, games, opp_player, seek.id)
+                                await ws.send_json(response)
+                                await opp_ws.send_json(response)
+                            else:
+                                game.rematch_offers.add(user.username)
+
+                                response = {"type": "rematch", "message": "Rematch offer sent"}
+                                await opp_ws.send_json(response)
 
                     elif data["type"] == "abort":
                         game = games[data["gameId"]]
