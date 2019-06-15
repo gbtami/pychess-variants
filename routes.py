@@ -405,9 +405,10 @@ async def websocket_handler(request):
 
                     elif data["type"] == "create_seek":
                         response = create_seek(seeks, user, data)
-                        for client_ws in sockets.values():
-                            if client_ws is not None:
-                                await client_ws.send_json(response)
+                        if response is not None:
+                            for client_ws in sockets.values():
+                                if client_ws is not None:
+                                    await client_ws.send_json(response)
 
                     elif data["type"] == "delete_seek":
                         del seeks[data["seekID"]]

@@ -78,6 +78,7 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
+            rated: false,
             color: color });
     }
 
@@ -89,6 +90,7 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
+            rated: false,
             level: level,
             color: color });
     }

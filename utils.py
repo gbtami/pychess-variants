@@ -11,6 +11,7 @@ import xiangqi
 log = logging.getLogger(__name__)
 
 BLACK = True
+MAX_USER_SEEKS = 10
 
 
 def usi2uci(move):
@@ -352,10 +353,23 @@ def challenge(seek, response):
 
 
 def create_seek(seeks, user, data):
-    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"])
-    seeks[seek.id] = seek
-    user.seeks[seek.id] = seek
-    return {"type": "create_seek", "seeks": list(map(seek_to_json, seeks.values()))}
+    if len(user.seeks) >= MAX_USER_SEEKS:
+        return None
+
+    new_seek = True
+    for seek_id in user.seeks:
+        seek = seeks[seek_id]
+        if seek.variant == data["variant"] and seek.fen == data["fen"] and seek.color == data["color"] and seek.base == data["minutes"] and seek.inc == data["increment"] and seek.rated == data["rated"]:
+            new_seek = False
+            break
+
+    if new_seek:
+        seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"])
+        seeks[seek.id] = seek
+        user.seeks[seek.id] = seek
+        return {"type": "create_seek", "seeks": list(map(seek_to_json, seeks.values()))}
+    else:
+        return None
 
 
 def get_seeks(seeks):
