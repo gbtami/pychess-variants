@@ -13,6 +13,7 @@ export class Clock {
     increment: number;
     granularity: number;
     running: boolean;
+    connecting: boolean;
     timeout: any;
     startTime: any;
     tickCallbacks: any[];
@@ -25,6 +26,7 @@ export class Clock {
     this.increment = increment * 1000;
     this.granularity = 500;
     this.running = false;
+    this.connecting = false;
     this.timeout = null;
     this.startTime = null;
     this.tickCallbacks = [];
@@ -122,8 +124,8 @@ export function renderTime(clock, time) {
     const date = new Date(time);
     const millis = date.getUTCMilliseconds();
     clock.el = patch(clock.el, h('div.clock', [
-        h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000}}, parsed.minutes),
-        h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500}} , ':'),
-        h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000}}, parsed.seconds),
+        h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.minutes),
+        h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500, connecting: clock.connecting}} , ':'),
+        h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.seconds),
         ]));
 }

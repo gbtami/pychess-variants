@@ -63,9 +63,10 @@ export default class RoundController {
     ply: number;
 
     constructor(el, model, handler) {
-
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
+            this.clocks[0].connecting = false;
+            this.clocks[1].connecting = false;
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 
@@ -73,7 +74,7 @@ export default class RoundController {
             maxAttempts: 10,
             onopen: e => onOpen(e),
             onmessage: e => this.onMessage(e),
-            onreconnect: e => console.log('Reconnecting...', e),
+            onreconnect: e => { this.clocks[0].connecting = true; this.clocks[1].connecting = true; console.log('Reconnecting...', e);},
             onmaximum: e => console.log('Stop Attempting!', e),
             onclose: e => console.log('Closed!', e),
             onerror: e => console.log('Error:', e),
