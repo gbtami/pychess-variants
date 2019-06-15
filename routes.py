@@ -263,9 +263,6 @@ async def websocket_handler(request):
                         user.ping_counter -= 1
 
                     elif data["type"] == "rematch":
-                        # give time to user to go back to lobby
-                        await asyncio.sleep(1)
-
                         game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
@@ -295,7 +292,7 @@ async def websocket_handler(request):
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             if opp_name in game.rematch_offers:
-                                color = "w" if game.wplayer == opp_name else "b"
+                                color = "w" if game.wplayer.username == opp_name else "b"
                                 seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level, game.rated)
                                 seeks[seek.id] = seek
 
@@ -304,8 +301,8 @@ async def websocket_handler(request):
                                 await opp_ws.send_json(response)
                             else:
                                 game.rematch_offers.add(user.username)
-
                                 response = {"type": "rematch", "message": "Rematch offer sent"}
+                                await ws.send_json(response)
                                 await opp_ws.send_json(response)
 
                     elif data["type"] == "abort":
