@@ -1,4 +1,6 @@
-import { init } from "snabbdom";
+import Sockette from 'sockette';
+
+import { init } from 'snabbdom';
 import { h } from 'snabbdom/h';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -61,15 +63,28 @@ export default class RoundController {
     ply: number;
 
     constructor(el, model, handler) {
-        // TODO: use auto reconnecting sockette in lobby and round ctrl
+
+        const onOpen = (evt) => {
+            console.log("ctrl.onOpen()", evt);
+            this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
+        };
+
+        const opts = {
+            maxAttempts: 10,
+            onopen: e => onOpen(e),
+            onmessage: e => this.onMessage(e),
+            onreconnect: e => console.log('Reconnecting...', e),
+            onmaximum: e => console.log('Stop Attempting!', e),
+            onclose: e => console.log('Closed!', e),
+            onerror: e => console.log('Error:', e),
+            };
+
         try {
-            this.sock = new WebSocket("ws://" + location.host + "/ws");
+            this.sock = new Sockette("ws://" + location.host + "/ws", opts);
         }
         catch(err) {
-            this.sock = new WebSocket("wss://" + location.host + "/ws");
+            this.sock = new Sockette("wss://" + location.host + "/ws", opts);
         }
-
-        this.sock.onmessage = (evt) => { this.onMessage(evt) };
 
         this.model = model;
         this.evtHandler = handler;
@@ -273,12 +288,6 @@ export default class RoundController {
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
-
-        const onOpen = (evt) => {
-            console.log("ctrl.onOpen()", evt);
-            this.doSend({ type: "game_user_connected", gameId: this.model["gameId"] });
-        };
-        this.sock.onopen = (evt) => { onOpen(evt) };
     }
 
     getGround = () => this.chessground;

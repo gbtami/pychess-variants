@@ -437,7 +437,15 @@ async def websocket_handler(request):
                                 await client_ws.send_json(response)
 
                     elif data["type"] == "lobby_user_connected":
-                        user = users[session_user]
+                        if session_user is not None:
+                            user = users[session_user]
+                        else:
+                            log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
+                            session_user = data["username"]
+                            user = User(username=data["username"])
+                            users[user.username] = user
+                            user.ping_counter = 0
+
                         # update websocket
                         sockets[user.username] = ws
                         user.lobby_ws = ws
@@ -449,9 +457,18 @@ async def websocket_handler(request):
                         loop.create_task(user.pinger(sockets, seeks))
 
                     elif data["type"] == "game_user_connected":
-                        user = users[session_user]
+                        if session_user is not None:
+                            user = users[session_user]
+                        else:
+                            log.info("+++ Existing game_user %s socket reconnected." % data["username"])
+                            session_user = data["username"]
+                            user = User(username=data["username"])
+                            users[user.username] = user
+                            user.ping_counter = 0
+
                         # update websocket
                         user.game_sockets[data["gameId"]] = ws
+
                         response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"]}
                         await ws.send_json(response)
 

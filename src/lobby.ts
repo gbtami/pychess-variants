@@ -1,3 +1,5 @@
+import Sockette from 'sockette';
+
 import { init } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -27,37 +29,41 @@ class LobbyController {
     player;
     logged_in;
     challengeAI;
+    _ws;
 
     constructor(el, model, handler) {
         console.log("LobbyController constructor", el, model);
-        // TODO: use auto reconnecting sockette in lobby and round ctrl
-        try {
-            this.sock = new WebSocket("ws://" + location.host + "/ws");
-        }
-        catch(err) {
-            this.sock = new WebSocket("wss://" + location.host + "/ws");
-        }
 
         this.model = model;
         this.evtHandler = handler;
         this.challengeAI = false;
 
         const onOpen = (evt) => {
+            this._ws = evt.target;
             console.log("---CONNECTED", evt);
-            this.doSend({ type: "lobby_user_connected" });
+            this.doSend({ type: "lobby_user_connected", username: this.model["username"]});
             this.doSend({ type: "get_seeks" });
         }
 
-        this.sock.onopen = (evt) => { onOpen(evt) };
-        this.sock.onclose = (evt) => {
-            console.log("---DISCONNECTED", evt.code, evt.reason);
-            this.doSend({ type: "close" });
-        };
-        this.sock.onerror = (evt) => { console.log("---ERROR:", evt.data) };
-        this.sock.onmessage = (evt) => { this.onMessage(evt) };
+        this._ws = {"readyState": -1};
+        const opts = {
+            maxAttempts: 20,
+            onopen: e => onOpen(e),
+            onmessage: e => this.onMessage(e),
+            onreconnect: e => console.log('Reconnecting...', e),
+            onmaximum: e => console.log('Stop Attempting!', e),
+            onclose: e => {console.log('Closed!', e);},// this.doSend({ type: "close" });},
+            onerror: e => console.log('Error:', e),
+            };
+        try {
+            this.sock = new Sockette("ws://" + location.host + "/ws", opts);
+        }
+        catch(err) {
+            this.sock = new Sockette("wss://" + location.host + "/ws", opts);
+        }
 
         // get seeks when we are coming back after a game
-        if (this.sock.readyState === 1) {
+        if (this._ws.readyState === 1) {
             this.doSend({ type: "get_seeks" });
         };
         patch(document.getElementById('seekbuttons') as HTMLElement, h('ul#seekbuttons', this.renderSeekButtons()));
