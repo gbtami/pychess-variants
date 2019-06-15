@@ -279,7 +279,7 @@ async def websocket_handler(request):
                             if engine is None or not engine.online:
                                 continue
 
-                            color = "w" if game.wplayer == opp_name else "b"
+                            color = "w" if game.wplayer.username == opp_name else "b"
                             seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level)
                             seeks[seek.id] = seek
 
