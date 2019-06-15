@@ -188,9 +188,12 @@ class Game:
             self.status = STARTED
             self.bot_game = self.bplayer.is_bot or self.wplayer.is_bot
 
+        cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+        if cur_player.username in self.draw_offers:
+            self.draw_offers.remove(cur_player.username)
+
         # BOT players doesn't send times used for moves
         if self.bot_game:
-            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             cur_time = monotonic()
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
             self.last_server_clock = cur_time
@@ -317,15 +320,15 @@ def end(games, data):
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"]}
 
 
-def draw(games, data):
+def draw(games, data, agreement=False):
     game = games[data["gameId"]]
-    if game.is_claimable_draw:
+    if game.is_claimable_draw or agreement:
         game.status = DRAW
         game.result = "1/2"
         game.check_status()
         return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"]}
     else:
-        return {"ok": False}
+        return {"type": "offer", "message": "Draw offer sent"}
 
 
 def resign(games, user, data):

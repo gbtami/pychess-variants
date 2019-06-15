@@ -301,7 +301,7 @@ async def websocket_handler(request):
                                 await opp_ws.send_json(response)
                             else:
                                 game.rematch_offers.add(user.username)
-                                response = {"type": "rematch", "message": "Rematch offer sent"}
+                                response = {"type": "offer", "message": "Rematch offer sent"}
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
 
@@ -323,17 +323,21 @@ async def websocket_handler(request):
                                 await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
                     elif data["type"] == "draw":
-                        response = draw(games, data)
-                        await ws.send_json(response)
-
                         game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
+
+                        response = draw(games, data, agreement=opp_name in game.draw_offers)
+                        await ws.send_json(response)
+
                         if opp_player.is_bot:
-                            await opp_player.game_queues[data["gameId"]].put(game.game_end)
+                            await opp_player.game_queues[data["gameId"]].put(response)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
+
+                        if opp_name not in game.draw_offers:
+                            game.draw_offers.add(user.username)
 
                         if game.spectators:
                             for spectator in game.spectators:

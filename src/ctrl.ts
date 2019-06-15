@@ -730,13 +730,10 @@ export default class RoundController {
         chatMessage(msg.user, msg.message, "roundchat");
     }
 
-    private onMsgDraw = (msg) => {
+    private onMsgOffer = (msg) => {
         chatMessage("", msg.message, "roundchat");
     }
 
-    private onMsgRematch = (msg) => {
-        chatMessage("", msg.message, "roundchat");
-    }
 
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
@@ -760,11 +757,8 @@ export default class RoundController {
             case "accept_seek":
                 this.onMsgAcceptSeek(msg);
                 break;
-            case "draw":
-                this.onMsgDraw(msg);
-                break;
-            case "rematch":
-                this.onMsgRematch(msg);
+            case "offer":
+                this.onMsgOffer(msg);
                 break;
         }
     }
