@@ -91,7 +91,8 @@ class User:
 
     async def pinger(self, sockets, seeks):
         while True:
-            if 0 < self.ping_counter < 3:
+            if self.ping_counter == 2:
+                self.online = False
                 log.info("%s went offline" % self.username)
             elif self.ping_counter > 20:
                 await self.quit(sockets, seeks)

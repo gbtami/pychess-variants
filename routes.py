@@ -444,7 +444,8 @@ async def websocket_handler(request):
                             session_user = data["username"]
                             user = User(username=data["username"])
                             users[user.username] = user
-                            user.ping_counter = 0
+                        user.ping_counter = 0
+                        user.online = True
 
                         # update websocket
                         sockets[user.username] = ws
