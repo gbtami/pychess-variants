@@ -432,16 +432,27 @@ export default class RoundController {
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        if (msg.ply === this.steps.length) {
-            const step = {
-                'fen': msg.fen,
-                'move': msg.lastMove[0] + msg.lastMove[1],
-                'check': msg.check,
-                'turnColor': this.turnColor,
-                'san': msg.san,
-                };
-            this.steps.push(step);
-            updateMovelist(this);
+        if (msg.steps.length > 1) {
+            this.steps = [];
+            var container = document.getElementById('movelist') as HTMLElement;
+            patch(container, h('div#movelist'));
+
+            msg.steps.forEach((step) => { 
+                this.steps.push(step);
+                updateMovelist(this);
+                });
+        } else {
+            if (msg.ply === this.steps.length) {
+                const step = {
+                    'fen': msg.fen,
+                    'move': msg.lastMove[0] + msg.lastMove[1],
+                    'check': msg.check,
+                    'turnColor': this.turnColor,
+                    'san': msg.steps[0].san,
+                    };
+                this.steps.push(step);
+                updateMovelist(this);
+            }
         }
 
         this.abortable = Number(parts[parts.length - 1]) <= 1;
@@ -735,7 +746,10 @@ export default class RoundController {
             // we want to know lastMove and check status
             this.doSend({ type: "board", gameId: this.model["gameId"] });
         } else {
-            this.doSend({ type: "ready", gameId: this.model["gameId"] });
+            // prevent sending gameStart message when user just reconecting
+            if (msg.ply === 0) {
+                this.doSend({ type: "ready", gameId: this.model["gameId"] });
+            }
             this.doSend({ type: "board", gameId: this.model["gameId"] });
         }
     }

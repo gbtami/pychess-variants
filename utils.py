@@ -90,6 +90,7 @@ class User:
                     await client_ws.send_json(response)
 
     async def pinger(self, sockets, seeks):
+        return
         while True:
             if self.ping_counter == 2:
                 self.online = False
@@ -136,7 +137,6 @@ class Game:
         self.ply_clocks = [{"black": base * 1000 * 60, "white": base * 1000 * 60, "movetime": 0}]
         self.dests = {}
         self.lastmove = None
-        self.san = None
         self.check = False
         self.status = CREATED
         self.result = "*"
@@ -169,6 +169,13 @@ class Game:
 
         self.set_dests()
         self.check_status()
+
+        self.steps = [{
+            "fen": self.initial_fen,
+            "san": None,
+            "turnColor": "black" if self.board.color == BLACK else "white",
+            "check": self.check}
+        ]
 
     def create_game_id(self):
         # TODO: check for existence when we will have database
@@ -215,12 +222,20 @@ class Game:
                     self.check_status()
 
         if self.status != FLAG:
-            self.san = self.board.get_san(move)
+            san = self.board.get_san(move)
             self.lastmove = (move[0:2], move[2:4])
             self.board.push(move)
             self.ply_clocks.append(clocks)
             self.set_dests()
             self.check_status()
+
+            self.steps.append({
+                "fen": self.board.fen,
+                "move": move,
+                "san": san,
+                "turnColor": "black" if self.board.color == BLACK else "white",
+                "check": self.check}
+            )
 
     def check_status(self):
         if self.status > STARTED:
@@ -408,7 +423,7 @@ def play_move(games, data):
     game.play_move(move, clocks)
 
 
-def get_board(games, data):
+def get_board(games, data, full=False):
     game = games[data["gameId"]]
     clocks = game.clocks
     return {"type": "board",
@@ -417,7 +432,7 @@ def get_board(games, data):
             "result": game.result,
             "fen": game.board.fen,
             "lastMove": game.lastmove,
-            "san": game.san,
+            "steps": game.steps if full else [game.steps[-1]],
             "dests": game.dests,
             "check": game.check,
             "ply": game.ply,

@@ -198,7 +198,7 @@ async def websocket_handler(request):
                         log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
                         play_move(games, data)
 
-                        board_response = get_board(games, data)
+                        board_response = get_board(games, data, full=False)
                         log.info("   Server send to %s: %s" % (user.username, board_response["fen"]))
                         await ws.send_json(board_response)
 
@@ -254,7 +254,7 @@ async def websocket_handler(request):
                                 await ws.send_json(response)
 
                     elif data["type"] == "board":
-                        board_response = get_board(games, data)
+                        board_response = get_board(games, data, full=True)
                         log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                         await ws.send_json(board_response)
 
@@ -470,7 +470,7 @@ async def websocket_handler(request):
                         # update websocket
                         user.game_sockets[data["gameId"]] = ws
 
-                        response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"]}
+                        response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": games[data["gameId"]].ply}
                         await ws.send_json(response)
 
                     elif data["type"] == "lobbychat":

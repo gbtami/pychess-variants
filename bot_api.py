@@ -229,7 +229,7 @@ async def bot_move(request):
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 
     if not invalid_move:
-        board_response = get_board(games, {"gameId": gameId})
+        board_response = get_board(games, {"gameId": gameId}, full=False)
 
     if users[opp_name].is_bot:
         if game.status > STARTED:
