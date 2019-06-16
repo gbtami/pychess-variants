@@ -74,7 +74,11 @@ export default class RoundController {
             maxAttempts: 10,
             onopen: e => onOpen(e),
             onmessage: e => this.onMessage(e),
-            onreconnect: e => { this.clocks[0].connecting = true; this.clocks[1].connecting = true; console.log('Reconnecting...', e);},
+            onreconnect: e => {
+                this.clocks[0].connecting = true;
+                this.clocks[1].connecting = true;
+                console.log('Reconnecting...', e);
+                },
             onmaximum: e => console.log('Stop Attempting!', e),
             onclose: e => console.log('Closed!', e),
             onerror: e => console.log('Error:', e),

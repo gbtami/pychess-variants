@@ -386,7 +386,7 @@ div.btn-controls {
   background-color: MistyRose;
 }
 
-.connecting.clock.time.running {
+.connecting.clock.time, .connecting.clock.sep {
     animation: clock-blink .5s cubic-bezier(.5,0,1,1) infinite alternate;
 }
 @keyframes clock-blink {
