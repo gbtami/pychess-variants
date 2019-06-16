@@ -347,18 +347,20 @@ div.btn-controls {
 }
 
 /* Clock */
-.clock {
+.clock.wrap {
   display: flex;
   flex-wrap: nowrap;
+}
+.clock {
+  display: inline;
   text-align: center;
   font-family: "Roboto Mono", "Roboto";
   font-size: 50px;
+  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
 }
-
 .clock.time {
   color: DarkGray;
   background-color: White;
-  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
 }
 .clock.time.min {
   padding-left: 12px;
@@ -371,7 +373,6 @@ div.btn-controls {
 .clock.sep {
   background-color: White;
   color: DarkGray;
-  box-shadow: 3px 0 2px 0 rgba(0,0,0,0.2);
 }
 
 .clock.time.running, .clock.sep.running {
