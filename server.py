@@ -1,8 +1,10 @@
 import argparse
+import asyncio
 import logging
 import os
 
 import jinja2
+import aiomonitor
 from aiohttp import web
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
@@ -11,8 +13,8 @@ from routes import get_routes, post_routes
 from settings import SECRET_KEY
 
 
-def make_app():
-    app = web.Application()
+async def make_app(loop):
+    app = web.Application(loop=loop)
     setup(app, EncryptedCookieStorage(SECRET_KEY))
     app["users"] = {}
     app["websockets"] = {}
@@ -79,5 +81,8 @@ if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
-    app = make_app()
-    web.run_app(app, port=os.environ.get("PORT", 8080))
+    loop = asyncio.get_event_loop()
+    app = loop.run_until_complete(make_app(loop))
+
+    with aiomonitor.start_monitor(loop=loop, locals={"app": app}):
+        web.run_app(app, port=os.environ.get("PORT", 8080))

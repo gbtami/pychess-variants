@@ -1,5 +1,6 @@
 aioauth-client==0.16
 aiohttp-session==2.7.0
+aiomonitor==0.4.4
 aiohttp==3.5.4
 cryptography==2.6.1 
 jinja2==2.10.1
