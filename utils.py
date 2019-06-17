@@ -3,6 +3,7 @@ import logging
 import random
 import string
 from time import monotonic, time
+from datetime import date
 
 import fairy
 import seirawan
@@ -133,6 +134,8 @@ class Game:
         self.spectators = set()
         self.draw_offers = set()
         self.rematch_offers = set()
+        self.messages = []
+        self.date = date.today()
 
         self.ply_clocks = [{"black": base * 1000 * 60, "white": base * 1000 * 60, "movetime": 0}]
         self.dests = {}
@@ -283,16 +286,26 @@ class Game:
         self.dests = dests
 
     def print_game(self):
-        print(self)
+        print(self.pgn())
         print(self.board.print_pos())
-        print("---CLOCKS---")
-        for ply, clocks in enumerate(self.ply_clocks):
-            print(ply, self.board.move_stack[ply - 1] if ply > 0 else "", self.ply_clocks[ply]["movetime"], self.ply_clocks[ply]["black"], self.ply_clocks[ply]["white"])
-        print(self.result)
+        # print("---CLOCKS---")
+        # for ply, clocks in enumerate(self.ply_clocks):
+        #     print(ply, self.board.move_stack[ply - 1] if ply > 0 else "", self.ply_clocks[ply]["movetime"], self.ply_clocks[ply]["black"], self.ply_clocks[ply]["white"])
+        # print(self.result)
 
-    def __str__(self):
-        moves = " ".join(self.board.move_stack)
-        return "[%s vs %s]\n[%s]\n[%s]\n\n%s %s\n----" % (self.wplayer.username, self.bplayer.username, self.variant, self.id, moves, self.result)
+    def pgn(self):
+        moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
+        # TODO: FEN on demand
+        return '[Event "%s"]\n[Site "%s"]\n[Date "%s"]\n[Round "-"]\n[White "%s"]\n[Black "%s"]\n[Result "%s"]\n[Variant "%s"]\n\n%s %s\n' % (
+            "PyChess casual game",
+            "https://pychess-variants.herokuapp.com/" + self.id,
+            self.date.strftime("%Y.%m.%d"),
+            self.wplayer.username,
+            self.bplayer.username,
+            self.result,
+            self.variant,
+            moves,
+            self.result)
 
     @property
     def ply(self):

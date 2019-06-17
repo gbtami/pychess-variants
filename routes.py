@@ -486,6 +486,7 @@ async def websocket_handler(request):
                         await ws.send_json(response)
 
                         game = games[data["gameId"]]
+                        game.messages.append(data["message"])
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.is_bot:
