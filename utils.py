@@ -177,6 +177,8 @@ class Game:
             "check": self.check}
         ]
 
+        self.bot_game = self.bplayer.is_bot or self.wplayer.is_bot
+
     def create_game_id(self):
         # TODO: check for existence when we will have database
         return ''.join(random.choice(
@@ -196,17 +198,15 @@ class Game:
             return
         elif self.status == CREATED:
             self.status = STARTED
-            self.bot_game = self.bplayer.is_bot or self.wplayer.is_bot
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         if cur_player.username in self.draw_offers:
             self.draw_offers.remove(cur_player.username)
 
+        cur_time = monotonic()
         # BOT players doesn't send times used for moves
         if self.bot_game:
-            cur_time = monotonic()
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
-            self.last_server_clock = cur_time
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
@@ -220,6 +220,7 @@ class Game:
                     self.status = FLAG
                     self.result = "1-0" if self.board.color == BLACK else "0-1"
                     self.check_status()
+        self.last_server_clock = cur_time
 
         if self.status != FLAG:
             san = self.board.get_san(move)
@@ -425,14 +426,33 @@ def play_move(games, data):
 
 def get_board(games, data, full=False):
     game = games[data["gameId"]]
-    clocks = game.clocks
+    if full:
+        steps = game.steps
+
+        # To not touch game.ply_clocks we are creating deep copy from clocks
+        clocks = {"black": game.clocks["black"], "white": game.clocks["white"]}
+
+        if game.status == STARTED and game.ply >= 2:
+            # We have to adjust current player latest saved clock time
+            # unless he will get free extra time on browser page refresh
+            # (also needed for spectators entering to see correct clock times)
+
+            cur_time = monotonic()
+            movetime = int(round((cur_time - game.last_server_clock) * 1000))
+
+            cur_color = "black" if game.board.color == BLACK else "white"
+            clocks[cur_color] = max(0, clocks[cur_color] - movetime)
+    else:
+        clocks = game.clocks
+        steps = (game.steps[-1],)
+
     return {"type": "board",
             "gameId": data["gameId"],
             "status": game.status,
             "result": game.result,
             "fen": game.board.fen,
             "lastMove": game.lastmove,
-            "steps": game.steps if full else [game.steps[-1]],
+            "steps": steps,
             "dests": game.dests,
             "check": game.check,
             "ply": game.ply,
