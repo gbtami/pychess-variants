@@ -438,10 +438,10 @@ def get_board(games, data, full=False):
             # (also needed for spectators entering to see correct clock times)
 
             cur_time = monotonic()
-            movetime = int(round((cur_time - game.last_server_clock) * 1000))
+            elapsed = int(round((cur_time - game.last_server_clock) * 1000))
 
             cur_color = "black" if game.board.color == BLACK else "white"
-            clocks[cur_color] = max(0, clocks[cur_color] - movetime)
+            clocks[cur_color] = max(0, clocks[cur_color] - elapsed)
     else:
         clocks = game.clocks
         steps = (game.steps[-1],)
