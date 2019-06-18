@@ -9,6 +9,8 @@ import fairy
 import seirawan
 import xiangqi
 
+from settings import URI
+
 log = logging.getLogger(__name__)
 
 BLACK = True
@@ -241,11 +243,11 @@ class Game:
                 "check": self.check}
             )
 
-    def check_status(self):
         if self.status > STARTED:
             self.print_game()
             return
 
+    def check_status(self):
         if self.board.move_stack:
             self.check = self.board.is_checked()
 
@@ -295,17 +297,20 @@ class Game:
 
     def pgn(self):
         moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
-        # TODO: FEN on demand
-        return '[Event "%s"]\n[Site "%s"]\n[Date "%s"]\n[Round "-"]\n[White "%s"]\n[Black "%s"]\n[Result "%s"]\n[Variant "%s"]\n\n%s %s\n' % (
+        return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
             "PyChess casual game",
-            "https://pychess-variants.herokuapp.com/" + self.id,
+            URI + "/" + self.id,
             self.date.strftime("%Y.%m.%d"),
             self.wplayer.username,
             self.bplayer.username,
             self.result,
-            self.variant,
+            self.base * 60,
+            self.inc,
+            self.variant.capitalize(),
             moves,
-            self.result)
+            self.result,
+            fen="" if self.variant == "standard" else '[FEN "%s"]\n' % self.initial_fen,
+            setup="" if self.variant == "standard" else '[SetUp "1"]\n')
 
     @property
     def ply(self):
