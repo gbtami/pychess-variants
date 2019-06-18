@@ -288,13 +288,14 @@ class Game:
         self.dests = dests
 
     def print_game(self):
-        print(self.pgn())
+        print(self.pgn)
         print(self.board.print_pos())
         # print("---CLOCKS---")
         # for ply, clocks in enumerate(self.ply_clocks):
         #     print(ply, self.board.move_stack[ply - 1] if ply > 0 else "", self.ply_clocks[ply]["movetime"], self.ply_clocks[ply]["black"], self.ply_clocks[ply]["white"])
         # print(self.result)
 
+    @property
     def pgn(self):
         moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
@@ -344,7 +345,7 @@ class Game:
     def abort(self):
         self.status = ABORTED
         self.check_status()
-        return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id}
+        return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id, "pgn": self.pgn}
 
 
 def start(games, data):
@@ -354,7 +355,7 @@ def start(games, data):
 
 def end(games, data):
     game = games[data["gameId"]]
-    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"]}
+    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
 def draw(games, data, agreement=False):
@@ -363,7 +364,7 @@ def draw(games, data, agreement=False):
         game.status = DRAW
         game.result = "1/2"
         game.check_status()
-        return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"]}
+        return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
     else:
         return {"type": "offer", "message": "Draw offer sent"}
 
@@ -373,7 +374,7 @@ def resign(games, user, data):
     game.status = RESIGN
     game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     game.check_status()
-    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"]}
+    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
 def flag(games, user, data):
@@ -381,7 +382,7 @@ def flag(games, user, data):
     game.status = FLAG
     game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     game.check_status()
-    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"]}
+    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
 def challenge(seek, response):
@@ -475,4 +476,5 @@ def get_board(games, data, full=False):
             "check": game.check,
             "ply": game.ply,
             "clocks": {"black": clocks["black"], "white": clocks["white"]},
+            "pgn": game.pgn if game.status > STARTED else "",
             }

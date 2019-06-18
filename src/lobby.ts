@@ -332,6 +332,8 @@ export function lobbyView(model, handler): VNode[] {
     return [h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
             h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model, handler) } }) ]),
             h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
-            h('under-stuff', "Spectators"),
+            h('under-left', "# of users"),
+            h('under-lobby'),
+            h('under-right'),
         ];
 }

@@ -50,9 +50,13 @@ header{
   flex-flow: column nowrap;
   justify-content: center;
 }
-.under-stuff{
+under-left{
   grid-row-start: 2;
 }
+under-board {
+  grid-column: 2 / span 2;
+}
+
 a:link, a:visited {
     background-color: DarkGray;
     color: white;

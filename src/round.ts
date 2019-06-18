@@ -58,5 +58,7 @@ export function roundView(model, handler): VNode[] {
                 h('div#flip'),
                 h('div#zoom'),
             ]),
+            h('under-left', "Spectators"),
+            h('div#under-board'),
         ];
 }

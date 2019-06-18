@@ -386,6 +386,10 @@ export default class RoundController {
                     break;
             }
             this.gameOver();
+
+            var container = document.getElementById('under-board') as HTMLElement;
+            patch(container, h('under-board', [h('textarea', { attrs: { rows: 13, cols: 80} }, msg.pgn)]));
+
             if (this.tv) {
                 // TODO: send msg to server instead and BACK with new model["gameId"] etc. got from answer
                 setTimeout(() => {window.location.assign(this.model["home"] + '/tv');}, 1000);
