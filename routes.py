@@ -183,7 +183,7 @@ async def websocket_handler(request):
     session_user = session.get("user_name")
     user = users[session_user] if session_user else None
     lobby_ping_task = None
-
+    log.debug("-------------------------- NEW WEBSOCKET by %s" % user)
     async for msg in ws:
         if msg.type == aiohttp.WSMsgType.TEXT:
             if type(msg.data) == str:
@@ -460,7 +460,7 @@ async def websocket_handler(request):
                         await ws.send_json(response)
 
                         loop = asyncio.get_event_loop()
-                        lobby_ping_task = loop.create_task(user.pinger(sockets, seeks))
+                        lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, games))
 
                     elif data["type"] == "game_user_connected":
                         if session_user is not None:
@@ -522,9 +522,12 @@ async def websocket_handler(request):
 
     log.info("--- Websocket %s closed" % id(ws))
 
+    user.online = False
     if lobby_ping_task is not None:
         lobby_ping_task.cancel()
 
+    log.info("--- %s went offline" % user.username)
+    await user.notify_opp(games)
     await user.clear_seeks(sockets, seeks)
     await user.quit_lobby(sockets)
 

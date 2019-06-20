@@ -93,13 +93,21 @@ class User:
         if self.username in sockets:
             del sockets[self.username]
 
-    async def pinger(self, sockets, seeks):
+    async def notify_opp(self, games):
+        # if playing, notify opp
+        for gameId in self.game_sockets.keys():
+            response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
+            game = games[gameId]
+            opp = game.bplayer if game.wplayer.username == self.username else game.wplayer
+            await opp.game_sockets[gameId].send_json(response)
+
+    async def pinger(self, sockets, seeks, games):
         while True:
-            if self.ping_counter == 2:
+            if self.ping_counter > 2:
                 self.online = False
                 log.info("%s went offline" % self.username)
+                await self.notify_opp(games)
                 await self.clear_seeks(sockets, seeks)
-            elif self.ping_counter > 20:
                 await self.quit_lobby(sockets)
                 break
 
@@ -113,7 +121,6 @@ class User:
                 # heroku needs this to not close BOT connections (stream events) on server side
                 await asyncio.sleep(50)
             else:
-                # TODO: measure lag, indicate online status on web ui
                 await asyncio.sleep(1)
 
     def __str__(self):

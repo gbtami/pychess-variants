@@ -127,6 +127,7 @@ async def event_stream(request):
     users = request.app["users"]
     seeks = request.app["seeks"]
     sockets = request.app["websockets"]
+    games = request.app["games"]
 
     resp = web.StreamResponse()
     resp.content_type = "text/plain"
@@ -139,7 +140,7 @@ async def event_stream(request):
     log.info("+++ BOT %s connected" % bot_player.username)
 
     loop = asyncio.get_event_loop()
-    pinger_task = loop.create_task(bot_player.pinger(sockets, seeks))
+    pinger_task = loop.create_task(bot_player.pinger(sockets, seeks, games))
 
     # inform others
     response = get_seeks(seeks)
