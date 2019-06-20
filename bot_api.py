@@ -179,12 +179,19 @@ async def game_stream(request):
     await bot_player.game_queues[gameId].put(game.game_full)
 
     async def pinger():
+        """ To help lichess-bot.py abort games showing no activity. """
         while True:
             await bot_player.game_queues[gameId].put("\n")
             await asyncio.sleep(5)
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(pinger())
+
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    if not users[opp_name].is_bot:
+        opp_ws = users[opp_name].game_sockets[gameId]
+        response = {"type": "game_opp_connected", "username": username, "gameId": gameId}
+        await opp_ws.send_json(response)
 
     while True:
         answer = await bot_player.game_queues[gameId].get()

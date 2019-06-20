@@ -360,6 +360,10 @@ async def websocket_handler(request):
                             for spectator in game.spectators:
                                 await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
+                    elif data["type"] == "disconnect":
+                        # Used only to test socket disconnection...
+                        await ws.close(code=1009)
+
                     elif data["type"] == "flag":
                         response = flag(games, user, data)
                         await ws.send_json(response)
@@ -470,8 +474,19 @@ async def websocket_handler(request):
                         # update websocket
                         user.game_sockets[data["gameId"]] = ws
 
-                        response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": games[data["gameId"]].ply}
+                        game = games[data["gameId"]]
+                        response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
                         await ws.send_json(response)
+
+                        # let opp connect also...
+                        await asyncio.sleep(1)
+
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+                        if not opp_player.is_bot:
+                            response = {"type": "game_opp_connected", "username": user.username, "gameId": data["gameId"]}
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                            await opp_ws.send_json(response)
 
                     elif data["type"] == "lobbychat":
                         user = users[session_user]

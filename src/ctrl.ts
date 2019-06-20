@@ -77,7 +77,10 @@ export default class RoundController {
             onreconnect: e => {
                 this.clocks[0].connecting = true;
                 this.clocks[1].connecting = true;
-                console.log('Reconnecting...', e);
+                console.log('Reconnecting in round...', e);
+
+                var container = document.getElementById('bottom-player') as HTMLElement;
+                patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
                 },
             onmaximum: e => console.log('Stop Attempting!', e),
             onclose: e => console.log('Closed!', e),
@@ -224,10 +227,6 @@ export default class RoundController {
         }
         this.clocks[1].onFlag(flagCallback);
 
-        // TODO: render game info data (players, timecontrol, variant) in upper left box
-        // var container = document.getElementById('game-info') as HTMLElement;
-        // patch(container, h('div.game-info', this.variant));
-
         // flip
         // TODO: players, clocks
         const toggleOrientation = () => {
@@ -277,13 +276,19 @@ export default class RoundController {
             console.log("Resign");
             this.doSend({ type: "resign", gameId: this.model["gameId"] });
         }
-
+/*
+        const disconnect = () => {
+            console.log("Testing socket disconnect...");
+            this.doSend({ type: "disconnect", gameId: this.model["gameId"] });
+        }
+*/
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             this.gameControls = patch(container, h('div.btn-controls', [
-                h('button#abort', { on: { click: () => abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-times": true} } ), ]),
+                h('button#abort', { on: { click: () => abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
                 h('button#draw', { on: { click: () => draw() }, props: {title: "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
                 h('button#resign', { on: { click: () => resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
+                // h('button#disconnect', { on: { click: () => disconnect() }, props: {title: 'disconnect'} }, [h('i', {class: {"icon": true, "icon-sign-out": true} } ), ]),
                 ])
             );
         } else {
@@ -750,12 +755,27 @@ export default class RoundController {
             // we want to know lastMove and check status
             this.doSend({ type: "board", gameId: this.model["gameId"] });
         } else {
+            var container = document.getElementById('bottom-player') as HTMLElement;
+            patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.model["gameId"] });
             }
             this.doSend({ type: "board", gameId: this.model["gameId"] });
         }
+    }
+
+    private onMsgOppConnected = (msg) => {
+        console.log(msg);
+        var container = document.getElementById('top-player') as HTMLElement;
+        patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+    }
+
+    private onMsgUserDisconnected = (msg) => {
+        console.log(msg);
+        var container = document.getElementById('top-player') as HTMLElement;
+        patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
     }
 
     private onMsgChat = (msg) => {
@@ -782,6 +802,12 @@ export default class RoundController {
                 break;
             case "game_user_connected":
                 this.onMsgUserConnected(msg);
+                break;
+            case "game_opp_connected":
+                this.onMsgOppConnected(msg);
+                break;
+            case "user_disconnected":
+                this.onMsgUserDisconnected(msg);
                 break;
             case "roundchat":
                 this.onMsgChat(msg);

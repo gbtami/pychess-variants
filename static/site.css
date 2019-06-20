@@ -41,7 +41,6 @@ header{
   display: flex;
   flex-flow: column nowrap;
   justify-content: right;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 .sidebar-second{
   margin-top: 30px;
@@ -127,8 +126,50 @@ button.newopp:hover {
   background-color: DarkSeaGreen;
 }
 
+.game-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: White;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  margin-bottom: 16px;
+  padding: 12px;
+}
+tc {
+  padding: 8px;
+  vertical-align: top;
+}
+.player-data {
+  display: block;
+  flex-direction: row;
+  padding: 8px;
+}
+i-variant {
+  font-size: 36px;
+}
+i-side {
+  font-size: 14px;
+  vertical-align: -2;
+}
+i-side.online {
+  font-size: 14px;
+}
+.icon-online::before {
+  color: #629924;
+  vertical-align: -2;
+}
+.icon-offline::before {
+  color: LightGray;
+  vertical-align: -2;
+}
+player {
+  padding: 8px;
+}
+rating {
+  float: right;
+}
 i {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 ul {
@@ -319,11 +360,6 @@ select, input {
   background: red;
 }
 
-player {
-  padding: 4px;
-  font-size: 18px;
-}
-
 div.btn-controls {
   display: flex;
   justify-content: space-between;
@@ -449,6 +485,7 @@ label + input[type=radio] + label {
   flex-direction: column;
   justify-content: center;
   background: White;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
 user {

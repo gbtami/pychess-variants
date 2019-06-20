@@ -50,9 +50,9 @@ class LobbyController {
             maxAttempts: 20,
             onopen: e => onOpen(e),
             onmessage: e => this.onMessage(e),
-            onreconnect: e => console.log('Reconnecting...', e),
+            onreconnect: e => console.log('Reconnecting in lobby...', e),
             onmaximum: e => console.log('Stop Attempting!', e),
-            onclose: e => {console.log('Closed!', e);},// this.doSend({ type: "close" });},
+            onclose: e => {console.log('Closed!', e);},
             onerror: e => console.log('Error:', e),
             };
         try {

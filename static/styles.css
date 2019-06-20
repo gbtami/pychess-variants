@@ -41,10 +41,10 @@
 .icon-adjust:before {
   content: "\61";
 }
-.icon-circle:before {
+.icon-black:before {
   content: "\62";
 }
-.icon-circle-o:before {
+.icon-white:before {
   content: "\63";
 }
 .icon-flag-o:before {
@@ -65,7 +65,7 @@
 .icon-sign-out:before {
   content: "\69";
 }
-.icon-times:before {
+.icon-abort:before {
   content: "\6a";
 }
 .icon-volume-up:before {
@@ -125,15 +125,24 @@
 .icon-volume-off:before {
   content: "\43";
 }
-.icon-android:before {
+.icon-droid:before {
   content: "\44";
 }
-.icon-cogs:before {
+.icon-bot:before {
   content: "\45";
 }
-.icon-moon-o:before {
+.icon-dark:before {
   content: "\46";
 }
-.icon-sun-o:before {
+.icon-light:before {
   content: "\48";
+}
+.icon-h-square:before {
+  content: "\47";
+}
+.icon-online:before {
+  content: "\49";
+}
+.icon-offline:before {
+  content: "\4a";
 }
