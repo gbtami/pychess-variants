@@ -74,32 +74,33 @@ class User:
     def is_bot(self):
         return self.event_stream is not None
 
-    async def quit(self, sockets, seeks):
-        print(self.username, "quit()")
+    async def clear_seeks(self, sockets, seeks):
         has_seek = len(self.seeks) > 0
         if has_seek:
             for seek in self.seeks:
                 del seeks[seek]
             self.seeks.clear()
 
-        self.online = False
-        if self.username in sockets:
-            del sockets[self.username]
-
-        if has_seek:
             response = get_seeks(seeks)
             for client_ws in sockets.values():
                 if client_ws is not None:
                     await client_ws.send_json(response)
 
+    async def quit_lobby(self, sockets):
+        print(self.username, "quit()")
+
+        self.online = False
+        if self.username in sockets:
+            del sockets[self.username]
+
     async def pinger(self, sockets, seeks):
-        return
         while True:
             if self.ping_counter == 2:
                 self.online = False
                 log.info("%s went offline" % self.username)
+                await self.clear_seeks(sockets, seeks)
             elif self.ping_counter > 20:
-                await self.quit(sockets, seeks)
+                await self.quit_lobby(sockets)
                 break
 
             if self.is_bot:

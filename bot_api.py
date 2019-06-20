@@ -154,6 +154,7 @@ async def event_stream(request):
         await resp.drain()
 
     pinger_task.cancel()
+    await bot_player.clear_seeks(sockets, seeks)
     return resp
 
 
