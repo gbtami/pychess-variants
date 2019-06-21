@@ -227,29 +227,10 @@ export default class RoundController {
         }
         this.clocks[1].onFlag(flagCallback);
 
-        // flip
-        // TODO: players, clocks
-        const toggleOrientation = () => {
-            this.flip = !this.flip;
-            this.chessground.toggleOrientation();
-            if (this.variant === "shogi") {
-                const color = this.chessground.state.orientation === "white" ? "white" : "black";
-                this.setPieceColors(color);
-            };
-            console.log("FLIP");
-            if (needPockets(this.variant)) {
-                const tmp = this.pockets[0];
-                this.pockets[0] = this.pockets[1];
-                this.pockets[1] = tmp;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.flip ? this.mycolor : this.oppcolor, "top"));
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.flip ? this.oppcolor : this.mycolor, "bottom"));
-            }
-        }
-
         // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
         // TODO: add western pieces theme button for xiangqui, shogi, makruk, sittuyin
-        var container = document.getElementById('btn-flip') as HTMLElement;
-        patch(container, h('button', { on: { click: () => toggleOrientation() }, props: {title: 'Flip board'} }, [h('i', {class: {"icon": true, "icon-refresh": true} } ), ]));
+        // var container = document.getElementById('btn-flip') as HTMLElement;
+        // patch(container, h('button', { on: { click: () => toggleOrientation() }, props: {title: 'Flip board'} }, [h('i', {class: {"icon": true, "icon-refresh": true} } ), ]));
 
         var container = document.getElementById('zoom') as HTMLElement;
         patch(container, h('input', {

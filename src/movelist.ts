@@ -8,6 +8,10 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
+import { pocketView } from './pocket';
+import { needPockets } from './chess';
+
+
 function selectMove (ctrl, ply) {
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
@@ -41,9 +45,29 @@ function scrollToPly (ctrl) {
     }
 }
 
+// flip
+// TODO: players, clocks
+function toggleOrientation (ctrl) {
+    ctrl.flip = !ctrl.flip;
+    ctrl.chessground.toggleOrientation();
+    if (ctrl.variant === "shogi") {
+        const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
+        ctrl.setPieceColors(color);
+    };
+    console.log("FLIP");
+    if (needPockets(ctrl.variant)) {
+        const tmp = ctrl.pockets[0];
+        ctrl.pockets[0] = ctrl.pockets[1];
+        ctrl.pockets[1] = tmp;
+        ctrl.vpocket0 = patch(ctrl.vpocket0, pocketView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
+        ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+    }
+}
+
 export function movelistView (ctrl) {
     var container = document.getElementById('move-controls') as HTMLElement;
     ctrl.moveControls = patch(container, h('div.btn-controls', [
+            h('button#flip-board', { on: { click: () => toggleOrientation(ctrl) } }, [h('i', {props: {title: 'Flip board'}, class: {"icon": true, "icon-refresh": true} } ), ]),
             h('button#fastbackward', { on: { click: () => selectMove(ctrl, 0) } }, [h('i', {class: {"icon": true, "icon-fast-backward": true} } ), ]),
             h('button#stepbackward', { on: { click: () => selectMove(ctrl, Math.max(ctrl.ply - 1, 0)) } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
             h('button#stepforward', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),

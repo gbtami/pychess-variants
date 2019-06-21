@@ -99,7 +99,8 @@ class User:
             response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
             game = games[gameId]
             opp = game.bplayer if game.wplayer.username == self.username else game.wplayer
-            await opp.game_sockets[gameId].send_json(response)
+            if not opp.is_bot:
+                await opp.game_sockets[gameId].send_json(response)
 
     async def pinger(self, sockets, seeks, games):
         while True:
