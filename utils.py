@@ -93,21 +93,26 @@ class User:
         if self.username in sockets:
             del sockets[self.username]
 
-    async def notify_opp(self, games):
-        # if playing, notify opp
-        for gameId in self.game_sockets.keys():
+    async def broadcast_disconnect(self, users, games):
+        # if playing, notify opp and spectators
+        games_involved = self.game_queues.keys() if self.is_bot else self.game_sockets.keys()
+
+        for gameId in games_involved:
             response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
             game = games[gameId]
             opp = game.bplayer if game.wplayer.username == self.username else game.wplayer
             if not opp.is_bot:
                 await opp.game_sockets[gameId].send_json(response)
 
-    async def pinger(self, sockets, seeks, games):
+            for spectator in game.spectators:
+                await users[spectator.username].game_sockets[gameId].send_json(response)
+
+    async def pinger(self, sockets, seeks, users, games):
         while True:
             if self.ping_counter > 2:
                 self.online = False
                 log.info("%s went offline" % self.username)
-                await self.notify_opp(games)
+                await self.broadcast_disconnect(users, games)
                 await self.clear_seeks(sockets, seeks)
                 await self.quit_lobby(sockets)
                 break
@@ -118,11 +123,8 @@ class User:
                 await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
             self.ping_counter += 1
 
-            if self.is_bot:
-                # heroku needs this to not close BOT connections (stream events) on server side
-                await asyncio.sleep(50)
-            else:
-                await asyncio.sleep(1)
+            # heroku needs ping at least in 50 sec not to close BOT connections (stream events) on server side
+            await asyncio.sleep(3)
 
     def __str__(self):
         return self.username

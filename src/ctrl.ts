@@ -61,6 +61,7 @@ export default class RoundController {
     tv: string;
     steps;
     ply: number;
+    players: string[];
 
     constructor(el, model, handler) {
         const onOpen = (evt) => {
@@ -123,6 +124,12 @@ export default class RoundController {
             this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
         }
+
+        // players[0] is top player, players[1] is bottom player
+        this.players = [
+            this.mycolor === "white" ? this.bplayer : this.wplayer,
+            this.mycolor === "white" ? this.wplayer : this.bplayer
+        ];
 
         this.premove = null;
         this.predrop = null;
@@ -733,9 +740,15 @@ export default class RoundController {
         this.model["username"] = msg["username"];
         renderUsername(this.model["home"], this.model["username"]);
         if (this.spectator) {
+            this.doSend({ type: "is_user_online", username: this.wplayer });
+            this.doSend({ type: "is_user_online", username: this.bplayer });
+
             // we want to know lastMove and check status
             this.doSend({ type: "board", gameId: this.model["gameId"] });
         } else {
+            const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
+            this.doSend({ type: "is_user_online", username: opp_name });
+
             var container = document.getElementById('bottom-player') as HTMLElement;
             patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
@@ -747,16 +760,26 @@ export default class RoundController {
         }
     }
 
-    private onMsgOppConnected = (msg) => {
+    private onMsgUserOnline = (msg) => {
         console.log(msg);
-        var container = document.getElementById('top-player') as HTMLElement;
-        patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+        if (msg.username === this.players[0]) {
+            var container = document.getElementById('top-player') as HTMLElement;
+            patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+        } else {
+            var container = document.getElementById('bottom-player') as HTMLElement;
+            patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+        }
     }
 
     private onMsgUserDisconnected = (msg) => {
         console.log(msg);
-        var container = document.getElementById('top-player') as HTMLElement;
-        patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        if (msg.username === this.players[0]) {
+            var container = document.getElementById('top-player') as HTMLElement;
+            patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        } else {
+            var container = document.getElementById('bottom-player') as HTMLElement;
+            patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        }
     }
 
     private onMsgChat = (msg) => {
@@ -784,8 +807,8 @@ export default class RoundController {
             case "game_user_connected":
                 this.onMsgUserConnected(msg);
                 break;
-            case "game_opp_connected":
-                this.onMsgOppConnected(msg);
+            case "user_online":
+                this.onMsgUserOnline(msg);
                 break;
             case "user_disconnected":
                 this.onMsgUserDisconnected(msg);

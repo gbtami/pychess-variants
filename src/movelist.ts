@@ -54,6 +54,11 @@ function toggleOrientation (ctrl) {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
         ctrl.setPieceColors(color);
     };
+
+    const name_tmp = ctrl.players[0];
+    ctrl.players[0] = ctrl.players[1];
+    ctrl.players[1] = name_tmp;
+
     console.log("FLIP");
     if (needPockets(ctrl.variant)) {
         const tmp = ctrl.pockets[0];

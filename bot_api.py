@@ -140,7 +140,7 @@ async def event_stream(request):
     log.info("+++ BOT %s connected" % bot_player.username)
 
     loop = asyncio.get_event_loop()
-    pinger_task = loop.create_task(bot_player.pinger(sockets, seeks, games))
+    pinger_task = loop.create_task(bot_player.pinger(sockets, seeks, users, games))
 
     # inform others
     response = get_seeks(seeks)
@@ -192,7 +192,7 @@ async def game_stream(request):
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
     if not users[opp_name].is_bot:
         opp_ws = users[opp_name].game_sockets[gameId]
-        response = {"type": "game_opp_connected", "username": username, "gameId": gameId}
+        response = {"type": "user_online", "username": username}
         await opp_ws.send_json(response)
 
     while True:

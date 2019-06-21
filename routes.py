@@ -184,6 +184,7 @@ async def websocket_handler(request):
     user = users[session_user] if session_user else None
     lobby_ping_task = None
     log.debug("-------------------------- NEW WEBSOCKET by %s" % user)
+
     async for msg in ws:
         if msg.type == aiohttp.WSMsgType.TEXT:
             if type(msg.data) == str:
@@ -260,7 +261,6 @@ async def websocket_handler(request):
                         await ws.send_json(board_response)
 
                     elif data["type"] == "pong":
-                        user = users[session_user]
                         user.ping_counter -= 1
 
                     elif data["type"] == "rematch":
@@ -278,6 +278,7 @@ async def websocket_handler(request):
                                 engine = users.get("Fairy-Stockfish")
 
                             if engine is None or not engine.online:
+                                # TODO: message that engine is offline, but capture BOT will play instead
                                 continue
 
                             color = "w" if game.wplayer.username == opp_name else "b"
@@ -396,6 +397,7 @@ async def websocket_handler(request):
                             engine = users.get("Fairy-Stockfish")
 
                         if engine is None or not engine.online:
+                            # TODO: message that engine is offline, but capture BOT will play instead
                             continue
 
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
@@ -460,7 +462,7 @@ async def websocket_handler(request):
                         await ws.send_json(response)
 
                         loop = asyncio.get_event_loop()
-                        lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, games))
+                        lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, users, games))
 
                     elif data["type"] == "game_user_connected":
                         if session_user is not None:
@@ -470,6 +472,8 @@ async def websocket_handler(request):
                             session_user = data["username"]
                             user = User(username=data["username"])
                             users[user.username] = user
+                        user.ping_counter = 0
+                        user.online = True
 
                         # update websocket
                         user.game_sockets[data["gameId"]] = ws
@@ -481,25 +485,22 @@ async def websocket_handler(request):
                         response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
                         await ws.send_json(response)
 
-                        # let opp connect also...
-                        await asyncio.sleep(1)
-
-                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-                        opp_player = users[opp_name]
-                        if not opp_player.is_bot:
-                            response = {"type": "game_opp_connected", "username": user.username, "gameId": data["gameId"]}
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            await opp_ws.send_json(response)
+                    elif data["type"] == "is_user_online":
+                        player_name = data["username"]
+                        player = users[player_name]
+                        if player.online:
+                            response = {"type": "user_online", "username": player_name}
+                        else:
+                            response = {"type": "user_disconnected", "username": player_name}
+                        await ws.send_json(response)
 
                     elif data["type"] == "lobbychat":
-                        user = users[session_user]
                         response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
                         for client_ws in sockets.values():
                             if client_ws is not None:
                                 await client_ws.send_json(response)
 
                     elif data["type"] == "roundchat":
-                        user = users[session_user]
                         response = {"type": "roundchat", "user": user.username, "message": data["message"]}
                         await ws.send_json(response)
 
@@ -522,14 +523,15 @@ async def websocket_handler(request):
 
     log.info("--- Websocket %s closed" % id(ws))
 
-    user.online = False
-    if lobby_ping_task is not None:
-        lobby_ping_task.cancel()
+    if user.online:
+        user.online = False
+        if lobby_ping_task is not None:
+            lobby_ping_task.cancel()
 
-    log.info("--- %s went offline" % user.username)
-    await user.notify_opp(games)
-    await user.clear_seeks(sockets, seeks)
-    await user.quit_lobby(sockets)
+        log.info("--- %s went offline" % user.username)
+        await user.broadcast_disconnect(users, games)
+        await user.clear_seeks(sockets, seeks)
+        await user.quit_lobby(sockets)
 
     return ws
 
