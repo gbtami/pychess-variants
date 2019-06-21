@@ -191,9 +191,9 @@ class LobbyController {
                 ]),
                 ]),
                 h('div.button-group', [
-                    h('button.icon.icon-circle', { props: {type: "button", title: "Black"}, on: {click: () => this.createSeek('b') } }),
+                    h('button.icon.icon-black', { props: {type: "button", title: "Black"}, on: {click: () => this.createSeek('b') } }),
                     h('button.icon.icon-adjust', { props: {type: "button", title: "Random"}, on: {click: () => this.createSeek('r')} }),
-                    h('button.icon.icon-circle-o', { props: {type: "button", title: "White"}, on: {click: () => this.createSeek('w')} }),
+                    h('button.icon.icon-white', { props: {type: "button", title: "White"}, on: {click: () => this.createSeek('w')} }),
                 ]),
             ]),
           ]),
