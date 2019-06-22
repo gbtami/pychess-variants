@@ -11,6 +11,7 @@ from aiohttp_session import setup
 
 from routes import get_routes, post_routes
 from settings import SECRET_KEY
+from random_mover import RandomMover
 
 
 async def make_app(loop):
@@ -20,6 +21,7 @@ async def make_app(loop):
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
+    app["random_mover"] = RandomMover(app["users"])
 
     app.on_shutdown.append(shutdown)
 
@@ -39,6 +41,9 @@ async def make_app(loop):
 
 
 async def shutdown(app):
+    # cancel random mover BOT task
+    app["random_mover"].bot_task.cancel()
+
     # notify users
     msg = "Server update started. Sorry for the inconvenience!"
     response = {"type": "shutdown", "message": msg}
@@ -83,6 +88,8 @@ if __name__ == "__main__":
 
     loop = asyncio.get_event_loop()
     app = loop.run_until_complete(make_app(loop))
+
+    app["random_mover"].start(loop)
 
     with aiomonitor.start_monitor(loop=loop, locals={"app": app}):
         web.run_app(app, port=os.environ.get("PORT", 8080))

@@ -14,7 +14,7 @@ from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from bot_api import profile, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong
-from utils import get_seeks, create_seek, accept_seek, challenge,\
+from utils import get_seeks, create_seek, accept_seek, challenge, broadcast,\
     play_move, get_board, start, draw, resign, flag, User, Seek, STARTED
 
 
@@ -279,7 +279,7 @@ async def websocket_handler(request):
 
                             if engine is None or not engine.online:
                                 # TODO: message that engine is offline, but capture BOT will play instead
-                                continue
+                                engine = users.get("Random-Mover")
 
                             color = "w" if game.wplayer.username == opp_name else "b"
                             seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level)
@@ -398,7 +398,7 @@ async def websocket_handler(request):
 
                         if engine is None or not engine.online:
                             # TODO: message that engine is offline, but capture BOT will play instead
-                            continue
+                            engine = users.get("Random-Mover")
 
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
                         seeks[seek.id] = seek
@@ -411,18 +411,14 @@ async def websocket_handler(request):
                         await engine.event_queue.put(challenge(seek, response))
 
                     elif data["type"] == "create_seek":
-                        response = create_seek(seeks, user, data)
-                        if response is not None:
-                            for client_ws in sockets.values():
-                                if client_ws is not None:
-                                    await client_ws.send_json(response)
+                        create_seek(seeks, user, data)
+                        await broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "delete_seek":
                         del seeks[data["seekID"]]
-                        response = get_seeks(seeks)
-                        for client_ws in sockets.values():
-                            if client_ws is not None:
-                                await client_ws.send_json(response)
+                        del user.seeks[data["seekID"]]
+
+                        await broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
                         seek = seeks[data["seekID"]]
@@ -438,10 +434,7 @@ async def websocket_handler(request):
                             seek.user.game_queues[gameId] = asyncio.Queue()
 
                         # Inform others, accept-seek() deleted accepted seek allready.
-                        response = get_seeks(seeks)
-                        for client_ws in sockets.values():
-                            if client_ws is not None:
-                                await client_ws.send_json(response)
+                        await broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:
@@ -496,9 +489,7 @@ async def websocket_handler(request):
 
                     elif data["type"] == "lobbychat":
                         response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
-                        for client_ws in sockets.values():
-                            if client_ws is not None:
-                                await client_ws.send_json(response)
+                        await broadcast(sockets, response)
 
                     elif data["type"] == "roundchat":
                         response = {"type": "roundchat", "user": user.username, "message": data["message"]}

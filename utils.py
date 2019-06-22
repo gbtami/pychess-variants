@@ -41,10 +41,15 @@ class Seek:
         Seek.gen_id += 1
         self.id = self.gen_id
 
-
-def seek_to_json(seek):
-    rated = "Rated" if seek.rated else "Casual"
-    return {"seekID": seek.id, "user": seek.user.username, "variant": seek.variant, "color": seek.color, "rated": rated, "tc": "%s+%s" % (seek.base, seek.inc)}
+        self.as_json = {
+            "seekID": self.id,
+            "user": self.user.username,
+            "variant": self.variant,
+            "fen": self.fen,
+            "color": self.color,
+            "rated": "Rated" if self.rated else "Casual",
+            "tc": "%s+%s" % (self.base, self.inc)
+        }
 
 
 class User:
@@ -80,10 +85,7 @@ class User:
                 del seeks[seek]
             self.seeks.clear()
 
-            response = get_seeks(seeks)
-            for client_ws in sockets.values():
-                if client_ws is not None:
-                    await client_ws.send_json(response)
+            await broadcast(sockets, get_seeks(seeks))
 
     async def quit_lobby(self, sockets):
         print(self.username, "quit()")
@@ -403,24 +405,13 @@ def create_seek(seeks, user, data):
     if len(user.seeks) >= MAX_USER_SEEKS:
         return None
 
-    new_seek = True
-    for seek_id in user.seeks:
-        seek = seeks[seek_id]
-        if seek.variant == data["variant"] and seek.fen == data["fen"] and seek.color == data["color"] and seek.base == data["minutes"] and seek.inc == data["increment"] and seek.rated == data["rated"]:
-            new_seek = False
-            break
-
-    if new_seek:
-        seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"])
-        seeks[seek.id] = seek
-        user.seeks[seek.id] = seek
-        return {"type": "create_seek", "seeks": list(map(seek_to_json, seeks.values()))}
-    else:
-        return None
+    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"])
+    seeks[seek.id] = seek
+    user.seeks[seek.id] = seek
 
 
 def get_seeks(seeks):
-    return {"type": "get_seeks", "seeks": list(map(seek_to_json, seeks.values()))}
+    return {"type": "get_seeks", "seeks": [seek.as_json for seek in seeks.values()]}
 
 
 def accept_seek(seeks, games, user, seek_id):
@@ -437,12 +428,18 @@ def accept_seek(seeks, games, user, seek_id):
     new_game = Game(seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
     seek.fen = new_game.board.fen
     games[new_game.id] = new_game
-    print(user.username, user.bot, seek.user.username, seek.user.bot)
+
     if not seek.user.bot:
         del seeks[seek_id]
         if seek_id in seek.user.seeks:
             del seek.user.seeks[seek_id]
     return {"type": "accept_seek", "ok": True, "variant": seek.variant, "gameId": new_game.id, "wplayer": wplayer.username, "bplayer": bplayer.username, "fen": seek.fen, "base": seek.base, "inc": seek.inc}
+
+
+async def broadcast(sockets, response):
+    for client_ws in sockets.values():
+        if client_ws is not None:
+            await client_ws.send_json(response)
 
 
 def play_move(games, data):

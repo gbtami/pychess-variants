@@ -3,7 +3,7 @@ import logging
 
 from aiohttp import web
 
-from utils import STARTED, RESIGN, INVALIDMOVE, \
+from utils import STARTED, RESIGN, INVALIDMOVE, broadcast,\
     get_board, accept_seek, challenge, get_seeks, User, Seek
 
 log = logging.getLogger(__name__)
@@ -88,10 +88,7 @@ async def create_bot_seek(request):
         bot_player.seeks[seek.id] = seek
 
         # inform others
-        response = get_seeks(seeks)
-        for client_ws in sockets.values():
-            if client_ws is not None:
-                await client_ws.send_json(response)
+        await broadcast(sockets, get_seeks(seeks))
     else:
         games = request.app["games"]
         response = accept_seek(seeks, games, bot_player, matching_seek.id)
@@ -112,10 +109,7 @@ async def create_bot_seek(request):
 
         # delete accepted seek and inform others
         del seeks[matching_seek.id]
-        response = get_seeks(seeks)
-        for client_ws in sockets.values():
-            if client_ws is not None:
-                await client_ws.send_json(response)
+        await broadcast(sockets, get_seeks(seeks))
 
     return web.json_response({"ok": True})
 
@@ -142,10 +136,8 @@ async def event_stream(request):
     pinger_task = loop.create_task(bot_player.pinger(sockets, seeks, users, games))
 
     # inform others
-    response = get_seeks(seeks)
-    for client_ws in sockets.values():
-        if client_ws is not None:
-            await client_ws.send_json(response)
+    # TODO: do we need this at all?
+    await broadcast(sockets, get_seeks(seeks))
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:

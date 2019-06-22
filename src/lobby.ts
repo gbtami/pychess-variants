@@ -30,6 +30,7 @@ class LobbyController {
     logged_in;
     challengeAI;
     _ws;
+    seeks;
 
     constructor(el, model, handler) {
         console.log("LobbyController constructor", el, model);
@@ -101,6 +102,12 @@ class LobbyController {
             color: color });
     }
 
+    isNewSeek (variant, color, fen, minutes, increment) {
+        return !this.seeks.some(seek => {
+            return seek.variant === variant && seek.fen === fen && seek.color === color && seek.tc === minutes + "+" + increment;
+        })
+    }
+
     createSeek (color) {
         document.getElementById('id01')!.style.display='none';
         let e;
@@ -121,7 +128,9 @@ class LobbyController {
             const level = parseInt(form.elements['level'].value);
             this.createBotChallengeMsg(variant, color, fen, minutes, increment, level)
         } else {
-            this.createSeekMsg(variant, color, fen, minutes, increment)
+            if (this.isNewSeek(variant, color, fen, minutes, increment)) {
+                this.createSeekMsg(variant, color, fen, minutes, increment);
+            }
         }
     }
 
@@ -236,16 +245,8 @@ class LobbyController {
     }
 
     private onMsgGetSeeks = (msg) => {
+        this.seeks = msg.seeks;
         // console.log("!!!! got get_seeks msg:", msg);
-        const oldVNode = document.getElementById('seeks');
-        if (oldVNode instanceof Element) {
-            oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('table#seeks', this.renderSeeks(msg.seeks)));
-        }
-    }
-
-    private onMsgCreateSeek = (msg) => {
-        // console.log("!! got create_seek msg:", msg);
         const oldVNode = document.getElementById('seeks');
         if (oldVNode instanceof Element) {
             oldVNode.innerHTML = '';
@@ -288,9 +289,6 @@ class LobbyController {
         switch (msg.type) {
             case "get_seeks":
                 this.onMsgGetSeeks(msg);
-                break;
-            case "create_seek":
-                this.onMsgCreateSeek(msg);
                 break;
             case "accept_seek":
                 this.onMsgAcceptSeek(msg);
