@@ -205,13 +205,13 @@ async def websocket_handler(request):
                         await ws.send_json(board_response)
 
                         game = games[data["gameId"]]
-                        if game.status > STARTED and user.is_bot:
+                        if game.status > STARTED and user.bot:
                             await user.game_queues[data["gameId"]].put(game.game_end)
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_state)
                             if game.status > STARTED:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
@@ -229,7 +229,7 @@ async def websocket_handler(request):
                         game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             await opp_player.event_queue.put(game.game_start)
                             response = start(games, data)
                             await ws.send_json(response)
@@ -268,7 +268,7 @@ async def websocket_handler(request):
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             variant = game.variant
                             if variant == "seirawan":
                                 engine = users.get("Seirawan-Stockfish")
@@ -314,7 +314,7 @@ async def websocket_handler(request):
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
@@ -332,7 +332,7 @@ async def websocket_handler(request):
                         response = draw(games, data, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
 
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             await opp_player.game_queues[data["gameId"]].put(response)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
@@ -352,7 +352,7 @@ async def websocket_handler(request):
                         game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
@@ -373,7 +373,7 @@ async def websocket_handler(request):
                         game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
@@ -406,9 +406,9 @@ async def websocket_handler(request):
                         response = accept_seek(seeks, games, engine, seek.id)
                         await ws.send_json(response)
 
-                        await engine.event_queue.put(challenge(seek, response))
                         gameId = response["gameId"]
                         engine.game_queues[gameId] = asyncio.Queue()
+                        await engine.event_queue.put(challenge(seek, response))
 
                     elif data["type"] == "create_seek":
                         response = create_seek(seeks, user, data)
@@ -432,7 +432,7 @@ async def websocket_handler(request):
                         if seek.user.lobby_ws is not None:
                             await seek.user.lobby_ws.send_json(response)
 
-                        if seek.user.is_bot:
+                        if seek.user.bot:
                             await seek.user.event_queue.put(challenge(seek, response))
                             gameId = response["gameId"]
                             seek.user.game_queues[gameId] = asyncio.Queue()
@@ -508,7 +508,7 @@ async def websocket_handler(request):
                         game.messages.append(data["message"])
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
-                        if opp_player.is_bot:
+                        if opp_player.bot:
                             await opp_player.game_queues[data["gameId"]].put('{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n' % (user.username, data["message"]))
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]

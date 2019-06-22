@@ -77,7 +77,7 @@ async def create_bot_seek(request):
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
-            if seek.variant == data["variant"] and seek.user.is_bot and seek.user.online and seek.user.username != username:
+            if seek.variant == data["variant"] and seek.user.bot and seek.user.online and seek.user.username != username:
                 log.debug("MATCHING BOT SEEK %s FOUND!" % seek.id)
                 matching_seek = seek
                 break
@@ -133,9 +133,8 @@ async def event_stream(request):
     resp.content_type = "text/plain"
     await resp.prepare(request)
 
-    bot_player = User(event_stream=resp, username=username)
+    bot_player = User(bot=True, username=username)
     users[bot_player.username] = bot_player
-    bot_player.event_queue = asyncio.Queue()
 
     log.info("+++ BOT %s connected" % bot_player.username)
 
@@ -190,7 +189,7 @@ async def game_stream(request):
     pinger_task = loop.create_task(pinger())
 
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
-    if not users[opp_name].is_bot:
+    if not users[opp_name].bot:
         opp_ws = users[opp_name].game_sockets[gameId]
         response = {"type": "user_online", "username": username}
         await opp_ws.send_json(response)
@@ -240,7 +239,7 @@ async def bot_move(request):
     if not invalid_move:
         board_response = get_board(games, {"gameId": gameId}, full=False)
 
-    if users[opp_name].is_bot:
+    if users[opp_name].bot:
         if game.status > STARTED:
             await users[opp_name].game_queues[gameId].put(game.game_end)
         else:
@@ -279,7 +278,7 @@ async def bot_abort(request):
 
     response = game.abort()
     await bot_player.game_queues[gameId].put(game.game_end)
-    if opp_player.is_bot:
+    if opp_player.bot:
         await opp_player.game_queues[gameId].put(game.game_end)
     else:
         opp_ws = users[opp_name].game_sockets[gameId]
@@ -329,7 +328,7 @@ async def bot_chat(request):
 
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 
-    if not users[opp_name].is_bot:
+    if not users[opp_name].bot:
         opp_ws = users[opp_name].game_sockets[gameId]
         response = {"type": "roundchat", "user": username, "room": room, "message": message}
         await opp_ws.send_json(response)

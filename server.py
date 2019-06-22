@@ -46,7 +46,7 @@ async def shutdown(app):
         if user.username in app["websockets"]:
             ws = app["websockets"][user.username]
             await ws.send_json(response)
-        if user.is_bot:
+        if user.bot:
             await user.event_queue.put({"type": "terminated"})
 
     # delete seeks
@@ -56,14 +56,14 @@ async def shutdown(app):
     for game in app["games"].values():
         for player in (game.wplayer, game.bplayer):
             response = game.abort()
-            if not player.is_bot:
+            if not player.bot:
                 ws = player.game_sockets[game.id]
                 await ws.send_json(response)
     app["games"] = {}
 
     # close websockets
     for user in app["users"].values():
-        if not user.is_bot:
+        if not user.bot:
             for ws in user.game_sockets.values():
                 await ws.close()
 

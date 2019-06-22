@@ -48,9 +48,9 @@ def seek_to_json(seek):
 
 
 class User:
-    def __init__(self, lobby_ws=None, event_stream=None, username=None):
+    def __init__(self, lobby_ws=None, bot=False, username=None):
         self.lobby_ws = lobby_ws
-        self.event_stream = event_stream
+        self.bot = bot
         if username is None:
             self.username = "Anonymous" + "".join(random.sample(string.ascii_uppercase, 4))
         else:
@@ -59,20 +59,19 @@ class User:
         self.last_name = ""
         self.country = ""
         self.seeks = {}
-        if self.event_stream is not None:
+        if self.bot:
+            self.event_queue = asyncio.Queue()
             self.game_queues = {}
+            self.title = "BOT"
         else:
             self.game_sockets = {}
+            self.title = ""
         self.online = True
         self.ping_counter = 0
 
     @property
     def id(self):
         return id(self)
-
-    @property
-    def is_bot(self):
-        return self.event_stream is not None
 
     async def clear_seeks(self, sockets, seeks):
         has_seek = len(self.seeks) > 0
@@ -95,13 +94,13 @@ class User:
 
     async def broadcast_disconnect(self, users, games):
         # if playing, notify opp and spectators
-        games_involved = self.game_queues.keys() if self.is_bot else self.game_sockets.keys()
+        games_involved = self.game_queues.keys() if self.bot else self.game_sockets.keys()
 
         for gameId in games_involved:
             response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
             game = games[gameId]
             opp = game.bplayer if game.wplayer.username == self.username else game.wplayer
-            if not opp.is_bot:
+            if not opp.bot:
                 await opp.game_sockets[gameId].send_json(response)
 
             for spectator in game.spectators:
@@ -117,7 +116,7 @@ class User:
                 await self.quit_lobby(sockets)
                 break
 
-            if self.is_bot:
+            if self.bot:
                 await self.event_queue.put("\n")
             else:
                 await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
@@ -193,7 +192,7 @@ class Game:
             "check": self.check}
         ]
 
-        self.bot_game = self.bplayer.is_bot or self.wplayer.is_bot
+        self.bot_game = self.bplayer.bot or self.wplayer.bot
 
     def create_game_id(self):
         # TODO: check for existence when we will have database
@@ -229,7 +228,7 @@ class Game:
                     "black": self.ply_clocks[-1]["black"]}
             clocks["movetime"] = movetime
 
-            if cur_player.is_bot and self.ply > 2:
+            if cur_player.bot and self.ply > 2:
                 cur_color = "black" if self.board.color == BLACK else "white"
                 clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
                 if clocks[cur_color] == 0:
@@ -268,7 +267,7 @@ class Game:
             self.result = "1/2"
 
         # check 50 move rule and repetition
-        if self.board.is_claimable_draw() and (self.wplayer.is_bot or self.bplayer.is_bot):
+        if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
             self.status = DRAW
             self.result = "1/2"
 
@@ -438,8 +437,8 @@ def accept_seek(seeks, games, user, seek_id):
     new_game = Game(seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
     seek.fen = new_game.board.fen
     games[new_game.id] = new_game
-    print(user.username, user.is_bot, seek.user.username, seek.user.is_bot)
-    if not seek.user.is_bot:
+    print(user.username, user.bot, seek.user.username, seek.user.bot)
+    if not seek.user.bot:
         del seeks[seek_id]
         if seek_id in seek.user.seeks:
             del seek.user.seeks[seek_id]
