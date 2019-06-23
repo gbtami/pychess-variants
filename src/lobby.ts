@@ -236,10 +236,11 @@ class LobbyController {
         // TODO: fix header and data row colomns
         // https://stackoverflow.com/questions/37272331/html-table-with-fixed-header-and-footer-and-scrollable-body-without-fixed-widths
         const header = h('thead', [h('tr', [h('th', 'Player'), h('th', 'Color'), h('th', 'Rating'), h('th', 'Time'), h('th', 'Variant'), h('th', 'Mode')])]);
+        const colorIcon = (color) => { return h('i', {attrs: {"data-icon": color === "w" ? "c" : color === "b" ? "b" : "a"}} ); };
         var rows = seeks.map((seek) => h(
             'tr',
             { on: { click: () => this.onClickSeek(seek) } },
-            [h('td', seek["user"]), h('td', seek["color"]), h('td', '1500?'), h('td', seek["tc"]), h('td', seek["variant"]), h('td', seek["rated"]) ])
+            [h('td', seek["user"]), h('td', [colorIcon(seek["color"])]), h('td', '1500?'), h('td', seek["tc"]), h('td', seek["variant"]), h('td', seek["rated"]) ])
             );
         return [header, h('tbody', rows)];
     }
