@@ -172,6 +172,10 @@ export default class RoundController {
             }
         });
 
+        if (localStorage.zoom !== undefined && localStorage.zoom !== 100) {
+            this.setZoom(Number(localStorage.zoom));
+        }
+
         if (this.spectator) {
             this.chessground.set({
                 viewOnly: true,
@@ -246,7 +250,7 @@ export default class RoundController {
 
         var container = document.getElementById('zoom') as HTMLElement;
         patch(container, h('input', { class: {"slider": true },
-            attrs: { width: '280px', type: 'range', value: 100, min: 50, max: 150 },
+            attrs: { width: '280px', type: 'range', value: Number(localStorage.zoom), min: 60, max: 140 },
             on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } } })
         );
 
@@ -305,11 +309,14 @@ export default class RoundController {
             const pxh = `${zoom / 100 * baseHeight}px`;
             el.style.width = pxw;
             el.style.height = pxh;
-            console.log("setZoom() HEIGHT=", pxh);
+
+            document.body.setAttribute('style', '--cgwrapwidth:' + pxw);
             document.body.setAttribute('style', '--cgwrapheight:' + pxh);
+
             const ev = document.createEvent('Event');
             ev.initEvent('chessground.resize', false, false);
             document.body.dispatchEvent(ev);
+            localStorage.setItem("zoom", String(zoom));
         }
     }
 
@@ -386,7 +393,7 @@ export default class RoundController {
             this.gameOver();
 
             var container = document.getElementById('under-board') as HTMLElement;
-            patch(container, h('under-board', [h('textarea', { attrs: { rows: 13, cols: 80} }, msg.pgn)]));
+            patch(container, h('under-board', [h('textarea', { attrs: { rows: 13} }, msg.pgn)]));
 
             if (this.tv) {
                 // TODO: send msg to server instead and BACK with new model["gameId"] etc. got from answer

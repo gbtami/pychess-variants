@@ -28,7 +28,7 @@ header{
   display: grid;
   grid-template-columns: 350px auto 400px;
   grid-template-rows: minmax(0, 1fr) 40px;
-  grid-gap: 16px;
+  grid-gap: 18px;
   justify-content: center;
 }
 
@@ -49,11 +49,21 @@ header{
   flex-flow: column nowrap;
   justify-content: center;
 }
-under-left{
+under-left {
+  grid-column: 1;
   grid-row-start: 2;
 }
 under-board {
-  grid-column: 2 / span 2;
+  grid-column: 2;
+  width: (--cgwrapwidth);
+}
+textarea {
+  width: 100%;
+  resize: none;
+}
+
+under-right {
+  grid-column: 3;
 }
 
 a:link, a:visited {
