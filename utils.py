@@ -184,6 +184,10 @@ class Game:
         else:
             self.initial_fen = self.board.fen
 
+        self.bot_game = self.bplayer.bot or self.wplayer.bot
+        self.random_mover = self.wplayer.username == "Random-Mover" or self.bplayer.username == "Random-Mover"
+        self.random_move = ""
+
         self.set_dests()
         self.check_status()
 
@@ -193,8 +197,6 @@ class Game:
             "turnColor": "black" if self.board.color == BLACK else "white",
             "check": self.check}
         ]
-
-        self.bot_game = self.bplayer.bot or self.wplayer.bot
 
     def create_game_id(self):
         # TODO: check for existence when we will have database
@@ -289,7 +291,12 @@ class Game:
 
     def set_dests(self):
         dests = {}
-        for move in self.board.legal_moves():
+        moves = self.board.legal_moves()
+
+        if self.random_mover:
+            self.random_move = random.choice(moves) if moves else ""
+
+        for move in moves:
             if self.variant == "shogi":
                 move = usi2uci(move)
             source, dest = move[0:2], move[2:4]
@@ -298,6 +305,9 @@ class Game:
             else:
                 dests[source] = [dest]
         self.dests = dests
+
+    def get_random_move(self):
+        return random.choice(self.board.legal_moves())
 
     def print_game(self):
         print(self.pgn)
@@ -484,4 +494,5 @@ def get_board(games, data, full=False):
             "ply": game.ply,
             "clocks": {"black": clocks["black"], "white": clocks["white"]},
             "pgn": game.pgn if game.status > STARTED else "",
+            "rm": game.random_move,
             }

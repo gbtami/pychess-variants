@@ -58,6 +58,7 @@ export default class RoundController {
     result: string;
     flip: boolean;
     spectator: boolean;
+    oppIsRandomMover: boolean;
     tv: string;
     steps;
     ply: number;
@@ -124,6 +125,10 @@ export default class RoundController {
             this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
         }
+
+        this.oppIsRandomMover = (
+            (this.mycolor === "white" && this.bplayer === "Random-Mover") ||
+            (this.mycolor === "black" && this.wplayer === "Random-Mover"));
 
         // players[0] is top player, players[1] is bottom player
         this.players = [
@@ -542,6 +547,9 @@ export default class RoundController {
                     this.clocks[oppclock].start(clocks[this.oppcolor]);
                     console.log('OPP CLOCK  STARTED');
                 }
+                if (this.oppIsRandomMover && msg.rm  !== "") {
+                    this.doSend({ type: "move", gameId: this.model["gameId"], move: msg.rm, clocks: clocks });
+                };
             };
         };
     }
