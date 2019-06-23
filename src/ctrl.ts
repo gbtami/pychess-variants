@@ -245,7 +245,7 @@ export default class RoundController {
         // patch(container, h('button', { on: { click: () => toggleOrientation() }, props: {title: 'Flip board'} }, [h('i', {class: {"icon": true, "icon-refresh": true} } ), ]));
 
         var container = document.getElementById('zoom') as HTMLElement;
-        patch(container, h('input', {
+        patch(container, h('input', { class: {"slider": true },
             attrs: { width: '280px', type: 'range', value: 100, min: 50, max: 150 },
             on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } } })
         );
