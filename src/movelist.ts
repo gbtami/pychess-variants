@@ -52,7 +52,7 @@ function toggleOrientation (ctrl) {
     ctrl.chessground.toggleOrientation();
     if (ctrl.variant === "shogi") {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
-        ctrl.setPieceColors(color);
+        ctrl.setPieces(color);
     };
 
     const name_tmp = ctrl.players[0];

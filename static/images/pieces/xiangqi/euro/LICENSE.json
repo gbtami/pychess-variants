@@ -1,0 +1,18 @@
+{
+	"work": {
+		"license_id": "CC-BY-4.0",
+		"authors": [
+			{
+				"Jasmin Scharrer": {
+					"website": "http://jasminscharrer.com/"
+				}
+			},
+			{
+				"Sebastian Pipping": {
+					"email": ["sebastian", "pipping.org"],
+					"website": "https://blog.hartwork.org/"
+				}
+			}
+		]
+	}
+}

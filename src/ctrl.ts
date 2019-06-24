@@ -63,6 +63,7 @@ export default class RoundController {
     steps;
     ply: number;
     players: string[];
+    alternatePieces: boolean;
 
     constructor(el, model, handler) {
         const onOpen = (evt) => {
@@ -109,6 +110,7 @@ export default class RoundController {
         this.ply = 0;
 
         this.flip = false;
+        this.alternatePieces = false
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         if (this.tv) {
@@ -146,8 +148,8 @@ export default class RoundController {
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        if (this.variant === "shogi") {
-            this.setPieceColors(this.mycolor);
+        if (this.variant === "shogi" || this.variant === "xiangqi") {
+            this.setPieces(this.mycolor);
         } else {
             changeCSS('/static/' + VARIANTS[this.variant].css + '.css', 1);
         };
@@ -244,9 +246,16 @@ export default class RoundController {
         this.clocks[1].onFlag(flagCallback);
 
         // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
-        // TODO: add western pieces theme button for xiangqui, shogi, makruk, sittuyin
-        // var container = document.getElementById('btn-flip') as HTMLElement;
-        // patch(container, h('button', { on: { click: () => toggleOrientation() }, props: {title: 'Flip board'} }, [h('i', {class: {"icon": true, "icon-refresh": true} } ), ]));
+
+        const togglePieces = () => {
+            this.alternatePieces = !this.alternatePieces;
+            this.setPieces(this.mycolor);
+        }
+
+        if (this.variant === "shogi" || this.variant === "xiangqi") {
+            var container = document.getElementById('btn-pieces') as HTMLElement;
+            patch(container, h('button', { on: { click: () => togglePieces() }, props: {title: 'Toggle pieces'} }, [h('i', {class: {"icon": true, "icon-cog": true} } ), ]));
+        }
 
         var container = document.getElementById('zoom') as HTMLElement;
         patch(container, h('input', { class: {"slider": true },
@@ -403,12 +412,32 @@ export default class RoundController {
     }
 
     // change shogi piece colors according to board orientation
-    private setPieceColors = (color) => {
-        if (color === "white") {
-            changeCSS('/static/shogi0.css', 1);
-        } else {
-            changeCSS('/static/shogi1.css', 1);
-        };
+    private setPieces = (color) => {
+        console.log("setPieces()", this.variant, color)
+        switch (this.variant) {
+        case "xiangqi":
+            if (this.alternatePieces) {
+                changeCSS('/static/xiangqie.css', 1);
+            } else {
+                changeCSS('/static/xiangqi.css', 1);
+            };
+            break;
+        case "shogi":
+            if (this.alternatePieces) {
+                if (color === "white") {
+                    changeCSS('/static/shogi0h.css', 1);
+                } else {
+                    changeCSS('/static/shogi1h.css', 1);
+                };
+            } else {
+                if (color === "white") {
+                    changeCSS('/static/shogi0.css', 1);
+                } else {
+                    changeCSS('/static/shogi1.css', 1);
+                };
+            };
+            break;
+        }
     }
 
     // In Capablanca we have to finelize castling because
