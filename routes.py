@@ -123,13 +123,9 @@ async def index(request):
     # TODO: tv for @player and for variants
     tv = ""
     if request.path == "/tv" and len(games) > 0:
+        tv = "standard"
         # TODO: get highest rated game
-        active_games = (item for item in iter(games.items()) if item[1].status <= STARTED)
-        try:
-            gameId = next(active_games)[0]
-            tv = "standard"
-        except StopIteration:
-            tv = ""
+        gameId = list(games.keys())[-1]
 
     # Do we have gameId in request url?
     if gameId is not None:
@@ -513,6 +509,12 @@ async def websocket_handler(request):
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
+
+                    elif data["type"] == "updateTV":
+                        gameId = list(games.keys())[-1]
+                        if gameId != data["gameId"]:
+                            response = {"type": "updateTV", "gameId": gameId}
+                            await ws.send_json(response)
 
             else:
                 log.debug("type(msg.data) != str %s" % msg)

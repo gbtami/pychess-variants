@@ -22,7 +22,6 @@ import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { movelistView, updateMovelist } from './movelist';
 import resizeHandle from './resize';
-// import { ACCEPT, BACK} from './site';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -348,7 +347,6 @@ export default class RoundController {
     }
 
     private newOpponent = (home) => {
-        // this.evtHandler({ type: BACK });
         window.location.assign(home);
     }
 
@@ -405,9 +403,14 @@ export default class RoundController {
             patch(container, h('under-board', [h('textarea', { attrs: { rows: 13} }, msg.pgn)]));
 
             if (this.tv) {
-                // TODO: send msg to server instead and BACK with new model["gameId"] etc. got from answer
-                setTimeout(() => {window.location.assign(this.model["home"] + '/tv');}, 1000);
+                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.model["gameId"] });}, 2000);
             }
+        }
+    }
+
+    private onMsgUpdateTV = (msg) => {
+        if (msg.gameId !== this.model["gameId"]) {
+            window.location.assign(this.model["home"] + '/tv');
         }
     }
 
@@ -866,6 +869,9 @@ export default class RoundController {
             case "offer":
                 this.onMsgOffer(msg);
                 break;
+            case "updateTV":
+                this.onMsgUpdateTV(msg);
+                break
         }
     }
 }

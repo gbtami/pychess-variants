@@ -73,7 +73,7 @@ async def create_bot_seek(request):
     log.info("+++ %s created %s seek" % (bot_player.username, data["variant"]))
 
     # Try to create BOT vs BOT game to test TV
-    test_TV = False
+    test_TV = True
     matching_seek = None
     if test_TV:
         for seek in seeks.values():

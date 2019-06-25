@@ -3,7 +3,7 @@ import logging
 import random
 import string
 from time import monotonic, time
-from datetime import date
+from datetime import date, datetime
 
 import fairy
 import seirawan
@@ -149,7 +149,7 @@ class Game:
         self.draw_offers = set()
         self.rematch_offers = set()
         self.messages = []
-        self.date = date.today()
+        self.date = datetime.utcnow()
 
         self.ply_clocks = [{"black": base * 1000 * 60, "white": base * 1000 * 60, "movetime": 0}]
         self.dests = {}
