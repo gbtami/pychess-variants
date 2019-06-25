@@ -133,9 +133,15 @@ async def index(request):
 
     # Do we have gameId in request url?
     if gameId is not None:
-        game = games[gameId]
-        if user.username != game.wplayer.username and user.username != game.bplayer.username:
-            game.spectators.add(user)
+        if gameId in games:
+            game = games[gameId]
+            if user.username != game.wplayer.username and user.username != game.bplayer.username:
+                game.spectators.add(user)
+        else:
+            log.debug("Requseted game %s not in app['games']" % gameId)
+            template = request.app["jinja"].get_template("404.html")
+            return web.Response(
+                text=html_minify(template.render({"home": URI})), content_type="text/html")
 
     template = request.app["jinja"].get_template("index.html")
     render = {
@@ -439,13 +445,16 @@ async def websocket_handler(request):
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:
                             user = users[session_user]
+                            response = {"type": "lobbychat", "user": "", "message": "%s connected" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
                             user = User(username=data["username"])
                             users[user.username] = user
+                            response = {"type": "lobbychat", "user": "", "message": "%s reconnected" % session_user}
                         user.ping_counter = 0
                         user.online = True
+                        await broadcast(sockets, response)
 
                         # update websocket
                         sockets[user.username] = ws
@@ -523,6 +532,9 @@ async def websocket_handler(request):
         await user.broadcast_disconnect(users, games)
         await user.clear_seeks(sockets, seeks)
         await user.quit_lobby(sockets)
+
+        response = {"type": "lobbychat", "user": "", "message": "%s disconnected" % session_user}
+        await broadcast(sockets, response)
 
     return ws
 

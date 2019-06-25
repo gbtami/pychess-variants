@@ -411,7 +411,6 @@ export default class RoundController {
         }
     }
 
-    // change shogi piece colors according to board orientation
     private setPieces = (color) => {
         console.log("setPieces()", this.variant, color)
         switch (this.variant) {
@@ -424,6 +423,7 @@ export default class RoundController {
             break;
         case "shogi":
             if (this.alternatePieces) {
+                // change shogi piece colors according to board orientation
                 if (color === "white") {
                     changeCSS('/static/shogi0h.css', 1);
                 } else {
