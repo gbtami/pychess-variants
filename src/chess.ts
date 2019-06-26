@@ -175,9 +175,7 @@ export function isPromotion(variant, piece, orig, dest, meta) {
     const pz = promotionZone(variant, piece.color)
     switch (variant) {
     case 'shogi':
-        return piece.role !== "king"
-            && piece.role !== 'gold'
-            && !['ppawn', 'pknight', 'pbishop', 'prook', 'psilver', 'plance'].includes(piece.role)
+        return ['king', 'gold', 'ppawn', 'pknight', 'pbishop', 'prook', 'psilver', 'plance'].indexOf(piece.role) === -1
             && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1)
     case 'sittuyin':
         // See https://vdocuments.net/how-to-play-myanmar-traditional-chess-eng-book-1.html

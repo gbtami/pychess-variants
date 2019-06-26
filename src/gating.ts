@@ -22,8 +22,8 @@ export default function(ctrl) {
         if (gatable[0] || gatable[1]) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;
-            if (roles.includes("hawk") && !gatable[0]) roles.splice(roles.indexOf("hawk"), 1);
-            if (roles.includes("elephant") && !gatable[1]) roles.splice(roles.indexOf("elephant"), 1);
+            if (roles.indexOf("hawk") !== -1 && !gatable[0]) roles.splice(roles.indexOf("hawk"), 1);
+            if (roles.indexOf("elephant") !== -1 && !gatable[1]) roles.splice(roles.indexOf("elephant"), 1);
             var origs = [orig];
             const castling = ground.state.pieces[dest].role === "king" && orig[0] === "e" && dest[0] !== "d" && dest[0] !== "e" && dest[0] !== "f";
             var rookDest = "";
