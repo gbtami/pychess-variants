@@ -372,7 +372,7 @@ export default class RoundController {
             this.clocks[1].pause(false);
             this.result = msg.result;
             switch (msg.result) {
-                case "1/2":
+                case "1/2-1/2":
                     sound.draw();
                     break;
                 case "1-0":

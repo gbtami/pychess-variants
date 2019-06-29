@@ -3,18 +3,22 @@ import logging
 import random
 import string
 from time import monotonic, time
-from datetime import date, datetime
+from datetime import datetime
 
 import fairy
 import seirawan
 import xiangqi
 
 from settings import URI
+from compress import encode_moves, decode_moves, R2C, C2R, V2C, C2V
 
 log = logging.getLogger(__name__)
 
 BLACK = True
 MAX_USER_SEEKS = 10
+
+CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, \
+    NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 12)
 
 
 def usi2uci(move):
@@ -74,10 +78,10 @@ class User:
         self.online = True
         self.ping_counter = 0
 
-    @property
-    def id(self):
-        return id(self)
-
+#    @property
+#    def id(self):
+#        return id(self)
+#
     async def clear_seeks(self, sockets, seeks):
         has_seek = len(self.seeks) > 0
         if has_seek:
@@ -95,12 +99,16 @@ class User:
             del sockets[self.username]
 
     async def broadcast_disconnect(self, users, games):
-        # if playing, notify opp and spectators
         games_involved = self.game_queues.keys() if self.bot else self.game_sockets.keys()
 
         for gameId in games_involved:
-            response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
+            if gameId not in games:
+                continue
             game = games[gameId]
+            if self.username != game.wplayer.username and self.username != game.bplayer.username:
+                continue
+
+            response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
             opp = game.bplayer if game.wplayer.username == self.username else game.wplayer
             if not opp.bot:
                 await opp.game_sockets[gameId].send_json(response)
@@ -131,12 +139,11 @@ class User:
         return self.username
 
 
-CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, \
-    NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 12)
-
-
 class Game:
-    def __init__(self, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=20, rated=False):
+    def __init__(self, db, games, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=20, rated=False):
+        self.db = db
+        self.games = games
+        self.saved = False
         self.variant = variant
         self.initial_fen = initial_fen
         self.wplayer = wplayer
@@ -160,7 +167,7 @@ class Game:
         self.bot_game = False
         self.last_server_clock = monotonic()
 
-        self.id = self.create_game_id()
+        self.id = gameId
         self.board = self.create_board(self.variant, self.initial_fen)
 
         # Initial_fen needs validation to prevent segfaulting in pyffish
@@ -189,7 +196,8 @@ class Game:
         self.random_move = ""
 
         self.set_dests()
-        self.check_status()
+        if self.board.move_stack:
+            self.check = self.board.is_checked()
 
         self.steps = [{
             "fen": self.initial_fen,
@@ -197,11 +205,6 @@ class Game:
             "turnColor": "black" if self.board.color == BLACK else "white",
             "check": self.check}
         ]
-
-    def create_game_id(self):
-        # TODO: check for existence when we will have database
-        return ''.join(random.choice(
-            string.ascii_letters + string.digits) for x in range(12))
 
     def create_board(self, variant, initial_fen):
         if variant == "seirawan":
@@ -212,7 +215,7 @@ class Game:
             board = fairy.FairyBoard(variant, initial_fen)
         return board
 
-    def play_move(self, move, clocks=None):
+    async def play_move(self, move, clocks=None):
         if self.status > STARTED:
             return
         elif self.status == CREATED:
@@ -236,9 +239,8 @@ class Game:
                 cur_color = "black" if self.board.color == BLACK else "white"
                 clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
                 if clocks[cur_color] == 0:
-                    self.status = FLAG
-                    self.result = "1-0" if self.board.color == BLACK else "0-1"
-                    self.check_status()
+                    result = "1-0" if self.board.color == BLACK else "0-1"
+                    await self.update_status(FLAG, result)
         self.last_server_clock = cur_time
 
         if self.status != FLAG:
@@ -247,7 +249,7 @@ class Game:
             self.board.push(move)
             self.ply_clocks.append(clocks)
             self.set_dests()
-            self.check_status()
+            await self.update_status()
 
             self.steps.append({
                 "fen": self.board.fen,
@@ -257,23 +259,51 @@ class Game:
                 "check": self.check}
             )
 
-        if self.status > STARTED:
-            self.print_game()
+    async def save_game(self):
+        if self.saved:
+            return
+        print("SAVE GAME")
+        self.print_game()
+        await self.db.game.find_one_and_update(
+            {"_id": self.id},
+            {"$set":
+             {"d": self.date,
+              "s": self.status,
+              "r": R2C[self.result],
+              'm': encode_moves(self.board.move_stack)}
+             }
+        )
+        self.saved = True
+
+        async def remove():
+            # keep it in our games dict a little to let players get the last board
+            await asyncio.sleep(5)
+            print("REMOVED", )
+            del self.games[self.id]
+
+        loop = asyncio.get_event_loop()
+        loop.create_task(remove())
+
+    async def update_status(self, status=None, result=None):
+        if status is not None:
+            self.status = status
+            if result is not None:
+                self.result = result
+            await self.save_game()
             return
 
-    def check_status(self):
         if self.board.move_stack:
             self.check = self.board.is_checked()
 
         # TODO: implement this in pyffish/pysfish
         if self.board.insufficient_material():
             self.status = DRAW
-            self.result = "1/2"
+            self.result = "1/2-1/2"
 
         # check 50 move rule and repetition
         if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
             self.status = DRAW
-            self.result = "1/2"
+            self.result = "1/2-1/2"
 
         if not self.dests:
             if self.check:
@@ -285,9 +315,10 @@ class Game:
                 if self.variant == "xiangqi":
                     self.result = "0-1" if self.board.color == BLACK else "1-0"
                 else:
-                    self.result = "1/2"
+                    self.result = "1/2-1/2"
+
         if self.status > STARTED:
-            self.print_game()
+            await self.save_game()
 
     def set_dests(self):
         dests = {}
@@ -306,12 +337,10 @@ class Game:
                 dests[source] = [dest]
         self.dests = dests
 
-    def get_random_move(self):
-        return random.choice(self.board.legal_moves())
-
     def print_game(self):
         print(self.pgn)
         print(self.board.print_pos())
+        # print(self.board.move_stack)
         # print("---CLOCKS---")
         # for ply, clocks in enumerate(self.ply_clocks):
         #     print(ply, self.board.move_stack[ply - 1] if ply > 0 else "", self.ply_clocks[ply]["movetime"], self.ply_clocks[ply]["black"], self.ply_clocks[ply]["white"])
@@ -364,14 +393,56 @@ class Game:
         clocks = self.clocks
         return '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s}\n' % (" ".join(self.board.move_stack), clocks["white"], clocks["black"], self.inc, self.inc)
 
-    def abort(self):
-        self.status = ABORTED
-        self.check_status()
+    async def abort(self):
+        await self.update_status(ABORTED)
         return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id, "pgn": self.pgn}
 
 
+async def load_game(db, games, users, game_id):
+    doc = await db.game.find_one({"_id": game_id})
+
+    if doc is None:
+        return None
+
+    wp = doc["us"][0]
+    if wp in users:
+        wplayer = users[wp]
+    else:
+        wplayer = User(username=wp)
+        users[wp] = wplayer
+
+    bp = doc["us"][1]
+    if bp in users:
+        bplayer = users[bp]
+    else:
+        bplayer = User(username=bp)
+        users[bp] = bplayer
+
+    game = Game(db, games, game_id, C2V[doc["v"]], doc.get("if"), wplayer, bplayer, doc["b"], doc["i"])
+    for move in decode_moves(doc["m"]):
+        san = game.board.get_san(move)
+        game.board.push(move)
+        game.check = game.board.is_checked()
+        game.steps.append({
+            "fen": game.board.fen,
+            "move": move,
+            "san": san,
+            "turnColor": "black" if game.board.color == BLACK else "white",
+            "check": game.check}
+        )
+    if game.steps:
+        move = game.steps[-1]["move"]
+        game.lastmove = (move[0:2], move[2:4])
+
+    game.date = doc["d"]
+    game.status = doc["s"]
+    game.result = C2R[doc["r"]]
+    game.saved = True
+    games[game_id] = game
+    return game
+
+
 def start(games, data):
-    # game = games[data["gameId"]]
     return {"type": "gameStart", "gameId": data["gameId"]}
 
 
@@ -380,30 +451,27 @@ def end(games, data):
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
-def draw(games, data, agreement=False):
+async def draw(games, data, agreement=False):
     game = games[data["gameId"]]
     if game.is_claimable_draw or agreement:
-        game.status = DRAW
-        game.result = "1/2"
-        game.check_status()
+        result = "1/2-1/2"
+        await game.update_status(DRAW, result)
         return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
     else:
         return {"type": "offer", "message": "Draw offer sent"}
 
 
-def resign(games, user, data):
+async def resign(games, user, data):
     game = games[data["gameId"]]
-    game.status = RESIGN
-    game.result = "0-1" if user.username == game.wplayer.username else "1-0"
-    game.check_status()
+    result = "0-1" if user.username == game.wplayer.username else "1-0"
+    await game.update_status(RESIGN, result)
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
-def flag(games, user, data):
+async def flag(games, user, data):
     game = games[data["gameId"]]
-    game.status = FLAG
-    game.result = "0-1" if user.username == game.wplayer.username else "1-0"
-    game.check_status()
+    result = "0-1" if user.username == game.wplayer.username else "1-0"
+    await game.update_status(FLAG, result)
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
@@ -424,7 +492,7 @@ def get_seeks(seeks):
     return {"type": "get_seeks", "seeks": [seek.as_json for seek in seeks.values()]}
 
 
-def accept_seek(seeks, games, user, seek_id):
+async def accept_seek(db, seeks, games, user, seek_id):
     log.info("+++ Seek %s accepted by%s" % (seek_id, user.username))
     seek = seeks[seek_id]
 
@@ -435,7 +503,26 @@ def accept_seek(seeks, games, user, seek_id):
         wplayer = seek.user if seek.color == "w" else user
         bplayer = seek.user if seek.color == "b" else user
 
-    new_game = Game(seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
+    new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
+    existing = await db.game.find_one({'_id': {'$eq': new_id}})
+    if existing:
+        log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
+        return {"type": "error"}
+
+    document = {
+        "_id": new_id,
+        "us": [wplayer.username, bplayer.username],
+        "v": V2C[seek.variant],
+        "b": seek.base,
+        "i": seek.inc,
+        "m": [],
+    }
+    if seek.fen is not None:
+        document["if"] = seek.fen
+    result = await db.game.insert_one(document)
+    print("db insert game result %s" % repr(result.inserted_id))
+
+    new_game = Game(db, games, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
     seek.fen = new_game.board.fen
     games[new_game.id] = new_game
 
@@ -452,12 +539,12 @@ async def broadcast(sockets, response):
             await client_ws.send_json(response)
 
 
-def play_move(games, data):
+async def play_move(games, data):
     game = games[data["gameId"]]
     move = data["move"]
     clocks = data["clocks"]
     assert move
-    game.play_move(move, clocks)
+    await game.play_move(move, clocks)
 
 
 def get_board(games, data, full=False):

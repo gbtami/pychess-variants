@@ -15,7 +15,7 @@ from bot_api import profile, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong
 from utils import get_seeks, create_seek, accept_seek, challenge, broadcast,\
-    play_move, get_board, start, draw, resign, flag, User, Seek, STARTED
+    play_move, get_board, start, draw, resign, flag, User, Seek, STARTED, load_game
 
 
 try:
@@ -90,6 +90,7 @@ async def index(request):
 
     users = request.app["users"]
     games = request.app["games"]
+    db = request.app["db"]
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -134,10 +135,12 @@ async def index(request):
             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                 game.spectators.add(user)
         else:
-            log.debug("Requseted game %s not in app['games']" % gameId)
-            template = request.app["jinja"].get_template("404.html")
-            return web.Response(
-                text=html_minify(template.render({"home": URI})), content_type="text/html")
+            game = await load_game(db, games, users, gameId)
+            if game is None:
+                log.debug("Requseted game %s not in app['games']" % gameId)
+                template = request.app["jinja"].get_template("404.html")
+                return web.Response(
+                    text=html_minify(template.render({"home": URI})), content_type="text/html")
 
     template = request.app["jinja"].get_template("index.html")
     render = {
@@ -172,6 +175,7 @@ async def websocket_handler(request):
     sockets = request.app["websockets"]
     seeks = request.app["seeks"]
     games = request.app["games"]
+    db = request.app["db"]
 
     ws = web.WebSocketResponse()
 
@@ -200,7 +204,7 @@ async def websocket_handler(request):
 
                     if data["type"] == "move":
                         log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
-                        play_move(games, data)
+                        await play_move(games, data)
 
                         board_response = get_board(games, data, full=False)
                         log.info("   Server send to %s: %s" % (user.username, board_response["fen"]))
@@ -244,7 +248,7 @@ async def websocket_handler(request):
                                 while True:
                                     if (loop.time() + 1.0) >= end_time:
                                         log.debug("Game %s aborted because user %s is not ready." % (data["gameId"], opp_name))
-                                        response = game.abort()
+                                        response = await game.abort()
                                         await ws.send_json(response)
                                         break
                                     await asyncio.sleep(1)
@@ -287,7 +291,7 @@ async def websocket_handler(request):
                             seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level)
                             seeks[seek.id] = seek
 
-                            response = accept_seek(seeks, games, engine, seek.id)
+                            response = await accept_seek(db, seeks, games, engine, seek.id)
                             await ws.send_json(response)
 
                             await engine.event_queue.put(challenge(seek, response))
@@ -300,7 +304,7 @@ async def websocket_handler(request):
                                 seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level, game.rated)
                                 seeks[seek.id] = seek
 
-                                response = accept_seek(seeks, games, opp_player, seek.id)
+                                response = await accept_seek(db, seeks, games, opp_player, seek.id)
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                             else:
@@ -311,7 +315,7 @@ async def websocket_handler(request):
 
                     elif data["type"] == "abort":
                         game = games[data["gameId"]]
-                        response = game.abort()
+                        response = await game.abort()
                         await ws.send_json(response)
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
@@ -331,7 +335,7 @@ async def websocket_handler(request):
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
-                        response = draw(games, data, agreement=opp_name in game.draw_offers)
+                        response = await draw(games, data, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
 
                         if opp_player.bot:
@@ -348,10 +352,11 @@ async def websocket_handler(request):
                                 await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
                     elif data["type"] == "resign":
-                        response = resign(games, user, data)
+                        game = games[data["gameId"]]
+                        response = await resign(games, user, data)
+
                         await ws.send_json(response)
 
-                        game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.bot:
@@ -364,12 +369,8 @@ async def websocket_handler(request):
                             for spectator in game.spectators:
                                 await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
-                    elif data["type"] == "disconnect":
-                        # Used only to test socket disconnection...
-                        await ws.close(code=1009)
-
                     elif data["type"] == "flag":
-                        response = flag(games, user, data)
+                        response = await flag(games, user, data)
                         await ws.send_json(response)
 
                         game = games[data["gameId"]]
@@ -405,7 +406,7 @@ async def websocket_handler(request):
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
                         seeks[seek.id] = seek
 
-                        response = accept_seek(seeks, games, engine, seek.id)
+                        response = await accept_seek(db, seeks, games, engine, seek.id)
                         await ws.send_json(response)
 
                         gameId = response["gameId"]
@@ -424,7 +425,7 @@ async def websocket_handler(request):
 
                     elif data["type"] == "accept_seek":
                         seek = seeks[data["seekID"]]
-                        response = accept_seek(seeks, games, user, data["seekID"])
+                        response = await accept_seek(db, seeks, games, user, data["seekID"])
                         await ws.send_json(response)
 
                         if seek.user.lobby_ws is not None:
@@ -511,10 +512,16 @@ async def websocket_handler(request):
                             await opp_ws.send_json(response)
 
                     elif data["type"] == "updateTV":
-                        gameId = list(games.keys())[-1]
-                        if gameId != data["gameId"]:
-                            response = {"type": "updateTV", "gameId": gameId}
-                            await ws.send_json(response)
+                        keys = games.keys()
+                        if len(keys) > 0:
+                            gameId = list(keys)[-1]
+                            if gameId != data["gameId"]:
+                                response = {"type": "updateTV", "gameId": gameId}
+                                await ws.send_json(response)
+
+                    elif data["type"] == "disconnect":
+                        # Used only to test socket disconnection...
+                        await ws.close(code=1009)
 
             else:
                 log.debug("type(msg.data) != str %s" % msg)
@@ -546,7 +553,7 @@ get_routes = (
     ("/oauth", oauth),
     ("/", index),
     ("/tv", index),
-    (r"/{gameId:\w{12}}", index),
+    (r"/{gameId:\w{8}}", index),
     ("/ws", websocket_handler),
     ("/api/account", profile),
     ("/api/account/playing", playing),

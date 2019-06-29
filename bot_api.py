@@ -90,8 +90,9 @@ async def create_bot_seek(request):
         # inform others
         await broadcast(sockets, get_seeks(seeks))
     else:
+        db = request.app["db"]
         games = request.app["games"]
-        response = accept_seek(seeks, games, bot_player, matching_seek.id)
+        response = await accept_seek(db, seeks, games, bot_player, matching_seek.id)
 
         gameId = response["gameId"]
         game = games[gameId]
@@ -210,10 +211,10 @@ async def bot_move(request):
     game = games[gameId]
 
     invalid_move = False
-    log.info("BOT move %s %s %s %s - %s" % (username, gameId, move, game.wplayer.username, game.bplayer.username))
+    # log.info("BOT move %s %s %s %s - %s" % (username, gameId, move, game.wplayer.username, game.bplayer.username))
     if game.status <= STARTED:
         try:
-            game.play_move(move)
+            await game.play_move(move)
         except SystemError:
             invalid_move = True
             log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, username))
@@ -268,7 +269,7 @@ async def bot_abort(request):
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
     opp_player = users[opp_name]
 
-    response = game.abort()
+    response = await game.abort()
     await bot_player.game_queues[gameId].put(game.game_end)
     if opp_player.bot:
         await opp_player.game_queues[gameId].put(game.game_end)

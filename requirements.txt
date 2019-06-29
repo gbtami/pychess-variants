@@ -3,8 +3,10 @@ aiohttp-session==2.7.0
 aiomonitor==0.4.4
 aiohttp==3.5.4
 cryptography==2.7 
-jinja2==2.10.1
+dnspython==1.16.0
 htmlmin==0.1.12
+jinja2==2.10.1
+motor==2.0.0
 pyffish==0.0.6
 pysfish==0.0.3
 

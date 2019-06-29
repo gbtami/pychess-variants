@@ -8,10 +8,11 @@ import aiomonitor
 from aiohttp import web
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
+from motor import motor_asyncio as ma
 
 from routes import get_routes, post_routes
-from settings import SECRET_KEY
-from utils import User
+from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME
+from utils import User, STARTED
 
 
 async def make_app(loop):
@@ -21,6 +22,9 @@ async def make_app(loop):
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
+
+    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
+    app["db"] = app["client"][MONGO_DB_NAME]
 
     app.on_shutdown.append(shutdown)
 
@@ -56,10 +60,11 @@ async def shutdown(app):
     # abort games
     for game in app["games"].values():
         for player in (game.wplayer, game.bplayer):
-            response = game.abort()
-            if not player.bot:
-                ws = player.game_sockets[game.id]
-                await ws.send_json(response)
+            if game.status <= STARTED:
+                response = await game.abort()
+                if not player.bot:
+                    ws = player.game_sockets[game.id]
+                    await ws.send_json(response)
     app["games"] = {}
 
     # close websockets
@@ -71,6 +76,8 @@ async def shutdown(app):
     for ws in app['websockets'].values():
         await ws.close()
     app['websockets'].clear()
+
+    app["client"].close()
 
 
 if __name__ == "__main__":
