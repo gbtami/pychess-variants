@@ -607,6 +607,8 @@ export default class RoundController {
             check: step.check,
             lastMove: step.move === undefined ? undefined : [step.move.slice(0, 2), step.move.slice(2, 4)],
         });
+        this.fullfen = step.fen;
+        updatePockets(this, this.vpocket0, this.vpocket1);
         // TODO: play sound if ply == this.ply + 1
         this.ply = ply
     }
