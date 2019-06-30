@@ -114,7 +114,8 @@ class User:
                 await opp.game_sockets[gameId].send_json(response)
 
             for spectator in game.spectators:
-                await users[spectator.username].game_sockets[gameId].send_json(response)
+                if gameId in users[spectator.username].game_sockets:
+                    await users[spectator.username].game_sockets[gameId].send_json(response)
 
     async def pinger(self, sockets, seeks, users, games):
         while True:
@@ -239,6 +240,7 @@ class Game:
                 cur_color = "black" if self.board.color == BLACK else "white"
                 clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
                 if clocks[cur_color] == 0:
+                    # TODO: 1/2 if hasInsufficientMaterial()
                     result = "1-0" if self.board.color == BLACK else "0-1"
                     await self.update_status(FLAG, result)
         self.last_server_clock = cur_time
@@ -470,6 +472,7 @@ async def resign(games, user, data):
 
 async def flag(games, user, data):
     game = games[data["gameId"]]
+    # TODO: 1/2 if hasInsufficientMaterial()
     result = "0-1" if user.username == game.wplayer.username else "1-0"
     await game.update_status(FLAG, result)
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}

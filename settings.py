@@ -7,8 +7,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
 
-REDIRECT_PATH = os.getenv("REDIRECT_PATH")  # path of oauth callback in your app
-REDIRECT_URI = os.getenv("REDIRECT_URI")  # define it in lichess
+REDIRECT_PATH = "/oauth"  # path of oauth callback in app
+# lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth
+REDIRECT_URI = URI + REDIRECT_PATH
 
 # client app id and secret from lichess.org
 CLIENT_ID = os.getenv("CLIENT_ID")

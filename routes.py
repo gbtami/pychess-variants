@@ -4,6 +4,7 @@ import logging
 import warnings
 import functools
 import datetime
+from urllib.parse import urlparse
 
 import aiohttp
 from aiohttp import web
@@ -44,7 +45,7 @@ async def oauth(request):
     )
 
     if not request.query.get("code"):
-        return web.HTTPFound(client.get_authorize_url(
+        raise web.HTTPFound(client.get_authorize_url(
             # scope="email:read",
             redirect_uri=REDIRECT_URI
         ))
@@ -55,19 +56,19 @@ async def oauth(request):
     token, data = token_data
     session = await aiohttp_session.get_session(request)
     session["token"] = token
-    return web.HTTPFound("/login")
+    raise web.HTTPFound("/login")
 
 
 async def login(request):
     """ Login with lichess.org oauth. """
     if REDIRECT_PATH is None:
         log.error("Set REDIRECT_PATH env var if you want lichess OAuth login!")
-        return web.HTTPFound("/")
+        raise web.HTTPFound("/")
 
     # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
     if "token" not in session:
-        return web.HTTPFound(REDIRECT_PATH)
+        raise web.HTTPFound(REDIRECT_PATH)
 
     client = aioauth_client.LichessClient(
         client_id=CLIENT_ID,
@@ -78,11 +79,12 @@ async def login(request):
         user, info = await client.user_info()
     except Exception:
         log.error("Failed to get user info from lichess.org")
-        return web.HTTPFound("/")
+        raise web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
-
-    return web.HTTPFound("/?username=%s&country=%s" % (user.username, user.country))
+    session["user_name"] = user.username
+    session["country"] = user.country
+    raise web.HTTPFound("/")
 
 
 async def index(request):
@@ -94,28 +96,33 @@ async def index(request):
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
-
-    # Coming from login? We have params \o/
-    params = request.rel_url.query
-    logged_in_username = params.get("username")
-    if logged_in_username:
-        session["user_name"] = logged_in_username
-
     session_user = session.get("user_name")
+
+    # Coming from login?
+    if session_user is not None and "token" in session:
+        doc = await db.user.find_one({"_id": session_user})
+        if doc is None:
+            result = await db.user.insert_one({"_id": session_user, "counry": session["country"]})
+            print("db insert user result %s" % repr(result.inserted_id))
+        del session["token"]
+
     session["last_visit"] = datetime.datetime.now().isoformat()
+    session["guest"] = True
     if session_user is not None:
-        log.info("+++ Existing user %s reconnected." % session_user)
+        log.info("+++ Existing user %s connected." % session_user)
+        doc = await db.user.find_one({"_id": session_user})
+        if doc is not None:
+            session["guest"] = False
         if session_user in users:
             user = users[session_user]
         else:
             # If server was restarted, we have to recreate users
-            # TODO: use redis aiohttp-session storage ?
             user = User(username=session_user)
             users[user.username] = user
         user.ping_counter = 0
     else:
         user = User()
-        log.info("+++ New user %s connected." % user.username)
+        log.info("+++ New guest user %s connected." % user.username)
         users[user.username] = user
         session["user_name"] = user.username
 
@@ -146,9 +153,9 @@ async def index(request):
     render = {
         "app_name": "PyChess",
         "home": URI,
-        "username": user.username,
-        "country": params["country"] if "country" in params else "",
-        "guest": not logged_in_username,
+        "username": user.username if session["guest"] else "",
+        "country": session["country"] if "country" in session else "",
+        "guest": session["guest"],
         "tv": tv,
         "gameid": gameId if gameId is not None else "",
         "variant": game.variant if gameId is not None else "",
@@ -161,8 +168,11 @@ async def index(request):
     text = template.render(render)
 
     # log.debug("Response: %s" % text)
-    return web.Response(
-        text=html_minify(text), content_type="text/html")
+    response = web.Response(text=html_minify(text), content_type="text/html")
+    if not session["guest"]:
+        hostname = urlparse(URI).hostname
+        response.set_cookie("user", session["user_name"], domain=hostname, secure="." not in hostname, max_age=31536000)
+    return response
 
 
 async def websocket_handler(request):
@@ -181,7 +191,7 @@ async def websocket_handler(request):
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
-        return web.HTTPFound("/")
+        raise web.HTTPFound("/")
 
     await ws.prepare(request)
 
@@ -441,8 +451,15 @@ async def websocket_handler(request):
 
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:
-                            user = users[session_user]
-                            response = {"type": "lobbychat", "user": "", "message": "%s connected" % session_user}
+                            if data["username"] and data["username"] != session_user:
+                                log.info("+++ Existing lobby_user %s socket connected as %s." % (session_user, data["username"]))
+                                session_user = data["username"]
+                                user = User(username=data["username"])
+                                users[user.username] = user
+                                response = {"type": "lobbychat", "user": "", "message": "%s connected" % session_user}
+                            else:
+                                user = users[session_user]
+                                response = {"type": "lobbychat", "user": "", "message": "%s connected" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
@@ -465,7 +482,13 @@ async def websocket_handler(request):
 
                     elif data["type"] == "game_user_connected":
                         if session_user is not None:
-                            user = users[session_user]
+                            if data["username"] and data["username"] != session_user:
+                                log.info("+++ Existing game_user %s socket connected as %s." % (session_user, data["username"]))
+                                session_user = data["username"]
+                                user = User(username=data["username"])
+                                users[user.username] = user
+                            else:
+                                user = users[session_user]
                         else:
                             log.info("+++ Existing game_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
@@ -486,8 +509,8 @@ async def websocket_handler(request):
 
                     elif data["type"] == "is_user_online":
                         player_name = data["username"]
-                        player = users[player_name]
-                        if player.online:
+                        player = users.get(player_name)
+                        if player is not None and player.online:
                             response = {"type": "user_online", "username": player_name}
                         else:
                             response = {"type": "user_disconnected", "username": player_name}

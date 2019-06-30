@@ -9,12 +9,24 @@ export const BACK = Symbol('Back');
 
 // model : {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", base: "", inc: "", seeks: [seek], tv: ""}
 
+var getCookie = function(name) {
+    var cookies = document.cookie.split(';');
+    for(var i=0 ; i < cookies.length ; ++i) {
+        var pair = cookies[i].trim().split('=');
+        if(pair[0] == name)
+            return pair[1];
+    }
+    return "";
+}
+
 export function view(model, handler): VNode {
     // console.log("site.view() model=", model)
     // http://stackoverflow.com/questions/1397329/how-to-remove-the-hash-from-window-location-with-javascript-without-page-refresh/5298684#5298684
-    console.log("site.ts document.title=", document.title)
-    console.log("site.ts window.location=", window.location)
+    console.log("site.ts document.title=", document.title);
+    console.log("site.ts window.location=", window.location);
     window.history.pushState({}, document.title, "/");
+    const user = getCookie("user");
+    if (user !== "") model["username"] = user;
 
     var el = document.getElementById('pychess-variants');
     if (el instanceof Element && el.hasAttribute("data-home")) {
@@ -24,8 +36,8 @@ export function view(model, handler): VNode {
         const variant = el.getAttribute("data-variant");
         console.log("site.view() data-variant=", variant);
         if (variant) {
-            model["username"] = el.getAttribute("data-username");
             model["variant"] = variant;
+            model["username"] = user !== "" ? user : el.getAttribute("data-username");
             model["gameId"] = el.getAttribute("data-gameid");
             model["wplayer"] = el.getAttribute("data-wplayer");
             model["bplayer"] = el.getAttribute("data-bplayer");
