@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+from collections import Counter
 
 import pyffish as sf
 
@@ -50,7 +51,13 @@ class FairyBoard:
         return sf.gives_check(self.variant, self.initial_fen, self.move_stack)
 
     def insufficient_material(self):
-        w, b = sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack)
+        # TODO: implement this in pyffish/pysfish
+        if self.variant == "makruk" or self.variant == "sittuyin":
+            pieces = Counter(self.fen.split()[0])
+            w = pieces["R"] + pieces["S"] == 0 and pieces["M"] + pieces["F"] + pieces["N"] + pieces["P"] < 2
+            b = pieces["r"] + pieces["s"] == 0 and pieces["m"] + pieces["f"] + pieces["n"] + pieces["p"] < 2
+        else:
+            w, b = sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack)
         return w and b
 
     def is_immediate_game_end(self):
