@@ -139,8 +139,6 @@ async def index(request):
     if gameId is not None:
         if gameId in games:
             game = games[gameId]
-            if user.username != game.wplayer.username and user.username != game.bplayer.username:
-                game.spectators.add(user)
         else:
             game = await load_game(db, games, users, gameId)
             if game is None:
@@ -148,6 +146,8 @@ async def index(request):
                 template = request.app["jinja"].get_template("404.html")
                 return web.Response(
                     text=html_minify(template.render({"home": URI})), content_type="text/html")
+        if user.username != game.wplayer.username and user.username != game.bplayer.username:
+            game.spectators.add(user)
 
     template = request.app["jinja"].get_template("index.html")
     render = {
@@ -487,6 +487,11 @@ async def websocket_handler(request):
                                 session_user = data["username"]
                                 user = User(username=data["username"])
                                 users[user.username] = user
+
+                                # Update logged in users as spactators
+                                game = games[data["gameId"]]
+                                if user.username != game.wplayer.username and user.username != game.bplayer.username:
+                                    game.spectators.add(user)
                             else:
                                 user = users[session_user]
                         else:

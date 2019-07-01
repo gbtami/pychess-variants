@@ -297,13 +297,14 @@ class Game:
         if self.board.move_stack:
             self.check = self.board.is_checked()
 
-        # TODO: implement this in pyffish/pysfish
         if self.board.insufficient_material():
+            print("1/2 by board.insufficient_material()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
         # check 50 move rule and repetition
         if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
+            print("1/2 by board.is_claimable_draw()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
@@ -317,6 +318,7 @@ class Game:
                 if self.variant == "xiangqi":
                     self.result = "0-1" if self.board.color == BLACK else "1-0"
                 else:
+                    print("1/2 by stalemate")
                     self.result = "1/2-1/2"
 
         if self.status > STARTED:
