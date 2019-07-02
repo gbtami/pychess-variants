@@ -514,19 +514,6 @@ async def accept_seek(db, seeks, games, user, seek_id):
         log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
         return {"type": "error"}
 
-    document = {
-        "_id": new_id,
-        "us": [wplayer.username, bplayer.username],
-        "v": V2C[seek.variant],
-        "b": seek.base,
-        "i": seek.inc,
-        "m": [],
-    }
-    if seek.fen is not None:
-        document["if"] = seek.fen
-    result = await db.game.insert_one(document)
-    print("db insert game result %s" % repr(result.inserted_id))
-
     new_game = Game(db, games, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
     seek.fen = new_game.board.fen
     games[new_game.id] = new_game
@@ -535,6 +522,23 @@ async def accept_seek(db, seeks, games, user, seek_id):
         del seeks[seek_id]
         if seek_id in seek.user.seeks:
             del seek.user.seeks[seek_id]
+
+    document = {
+        "_id": new_id,
+        "us": [wplayer.username, bplayer.username],
+        "v": V2C[seek.variant],
+        "b": seek.base,
+        "i": seek.inc,
+        "m": [],
+        "d": new_game.date,
+        "s": new_game.status,
+        "r": R2C["*"]
+    }
+    if seek.fen:
+        document["if"] = seek.fen
+    result = await db.game.insert_one(document)
+    print("db insert game result %s" % repr(result.inserted_id))
+
     return {"type": "accept_seek", "ok": True, "variant": seek.variant, "gameId": new_game.id, "wplayer": wplayer.username, "bplayer": bplayer.username, "fen": seek.fen, "base": seek.base, "inc": seek.inc}
 
 
