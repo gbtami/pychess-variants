@@ -515,7 +515,6 @@ async def accept_seek(db, seeks, games, user, seek_id):
         return {"type": "error"}
 
     new_game = Game(db, games, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
-    seek.fen = new_game.board.fen
     games[new_game.id] = new_game
 
     if not seek.user.bot:

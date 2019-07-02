@@ -17,7 +17,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound, changeCSS } from './sound';
-import { hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './chess';
+import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { movelistView, updateMovelist } from './movelist';
@@ -62,7 +62,7 @@ export default class RoundController {
     steps;
     ply: number;
     players: string[];
-    alternatePieces: boolean;
+    CSSindexes: number[];
 
     constructor(el, model, handler) {
         const onOpen = (evt) => {
@@ -109,7 +109,9 @@ export default class RoundController {
         this.ply = 0;
 
         this.flip = false;
-        this.alternatePieces = false
+
+        // TODO:save/restore preferences
+        this.CSSindexes = Array(variants.length).fill(0);
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         if (this.tv) {
@@ -150,7 +152,8 @@ export default class RoundController {
         if (this.variant === "shogi" || this.variant === "xiangqi") {
             this.setPieces(this.mycolor);
         } else {
-            changeCSS('/static/' + VARIANTS[this.variant].css + '.css', 1);
+            // TODO:save/restore preferences
+            changeCSS('/static/' + VARIANTS[this.variant].css[0] + '.css');
         };
 
         this.steps.push({
@@ -247,7 +250,10 @@ export default class RoundController {
         // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
 
         const togglePieces = () => {
-            this.alternatePieces = !this.alternatePieces;
+            var idx = this.CSSindexes[variants.indexOf(this.variant)];
+            idx += 1;
+            idx = idx % VARIANTS[this.variant].css.length;
+            this.CSSindexes[variants.indexOf(this.variant)] = idx
             this.setPieces(this.mycolor);
         }
 
@@ -416,29 +422,16 @@ export default class RoundController {
 
     private setPieces = (color) => {
         console.log("setPieces()", this.variant, color)
+        const idx = this.CSSindexes[variants.indexOf(this.variant)];
         switch (this.variant) {
         case "xiangqi":
-            if (this.alternatePieces) {
-                changeCSS('/static/xiangqie.css', 1);
-            } else {
-                changeCSS('/static/xiangqi.css', 1);
-            };
+            changeCSS('/static/' + VARIANTS[this.variant].css[idx] + '.css');
             break;
         case "shogi":
-            if (this.alternatePieces) {
-                // change shogi piece colors according to board orientation
-                if (color === "white") {
-                    changeCSS('/static/shogi0h.css', 1);
-                } else {
-                    changeCSS('/static/shogi1h.css', 1);
-                };
-            } else {
-                if (color === "white") {
-                    changeCSS('/static/shogi0.css', 1);
-                } else {
-                    changeCSS('/static/shogi1.css', 1);
-                };
-            };
+            var css = VARIANTS[this.variant].css[idx];
+            // change shogi piece colors according to board orientation
+            if (color === "black") css = css.replace('0', '1');
+            changeCSS('/static/' + css + '.css');
             break;
         }
     }
