@@ -434,7 +434,7 @@ async def load_game(db, games, users, game_id):
             "turnColor": "black" if game.board.color == BLACK else "white",
             "check": game.check}
         )
-    if game.steps:
+    if len(game.steps) > 1:
         move = game.steps[-1]["move"]
         game.lastmove = (move[0:2], move[2:4])
 
