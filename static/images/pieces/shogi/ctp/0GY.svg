@@ -105,17 +105,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="955"
-     inkscape:window-height="565"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="3.9333333"
-     inkscape:cx="-4.2346456"
+     inkscape:cx="-45.548205"
      inkscape:cy="19.830508"
-     inkscape:window-x="2152"
-     inkscape:window-y="405"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg1717" />
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g9457" />
   <!--
 Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
 See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
@@ -157,19 +157,18 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     <g
        id="g9457">
       <g
-         id="g9451">
-        <text
+         id="g9451"
+         style="fill:#000000;fill-opacity:1">
+        <g
+           aria-label="王"
            transform="scale(1.0542925,0.94850339)"
-           xml:space="preserve"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.34547663;stroke-miterlimit:4;stroke-dasharray:none"
-           x="25.692533"
-           y="127.10664"
-           id="text4810-0"><tspan
-             sodipodi:role="line"
-             id="tspan4808-2"
-             x="25.692533"
-             y="127.10664"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke-width:4.34547663;stroke-miterlimit:4;stroke-dasharray:none">王</tspan></text>
+           id="text4810-0">
+          <path
+             d="m 41.364137,108.25529 v 7.04087 h 8.062927 v 2.15768 h -8.062927 v 7.94937 h 10.901985 v 2.49837 H 27.96378 v -2.49837 h 10.788423 v -7.94937 h -8.062926 v -2.15768 h 8.062926 v -7.04087 h -9.19855 v -2.49837 h 21.236159 v 2.49837 z"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke-width:4.34547663;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+             id="path4011" />
+        </g>
       </g>
       <path
          sodipodi:nodetypes="ccccc"

@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -155,17 +155,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="926"
-     inkscape:window-height="604"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="3.9333333"
-     inkscape:cx="-15.235059"
+     inkscape:cx="-56.548618"
      inkscape:cy="30"
-     inkscape:window-x="2175"
-     inkscape:window-y="226"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg1717" />
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g9285" />
   <!--
 Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
 See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
@@ -212,18 +212,16 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     </g>
     <g
        id="g9285">
-      <text
-         id="text4810-0-5"
-         y="76.895958"
-         x="-22.348515"
+      <g
+         aria-label="王"
+         transform="scale(1.0542925,0.94850339)"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.34547663;stroke-miterlimit:4;stroke-dasharray:none"
-         xml:space="preserve"
-         transform="scale(1.0542925,0.94850339)"><tspan
+         id="text4810-0-5">
+        <path
+           d="m -6.6769109,58.044609 v 7.040865 h 8.0629266 v 2.157685 h -8.0629266 v 7.949364 H 4.2250743 v 2.498371 H -20.077268 v -2.498371 h 10.7884232 v -7.949364 h -8.0629262 v -2.157685 h 8.0629262 V 58.044609 H -18.487395 V 55.546237 H 2.7487638 v 2.498372 z"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke-width:4.34547663;stroke-miterlimit:4;stroke-dasharray:none"
-           y="76.895958"
-           x="-22.348515"
-           id="tspan4808-2-0"
-           sodipodi:role="line">王</tspan></text>
+           id="path5861" />
+      </g>
       <path
          sodipodi:nodetypes="ccccc"
          inkscape:connector-curvature="0"

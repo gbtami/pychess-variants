@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -962,7 +962,7 @@
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="7.8666667"
-     inkscape:cx="21.324946"
+     inkscape:cx="0.66816643"
      inkscape:cy="14.066659"
      inkscape:window-x="953"
      inkscape:window-y="0"
@@ -994,21 +994,22 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
   </filter>
   <g
      transform="translate(-374.57915,-151.37747)"
-     style="display:inline"
+     style="display:inline;fill:#ffe680"
      id="g8644">
     <g
        id="g6832-4-7-50"
        transform="matrix(0.82775565,0,0,0.82775565,294.36509,136.51088)"
-       style="display:inline;filter:url(#drop-shadow-2-84-1-4)">
+       style="display:inline;filter:url(#drop-shadow-2-84-1-4);fill:#ffe680">
       <g
          id="g6830-3-9-2"
-         transform="rotate(180,45.578499,23.8125)">
+         transform="rotate(180,45.578499,23.8125)"
+         style="fill:#ffe680">
         <path
            sodipodi:nodetypes="ccccccccccccc"
            id="path6814-84-3-4"
            d="m -37.299339,-31.009999 c -4.096,1.034 -8.171,2.152 -12.207999,3.395 -0.467,0.163 -1.13,0.263 -1.201,0.865 -0.709,3.416 -1.178,6.885 -1.737,10.331 -1.73,11.2549998 -3.378,22.5279998 -5.1,33.78 0.155,0.682 1.013,0.424 1.51,0.48 12.893999,0.025 25.787999,0.03 38.679999,-0.033 0.672,-0.156 0.28,-0.952 0.279,-1.409 -2.011,-13.1200002 -3.876,-26.2630002 -5.998,-39.366 -0.277,-1.356 -0.348,-2.782 -0.816,-4.087 -0.347,-0.497 -1.073,-0.468 -1.588,-0.704 -3.832,-1.137 -7.673,-2.267 -11.55,-3.231 -0.09,-0.017 -0.18,-0.032 -0.271,-0.021 z"
            inkscape:connector-curvature="0"
-           style="fill:#feec99" />
+           style="fill:#ffe680" />
       </g>
     </g>
   </g>

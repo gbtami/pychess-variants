@@ -137,17 +137,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="958"
-     inkscape:window-height="1008"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="7.8666667"
-     inkscape:cx="21.88598"
-     inkscape:cy="33.692264"
-     inkscape:window-x="953"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="g7756" />
+     inkscape:zoom="11.125147"
+     inkscape:cx="26.015563"
+     inkscape:cy="26.304769"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g7758" />
   <!--
 Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
 See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
@@ -192,8 +192,8 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
            sodipodi:nodetypes="ccccccccccccc" />
         <g
            id="g9949"
-           transform="matrix(0.70087069,0,0,0.70087069,-107.77662,-63.494569)"
-           style="display:inline;fill:#ffe680;fill-opacity:1;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#drop-shadow-5)">
+           transform="matrix(-0.70085983,0,0,0.70120268,33.392487,-61.426722)"
+           style="display:inline;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none">
           <path
              style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
              d="m 100.64835,84.486076 a 12.446455,12.446455 0 0 0 -12.445584,12.44559 12.446455,12.446455 0 0 0 12.445584,12.447394 12.446455,12.446455 0 0 0 12.4474,-12.447394 12.446455,12.446455 0 0 0 -12.4474,-12.44559 z m 0,3.93239 a 8.2048677,8.5138305 0 0 1 8.20538,8.5132 8.2048677,8.5138305 0 0 1 -8.20538,8.513184 8.2048677,8.5138305 0 0 1 -8.203548,-8.513184 8.2048677,8.5138305 0 0 1 8.203548,-8.5132 z"
