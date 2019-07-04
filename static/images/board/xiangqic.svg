@@ -10,7 +10,7 @@
    version="1.1"
    viewBox="0 0 900 1000"
    id="svg11724"
-   sodipodi:docname="colorboard2.svg"
+   sodipodi:docname="xiangqicolor.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata11730">
@@ -548,12 +548,11 @@
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer5" />
+     inkscape:current-layer="layer2" />
   <g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Background"
-     sodipodi:insensitive="true"
      style="display:inline">
     <rect
        style="opacity:1;fill:#e9ddaf;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal"
@@ -562,20 +561,12 @@
        height="1000"
        x="0"
        y="0" />
-    <rect
-       y="0"
-       x="0"
-       height="1000"
-       width="900"
-       id="rect28716"
-       style="opacity:0.125;fill:#e9ddaf;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal;filter:url(#filter28736)" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Field"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <rect
        style="opacity:1;fill:#c6e9af;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal"
        id="rect28644"
@@ -584,33 +575,18 @@
        x="50"
        y="50" />
     <rect
-       y="50"
-       x="50"
-       height="400"
-       width="800"
-       id="rect28929"
-       style="opacity:0.09800002;fill:#aade87;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal;filter:url(#filter28965)" />
-    <rect
        y="550"
        x="50"
        height="400"
        width="800"
        id="rect28977"
        style="opacity:1;fill:#c6e9af;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal" />
-    <rect
-       style="opacity:0.09800002;fill:#aade87;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal;filter:url(#filter28965)"
-       id="rect28979"
-       width="800"
-       height="400"
-       x="50"
-       y="550" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="River"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <rect
        style="opacity:1;fill:#afdde9;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal"
        id="rect28741"
@@ -618,18 +594,12 @@
        height="100"
        x="50"
        y="450" />
-    <rect
-       y="450"
-       x="50"
-       height="100"
-       width="800"
-       id="rect28743"
-       style="opacity:0.16554057;fill:#afdde9;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal;filter:url(#filter28927)" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer5"
-     inkscape:label="Palace">
+     inkscape:label="Palace"
+     style="display:inline">
     <rect
        style="opacity:1;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal"
        id="rect28982"
@@ -638,26 +608,12 @@
        x="350"
        y="50" />
     <rect
-       y="50"
-       x="350"
-       height="200"
-       width="200"
-       id="rect28984"
-       style="opacity:0.115;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal;filter:url(#filter29202)" />
-    <rect
        y="750"
        x="350"
        height="200"
        width="200"
        id="rect29204"
        style="opacity:1;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal" />
-    <rect
-       style="opacity:0.11499999;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:0.48743723;paint-order:normal;filter:url(#filter29202)"
-       id="rect29206"
-       width="200"
-       height="200"
-       x="350"
-       y="750" />
   </g>
   <g
      inkscape:groupmode="layer"
