@@ -1,5 +1,5 @@
 .grid9x9 .cg-wrap {
-  background-image: url('images/board/shogi.svg');
+  background-image: url('images/board/shogic.svg');
 }
 .shogi .cg-wrap piece.pawn.white {
   background-image: url('images/pieces/shogi/ctp/1FU.svg');
