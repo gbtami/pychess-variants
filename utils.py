@@ -22,11 +22,18 @@ CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, 
 
 
 def usi2uci(move):
-    """ Used to create chessground dests UCI coordinates from USI shogi moves """
+    """ Used to create chessground dests UCI coordinates from USI shogi moves and on game save also. """
     if move[1] == "*":
         return "%s@%s%s" % (move[0], chr(ord(move[2]) + 48), chr(ord(move[3]) - 48))
     else:
-        return "%s%s%s%s" % (chr(ord(move[0]) + 48), chr(ord(move[1]) - 48), chr(ord(move[2]) + 48), chr(ord(move[3]) - 48))
+        return "%s%s%s%s%s" % (chr(ord(move[0]) + 48), chr(ord(move[1]) - 48), chr(ord(move[2]) + 48), chr(ord(move[3]) - 48), move[4] if len(move) == 5 else "")
+
+
+def uci2usi(move):
+    if move[1] == "@":
+        return "%s*%s%s" % (move[0], chr(ord(move[2]) - 48), chr(ord(move[3]) + 48))
+    else:
+        return "%s%s%s%s%s" % (chr(ord(move[0]) - 48), chr(ord(move[1]) + 48), chr(ord(move[2]) - 48), chr(ord(move[3]) + 48), move[4] if len(move) == 5 else "")
 
 
 class Seek:
@@ -272,7 +279,7 @@ class Game:
              {"d": self.date,
               "s": self.status,
               "r": R2C[self.result],
-              'm': encode_moves(self.board.move_stack)}
+              'm': encode_moves(map(usi2uci, self.board.move_stack) if self.variant == "shogi" else self.board.move_stack)}
              }
         )
         self.saved = True
@@ -422,8 +429,15 @@ async def load_game(db, games, users, game_id):
         bplayer = User(username=bp)
         users[bp] = bplayer
 
-    game = Game(db, games, game_id, C2V[doc["v"]], doc.get("if"), wplayer, bplayer, doc["b"], doc["i"])
-    for move in decode_moves(doc["m"]):
+    variant = C2V[doc["v"]]
+
+    game = Game(db, games, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"])
+
+    mlist = decode_moves(doc["m"])
+    if variant == "shogi":
+        mlist = map(uci2usi, mlist)
+
+    for move in mlist:
         san = game.board.get_san(move)
         game.board.push(move)
         game.check = game.board.is_checked()
@@ -441,6 +455,7 @@ async def load_game(db, games, users, game_id):
     game.date = doc["d"]
     game.status = doc["s"]
     game.result = C2R[doc["r"]]
+    game.random_move = ""
     game.saved = True
     games[game_id] = game
     return game

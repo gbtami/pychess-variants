@@ -27,15 +27,9 @@ C2R = {v: k for k, v in R2C.items()}
 # Create square to int mapping
 M2C = dict(zip([a + b for a, b in product("abcdefghij", "0123456789")], list(range(34, 256))))
 
-# Add possible from parts of shogi drop moves
-PIECES = "PNBRGSL"
+# Add possible from parts of crazy, placement, sittuyin, shogi drop moves
+PIECES = "PNBRQKFGSL"
 m2c_len = len(M2C) + 34
-for piece in PIECES:
-    M2C["%s*" % piece] = m2c_len
-    m2c_len += 1
-
-# Add possible from parts of crazy, placement, sittuyin drop moves
-PIECES = "PNBRQKF"
 for piece in PIECES:
     M2C["%s@" % piece] = m2c_len
     m2c_len += 1
