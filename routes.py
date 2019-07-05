@@ -288,7 +288,7 @@ async def websocket_handler(request):
                         user.ping_counter -= 1
 
                     elif data["type"] == "rematch":
-                        game = games[data["gameId"]]
+                        game = await load_game(db, games, users, data["gameId"])
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
@@ -402,7 +402,8 @@ async def websocket_handler(request):
 
                         if game.spectators:
                             for spectator in game.spectators:
-                                await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
+                                if data["gameId"] in users[spectator.username].game_sockets:
+                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
                     elif data["type"] == "get_seeks":
                         response = get_seeks(seeks)
