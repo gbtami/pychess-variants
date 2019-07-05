@@ -489,6 +489,7 @@ async def websocket_handler(request):
                         lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, users, games))
 
                     elif data["type"] == "game_user_connected":
+                        game = await load_game(db, games, users, data["gameId"])
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing game_user %s socket connected as %s." % (session_user, data["username"]))
@@ -497,8 +498,7 @@ async def websocket_handler(request):
                                 users[user.username] = user
 
                                 # Update logged in users as spactators
-                                game = games[data["gameId"]]
-                                if user.username != game.wplayer.username and user.username != game.bplayer.username:
+                                if user.username != game.wplayer.username and user.username != game.bplayer.username and game is not None:
                                     game.spectators.add(user)
                             else:
                                 user = users[session_user]
@@ -516,7 +516,6 @@ async def websocket_handler(request):
                         # remove user seeks
                         await user.clear_seeks(sockets, seeks)
 
-                        game = await load_game(db, games, users, data["gameId"])
                         if game is None:
                             log.debug("Requseted game %s not found!")
                             response = {"type": "game_not_found", "username": user.username, "gameId": data["gameId"]}

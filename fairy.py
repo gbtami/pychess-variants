@@ -45,7 +45,10 @@ class FairyBoard:
         return sf.get_san(self.variant, self.fen, move)
 
     def legal_moves(self):
-        return sf.legal_moves(self.variant, self.initial_fen, self.move_stack)
+        # print("   self.move_stack:", self.move_stack)
+        legals = sf.legal_moves(self.variant, self.initial_fen, self.move_stack)
+        # print("       legal_moves:", legals)
+        return legals
 
     def is_checked(self):
         return sf.gives_check(self.variant, self.initial_fen, self.move_stack)

@@ -373,7 +373,7 @@ export default class RoundController {
 
     private checkStatus = (msg) => {
         if (msg.gameId !== this.model["gameId"]) return;
-        if (msg.status >= 0) {
+        if (msg.status >= 0 && this.result === "") {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             this.result = msg.result;

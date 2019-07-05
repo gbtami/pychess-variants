@@ -332,6 +332,8 @@ class Game:
             await self.save_game()
 
     def set_dests(self):
+        # print("-----------------------------------------------------------")
+        # print(self.board.print_pos())
         dests = {}
         moves = self.board.legal_moves()
 
@@ -346,8 +348,6 @@ class Game:
                 dests[source].append(dest)
             else:
                 dests[source] = [dest]
-        # print("-----------------------------------------------------------")
-        # print(self.board.print_pos())
         # print(dests)
         # print("-----------------------------------------------------------")
         self.dests = dests
