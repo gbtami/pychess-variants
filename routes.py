@@ -513,7 +513,7 @@ async def websocket_handler(request):
                             response = {"type": "game_not_found", "username": user.username, "gameId": data["gameId"]}
                             await ws.send_json(response)
                         else:
-                            games[gameId] = game
+                            games[data["gameId"]] = game
                             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                                 game.spectators.add(user)
 
