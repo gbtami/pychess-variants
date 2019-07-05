@@ -346,6 +346,10 @@ class Game:
                 dests[source].append(dest)
             else:
                 dests[source] = [dest]
+        # print("-----------------------------------------------------------")
+        # print(self.board.print_pos())
+        # print(dests)
+        # print("-----------------------------------------------------------")
         self.dests = dests
 
     def print_game(self):
@@ -410,6 +414,9 @@ class Game:
 
 
 async def load_game(db, games, users, game_id):
+    if game_id in games:
+        return games[game_id]
+
     doc = await db.game.find_one({"_id": game_id})
 
     if doc is None:
@@ -457,7 +464,6 @@ async def load_game(db, games, users, game_id):
     game.result = C2R[doc["r"]]
     game.random_move = ""
     game.saved = True
-    games[game_id] = game
     return game
 
 

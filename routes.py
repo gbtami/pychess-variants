@@ -137,15 +137,14 @@ async def index(request):
 
     # Do we have gameId in request url?
     if gameId is not None:
-        if gameId in games:
-            game = games[gameId]
-        else:
-            game = await load_game(db, games, users, gameId)
-            if game is None:
-                log.debug("Requseted game %s not in app['games']" % gameId)
-                template = request.app["jinja"].get_template("404.html")
-                return web.Response(
-                    text=html_minify(template.render({"home": URI})), content_type="text/html")
+        game = await load_game(db, games, users, gameId)
+        if game is None:
+            log.debug("Requseted game %s not in app['games']" % gameId)
+            template = request.app["jinja"].get_template("404.html")
+            return web.Response(
+                text=html_minify(template.render({"home": URI})), content_type="text/html")
+        games[gameId] = game
+
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.add(user)
 
@@ -508,9 +507,18 @@ async def websocket_handler(request):
                         # remove user seeks
                         await user.clear_seeks(sockets, seeks)
 
-                        game = games[data["gameId"]]
-                        response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
-                        await ws.send_json(response)
+                        game = await load_game(db, games, users, data["gameId"])
+                        if game is None:
+                            log.debug("Requseted game %s not found!")
+                            response = {"type": "game_not_found", "username": user.username, "gameId": data["gameId"]}
+                            await ws.send_json(response)
+                        else:
+                            games[gameId] = game
+                            if user.username != game.wplayer.username and user.username != game.bplayer.username:
+                                game.spectators.add(user)
+
+                            response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
+                            await ws.send_json(response)
 
                     elif data["type"] == "is_user_online":
                         player_name = data["username"]
