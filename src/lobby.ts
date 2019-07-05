@@ -113,6 +113,7 @@ class LobbyController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
+        localStorage.setItem("variant", variant);
 
         e = document.getElementById('fen') as HTMLInputElement;
         const fen = e.value;
@@ -146,6 +147,8 @@ class LobbyController {
             if (el) el.innerHTML = increment;
         }
 
+        const vIdx = localStorage.variant === undefined ? 0 : variants.indexOf(localStorage.variant);
+
         return [
         h('div#id01', { class: {"modal": true} }, [
           h('form.modal-content', [
@@ -154,7 +157,7 @@ class LobbyController {
             ]),
             h('div.container', [
                 h('label', { attrs: {for: "variant"} }, "Variant"),
-                h('select#variant', { props: {name: "variant"} }, variants.map((variant) => h('option', { props: {value: variant} }, variant))),
+                h('select#variant', { props: {name: "variant"} }, variants.map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
                 h('label', { attrs: {for: "fen"} }, "Start position"),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here'} }),
                 //h('label', { attrs: {for: "tc"} }, "Time Control"),
