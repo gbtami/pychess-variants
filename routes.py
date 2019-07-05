@@ -197,7 +197,16 @@ async def websocket_handler(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = users[session_user] if session_user else None
+
     lobby_ping_task = None
+    game_ping_task = None
+
+    async def game_pinger():
+        """ Prevent Heroku to close inactive ws """
+        while True:
+            await ws.send_json({})
+            await asyncio.sleep(5)
+
     log.debug("-------------------------- NEW WEBSOCKET by %s" % user)
 
     async for msg in ws:
@@ -520,6 +529,9 @@ async def websocket_handler(request):
                             response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
                             await ws.send_json(response)
 
+                        loop = asyncio.get_event_loop()
+                        game_ping_task = loop.create_task(game_pinger())
+
                     elif data["type"] == "is_user_online":
                         player_name = data["username"]
                         player = users.get(player_name)
@@ -580,6 +592,9 @@ async def websocket_handler(request):
 
         response = {"type": "lobbychat", "user": "", "message": "%s disconnected" % session_user}
         await broadcast(sockets, response)
+
+    if game_ping_task is not None:
+        game_ping_task.cancel()
 
     return ws
 
