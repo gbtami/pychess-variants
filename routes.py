@@ -346,7 +346,8 @@ async def websocket_handler(request):
 
                         if game.spectators:
                             for spectator in game.spectators:
-                                await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
+                                if data["gameId"] in users[spectator.username].game_sockets:
+                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
                     elif data["type"] == "draw":
                         game = games[data["gameId"]]
@@ -367,7 +368,8 @@ async def websocket_handler(request):
 
                         if game.spectators:
                             for spectator in game.spectators:
-                                await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
+                                if data["gameId"] in users[spectator.username].game_sockets:
+                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
                     elif data["type"] == "resign":
                         game = games[data["gameId"]]
@@ -385,7 +387,8 @@ async def websocket_handler(request):
 
                         if game.spectators:
                             for spectator in game.spectators:
-                                await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
+                                if data["gameId"] in users[spectator.username].game_sockets:
+                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
                     elif data["type"] == "flag":
                         response = await flag(games, user, data)
