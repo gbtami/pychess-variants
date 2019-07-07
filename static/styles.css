@@ -146,3 +146,15 @@
 .icon-offline:before {
   content: "\4a";
 }
+.icon-shogiking:before {
+  content: "\4f";
+}
+.icon-schess:before {
+  content: "\4b";
+}
+.icon-standardchess:before {
+  content: "\4c";
+}
+.icon-crazyhouse:before {
+  content: "\4d";
+}
