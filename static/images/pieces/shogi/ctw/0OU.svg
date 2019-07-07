@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -110,7 +110,7 @@
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="3.9333333"
-     inkscape:cx="-45.548205"
+     inkscape:cx="-86.861764"
      inkscape:cy="19.830508"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
@@ -181,15 +181,13 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          style="display:inline;opacity:1;fill:#ffe680;fill-opacity:1;stroke:none;stroke-width:0.44543669;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
     </g>
   </g>
-  <text
-     xml:space="preserve"
+  <g
+     aria-label="王"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:19.77212906px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.2165513;stroke-miterlimit:4;stroke-dasharray:none"
-     x="8.2724276"
-     y="44.040649"
-     id="text10427"><tspan
-       sodipodi:role="line"
-       x="8.2724276"
-       y="44.040649"
+     id="text10427">
+    <path
+       d="m 26.281907,23.121946 q 1.385344,0.831207 0.969741,1.800948 -0.277069,0.969742 -0.415603,5.402844 2.49362,-0.554138 3.463361,-0.831207 1.108276,-0.277068 2.355086,0.554138 1.385344,0.692673 -1.24681,1.385345 -2.632155,0.554138 -4.571637,0.831207 0,4.156033 -0.138535,7.619395 3.740431,-0.554138 5.818447,-0.831207 2.216552,-0.277069 3.324827,-0.277069 1.108276,-0.138534 2.355086,0.277069 1.385345,0.277069 2.355086,1.523879 0.969741,1.108276 -3.186293,0.692672 -4.017499,-0.415603 -8.034998,0 -3.878965,0.277069 -7.896464,0.969741 -4.017499,0.692673 -5.956982,1.108276 -1.800948,0.277069 -3.324827,-0.692672 -1.523879,-0.969741 0.138535,-0.969741 1.800948,-0.138535 4.710171,-0.415604 2.909224,-0.415603 7.896464,-1.24681 v -7.48086 q -2.216551,0.415603 -3.463361,0.554137 -1.24681,0.138535 -2.770689,-0.554137 -1.523879,-0.831207 0.831207,-1.108276 2.49362,-0.277069 5.402843,-0.831207 0.138535,-3.047758 0,-4.710171 -0.138534,-1.662414 -0.415603,-2.493621 -1.800948,0.277069 -3.186293,0.415604 -1.385344,0 -2.632154,-0.692673 -1.24681,-0.831206 0.138534,-0.969741 1.385345,-0.138534 5.818447,-0.969741 4.433103,-0.831207 6.234051,-1.24681 1.939482,-0.415603 2.909224,0.415603 0.969741,0.831207 -1.800948,1.662414 -2.632155,0.692672 -5.679913,1.108275 z"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.46482086px;font-family:KaiTi;-inkscape-font-specification:KaiTi;fill:#000000;stroke-width:2.2165513;stroke-miterlimit:4;stroke-dasharray:none"
-       id="tspan3288">王</tspan></text>
+       id="path4691" />
+  </g>
 </svg>
