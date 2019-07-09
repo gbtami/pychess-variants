@@ -11,10 +11,10 @@
   background-image: url('images/pieces/merida/wN.svg');
 }
 .merida .cg-wrap piece.hawk.white {
-  background-image: url('images/pieces/merida/wA.svg');
+  background-image: url('images/pieces/merida/wH.svg');
 }
 .merida .cg-wrap piece.elephant.white {
-  background-image: url('images/pieces/merida/wC.svg');
+  background-image: url('images/pieces/merida/wE.svg');
 }
 .merida .cg-wrap piece.rook.white {
   background-image: url('images/pieces/merida/wR.svg');
@@ -35,10 +35,10 @@
   background-image: url('images/pieces/merida/bN.svg');
 }
 .merida .cg-wrap piece.hawk.black {
-  background-image: url('images/pieces/merida/bA.svg');
+  background-image: url('images/pieces/merida/bH.svg');
 }
 .merida .cg-wrap piece.elephant.black {
-  background-image: url('images/pieces/merida/bC.svg');
+  background-image: url('images/pieces/merida/bE.svg');
 }
 .merida .cg-wrap piece.rook.black {
   background-image: url('images/pieces/merida/bR.svg');
