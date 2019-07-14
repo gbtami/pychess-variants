@@ -13,7 +13,9 @@
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
-    "lib": ["dom", "es6"],
-    "target": "es6"
+    "allovsJs": true,
+    "module": "commonjs",
+    "lib": ["DOM", "ES6"],
+    "target": "ES6"
   }
 }

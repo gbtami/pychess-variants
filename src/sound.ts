@@ -55,5 +55,5 @@ export const sound = new(sounds);
 export function changeCSS(cssFile) {
     // css file index in template.html
     const cssLinkIndex = 1;
-    document.getElementsByTagName("link").item(cssLinkIndex).setAttribute("href", cssFile);
+    document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

@@ -35,8 +35,8 @@ export default function resizeHandle(els: cg.Elements) {
         if (el) {
 //            const baseWidth = dimensions[VARIANTS[this.variant].geom].width * (this.variant === "shogi" ? 52 : 64);
 //            const baseHeight = dimensions[VARIANTS[this.variant].geom].height * (this.variant === "shogi" ? 60 : 64);
-            const baseWidth = parseInt( document.defaultView.getComputedStyle( el ).width || '', 10);
-            const baseHeight = parseInt(document.defaultView.getComputedStyle( el ).height || '', 10);
+            const baseWidth = parseInt( document.defaultView!.getComputedStyle( el ).width || '', 10);
+            const baseHeight = parseInt(document.defaultView!.getComputedStyle( el ).height || '', 10);
             console.log(baseWidth, baseHeight, zoom);
             const pxw = `${zoom / 100 * baseWidth}px`;
             const pxh = `${zoom / 100 * baseHeight}px`;

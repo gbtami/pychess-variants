@@ -31,7 +31,7 @@ function bundle() {
     .pipe(gulp.dest(destination));
 }
 
-gulp.task("default", [], bundle);
+gulp.task("default", bundle);
 watchedBrowserify.on("update", bundle);
 watchedBrowserify.on("log", gutil.log);
 
