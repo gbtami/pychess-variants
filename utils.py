@@ -136,12 +136,13 @@ class User:
 
             if self.bot:
                 await self.event_queue.put("\n")
+                # heroku needs ping at least in 50 sec not to close BOT connections (stream events) on server side
+                await asyncio.sleep(50)
             else:
                 await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
+                await asyncio.sleep(3)
             self.ping_counter += 1
 
-            # heroku needs ping at least in 50 sec not to close BOT connections (stream events) on server side
-            await asyncio.sleep(3)
 
     def __str__(self):
         return self.username

@@ -4,15 +4,15 @@ import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan"];
 
 export const VARIANTS = {
-    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", pieces: "makruk", css: ["makruk"], icon: "u"},
-    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "makruk", css: ["sittuyin"], icon: "u" },
-    shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", pieces: "shogi", css: ["shogi0", "shogi0h", "shogi0w", "shogi0p"], icon: "O" },
-    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict"], icon: "u" },
-    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "u" },
-    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "M" },
-    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capablanca"], icon: "u" },
-    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["seirawan"], icon: "K" },
-    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "L" },
+    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", pieces: "makruk", css: ["makruk"], icon: "Q"},
+    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "makruk", css: ["sittuyin"], icon: "R" },
+    shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", pieces: "shogi", css: ["shogi0", "shogi0h", "shogi0w", "shogi0p"], icon: "K" },
+    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict"], icon: "O" },
+    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "S" },
+    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "H" },
+    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capablanca"], icon: "P" },
+    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["seirawan"], icon: "L" },
+    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "M" },
 }
 
 export function pocketRoles(variant: string) {

@@ -72,52 +72,52 @@
   content: "\6b";
 }
 .icon-fast-backward:before {
-  content: "\6d";
-}
-.icon-fast-forward:before {
-  content: "\6e";
-}
-.icon-step-backward:before {
-  content: "\6f";
-}
-.icon-step-forward:before {
-  content: "\70";
-}
-.icon-refresh:before {
-  content: "\71";
-}
-.icon-thumbs-o-up:before {
-  content: "\72";
-}
-.icon-trash-o:before {
-  content: "\73";
-}
-.icon-bars:before {
-  content: "\76";
-}
-.icon-cog:before {
-  content: "\77";
-}
-.icon-bolt:before {
   content: "\6c";
 }
-.icon-comment-o:before {
-  content: "\78";
+.icon-fast-forward:before {
+  content: "\6d";
 }
-.icon-bell-o:before {
-  content: "\79";
+.icon-step-backward:before {
+  content: "\6e";
 }
-.icon-trophy:before {
-  content: "\7a";
+.icon-step-forward:before {
+  content: "\6f";
 }
-.icon-paper-plane:before {
+.icon-refresh:before {
+  content: "\70";
+}
+.icon-thumbs-o-up:before {
+  content: "\71";
+}
+.icon-trash-o:before {
+  content: "\72";
+}
+.icon-bars:before {
+  content: "\73";
+}
+.icon-cog:before {
+  content: "\74";
+}
+.icon-bolt:before {
   content: "\75";
 }
+.icon-comment-o:before {
+  content: "\76";
+}
+.icon-bell-o:before {
+  content: "\77";
+}
+.icon-trophy:before {
+  content: "\78";
+}
+.icon-paper-plane:before {
+  content: "\79";
+}
 .icon-list:before {
-  content: "\41";
+  content: "\7a";
 }
 .icon-download:before {
-  content: "\74";
+  content: "\41";
 }
 .icon-ban:before {
   content: "\42";
@@ -135,10 +135,10 @@
   content: "\46";
 }
 .icon-light:before {
-  content: "\48";
+  content: "\47";
 }
 .icon-h-square:before {
-  content: "\47";
+  content: "\48";
 }
 .icon-online:before {
   content: "\49";
@@ -147,14 +147,29 @@
   content: "\4a";
 }
 .icon-shogiking:before {
-  content: "\4f";
-}
-.icon-schess:before {
   content: "\4b";
 }
-.icon-standardchess:before {
+.icon-schess:before {
   content: "\4c";
 }
-.icon-crazyhouse:before {
+.icon-standardchess:before {
   content: "\4d";
+}
+.icon-crazyhouse:before {
+  content: "\4e";
+}
+.icon-xiangqi:before {
+  content: "\4f";
+}
+.icon-capablanca:before {
+  content: "\50";
+}
+.icon-makruk:before {
+  content: "\51";
+}
+.icon-sittuyin:before {
+  content: "\52";
+}
+.icon-placement:before {
+  content: "\53";
 }
