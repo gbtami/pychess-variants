@@ -105,6 +105,9 @@ class User:
         if self.username in sockets:
             del sockets[self.username]
 
+        response = {"type": "lobbychat", "user": "", "message": "%s disconnected" % self.username}
+        await broadcast(sockets, response)
+
     async def broadcast_disconnect(self, users, games):
         games_involved = self.game_queues.keys() if self.bot else self.game_sockets.keys()
 
@@ -142,7 +145,6 @@ class User:
                 await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
                 await asyncio.sleep(3)
             self.ping_counter += 1
-
 
     def __str__(self):
         return self.username

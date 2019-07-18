@@ -90,10 +90,10 @@ export default class RoundController {
             };
 
         try {
-            this.sock = new Sockette("ws://" + location.host + "/ws", opts);
+            this.sock = new Sockette("ws://" + location.host + "/wsr", opts);
         }
         catch(err) {
-            this.sock = new Sockette("wss://" + location.host + "/ws", opts);
+            this.sock = new Sockette("wss://" + location.host + "/wsr", opts);
         }
 
         this.model = model;

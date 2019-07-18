@@ -57,10 +57,10 @@ class LobbyController {
             onerror: e => console.log('Error:', e),
             };
         try {
-            this.sock = new Sockette("ws://" + location.host + "/ws", opts);
+            this.sock = new Sockette("ws://" + location.host + "/wsl", opts);
         }
         catch(err) {
-            this.sock = new Sockette("wss://" + location.host + "/ws", opts);
+            this.sock = new Sockette("wss://" + location.host + "/wsl", opts);
         }
 
         // get seeks when we are coming back after a game
