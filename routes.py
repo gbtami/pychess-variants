@@ -152,7 +152,6 @@ async def index(request):
         "username": user.username if session["guest"] else "",
         "country": session["country"] if "country" in session else "",
         "guest": session["guest"],
-        "tv": tv,
         "gameid": gameId if gameId is not None else "",
         "variant": game.variant if gameId is not None else "",
         "wplayer": game.wplayer.username if gameId is not None else "",
@@ -160,6 +159,8 @@ async def index(request):
         "fen": game.board.fen if gameId is not None else "",
         "base": game.base if gameId is not None else "",
         "inc": game.inc if gameId is not None else "",
+        "status": game.status if gameId is not None else "",
+        "tv": tv,
     }
     text = template.render(render)
 

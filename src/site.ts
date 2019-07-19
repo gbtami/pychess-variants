@@ -7,7 +7,7 @@ import { roundView } from './round';
 export const ACCEPT = Symbol("Accept");
 export const BACK = Symbol('Back');
 
-// model : {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", base: "", inc: "", seeks: [seek], tv: ""}
+// model : {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", base: "", inc: "", seeks: [seek], tv: "", status: ""}
 
 var getCookie = function(name) {
     var cookies = document.cookie.split(';');
@@ -44,6 +44,7 @@ export function view(model, handler): VNode {
             model["fen"] = el.getAttribute("data-fen");
             model["base"] = el.getAttribute("data-base");
             model["inc"] = el.getAttribute("data-inc");
+            model["status"] = el.getAttribute("data-status");
             model["tv"] = el.getAttribute("data-tv");
         };
     }
@@ -52,14 +53,14 @@ export function view(model, handler): VNode {
 }
 
 function init() {
-    return {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: ""};
+    return {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", status: ""};
 }
 
 function update(model, action) {
     return action.type === ACCEPT ?
-        {home: model["home"], username: model["username"], variant: model["variant"], gameId: model["gameId"], wplayer: model["wplayer"], bplayer: model["bplayer"], fen: model["fen"], base: model["base"], inc: model["inc"], seeks: [], tv: model["tv"]}
+        {home: model["home"], username: model["username"], variant: model["variant"], gameId: model["gameId"], wplayer: model["wplayer"], bplayer: model["bplayer"], fen: model["fen"], base: model["base"], inc: model["inc"], seeks: [], tv: model["tv"], status: model["status"]}
             : action.type === BACK ?
-                {home: model["home"], username: model["username"], variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: ""}
+                {home: model["home"], username: model["username"], variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", status: ""}
                 : model;
 }
 

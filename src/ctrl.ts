@@ -59,6 +59,7 @@ export default class RoundController {
     spectator: boolean;
     oppIsRandomMover: boolean;
     tv: string;
+    status: number;
     steps;
     ply: number;
     players: string[];
@@ -104,6 +105,7 @@ export default class RoundController {
         this.bplayer = model["bplayer"] as string;
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
+        this.status = model["status"] as number;
         this.tv = model["tv"] as string;
         this.steps = [];
         this.ply = 0;
@@ -246,6 +248,12 @@ export default class RoundController {
             }
         }
         this.clocks[1].onFlag(flagCallback);
+
+        if (Number(this.status) < 0) {
+            console.log("GAME is ONGOING...");
+        } else {
+            console.log("GAME was ENDED...");
+        }
 
         // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
 
