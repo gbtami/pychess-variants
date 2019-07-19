@@ -18,7 +18,7 @@ class FairyBoard:
     def start_fen(self, variant):
         # pyffish gives internal color representation for shogi
         # "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1"
-        if self.variant == "shogi":
+        if variant == "shogi":
             return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
         else:
             return sf.start_fen(variant)

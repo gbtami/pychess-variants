@@ -191,9 +191,9 @@ class Game:
             invalid2 = start[0].count("/") != init[0].count("/")
             invalid3 = init[1] != "b" and init[1] != "w"
             if variant == "seirawan":
-                invalid4 = len(init) > 2 and any((c not in "KQBCDFGkqbcdfgAHah" for c in init[2]))
+                invalid4 = len(init) > 2 and any((c not in "KQBCDFGkqbcdfgAHah-" for c in init[2]))
             else:
-                invalid4 = len(init) > 2 and any((c not in start[2] for c in init[2]))
+                invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
             if invalid0 or invalid1 or invalid2 or invalid3 or invalid4:
                 log.error("Got invalid initial_fen %s for game %s" % (self.initial_fen, self.id))
@@ -379,8 +379,8 @@ class Game:
             self.variant.capitalize(),
             moves,
             self.result,
-            fen="" if self.variant == "standard" else '[FEN "%s"]\n' % self.initial_fen,
-            setup="" if self.variant == "standard" else '[SetUp "1"]\n')
+            fen="" if self.initial_fen == self.board.start_fen("standard") else '[FEN "%s"]\n' % self.initial_fen,
+            setup="" if self.initial_fen == self.board.start_fen("standard") else '[SetUp "1"]\n')
 
     @property
     def ply(self):
