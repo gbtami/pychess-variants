@@ -9,6 +9,7 @@ class sounds {
             Draw: { name: 'Draw', qty : 1, pool : [], index : 0},
             Victory: { name: 'Victory', qty : 1, pool : [], index : 0},
             Defeat: { name: 'Defeat', qty : 1, pool : [], index : 0},
+            ShogiMove: { name: 'komaoto5', qty : 8, pool : [], index : 0},
         }
 
         Object.keys(this.tracks).forEach(key => {
@@ -48,6 +49,7 @@ class sounds {
     draw() { this.getSound('Draw').play(); };
     victory() { this.getSound('Victory').play(); };
     defeat() { this.getSound('Defeat').play(); };
+    shogimove() { this.getSound('ShogiMove').play(); };
 }
 
 export const sound = new(sounds);

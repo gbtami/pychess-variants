@@ -515,10 +515,14 @@ export default class RoundController {
         const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]]
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (capture) {
-                sound.capture();
+            if (this.variant === "shogi") {
+                sound.shogimove();
             } else {
-                sound.move();
+                if (capture) {
+                    sound.capture();
+                } else {
+                    sound.move();
+                }
             }
         } else {
             lastMove = [];
@@ -645,10 +649,14 @@ export default class RoundController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (capturedPiece) {
-                sound.capture();
+            if (this.variant === "shogi") {
+                sound.shogimove();
             } else {
-                sound.move();
+                if (capturedPiece) {
+                    sound.capture();
+                } else {
+                    sound.move();
+                }
             }
         }
     }
@@ -657,7 +665,11 @@ export default class RoundController {
         return (piece, dest) => {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != "a0" && piece.role) {
-                sound.move();
+                if (this.variant === "shogi") {
+                    sound.shogimove();
+                } else {
+                    sound.move();
+                }
             }
         }
     }
