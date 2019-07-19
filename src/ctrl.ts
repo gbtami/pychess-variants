@@ -112,8 +112,7 @@ export default class RoundController {
 
         this.flip = false;
 
-        // TODO:save/restore preferences
-        this.CSSindexes = Array(variants.length).fill(0);
+        this.CSSindexes = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         if (this.tv) {
@@ -262,6 +261,7 @@ export default class RoundController {
             idx += 1;
             idx = idx % VARIANTS[this.variant].css.length;
             this.CSSindexes[variants.indexOf(this.variant)] = idx
+            localStorage.setItem(this.variant + "_pieces", String(idx));
             this.setPieces(this.mycolor);
         }
 

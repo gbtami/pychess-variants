@@ -113,20 +113,24 @@ class LobbyController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
-        localStorage.setItem("variant", variant);
+        localStorage.setItem("seek_variant", variant);
 
         e = document.getElementById('fen') as HTMLInputElement;
         const fen = e.value;
+        localStorage.setItem("seek_fen", e.value);
 
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = parseInt(e.value);
+        localStorage.setItem("seek_min", e.value);
 
         e = document.getElementById('inc') as HTMLInputElement;
         const increment = parseInt(e.value);
+        localStorage.setItem("seek_inc", e.value);
 
         if (this.challengeAI) {
             const form = document.getElementById('ailevel') as HTMLFormElement;
             const level = parseInt(form.elements['level'].value);
+            localStorage.setItem("seek_level", form.elements['level'].value);
             this.createBotChallengeMsg(variant, color, fen, minutes, increment, level)
         } else {
             if (this.isNewSeek(variant, color, fen, minutes, increment)) {
@@ -147,7 +151,11 @@ class LobbyController {
             if (el) el.innerHTML = increment;
         }
 
-        const vIdx = localStorage.variant === undefined ? 0 : variants.indexOf(localStorage.variant);
+        const vIdx = localStorage.seek_variant === undefined ? 0 : variants.indexOf(localStorage.seek_variant);
+        const vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
+        const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
+        const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
+        const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
 
         return [
         h('div#id01', { class: {"modal": true} }, [
@@ -159,7 +167,7 @@ class LobbyController {
                 h('label', { attrs: {for: "variant"} }, "Variant"),
                 h('select#variant', { props: {name: "variant"} }, variants.map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
                 h('label', { attrs: {for: "fen"} }, "Start position"),
-                h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here'} }),
+                h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here', value: vFen} }),
                 //h('label', { attrs: {for: "tc"} }, "Time Control"),
                 //h('select#timecontrol', { props: {name: "timecontrol"} }, [
                 //    h('option', { props: {value: "1", selected: true} }, "Real time"),
@@ -168,14 +176,14 @@ class LobbyController {
                 h('label', { attrs: {for: "min"} }, "Minutes per side:"),
                 h('span#minutes'),
                 h('input#min', { class: { "slider": true },
-                    props: {name: "min", type: "range", min: 0, max: 60, value: 3},
+                    props: {name: "min", type: "range", min: 0, max: 60, value: vMin},
                     on: { input: (e) => setMinutes((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setMinutes((vnode.elm as HTMLInputElement).value) },
                 }),
                 h('label', { attrs: {for: "inc"} }, "Increment in seconds:"),
                 h('span#increment'),
                 h('input#inc', { class: {"slider": true },
-                    props: {name: "inc", type: "range", min: 0, max: 15, value: 2},
+                    props: {name: "inc", type: "range", min: 0, max: 15, value: vInc},
                     on: { input: (e) => setIncrement((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
                 }),
@@ -184,21 +192,21 @@ class LobbyController {
                 h('form#ailevel', [
                 h('h4', "A.I. Level"),
                 h('div.radio-group', [
-                    h('input#ai1', { props: { type: "radio", name: "level", value: "1", checked: "checked"} }),
+                    h('input#ai1', { props: { type: "radio", name: "level", value: "1", checked: vLevel === "1" ? "checked" : ""} }),
                     h('label.level-ai.ai1', { attrs: {for: "ai1"} }, "1"),
-                    h('input#ai2', { props: { type: "radio", name: "level", value: "2"} }),
+                    h('input#ai2', { props: { type: "radio", name: "level", value: "2", checked: vLevel === "2" ? "checked" : ""} }),
                     h('label.level-ai.ai2', { attrs: {for: "ai2"} }, "2"),
-                    h('input#ai3', { props: { type: "radio", name: "level", value: "3"} }),
+                    h('input#ai3', { props: { type: "radio", name: "level", value: "3", checked: vLevel === "3" ? "checked" : ""} }),
                     h('label.level-ai.ai3', { attrs: {for: "ai3"} }, "3"),
-                    h('input#ai4', { props: { type: "radio", name: "level", value: "4"} }),
+                    h('input#ai4', { props: { type: "radio", name: "level", value: "4", checked: vLevel === "4" ? "checked" : ""} }),
                     h('label.level-ai.ai4', { attrs: {for: "ai4"} }, "4"),
-                    h('input#ai5', { props: { type: "radio", name: "level", value: "5"} }),
+                    h('input#ai5', { props: { type: "radio", name: "level", value: "5", checked: vLevel === "5" ? "checked" : ""} }),
                     h('label.level-ai.ai5', { attrs: {for: "ai5"} }, "5"),
-                    h('input#ai6', { props: { type: "radio", name: "level", value: "6"} }),
+                    h('input#ai6', { props: { type: "radio", name: "level", value: "6", checked: vLevel === "6" ? "checked" : ""} }),
                     h('label.level-ai.ai6', { attrs: {for: "ai6"} }, "6"),
-                    h('input#ai7', { props: { type: "radio", name: "level", value: "7"} }),
+                    h('input#ai7', { props: { type: "radio", name: "level", value: "7", checked: vLevel === "7" ? "checked" : ""} }),
                     h('label.level-ai.ai7', { attrs: {for: "ai7"} }, "7"),
-                    h('input#ai8', { props: { type: "radio", name: "level", value: "8"} }),
+                    h('input#ai8', { props: { type: "radio", name: "level", value: "8", checked: vLevel === "8" ? "checked" : ""} }),
                     h('label.level-ai.ai8', { attrs: {for: "ai8"} }, "8"),
                 ]),
                 ]),
