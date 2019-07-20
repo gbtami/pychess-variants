@@ -144,6 +144,8 @@ async def round_socket_handler(request):
                             await engine.event_queue.put(challenge(seek, response))
                             gameId = response["gameId"]
                             engine.game_queues[gameId] = asyncio.Queue()
+                            game = games[gameId]
+                            await engine.event_queue.put(game.game_start)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             if opp_name in game.rematch_offers:
