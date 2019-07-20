@@ -288,8 +288,9 @@ class Game:
         self.saved = True
 
         async def remove():
-            # keep it in our games dict a little to let players get the last board
-            await asyncio.sleep(5)
+            # Keep it in our games dict a little to let players get the last board
+            # not to mention that BOT players want to abort games after 20 sec inactivity
+            await asyncio.sleep(30)
             print("REMOVED", )
             del self.games[self.id]
 
