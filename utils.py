@@ -505,8 +505,8 @@ async def flag(games, user, data):
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
-def challenge(seek, response):
-    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s}}\n' % (response["gameId"], seek.user.username, seek.variant, seek.level)
+def challenge(seek, gameId):
+    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s}}\n' % (gameId, seek.user.username, seek.variant, seek.level)
 
 
 def create_seek(seeks, user, data):
@@ -522,7 +522,7 @@ def get_seeks(seeks):
     return {"type": "get_seeks", "seeks": [seek.as_json for seek in seeks.values()]}
 
 
-async def accept_seek(db, seeks, games, user, seek_id):
+async def new_game(db, seeks, games, user, seek_id):
     log.info("+++ Seek %s accepted by%s" % (seek_id, user.username))
     seek = seeks[seek_id]
 
@@ -563,7 +563,7 @@ async def accept_seek(db, seeks, games, user, seek_id):
     result = await db.game.insert_one(document)
     print("db insert game result %s" % repr(result.inserted_id))
 
-    return {"type": "accept_seek", "ok": True, "variant": seek.variant, "gameId": new_game.id, "wplayer": wplayer.username, "bplayer": bplayer.username, "fen": seek.fen, "base": seek.base, "inc": seek.inc}
+    return {"type": "new_game", "gameId": new_game.id}
 
 
 async def broadcast(sockets, response):

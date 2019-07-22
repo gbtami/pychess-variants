@@ -29,7 +29,6 @@ const patch = init([klass, attributes, properties, listeners]);
 export default class RoundController {
     model;
     sock;
-    evtHandler;
     chessground: Api;
     fullfen: string;
     wplayer: string;
@@ -65,7 +64,7 @@ export default class RoundController {
     players: string[];
     CSSindexes: number[];
 
-    constructor(el, model, handler) {
+    constructor(el, model) {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
             this.clocks[0].connecting = false;
@@ -98,7 +97,6 @@ export default class RoundController {
         }
 
         this.model = model;
-        this.evtHandler = handler;
         this.variant = model["variant"] as string;
         this.fullfen = model["fen"] as string;
         this.wplayer = model["wplayer"] as string;
@@ -115,11 +113,6 @@ export default class RoundController {
         this.CSSindexes = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
-        if (this.tv) {
-            window.history.pushState({}, document.title, "/tv");
-        } else {
-            window.history.pushState({}, document.title, "/" + this.model["gameId"]);
-        }
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -348,9 +341,8 @@ export default class RoundController {
         if (!this.spectator) sound.genericNotify();
     }
 
-    private onMsgAcceptSeek = (msg) => {
-        console.log("GameController.onMsgAcceptSeek()", this.model["gameId"])
-        // this.evtHandler({ type: ACCEPT });
+    private onMsgNewGame = (msg) => {
+        console.log("GameController.onMsgNewGame()", this.model["gameId"])
         window.location.assign(this.model["home"] + '/' + msg["gameId"]);
     }
 
@@ -878,8 +870,8 @@ export default class RoundController {
             case "roundchat":
                 this.onMsgChat(msg);
                 break;
-            case "accept_seek":
-                this.onMsgAcceptSeek(msg);
+            case "new_game":
+                this.onMsgNewGame(msg);
                 break;
             case "offer":
                 this.onMsgOffer(msg);

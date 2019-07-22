@@ -4,7 +4,7 @@ import logging
 from aiohttp import web
 
 from utils import STARTED, RESIGN, INVALIDMOVE, broadcast,\
-    get_board, accept_seek, challenge, get_seeks, User, Seek
+    get_board, new_game, challenge, get_seeks, User, Seek
 
 log = logging.getLogger(__name__)
 
@@ -92,12 +92,12 @@ async def create_bot_seek(request):
     else:
         db = request.app["db"]
         games = request.app["games"]
-        response = await accept_seek(db, seeks, games, bot_player, matching_seek.id)
+        response = await new_game(db, seeks, games, bot_player, matching_seek.id)
 
         gameId = response["gameId"]
         game = games[gameId]
 
-        chall = challenge(seek, response)
+        chall = challenge(seek, gameId)
 
         await seek.user.event_queue.put(chall)
         seek.user.game_queues[gameId] = asyncio.Queue()
@@ -180,12 +180,6 @@ async def game_stream(request):
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(pinger())
-
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
-    if not users[opp_name].bot:
-        opp_ws = users[opp_name].game_sockets[gameId]
-        response = {"type": "user_online", "username": username}
-        await opp_ws.send_json(response)
 
     while True:
         answer = await bot_player.game_queues[gameId].get()

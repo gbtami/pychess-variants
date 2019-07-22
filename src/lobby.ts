@@ -14,29 +14,21 @@ import { VNode } from 'snabbdom/vnode';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { variants, VARIANTS } from './chess';
-import ACCEPT from './site';
-
-export const ADD = Symbol('Add');
-export const DELETE = Symbol('Delete');
-export const UPDATE = Symbol('Update');
-export const RESET = Symbol('Reset');
 
 
 class LobbyController {
     model;
     sock;
-    evtHandler;
     player;
     logged_in;
     challengeAI;
     _ws;
     seeks;
 
-    constructor(el, model, handler) {
+    constructor(el, model) {
         console.log("LobbyController constructor", el, model);
 
         this.model = model;
-        this.evtHandler = handler;
         this.challengeAI = false;
 
         const onOpen = (evt) => {
@@ -140,7 +132,6 @@ class LobbyController {
     }
 
     renderSeekButtons () {
-        // TODO: save/restore selected values
         const setMinutes = (minutes) => {
             var el = document.getElementById("minutes") as HTMLElement;
             if (el) el.innerHTML = minutes;
@@ -279,16 +270,9 @@ class LobbyController {
         }
     }
 
-    private onMsgAcceptSeek = (msg) => {
-        this.model["gameId"] = msg["gameId"];
-        this.model["variant"] = msg["variant"];
-        this.model["wplayer"] = msg["wplayer"];
-        this.model["bplayer"] = msg["bplayer"];
-        this.model["fen"] = msg["fen"];
-        this.model["base"] = msg["base"];
-        this.model["inc"] = msg["inc"];
-        // console.log("LobbyController.onMsgAcceptSeek()", this.model["gameId"])
-        this.evtHandler({ type: ACCEPT });
+    private onMsgNewGame = (msg) => {
+        console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
+        window.location.assign(this.model["home"] + '/' + msg["gameId"]);
 }
 
     private onMsgUserConnected = (msg) => {
@@ -315,8 +299,8 @@ class LobbyController {
             case "get_seeks":
                 this.onMsgGetSeeks(msg);
                 break;
-            case "accept_seek":
-                this.onMsgAcceptSeek(msg);
+            case "new_game":
+                this.onMsgNewGame(msg);
                 break;
             case "lobby_user_connected":
                 this.onMsgUserConnected(msg);
@@ -334,14 +318,13 @@ class LobbyController {
     }
 }
 
-function runSeeks(vnode: VNode, model, handler) {
+function runSeeks(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new LobbyController(el, model, handler);
+    const ctrl = new LobbyController(el, model);
     console.log("lobbyView() -> runSeeks()", el, model, ctrl);
 }
 
-export function lobbyView(model, handler): VNode[] {
-    // console.log(".......lobbyView(model, handler)", model, handler);
+export function lobbyView(model): VNode[] {
     // Get the modal
     const modal = document.getElementById('id01')!;
 
@@ -353,7 +336,7 @@ export function lobbyView(model, handler): VNode[] {
     }
 
     return [h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
-            h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model, handler) } }) ]),
+            h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model) } }) ]),
             h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
             h('under-left', "# of users"),
             h('under-lobby'),

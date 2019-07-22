@@ -6,7 +6,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from utils import get_seeks, create_seek, accept_seek, challenge, broadcast,\
+from utils import get_seeks, create_seek, new_game, challenge, broadcast,\
     User, Seek
 
 log = logging.getLogger(__name__)
@@ -70,9 +70,11 @@ async def lobby_socket_handler(request):
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
                         seeks[seek.id] = seek
 
-                        response = await accept_seek(db, seeks, games, engine, seek.id)
+                        response = await new_game(db, seeks, games, engine, seek.id)
                         await ws.send_json(response)
-
+                        print("---------USERS-----------")
+                        for user in users.values():
+                            print(user.username, user.online, user.title)
                         gameId = response["gameId"]
                         engine.game_queues[gameId] = asyncio.Queue()
                         await engine.event_queue.put(challenge(seek, response))
@@ -89,18 +91,18 @@ async def lobby_socket_handler(request):
 
                     elif data["type"] == "accept_seek":
                         seek = seeks[data["seekID"]]
-                        response = await accept_seek(db, seeks, games, user, data["seekID"])
+                        response = await new_game(db, seeks, games, user, data["seekID"])
                         await ws.send_json(response)
 
                         if seek.user.lobby_ws is not None:
                             await seek.user.lobby_ws.send_json(response)
 
                         if seek.user.bot:
-                            await seek.user.event_queue.put(challenge(seek, response))
                             gameId = response["gameId"]
                             seek.user.game_queues[gameId] = asyncio.Queue()
+                            await seek.user.event_queue.put(challenge(seek, response))
 
-                        # Inform others, accept-seek() deleted accepted seek allready.
+                        # Inform others, new_game() deleted accepted seek allready.
                         await broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "lobby_user_connected":

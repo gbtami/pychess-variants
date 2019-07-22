@@ -4,15 +4,14 @@ import RoundController from './ctrl';
 import { VARIANTS } from './chess';
 
 
-function runGround(vnode: VNode, model, handler) {
+function runGround(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new RoundController(el, model, handler);
+    const ctrl = new RoundController(el, model);
     const cg = ctrl.chessground;
     window['cg'] = cg;
 }
 
-export function roundView(model, handler): VNode[] {
-    // console.log(".......roundView(model, handler)", model, handler);
+export function roundView(model): VNode[] {
     var playerTop, playerBottom, dataIcon;
     dataIcon = VARIANTS[model["variant"]].icon;
     if (model["username"] !== model["wplayer"] && model["username"] !== model["bplayer"]) {
@@ -34,7 +33,7 @@ export function roundView(model, handler): VNode[] {
             h('main.main', [
                 h(`selection.${VARIANTS[model["variant"]].board}.${VARIANTS[model["variant"]].pieces}`, [
                     h(`div.cg-wrap.${VARIANTS[model["variant"]].cg}`,
-                        { hook: { insert: (vnode) => runGround(vnode, model, handler)},
+                        { hook: { insert: (vnode) => runGround(vnode, model)},
                     }),
                 ]),
             ]),

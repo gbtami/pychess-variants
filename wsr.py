@@ -7,7 +7,7 @@ from aiohttp import web
 import aiohttp_session
 
 from utils import play_move, get_board, start, draw, resign, flag, \
-    accept_seek, challenge, load_game, User, Seek, STARTED
+    new_game, challenge, load_game, User, Seek, STARTED
 
 log = logging.getLogger(__name__)
 
@@ -138,14 +138,12 @@ async def round_socket_handler(request):
                             seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level)
                             seeks[seek.id] = seek
 
-                            response = await accept_seek(db, seeks, games, engine, seek.id)
+                            response = await new_game(db, seeks, games, engine, seek.id)
                             await ws.send_json(response)
 
                             await engine.event_queue.put(challenge(seek, response))
                             gameId = response["gameId"]
                             engine.game_queues[gameId] = asyncio.Queue()
-                            game = games[gameId]
-                            await engine.event_queue.put(game.game_start)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             if opp_name in game.rematch_offers:
@@ -153,7 +151,7 @@ async def round_socket_handler(request):
                                 seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level, game.rated)
                                 seeks[seek.id] = seek
 
-                                response = await accept_seek(db, seeks, games, opp_player, seek.id)
+                                response = await new_game(db, seeks, games, opp_player, seek.id)
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                             else:
