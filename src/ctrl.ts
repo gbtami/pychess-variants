@@ -63,6 +63,7 @@ export default class RoundController {
     ply: number;
     players: string[];
     CSSindexes: number[];
+    clickDrop: Piece | undefined;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -655,13 +656,15 @@ export default class RoundController {
 
     private onDrop = () => {
         return (piece, dest) => {
-            // console.log("ground.onDrop()", piece, dest);
+            console.log("ground.onDrop()", piece, dest);
             if (dest != "a0" && piece.role) {
                 if (this.variant === "shogi") {
                     sound.shogimove();
                 } else {
                     sound.move();
                 }
+            } else {
+                this.clickDrop = piece;
             }
         }
     }
@@ -753,7 +756,7 @@ export default class RoundController {
             // console.log("sent move", move);
         } else {
             const diff: PiecesDiff = {};
-            diff[dest] = undefined;
+            diff[dest] = this.chessground.state.pieces[dest];
             this.chessground.setPieces(diff);
             console.log("!!! invalid move !!!", role, dest);
             // restore lastMove set by invalid drop
@@ -781,10 +784,15 @@ export default class RoundController {
     // use this for sittuyin in place promotion ?
     private onSelect = (selected) => {
         return (key) => {
-            console.log("   ground.onSelect()", key, selected);
+            console.log("   ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
             // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests! === undefined) return;
             if (key != "a0" && "a0" in this.chessground.state.movable.dests!) {
+                if (this.clickDrop !== undefined) {
+                    this.chessground.newPiece(this.clickDrop, key);
+                    this.onUserDrop(this.clickDrop.role, key);
+                    this.clickDrop = undefined;
+                }
                 this.chessground.set({ movable: { dests: this.dests }});
             };
         }

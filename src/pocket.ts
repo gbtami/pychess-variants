@@ -54,7 +54,7 @@ export function drag(ctrl: RoundController, e: cg.MouchEvent): void {
     // Show possible drop dests on my turn only not to mess up predrop
     if (ctrl.turnColor === ctrl.mycolor) {
         const dropDests = { "a0": ctrl.dests[roleToSan[role] + "@"] };
-        ctrl.chessground.newPiece({"role": "pawn", "color": color}, "a0")
+        ctrl.chessground.newPiece({"role": role, "color": color}, "a0")
         ctrl.chessground.set({
             turnColor: color,
             movable: {
