@@ -10,8 +10,9 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { lobbyView } from './lobby';
 import { roundView } from './round';
+import { profileView } from './profile';
 
-const model = {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", status: ""};
+const model = {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", profileid: "", status: ""};
 
 var getCookie = function(name) {
     var cookies = document.cookie.split(';');
@@ -46,9 +47,15 @@ export function view(model): VNode {
             model["status"] = el.getAttribute("data-status");
             model["tv"] = el.getAttribute("data-tv");
         };
+    if (el instanceof Element && el.hasAttribute("data-profileid")) {
+        model["profileid"] = el.getAttribute("data-profileid");
     }
-
-    return h('div#placeholder.main-wrapper', model.variant ? roundView(model) : lobbyView(model));
+    }
+    if (model.profileid) {
+        return h('div#placeholder.main-wrapper', profileView(model));
+    } else {
+        return h('div#placeholder.main-wrapper', model.variant ? roundView(model) : lobbyView(model));
+    }
 }
 
 patch(document.getElementById('placeholder') as HTMLElement, view(model));

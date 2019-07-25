@@ -40,7 +40,7 @@ class XiangqiBoard:
         tools.print_pos(self.pos)
 
     def push(self, move):
-        print("push move", move)
+        # print("push move", move)
         self.move_stack.append(move)
         self.pos = self.pos.move(self.mparse(move))
         self.color = RED if self.color == BLACK else BLACK

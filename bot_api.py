@@ -9,7 +9,7 @@ from utils import STARTED, RESIGN, INVALIDMOVE, broadcast,\
 log = logging.getLogger(__name__)
 
 
-async def profile(request):
+async def bot_profile(request):
     if request.headers.get("Authorization") is None:
         return web.HTTPForbidden()
     else:

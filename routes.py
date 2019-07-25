@@ -9,7 +9,7 @@ import aioauth_client
 import aiohttp_session
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
-from bot_api import profile, playing, event_stream, game_stream, bot_abort,\
+from bot_api import bot_profile, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong
 from utils import load_game, User
@@ -132,6 +132,8 @@ async def index(request):
         # TODO: get highest rated game
         gameId = list(games.keys())[-1]
 
+    profileId = request.match_info.get("profileId")
+
     # Do we have gameId in request url?
     if gameId is not None:
         game = await load_game(db, games, users, gameId)
@@ -161,6 +163,7 @@ async def index(request):
         "inc": game.inc if gameId is not None else "",
         "status": game.status if gameId is not None else "",
         "tv": tv,
+        "profileid": profileId if profileId is not None else "",
     }
     text = template.render(render)
 
@@ -172,18 +175,36 @@ async def index(request):
     return response
 
 
+async def get_games(request):
+    db = request.app["db"]
+    profileId = request.match_info.get("profileId")
+
+    gameid_list = []
+    if profileId is not None:
+        cursor = db.game.find({"us": profileId})
+        cursor.sort('d', -1).skip(0).limit(20)
+        async for document in cursor:
+            del document["m"]
+            document["d"] = document["d"].isoformat()
+            gameid_list.append(document)
+
+    return web.json_response(gameid_list)
+
+
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
     ("/", index),
     ("/tv", index),
     (r"/{gameId:\w{8}}", index),
+    ("/@/{profileId}", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
-    ("/api/account", profile),
+    ("/api/account", bot_profile),
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),
     ("/api/bot/game/stream/{gameId}", game_stream),
+    ("/api/{profileId}/games", get_games),
 )
 
 post_routes = (
