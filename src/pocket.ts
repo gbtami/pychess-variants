@@ -50,6 +50,11 @@ export function drag(ctrl: RoundController, e: cg.MouchEvent): void {
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
     if (!role || !color || number === '0') return;
+    if (ctrl.clickDrop !== undefined && role === ctrl.clickDrop.role) {
+        ctrl.clickDrop = undefined;
+        ctrl.chessground.selectSquare(null);
+        return;
+    }
 
     // Show possible drop dests on my turn only not to mess up predrop
     if (ctrl.turnColor === ctrl.mycolor) {
