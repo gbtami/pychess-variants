@@ -12,7 +12,7 @@ import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { profileView } from './profile';
 
-const model = {home: "", username: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", profileid: "", status: ""};
+const model = {home: "", username: "", anon: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", profileid: "", status: ""};
 
 var getCookie = function(name) {
     var cookies = document.cookie.split(';');
@@ -31,6 +31,7 @@ export function view(model): VNode {
     var el = document.getElementById('pychess-variants');
     if (el instanceof Element && el.hasAttribute("data-home")) {
         model["home"] = el.getAttribute("data-home");
+        model["anon"] = el.getAttribute("data-anon");
     }
     if (el instanceof Element && el.hasAttribute("data-variant")) {
         const variant = el.getAttribute("data-variant");

@@ -20,7 +20,7 @@ export function renderUsername(home, username) {
     var oldVNode = document.getElementById('username');
     if (oldVNode instanceof Element) {
         oldVNode.innerHTML = '';
-        patch(oldVNode as HTMLElement, h('div#username', username));
+        patch(oldVNode as HTMLElement, h('div#username', h('a', {attrs: {href: '/@/' + username}}, username)));
     };
 /*
     // if username is not a logged in name login else logout button

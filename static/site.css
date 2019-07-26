@@ -77,6 +77,15 @@ a:hover, a:active {
     background-color: LightSlateGray;
 }
 
+a.user-link:link, a.user-link:visited {
+    display: inline-block;
+    background-color: White;
+    color: #707070;
+}
+a.user-link:hover, a.user-link:active {
+    color: RoyalBlue;
+}
+
 .round-data{
   display: flex;
   flex-flow: column nowrap;

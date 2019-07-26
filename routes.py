@@ -1,7 +1,9 @@
+import json
 import logging
 import warnings
 import functools
 import datetime
+from functools import partial
 from urllib.parse import urlparse
 
 from aiohttp import web
@@ -152,6 +154,7 @@ async def index(request):
         "app_name": "PyChess",
         "home": URI,
         "username": user.username if session["guest"] else "",
+        "anon": user.anon,
         "country": session["country"] if "country" in session else "",
         "guest": session["guest"],
         "gameid": gameId if gameId is not None else "",
@@ -169,9 +172,8 @@ async def index(request):
 
     # log.debug("Response: %s" % text)
     response = web.Response(text=html_minify(text), content_type="text/html")
-    if not session["guest"]:
-        hostname = urlparse(URI).hostname
-        response.set_cookie("user", session["user_name"], domain=hostname, secure="." not in hostname, max_age=31536000)
+    hostname = urlparse(URI).hostname
+    response.set_cookie("user", session["user_name"], domain=hostname, secure="." not in hostname, max_age=31536000)
     return response
 
 
@@ -184,11 +186,9 @@ async def get_games(request):
         cursor = db.game.find({"us": profileId})
         cursor.sort('d', -1).skip(0).limit(20)
         async for document in cursor:
-            del document["m"]
-            document["d"] = document["d"].isoformat()
             gameid_list.append(document)
 
-    return web.json_response(gameid_list)
+    return web.json_response(gameid_list, dumps=partial(json.dumps, default=str))
 
 
 get_routes = (

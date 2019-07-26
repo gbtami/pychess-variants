@@ -24,11 +24,26 @@ export function roundView(model): VNode[] {
     }
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
-                    h('div', [h('i-variant', {attrs: {"data-icon": dataIcon}, class: {"icon": true}} ), h('tc', model["base"] + "+" + model["inc"] + " • Casual • " + model["variant"])]),
-                    h('div', [h('i-side', {class: {"icon": true, "icon-white": true} } ), h('player', model["wplayer"] + " (1500?)")]),
-                    h('div', [h('i-side', {class: {"icon": true, "icon-black": true} } ), h('player', model["bplayer"] + " (1500?)")]),
+                    h('div', [
+                        h('i-variant', {attrs: {"data-icon": dataIcon}, class: {"icon": true}} ),
+                        h('tc', model["base"] + "+" + model["inc"] + " • Casual • " + model["variant"])
                     ]),
-                h('div.roundchat#roundchat')
+                    h('div', [
+                        h('i-side', {class: {"icon": true, "icon-white": true} } ),
+                        h('player', [
+                            h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, model["wplayer"]),
+                            h('rating', " (1500?)"),
+                        ]),
+                    ]),
+                    h('div', [
+                        h('i-side', {class: {"icon": true, "icon-black": true} } ),
+                        h('player', [
+                            h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, model["bplayer"]),
+                            h('rating', " (1500?)"),
+                        ]),
+                    ]),
+                ]),
+                h('div.roundchat#roundchat'),
             ]),
             h('main.main', [
                 h(`selection.${VARIANTS[model["variant"]].board}.${VARIANTS[model["variant"]].pieces}`, [
@@ -47,12 +62,24 @@ export function roundView(model): VNode[] {
                 ]),
                 h('div#clock0'),
                 h('div.round-data', [
-                    h('div.player-data', [h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}), h('player', playerTop), h('rating', "1500?")]),
+                    h('div.player-data', [
+                        h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}),
+                        h('player', [
+                            h('a.user-link', {attrs: {href: '/@/' + playerTop}}, playerTop),
+                            h('rating', "1500?"),
+                        ]),
+                    ]),
                     h('div#move-controls'),
                     h('div#movelist'),
                     h('div#after-game'),
                     h('div#game-controls'),
-                    h('div.player-data', [h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}), h('player', playerBottom), h('rating', "1500?")]),
+                    h('div.player-data', [
+                        h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}),
+                        h('player', [
+                            h('a.user-link', {attrs: {href: '/@/' + playerBottom}}, playerBottom),
+                            h('rating', "1500?"),
+                        ]),
+                    ]),
                 ]),
                 h('div#clock1'),
                 h('div#pocket-wrapper', [

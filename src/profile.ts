@@ -9,6 +9,8 @@ const patch = init([klass, attributes, properties, listeners]);
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
+import { renderUsername } from './user';
+
 
 function renderGames(model, games) {
     const header = h('thead', [h('tr',
@@ -32,6 +34,7 @@ function renderGames(model, games) {
 }
 
 export function profileView(model): VNode[] {
+    renderUsername(model["home"], model["username"]);
 
     var xmlhttp = new XMLHttpRequest();
     var url = model["home"] + "/api/" + model["profileid"] +"/games";

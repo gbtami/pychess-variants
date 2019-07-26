@@ -68,8 +68,10 @@ class User:
         self.lobby_ws = lobby_ws
         self.bot = bot
         if username is None:
+            self.anon = True
             self.username = "Anonymous" + "".join(random.sample(string.ascii_uppercase, 4))
         else:
+            self.anon = False
             self.username = username
         self.first_name = ""
         self.last_name = ""
