@@ -46,15 +46,15 @@ export function roundView(model): VNode[] {
                 h('div.roundchat#roundchat'),
             ]),
             h('main.main', [
-                h(`selection.${VARIANTS[model["variant"]].board}.${VARIANTS[model["variant"]].pieces}`, [
-                    h(`div.cg-wrap.${VARIANTS[model["variant"]].cg}`,
+                h('selection.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].pieces, [
+                    h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runGround(vnode, model)},
                     }),
                 ]),
             ]),
             h('aside.sidebar-second', [
                 h('div#pocket-wrapper', [
-                    h(`div.${VARIANTS[model["variant"]].pieces}`, [
+                    h('div.' + VARIANTS[model["variant"]].pieces, [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket0'),
                         ]),
@@ -83,7 +83,7 @@ export function roundView(model): VNode[] {
                 ]),
                 h('div#clock1'),
                 h('div#pocket-wrapper', [
-                    h(`div.${VARIANTS[model["variant"]].pieces}`, [
+                    h('div.' + VARIANTS[model["variant"]].pieces, [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket1'),
                         ]),

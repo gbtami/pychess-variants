@@ -282,6 +282,7 @@ class Game:
             {"_id": self.id},
             {"$set":
              {"d": self.date,
+              "f": self.board.fen,
               "s": self.status,
               "r": R2C[self.result],
               'm': encode_moves(map(usi2uci, self.board.move_stack) if self.variant == "shogi" else self.board.move_stack)}
@@ -557,6 +558,7 @@ async def new_game(db, seeks, games, user, seek_id):
         "i": seek.inc,
         "m": [],
         "d": new_game.date,
+        "f": new_game.initial_fen,
         "s": new_game.status,
         "r": R2C["*"]
     }

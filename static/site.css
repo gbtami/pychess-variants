@@ -311,6 +311,37 @@ table#seeks {
   color: white;
 }
 
+/* profile games */
+table#games {
+  width: 650px;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  border-radius: 3px;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+}
+
+#games td {
+  padding: 6px 12px 6px 12px;
+}
+
+#games tr {
+  border: 1px solid #ddd;
+  padding: 3px;
+  background-color: WhiteSmoke;
+}
+
+#games tr:nth-child(odd) {
+  width:100%;
+  background-color: White;
+}
+
+#games tbody tr:hover {
+  width:100%;
+  background-color: #d1e6fa;
+  cursor: pointer;
+}
+
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */

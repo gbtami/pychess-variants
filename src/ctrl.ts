@@ -329,9 +329,7 @@ export default class RoundController {
             document.body.setAttribute('style', '--cgwrapwidth:' + pxw);
             document.body.setAttribute('style', '--cgwrapheight:' + pxh);
 
-            const ev = document.createEvent('Event');
-            ev.initEvent('chessground.resize', false, false);
-            document.body.dispatchEvent(ev);
+            document.body.dispatchEvent(new Event('chessground.resize'));
             localStorage.setItem("zoom", String(zoom));
         }
     }

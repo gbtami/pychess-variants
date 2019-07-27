@@ -1,6 +1,9 @@
 .grid .cg-wrap {
   background-image: url('images/board/makruk.svg');
 }
+.gridx .cg-wrap {
+  background-image: url('images/board/sittuyin.svg');
+}
 .makruk .cg-wrap piece.pawn.white {
   background-image: url('images/pieces/makruk/wp.svg');
 }
@@ -14,6 +17,9 @@
   background-image: url('images/pieces/makruk/wr.svg');
 }
 .makruk .cg-wrap piece.met.white {
+  background-image: url('images/pieces/makruk/wq.svg');
+}
+.makruk .cg-wrap piece.ferz.white {
   background-image: url('images/pieces/makruk/wq.svg');
 }
 .makruk .cg-wrap piece.king.white {
@@ -32,6 +38,9 @@
   background-image: url('images/pieces/makruk/br.svg');
 }
 .makruk .cg-wrap piece.met.black {
+  background-image: url('images/pieces/makruk/bq.svg');
+}
+.makruk .cg-wrap piece.ferz.black {
   background-image: url('images/pieces/makruk/bq.svg');
 }
 .makruk .cg-wrap piece.king.black {
