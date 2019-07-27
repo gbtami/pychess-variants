@@ -24,6 +24,13 @@ header{
   height: 32px;
 }
 
+.profile-wrapper{
+  display: grid;
+  grid-template-columns: auto 60% auto;
+  grid-gap: 18px;
+  justify-content: center;
+}
+
 .main-wrapper{
   display: grid;
   grid-template-columns: 350px auto 400px;
@@ -66,21 +73,21 @@ under-right {
   grid-column: 3;
 }
 
-a:link, a:visited {
-    background-color: DarkGray;
+a.nav-link:link, a.nav-link:visited {
+    background-color: DimGray;
     color: white;
     text-align: center;
     text-decoration: none;
     display: inline-block;
 }
-a:hover, a:active {
+a.nav-link:hover, a.nav-link:active {
     background-color: LightSlateGray;
 }
 
 a.user-link:link, a.user-link:visited {
     display: inline-block;
-    background-color: White;
     color: #707070;
+    text-decoration: none;
 }
 a.user-link:hover, a.user-link:active {
     color: RoyalBlue;
@@ -154,6 +161,15 @@ button.newopp:hover {
   margin-bottom: 16px;
   padding: 12px;
 }
+
+games-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 16px;
+  padding: 12px;
+}
+
 tc {
   padding: 8px;
   vertical-align: top;
@@ -313,7 +329,7 @@ table#seeks {
 
 /* profile games */
 table#games {
-  width: 650px;
+  width: 100%;
   border-collapse: collapse;
   border-spacing: 0px;
   border-radius: 3px;
@@ -321,11 +337,17 @@ table#games {
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
+#games th {
+  height: 80px;
+  background-color: WhiteSmoke;
+}
+
 #games td {
   padding: 6px 12px 6px 12px;
 }
 
 #games tr {
+  width:100%;
   border: 1px solid #ddd;
   padding: 3px;
   background-color: WhiteSmoke;

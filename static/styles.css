@@ -173,3 +173,9 @@
 .icon-placement:before {
   content: "\53";
 }
+.icon-tv:before {
+  content: "\54";
+}
+.icon-retweet:before {
+  content: "\55";
+}

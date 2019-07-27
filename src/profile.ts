@@ -22,7 +22,7 @@ function renderGames(model, games) {
         'tr',
         { on: { click: () => { window.location.assign(model["home"] + '/' + game["_id"]); } },
         }, [
-        h('td', [
+        h('td.board', [
             h('selection.' + VARIANTS[game["v"]].board + '.' + VARIANTS[game["v"]].pieces, [
                 h('div.cg-wrap.' + VARIANTS[game["v"]].cg + '.mini', { hook: {
                     insert: (vnode) => {
@@ -36,10 +36,22 @@ function renderGames(model, games) {
                 }}),
             ]),
         ]),
-        h('td', game["_id"]),
-        h('td', game["d"]),
-        h('td', game["us"][0]),
-        h('td', game["us"][1]),
+        h('td.games-info', [
+            h('div', [
+                h('i-variant', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}} ),
+                h('tc', game["b"] + "+" + game["i"] + " • Casual • " + game["v"])
+            ]),
+            h('div', [
+                h('player', [
+                    h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, game["us"][0]),
+                ]),
+                h('vs', '-'),
+                h('player', [
+                    h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, game["us"][1]),
+                ]),
+            ]),
+            h('div', game["d"]),
+        ])
         ])
         );
     return [header, h('tbody', rows)];
@@ -72,8 +84,5 @@ export function profileView(model): VNode[] {
     return [h('aside.sidebar-first'),
             h('main.main', [h('table#games')]),
             h('aside.sidebar-second'),
-            h('under-left'),
-            h('under-lobby'),
-            h('under-right'),
         ];
 }

@@ -53,7 +53,7 @@ export function view(model): VNode {
     }
     }
     if (model.profileid) {
-        return h('div#placeholder.main-wrapper', profileView(model));
+        return h('div#placeholder.profile-wrapper', profileView(model));
     } else {
         return h('div#placeholder.main-wrapper', model.variant ? roundView(model) : lobbyView(model));
     }
