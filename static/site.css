@@ -166,8 +166,16 @@ games-info {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-bottom: 16px;
   padding: 12px;
+  width: 50%;
+  margin: 0 auto;
+}
+div.info-result {
+  padding: 8px;
+}
+
+div.info-date {
+  padding: 8px;
 }
 
 tc {

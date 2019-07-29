@@ -17,7 +17,7 @@ from bot_api import bot_profile, playing, event_stream, game_stream, bot_abort,\
 from utils import load_game, User
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
-from compress import C2V
+from compress import C2V, C2R
 
 try:
     import htmlmin
@@ -188,6 +188,7 @@ async def get_games(request):
         cursor.sort('d', -1).skip(0).limit(20)
         async for doc in cursor:
             doc["v"] = C2V[doc["v"]]
+            doc["r"] = C2R[doc["r"]]
             gameid_list.append(doc)
 
     return web.json_response(gameid_list, dumps=partial(json.dumps, default=str))

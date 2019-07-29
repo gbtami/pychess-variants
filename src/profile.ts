@@ -50,7 +50,8 @@ function renderGames(model, games) {
                     h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, game["us"][1]),
                 ]),
             ]),
-            h('div', game["d"]),
+            h('div.info-result', game["r"]),
+            h('div.info-date', game["d"]),
         ])
         ])
         );
