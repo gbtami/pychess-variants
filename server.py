@@ -62,7 +62,7 @@ async def shutdown(app):
         for player in (game.wplayer, game.bplayer):
             if game.status <= STARTED:
                 response = await game.abort()
-                if game.id in player.game_sockets and not player.bot:
+                if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]
                     await ws.send_json(response)
     app["games"] = {}
