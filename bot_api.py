@@ -83,8 +83,14 @@ async def create_bot_seek(request):
                 break
 
     if matching_seek is None:
-        seek = Seek(bot_player, data["variant"])
-        seeks[seek.id] = seek
+        seek = None
+        for existing_seek in seeks.values():
+            if existing_seek.user == bot_player and existing_seek.variant == data["variant"]:
+                seek = existing_seek
+                break
+        if seek is None:
+            seek = Seek(bot_player, data["variant"])
+            seeks[seek.id] = seek
         bot_player.seeks[seek.id] = seek
 
         # inform others
@@ -128,8 +134,11 @@ async def event_stream(request):
     resp.content_type = "text/plain"
     await resp.prepare(request)
 
-    bot_player = User(bot=True, username=username)
-    users[bot_player.username] = bot_player
+    if username in users:
+        bot_player = users[username]
+    else:
+        bot_player = User(bot=True, username=username)
+        users[bot_player.username] = bot_player
 
     log.info("+++ BOT %s connected" % bot_player.username)
 
