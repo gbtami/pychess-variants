@@ -96,7 +96,7 @@ class LobbyController {
 
     isNewSeek (variant, color, fen, minutes, increment) {
         return !this.seeks.some(seek => {
-            return seek.variant === variant && seek.fen === fen && seek.color === color && seek.tc === minutes + "+" + increment;
+            return seek.user === this.model["username"] && seek.variant === variant && seek.fen === fen && seek.color === color && seek.tc === minutes + "+" + increment;
         })
     }
 
