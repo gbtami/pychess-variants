@@ -133,13 +133,31 @@ class LobbyController {
 
     renderSeekButtons () {
         const setMinutes = (minutes) => {
+            var min, inc = 0;
             var el = document.getElementById("minutes") as HTMLElement;
             if (el) el.innerHTML = minutes;
+
+            var e = document.getElementById('min') as HTMLInputElement;
+            if (e) min = parseInt(e.value);
+
+            e = document.getElementById('inc') as HTMLInputElement;
+            if (e) inc = parseInt(e.value);
+
+            document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
         }
 
         const setIncrement = (increment) => {
+            var min, inc = 0;
             var el = document.getElementById("increment") as HTMLElement;
             if (el) el.innerHTML = increment;
+
+            var e = document.getElementById('min') as HTMLInputElement;
+            if (e) min = parseInt(e.value);
+
+            e = document.getElementById('inc') as HTMLInputElement;
+            if (e) inc = parseInt(e.value);
+
+            document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
         }
 
         const vIdx = localStorage.seek_variant === undefined ? 0 : variants.indexOf(localStorage.seek_variant);
@@ -201,7 +219,7 @@ class LobbyController {
                     h('label.level-ai.ai8', { attrs: {for: "ai8"} }, "8"),
                 ]),
                 ]),
-                h('div.button-group', [
+                h('div#color-button-group', [
                     h('button.icon.icon-black', { props: {type: "button", title: "Black"}, on: {click: () => this.createSeek('b') } }),
                     h('button.icon.icon-adjust', { props: {type: "button", title: "Random"}, on: {click: () => this.createSeek('r')} }),
                     h('button.icon.icon-white', { props: {type: "button", title: "White"}, on: {click: () => this.createSeek('w')} }),
