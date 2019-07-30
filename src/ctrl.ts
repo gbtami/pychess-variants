@@ -561,6 +561,7 @@ export default class RoundController {
                 updatePockets(this, this.vpocket0, this.vpocket1);
                 this.clocks[oppclock].pause(false);
                 this.clocks[oppclock].setTime(clocks[this.oppcolor]);
+                this.clocks[myclock].setTime(clocks[this.mycolor]);
                 if (!this.abortable && msg.status < 0) {
                     this.clocks[myclock].start(clocks[this.mycolor]);
                     console.log('MY CLOCK STARTED');
@@ -578,6 +579,7 @@ export default class RoundController {
                 });
                 this.clocks[myclock].pause(false);
                 this.clocks[myclock].setTime(clocks[this.mycolor]);
+                this.clocks[oppclock].setTime(clocks[this.oppcolor]);
                 if (!this.abortable && msg.status < 0) {
                     this.clocks[oppclock].start(clocks[this.oppcolor]);
                     console.log('OPP CLOCK  STARTED');
@@ -621,7 +623,7 @@ export default class RoundController {
         const oppclock = !this.flip ? 0 : 1
         const myclock = 1 - oppclock;
         const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
-        this.clocks[myclock].pause(true);
+        this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
         const move = this.variant === "shogi" ? uci2usi(uci_move) : uci_move;

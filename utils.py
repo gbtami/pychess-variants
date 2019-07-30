@@ -171,7 +171,11 @@ class Game:
         self.messages = []
         self.date = datetime.utcnow()
 
-        self.ply_clocks = [{"black": base * 1000 * 60, "white": base * 1000 * 60, "movetime": 0}]
+        self.ply_clocks = [{
+            "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+            "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+            "movetime": 0
+        }]
         self.dests = {}
         self.lastmove = None
         self.check = False
