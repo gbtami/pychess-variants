@@ -84,6 +84,8 @@ async def login(request):
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
     session["user_name"] = user.username
     session["country"] = user.country
+    session["first_name"] = user.first_name
+    session["last_name"] = user.last_name
     raise web.HTTPFound("/")
 
 
@@ -102,7 +104,12 @@ async def index(request):
     if session_user is not None and "token" in session:
         doc = await db.user.find_one({"_id": session_user})
         if doc is None:
-            result = await db.user.insert_one({"_id": session_user, "counry": session["country"]})
+            result = await db.user.insert_one({
+                "_id": session_user,
+                "first_name": session["first_name"],
+                "last_name": session["last_name"],
+                "counry": session["country"],
+            })
             print("db insert user result %s" % repr(result.inserted_id))
         del session["token"]
 
@@ -126,19 +133,26 @@ async def index(request):
         users[user.username] = user
         session["user_name"] = user.username
 
+    view = "lobby"
     gameId = request.match_info.get("gameId")
 
+    if request.path == "/about":
+        view = "about"
+
     # TODO: tv for @player and for variants
-    tv = ""
     if request.path == "/tv" and len(games) > 0:
-        tv = "standard"
+        view = "tv"
         # TODO: get highest rated game
         gameId = list(games.keys())[-1]
 
-    profileId = request.match_info.get("profileId")
+    profileId = request.match_info.get("profile")
+    if profileId is not None:
+        view = "profile"
 
     # Do we have gameId in request url?
     if gameId is not None:
+        if view != "tv":
+            view = "round"
         game = await load_game(db, games, users, gameId)
         if game is None:
             log.debug("Requseted game %s not in app['games']" % gameId)
@@ -153,8 +167,9 @@ async def index(request):
     template = request.app["jinja"].get_template("index.html")
     render = {
         "app_name": "PyChess",
+        "view": view,
         "home": URI,
-        "username": user.username if session["guest"] else "",
+        "user": user.username if session["guest"] else "",
         "anon": user.anon,
         "country": session["country"] if "country" in session else "",
         "guest": session["guest"],
@@ -166,8 +181,7 @@ async def index(request):
         "base": game.base if gameId is not None else "",
         "inc": game.inc if gameId is not None else "",
         "status": game.status if gameId is not None else "",
-        "tv": tv,
-        "profileid": profileId if profileId is not None else "",
+        "profile": profileId if profileId is not None else "",
     }
     text = template.render(render)
 
@@ -198,9 +212,10 @@ get_routes = (
     ("/login", login),
     ("/oauth", oauth),
     ("/", index),
+    ("/about", index),
     ("/tv", index),
     (r"/{gameId:\w{8}}", index),
-    ("/@/{profileId}", index),
+    ("/@/{profile}", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
     ("/api/account", bot_profile),

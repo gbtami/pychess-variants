@@ -73,6 +73,16 @@ under-right {
   grid-column: 3;
 }
 
+div.about {
+  width: 50%;
+  margin: 0 auto;
+  border-radius: 3px;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  background-color: white;
+  padding: 24px;
+}
+
 a.nav-link:link, a.nav-link:visited {
     background-color: DimGray;
     color: white;

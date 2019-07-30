@@ -57,7 +57,7 @@ export default class RoundController {
     flip: boolean;
     spectator: boolean;
     oppIsRandomMover: boolean;
-    tv: string;
+    tv: boolean;
     status: number;
     steps;
     ply: number;
@@ -105,7 +105,7 @@ export default class RoundController {
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
         this.status = model["status"] as number;
-        this.tv = model["tv"] as string;
+        this.tv = model["tv"];
         this.steps = [];
         this.ply = 0;
 

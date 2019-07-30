@@ -20,13 +20,13 @@
     <img src="/static/images/board/shogi.svg"/>
   </div>
   <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px"
+        data-view="{{ view }}"
         data-home="{{ home }}"
-        data-username="{{ username }}"
+        data-user="{{ username }}"
         data-anon="{{ anon }}"
         data-country="{{ country }}"
         data-gameid="{{ gameid }}"
-        data-profileid="{{ profileid }}"
-        data-tv="{{ tv }}"
+        data-profile="{{ profile }}"
         data-variant="{{ variant }}"
         data-wplayer="{{ wplayer }}"
         data-bplayer="{{ bplayer }}"
@@ -36,6 +36,7 @@
     <div class="topnav">
       <a class="nav-link active" href="/">PyChess</a>
       <a class="nav-link" href="/tv">Tv</a>
+      <a class="nav-link" href="/about">About</a>
       <div class="tool-container">
         <button id="btn-pieces"></button>
         <button id="btn-sound" onclick="toggleAudio();" title="Toggle sound"><div class="icon icon-volume-up"></div></button>

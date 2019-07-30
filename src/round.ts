@@ -12,6 +12,7 @@ function runGround(vnode: VNode, model) {
 }
 
 export function roundView(model): VNode[] {
+    console.log("model=", model);
     var playerTop, playerBottom, dataIcon;
     dataIcon = VARIANTS[model["variant"]].icon;
     if (model["username"] !== model["wplayer"] && model["username"] !== model["bplayer"]) {

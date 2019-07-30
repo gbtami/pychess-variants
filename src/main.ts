@@ -11,6 +11,7 @@ const patch = init([klass, attributes, properties, listeners]);
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { profileView } from './profile';
+import { aboutView } from './about';
 
 const model = {home: "", username: "", anon: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", profileid: "", status: ""};
 
@@ -24,39 +25,38 @@ var getCookie = function(name) {
     return "";
 }
 
-export function view(model): VNode {
+export function view(el, model): VNode {
     const user = getCookie("user");
     if (user !== "") model["username"] = user;
 
-    var el = document.getElementById('pychess-variants');
-    if (el instanceof Element && el.hasAttribute("data-home")) {
-        model["home"] = el.getAttribute("data-home");
-        model["anon"] = el.getAttribute("data-anon");
-    }
-    if (el instanceof Element && el.hasAttribute("data-variant")) {
-        const variant = el.getAttribute("data-variant");
-        console.log("site.view() data-variant=", variant);
-        if (variant) {
-            model["variant"] = variant;
-            model["username"] = user !== "" ? user : el.getAttribute("data-username");
-            model["gameId"] = el.getAttribute("data-gameid");
-            model["wplayer"] = el.getAttribute("data-wplayer");
-            model["bplayer"] = el.getAttribute("data-bplayer");
-            model["fen"] = el.getAttribute("data-fen");
-            model["base"] = el.getAttribute("data-base");
-            model["inc"] = el.getAttribute("data-inc");
-            model["status"] = el.getAttribute("data-status");
-            model["tv"] = el.getAttribute("data-tv");
-        };
-    if (el instanceof Element && el.hasAttribute("data-profileid")) {
-        model["profileid"] = el.getAttribute("data-profileid");
-    }
-    }
-    if (model.profileid) {
+    model["home"] = el.getAttribute("data-home");
+    model["anon"] = el.getAttribute("data-anon");
+    model["profileid"] = el.getAttribute("data-profile");
+    model["variant"] = el.getAttribute("data-variant");
+    model["username"] = user !== "" ? user : el.getAttribute("data-user");
+    model["gameId"] = el.getAttribute("data-gameid");
+    model["wplayer"] = el.getAttribute("data-wplayer");
+    model["bplayer"] = el.getAttribute("data-bplayer");
+    model["fen"] = el.getAttribute("data-fen");
+    model["base"] = el.getAttribute("data-base");
+    model["inc"] = el.getAttribute("data-inc");
+    model["status"] = el.getAttribute("data-status");
+    model["tv"] = el.getAttribute("data-view") === 'tv';
+
+    switch (el.getAttribute("data-view")) {
+    case 'about':
+        return h('div#placeholder.about-wrapper', aboutView(model));
+    case 'profile':
         return h('div#placeholder.profile-wrapper', profileView(model));
-    } else {
-        return h('div#placeholder.main-wrapper', model.variant ? roundView(model) : lobbyView(model));
+    case 'tv':
+    case 'round':
+        return h('div#placeholder.main-wrapper', roundView(model));
+    default:
+        return h('div#placeholder.main-wrapper', lobbyView(model));
     }
 }
 
-patch(document.getElementById('placeholder') as HTMLElement, view(model));
+const el = document.getElementById('pychess-variants');
+if (el instanceof Element) {
+    patch(document.getElementById('placeholder') as HTMLElement, view(el, model));
+}
