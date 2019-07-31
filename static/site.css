@@ -465,7 +465,11 @@ div.btn-controls {
   cursor: pointer;
 }
 
-.btn-controls button:hover {
+.btn-controls button:disabled {
+  color: LightGray;
+}
+
+.btn-controls button:hover button:enabled {
   background-color: DarkSeaGreen;
 }
 
