@@ -2,7 +2,7 @@ import json
 import logging
 import warnings
 import functools
-import datetime
+from datetime import datetime
 from functools import partial
 from urllib.parse import urlparse
 
@@ -113,7 +113,7 @@ async def index(request):
             print("db insert user result %s" % repr(result.inserted_id))
         del session["token"]
 
-    session["last_visit"] = datetime.datetime.now().isoformat()
+    session["last_visit"] = datetime.now().isoformat()
     session["guest"] = True
     if session_user is not None:
         log.info("+++ Existing user %s connected." % session_user)
@@ -180,7 +180,9 @@ async def index(request):
         "fen": game.board.fen if gameId is not None else "",
         "base": game.base if gameId is not None else "",
         "inc": game.inc if gameId is not None else "",
+        "result": game.result if gameId is not None else "",
         "status": game.status if gameId is not None else "",
+        "date": game.date.isoformat() if gameId is not None else "",
         "profile": profileId if profileId is not None else "",
     }
     text = template.render(render)
@@ -205,7 +207,7 @@ async def get_games(request):
             doc["r"] = C2R[doc["r"]]
             gameid_list.append(doc)
 
-    return web.json_response(gameid_list, dumps=partial(json.dumps, default=str))
+    return web.json_response(gameid_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 get_routes = (

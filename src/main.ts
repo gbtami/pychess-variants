@@ -40,7 +40,9 @@ export function view(el, model): VNode {
     model["fen"] = el.getAttribute("data-fen");
     model["base"] = el.getAttribute("data-base");
     model["inc"] = el.getAttribute("data-inc");
+    model["result"] = el.getAttribute("data-result");
     model["status"] = el.getAttribute("data-status");
+    model["date"] = el.getAttribute("data-date");
     model["tv"] = el.getAttribute("data-view") === 'tv';
 
     switch (el.getAttribute("data-view")) {

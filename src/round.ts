@@ -2,6 +2,7 @@ import { h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 import RoundController from './ctrl';
 import { VARIANTS } from './chess';
+import { timeago, renderTimeago } from './clock';
 
 
 function runGround(vnode: VNode, model) {
@@ -23,11 +24,14 @@ export function roundView(model): VNode[] {
         playerTop = model["username"] === model["wplayer"] ? model["bplayer"] : model["wplayer"];
         playerBottom = model["username"];
     }
+    renderTimeago();
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
-                    h('div', [
-                        h('i-variant', {attrs: {"data-icon": dataIcon}, class: {"icon": true}} ),
-                        h('tc', model["base"] + "+" + model["inc"] + " • Casual • " + model["variant"])
+                    h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
+                        h('div', [
+                            h('div.tc', model["base"] + "+" + model["inc"] + " • Casual • " + model["variant"]),
+                            Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
+                        ]),
                     ]),
                     h('div', [
                         h('i-side', {class: {"icon": true, "icon-white": true} } ),

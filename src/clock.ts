@@ -129,3 +129,26 @@ export function renderTime(clock, time) {
         h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.seconds),
         ])]));
 }
+
+export function timeago(date) {
+    const TZdate = new Date(date + 'Z');
+    var val = 0 | (Date.now() - TZdate.getTime()) / 1000;
+    var unit, length = { second: 60, minute: 60, hour: 24, day: 7, week: 4.35,
+        month: 12, year: 10000 }, result;
+ 
+    for (unit in length) {
+        result = val % length[unit];
+        if (!(val = 0 | val / length[unit]))
+            return result + ' ' + (result-1 ? unit + 's' : unit) + ' ago';
+    }
+    return '';
+}
+
+export function renderTimeago() {
+    var x = document.getElementsByTagName("info-date");
+    var i;
+    for (i = 0; i < x.length; i++) {
+        x[i].innerHTML = timeago(x[i].getAttribute('timestamp'));
+    }
+    setTimeout(renderTimeago, 1200);
+}

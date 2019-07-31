@@ -13,6 +13,7 @@ import { Chessground } from 'chessgroundx';
 
 import { renderUsername } from './user';
 import { VARIANTS } from './chess';
+import { renderTimeago } from './clock';
 
 // TODO: save FEN and lastmove to db and reuse them in miniboards
 
@@ -37,9 +38,11 @@ function renderGames(model, games) {
             ]),
         ]),
         h('td.games-info', [
-            h('div', [
-                h('i-variant', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}} ),
-                h('tc', game["b"] + "+" + game["i"] + " • Casual • " + game["v"])
+            h('div.info0', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}}, [
+                h('div', [
+                    h('div.tc', game["b"] + "+" + game["i"] + " • Casual • " + game["v"]),
+                    h('info-date', {attrs: {timestamp: game["d"]}}),
+                ]),
             ]),
             h('div', [
                 h('player', [
@@ -51,7 +54,6 @@ function renderGames(model, games) {
                 ]),
             ]),
             h('div.info-result', game["r"]),
-            h('div.info-date', game["d"]),
         ])
         ])
         );
@@ -79,6 +81,7 @@ export function profileView(model): VNode[] {
         if (oldVNode instanceof Element) {
             patch(oldVNode as HTMLElement, h('table#games', renderGames(model, arr)));
         }
+        renderTimeago();
     }
 
     console.log(model);

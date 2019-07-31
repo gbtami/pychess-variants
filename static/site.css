@@ -2,9 +2,9 @@ html {
   min-height: 100%;
 }
 body {
-  font: 16px 'Noto Sans', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, Sans-Serif;
+  font: 14px 'Noto Sans', Sans-Serif;
   margin: 0;
-  color: #707070;
+  color: #505050;
   background: #eee;
   background-image: linear-gradient(to bottom, #d7d7d7 0%, #eeeeee 116px);
   overflow-x: hidden;
@@ -94,9 +94,12 @@ a.nav-link:hover, a.nav-link:active {
     background-color: LightSlateGray;
 }
 
+a.user-link {
+  font-size: 16px;
+}
 a.user-link:link, a.user-link:visited {
     display: inline-block;
-    color: #707070;
+    color: #505050;
     text-decoration: none;
 }
 a.user-link:hover, a.user-link:active {
@@ -172,6 +175,18 @@ button.newopp:hover {
   padding: 12px;
 }
 
+div.info0 {
+  display: flex;
+  flex-flow: row;
+  margin-bottom: 6px;
+}
+
+div.info0::before {
+  content: [data-icon];
+  font-size: 42px;
+  margin-right: 5%;
+}
+
 games-info {
   display: flex;
   flex-direction: column;
@@ -181,10 +196,6 @@ games-info {
   margin: 0 auto;
 }
 div.info-result {
-  padding: 8px;
-}
-
-div.info-date {
   padding: 8px;
 }
 
@@ -493,7 +504,7 @@ div.btn-controls {
   box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
 }
 .clock.time {
-  color: DarkGray;
+  color: #404040;
   background-color: White;
 }
 .clock.time.min {
@@ -506,7 +517,7 @@ div.btn-controls {
 }
 .clock.sep {
   background-color: White;
-  color: DarkGray;
+  color: #404040;
 }
 
 .clock.time.running, .clock.sep.running {

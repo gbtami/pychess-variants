@@ -147,7 +147,6 @@ export default class RoundController {
         if (this.variant === "shogi" || this.variant === "xiangqi") {
             this.setPieces(this.mycolor);
         } else {
-            // TODO:save/restore preferences
             changeCSS('/static/' + VARIANTS[this.variant].css[0] + '.css');
         };
 
@@ -275,7 +274,6 @@ export default class RoundController {
         //elmnt.addEventListener("resize", onResize);
 
         const abort = () => {
-            // TODO: disable when ply > 2
             console.log("Abort");
             this.doSend({ type: "abort", gameId: this.model["gameId"] });
         }
@@ -593,7 +591,6 @@ export default class RoundController {
 
     goPly = (ply) => {
         const step = this.steps[ply];
-        // TODO: update pockets !!!
         this.chessground.set({
             fen: step.fen,
             turnColor: step.turnColor,
