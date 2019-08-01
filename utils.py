@@ -59,7 +59,7 @@ def uci2usi(move):
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=1, rated=False):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=6, rated=False):
         self.user = user
         self.variant = variant
         self.color = color
