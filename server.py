@@ -12,7 +12,7 @@ from motor import motor_asyncio as ma
 
 from routes import get_routes, post_routes
 from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME
-from utils import User, STARTED
+from utils import Seek, User, STARTED
 
 
 async def make_app(loop):
@@ -22,6 +22,12 @@ async def make_app(loop):
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
+
+    bot = app["users"]["Random-Mover"]
+    for variant in ("makruk", "sittuyin", "shogi", "xiangqi", "standard", "crazyhouse", "placement", "capablanca", "seirawan"):
+        seek = Seek(bot, variant, base=1, inc=0)
+        app["seeks"][seek.id] = seek
+    bot.seeks[seek.id] = seek
 
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]

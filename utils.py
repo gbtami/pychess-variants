@@ -22,6 +22,18 @@ MAX_USER_SEEKS = 10
 CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, \
     NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 12)
 
+VARIANTS = (
+    "makruk",
+    "sittuyin",
+    "shogi",
+    "xiangqi",
+    "standard",
+    "crazyhouse",
+    "placement",
+    "capablanca",
+    "seirawan",
+)
+
 
 class MyWebSocketResponse(WebSocketResponse):
     @property
