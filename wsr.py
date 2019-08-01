@@ -7,7 +7,7 @@ from aiohttp import web
 import aiohttp_session
 
 from utils import play_move, get_board, start, draw, resign, flag, \
-    new_game, challenge, load_game, User, Seek, STARTED
+    new_game, challenge, load_game, User, Seek, STARTED, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ async def round_socket_handler(request):
     games = request.app["games"]
     db = request.app["db"]
 
-    ws = web.WebSocketResponse()
+    ws = MyWebSocketResponse()
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:

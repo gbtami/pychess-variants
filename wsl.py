@@ -7,7 +7,7 @@ from aiohttp import web
 import aiohttp_session
 
 from utils import get_seeks, create_seek, new_game, challenge, broadcast,\
-    User, Seek
+    User, Seek, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ async def lobby_socket_handler(request):
     games = request.app["games"]
     db = request.app["db"]
 
-    ws = web.WebSocketResponse()
+    ws = MyWebSocketResponse()
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -90,6 +90,9 @@ async def lobby_socket_handler(request):
                         await broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
+                        if data["seekID"] not in seeks:
+                            return
+
                         seek = seeks[data["seekID"]]
                         response = await new_game(db, seeks, games, user, data["seekID"])
                         await ws.send_json(response)
@@ -155,5 +158,7 @@ async def lobby_socket_handler(request):
 
     if lobby_ping_task is not None:
         lobby_ping_task.cancel()
-
+        if user is not None:
+            await user.clear_seeks(sockets, seeks)
+            await user.quit_lobby(sockets)
     return ws

@@ -5,6 +5,8 @@ import string
 from time import monotonic, time
 from datetime import datetime
 
+from aiohttp.web import WebSocketResponse
+
 import fairy
 import seirawan
 import xiangqi
@@ -19,6 +21,12 @@ MAX_USER_SEEKS = 10
 
 CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, \
     NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 12)
+
+
+class MyWebSocketResponse(WebSocketResponse):
+    @property
+    def closed(self):
+        return self._closed or self._req is None or self._req.transport is None
 
 
 def usi2uci(move):
