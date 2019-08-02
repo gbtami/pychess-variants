@@ -27,7 +27,7 @@ class sounds {
             } else {
                 el.src = '/static/sound/' + file + '.ogg';
             }
-            el.setAttribute("preload", "auto");
+            el.setAttribute("preload", "none");
             el.style.display = "none";
             soundArray.push(el);
             document.body.appendChild(el);
