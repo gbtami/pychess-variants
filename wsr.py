@@ -326,5 +326,6 @@ async def round_socket_handler(request):
 
     if game_ping_task is not None:
         game_ping_task.cancel()
+        user.online = False
 
     return ws

@@ -18,6 +18,9 @@ import { renderTimeago } from './clock';
 // TODO: save FEN and lastmove to db and reuse them in miniboards
 
 function renderGames(model, games) {
+//                h('fn', player["first_name"]),
+//                h('ln', player["last_name"]),
+//                h('country', player["country"]),
     const header = h('thead', [h('tr', [h('th', model["profileid"]), ])]);
     var rows = games.map((game) => h(
         'tr',

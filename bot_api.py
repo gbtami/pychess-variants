@@ -139,6 +139,7 @@ async def event_stream(request):
     else:
         bot_player = User(bot=True, username=username)
         users[bot_player.username] = bot_player
+    bot_player.online = True
 
     log.info("+++ BOT %s connected" % bot_player.username)
 

@@ -24,7 +24,7 @@ header{
   height: 32px;
 }
 
-.profile-wrapper{
+.profile-wrapper, .players-wrapper{
   display: grid;
   grid-template-columns: auto 60% auto;
   grid-gap: 18px;
@@ -207,13 +207,14 @@ tc {
   display: block;
   flex-direction: row;
   padding: 8px;
+  justify-content: center;
+}
+.player-data player-title {
+  padding-left: 8px;
+  color:GoldenRod;
 }
 i-variant {
   font-size: 36px;
-}
-i-side {
-  font-size: 14px;
-  vertical-align: -2;
 }
 i-side.online {
   font-size: 14px;
@@ -231,6 +232,7 @@ player {
 }
 rating {
   float: right;
+  font-size: 16px;
 }
 i {
   font-size: 18px;
@@ -356,8 +358,12 @@ table#seeks {
   color: white;
 }
 
+#players tr {
+  background-color: White;
+}
+
 /* profile games */
-table#games {
+table#games, table#players {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0px;
@@ -648,7 +654,7 @@ ol.movelist {
   display: inline;
 }
 li.move {
-  line-height: 1.5em;
+  line-height: 1.8em;
   float: left;
   display: inline;
   width: 42%;

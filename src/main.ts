@@ -10,6 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { lobbyView } from './lobby';
 import { roundView } from './round';
+import { playersView } from './players';
 import { profileView } from './profile';
 import { aboutView } from './about';
 
@@ -48,6 +49,8 @@ export function view(el, model): VNode {
     switch (el.getAttribute("data-view")) {
     case 'about':
         return h('div#placeholder.about-wrapper', aboutView(model));
+    case 'players':
+        return h('div#placeholder.players-wrapper', playersView(model));
     case 'profile':
         return h('div#placeholder.profile-wrapper', profileView(model));
     case 'tv':

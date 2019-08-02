@@ -84,7 +84,7 @@ class Seek:
 
 
 class User:
-    def __init__(self, lobby_ws=None, bot=False, username=None):
+    def __init__(self, lobby_ws=None, bot=False, username=None, title=""):
         self.lobby_ws = lobby_ws
         self.bot = bot
         if username is None:
@@ -101,10 +101,11 @@ class User:
             self.event_queue = asyncio.Queue()
             self.game_queues = {}
             self.title = "BOT"
+            self.online = True
         else:
             self.game_sockets = {}
-            self.title = ""
-        self.online = True
+            self.title = title
+            self.online = False
         self.ping_counter = 0
 
 #    @property

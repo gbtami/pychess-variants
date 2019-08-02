@@ -34,14 +34,14 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                     h('div', [
-                        h('i-side', {class: {"icon": true, "icon-white": true} } ),
+                        h('i-side.online', {class: {"icon": true, "icon-white": true} } ),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, model["wplayer"]),
                             h('rating', " (1500?)"),
                         ]),
                     ]),
                     h('div', [
-                        h('i-side', {class: {"icon": true, "icon-black": true} } ),
+                        h('i-side.online', {class: {"icon": true, "icon-black": true} } ),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, model["bplayer"]),
                             h('rating', " (1500?)"),

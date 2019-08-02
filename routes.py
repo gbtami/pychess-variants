@@ -108,7 +108,8 @@ async def index(request):
                 "_id": session_user,
                 "first_name": session["first_name"],
                 "last_name": session["last_name"],
-                "counry": session["country"],
+                "country": session["country"],
+                "title": "",
             })
             print("db insert user result %s" % repr(result.inserted_id))
         del session["token"]
@@ -132,15 +133,18 @@ async def index(request):
         log.info("+++ New guest user %s connected." % user.username)
         users[user.username] = user
         session["user_name"] = user.username
+    user.online = True
 
     view = "lobby"
     gameId = request.match_info.get("gameId")
 
     if request.path == "/about":
         view = "about"
+    elif request.path == "/players":
+        view = "players"
 
     # TODO: tv for @player and for variants
-    if request.path == "/tv" and len(games) > 0:
+    elif request.path == "/tv" and len(games) > 0:
         view = "tv"
         # TODO: get highest rated game
         gameId = list(games.keys())[-1]
@@ -210,11 +214,39 @@ async def get_games(request):
     return web.json_response(gameid_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
+async def get_players(request):
+    db = request.app["db"]
+    users = request.app["users"]
+
+    db_players = {}
+    cursor = db.user.find()
+    cursor.skip(0).limit(20)
+    async for doc in cursor:
+        db_players[doc["_id"]] = doc
+
+    for user in users.values():
+        if user.username in db_players:
+            db_players[user.username]["online"] = user.online
+        else:
+            db_players[user.username] = {
+                "_id": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "country": user.country,
+                "online": user.online,
+                "title": user.title,
+            }
+    for player in db_players:
+        print(db_players[player])
+    return web.json_response(list(db_players.values()), dumps=partial(json.dumps, default=datetime.isoformat))
+
+
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
     ("/", index),
     ("/about", index),
+    ("/players", index),
     ("/tv", index),
     (r"/{gameId:\w{8}}", index),
     ("/@/{profile}", index),
@@ -225,6 +257,7 @@ get_routes = (
     ("/api/stream/event", event_stream),
     ("/api/bot/game/stream/{gameId}", game_stream),
     ("/api/{profileId}/games", get_games),
+    ("/api/players", get_players),
 )
 
 post_routes = (
