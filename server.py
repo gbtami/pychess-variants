@@ -32,6 +32,17 @@ async def make_app(loop):
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]
 
+    # Read users from db
+    cursor = app["db"].user.find()
+    async for doc in cursor:
+        app["users"][doc["_id"]] = User(
+            username=doc["_id"],
+            title=doc["title"],
+            first_name=doc["first_name"],
+            last_name=doc["last_name"],
+            country=doc["country"],
+        )
+
     app.on_shutdown.append(shutdown)
 
     # Configure templating.

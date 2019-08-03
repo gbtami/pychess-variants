@@ -85,7 +85,7 @@ class Seek:
 
 
 class User:
-    def __init__(self, lobby_ws=None, bot=False, username=None, title=""):
+    def __init__(self, lobby_ws=None, bot=False, username=None, title="", country="", first_name="", last_name=""):
         self.lobby_ws = lobby_ws
         self.bot = bot
         if username is None:
@@ -94,9 +94,9 @@ class User:
         else:
             self.anon = False
             self.username = username
-        self.first_name = ""
-        self.last_name = ""
-        self.country = ""
+        self.first_name = first_name
+        self.last_name = last_name
+        self.country = country
         self.seeks = {}
         if self.bot:
             self.event_queue = asyncio.Queue()
@@ -109,10 +109,17 @@ class User:
             self.online = False
         self.ping_counter = 0
 
-#    @property
-#    def id(self):
-#        return id(self)
-#
+    @property
+    def as_json(self):
+        return {
+            "_id": self.username,
+            "title": self.title,
+            "first_name": self.first_name,
+            "last-name": self.last_name,
+            "online": self.online,
+            "country": self.country,
+        }
+
     async def clear_seeks(self, sockets, seeks):
         has_seek = len(self.seeks) > 0
         if has_seek:

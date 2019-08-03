@@ -86,6 +86,8 @@ async def login(request):
     session["country"] = user.country
     session["first_name"] = user.first_name
     session["last_name"] = user.last_name
+    # TODO: get it via licehess API
+    session["title"] = ""
     raise web.HTTPFound("/")
 
 
@@ -109,7 +111,7 @@ async def index(request):
                 "first_name": session["first_name"],
                 "last_name": session["last_name"],
                 "country": session["country"],
-                "title": "",
+                "title": session["title"],
             })
             print("db insert user result %s" % repr(result.inserted_id))
         del session["token"]
@@ -219,30 +221,8 @@ async def get_games(request):
 
 
 async def get_players(request):
-    db = request.app["db"]
     users = request.app["users"]
-
-    db_players = {}
-    cursor = db.user.find()
-    cursor.skip(0).limit(20)
-    async for doc in cursor:
-        db_players[doc["_id"]] = doc
-
-    for user in users.values():
-        if user.username in db_players:
-            db_players[user.username]["online"] = user.online
-        else:
-            db_players[user.username] = {
-                "_id": user.username,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "country": user.country,
-                "online": user.online,
-                "title": user.title,
-            }
-    for player in db_players:
-        print(db_players[player])
-    return web.json_response(list(db_players.values()), dumps=partial(json.dumps, default=datetime.isoformat))
+    return web.json_response([user.as_json for user in users.values()], dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 get_routes = (
