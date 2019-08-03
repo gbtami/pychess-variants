@@ -36,7 +36,7 @@ async def round_socket_handler(request):
 
     async def game_pinger():
         """ Prevent Heroku to close inactive ws """
-        while True:
+        while not ws.closed:
             await ws.send_json({})
             await asyncio.sleep(5)
 

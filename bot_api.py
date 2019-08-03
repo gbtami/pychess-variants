@@ -197,10 +197,17 @@ async def game_stream(request):
 
     while True:
         answer = await bot_player.game_queues[gameId].get()
-        await resp.write(answer.encode("utf-8"))
-        await resp.drain()
+        try:
+            await resp.write(answer.encode("utf-8"))
+            await resp.drain()
+        except Exception:
+            log.error("Writing %s to BOT game_stream failed!" % answer)
+            break
 
-    await resp.write_eof()
+    try:
+        await resp.write_eof()
+    except Exception:
+        log.error("Writing EOF to BOT game_stream failed!")
     pinger_task.cancel()
 
     return resp
