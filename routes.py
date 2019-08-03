@@ -205,6 +205,7 @@ async def index(request):
 
 
 async def get_games(request):
+    users = request.app["users"]
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
 
@@ -215,6 +216,8 @@ async def get_games(request):
         async for doc in cursor:
             doc["v"] = C2V[doc["v"]]
             doc["r"] = C2R[doc["r"]]
+            doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
+            doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
             gameid_list.append(doc)
 
     return web.json_response(gameid_list, dumps=partial(json.dumps, default=datetime.isoformat))

@@ -49,11 +49,17 @@ function renderGames(model, games) {
             ]),
             h('div', [
                 h('player', [
-                    h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, game["us"][0]),
+                    h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, [
+                        h('player-title', " " + game["wt"] + " "),
+                        game["us"][0],
+                    ]),
                 ]),
                 h('vs', '-'),
                 h('player', [
-                    h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, game["us"][1]),
+                    h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
+                        h('player-title', " " + game["bt"] + " "),
+                        game["us"][1],
+                    ]),
                 ]),
             ]),
             h('div.info-result', game["r"]),
