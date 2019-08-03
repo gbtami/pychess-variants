@@ -94,9 +94,6 @@ a.nav-link:hover, a.nav-link:active {
     background-color: LightSlateGray;
 }
 
-a.user-link {
-  font-size: 16px;
-}
 a.user-link:link, a.user-link:visited {
     display: inline-block;
     color: #505050;
@@ -173,6 +170,7 @@ button.newopp:hover {
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
   margin-bottom: 16px;
   padding: 12px;
+  font-size: 14px;
 }
 
 div.info0 {
@@ -203,32 +201,34 @@ tc {
   padding: 8px;
   vertical-align: top;
 }
+round-player {
+  padding: 8px;
+  font-size: 16px;
+}
 .player-data {
   display: block;
   flex-direction: row;
-  padding: 8px;
   justify-content: center;
 }
-.player-data player-title {
-  padding-left: 8px;
+player-title {
   color:GoldenRod;
 }
 i-variant {
   font-size: 36px;
 }
 i-side.online {
+  margin-right: .4em;
   font-size: 14px;
 }
 .icon-online::before {
   color: #629924;
   vertical-align: -2;
+  margin-right: .4em;
 }
 .icon-offline::before {
   color: LightGray;
   vertical-align: -2;
-}
-player {
-  padding: 8px;
+  margin-right: .4em;
 }
 rating {
   float: right;
@@ -370,6 +370,10 @@ table#games, table#players {
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+}
+
+td.player-data {
+  padding: 8px;
 }
 
 #games th {

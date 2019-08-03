@@ -14,15 +14,19 @@ function runGround(vnode: VNode, model) {
 
 export function roundView(model): VNode[] {
     console.log("model=", model);
-    var playerTop, playerBottom, dataIcon;
+    var playerTop, playerBottom, titleTop, titleBottom, dataIcon;
     dataIcon = VARIANTS[model["variant"]].icon;
     if (model["username"] !== model["wplayer"] && model["username"] !== model["bplayer"]) {
         // spectator game view
         playerTop = model["variant"] === 'shogi' ? model["wplayer"] : model["bplayer"];
         playerBottom = model["variant"] === 'shogi' ? model["bplayer"] : model["wplayer"];
+        titleTop = model["variant"] === 'shogi' ? model["wtitle"] : model["btitle"];
+        titleBottom = model["variant"] === 'shogi' ? model["btitle"] : model["wtitle"];
     } else {
         playerTop = model["username"] === model["wplayer"] ? model["bplayer"] : model["wplayer"];
         playerBottom = model["username"];
+        titleTop = model["username"] === model["wplayer"] ? model["btitle"] : model["wtitle"];
+        titleBottom = model["username"] === model["wplayer"] ? model["wtitle"] : model["btitle"];
     }
     renderTimeago();
     return [h('aside.sidebar-first', [
@@ -33,18 +37,22 @@ export function roundView(model): VNode[] {
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
                         ]),
                     ]),
-                    h('div', [
+                    h('div.player-data', [
                         h('i-side.online', {class: {"icon": true, "icon-white": true} } ),
                         h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, model["wplayer"]),
-                            h('rating', " (1500?)"),
+                            h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, [
+                                h('player-title', " " + model["wtitle"] + " "),
+                                model["wplayer"] + " (1500?)",
+                            ]),
                         ]),
                     ]),
-                    h('div', [
+                    h('div.player-data', [
                         h('i-side.online', {class: {"icon": true, "icon-black": true} } ),
                         h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, model["bplayer"]),
-                            h('rating', " (1500?)"),
+                            h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, [
+                                h('player-title', " " + model["btitle"] + " "),
+                                model["bplayer"] + " (1500?)",
+                            ]),
                         ]),
                     ]),
                 ]),
@@ -67,23 +75,33 @@ export function roundView(model): VNode[] {
                 ]),
                 h('div#clock0'),
                 h('div.round-data', [
+                    h('round-player', [
                     h('div.player-data', [
                         h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}),
                         h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + playerTop}}, playerTop),
+                            h('a.user-link', {attrs: {href: '/@/' + playerTop}}, [
+                                h('player-title', " " + titleTop + " "),
+                                playerTop,
+                            ]),
                             h('rating', "1500?"),
                         ]),
+                    ]),
                     ]),
                     h('div#move-controls'),
                     h('div#movelist'),
                     h('div#after-game'),
                     h('div#game-controls'),
+                    h('round-player', [
                     h('div.player-data', [
                         h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}),
                         h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + playerBottom}}, playerBottom),
+                            h('a.user-link', {attrs: {href: '/@/' + playerBottom}}, [
+                                h('player-title', " " + titleBottom + " "),
+                                playerBottom,
+                            ]),
                             h('rating', "1500?"),
                         ]),
+                    ]),
                     ]),
                 ]),
                 h('div#clock1'),

@@ -19,9 +19,11 @@ function renderPlayers(model, players) {
         (player) => h('tr', [
             h('td.player-data', [
                 h('i-side.online', {class: {"icon": true, "icon-online": player["online"], "icon-offline": !player["online"]}}),
-                h('player-title', player["title"]),
                 h('player', [
-                    h('a.user-link', {attrs: {href: '/@/' + player["_id"]}}, player["_id"]),
+                    h('a.user-link', {attrs: {href: '/@/' + player["_id"]}}, [
+                        h('player-title', " " + player["title"] + " "),
+                        player["_id"],
+                    ]),
                 ]),
             ])
         ])

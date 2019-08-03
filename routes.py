@@ -177,18 +177,22 @@ async def index(request):
         "anon": user.anon,
         "country": session["country"] if "country" in session else "",
         "guest": session["guest"],
-        "gameid": gameId if gameId is not None else "",
-        "variant": game.variant if gameId is not None else "",
-        "wplayer": game.wplayer.username if gameId is not None else "",
-        "bplayer": game.bplayer.username if gameId is not None else "",
-        "fen": game.board.fen if gameId is not None else "",
-        "base": game.base if gameId is not None else "",
-        "inc": game.inc if gameId is not None else "",
-        "result": game.result if gameId is not None else "",
-        "status": game.status if gameId is not None else "",
-        "date": game.date.isoformat() if gameId is not None else "",
         "profile": profileId if profileId is not None else "",
     }
+    if gameId is not None:
+        render["gameid"] = gameId
+        render["variant"] = game.variant
+        render["wplayer"] = game.wplayer.username
+        render["wtitle"] = game.wplayer.title
+        render["bplayer"] = game.bplayer.username
+        render["btitle"] = game.bplayer.title
+        render["fen"] = game.board.fen
+        render["base"] = game.base
+        render["inc"] = game.inc
+        render["result"] = game.result
+        render["status"] = game.status
+        render["date"] = game.date.isoformat()
+
     text = template.render(render)
 
     # log.debug("Response: %s" % text)

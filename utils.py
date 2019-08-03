@@ -75,6 +75,7 @@ class Seek:
         self.as_json = {
             "seekID": self.id,
             "user": self.user.username,
+            "bot": self.user.bot,
             "variant": self.variant,
             "fen": self.fen,
             "color": self.color,
