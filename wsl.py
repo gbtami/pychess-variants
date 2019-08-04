@@ -55,9 +55,7 @@ async def lobby_socket_handler(request):
 
                     elif data["type"] == "create_ai_challenge":
                         variant = data["variant"]
-                        if variant == "seirawan":
-                            engine = users.get("Seirawan-Stockfish")
-                        elif variant == "xiangqi":
+                        if variant == "xiangqi":
                             engine = users.get("Elephant-Eye")
                         else:
                             engine = users.get("Fairy-Stockfish")

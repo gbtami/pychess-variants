@@ -8,7 +8,6 @@ from datetime import datetime
 from aiohttp.web import WebSocketResponse
 
 import fairy
-import seirawan
 import xiangqi
 
 from settings import URI
@@ -254,9 +253,7 @@ class Game:
         ]
 
     def create_board(self, variant, initial_fen):
-        if variant == "seirawan":
-            board = seirawan.SeirawanBoard(initial_fen)
-        elif variant == "xiangqi":
+        if variant == "xiangqi":
             board = xiangqi.XiangqiBoard(initial_fen)
         else:
             board = fairy.FairyBoard(variant, initial_fen)

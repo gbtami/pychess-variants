@@ -122,9 +122,7 @@ async def round_socket_handler(request):
 
                         if opp_player.bot:
                             variant = game.variant
-                            if variant == "seirawan":
-                                engine = users.get("Seirawan-Stockfish")
-                            elif variant == "xiangqi":
+                            if variant == "xiangqi":
                                 engine = users.get("Elephant-Eye")
                             else:
                                 engine = users.get("Fairy-Stockfish")

@@ -54,7 +54,7 @@ class FairyBoard:
         return sf.gives_check(self.variant, self.initial_fen, self.move_stack)
 
     def insufficient_material(self):
-        # TODO: implement this in pyffish/pysfish
+        # TODO: implement this in pyffish
         if self.variant == "makruk" or self.variant == "sittuyin":
             pieces = Counter(self.fen.split()[0])
             w = pieces["R"] + pieces["S"] == 0 and pieces["M"] + pieces["F"] + pieces["N"] + pieces["P"] < 2
