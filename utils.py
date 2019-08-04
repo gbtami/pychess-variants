@@ -182,9 +182,10 @@ class User:
 
 
 class Game:
-    def __init__(self, db, games, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=20, rated=False):
-        self.db = db
-        self.games = games
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=20, rated=False):
+        self.db = app["db"]
+        self.games = app["games"]
+        self.tasks = app["tasks"]
         self.saved = False
         self.variant = variant
         self.initial_fen = initial_fen
@@ -331,7 +332,7 @@ class Game:
             del self.games[self.id]
 
         loop = asyncio.get_event_loop()
-        loop.create_task(remove())
+        self.tasks.add(loop.create_task(remove()))
 
     async def update_status(self, status=None, result=None):
         if status is not None:
@@ -453,7 +454,10 @@ class Game:
         return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id, "pgn": self.pgn}
 
 
-async def load_game(db, games, users, game_id):
+async def load_game(app, game_id):
+    db = app["db"]
+    games = app["games"]
+    users = app["users"]
     if game_id in games:
         return games[game_id]
 
@@ -478,7 +482,7 @@ async def load_game(db, games, users, game_id):
 
     variant = C2V[doc["v"]]
 
-    game = Game(db, games, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"])
+    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"])
 
     mlist = decode_moves(doc["m"])
     if variant == "shogi":
@@ -558,8 +562,11 @@ def get_seeks(seeks):
     return {"type": "get_seeks", "seeks": [seek.as_json for seek in seeks.values()]}
 
 
-async def new_game(db, seeks, games, user, seek_id):
+async def new_game(app, user, seek_id):
     log.info("+++ Seek %s accepted by%s" % (seek_id, user.username))
+    db = app["db"]
+    games = app["games"]
+    seeks = app["seeks"]
     seek = seeks[seek_id]
 
     if seek.color == "r":
@@ -575,7 +582,7 @@ async def new_game(db, seeks, games, user, seek_id):
         log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
         return {"type": "error"}
 
-    new_game = Game(db, games, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
+    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
     games[new_game.id] = new_game
 
     if not seek.user.bot:

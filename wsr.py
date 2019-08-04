@@ -18,7 +18,6 @@ async def round_socket_handler(request):
     sockets = request.app["websockets"]
     seeks = request.app["seeks"]
     games = request.app["games"]
-    db = request.app["db"]
 
     ws = MyWebSocketResponse()
 
@@ -117,7 +116,7 @@ async def round_socket_handler(request):
                         await ws.send_json(board_response)
 
                     elif data["type"] == "rematch":
-                        game = await load_game(db, games, users, data["gameId"])
+                        game = await load_game(request.app, data["gameId"])
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
@@ -138,7 +137,7 @@ async def round_socket_handler(request):
                             seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level)
                             seeks[seek.id] = seek
 
-                            response = await new_game(db, seeks, games, engine, seek.id)
+                            response = await new_game(request.app, engine, seek.id)
                             await ws.send_json(response)
 
                             await engine.event_queue.put(challenge(seek, response))
@@ -151,7 +150,7 @@ async def round_socket_handler(request):
                                 seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.skill_level, game.rated)
                                 seeks[seek.id] = seek
 
-                                response = await new_game(db, seeks, games, opp_player, seek.id)
+                                response = await new_game(request.app, opp_player, seek.id)
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                             else:
@@ -238,7 +237,7 @@ async def round_socket_handler(request):
                                     await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
                     elif data["type"] == "game_user_connected":
-                        game = await load_game(db, games, users, data["gameId"])
+                        game = await load_game(request.app, data["gameId"])
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing game_user %s socket connected as %s." % (session_user, data["username"]))
@@ -279,6 +278,7 @@ async def round_socket_handler(request):
 
                         loop = asyncio.get_event_loop()
                         game_ping_task = loop.create_task(game_pinger())
+                        request.app["tasks"].add(game_ping_task)
 
                     elif data["type"] == "is_user_online":
                         player_name = data["username"]

@@ -96,9 +96,8 @@ async def create_bot_seek(request):
         # inform others
         await broadcast(sockets, get_seeks(seeks))
     else:
-        db = request.app["db"]
         games = request.app["games"]
-        response = await new_game(db, seeks, games, bot_player, matching_seek.id)
+        response = await new_game(request.app, bot_player, matching_seek.id)
 
         gameId = response["gameId"]
         game = games[gameId]
@@ -145,6 +144,7 @@ async def event_stream(request):
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(bot_player.pinger(sockets, seeks, users, games))
+    request.app["tasks"].add(pinger_task)
 
     # inform others
     # TODO: do we need this at all?
@@ -194,6 +194,7 @@ async def game_stream(request):
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(pinger())
+    request.app["tasks"].add(pinger_task)
 
     while True:
         answer = await bot_player.game_queues[gameId].get()

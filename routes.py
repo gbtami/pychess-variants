@@ -159,7 +159,7 @@ async def index(request):
     if gameId is not None:
         if view != "tv":
             view = "round"
-        game = await load_game(db, games, users, gameId)
+        game = await load_game(request.app, gameId)
         if game is None:
             log.debug("Requseted game %s not in app['games']" % gameId)
             template = request.app["jinja"].get_template("404.html")

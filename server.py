@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import os
+import weakref
 
 import jinja2
 import aiomonitor
@@ -22,6 +23,7 @@ async def make_app(loop):
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
+    app["tasks"] = weakref.WeakSet()
 
     bot = app["users"]["Random-Mover"]
     for variant in VARIANTS:
@@ -95,6 +97,9 @@ async def shutdown(app):
     app['websockets'].clear()
 
     app["client"].close()
+
+    for task in set(app["tasks"]):
+        task.cancel()
 
 
 if __name__ == "__main__":

@@ -18,7 +18,6 @@ async def lobby_socket_handler(request):
     sockets = request.app["websockets"]
     seeks = request.app["seeks"]
     games = request.app["games"]
-    db = request.app["db"]
 
     ws = MyWebSocketResponse()
 
@@ -70,7 +69,7 @@ async def lobby_socket_handler(request):
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
                         seeks[seek.id] = seek
 
-                        response = await new_game(db, seeks, games, engine, seek.id)
+                        response = await new_game(request.app, engine, seek.id)
                         await ws.send_json(response)
                         print("---------USERS-----------")
                         for user in users.values():
@@ -94,7 +93,7 @@ async def lobby_socket_handler(request):
                             return
 
                         seek = seeks[data["seekID"]]
-                        response = await new_game(db, seeks, games, user, data["seekID"])
+                        response = await new_game(request.app, user, data["seekID"])
                         await ws.send_json(response)
 
                         if seek.user.lobby_ws is not None:
@@ -138,6 +137,7 @@ async def lobby_socket_handler(request):
 
                         loop = asyncio.get_event_loop()
                         lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, users, games))
+                        request.app["tasks"].add(lobby_ping_task)
 
                     elif data["type"] == "lobbychat":
                         response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
