@@ -39,10 +39,10 @@ async def make_app(loop):
     async for doc in cursor:
         app["users"][doc["_id"]] = User(
             username=doc["_id"],
-            title=doc["title"],
-            first_name=doc["first_name"],
-            last_name=doc["last_name"],
-            country=doc["country"],
+            title=doc.get("title"),
+            first_name=doc.get("first_name"),
+            last_name=doc.get("last_name"),
+            country=doc.get("country"),
         )
 
     app.on_shutdown.append(shutdown)
