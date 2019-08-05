@@ -128,6 +128,7 @@ async def event_stream(request):
     seeks = request.app["seeks"]
     sockets = request.app["websockets"]
     games = request.app["games"]
+    db = request.app["db"]
 
     resp = web.StreamResponse()
     resp.content_type = "text/plain"
@@ -138,6 +139,15 @@ async def event_stream(request):
     else:
         bot_player = User(bot=True, username=username)
         users[bot_player.username] = bot_player
+
+        doc = await db.user.find_one({"_id": username})
+        if doc is None:
+            result = await db.user.insert_one({
+                "_id": username,
+                "title": "BOT",
+            })
+            print("db insert user result %s" % repr(result.inserted_id))
+
     bot_player.online = True
 
     log.info("+++ BOT %s connected" % bot_player.username)
