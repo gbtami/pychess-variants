@@ -120,9 +120,9 @@ class LobbyController {
         localStorage.setItem("seek_inc", e.value);
 
         if (this.challengeAI) {
-            const form = document.getElementById('ailevel') as HTMLFormElement;
-            const level = parseInt(form.elements['level'].value);
-            localStorage.setItem("seek_level", form.elements['level'].value);
+            e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
+            const level = parseInt(e.value);
+            localStorage.setItem("seek_level", e.value);
             this.createBotChallengeMsg(variant, color, fen, minutes, increment, level)
         } else {
             if (this.isNewSeek(variant, color, fen, minutes, increment)) {
