@@ -101,11 +101,10 @@ class User:
             self.event_queue = asyncio.Queue()
             self.game_queues = {}
             self.title = "BOT"
-            self.online = True
         else:
             self.game_sockets = {}
             self.title = title
-            self.online = False
+        self.online = False
         self.ping_counter = 0
 
     @property
