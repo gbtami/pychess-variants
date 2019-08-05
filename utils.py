@@ -180,7 +180,7 @@ class User:
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=20, rated=False):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=1, rated=False):
         self.db = app["db"]
         self.games = app["games"]
         self.tasks = app["tasks"]

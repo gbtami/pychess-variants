@@ -20,6 +20,7 @@ async def make_app(loop):
     app = web.Application(loop=loop)
     setup(app, EncryptedCookieStorage(SECRET_KEY))
     app["users"] = {"Random-Mover": User(bot=True, username="Random-Mover")}
+    app["users"]["Random-Mover"].online = True
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
