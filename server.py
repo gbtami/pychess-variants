@@ -43,6 +43,7 @@ async def make_app(loop):
             first_name=doc.get("first_name"),
             last_name=doc.get("last_name"),
             country=doc.get("country"),
+            bot=doc.get("title") == "BOT",
         )
 
     app.on_shutdown.append(shutdown)
