@@ -2,7 +2,10 @@
 import re
 from collections import Counter
 
-import pyffish as sf
+try:
+    import pyffish as sf
+except ImportError:
+    print("No pyffish module installed!")
 
 WHITE, BLACK = False, True
 
@@ -21,7 +24,8 @@ class FairyBoard:
         if variant == "shogi":
             return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
         else:
-            return sf.start_fen(variant)
+            return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            # return sf.start_fen(variant)
 
     def push(self, move):
         self.move_stack.append(move)
@@ -45,10 +49,11 @@ class FairyBoard:
         return sf.get_san(self.variant, self.fen, move)
 
     def legal_moves(self):
+        return ["e2e4", "d2d4"]
         # print("   self.move_stack:", self.move_stack)
         legals = sf.legal_moves(self.variant, self.initial_fen, self.move_stack)
         # print("       legal_moves:", legals)
-        return legals
+        #return legals
 
     def is_checked(self):
         return sf.gives_check(self.variant, self.initial_fen, self.move_stack)

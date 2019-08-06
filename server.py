@@ -37,16 +37,18 @@ async def make_app(loop):
 
     # Read users from db
     cursor = app["db"].user.find()
-    async for doc in cursor:
-        app["users"][doc["_id"]] = User(
-            username=doc["_id"],
-            title=doc.get("title"),
-            first_name=doc.get("first_name"),
-            last_name=doc.get("last_name"),
-            country=doc.get("country"),
-            bot=doc.get("title") == "BOT",
-        )
-
+    try:
+        async for doc in cursor:
+            app["users"][doc["_id"]] = User(
+                username=doc["_id"],
+                title=doc.get("title"),
+                first_name=doc.get("first_name"),
+                last_name=doc.get("last_name"),
+                country=doc.get("country"),
+                bot=doc.get("title") == "BOT",
+            )
+    except Exception:
+        print("No mongodb!")
     app.on_shutdown.append(shutdown)
 
     # Configure templating.

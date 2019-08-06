@@ -166,7 +166,7 @@ class LobbyController {
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
-        console.log("localeStorage.seek_level, vlevel=", localStorage.seek_level, vlevel);
+        console.log("localeStorage.seek_level, vLevel=", localStorage.seek_level, vLevel);
 
         return [
         h('div#id01', { class: {"modal": true} }, [
