@@ -108,10 +108,10 @@ async def index(request):
         if doc is None:
             result = await db.user.insert_one({
                 "_id": session_user,
-                "first_name": session["first_name"],
-                "last_name": session["last_name"],
-                "country": session["country"],
-                "title": session["title"],
+                "first_name": session.get("first_name"),
+                "last_name": session.get("last_name"),
+                "country": session.get("country"),
+                "title": session.get("title"),
             })
             print("db insert user result %s" % repr(result.inserted_id))
         del session["token"]
