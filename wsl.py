@@ -65,6 +65,7 @@ async def lobby_socket_handler(request):
                             engine = users.get("Random-Mover")
 
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
+                        print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
                         seeks[seek.id] = seek
 
                         response = await new_game(request.app, engine, seek.id)
