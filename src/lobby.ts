@@ -123,7 +123,8 @@ class LobbyController {
             e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
             const level = parseInt(e.value);
             localStorage.setItem("seek_level", e.value);
-            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level)
+            console.log(level, e.value, localStorage.getItem("seek_level"));
+            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level);
         } else {
             if (this.isNewSeek(variant, color, fen, minutes, increment)) {
                 this.createSeekMsg(variant, color, fen, minutes, increment);
@@ -165,6 +166,7 @@ class LobbyController {
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
+        console.log("localeStorage.seek_level, vlevel=", localStorage.seek_level, vlevel);
 
         return [
         h('div#id01', { class: {"modal": true} }, [
