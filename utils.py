@@ -494,7 +494,7 @@ async def load_game(app, game_id):
 
     variant = C2V[doc["v"]]
 
-    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], bool(doc["z"]))
+    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], bool(doc.get("z")))
 
     mlist = decode_moves(doc["m"])
     if variant == "shogi":

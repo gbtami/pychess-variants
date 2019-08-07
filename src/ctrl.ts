@@ -591,6 +591,12 @@ export default class RoundController {
 
     goPly = (ply) => {
         const step = this.steps[ply];
+        var move = step.move
+        if (move !== undefined) {
+            if (this.variant === "shogi") move = usi2uci(move);
+            move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
+        }
+
         this.chessground.set({
             fen: step.fen,
             turnColor: step.turnColor,
@@ -600,9 +606,7 @@ export default class RoundController {
                 dests: this.result === "" && ply === this.steps.length - 1 ? this.dests : undefined,
                 },
             check: step.check,
-            lastMove: step.move === undefined ? undefined :
-                step.move.slice(1, 2) === '@' ? [step.move.slice(2, 4)] :
-                    [step.move.slice(0, 2), step.move.slice(2, 4)],
+            lastMove: move,
         });
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
