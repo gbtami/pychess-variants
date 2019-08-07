@@ -622,7 +622,7 @@ ol#lobbychat-messages {
 }
 
 ol#roundchat-messages {
-  max-height: calc(var(--cgwrapheight) - 28px);
+  max-height: calc(var(--cgwrapheight) - 156px);
 }
 
 li.message {
