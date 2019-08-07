@@ -58,7 +58,7 @@ def uci2usi(move):
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=6, rated=False):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=6, rated=False, chess960=False):
         self.user = user
         self.variant = variant
         self.color = color
@@ -67,6 +67,7 @@ class Seek:
         self.base = base
         self.inc = inc
         self.level = level
+        self.chess960 = chess960
 
         Seek.gen_id += 1
         self.id = self.gen_id
@@ -76,6 +77,7 @@ class Seek:
             "user": self.user.username,
             "bot": self.user.bot,
             "variant": self.variant,
+            "chess960": self.chess960,
             "fen": self.fen,
             "color": self.color,
             "rated": "Rated" if self.rated else "Casual",
@@ -180,7 +182,7 @@ class User:
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=1, rated=False):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, chess960=False, level=1, rated=False):
         self.db = app["db"]
         self.games = app["games"]
         self.tasks = app["tasks"]
@@ -193,6 +195,8 @@ class Game:
         self.base = base
         self.inc = inc
         self.skill_level = level
+        self.chess960 = chess960
+
         self.spectators = set()
         self.draw_offers = set()
         self.rematch_offers = set()
@@ -213,26 +217,38 @@ class Game:
         self.last_server_clock = monotonic()
 
         self.id = gameId
-        self.board = self.create_board(self.variant, self.initial_fen)
+        self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
 
         # Initial_fen needs validation to prevent segfaulting in pyffish
         if self.initial_fen:
             start_fen = self.board.start_fen(self.variant)
             start = start_fen.split()
             init = self.initial_fen.split()
+
+            # We need starting color
             invalid0 = len(init) < 2
+
+            # Only piece types listed in variant start position can be used later
             invalid1 = any((c not in start[0] for c in init[0] if not c.isdigit()))
+
+            # Required number of rows
             invalid2 = start[0].count("/") != init[0].count("/")
+
+            # Allowed starting colors
             invalid3 = init[1] != "b" and init[1] != "w"
-            if variant == "seirawan":
+
+            # Castling rights (and piece virginity) check
+            if self.variant == "seirawan":
                 invalid4 = len(init) > 2 and any((c not in "KQBCDFGkqbcdfgAHah-" for c in init[2]))
+            elif self.chess960:
+                invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJ-" for c in init[2]))
             else:
                 invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
             if invalid0 or invalid1 or invalid2 or invalid3 or invalid4:
                 log.error("Got invalid initial_fen %s for game %s" % (self.initial_fen, self.id))
                 self.initial_fen = start_fen
-                self.board = self.create_board(self.variant, self.initial_fen)
+                self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
         else:
             self.initial_fen = self.board.fen
 
@@ -251,11 +267,11 @@ class Game:
             "check": self.check}
         ]
 
-    def create_board(self, variant, initial_fen):
+    def create_board(self, variant, initial_fen, chess960):
         if variant == "xiangqi":
             board = xiangqi.XiangqiBoard(initial_fen)
         else:
-            board = fairy.FairyBoard(variant, initial_fen)
+            board = fairy.FairyBoard(variant, initial_fen, chess960)
         return board
 
     async def play_move(self, move, clocks=None):
@@ -478,7 +494,7 @@ async def load_game(app, game_id):
 
     variant = C2V[doc["v"]]
 
-    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"])
+    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], bool(doc["z"]))
 
     mlist = decode_moves(doc["m"])
     if variant == "shogi":
@@ -578,7 +594,7 @@ async def new_game(app, user, seek_id):
         log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
         return {"type": "error"}
 
-    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level)
+    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.chess960)
     games[new_game.id] = new_game
 
     if not seek.user.bot:
@@ -596,7 +612,8 @@ async def new_game(app, user, seek_id):
         "d": new_game.date,
         "f": new_game.initial_fen,
         "s": new_game.status,
-        "r": R2C["*"]
+        "r": R2C["*"],
+        "z": str(int(seek.chess960)),
     }
     if seek.fen:
         document["if"] = seek.fen

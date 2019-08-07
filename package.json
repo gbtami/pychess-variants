@@ -8,10 +8,10 @@
   "dependencies": {
     "chessgroundx": "^7.6",
     "snabbdom": "^0.7",
-    "sockette": "^2.0",
-    "yarn": "^1.17.3"
+    "sockette": "^2.0"
   },
   "devDependencies": {
+    "yarn": "^1.17.3",
     "browserify": "^16",
     "gulp": "^4",
     "gulp-sourcemaps": "^2",

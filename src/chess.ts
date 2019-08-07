@@ -95,7 +95,7 @@ function diagonalMove(pos1, pos2) {
 }
 
 export function canGate(fen, piece, orig, dest, meta) {
-    console.log("   isGating()", piece, orig, dest, meta);
+    console.log("   isGating()", fen, piece, orig, dest, meta);
     if ((piece.color === "white" && orig.slice(1) !== "1") ||
         (piece.color === "black" && orig.slice(1) !== "8") ||
         (piece.role === "hawk") ||
