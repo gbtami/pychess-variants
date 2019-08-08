@@ -287,19 +287,13 @@ export default class RoundController {
             console.log("Resign");
             this.doSend({ type: "resign", gameId: this.model["gameId"] });
         }
-/*
-        const disconnect = () => {
-            console.log("Testing socket disconnect...");
-            this.doSend({ type: "disconnect", gameId: this.model["gameId"] });
-        }
-*/
+
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             this.gameControls = patch(container, h('div.btn-controls', [
                 h('button#abort', { on: { click: () => abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
                 h('button#draw', { on: { click: () => draw() }, props: {title: "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
                 h('button#resign', { on: { click: () => resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
-                // h('button#disconnect', { on: { click: () => disconnect() }, props: {title: 'disconnect'} }, [h('i', {class: {"icon": true, "icon-sign-out": true} } ), ]),
                 ])
             );
         } else {
@@ -309,6 +303,10 @@ export default class RoundController {
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+
+        window.addEventListener('beforeunload', () => {
+            if (this.result === '') this.doSend({ type: "abandone", gameId: this.model["gameId"] });
+        });
     }
 
     getGround = () => this.chessground;

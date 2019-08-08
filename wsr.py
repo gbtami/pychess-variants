@@ -6,7 +6,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from utils import play_move, get_board, start, draw, resign, flag, \
+from utils import play_move, get_board, start, draw, game_ended, \
     new_game, challenge, load_game, User, Seek, STARTED, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
@@ -35,6 +35,7 @@ async def round_socket_handler(request):
 
     async def game_pinger():
         """ Prevent Heroku to close inactive ws """
+        # TODO: use this to detect disconnected games?
         while not ws.closed:
             await ws.send_json({})
             await asyncio.sleep(5)
@@ -157,24 +158,6 @@ async def round_socket_handler(request):
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
 
-                    elif data["type"] == "abort":
-                        game = games[data["gameId"]]
-                        response = await game.abort()
-                        await ws.send_json(response)
-
-                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-                        opp_player = users[opp_name]
-                        if opp_player.bot:
-                            await opp_player.game_queues[data["gameId"]].put(game.game_end)
-                        else:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            await opp_ws.send_json(response)
-
-                        if game.spectators:
-                            for spectator in game.spectators:
-                                if data["gameId"] in users[spectator.username].game_sockets:
-                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
-
                     elif data["type"] == "draw":
                         game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
@@ -197,30 +180,12 @@ async def round_socket_handler(request):
                                 if data["gameId"] in users[spectator.username].game_sockets:
                                     await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
 
-                    elif data["type"] == "resign":
+                    elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         game = games[data["gameId"]]
-                        response = await resign(games, user, data)
+                        response = await game_ended(games, user, data, data["type"])
 
                         await ws.send_json(response)
 
-                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-                        opp_player = users[opp_name]
-                        if opp_player.bot:
-                            await opp_player.game_queues[data["gameId"]].put(game.game_end)
-                        else:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            await opp_ws.send_json(response)
-
-                        if game.spectators:
-                            for spectator in game.spectators:
-                                if data["gameId"] in users[spectator.username].game_sockets:
-                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
-
-                    elif data["type"] == "flag":
-                        response = await flag(games, user, data)
-                        await ws.send_json(response)
-
-                        game = games[data["gameId"]]
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.bot:
@@ -308,11 +273,6 @@ async def round_socket_handler(request):
                             if gameId != data["gameId"]:
                                 response = {"type": "updateTV", "gameId": gameId}
                                 await ws.send_json(response)
-
-                    elif data["type"] == "disconnect":
-                        # Used only to test socket disconnection...
-                        await ws.close(code=1009)
-
             else:
                 log.debug("type(msg.data) != str %s" % msg)
         elif msg.type == aiohttp.WSMsgType.ERROR:

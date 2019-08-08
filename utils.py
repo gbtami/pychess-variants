@@ -18,8 +18,15 @@ log = logging.getLogger(__name__)
 BLACK = True
 MAX_USER_SEEKS = 10
 
-CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, CHEAT, \
-    NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 12)
+CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
+    ABANDONE, CHEAT, NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 13)
+
+LOSERS = {
+    "abandone": ABANDONE,
+    "abort": ABORTED,
+    "resign": RESIGN,
+    "flag": FLAG,
+}
 
 VARIANTS = (
     "makruk",
@@ -541,18 +548,14 @@ async def draw(games, data, agreement=False):
         return {"type": "offer", "message": "Draw offer sent"}
 
 
-async def resign(games, user, data):
+async def game_ended(games, user, data, reason):
+    # TODO: 1/2 if flagged and hasInsufficientMaterial()
     game = games[data["gameId"]]
-    result = "0-1" if user.username == game.wplayer.username else "1-0"
-    await game.update_status(RESIGN, result)
-    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
-
-
-async def flag(games, user, data):
-    game = games[data["gameId"]]
-    # TODO: 1/2 if hasInsufficientMaterial()
-    result = "0-1" if user.username == game.wplayer.username else "1-0"
-    await game.update_status(FLAG, result)
+    if reason == "abort":
+        result = "*"
+    else:
+        result = "0-1" if user.username == game.wplayer.username else "1-0"
+    await game.update_status(LOSERS[reason], result)
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 

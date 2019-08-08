@@ -15,7 +15,42 @@ import { renderUsername } from './user';
 import { VARIANTS } from './chess';
 import { renderTimeago } from './clock';
 
-// TODO: save FEN and lastmove to db and reuse them in miniboards
+// TODO: colorize with green/red/nothing if profile user win/lose/other
+function result(status, result) {
+    var text = '';
+    console.log("result()", status, result);
+    switch (status) {
+    case -1:
+        text = 'Playing right now';
+        break;
+    case 0:
+        text = 'Game aborted';
+        break;
+    case 1:
+        text = 'Checkmate';
+        break;
+    case 2:
+        text = 'Resigned';
+        break;
+    case 3:
+        text = 'Stalemate';
+        break;
+    case 4:
+        text = 'Time out';
+        break;
+    case 5:
+        text = 'Draw';
+        break;
+    case 6:
+        text = 'Time out';
+        break;
+    default:
+        text = 'Abandoned';
+        break
+    }
+    return (status <= 0) ? text : text + ', ' + result;
+}
+
 
 function renderGames(model, games) {
 //                h('fn', player["first_name"]),
@@ -62,7 +97,12 @@ function renderGames(model, games) {
                     ]),
                 ]),
             ]),
-            h('div.info-result', game["r"]),
+            h('div.info-result', {
+                class: {
+                    "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
+                    "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
+                }}, result(game["s"], game["r"])
+            ),
         ])
         ])
         );

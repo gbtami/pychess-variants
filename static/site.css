@@ -196,7 +196,12 @@ games-info {
 div.info-result {
   padding: 8px;
 }
-
+div.info-result.win {
+  color: Green;
+}
+div.info-result.lose {
+  color: Red;
+}
 tc {
   padding: 8px;
   vertical-align: top;
