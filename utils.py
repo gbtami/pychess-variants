@@ -551,11 +551,10 @@ async def draw(games, data, agreement=False):
 async def game_ended(games, user, data, reason):
     # TODO: 1/2 if flagged and hasInsufficientMaterial()
     game = games[data["gameId"]]
-    if reason == "abort":
-        result = "*"
-    else:
-        result = "0-1" if user.username == game.wplayer.username else "1-0"
-    await game.update_status(LOSERS[reason], result)
+    if game.result == "*":
+        if reason != "abort":
+            result = "0-1" if user.username == game.wplayer.username else "1-0"
+        await game.update_status(LOSERS[reason], result)
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
 
