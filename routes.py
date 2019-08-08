@@ -49,13 +49,16 @@ async def oauth(request):
             # scope="email:read",
             redirect_uri=REDIRECT_URI
         ))
-    token_data = await client.get_access_token(
-        request.query.get("code"),
-        redirect_uri=REDIRECT_URI
-    )
-    token, data = token_data
-    session = await aiohttp_session.get_session(request)
-    session["token"] = token
+    try:
+        token_data = await client.get_access_token(
+            request.query.get("code"),
+            redirect_uri=REDIRECT_URI
+        )
+        token, data = token_data
+        session = await aiohttp_session.get_session(request)
+        session["token"] = token
+    except Exception:
+        log.error("Failed to get oauth access token.")
     raise web.HTTPFound("/login")
 
 
