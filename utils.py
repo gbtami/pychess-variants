@@ -151,7 +151,7 @@ class User:
 
             response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
             opp = game.bplayer if game.wplayer.username == self.username else game.wplayer
-            if not opp.bot:
+            if (not opp.bot) and gameId in opp.game_sockets:
                 await opp.game_sockets[gameId].send_json(response)
 
             for spectator in game.spectators:
