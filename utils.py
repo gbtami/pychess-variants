@@ -533,11 +533,6 @@ def start(games, data):
     return {"type": "gameStart", "gameId": data["gameId"]}
 
 
-def end(games, data):
-    game = games[data["gameId"]]
-    return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
-
-
 async def draw(games, data, agreement=False):
     game = games[data["gameId"]]
     if game.is_claimable_draw or agreement:
@@ -549,6 +544,7 @@ async def draw(games, data, agreement=False):
 
 
 async def game_ended(games, user, data, reason):
+    """ Abort, resign, flag, abandone """
     # TODO: 1/2 if flagged and hasInsufficientMaterial()
     game = games[data["gameId"]]
     if game.result == "*":
