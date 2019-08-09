@@ -461,7 +461,7 @@ class Game:
 
     @property
     def game_start(self):
-        return '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s"}}\n' % (self.id, self.skill_level)
+        return '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n' % (self.id, self.skill_level, self.chess960)
 
     @property
     def game_end(self):
@@ -566,7 +566,7 @@ async def game_ended(games, user, data, reason):
 
 
 def challenge(seek, gameId):
-    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s}}\n' % (gameId, seek.user.username, seek.variant, seek.level)
+    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n' % (gameId, seek.user.username, seek.variant, seek.level, str(seek.chess960).lower())
 
 
 def create_seek(seeks, user, data):
