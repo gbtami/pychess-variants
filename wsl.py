@@ -78,6 +78,7 @@ async def lobby_socket_handler(request):
                         await engine.event_queue.put(challenge(seek, response))
 
                     elif data["type"] == "create_seek":
+                        print("create_seek", data)
                         create_seek(seeks, user, data)
                         await broadcast(sockets, get_seeks(seeks))
 

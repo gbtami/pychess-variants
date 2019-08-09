@@ -573,7 +573,7 @@ def create_seek(seeks, user, data):
     if len(user.seeks) >= MAX_USER_SEEKS:
         return None
 
-    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"])
+    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"], rated=data.get("rated"), chess960=data.get("chess960"))
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 

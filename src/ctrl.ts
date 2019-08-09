@@ -431,22 +431,6 @@ export default class RoundController {
         }
     }
 
-    // In Capablanca we have to finelize castling because
-    // chessground autoCastle works for standard chess only
-    private castleRook = (kingDest, color) => {
-        const diff: PiecesDiff = {};
-        if (kingDest === "c") {
-            diff[color === 'white' ? "a1" : "a8"] = undefined;
-            diff[color === 'white' ? "d1" : "d8"] = {color: color, role: "rook"};
-            this.chessground.setPieces(diff);
-        };
-        if (kingDest === "i") {
-            diff[color === 'white' ? "j1" : "j8"] = undefined;
-            diff[color === 'white' ? "h1" : "h8"] = {color: color, role: "rook"};
-            this.chessground.setPieces(diff);
-        };
-    }
-
     private onMsgBoard = (msg) => {
         if (msg.gameId !== this.model["gameId"]) return;
         // Game aborted.
@@ -567,6 +551,8 @@ export default class RoundController {
                 if (this.predrop) this.performPredrop();
             } else {
                 this.chessground.set({
+                    // giving fen here will place castling rooks to their destination in chess960 variants
+                    fen: parts[0],
                     turnColor: this.turnColor,
                     premovable: {
                         dests: msg.dests,
@@ -731,8 +717,6 @@ export default class RoundController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.mycolor, "bottom"));
             }
         };
-        // chessground autoCastle works for standard chess only
-        if (this.variant === "capablanca" && moved.role === "king" && orig[0] === "f") this.castleRook(dest[0], this.mycolor);
 
         //  gating elephant/hawk
         if (this.variant === "seirawan") {
