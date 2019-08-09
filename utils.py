@@ -40,6 +40,13 @@ VARIANTS = (
     "seirawan",
 )
 
+VARIANTS960 = {
+    "standard": "Chess960",
+    "capablanca": "Caparandom",
+    "crazyhouse": "Crazyhouse960",
+    "seirawan": "Seirawan960",
+}
+
 
 class MyWebSocketResponse(WebSocketResponse):
     @property
@@ -69,7 +76,7 @@ class Seek:
         self.user = user
         self.variant = variant
         self.color = color
-        self.fen = fen
+        self.fen = "" if fen is None else fen
         self.rated = rated
         self.base = base
         self.inc = inc
@@ -188,7 +195,7 @@ class User:
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, chess960=False, level=1, rated=False):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=1, rated=False, chess960=False):
         self.db = app["db"]
         self.games = app["games"]
         self.tasks = app["tasks"]
@@ -223,6 +230,7 @@ class Game:
         self.last_server_clock = monotonic()
 
         self.id = gameId
+        # print("Game", self.variant, self.initial_fen, self.chess960)
         self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
 
         # Initial_fen needs validation to prevent segfaulting in pyffish
@@ -247,7 +255,7 @@ class Game:
             if self.variant == "seirawan":
                 invalid4 = len(init) > 2 and any((c not in "KQBCDFGkqbcdfgAHah-" for c in init[2]))
             elif self.chess960:
-                invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJ-" for c in init[2]))
+                invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
             else:
                 invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
@@ -423,6 +431,7 @@ class Game:
     @property
     def pgn(self):
         moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
+        no_setup = self.initial_fen == self.board.start_fen("standard") and not self.chess960
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
             "PyChess casual game",
             URI + "/" + self.id,
@@ -432,11 +441,11 @@ class Game:
             self.result,
             self.base * 60,
             self.inc,
-            self.variant.capitalize(),
+            self.variant.capitalize() if not self.chess960 else VARIANTS960[self.variant],
             moves,
             self.result,
-            fen="" if self.initial_fen == self.board.start_fen("standard") else '[FEN "%s"]\n' % self.initial_fen,
-            setup="" if self.initial_fen == self.board.start_fen("standard") else '[SetUp "1"]\n')
+            fen="" if no_setup else '[FEN "%s"]\n' % self.initial_fen,
+            setup="" if no_setup else '[SetUp "1"]\n')
 
     @property
     def ply(self):
@@ -500,7 +509,7 @@ async def load_game(app, game_id):
 
     variant = C2V[doc["v"]]
 
-    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], bool(doc.get("z")))
+    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], bool(doc.get("x")), bool(doc.get("y")), bool(doc.get("z")))
 
     mlist = decode_moves(doc["m"])
     if variant == "shogi":
@@ -592,8 +601,8 @@ async def new_game(app, user, seek_id):
     if existing:
         log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
         return {"type": "error"}
-
-    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.chess960)
+    # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
+    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     games[new_game.id] = new_game
 
     if not seek.user.bot:
@@ -612,10 +621,12 @@ async def new_game(app, user, seek_id):
         "f": new_game.initial_fen,
         "s": new_game.status,
         "r": R2C["*"],
-        "z": str(int(seek.chess960)),
+        "x": seek.level,
+        "y": int(seek.rated),
+        "z": int(seek.chess960),
     }
-    if seek.fen:
-        document["if"] = seek.fen
+    if seek.fen or seek.chess960:
+        document["if"] = new_game.initial_fen
     result = await db.game.insert_one(document)
     print("db insert game result %s" % repr(result.inserted_id))
 

@@ -20,6 +20,7 @@ function result(status, result) {
     var text = '';
     console.log("result()", status, result);
     switch (status) {
+    case -2:
     case -1:
         text = 'Playing right now';
         break;
@@ -44,8 +45,11 @@ function result(status, result) {
     case 6:
         text = 'Time out';
         break;
-    default:
+    case 7:
         text = 'Abandoned';
+        break
+    default:
+        text = '*';
         break
     }
     return (status <= 0) ? text : text + ', ' + result;

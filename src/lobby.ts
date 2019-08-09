@@ -13,7 +13,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { variants, VARIANTS } from './chess';
+import { variants, variants960, VARIANTS } from './chess';
 
 
 class LobbyController {
@@ -69,7 +69,7 @@ class LobbyController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg (variant, color, fen, minutes, increment) {
+    createSeekMsg (variant, color, fen, minutes, increment, chess960) {
         this.doSend({
             type: "create_seek",
             user: this.model["username"],
@@ -78,10 +78,11 @@ class LobbyController {
             minutes: minutes,
             increment: increment,
             rated: false,
+            chess960: chess960,
             color: color });
     }
 
-    createBotChallengeMsg (variant, color, fen, minutes, increment, level) {
+    createBotChallengeMsg (variant, color, fen, minutes, increment, level, chess960) {
         this.doSend({
             type: "create_ai_challenge",
             user: this.model["username"],
@@ -91,6 +92,7 @@ class LobbyController {
             increment: increment,
             rated: false,
             level: level,
+            chess960: chess960,
             color: color });
     }
 
@@ -119,20 +121,34 @@ class LobbyController {
         const increment = parseInt(e.value);
         localStorage.setItem("seek_inc", e.value);
 
+        e = document.getElementById('chess960') as HTMLInputElement;
+        const hide = variants960.indexOf(variant) === -1;
+        const chess960 = (hide) ? false : e.checked;
+        localStorage.setItem("seek_chess960", e.checked);
+
         if (this.challengeAI) {
             e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
             const level = parseInt(e.value);
             localStorage.setItem("seek_level", e.value);
             console.log(level, e.value, localStorage.getItem("seek_level"));
-            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level);
+            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960);
         } else {
             if (this.isNewSeek(variant, color, fen, minutes, increment)) {
-                this.createSeekMsg(variant, color, fen, minutes, increment);
+                this.createSeekMsg(variant, color, fen, minutes, increment, chess960);
             }
         }
     }
 
     renderSeekButtons () {
+        const setVariant = () => {
+            let e;
+            e = document.getElementById('variant') as HTMLSelectElement;
+            const variant = e.options[e.selectedIndex].value;
+            const hide = variants960.indexOf(variant) === -1;
+
+            document.getElementById('chess960')!.style.display = (hide) ? 'none' : 'block';
+        }
+
         const setMinutes = (minutes) => {
             var min, inc = 0;
             var el = document.getElementById("minutes") as HTMLElement;
@@ -166,6 +182,7 @@ class LobbyController {
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
+        const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
         console.log("localeStorage.seek_level, vLevel=", localStorage.seek_level, vLevel);
 
         return [
@@ -176,9 +193,15 @@ class LobbyController {
             ]),
             h('div.container', [
                 h('label', { attrs: {for: "variant"} }, "Variant"),
-                h('select#variant', { props: {name: "variant"} }, variants.map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
+                h('select#variant', {
+                    props: {name: "variant"},
+                    on: { input: () => setVariant() },
+                    hook: {insert: () => setVariant() },
+                    }, variants.map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
                 h('label', { attrs: {for: "fen"} }, "Start position"),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here', value: vFen} }),
+                h('label', { attrs: {for: "chess960"} }, "Chess960"),
+                h('input#chess960', {props: {name: "chess960", type: "checkbox", checked: vChess960 === "true" ? "checked" : ""}}),
                 //h('label', { attrs: {for: "tc"} }, "Time Control"),
                 //h('select#timecontrol', { props: {name: "timecontrol"} }, [
                 //    h('option', { props: {value: "1", selected: true} }, "Real time"),

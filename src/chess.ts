@@ -2,6 +2,7 @@ import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
 export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan"];
+export const variants960 = ["crazyhouse", "standard", "capablanca"];
 
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", pieces: "makruk", css: ["makruk"], icon: "Q"},

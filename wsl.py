@@ -64,8 +64,8 @@ async def lobby_socket_handler(request):
                             # TODO: message that engine is offline, but capture BOT will play instead
                             engine = users.get("Random-Mover")
 
-                        seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], chess960=True)
-                        print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"])
+                        seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
+                        print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 
                         response = await new_game(request.app, engine, seek.id)
@@ -92,6 +92,7 @@ async def lobby_socket_handler(request):
                             return
 
                         seek = seeks[data["seekID"]]
+                        print("accept_seek", seek.as_json)
                         response = await new_game(request.app, user, data["seekID"])
                         await ws.send_json(response)
 

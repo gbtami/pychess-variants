@@ -27,9 +27,10 @@ class FairyBoard:
         if variant == "shogi":
             return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
         else:
-            return sf.start_fen(variant)
-            #caparandom = "variant" == "capblanca"
-            #return self.shuffle_start(caparandom) if chess960 else sf.start_fen(variant)
+            if chess960:
+                return self.shuffle_start()
+            else:
+                return sf.start_fen(variant)
 
     def push(self, move):
         self.move_stack.append(move)
@@ -47,19 +48,19 @@ class FairyBoard:
             ply = parts[-1]
             return "%s[%s] %s %s" % (placement, pockets, color, ply)
         else:
-            return sf.get_fen(self.variant, self.initial_fen, self.move_stack)
+            return sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def get_san(self, move):
-        return sf.get_san(self.variant, self.fen, move)
+        return sf.get_san(self.variant, self.fen, move, self.chess960)
 
     def legal_moves(self):
         # print("   self.move_stack:", self.move_stack)
-        legals = sf.legal_moves(self.variant, self.initial_fen, self.move_stack)
+        legals = sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
         # print("       legal_moves:", legals)
         return legals
 
     def is_checked(self):
-        return sf.gives_check(self.variant, self.initial_fen, self.move_stack)
+        return sf.gives_check(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def insufficient_material(self):
         # TODO: implement this in pyffish
@@ -68,14 +69,14 @@ class FairyBoard:
             w = pieces["R"] + pieces["S"] == 0 and pieces["M"] + pieces["F"] + pieces["N"] + pieces["P"] < 2
             b = pieces["r"] + pieces["s"] == 0 and pieces["m"] + pieces["f"] + pieces["n"] + pieces["p"] < 2
         else:
-            w, b = sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack)
+            w, b = sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack, self.chess960)
         return w and b
 
     def is_immediate_game_end(self):
-        return sf.is_immediate_game_end(self.variant, self.initial_fen, self.move_stack)
+        return sf.is_immediate_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def is_optional_game_end(self):
-        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack)
+        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
@@ -93,13 +94,14 @@ class FairyBoard:
         board = re.sub(r"\d", (lambda m: "." * int(m.group(0))), board)
         print("", " ".join(uni_pieces.get(p, p) for p in board))
 
-    def shuffle_start(self, caparandom=False):
+    def shuffle_start(self):
         """ Create random initial position.
             The king is placed somewhere between the two rooks.
             The bishops are placed on opposite-colored squares.
             Same for queen and archbishop in caparandom."""
 
-        castl = ''
+        castl = ""
+        caparandom = self.variant == "capablanca"
 
         # https://www.chessvariants.com/contests/10/crc.html
         # we don't skip spositions that have unprotected pawns
@@ -110,7 +112,7 @@ class FairyBoard:
             dark = [0, 2, 4, 6, 8]
 
             # 1. select queen or the archbishop to be placed first
-            piece = random.choice("q, a")
+            piece = random.choice("qa")
 
             # 2. place the selected 1st piece upon a bright square
             piece_pos = random.choice(bright)
