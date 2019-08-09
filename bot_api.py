@@ -136,6 +136,10 @@ async def event_stream(request):
 
     if username in users:
         bot_player = users[username]
+        for gameId in bot_player.game_queues:
+            if gameId in games and games[gameId].status <= STARTED:
+                await bot_player.game_queues[gameId].put(games[gameId].game_state)
+
     else:
         bot_player = User(bot=True, username=username)
         users[bot_player.username] = bot_player
@@ -166,12 +170,16 @@ async def event_stream(request):
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
         answer = await bot_player.event_queue.get()
-        if request.protocol.transport.is_closing():
-            log.error("BOT %s is broken..." % username)
+        try:
+            if request.protocol.transport.is_closing():
+                log.error("BOT %s request.protocol.transport.is_closing() == True ..." % username)
+                break
+            else:
+                await resp.write(answer.encode("utf-8"))
+                await resp.drain()
+        except Exception:
+            log.error("BOT %s event_stream is broken..." % username)
             break
-        else:
-            await resp.write(answer.encode("utf-8"))
-            await resp.drain()
 
     pinger_task.cancel()
     await bot_player.clear_seeks(sockets, seeks)
