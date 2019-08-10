@@ -469,7 +469,7 @@ class Game:
 
     @property
     def game_full(self):
-        return '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "state": {"moves": ""}, "initialFen": "%s"}\n' % (self.id, self.variant, self.wplayer.username, self.bplayer.username, self.initial_fen)
+        return '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "initialFen": "%s", "state": %s}\n' % (self.id, self.variant, self.wplayer.username, self.bplayer.username, self.initial_fen, self.game_state[:-1])
 
     @property
     def game_state(self):

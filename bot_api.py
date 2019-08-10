@@ -136,10 +136,12 @@ async def event_stream(request):
 
     if username in users:
         bot_player = users[username]
+        # After BOT lost connection it may have ongoing games
+        # We notify BOT and he can ask to create new game_streams
+        # to continue those games
         for gameId in bot_player.game_queues:
-            if gameId in games and games[gameId].status <= STARTED:
-                await bot_player.game_queues[gameId].put(games[gameId].game_state)
-
+            if gameId in games and games[gameId].status == STARTED:
+                await bot_player.event_queue.put(games[gameId].game_start)
     else:
         bot_player = User(bot=True, username=username)
         users[bot_player.username] = bot_player
