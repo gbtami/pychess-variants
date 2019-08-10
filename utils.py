@@ -239,6 +239,11 @@ class Game:
             start = start_fen.split()
             init = self.initial_fen.split()
 
+            # Cut off tail
+            if len(init) > 6:
+                init = init[:6]
+                self.initial_fen = " ".join(init)
+
             # We need starting color
             invalid0 = len(init) < 2
 
