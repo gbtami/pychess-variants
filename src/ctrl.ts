@@ -304,9 +304,11 @@ export default class RoundController {
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
-        window.addEventListener('beforeunload', () => {
-            if (this.result === '') this.doSend({ type: "abandone", gameId: this.model["gameId"] });
-        });
+// this produces random losed games while doing nothing
+//        window.addEventListener('beforeunload', () => {
+//            if (this.result === '') this.doSend({ type: "abandone", gameId: this.model["gameId"] });
+//        });
+
     }
 
     getGround = () => this.chessground;
