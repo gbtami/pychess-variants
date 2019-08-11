@@ -179,3 +179,6 @@
 .icon-retweet:before {
   content: "\55";
 }
+.icon-dice:before {
+  content: "\56";
+}

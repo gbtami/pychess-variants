@@ -297,6 +297,7 @@ class LobbyController {
              h('td', '1500?'),
              h('td', seek["tc"]),
              h('td', {attrs: {"data-icon": VARIANTS[seek["variant"]].icon}, class: {"icon": true}} ),
+             h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
              h('td', seek["variant"]),
              h('td', seek["rated"]) ])
             );

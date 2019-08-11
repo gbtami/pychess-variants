@@ -33,7 +33,7 @@ header{
 
 .main-wrapper{
   display: grid;
-  grid-template-columns: 350px auto 400px;
+  grid-template-columns: 20% auto 25%;
   grid-template-rows: minmax(0, 1fr) 40px;
   grid-gap: 18px;
   justify-content: center;
@@ -173,13 +173,17 @@ button.newopp:hover {
   font-size: 14px;
 }
 
-div.info0 {
+div.info0, div.info1 {
   display: flex;
   flex-flow: row;
   margin-bottom: 6px;
 }
 
 div.info0::before {
+  content: [data-icon];
+  font-size: 42px;
+}
+div.info1::before {
   content: [data-icon];
   font-size: 42px;
   margin-right: 5%;

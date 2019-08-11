@@ -34,6 +34,7 @@ export function view(el, model): VNode {
     model["anon"] = el.getAttribute("data-anon");
     model["profileid"] = el.getAttribute("data-profile");
     model["variant"] = el.getAttribute("data-variant");
+    model["chess960"] = el.getAttribute("data-chess960");
     model["username"] = user !== "" ? user : el.getAttribute("data-user");
     model["gameId"] = el.getAttribute("data-gameid");
     model["wplayer"] = el.getAttribute("data-wplayer");
