@@ -147,7 +147,7 @@ class LobbyController {
             const variant = e.options[e.selectedIndex].value;
             const hide = variants960.indexOf(variant) === -1;
 
-            document.getElementById('chess960')!.style.display = (hide) ? 'none' : 'block';
+            document.getElementById('chess960-block')!.style.display = (hide) ? 'none' : 'block';
         }
 
         const setMinutes = (minutes) => {
@@ -201,8 +201,10 @@ class LobbyController {
                     }, variants.map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
                 h('label', { attrs: {for: "fen"} }, "Start position"),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here', value: vFen} }),
-                h('label', { attrs: {for: "chess960"} }, "Chess960"),
-                h('input#chess960', {props: {name: "chess960", type: "checkbox", checked: vChess960 === "true" ? "checked" : ""}}),
+                h('div#chess960-block', [
+                    h('label', { attrs: {for: "chess960"} }, "Chess960"),
+                    h('input#chess960', {props: {name: "chess960", type: "checkbox", checked: vChess960 === "true" ? "checked" : ""}}),
+                ]),
                 //h('label', { attrs: {for: "tc"} }, "Time Control"),
                 //h('select#timecontrol', { props: {name: "timecontrol"} }, [
                 //    h('option', { props: {value: "1", selected: true} }, "Real time"),
