@@ -13,7 +13,7 @@ function runGround(vnode: VNode, model) {
 }
 
 export function roundView(model): VNode[] {
-    console.log("model=", model);
+    console.log("roundView model=", model);
     var playerTop, playerBottom, titleTop, titleBottom, dataIcon;
     dataIcon = VARIANTS[model["variant"]].icon;
     if (model["username"] !== model["wplayer"] && model["username"] !== model["bplayer"]) {
@@ -32,6 +32,7 @@ export function roundView(model): VNode[] {
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
+//                        h('div.info1', {attrs: {"data-icon": (model["chess960"] === 'True') ? "V" : ""}, class: {"icon": true}}, [
                         h('div', [
                             h('div.tc', model["base"] + "+" + model["inc"] + " • Casual • " + model["variant"]),
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
