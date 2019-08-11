@@ -39,10 +39,10 @@ class FairyBoard:
         try:
             self.move_stack.append(move)
             self.fen = self.get_fen()
+            self.color = not self.color
         except Exception:
             self.move_stack.pop()
             raise
-        self.color = not self.color
 
     def get_fen(self):
         if self.variant == "shogi":

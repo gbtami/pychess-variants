@@ -40,6 +40,8 @@ export function chatMessage (user, message, chatType) {
     var container = document.getElementById('messages') as HTMLElement;
     if (user.length === 0) {
         patch(container, h('div#messages', [ h("li.message.offer", [h("t", message)]) ]));
+    } else if (user === '_server') {
+        patch(container, h('div#messages', [ h("li.message.server", [h("user", 'Server'), h("t", message)]) ]));
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("user", user), h("t", message)]) ]));
     };

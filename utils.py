@@ -326,21 +326,21 @@ class Game:
         if self.status != FLAG:
             try:
                 self.board.push(move)
+                san = self.board.get_san(move)
+                self.lastmove = (move[0:2], move[2:4])
+                self.ply_clocks.append(clocks)
+                self.set_dests()
+                await self.update_status()
+
+                self.steps.append({
+                    "fen": self.board.fen,
+                    "move": move,
+                    "san": san,
+                    "turnColor": "black" if self.board.color == BLACK else "white",
+                    "check": self.check}
+                )
             except Exception:
                 raise
-            san = self.board.get_san(move)
-            self.lastmove = (move[0:2], move[2:4])
-            self.ply_clocks.append(clocks)
-            self.set_dests()
-            await self.update_status()
-
-            self.steps.append({
-                "fen": self.board.fen,
-                "move": move,
-                "san": san,
-                "turnColor": "black" if self.board.color == BLACK else "white",
-                "check": self.check}
-            )
 
     async def save_game(self):
         if self.saved:

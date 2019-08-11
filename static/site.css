@@ -645,6 +645,10 @@ li.message.offer {
   color: DarkSeaGreen;
 }
 
+li.message.server {
+  color: Red;
+}
+
 #chat-entry {
   display: flex;
   order: 2;
