@@ -38,10 +38,11 @@ class FairyBoard:
     def push(self, move):
         try:
             self.move_stack.append(move)
-            self.fen = self.get_fen()
             self.color = not self.color
+            self.fen = self.get_fen()
         except Exception:
             self.move_stack.pop()
+            self.color = not self.color
             raise
 
     def get_fen(self):

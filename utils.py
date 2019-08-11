@@ -325,9 +325,9 @@ class Game:
 
         if self.status != FLAG:
             try:
-                self.board.push(move)
                 san = self.board.get_san(move)
                 self.lastmove = (move[0:2], move[2:4])
+                self.board.push(move)
                 self.ply_clocks.append(clocks)
                 self.set_dests()
                 await self.update_status()
