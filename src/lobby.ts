@@ -124,6 +124,7 @@ class LobbyController {
         e = document.getElementById('chess960') as HTMLInputElement;
         const hide = variants960.indexOf(variant) === -1;
         const chess960 = (hide) ? false : e.checked;
+        console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, hide, chess960);
         localStorage.setItem("seek_chess960", e.checked);
 
         if (this.challengeAI) {

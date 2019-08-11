@@ -323,9 +323,12 @@ class Game:
         self.last_server_clock = cur_time
 
         if self.status != FLAG:
+            try:
+                self.board.push(move)
+            except Exception:
+                raise
             san = self.board.get_san(move)
             self.lastmove = (move[0:2], move[2:4])
-            self.board.push(move)
             self.ply_clocks.append(clocks)
             self.set_dests()
             await self.update_status()
@@ -649,7 +652,11 @@ async def play_move(games, data):
     move = data["move"]
     clocks = data["clocks"]
     assert move
-    await game.play_move(move, clocks)
+    try:
+        await game.play_move(move, clocks)
+        return True
+    except Exception:
+        return False
 
 
 def get_board(games, data, full=False):

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import re
 import random
 from collections import Counter
@@ -10,6 +11,8 @@ except ImportError:
 
 WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+
+log = logging.getLogger(__name__)
 
 
 class FairyBoard:
@@ -33,9 +36,13 @@ class FairyBoard:
                 return sf.start_fen(variant)
 
     def push(self, move):
-        self.move_stack.append(move)
+        try:
+            self.move_stack.append(move)
+            self.fen = self.get_fen()
+        except Exception:
+            self.move_stack.pop()
+            raise
         self.color = not self.color
-        self.fen = self.get_fen()
 
     def get_fen(self):
         if self.variant == "shogi":
@@ -48,7 +55,11 @@ class FairyBoard:
             ply = parts[-1]
             return "%s[%s] %s %s" % (placement, pockets, color, ply)
         else:
-            return sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960)
+            try:
+                return sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960)
+            except Exception:
+                log.error("ERROR: sf.get_fen() failed on %s %s %s" % (self.initial_fen, ",".join(self.move_stack), self.chess960))
+                raise
 
     def get_san(self, move):
         return sf.get_san(self.variant, self.fen, move, self.chess960)
