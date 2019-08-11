@@ -261,6 +261,7 @@ class Game:
                 invalid4 = len(init) > 2 and any((c not in "KQBCDFGkqbcdfgAHah-" for c in init[2]))
             elif self.chess960:
                 invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
+                self.chess960 = False
             else:
                 invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
