@@ -1,8 +1,8 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan"];
-export const variants960 = ["crazyhouse", "standard", "capablanca"];
+export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse"];
+export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"];
 
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", pieces: "makruk", css: ["makruk"], icon: "Q"},
@@ -12,6 +12,7 @@ export const VARIANTS = {
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "S" },
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "H" },
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["standard"], icon: "P" },
+    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["standard"], icon: "P" },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "L" },
     standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "M" },
 }
@@ -22,6 +23,8 @@ export function pocketRoles(variant: string) {
         return ["rook", "knight", "silver", "ferz", "king"];
     case "crazyhouse":
         return ["pawn", "knight", "bishop", "rook", "queen"];
+    case "capahouse":
+        return ["pawn", "knight", "bishop", "rook", "queen", "archbishop", "cancellor"];
     case "shogi":
         return ["pawn", "lance", "knight", "bishop", "rook", "silver", "gold"];
     case "seirawan":
@@ -46,6 +49,7 @@ function promotionZone(variant: string, color: string) {
 
 export function promotionRoles(variant: string, role: Role) {
     switch (variant) {
+    case "capahouse":
     case "capablanca":
         return ["queen", "knight", "rook", "bishop", "archbishop", "cancellor"];
     case "seirawan":
@@ -78,11 +82,11 @@ export function mandatoryPromotion(role: Role, dest: Key, color: Color) {
 }
 
 export function needPockets(variant: string) {
-    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant === 'shogi' || variant === 'seirawan'
+    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant === 'shogi' || variant === 'seirawan' || variant === 'capahouse'
 }
 
 export function hasEp(variant: string) {
-    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan'
+    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse'
 }
 
 function diff(a: number, b:number):number {

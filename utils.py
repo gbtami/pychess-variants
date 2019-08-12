@@ -37,12 +37,14 @@ VARIANTS = (
     "crazyhouse",
     "placement",
     "capablanca",
+    "capahouse",
     "seirawan",
 )
 
 VARIANTS960 = {
     "standard": "Chess960",
     "capablanca": "Caparandom",
+    "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse960",
     "seirawan": "Seirawan960",
 }
@@ -340,6 +342,7 @@ class Game:
                     "check": self.check}
                 )
             except Exception:
+                log.exception("ERROR: Exception in game.play_move()!")
                 raise
 
     async def save_game(self):

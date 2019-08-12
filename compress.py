@@ -11,6 +11,7 @@ https://lichess.org/blog/Wqa7GiAAAOIpBLoY/developer-update-275-improved-game-com
 V2C = {
     "standard": "n",
     "capablanca": "c",
+    "capahouse": "i",
     "crazyhouse": "h",
     "makruk": "m",
     "placement": "p",
@@ -27,8 +28,8 @@ C2R = {v: k for k, v in R2C.items()}
 # Create square to int mapping
 M2C = dict(zip([a + b for a, b in product("abcdefghij", "0123456789")], list(range(34, 256))))
 
-# Add possible from parts of crazy, placement, sittuyin, shogi drop moves
-PIECES = "PNBRQKFGSL"
+# Add possible from parts of crazy, placement, sittuyin, shogi, capahouse drop moves
+PIECES = "PNBRQKFGSLAC"
 m2c_len = len(M2C) + 34
 for piece in PIECES:
     M2C["%s@" % piece] = m2c_len

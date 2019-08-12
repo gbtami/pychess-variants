@@ -113,11 +113,11 @@ class FairyBoard:
             Same for queen and archbishop in caparandom."""
 
         castl = ""
-        caparandom = self.variant == "capablanca"
+        capa = self.variant == "capablanca" or self.variant == "capahouse"
 
         # https://www.chessvariants.com/contests/10/crc.html
         # we don't skip spositions that have unprotected pawns
-        if caparandom:
+        if capa:
             board = [''] * 10
             positions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
             bright = [1, 3, 5, 7, 9]
@@ -153,7 +153,7 @@ class FairyBoard:
         board[piece_pos] = 'b'
         positions.remove(piece_pos)
 
-        if caparandom:
+        if capa:
             # 6. one chancellor has to be placed upon a free square
             piece_pos = random.choice(positions)
             board[piece_pos] = 'c'
@@ -187,7 +187,7 @@ class FairyBoard:
         castl += FILES[piece_pos]
 
         fen = ''.join(board)
-        if caparandom:
+        if capa:
             body = '/pppppppppp/10/10/10/10/PPPPPPPPPP/'
         else:
             body = '/pppppppp/8/8/8/8/PPPPPPPP/'

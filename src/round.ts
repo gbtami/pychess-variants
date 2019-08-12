@@ -68,7 +68,7 @@ export function roundView(model): VNode[] {
             ]),
             h('aside.sidebar-second', [
                 h('div#pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].pieces, [
+                    h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket0'),
                         ]),
@@ -107,7 +107,7 @@ export function roundView(model): VNode[] {
                 ]),
                 h('div#clock1'),
                 h('div#pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].pieces, [
+                    h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket1'),
                         ]),
