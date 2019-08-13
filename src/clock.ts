@@ -19,9 +19,10 @@ export class Clock {
     tickCallbacks: any[];
     flagCallback: any;
     el: HTMLElement;
+    id: string;
 
     // game baseTime (min) and increment (sec)
-    constructor(baseTime, increment, el) {
+    constructor(baseTime, increment, el, id) {
     this.duration = baseTime * 1000 * 60;
     this.increment = increment * 1000;
     this.granularity = 500;
@@ -32,6 +33,7 @@ export class Clock {
     this.tickCallbacks = [];
     this.flagCallback = null;
     this.el = el;
+    this.id = id;
 
     renderTime(this, this.duration);
     }
@@ -123,11 +125,14 @@ export function renderTime(clock, time) {
 
     const date = new Date(time);
     const millis = date.getUTCMilliseconds();
-    clock.el = patch(clock.el, h('div.clock-wrap', [h('div.clock', [
-        h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.minutes),
-        h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500, connecting: clock.connecting}} , ':'),
-        h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.seconds),
-        ])]));
+    clock.el = patch(clock.el, h('div.clock-wrap#' + clock.id, [
+        h('div.clock', [
+            h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.minutes),
+            h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500, connecting: clock.connecting}} , ':'),
+            h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.seconds)
+        ])
+    ])
+    );
 }
 
 export function timeago(date) {

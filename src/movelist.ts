@@ -46,15 +46,18 @@ function scrollToPly (ctrl) {
 }
 
 // flip
-// TODO: players, clocks
 function toggleOrientation (ctrl) {
     ctrl.flip = !ctrl.flip;
     ctrl.chessground.toggleOrientation();
+
+    // TODO: players, pockets, clocks, moretime button etc.
+    return;
+
     if (ctrl.variant === "shogi") {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
         ctrl.setPieces(color);
     };
-
+    
     const name_tmp = ctrl.players[0];
     ctrl.players[0] = ctrl.players[1];
     ctrl.players[1] = name_tmp;

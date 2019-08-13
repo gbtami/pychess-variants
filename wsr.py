@@ -256,6 +256,16 @@ async def round_socket_handler(request):
                             response = {"type": "user_disconnected", "username": player_name}
                         await ws.send_json(response)
 
+                    elif data["type"] == "moretime":
+                        game = games[data["gameId"]]
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+
+                        if not opp_player.bot:
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                            response = {"type": "moretime"}
+                            await opp_ws.send_json(response)
+
                     elif data["type"] == "roundchat":
                         response = {"type": "roundchat", "user": user.username, "message": data["message"]}
                         await ws.send_json(response)

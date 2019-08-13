@@ -511,10 +511,32 @@ div.btn-controls {
 }
 
 /* Clock */
-.clock.wrap {
+.clock-wrap {
   display: flex;
-  flex-wrap: nowrap;
+  flex-direction: row;
+  justify-content: space-between;
 }
+.more-time {
+  float: right;
+  font-size: 32px;
+}
+button.icon.icon-plus-square {
+  border: none;
+  color: LightBlue;
+  background: #eee;
+  font-size: 36px;
+  cursor: pointer;
+}
+button.icon.icon-plus-square:hover {
+  color: LightSkyBlue;
+}
+button.icon:focus {
+  outline:none;
+}
+button.icon::-moz-focus-inner {
+  border:0;
+}
+
 .clock {
   display: inline;
   text-align: center;

@@ -182,3 +182,9 @@
 .icon-dice:before {
   content: "\56";
 }
+.icon-plus-square:before {
+  content: "\57";
+}
+.icon-reply:before {
+  content: "\58";
+}

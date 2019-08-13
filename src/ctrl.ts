@@ -226,11 +226,29 @@ export default class RoundController {
         }
 
         // initialize clocks
-        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement);
-        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement);
+        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0');
+        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1');
         this.clocks = [c0, c1];
         this.clocks[0].onTick(renderTime);
         this.clocks[1].onTick(renderTime);
+
+        const onMoreTime = () => {
+            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT') return;
+            this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
+            this.doSend({ type: "moretime", gameId: this.model["gameId"] });
+            chatMessage('', this.oppcolor + ' +15 seconds', "roundchat");
+        }
+
+        var container = document.getElementById('clock0') as HTMLElement;
+        patch(container, h('div.clock-wrap#clock0', [
+            h('div.more-time', [
+                h('button.icon.icon-plus-square', {
+                    props: {type: "button", title: "Give 15 seconds"},
+                    on: {click: () => onMoreTime() }
+                })
+            ])
+        ])
+        );
 
         const flagCallback = () => {
             if (this.turnColor === this.mycolor && !this.spectator) {
@@ -834,6 +852,11 @@ export default class RoundController {
         chatMessage(msg.user, msg.message, "roundchat");
     }
 
+    private onMsgMoreTime = () => {
+        chatMessage('', this.mycolor + ' +15 seconds', "roundchat");
+        this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
+    }
+
     private onMsgOffer = (msg) => {
         chatMessage("", msg.message, "roundchat");
     }
@@ -869,6 +892,9 @@ export default class RoundController {
                 break;
             case "offer":
                 this.onMsgOffer(msg);
+                break;
+            case "moretime":
+                this.onMsgMoreTime();
                 break;
             case "updateTV":
                 this.onMsgUpdateTV(msg);
