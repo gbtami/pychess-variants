@@ -233,7 +233,7 @@ export default class RoundController {
         this.clocks[1].onTick(renderTime);
 
         const onMoreTime = () => {
-            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT') return;
+            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator) return;
             this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.model["gameId"] });
             chatMessage('', this.oppcolor + ' +15 seconds', "roundchat");
