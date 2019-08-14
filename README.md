@@ -11,14 +11,18 @@ Besides standard chess the currently supported games are:
 - [Seirawan chess](https://en.wikipedia.org/wiki/Seirawan_chess)
 - [Placement chess](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
 - [Crazyhouse](https://en.wikipedia.org/wiki/Crazyhouse)
+- [Capahouse](https://www.twitch.tv/videos/466253815)
 
-For move generation/validation and engine play it uses
+Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with 
+[Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
+
+For move generation, validation and engine play it uses
 - [Fairy-Stockfish](https://github.com/gbtami/Fairy-Stockfish)
-- [Seirawan-Stockfish](https://github.com/gbtami/Seirawan-Stockfish)
+- [ElephantEye](https://github.com/xqbase/eleeye)
 - [moonfish](https://github.com/walker8088/moonfish)
 - [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants)
 
-On client side it based on
+On client side it is based on
 [chessgroundx](https://github.com/gbtami/chessgroundx)
 
 ## Installation
