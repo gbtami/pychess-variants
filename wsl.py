@@ -6,7 +6,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from utils import get_seeks, create_seek, new_game, challenge, broadcast,\
+from utils import get_seeks, create_seek, new_game, challenge, lobby_broadcast,\
     User, Seek, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
@@ -80,13 +80,13 @@ async def lobby_socket_handler(request):
                     elif data["type"] == "create_seek":
                         print("create_seek", data)
                         create_seek(seeks, user, data)
-                        await broadcast(sockets, get_seeks(seeks))
+                        await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "delete_seek":
                         del seeks[data["seekID"]]
                         del user.seeks[data["seekID"]]
 
-                        await broadcast(sockets, get_seeks(seeks))
+                        await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
                         if data["seekID"] not in seeks:
@@ -106,7 +106,7 @@ async def lobby_socket_handler(request):
                             await seek.user.event_queue.put(challenge(seek, response))
 
                         # Inform others, new_game() deleted accepted seek allready.
-                        await broadcast(sockets, get_seeks(seeks))
+                        await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:
@@ -127,7 +127,7 @@ async def lobby_socket_handler(request):
                             response = {"type": "lobbychat", "user": "", "message": "%s reconnected" % session_user}
                         user.ping_counter = 0
                         user.online = True
-                        await broadcast(sockets, response)
+                        await lobby_broadcast(sockets, response)
 
                         # update websocket
                         sockets[user.username] = ws
@@ -142,7 +142,7 @@ async def lobby_socket_handler(request):
 
                     elif data["type"] == "lobbychat":
                         response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
-                        await broadcast(sockets, response)
+                        await lobby_broadcast(sockets, response)
 
                     elif data["type"] == "disconnect":
                         # Used only to test socket disconnection...

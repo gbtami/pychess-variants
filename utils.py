@@ -143,7 +143,7 @@ class User:
                 del seeks[seek]
             self.seeks.clear()
 
-            await broadcast(sockets, get_seeks(seeks))
+            await lobby_broadcast(sockets, get_seeks(seeks))
 
     async def quit_lobby(self, sockets):
         print(self.username, "quit()")
@@ -153,9 +153,9 @@ class User:
             del sockets[self.username]
 
         response = {"type": "lobbychat", "user": "", "message": "%s disconnected" % self.username}
-        await broadcast(sockets, response)
+        await lobby_broadcast(sockets, response)
 
-    async def broadcast_disconnect(self, users, games):
+    async def lobby_broadcast_disconnect(self, users, games):
         games_involved = self.game_queues.keys() if self.bot else self.game_sockets.keys()
 
         for gameId in games_involved:
@@ -170,16 +170,14 @@ class User:
             if (not opp.bot) and gameId in opp.game_sockets:
                 await opp.game_sockets[gameId].send_json(response)
 
-            for spectator in game.spectators:
-                if gameId in users[spectator.username].game_sockets:
-                    await users[spectator.username].game_sockets[gameId].send_json(response)
+            await round_broadcast(game, users, response)
 
     async def pinger(self, sockets, seeks, users, games):
         while True:
             if self.ping_counter > 2:
                 self.online = False
                 log.info("%s went offline" % self.username)
-                await self.broadcast_disconnect(users, games)
+                await self.lobby_broadcast_disconnect(users, games)
                 await self.clear_seeks(sockets, seeks)
                 await self.quit_lobby(sockets)
                 break
@@ -256,19 +254,23 @@ class Game:
             invalid2 = start[0].count("/") != init[0].count("/")
 
             # Allowed starting colors
-            invalid3 = init[1] != "b" and init[1] != "w"
+            invalid3 = init[1] not in "bw"
 
             # Castling rights (and piece virginity) check
             if self.variant == "seirawan":
                 invalid4 = len(init) > 2 and any((c not in "KQBCDFGkqbcdfgAHah-" for c in init[2]))
             elif self.chess960:
-                invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
-                self.chess960 = False
+                if all((c in "KQkq-" for c in init[2])):
+                    invalid4 = False
+                    self.chess960 = False
+                else:
+                    invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
             else:
                 invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
             if invalid0 or invalid1 or invalid2 or invalid3 or invalid4:
                 log.error("Got invalid initial_fen %s for game %s" % (self.initial_fen, self.id))
+                print(invalid0, invalid1, invalid2, invalid3, invalid4)
                 self.initial_fen = start_fen
                 self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
         else:
@@ -645,10 +647,17 @@ async def new_game(app, user, seek_id):
     return {"type": "new_game", "gameId": new_game.id}
 
 
-async def broadcast(sockets, response):
+async def lobby_broadcast(sockets, response):
     for client_ws in sockets.values():
         if client_ws is not None:
             await client_ws.send_json(response)
+
+
+async def round_broadcast(game, users, response):
+    if game.spectators:
+        for spectator in game.spectators:
+            if game.id in users[spectator.username].game_sockets:
+                await users[spectator.username].game_sockets[game.id].send_json(response)
 
 
 async def play_move(games, data):

@@ -6,7 +6,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from utils import play_move, get_board, start, draw, game_ended, \
+from utils import play_move, get_board, start, draw, game_ended, round_broadcast,\
     new_game, challenge, load_game, User, Seek, STARTED, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
@@ -80,10 +80,7 @@ async def round_socket_handler(request):
                             log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
                             await opp_ws.send_json(board_response)
 
-                        if game.spectators:
-                            for spectator in game.spectators:
-                                if data["gameId"] in users[spectator.username].game_sockets:
-                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(board_response)
+                        await round_broadcast(game, users, board_response)
 
                     elif data["type"] == "ready":
                         game = games[data["gameId"]]
@@ -179,10 +176,7 @@ async def round_socket_handler(request):
                         if opp_name not in game.draw_offers:
                             game.draw_offers.add(user.username)
 
-                        if game.spectators:
-                            for spectator in game.spectators:
-                                if data["gameId"] in users[spectator.username].game_sockets:
-                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
+                        await round_broadcast(game, users, response)
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         game = games[data["gameId"]]
@@ -198,10 +192,7 @@ async def round_socket_handler(request):
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
 
-                        if game.spectators:
-                            for spectator in game.spectators:
-                                if data["gameId"] in users[spectator.username].game_sockets:
-                                    await users[spectator.username].game_sockets[data["gameId"]].send_json(response)
+                        await round_broadcast(game, users, response)
 
                     elif data["type"] == "game_user_connected":
                         game = await load_game(request.app, data["gameId"])
@@ -268,17 +259,20 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "roundchat":
                         response = {"type": "roundchat", "user": user.username, "message": data["message"]}
-                        await ws.send_json(response)
 
                         game = games[data["gameId"]]
                         game.messages.append(data["message"])
-                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-                        opp_player = users[opp_name]
-                        if opp_player.bot:
-                            await opp_player.game_queues[data["gameId"]].put('{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n' % (user.username, data["message"]))
-                        else:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            await opp_ws.send_json(response)
+
+                        for name in (game.wplayer.username, game.bplayer.username):
+                            player = users[name]
+                            if player.bot:
+                                await player.game_queues[data["gameId"]].put('{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n' % (user.username, data["message"]))
+                            else:
+                                if data["gameId"] in player.game_sockets:
+                                    player_ws = player.game_sockets[data["gameId"]]
+                                    await player_ws.send_json(response)
+
+                        await round_broadcast(game, users, response)
 
                     elif data["type"] == "updateTV":
                         keys = games.keys()

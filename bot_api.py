@@ -3,8 +3,8 @@ import logging
 
 from aiohttp import web
 
-from utils import STARTED, RESIGN, INVALIDMOVE, broadcast,\
-    get_board, new_game, challenge, get_seeks, User, Seek
+from utils import STARTED, RESIGN, INVALIDMOVE, lobby_broadcast,\
+    round_broadcast, get_board, new_game, challenge, get_seeks, User, Seek
 
 log = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ async def create_bot_seek(request):
         bot_player.seeks[seek.id] = seek
 
         # inform others
-        await broadcast(sockets, get_seeks(seeks))
+        await lobby_broadcast(sockets, get_seeks(seeks))
     else:
         games = request.app["games"]
         response = await new_game(request.app, bot_player, matching_seek.id)
@@ -115,7 +115,7 @@ async def create_bot_seek(request):
 
         # delete accepted seek and inform others
         del seeks[matching_seek.id]
-        await broadcast(sockets, get_seeks(seeks))
+        await lobby_broadcast(sockets, get_seeks(seeks))
 
     return web.json_response({"ok": True})
 
@@ -167,7 +167,7 @@ async def event_stream(request):
 
     # inform others
     # TODO: do we need this at all?
-    await broadcast(sockets, get_seeks(seeks))
+    await lobby_broadcast(sockets, get_seeks(seeks))
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
@@ -283,10 +283,8 @@ async def bot_move(request):
         if game.status > STARTED:
             await opp_ws.send_json(game.game_end)
 
-    if game.spectators and not invalid_move:
-        for spectator in game.spectators:
-            if gameId in spectator.game_sockets:
-                await spectator.game_sockets[gameId].send_json(board_response)
+    if not invalid_move:
+        await round_broadcast(game, users, board_response)
 
     return web.json_response({"ok": True})
 
@@ -316,9 +314,7 @@ async def bot_abort(request):
         opp_ws = users[opp_name].game_sockets[gameId]
         await opp_ws.send_json(response)
 
-    if game.spectators:
-        for spectator in game.spectators:
-            await users[spectator.username].game_sockets[gameId].send_json(response)
+    await round_broadcast(game, users, response)
 
     return web.json_response({"ok": True})
 

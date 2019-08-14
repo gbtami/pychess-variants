@@ -849,7 +849,7 @@ export default class RoundController {
     }
 
     private onMsgChat = (msg) => {
-        chatMessage(msg.user, msg.message, "roundchat");
+        if (msg.user !== this.model["username"]) chatMessage(msg.user, msg.message, "roundchat");
     }
 
     private onMsgMoreTime = () => {
