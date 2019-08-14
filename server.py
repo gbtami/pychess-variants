@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import collections
 import logging
 import os
 import weakref
@@ -25,6 +26,7 @@ async def make_app(loop):
     app["seeks"] = {}
     app["games"] = {}
     app["tasks"] = weakref.WeakSet()
+    app["chat"] = collections.deque([], 200)
 
     bot = app["users"]["Random-Mover"]
     for variant in VARIANTS:

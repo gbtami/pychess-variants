@@ -1,6 +1,8 @@
 import asyncio
 import json
 import logging
+from datetime import datetime
+from functools import partial
 
 import aiohttp
 from aiohttp import web
@@ -115,16 +117,16 @@ async def lobby_socket_handler(request):
                                 session_user = data["username"]
                                 user = User(username=data["username"])
                                 users[user.username] = user
-                                response = {"type": "lobbychat", "user": "", "message": "%s connected" % session_user}
+                                response = {"type": "lobbychat", "user": "", "message": "%s joined to lobby" % session_user}
                             else:
                                 user = users[session_user]
-                                response = {"type": "lobbychat", "user": "", "message": "%s connected" % session_user}
+                                response = {"type": "lobbychat", "user": "", "message": "%s joined to lobby" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
                             user = User(username=data["username"])
                             users[user.username] = user
-                            response = {"type": "lobbychat", "user": "", "message": "%s reconnected" % session_user}
+                            response = {"type": "lobbychat", "user": "", "message": "%s rejoined to lobby" % session_user}
                         user.ping_counter = 0
                         user.online = True
                         await lobby_broadcast(sockets, response)
@@ -136,13 +138,17 @@ async def lobby_socket_handler(request):
                         response = {"type": "lobby_user_connected", "username": user.username}
                         await ws.send_json(response)
 
+                        response = {"type": "fullchat", "lines": list(request.app["chat"])}
+                        await ws.send_json(response, dumps=partial(json.dumps, default=datetime.isoformat))
+
                         loop = asyncio.get_event_loop()
                         lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, users, games))
                         request.app["tasks"].add(lobby_ping_task)
 
                     elif data["type"] == "lobbychat":
-                        response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                        response = {"type": "lobbychat", "user": user.username, "message": data["message"], "date": datetime.utcnow()}
                         await lobby_broadcast(sockets, response)
+                        request.app["chat"].append(response)
 
                     elif data["type"] == "disconnect":
                         # Used only to test socket disconnection...
@@ -151,15 +157,15 @@ async def lobby_socket_handler(request):
             else:
                 log.debug("type(msg.data) != str %s" % msg)
         elif msg.type == aiohttp.WSMsgType.ERROR:
-            log.debug("!!! ws connection closed with exception %s" % ws.exception())
+            log.debug("!!! Lobby ws connection closed with exception %s" % ws.exception())
         else:
             log.debug("other msg.type %s %s" % (msg.type, msg))
 
-    log.info("--- Websocket %s closed" % id(ws))
+    log.info("--- Lobby Websocket %s closed" % id(ws))
 
     if lobby_ping_task is not None:
         lobby_ping_task.cancel()
         if user is not None:
             await user.clear_seeks(sockets, seeks)
-            await user.quit_lobby(sockets)
+            await user.quit_lobby(sockets, disconnect=False)
     return ws

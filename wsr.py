@@ -260,7 +260,7 @@ async def round_socket_handler(request):
                     elif data["type"] == "roundchat":
                         response = {"type": "roundchat", "user": user.username, "message": data["message"]}
 
-                        game = games[data["gameId"]]
+                        game = await load_game(request.app, data["gameId"])
                         game.messages.append(data["message"])
 
                         for name in (game.wplayer.username, game.bplayer.username):
@@ -284,11 +284,11 @@ async def round_socket_handler(request):
             else:
                 log.debug("type(msg.data) != str %s" % msg)
         elif msg.type == aiohttp.WSMsgType.ERROR:
-            log.debug("!!! ws connection closed with exception %s" % ws.exception())
+            log.debug("!!! Round ws connection closed with exception %s" % ws.exception())
         else:
             log.debug("other msg.type %s %s" % (msg.type, msg))
 
-    log.info("--- Websocket %s closed" % id(ws))
+    log.info("--- Round Websocket %s closed" % id(ws))
 
     if game_ping_task is not None:
         game_ping_task.cancel()

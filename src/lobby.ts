@@ -328,7 +328,11 @@ class LobbyController {
     }
 
     private onMsgChat = (msg) => {
-        chatMessage(msg.user, msg.message, "lobbychat");
+        if (msg.user !== this.model["username"]) chatMessage(msg.user, msg.message, "lobbychat");
+    }
+
+    private onMsgFullChat = (msg) => {
+        msg.lines.forEach((line) => {chatMessage(line.user, line.message, "lobbychat");});
     }
 
     private onMsgPing = (msg) => {
@@ -354,6 +358,9 @@ class LobbyController {
                 break;
             case "lobbychat":
                 this.onMsgChat(msg);
+                break;
+            case "fullchat":
+                this.onMsgFullChat(msg);
                 break;
             case "ping":
                 this.onMsgPing(msg);

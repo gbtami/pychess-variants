@@ -1,9 +1,11 @@
 import asyncio
+import json
 import logging
 import random
 import string
 from time import monotonic, time
 from datetime import datetime
+from functools import partial
 
 from aiohttp.web import WebSocketResponse
 
@@ -145,17 +147,18 @@ class User:
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 
-    async def quit_lobby(self, sockets):
+    async def quit_lobby(self, sockets, disconnect):
         print(self.username, "quit()")
 
         self.online = False
         if self.username in sockets:
             del sockets[self.username]
 
-        response = {"type": "lobbychat", "user": "", "message": "%s disconnected" % self.username}
+        text = "disconnected" if disconnect else "leaved lobby"
+        response = {"type": "lobbychat", "user": "", "message": "%s %s" % (self.username, text)}
         await lobby_broadcast(sockets, response)
 
-    async def lobby_broadcast_disconnect(self, users, games):
+    async def round_broadcast_disconnect(self, users, games):
         games_involved = self.game_queues.keys() if self.bot else self.game_sockets.keys()
 
         for gameId in games_involved:
@@ -177,9 +180,9 @@ class User:
             if self.ping_counter > 2:
                 self.online = False
                 log.info("%s went offline" % self.username)
-                await self.lobby_broadcast_disconnect(users, games)
+                await self.round_broadcast_disconnect(users, games)
                 await self.clear_seeks(sockets, seeks)
-                await self.quit_lobby(sockets)
+                await self.quit_lobby(sockets, disconnect=True)
                 break
 
             if self.bot:
@@ -348,8 +351,24 @@ class Game:
                 raise
 
     async def save_game(self):
+        async def remove():
+            # Keep it in our games dict a little to let players get the last board
+            # not to mention that BOT players want to abort games after 20 sec inactivity
+            await asyncio.sleep(60)
+            print("REMOVED", )
+            del self.games[self.id]
+
         if self.saved:
             return
+        elif self.ply < 3:
+            print("DELETE GAME (too short)", self.board.move_stack)
+            await self.db.game.delete_one({"_id": self.id})
+
+            self.saved = True
+            loop = asyncio.get_event_loop()
+            self.tasks.add(loop.create_task(remove()))
+            return
+
         print("SAVE GAME")
         self.print_game()
         await self.db.game.find_one_and_update(
@@ -363,14 +382,6 @@ class Game:
              }
         )
         self.saved = True
-
-        async def remove():
-            # Keep it in our games dict a little to let players get the last board
-            # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(30)
-            print("REMOVED", )
-            del self.games[self.id]
-
         loop = asyncio.get_event_loop()
         self.tasks.add(loop.create_task(remove()))
 
@@ -650,7 +661,7 @@ async def new_game(app, user, seek_id):
 async def lobby_broadcast(sockets, response):
     for client_ws in sockets.values():
         if client_ws is not None:
-            await client_ws.send_json(response)
+            await client_ws.send_json(response, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def round_broadcast(game, users, response):
