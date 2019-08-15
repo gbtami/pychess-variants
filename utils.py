@@ -154,7 +154,7 @@ class User:
         if self.username in sockets:
             del sockets[self.username]
 
-        text = "disconnected" if disconnect else "leaved lobby"
+        text = "disconnected" if disconnect else "left the lobby"
         response = {"type": "lobbychat", "user": "", "message": "%s %s" % (self.username, text)}
         await lobby_broadcast(sockets, response)
 

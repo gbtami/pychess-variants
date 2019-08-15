@@ -117,16 +117,16 @@ async def lobby_socket_handler(request):
                                 session_user = data["username"]
                                 user = User(username=data["username"])
                                 users[user.username] = user
-                                response = {"type": "lobbychat", "user": "", "message": "%s joined to lobby" % session_user}
+                                response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
                                 user = users[session_user]
-                                response = {"type": "lobbychat", "user": "", "message": "%s joined to lobby" % session_user}
+                                response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
                             user = User(username=data["username"])
                             users[user.username] = user
-                            response = {"type": "lobbychat", "user": "", "message": "%s rejoined to lobby" % session_user}
+                            response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
                         user.ping_counter = 0
                         user.online = True
                         await lobby_broadcast(sockets, response)
