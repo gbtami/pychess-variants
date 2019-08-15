@@ -61,6 +61,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 3;
     } else if (cssFile.includes("shogi")) {
         cssLinkIndex = 2;
+    } else if (cssFile.includes("capasei")) {
+        cssLinkIndex = 4;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

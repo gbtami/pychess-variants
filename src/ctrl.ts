@@ -144,7 +144,7 @@ export default class RoundController {
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        if (this.variant === "shogi" || this.variant === "xiangqi") {
+        if (VARIANTS[this.variant].css.length > 1) {
             this.setPieces(this.mycolor);
         } else {
             changeCSS('/static/' + VARIANTS[this.variant].css[0] + '.css');
@@ -276,7 +276,7 @@ export default class RoundController {
             this.setPieces(this.mycolor);
         }
 
-        if (this.variant === "shogi" || this.variant === "xiangqi") {
+        if (VARIANTS[this.variant].css.length > 1) {
             var container = document.getElementById('btn-pieces') as HTMLElement;
             patch(container, h('button', { on: { click: () => togglePieces() }, props: {title: 'Toggle pieces'} }, [h('i', {class: {"icon": true, "icon-cog": true} } ), ]));
         }
@@ -439,6 +439,9 @@ export default class RoundController {
         console.log("setPieces()", this.variant, color)
         const idx = this.CSSindexes[variants.indexOf(this.variant)];
         switch (this.variant) {
+        case "capahouse":
+        case "capablanca":
+        case "seirawan":
         case "xiangqi":
             changeCSS('/static/' + VARIANTS[this.variant].css[idx] + '.css');
             break;
