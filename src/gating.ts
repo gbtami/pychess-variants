@@ -14,16 +14,23 @@ const patch = init([klass, attributes, listeners]);
 export default function(ctrl) {
 
     let gating: any = false;
-    var roles = ["hawk", "elephant", ""];
+    let roles;
 
     function start(fen, orig, dest, meta) {
         const ground = ctrl.getGround();
         const gatable = canGate(fen, ground.state.pieces[dest], orig, dest, meta)
-        if (gatable[0] || gatable[1]) {
+        roles = ["hawk", "elephant", "queen", "rook", "bishop", "knight", ""];
+
+        if (gatable[0] || gatable[1] || gatable[2] || gatable[3] || gatable[4] || gatable[5]) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;
             if (roles.indexOf("hawk") !== -1 && !gatable[0]) roles.splice(roles.indexOf("hawk"), 1);
             if (roles.indexOf("elephant") !== -1 && !gatable[1]) roles.splice(roles.indexOf("elephant"), 1);
+            if (roles.indexOf("queen") !== -1 && !gatable[2]) roles.splice(roles.indexOf("queen"), 1);
+            if (roles.indexOf("rook") !== -1 && !gatable[3]) roles.splice(roles.indexOf("rook"), 1);
+            if (roles.indexOf("bishop") !== -1 && !gatable[4]) roles.splice(roles.indexOf("bishop"), 1);
+            if (roles.indexOf("knight") !== -1 && !gatable[5]) roles.splice(roles.indexOf("knight"), 1);
+
             var origs = [orig];
             const castling = ground.state.pieces[dest].role === "king" && orig[0] === "e" && dest[0] !== "d" && dest[0] !== "e" && dest[0] !== "f";
             var rookDest = "";

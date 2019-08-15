@@ -105,16 +105,19 @@ function diagonalMove(pos1, pos2) {
 
 export function canGate(fen, piece, orig, dest, meta) {
     console.log("   isGating()", fen, piece, orig, dest, meta);
+    const no_gate = [false, false, false, false, false, false]
     if ((piece.color === "white" && orig.slice(1) !== "1") ||
         (piece.color === "black" && orig.slice(1) !== "8") ||
         (piece.role === "hawk") ||
-        (piece.role === "elephant")) return [false, false];
+        (piece.role === "elephant")) return no_gate;
 
     // In starting position king and(!) rook virginity is encoded in KQkq
     // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
 
     // but after kings moved rook virginity is encoded in AHah
     // rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR[HEhe] w ABCDFGHabcdfgh - 2 3
+
+    // king virginity is encoded in Ee after any Rook moved but King not
 
     const parts = fen.split(" ");
     const placement = parts[0];
@@ -123,60 +126,76 @@ export function canGate(fen, piece, orig, dest, meta) {
     // console.log("isGating()", orig, placement, color, castl);
     switch (orig) {
     case "a1":
-        if (castl.indexOf("A") === -1 && castl.indexOf("Q") === -1) return [false, false];
+        if (castl.indexOf("A") === -1 && castl.indexOf("Q") === -1) return no_gate;
         break;
     case "b1":
-        if (castl.indexOf("B") === -1) return [false, false];
+        if (castl.indexOf("B") === -1) return no_gate;
         break;
     case "c1":
-        if (castl.indexOf("C") === -1) return [false, false];
+        if (castl.indexOf("C") === -1) return no_gate;
         break;
     case "d1":
-        if (castl.indexOf("D") === -1) return [false, false];
+        if (castl.indexOf("D") === -1) return no_gate;
         break;
     case "e1":
-        if (piece.role !== "king") return [false, false];
+        if (piece.role !== "king") {
+            return no_gate;
+        } else if ((castl.indexOf("K") === -1) && (castl.indexOf("Q") === -1)) {
+            return no_gate;
+        } else if (castl.indexOf("E") === -1) {
+            return no_gate;
+        };
         break;
     case "f1":
-        if (castl.indexOf("F") === -1) return [false, false];
+        if (castl.indexOf("F") === -1) return no_gate;
         break;
     case "g1":
-        if (castl.indexOf("G") === -1) return [false, false];
+        if (castl.indexOf("G") === -1) return no_gate;
         break;
     case "h1":
-        if (castl.indexOf("H") === -1 && castl.indexOf("K") === -1) return [false, false];
+        if (castl.indexOf("H") === -1 && castl.indexOf("K") === -1) return no_gate;
         break;
     case "a8":
-        if (castl.indexOf("a") === -1 && castl.indexOf("q") === -1) return [false, false];
+        if (castl.indexOf("a") === -1 && castl.indexOf("q") === -1) return no_gate;
         break;
     case "b8":
-        if (castl.indexOf("b") === -1) return [false, false];
+        if (castl.indexOf("b") === -1) return no_gate;
         break;
     case "c8":
-        if (castl.indexOf("c") === -1) return [false, false];
+        if (castl.indexOf("c") === -1) return no_gate;
         break;
     case "d8":
-        if (castl.indexOf("d") === -1) return [false, false];
+        if (castl.indexOf("d") === -1) return no_gate;
         break;
     case "e8":
-        if (piece.role !== "king") return [false, false];
+        if (piece.role !== "king") {
+            return no_gate;
+        } else if ((castl.indexOf("k") === -1) && (castl.indexOf("q") === -1)) {
+            return no_gate;
+        } else if (castl.indexOf("e") === -1) {
+            return no_gate;
+        };
         break;
     case "f8":
-        if (castl.indexOf("f") === -1) return [false, false];
+        if (castl.indexOf("f") === -1) return no_gate;
         break;
     case "g8":
-        if (castl.indexOf("g") === -1) return [false, false];
+        if (castl.indexOf("g") === -1) return no_gate;
         break;
     case "h8":
-        if (castl.indexOf("h") === -1 && castl.indexOf("k") === -1) return [false, false];
+        if (castl.indexOf("h") === -1 && castl.indexOf("k") === -1) return no_gate;
         break;
     };
     const bracketPos = placement.indexOf("[");
     const pockets = placement.slice(bracketPos);
-    const ph = lc(pockets, "h", color==='w') === 1;
-    const pe = lc(pockets, "e", color==='w') === 1;
+    const ph = lc(pockets, "h", color==='w') !== 0;
+    const pe = lc(pockets, "e", color==='w') !== 0;
+    const pq = lc(pockets, "q", color==='w') !== 0;
+    const pr = lc(pockets, "r", color==='w') !== 0;
+    const pb = lc(pockets, "b", color==='w') !== 0;
+    const pn = lc(pockets, "n", color==='w') !== 0;
 
-    return [ph, pe];
+    return [ph, pe, pq, pr, pb, pn];
 }
 
 export function isPromotion(variant, piece, orig, dest, meta) {
