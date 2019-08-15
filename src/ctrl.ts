@@ -442,6 +442,7 @@ export default class RoundController {
         case "capahouse":
         case "capablanca":
         case "seirawan":
+        case "shouse":
         case "xiangqi":
             changeCSS('/static/' + VARIANTS[this.variant].css[idx] + '.css');
             break;
@@ -728,7 +729,7 @@ export default class RoundController {
             meta.captured = {role: "pawn"};
         };
         // increase pocket count
-        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shogi") && meta.captured) {
+        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "shogi") && meta.captured) {
             var role = meta.captured.role
             if (meta.captured.promoted) role = this.variant === "shogi" ? meta.captured.role.slice(1) as Role : "pawn";
 
@@ -742,7 +743,7 @@ export default class RoundController {
         };
 
         //  gating elephant/hawk
-        if (this.variant === "seirawan") {
+        if (this.variant === "seirawan" || this.variant === "shouse") {
             if (!this.promotion.start(orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest, meta)) this.sendMove(orig, dest, '');
         } else {
             if (!this.promotion.start(orig, dest, meta)) this.sendMove(orig, dest, '');

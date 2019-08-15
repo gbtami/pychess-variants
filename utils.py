@@ -41,6 +41,7 @@ VARIANTS = (
     "capablanca",
     "capahouse",
     "seirawan",
+    "shouse",
 )
 
 VARIANTS960 = {
@@ -260,7 +261,7 @@ class Game:
             invalid3 = init[1] not in "bw"
 
             # Castling rights (and piece virginity) check
-            if self.variant == "seirawan":
+            if self.variant == "seirawan" or self.variant == "shouse":
                 invalid4 = len(init) > 2 and any((c not in "KQBCDFGkqbcdfgAHah-" for c in init[2]))
             elif self.chess960:
                 if all((c in "KQkq-" for c in init[2])):
