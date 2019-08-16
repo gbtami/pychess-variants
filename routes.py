@@ -91,6 +91,21 @@ async def login(request):
     session["last_name"] = user.last_name
     # TODO: get it via licehess API
     session["title"] = ""
+
+    if user.username:
+        db = request.app["db"]
+        doc = await db.user.find_one({"_id": user.username})
+        if doc is None:
+            result = await db.user.insert_one({
+                "_id": user.username,
+                "first_name": session.get("first_name"),
+                "last_name": session.get("last_name"),
+                "country": session.get("country"),
+                "title": session.get("title"),
+            })
+            print("db insert user result %s" % repr(result.inserted_id))
+        del session["token"]
+
     raise web.HTTPFound("/")
 
 
@@ -104,20 +119,6 @@ async def index(request):
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-
-    # Coming from login?
-    if session_user is not None and "token" in session:
-        doc = await db.user.find_one({"_id": session_user})
-        if doc is None:
-            result = await db.user.insert_one({
-                "_id": session_user,
-                "first_name": session.get("first_name"),
-                "last_name": session.get("last_name"),
-                "country": session.get("country"),
-                "title": session.get("title"),
-            })
-            print("db insert user result %s" % repr(result.inserted_id))
-        del session["token"]
 
     session["last_visit"] = datetime.now().isoformat()
     session["guest"] = True
