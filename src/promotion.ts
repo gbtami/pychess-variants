@@ -94,6 +94,7 @@ export default function(ctrl) {
     };
 
     function cancel() {
+        console.log("CANCEL promotion");
         return
     }
 

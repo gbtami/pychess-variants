@@ -87,6 +87,7 @@ export default function(ctrl) {
     };
 
     function cancel() {
+        console.log("CANCEL gating");
         return
     }
 

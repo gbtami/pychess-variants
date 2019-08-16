@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 import base64
 from cryptography import fernet
@@ -22,3 +23,5 @@ SECRET_KEY = base64.urlsafe_b64decode(fernet_key)
 
 MONGO_HOST = os.getenv("MONGO_HOST", "mongodb://127.0.0.1:27017")
 MONGO_DB_NAME = "pychess-variants"
+
+BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS"))

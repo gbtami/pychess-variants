@@ -5,60 +5,89 @@ from aiohttp import web
 
 from utils import STARTED, RESIGN, INVALIDMOVE, lobby_broadcast,\
     round_broadcast, get_board, new_game, challenge, get_seeks, User, Seek
+from settings import BOT_TOKENS
 
 log = logging.getLogger(__name__)
 
 
-async def bot_profile(request):
-    if request.headers.get("Authorization") is None:
+async def account(request):
+    auth = request.headers.get("Authorization")
+    if auth is None:
         return web.HTTPForbidden()
-    else:
-        # TODO: use lichess oauth
-        auth = request.headers.get("Authorization")
-        token = auth[auth.find("Bearer") + 7:]
-        username = token[6:]
-        resp = {"username": username, "title": "BOT"}
-        return web.json_response(resp)
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
+    resp = {"username": BOT_TOKENS[token], "title": "BOT"}
+    log.info("ACCOUNT for token %s for %s is OK" % (token, BOT_TOKENS[token]))
+    return web.json_response(resp)
 
 
 async def playing(request):
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
         return web.HTTPForbidden()
-    else:
-        # TODO: get bot player ongoing game list
-        resp = {"nowPlaying": []}
-        return web.json_response(resp)
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
+    resp = {"nowPlaying": []}
+    return web.json_response(resp)
 
 
 async def challenge_create(request):
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
         return web.HTTPForbidden()
-    else:
-        # TODO: use lichess oauth
-        return web.json_response({"ok": True})
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
+    return web.json_response({"ok": True})
 
 
 async def challenge_accept(request):
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
         return web.HTTPForbidden()
-    else:
-        # TODO: use lichess oauth
-        return web.json_response({"ok": True})
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
+    return web.json_response({"ok": True})
 
 
 async def challenge_decline(request):
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
         return web.HTTPForbidden()
-    else:
-        # TODO: use lichess oauth
-        return web.json_response({"ok": True})
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
+    return web.json_response({"ok": True})
 
 
 async def create_bot_seek(request):
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
         return web.HTTPForbidden()
 
-    # TODO: use lichess oauth
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5:]
 
@@ -121,6 +150,15 @@ async def create_bot_seek(request):
 
 
 async def event_stream(request):
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5:]
 
@@ -189,6 +227,15 @@ async def event_stream(request):
 
 
 async def game_stream(request):
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5:]
 
@@ -238,6 +285,15 @@ async def game_stream(request):
 
 
 async def bot_move(request):
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5:]
     gameId = request.match_info["gameId"]
@@ -290,9 +346,15 @@ async def bot_move(request):
 
 
 async def bot_abort(request):
-    # TODO: use lichess oauth
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
         return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5:]
 
@@ -320,8 +382,13 @@ async def bot_abort(request):
 
 
 async def bot_resign(request):
-    # TODO: use lichess oauth
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -336,8 +403,13 @@ async def bot_resign(request):
 
 
 async def bot_chat(request):
-    # TODO: use lichess oauth
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -365,8 +437,13 @@ async def bot_chat(request):
 
 
 async def bot_pong(request):
-    # TODO: use lichess oauth
-    if request.headers.get("Authorization") is None:
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")

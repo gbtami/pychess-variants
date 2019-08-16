@@ -11,7 +11,7 @@ import aioauth_client
 import aiohttp_session
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
-from bot_api import bot_profile, playing, event_stream, game_stream, bot_abort,\
+from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong
 from utils import load_game, User
@@ -244,7 +244,7 @@ get_routes = (
     ("/@/{profile}", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
-    ("/api/account", bot_profile),
+    ("/api/account", account),
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),
     ("/api/bot/game/stream/{gameId}", game_stream),
