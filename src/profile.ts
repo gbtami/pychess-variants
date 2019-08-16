@@ -15,8 +15,7 @@ import { renderUsername } from './user';
 import { VARIANTS } from './chess';
 import { renderTimeago } from './clock';
 
-// TODO: colorize with green/red/nothing if profile user win/lose/other
-function result(status, result) {
+export function result(status, result) {
     var text = '';
     console.log("result()", status, result);
     switch (status) {

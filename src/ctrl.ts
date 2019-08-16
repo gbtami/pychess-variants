@@ -22,6 +22,7 @@ import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { movelistView, updateMovelist } from './movelist';
 import resizeHandle from './resize';
+import { result } from './profile'
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -379,7 +380,7 @@ export default class RoundController {
             patch(container, h('div.after-game', [h('result', this.result)]));
         } else {
             patch(container, h('div.after-game', [
-                h('result', this.result),
+                h('result', result(this.status, this.result)),
                 h('button.rematch', { on: { click: () => this.rematch() } }, "REMATCH"),
                 h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, "NEW OPPONENT"),
             ]));
@@ -392,6 +393,7 @@ export default class RoundController {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             this.result = msg.result;
+            this.status = msg.status;
             switch (msg.result) {
                 case "1/2-1/2":
                     sound.draw();
