@@ -82,7 +82,7 @@ class FairyBoard:
             b = pieces["r"] + pieces["s"] == 0 and pieces["m"] + pieces["f"] + pieces["n"] + pieces["p"] < 2
         else:
             w, b = sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack, self.chess960)
-        return w and b
+        return (w, b)
 
     def is_immediate_game_end(self):
         return sf.is_immediate_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)

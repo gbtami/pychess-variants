@@ -9,15 +9,15 @@ from functools import partial
 
 from aiohttp.web import WebSocketResponse
 
-import fairy
-import xiangqi
+from fairy import FairyBoard, WHITE, BLACK
+from xiangqi import XiangqiBoard
 
 from settings import URI
 from compress import encode_moves, decode_moves, R2C, C2R, V2C, C2V
 
 log = logging.getLogger(__name__)
 
-BLACK = True
+
 MAX_USER_SEEKS = 10
 
 CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
@@ -297,9 +297,9 @@ class Game:
 
     def create_board(self, variant, initial_fen, chess960):
         if variant == "xiangqi":
-            board = xiangqi.XiangqiBoard(initial_fen)
+            board = XiangqiBoard(initial_fen)
         else:
-            board = fairy.FairyBoard(variant, initial_fen, chess960)
+            board = FairyBoard(variant, initial_fen, chess960)
         return board
 
     async def play_move(self, move, clocks=None):
@@ -326,8 +326,11 @@ class Game:
                 cur_color = "black" if self.board.color == BLACK else "white"
                 clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
                 if clocks[cur_color] == 0:
-                    # TODO: 1/2 if hasInsufficientMaterial()
-                    result = "1-0" if self.board.color == BLACK else "0-1"
+                    w, b = self.board.insufficient_material()
+                    if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
+                        result = "1/2-1/2"
+                    else:
+                        result = "1-0" if self.board.color == BLACK else "0-1"
                     await self.update_status(FLAG, result)
         self.last_server_clock = cur_time
 
@@ -397,7 +400,8 @@ class Game:
         if self.board.move_stack:
             self.check = self.board.is_checked()
 
-        if self.board.insufficient_material():
+        w, b = self.board.insufficient_material()
+        if w and b:
             print("1/2 by board.insufficient_material()")
             self.status = DRAW
             self.result = "1/2-1/2"
@@ -580,13 +584,19 @@ async def draw(games, data, agreement=False):
 
 async def game_ended(games, user, data, reason):
     """ Abort, resign, flag, abandone """
-    # TODO: 1/2 if flagged and hasInsufficientMaterial()
     game = games[data["gameId"]]
     if game.result == "*":
         if reason == "abort":
             result = "*"
         else:
-            result = "0-1" if user.username == game.wplayer.username else "1-0"
+            if reason == "flag":
+                w, b = game.board.insufficient_material()
+                if (w and b) or (game.board.color == BLACK and w) or (game.board.color == WHITE and b):
+                    result = "1/2-1/2"
+                else:
+                    result = "0-1" if user.username == game.wplayer.username else "1-0"
+            else:
+                result = "0-1" if user.username == game.wplayer.username else "1-0"
         await game.update_status(LOSERS[reason], result)
     return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
 
