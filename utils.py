@@ -85,7 +85,7 @@ class Seek:
         self.rated = rated
         self.base = base
         self.inc = inc
-        self.level = level
+        self.level = 0 if user == "Random-Mover" else level
         self.chess960 = chess960
 
         Seek.gen_id += 1
@@ -199,7 +199,7 @@ class User:
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=1, rated=False, chess960=False):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=0, rated=False, chess960=False):
         self.db = app["db"]
         self.games = app["games"]
         self.tasks = app["tasks"]
@@ -211,7 +211,7 @@ class Game:
         self.rated = rated
         self.base = base
         self.inc = inc
-        self.skill_level = level
+        self.level = level
         self.chess960 = chess960
 
         self.spectators = set()
@@ -491,7 +491,7 @@ class Game:
 
     @property
     def game_start(self):
-        return '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n' % (self.id, self.skill_level, self.chess960)
+        return '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n' % (self.id, self.level, self.chess960)
 
     @property
     def game_end(self):

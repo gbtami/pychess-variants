@@ -190,6 +190,7 @@ async def index(request):
         render["variant"] = game.variant
         render["wplayer"] = game.wplayer.username
         render["chess960"] = game.chess960
+        render["level"] = game.level
         render["wtitle"] = game.wplayer.title
         render["bplayer"] = game.bplayer.username
         render["btitle"] = game.bplayer.title
