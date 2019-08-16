@@ -8,7 +8,7 @@ export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", pieces: "makruk", css: ["makruk"], icon: "Q"},
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "makruk", css: ["makruk"], icon: "R" },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", pieces: "shogi", css: ["shogi0", "shogi0w", "shogi0p"], icon: "K" },
-    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict", "xiangqict2"], icon: "O" },
+    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict2"], icon: "O" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "S" },
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "H" },
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capasei0", "capasei1"], icon: "P" },

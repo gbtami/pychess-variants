@@ -437,7 +437,8 @@ export default class RoundController {
 
     private setPieces = (color) => {
         console.log("setPieces()", this.variant, color)
-        const idx = this.CSSindexes[variants.indexOf(this.variant)];
+        var idx = this.CSSindexes[variants.indexOf(this.variant)];
+        idx = Math.min(idx, VARIANTS[this.variant].css.length - 1);
         switch (this.variant) {
         case "capahouse":
         case "capablanca":
