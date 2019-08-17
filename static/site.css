@@ -178,7 +178,9 @@ div.info0, div.info1 {
   flex-flow: row;
   margin-bottom: 6px;
 }
-
+div.info2 {
+  padding-left: 14px;
+}
 div.info0::before {
   content: [data-icon];
   font-size: 42px;

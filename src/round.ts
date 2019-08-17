@@ -32,8 +32,8 @@ export function roundView(model): VNode[] {
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
-//                        h('div.info1', {attrs: {"data-icon": (model["chess960"] === 'True') ? "V" : ""}, class: {"icon": true}}, [
-                        h('div', [
+                        h('div.info1', {attrs: {"data-icon": (model["chess960"] === 'True') ? "V" : ""}, class: {"icon": true}}),
+                        h('div.info2', [
                             h('div.tc', model["base"] + "+" + model["inc"] + " • Casual • " + model["variant"]),
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
                         ]),

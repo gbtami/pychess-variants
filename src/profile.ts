@@ -80,7 +80,8 @@ function renderGames(model, games) {
         ]),
         h('td.games-info', [
             h('div.info0', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}}, [
-                h('div', [
+                h('div.info1', {attrs: {"data-icon": (game["z"] === 1) ? "V" : ""}, class: {"icon": true}}),
+                h('div.info2', [
                     h('div.tc', game["b"] + "+" + game["i"] + " • Casual • " + game["v"]),
                     h('info-date', {attrs: {timestamp: game["d"]}}),
                 ]),
