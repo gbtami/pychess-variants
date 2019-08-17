@@ -30,7 +30,7 @@ export function result(status, result) {
         text = 'Checkmate';
         break;
     case 2:
-        text = 'Resigned';
+        text = ((result === '1-0') ? 'Black' : 'White') + ' resigned';
         break;
     case 3:
         text = 'Stalemate';
@@ -45,7 +45,7 @@ export function result(status, result) {
         text = 'Time out';
         break;
     case 7:
-        text = 'Abandoned';
+        text = ((result === '1-0') ? 'Black' : 'White') + ' abandoned the game';
         break
     default:
         text = '*';

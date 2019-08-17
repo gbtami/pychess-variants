@@ -377,7 +377,7 @@ export default class RoundController {
 
         var container = document.getElementById('after-game') as HTMLElement;
         if (this.spectator) {
-            patch(container, h('div.after-game', [h('result', this.result)]));
+            patch(container, h('div.after-game', [h('result', result(this.status, this.result))]));
         } else {
             patch(container, h('div.after-game', [
                 h('result', result(this.status, this.result)),
