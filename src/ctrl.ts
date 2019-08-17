@@ -422,6 +422,11 @@ export default class RoundController {
             }
             this.gameOver();
 
+            // clean up gating/promotion widget left over the ground while game ended by time out
+            var container = document.getElementById('extension_choice') as HTMLElement;
+            if (container instanceof Element) patch(container, h('extension'));
+
+            // TODO: move this to (not implemented yet) analysis page
             var container = document.getElementById('under-board') as HTMLElement;
             patch(container, h('under-board', [h('textarea', { attrs: { rows: 13} }, msg.pgn)]));
 

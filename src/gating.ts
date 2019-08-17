@@ -14,7 +14,7 @@ const patch = init([klass, attributes, listeners]);
 export default function(ctrl) {
 
     let gating: any = false;
-    let roles;
+    let roles: string[] = [];
 
     function start(fen, orig, dest, meta) {
         const ground = ctrl.getGround();
@@ -87,8 +87,9 @@ export default function(ctrl) {
     };
 
     function cancel() {
-        console.log("CANCEL gating");
-        return
+        draw_no_gating();
+        ctrl.goPly(ctrl.ply);
+        return;
     }
 
     function bind(eventName: string, f: (e: Event) => void, redraw) {

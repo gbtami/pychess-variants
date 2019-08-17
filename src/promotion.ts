@@ -14,6 +14,7 @@ export default function(ctrl) {
 
     let promoting: any = false;
     let roles: string[] = [];
+
     function start(orig, dest, meta) {
         const ground = ctrl.getGround();
         if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta)) {
@@ -94,8 +95,9 @@ export default function(ctrl) {
     };
 
     function cancel() {
-        console.log("CANCEL promotion");
-        return
+        draw_no_promo();
+        ctrl.goPly(ctrl.ply);
+        return;
     }
 
     function bind(eventName: string, f: (e: Event) => void, redraw) {
