@@ -67,7 +67,7 @@ class XiangqiBoard:
 
     def insufficient_material(self):
         # TODO
-        return False
+        return (False, False)
 
     def is_claimable_draw(self):
         # TODO
