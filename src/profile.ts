@@ -90,14 +90,14 @@ function renderGames(model, games) {
                 h('player', [
                     h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, [
                         h('player-title', " " + game["wt"] + " "),
-                        game["us"][0],
+                        game["us"][0] + ((game["wt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
                     ]),
                 ]),
-                h('vs', '-'),
+                h('vs', ' - '),
                 h('player', [
                     h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
                         h('player-title', " " + game["bt"] + " "),
-                        game["us"][1],
+                        game["us"][1] + ((game["bt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
                     ]),
                 ]),
             ]),

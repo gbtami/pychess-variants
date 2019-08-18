@@ -85,7 +85,7 @@ class Seek:
         self.rated = rated
         self.base = base
         self.inc = inc
-        self.level = 0 if user == "Random-Mover" else level
+        self.level = 0 if user.username == "Random-Mover" else level
         self.chess960 = chess960
 
         Seek.gen_id += 1
@@ -562,6 +562,7 @@ async def load_game(app, game_id):
 
     game.date = doc["d"]
     game.status = doc["s"]
+    game.level = doc["x"]
     game.result = C2R[doc["r"]]
     game.random_move = ""
     game.saved = True

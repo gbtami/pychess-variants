@@ -28,6 +28,10 @@ export function roundView(model): VNode[] {
         titleTop = model["username"] === model["wplayer"] ? model["btitle"] : model["wtitle"];
         titleBottom = model["username"] === model["wplayer"] ? model["wtitle"] : model["btitle"];
     }
+    if (model["level"] > 0) {
+        if (titleTop === "BOT") playerTop += ' level ' + model['level'];
+        if (titleBottom === "BOT") playerBottom += ' level ' + model['level'];
+    };
     renderTimeago();
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
