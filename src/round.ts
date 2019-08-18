@@ -28,10 +28,6 @@ export function roundView(model): VNode[] {
         titleTop = model["username"] === model["wplayer"] ? model["btitle"] : model["wtitle"];
         titleBottom = model["username"] === model["wplayer"] ? model["wtitle"] : model["btitle"];
     }
-    if (model["level"] > 0) {
-        if (titleTop === "BOT") playerTop += ' level ' + model['level'];
-        if (titleBottom === "BOT") playerBottom += ' level ' + model['level'];
-    };
     renderTimeago();
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
@@ -86,7 +82,7 @@ export function roundView(model): VNode[] {
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + playerTop}}, [
                                 h('player-title', " " + titleTop + " "),
-                                playerTop,
+                                playerTop + ((titleTop === "BOT" && model["level"] > 0) ? ' level ' + model["level"]: ''),
                             ]),
                             h('rating', "1500?"),
                         ]),
@@ -102,7 +98,7 @@ export function roundView(model): VNode[] {
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + playerBottom}}, [
                                 h('player-title', " " + titleBottom + " "),
-                                playerBottom,
+                                playerBottom + ((titleBottom === "BOT" && model["level"] > 0) ? ' level ' + model["level"]: ''),
                             ]),
                             h('rating', "1500?"),
                         ]),
