@@ -11,7 +11,7 @@ export const VARIANTS = {
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict2"], icon: "O" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "S" },
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "H" },
-    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capasei0", "capasei1"], icon: "P" },
+    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
     capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capasei0", "capasei1"], icon: "P" },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["capasei1", "capasei0"], icon: "L" },
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["capasei1", "capasei0"], icon: "L" },
