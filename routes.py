@@ -33,6 +33,8 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
+GAME_PAGE_SIZE = 12
+
 
 async def oauth(request):
     """ Get lichess.org oauth token. """
@@ -215,10 +217,14 @@ async def get_games(request):
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
 
+    page_num = request.rel_url.query.get("p")
+    if not page_num:
+        page_num = 0
+    print("PAGENUm=", page_num)
     gameid_list = []
     if profileId is not None:
         cursor = db.game.find({"us": profileId})
-        cursor.sort('d', -1).skip(0).limit(20)
+        cursor.sort('d', -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         async for doc in cursor:
             doc["v"] = C2V[doc["v"]]
             doc["r"] = C2R[doc["r"]]

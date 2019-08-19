@@ -374,6 +374,9 @@ table#seeks {
 }
 
 /* profile games */
+player-head {
+  font-size: 24px;
+}
 table#games, table#players {
   width: 100%;
   border-collapse: collapse;

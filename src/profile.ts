@@ -59,7 +59,6 @@ function renderGames(model, games) {
 //                h('fn', player["first_name"]),
 //                h('ln', player["last_name"]),
 //                h('country', player["country"]),
-    const header = h('thead', [h('tr', [h('th', model["profileid"]), ])]);
     var rows = games.map((game) => h(
         'tr',
         { on: { click: () => { window.location.assign(model["home"] + '/' + game["_id"]); } },
@@ -110,22 +109,25 @@ function renderGames(model, games) {
         ])
         ])
         );
-    return [header, h('tbody', rows)];
+    return [h('tbody', rows)];
 }
 
-export function profileView(model): VNode[] {
-    renderUsername(model["home"], model["username"]);
-
+function loadGames(model, page) {
     var xmlhttp = new XMLHttpRequest();
-    var url = model["home"] + "/api/" + model["profileid"] +"/games";
+    var url = model["home"] + "/api/" + model["profileid"] + "/games?p=";
 
     xmlhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        var myArr = JSON.parse(this.responseText);
-        myFunction(myArr);
-      }
+        if (this.readyState == 4 && this.status == 200) {
+            var myArr = JSON.parse(this.responseText);
+
+            // If empty JSON, exit the function
+            if (!myArr.length) {
+                return;
+            }
+            myFunction(myArr);
+        }
     };
-    xmlhttp.open("GET", url, true);
+    xmlhttp.open("GET", url + page, true);
     xmlhttp.send();
 
     function myFunction(arr) {
@@ -136,10 +138,35 @@ export function profileView(model): VNode[] {
         }
         renderTimeago();
     }
+}
 
+
+function observeSentinel(vnode: VNode, model) {
+    const sentinel = vnode.elm as HTMLElement;
+    var page = 0;
+
+    var intersectionObserver = new IntersectionObserver(entries => {
+        // If intersectionRatio is 0, the sentinel is out of view
+        // and we don't need to do anything. Exit the function
+        if (entries[0].intersectionRatio <= 0) return;
+
+        loadGames(model, page);
+        page += 1;
+    });
+
+    intersectionObserver.observe(sentinel!);
+}
+
+export function profileView(model): VNode[] {
+    renderUsername(model["home"], model["username"]);
     console.log(model);
+
     return [h('aside.sidebar-first'),
-            h('main.main', [h('table#games')]),
+            h('main.main', [
+                h('player-head', model["profileid"]),
+                h('table#games'),
+                h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) }})
+            ]),
             h('aside.sidebar-second'),
         ];
 }
