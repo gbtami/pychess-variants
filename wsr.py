@@ -7,7 +7,7 @@ from aiohttp import web
 import aiohttp_session
 
 from utils import play_move, get_board, start, draw, game_ended, round_broadcast,\
-    new_game, challenge, load_game, User, Seek, STARTED, MyWebSocketResponse
+    new_game, challenge, load_game, User, Seek, STARTED, DRAW, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 
@@ -168,7 +168,8 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                         if opp_player.bot:
-                            await opp_player.game_queues[data["gameId"]].put(response)
+                            if game.status == DRAW:
+                                await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             await opp_ws.send_json(response)
