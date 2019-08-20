@@ -211,7 +211,7 @@ class Game:
         self.rated = rated
         self.base = base
         self.inc = inc
-        self.level = level
+        self.level = level if level is not None else 0
         self.chess960 = chess960
 
         self.spectators = set()
@@ -539,7 +539,7 @@ async def load_game(app, game_id):
 
     variant = C2V[doc["v"]]
 
-    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], bool(doc.get("x")), bool(doc.get("y")), bool(doc.get("z")))
+    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")))
 
     mlist = decode_moves(doc["m"])
     if variant == "shogi":
@@ -560,9 +560,10 @@ async def load_game(app, game_id):
         move = game.steps[-1]["move"]
         game.lastmove = (move[0:2], move[2:4])
 
+    level = doc.get("x")
     game.date = doc["d"]
     game.status = doc["s"]
-    game.level = doc["x"]
+    game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
     game.random_move = ""
     game.saved = True
