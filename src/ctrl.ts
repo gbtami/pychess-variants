@@ -608,9 +608,11 @@ export default class RoundController {
     goPly = (ply) => {
         const step = this.steps[ply];
         var move = step.move
+        var capture = false;
         if (move !== undefined) {
             if (this.variant === "shogi") move = usi2uci(move);
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
+            capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
 
         this.chessground.set({
@@ -626,7 +628,18 @@ export default class RoundController {
         });
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
-        // TODO: play sound if ply == this.ply + 1
+
+        if (ply === this.ply + 1) {
+            if (this.variant === "shogi") {
+                sound.shogimove();
+            } else {
+                if (capture) {
+                    sound.capture();
+                } else {
+                    sound.move();
+                }
+            }
+        }
         this.ply = ply
     }
 
