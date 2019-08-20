@@ -546,16 +546,21 @@ async def load_game(app, game_id):
         mlist = map(uci2usi, mlist)
 
     for move in mlist:
-        san = game.board.get_san(move)
-        game.board.push(move)
-        game.check = game.board.is_checked()
-        game.steps.append({
-            "fen": game.board.fen,
-            "move": move,
-            "san": san,
-            "turnColor": "black" if game.board.color == BLACK else "white",
-            "check": game.check}
-        )
+        try:
+            san = game.board.get_san(move)
+            game.board.push(move)
+            game.check = game.board.is_checked()
+            game.steps.append({
+                "fen": game.board.fen,
+                "move": move,
+                "san": san,
+                "turnColor": "black" if game.board.color == BLACK else "white",
+                "check": game.check}
+            )
+        except Exception:
+            log.exception("ERROR: Exception in load_game() %s %s %s %s" % (game_id, variant, doc.get("if"), mlist))
+            break
+
     if len(game.steps) > 1:
         move = game.steps[-1]["move"]
         game.lastmove = (move[0:2], move[2:4])
