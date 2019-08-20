@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="52.157"
+   height="60"
+   version="1.1"
+   id="svg889"
+   sodipodi:docname="1WhiteKing1.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata895">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs893" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview891"
+     showgrid="false"
+     inkscape:zoom="7.8666667"
+     inkscape:cx="47.370332"
+     inkscape:cy="13.658857"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg889" />
+  <!--
+Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
+See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyokusho(svg).svg
+-->
+  <filter
+     id="drop-shadow">
+    <feGaussianBlur
+       in="SourceAlpha"
+       result="blur"
+       stdDeviation="2"
+       id="feGaussianBlur862" />
+    <feOffset
+       result="offsetBlur"
+       dx="2"
+       dy="2"
+       id="feOffset864" />
+    <feBlend
+       in="SourceGraphic"
+       in2="offsetBlur"
+       mode="normal"
+       id="feBlend866" />
+  </filter>
+  <g
+     filter="url(#drop-shadow)"
+     transform="translate(5 5)"
+     id="g887">
+    <g
+       transform="rotate(180 21.0785 25)"
+       id="g885">
+      <path
+         d="M20.915 1.05c-4.319 1 -8.69 2.088 -12.838 3.608 -1.492 6.331 -2.103 12.88 -3.191 19.305 -1.285 8.332 -2.439 16.689 -3.86 24.997 4.847 0.346 10 0.05 14.963 0.148l24.971 0c-0.585 -5.657 -1.718 -11.523 -2.502 -17.26 -1.462 -8.96 -2.486 -18.012 -4.288 -26.903 -0.885 -1.093 -2.799 -0.957 -4.037 -1.564 -3.053 -0.81 -6.099 -1.875 -9.218 -2.332z"
+         fill="#FEEC99"
+         id="path869" />
+    </g>
+  </g>
+  <g
+     transform="rotate(-180,26.078501,30.006503)"
+     aria-label="王"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.66666603px;line-height:1.25;font-family:KaiTi;-inkscape-font-specification:KaiTi;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
+     id="text5169">
+    <path
+       inkscape:connector-curvature="0"
+       d="m 20.8285,24.613991 q -2.583333,0 -3.833333,-1.25 0,-0.291666 0.25,-0.416666 0.291667,-0.125 1.25,-0.208334 1,-0.125 2.291667,-0.25 1.333333,-0.125 4,-0.583333 2.666667,-0.458333 5.75,-1.166667 0.625,-0.166666 1.458333,-0.166666 1.833334,0 2.791667,1.125 0.04167,0.416666 -0.166667,0.666666 -0.208333,0.208334 -0.958333,0.416667 -0.75,0.166667 -1.583333,0.291667 -0.791667,0.08333 -2.541667,0.375 -1.75,0.291666 -3.416667,0.625 1.041667,0.541666 1.041667,1.666666 l -0.208333,2.25 -0.125,4.041667 v 0.04167 l 3.791666,-0.791667 q 0.25,-0.04167 0.666667,-0.04167 1.625,0 2.375,1.041666 -0.04167,0.583334 -1.541667,1 -1.5,0.416667 -3.333333,0.666667 -1.833333,0.208333 -1.916667,0.25 l -0.125,0.208333 -0.25,8.208334 q 4.875,-0.333333 8.041667,-0.75 l 3.583334,-0.625 h 0.166666 0.125 q 1.208334,0 2.541667,1.291667 1.375,1.25 1.375,1.916666 -0.166667,0.291667 -0.833333,0.291667 -0.625,0 -5.458334,-0.458333 l -2.666667,-0.166667 q -3.458333,0 -9.666667,0.583333 -6.208333,0.583334 -8.458333,1.291667 l -1.875,0.541667 q -0.04167,0 -0.166667,0.04167 -0.125,0 -0.166667,0 -0.833333,0 -1.791666,-0.625 -0.958334,-0.625 -1.416667,-1.416666 0,-0.458334 0.25,-0.666667 h 0.791667 q 2.458333,0 6.583333,-0.5 4.125,-0.5 6.75,-0.5 h 0.166667 l 0.125,-8.25 -3.75,0.25 q -1.833333,-0.04167 -2.75,-1.041667 0,-0.458333 0.541667,-0.5 l 1.875,-0.125 4.041666,-0.541667 v -6.083333 q 0,-1.208334 -0.791666,-2.125 -1.5,0.166666 -2.833334,0.166666 z"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:42.66666794px;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai';stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5171" />
+  </g>
+</svg>
