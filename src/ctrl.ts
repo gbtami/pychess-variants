@@ -252,13 +252,13 @@ export default class RoundController {
         );
 
         const flagCallback = () => {
-            if (this.turnColor === this.mycolor && !this.spectator) {
+            if (this.turnColor === this.mycolor) {
                 this.chessground.stop();
                 console.log("Flag");
                 this.doSend({ type: "flag", gameId: this.model["gameId"] });
             }
         }
-        this.clocks[1].onFlag(flagCallback);
+        if (!this.spectator) this.clocks[1].onFlag(flagCallback);
 
         if (Number(this.status) < 0) {
             console.log("GAME is ONGOING...");
