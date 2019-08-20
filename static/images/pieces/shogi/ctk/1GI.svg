@@ -11,7 +11,7 @@
    height="60"
    version="1.1"
    id="svg947"
-   sodipodi:docname="1S1.svg"
+   sodipodi:docname="1GI.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata953">
@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -42,7 +42,7 @@
      showgrid="false"
      inkscape:snap-nodes="false"
      inkscape:zoom="7.8666667"
-     inkscape:cx="22.549922"
+     inkscape:cx="12.667559"
      inkscape:cy="29.479923"
      inkscape:window-x="1913"
      inkscape:window-y="0"
@@ -86,7 +86,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kin
     </g>
   </g>
   <g
-     transform="rotate(-180,25.999839,30.008499)"
+     transform="rotate(-180,25.682042,30.072058)"
      aria-label="銀"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.66666603px;line-height:1.25;font-family:KaiTi;-inkscape-font-specification:KaiTi;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.99999994;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
      id="text883-7">
