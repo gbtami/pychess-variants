@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -82,7 +82,7 @@
     <inkscape:path-effect
        effect="mirror_symmetry"
        start_point="274.21267,350.55066"
-       end_point="273.50284,477.30227"
+       end_point="273.50285,477.30226"
        center_point="273.85776,413.92646"
        id="path-effect4557-0-4"
        is_visible="true"
@@ -90,6 +90,38 @@
        discard_orig_path="false"
        fuse_paths="true"
        oposite_fuse="false" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter26276">
+      <feFlood
+         flood-opacity="1"
+         flood-color="rgb(91,93,90)"
+         result="flood"
+         id="feFlood26266" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite26268" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="0"
+         result="blur"
+         id="feGaussianBlur26270" />
+      <feOffset
+         dx="0"
+         dy="4"
+         result="offset"
+         id="feOffset26272" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite26274" />
+    </filter>
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -105,12 +137,12 @@
      id="namedview8"
      showgrid="false"
      inkscape:zoom="7.4167644"
-     inkscape:cx="7.0666364"
-     inkscape:cy="49.984496"
-     inkscape:window-x="1912"
+     inkscape:cx="1.2410724"
+     inkscape:cy="22.819037"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -123,7 +155,8 @@
      style="display:inline">
     <g
        id="g24262"
-       transform="translate(0.6186409,-2.3347435)">
+       transform="translate(0.6186409,-2.3347435)"
+       style="filter:url(#filter26276)">
       <g
          id="g25621">
         <circle
@@ -158,7 +191,7 @@
            sodipodi:nodetypes="ccccc"
            inkscape:connector-curvature="0"
            id="path4559-3"
-           d="m 306.66381,102.06091 c 7.66719,2.10131 10.64225,2.5579 17.64487,0.47307 l -2.88674,-14.454653 c -4.02592,1.60044 -8.45784,1.058526 -11.39745,-0.091 z"
+           d="m 306.95878,102.14519 c 7.66719,2.10131 10.34728,2.47362 17.3499,0.38879 l -2.88674,-14.454653 c -3.95828,2.006301 -8.41424,1.320116 -11.39745,-0.091 z"
            style="fill:#d40000;stroke:#ffffff;stroke-width:1.33407533;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
         <path
            sodipodi:nodetypes="csccsc"
@@ -166,7 +199,7 @@
            inkscape:path-effect="#path-effect4557-0-4"
            inkscape:connector-curvature="0"
            id="path4555-2"
-           d="m 262.1655,185.22418 c -2.59466,-11.80187 -103.54305,38.73329 -113.10593,62.20704 -42.3113,103.86038 -72.12915,199.29008 -186.378549,293.9129 11.908253,16.00162 83.420666,6.52866 141.407899,62.88268 17.88418,-18.602 65.86946,-234.42078 80.92642,-285.81433 0.2599,-0.88712 80.113,23.09561 89.2583,21.25175 9.12408,1.94617 89.24077,-21.1407 89.49072,-20.25073 14.48041,51.55897 60.04552,267.90165 77.72023,286.70278 C 500.09935,550.41524 571.50118,560.68855 583.58791,544.8213 470.40545,448.92483 441.65828,353.16715 400.51287,248.8394 391.21349,225.26002 290.83743,173.59741 288.11075,185.36948"
+           d="m 262.1655,185.22418 c -2.59466,-11.80187 -103.54305,38.73329 -113.10593,62.20704 -42.3113,103.86038 -72.12915,199.29008 -186.378549,293.9129 11.908253,16.00162 83.420666,6.52866 141.407899,62.88268 17.88418,-18.602 65.86946,-234.42078 80.92642,-285.81433 0.2599,-0.88712 80.11298,23.0956 89.2583,21.25175 9.12409,1.94616 89.24076,-21.14071 89.49071,-20.25074 14.48042,51.55897 60.04555,267.90164 77.72027,286.70277 58.61475,-55.70103 130.01658,-45.42774 142.1033,-61.29499 C 470.40545,448.9248 441.65827,353.16713 400.51285,248.83939 391.21347,225.26 290.8374,173.59741 288.11072,185.36948"
            style="fill:#d40000;stroke:#d40000;stroke-width:16.4840107;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            transform="matrix(0.06852995,0,0,0.08094496,296.89962,61.263195)" />
         <path

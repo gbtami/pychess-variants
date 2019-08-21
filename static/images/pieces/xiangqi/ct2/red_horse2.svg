@@ -90,6 +90,38 @@
        discard_orig_path="false"
        fuse_paths="true"
        oposite_fuse="false" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter25527">
+      <feFlood
+         flood-opacity="1"
+         flood-color="rgb(91,93,90)"
+         result="flood"
+         id="feFlood25517" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite25519" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="0"
+         result="blur"
+         id="feGaussianBlur25521" />
+      <feOffset
+         dx="0"
+         dy="4"
+         result="offset"
+         id="feOffset25523" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite25525" />
+    </filter>
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -105,9 +137,9 @@
      id="namedview8"
      showgrid="false"
      inkscape:zoom="7.4167644"
-     inkscape:cx="-2.7828336"
+     inkscape:cx="-24.692657"
      inkscape:cy="35.854539"
-     inkscape:window-x="1912"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
@@ -123,7 +155,8 @@
      style="display:inline">
     <g
        id="g24262"
-       transform="translate(0.6186409,-2.3347435)">
+       transform="translate(0.6186409,-2.3347435)"
+       style="filter:url(#filter25527)">
       <g
          id="g25621">
         <circle
