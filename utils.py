@@ -198,6 +198,57 @@ class User:
         return self.username
 
 
+class Clock:
+    """ Check game start and abandoned games time out """
+
+    def __init__(self, game):
+        self.game = game
+        self.running = False
+        self.restart()
+        loop = asyncio.get_event_loop()
+        self.countdown_task = loop.create_task(self.countdown())
+
+    def cancel(self):
+        self.countdown_task.cancel()
+
+    def stop(self):
+        self.running = False
+
+    def restart(self):
+        self.ply = self.game.ply
+        self.color = self.game.board.color
+        self.secs = 20 * 1000 if self.ply < 2 else self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
+        self.running = True
+
+    async def countdown(self):
+        while True:
+            while self.secs > 0 and self.running:
+                await asyncio.sleep(1)
+                self.secs -= 1000
+
+            # Time was running out
+            if self.running:
+                if self.game.ply == self.ply:
+                    # let player send FLAG
+                    await asyncio.sleep(5)
+
+                    # If FLAG was not received we have to act
+                    if self.game.status < ABORTED:
+                        if self.ply < 2:
+                            await self.game.update_status(ABORTED)
+                        else:
+                            w, b = self.game.board.insufficient_material()
+                            cur_color = "black" if self.color == BLACK else "white"
+                            if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
+                                result = "1/2-1/2"
+                            else:
+                                result = "1-0" if self.color == BLACK else "0-1"
+                            await self.game.update_status(FLAG, result)
+
+            # After stop() we are just waiting for next restart
+            await asyncio.sleep(1)
+
+
 class Game:
     def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=0, rated=False, chess960=False):
         self.db = app["db"]
@@ -295,6 +346,8 @@ class Game:
             "check": self.check}
         ]
 
+        self.stopwatch = Clock(self)
+
     def create_board(self, variant, initial_fen, chess960):
         if variant == "xiangqi":
             board = XiangqiBoard(initial_fen)
@@ -303,6 +356,8 @@ class Game:
         return board
 
     async def play_move(self, move, clocks=None):
+        self.stopwatch.stop()
+
         if self.status > STARTED:
             return
         elif self.status == CREATED:
@@ -350,11 +405,17 @@ class Game:
                     "turnColor": "black" if self.board.color == BLACK else "white",
                     "check": self.check}
                 )
+
+                self.stopwatch.restart()
+
             except Exception:
                 log.exception("ERROR: Exception in game.play_move()!")
                 raise
 
     async def save_game(self):
+        print("SAVE GAME")
+        self.stopwatch.cancel()
+
         async def remove():
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
@@ -373,7 +434,6 @@ class Game:
             self.tasks.add(loop.create_task(remove()))
             return
 
-        print("SAVE GAME")
         self.print_game()
         await self.db.game.find_one_and_update(
             {"_id": self.id},
