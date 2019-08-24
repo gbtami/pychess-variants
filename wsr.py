@@ -6,8 +6,9 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from fairy import WHITE, BLACK
 from utils import play_move, get_board, start, draw, game_ended, round_broadcast,\
-    new_game, challenge, load_game, User, Seek, STARTED, DRAW, MyWebSocketResponse
+    new_game, challenge, load_game, User, Seek, STARTED, DRAW, MyWebSocketResponse, MORE_TIME
 
 log = logging.getLogger(__name__)
 
@@ -249,7 +250,14 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "moretime":
+                        # TODO: stop and update game stopwatch time with updated secs
                         game = games[data["gameId"]]
+
+                        opp_color = WHITE if user.username == game.bplayer.username else BLACK
+                        if opp_color == game.stopwatch.color:
+                            opp_time = game.stopwatch.stop()
+                            game.stopwatch.restart(opp_time + MORE_TIME)
+
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 

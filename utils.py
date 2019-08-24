@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 
 
 MAX_USER_SEEKS = 10
+MORE_TIME = 15 * 1000
 
 CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
     ABANDONE, CHEAT, NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND = range(-2, 13)
@@ -202,6 +203,7 @@ class Clock:
     """ Check game start and abandoned games time out """
 
     def __init__(self, game):
+        # print("INIT")
         self.game = game
         self.running = False
         self.restart()
@@ -209,33 +211,46 @@ class Clock:
         self.countdown_task = loop.create_task(self.countdown())
 
     def cancel(self):
+        # print("CANCEL")
         self.countdown_task.cancel()
 
     def stop(self):
+        # print("STOP")
         self.running = False
+        return self.secs
 
-    def restart(self):
+    def restart(self, secs=None):
         self.ply = self.game.ply
         self.color = self.game.board.color
-        self.secs = 20 * 1000 if self.ply < 2 else self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
+        if secs is not None:
+            self.secs = secs
+        else:
+            self.secs = 20 * 1000 if self.ply < 2 else self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
         self.running = True
+        # print("RESTART", self.secs)
 
     async def countdown(self):
+        # print("COUNTDOWN")
         while True:
             while self.secs > 0 and self.running:
                 await asyncio.sleep(1)
                 self.secs -= 1000
+                # print("   ", self.secs)
 
             # Time was running out
             if self.running:
                 if self.game.ply == self.ply:
-                    # let player send FLAG
-                    await asyncio.sleep(5)
+                    # print("   wait additional 5secs")
+                    # On lichess rage quit waits 10 seconds
+                    # until the other side gets the win claim,
+                    # and a disconnection gets 120 seconds.
+                    await asyncio.sleep(10)
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED:
                         if self.ply < 2:
                             await self.game.update_status(ABORTED)
+                            print("   ABORTED by server!!!.", )
                         else:
                             w, b = self.game.board.insufficient_material()
                             cur_color = "black" if self.color == BLACK else "white"
@@ -244,6 +259,7 @@ class Clock:
                             else:
                                 result = "1-0" if self.color == BLACK else "0-1"
                             await self.game.update_status(FLAG, result)
+                            print("   FLAG by server!!!", )
 
             # After stop() we are just waiting for next restart
             await asyncio.sleep(1)
