@@ -331,7 +331,7 @@ class LobbyController {
     private onMsgChat = (msg) => {
         if (msg.user !== this.model["username"]) {
             chatMessage(msg.user, msg.message, "lobbychat");
-            sound.chat();
+            if (msg.user.length !== 0 && msg.user !== '_server') sound.chat();
         }
     }
 
