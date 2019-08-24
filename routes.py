@@ -153,10 +153,12 @@ async def index(request):
         view = "players"
 
     # TODO: tv for @player and for variants
-    elif request.path == "/tv" and len(games) > 0:
+    elif request.path == "/tv":
         view = "tv"
-        # TODO: get highest rated game
-        gameId = list(games.keys())[-1]
+        doc = await db.game.find_one({}, sort=[('$natural', -1)])
+        print(doc)
+        if doc is not None:
+            gameId = doc["_id"]
 
     profileId = request.match_info.get("profile")
     if profileId is not None:
