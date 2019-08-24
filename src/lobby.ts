@@ -14,6 +14,7 @@ import { VNode } from 'snabbdom/vnode';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { variants, variants960, VARIANTS } from './chess';
+import { sound } from './sound';
 
 
 class LobbyController {
@@ -328,7 +329,10 @@ class LobbyController {
     }
 
     private onMsgChat = (msg) => {
-        if (msg.user !== this.model["username"]) chatMessage(msg.user, msg.message, "lobbychat");
+        if (msg.user !== this.model["username"]) {
+            chatMessage(msg.user, msg.message, "lobbychat");
+            sound.chat();
+        }
     }
 
     private onMsgFullChat = (msg) => {
