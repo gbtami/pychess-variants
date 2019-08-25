@@ -146,9 +146,10 @@ export default class RoundController {
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
         if (VARIANTS[this.variant].css.length > 1) {
-            this.setPieces(this.mycolor);
+            this.setPieces(this.variant, this.mycolor);
         } else {
-            changeCSS('/static/' + VARIANTS[this.variant].css[0] + '.css');
+            console.log("kell ez?");
+            //changeCSS('/static/' + VARIANTS[this.variant].css[0] + '.css');
         };
 
         this.steps.push({
@@ -274,7 +275,7 @@ export default class RoundController {
             idx = idx % VARIANTS[this.variant].css.length;
             this.CSSindexes[variants.indexOf(this.variant)] = idx
             localStorage.setItem(this.variant + "_pieces", String(idx));
-            this.setPieces(this.mycolor);
+            this.setPieces(this.variant, this.mycolor);
         }
 
         if (VARIANTS[this.variant].css.length > 1) {
@@ -442,20 +443,20 @@ export default class RoundController {
         }
     }
 
-    private setPieces = (color) => {
-        console.log("setPieces()", this.variant, color)
-        var idx = this.CSSindexes[variants.indexOf(this.variant)];
-        idx = Math.min(idx, VARIANTS[this.variant].css.length - 1);
-        switch (this.variant) {
+    private setPieces = (variant, color) => {
+        console.log("setPieces()", variant, color)
+        var idx = this.CSSindexes[variants.indexOf(variant)];
+        idx = Math.min(idx, VARIANTS[variant].css.length - 1);
+        switch (variant) {
         case "capahouse":
         case "capablanca":
         case "seirawan":
         case "shouse":
         case "xiangqi":
-            changeCSS('/static/' + VARIANTS[this.variant].css[idx] + '.css');
+            changeCSS('/static/' + VARIANTS[variant].css[idx] + '.css');
             break;
         case "shogi":
-            var css = VARIANTS[this.variant].css[idx];
+            var css = VARIANTS[variant].css[idx];
             // change shogi piece colors according to board orientation
             if (color === "black") css = css.replace('0', '1');
             changeCSS('/static/' + css + '.css');

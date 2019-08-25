@@ -12,8 +12,10 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { renderUsername } from './user';
-import { VARIANTS } from './chess';
+import { variants, VARIANTS } from './chess';
 import { renderTimeago } from './clock';
+import { changeCSS } from './sound';
+
 
 export function result(status, result) {
     var text = '';
@@ -160,6 +162,16 @@ function observeSentinel(vnode: VNode, model) {
 export function profileView(model): VNode[] {
     renderUsername(model["home"], model["username"]);
     console.log(model);
+
+    const CSSindexes = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
+    Object.keys(VARIANTS).forEach((key) => {
+        const variant = VARIANTS[key];
+        if (variant.css.length > 1) {
+            var idx = CSSindexes[variants.indexOf(variant)];
+            idx = Math.min(idx, VARIANTS[variant].css.length - 1);
+            changeCSS('/static/' + VARIANTS[variant].css[idx] + '.css');
+        };
+    });
 
     return [h('aside.sidebar-first'),
             h('main.main', [

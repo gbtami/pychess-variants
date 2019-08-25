@@ -55,7 +55,7 @@ function toggleOrientation (ctrl) {
 
     if (ctrl.variant === "shogi") {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
-        ctrl.setPieces(color);
+        ctrl.setPieces(ctrl.variant, color);
     };
     
     const name_tmp = ctrl.players[0];
