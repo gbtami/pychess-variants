@@ -167,9 +167,9 @@ export function profileView(model): VNode[] {
     Object.keys(VARIANTS).forEach((key) => {
         const variant = VARIANTS[key];
         if (variant.css.length > 1) {
-            var idx = CSSindexes[variants.indexOf(variant)];
-            idx = Math.min(idx, VARIANTS[variant].css.length - 1);
-            changeCSS('/static/' + VARIANTS[variant].css[idx] + '.css');
+            var idx = CSSindexes[variants.indexOf(key)];
+            idx = Math.min(idx, variant.css.length - 1);
+            changeCSS('/static/' + variant.css[idx] + '.css');
         };
     });
 
