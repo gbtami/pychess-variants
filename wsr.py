@@ -284,12 +284,15 @@ async def round_socket_handler(request):
                         await round_broadcast(game, users, response)
 
                     elif data["type"] == "updateTV":
-                        keys = games.keys()
-                        if len(keys) > 0:
-                            gameId = list(keys)[-1]
-                            if gameId != data["gameId"]:
-                                response = {"type": "updateTV", "gameId": gameId}
-                                await ws.send_json(response)
+                        db = request.app["db"]
+                        doc = await db.game.find_one({}, sort=[('$natural', -1)])
+                        gameId = None
+                        if doc is not None:
+                            gameId = doc["_id"]
+
+                        if gameId != data["gameId"] and gameId is not None:
+                            response = {"type": "updateTV", "gameId": gameId}
+                            await ws.send_json(response)
             else:
                 log.debug("type(msg.data) != str %s" % msg)
         elif msg.type == aiohttp.WSMsgType.ERROR:

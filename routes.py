@@ -156,7 +156,6 @@ async def index(request):
     elif request.path == "/tv":
         view = "tv"
         doc = await db.game.find_one({}, sort=[('$natural', -1)])
-        print(doc)
         if doc is not None:
             gameId = doc["_id"]
 
