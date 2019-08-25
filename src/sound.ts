@@ -3,13 +3,13 @@ class sounds {
     constructor() {
         this.tracks = {
             GenericNotify: { name: 'GenericNotify', qty : 1, pool : [], index : 0},
-            Move: { name: 'Move', qty : 8, pool : [], index : 0},
+            Move: { name: 'Move', qty : 6, pool : [], index : 0},
             Capture: { name: 'Capture', qty : 4, pool : [], index : 0},
             Check: { name: 'Check', qty : 2, pool : [], index : 0},
             Draw: { name: 'Draw', qty : 1, pool : [], index : 0},
             Victory: { name: 'Victory', qty : 1, pool : [], index : 0},
             Defeat: { name: 'Defeat', qty : 1, pool : [], index : 0},
-            ShogiMove: { name: 'komaoto5', qty : 8, pool : [], index : 0},
+            ShogiMove: { name: 'komaoto5', qty : 6, pool : [], index : 0},
             Chat: { name: 'chat', qty : 1, pool : [], index : 0},
         }
 
