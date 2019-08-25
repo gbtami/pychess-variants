@@ -89,9 +89,12 @@ export function roundView(model): VNode[] {
                     ]),
                     ]),
                     h('div#move-controls'),
-                    h('div#movelist'),
-                    h('div#after-game'),
-                    h('div#game-controls'),
+                    h('div#board-styles', [h('div#zoom')] ),
+                    h('div#movelist-block', [
+                        h('div#movelist'),
+                        h('div#after-game'),
+                        h('div#game-controls'),
+                    ]),
                     h('round-player', [
                     h('div.player-data', [
                         h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}),
@@ -117,6 +120,5 @@ export function roundView(model): VNode[] {
             ]),
             h('under-left', "Spectators"),
             h('under-board', [h('div.#under-board')]),
-            h('under-right', [h('div#zoom')]),
         ];
 }

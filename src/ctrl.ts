@@ -20,7 +20,7 @@ import { sound, changeCSS } from './sound';
 import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { movelistView, updateMovelist } from './movelist';
+import { boardStyles, movelistView, updateMovelist } from './movelist';
 import resizeHandle from './resize';
 import { result } from './profile'
 
@@ -58,6 +58,7 @@ export default class RoundController {
     flip: boolean;
     spectator: boolean;
     oppIsRandomMover: boolean;
+    stylesOn: boolean;
     tv: boolean;
     status: number;
     steps;
@@ -111,7 +112,7 @@ export default class RoundController {
         this.ply = 0;
 
         this.flip = false;
-
+        this.stylesOn = false;
         this.CSSindexes = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
@@ -175,6 +176,8 @@ export default class RoundController {
         if (localStorage.zoom !== undefined && localStorage.zoom !== 100) {
             this.setZoom(Number(localStorage.zoom));
         }
+
+        boardStyles(this);
 
         if (this.spectator) {
             this.chessground.set({

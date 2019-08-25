@@ -242,6 +242,13 @@ async def get_players(request):
     return web.json_response([user.as_json for user in users.values()], dumps=partial(json.dumps, default=datetime.isoformat))
 
 
+async def variant(request):
+    variant = request.match_info.get("variant")
+    if variant is not None and variant == "shogi":
+        # TODO: convert .md to .html
+        raise web.HTTPFound("https://github.com/gbtami/pychess-variants/wiki/Shogi-Guide")
+
+
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
@@ -259,6 +266,7 @@ get_routes = (
     ("/api/bot/game/stream/{gameId}", game_stream),
     ("/api/{profileId}/games", get_games),
     ("/api/players", get_players),
+    ("/variant/{variant}", variant),
 )
 
 post_routes = (

@@ -72,6 +72,11 @@ function toggleOrientation (ctrl) {
     }
 }
 
+export function boardStyles (ctrl) {
+    document.getElementById('movelist-block')!.style.display = (ctrl.stylesOn) ? 'none' : 'inline-grid';
+    document.getElementById('board-styles')!.style.display = (ctrl.stylesOn) ? 'inline-grid': 'none';
+}
+
 export function movelistView (ctrl) {
     var container = document.getElementById('move-controls') as HTMLElement;
     ctrl.moveControls = patch(container, h('div.btn-controls', [
@@ -80,6 +85,7 @@ export function movelistView (ctrl) {
             h('button#stepbackward', { on: { click: () => selectMove(ctrl, Math.max(ctrl.ply - 1, 0)) } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
             h('button#stepforward', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
             h('button#fastforward', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
+            h('button#gear', { on: { click: () => {ctrl.stylesOn = !ctrl.stylesOn; boardStyles(ctrl); }} }, [h('i', {props: {title: 'Settings'}, class: {"icon": true, "icon-cog": true} } ), ]),
         ])
     );
     return h('div#moves', [h('ol.movelist#movelist')])
