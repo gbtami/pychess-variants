@@ -9,14 +9,15 @@
     <div id="app"></div>
   </body>
 </html>
-
 <script>
     window.$docsify = {
         el: "#app",
         basePath: '/static/docs',
         homepage: 'About.md',
         loadSidebar: true,
+        alias: {
+            'https://github.com/gbtami/pychess-variants/blob/master/*': 'https://pychess-variants.herokuapp.com/*',
+        }
     }
 </script>
 <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
-<script src="/static/pychess-variants.js"></script>
