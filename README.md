@@ -11,7 +11,8 @@ Besides standard chess the currently supported games are:
 - [Seirawan chess](https://en.wikipedia.org/wiki/Seirawan_chess)
 - [Placement chess](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
 - [Crazyhouse](https://en.wikipedia.org/wiki/Crazyhouse)
-- [Capahouse](https://www.twitch.tv/videos/466253815)
+- [Capahouse (Capablanca+Crazyhouse)](https://www.twitch.tv/videos/466253815)
+- [Shouse (Seirawan+Crazyhouse)](https://www.twitch.tv/videos/469032892)
 
 Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with 
 [Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
