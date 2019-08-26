@@ -12,7 +12,6 @@ import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { playersView } from './players';
 import { profileView } from './profile';
-import { aboutView } from './about';
 
 const model = {home: "", username: "", anon: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", profileid: "", status: ""};
 
@@ -52,7 +51,7 @@ export function view(el, model): VNode {
 
     switch (el.getAttribute("data-view")) {
     case 'about':
-        return h('div#placeholder.about-wrapper', aboutView(model));
+        return h('iframe', {props: {src: model["home"] + "/static/docs/variants.html", height: "100%", width:"100%", seamless: ""}});
     case 'players':
         return h('div#placeholder.players-wrapper', playersView(model));
     case 'profile':

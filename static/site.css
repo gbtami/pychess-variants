@@ -24,6 +24,10 @@ header{
   height: 32px;
 }
 
+iframe {
+  border: none;
+}
+
 .profile-wrapper, .players-wrapper{
   display: grid;
   grid-template-columns: auto 60% auto;
