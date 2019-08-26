@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="92"
+   height="92"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="red_chariot.svg">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10">
+    <filter
+       height="1.5"
+       width="1.5"
+       y="0"
+       x="0"
+       id="f1"
+       color-interpolation-filters="sRGB">
+      <feOffset
+         id="feOffset3039"
+         dy="0"
+         dx="1"
+         in="SourceAlpha"
+         result="offOut" />
+      <feGaussianBlur
+         id="feGaussianBlur3041"
+         stdDeviation="1"
+         in="offOut"
+         result="blurOut" />
+      <!--
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+-->
+    </filter>
+    <linearGradient
+       y2="1"
+       x2="0"
+       y1="0"
+       x1="0"
+       id="grad1">
+      <stop
+         id="stop3034"
+         style="stop-color:rgb(255,255,255);stop-opacity:0.6"
+         offset="20%" />
+      <stop
+         id="stop3036"
+         style="stop-color:rgb(220,0,0);stop-opacity:0.5"
+         offset="50%" />
+    </linearGradient>
+    <linearGradient
+       y2="1"
+       x2="0"
+       y1="0"
+       x1="0"
+       id="grad0">
+      <stop
+         id="stop3029"
+         style="stop-color:rgb(0,0,0);stop-opacity:0.3"
+         offset="20%" />
+      <stop
+         id="stop3031"
+         style="stop-color:rgb(0,0,0);stop-opacity:0.6"
+         offset="100%" />
+    </linearGradient>
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="274.21267,350.55066"
+       end_point="273.50284,477.30227"
+       center_point="273.85776,413.92646"
+       id="path-effect4557-0-4"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="true"
+       oposite_fuse="false" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter23676">
+      <feFlood
+         flood-opacity="1"
+         flood-color="rgb(91,93,90)"
+         result="flood"
+         id="feFlood23666" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite23668" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="0"
+         result="blur"
+         id="feGaussianBlur23670" />
+      <feOffset
+         dx="0"
+         dy="4"
+         result="offset"
+         id="feOffset23672" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite23674" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="5.2444444"
+     inkscape:cx="26.949756"
+     inkscape:cy="51.947349"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:pagecheckerboard="false" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Background"
+     style="display:inline">
+    <g
+       id="g24262"
+       transform="translate(0.6186409,-2.3347435)"
+       style="filter:url(#filter23676)">
+      <g
+         id="g25621">
+        <circle
+           style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:0.32569826;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.48743723;marker:none;enable-background:accumulate"
+           id="circle4376-8-9"
+           cx="45.381359"
+           cy="48.334743"
+           r="40.79224" />
+        <circle
+           r="32.643799"
+           cy="48.334743"
+           cx="45.381359"
+           id="circle24066-6"
+           style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#d40000;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" />
+      </g>
+    </g>
+    <g
+       aria-label="車"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;line-height:1.25;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#d40000;fill-opacity:1;stroke:#d40000;stroke-width:1.11112019;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="text32186"
+       transform="matrix(0.80998676,0,0,1,13.380713,-0.5720339)">
+      <path
+         d="m 60.84375,50.062499 c 0.9375,0 2.048611,0.399306 3.333334,1.197917 1.284722,0.798611 1.927083,1.510416 1.927083,2.135416 0,0.138889 -0.01736,0.243056 -0.05208,0.3125 l -0.625,0.364584 c -10,0.104167 -15.364583,0.173611 -16.09375,0.208333 l -1.71875,0.104167 -0.15625,0.208333 c 0,7.083333 -0.208333,11.440972 -0.625,13.072916 l -0.416667,0.989584 -0.05208,0.104166 c -1.284722,-0.03472 -1.927083,-2.829859 -1.927083,-8.385416 0,-2.1875 0.06944,-4.045139 0.208333,-5.572917 l -0.208333,-0.15625 c -3.298611,0.173611 -6.614584,0.625 -9.947917,1.354167 l -0.900295,0.419602 h -0.104167 c -0.03472,0 -0.104164,0.01736 -0.208333,0.05208 h -0.260417 c -1.388889,0 -2.569444,-0.711806 -3.541666,-2.135416 l 0.3125,-0.364584 14.806545,-1.305018 c 0.104167,-0.416667 0.15625,-1.145833 0.15625,-2.1875 0,-0.138889 -0.01736,-0.399306 -0.05208,-0.78125 v -0.9375 c -0.625,0.03472 -2.309028,0.243053 -5.052083,0.625 l -0.46875,0.833333 -0.05208,0.05208 c -1.388889,-0.138889 -2.326389,-1.302083 -2.8125,-3.489583 l -1.145833,-5.15625 c -0.520833,-1.701389 -1.232639,-3.142361 -2.135417,-4.322916 0.06945,-0.173611 0.208334,-0.329861 0.416667,-0.46875 0.416667,0 1.302083,0.225694 2.65625,0.677083 2.881944,-0.347222 5.677083,-0.815972 8.385416,-1.40625 l 0.104167,-3.541667 -3.958334,0.3125 c -1.701389,-0.03472 -2.8125,-0.451387 -3.333333,-1.25 0.03472,-0.243055 0.277776,-0.399305 0.729167,-0.46875 L 40.114584,31 l 4.375,-0.625 c 0,-1.388889 -0.121528,-2.517362 -0.364583,-3.385417 -0.208333,-0.902778 -0.434028,-1.493056 -0.677084,-1.770833 -0.243055,-0.3125 -0.555555,-0.607639 -0.9375,-0.885417 v -0.46875 c 0.138889,-0.208333 0.503473,-0.451389 1.09375,-0.729167 2.534723,0.347223 4.218751,1.180556 5.052084,2.5 0,0.243056 -0.121528,0.625001 -0.364584,1.145834 -0.208333,0.486111 -0.329861,0.781249 -0.364583,0.885416 l -0.3125,1.875 c 0.590278,-0.03472 1.545139,-0.260414 2.864583,-0.677083 1.319445,-0.416667 2.413195,-0.625 3.28125,-0.625 1.006945,0 1.927084,0.347222 2.760417,1.041667 0,0.451389 -0.434028,0.833333 -1.302084,1.145833 -0.833333,0.3125 -2.499999,0.659722 -4.999999,1.041666 l -2.604167,0.46875 -0.208333,3.59375 7.135416,-0.9375 c 0.381945,-0.03472 0.9375,-0.05208 1.666667,-0.05208 l 2.916666,1.61458 c 0.694445,0.451389 1.215278,0.972223 1.5625,1.5625 0,0.3125 -0.121528,0.572917 -0.364583,0.78125 -0.208333,0.173611 -0.590278,0.555556 -1.145833,1.145834 -0.520833,0.590277 -1.059028,1.423611 -1.614584,2.5 l -2.1875,5.364583 -0.677083,1.09375 c -0.243055,0.243055 -0.763889,0.364583 -1.5625,0.364583 -0.243055,-0.243055 -0.399305,-0.555555 -0.46875,-0.9375 -1.041667,0 -2.743055,0.104167 -5.104166,0.3125 l -0.104167,3.802083 h 0.364583 c 0.972223,0 4.826389,-0.590278 11.5625,-1.770833 0.868055,-0.208333 1.354166,-0.3125 1.458333,-0.3125 z m -8.124999,-13.125 c -0.972223,0 -2.725695,0.190972 -5.260417,0.572917 v 3.28125 l 2.604167,-0.15625 c 0.625,0.03472 1.197917,0.381942 1.71875,1.041667 0,0.381944 -0.05208,0.590277 -0.15625,0.625 l -4.166667,0.625 v 3.541666 c 1.979167,-0.3125 3.107639,-0.46875 3.385417,-0.46875 0.833333,0 1.493055,0.173611 1.979166,0.520833 1.284722,-3.784722 2.03125,-6.857638 2.239583,-9.218749 -0.138889,-0.243056 -0.920138,-0.364584 -2.343749,-0.364584 z m -8.125,10.104167 v -3.697917 l -2.708334,0.3125 c -0.659722,-0.03472 -1.163194,-0.277775 -1.510416,-0.729166 0,-0.347223 0.06944,-0.538195 0.208333,-0.572917 l 0.625,-0.104167 c 0.208333,-0.03472 1.336806,-0.277775 3.385417,-0.729166 v -3.541667 c -2.881945,0.381945 -5.190972,0.868056 -6.927083,1.458333 l 1.041666,5.3125 c 0.173611,1.041667 0.416667,2.048611 0.729167,3.020833 z"
+         id="path37316"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="sssccccccccsccccscscccscccccscccccccccccccccccccccsccccccccccccccccccscsscccccccsccscccccccccccc"
+         style="stroke-width:1.11112019;stroke-miterlimit:4;stroke-dasharray:none" />
+    </g>
+    <path
+       inkscape:connector-curvature="0"
+       id="path37945"
+       d="m 32.149959,38.621819 c -2.604167,3.229167 -4.739583,5.208333 -6.40625,5.9375 h -0.572916 v -0.520834 c 4.791667,-5.312499 8.159722,-9.999999 10.104166,-14.062499 0.694445,-1.25 1.041667,-2.083333 1.041667,-2.5 0,-0.277778 -0.06944,-0.677084 -0.208333,-1.197917 -0.104167,-0.555555 -0.138889,-0.972222 -0.104167,-1.25 l 0.3125,-0.260416 c 1.076389,0.03472 1.979166,0.434025 2.708333,1.197916 0.729167,0.729167 1.145833,1.40625 1.25,2.03125 l -6.822916,9.270833 1.458333,1.510417 c 0.555555,0.555555 0.833333,1.215278 0.833333,1.979167 0,0.06944 -0.05208,0.364583 -0.15625,0.885416 -0.06944,0.520833 -0.156249,1.736111 -0.260416,3.645833 -0.06944,1.875 -0.121528,12.427025 -0.15625,15.829803 0,0.763888 -0.01736,1.302083 -0.05208,1.614583 v 0.625 0.833334 c 0,0.17361 -0.01736,0.468749 -0.05208,0.885416 0,0.381944 -0.01736,0.711805 -0.05208,0.989583 -0.03472,0.243056 -0.0868,0.555556 -0.15625,0.9375 -0.06945,0.347222 -0.15625,0.642361 -0.260417,0.885417 -0.104167,0.243055 -0.225694,0.486111 -0.364583,0.729167 -0.138889,0.208333 -0.312501,0.381944 -0.520834,0.520833 -0.590277,-0.277778 -1.059027,-0.781251 -1.40625,-1.510417 -0.347222,-0.763889 -0.520833,-1.5625 -0.520833,-2.395833 0,-0.243056 0.243056,-1.666667 0.729167,-4.270833 0.520833,-2.638889 0.78125,-13.486052 0.78125,-16.715219 0,-2.083333 -0.381945,-3.958333 -1.145834,-5.625 z"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;line-height:1.25;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#d40000;fill-opacity:1;stroke:#d40000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:nodetypes="cccccscccccccscccccscccscccscscc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Symbol"
+     style="display:inline" />
+</svg>
