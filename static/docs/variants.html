@@ -15,8 +15,14 @@
         basePath: '/static/docs',
         homepage: 'About.md',
         loadSidebar: true,
-        alias: {
-            'https://github.com/gbtami/pychess-variants/blob/master/*': 'https://pychess-variants.herokuapp.com/*',
+        markdown: {
+            renderer: {
+                image: function(href, title) {
+                    const from ='https://github.com/gbtami/pychess-variants/blob/master';
+                    const to = 'https://pychess-variants.herokuapp.com';
+                    return `<img src="${href.replace(from, to)}"/>`
+                }
+            }
         }
     }
 </script>
