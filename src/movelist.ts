@@ -10,6 +10,7 @@ import h from 'snabbdom/h';
 
 import { pocketView } from './pocket';
 import { needPockets } from './chess';
+import { player } from './player';
 
 
 function selectMove (ctrl, ply) {
@@ -50,26 +51,33 @@ function toggleOrientation (ctrl) {
     ctrl.flip = !ctrl.flip;
     ctrl.chessground.toggleOrientation();
 
-    // TODO: players, pockets, clocks, moretime button etc.
-    return;
-
     if (ctrl.variant === "shogi") {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
         ctrl.setPieces(ctrl.variant, color);
     };
     
-    const name_tmp = ctrl.players[0];
-    ctrl.players[0] = ctrl.players[1];
-    ctrl.players[1] = name_tmp;
-
     console.log("FLIP");
     if (needPockets(ctrl.variant)) {
-        const tmp = ctrl.pockets[0];
+        const tmp_pocket = ctrl.pockets[0];
         ctrl.pockets[0] = ctrl.pockets[1];
-        ctrl.pockets[1] = tmp;
+        ctrl.pockets[1] = tmp_pocket;
         ctrl.vpocket0 = patch(ctrl.vpocket0, pocketView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
         ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
     }
+
+    // TODO: moretime button
+    const new_running_clck = (ctrl.clocks[0].running) ? ctrl.clocks[1] : ctrl.clocks[0];
+    ctrl.clocks[0].pause(false);
+    ctrl.clocks[1].pause(false);
+
+    const tmp_clock = ctrl.clocks[0];
+    const tmp_clock_time = tmp_clock.duration;
+    ctrl.clocks[0].setTime(ctrl.clocks[1].duration);
+    ctrl.clocks[1].setTime(tmp_clock_time);
+    if (ctrl.status < 0) new_running_clck.start();
+
+    ctrl.vplayer0 = patch(ctrl.vplayer0, player('player0', ctrl.titles[ctrl.flip ? 1 : 0], ctrl.players[ctrl.flip ? 1 : 0], ctrl.model["level"]));
+    ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.model["level"]));
 }
 
 export function boardStyles (ctrl) {

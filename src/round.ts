@@ -14,20 +14,7 @@ function runGround(vnode: VNode, model) {
 
 export function roundView(model): VNode[] {
     console.log("roundView model=", model);
-    var playerTop, playerBottom, titleTop, titleBottom, dataIcon;
-    dataIcon = VARIANTS[model["variant"]].icon;
-    if (model["username"] !== model["wplayer"] && model["username"] !== model["bplayer"]) {
-        // spectator game view
-        playerTop = model["variant"] === 'shogi' ? model["wplayer"] : model["bplayer"];
-        playerBottom = model["variant"] === 'shogi' ? model["bplayer"] : model["wplayer"];
-        titleTop = model["variant"] === 'shogi' ? model["wtitle"] : model["btitle"];
-        titleBottom = model["variant"] === 'shogi' ? model["btitle"] : model["wtitle"];
-    } else {
-        playerTop = model["username"] === model["wplayer"] ? model["bplayer"] : model["wplayer"];
-        playerBottom = model["username"];
-        titleTop = model["username"] === model["wplayer"] ? model["btitle"] : model["wtitle"];
-        titleBottom = model["username"] === model["wplayer"] ? model["wtitle"] : model["btitle"];
-    }
+    const dataIcon = VARIANTS[model["variant"]].icon;
     renderTimeago();
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
@@ -76,18 +63,7 @@ export function roundView(model): VNode[] {
                 ]),
                 h('div#clock0'),
                 h('div.round-data', [
-                    h('round-player', [
-                    h('div.player-data', [
-                        h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}),
-                        h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + playerTop}}, [
-                                h('player-title', " " + titleTop + " "),
-                                playerTop + ((titleTop === "BOT" && model["level"] > 0) ? ' level ' + model["level"]: ''),
-                            ]),
-                            h('rating', "1500?"),
-                        ]),
-                    ]),
-                    ]),
+                    h('round-player#rplayer0'),
                     h('div#move-controls'),
                     h('div#board-styles', [h('div#zoom')] ),
                     h('div#movelist-block', [
@@ -95,18 +71,7 @@ export function roundView(model): VNode[] {
                         h('div#after-game'),
                         h('div#game-controls'),
                     ]),
-                    h('round-player', [
-                    h('div.player-data', [
-                        h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}),
-                        h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + playerBottom}}, [
-                                h('player-title', " " + titleBottom + " "),
-                                playerBottom + ((titleBottom === "BOT" && model["level"] > 0) ? ' level ' + model["level"]: ''),
-                            ]),
-                            h('rating', "1500?"),
-                        ]),
-                    ]),
-                    ]),
+                    h('round-player#rplayer1'),
                 ]),
                 h('div#clock1'),
                 h('div#pocket-wrapper', [

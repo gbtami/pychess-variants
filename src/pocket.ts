@@ -85,7 +85,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
     return drops.indexOf(key) !== -1;
 }
 
-// TODO: afre 1 move made only 1 pocket update needed at once, no need to update both
+// TODO: after 1 move made only 1 pocket update needed at once, no need to update both
 export function updatePockets(ctrl: RoundController, vpocket0, vpocket1): void {
     // update pockets from fen
     if (needPockets(ctrl.variant)) {

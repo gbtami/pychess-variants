@@ -23,6 +23,7 @@ import { chatMessage, chatView } from './chat';
 import { boardStyles, movelistView, updateMovelist } from './movelist';
 import resizeHandle from './resize';
 import { result } from './profile'
+import { player } from './player';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -46,6 +47,8 @@ export default class RoundController {
     pockets: any;
     vpocket0: any;
     vpocket1: any;
+    vplayer0: any;
+    vplayer1: any;
     gameControls: any;
     moveControls: any;
     gating: any;
@@ -64,6 +67,7 @@ export default class RoundController {
     steps;
     ply: number;
     players: string[];
+    titles: string[];
     CSSindexes: number[];
     clickDrop: Piece | undefined;
 
@@ -84,8 +88,8 @@ export default class RoundController {
                 this.clocks[1].connecting = true;
                 console.log('Reconnecting in round...', e);
 
-                var container = document.getElementById('bottom-player') as HTMLElement;
-                patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+                var container = document.getElementById('player1') as HTMLElement;
+                patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
                 },
             onmaximum: e => console.log('Stop Attempting!', e),
             onclose: e => console.log('Closed!', e),
@@ -134,6 +138,10 @@ export default class RoundController {
         this.players = [
             this.mycolor === "white" ? this.bplayer : this.wplayer,
             this.mycolor === "white" ? this.wplayer : this.bplayer
+        ];
+        this.titles = [
+            this.mycolor === "white" ? this.model['btitle'] : this.model['wtitle'],
+            this.mycolor === "white" ? this.model['wtitle'] : this.model['btitle']
         ];
 
         this.premove = null;
@@ -223,6 +231,12 @@ export default class RoundController {
         this.gating = makeGating(this);
         this.promotion = makePromotion(this);
 
+        // initialize users
+        const player0 = document.getElementById('rplayer0') as HTMLElement;
+        const player1 = document.getElementById('rplayer1') as HTMLElement;
+        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], model["level"]));
+        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], model["level"]));
+
         // initialize pockets
         if (needPockets(this.variant)) {
             const pocket0 = document.getElementById('pocket0') as HTMLElement;
@@ -238,7 +252,8 @@ export default class RoundController {
         this.clocks[1].onTick(renderTime);
 
         const onMoreTime = () => {
-            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator) return;
+            // TODO: enable when this.flip is true
+            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
             this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.model["gameId"] });
             chatMessage('', this.oppcolor + ' +15 seconds', "roundchat");
@@ -844,8 +859,8 @@ export default class RoundController {
             const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
             this.doSend({ type: "is_user_online", username: opp_name });
 
-            var container = document.getElementById('bottom-player') as HTMLElement;
-            patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+            var container = document.getElementById('player1') as HTMLElement;
+            patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
@@ -858,22 +873,22 @@ export default class RoundController {
     private onMsgUserOnline = (msg) => {
         console.log(msg);
         if (msg.username === this.players[0]) {
-            var container = document.getElementById('top-player') as HTMLElement;
-            patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+            var container = document.getElementById('player0') as HTMLElement;
+            patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
         } else {
-            var container = document.getElementById('bottom-player') as HTMLElement;
-            patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+            var container = document.getElementById('player1') as HTMLElement;
+            patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
         }
     }
 
     private onMsgUserDisconnected = (msg) => {
         console.log(msg);
         if (msg.username === this.players[0]) {
-            var container = document.getElementById('top-player') as HTMLElement;
-            patch(container, h('i-side.online#top-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+            var container = document.getElementById('player0') as HTMLElement;
+            patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         } else {
-            var container = document.getElementById('bottom-player') as HTMLElement;
-            patch(container, h('i-side.online#bottom-player', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+            var container = document.getElementById('player1') as HTMLElement;
+            patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         }
     }
 
