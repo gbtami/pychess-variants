@@ -14,7 +14,7 @@ import { Chessground } from 'chessgroundx';
 import { renderUsername } from './user';
 import { variants, VARIANTS } from './chess';
 import { renderTimeago } from './clock';
-import { changeCSS } from './sound';
+import { changeCSS } from './settings';
 
 
 export function result(status, result) {

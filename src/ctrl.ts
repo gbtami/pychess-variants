@@ -10,17 +10,18 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, dimensions } from 'chessgroundx/types';
+import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece } from 'chessgroundx/types';
 
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
-import { sound, changeCSS } from './sound';
+import { sound } from './sound';
 import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { boardStyles, movelistView, updateMovelist } from './movelist';
+import { settingsView } from './settings';
+import { movelistView, updateMovelist } from './movelist';
 import resizeHandle from './resize';
 import { result } from './profile'
 import { player } from './player';
@@ -61,7 +62,7 @@ export default class RoundController {
     flip: boolean;
     spectator: boolean;
     oppIsRandomMover: boolean;
-    stylesOn: boolean;
+    settings: boolean;
     tv: boolean;
     status: number;
     steps;
@@ -116,7 +117,7 @@ export default class RoundController {
         this.ply = 0;
 
         this.flip = false;
-        this.stylesOn = false;
+        this.settings = true;
         this.CSSindexes = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
@@ -154,13 +155,6 @@ export default class RoundController {
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        if (VARIANTS[this.variant].css.length > 1) {
-            this.setPieces(this.variant, this.mycolor);
-        } else {
-            console.log("kell ez?");
-            //changeCSS('/static/' + VARIANTS[this.variant].css[0] + '.css');
-        };
-
         this.steps.push({
             'fen': fen_placement,
             'move': undefined,
@@ -180,12 +174,6 @@ export default class RoundController {
                 insert(elements) {resizeHandle(elements);}
             }
         });
-
-        if (localStorage.zoom !== undefined && localStorage.zoom !== 100) {
-            this.setZoom(Number(localStorage.zoom));
-        }
-
-        boardStyles(this);
 
         if (this.spectator) {
             this.chessground.set({
@@ -279,38 +267,6 @@ export default class RoundController {
         }
         if (!this.spectator) this.clocks[1].onFlag(flagCallback);
 
-        if (Number(this.status) < 0) {
-            console.log("GAME is ONGOING...");
-        } else {
-            console.log("GAME was ENDED...");
-        }
-
-        // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
-
-        const togglePieces = () => {
-            var idx = this.CSSindexes[variants.indexOf(this.variant)];
-            idx += 1;
-            idx = idx % VARIANTS[this.variant].css.length;
-            this.CSSindexes[variants.indexOf(this.variant)] = idx
-            localStorage.setItem(this.variant + "_pieces", String(idx));
-            this.setPieces(this.variant, this.mycolor);
-        }
-
-        if (VARIANTS[this.variant].css.length > 1) {
-            var container = document.getElementById('btn-pieces') as HTMLElement;
-            patch(container, h('button', { on: { click: () => togglePieces() }, props: {title: 'Toggle pieces'} }, [h('i', {class: {"icon": true, "icon-cog": true} } ), ]));
-        }
-
-        var container = document.getElementById('zoom') as HTMLElement;
-        patch(container, h('input', { class: {"slider": true },
-            attrs: { width: '280px', type: 'range', value: Number(localStorage.zoom), min: 60, max: 140 },
-            on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } } })
-        );
-
-        //const onResize = () => {console.log("onResize()");}
-        //var elmnt = document.getElementById('cgwrap') as HTMLElement;
-        //elmnt.addEventListener("resize", onResize);
-
         const abort = () => {
             console.log("Abort");
             this.doSend({ type: "abort", gameId: this.model["gameId"] });
@@ -338,37 +294,15 @@ export default class RoundController {
             this.gameControls = patch(container, h('div'));
         }
 
+        patch(document.getElementById('board-settings') as HTMLElement, settingsView(this));
+
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
-
-// this produces random losed games while doing nothing
-//        window.addEventListener('beforeunload', () => {
-//            if (this.result === '') this.doSend({ type: "abandone", gameId: this.model["gameId"] });
-//        });
-
     }
 
     getGround = () => this.chessground;
     getDests = () => this.dests;
-
-    private setZoom = (zoom: number) => {
-        const el = document.querySelector('.cg-wrap') as HTMLElement;
-        if (el) {
-            const baseWidth = dimensions[VARIANTS[this.variant].geom].width * (this.variant === "shogi" ? 52 : 64);
-            const baseHeight = dimensions[VARIANTS[this.variant].geom].height * (this.variant === "shogi" ? 60 : 64);
-            const pxw = `${zoom / 100 * baseWidth}px`;
-            const pxh = `${zoom / 100 * baseHeight}px`;
-            el.style.width = pxw;
-            el.style.height = pxh;
-
-            document.body.setAttribute('style', '--cgwrapwidth:' + pxw);
-            document.body.setAttribute('style', '--cgwrapheight:' + pxh);
-
-            document.body.dispatchEvent(new Event('chessground.resize'));
-            localStorage.setItem("zoom", String(zoom));
-        }
-    }
 
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);
@@ -458,27 +392,6 @@ export default class RoundController {
     private onMsgUpdateTV = (msg) => {
         if (msg.gameId !== this.model["gameId"]) {
             window.location.assign(this.model["home"] + '/tv');
-        }
-    }
-
-    private setPieces = (variant, color) => {
-        console.log("setPieces()", variant, color)
-        var idx = this.CSSindexes[variants.indexOf(variant)];
-        idx = Math.min(idx, VARIANTS[variant].css.length - 1);
-        switch (variant) {
-        case "capahouse":
-        case "capablanca":
-        case "seirawan":
-        case "shouse":
-        case "xiangqi":
-            changeCSS('/static/' + VARIANTS[variant].css[idx] + '.css');
-            break;
-        case "shogi":
-            var css = VARIANTS[variant].css[idx];
-            // change shogi piece colors according to board orientation
-            if (color === "black") css = css.replace('0', '1');
-            changeCSS('/static/' + css + '.css');
-            break;
         }
     }
 

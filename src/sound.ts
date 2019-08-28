@@ -55,16 +55,3 @@ class sounds {
 }
 
 export const sound = new(sounds);
-
-export function changeCSS(cssFile) {
-    // css file index in template.html
-    var cssLinkIndex = 1;
-    if (cssFile.includes("xiangqi")) {
-        cssLinkIndex = 3;
-    } else if (cssFile.includes("shogi")) {
-        cssLinkIndex = 2;
-    } else if (cssFile.includes("capasei")) {
-        cssLinkIndex = 4;
-    }
-    document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
-}
