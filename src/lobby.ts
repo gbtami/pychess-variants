@@ -229,7 +229,7 @@ class LobbyController {
                 // A.I.Level (1-8 buttons)
                 h('form#ailevel', [
                 h('h4', "A.I. Level"),
-                h('div.radio-group', [
+                h('div.ai-radio-group', [
                     h('input#ai1', { props: { type: "radio", name: "level", value: "1", checked: vLevel === "1" ? "checked" : ""} }),
                     h('label.level-ai.ai1', { attrs: {for: "ai1"} }, "1"),
                     h('input#ai2', { props: { type: "radio", name: "level", value: "2", checked: vLevel === "2" ? "checked" : ""} }),

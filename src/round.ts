@@ -1,5 +1,6 @@
 import { h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
+
 import RoundController from './ctrl';
 import { VARIANTS } from './chess';
 import { timeago, renderTimeago } from './clock';

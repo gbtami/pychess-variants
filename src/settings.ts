@@ -1,4 +1,5 @@
 import { init } from "snabbdom";
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -30,7 +31,7 @@ export function changeCSS(cssFile) {
 }
 
 export function setPieces (CSSindexes, variant, color) {
-    console.log("setPieces()", variant, color)
+    //console.log("setPieces()", variant, color)
     var idx = CSSindexes[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].css.length - 1);
     switch (variant) {
@@ -68,15 +69,6 @@ export function setZoom (ctrl, zoom: number) {
     }
 }
 
-function togglePieces (ctrl) {
-    var idx = ctrl.CSSindexes[variants.indexOf(ctrl.variant)];
-    idx += 1;
-    idx = idx % VARIANTS[ctrl.variant].css.length;
-    ctrl.CSSindexes[variants.indexOf(ctrl.variant)] = idx
-    localStorage.setItem(ctrl.variant + "_pieces", String(idx));
-    setPieces(ctrl.CSSindexes, ctrl.variant, ctrl.mycolor);
-}
-
 // flip
 export function toggleOrientation (ctrl) {
     ctrl.flip = !ctrl.flip;
@@ -111,10 +103,48 @@ export function toggleOrientation (ctrl) {
     ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.model["level"]));
 }
 
+export function gearButton (ctrl) {
+    return h('button#gear', {
+        on: { click: () => toggleBoardSettings(ctrl) },
+        class: {"selected": ctrl.settings} },
+        [h('i', {
+            props: {title: 'Settings'},
+            class: {"icon": true, "icon-cog": true} 
+            }
+        )])
+}
+
 export function toggleBoardSettings (ctrl) {
     ctrl.settings = !ctrl.settings;
+    const el = document.getElementById('gear');
+    if (el instanceof Element) patch(ctrl.vgear, gearButton(ctrl));
     document.getElementById('movelist-block')!.style.display = (ctrl.settings) ? 'none' : 'inline-grid';
     document.getElementById('board-settings')!.style.display = (ctrl.settings) ? 'inline-grid': 'none';
+}
+
+function renderPieces (ctrl) {
+    const variant = ctrl.variant;
+    var vpiece = ctrl.CSSindexes[variants.indexOf(ctrl.variant)];
+    var i;
+    const pieces : VNode[] = [];
+
+    const togglePieces = (e) => {
+        const idx = e.target.value;
+        //console.log("togglePieces()", idx);
+        ctrl.CSSindexes[variants.indexOf(ctrl.variant)] = idx
+        localStorage.setItem(ctrl.variant + "_pieces", String(idx));
+        setPieces(ctrl.CSSindexes, ctrl.variant, ctrl.mycolor);
+    }
+
+    for (i = 0; i < VARIANTS[ctrl.variant].css.length; i++) {
+        pieces.push(h('input#piece' + String(i), {
+            on: { change: togglePieces },
+            props: { type: "radio", name: "piece", value: String(i), checked: vpiece === String(i) ? "checked" : ""}
+            })
+        );
+        pieces.push(h('label.piece.piece' + String(i) + '.' + variant, { attrs: {for: "piece" + String(i)} }, ""));
+    }
+    return pieces;
 }
 
 export function settingsView (ctrl) {
@@ -127,15 +157,12 @@ export function settingsView (ctrl) {
     if (localStorage.zoom !== undefined && localStorage.zoom !== 100) setZoom(ctrl, Number(localStorage.zoom));
 
     return h('div#board-settings', [
-        h('button', {
-            on: { click: () => togglePieces(ctrl) },
-            props: {title: 'Toggle pieces'}
-            },
-            [h('i', {class: {"icon": true, "icon-cog": true} } ), ]
-        ),
-        h('input', {
+        h('div.settings-radio-group', renderPieces(ctrl)),
+        // TODO: how to horizontaly center this?
+        // h('label.zoom', { attrs: {for: "zoom"} }, "Board size"),
+        h('input#zoom', {
             class: {"slider": true },
-            attrs: { width: '280px', type: 'range', value: Number(localStorage.zoom), min: 60, max: 140 },
+            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(localStorage.zoom), min: 60, max: 140 },
             on: { input: (e) => { setZoom(ctrl, parseFloat((e.target as HTMLInputElement).value)); } }
             }
         ),
