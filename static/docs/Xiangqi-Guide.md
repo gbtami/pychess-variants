@@ -1,6 +1,6 @@
 # Xiangqi
 
-![Boards](/directory/Boards.png)
+![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Boards.png)
 
 ## What is Xiangqi?
 
@@ -26,7 +26,7 @@ Xiangqi pieces traditionally have had different names: their Chinese translation
 
 ### King
 
-![Kings](/directory/Kings.png) 
+![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Kings.png) 
 
 The king (also known by its Chinese name, the **general**) can only move one step orthogonally. Additionally, it is confined to the palace.
 
@@ -34,7 +34,7 @@ The king (also known by its Chinese name, the **general**) can only move one ste
 
 ### Advisor
 
-![Advisors](/directory/Advisors.png) 
+![Advisors](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Advisors.png) 
 
 The advisor (also known by its Western name, the **guard**... less commonly a **minister**)  can only move one step along the diagonals of the palace. There are only five positions an advisor can take.
 
@@ -42,7 +42,7 @@ The advisor (also known by its Western name, the **guard**... less commonly a **
 
 ### Elephant
 
- ![Advisors](/directory/Advisors.png)
+ ![Elephants](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Elephants.png)
 
 The elephant (very rarely called by its Western name, the **bishop**) can move diagonally exactly two steps. There are two more restrictions: 1) The elephant can be blocked if there is a piece in between. 2) It cannot cross the river.
 
@@ -50,7 +50,7 @@ On a side note, the Chinese character for the red elephant means “minister,”
 
 ### Horse
 
- ![Horses](/directory/Horses.png)
+ ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Horses.png)
 
 The horse (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked (see the Wikipedia pictures below). Strong moves take advantage of blocking the horse and limiting its movement.
 
@@ -60,11 +60,13 @@ The horse (also called by its Western name, the **knight**) moves almost exactly
 
 ### Chariot
 
- ![Chariots](/directory/Chariots.png)
+ ![Chariots](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Chariots.png)
 
 The chariot (also called by its Western name, the **rook**, and rarely by its literal modern translation, car) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
 
 ### Cannon
+
+![Cannons](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Cannons.png)
 
 The cannon is a unique piece in xiangqi. It can move exactly like the chariot. However, to capture, it needs a piece (friend or foe) in between, called a screen.
 
@@ -72,7 +74,7 @@ The cannon is a unique piece in xiangqi. It can move exactly like the chariot. H
 
 ### Pawn
 
-![Pawns](/directory/Pawns.png)
+![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Cannons.png)
 
 The pawn (also called by its Chinese name, the **soldier**) moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
 
