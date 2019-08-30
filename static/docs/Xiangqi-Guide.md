@@ -109,7 +109,7 @@ R = Cha**R**iot
 P = **P**awn
 
 
-## Where are resources where I can learn Shogi?
+## Where are resources where I can learn Xiangqi?
 
 [Xiangqi in English] (http://www.xqinenglish.com/) is a good place for beginners. The website owner, Jim Png Hau Cheng, has also written several books, the  “Xiangqi Primer” series, which may be a worthwhile investment for serious learners.
 
