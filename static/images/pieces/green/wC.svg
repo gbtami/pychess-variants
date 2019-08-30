@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+	Tábornok (fehér)
+	Készült: white-rook.svg és white-knight.svg felhasználásával
+	Felhasználási feltételek: Nevezd meg! - Így add tovább! (Creative Commons)
+	Uray M. János
+	2013-2017
+-->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="128" height="128" viewBox="0 0 45 45">
+	<!-- huszár: test -->
+	<g transform="translate(+2, -1) scale(0.75)" fill="#FFF" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 22,10 C 32.5,11 38.5,18 38,39 L 25,39 C 13,30 25,32.5 23,18"/>
+	</g>
+	<!-- bástya: alap -->
+	<g transform="translate(+1, +2)" fill="#FFF" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+		<!-- test -->
+		<path d="
+			M 11,18 L 11,13 L 15,13 L 15,15 L 20,15 L 20,13 L 25,13 L 25,15 L 30,15 L 30,13 L 34,13 L 34,18
+			L 31,21 L 31,29.5 L 33,32 L 33,36 L 12,36 L 12,32 L 14,29.5 L 14,21 Z
+		"/>
+		<!-- talp -->
+		<path d="M 9,39 L 36,39 L 36,36 L 9,36 L 9,39 z"/>
+	</g>
+	<!-- bástya: vonalak -->
+	<g transform="translate(+1, +2)" fill="none" stroke="#000" stroke-linecap="round">
+		<line stroke-width="1.2" x1="11" y1="18.0" x2="34" y2="18.0"/>
+		<line stroke-width="0.8" x1="14" y1="21.0" x2="31" y2="21.0"/>
+		<line stroke-width="0.8" x1="14" y1="29.5" x2="31" y2="29.5"/>
+		<line stroke-width="1.2" x1="12" y1="32.0" x2="33" y2="32.0"/>
+	</g>
+	<!-- huszár: fej -->
+	<g transform="translate(+2, -1) scale(0.75)" fill="#FFF" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 24,18 C 24.38,20.91 18.45,25.37 16,27 C 13,29 13.18,31.34 11,31 C 9.958,30.06 12.41,27.96 11,28 C 10,28 11.19,29.23 10,30 C 9,30 5.997,31 6,26 C 6,24 12,14 12,14 C 12,14 13.89,12.1 14,10.5 C 13.27,9.506 13.5,8.5 13.5,7.5 C 14.5,6.5 16.5,10 16.5,10 L 18.5,10 C 18.5,10 19.28,8.008 21,7 C 22,7 22,10 22,10"/>
+	</g>
+	<!-- huszár: vonalak -->
+	<g transform="translate(+2, -1) scale(0.75)" fill="#000" stroke="#000" stroke-width="2" stroke-linejoin="round">
+		<!-- orr -->
+		<path d="M 9.5 25.5 A 0.5,0.5,0 1,1 8.5,25.5 A 0.5,0.5,0 1,1 9.5,25.5 Z"/>
+		<!-- szem -->
+		<path d="M 15.25 14.2 A 0.5,1.5,30 1,1 13.75,16.8 A 0.5,1.5,30 1,1 15.25,14.2 Z"/>
+	</g>
+</svg>

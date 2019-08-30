@@ -9,13 +9,13 @@ export const VARIANTS = {
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "makruk", css: ["makruk"], icon: "R" },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", pieces: "shogi", css: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
-    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "S" },
-    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "H" },
-    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capasei0", "capasei1"], icon: "P" },
-    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "merida", css: ["capasei0", "capasei1"], icon: "P" },
-    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["capasei1", "capasei0"], icon: "L" },
-    shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["capasei1", "capasei0"], icon: "L" },
-    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "merida", css: ["standard"], icon: "M" },
+    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "S" },
+    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "H" },
+    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
+    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
+    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
+    shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
+    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "M" },
 }
 
 export function pocketRoles(variant: string) {

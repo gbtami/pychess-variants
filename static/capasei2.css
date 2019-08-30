@@ -1,0 +1,68 @@
+.standard .cg-wrap piece.archbishop.white {
+  background-image: url('images/pieces/green/wA.svg');
+}
+.standard .cg-wrap piece.cancellor.white {
+  background-image: url('images/pieces/green/wC.svg');
+}
+.standard .cg-wrap piece.hawk.white {
+  background-image: url('images/pieces/green/wA.svg');
+}
+.standard .cg-wrap piece.elephant.white {
+  background-image: url('images/pieces/green/wC.svg');
+}
+.standard .cg-wrap piece.archbishop.black {
+  background-image: url('images/pieces/green/bA.svg');
+}
+.standard .cg-wrap piece.cancellor.black {
+  background-image: url('images/pieces/green/bC.svg');
+}
+.standard .cg-wrap piece.hawk.black {
+  background-image: url('images/pieces/green/bA.svg');
+}
+.standard .cg-wrap piece.elephant.black {
+  background-image: url('images/pieces/green/bC.svg');
+}
+
+.brown .cg-wrap {
+  background-image: url('images/board/brown.svg');
+}
+.capablanca .cg-wrap {
+  background-image: url('images/board/capablanca.svg');
+}
+
+.standard .cg-wrap piece.pawn.white {
+  background-image: url('images/pieces/green/wP.svg');
+}
+.standard .cg-wrap piece.bishop.white {
+  background-image: url('images/pieces/green/wB.svg');
+}
+.standard .cg-wrap piece.knight.white {
+  background-image: url('images/pieces/green/wN.svg');
+}
+.standard .cg-wrap piece.rook.white {
+  background-image: url('images/pieces/green/wR.svg');
+}
+.standard .cg-wrap piece.queen.white {
+  background-image: url('images/pieces/green/wQ.svg');
+}
+.standard .cg-wrap piece.king.white {
+  background-image: url('images/pieces/green/wK.svg');
+}
+.standard .cg-wrap piece.pawn.black {
+  background-image: url('images/pieces/green/bP.svg');
+}
+.standard .cg-wrap piece.bishop.black {
+  background-image: url('images/pieces/green/bB.svg');
+}
+.standard .cg-wrap piece.knight.black {
+  background-image: url('images/pieces/green/bN.svg');
+}
+.standard .cg-wrap piece.rook.black {
+  background-image: url('images/pieces/green/bR.svg');
+}
+.standard .cg-wrap piece.queen.black {
+  background-image: url('images/pieces/green/bQ.svg');
+}
+.standard .cg-wrap piece.king.black {
+  background-image: url('images/pieces/green/bK.svg');
+}

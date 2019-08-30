@@ -680,12 +680,18 @@ label.piece.piece0.seirawan, label.piece.piece0.shouse {
 label.piece.piece1.seirawan, label.piece.piece1.shouse {
   background-image: url('images/pieces/merida/wA.svg');
 }
+label.piece.piece2.seirawan, label.piece.piece2.shouse {
+  background-image: url('images/pieces/green/wA.svg');
+}
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse {
   background-image: url('images/pieces/merida/wA.svg');
 }
 label.piece.piece1.capablanca, label.piece.piece1.capahouse {
   background-image: url('images/pieces/merida/wH.svg');
+}
+label.piece.piece2.capablanca, label.piece.piece2.capahouse {
+  background-image: url('images/pieces/green/wH.svg');
 }
 
 label.piece.piece0.makruk, label.piece.piece0.sittuyin {
@@ -694,6 +700,9 @@ label.piece.piece0.makruk, label.piece.piece0.sittuyin {
 
 label.piece.piece0.placement, label.piece.piece0.crazyhouse, label.piece.piece0.standard {
   background-image: url('images/pieces/merida/wN.svg');
+}
+label.piece.piece1.placement, label.piece.piece1.crazyhouse, label.piece.piece1.standard {
+  background-image: url('images/pieces/green/wN.svg');
 }
 
 /* Chat */

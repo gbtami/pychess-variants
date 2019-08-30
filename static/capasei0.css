@@ -1,24 +1,24 @@
-.merida .cg-wrap piece.archbishop.white {
+.standard .cg-wrap piece.archbishop.white {
   background-image: url('images/pieces/merida/wA.svg');
 }
-.merida .cg-wrap piece.cancellor.white {
+.standard .cg-wrap piece.cancellor.white {
   background-image: url('images/pieces/merida/wC.svg');
 }
-.merida .cg-wrap piece.hawk.white {
+.standard .cg-wrap piece.hawk.white {
   background-image: url('images/pieces/merida/wA.svg');
 }
-.merida .cg-wrap piece.elephant.white {
+.standard .cg-wrap piece.elephant.white {
   background-image: url('images/pieces/merida/wC.svg');
 }
-.merida .cg-wrap piece.archbishop.black {
+.standard .cg-wrap piece.archbishop.black {
   background-image: url('images/pieces/merida/bA.svg');
 }
-.merida .cg-wrap piece.cancellor.black {
+.standard .cg-wrap piece.cancellor.black {
   background-image: url('images/pieces/merida/bC.svg');
 }
-.merida .cg-wrap piece.hawk.black {
+.standard .cg-wrap piece.hawk.black {
   background-image: url('images/pieces/merida/bA.svg');
 }
-.merida .cg-wrap piece.elephant.black {
+.standard .cg-wrap piece.elephant.black {
   background-image: url('images/pieces/merida/bC.svg');
 }

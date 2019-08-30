@@ -35,6 +35,9 @@ export function setPieces (CSSindexes, variant, color) {
     var idx = CSSindexes[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].css.length - 1);
     switch (variant) {
+    case "standard":
+    case "placement":
+    case "crazyhouse":
     case "capahouse":
     case "capablanca":
     case "seirawan":
