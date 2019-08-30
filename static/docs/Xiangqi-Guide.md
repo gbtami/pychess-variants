@@ -38,7 +38,7 @@ The king (also known by its Chinese name, the **general**) can only move one ste
 
 The advisor (also known by its Western name, the **guard**... less commonly a **minister**)  can only move one step along the diagonals of the palace. There are only five positions an advisor can take.
 
-[King and advisor movement](https://upload.wikimedia.org/wikipedia/commons/c/cf/XiangqiJiangShi.png)
+![King and advisor movement](https://upload.wikimedia.org/wikipedia/commons/c/cf/XiangqiJiangShi.png)
 
 ### Elephant
 
