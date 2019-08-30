@@ -2,3 +2,4 @@
 
 * [About](About.md)
 * [Shogi Guide](Shogi-Guide.md)
+* [Xiangqi Guide](Xiangqi-Guide.md)
