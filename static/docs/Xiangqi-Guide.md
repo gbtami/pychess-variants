@@ -74,7 +74,7 @@ The cannon is a unique piece in xiangqi. It can move exactly like the chariot. H
 
 ### Pawn
 
-![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Cannons.png)
+![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Pawns.png)
 
 The pawn (also called by its Chinese name, the **soldier**) moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
 
