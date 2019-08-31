@@ -8,7 +8,7 @@
 
 ## Why learn Xiangqi?
 
-If you enjoy Chess, Xiangqiis definitely worth trying. While slightly slower paced and longer than Chess, the game starts more open and is more geared towards fast-paced play leading to a quick endgame. Compared to Chess, Xiangqi is also far more tactical (as opposed to strategic). As with other chess variants, improving your skill in Xiangqi can also improve your skills in Chess (tactics, in particular) as well as open up new ways of thinking! [See here for more about that.](https://en.chessbase.com/post/why-you-need-to-learn-xiangqi-for-playing-better-chess)
+If you enjoy Chess, Xiangqi is definitely worth trying. While slightly slower paced and longer than Chess, the game starts more open and is more geared towards fast-paced play leading to a quick endgame. Compared to Chess, Xiangqi is also far more tactical (as opposed to strategic). As with other chess variants, improving your skill in Xiangqi can also improve your skills in Chess (tactics, in particular) as well as open up new ways of thinking! [See here for more about that.](https://en.chessbase.com/post/why-you-need-to-learn-xiangqi-for-playing-better-chess)
 
 ## What are the rules of Xiangqi?
 
