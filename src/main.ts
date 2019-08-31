@@ -59,6 +59,8 @@ export function view(el, model): VNode {
     case 'tv':
     case 'round':
         return h('div#placeholder.main-wrapper', roundView(model));
+    case 'thanks':
+        return h('div#placeholder.main-wrapper', h('h2', 'Thank you for your support!'));
     default:
         return h('div#placeholder.main-wrapper', lobbyView(model));
     }

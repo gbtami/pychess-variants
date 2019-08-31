@@ -75,6 +75,11 @@ textarea {
 
 under-right {
   grid-column: 3;
+  grid-row-start: 2;
+  flex:1;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
 }
 
 div.about {
@@ -121,7 +126,7 @@ result {
   text-align: center;
 }
 
-.lobby-button {
+.lobby-button, .donate-button {
   width: 280px;
   background-color: Gray;
   border: none;
@@ -136,6 +141,14 @@ result {
 }
 .lobby-button:hover {
   background-color: LightGray;
+}
+.donate-button {
+  background-color: White;
+  color: GoldenRod;
+}
+.donate-button:hover {
+  background-color: GoldenRod;
+  color: White;
 }
 
 .after-game{

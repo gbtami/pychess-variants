@@ -398,6 +398,11 @@ export function lobbyView(model): VNode[] {
             h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
             h('under-left', "# of users"),
             h('under-lobby'),
-            h('under-right'),
+            h('under-right', [
+                h('a', {
+                    class: {'donate-button': true},
+                    attrs: {href: 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NC73JXRBQNTAN&source=url'}
+                    }, 'Direcly support us')
+            ]),
         ];
 }
