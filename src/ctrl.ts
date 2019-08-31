@@ -210,7 +210,6 @@ export default class RoundController {
                 events: {
                     move: this.onMove(),
                     dropNewPiece: this.onDrop(),
-                    change: this.onChange(this.chessground.state.selected),
                     select: this.onSelect(this.chessground.state.selected),
                 }
             });
@@ -733,16 +732,6 @@ export default class RoundController {
         }
     }
 
-    // use this for sittuyin in place promotion ?
-    // Or implement ondblclick handler to emit move in chessground?
-    // https://www.w3schools.com/jsref/event_ondblclick.asp
-    private onChange = (selected) => {
-        return () => {
-            console.log("   ground.onChange()", selected);
-        }
-    }
-
-    // use this for sittuyin in place promotion ?
     private onSelect = (selected) => {
         return (key) => {
             console.log("   ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
@@ -755,6 +744,23 @@ export default class RoundController {
                 }
                 this.clickDrop = undefined;
                 this.chessground.set({ movable: { dests: this.dests }});
+            };
+            // Sittuyin in place promotion on Ctrl+click
+            if (this.chessground.state.stats.ctrlKey && 
+                (key in this.chessground.state.movable.dests) &&
+                (this.chessground.state.movable.dests[key].indexOf(key) >= 0) &&
+                (this.variant === 'sittuyin')) {
+                console.log("Ctrl in place promotion", key);
+                var pieces = {};
+                var piece = this.chessground.state.pieces[key];
+                pieces[key] = {
+                    color: piece!.color,
+                    role: 'ferz',
+                    promoted: true
+                };
+                this.chessground.setPieces(pieces);
+                this.sendMove(key, key, 'f');
+
             };
         }
     }
