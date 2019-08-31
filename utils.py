@@ -203,7 +203,6 @@ class Clock:
     """ Check game start and abandoned games time out """
 
     def __init__(self, game):
-        # print("INIT")
         self.game = game
         self.running = False
         self.restart()
@@ -211,11 +210,9 @@ class Clock:
         self.countdown_task = loop.create_task(self.countdown())
 
     def cancel(self):
-        # print("CANCEL")
         self.countdown_task.cancel()
 
     def stop(self):
-        # print("STOP")
         self.running = False
         return self.secs
 
@@ -227,20 +224,16 @@ class Clock:
         else:
             self.secs = 20 * 1000 if self.ply < 2 else self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
         self.running = True
-        # print("RESTART", self.secs)
 
     async def countdown(self):
-        # print("COUNTDOWN")
         while True:
             while self.secs > 0 and self.running:
                 await asyncio.sleep(1)
                 self.secs -= 1000
-                # print("   ", self.secs)
 
             # Time was running out
             if self.running:
                 if self.game.ply == self.ply:
-                    # print("   wait additional 5secs")
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
@@ -429,41 +422,35 @@ class Game:
                 raise
 
     async def save_game(self):
-        print("SAVE GAME")
         self.stopwatch.cancel()
 
         async def remove():
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(60)
-            print("REMOVED", )
             del self.games[self.id]
 
         if self.saved:
             return
-        elif self.ply < 3:
-            print("DELETE GAME (too short)", self.board.move_stack)
-            await self.db.game.delete_one({"_id": self.id})
 
-            self.saved = True
-            loop = asyncio.get_event_loop()
-            self.tasks.add(loop.create_task(remove()))
-            return
-
-        self.print_game()
-        await self.db.game.find_one_and_update(
-            {"_id": self.id},
-            {"$set":
-             {"d": self.date,
-              "f": self.board.fen,
-              "s": self.status,
-              "r": R2C[self.result],
-              'm': encode_moves(map(usi2uci, self.board.move_stack) if self.variant == "shogi" else self.board.move_stack)}
-             }
-        )
         self.saved = True
         loop = asyncio.get_event_loop()
         self.tasks.add(loop.create_task(remove()))
+
+        if self.ply < 3:
+            await self.db.game.delete_one({"_id": self.id})
+        else:
+            self.print_game()
+            await self.db.game.find_one_and_update(
+                {"_id": self.id},
+                {"$set":
+                 {"d": self.date,
+                  "f": self.board.fen,
+                  "s": self.status,
+                  "r": R2C[self.result],
+                  'm': encode_moves(map(usi2uci, self.board.move_stack) if self.variant == "shogi" else self.board.move_stack)}
+                 }
+            )
 
     async def update_status(self, status=None, result=None):
         if status is not None:
@@ -621,6 +608,10 @@ async def load_game(app, game_id):
     if variant == "shogi":
         mlist = map(uci2usi, mlist)
 
+    if mlist:
+        print("load_game() game.saved = True")
+        game.saved = True
+
     for move in mlist:
         try:
             san = game.board.get_san(move)
@@ -647,7 +638,6 @@ async def load_game(app, game_id):
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
     game.random_move = ""
-    game.saved = True
     return game
 
 
