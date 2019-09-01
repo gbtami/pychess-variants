@@ -243,6 +243,14 @@ async def get_players(request):
     return web.json_response([user.as_json for user in users.values()], dumps=partial(json.dumps, default=datetime.isoformat))
 
 
+async def variant(request):
+    variant = request.match_info.get("variant")
+
+    template = request.app["jinja"].get_template("variant.html")
+    text = template.render({"variant": variant})
+    return web.Response(text=html_minify(text), content_type="text/html")
+
+
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
@@ -261,6 +269,7 @@ get_routes = (
     ("/api/bot/game/stream/{gameId}", game_stream),
     ("/api/{profileId}/games", get_games),
     ("/api/players", get_players),
+    ("/variant/{variant}", variant),
 )
 
 post_routes = (
