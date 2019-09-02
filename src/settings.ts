@@ -34,23 +34,13 @@ export function setPieces (CSSindexes, variant, color) {
     //console.log("setPieces()", variant, color)
     var idx = CSSindexes[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].css.length - 1);
-    switch (variant) {
-    case "standard":
-    case "placement":
-    case "crazyhouse":
-    case "capahouse":
-    case "capablanca":
-    case "seirawan":
-    case "shouse":
-    case "xiangqi":
-        changeCSS('/static/' + VARIANTS[variant].css[idx] + '.css');
-        break;
-    case "shogi":
+    if (variant === "shogi") {
         var css = VARIANTS[variant].css[idx];
         // change shogi piece colors according to board orientation
         if (color === "black") css = css.replace('0', '1');
         changeCSS('/static/' + css + '.css');
-        break;
+    } else {
+        changeCSS('/static/' + VARIANTS[variant].css[idx] + '.css');
     }
 }
 

@@ -4,6 +4,9 @@
 .capablanca .cg-wrap {
   background-image: url('images/board/capablanca.svg');
 }
+.grand .cg-wrap {
+  background-image: url('images/board/grand.svg');
+}
 
 .standard .cg-wrap piece.pawn.white {
   background-image: url('images/pieces/merida/wP.svg');

@@ -1,7 +1,7 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse"];
+export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand"];
 export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"];
 
 export const VARIANTS = {
@@ -13,6 +13,7 @@ export const VARIANTS = {
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "H" },
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
     capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
+    grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
     standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "M" },
@@ -50,7 +51,7 @@ function promotionZone(variant: string, color: string) {
     }
 }
 
-export function promotionRoles(variant: string, role: Role) {
+export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key, promotions) {
     switch (variant) {
     case "capahouse":
     case "capablanca":
@@ -60,11 +61,24 @@ export function promotionRoles(variant: string, role: Role) {
         return ["queen", "knight", "rook", "bishop", "elephant", "hawk"];
     case "shogi":
         return ["p" + role, role];
+    case "grand":
+        var roles: Role[] = [];
+        const moves = promotions.map((move) => move.slice(0, -1));
+        promotions.forEach((move) => {
+            const prole = sanToRole[move.slice(-1)];
+            if (moves.indexOf(orig + dest) !== -1 && roles.indexOf(prole) === -1) {
+                roles.push(prole);
+            }
+        });
+        // promotion is optional except on back ranks
+        if ((dest[1] !== "9") && (dest[1] !== "0")) roles.push(role);
+        return roles;
     default:
         return ["queen", "knight", "rook", "bishop"];
     }
 }
 
+// TODO: grand chess mandatoryPromotion when promotion happens on back rank
 export function mandatoryPromotion(role: Role, dest: Key, color: Color) {
     switch (role) {
     case "pawn":
@@ -90,7 +104,7 @@ export function needPockets(variant: string) {
 }
 
 export function hasEp(variant: string) {
-    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse'
+    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand'
 }
 
 function diff(a: number, b:number):number {
@@ -198,20 +212,23 @@ export function canGate(fen, piece, orig, dest, meta) {
     return [ph, pe, pq, pr, pb, pn];
 }
 
-export function isPromotion(variant, piece, orig, dest, meta) {
+export function isPromotion(variant, piece, orig, dest, meta, promotions) {
     if (variant === 'xiangqi') return false;
     const pz = promotionZone(variant, piece.color)
     switch (variant) {
     case 'shogi':
         return ['king', 'gold', 'ppawn', 'pknight', 'pbishop', 'prook', 'psilver', 'plance'].indexOf(piece.role) === -1
-            && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1)
+            && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1);
     case 'sittuyin':
         // See https://vdocuments.net/how-to-play-myanmar-traditional-chess-eng-book-1.html
         const firstRankIs0 = false;
         const dm = diagonalMove(key2pos(orig, firstRankIs0), key2pos(dest, firstRankIs0));
-        return piece.role === "pawn" && ( orig === dest || (!meta.captured && dm))
+        return piece.role === "pawn" && ( orig === dest || (!meta.captured && dm));
+    case 'grand':
+        // TODO: we can use this for other variants also
+        return promotions.map((move) => move.slice(0, -1)).indexOf(orig + dest) !== -1;
     default:
-        return piece.role === "pawn" && pz.indexOf(dest) !== -1
+        return piece.role === "pawn" && pz.indexOf(dest) !== -1;
     }
 }
 
@@ -231,6 +248,7 @@ export function uci2usi(move) {
 }
 
 export function usi2uci(move) {
+    console.log("usi2uci()", move);
     const parts = move.split("");
     if (parts[1] === "*") {
         parts[1] = "@";
@@ -243,6 +261,32 @@ export function usi2uci(move) {
         parts[3] = String.fromCharCode(parts[3].charCodeAt() - 48)
     }
     return parts.join("");
+}
+
+export function zero2grand(move) {
+    const parts = move.split("");
+    parts[1] = String(Number(parts[1]) + 1);
+    parts[3] = String(Number(parts[3]) + 1);
+    return parts.join("");
+}
+
+export function grand2zero(move) {
+    // cut off promotion piece letter
+    var promo = '';
+    if ('0123456789'.indexOf(move.slice(-1)) === -1) {
+        promo = move.slice(-1);
+        move = move.slice(0, -1);
+    }
+    const parts = move.split("");
+    if ('0123456789'.indexOf(parts[2]) !== -1) {
+        parts[1] = String(Number(parts[1] + parts[2]) -1);
+        parts[4] = String(Number(move.slice(4)) - 1);
+        return parts[0] + parts[1] + parts[3] + parts[4] + promo;
+    } else {
+        parts[1] = String(Number(parts[1]) -1);
+        parts[3] = String(Number(move.slice(3)) - 1);
+        return parts[0] + parts[1] + parts[2] + parts[3] + promo;
+    }
 }
 
 export const roleToSan = {

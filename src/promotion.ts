@@ -17,13 +17,14 @@ export default function(ctrl) {
 
     function start(orig, dest, meta) {
         const ground = ctrl.getGround();
-        if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta)) {
+        if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta, ctrl.promotions)) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;
             const movingRole = ground.state.pieces[dest].role;
-            roles = promotionRoles(ctrl.variant, movingRole);
+            roles = promotionRoles(ctrl.variant, movingRole, orig, dest, ctrl.promotions);
 
             switch (ctrl.variant) {
+            // TODO: in grand chess use mandatoryPromotion when promotion happens on back rank
             case "shogi":
                 if (mandatoryPromotion(movingRole, dest, color)) {
                     promote(ground, dest, 'p' + ground.state.pieces[dest].role);
@@ -88,7 +89,18 @@ export default function(ctrl) {
         if (promoting) {
             draw_no_promo();
             const promoted = promote(ctrl.getGround(), promoting.dest, role);
-            const promo = ctrl.variant === "shogi" ? promoted ? "+" : "" : roleToSan[role].toLowerCase();
+            let promo;
+
+            switch (ctrl.variant) {
+            case "shogi":
+                promo = promoted ? "+" : "";
+                break;
+            case "grand":
+                promo = promoted ? roleToSan[role].toLowerCase() : "";
+                break;
+            default:
+                promo = roleToSan[role].toLowerCase();
+            };
             if (promoting.callback) promoting.callback(promoting.orig, promoting.dest, promo);
             promoting = false;
         }

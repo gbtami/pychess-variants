@@ -43,6 +43,7 @@ VARIANTS = (
     "capahouse",
     "seirawan",
     "shouse",
+    "grand",
 )
 
 VARIANTS960 = {
@@ -73,6 +74,27 @@ def uci2usi(move):
         return "%s*%s%s" % (move[0], chr(ord(move[2]) - 48), chr(ord(move[3]) + 48))
     else:
         return "%s%s%s%s%s" % (chr(ord(move[0]) - 48), chr(ord(move[1]) + 48), chr(ord(move[2]) - 48), chr(ord(move[3]) + 48), move[4] if len(move) == 5 else "")
+
+
+def grand2zero(move):
+    if move[-1].isdigit():
+        # normal move
+        if move[2].isdigit():
+            return "%s%s%s%s" % (move[0], int(move[1:3]) - 1, move[3], int(move[4:]) - 1)
+        else:
+            return "%s%s%s%s" % (move[0], int(move[1]) - 1, move[2], int(move[3:]) - 1)
+    else:
+        # promotion
+        promo = move[-1]
+        move = move[:-1]
+        if move[2].isdigit():
+            return "%s%s%s%s%s" % (move[0], int(move[1:3]) - 1, move[3], int(move[4:]) - 1, promo)
+        else:
+            return "%s%s%s%s%s" % (move[0], int(move[1]) - 1, move[2], int(move[3:]) - 1, promo)
+
+
+def zero2grand(move):
+    return "%s%s%s%s%s" % (move[0], int(move[1]) + 1, move[2], int(move[3]) + 1, move[4] if len(move) == 5 else "")
 
 
 class Seek:
@@ -286,6 +308,7 @@ class Game:
             "movetime": 0
         }]
         self.dests = {}
+        self.promotions = []
         self.lastmove = None
         self.check = False
         self.status = CREATED
@@ -401,7 +424,7 @@ class Game:
         if self.status != FLAG:
             try:
                 san = self.board.get_san(move)
-                self.lastmove = (move[0:2], move[2:4])
+                self.lastmove = move
                 self.board.push(move)
                 self.ply_clocks.append(clocks)
                 self.set_dests()
@@ -414,7 +437,6 @@ class Game:
                     "turnColor": "black" if self.board.color == BLACK else "white",
                     "check": self.check}
                 )
-
                 self.stopwatch.restart()
 
             except Exception:
@@ -448,7 +470,10 @@ class Game:
                   "f": self.board.fen,
                   "s": self.status,
                   "r": R2C[self.result],
-                  'm': encode_moves(map(usi2uci, self.board.move_stack) if self.variant == "shogi" else self.board.move_stack)}
+                  'm': encode_moves(
+                      map(usi2uci, self.board.move_stack) if self.variant == "shogi"
+                      else map(grand2zero, self.board.move_stack) if self.variant == "grand"
+                      else self.board.move_stack)}
                  }
             )
 
@@ -495,6 +520,7 @@ class Game:
         # print("-----------------------------------------------------------")
         # print(self.board.print_pos())
         dests = {}
+        promotions = []
         moves = self.board.legal_moves()
 
         if self.random_mover:
@@ -503,14 +529,21 @@ class Game:
         for move in moves:
             if self.variant == "shogi":
                 move = usi2uci(move)
+            elif self.variant == "grand":
+                move = grand2zero(move)
             source, dest = move[0:2], move[2:4]
             if source in dests:
                 dests[source].append(dest)
             else:
                 dests[source] = [dest]
+
+            if not move[-1].isdigit():
+                promotions.append(move)
+
         # print(dests)
         # print("-----------------------------------------------------------")
         self.dests = dests
+        self.promotions = promotions
 
     def print_game(self):
         print(self.pgn)
@@ -605,12 +638,15 @@ async def load_game(app, game_id):
     game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")))
 
     mlist = decode_moves(doc["m"])
-    if variant == "shogi":
-        mlist = map(uci2usi, mlist)
 
     if mlist:
         print("load_game() game.saved = True")
         game.saved = True
+
+    if variant == "shogi":
+        mlist = map(uci2usi, mlist)
+    elif variant == "grand":
+        mlist = map(zero2grand, mlist)
 
     for move in mlist:
         try:
@@ -630,7 +666,7 @@ async def load_game(app, game_id):
 
     if len(game.steps) > 1:
         move = game.steps[-1]["move"]
-        game.lastmove = (move[0:2], move[2:4])
+        game.lastmove = move
 
     level = doc.get("x")
     game.date = doc["d"]
@@ -797,6 +833,7 @@ def get_board(games, data, full=False):
             "lastMove": game.lastmove,
             "steps": steps,
             "dests": game.dests,
+            "promo": game.promotions,
             "check": game.check,
             "ply": game.ply,
             "clocks": {"black": clocks["black"], "white": clocks["white"]},

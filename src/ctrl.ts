@@ -17,7 +17,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, VARIANTS } from './chess';
+import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -55,6 +55,7 @@ export default class RoundController {
     gating: any;
     promotion: any;
     dests: Dests;
+    promotions: string[];
     lastmove: Key[];
     premove: any;
     predrop: any;
@@ -403,6 +404,8 @@ export default class RoundController {
         this.ply = msg.ply
         this.fullfen = msg.fen;
         this.dests = msg.dests;
+        // list of legal promotion moves
+        this.promotions = msg.promo;
         const clocks = msg.clocks;
 
         const parts = msg.fen.split(" ");
@@ -421,7 +424,7 @@ export default class RoundController {
             if (msg.ply === this.steps.length) {
                 const step = {
                     'fen': msg.fen,
-                    'move': msg.lastMove[0] + msg.lastMove[1],
+                    'move': msg.lastMove,
                     'check': msg.check,
                     'turnColor': this.turnColor,
                     'san': msg.steps[0].san,
@@ -438,9 +441,14 @@ export default class RoundController {
         }
 
         var lastMove = msg.lastMove;
-        if (lastMove !== null && this.variant === "shogi") {
-            lastMove = usi2uci(lastMove[0] + lastMove[1]);
-            lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
+        if (lastMove !== null) {
+            if (this.variant === "shogi") {
+                lastMove = usi2uci(lastMove);
+                lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
+            } else if (this.variant === "grand") {
+                lastMove = grand2zero(lastMove);
+                lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
+            }
         }
         // drop lastMove causing scrollbar flicker,
         // so we remove from part to avoid that
@@ -538,10 +546,11 @@ export default class RoundController {
 
     goPly = (ply) => {
         const step = this.steps[ply];
-        var move = step.move
+        var move = step['move'];
         var capture = false;
         if (move !== undefined) {
             if (this.variant === "shogi") move = usi2uci(move);
+            if (this.variant === "grand") move = grand2zero(move);
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
@@ -587,7 +596,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
-        const move = this.variant === "shogi" ? uci2usi(uci_move) : uci_move;
+        const move = this.variant === "shogi" ? uci2usi(uci_move) : this.variant === "grand" ? zero2grand(uci_move) : uci_move;
         // console.log("sendMove(move)", move);
         // TODO: if premoved, send 0 time
         let bclock, clocks;

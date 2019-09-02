@@ -29,6 +29,10 @@
   height: 11.11%;
   width: 11.11%;
 }
+.cg-640-640 #extension_choice square {
+  height: 10%;
+  width: 10%;
+}
 #extension_choice piece {
   pointer-events: auto;
   top: 0;

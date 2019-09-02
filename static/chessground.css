@@ -44,6 +44,16 @@
   width: 288px;
   height: 320px;
 }
+/* 10x10 */
+.cg-wrap.cg-640-640 {
+  width: 640px;
+  height: 640px;
+}
+.cg-wrap.cg-640-640.mini {
+  width: 320px;
+  height: 320px;
+}
+
 cg-board {
   position: absolute;
   top: 0;
@@ -76,6 +86,10 @@ cg-board square {
 }
 .cg-576-640 cg-board square{
   width: 11.11%;
+  height: 10%;
+}
+.cg-640-640 cg-board square{
+  width: 10%;
   height: 10%;
 }
 
@@ -133,6 +147,10 @@ cg-board square.current-premove {
 }
 .cg-wrap.cg-576-640 piece{
   width: 11.11%;
+  height: 10%;
+}
+.cg-wrap.cg-640-640 piece{
+  width: 10%;
   height: 10%;
 }
 
