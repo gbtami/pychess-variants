@@ -60,7 +60,7 @@
   white-space: nowrap;
   display: flex;
 }
-.shogi .pocket, .capahouse .pocket, .shouse .pocket {
+.shogi .pocket, .capahouse .pocket, .shouse .pocket, .grandhouse .pocket {
   width: 380px;
 }
 .pocket.top {
@@ -76,7 +76,7 @@
   position: relative!important;
   background-position: center;
 }
-.shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece {
+.shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece, .grandhouse .pocket piece {
   flex: 0 0 14.29%;
 }
 .pocket.usable piece:first-child:hover {

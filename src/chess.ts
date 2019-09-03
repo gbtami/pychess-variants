@@ -1,7 +1,7 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand"];
+export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse"];
 export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"];
 
 export const VARIANTS = {
@@ -14,6 +14,7 @@ export const VARIANTS = {
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
     capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
     grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
+    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
     standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "M" },
@@ -25,6 +26,7 @@ export function pocketRoles(variant: string) {
         return ["rook", "knight", "silver", "ferz", "king"];
     case "crazyhouse":
         return ["pawn", "knight", "bishop", "rook", "queen"];
+    case "grandhouse":
     case "capahouse":
         return ["pawn", "knight", "bishop", "rook", "queen", "archbishop", "cancellor"];
     case "shogi":
@@ -61,6 +63,7 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
         return ["queen", "knight", "rook", "bishop", "elephant", "hawk"];
     case "shogi":
         return ["p" + role, role];
+    case "grandhouse":
     case "grand":
         var roles: Role[] = [];
         const moves = promotions.map((move) => move.slice(0, -1));
@@ -100,11 +103,11 @@ export function mandatoryPromotion(role: Role, dest: Key, color: Color) {
 }
 
 export function needPockets(variant: string) {
-    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant === 'shogi' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse'
+    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant === 'shogi' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse';
 }
 
 export function hasEp(variant: string) {
-    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand'
+    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse';
 }
 
 function diff(a: number, b:number):number {
@@ -224,6 +227,7 @@ export function isPromotion(variant, piece, orig, dest, meta, promotions) {
         const firstRankIs0 = false;
         const dm = diagonalMove(key2pos(orig, firstRankIs0), key2pos(dest, firstRankIs0));
         return piece.role === "pawn" && ( orig === dest || (!meta.captured && dm));
+    case 'grandhouse':
     case 'grand':
         // TODO: we can use this for other variants also
         return promotions.map((move) => move.slice(0, -1)).indexOf(orig + dest) !== -1;
@@ -265,7 +269,9 @@ export function usi2uci(move) {
 
 export function zero2grand(move) {
     const parts = move.split("");
-    parts[1] = String(Number(parts[1]) + 1);
+    if (parts[1] !== "@") {
+        parts[1] = String(Number(parts[1]) + 1);
+    }
     parts[3] = String(Number(parts[3]) + 1);
     return parts.join("");
 }
@@ -278,6 +284,10 @@ export function grand2zero(move) {
         move = move.slice(0, -1);
     }
     const parts = move.split("");
+
+    if (parts[1] === '@') {
+        return parts[0] + parts[1] + parts[2] + String(Number(move.slice(3)) - 1);
+    }
     if ('0123456789'.indexOf(parts[2]) !== -1) {
         parts[1] = String(Number(parts[1] + parts[2]) -1);
         parts[4] = String(Number(move.slice(4)) - 1);

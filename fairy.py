@@ -6,6 +6,7 @@ from collections import Counter
 
 try:
     import pyffish as sf
+    sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     print("No pyffish module installed!")
 
@@ -223,4 +224,10 @@ if __name__ == '__main__':
         board.push(move)
         board.print_pos()
         print(board.fen)
+    print(board.legal_moves())
+
+    FEN = "r8r/1nbqkcabn1/ppppppp1pp/10/9P/10/10/PPPPPPPPp1/1NBQKC2N1/R5RAB1[p] b - - 0 5"
+    board = FairyBoard("grandhouse", initial_fen=FEN)
+    print(board.fen)
+    board.print_pos()
     print(board.legal_moves())

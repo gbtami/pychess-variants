@@ -443,7 +443,7 @@ export default class RoundController {
             if (this.variant === "shogi") {
                 lastMove = usi2uci(lastMove);
                 lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
-            } else if (this.variant === "grand") {
+            } else if (this.variant === "grand" || this.variant === "grandhouse") {
                 lastMove = grand2zero(lastMove);
                 lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
             }
@@ -548,7 +548,7 @@ export default class RoundController {
         var capture = false;
         if (move !== undefined) {
             if (this.variant === "shogi") move = usi2uci(move);
-            if (this.variant === "grand") move = grand2zero(move);
+            if (this.variant === "grand" || this.variant === "grandhouse") move = grand2zero(move);
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
@@ -594,7 +594,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
-        const move = this.variant === "shogi" ? uci2usi(uci_move) : this.variant === "grand" ? zero2grand(uci_move) : uci_move;
+        const move = this.variant === "shogi" ? uci2usi(uci_move) : (this.variant === "grand" || this.variant === "grandhouse") ? zero2grand(uci_move) : uci_move;
         // console.log("sendMove(move)", move);
         // TODO: if premoved, send 0 time
         let bclock, clocks;
@@ -688,7 +688,7 @@ export default class RoundController {
             meta.captured = {role: "pawn"};
         };
         // increase pocket count
-        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "shogi") && meta.captured) {
+        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "grandhouse" || this.variant === "shogi") && meta.captured) {
             var role = meta.captured.role
             if (meta.captured.promoted) role = this.variant === "shogi" ? meta.captured.role.slice(1) as Role : "pawn";
 

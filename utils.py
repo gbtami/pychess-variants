@@ -44,6 +44,7 @@ VARIANTS = (
     "seirawan",
     "shouse",
     "grand",
+    "grandhouse",
 )
 
 VARIANTS960 = {
@@ -77,6 +78,9 @@ def uci2usi(move):
 
 
 def grand2zero(move):
+    if move[1] == "@":
+        return "%s@%s%s" % (move[0], move[2], int(move[3:]) - 1)
+
     if move[-1].isdigit():
         # normal move
         if move[2].isdigit():
@@ -94,6 +98,8 @@ def grand2zero(move):
 
 
 def zero2grand(move):
+    if move[1] == "@":
+        return "%s@%s%s" % (move[0], move[2], int(move[3:]) + 1)
     return "%s%s%s%s%s" % (move[0], int(move[1]) + 1, move[2], int(move[3]) + 1, move[4] if len(move) == 5 else "")
 
 
@@ -472,7 +478,7 @@ class Game:
                   "r": R2C[self.result],
                   'm': encode_moves(
                       map(usi2uci, self.board.move_stack) if self.variant == "shogi"
-                      else map(grand2zero, self.board.move_stack) if self.variant == "grand"
+                      else map(grand2zero, self.board.move_stack) if self.variant == "grand" or self.variant == "grandhouse"
                       else self.board.move_stack)}
                  }
             )
@@ -529,7 +535,7 @@ class Game:
         for move in moves:
             if self.variant == "shogi":
                 move = usi2uci(move)
-            elif self.variant == "grand":
+            elif self.variant == "grand" or self.variant == "grandhouse":
                 move = grand2zero(move)
             source, dest = move[0:2], move[2:4]
             if source in dests:
@@ -644,7 +650,7 @@ async def load_game(app, game_id):
 
     if variant == "shogi":
         mlist = map(uci2usi, mlist)
-    elif variant == "grand":
+    elif variant == "grand" or variant == "grandhouse":
         mlist = map(zero2grand, mlist)
 
     for move in mlist:
