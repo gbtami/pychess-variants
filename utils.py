@@ -640,7 +640,6 @@ async def load_game(app, game_id):
     mlist = decode_moves(doc["m"])
 
     if mlist:
-        print("load_game() game.saved = True")
         game.saved = True
 
     if variant == "shogi":

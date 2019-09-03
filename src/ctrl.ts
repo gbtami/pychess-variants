@@ -397,8 +397,6 @@ export default class RoundController {
 
     private onMsgBoard = (msg) => {
         if (msg.gameId !== this.model["gameId"]) return;
-        // Game aborted.
-        if (msg["status"] === 0) return;
 
         // console.log("got board msg:", msg);
         this.ply = msg.ply
