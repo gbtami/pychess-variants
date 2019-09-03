@@ -14,7 +14,7 @@ export const VARIANTS = {
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
     capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
     grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
-    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
+//    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
     standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "M" },

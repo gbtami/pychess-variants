@@ -44,7 +44,7 @@ VARIANTS = (
     "seirawan",
     "shouse",
     "grand",
-    "grandhouse",
+#    "grandhouse",
 )
 
 VARIANTS960 = {
