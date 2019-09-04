@@ -6,7 +6,7 @@
   "author": "Bajusz Tamás",
   "license": "GPL-3.0",
   "dependencies": {
-    "chessgroundx": "^7.6.13",
+    "chessgroundx": "^7.6.14",
     "snabbdom": "^0.7",
     "sockette": "^2.0"
   },

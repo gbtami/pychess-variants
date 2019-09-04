@@ -7,6 +7,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { Color } from 'chessgroundx/types';
+import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
 import { roleToSan, needPockets, pocketRoles, lc } from './chess';
 import RoundController from './ctrl';
@@ -53,8 +54,11 @@ export function drag(ctrl: RoundController, e: cg.MouchEvent): void {
     if (ctrl.clickDrop !== undefined && role === ctrl.clickDrop.role) {
         ctrl.clickDrop = undefined;
         ctrl.chessground.selectSquare(null);
+        cancelDropMode(ctrl.chessground.state);
         return;
-    }
+    } else {
+        setDropMode(ctrl.chessground.state, number !== '0' ? { color, role } : undefined);
+    };
 
     // Show possible drop dests on my turn only not to mess up predrop
     if (ctrl.turnColor === ctrl.mycolor) {

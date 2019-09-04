@@ -47,11 +47,20 @@ export default function(ctrl) {
                 ctrl.sendMove(orig, dest, 'f');
                 break;
             default:
-                draw_promo(dest, color, orientation);
-                promoting = {
-                    orig: orig,
-                    dest: dest,
-                    callback: ctrl.sendMove,
+                // in grand chess promotion on back rank is mandatory
+                // and sometimes only one choice exists
+                if (roles.length === 1) {
+                    const role = roles[0];
+                    const promo = roleToSan[role].toLowerCase();
+                    promote(ground, dest, role);
+                    ctrl.sendMove(orig, dest, promo);
+                } else {
+                    draw_promo(dest, color, orientation);
+                    promoting = {
+                        orig: orig,
+                        dest: dest,
+                        callback: ctrl.sendMove,
+                    };
                 };
             };
             return true;
@@ -95,6 +104,7 @@ export default function(ctrl) {
             case "shogi":
                 promo = promoted ? "+" : "";
                 break;
+            case "grandhouse":
             case "grand":
                 promo = promoted ? roleToSan[role].toLowerCase() : "";
                 break;

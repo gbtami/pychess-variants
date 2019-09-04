@@ -11,6 +11,7 @@ import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece } from 'chessgroundx/types';
+import { cancelDropMode } from 'chessgroundx/drop';
 
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
@@ -641,7 +642,7 @@ export default class RoundController {
 
     private setPremove = (orig, dest, meta) => {
         this.premove = { orig, dest, meta };
-        console.log("setPremove() to:", orig, dest, meta);
+        // console.log("setPremove() to:", orig, dest, meta);
     }
 
     private unsetPremove = () => {
@@ -650,7 +651,7 @@ export default class RoundController {
 
     private setPredrop = (role, key) => {
         this.predrop = { role, key };
-        console.log("setPredrop() to:", role, key);
+        // console.log("setPredrop() to:", role, key);
     }
 
     private unsetPredrop = () => {
@@ -676,7 +677,7 @@ export default class RoundController {
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
         const geom = this.chessground.state.geometry;
-        console.log("ground.onUserMove()", orig, dest, meta, pieces);
+        // console.log("ground.onUserMove()", orig, dest, meta, pieces);
         const moved = pieces[dest] as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
         if (meta.captured === undefined && moved.role === "pawn" && orig[0] != dest[0] && hasEp(this.variant)) {
@@ -712,6 +713,7 @@ export default class RoundController {
     private onUserDrop = (role, dest) => {
         // console.log("ground.onUserDrop()", role, dest);
         // decrease pocket count
+        cancelDropMode(this.chessground.state);
         if (dropIsValid(this.dests, role, dest)) {
             if (this.flip) {
                 this.pockets[0][role]--;
@@ -750,6 +752,7 @@ export default class RoundController {
                     this.onUserDrop(this.clickDrop.role, key);
                 }
                 this.clickDrop = undefined;
+                cancelDropMode(this.chessground.state);
                 this.chessground.set({ movable: { dests: this.dests }});
             };
             // Sittuyin in place promotion on Ctrl+click
