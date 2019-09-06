@@ -54,8 +54,7 @@ export function setZoom (ctrl, zoom: number) {
         el.style.width = pxw;
         el.style.height = pxh;
 
-        document.body.setAttribute('style', '--cgwrapwidth:' + pxw);
-        document.body.setAttribute('style', '--cgwrapheight:' + pxh);
+        document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh);
 
         document.body.dispatchEvent(new Event('chessground.resize'));
         localStorage.setItem("zoom", String(zoom));

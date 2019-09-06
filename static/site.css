@@ -65,13 +65,15 @@ under-left {
 }
 under-board {
   grid-column: 2;
-  width: (--cgwrapwidth);
+  width: calc(var(--cgwrapwidth));
 }
 textarea {
-  width: 100%;
+  width: calc(var(--cgwrapwidth));
   resize: none;
 }
-
+div#pgn {
+  width: calc(var(--cgwrapwidth));
+}
 under-right {
   grid-column: 3;
   grid-row-start: 2;
