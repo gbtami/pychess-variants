@@ -447,11 +447,10 @@ export default class RoundController {
         if (lastMove !== null) {
             if (this.variant === "shogi") {
                 lastMove = usi2uci(lastMove);
-                lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
             } else if (this.variant === "grand" || this.variant === "grandhouse") {
                 lastMove = grand2zero(lastMove);
-                lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
             }
+            lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
         }
         // drop lastMove causing scrollbar flicker,
         // so we remove from part to avoid that
