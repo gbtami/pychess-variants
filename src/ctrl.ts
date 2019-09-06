@@ -51,6 +51,7 @@ export default class RoundController {
     vpocket1: any;
     vplayer0: any;
     vplayer1: any;
+    vpng: any;
     gameControls: any;
     moveControls: any;
     gating: any;
@@ -68,6 +69,7 @@ export default class RoundController {
     tv: boolean;
     status: number;
     steps;
+    pgn: string;
     ply: number;
     players: string[];
     titles: string[];
@@ -116,6 +118,7 @@ export default class RoundController {
         this.status = model["status"] as number;
         this.tv = model["tv"];
         this.steps = [];
+        this.pgn = "";
         this.ply = 0;
 
         this.flip = false;
@@ -381,11 +384,12 @@ export default class RoundController {
             if (container instanceof Element) patch(container, h('extension'));
 
             // TODO: move this to (not implemented yet) analysis page
-            var container = document.getElementById('under-board') as HTMLElement;
-            patch(container, h('under-board', [h('textarea', { attrs: { rows: 13} }, msg.pgn)]));
+            this.pgn = msg.pgn;
+            var container = document.getElementById('pgn') as HTMLElement;
+            this.vpng = patch(container, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13} }, msg.pgn)]));
 
             if (this.tv) {
-                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.model["gameId"] });}, 2000);
+                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.model["gameId"], profileId: this.model["profileid"] });}, 2000);
             }
         }
     }
@@ -580,6 +584,9 @@ export default class RoundController {
             }
         }
         this.ply = ply
+
+        //var container = document.getElementById('pgn') as HTMLElement;
+        this.vpng = patch(this.vpng, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13} }, this.pgn)]));
     }
 
     private doSend = (message) => {
@@ -628,7 +635,7 @@ export default class RoundController {
     private onDrop = () => {
         return (piece, dest) => {
             console.log("ground.onDrop()", piece, dest);
-            if (dest != "a0" && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 if (this.variant === "shogi") {
                     sound.shogimove();
                 } else {
@@ -746,7 +753,7 @@ export default class RoundController {
             console.log("   ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
             // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests === undefined) return;
-            if (key != "a0" && "a0" in this.chessground.state.movable.dests) {
+            if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
                 if (this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
                     this.chessground.newPiece(this.clickDrop, key);
                     this.onUserDrop(this.clickDrop.role, key);

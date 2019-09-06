@@ -285,7 +285,8 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "updateTV":
                         db = request.app["db"]
-                        doc = await db.game.find_one({}, sort=[('$natural', -1)])
+                        query_filter = {"us": data["profileId"]} if "profileId" in data else {}
+                        doc = await db.game.find_one(query_filter, sort=[('$natural', -1)])
                         gameId = None
                         if doc is not None:
                             gameId = doc["_id"]

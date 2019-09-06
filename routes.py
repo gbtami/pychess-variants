@@ -153,7 +153,6 @@ async def index(request):
         view = "players"
     elif request.path == "/patron/thanks":
         view = "thanks"
-    # TODO: tv for @player and for variants
     elif request.path == "/tv":
         view = "tv"
         doc = await db.game.find_one({}, sort=[('$natural', -1)])
@@ -163,6 +162,14 @@ async def index(request):
     profileId = request.match_info.get("profile")
     if profileId is not None:
         view = "profile"
+        if request.path[-3:] == "/tv":
+            view = "tv"
+            # TODO: tv for @player and for variants
+            # same filter is needed in wsr.py
+            # elif data["type"] == "updateTV":
+            doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
+            if doc is not None:
+                gameId = doc["_id"]
 
     # Do we have gameId in request url?
     if gameId is not None:
@@ -260,6 +267,7 @@ get_routes = (
     ("/tv", index),
     (r"/{gameId:\w{8}}", index),
     ("/@/{profile}", index),
+    ("/@/{profile}/tv", index),
     ("/patron/thanks", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
