@@ -164,9 +164,7 @@ async def index(request):
         view = "profile"
         if request.path[-3:] == "/tv":
             view = "tv"
-            # TODO: tv for @player and for variants
-            # same filter is needed in wsr.py
-            # elif data["type"] == "updateTV":
+            # TODO: tv for variants
             doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
             if doc is not None:
                 gameId = doc["_id"]

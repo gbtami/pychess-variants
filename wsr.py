@@ -285,12 +285,11 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "updateTV":
                         db = request.app["db"]
-                        query_filter = {"us": data["profileId"]} if "profileId" in data else {}
+                        query_filter = {"us": data["profileId"]} if "profileId" in data and data["profileId"] != "" else {}
                         doc = await db.game.find_one(query_filter, sort=[('$natural', -1)])
                         gameId = None
                         if doc is not None:
                             gameId = doc["_id"]
-
                         if gameId != data["gameId"] and gameId is not None:
                             response = {"type": "updateTV", "gameId": gameId}
                             await ws.send_json(response)
