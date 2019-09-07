@@ -92,8 +92,7 @@ async def login(request):
     session["country"] = user.country
     session["first_name"] = user.first_name
     session["last_name"] = user.last_name
-    # TODO: get it via licehess API
-    session["title"] = ""
+    session["title"] = user.gender
 
     if user.username:
         db = request.app["db"]
@@ -159,7 +158,7 @@ async def index(request):
         if doc is not None:
             gameId = doc["_id"]
 
-    profileId = request.match_info.get("profile")
+    profileId = request.match_info.get("profileId")
     if profileId is not None:
         view = "profile"
         if request.path[-3:] == "/tv":
@@ -248,6 +247,21 @@ async def get_players(request):
     return web.json_response([user.as_json for user in users.values()], dumps=partial(json.dumps, default=datetime.isoformat))
 
 
+async def export(request):
+    db = request.app["db"]
+    profileId = request.match_info.get("profileId")
+
+    game_list = []
+    if profileId is not None:
+        cursor = db.game.find({"us": profileId})
+        async for doc in cursor:
+            print("loading game", doc["_id"])
+            game = await load_game(request.app, doc["_id"])
+            game_list.append(game.pgn)
+    pgn = "\n".join(game_list)
+    return web.Response(text=pgn, content_type="text/pgn")
+
+
 async def variant(request):
     variant = request.match_info.get("variant")
 
@@ -264,8 +278,8 @@ get_routes = (
     ("/players", index),
     ("/tv", index),
     (r"/{gameId:\w{8}}", index),
-    ("/@/{profile}", index),
-    ("/@/{profile}/tv", index),
+    ("/@/{profileId}", index),
+    ("/@/{profileId}/tv", index),
     ("/patron/thanks", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
@@ -276,6 +290,7 @@ get_routes = (
     ("/api/{profileId}/games", get_games),
     ("/api/players", get_players),
     ("/variant/{variant}", variant),
+    ("/games/export/{profileId}", export),
 )
 
 post_routes = (

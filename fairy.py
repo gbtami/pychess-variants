@@ -24,6 +24,8 @@ class FairyBoard:
         self.move_stack = []
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
         self.fen = self.initial_fen
+        if chess960 and initial_fen==self.start_fen(variant):
+            self.chess960 = False
 
     def start_fen(self, variant, chess960=False):
         # pyffish gives internal color representation for shogi

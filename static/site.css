@@ -395,6 +395,21 @@ table#seeks {
 player-head {
   font-size: 24px;
 }
+.i-tv, .i-dl {
+  float: right;
+  padding: 0px 4px 0px 4px;
+  color: #505050;
+  text-decoration: none;
+}
+
+a.i-tv:link, a.i-dl:link {
+    display: inline-block;
+    text-decoration: none;
+}
+a.i-tv:hover, a.i-dl:hover {
+    color: RoyalBlue;
+}
+
 table#games, table#players {
   width: 100%;
   border-collapse: collapse;

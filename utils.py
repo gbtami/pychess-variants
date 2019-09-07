@@ -53,6 +53,7 @@ VARIANTS960 = {
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse960",
     "seirawan": "Seirawan960",
+    "shogi": "shogi",
 }
 
 

@@ -175,7 +175,15 @@ export function profileView(model): VNode[] {
 
     return [h('aside.sidebar-first'),
             h('main.main', [
-                h('player-head', model["profileid"]),
+                h('player-head', [
+                    model["profileid"],
+                    h('a.i-dl', {
+                        attrs: {href: '/games/export/' + model["profileid"], "download": model["profileid"] + '.pgn'},
+                        class: {"icon": true, "icon-download": true}}),
+                    h('a.i-tv', {
+                        attrs: {href: '/@/' + model["profileid"] + '/tv'},
+                        class: {"icon": true, "icon-tv": true}}),
+                    ]),
                 h('table#games'),
                 h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) }})
             ]),
