@@ -255,9 +255,12 @@ async def export(request):
     if profileId is not None:
         cursor = db.game.find({"us": profileId})
         async for doc in cursor:
-            print("loading game", doc["_id"])
-            game = await load_game(request.app, doc["_id"])
-            game_list.append(game.pgn)
+            try:
+                print("loading game", doc["_id"])
+                game = await load_game(request.app, doc["_id"])
+                game_list.append(game.pgn)
+            except Exception:
+                log.error("Failed to load game %s" % doc["_id"])
     pgn = "\n".join(game_list)
     return web.Response(text=pgn, content_type="text/pgn")
 
