@@ -728,10 +728,10 @@ label.piece.piece0.makruk {
 }
 
 label.piece.piece0.sittuyin {
-  background-image: url('images/pieces/sittuyin/wk.svg');
+  background-image: url('images/pieces/makruk/wk.svg');
 }
 label.piece.piece1.sittuyin {
-  background-image: url('images/pieces/makruk/wk.svg');
+  background-image: url('images/pieces/sittuyin/wk.svg');
 }
 
 label.piece.piece0.placement, label.piece.piece0.crazyhouse, label.piece.piece0.standard {
