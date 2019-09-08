@@ -11,12 +11,12 @@ export const VARIANTS = {
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "S" },
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "H" },
-    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
-    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "P" },
-    grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
-    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capasei0", "capasei1", "capasei2"], icon: "G" },
-    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
-    shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["capasei1", "capasei0", "capasei2"], icon: "L" },
+    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capa0", "capa1", "capa2"], icon: "P" },
+    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "standard", css: ["capa0", "capa1", "capa2"], icon: "P" },
+    grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capa0", "capa1", "capa2"], icon: "G" },
+    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "standard", css: ["capa0", "capa1", "capa2"], icon: "G" },
+    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["seir1", "seir0", "seir2"], icon: "L" },
+    shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["seir1", "seir0", "seir2"], icon: "L" },
     standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "M" },
 }
 

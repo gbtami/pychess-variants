@@ -24,12 +24,14 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 3;
     } else if (cssFile.includes("shogi")) {
         cssLinkIndex = 2;
-    } else if (cssFile.includes("capasei")) {
+    } else if (cssFile.includes("capa")) {
         cssLinkIndex = 4;
     } else if (cssFile.includes("makruk")) {
         cssLinkIndex = 5;
     } else if (cssFile.includes("sittuyin")) {
         cssLinkIndex = 6;
+    } else if (cssFile.includes("seir")) {
+        cssLinkIndex = 7;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

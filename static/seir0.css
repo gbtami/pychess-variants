@@ -1,0 +1,12 @@
+.standard .cg-wrap piece.hawk.white {
+  background-image: url('images/pieces/merida/wA.svg');
+}
+.standard .cg-wrap piece.elephant.white {
+  background-image: url('images/pieces/merida/wC.svg');
+}
+.standard .cg-wrap piece.hawk.black {
+  background-image: url('images/pieces/merida/bA.svg');
+}
+.standard .cg-wrap piece.elephant.black {
+  background-image: url('images/pieces/merida/bC.svg');
+}

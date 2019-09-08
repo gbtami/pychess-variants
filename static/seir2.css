@@ -1,20 +1,8 @@
-.standard .cg-wrap piece.archbishop.white {
-  background-image: url('images/pieces/green/wA.svg');
-}
-.standard .cg-wrap piece.cancellor.white {
-  background-image: url('images/pieces/green/wC.svg');
-}
 .standard .cg-wrap piece.hawk.white {
   background-image: url('images/pieces/green/wA.svg');
 }
 .standard .cg-wrap piece.elephant.white {
   background-image: url('images/pieces/green/wC.svg');
-}
-.standard .cg-wrap piece.archbishop.black {
-  background-image: url('images/pieces/green/bA.svg');
-}
-.standard .cg-wrap piece.cancellor.black {
-  background-image: url('images/pieces/green/bC.svg');
 }
 .standard .cg-wrap piece.hawk.black {
   background-image: url('images/pieces/green/bA.svg');
