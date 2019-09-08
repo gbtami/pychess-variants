@@ -26,6 +26,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 2;
     } else if (cssFile.includes("capasei")) {
         cssLinkIndex = 4;
+    } else if (cssFile.includes("makruk")) {
+        cssLinkIndex = 5;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

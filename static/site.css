@@ -723,7 +723,14 @@ label.piece.piece2.capablanca, label.piece.piece2.capahouse, label.piece.piece2.
   background-image: url('images/pieces/green/wH.svg');
 }
 
-label.piece.piece0.makruk, label.piece.piece0.sittuyin {
+label.piece.piece0.makruk {
+  background-image: url('images/pieces/makruk/wk.svg');
+}
+
+label.piece.piece0.sittuyin {
+  background-image: url('images/pieces/sittuyin/wk.svg');
+}
+label.piece.piece1.sittuyin {
   background-image: url('images/pieces/makruk/wk.svg');
 }
 
