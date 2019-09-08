@@ -7,7 +7,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { Color } from 'chessgroundx/types';
-import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
+//import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
 import { roleToSan, needPockets, pocketRoles, lc } from './chess';
 import RoundController from './ctrl';
@@ -54,15 +54,16 @@ export function drag(ctrl: RoundController, e: cg.MouchEvent): void {
     if (ctrl.clickDrop !== undefined && role === ctrl.clickDrop.role) {
         ctrl.clickDrop = undefined;
         ctrl.chessground.selectSquare(null);
-        cancelDropMode(ctrl.chessground.state);
+        //cancelDropMode(ctrl.chessground.state);
         return;
     } else {
-        setDropMode(ctrl.chessground.state, number !== '0' ? { color, role } : undefined);
+        //setDropMode(ctrl.chessground.state, number !== '0' ? { color, role } : undefined);
     };
 
     // Show possible drop dests on my turn only not to mess up predrop
     if (ctrl.turnColor === ctrl.mycolor) {
         const dropDests = { 'z0': ctrl.dests[roleToSan[role] + "@"] };
+        console.log("     new piece to z0", role);
         ctrl.chessground.newPiece({"role": role, "color": color}, 'z0')
         ctrl.chessground.set({
             turnColor: color,
@@ -80,7 +81,6 @@ export function drag(ctrl: RoundController, e: cg.MouchEvent): void {
 }
 
 export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
-    // console.log("dropDests:", dests, role, key)
     const drops = dests[roleToSan[role] + "@"];
     // console.log("drops:", drops)
 

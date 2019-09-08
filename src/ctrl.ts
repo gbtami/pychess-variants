@@ -11,7 +11,7 @@ import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece } from 'chessgroundx/types';
-import { cancelDropMode } from 'chessgroundx/drop';
+//import { cancelDropMode } from 'chessgroundx/drop';
 
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
@@ -719,7 +719,7 @@ export default class RoundController {
     private onUserDrop = (role, dest) => {
         // console.log("ground.onUserDrop()", role, dest);
         // decrease pocket count
-        cancelDropMode(this.chessground.state);
+        //cancelDropMode(this.chessground.state);
         if (dropIsValid(this.dests, role, dest)) {
             if (this.flip) {
                 this.pockets[0][role]--;
@@ -749,7 +749,7 @@ export default class RoundController {
 
     private onSelect = (selected) => {
         return (key) => {
-            console.log("   ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
+            console.log("ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
             // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests === undefined) return;
             if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
@@ -758,7 +758,7 @@ export default class RoundController {
                     this.onUserDrop(this.clickDrop.role, key);
                 }
                 this.clickDrop = undefined;
-                cancelDropMode(this.chessground.state);
+                //cancelDropMode(this.chessground.state);
                 this.chessground.set({ movable: { dests: this.dests }});
             };
             // Sittuyin in place promotion on Ctrl+click
