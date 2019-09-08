@@ -6,7 +6,7 @@ export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"]
 
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", pieces: "makruk", css: ["makruk"], icon: "Q"},
-    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "makruk", css: ["makruks", "makruk"], icon: "R" },
+    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "makruk", css: ["makruk", "makruks"], icon: "R" },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", pieces: "shogi", css: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "S" },
