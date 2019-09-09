@@ -722,6 +722,9 @@ label.piece.piece1.capablanca, label.piece.piece1.capahouse, label.piece.piece1.
 label.piece.piece2.capablanca, label.piece.piece2.capahouse, label.piece.piece2.grand, label.piece.piece2.grandhouse {
   background-image: url('images/pieces/green/wH.svg');
 }
+label.piece.piece3.capablanca, label.piece.piece3.capahouse, label.piece.piece3.grand, label.piece.piece3.grandhouse {
+  background-image: url('images/pieces/merida/WA2.svg');
+}
 
 label.piece.piece0.makruk {
   background-image: url('images/pieces/makruk/wk.svg');
