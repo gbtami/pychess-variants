@@ -712,6 +712,9 @@ label.piece.piece1.seirawan, label.piece.piece1.shouse {
 label.piece.piece2.seirawan, label.piece.piece2.shouse {
   background-image: url('images/pieces/green/wA.svg');
 }
+label.piece.piece3.seirawan, label.piece.piece3.shouse {
+  background-image: url('images/pieces/merida/WA2.svg');
+}
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse {
   background-image: url('images/pieces/merida/wA.svg');
