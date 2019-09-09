@@ -45,14 +45,26 @@
      id="namedview8365"
      showgrid="false"
      inkscape:zoom="1.8838088"
-     inkscape:cx="58.213227"
-     inkscape:cy="71.853102"
+     inkscape:cx="90.548069"
+     inkscape:cy="51.876304"
      inkscape:window-x="2873"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg8363" />
+     inkscape:current-layer="g31148" />
   <defs
      id="defs8357">
+    <linearGradient
+       id="linearGradient32556"
+       inkscape:collect="always">
+      <stop
+         id="stop32552"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1;" />
+      <stop
+         id="stop32554"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:1" />
+    </linearGradient>
     <linearGradient
        id="linearGradient31137"
        inkscape:collect="always">
@@ -136,7 +148,7 @@
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient31127"
+       xlink:href="#linearGradient32556"
        id="linearGradient31129"
        x1="55.605984"
        y1="79.224815"
