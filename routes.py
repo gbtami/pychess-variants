@@ -92,7 +92,7 @@ async def login(request):
     session["country"] = user.country
     session["first_name"] = user.first_name
     session["last_name"] = user.last_name
-    session["title"] = user.gender
+    session["title"] = user.gender if user.gender is not None else ""
 
     if user.username:
         db = request.app["db"]
