@@ -9,6 +9,12 @@ from functools import partial
 
 from aiohttp.web import WebSocketResponse
 
+try:
+    import pyffish as sf
+    sf.set_option("VariantPath", "variants.ini")
+except ImportError:
+    print("No pyffish module installed!")
+
 from fairy import FairyBoard, WHITE, BLACK
 from xiangqi import XiangqiBoard
 
@@ -54,7 +60,14 @@ VARIANTS960 = {
     "crazyhouse": "Crazyhouse960",
     "seirawan": "Seirawan960",
     "shogi": "shogi",
+    "sittuyin": "sittuyin",
+    "makruk": "makruk",
+    "placement": "placement",
+    "grand": "grand",
 }
+
+STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+SHOGI_FEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
 
 
 class MyWebSocketResponse(WebSocketResponse):
@@ -846,3 +859,35 @@ def get_board(games, data, full=False):
             "pgn": game.pgn if game.status > STARTED else "",
             "rm": game.random_move,
             }
+
+
+def pgn(doc):
+    mlist = decode_moves(doc["m"])
+    variant = C2V[doc["v"]]
+    chess960 = bool(int(doc.get("z"))) if "z" in doc else False
+
+    if variant == "shogi":
+        mlist = list(map(uci2usi, mlist))
+    elif variant == "grand" or variant == "grandhouse":
+        mlist = list(map(zero2grand, mlist))
+
+    if variant != "xiangqi":
+        fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else sf.start_fen(variant)
+        mlist = sf.get_san_moves(variant, fen, mlist, chess960)
+
+    moves = " ".join((move if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, move) for ind, move in enumerate(mlist) if ind > 0))
+    no_setup = doc["f"] == STANDARD_FEN and not chess960
+    return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
+        "PyChess casual game",
+        URI + "/" + doc["_id"],
+        doc["d"].strftime("%Y.%m.%d"),
+        doc["us"][0],
+        doc["us"][1],
+        C2R[doc["r"]],
+        doc["b"] * 60,
+        doc["i"],
+        variant.capitalize() if not chess960 else VARIANTS960[variant],
+        moves,
+        C2R[doc["r"]],
+        fen="" if no_setup else '[FEN "%s"]\n' % doc["f"],
+        setup="" if no_setup else '[SetUp "1"]\n')

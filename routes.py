@@ -14,7 +14,7 @@ from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong
-from utils import load_game, User
+from utils import load_game, pgn, User
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from compress import C2V, C2R
@@ -256,13 +256,11 @@ async def export(request):
         cursor = db.game.find({"us": profileId})
         async for doc in cursor:
             try:
-                print("loading game", doc["_id"])
-                game = await load_game(request.app, doc["_id"])
-                game_list.append(game.pgn)
+                game_list.append(pgn(doc))
             except Exception:
-                log.error("Failed to load game %s" % doc["_id"])
-    pgn = "\n".join(game_list)
-    return web.Response(text=pgn, content_type="text/pgn")
+                log.error("Failed to load game %s %s" % (doc["_id"], C2V[doc["v"]]))
+    pgn_text = "\n".join(game_list)
+    return web.Response(text=pgn_text, content_type="text/pgn")
 
 
 async def variant(request):
