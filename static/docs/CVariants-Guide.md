@@ -147,4 +147,4 @@ Pending
 
 ## X-house
 
-All of the above three variants above also have crazyhouse variants (Capahouse, Grandhouse, S-house). As with Crazyhouse, players now have the ability to drop a piece on their turn. Both the base variant and crazyhouse rules apply. The major exception is in Grand Chess, where a pawn cannot be dropped on the final three ranks.
+All of the above three variants above also have crazyhouse variants: **Capahouse**, **Grandhouse**, and **S-house**. As with Crazyhouse, players now have the ability to drop a piece on their turn. Both the base variant and crazyhouse rules apply. The major exception is in Grand Chess, where a pawn cannot be dropped on the final three ranks.
