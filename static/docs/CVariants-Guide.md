@@ -45,7 +45,12 @@ As above, drops can be performed with captured pieces. This would be in lieu of 
 
 ### Strategy
 
-Pending
+Strategy [as on Lichess](https://lichess.org/variant/crazyhouse)
+
+* Pawns and knights increase in relative importance in Crazyhouse, while rooks, queens, and bishops decrease in relative importance. If a king is put in check by any of the latter three pieces, from two or more squares away, dropping a pawn next to the king becomes defensively useful. A knight, on the other hand, cannot be blocked by anything and its offensive value is more manifest. That piece can be used effectively to maintain a strategic influence over a region.
+* After an early exchange of queens, it is usually unwise to reintroduce the queen too soon, particularly if she can be harassed by dropped minor pieces. Careful preparation is needed in order to reintroduce the queen to maximum effect
+* Pawns could be dropped deep in the enemy position where, for example, they can fork pieces or give an uncomfortable check.
+* Initiative is paramount.
 
 ## Placement Chess
 
