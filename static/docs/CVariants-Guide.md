@@ -142,13 +142,15 @@ Seirawan Chess was created by Yasser Seirawan and Bruce Harper in 2007.
 
 ### Rules
 
-Unlike the above variants, this is played on a standard 8 x 8 board. The **elephant** is the rook/knight hybrid, while the **hawk** is the bishop/knight hybrid. Both of these pieces instead start off the board, although they are not to be dropped as in Crazyhouse. Instead, when a piece in a player’s first rank moves, these pieces may optionally come into the square evacuated by that piece. For castling, the extra pieces can enter either of the original king or rook squares.
+Unlike the above variants, this is played on a standard 8 x 8 board. The **elephant** is the rook/knight hybrid, while the **hawk** is the bishop/knight hybrid. Both of these pieces instead start off the board, although they are not to be dropped as in Crazyhouse. Instead, when a piece in a player’s first rank moves for the first time, these pieces may optionally come into the square evacuated by that piece. If all first rank pieces have moved or been captured, then any remaining elephant or hawk cannot be entered into play. For castling, the extra pieces can enter either of the original king or rook squares.
 
 Pawns can also promote to elephants and hawks.
 
 ### Strategy
 
-Pending
+Per Yasser Seirawan, protecting the king is even more important in this game because a ranged attack by a back rank piece such as the queen, bishop, or rook, can immediately be supported by an incoming hawk or elephant, in some cases leading to checkmate! 
+
+More strategy pending.
 
 ## X-house
 
