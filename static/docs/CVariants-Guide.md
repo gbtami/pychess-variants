@@ -108,7 +108,9 @@ The game is played on a 10 x 8 board, with additional files for the new Archbish
 
 ### Strategy
 
-Pending
+One should not simply make just developing moves. You can afford to lag in development so long as you are working on controling key squares. Quality over quantity.
+
+More strategy pending.
 
 ## Grand Chess
 
@@ -132,7 +134,9 @@ In addition to the pieces and setup, there are three other significant differenc
 
 ### Strategy
 
-Pending
+One should not simply make just developing moves. You can afford to lag in development so long as you are working on controling key squares. Quality over quantity.
+
+More strategy pending.
 
 ## Seirawan Chess (S-Chess, SHARPER Chess)
 
@@ -154,4 +158,4 @@ More strategy pending.
 
 ## X-house
 
-All of the above three variants above also have crazyhouse variants: **Capahouse**, **Grandhouse**, and **S-house**. As with Crazyhouse, players now have the ability to drop a piece on their turn. Both the base variant and crazyhouse rules apply. The major exception is in Grand Chess, where a pawn cannot be dropped on the final three ranks.
+All of the above three variants above also have crazyhouse variants: **Capahouse**, **Grandhouse**, and **S-house**. As with Crazyhouse, players now have the ability to drop a piece on their turn. Both the base variant and crazyhouse rules apply. The major exception is in Grand Chess, where a pawn cannot be dropped on the final three ranks. Due to how new these variants are, the knowledge bank for strategy is very limited at this time.
