@@ -62,9 +62,9 @@ All the variants in this section use the fairy chess pieces of the Princess and 
 
 ### Princess
 
-![Princess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png?raw=true)
+![Princess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-![Princess moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png?raw=true)
+![Princess moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
 The princess is a compound piece combining the moves of the **bishop** and the **knight** and is known by different names dependending on the variant:
 
@@ -80,9 +80,9 @@ The value of a princess is considered slightly better than a rook, but less than
 
 ### Empress
 
-![Empress](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png?raw=true)
+![Empress](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-![Empress moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png?raw=true)
+![Empress moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
 The empress is a compound piece combining the moves of the **rook** and the **knight** and is known by different names dependending on the variant:
 
@@ -96,7 +96,7 @@ The value of a princess is considered better than a princess, but equivalent or 
 
 ## Capablanca Chess
 
-![Capablanca setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png?raw=true)
+![Capablanca setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png)
 
 ### Intro
 
@@ -112,7 +112,7 @@ Pending
 
 ## Grand Chess
 
-![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png?raw=true)
+![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
 
 ### Intro
 
