@@ -584,8 +584,7 @@ export default class RoundController {
         }
         this.ply = ply
 
-        //var container = document.getElementById('pgn') as HTMLElement;
-        this.vpng = patch(this.vpng, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13} }, this.pgn)]));
+        //this.vpng = patch(this.vpng, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13} }, this.pgn)]));
     }
 
     private doSend = (message) => {
