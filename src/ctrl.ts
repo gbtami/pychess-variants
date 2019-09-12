@@ -385,8 +385,8 @@ export default class RoundController {
 
             // TODO: move this to (not implemented yet) analysis page
             this.pgn = msg.pgn;
-            var container = document.getElementById('pgn') as HTMLElement;
-            this.vpng = patch(container, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13} }, msg.pgn)]));
+            //var container = document.getElementById('pgn') as HTMLElement;
+            //this.vpng = patch(container, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13} }, msg.pgn)]));
 
             if (this.tv) {
                 setInterval(() => {this.doSend({ type: "updateTV", gameId: this.model["gameId"], profileId: this.model["profileid"] });}, 2000);
