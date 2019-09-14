@@ -746,6 +746,9 @@ label.piece.piece0.placement, label.piece.piece0.crazyhouse, label.piece.piece0.
 label.piece.piece1.placement, label.piece.piece1.crazyhouse, label.piece.piece1.standard {
   background-image: url('images/pieces/green/wN.svg');
 }
+label.piece.piece2.placement, label.piece.piece2.crazyhouse, label.piece.piece2.standard {
+  background-image: url('images/pieces/alpha/wN.svg');
+}
 
 /* Chat */
 .chat {

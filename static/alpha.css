@@ -1,0 +1,47 @@
+.brown .cg-wrap {
+  background-image: url('images/board/brown.svg');
+}
+.blue .cg-wrap {
+  background-image: url('images/board/blue.svg');
+}
+.maple .cg-wrap {
+  background-size: cover;
+  background-image: url('images/board/maple.jpg');
+}
+
+.standard .cg-wrap piece.pawn.white {
+  background-image: url('images/pieces/alpha/wP.svg');
+}
+.standard .cg-wrap piece.bishop.white {
+  background-image: url('images/pieces/alpha/wB.svg');
+}
+.standard .cg-wrap piece.knight.white {
+  background-image: url('images/pieces/alpha/wN.svg');
+}
+.standard .cg-wrap piece.rook.white {
+  background-image: url('images/pieces/alpha/wR.svg');
+}
+.standard .cg-wrap piece.queen.white {
+  background-image: url('images/pieces/alpha/wQ.svg');
+}
+.standard .cg-wrap piece.king.white {
+  background-image: url('images/pieces/alpha/wK.svg');
+}
+.standard .cg-wrap piece.pawn.black {
+  background-image: url('images/pieces/alpha/bP.svg');
+}
+.standard .cg-wrap piece.bishop.black {
+  background-image: url('images/pieces/alpha/bB.svg');
+}
+.standard .cg-wrap piece.knight.black {
+  background-image: url('images/pieces/alpha/bN.svg');
+}
+.standard .cg-wrap piece.rook.black {
+  background-image: url('images/pieces/alpha/bR.svg');
+}
+.standard .cg-wrap piece.queen.black {
+  background-image: url('images/pieces/alpha/bQ.svg');
+}
+.standard .cg-wrap piece.king.black {
+  background-image: url('images/pieces/alpha/bK.svg');
+}

@@ -9,15 +9,15 @@ export const VARIANTS = {
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "sittuyin", css: ["sittuyinm", "sittuyins"], icon: "R" },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", pieces: "shogi", css: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
-    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "S" },
-    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "H" },
+    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green", "alpha"], icon: "S" },
+    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green", "alpha"], icon: "H" },
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
     capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
     grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
     grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "seirawan", css: ["seir1", "seir0", "seir2", "seir3"], icon: "L" },
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "seirawan", css: ["seir1", "seir0", "seir2", "seir3"], icon: "L" },
-    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green"], icon: "M" },
+    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green", "alpha"], icon: "M" },
 }
 
 export function pocketRoles(variant: string) {
