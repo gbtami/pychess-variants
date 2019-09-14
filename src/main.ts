@@ -8,6 +8,7 @@ import { VNode } from 'snabbdom/vnode';
 
 const patch = init([klass, attributes, properties, listeners]);
 
+import { aboutView } from './about';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { playersView } from './players';
@@ -51,6 +52,8 @@ export function view(el, model): VNode {
 
     switch (el.getAttribute("data-view")) {
     case 'about':
+        return h('div#placeholder.main-wrapper', aboutView(model));
+    case 'howtoplay':
         return h('iframe', {props: {src: model["home"] + "/static/docs/variants.html", height: "100%", width:"100%", seamless: ""}});
     case 'players':
         return h('div#placeholder.players-wrapper', playersView(model));

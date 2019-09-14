@@ -148,6 +148,8 @@ async def index(request):
 
     if request.path == "/about":
         view = "about"
+    elif request.path == "/howtoplay":
+        view = "howtoplay"
     elif request.path == "/players":
         view = "players"
     elif request.path == "/patron/thanks":
@@ -276,6 +278,7 @@ get_routes = (
     ("/oauth", oauth),
     ("/", index),
     ("/about", index),
+    ("/howtoplay", index),
     ("/players", index),
     ("/tv", index),
     (r"/{gameId:\w{8}}", index),
