@@ -734,11 +734,23 @@ label.board.board0.capablanca, label.board.board0.capahouse {
 label.board.board1.capablanca, label.board.board1.capahouse {
   background-image: url('images/board/10x8blue.svg');
 }
+label.board.board2.capablanca, label.board.board2.capahouse {
+  background-image: url('images/board/10x8maple.jpg');
+}
+label.board.board3.capablanca, label.board.board3.capahouse {
+  background-image: url('images/board/10x8olive.jpg');
+}
 label.board.board0.grand, label.board.board0.grandhouse {
   background-image: url('images/board/10x10brown.svg');
 }
 label.board.board1.grand, label.board.board1.grandhouse {
   background-image: url('images/board/10x10blue.svg');
+}
+label.board.board2.grand, label.board.board2.grandhouse {
+  background-image: url('images/board/10x10maple.jpg');
+}
+label.board.board3.grand, label.board.board3.grandhouse {
+  background-image: url('images/board/10x10olive.jpg');
 }
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse {
