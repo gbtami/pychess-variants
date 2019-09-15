@@ -683,6 +683,19 @@ label.board.board0.shogi {
 label.board.board1.shogi {
   background-image: url('images/board/shogic.svg');
 }
+label.board.board2.shogi {
+  background-image: url('images/board/ShogiGreenTexture.png');
+}
+label.board.board3.shogi {
+  background-image: url('images/board/ShogiGrayTexture.png');
+}
+label.board.board4.shogi {
+  background-image: url('images/board/ShogiRedTexture.png');
+}
+label.board.board5.shogi {
+  background-image: url('images/board/Shogiban1.png');
+}
+
 label.piece.piece0.shogi {
   background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
@@ -701,6 +714,9 @@ label.board.board0.xiangqi {
 }
 label.board.board1.xiangqi {
   background-image: url('images/board/xiangqic.svg');
+}
+label.board.board2.xiangqi {
+  background-image: url('images/board/xiangqiCTexture.png');
 }
 label.piece.piece0.xiangqi {
   background-image: url('images/pieces/xiangqi/red_king.svg');
@@ -735,9 +751,12 @@ label.board.board1.capablanca, label.board.board1.capahouse {
   background-image: url('images/board/10x8blue.svg');
 }
 label.board.board2.capablanca, label.board.board2.capahouse {
-  background-image: url('images/board/10x8maple.jpg');
+  background-image: url('images/board/10x8green.svg');
 }
 label.board.board3.capablanca, label.board.board3.capahouse {
+  background-image: url('images/board/10x8maple.jpg');
+}
+label.board.board4.capablanca, label.board.board4.capahouse {
   background-image: url('images/board/10x8olive.jpg');
 }
 label.board.board0.grand, label.board.board0.grandhouse {
@@ -747,9 +766,12 @@ label.board.board1.grand, label.board.board1.grandhouse {
   background-image: url('images/board/10x10blue.svg');
 }
 label.board.board2.grand, label.board.board2.grandhouse {
-  background-image: url('images/board/10x10maple.jpg');
+  background-image: url('images/board/10x10green.svg');
 }
 label.board.board3.grand, label.board.board3.grandhouse {
+  background-image: url('images/board/10x10maple.jpg');
+}
+label.board.board4.grand, label.board.board4.grandhouse {
   background-image: url('images/board/10x10olive.jpg');
 }
 
@@ -790,9 +812,12 @@ label.board.board1.placement, label.board.board1.crazyhouse, label.board.board1.
   background-image: url('images/board/8x8blue.svg');
 }
 label.board.board2.placement, label.board.board2.crazyhouse, label.board.board2.standard, label.board.board2.seirawan, label.board.board2.shouse {
-  background-image: url('images/board/8x8maple.jpg');
+  background-image: url('images/board/8x8green.svg');
 }
 label.board.board3.placement, label.board.board3.crazyhouse, label.board.board3.standard, label.board.board3.seirawan, label.board.board3.shouse {
+  background-image: url('images/board/8x8maple.jpg');
+}
+label.board.board4.placement, label.board.board4.crazyhouse, label.board.board4.standard, label.board.board4.seirawan, label.board.board4.shouse {
   background-image: url('images/board/8x8olive.jpg');
 }
 label.piece.piece0.placement, label.piece.piece0.crazyhouse, label.piece.piece0.standard {
