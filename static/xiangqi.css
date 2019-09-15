@@ -1,6 +1,3 @@
-.river .cg-wrap {
-  background-image: url('images/board/xiangqi.svg');
-}
 .xiangqi .cg-wrap piece.pawn.white {
   background-image: url('images/pieces/xiangqi/red_pawn.svg');
 }

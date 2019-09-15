@@ -32,25 +32,42 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 6;
     } else if (cssFile.includes("seir")) {
         cssLinkIndex = 7;
+    } else if (cssFile.includes("8x8")) {
+        cssLinkIndex = 8;
+    } else if (cssFile.includes("10x8")) {
+        cssLinkIndex = 9;
+    } else if (cssFile.includes("10x10")) {
+        cssLinkIndex = 10;
+    } else if (cssFile.includes("9x9")) {
+        cssLinkIndex = 11;
+    } else if (cssFile.includes("9x10")) {
+        cssLinkIndex = 12;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
 
-export function setPieces (CSSindexes, variant, color) {
-    //console.log("setPieces()", variant, color)
-    var idx = CSSindexes[variants.indexOf(variant)];
-    idx = Math.min(idx, VARIANTS[variant].css.length - 1);
+function setBoard (CSSindexesB, variant, color) {
+    console.log("setBoard()", CSSindexesB, variant, color)
+    var idx = CSSindexesB[variants.indexOf(variant)];
+    idx = Math.min(idx, VARIANTS[variant].BoardCSS.length - 1);
+    changeCSS('/static/' + VARIANTS[variant].BoardCSS[idx] + '.css');
+}
+
+function setPieces (CSSindexesP, variant, color) {
+    console.log("setPieces()", CSSindexesP, variant, color)
+    var idx = CSSindexesP[variants.indexOf(variant)];
+    idx = Math.min(idx, VARIANTS[variant].PieceCSS.length - 1);
     if (variant === "shogi") {
-        var css = VARIANTS[variant].css[idx];
+        var css = VARIANTS[variant].PieceCSS[idx];
         // change shogi piece colors according to board orientation
         if (color === "black") css = css.replace('0', '1');
         changeCSS('/static/' + css + '.css');
     } else {
-        changeCSS('/static/' + VARIANTS[variant].css[idx] + '.css');
+        changeCSS('/static/' + VARIANTS[variant].PieceCSS[idx] + '.css');
     }
 }
 
-export function setZoom (ctrl, zoom: number) {
+function setZoom (ctrl, zoom: number) {
     const el = document.querySelector('.cg-wrap') as HTMLElement;
     if (el) {
         const baseWidth = dimensions[VARIANTS[ctrl.variant].geom].width * (ctrl.variant === "shogi" ? 52 : 64);
@@ -120,21 +137,46 @@ export function toggleBoardSettings (ctrl) {
     document.getElementById('board-settings')!.style.display = (ctrl.settings) ? 'inline-grid': 'none';
 }
 
+function renderBoards (ctrl) {
+    const variant = ctrl.variant;
+    var vboard = ctrl.CSSindexesB[variants.indexOf(ctrl.variant)];
+    var i;
+    const boards : VNode[] = [];
+
+    const toggleBoards = (e) => {
+        const idx = e.target.value;
+        //console.log("toggleBoards()", idx);
+        ctrl.CSSindexesB[variants.indexOf(ctrl.variant)] = idx
+        localStorage.setItem(ctrl.variant + "_board", String(idx));
+        setBoard(ctrl.CSSindexesB, ctrl.variant, ctrl.mycolor);
+    }
+
+    for (i = 0; i < VARIANTS[ctrl.variant].BoardCSS.length; i++) {
+        boards.push(h('input#board' + String(i), {
+            on: { change: toggleBoards },
+            props: { type: "radio", name: "board", value: String(i), checked: vboard === String(i) ? "checked" : ""}
+            })
+        );
+        boards.push(h('label.board.board' + String(i) + '.' + variant, { attrs: {for: "board" + String(i)} }, ""));
+    }
+    return boards;
+}
+
 function renderPieces (ctrl) {
     const variant = ctrl.variant;
-    var vpiece = ctrl.CSSindexes[variants.indexOf(ctrl.variant)];
+    var vpiece = ctrl.CSSindexesP[variants.indexOf(ctrl.variant)];
     var i;
     const pieces : VNode[] = [];
 
     const togglePieces = (e) => {
         const idx = e.target.value;
         //console.log("togglePieces()", idx);
-        ctrl.CSSindexes[variants.indexOf(ctrl.variant)] = idx
+        ctrl.CSSindexesP[variants.indexOf(ctrl.variant)] = idx
         localStorage.setItem(ctrl.variant + "_pieces", String(idx));
-        setPieces(ctrl.CSSindexes, ctrl.variant, ctrl.mycolor);
+        setPieces(ctrl.CSSindexesP, ctrl.variant, ctrl.mycolor);
     }
 
-    for (i = 0; i < VARIANTS[ctrl.variant].css.length; i++) {
+    for (i = 0; i < VARIANTS[ctrl.variant].PieceCSS.length; i++) {
         pieces.push(h('input#piece' + String(i), {
             on: { change: togglePieces },
             props: { type: "radio", name: "piece", value: String(i), checked: vpiece === String(i) ? "checked" : ""}
@@ -147,7 +189,8 @@ function renderPieces (ctrl) {
 
 export function settingsView (ctrl) {
 
-    if (VARIANTS[ctrl.variant].css.length > 1) setPieces(ctrl.CSSindexes, ctrl.variant, ctrl.mycolor);
+    if (VARIANTS[ctrl.variant].BoardCSS.length > 1) setBoard(ctrl.CSSindexesB, ctrl.variant, ctrl.mycolor);
+    if (VARIANTS[ctrl.variant].PieceCSS.length > 1) setPieces(ctrl.CSSindexesP, ctrl.variant, ctrl.mycolor);
 
     // turn settings panel off
     toggleBoardSettings(ctrl);
@@ -155,7 +198,8 @@ export function settingsView (ctrl) {
     if (localStorage.zoom !== undefined && localStorage.zoom !== 100) setZoom(ctrl, Number(localStorage.zoom));
 
     return h('div#board-settings', [
-        h('div.settings-radio-group', renderPieces(ctrl)),
+        h('div.settings-pieces', renderPieces(ctrl)),
+        h('div.settings-boards', renderBoards(ctrl)),
         // TODO: how to horizontaly center this?
         // h('label.zoom', { attrs: {for: "zoom"} }, "Board size"),
         h('input#zoom', {

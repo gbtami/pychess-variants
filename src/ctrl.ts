@@ -73,7 +73,8 @@ export default class RoundController {
     ply: number;
     players: string[];
     titles: string[];
-    CSSindexes: number[];
+    CSSindexesB: number[];
+    CSSindexesP: number[];
     clickDrop: Piece | undefined;
 
     constructor(el, model) {
@@ -123,7 +124,8 @@ export default class RoundController {
 
         this.flip = false;
         this.settings = true;
-        this.CSSindexes = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
+        this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
+        this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
 

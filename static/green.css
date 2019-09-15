@@ -1,18 +1,3 @@
-.brown .cg-wrap {
-  background-image: url('images/board/brown.svg');
-}
-.blue .cg-wrap {
-  background-image: url('images/board/blue.svg');
-}
-.maple .cg-wrap {
-  background-size: cover;
-  background-image: url('images/board/maple.jpg');
-}
-
-.capablanca .cg-wrap {
-  background-image: url('images/board/capablanca.svg');
-}
-
 .standard .cg-wrap piece.pawn.white {
   background-image: url('images/pieces/green/wP.svg');
 }

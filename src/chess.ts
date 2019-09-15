@@ -5,19 +5,19 @@ export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "stand
 export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"];
 
 export const VARIANTS = {
-    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", pieces: "makruk", css: ["makruk"], icon: "Q"},
-    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", pieces: "sittuyin", css: ["sittuyinm", "sittuyins"], icon: "R" },
-    shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", pieces: "shogi", css: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
-    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", pieces: "xiangqi", css: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
-    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green", "alpha"], icon: "S" },
-    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green", "alpha"], icon: "H" },
-    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
-    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "capablanca", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
-    grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
-    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand", pieces: "capa", css: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
-    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "seirawan", css: ["seir1", "seir0", "seir2", "seir3"], icon: "L" },
-    shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "seirawan", css: ["seir1", "seir0", "seir2", "seir3"], icon: "L" },
-    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "brown", pieces: "standard", css: ["standard", "green", "alpha"], icon: "M" },
+    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: [], pieces: "makruk", PieceCSS: ["makruk"], icon: "Q"},
+    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", BoardCSS: [], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R" },
+    shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", BoardCSS: ["9x9", "9x9c"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
+    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", BoardCSS: ["9x10", "9x10c"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
+    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "S" },
+    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "H" },
+    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "board10x8", BoardCSS: ["10x8brown", "10x8blue"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
+    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "board10x8", BoardCSS: ["10x8brown", "10x8blue"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
+    grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
+    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
+    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8maple", "8x8olive"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L" },
+    shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8maple", "8x8olive"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L" },
+    standard: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "M" },
 }
 
 export function pocketRoles(variant: string) {

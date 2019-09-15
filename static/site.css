@@ -666,17 +666,23 @@ label {
 }
 
 /* Board settings */
-.settings-radio-group {
+.settings-pieces, .settings-boards {
   display: flex;
   border: none;
   margin: 12px;
 }
-label.piece {
+label.piece, label.board {
   background-size: contain;
   background-repeat: no-repeat;
   padding: 30px 30px;
 }
 
+label.board.board0.shogi {
+  background-image: url('images/board/shogi.svg');
+}
+label.board.board1.shogi {
+  background-image: url('images/board/shogic.svg');
+}
 label.piece.piece0.shogi {
   background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
@@ -690,6 +696,12 @@ label.piece.piece3.shogi {
   background-image: url('images/pieces/shogi/ctp/0KA.svg');
 }
 
+label.board.board0.xiangqi {
+  background-image: url('images/board/xiangqi.svg');
+}
+label.board.board1.xiangqi {
+  background-image: url('images/board/xiangqic.svg');
+}
 label.piece.piece0.xiangqi {
   background-image: url('images/pieces/xiangqi/red_king.svg');
 }
@@ -716,6 +728,19 @@ label.piece.piece3.seirawan, label.piece.piece3.shouse {
   background-image: url('images/pieces/merida/WA2.svg');
 }
 
+label.board.board0.capablanca, label.board.board0.capahouse {
+  background-image: url('images/board/10x8brown.svg');
+}
+label.board.board1.capablanca, label.board.board1.capahouse {
+  background-image: url('images/board/10x8blue.svg');
+}
+label.board.board0.grand, label.board.board0.grandhouse {
+  background-image: url('images/board/10x10brown.svg');
+}
+label.board.board1.grand, label.board.board1.grandhouse {
+  background-image: url('images/board/10x10blue.svg');
+}
+
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse {
   background-image: url('images/pieces/merida/wA.svg');
 }
@@ -729,10 +754,16 @@ label.piece.piece3.capablanca, label.piece.piece3.capahouse, label.piece.piece3.
   background-image: url('images/pieces/merida/WA2.svg');
 }
 
+label.board.board0.makruk {
+  background-image: url('images/board/grid.svg');
+}
 label.piece.piece0.makruk {
   background-image: url('images/pieces/makruk/wk.svg');
 }
 
+label.board.board0.sittuyin {
+  background-image: url('images/board/gridx.svg');
+}
 label.piece.piece0.sittuyin {
   background-image: url('images/pieces/makruk/wk.svg');
 }
@@ -740,6 +771,18 @@ label.piece.piece1.sittuyin {
   background-image: url('images/pieces/sittuyin/wk.svg');
 }
 
+label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.standard, label.board.board0.seirawan, label.board.board0.shouse {
+  background-image: url('images/board/8x8brown.svg');
+}
+label.board.board1.placement, label.board.board1.crazyhouse, label.board.board1.standard, label.board.board1.seirawan, label.board.board1.shouse {
+  background-image: url('images/board/8x8blue.svg');
+}
+label.board.board2.placement, label.board.board2.crazyhouse, label.board.board2.standard, label.board.board2.seirawan, label.board.board2.shouse {
+  background-image: url('images/board/8x8maple.jpg');
+}
+label.board.board3.placement, label.board.board3.crazyhouse, label.board.board3.standard, label.board.board3.seirawan, label.board.board3.shouse {
+  background-image: url('images/board/8x8olive.jpg');
+}
 label.piece.piece0.placement, label.piece.piece0.crazyhouse, label.piece.piece0.standard {
   background-image: url('images/pieces/merida/wN.svg');
 }

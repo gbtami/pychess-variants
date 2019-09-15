@@ -1,9 +1,6 @@
 .grid .cg-wrap {
   background-image: url('images/board/makruk.svg');
 }
-.gridx .cg-wrap {
-  background-image: url('images/board/sittuyin.svg');
-}
 .makruk .cg-wrap piece.pawn.white {
   background-image: url('images/pieces/makruk/wp.svg');
 }
