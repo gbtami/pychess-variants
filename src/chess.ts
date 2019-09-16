@@ -5,8 +5,8 @@ export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "stand
 export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"];
 
 export const VARIANTS = {
-    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: [], pieces: "makruk", PieceCSS: ["makruk"], icon: "Q"},
-    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", BoardCSS: [], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R" },
+    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: ["makrb1", "makrb2"], pieces: "makruk", PieceCSS: ["makruk"], icon: "Q"},
+    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", BoardCSS: ["sittb1", "sittb2"], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R" },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", BoardCSS: ["9x9", "9x9c", "9x9ce", "9x9cg", "9x9cr", "9x9cw"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", BoardCSS: ["9x10", "9x10c", "9x10ct"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "S" },

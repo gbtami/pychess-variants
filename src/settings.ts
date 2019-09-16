@@ -42,6 +42,10 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 11;
     } else if (cssFile.includes("9x10")) {
         cssLinkIndex = 12;
+    } else if (cssFile.includes("makrb")) {
+        cssLinkIndex = 13;
+    } else if (cssFile.includes("sittb")) {
+        cssLinkIndex = 14;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

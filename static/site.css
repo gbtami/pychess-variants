@@ -789,14 +789,20 @@ label.piece.piece3.capablanca, label.piece.piece3.capahouse, label.piece.piece3.
 }
 
 label.board.board0.makruk {
-  background-image: url('images/board/grid.svg');
+  background-image: url('images/board/makruk.svg');
+}
+label.board.board1.makruk {
+  background-image: url('images/board/makruk.jpg');
 }
 label.piece.piece0.makruk {
   background-image: url('images/pieces/makruk/wk.svg');
 }
 
 label.board.board0.sittuyin {
-  background-image: url('images/board/gridx.svg');
+  background-image: url('images/board/sittuyin.svg');
+}
+label.board.board1.sittuyin {
+  background-image: url('images/board/sittuyin.jpg');
 }
 label.piece.piece0.sittuyin {
   background-image: url('images/pieces/makruk/wk.svg');
