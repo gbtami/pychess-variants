@@ -718,6 +718,12 @@ label.board.board1.xiangqi {
 label.board.board2.xiangqi {
   background-image: url('images/board/xiangqiCTexture.png');
 }
+label.board.board3.xiangqi {
+  background-image: url('images/board/xiangqiPaper.png');
+}
+label.board.board4.xiangqi {
+  background-image: url('images/board/xiangqiWood.png');
+}
 label.piece.piece0.xiangqi {
   background-image: url('images/pieces/xiangqi/red_king.svg');
 }
