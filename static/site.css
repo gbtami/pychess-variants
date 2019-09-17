@@ -681,19 +681,19 @@ label.board.board0.shogi {
   background-image: url('images/board/shogi.svg');
 }
 label.board.board1.shogi {
-  background-image: url('images/board/shogic.svg');
+  background-image: url('images/board/Shogiban1.png');
 }
 label.board.board2.shogi {
-  background-image: url('images/board/ShogiGreenTexture.png');
+  background-image: url('images/board/Shogiban2.png');
 }
 label.board.board3.shogi {
-  background-image: url('images/board/ShogiMaple.png');
+  background-image: url('images/board/shogic.svg');
 }
 label.board.board4.shogi {
-  background-image: url('images/board/ShogiCheckeredWood.png');
+  background-image: url('images/board/ShogiMaple.png');
 }
 label.board.board5.shogi {
-  background-image: url('images/board/Shogiban1.png');
+  background-image: url('images/board/ShogiCheckeredWood.png');
 }
 
 label.piece.piece0.shogi {

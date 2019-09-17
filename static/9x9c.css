@@ -1,3 +1,4 @@
 .grid9x9 .cg-wrap {
-  background-image: url('images/board/shogic.svg');
+  background-size: contain;
+  background-image: url('images/board/Shogiban2.png');
 }
