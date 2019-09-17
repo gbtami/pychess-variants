@@ -84,7 +84,7 @@ function setZoom (ctrl, zoom: number) {
         document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh);
 
         document.body.dispatchEvent(new Event('chessground.resize'));
-        localStorage.setItem("zoom", String(zoom));
+        localStorage.setItem("zoom-" + ctrl.variant, String(zoom));
     }
 }
 
@@ -198,8 +198,8 @@ export function settingsView (ctrl) {
 
     // turn settings panel off
     toggleBoardSettings(ctrl);
-
-    if (localStorage.zoom !== undefined && localStorage.zoom !== 100) setZoom(ctrl, Number(localStorage.zoom));
+    const zoom = localStorage["zoom-" + ctrl.variant];
+    if (zoom !== undefined && zoom !== 100) setZoom(ctrl, Number(zoom));
 
     return h('div#board-settings', [
         h('div.settings-pieces', renderPieces(ctrl)),
@@ -208,7 +208,7 @@ export function settingsView (ctrl) {
         // h('label.zoom', { attrs: {for: "zoom"} }, "Board size"),
         h('input#zoom', {
             class: {"slider": true },
-            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(localStorage.zoom), min: 60, max: 140 },
+            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(zoom), min: 60, max: 140 },
             on: { input: (e) => { setZoom(ctrl, parseFloat((e.target as HTMLInputElement).value)); } }
             }
         ),
