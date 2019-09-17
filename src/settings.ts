@@ -95,7 +95,7 @@ export function toggleOrientation (ctrl) {
 
     if (ctrl.variant === "shogi") {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
-        setPieces(ctrl.CSSindexes, ctrl.variant, color);
+        setPieces(ctrl.CSSindexesP, ctrl.variant, color);
     };
     
     console.log("FLIP");
