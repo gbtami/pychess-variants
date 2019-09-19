@@ -381,6 +381,10 @@ export default class RoundController {
             }
             this.gameOver();
 
+            // TODO: move this to (not implemented yet) analysis page
+            //console.log("ANALYSIS");
+            //this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
+
             // clean up gating/promotion widget left over the ground while game ended by time out
             var container = document.getElementById('extension_choice') as HTMLElement;
             if (container instanceof Element) patch(container, h('extension'));

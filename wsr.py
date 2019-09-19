@@ -118,6 +118,19 @@ async def round_socket_handler(request):
                         log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                         await ws.send_json(board_response)
 
+                    elif data["type"] == "analysis":
+                        game = await load_game(request.app, data["gameId"])
+
+                        variant = game.variant
+                        if variant == "xiangqi":
+                            engine = users.get("Elephant-Eye")
+                        else:
+                            engine = users.get("Fairy-Stockfish")
+
+                        if (engine is not None) and engine.online:
+                            engine.game_queues[data["gameId"]] = asyncio.Queue()
+                            await engine.event_queue.put(game.analysis_start(data["username"]))
+
                     elif data["type"] == "rematch":
                         game = await load_game(request.app, data["gameId"])
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username

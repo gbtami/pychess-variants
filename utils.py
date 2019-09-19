@@ -605,6 +605,9 @@ class Game:
     def is_claimable_draw(self):
         return self.board.is_claimable_draw()
 
+    def analysis_start(self, username):
+        return '{"type": "analysisStart", "username": "%s", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n' % (username, self.id, self.level, self.chess960)
+
     @property
     def game_start(self):
         return '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n' % (self.id, self.level, self.chess960)

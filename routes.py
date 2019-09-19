@@ -13,7 +13,7 @@ import aiohttp_session
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
-    create_bot_seek, challenge_create, bot_pong
+    create_bot_seek, challenge_create, bot_pong, bot_analysis
 from utils import load_game, pgn, User
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
@@ -300,6 +300,7 @@ get_routes = (
 post_routes = (
     ("/api/bot/game/{gameId}/abort", bot_abort),
     ("/api/bot/game/{gameId}/resign", bot_resign),
+    ("/api/bot/game/{gameId}/analysis", bot_analysis),
     ("/api/bot/game/{gameId}/chat", bot_chat),
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),

@@ -402,6 +402,35 @@ async def bot_resign(request):
     return web.json_response({"ok": True})
 
 
+async def bot_analysis(request):
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        return web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7:]
+    if token not in BOT_TOKENS:
+        log.error("BOT account auth with token %s failed" % token)
+        return web.HTTPForbidden()
+
+    user_agent = request.headers.get("User-Agent")
+    bot_name = user_agent[user_agent.find("user:") + 5:]
+
+    data = await request.post()
+
+    gameId = request.match_info["gameId"]
+    message = data["text"]
+
+    users = request.app["users"]
+    username = data["username"]
+
+    if gameId in users[username].game_sockets:
+        user_ws = users[username].game_sockets[gameId]
+        response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": message}
+        await user_ws.send_json(response)
+
+    return web.json_response({"ok": True})
+
+
 async def bot_chat(request):
     auth = request.headers.get("Authorization")
     if auth is None:
