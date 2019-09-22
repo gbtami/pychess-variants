@@ -14,7 +14,6 @@ import { variants, VARIANTS } from './chess';
 import { pocketView } from './pocket';
 import { needPockets } from './chess';
 import { player } from './player';
-import RoundController from './roundCtrl';
 
 // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
 
@@ -82,9 +81,6 @@ function setZoom (ctrl, zoom: number) {
         el.style.width = pxw;
         el.style.height = pxh;
         var pxp = (needPockets(ctrl.variant)) ? '132px;' : '0px;';
-        if (ctrl instanceof RoundController) {
-            pxp = '500px;';
-        }
         document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp);
 
         document.body.dispatchEvent(new Event('chessground.resize'));

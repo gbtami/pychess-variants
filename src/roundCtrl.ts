@@ -1,6 +1,7 @@
 import Sockette from 'sockette';
 
 import { init } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
 import { h } from 'snabbdom/h';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -332,12 +333,11 @@ export default class RoundController {
     }
 
     private gameOver = () => {
-        console.log('gameOver()', result(this.status, this.result));
-        //var container = document.getElementById('result') as HTMLElement;
-        //patch(container, h('div#result', result(this.status, this.result)));
-        //const movelist = document.getElementById('movelist') as HTMLElement;
         var container = document.getElementById('moves') as HTMLElement;
-        patch(container, h('div#moves', [h('div#result', result(this.status, this.result))]));
+        var movesTail: VNode[] = [];
+        if (this.turnColor === 'black') movesTail.push(h('li.move.hidden', 'X'));
+        movesTail.push(h('div#result', result(this.status, this.result)));
+        patch(container, h('div#moves', movesTail));
 
         if (!this.spectator) {
             this.gameControls = patch(this.gameControls, h('div'));

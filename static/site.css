@@ -940,6 +940,9 @@ li.move:hover {
 li.move.active {
     background-color: LightBlue;
 }
+li.move.hidden {
+  visibility: hidden;
+}
 
 /* cg-resize */
 body.resizing {
