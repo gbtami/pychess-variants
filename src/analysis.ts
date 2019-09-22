@@ -1,20 +1,20 @@
 import { h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 
-import RoundController from './roundCtrl';
+import AnalysisController from './analysisCtrl';
 import { VARIANTS } from './chess';
 import { timeago, renderTimeago } from './clock';
 
 
 function runGround(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new RoundController(el, model);
+    const ctrl = new AnalysisController(el, model);
     const cg = ctrl.chessground;
     window['cg'] = cg;
 }
 
-export function roundView(model): VNode[] {
-    console.log("roundView model=", model);
+export function analysisView(model): VNode[] {
+    console.log("analysisView model=", model);
     const dataIcon = VARIANTS[model["variant"]].icon;
     renderTimeago();
     return [h('aside.sidebar-first', [
@@ -62,19 +62,14 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#clock0'),
                 h('div.round-data', [
-                    h('round-player#rplayer0'),
                     h('div#move-controls'),
                     h('div#board-settings'),
                     h('div#movelist-block', [
                         h('div#movelist'),
-                        //h('div#result'),
+                        h('div#result'),
                     ]),
-                    h('div#game-controls'),
-                    h('round-player#rplayer1'),
                 ]),
-                h('div#clock1'),
                 h('div#pocket-wrapper', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
@@ -85,6 +80,8 @@ export function roundView(model): VNode[] {
                 h('div#flip'),
             ]),
             h('under-left', "Spectators"),
-            h('under-board'),
+            h('under-board', [
+                h('div.#pgn')
+            ])
         ];
 }

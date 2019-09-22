@@ -9,9 +9,11 @@ const patch = init([klass, attributes, properties, listeners]);
 import h from 'snabbdom/h';
 
 import { gearButton, toggleOrientation } from './settings';
+import RoundController from './roundCtrl';
 
 
-function selectMove (ctrl, ply) {
+export function selectMove (ctrl, ply) {
+    console.log("selctMove()", ply);
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
 
@@ -25,23 +27,26 @@ function selectMove (ctrl, ply) {
 function scrollToPly (ctrl) {
     if (ctrl.steps.length < 9) return;
     const movesEl = document.getElementById('moves') as HTMLElement;
-    let st: number | undefined = undefined;
     const plyEl = movesEl.querySelector('li.move.active') as HTMLElement | undefined;
+
+    const movelistblockEl = document.getElementById('movelist-block') as HTMLElement;
+    let st: number | undefined = undefined;
 
     if (ctrl.ply == 0) st = 0;
     else if (ctrl.ply == ctrl.steps.length - 1) st = 99999;
-    else if (plyEl) st = plyEl.offsetTop - movesEl.offsetHeight + plyEl.offsetHeight;
+    else if (plyEl) st = plyEl.offsetTop - movelistblockEl.offsetHeight + plyEl.offsetHeight;
 
-    console.log("scrollToPly", ctrl.ply, st);
     if (typeof st == 'number') {
-        if (st == 0 || st == 99999) movesEl.scrollTop = st;
-        else if (plyEl) {
+        if (plyEl && ctrl instanceof RoundController) {
             var isSmoothScrollSupported = 'scrollBehavior' in document.documentElement.style;
             if(isSmoothScrollSupported) {
                 plyEl.scrollIntoView({behavior: "smooth", block: "center"});
             } else {
                 plyEl.scrollIntoView(false);
             }
+        } else {
+            console.log("scrollToPly", ctrl.ply, st);
+            movelistblockEl.scrollTop = st;
         }
     }
 }
@@ -58,8 +63,12 @@ export function movelistView (ctrl) {
             ctrl.vgear,
         ])
     );
-    return h('div#moves', [h('ol.movelist#movelist')])
+    if (ctrl instanceof RoundController) {
+        return h('div#moves', [h('ol.movelist#movelist')]);
+    } else {
+        return h('div.anal#moves', [h('ol.movelist#movelist')]);
     }
+}
 
 export function updateMovelist (ctrl) {
     var container = document.getElementById('movelist') as HTMLElement;

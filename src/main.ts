@@ -11,6 +11,7 @@ const patch = init([klass, attributes, properties, listeners]);
 import { aboutView } from './about';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
+import { analysisView } from './analysis';
 import { playersView } from './players';
 import { profileView } from './profile';
 
@@ -62,6 +63,8 @@ export function view(el, model): VNode {
     case 'tv':
     case 'round':
         return h('div#placeholder.main-wrapper', roundView(model));
+    case 'analysis':
+        return h('div#placeholder.main-wrapper', analysisView(model));
     case 'thanks':
         return h('div#placeholder.main-wrapper', h('h2', 'Thank you for your support!'));
     default:

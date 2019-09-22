@@ -6,7 +6,6 @@ body {
   margin: 0;
   color: #505050;
   background: #eee;
-  background-image: linear-gradient(to bottom, #d7d7d7 0%, #eeeeee 116px);
   cursor: default;
 }
 body.no-select {
@@ -121,10 +120,12 @@ a.user-link:hover, a.user-link:active {
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
 }
 
-result {
+div#result {
+  display: block;
   padding: 12px 0;
   font-size: 18px;
   text-align: center;
+  border-top: 1px solid LightGray;
 }
 
 .lobby-button, .donate-button {
@@ -152,7 +153,7 @@ result {
   color: White;
 }
 
-.after-game{
+#after-game-controls {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
@@ -163,20 +164,20 @@ result {
 button.rematch {
   border: none;
   background-color: WhiteSmoke;
-  padding: 24px 0;
+  padding: 12px 0;
   cursor: pointer;
 }
 button.rematch:hover {
   background-color: LightSkyBlue ;
 }
 
-button.newopp {
+button.newopp, button.analysis {
   border: none;
   background-color: white;
   padding: 12px 0;
   cursor: pointer;
 }
-button.newopp:hover {
+button.newopp:hover,  button.analysis:hover {
   background-color: DarkSeaGreen;
 }
 
@@ -899,13 +900,20 @@ li.message.server {
   margin-top: auto;
 }
 
+#movelist-block {
+  overflow-y: auto;
+  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - 40px);
+}
 /* movelist border: 1px solid #ddd; */
-#moves {
+div#moves {
   display: inline;
   background: White;
   height: 100px;
   max-height: 100px;
-  overflow: auto;
+}
+div.anal#moves {
+  display: inline;
+  background: White;
 }
 
 ol.movelist {

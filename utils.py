@@ -479,6 +479,17 @@ class Game:
         loop = asyncio.get_event_loop()
         self.tasks.add(loop.create_task(remove()))
 
+        if self.rated:
+            if self.result == '1-0':
+                (white_score, black_score) = (1.0, 0.0)
+            elif self.result == '1/2-1/2':
+                (white_score, black_score) = (0.5, 0.5)
+            elif self.result == '0-1':
+                (white_score, black_score) = (0.0, 1.0)
+            else:
+                raise RuntimeError('game.result: unexpected result code')
+            await rating.update_ratings(self, white_score, black_score)
+
         if self.ply < 3:
             await self.db.game.delete_one({"_id": self.id})
         else:

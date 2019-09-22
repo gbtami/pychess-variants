@@ -14,7 +14,7 @@ from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
-from utils import load_game, pgn, User
+from utils import load_game, pgn, User, STARTED
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from compress import C2V, C2R
@@ -181,6 +181,9 @@ async def index(request):
             return web.Response(
                 text=html_minify(template.render({"home": URI})), content_type="text/html")
         games[gameId] = game
+
+        if game.status > STARTED:
+            view = "analysis"
 
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.add(user)

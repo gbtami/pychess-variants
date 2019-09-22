@@ -10,7 +10,8 @@ import { Color } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
 import { roleToSan, needPockets, pocketRoles, lc } from './chess';
-import RoundController from './ctrl';
+import RoundController from './roundCtrl';
+import AnalysisController from './analysisCtrl';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -18,7 +19,7 @@ type Position = 'top' | 'bottom';
 
 const eventNames = ['mousedown', 'touchstart'];
 
-export function pocketView(ctrl: RoundController, color: Color, position: Position) {
+export function pocketView(ctrl: RoundController | AnalysisController, color: Color, position: Position) {
   const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
   const pieceRoles = Object.keys(pocket);
   return h('div.pocket.' + position, {
@@ -44,7 +45,7 @@ export function pocketView(ctrl: RoundController, color: Color, position: Positi
   }));
 }
 
-export function drag(ctrl: RoundController, e: cg.MouchEvent): void {
+export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
@@ -90,7 +91,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
 }
 
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
-export function updatePockets(ctrl: RoundController, vpocket0, vpocket1): void {
+export function updatePockets(ctrl: RoundController | AnalysisController, vpocket0, vpocket1): void {
     // update pockets from fen
     if (needPockets(ctrl.variant)) {
         const parts = ctrl.fullfen.split(" ");
