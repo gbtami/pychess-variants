@@ -81,7 +81,6 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#flip'),
             ]),
             h('under-left', "Spectators"),
             h('under-board'),

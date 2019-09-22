@@ -195,6 +195,16 @@ export default class AnalysisController {
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+
+        const btn = h('button#analysis', {
+                        on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) }},
+                        [h('i', {
+                            props: {title: 'Computer Analysis'},
+                            class: {"icon": true, "icon-microscope": true} 
+                            }
+                        )]);
+        var container = document.getElementById('flip') as HTMLElement;
+        patch(container, btn);
     }
 
     getGround = () => this.chessground;
@@ -217,10 +227,6 @@ export default class AnalysisController {
             this.vpng = patch(container, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn)]));
 
             selectMove(this, this.ply);
-
-            // TODO: move this to (not implemented yet) analysis page
-            //console.log("ANALYSIS");
-            //this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
         }
     }
 

@@ -77,9 +77,8 @@ export function analysisView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#flip'),
             ]),
-            h('under-left', "Spectators"),
+            h('under-left'),
             h('under-board', [
                 h('div.#pgn')
             ])
