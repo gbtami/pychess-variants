@@ -13,7 +13,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="red_elephant.svg">
+   sodipodi:docname="red_elephant2.svg">
   <metadata
      id="metadata12">
     <rdf:RDF>
@@ -40,14 +40,14 @@
          offset="20%" />
       <stop
          id="stop11419"
-         style="stop-color:#cf8181;stop-opacity:1"
+         style="stop-color:#de8787;stop-opacity:1"
          offset="100%" />
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient8103">
       <stop
-         style="stop-color:#a02c2c;stop-opacity:1"
+         style="stop-color:#c83737;stop-opacity:1"
          offset="0"
          id="stop8099" />
       <stop
@@ -165,7 +165,7 @@
        id="linearGradient5384"
        x1="110.9745"
        y1="7.4346261"
-       x2="141.46609"
+       x2="150.92157"
        y2="7.4346261"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
@@ -206,13 +206,13 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="3.7083823"
-     inkscape:cx="53.008463"
-     inkscape:cy="42.826019"
+     inkscape:zoom="2.6222223"
+     inkscape:cx="12.441322"
+     inkscape:cy="61.374019"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -224,8 +224,7 @@
      inkscape:groupmode="layer"
      id="layer1"
      inkscape:label="Background"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g24262"
        transform="translate(0.6186409,-2.3347435)"
