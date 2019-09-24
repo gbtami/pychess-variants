@@ -13,7 +13,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="red_king.svg">
+   sodipodi:docname="red_king2.svg">
   <metadata
      id="metadata12">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -163,26 +163,26 @@
        inkscape:collect="always"
        xlink:href="#linearGradient7676"
        id="linearGradient7678"
-       x1="33.753807"
-       y1="41.005157"
-       x2="63.396152"
+       x1="45.571445"
+       y1="41.148167"
+       x2="74.800583"
        y2="41.148167"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient7692"
        id="linearGradient7694"
-       x1="33.92521"
-       y1="57.740991"
-       x2="59.082936"
-       y2="57.740991"
+       x1="46.403973"
+       y1="57.74099"
+       x2="71.726982"
+       y2="57.74099"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient8103"
        id="linearGradient8105"
-       x1="11.23756"
-       y1="48.334743"
+       x1="43.652813"
+       y1="47.572033"
        x2="103.16923"
        y2="47.572033"
        gradientUnits="userSpaceOnUse" />
@@ -200,10 +200,10 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="1.8541912"
-     inkscape:cx="-100.24163"
-     inkscape:cy="-6.3590972"
-     inkscape:window-x="-8"
+     inkscape:zoom="7.4167648"
+     inkscape:cx="18.480873"
+     inkscape:cy="33.588631"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"

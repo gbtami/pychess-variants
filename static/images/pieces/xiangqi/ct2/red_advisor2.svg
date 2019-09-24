@@ -13,7 +13,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="red_advisor.svg">
+   sodipodi:docname="red_advisor2.svg">
   <metadata
      id="metadata12">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -151,18 +151,18 @@
        inkscape:collect="always"
        xlink:href="#linearGradient8103"
        id="linearGradient8105"
-       x1="11.23756"
-       y1="48.334743"
-       x2="103.16923"
+       x1="34.697926"
+       y1="47.572033"
+       x2="115.16907"
        y2="47.572033"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient7676"
        id="linearGradient7678"
-       x1="33.753807"
-       y1="41.005157"
-       x2="63.396152"
+       x1="40.159103"
+       y1="41.148167"
+       x2="78.128334"
        y2="41.148167"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
@@ -181,9 +181,9 @@
        inkscape:collect="always"
        xlink:href="#linearGradient9547"
        id="linearGradient7694"
-       x1="29.825819"
+       x1="41.73967"
        y1="57.74099"
-       x2="59.082935"
+       x2="68.178459"
        y2="57.74099"
        gradientUnits="userSpaceOnUse" />
   </defs>
@@ -201,12 +201,12 @@
      id="namedview8"
      showgrid="false"
      inkscape:zoom="7.4167646"
-     inkscape:cx="33.580288"
+     inkscape:cx="18.867697"
      inkscape:cy="25.552491"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -217,8 +217,7 @@
      inkscape:groupmode="layer"
      id="layer1"
      inkscape:label="Background"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g24262"
        transform="translate(0.6186409,-2.3347435)"
