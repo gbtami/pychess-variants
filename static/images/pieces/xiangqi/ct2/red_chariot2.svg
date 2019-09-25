@@ -13,7 +13,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="red_chariot.svg">
+   sodipodi:docname="red_chariot2.svg">
   <metadata
      id="metadata12">
     <rdf:RDF>
@@ -60,7 +60,7 @@
          offset="0"
          id="stop10187" />
       <stop
-         style="stop-color:#d38787;stop-opacity:1"
+         style="stop-color:#d35f5f;stop-opacity:1"
          offset="1"
          id="stop10189" />
     </linearGradient>
@@ -68,7 +68,7 @@
        inkscape:collect="always"
        id="linearGradient8103">
       <stop
-         style="stop-color:#a02c2c;stop-opacity:1"
+         style="stop-color:#c83737;stop-opacity:1"
          offset="0"
          id="stop8099" />
       <stop
@@ -175,8 +175,8 @@
        inkscape:collect="always"
        xlink:href="#linearGradient8103"
        id="linearGradient8105"
-       x1="11.23756"
-       y1="48.334743"
+       x1="37.799007"
+       y1="47.572033"
        x2="103.16923"
        y2="47.572033"
        gradientUnits="userSpaceOnUse" />
@@ -229,7 +229,7 @@
        gradientUnits="userSpaceOnUse"
        x1="40.422668"
        y1="47.282806"
-       x2="75.110641"
+       x2="78.751045"
        y2="47.282806"
        gradientTransform="translate(0.62607631,2.3872315)" />
     <linearGradient
@@ -251,7 +251,7 @@
        gradientUnits="userSpaceOnUse"
        x1="43.119263"
        y1="47.282806"
-       x2="79.496231"
+       x2="78.542839"
        y2="47.282806"
        gradientTransform="translate(0.62607631,2.3872315)" />
     <linearGradient
@@ -261,7 +261,7 @@
        id="linearGradient5525"
        x1="43.427307"
        y1="35.188709"
-       x2="67.819328"
+       x2="77.257889"
        y2="35.188709"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
@@ -284,7 +284,7 @@
        gradientTransform="translate(0.62607631,2.3872315)"
        x1="36.984512"
        y1="47.282806"
-       x2="75.110641"
+       x2="79.496231"
        y2="47.282806" />
     <linearGradient
        inkscape:collect="always"
@@ -294,7 +294,7 @@
        gradientTransform="translate(0.62607631,2.3872315)"
        x1="42.512531"
        y1="47.282806"
-       x2="75.110641"
+       x2="86.705994"
        y2="47.282806" />
   </defs>
   <sodipodi:namedview
@@ -310,9 +310,9 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="3.7083823"
-     inkscape:cx="-62.148099"
-     inkscape:cy="54.197484"
+     inkscape:zoom="5.2444445"
+     inkscape:cx="-28.795872"
+     inkscape:cy="47.540204"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -327,8 +327,7 @@
      inkscape:groupmode="layer"
      id="layer1"
      inkscape:label="Background"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g24262"
        transform="translate(0.6186409,-2.3347435)"
