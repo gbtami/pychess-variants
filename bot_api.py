@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 
 from aiohttp import web
@@ -418,14 +419,25 @@ async def bot_analysis(request):
     data = await request.post()
 
     gameId = request.match_info["gameId"]
-    message = data["text"]
 
     users = request.app["users"]
     username = data["username"]
 
     if gameId in users[username].game_sockets:
+        games = request.app["games"]
+        game = games[gameId]
+
+        ply = data["ply"]
+        ceval = json.loads(data["ceval"])
+        print(ply, ceval)
+        if "score" in ceval:
+            game.steps[int(ply)]["eval"] = ceval["score"]
+
         user_ws = users[username].game_sockets[gameId]
-        response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": message}
+        response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(ceval)}
+        await user_ws.send_json(response)
+
+        response = {"type": "analysis", "ply": ply, "color": data["color"], "ceval": ceval}
         await user_ws.send_json(response)
 
     return web.json_response({"ok": True})

@@ -276,6 +276,39 @@ async def variant(request):
     return web.Response(text=html_minify(text), content_type="text/html")
 
 
+async def fishnet_acquire(request):
+    work = None
+    work_id = "12345"
+    work = {
+        "work": {
+          "type": "analysis",
+          "id": work_id,
+        },
+        # or:
+        # "work": {
+        #   "type": "move",
+        #   "id": "work_id",
+        #   "level": 5 // 1 to 8
+        # },
+        "game_id": "abcdefgh", # optional
+        "position": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", # start position (X-FEN)
+        "variant": "standard",
+        "moves": "e2e4 c7c5 c2c4 b8c6 g1e2 g8f6 b1c3 c6b4 g2g3 b4d3", # moves of the game (UCI)
+        "nodes": 3500000, # optional limit
+        "skipPositions": [1, 4, 5] # 0 is the first position
+    }
+    if work is None:
+        return web.Response(text="OK", status=204, content_type="text/html")
+    else:
+        return web.json_response(work, status=202)
+
+
+async def fishnet_analysis(request):
+    data = await request.json()
+    print(data)
+    return web.Response(text="OK", status=204, content_type="text/html")
+
+
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
@@ -311,4 +344,6 @@ post_routes = (
     ("/api/challenge/{challengeId}/decline", challenge_decline),
     ("/api/seek", create_bot_seek),
     ("/api/pong", bot_pong),
+    ("/fishnet/acquire", fishnet_acquire),
+    ("/fishnet/analysis/{workId}", fishnet_analysis),
 )

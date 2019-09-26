@@ -43,7 +43,10 @@ iframe {
 
 .main{
   margin-top:30px;
+  display: grid;
+  grid-template-columns: auto auto;
 }
+
 .sidebar-first{
   margin-top: 30px;
   flex:1;
@@ -920,15 +923,23 @@ ol.movelist {
   display: inline;
 }
 li.move {
-  line-height: 1.8em;
-  float: left;
+  line-height: 1.9em;
   display: inline;
+  float: left;
   width: 42%;
   padding-left: 6px;
   box-sizing: border-box;
   justify-content: center;
 }
+eval {
+  font-size: .8em;
+  padding-right: 8px;
+  color: Gray;
+  float: right;
+}
+
 li.move.counter {
+  color: Gray;
   width: 16%;
   background-color: WhiteSmoke;
   text-align: center;
@@ -1034,4 +1045,40 @@ body.no-sidebar .sidebar-toggle {
 
 body.no-sidebar .content {
     left: 0px !important;
+}
+
+/* analysis gauge */
+#gauge {
+  height: 100%;  /* !!! */
+  background-color: #fff;
+  width: 17px;
+  overflow: hidden;
+  position: relative;
+}
+#gauge::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 0 5px rgba(0,0,0,0.7) inset;
+}
+#gauge .black {
+  background-color: #888;
+  transition: height 1s;
+}
+#gauge .tick {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 2px ridge #eee;
+  opacity: 0.4;
+}
+#gauge .tick.zero {
+  opacity: 1;
+  border-bottom: 7px solid rgba(214,79,0,0.4);
+  margin-top: -3px;
 }

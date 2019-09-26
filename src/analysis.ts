@@ -53,6 +53,16 @@ export function analysisView(model): VNode[] {
                         { hook: { insert: (vnode) => runGround(vnode, model)},
                     }),
                 ]),
+                h('div', {attrs: {id: "gauge"}}, [
+                    h('div.black', {props: {style: "height: 50%;"}}),
+                    h('div.tick', {props: {style: "height: 12.5%;"}}),
+                    h('div.tick', {props: {style: "height: 25%;"}}),
+                    h('div.tick', {props: {style: "height: 37.5%;"}}),
+                    h('div.tick zero', {props: {style: "height: 50%;"}}),
+                    h('div.tick', {props: {style: "height: 62.5%;"}}),
+                    h('div.tick', {props: {style: "height: 75%;"}}),
+                    h('div.tick', {props: {style: "height: 87.5%;"}}),
+                ]),
             ]),
             h('aside.sidebar-second', [
                 h('div#pocket-wrapper', [

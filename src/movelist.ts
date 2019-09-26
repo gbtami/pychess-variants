@@ -8,17 +8,67 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
+import { Color } from 'chessgroundx/types';
+
 import { gearButton, toggleOrientation } from './settings';
 import RoundController from './roundCtrl';
 
 
+interface Eval {
+  cp?: number;
+  mate?: number;
+}
+
+function toPov(color: Color, diff: number): number {
+  return color === 'white' ? diff : -diff;
+}
+
+function rawWinningChances(cp: number): number {
+  return 2 / (1 + Math.exp(-0.004 * cp)) - 1;
+}
+
+function cpWinningChances(cp: number): number {
+  return rawWinningChances(Math.min(Math.max(-1000, cp), 1000));
+}
+
+function mateWinningChances(mate: number): number {
+  var cp = (21 - Math.min(10, Math.abs(mate))) * 100;
+  var signed = cp * (mate > 0 ? 1 : -1);
+  return rawWinningChances(signed);
+}
+
+function evalWinningChances(ev: Eval): number {
+  return typeof ev.mate !== 'undefined' ? mateWinningChances(ev.mate) : cpWinningChances(ev.cp!);
+}
+
+// winning chances for a color
+// 1  infinitely winning
+// -1 infinitely losing
+export function povChances(color: Color, ev: Eval) {
+  return toPov(color, evalWinningChances(ev));
+}
+
 export function selectMove (ctrl, ply) {
-    console.log("selctMove()", ply);
+    console.log("selectMove()", ply, ctrl.steps[ply]['eval']);
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
 
     const elPly = document.querySelector(`li.move[ply="${ply}"]`);
     if (elPly) elPly.classList.add('active');
+
+    const gaugeEl = document.getElementById('gauge') as HTMLElement;
+    const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
+    console.log("selectMove()", blackEl);
+    if (blackEl) {
+        var ceval = ctrl.steps[ply]['eval'];
+        if (ceval !== undefined) {
+            const ev = povChances(ctrl.steps[ply]['turnColor'], ceval);
+            console.log(String(100 - (ev + 1) * 50) + '%');
+            blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+        } else {
+            blackEl.style.height = '50%';
+        }
+    }
 
     ctrl.goPly(ply)
     scrollToPly(ctrl);
@@ -71,12 +121,21 @@ export function movelistView (ctrl) {
 }
 
 export function updateMovelist (ctrl) {
-    var container = document.getElementById('movelist') as HTMLElement;
     const ply = ctrl.steps.length - 1;
     const move = ctrl.steps[ply]['san'];
+    if (move === null) return;
+    
+    var container = document.getElementById('movelist') as HTMLElement;
+
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
-    const el = h('li.move', {class: {active: true}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, ply) }}, move);
+
+    var moveEl = [h('san', move)];
+    //var ceval = ctrl.steps[ply]['eval'];
+    //if (ceval === null) ceval = '';
+    moveEl.push(h('eval#ply' + String(ply), ''));
+
+    const el = h('li.move', {class: {active: true}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, ply) }}, moveEl);
     if (ply % 2 == 0) {
         patch(container, h('ol.movelist#movelist', [el]));
     } else {
