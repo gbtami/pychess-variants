@@ -180,7 +180,7 @@ export function profileView(model): VNode[] {
     });
 
     return [h('aside.sidebar-first'),
-            h('main.main', [
+            h('main.profile', [
                 h('player-head', [
                     model["profileid"],
                     h('a.i-dl', {

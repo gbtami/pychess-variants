@@ -41,10 +41,13 @@ iframe {
   justify-content: center;
 }
 
-.main{
+main{
   margin-top:30px;
   display: grid;
   grid-template-columns: auto auto;
+}
+main.profile{
+  display: inline;
 }
 
 .sidebar-first{
