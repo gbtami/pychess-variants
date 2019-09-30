@@ -22,7 +22,7 @@ async def make_app(loop):
     setup(app, EncryptedCookieStorage(SECRET_KEY))
     app["users"] = {
         "Random-Mover": User(bot=True, username="Random-Mover"),
-        "Fairy-Stockfish": User(bot=True, username="Fairy-Stockfish")
+#        "Fairy-Stockfish": User(bot=True, username="Fairy-Stockfish")
     }
     app["users"]["Random-Mover"].online = True
     app["websockets"] = {}
@@ -44,14 +44,14 @@ async def make_app(loop):
         app["seeks"][seek.id] = seek
         bot.seeks[seek.id] = seek
 
-    bot = app["users"]["Fairy-Stockfish"]
-    for variant in VARIANTS:
-        # TOOD: Elephant-Eye
-        if variant == "xiangqi":
-            continue
-        seek = Seek(bot, variant, base=5, inc=3)
-        app["seeks"][seek.id] = seek
-        bot.seeks[seek.id] = seek
+#    bot = app["users"]["Fairy-Stockfish"]
+#    for variant in VARIANTS:
+#        # TOOD: Elephant-Eye
+#        if variant == "xiangqi":
+#            continue
+#        seek = Seek(bot, variant, base=5, inc=3)
+#        app["seeks"][seek.id] = seek
+#        bot.seeks[seek.id] = seek
 
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]
