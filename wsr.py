@@ -1,6 +1,8 @@
 import asyncio
 import json
 import logging
+import random
+import string
 
 import aiohttp
 from aiohttp import web
@@ -8,7 +10,8 @@ import aiohttp_session
 
 from fairy import WHITE, BLACK
 from utils import play_move, get_board, start, draw, game_ended, round_broadcast,\
-    new_game, challenge, load_game, User, Seek, STARTED, DRAW, MyWebSocketResponse, MORE_TIME
+    new_game, challenge, load_game, User, Seek, STARTED, DRAW, MyWebSocketResponse,\
+    MORE_TIME, ANALYSIS
 
 log = logging.getLogger(__name__)
 
@@ -121,15 +124,43 @@ async def round_socket_handler(request):
                     elif data["type"] == "analysis":
                         game = await load_game(request.app, data["gameId"])
 
-                        variant = game.variant
-                        if variant == "xiangqi":
-                            engine = users.get("Elephant-Eye")
+                        # If there is any fishnet client, use it.
+                        # Otherwise use Fairy BOT.
+                        if len(request.app["workers"]) > 0:
+                            work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
+                            work = {
+                                "work": {
+                                    "type": "analysis",
+                                    "id": work_id,
+                                },
+                                # or:
+                                # "work": {
+                                #   "type": "move",
+                                #   "id": "work_id",
+                                #   "level": 5 // 1 to 8
+                                # },
+                                "username": data["username"],
+                                "game_id": data["gameId"],  # optional
+                                "position": game.board.initial_fen,  # start position (X-FEN)
+                                "variant": game.variant,
+                                "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
+                                "nodes": 100000,  # optional limit
+                                #  "skipPositions": [1, 4, 5]  # 0 is the first position
+                            }
+                            request.app["works"][work_id] = work
+                            request.app["fishnet"].put_nowait((ANALYSIS, work_id))
                         else:
-                            engine = users.get("Fairy-Stockfish")
+                            variant = game.variant
+                            if variant == "xiangqi":
+                                engine = users.get("Elephant-Eye")
+                            else:
+                                engine = users.get("Fairy-Stockfish")
+                            if (engine is not None) and engine.online:
+                                engine.game_queues[data["gameId"]] = asyncio.Queue()
+                                await engine.event_queue.put(game.analysis_start(data["username"]))
 
-                        if (engine is not None) and engine.online:
-                            engine.game_queues[data["gameId"]] = asyncio.Queue()
-                            await engine.event_queue.put(game.analysis_start(data["username"]))
+                        response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Analysis request sent..."}
+                        await ws.send_json(response)
 
                     elif data["type"] == "rematch":
                         game = await load_game(request.app, data["gameId"])
@@ -138,7 +169,9 @@ async def round_socket_handler(request):
 
                         if opp_player.bot:
                             variant = game.variant
-                            if variant == "xiangqi":
+                            if opp_player.username == "Random-Mover":
+                                engine = users.get("Random-Mover")
+                            elif variant == "xiangqi":
                                 engine = users.get("Elephant-Eye")
                             else:
                                 engine = users.get("Fairy-Stockfish")

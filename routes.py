@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import warnings
@@ -14,10 +15,12 @@ from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
-from utils import load_game, pgn, User, STARTED
+from utils import load_game, pgn, User, STARTED, ANALYSIS
+
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from compress import C2V, C2R
+from settings import FISHNET_KEYS
 
 try:
     import htmlmin
@@ -277,36 +280,113 @@ async def variant(request):
 
 
 async def fishnet_acquire(request):
-    work = None
-    work_id = "12345"
-    work = {
-        "work": {
-          "type": "analysis",
-          "id": work_id,
-        },
-        # or:
-        # "work": {
-        #   "type": "move",
-        #   "id": "work_id",
-        #   "level": 5 // 1 to 8
-        # },
-        "game_id": "abcdefgh", # optional
-        "position": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", # start position (X-FEN)
-        "variant": "standard",
-        "moves": "e2e4 c7c5 c2c4 b8c6 g1e2 g8f6 b1c3 c6b4 g2g3 b4d3", # moves of the game (UCI)
-        "nodes": 3500000, # optional limit
-        "skipPositions": [1, 4, 5] # 0 is the first position
-    }
-    if work is None:
-        return web.Response(text="OK", status=204, content_type="text/html")
-    else:
+    data = await request.json()
+    log.info("--- fishnet_acquire: %s" % data["fishnet"]["apikey"])
+    if data["fishnet"]["apikey"] not in FISHNET_KEYS:
+        return web.Response(status=404)
+
+    if data["fishnet"]["apikey"] not in request.app["workers"]:
+        request.app["workers"].add(data["fishnet"]["apikey"])
+
+    fishnet_work_queue = request.app["fishnet"]
+
+    # priority can be "move" or "analysis"
+    try:
+        (priority, work_id) = fishnet_work_queue.get_nowait()
+        work = request.app["works"][work_id]
+
+        if priority == ANALYSIS:
+            users = request.app["users"]
+            user_ws = users[work["username"]].game_sockets[work["game_id"]]
+            response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Work for fishnet sent..."}
+            await user_ws.send_json(response)
+
         return web.json_response(work, status=202)
+    except asyncio.QueueEmpty:
+        return web.Response(status=204)
+    except Exception:
+        raise
 
 
 async def fishnet_analysis(request):
+    work_id = request.match_info.get("workId")
     data = await request.json()
-    print(data)
-    return web.Response(text="OK", status=204, content_type="text/html")
+    log.info("--- fishnet_analysis: %s" % work_id)
+    # print(json.dumps(data, sort_keys=True, indent=4))
+    if data["fishnet"]["apikey"] not in FISHNET_KEYS:
+        return web.Response(status=404)
+
+    work = request.app["works"][work_id]
+    gameId = work["game_id"]
+    games = request.app["games"]
+    game = games[gameId]
+
+    bot_name = data["stockfish"]["name"]
+
+    users = request.app["users"]
+    username = work["username"]
+    user_ws = users[username].game_sockets[gameId]
+
+    length = len(data["analysis"])
+    for j, analysis in enumerate(reversed(data["analysis"])):
+        i = length - j - 1
+        if analysis is not None:
+            if "analysis" not in game.steps[i]:
+                game.steps[i]["analysis"] = analysis
+            else:
+                continue
+
+            ply = str(i)
+            response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
+            await user_ws.send_json(response)
+
+            response = {"type": "analysis", "ply": ply, "color": "w" if i % 2 == 0 else "b", "ceval": analysis}
+            await user_ws.send_json(response)
+
+    # remove completed work
+    if all(data["analysis"]):
+        del request.app["works"][work_id]
+
+    return web.Response(status=204)
+
+
+async def fishnet_move(request):
+    work_id = request.match_info.get("workId")
+    data = await request.json()
+    log.info("--- fishnet_move: %s" % work_id)
+    print(json.dumps(data, sort_keys=True, indent=4))
+    if data["fishnet"]["apikey"] not in FISHNET_KEYS:
+        return web.Response(status=404)
+
+    # remove completed work
+    del request.app["works"][work_id]
+
+    return web.Response(status=204)
+
+
+async def fishnet_abort(request):
+    work_id = request.match_info.get("workId")
+    data = await request.json()
+    log.info("--- fishnet_abort work: %s" % work_id)
+    if data["fishnet"]["apikey"] not in FISHNET_KEYS:
+        return web.Response(status=404)
+
+    # remove fishnet client
+    request.app["workers"].remove(data["fishnet"]["apikey"])
+
+    # re-schedule the job
+    request.app["fishnet"].put_nowait((ANALYSIS, work_id))
+
+    return web.Response(status=204)
+
+
+async def fishnet_key(request):
+    key = request.match_info.get("key")
+    log.info("--- fishnet_key: %s" % key)
+    if key not in FISHNET_KEYS:
+        return web.Response(status=404)
+
+    return web.Response()
 
 
 get_routes = (
@@ -331,6 +411,7 @@ get_routes = (
     ("/api/players", get_players),
     ("/variant/{variant}", variant),
     ("/games/export/{profileId}", export),
+    ("/fishnet/key/{key}", fishnet_key),
 )
 
 post_routes = (
@@ -346,4 +427,6 @@ post_routes = (
     ("/api/pong", bot_pong),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
+    ("/fishnet/move/{workId}", fishnet_move),
+    ("/fishnet/abort/{workId}", fishnet_abort),
 )

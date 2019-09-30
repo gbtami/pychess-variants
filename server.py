@@ -20,7 +20,10 @@ from utils import Seek, User, VARIANTS, STARTED
 async def make_app(loop):
     app = web.Application(loop=loop)
     setup(app, EncryptedCookieStorage(SECRET_KEY))
-    app["users"] = {"Random-Mover": User(bot=True, username="Random-Mover")}
+    app["users"] = {
+        "Random-Mover": User(bot=True, username="Random-Mover"),
+        "Fairy-Stockfish": User(bot=True, username="Fairy-Stockfish")
+    }
     app["users"]["Random-Mover"].online = True
     app["websockets"] = {}
     app["seeks"] = {}
@@ -28,9 +31,25 @@ async def make_app(loop):
     app["tasks"] = weakref.WeakSet()
     app["chat"] = collections.deque([], 200)
 
+    # fishnet workers
+    app["workers"] = set()
+    # fishnet works
+    app["works"] = {}
+    # fishnet worker tasks
+    app["fishnet"] = asyncio.PriorityQueue()
+
     bot = app["users"]["Random-Mover"]
     for variant in VARIANTS:
         seek = Seek(bot, variant, base=1, inc=0)
+        app["seeks"][seek.id] = seek
+        bot.seeks[seek.id] = seek
+
+    bot = app["users"]["Fairy-Stockfish"]
+    for variant in VARIANTS:
+        # TOOD: Elephant-Eye
+        if variant == "xiangqi":
+            continue
+        seek = Seek(bot, variant, base=5, inc=3)
         app["seeks"][seek.id] = seek
         bot.seeks[seek.id] = seek
 

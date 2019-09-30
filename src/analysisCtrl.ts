@@ -498,24 +498,27 @@ export default class AnalysisController {
     }
 
     private onMsgAnalysis = (msg) => {
-        if (!msg['ceval'].hasOwnProperty('score')) return;
+        if (msg['ceval']['score'] === undefined) return;
 
         const ply = msg['ply'];
-        const ceval = msg['ceval']['score'];
-        var score = '';
-        if (msg['ceval'].hasOwnProperty('mate')) {
+        const score = msg['ceval']['score'];
+        var scoreStr = '';
+        var ceval = '';
+        if (score['mate'] !== undefined) {
+            ceval = score['mate']
             const sign = ((msg.color === 'b' && Number(ceval) > 0) || (msg.color === 'w' && Number(ceval) < 0)) ? '-': '';
-            this.steps[ply]['eval'] = {'mate': ceval};
-            score = '#' + sign + Math.abs(Number(ceval));
+            scoreStr = '#' + sign + Math.abs(Number(ceval));
         } else {
-            this.steps[ply]['eval'] = {'cp': ceval};
-            var nscore = Number(ceval / 100.0);
+            ceval = score['cp']
+            var nscore = Number(ceval) / 100.0;
             if (msg.color === 'b') nscore = -nscore;
-            score = nscore.toFixed(1);
+            scoreStr = nscore.toFixed(1);
         }
-        console.log(ply, score);
+        console.log(ply, scoreStr);
         var evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
-        patch(evalEl, h('eval#ply' + String(ply), score));
+        patch(evalEl, h('eval#ply' + String(ply), scoreStr));
+
+        this.steps[ply]['score'] = score;
     }
 
     private onMsgUserConnected = () => {

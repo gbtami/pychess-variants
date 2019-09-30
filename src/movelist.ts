@@ -60,9 +60,9 @@ export function selectMove (ctrl, ply) {
     const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
     console.log("selectMove()", blackEl);
     if (blackEl) {
-        var ceval = ctrl.steps[ply]['eval'];
-        if (ceval !== undefined) {
-            const ev = povChances(ctrl.steps[ply]['turnColor'], ceval);
+        var score = ctrl.steps[ply]['score'];
+        if (score !== undefined) {
+            const ev = povChances(ctrl.steps[ply]['turnColor'], score);
             console.log(String(100 - (ev + 1) * 50) + '%');
             blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
         } else {
