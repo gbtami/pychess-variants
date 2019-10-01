@@ -232,6 +232,10 @@ async def get_games(request):
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
 
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+
     page_num = request.rel_url.query.get("p")
     if not page_num:
         page_num = 0
@@ -241,6 +245,9 @@ async def get_games(request):
         cursor = db.game.find({"us": profileId})
         cursor.sort('d', -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         async for doc in cursor:
+            # filter out private games
+            if "p" in doc and doc["p"] == 1 and session_user != doc["us"][0] and session_user != doc["us"][1]:
+                continue
             doc["v"] = C2V[doc["v"]]
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
@@ -259,10 +266,18 @@ async def export(request):
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
 
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+
     game_list = []
     if profileId is not None:
         cursor = db.game.find({"us": profileId})
         async for doc in cursor:
+            # filter out private games
+            if "p" in doc and doc["p"] == 1 and session_user != doc["us"][0] and session_user != doc["us"][1]:
+                continue
+
             try:
                 game_list.append(pgn(doc))
             except Exception:
