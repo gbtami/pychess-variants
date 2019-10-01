@@ -52,6 +52,8 @@ VARIANTS = (
     "shouse",
     "grand",
     "grandhouse",
+    "gothic",
+    "gothhouse",
 )
 
 VARIANTS960 = {

@@ -1,7 +1,7 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse"];
+export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse"];
 export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"];
 
 export const VARIANTS = {
@@ -13,6 +13,8 @@ export const VARIANTS = {
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "H" },
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "board10x8", BoardCSS: ["10x8brown", "10x8blue", "10x8green", "10x8maple", "10x8olive"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
     capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "board10x8", BoardCSS: ["10x8brown", "10x8blue", "10x8green", "10x8maple", "10x8olive"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
+    gothic: { geom: Geometry.dim10x8, cg: "cg-640", board: "board10x8", BoardCSS: ["10x8brown", "10x8blue", "10x8green", "10x8maple", "10x8olive"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
+    gothhouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "board10x8", BoardCSS: ["10x8brown", "10x8blue", "10x8green", "10x8maple", "10x8olive"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
     grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue", "10x10green", "10x10maple", "10x10olive"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
     grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue", "10x10green", "10x10maple", "10x10olive"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "G" },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L" },
@@ -27,6 +29,7 @@ export function pocketRoles(variant: string) {
     case "crazyhouse":
         return ["pawn", "knight", "bishop", "rook", "queen"];
     case "grandhouse":
+    case "gothhouse":
     case "capahouse":
         return ["pawn", "knight", "bishop", "rook", "queen", "archbishop", "cancellor"];
     case "shogi":
@@ -55,6 +58,8 @@ function promotionZone(variant: string, color: string) {
 
 export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key, promotions) {
     switch (variant) {
+    case "gothic":
+    case "gothhouse":
     case "capahouse":
     case "capablanca":
         return ["queen", "knight", "rook", "bishop", "archbishop", "cancellor"];
@@ -102,11 +107,11 @@ export function mandatoryPromotion(role: Role, dest: Key, color: Color) {
 }
 
 export function needPockets(variant: string) {
-    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant === 'shogi' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse';
+    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant === 'shogi' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
 }
 
 export function hasEp(variant: string) {
-    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse';
+    return variant === 'standard' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse";
 }
 
 function diff(a: number, b:number):number {
