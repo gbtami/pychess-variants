@@ -311,6 +311,14 @@ async def fishnet_acquire(request):
         work = request.app["works"][work_id]
 
         if priority == ANALYSIS:
+            # delete previous analysis
+            gameId = work["game_id"]
+            games = request.app["games"]
+            game = games[gameId]
+            for step in game.steps:
+                if "analysis" in step:
+                    del step["analysis"]
+
             users = request.app["users"]
             user_ws = users[work["username"]].game_sockets[work["game_id"]]
             response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Work for fishnet sent..."}
