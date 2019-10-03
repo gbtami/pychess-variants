@@ -13,8 +13,12 @@ async def fishnet_acquire(request):
     data = await request.json()
 
     fm = request.app["fishnet_monitor"]
+    fv = request.app["fishnet_versions"]
     key = data["fishnet"]["apikey"]
+    version = data["fishnet"]["version"]
     worker = FISHNET_KEYS[key]
+    fv[worker] = version
+    FISHNET_KEYS[key] = (FISHNET_KEYS[key])
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
@@ -153,5 +157,6 @@ async def fishnet_key(request):
 
 async def fishnet_monitor(request):
     fm = request.app["fishnet_monitor"]
-    workers = {worker: list(fm[worker]) for worker in fm if fm[worker]}
+    fv = request.app["fishnet_versions"]
+    workers = {worker + " v" + fv[worker]: list(fm[worker]) for worker in fm if fm[worker]}
     return web.json_response(workers, dumps=partial(json.dumps, default=datetime.isoformat))

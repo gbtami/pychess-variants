@@ -38,6 +38,7 @@ async def make_app(loop):
     app["fishnet"] = asyncio.PriorityQueue()
     # fishnet workers monitor
     app["fishnet_monitor"] = {}
+    app["fishnet_versions"] = {}
     for key in FISHNET_KEYS:
         app["fishnet_monitor"][FISHNET_KEYS[key]] = collections.deque([], 50)
 

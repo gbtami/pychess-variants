@@ -322,6 +322,7 @@ export default class AnalysisController {
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
         var shapes0: DrawShape[] = [];
+        this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         if (ceval !== undefined && ceval.pv !== undefined) {
             var pv_move = ceval["pv"].slice(0, 4);
@@ -334,15 +335,13 @@ export default class AnalysisController {
                     color: step.turnColor,
                     role: sanToRole[pv_move.slice(0, 1)]
                     }},
+                    { orig: d, brush: 'paleGreen'}
                 ];
             } else {
                 const o = pv_move.slice(0, 2);
                 const d = pv_move.slice(2, 4);
                 shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
             }
-        } else {
-            console.log("CLEAR");
-            this.chessground.setAutoShapes(shapes0);
         }
 
         console.log(shapes0);
@@ -357,9 +356,14 @@ export default class AnalysisController {
             check: step.check,
             lastMove: move,
             drawable: {
-                autoShapes: shapes0
+                autoShapes: shapes0,
+                //pieces: {
+                // TODO: drop pieces have to be in one path (wg.svg for white gold)
+                //    baseUrl: this.model["home"] + '/static/images/pieces/' 
+                //    }
             },
         });
+
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
 
