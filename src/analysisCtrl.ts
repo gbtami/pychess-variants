@@ -11,12 +11,13 @@ import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece } from 'chessgroundx/types';
+import { DrawShape } from 'chessgroundx/draw';
 
 import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS } from './chess';
+import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, sanToRole } from './chess';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
@@ -156,7 +157,7 @@ export default class AnalysisController {
 
         if (this.spectator) {
             this.chessground.set({
-                viewOnly: true,
+                //viewOnly: true,
                 events: {
                     move: this.onMove(),
                 }
@@ -312,7 +313,7 @@ export default class AnalysisController {
 
     goPly = (ply) => {
         const step = this.steps[ply];
-        var move = step['move'];
+        var move = step.move;
         var capture = false;
         if (move !== undefined) {
             if (this.variant === "shogi") move = usi2uci(move);
@@ -320,7 +321,31 @@ export default class AnalysisController {
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
+        var shapes0: DrawShape[] = [];
+        const ceval = step.ceval;
+        if (ceval !== undefined && ceval.pv !== undefined) {
+            var pv_move = ceval["pv"].slice(0, 4);
+            if (this.variant === "shogi") pv_move = usi2uci(pv_move);
+            if (this.variant === "grand" || this.variant === "grandhouse") pv_move = grand2zero(pv_move);
+            console.log(pv_move, ceval["pv"]);
+            if (pv_move.slice(1, 2) === '@') {
+                const d = pv_move.slice(2, 4);
+                shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
+                    color: step.turnColor,
+                    role: sanToRole[pv_move.slice(0, 1)]
+                    }},
+                ];
+            } else {
+                const o = pv_move.slice(0, 2);
+                const d = pv_move.slice(2, 4);
+                shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+            }
+        } else {
+            console.log("CLEAR");
+            this.chessground.setAutoShapes(shapes0);
+        }
 
+        console.log(shapes0);
         this.chessground.set({
             fen: step.fen,
             turnColor: step.turnColor,
@@ -331,6 +356,9 @@ export default class AnalysisController {
                 },
             check: step.check,
             lastMove: move,
+            drawable: {
+                autoShapes: shapes0
+            },
         });
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
@@ -515,10 +543,11 @@ export default class AnalysisController {
             scoreStr = nscore.toFixed(1);
         }
         console.log(ply, scoreStr);
-        var evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
-        patch(evalEl, h('eval#ply' + String(ply), scoreStr));
-
-        this.steps[ply]['score'] = score;
+        if (ply > 0) {
+            var evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
+            patch(evalEl, h('eval#ply' + String(ply), scoreStr));
+        }
+        this.steps[ply]['ceval'] = msg['ceval'];
     }
 
     private onMsgUserConnected = () => {

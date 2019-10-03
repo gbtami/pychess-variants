@@ -29,7 +29,7 @@ async def fishnet_acquire(request):
     try:
         (priority, work_id) = fishnet_work_queue.get_nowait()
         work = request.app["works"][work_id]
-
+        # print(work)
         if priority == ANALYSIS:
             fm[worker].append("%s %s %s %s of %s moves" % (datetime.utcnow(), work_id, "request", "analysis", work["moves"].count(" ") + 1))
 

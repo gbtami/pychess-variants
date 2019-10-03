@@ -92,7 +92,7 @@ async def lobby_socket_handler(request):
 
                     elif data["type"] == "accept_seek":
                         if data["seekID"] not in seeks:
-                            return
+                            continue
 
                         seek = seeks[data["seekID"]]
                         print("accept_seek", seek.as_json)

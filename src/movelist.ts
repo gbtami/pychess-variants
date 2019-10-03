@@ -59,8 +59,8 @@ export function selectMove (ctrl, ply) {
     const gaugeEl = document.getElementById('gauge') as HTMLElement;
     const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
     console.log("selectMove()", blackEl);
-    if (blackEl) {
-        var score = ctrl.steps[ply]['score'];
+    if (blackEl && ctrl.steps[ply]['ceval'] !== undefined) {
+        var score = ctrl.steps[ply]['ceval']['score'];
         if (score !== undefined) {
             const ev = povChances(ctrl.steps[ply]['turnColor'], score);
             console.log(String(100 - (ev + 1) * 50) + '%');

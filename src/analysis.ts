@@ -73,12 +73,12 @@ export function analysisView(model): VNode[] {
                     ]),
                 ]),
                 h('div.round-data', [
-                    h('div#move-controls'),
                     h('div#board-settings'),
                     h('div#movelist-block', [
                         h('div#movelist'),
                         h('div#result'),
                     ]),
+                    h('div#move-controls'),
                 ]),
                 h('div#pocket-wrapper', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
