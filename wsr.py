@@ -124,6 +124,11 @@ async def round_socket_handler(request):
                     elif data["type"] == "analysis":
                         game = await load_game(request.app, data["gameId"])
 
+                        if game.variant == "xiangqi":
+                            response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Xiangqi analysis is not supported yet. "}
+                            await ws.send_json(response)
+                            continue
+
                         # If there is any fishnet client, use it.
                         # Otherwise use Fairy BOT.
                         if len(request.app["workers"]) > 0:
