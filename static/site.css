@@ -1085,3 +1085,21 @@ body.no-sidebar .content {
   border-bottom: 7px solid rgba(214,79,0,0.4);
   margin-top: -3px;
 }
+
+div#pv {
+  background-color: WhiteSmoke;
+  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+}
+
+pv {
+  display: flex;
+  margin: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+score {
+  margin: 6px;
+  font-weight: bold;
+  font-size: 22px;
+}

@@ -46,7 +46,8 @@ export default class AnalysisController {
     vpocket1: any;
     vplayer0: any;
     vplayer1: any;
-    vpng: any;
+    vpgn: any;
+    vpv: any;
     gameControls: any;
     moveControls: any;
     gating: any;
@@ -197,6 +198,8 @@ export default class AnalysisController {
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
+        this.vpv = document.getElementById('pv') as HTMLElement;
+
         const btn = h('button#analysis', {
                         on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) }},
                         [h('i', {
@@ -225,7 +228,7 @@ export default class AnalysisController {
 
             this.pgn = msg.pgn;
             var container = document.getElementById('pgn') as HTMLElement;
-            this.vpng = patch(container, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn)]));
+            this.vpgn = patch(container, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn)]));
 
             selectMove(this, this.ply);
         }
@@ -342,6 +345,10 @@ export default class AnalysisController {
                 const d = pv_move.slice(2, 4);
                 shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
             }
+
+            this.vpv = patch(this.vpv, h('div#pv', [
+                h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval["depth"])]),
+                h('pv', ceval["pv"])]));
         }
 
         console.log(shapes0);
@@ -380,7 +387,7 @@ export default class AnalysisController {
         }
         this.ply = ply
 
-        this.vpng = patch(this.vpng, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false } }, this.pgn)]));
+        this.vpgn = patch(this.vpgn, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false } }, this.pgn)]));
     }
 
     private doSend = (message) => {
@@ -552,6 +559,7 @@ export default class AnalysisController {
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
         }
         this.steps[ply]['ceval'] = msg['ceval'];
+        this.steps[ply]['scoreStr'] = scoreStr;
     }
 
     private onMsgUserConnected = () => {
