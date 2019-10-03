@@ -13,7 +13,7 @@ from aiohttp_session import setup
 from motor import motor_asyncio as ma
 
 from routes import get_routes, post_routes
-from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME
+from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
 from utils import Seek, User, VARIANTS, STARTED
 
 
@@ -22,7 +22,6 @@ async def make_app(loop):
     setup(app, EncryptedCookieStorage(SECRET_KEY))
     app["users"] = {
         "Random-Mover": User(bot=True, username="Random-Mover"),
-#        "Fairy-Stockfish": User(bot=True, username="Fairy-Stockfish")
     }
     app["users"]["Random-Mover"].online = True
     app["websockets"] = {}
@@ -31,27 +30,22 @@ async def make_app(loop):
     app["tasks"] = weakref.WeakSet()
     app["chat"] = collections.deque([], 200)
 
-    # fishnet workers
+    # fishnet active workers
     app["workers"] = set()
     # fishnet works
     app["works"] = {}
     # fishnet worker tasks
     app["fishnet"] = asyncio.PriorityQueue()
+    # fishnet workers monitor
+    app["fishnet_monitor"] = {}
+    for key in FISHNET_KEYS:
+        app["fishnet_monitor"][FISHNET_KEYS[key]] = collections.deque([], 50)
 
     bot = app["users"]["Random-Mover"]
     for variant in VARIANTS:
         seek = Seek(bot, variant, base=1, inc=0)
         app["seeks"][seek.id] = seek
         bot.seeks[seek.id] = seek
-
-#    bot = app["users"]["Fairy-Stockfish"]
-#    for variant in VARIANTS:
-#        # TOOD: Elephant-Eye
-#        if variant == "xiangqi":
-#            continue
-#        seek = Seek(bot, variant, base=5, inc=3)
-#        app["seeks"][seek.id] = seek
-#        bot.seeks[seek.id] = seek
 
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]
