@@ -5,7 +5,7 @@ import json
 
 from aiohttp import web
 
-from utils import ANALYSIS
+from utils import ANALYSIS, load_game
 from settings import FISHNET_KEYS
 
 
@@ -35,8 +35,7 @@ async def fishnet_acquire(request):
 
             # delete previous analysis
             gameId = work["game_id"]
-            games = request.app["games"]
-            game = games[gameId]
+            game = await load_game(request.app, gameId)
             for step in game.steps:
                 if "analysis" in step:
                     del step["analysis"]
@@ -71,8 +70,7 @@ async def fishnet_analysis(request):
     fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "analysis"))
 
     gameId = work["game_id"]
-    games = request.app["games"]
-    game = games[gameId]
+    game = await load_game(request.app, gameId)
 
     bot_name = data["stockfish"]["name"]
 
