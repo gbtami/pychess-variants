@@ -24,7 +24,7 @@ class FairyBoard:
         self.move_stack = []
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
         self.fen = self.initial_fen
-        if chess960 and initial_fen==self.start_fen(variant):
+        if chess960 and initial_fen == self.start_fen(variant):
             self.chess960 = False
 
     def start_fen(self, variant, chess960=False):
@@ -37,6 +37,10 @@ class FairyBoard:
                 return self.shuffle_start()
             else:
                 return sf.start_fen(variant)
+
+    @property
+    def initial_sfen(self):
+        return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
     def push(self, move):
         try:

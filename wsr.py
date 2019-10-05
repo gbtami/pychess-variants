@@ -319,17 +319,18 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "roundchat":
                         response = {"type": "roundchat", "user": user.username, "message": data["message"]}
-
-                        game = await load_game(request.app, data["gameId"])
+                        gameId = data["gameId"]
+                        game = await load_game(request.app, gameId)
                         game.messages.append(data["message"])
 
                         for name in (game.wplayer.username, game.bplayer.username):
                             player = users[name]
                             if player.bot:
-                                await player.game_queues[data["gameId"]].put('{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n' % (user.username, data["message"]))
+                                if gameId in player.game_queues:
+                                    await player.game_queues[gameId].put('{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n' % (user.username, data["message"]))
                             else:
-                                if data["gameId"] in player.game_sockets:
-                                    player_ws = player.game_sockets[data["gameId"]]
+                                if gameId in player.game_sockets:
+                                    player_ws = player.game_sockets[gameId]
                                     await player_ws.send_json(response)
 
                         await round_broadcast(game, users, response)

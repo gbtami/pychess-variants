@@ -76,7 +76,7 @@ textarea {
   width: calc(var(--cgwrapwidth));
   resize: none;
 }
-div#pgn {
+div.pgn {
   width: calc(var(--cgwrapwidth));
 }
 under-right {
@@ -408,13 +408,20 @@ player-head {
   color: #505050;
   text-decoration: none;
 }
-
-a.i-tv:link, a.i-dl:link {
+.i-pgn {
+  float: left;
+  padding: 10px;
+  color: RoyalBlue;
+}
+a.i-tv:link, a.i-dl:link, a.i-pgn:link {
     display: inline-block;
     text-decoration: none;
 }
 a.i-tv:hover, a.i-dl:hover {
     color: RoyalBlue;
+}
+.i-pgn:hover {
+    color: #004f98;
 }
 
 table#games, table#players {

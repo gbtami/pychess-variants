@@ -608,6 +608,13 @@ class Game:
             setup="" if no_setup else '[SetUp "1"]\n')
 
     @property
+    def uci_usi(self):
+        if self.variant == "shogi":
+            return "position sfen %s moves %s" % (self.board.initial_sfen, " ".join(self.board.move_stack))
+        else:
+            return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
+
+    @property
     def ply(self):
         return len(self.board.move_stack)
 
@@ -874,6 +881,7 @@ def get_board(games, data, full=False):
             "ply": game.ply,
             "clocks": {"black": clocks["black"], "white": clocks["white"]},
             "pgn": game.pgn if game.status > STARTED else "",
+            "uci_usi": game.uci_usi if game.status > STARTED else "",
             "rm": game.random_move,
             }
 

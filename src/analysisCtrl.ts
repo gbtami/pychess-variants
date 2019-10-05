@@ -22,9 +22,24 @@ import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
-import { result } from './profile'
+import { result } from './profile';
+import { copyTextToClipboard } from './clipboard';
 
 const patch = init([klass, attributes, properties, listeners]);
+
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
 
 
 export default class AnalysisController {
@@ -46,7 +61,7 @@ export default class AnalysisController {
     vpocket1: any;
     vplayer0: any;
     vplayer1: any;
-    vpgn: any;
+    vfen: any;
     vpv: any;
     gameControls: any;
     moveControls: any;
@@ -62,6 +77,7 @@ export default class AnalysisController {
     status: number;
     steps;
     pgn: string;
+    uci_usi: string;
     ply: number;
     players: string[];
     titles: string[];
@@ -227,8 +243,22 @@ export default class AnalysisController {
             this.gameOver();
 
             this.pgn = msg.pgn;
-            var container = document.getElementById('pgn') as HTMLElement;
-            this.vpgn = patch(container, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn)]));
+            this.uci_usi = msg.uci_usi;
+
+            var container = document.getElementById('copyfen') as HTMLElement;
+            patch(container, h('div', [
+                h('a.i-pgn', { on: { click: () => download("pachess-variants_" + this.model["gameId"], this.pgn) } }, [
+                    h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
+                h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
+                    h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
+                ]),
+            );
+
+            container = document.getElementById('fen') as HTMLElement;
+            this.vfen = patch(container, h('div#fen', this.fullfen));
+
+            container = document.getElementById('pgntext') as HTMLElement;
+            patch(container, h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn));
 
             selectMove(this, this.ply);
         }
@@ -386,8 +416,7 @@ export default class AnalysisController {
             }
         }
         this.ply = ply
-
-        this.vpgn = patch(this.vpgn, h('div#pgn', [h('div', this.fullfen), h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false } }, this.pgn)]));
+        this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
     }
 
     private doSend = (message) => {

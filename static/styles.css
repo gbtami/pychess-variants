@@ -191,3 +191,18 @@
 .icon-microscope:before {
   content: "\59";
 }
+.icon-clipboard:before {
+  content: "\5a";
+}
+.icon-cloud-upload:before {
+  content: "\30";
+}
+.icon-pencil:before {
+  content: "\31";
+}
+.icon-ink-pen:before {
+  content: "\32";
+}
+.icon-bar-chart:before {
+  content: "\33";
+}
