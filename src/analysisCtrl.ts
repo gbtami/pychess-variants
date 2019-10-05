@@ -394,10 +394,10 @@ export default class AnalysisController {
             lastMove: move,
             drawable: {
                 autoShapes: shapes0,
-                //pieces: {
-                // TODO: drop pieces have to be in one path (wg.svg for white gold)
-                //    baseUrl: this.model["home"] + '/static/images/pieces/' 
-                //    }
+                pieces: {
+                    // drop pieces have to be in one path (wg.svg for white gold)
+                    baseUrl: this.model["home"] + '/static/images/pieces/merida/' 
+                    }
             },
         });
 
