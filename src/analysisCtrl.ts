@@ -378,7 +378,8 @@ export default class AnalysisController {
 
             this.vpv = patch(this.vpv, h('div#pv', [
                 h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval["depth"])]),
-                h('pv', ceval["pv"])]));
+                h('pv', ceval.pv_san !== undefined ? ceval.pv_san : ceval.pv)
+            ]));
         }
 
         console.log(shapes0);
