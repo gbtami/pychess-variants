@@ -12,7 +12,7 @@ The general rules are extremely similar to Chess, so this guide will focus on th
 
 * For starters, the feudal lords (pawns) start on staggered ranks (as you can see in the board above). 
 * To start the game, the players (starting with the red player) alternate back and forth placing the remainder of their pieces on their halves of the boards.
-* After a feudal lord reaches a diagonal line, the player can choose to promote that piece intoa general instead of moving. This can only occur *if* their general has already been captured. If they choose not to promote, then that pawn cannot promote for the rest of the game.
+* Pawn (feudal lord) promotion works much differently. See the movement section below. 
 * Creating stalemate is illegal. 
 
 ## The Pieces
@@ -51,4 +51,8 @@ The chariot moves exactly the same as a rook in chess.
 
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Pawn.png?raw=true)
 
-The feudal lord moves and attacks the same as a pawn in chess. However, there is no double-step first move. See above regarding pawn promotions.
+The feudal lord moves and attacks the same as a pawn in chess. However, there is no double-step first move. 
+
+**Promotion**: After a feudal lord reaches the diagonal line on the opponent's side of the board, the player can choose to promote that piece into a general instead of moving. This can only occur *if* their general has already been captured. Promotion does not happen on the move where the feudal lord reaches the promotion square, but rather any move after that. In the act of promotion, the feuudal lord can promote in place, or it can promote in any one of the adjacent diagonal squres. However, promotion cannot be made in a square in which the new general will be in an attacking position (threatening an enemy piece). If there is one feudal lord left on the board, then it has the ability to promote on its turn.
+
+Finally, you may opt not to promote a feudal lord that reaches the final rank, which would result in stalemate if this is the last piece left.
