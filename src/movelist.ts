@@ -49,7 +49,7 @@ export function povChances(color: Color, ev: Eval) {
 }
 
 export function selectMove (ctrl, ply) {
-    console.log("selectMove()", ply, ctrl.steps[ply]['eval']);
+    // console.log("selectMove()", ply, ctrl.steps[ply]['eval']);
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
 
@@ -57,19 +57,20 @@ export function selectMove (ctrl, ply) {
     if (elPly) elPly.classList.add('active');
 
     const gaugeEl = document.getElementById('gauge') as HTMLElement;
-    const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
-    console.log("selectMove()", blackEl);
-    if (blackEl && ctrl.steps[ply]['ceval'] !== undefined) {
-        var score = ctrl.steps[ply]['ceval']['score'];
-        if (score !== undefined) {
-            const ev = povChances(ctrl.steps[ply]['turnColor'], score);
-            console.log(String(100 - (ev + 1) * 50) + '%');
-            blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
-        } else {
-            blackEl.style.height = '50%';
+    if (gaugeEl) {
+        const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
+        // console.log("selectMove()", blackEl);
+        if (blackEl && ctrl.steps[ply]['ceval'] !== undefined) {
+            var score = ctrl.steps[ply]['ceval']['score'];
+            if (score !== undefined) {
+                const ev = povChances(ctrl.steps[ply]['turnColor'], score);
+                // console.log(String(100 - (ev + 1) * 50) + '%');
+                blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+            } else {
+                blackEl.style.height = '50%';
+            }
         }
     }
-
     ctrl.goPly(ply)
     scrollToPly(ctrl);
 }
@@ -95,7 +96,7 @@ function scrollToPly (ctrl) {
                 plyEl.scrollIntoView(false);
             }
         } else {
-            console.log("scrollToPly", ctrl.ply, st);
+            // console.log("scrollToPly", ctrl.ply, st);
             movelistblockEl.scrollTop = st;
         }
     }
