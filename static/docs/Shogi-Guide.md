@@ -8,7 +8,7 @@
 
 ## Why learn Shogi?
 
-If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking!
+If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking! [See here for more about that.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
 
 ## What are the rules of Shogi?
 
