@@ -60,6 +60,8 @@ export function view(el, model): VNode {
         return h('div#placeholder.players-wrapper', playersView(model));
     case 'profile':
         return h('div#placeholder.profile-wrapper', profileView(model));
+    case 'level8win':
+        return h('div#placeholder.profile-wrapper', profileView(model));
     case 'tv':
     case 'round':
         return h('div#placeholder.main-wrapper', roundView(model));

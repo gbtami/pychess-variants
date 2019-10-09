@@ -81,7 +81,7 @@ function setZoom (ctrl, zoom: number) {
         el.style.width = pxw;
         el.style.height = pxh;
         var pxp = (needPockets(ctrl.variant)) ? '132px;' : '0px;';
-        document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp);
+        document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp + '; --PVheight: 0px;');
 
         document.body.dispatchEvent(new Event('chessground.resize'));
         localStorage.setItem("zoom-" + ctrl.variant, String(zoom));

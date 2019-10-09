@@ -157,6 +157,8 @@ async def index(request):
         view = "players"
     elif request.path == "/patron/thanks":
         view = "thanks"
+    elif request.path == "/level8win":
+        view = "level8win"
     elif request.path == "/tv":
         view = "tv"
         doc = await db.game.find_one({}, sort=[('$natural', -1)])
@@ -218,6 +220,10 @@ async def index(request):
         render["status"] = game.status
         render["date"] = game.date.isoformat()
 
+    if view == "level8win":
+        render["level"] = 8
+        render["profile"] = "Fairy-Stockfish"
+
     text = template.render(render)
 
     # log.debug("Response: %s" % text)
@@ -236,13 +242,26 @@ async def get_games(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
 
+    filter_cond = {}
+
+    level = request.rel_url.query.get("x")
+    if level is not None:
+        filter_cond["x"] = level
+
+    if "/win" in request.path:
+        filter_cond = {"$or": [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]}
+    elif "/loss" in request.path:
+        filter_cond = {"$or": [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]}
+    else:
+        filter_cond = {"us": profileId}
+
     page_num = request.rel_url.query.get("p")
     if not page_num:
         page_num = 0
-    print("PAGENUm=", page_num)
-    gameid_list = []
+
+    game_doc_list = []
     if profileId is not None:
-        cursor = db.game.find({"us": profileId})
+        cursor = db.game.find(filter_cond)
         cursor.sort('d', -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         async for doc in cursor:
             # filter out private games
@@ -252,9 +271,9 @@ async def get_games(request):
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
-            gameid_list.append(doc)
-
-    return web.json_response(gameid_list, dumps=partial(json.dumps, default=datetime.isoformat))
+            game_doc_list.append(doc)
+    # print(game_doc_list)
+    return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def get_players(request):
@@ -305,6 +324,7 @@ get_routes = (
     (r"/{gameId:\w{8}}", index),
     ("/@/{profileId}", index),
     ("/@/{profileId}/tv", index),
+    ("/level8win", index),
     ("/patron/thanks", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
@@ -312,7 +332,9 @@ get_routes = (
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),
     ("/api/bot/game/stream/{gameId}", game_stream),
-    ("/api/{profileId}/games", get_games),
+    ("/api/{profileId}/all", get_games),
+    ("/api/{profileId}/win", get_games),
+    ("/api/{profileId}/loss", get_games),
     ("/api/players", get_players),
     ("/variant/{variant}", variant),
     ("/games/export/{profileId}", export),

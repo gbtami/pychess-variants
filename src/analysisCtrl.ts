@@ -357,29 +357,37 @@ export default class AnalysisController {
         var shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
-        if (ceval !== undefined && ceval.pv !== undefined) {
-            var pv_move = ceval["pv"].split(" ")[0];
-            if (this.variant === "shogi") pv_move = usi2uci(pv_move);
-            if (this.variant === "grand" || this.variant === "grandhouse") pv_move = grand2zero(pv_move);
-            console.log(pv_move, ceval["pv"]);
-            if (pv_move.slice(1, 2) === '@') {
-                const d = pv_move.slice(2, 4);
-                shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
-                    color: step.turnColor,
-                    role: sanToRole[pv_move.slice(0, 1)]
-                    }},
-                    { orig: d, brush: 'paleGreen'}
-                ];
-            } else {
-                const o = pv_move.slice(0, 2);
-                const d = pv_move.slice(2, 4);
-                shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
-            }
+        if (ceval !== undefined) {
+            if (ceval.pv !== undefined) {
+                var pv_move = ceval["pv"].split(" ")[0];
+                if (this.variant === "shogi") pv_move = usi2uci(pv_move);
+                if (this.variant === "grand" || this.variant === "grandhouse") pv_move = grand2zero(pv_move);
+                console.log(pv_move, ceval["pv"]);
+                if (pv_move.slice(1, 2) === '@') {
+                    const d = pv_move.slice(2, 4);
+                    shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
+                        color: step.turnColor,
+                        role: sanToRole[pv_move.slice(0, 1)]
+                        }},
+                        { orig: d, brush: 'paleGreen'}
+                    ];
+                } else {
+                    const o = pv_move.slice(0, 2);
+                    const d = pv_move.slice(2, 4);
+                    shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+                }
 
-            this.vpv = patch(this.vpv, h('div#pv', [
-                h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval["depth"])]),
-                h('pv', ceval.pv_san !== undefined ? ceval.pv_san : ceval.pv)
-            ]));
+                this.vpv = patch(this.vpv, h('div#pv', [
+                    h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval["depth"])]),
+                    h('pv', ceval.pv_san !== undefined ? ceval.pv_san : ceval.pv)
+                ]));
+                const stl = document.body.getAttribute('style');
+                document.body.setAttribute('style', stl + '--PVheight:64px;');
+            } else {
+                this.vpv = patch(this.vpv, h('div#pv'));
+                const stl = document.body.getAttribute('style');
+                document.body.setAttribute('style', stl + '--PVheight:0px;');
+            }
         }
 
         console.log(shapes0);

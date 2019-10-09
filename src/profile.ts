@@ -116,7 +116,12 @@ function renderGames(model, games) {
 
 function loadGames(model, page) {
     var xmlhttp = new XMLHttpRequest();
-    var url = model["home"] + "/api/" + model["profileid"] + "/games?p=";
+    var url = model["home"] + "/api/" + model["profileid"]
+    if (model.level) {
+        url = url + "/loss?x=8&p=";
+    } else {
+        url = url + "/all?p=";
+    }
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {

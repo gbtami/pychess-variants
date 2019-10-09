@@ -56,7 +56,7 @@ export function playersView(model): VNode[] {
 
     console.log(model);
     return [h('aside.sidebar-first'),
-            h('main.main', [h('table#players')]),
+            h('main.players', [h('table#players')]),
             h('aside.sidebar-second'),
         ];
 }

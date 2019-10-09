@@ -46,7 +46,7 @@ main{
   display: grid;
   grid-template-columns: auto auto;
 }
-main.profile{
+main.profile, main.players {
   display: inline;
 }
 
@@ -89,7 +89,7 @@ under-right {
 }
 
 div.about {
-  width: 50%;
+  width: 75%;
   margin: 0 auto;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -915,7 +915,7 @@ li.message.server {
 
 #movelist-block {
   overflow-y: auto;
-  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - 40px);
+  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - 40px);
 }
 /* movelist border: 1px solid #ddd; */
 div#moves {
