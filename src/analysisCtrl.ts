@@ -358,7 +358,7 @@ export default class AnalysisController {
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         if (ceval !== undefined && ceval.pv !== undefined) {
-            var pv_move = ceval["pv"].slice(0, 4);
+            var pv_move = ceval["pv"].split(" ")[0];
             if (this.variant === "shogi") pv_move = usi2uci(pv_move);
             if (this.variant === "grand" || this.variant === "grandhouse") pv_move = grand2zero(pv_move);
             console.log(pv_move, ceval["pv"]);
