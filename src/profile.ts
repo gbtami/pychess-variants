@@ -134,6 +134,7 @@ function loadGames(model, page) {
             myFunction(myArr);
         }
     };
+    // console.log("GET url:", url + page)
     xmlhttp.open("GET", url + page, true);
     xmlhttp.send();
 

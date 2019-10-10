@@ -243,17 +243,17 @@ async def get_games(request):
     session_user = session.get("user_name")
 
     filter_cond = {}
-
+    # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
     if level is not None:
-        filter_cond["x"] = level
+        filter_cond["x"] = int(level)
 
     if "/win" in request.path:
-        filter_cond = {"$or": [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]}
+        filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
     elif "/loss" in request.path:
-        filter_cond = {"$or": [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]}
+        filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
     else:
-        filter_cond = {"us": profileId}
+        filter_cond["us"] = profileId
 
     page_num = request.rel_url.query.get("p")
     if not page_num:
@@ -261,6 +261,7 @@ async def get_games(request):
 
     game_doc_list = []
     if profileId is not None:
+        # print("FILTER:", filter_cond)
         cursor = db.game.find(filter_cond)
         cursor.sort('d', -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         async for doc in cursor:
@@ -272,7 +273,7 @@ async def get_games(request):
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
             game_doc_list.append(doc)
-    # print(game_doc_list)
+    # print("GAMES:", game_doc_list)
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
