@@ -191,7 +191,7 @@
 .icon-microscope:before {
   content: "\59";
 }
-.icon-clipboard:before {
+.icon-bclipoard:before {
   content: "\5a";
 }
 .icon-cloud-upload:before {
@@ -205,4 +205,13 @@
 }
 .icon-bar-chart:before {
   content: "\33";
+}
+.icon-microphone:before {
+  content: "\34";
+}
+.icon-crown:before {
+  content: "\35";
+}
+.icon-minishogi:before {
+  content: "\36";
 }

@@ -727,10 +727,10 @@ label.board.board0.minishogi {
   background-image: url('images/board/minishogi.svg');
 }
 label.board.board1.minishogi {
-  background-image: url('images/board/5x5wood1.svg');
+  background-image: url('images/board/MiniboardWood1.png');
 }
 label.board.board2.minishogi {
-  background-image: url('images/board/5x5wood2.svg');
+  background-image: url('images/board/MiniboardWood2.png');
 }
 
 label.board.board0.xiangqi {
