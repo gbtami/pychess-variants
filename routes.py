@@ -268,6 +268,14 @@ async def get_games(request):
             # filter out private games
             if "p" in doc and doc["p"] == 1 and session_user != doc["us"][0] and session_user != doc["us"][1]:
                 continue
+
+            # filter out anonymous players level8win games
+            if (level is not None) and profileId == "Fairy-Stockfish":
+                fairy_opp = doc["us"][0] if doc["us"][1] == "Fairy-Stockfish" else doc["us"][1]
+                reg_user = await db.user.find_one({"_id": fairy_opp})
+                if reg_user is None:
+                    continue
+
             doc["v"] = C2V[doc["v"]]
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
