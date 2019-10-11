@@ -11,7 +11,7 @@ import aioauth_client
 import aiohttp_session
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
-from utils import load_game, pgn, User, STARTED
+from utils import load_game, pgn, User, STARTED, MATE
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -273,7 +273,7 @@ async def get_games(request):
             if (level is not None) and profileId == "Fairy-Stockfish":
                 fairy_opp = doc["us"][0] if doc["us"][1] == "Fairy-Stockfish" else doc["us"][1]
                 reg_user = await db.user.find_one({"_id": fairy_opp})
-                if reg_user is None:
+                if doc["s"] != MATE or reg_user is None:
                     continue
 
             doc["v"] = C2V[doc["v"]]
