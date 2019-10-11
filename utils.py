@@ -15,7 +15,7 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from fairy import FairyBoard, WHITE, BLACK
+from fairy import FairyBoard, WHITE, BLACK, STANDARD_FEN, SHOGI_FEN, MINISHOGI_FEN
 from xiangqi import XiangqiBoard
 
 from settings import URI
@@ -54,6 +54,7 @@ VARIANTS = (
     "grandhouse",
     "gothic",
     "gothhouse",
+    "minishogi",
 )
 
 VARIANTS960 = {
@@ -68,9 +69,6 @@ VARIANTS960 = {
     "placement": "placement",
     "grand": "grand",
 }
-
-STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-SHOGI_FEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
 
 
 class MyWebSocketResponse(WebSocketResponse):
@@ -509,7 +507,7 @@ class Game:
                   "s": self.status,
                   "r": R2C[self.result],
                   'm': encode_moves(
-                      map(usi2uci, self.board.move_stack) if self.variant == "shogi"
+                      map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
                       else map(grand2zero, self.board.move_stack) if self.variant == "grand" or self.variant == "grandhouse"
                       else self.board.move_stack)}
                  }
@@ -565,7 +563,7 @@ class Game:
             self.random_move = random.choice(moves) if moves else ""
 
         for move in moves:
-            if self.variant == "shogi":
+            if self.variant[-5:] == "shogi":
                 move = usi2uci(move)
             elif self.variant == "grand" or self.variant == "grandhouse":
                 move = grand2zero(move)
@@ -613,7 +611,7 @@ class Game:
 
     @property
     def uci_usi(self):
-        if self.variant == "shogi":
+        if self.variant[-5:] == "shogi":
             return "position sfen %s moves %s" % (self.board.initial_sfen, " ".join(self.board.move_stack))
         else:
             return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
@@ -690,7 +688,7 @@ async def load_game(app, game_id):
     if mlist:
         game.saved = True
 
-    if variant == "shogi":
+    if variant[-5:] == "shogi":
         mlist = map(uci2usi, mlist)
     elif variant == "grand" or variant == "grandhouse":
         mlist = map(zero2grand, mlist)
@@ -895,13 +893,13 @@ def pgn(doc):
     variant = C2V[doc["v"]]
     chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 
-    if variant == "shogi":
+    if variant[-5:] == "shogi":
         mlist = list(map(uci2usi, mlist))
     elif variant == "grand" or variant == "grandhouse":
         mlist = list(map(zero2grand, mlist))
 
     if variant != "xiangqi":
-        fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else sf.start_fen(variant)
+        fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else sf.start_fen(variant)
         mlist = sf.get_san_moves(variant, fen, mlist, chess960)
 
     moves = " ".join((move if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, move) for ind, move in enumerate(mlist) if ind > 0))

@@ -46,6 +46,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 13;
     } else if (cssFile.includes("sittb")) {
         cssLinkIndex = 14;
+    } else if (cssFile.includes("5x5")) {
+        cssLinkIndex = 15;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
@@ -61,7 +63,7 @@ function setPieces (CSSindexesP, variant, color) {
     console.log("setPieces()", CSSindexesP, variant, color)
     var idx = CSSindexesP[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].PieceCSS.length - 1);
-    if (variant === "shogi") {
+    if (variant.endsWith('shogi')) {
         var css = VARIANTS[variant].PieceCSS[idx];
         // change shogi piece colors according to board orientation
         if (color === "black") css = css.replace('0', '1');
@@ -74,8 +76,8 @@ function setPieces (CSSindexesP, variant, color) {
 function setZoom (ctrl, zoom: number) {
     const el = document.querySelector('.cg-wrap') as HTMLElement;
     if (el) {
-        const baseWidth = dimensions[VARIANTS[ctrl.variant].geom].width * (ctrl.variant === "shogi" ? 52 : 64);
-        const baseHeight = dimensions[VARIANTS[ctrl.variant].geom].height * (ctrl.variant === "shogi" ? 60 : 64);
+        const baseWidth = dimensions[VARIANTS[ctrl.variant].geom].width * (ctrl.variant.endsWith('shogi') ? 52 : 64);
+        const baseHeight = dimensions[VARIANTS[ctrl.variant].geom].height * (ctrl.variant.endsWith('shogi') ? 60 : 64);
         const pxw = `${zoom / 100 * baseWidth}px`;
         const pxh = `${zoom / 100 * baseHeight}px`;
         el.style.width = pxw;
@@ -93,7 +95,7 @@ export function toggleOrientation (ctrl) {
     ctrl.flip = !ctrl.flip;
     ctrl.chessground.toggleOrientation();
 
-    if (ctrl.variant === "shogi") {
+    if (ctrl.variant.endsWith('shogi')) {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
         setPieces(ctrl.CSSindexesP, ctrl.variant, color);
     };
@@ -208,7 +210,7 @@ export function settingsView (ctrl) {
         // h('label.zoom', { attrs: {for: "zoom"} }, "Board size"),
         h('input#zoom', {
             class: {"slider": true },
-            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(zoom), min: 60, max: 140 },
+            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(zoom), min: 60, max: 160 },
             on: { input: (e) => { setZoom(ctrl, parseFloat((e.target as HTMLInputElement).value)); } }
             }
         ),

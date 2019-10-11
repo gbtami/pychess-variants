@@ -131,8 +131,8 @@ export default class RoundController {
 
         // orientation = this.mycolor
         if (this.spectator) {
-            this.mycolor = this.variant === 'shogi' ? 'black' : 'white';
-            this.oppcolor = this.variant === 'shogi' ? 'white' : 'black';
+            this.mycolor = this.variant.endsWith('shogi') ? 'black' : 'white';
+            this.oppcolor = this.variant.endsWith('shogi') ? 'white' : 'black';
         } else {
             this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
@@ -446,9 +446,9 @@ export default class RoundController {
 
         var lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 lastMove = usi2uci(lastMove);
-            } else if (this.variant === "grand" || this.variant === "grandhouse") {
+            } else if (this.variant.startsWith('grand')) {
                 lastMove = grand2zero(lastMove);
             }
             lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
@@ -460,7 +460,7 @@ export default class RoundController {
         const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]]
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -552,8 +552,8 @@ export default class RoundController {
         var move = step['move'];
         var capture = false;
         if (move !== undefined) {
-            if (this.variant === "shogi") move = usi2uci(move);
-            if (this.variant === "grand" || this.variant === "grandhouse") move = grand2zero(move);
+            if (this.variant.endsWith('shogi')) move = usi2uci(move);
+            if (this.variant.startsWith('grand')) move = grand2zero(move);
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
@@ -573,7 +573,7 @@ export default class RoundController {
         updatePockets(this, this.vpocket0, this.vpocket1);
 
         if (ply === this.ply + 1) {
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -599,7 +599,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
-        const move = this.variant === "shogi" ? uci2usi(uci_move) : (this.variant === "grand" || this.variant === "grandhouse") ? zero2grand(uci_move) : uci_move;
+        const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : (this.variant.startsWith('grand')) ? zero2grand(uci_move) : uci_move;
         // console.log("sendMove(move)", move);
         // TODO: if premoved, send 0 time
         let bclock, clocks;
@@ -617,7 +617,7 @@ export default class RoundController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
             } else {
                 if (capturedPiece) {
@@ -633,7 +633,7 @@ export default class RoundController {
         return (piece, dest) => {
             console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
-                if (this.variant === "shogi") {
+                if (this.variant.endsWith('shogi')) {
                     sound.shogimove();
                 } else {
                     sound.move();
@@ -693,9 +693,9 @@ export default class RoundController {
             meta.captured = {role: "pawn"};
         };
         // increase pocket count
-        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "grandhouse" || this.variant === "shogi") && meta.captured) {
+        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "grandhouse" || this.variant.endsWith('shogi')) && meta.captured) {
             var role = meta.captured.role
-            if (meta.captured.promoted) role = this.variant === "shogi" ? meta.captured.role.slice(1) as Role : "pawn";
+            if (meta.captured.promoted) role = this.variant.endsWith('shogi') ? meta.captured.role.slice(1) as Role : "pawn";
 
             if (this.flip) {
                 this.pockets[0][role]++;

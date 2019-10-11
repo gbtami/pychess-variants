@@ -13,6 +13,10 @@ except ImportError:
 WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
+STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+SHOGI_FEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
+MINISHOGI_FEN = "rbsgk/4p/5/P4/KGSBR[-] b - 1"
+
 log = logging.getLogger(__name__)
 
 
@@ -31,7 +35,9 @@ class FairyBoard:
         # pyffish gives internal color representation for shogi
         # "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1"
         if variant == "shogi":
-            return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
+            return SHOGI_FEN
+        elif variant == "minishogi":
+            return MINISHOGI_FEN
         else:
             if chess960:
                 return self.shuffle_start()
@@ -53,7 +59,7 @@ class FairyBoard:
             raise
 
     def get_fen(self):
-        if self.variant == "shogi":
+        if self.variant[-5:] == "shogi":
             # TODO: move this to pyffish.cpp
             parts = sf.get_fen(self.variant, self.initial_fen, self.move_stack).split()
             color = "w" if parts[1] == "b" else "b"
@@ -234,6 +240,11 @@ if __name__ == '__main__':
 
     FEN = "r8r/1nbqkcabn1/ppppppp1pp/10/9P/10/10/PPPPPPPPp1/1NBQKC2N1/R5RAB1[p] b - - 0 5"
     board = FairyBoard("grandhouse", initial_fen=FEN)
+    print(board.fen)
+    board.print_pos()
+    print(board.legal_moves())
+
+    board = FairyBoard("minishogi")
     print(board.fen)
     board.print_pos()
     print(board.legal_moves())

@@ -710,17 +710,27 @@ label.board.board5.shogi {
   background-image: url('images/board/ShogiCheckeredWood.png');
 }
 
-label.piece.piece0.shogi {
+label.piece.piece0.shogi, label.piece.piece0.minishogi {
   background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
-label.piece.piece1.shogi {
+label.piece.piece1.shogi, label.piece.piece1.minishogi {
   background-image: url('images/pieces/shogi/0KA.svg');
 }
-label.piece.piece2.shogi {
+label.piece.piece2.shogi, label.piece.piece2.minishogi {
   background-image: url('images/pieces/shogi/ctw/0KA.svg');
 }
-label.piece.piece3.shogi {
+label.piece.piece3.shogi, label.piece.piece3.minishogi {
   background-image: url('images/pieces/shogi/ctp/0KA.svg');
+}
+
+label.board.board0.minishogi {
+  background-image: url('images/board/minishogi.svg');
+}
+label.board.board1.minishogi {
+  background-image: url('images/board/5x5wood1.svg');
+}
+label.board.board2.minishogi {
+  background-image: url('images/board/5x5wood2.svg');
 }
 
 label.board.board0.xiangqi {

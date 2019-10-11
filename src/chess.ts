@@ -1,13 +1,14 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse"];
+export const variants = ["makruk", "sittuyin", "placement", "crazyhouse", "standard", "shogi", "minishogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse"];
 export const variants960 = ["crazyhouse", "standard", "capablanca", "capahouse"];
 
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: ["makrb1", "makrb2"], pieces: "makruk", PieceCSS: ["makruk"], icon: "Q"},
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", BoardCSS: ["sittb1", "sittb2"], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R" },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", BoardCSS: ["9x9a", "9x9b", "9x9c", "9x9d", "9x9e", "9x9f"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
+    minishogi: { geom: Geometry.dim5x5, cg: "cg-260", board: "grid5x5", BoardCSS: ["5x5a"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K" },
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", BoardCSS: ["9x10a", "9x10b", "9x10c", "9x10d", "9x10e"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "S" },
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "H" },
@@ -34,6 +35,8 @@ export function pocketRoles(variant: string) {
         return ["pawn", "knight", "bishop", "rook", "queen", "archbishop", "cancellor"];
     case "shogi":
         return ["pawn", "lance", "knight", "bishop", "rook", "silver", "gold"];
+    case "minishogi":
+        return ["pawn", "bishop", "rook", "silver", "gold"];
     case "shouse":
         return ["pawn", "knight", "bishop", "rook", "queen", "elephant", "hawk"];
     case "seirawan":
@@ -47,6 +50,8 @@ function promotionZone(variant: string, color: string) {
     switch (variant) {
     case 'shogi':
         return color === 'white' ? 'a9b9c9d9e9f9g9h9i9a8b8c8d8e8f8g8h8i8a7b7c7d7e7f7g7h7i7' : 'a1b1c1d1e1f1g1h1i1a2b2c2d2e2f2g2h2i2a3b3c3d3e3f3g3h3i3';
+    case 'minishogi':
+        return color === 'white' ? 'a5b5c5d5e5' : 'a1b1c1d1e1';
     case 'makruk':
         return color === 'white' ? 'a6b6c6d6e6f6g6h6' : 'a3b3c3d3e3f3g3h3';
     case 'sittuyin':
@@ -66,6 +71,7 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
     case "shouse":
     case "seirawan":
         return ["queen", "knight", "rook", "bishop", "elephant", "hawk"];
+    case "minishogi":
     case "shogi":
         return ["p" + role, role];
     case "grandhouse":
@@ -86,7 +92,15 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
     }
 }
 
-export function mandatoryPromotion(role: Role, dest: Key, color: Color) {
+export function mandatoryPromotion(variant, role: Role, dest: Key, color: Color) {
+    if (variant === "minishogi" && role === "pawn") {
+        if (color === "white") {
+            return dest[1] === "5";
+        } else {
+            return dest[1] === "1";
+        }
+    }
+
     switch (role) {
     case "pawn":
     case "lance":
@@ -107,7 +121,7 @@ export function mandatoryPromotion(role: Role, dest: Key, color: Color) {
 }
 
 export function needPockets(variant: string) {
-    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant === 'shogi' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
+    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant.endsWith('shogi') || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
 }
 
 export function hasEp(variant: string) {
@@ -225,6 +239,9 @@ export function isPromotion(variant, piece, orig, dest, meta, promotions) {
     switch (variant) {
     case 'shogi':
         return ['king', 'gold', 'ppawn', 'pknight', 'pbishop', 'prook', 'psilver', 'plance'].indexOf(piece.role) === -1
+            && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1);
+    case 'minishogi':
+        return ['king', 'gold', 'ppawn', 'pbishop', 'prook', 'psilver'].indexOf(piece.role) === -1
             && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1);
     case 'sittuyin':
         // See https://vdocuments.net/how-to-play-myanmar-traditional-chess-eng-book-1.html

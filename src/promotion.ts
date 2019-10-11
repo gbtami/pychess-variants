@@ -25,8 +25,9 @@ export default function(ctrl) {
 
             switch (ctrl.variant) {
             // TODO: in grand chess use mandatoryPromotion when promotion happens on back rank
+            case "minishogi":
             case "shogi":
-                if (mandatoryPromotion(movingRole, dest, color)) {
+                if (mandatoryPromotion(ctrl.variant, movingRole, dest, color)) {
                     promote(ground, dest, 'p' + ground.state.pieces[dest].role);
                     ctrl.sendMove(orig, dest, '+');
                 } else {
@@ -101,6 +102,7 @@ export default function(ctrl) {
             let promo;
 
             switch (ctrl.variant) {
+            case "minishogi":
             case "shogi":
                 promo = promoted ? "+" : "";
                 break;

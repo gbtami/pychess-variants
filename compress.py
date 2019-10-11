@@ -17,6 +17,7 @@ V2C = {
     "placement": "p",
     "seirawan": "s",
     "shogi": "g",
+    "minishogi": "a",
     "shouse": "z",
     "sittuyin": "y",
     "xiangqi": "x",

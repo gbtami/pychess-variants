@@ -129,8 +129,8 @@ export default class AnalysisController {
 
         // orientation = this.mycolor
         if (this.spectator) {
-            this.mycolor = this.variant === 'shogi' ? 'black' : 'white';
-            this.oppcolor = this.variant === 'shogi' ? 'white' : 'black';
+            this.mycolor = this.variant.endsWith('shogi') ? 'black' : 'white';
+            this.oppcolor = this.variant.endsWith('shogi') ? 'white' : 'black';
         } else {
             this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
@@ -215,7 +215,7 @@ export default class AnalysisController {
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         this.vpv = document.getElementById('pv') as HTMLElement;
-
+/*
         const btn = h('button#analysis', {
                         on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) }},
                         [h('i', {
@@ -225,6 +225,7 @@ export default class AnalysisController {
                         )]);
         var container = document.getElementById('flip') as HTMLElement;
         patch(container, btn);
+*/
     }
 
     getGround = () => this.chessground;
@@ -251,6 +252,8 @@ export default class AnalysisController {
                     h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
+                h('a.i-pgn', { on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) } }, [
+                    h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-microscope": true} }, ' Request Analysis')]),
                 ]),
             );
 
@@ -302,9 +305,9 @@ export default class AnalysisController {
 
         var lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 lastMove = usi2uci(lastMove);
-            } else if (this.variant === "grand" || this.variant === "grandhouse") {
+            } else if (this.variant.startsWith('grand')) {
                 lastMove = grand2zero(lastMove);
             }
             lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
@@ -316,7 +319,7 @@ export default class AnalysisController {
         const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]]
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -349,8 +352,8 @@ export default class AnalysisController {
         var move = step.move;
         var capture = false;
         if (move !== undefined) {
-            if (this.variant === "shogi") move = usi2uci(move);
-            if (this.variant === "grand" || this.variant === "grandhouse") move = grand2zero(move);
+            if (this.variant.endsWith('shogi')) move = usi2uci(move);
+            if (this.variant.startsWith('grand')) move = grand2zero(move);
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
@@ -360,8 +363,8 @@ export default class AnalysisController {
         if (ceval !== undefined) {
             if (ceval.pv !== undefined) {
                 var pv_move = ceval["pv"].split(" ")[0];
-                if (this.variant === "shogi") pv_move = usi2uci(pv_move);
-                if (this.variant === "grand" || this.variant === "grandhouse") pv_move = grand2zero(pv_move);
+                if (this.variant.endsWith('shogi')) pv_move = usi2uci(pv_move);
+                if (this.variant.startsWith('grand')) pv_move = grand2zero(pv_move);
                 console.log(pv_move, ceval["pv"]);
                 if (pv_move.slice(1, 2) === '@') {
                     const d = pv_move.slice(2, 4);
@@ -415,7 +418,7 @@ export default class AnalysisController {
         updatePockets(this, this.vpocket0, this.vpocket1);
 
         if (ply === this.ply + 1) {
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -438,7 +441,7 @@ export default class AnalysisController {
         // pause() will add increment!
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
-        const move = this.variant === "shogi" ? uci2usi(uci_move) : (this.variant === "grand" || this.variant === "grandhouse") ? zero2grand(uci_move) : uci_move;
+        const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : this.variant.startsWith('grand') ? zero2grand(uci_move) : uci_move;
         // console.log("sendMove(move)", move);
         this.doSend({ type: "move", gameId: this.model["gameId"], move: move });
     }
@@ -446,7 +449,7 @@ export default class AnalysisController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (this.variant === "shogi") {
+            if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
             } else {
                 if (capturedPiece) {
@@ -462,7 +465,7 @@ export default class AnalysisController {
         return (piece, dest) => {
             console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
-                if (this.variant === "shogi") {
+                if (this.variant.endsWith('shogi')) {
                     sound.shogimove();
                 } else {
                     sound.move();
@@ -489,9 +492,9 @@ export default class AnalysisController {
             meta.captured = {role: "pawn"};
         };
         // increase pocket count
-        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "grandhouse" || this.variant === "shogi") && meta.captured) {
+        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "grandhouse" || this.variant.endsWith('shogi')) && meta.captured) {
             var role = meta.captured.role
-            if (meta.captured.promoted) role = this.variant === "shogi" ? meta.captured.role.slice(1) as Role : "pawn";
+            if (meta.captured.promoted) role = this.variant.endsWith('shogi') ? meta.captured.role.slice(1) as Role : "pawn";
 
             if (this.flip) {
                 this.pockets[0][role]++;
