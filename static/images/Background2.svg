@@ -15,7 +15,7 @@
    viewBox="0 0 145.52083 142.875"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="Background2.svg"
    inkscape:export-filename="D:\Pictures\Chess Variants\Background2.png"
    inkscape:export-xdpi="96.300003"
@@ -231,16 +231,16 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1"
      inkscape:cx="664.59117"
-     inkscape:cy="162.2089"
+     inkscape:cy="242.2089"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
      showguides="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:window-width="1543"
+     inkscape:window-height="871"
+     inkscape:window-x="57"
+     inkscape:window-y="0"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
@@ -250,7 +250,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -262,7 +262,7 @@
     <g
        style="display:inline;opacity:0.231"
        id="g8035"
-       transform="matrix(-0.41582763,-0.72023458,0.72023458,-0.41582763,89.863714,412.35302)">
+       transform="matrix(-0.41582763,-0.72023458,0.72023458,-0.41582763,89.863714,417.11555)">
       <g
          style="display:inline;fill:#fecb00;fill-opacity:1"
          id="g5079-7"
@@ -390,7 +390,7 @@
     </g>
     <g
        id="g3826"
-       transform="matrix(-0.84644793,-0.48869694,0.48869694,-0.84644793,-18.377422,510.62628)"
+       transform="matrix(-0.84644793,-0.48869694,0.48869694,-0.84644793,-18.377422,515.38881)"
        style="opacity:0.23200001">
       <g
          style="display:inline"
@@ -403,7 +403,7 @@
              cy="48.334743"
              cx="45.381359"
              id="circle4376-8-9"
-             style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.26299933;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.48743723;marker:none;enable-background:accumulate" />
+             style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.2629993;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.48743723;marker:none;enable-background:accumulate" />
           <circle
              style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient4520);stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
              id="circle24066-6"
@@ -461,7 +461,7 @@
     </g>
     <g
        id="g4360"
-       transform="matrix(0.93843271,0,0,0.9044059,-11.059349,140.10153)"
+       transform="matrix(0.93843271,0,0,0.9044059,-11.059349,144.86406)"
        style="opacity:0.253;stroke-width:1.42454326;stroke-miterlimit:4;stroke-dasharray:none">
       <g
          transform="matrix(-1,0,0,1,182.33976,-0.75050212)"
@@ -497,7 +497,7 @@
     <g
        id="g5486"
        style="opacity:0.24800002"
-       transform="rotate(-45.079301,89.960193,291.49401)">
+       transform="rotate(-45.079301,95.697801,293.87523)">
       <g
          clip-path="url(#clipPath8276)"
          id="g8232"
@@ -527,7 +527,7 @@
     <g
        id="g8512"
        style="opacity:0.25"
-       transform="rotate(45,187.11477,225.90102)">
+       transform="rotate(45,183.28221,227.4885)">
       <path
          inkscape:connector-curvature="0"
          id="path4601"
@@ -1332,7 +1332,7 @@
     <g
        id="g10282"
        style="opacity:0.25"
-       transform="translate(-3.7417733,-1.122532)">
+       transform="translate(-3.7417733,3.6399681)">
       <path
          sodipodi:nodetypes="cccccccccccccccccccccccccccscc"
          inkscape:connector-curvature="0"

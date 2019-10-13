@@ -347,12 +347,16 @@ li a:hover:not(.active) {
 }
 
 table#seeks {
-  width: 550px;
+  width: 610px;
   border-collapse: collapse;
   border-spacing: 0;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  background-size: contain;
+  background-image: url('images/Background2.svg');
+  background-color: rgba(255,255,255,0.7);
+  background-blend-mode: lighten;
 }
 
 #seeks thead tr{
@@ -372,26 +376,17 @@ table#seeks {
 }
 
 #seeks tr {
-  height: 28px;
   border: 1px solid #ddd;
-}
-
-#seeks tr:nth-child(even) {
-  width:100%;
-  background-color: #f2f2f2;
 }
 
 #seeks tbody tr:hover {
   width:100%;
-  background-color: #ddd;
+  background-color: Bisque;
 }
 
 #seeks th {
-  padding-top: 12px;
-  padding-bottom: 12px;
   text-align: left;
-  background-color: Gray;
-  color: white;
+  background-color: WhiteSmoke;
 }
 
 #players tr {
