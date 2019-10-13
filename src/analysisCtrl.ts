@@ -252,7 +252,7 @@ export default class AnalysisController {
                     h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
-                h('a.i-pgn', { on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) } }, [
+                h('button', { on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) } }, [
                     h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-microscope": true} }, ' Request Analysis')]),
                 ]),
             );
@@ -613,6 +613,10 @@ export default class AnalysisController {
         if (msg.user !== this.model["username"]) chatMessage(msg.user, msg.message, "roundchat");
     }
 
+    private onMsgFullChat = (msg) => {
+        msg.lines.forEach((line) => {chatMessage(line.user, line.message, "roundchat");});
+    }
+
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -628,6 +632,9 @@ export default class AnalysisController {
                 break;
             case "roundchat":
                 this.onMsgChat(msg);
+                break;
+            case "fullchat":
+                this.onMsgFullChat(msg);
                 break;
         }
     }

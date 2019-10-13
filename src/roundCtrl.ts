@@ -325,11 +325,12 @@ export default class RoundController {
     }
 
     private newOpponent = (home) => {
+        this.doSend({"type": "leave", "gameId": this.model["gameId"]});
         window.location.assign(home);
     }
 
     private analysis = (home) => {
-            window.location.assign(home + '/' + this.model["gameId"]);
+        window.location.assign(home + '/' + this.model["gameId"]);
     }
 
     private gameOver = () => {
@@ -829,6 +830,10 @@ export default class RoundController {
         if (msg.user !== this.model["username"]) chatMessage(msg.user, msg.message, "roundchat");
     }
 
+    private onMsgFullChat = (msg) => {
+        msg.lines.forEach((line) => {chatMessage(line.user, line.message, "roundchat");});
+    }
+
     private onMsgMoreTime = () => {
         chatMessage('', this.mycolor + ' +15 seconds', "roundchat");
         this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
@@ -863,6 +868,9 @@ export default class RoundController {
                 break;
             case "roundchat":
                 this.onMsgChat(msg);
+                break;
+            case "fullchat":
+                this.onMsgFullChat(msg);
                 break;
             case "new_game":
                 this.onMsgNewGame(msg);

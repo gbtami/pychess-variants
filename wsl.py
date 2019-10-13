@@ -146,7 +146,7 @@ async def lobby_socket_handler(request):
                         request.app["tasks"].add(lobby_ping_task)
 
                     elif data["type"] == "lobbychat":
-                        response = {"type": "lobbychat", "user": user.username, "message": data["message"], "date": datetime.utcnow()}
+                        response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
                         await lobby_broadcast(sockets, response)
                         request.app["chat"].append(response)
 

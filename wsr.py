@@ -3,6 +3,8 @@ import json
 import logging
 import random
 import string
+from datetime import datetime
+from functools import partial
 
 import aiohttp
 from aiohttp import web
@@ -287,6 +289,9 @@ async def round_socket_handler(request):
                             response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
                             await ws.send_json(response)
 
+                        response = {"type": "fullchat", "lines": list(game.messages)}
+                        await ws.send_json(response, dumps=partial(json.dumps, default=datetime.isoformat))
+
                         loop = asyncio.get_event_loop()
                         game_ping_task = loop.create_task(game_pinger())
                         request.app["tasks"].add(game_ping_task)
@@ -321,7 +326,7 @@ async def round_socket_handler(request):
                         response = {"type": "roundchat", "user": user.username, "message": data["message"]}
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
-                        game.messages.append(data["message"])
+                        game.messages.append(response)
 
                         for name in (game.wplayer.username, game.bplayer.username):
                             player = users[name]
@@ -332,6 +337,20 @@ async def round_socket_handler(request):
                                 if gameId in player.game_sockets:
                                     player_ws = player.game_sockets[gameId]
                                     await player_ws.send_json(response)
+
+                        await round_broadcast(game, users, response)
+
+                    elif data["type"] == "leave":
+                        response = {"type": "roundchat", "user": "", "message": "%s left the game" % user.username}
+                        gameId = data["gameId"]
+                        game = await load_game(request.app, gameId)
+                        game.messages.append(response)
+
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+                        if not opp_player.bot and gameId in opp_player.game_sockets:
+                            opp_player_ws = opp_player.game_sockets[gameId]
+                            await opp_player_ws.send_json(response)
 
                         await round_broadcast(game, users, response)
 

@@ -1,4 +1,5 @@
 import asyncio
+import collections
 import json
 import logging
 import random
@@ -324,7 +325,7 @@ class Game:
         self.spectators = set()
         self.draw_offers = set()
         self.rematch_offers = set()
-        self.messages = []
+        self.messages = collections.deque([], 200)
         self.date = datetime.utcnow()
 
         self.ply_clocks = [{
@@ -474,7 +475,7 @@ class Game:
         async def remove():
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(60)
+            await asyncio.sleep(60 * 5)
             del self.games[self.id]
 
         if self.saved:
