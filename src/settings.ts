@@ -59,8 +59,8 @@ function setBoard (CSSindexesB, variant, color) {
     changeCSS('/static/' + VARIANTS[variant].BoardCSS[idx] + '.css');
 }
 
-function setPieces (CSSindexesP, variant, color) {
-    console.log("setPieces()", CSSindexesP, variant, color)
+function setPieces (ctrl, color) {
+    const CSSindexesP = ctrl.CSSindexesP, variant = ctrl.variant, chessground = ctrl.chessground;
     var idx = CSSindexesP[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].PieceCSS.length - 1);
     if (variant.endsWith('shogi')) {
@@ -70,6 +70,20 @@ function setPieces (CSSindexesP, variant, color) {
         changeCSS('/static/' + css + '.css');
     } else {
         changeCSS('/static/' + VARIANTS[variant].PieceCSS[idx] + '.css');
+    }
+    console.log("--- setPieces()");
+    // We use paleGreen arrows and circles for analysis PV suggestions
+    // For drop moves we also want to draw the dropped piece
+    if (needPockets(ctrl.variant)) {
+        const baseurl = VARIANTS[variant].baseURL[idx] + '/';
+        console.log("--- baseurl", baseurl);
+        chessground.set({
+            drawable: {
+                pieces: {
+                    baseUrl: ctrl.model['home'] + '/static/images/pieces/' + baseurl
+                }
+            }
+        });
     }
 }
 
@@ -97,7 +111,7 @@ export function toggleOrientation (ctrl) {
 
     if (ctrl.variant.endsWith('shogi')) {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
-        setPieces(ctrl.CSSindexesP, ctrl.variant, color);
+        setPieces(ctrl, color);
     };
     
     console.log("FLIP");
@@ -179,7 +193,7 @@ function renderPieces (ctrl) {
         //console.log("togglePieces()", idx);
         ctrl.CSSindexesP[variants.indexOf(ctrl.variant)] = idx
         localStorage.setItem(ctrl.variant + "_pieces", String(idx));
-        setPieces(ctrl.CSSindexesP, ctrl.variant, ctrl.mycolor);
+        setPieces(ctrl, ctrl.mycolor);
     }
 
     for (i = 0; i < VARIANTS[ctrl.variant].PieceCSS.length; i++) {
@@ -196,7 +210,7 @@ function renderPieces (ctrl) {
 export function settingsView (ctrl) {
 
     if (VARIANTS[ctrl.variant].BoardCSS.length > 1) setBoard(ctrl.CSSindexesB, ctrl.variant, ctrl.mycolor);
-    if (VARIANTS[ctrl.variant].PieceCSS.length > 1) setPieces(ctrl.CSSindexesP, ctrl.variant, ctrl.mycolor);
+    if (VARIANTS[ctrl.variant].PieceCSS.length > 1) setPieces(ctrl, ctrl.mycolor);
 
     // turn settings panel off
     toggleBoardSettings(ctrl);

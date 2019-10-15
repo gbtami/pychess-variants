@@ -1,3 +1,7 @@
+:root {
+    --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+    --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+}
 html {
   min-height: 100%;
 }
@@ -93,7 +97,7 @@ div.about {
   margin: 0 auto;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: var(--base-shadow);
   background-color: white;
   padding: 24px;
 }
@@ -123,7 +127,7 @@ a.user-link:hover, a.user-link:active {
   flex-flow: column nowrap;
   justify-content: center;
   background: White;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: var(--base-shadow);
 }
 
 div#result {
@@ -145,7 +149,7 @@ div#result {
   font-size: 18px;
   margin: 4px 2px;
   cursor: pointer;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: var(--base-shadow);
 }
 .lobby-button:hover {
   background-color: LightGray;
@@ -164,7 +168,7 @@ div#result {
   flex-flow: column nowrap;
   justify-content: center;
   background: White;
-  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+  box-shadow: var(--btn-shadow);
 }
 
 button.rematch {
@@ -192,7 +196,7 @@ button.newopp:hover,  button.analysis:hover {
   flex-direction: column;
   justify-content: center;
   background: White;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: var(--base-shadow);
   margin-bottom: 16px;
   padding: 12px;
   font-size: 14px;
@@ -352,10 +356,10 @@ table#seeks {
   border-spacing: 0;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: var(--base-shadow);
   background-size: contain;
   background-image: url('images/Background2.svg');
-  background-color: rgba(255,255,255,0.7);
+  background-color: rgba(255,255,255,0.8);
   background-blend-mode: lighten;
 }
 
@@ -425,7 +429,7 @@ table#games, table#players {
   border-spacing: 0px;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: var(--base-shadow);
 }
 
 td.player-data {
@@ -531,7 +535,7 @@ div.btn-controls {
   display: flex;
   justify-content: space-between;
   background-color: WhiteSmoke;
-  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+  box-shadow: var(--btn-shadow);
 }
 
 .btn-controls button {
@@ -593,7 +597,7 @@ button.icon::-moz-focus-inner {
   text-align: center;
   font-family: "Roboto Mono", "Roboto";
   font-size: 50px;
-  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+  box-shadow: var(--btn-shadow);
 }
 .clock.time {
   color: #404040;
@@ -766,7 +770,7 @@ label.piece.piece2.seirawan, label.piece.piece2.shouse {
   background-image: url('images/pieces/green/wA.svg');
 }
 label.piece.piece3.seirawan, label.piece.piece3.shouse {
-  background-image: url('images/pieces/merida/WA2.svg');
+  background-image: url('images/pieces/merida/wAr.svg');
 }
 
 label.board.board0.capablanca, label.board.board0.capahouse, label.board.board0.gothic, label.board.board0.gothhouse {
@@ -807,10 +811,10 @@ label.piece.piece1.capablanca, label.piece.piece1.capahouse, label.piece.piece1.
   background-image: url('images/pieces/merida/wH.svg');
 }
 label.piece.piece2.capablanca, label.piece.piece2.capahouse, label.piece.piece2.grand, label.piece.piece2.grandhouse, label.piece.piece2.gothic, label.piece.piece2.gothhouse {
-  background-image: url('images/pieces/green/wH.svg');
+  background-image: url('images/pieces/green/wA.svg');
 }
 label.piece.piece3.capablanca, label.piece.piece3.capahouse, label.piece.piece3.grand, label.piece.piece3.grandhouse, label.piece.piece3.gothic, label.piece.piece3.gothhouse {
-  background-image: url('images/pieces/merida/WA2.svg');
+  background-image: url('images/pieces/merida/wAr.svg');
 }
 
 label.board.board0.makruk {
@@ -820,7 +824,7 @@ label.board.board1.makruk {
   background-image: url('images/board/makruk.jpg');
 }
 label.piece.piece0.makruk {
-  background-image: url('images/pieces/makruk/wk.svg');
+  background-image: url('images/pieces/makruk/wK.svg');
 }
 
 label.board.board0.sittuyin {
@@ -830,10 +834,10 @@ label.board.board1.sittuyin {
   background-image: url('images/board/sittuyin.jpg');
 }
 label.piece.piece0.sittuyin {
-  background-image: url('images/pieces/makruk/wk.svg');
+  background-image: url('images/pieces/makruk/wK.svg');
 }
 label.piece.piece1.sittuyin {
-  background-image: url('images/pieces/sittuyin/wk.svg');
+  background-image: url('images/pieces/sittuyin/wK.svg');
 }
 
 label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.standard, label.board.board0.seirawan, label.board.board0.shouse {
@@ -868,7 +872,7 @@ label.piece.piece2.placement, label.piece.piece2.crazyhouse, label.piece.piece2.
   flex-direction: column;
   justify-content: center;
   background: White;
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
+  box-shadow: var(--base-shadow);
 }
 
 user {
@@ -1100,7 +1104,7 @@ body.no-sidebar .content {
 
 div#pv {
   background-color: WhiteSmoke;
-  box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+  box-shadow: var(--btn-shadow);
 }
 
 pv {

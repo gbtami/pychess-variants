@@ -404,14 +404,7 @@ export default class AnalysisController {
                 },
             check: step.check,
             lastMove: move,
-            drawable: {
-                autoShapes: shapes0,
-                pieces: {
-                    // drop pieces have to be in one path (wg.svg for white gold)
-                    // TODO: Shogi and Sittuyin pieces are missing !
-                    baseUrl: this.model["home"] + '/static/images/pieces/merida/' 
-                    }
-            },
+            drawable: {autoShapes: shapes0},
         });
 
         this.fullfen = step.fen;

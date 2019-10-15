@@ -1,14 +1,14 @@
 .capa .cg-wrap piece.archbishop.white {
-  background-image: url('images/pieces/merida/WA2.svg');
+  background-image: url('images/pieces/merida/wAr.svg');
 }
 .capa .cg-wrap piece.cancellor.white {
-  background-image: url('images/pieces/merida/WC2.svg');
+  background-image: url('images/pieces/merida/wCh.svg');
 }
 .capa .cg-wrap piece.archbishop.black {
-  background-image: url('images/pieces/merida/BA2.svg');
+  background-image: url('images/pieces/merida/bAr.svg');
 }
 .capa .cg-wrap piece.cancellor.black {
-  background-image: url('images/pieces/merida/BC2.svg');
+  background-image: url('images/pieces/merida/bCh.svg');
 }
 
 .capa .cg-wrap piece.pawn.white {
