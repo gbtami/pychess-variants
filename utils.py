@@ -144,6 +144,7 @@ class Seek:
             "seekID": self.id,
             "user": self.user.username,
             "bot": self.user.bot,
+            "title": self.user.title,
             "variant": self.variant,
             "chess960": self.chess960,
             "fen": self.fen,

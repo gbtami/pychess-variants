@@ -297,7 +297,7 @@ class LobbyController {
         var rows = seeks.map((seek) => h(
             'tr',
             { on: { click: () => this.onClickSeek(seek) } },
-            [h('td', seek["user"]),
+            [h('td', [h('player-title', " " + seek["title"] + " "), seek["user"]]),
              h('td', [colorIcon(seek["color"])]),
              h('td', '1500?'),
              h('td', seek["tc"]),
