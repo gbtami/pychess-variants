@@ -11,7 +11,7 @@ Currently supported games are:
 - [Crazyhouse](https://en.wikipedia.org/wiki/Crazyhouse)
 - [Seirawan](https://en.wikipedia.org/wiki/Seirawan_chess)
 - [Capablanca](https://en.wikipedia.org/wiki/Capablanca_Chess)
-- [Gothic](https://www.chessvariants.com/large.dir/gothicchess.html)
+- [Gothic](https://en.wikipedia.org/wiki/Gothic_chess)
 - [Grand](https://en.wikipedia.org/wiki/Grand_Chess)
 - [Shouse (Seirawan+Crazyhouse)](https://pychess-variants.herokuapp.com/IRVxMG72)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.twitch.tv/videos/466253815)

@@ -40,7 +40,7 @@ export function aboutView(model): VNode[] {
                         ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Capablanca_Chess'}}, 'Capablanca'),
                         ", ",
-                        h('a', {attrs: {href: 'https://www.chessvariants.com/large.dir/gothicchess.html'}}, 'Gothic'),
+                        h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Gothic_chess'}}, 'Gothic'),
                         ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Grand_Chess'}}, 'Grand'),
                         ", ",
