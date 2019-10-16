@@ -30,6 +30,11 @@ iframe {
   border: none;
 }
 
+.center {
+  display: block;
+  margin: auto;
+}
+
 .profile-wrapper, .players-wrapper{
   display: grid;
   grid-template-columns: auto 60% auto;

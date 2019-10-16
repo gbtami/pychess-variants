@@ -19,8 +19,9 @@ export function aboutView(model): VNode[] {
     return [h('aside.sidebar-first'),
             h('main.main', [
                 h('div.about', [
-                    h('h2', "About pychess-variants"),
-                    h('p', "pychess-variants is a free, open-source chess server designed to play several chess variant."),
+                    h('img.center', {attrs: {src: '/static/favicon/favicon-96x96.png'}}),
+                    h('h1', {attrs: {align: 'center'}}, 'About pychess-variants'),
+                    h('p', 'pychess-variants is a free, open-source chess server designed to play several chess variant.'),
                     h('p', [
                         "Currently supported games are ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Makruk'}}, 'Makruk'),
