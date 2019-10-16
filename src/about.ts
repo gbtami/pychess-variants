@@ -26,6 +26,8 @@ export function aboutView(model): VNode[] {
                         "Currently supported games are ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Makruk'}}, 'Makruk'),
                         ", ",
+                        h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Makruk#Cambodian_chess'}}, 'Ouk Chatrang'),
+                        ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Sittuyin'}}, 'Sittuyin'),
                         ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Shogi'}}, 'Shogi'),

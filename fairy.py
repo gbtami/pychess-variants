@@ -89,7 +89,7 @@ class FairyBoard:
 
     def insufficient_material(self):
         # TODO: implement this in pyffish
-        if self.variant == "makruk" or self.variant == "sittuyin":
+        if self.variant == "makruk" or self.variant == "sittuyin" or self.variant == "cambodian":
             pieces = Counter(self.fen.split()[0])
             w = pieces["R"] + pieces["S"] == 0 and pieces["M"] + pieces["F"] + pieces["N"] + pieces["P"] < 2
             b = pieces["r"] + pieces["s"] == 0 and pieces["m"] + pieces["f"] + pieces["n"] + pieces["p"] < 2

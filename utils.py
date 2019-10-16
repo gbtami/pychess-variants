@@ -56,6 +56,7 @@ VARIANTS = (
     "gothic",
     "gothhouse",
     "minishogi",
+    "cambodian",
 )
 
 VARIANTS960 = {
@@ -271,7 +272,7 @@ class Clock:
         if secs is not None:
             self.secs = secs
         else:
-            self.secs = 20 * 1000 if self.ply < 2 else self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
+            self.secs = 60 * 1000 if self.ply < 2 else self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
         self.running = True
 
     async def countdown(self):

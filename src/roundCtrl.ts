@@ -174,6 +174,7 @@ export default class RoundController {
             geometry: VARIANTS[this.variant].geom,
             orientation: this.mycolor,
             turnColor: this.turnColor,
+            autoCastle: this.variant !== 'cambodian',
             animation: {
                 enabled: true,
             },

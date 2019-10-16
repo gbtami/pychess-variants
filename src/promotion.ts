@@ -39,6 +39,7 @@ export default function(ctrl) {
                     };
                 };
                 break;
+            case 'cambodian':
             case 'makruk':
                 promote(ground, dest, 'met');
                 ctrl.sendMove(orig, dest, 'm');
