@@ -18,6 +18,7 @@ import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
 import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, sanToRole } from './chess';
+import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
@@ -597,7 +598,9 @@ export default class AnalysisController {
         this.steps[ply]['scoreStr'] = scoreStr;
     }
 
-    private onMsgUserConnected = () => {
+    private onMsgUserConnected = (msg) => {
+        this.model["username"] = msg["username"];
+        renderUsername(this.model["home"], this.model["username"]);
         // we want to know lastMove and check status
         this.doSend({ type: "board", gameId: this.model["gameId"] });
     }
@@ -621,7 +624,7 @@ export default class AnalysisController {
                 this.onMsgAnalysis(msg);
                 break;
             case "game_user_connected":
-                this.onMsgUserConnected();
+                this.onMsgUserConnected(msg);
                 break;
             case "roundchat":
                 this.onMsgChat(msg);
