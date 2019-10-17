@@ -177,9 +177,7 @@ export function canGate(fen, piece, orig, dest, meta) {
     case "e1":
         if (piece.role !== "king") {
             return no_gate;
-        } else if ((castl.indexOf("K") === -1) && (castl.indexOf("Q") === -1)) {
-            return no_gate;
-        } else if (castl.indexOf("E") === -1) {
+        } else if ((castl.indexOf("K") === -1) && (castl.indexOf("Q") === -1) && (castl.indexOf("E") === -1)) {
             return no_gate;
         };
         break;
@@ -207,9 +205,7 @@ export function canGate(fen, piece, orig, dest, meta) {
     case "e8":
         if (piece.role !== "king") {
             return no_gate;
-        } else if ((castl.indexOf("k") === -1) && (castl.indexOf("q") === -1)) {
-            return no_gate;
-        } else if (castl.indexOf("e") === -1) {
+        } else if ((castl.indexOf("k") === -1) && (castl.indexOf("q") === -1) && (castl.indexOf("e") === -1)) {
             return no_gate;
         };
         break;
