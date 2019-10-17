@@ -397,7 +397,10 @@ export function lobbyView(model): VNode[] {
     return [h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
             h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model) } }) ]),
             h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
-            h('under-left', [h('a', {class: {'donate-button': true}, attrs: {href: 'https://discord.gg/Z5p9TbM'}}, 'Find partner on Discord'),]),
+            h('under-left', [
+                h('a.reflist', {attrs: {href: 'https://discord.gg/aPs8RKr'}}, 'Discord'),
+                h('a.reflist', {attrs: {href: 'https://github.com/gbtami/pychess-variants'}}, 'Github'),
+            ]),
             h('under-lobby'),
             h('under-right', [
                 h('a', {

@@ -126,7 +126,10 @@ a.user-link:link, a.user-link:visited {
 a.user-link:hover, a.user-link:active {
     color: RoyalBlue;
 }
-
+a.reflist {
+    padding: 6px;
+    text-decoration: none;
+}
 .round-data{
   display: flex;
   flex-flow: column nowrap;
