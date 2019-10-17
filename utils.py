@@ -363,7 +363,7 @@ class Game:
             invalid0 = len(init) < 2
 
             # Only piece types listed in variant start position can be used later
-            invalid1 = any((c not in start[0] for c in init[0] if not c.isdigit()))
+            invalid1 = any((c not in start[0] + "~+" for c in init[0] if not c.isdigit()))
 
             # Required number of rows
             invalid2 = start[0].count("/") != init[0].count("/")
