@@ -613,6 +613,11 @@ export default class AnalysisController {
         msg.lines.forEach((line) => {chatMessage(line.user, line.message, "roundchat");});
     }
 
+    private onMsgGameNotFound = (msg) => {
+        alert("Requseted game " + msg['gameId'] + " not found!");
+        window.location.assign(this.model["home"]);
+    }
+
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -632,6 +637,9 @@ export default class AnalysisController {
             case "fullchat":
                 this.onMsgFullChat(msg);
                 break;
+            case "game_not_found":
+                this.onMsgGameNotFound(msg);
+                break
         }
     }
 }

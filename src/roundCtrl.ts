@@ -844,6 +844,10 @@ export default class RoundController {
         chatMessage("", msg.message, "roundchat");
     }
 
+    private onMsgGameNotFound = (msg) => {
+        alert("Requseted game " + msg['gameId'] + " not found!");
+        window.location.assign(this.model["home"]);
+    }
 
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
@@ -884,6 +888,9 @@ export default class RoundController {
                 break;
             case "updateTV":
                 this.onMsgUpdateTV(msg);
+                break
+            case "game_not_found":
+                this.onMsgGameNotFound(msg);
                 break
         }
     }
