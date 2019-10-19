@@ -62,11 +62,11 @@
       <a class="nav-link" href="/howtoplay">How to play</a>
       <a class="nav-link" href="/about">About</a>
       <div class="tool-container">
+        {% if guest %}
+            <a class="login nav-link" href="{{ home }}/login" title="Login with Lichess">Log in</a>
+        {% endif %}
         <button id="btn-sound" onclick="toggleAudio();" title="Toggle sound"><div class="icon icon-volume-up"></div></button>
         <div id="username"></div>
-        {% if guest %}
-        <button id="btn-login" onclick="loginFunction()" title="Login with Lichess"><div class="icon icon-sign-in"></div></button>
-        {% endif %}
       </div>
     </div>
     <div id="placeholder" class="main-wrapper"></div>
@@ -77,7 +77,6 @@
 
 <script>
 var silence = false;
-
 function toggleAudio() {
     silence = !silence;
     var snd_btn = document.getElementById("btn-sound");
@@ -85,11 +84,5 @@ function toggleAudio() {
     if (silence) snd_btn.innerHTML = '<div class="icon icon-volume-off"></div>';
     else snd_btn.innerHTML = '<div class="icon icon-volume-up"></div>';
     for (var j = 0; j < allaudio.length; j++) allaudio[j].muted = silence;
-}
-
-function loginFunction() {
-  console.log("LOGIN WITH LICHESS");
-  home = document.querySelector("body").getAttribute("data-home");
-  window.location.assign(home + '/login');
 }
 </script>

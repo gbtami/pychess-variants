@@ -117,7 +117,9 @@ a.nav-link:link, a.nav-link:visited {
 a.nav-link:hover, a.nav-link:active {
     background-color: LightSlateGray;
 }
-
+a.nav-link.login {
+    float: right;
+}
 a.user-link:link, a.user-link:visited {
     display: inline-block;
     color: #505050;
@@ -337,7 +339,7 @@ li a:hover:not(.active) {
   background-color: LightSlateGray;
 }
 
-.topnav .tool-container #username {
+#username {
   padding: 0px 4px 0px 4px;
   float: right;
 }
