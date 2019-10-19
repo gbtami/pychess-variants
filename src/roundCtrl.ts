@@ -828,11 +828,19 @@ export default class RoundController {
     }
 
     private onMsgChat = (msg) => {
-        if (msg.user !== this.model["username"]) chatMessage(msg.user, msg.message, "roundchat");
+        if (msg.user !== this.model["username"]) {
+            if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
+                chatMessage(msg.user, msg.message, "roundchat");
+            }
+        }
     }
 
     private onMsgFullChat = (msg) => {
-        msg.lines.forEach((line) => {chatMessage(line.user, line.message, "roundchat");});
+        msg.lines.forEach((line) => {
+            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
+                chatMessage(line.user, line.message, "roundchat");
+            }
+        });
     }
 
     private onMsgMoreTime = () => {

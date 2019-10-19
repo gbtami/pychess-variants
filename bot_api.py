@@ -459,8 +459,6 @@ async def bot_chat(request):
     data = await request.post()
 
     gameId = request.match_info["gameId"]
-    room = data["room"]
-    message = data["text"]
 
     users = request.app["users"]
     games = request.app["games"]
@@ -471,7 +469,7 @@ async def bot_chat(request):
 
     if not users[opp_name].bot:
         opp_ws = users[opp_name].game_sockets[gameId]
-        response = {"type": "roundchat", "user": username, "room": room, "message": message}
+        response = {"type": "roundchat", "user": username, "room": data["room"], "message": data["text"]}
         await opp_ws.send_json(response)
 
     return web.json_response({"ok": True})

@@ -13,12 +13,13 @@ export function chatView (ctrl, chatType) {
         const message = (e.target as HTMLInputElement).value
         if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
             chatMessage (ctrl.model['username'], message, chatType);
-            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"] });
+            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "room": (ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
     }
 
     return h(`div.${chatType}#${chatType}`, { class: {"chat": true} }, [
+                h('div.chatroom', ctrl.spectator ? 'Spectator room' : 'Chat room'),
                 h(`ol#${chatType}-messages`, [ h("div#messages")]),
                 h('input#chat-entry', {
                     props: {

@@ -736,7 +736,9 @@ async def draw(games, data, agreement=False):
         await game.update_status(DRAW, result)
         return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
     else:
-        return {"type": "offer", "message": "Draw offer sent"}
+        response = {"type": "offer", "message": "Draw offer sent", "room": "player", "user": ""}
+        game.messages.append(response)
+        return response
 
 
 async def game_ended(games, user, data, reason):

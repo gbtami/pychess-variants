@@ -886,13 +886,18 @@ label.piece.piece2.placement, label.piece.piece2.crazyhouse, label.piece.piece2.
 }
 
 user {
-  margin-right: 4px;
+  padding-right: 6px;
   font-weight: bold;
+}
+div.chatroom {
+  background: White;
+  padding: 6px;
 }
 
 /* hack: max-height = seek table th+tr height */
 ol {
   display: flex;
+  flex: 1;
   order: 1;
   overflow-x:hide;
   overflow-y:auto;
@@ -901,17 +906,18 @@ ol {
 }
 
 ol#lobbychat-messages {
-  max-height: 562px;
+  max-height: 536px;
 }
 
 ol#roundchat-messages {
-  max-height: calc(var(--cgwrapheight) - 156px);
+  max-height: calc(var(--cgwrapheight) - 188px);
 }
 
 li.message {
   overflow-wrap: word-break;
   word-break: break-word;
-  padding: 3px;
+  padding-left: 6px;
+  padding-bottom: 6px;
   font-size: .9em;
 }
 

@@ -63,7 +63,7 @@ async def round_socket_handler(request):
                         move_is_ok = await play_move(games, data)
                         if not move_is_ok:
                             message = "Something went wrong! Server can't accept move %s. Try another one, please!" % data["move"]
-                            chat_response = {"type": "roundchat", "user": "_server", "message": message}
+                            chat_response = {"type": "roundchat", "user": "_server", "message": message, "room": "player"}
                             await ws.send_json(chat_response)
 
                         board_response = get_board(games, data, full=False)
@@ -209,7 +209,8 @@ async def round_socket_handler(request):
                                 await opp_ws.send_json(response)
                             else:
                                 game.rematch_offers.add(user.username)
-                                response = {"type": "offer", "message": "Rematch offer sent"}
+                                response = {"type": "offer", "message": "Rematch offer sent", "room": "player", "user": ""}
+                                game.messages.append(response)
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
 
@@ -281,6 +282,7 @@ async def round_socket_handler(request):
                             log.debug("Requseted game %s not found!")
                             response = {"type": "game_not_found", "username": user.username, "gameId": data["gameId"]}
                             await ws.send_json(response)
+                            continue
                         else:
                             games[data["gameId"]] = game
                             if user.username != game.wplayer.username and user.username != game.bplayer.username:
@@ -323,7 +325,7 @@ async def round_socket_handler(request):
                             await opp_ws.send_json(response)
 
                     elif data["type"] == "roundchat":
-                        response = {"type": "roundchat", "user": user.username, "message": data["message"]}
+                        response = {"type": "roundchat", "user": user.username, "message": data["message"], "room": data["room"]}
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
                         game.messages.append(response)
@@ -341,7 +343,7 @@ async def round_socket_handler(request):
                         await round_broadcast(game, users, response)
 
                     elif data["type"] == "leave":
-                        response = {"type": "roundchat", "user": "", "message": "%s left the game" % user.username}
+                        response = {"type": "roundchat", "user": "", "message": "%s left the game" % user.username, "room": "player"}
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
                         game.messages.append(response)
