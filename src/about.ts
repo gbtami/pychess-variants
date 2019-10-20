@@ -32,6 +32,8 @@ export function aboutView(model): VNode[] {
                         ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Shogi'}}, 'Shogi'),
                         ", ",
+                        h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Minishogi'}}, 'Minishogi'),
+                        ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Xiangqi'}}, 'Xiangqi'),
                         ", ",
                         h('a', {attrs: {href: 'http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess'}}, 'Placement'),

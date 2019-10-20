@@ -7,6 +7,7 @@ Currently supported games are:
 - [Ouk Chatrang](https://en.wikipedia.org/wiki/Makruk#Cambodian_chess)
 - [Sittuyin](https://en.wikipedia.org/wiki/Sittuyin)
 - [Shogi](https://en.wikipedia.org/wiki/Shogi)
+- [Minishogi](https://en.wikipedia.org/wiki/Minishogi)
 - [Xiangqi](https://en.wikipedia.org/wiki/Xiangqi)
 - [Placement chess](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
 - [Crazyhouse](https://en.wikipedia.org/wiki/Crazyhouse)

@@ -20,6 +20,8 @@ export function chatView (ctrl, chatType) {
 
     return h(`div.${chatType}#${chatType}`, { class: {"chat": true} }, [
                 h('div.chatroom', ctrl.spectator ? 'Spectator room' : 'Chat room'),
+                // TODO: hide/show chat
+                // h('input#chatbox', {props: {name: "chatbox", type: "checkbox", checked: ""}}),
                 h(`ol#${chatType}-messages`, [ h("div#messages")]),
                 h('input#chat-entry', {
                     props: {
