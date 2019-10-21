@@ -7,6 +7,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
+import { VNode } from 'snabbdom/vnode';
 
 import { Color } from 'chessgroundx/types';
 
@@ -49,7 +50,6 @@ export function povChances(color: Color, ev: Eval) {
 }
 
 export function selectMove (ctrl, ply) {
-    // console.log("selectMove()", ply, ctrl.steps[ply]['eval']);
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
 
@@ -59,12 +59,10 @@ export function selectMove (ctrl, ply) {
     const gaugeEl = document.getElementById('gauge') as HTMLElement;
     if (gaugeEl) {
         const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
-        // console.log("selectMove()", blackEl);
         if (blackEl && ctrl.steps[ply]['ceval'] !== undefined) {
             var score = ctrl.steps[ply]['ceval']['score'];
             if (score !== undefined) {
                 const ev = povChances(ctrl.steps[ply]['turnColor'], score);
-                // console.log(String(100 - (ev + 1) * 50) + '%');
                 blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
             } else {
                 blackEl.style.height = '50%';
@@ -96,7 +94,6 @@ function scrollToPly (ctrl) {
                 plyEl.scrollIntoView(false);
             }
         } else {
-            // console.log("scrollToPly", ctrl.ply, st);
             movelistblockEl.scrollTop = st;
         }
     }
@@ -121,26 +118,29 @@ export function movelistView (ctrl) {
     }
 }
 
-export function updateMovelist (ctrl) {
-    const ply = ctrl.steps.length - 1;
-    const move = ctrl.steps[ply]['san'];
-    if (move === null) return;
-    
+export function updateMovelist (ctrl, plyFrom, plyTo) {
     var container = document.getElementById('movelist') as HTMLElement;
-
     const active = document.querySelector('li.move.active');
     if (active) active.classList.remove('active');
 
-    var moveEl = [h('san', move)];
-    //var ceval = ctrl.steps[ply]['eval'];
-    //if (ceval === null) ceval = '';
-    moveEl.push(h('eval#ply' + String(ply), ''));
+    var moves: VNode[] = [];
+    var ply, move, moveEl, el;
+    for (ply = plyFrom; ply < plyTo; ply++) {
 
-    const el = h('li.move', {class: {active: true}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, ply) }}, moveEl);
-    if (ply % 2 == 0) {
-        patch(container, h('ol.movelist#movelist', [el]));
-    } else {
-        patch(container, h('ol.movelist#movelist', [h('li.move.counter', (ply + 1) / 2), el]));
+        move = ctrl.steps[ply]['san'];
+        if (move === null) continue;
+
+        moveEl = [h('san', move)];
+        //var ceval = ctrl.steps[ply]['eval'];
+        //if (ceval === null) ceval = '';
+        moveEl.push(h('eval#ply' + String(ply), ''));
+        const p = ply;
+        el = h('li.move', {class: {active: (ply === plyTo - 1)}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, p) }}, moveEl);
+        if (ply % 2 !== 0) {
+            moves.push(h('li.move.counter', (ply + 1) / 2));
+        }
+        moves.push(el);
     }
+    patch(container, h('ol.movelist#movelist', moves));
     scrollToPly(ctrl);
 }

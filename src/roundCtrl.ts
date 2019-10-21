@@ -424,8 +424,8 @@ export default class RoundController {
 
             msg.steps.forEach((step) => { 
                 this.steps.push(step);
-                updateMovelist(this);
                 });
+            updateMovelist(this, 1, this.steps.length);
         } else {
             if (msg.ply === this.steps.length) {
                 const step = {
@@ -436,7 +436,7 @@ export default class RoundController {
                     'san': msg.steps[0].san,
                     };
                 this.steps.push(step);
-                updateMovelist(this);
+                updateMovelist(this, this.steps.length - 1, this.steps.length);
             }
         }
 
