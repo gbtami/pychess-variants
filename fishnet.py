@@ -2,11 +2,15 @@ import asyncio
 from datetime import datetime
 from functools import partial
 import json
+import logging
 
 from aiohttp import web
 
-from utils import ANALYSIS, load_game
+from utils import ANALYSIS, STARTED, INVALIDMOVE, VARIANTS, Seek, load_game,\
+    lobby_broadcast, round_broadcast, get_board, get_seeks
 from settings import FISHNET_KEYS
+
+log = logging.getLogger(__name__)
 
 
 async def fishnet_acquire(request):
@@ -26,6 +30,17 @@ async def fishnet_acquire(request):
     if key not in request.app["workers"]:
         request.app["workers"].add(key)
         fm[worker].append("%s %s %s" % (datetime.utcnow(), "-", "joined"))
+        request.app["users"]["Fairy-Stockfish"].online = True
+
+        if not request.app["users"]["Fairy-Stockfish"].seeks:
+            ai = request.app["users"]["Fairy-Stockfish"]
+            seeks = request.app["seeks"]
+            sockets = request.app["websockets"]
+            for variant in VARIANTS:
+                seek = Seek(ai, variant, color="r", base=5, inc=3)
+                seeks[seek.id] = seek
+                ai.seeks[seek.id] = seek
+            await lobby_broadcast(sockets, get_seeks(seeks))
 
     fishnet_work_queue = request.app["fishnet"]
 
@@ -33,7 +48,7 @@ async def fishnet_acquire(request):
     try:
         (priority, work_id) = fishnet_work_queue.get_nowait()
         work = request.app["works"][work_id]
-        # print(work)
+        # print("FISHNET ACQUIRE we have work for you:", work)
         if priority == ANALYSIS:
             fm[worker].append("%s %s %s %s of %s moves" % (datetime.utcnow(), work_id, "request", "analysis", work["moves"].count(" ") + 1))
 
@@ -49,7 +64,7 @@ async def fishnet_acquire(request):
             response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Work for fishnet sent..."}
             await user_ws.send_json(response)
         else:
-            fm[worker].append("%s %s %s %s for level %s" % (datetime.utcnow(), work_id, "request", "move", work["level"]))
+            fm[worker].append("%s %s %s %s for level %s" % (datetime.utcnow(), work_id, "request", "move", work["work"]["level"]))
 
         return web.json_response(work, status=202)
     except asyncio.QueueEmpty:
@@ -119,6 +134,47 @@ async def fishnet_move(request):
 
     fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "move"))
 
+    work = request.app["works"][work_id]
+    gameId = work["game_id"]
+    game = await load_game(request.app, gameId)
+
+    users = request.app["users"]
+    games = request.app["games"]
+    username = "Fairy-Stockfish"
+
+    move = data["move"]["bestmove"]
+
+    invalid_move = False
+    log.info("BOT move %s %s %s %s - %s" % (username, gameId, move, game.wplayer.username, game.bplayer.username))
+    if game.status <= STARTED:
+        try:
+            await game.play_move(move)
+        except SystemError:
+            invalid_move = True
+            log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, username))
+            game.status = INVALIDMOVE
+            game.result = "0-1" if username == game.wplayer.username else "1-0"
+
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+
+    if not invalid_move:
+        board_response = get_board(games, {"gameId": gameId}, full=False)
+
+    if users[opp_name].bot:
+        if game.status > STARTED:
+            await users[opp_name].game_queues[gameId].put(game.game_end)
+        else:
+            await users[opp_name].game_queues[gameId].put(game.game_state)
+    else:
+        opp_ws = users[opp_name].game_sockets[gameId]
+        if not invalid_move:
+            await opp_ws.send_json(board_response)
+        if game.status > STARTED:
+            await opp_ws.send_json(game.game_end)
+
+    if not invalid_move:
+        await round_broadcast(game, users, board_response)
+
     # remove completed work
     del request.app["works"][work_id]
 
@@ -143,6 +199,10 @@ async def fishnet_abort(request):
 
     # re-schedule the job
     request.app["fishnet"].put_nowait((ANALYSIS, work_id))
+
+    if len(request.app["workers"]) == 0:
+        request.app["users"]["Fairy-Stockfish"].online = False
+        # TODO: msg to work user
 
     return web.Response(status=204)
 

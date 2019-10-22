@@ -67,14 +67,12 @@ async def lobby_socket_handler(request):
                             engine = users.get("Random-Mover")
 
                         seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
-                        print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
+                        # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 
                         response = await new_game(request.app, engine, seek.id)
                         await ws.send_json(response)
-                        # print("---------USERS-----------")
-                        # for user in users.values():
-                        #     print(user.username, user.online, user.title)
+
                         gameId = response["gameId"]
                         engine.game_queues[gameId] = asyncio.Queue()
                         await engine.event_queue.put(challenge(seek, response))

@@ -249,6 +249,59 @@ class User:
         return self.username
 
 
+async def AI_task(ai, app):
+    async def game_task(ai, game, gameId, level):
+        while game.status <= STARTED:
+            line = await ai.game_queues[gameId].get()
+            event = json.loads(line)
+            if event["type"] != "gameState":
+                break
+            # print("   +++ game_queues get()", event)
+            if len(app["workers"]) > 0:
+                AI_move(game, gameId, level)
+
+    def AI_move(game, gameId, level):
+        game = app["games"][gameId]
+        work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
+        work = {
+            "work": {
+                "type": "move",
+                "id": work_id,
+                "level": level,
+            },
+            "game_id": gameId,  # optional
+            "position": game.board.initial_fen,  # start position (X-FEN)
+            "variant": game.variant,
+            "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
+        }
+        app["works"][work_id] = work
+        app["fishnet"].put_nowait((MOVE, work_id))
+
+    while True:
+        line = await ai.event_queue.get()
+        event = json.loads(line)
+        # print("+++ AI event_queue.get()", event)
+
+        if event["type"] != "gameStart":
+            continue
+
+        gameId = event["game"]["id"]
+        level = int(event["game"]["skill_level"])
+        game = app["games"][gameId]
+
+        if len(app["workers"]) == 0:
+            log.error("ERROR: No fairyfisnet worker alive!")
+            # TODO: send msg to player
+            await game.abort()
+            continue
+
+        if game.wplayer.username == ai.username:
+            AI_move(game, gameId, level)
+
+        loop = asyncio.get_event_loop()
+        app["tasks"].add(loop.create_task(game_task(ai, game, gameId, level)))
+
+
 class Clock:
     """ Check game start and abandoned games time out """
 
@@ -293,7 +346,7 @@ class Clock:
                     if self.game.status < ABORTED:
                         if self.ply < 2:
                             await self.game.update_status(ABORTED)
-                            print("   ABORTED by server!!!.", )
+                            log.info("Game %s ABORT by server." % self.game.id)
                         else:
                             w, b = self.game.board.insufficient_material()
                             cur_color = "black" if self.color == BLACK else "white"
@@ -302,7 +355,7 @@ class Clock:
                             else:
                                 result = "1-0" if self.color == BLACK else "0-1"
                             await self.game.update_status(FLAG, result)
-                            print("   FLAG by server!!!", )
+                            log.info("Game %s FLAG by server!" % self.game.id)
 
             # After stop() we are just waiting for next restart
             await asyncio.sleep(1)
@@ -478,7 +531,14 @@ class Game:
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(60 * 5)
+
             del self.games[self.id]
+
+            if self.bot_game:
+                if self.wplayer.bot:
+                    del self.wplayer.game_queues[self.id]
+                if self.bplayer.bot:
+                    del self.bplayer.game_queues[self.id]
 
         if self.saved:
             return
@@ -496,7 +556,8 @@ class Game:
                 (white_score, black_score) = (0.0, 1.0)
             else:
                 raise RuntimeError('game.result: unexpected result code')
-            await rating.update_ratings(self, white_score, black_score)
+            # await rating.update_ratings(self, white_score, black_score)
+            print("rating.update_ratings()", white_score, black_score)
 
         if self.ply < 3:
             await self.db.game.delete_one({"_id": self.id})
@@ -556,8 +617,6 @@ class Game:
             await self.save_game()
 
     def set_dests(self):
-        # print("-----------------------------------------------------------")
-        # print(self.board.print_pos())
         dests = {}
         promotions = []
         moves = self.board.legal_moves()
@@ -579,8 +638,6 @@ class Game:
             if not move[-1].isdigit():
                 promotions.append(move)
 
-        # print(dests)
-        # print("-----------------------------------------------------------")
         self.dests = dests
         self.promotions = promotions
 

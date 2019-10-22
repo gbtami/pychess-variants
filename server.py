@@ -14,7 +14,7 @@ from motor import motor_asyncio as ma
 
 from routes import get_routes, post_routes
 from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
-from utils import Seek, User, VARIANTS, STARTED
+from utils import Seek, User, VARIANTS, STARTED, AI_task
 
 
 async def make_app(loop):
@@ -22,6 +22,7 @@ async def make_app(loop):
     setup(app, EncryptedCookieStorage(SECRET_KEY))
     app["users"] = {
         "Random-Mover": User(bot=True, username="Random-Mover"),
+        "Fairy-Stockfish": User(bot=True, username="Fairy-Stockfish"),
     }
     app["users"]["Random-Mover"].online = True
     app["websockets"] = {}
@@ -48,6 +49,9 @@ async def make_app(loop):
         app["seeks"][seek.id] = seek
         bot.seeks[seek.id] = seek
 
+    ai = app["users"]["Fairy-Stockfish"]
+    app["tasks"].add(loop.create_task(AI_task(ai, app)))
+
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]
 
@@ -55,14 +59,15 @@ async def make_app(loop):
     cursor = app["db"].user.find()
     try:
         async for doc in cursor:
-            app["users"][doc["_id"]] = User(
-                username=doc["_id"],
-                title=doc.get("title"),
-                first_name=doc.get("first_name"),
-                last_name=doc.get("last_name"),
-                country=doc.get("country"),
-                bot=doc.get("title") == "BOT",
-            )
+            if doc["_id"] not in app["users"]:
+                app["users"][doc["_id"]] = User(
+                    username=doc["_id"],
+                    title=doc.get("title"),
+                    first_name=doc.get("first_name"),
+                    last_name=doc.get("last_name"),
+                    country=doc.get("country"),
+                    bot=doc.get("title") == "BOT",
+                )
     except Exception:
         print("No mongodb!")
     app.on_shutdown.append(shutdown)

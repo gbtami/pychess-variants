@@ -132,7 +132,6 @@ async def round_socket_handler(request):
                             continue
 
                         # If there is any fishnet client, use it.
-                        # Otherwise use Fairy BOT.
                         if len(request.app["workers"]) > 0:
                             work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
                             work = {

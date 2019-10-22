@@ -103,7 +103,7 @@ async def create_bot_seek(request):
     log.info("+++ %s created %s seek" % (bot_player.username, data["variant"]))
 
     # Try to create BOT vs BOT game to test TV
-    test_TV = False
+    test_TV = True
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
@@ -260,8 +260,11 @@ async def game_stream(request):
     async def pinger():
         """ To help lichess-bot.py abort games showing no activity. """
         while True:
-            await bot_player.game_queues[gameId].put("\n")
-            await asyncio.sleep(5)
+            if gameId in bot_player.game_queues:
+                await bot_player.game_queues[gameId].put("\n")
+                await asyncio.sleep(5)
+            else:
+                break
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(pinger())
