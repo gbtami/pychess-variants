@@ -107,7 +107,7 @@ async def create_bot_seek(request):
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
-            if seek.variant == data["variant"] and seek.user.bot and seek.user.online and seek.user.username != username:
+            if seek.variant == data["variant"] and seek.user.bot and seek.user.online and seek.user.username != username and seek.level > 0:
                 log.debug("MATCHING BOT SEEK %s FOUND!" % seek.id)
                 matching_seek = seek
                 break
@@ -142,10 +142,6 @@ async def create_bot_seek(request):
 
         await seek.user.event_queue.put(game.game_start)
         await bot_player.event_queue.put(game.game_start)
-
-        # delete accepted seek and inform others
-        del seeks[matching_seek.id]
-        await lobby_broadcast(sockets, get_seeks(seeks))
 
     return web.json_response({"ok": True})
 

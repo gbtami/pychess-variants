@@ -45,7 +45,7 @@ async def make_app(loop):
 
     bot = app["users"]["Random-Mover"]
     for variant in VARIANTS:
-        seek = Seek(bot, variant, base=1, inc=0)
+        seek = Seek(bot, variant, base=1, inc=0, level=0)
         app["seeks"][seek.id] = seek
         bot.seeks[seek.id] = seek
 
