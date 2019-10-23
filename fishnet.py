@@ -17,6 +17,7 @@ async def get_work(request, data):
     fm = request.app["fishnet_monitor"]
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
+
     fishnet_work_queue = request.app["fishnet"]
 
     # priority can be "move" or "analysis"
@@ -57,7 +58,6 @@ async def fishnet_acquire(request):
     version = data["fishnet"]["version"]
     worker = FISHNET_KEYS[key]
     fv[worker] = version
-    FISHNET_KEYS[key] = (FISHNET_KEYS[key])
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
@@ -72,6 +72,9 @@ async def fishnet_acquire(request):
             seeks = request.app["seeks"]
             sockets = request.app["websockets"]
             for variant in VARIANTS:
+                # TODO: remove when Fairy will support Xiangqi
+                if variant == "xiangqi":
+                    continue
                 seek = Seek(ai, variant, color="r", base=5, inc=3, level=6)
                 seeks[seek.id] = seek
                 ai.seeks[seek.id] = seek
@@ -138,7 +141,7 @@ async def fishnet_move(request):
     worker = FISHNET_KEYS[key]
 
     # print(json.dumps(data, sort_keys=True, indent=4))
-    if data["fishnet"]["apikey"] not in FISHNET_KEYS:
+    if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
     fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "move"))
@@ -199,7 +202,7 @@ async def fishnet_abort(request):
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
 
-    if data["fishnet"]["apikey"] not in FISHNET_KEYS:
+    if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
     fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "abort"))
