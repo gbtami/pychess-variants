@@ -37,6 +37,9 @@ async def fishnet_acquire(request):
             seeks = request.app["seeks"]
             sockets = request.app["websockets"]
             for variant in VARIANTS:
+                # TODO: remove when Fairy will support Xiangqi
+                if variant == "xiangqi":
+                    continue
                 seek = Seek(ai, variant, color="r", base=5, inc=3)
                 seeks[seek.id] = seek
                 ai.seeks[seek.id] = seek
