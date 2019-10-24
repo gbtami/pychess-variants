@@ -295,7 +295,11 @@ async def AI_task(ai, app):
             await game.abort()
             continue
 
-        if game.wplayer.username == ai.username:
+        if game.variant[-5:] == "shogi":
+            starting_player = game.bplayer.username
+        else:
+            starting_player = game.wplayer.username
+        if starting_player == ai.username:
             AI_move(game, gameId, level)
 
         loop = asyncio.get_event_loop()
