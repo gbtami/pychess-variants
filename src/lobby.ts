@@ -214,7 +214,7 @@ class LobbyController {
                 h('label', { attrs: {for: "min"} }, "Minutes per side:"),
                 h('span#minutes'),
                 h('input#min', { class: { "slider": true },
-                    props: {name: "min", type: "range", min: 0, max: 60, value: vMin},
+                    props: {name: "min", type: "range", min: 1, max: 60, value: vMin},
                     on: { input: (e) => setMinutes((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setMinutes((vnode.elm as HTMLInputElement).value) },
                 }),
