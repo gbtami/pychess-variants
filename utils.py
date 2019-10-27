@@ -617,6 +617,10 @@ class Game:
                     print("1/2 by stalemate")
                     self.result = "1/2-1/2"
 
+        if self.ply > 600:
+            self.status = DRAW
+            self.result = "1/2-1/2"
+
         if self.status > STARTED:
             await self.save_game()
 
