@@ -18,6 +18,7 @@ except ImportError:
 
 from fairy import FairyBoard, WHITE, BLACK, STANDARD_FEN, SHOGI_FEN, MINISHOGI_FEN
 from xiangqi import XiangqiBoard
+from xiangqi import FEN_START as XIANGQI_FEN_START
 
 from settings import URI
 from compress import encode_moves, decode_moves, R2C, C2R, V2C, C2V
@@ -968,12 +969,14 @@ def pgn(doc):
     elif variant == "grand" or variant == "grandhouse":
         mlist = list(map(zero2grand, mlist))
 
-    if variant != "xiangqi":
+    if variant == "xiangqi":
+        fen = XIANGQI_FEN_START
+    else:
         fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else sf.start_fen(variant)
         mlist = sf.get_san_moves(variant, fen, mlist, chess960)
 
-    moves = " ".join((move if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, move) for ind, move in enumerate(mlist) if ind > 0))
-    no_setup = doc["f"] == STANDARD_FEN and not chess960
+    moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
+    no_setup = fen == STANDARD_FEN and not chess960
     return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
         "PyChess casual game",
         URI + "/" + doc["_id"],
@@ -986,5 +989,5 @@ def pgn(doc):
         variant.capitalize() if not chess960 else VARIANTS960[variant],
         moves,
         C2R[doc["r"]],
-        fen="" if no_setup else '[FEN "%s"]\n' % doc["f"],
+        fen="" if no_setup else '[FEN "%s"]\n' % fen,
         setup="" if no_setup else '[SetUp "1"]\n')
