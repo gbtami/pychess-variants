@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import warnings
@@ -9,6 +10,7 @@ from urllib.parse import urlparse
 from aiohttp import web
 import aioauth_client
 import aiohttp_session
+from aiohttp_sse import sse_response
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
 from utils import load_game, pgn, User, STARTED, MATE
@@ -155,6 +157,8 @@ async def index(request):
         view = "howtoplay"
     elif request.path == "/players":
         view = "players"
+    elif request.path == "/games":
+        view = "games"
     elif request.path == "/patron/thanks":
         view = "thanks"
     elif request.path == "/level8win":
@@ -233,7 +237,7 @@ async def index(request):
     return response
 
 
-async def get_games(request):
+async def get_user_games(request):
     users = request.app["users"]
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
@@ -285,6 +289,29 @@ async def get_games(request):
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
+async def subscribe_games(request):
+    async with sse_response(request) as response:
+        app = request.app
+        queue = asyncio.Queue()
+        app['channels'].add(queue)
+        try:
+            while not response.task.done():
+                payload = await queue.get()
+                await response.send(payload)
+                queue.task_done()
+        finally:
+            app['channels'].remove(queue)
+    return response
+
+
+async def get_games(request):
+    games = request.app["games"]
+    # TODO: filter last 10, filter last 10 by variant
+    return web.json_response([
+        {"gameId": game.id, "variant": game.variant, "fen": game.board.fen, "w": game.wplayer.username, "b": game.bplayer.username}
+        for game in games.values() if game.status <= STARTED and game.ply > 0], dumps=partial(json.dumps, default=datetime.isoformat))
+
+
 async def get_players(request):
     users = request.app["users"]
     return web.json_response([user.as_json for user in users.values()], dumps=partial(json.dumps, default=datetime.isoformat))
@@ -329,6 +356,7 @@ get_routes = (
     ("/about", index),
     ("/howtoplay", index),
     ("/players", index),
+    ("/games", index),
     ("/tv", index),
     (r"/{gameId:\w{8}}", index),
     ("/@/{profileId}", index),
@@ -341,10 +369,12 @@ get_routes = (
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),
     ("/api/bot/game/stream/{gameId}", game_stream),
-    ("/api/{profileId}/all", get_games),
-    ("/api/{profileId}/win", get_games),
-    ("/api/{profileId}/loss", get_games),
+    ("/api/{profileId}/all", get_user_games),
+    ("/api/{profileId}/win", get_user_games),
+    ("/api/{profileId}/loss", get_user_games),
+    ("/api/games", get_games),
     ("/api/players", get_players),
+    ("/api/subscribe", subscribe_games),
     ("/variant/{variant}", variant),
     ("/games/export/{profileId}", export),
     ("/fishnet/monitor", fishnet_monitor),

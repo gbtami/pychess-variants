@@ -1135,3 +1135,20 @@ score {
   font-weight: bold;
   font-size: 22px;
 }
+
+/* games */
+grid-container{
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  justify-content: center;
+  overflow-x:hidden;
+}
+minigame {
+  border: 1px solid #ddd;
+  padding: 6px;
+  background-color: WhiteSmoke;
+}
+minigame:hover {
+  background-color: #d1e6fa;
+  cursor: pointer;
+}

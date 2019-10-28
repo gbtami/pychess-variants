@@ -86,7 +86,7 @@ async def round_socket_handler(request):
                             log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
                             await opp_ws.send_json(board_response)
 
-                        await round_broadcast(game, users, board_response)
+                        await round_broadcast(game, users, board_response, channels=request.app["channels"])
 
                     elif data["type"] == "ready":
                         game = games[data["gameId"]]

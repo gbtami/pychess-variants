@@ -16,9 +16,9 @@ export default function(ctrl) {
     let gating: any = false;
     let roles: string[] = [];
 
-    function start(fen, orig, dest, meta) {
+    function start(fen, orig, dest) {
         const ground = ctrl.getGround();
-        const gatable = canGate(fen, ground.state.pieces[dest], orig, dest, meta)
+        const gatable = canGate(fen, ground.state.pieces[dest], orig)
         roles = ["hawk", "elephant", "queen", "rook", "bishop", "knight", ""];
 
         if (gatable[0] || gatable[1] || gatable[2] || gatable[3] || gatable[4] || gatable[5]) {

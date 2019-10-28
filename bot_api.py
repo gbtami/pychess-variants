@@ -340,7 +340,7 @@ async def bot_move(request):
             await opp_ws.send_json(game.game_end)
 
     if not invalid_move:
-        await round_broadcast(game, users, board_response)
+        await round_broadcast(game, users, board_response, channels=request.app["channels"])
 
     return web.json_response({"ok": True})
 

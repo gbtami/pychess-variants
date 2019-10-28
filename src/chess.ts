@@ -140,8 +140,8 @@ function diagonalMove(pos1, pos2) {
     return xd === yd && xd === 1;
 }
 
-export function canGate(fen, piece, orig, dest, meta) {
-    console.log("   isGating()", fen, piece, orig, dest, meta);
+export function canGate(fen, piece, orig) {
+    // console.log("   isGating()", fen, piece, orig);
     const no_gate = [false, false, false, false, false, false]
     if ((piece.color === "white" && orig.slice(1) !== "1") ||
         (piece.color === "black" && orig.slice(1) !== "8") ||
@@ -271,7 +271,7 @@ export function uci2usi(move) {
 }
 
 export function usi2uci(move) {
-    console.log("usi2uci()", move);
+    // console.log("usi2uci()", move);
     const parts = move.split("");
     if (parts[1] === "*") {
         parts[1] = "@";

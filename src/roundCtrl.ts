@@ -710,7 +710,7 @@ export default class RoundController {
 
         //  gating elephant/hawk
         if (this.variant === "seirawan" || this.variant === "shouse") {
-            if (!this.promotion.start(orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest, meta)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
             if (!this.promotion.start(orig, dest, meta)) this.sendMove(orig, dest, '');
         };

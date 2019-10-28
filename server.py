@@ -30,6 +30,7 @@ async def make_app(loop):
     app["games"] = {}
     app["tasks"] = weakref.WeakSet()
     app["chat"] = collections.deque([], 200)
+    app["channels"] = set()
 
     # fishnet active workers
     app["workers"] = set()
