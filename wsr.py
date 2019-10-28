@@ -150,7 +150,7 @@ async def round_socket_handler(request):
                                 "position": game.board.initial_fen,  # start position (X-FEN)
                                 "variant": game.variant,
                                 "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
-                                "nodes": 200000,  # optional limit
+                                "nodes": 500000,  # optional limit
                                 #  "skipPositions": [1, 4, 5]  # 0 is the first position
                             }
                             request.app["works"][work_id] = work
