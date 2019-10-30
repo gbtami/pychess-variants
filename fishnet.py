@@ -184,7 +184,7 @@ async def fishnet_move(request):
                 await opp_ws.send_json(board_response)
             if game.status > STARTED:
                 await opp_ws.send_json(game.game_end)
-        except IndexError:
+        except KeyError:
             log.error("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, username, gameId))
 
     if not invalid_move:

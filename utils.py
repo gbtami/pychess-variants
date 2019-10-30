@@ -157,14 +157,13 @@ class Seek:
 
 
 class User:
-    def __init__(self, lobby_ws=None, bot=False, username=None, title="", country="", first_name="", last_name=""):
+    def __init__(self, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name=""):
         self.lobby_ws = lobby_ws
         self.bot = bot
+        self.anon = anon
         if username is None:
-            self.anon = True
             self.username = "Anonymous" + "".join(random.sample(string.ascii_uppercase, 4))
         else:
-            self.anon = False
             self.username = username
         self.first_name = first_name
         self.last_name = last_name
@@ -541,8 +540,7 @@ class Game:
         async def remove():
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
-            if self.ply > 2:
-                await asyncio.sleep(60 * 5)
+            await asyncio.sleep(60 * 5 if self.ply > 2 else 10)
 
             del self.games[self.id]
 
@@ -552,7 +550,7 @@ class Game:
                         del self.wplayer.game_queues[self.id]
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
-                except IndexError:
+                except KeyError:
                     log.error("Failed to del %s from game_queues" % self.id)
         if self.saved:
             return
@@ -748,14 +746,14 @@ async def load_game(app, game_id):
     if wp in users:
         wplayer = users[wp]
     else:
-        wplayer = User(username=wp)
+        wplayer = User(username=wp, anon=True)
         users[wp] = wplayer
 
     bp = doc["us"][1]
     if bp in users:
         bplayer = users[bp]
     else:
-        bplayer = User(username=bp)
+        bplayer = User(username=bp, anon=True)
         users[bp] = bplayer
 
     variant = C2V[doc["v"]]

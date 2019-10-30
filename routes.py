@@ -134,15 +134,16 @@ async def index(request):
         doc = await db.user.find_one({"_id": session_user})
         if doc is not None:
             session["guest"] = False
+
         if session_user in users:
             user = users[session_user]
         else:
             # If server was restarted, we have to recreate users
-            user = User(username=session_user)
+            user = User(username=session_user, anon=session["guest"])
             users[user.username] = user
         user.ping_counter = 0
     else:
-        user = User()
+        user = User(anon=True)
         log.info("+++ New guest user %s connected." % user.username)
         users[user.username] = user
         session["user_name"] = user.username
@@ -199,6 +200,7 @@ async def index(request):
     template = request.app["jinja"].get_template("index.html")
     render = {
         "app_name": "PyChess",
+        "title": view.capitalize(),
         "view": view,
         "home": URI,
         "user": user.username if session["guest"] else "",
@@ -207,6 +209,9 @@ async def index(request):
         "guest": session["guest"],
         "profile": profileId if profileId is not None else "",
     }
+    if profileId is not None:
+        render["title"] = "Profile • " + profileId
+
     if gameId is not None:
         render["gameid"] = gameId
         render["variant"] = game.variant
@@ -222,6 +227,7 @@ async def index(request):
         render["result"] = game.result
         render["status"] = game.status
         render["date"] = game.date.isoformat()
+        render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
 
     if view == "level8win":
         render["level"] = 8

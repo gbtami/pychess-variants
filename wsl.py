@@ -113,7 +113,7 @@ async def lobby_socket_handler(request):
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing lobby_user %s socket connected as %s." % (session_user, data["username"]))
                                 session_user = data["username"]
-                                user = User(username=data["username"])
+                                user = User(username=data["username"], anon=data["username"].startswith("Anonymous"))
                                 users[user.username] = user
                                 response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
@@ -122,7 +122,7 @@ async def lobby_socket_handler(request):
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
-                            user = User(username=data["username"])
+                            user = User(username=data["username"], anon=data["username"].startswith("Anonymous"))
                             users[user.username] = user
                             response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
 
