@@ -125,8 +125,8 @@ async def lobby_socket_handler(request):
                             user = User(username=data["username"])
                             users[user.username] = user
                             response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
+
                         user.ping_counter = 0
-                        user.online = True
                         await lobby_broadcast(sockets, response)
 
                         # update websocket

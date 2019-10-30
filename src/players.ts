@@ -12,9 +12,7 @@ import { VNode } from 'snabbdom/vnode';
 import { renderUsername } from './user';
 
 
-function renderPlayers(model, players) {
-    console.log("players", model, players);
-    const header = h('thead', [h('tr', [h('th', 'Players'), ])]);
+function renderPlayers(players) {
     var rows = players.map(
         (player) => h('tr', [
             h('td.player-data', [
@@ -28,7 +26,15 @@ function renderPlayers(model, players) {
             ])
         ])
         );
-    return [header, h('tbody', rows)];
+    return rows;
+}
+
+function renderAllPlayers(players) {
+    return [
+        h('thead', [h('tr', [h('th', 'Online'), ])]), h('tbody', renderPlayers(players.filter((player) => player["online"]))),
+        h('hr'),
+        h('thead', [h('tr', [h('th', 'Offline'), ])]), h('tbody', renderPlayers(players.filter((player) => !player["online"])))
+    ];
 }
 
 export function playersView(model): VNode[] {
@@ -50,7 +56,7 @@ export function playersView(model): VNode[] {
         const oldVNode = document.getElementById('players');
         console.log(arr);
         if (oldVNode instanceof Element) {
-            patch(oldVNode as HTMLElement, h('table#players', renderPlayers(model, arr)));
+            patch(oldVNode as HTMLElement, h('table#players', renderAllPlayers(arr)));
         }
     }
 

@@ -146,7 +146,6 @@ async def index(request):
         log.info("+++ New guest user %s connected." % user.username)
         users[user.username] = user
         session["user_name"] = user.username
-    user.online = True
 
     view = "lobby"
     gameId = request.match_info.get("gameId")
@@ -314,7 +313,7 @@ async def get_games(request):
 
 async def get_players(request):
     users = request.app["users"]
-    return web.json_response([user.as_json for user in users.values()], dumps=partial(json.dumps, default=datetime.isoformat))
+    return web.json_response([user.as_json for user in users.values() if not user.anon], dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def export(request):

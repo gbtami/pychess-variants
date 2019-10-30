@@ -192,7 +192,7 @@ async def event_stream(request):
             })
             print("db insert user result %s" % repr(result.inserted_id))
 
-    bot_player.online = True
+    bot_player.bot_online = True
 
     log.info("+++ BOT %s connected" % bot_player.username)
 
@@ -315,7 +315,7 @@ async def bot_move(request):
             log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, username))
             game.status = INVALIDMOVE
             game.result = "0-1" if username == game.wplayer.username else "1-0"
-            bot_player.online = False
+            bot_player.bot_online = False
 
     await bot_player.game_queues[gameId].put(game.game_state)
 

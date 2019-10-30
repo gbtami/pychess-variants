@@ -274,7 +274,6 @@ async def round_socket_handler(request):
                             user = User(username=data["username"])
                             users[user.username] = user
                         user.ping_counter = 0
-                        user.online = True
 
                         # update websocket
                         user.game_sockets[data["gameId"]] = ws

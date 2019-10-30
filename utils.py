@@ -177,8 +177,15 @@ class User:
         else:
             self.game_sockets = {}
             self.title = title
-        self.online = False
         self.ping_counter = 0
+        self.bot_online = False
+
+    @property
+    def online(self):
+        if self.bot:
+            return self.bot_online
+        else:
+            return self.game_sockets or (self.lobby_ws is not None)
 
     @property
     def as_json(self):
@@ -203,7 +210,7 @@ class User:
     async def quit_lobby(self, sockets, disconnect):
         print(self.username, "quit()")
 
-        self.online = False
+        self.lobby_ws = None
         if self.username in sockets:
             del sockets[self.username]
 
@@ -231,7 +238,6 @@ class User:
     async def pinger(self, sockets, seeks, users, games):
         while True:
             if self.ping_counter > 2:
-                self.online = False
                 log.info("%s went offline" % self.username)
                 await self.round_broadcast_disconnect(users, games)
                 await self.clear_seeks(sockets, seeks)
@@ -541,11 +547,13 @@ class Game:
             del self.games[self.id]
 
             if self.bot_game:
-                if self.wplayer.bot:
-                    del self.wplayer.game_queues[self.id]
-                if self.bplayer.bot:
-                    del self.bplayer.game_queues[self.id]
-
+                try:
+                    if self.wplayer.bot:
+                        del self.wplayer.game_queues[self.id]
+                    if self.bplayer.bot:
+                        del self.bplayer.game_queues[self.id]
+                except IndexError:
+                    log.error("Failed to del %s from game_queues" % self.id)
         if self.saved:
             return
 

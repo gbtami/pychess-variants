@@ -24,7 +24,7 @@ async def make_app(loop):
         "Random-Mover": User(bot=True, username="Random-Mover"),
         "Fairy-Stockfish": User(bot=True, username="Fairy-Stockfish"),
     }
-    app["users"]["Random-Mover"].online = True
+    app["users"]["Random-Mover"].bot_online = True
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
