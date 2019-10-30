@@ -785,14 +785,14 @@ export default class RoundController {
         this.model["username"] = msg["username"];
         renderUsername(this.model["home"], this.model["username"]);
         if (this.spectator) {
-            this.doSend({ type: "is_user_online", username: this.wplayer });
-            this.doSend({ type: "is_user_online", username: this.bplayer });
+            this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.model["gameId"] });
+            this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.model["gameId"] });
 
             // we want to know lastMove and check status
             this.doSend({ type: "board", gameId: this.model["gameId"] });
         } else {
             const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
-            this.doSend({ type: "is_user_online", username: opp_name });
+            this.doSend({ type: "is_user_present", username: opp_name, gameId: this.model["gameId"] });
 
             var container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
@@ -805,7 +805,7 @@ export default class RoundController {
         }
     }
 
-    private onMsgUserOnline = (msg) => {
+    private onMsgUserPresent = (msg) => {
         console.log(msg);
         if (msg.username === this.players[0]) {
             var container = document.getElementById('player0') as HTMLElement;
@@ -873,8 +873,8 @@ export default class RoundController {
             case "game_user_connected":
                 this.onMsgUserConnected(msg);
                 break;
-            case "user_online":
-                this.onMsgUserOnline(msg);
+            case "user_present":
+                this.onMsgUserPresent(msg);
                 break;
             case "user_disconnected":
                 this.onMsgUserDisconnected(msg);

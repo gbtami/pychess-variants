@@ -38,6 +38,8 @@ async def round_socket_handler(request):
     user = users[session_user] if session_user else None
 
     game_ping_task = None
+    game = None
+    opp_ws = None
 
     async def game_pinger():
         """ Prevent Heroku to close inactive ws """
@@ -116,6 +118,9 @@ async def round_socket_handler(request):
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 response = start(games, data)
                                 await opp_ws.send_json(response)
+                                await ws.send_json(response)
+
+                                response = {"type": "user_present", "username": opp_name}
                                 await ws.send_json(response)
 
                     elif data["type"] == "board":
@@ -297,11 +302,11 @@ async def round_socket_handler(request):
                         game_ping_task = loop.create_task(game_pinger())
                         request.app["tasks"].add(game_ping_task)
 
-                    elif data["type"] == "is_user_online":
+                    elif data["type"] == "is_user_present":
                         player_name = data["username"]
                         player = users.get(player_name)
-                        if player is not None and player.online:
-                            response = {"type": "user_online", "username": player_name}
+                        if player is not None and data["gameId"] in (player.game_queues if player.bot else player.game_sockets):
+                            response = {"type": "user_present", "username": player_name}
                         else:
                             response = {"type": "user_disconnected", "username": player_name}
                         await ws.send_json(response)
@@ -353,6 +358,9 @@ async def round_socket_handler(request):
                             opp_player_ws = opp_player.game_sockets[gameId]
                             await opp_player_ws.send_json(response)
 
+                            response = {"type": "user_disconnected", "username": user.username}
+                            await opp_player_ws.send_json(response)
+
                         await round_broadcast(game, users, response)
 
                     elif data["type"] == "updateTV":
@@ -374,8 +382,15 @@ async def round_socket_handler(request):
 
     log.info("--- Round Websocket %s closed" % id(ws))
 
+    if game is not None and opp_ws is not None:
+        response = {"type": "user_disconnected", "username": user.username}
+        await opp_ws.send_json(response)
+        await round_broadcast(game, users, response)
+
+    if game is not None and not user.bot:
+        del user.game_sockets[game.id]
+
     if game_ping_task is not None:
         game_ping_task.cancel()
-        user.online = False
 
     return ws

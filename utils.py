@@ -535,7 +535,8 @@ class Game:
         async def remove():
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(60 * 5)
+            if self.ply > 2:
+                await asyncio.sleep(60 * 5)
 
             del self.games[self.id]
 
@@ -565,7 +566,8 @@ class Game:
             print("rating.update_ratings()", white_score, black_score)
 
         if self.ply < 3:
-            await self.db.game.delete_one({"_id": self.id})
+            result = await self.db.game.delete_one({"_id": self.id})
+            log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
             self.print_game()
             await self.db.game.find_one_and_update(
@@ -906,7 +908,7 @@ async def round_broadcast(game, users, response, channels=None):
             if game.id in users[spectator.username].game_sockets:
                 await users[spectator.username].game_sockets[game.id].send_json(response)
 
-    # Put response dtat to sse subscribers queue
+    # Put response data to sse subscribers queue
     if channels is not None:
         for queue in channels:
             await queue.put(json.dumps(response))

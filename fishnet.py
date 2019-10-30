@@ -178,11 +178,14 @@ async def fishnet_move(request):
         else:
             await users[opp_name].game_queues[gameId].put(game.game_state)
     else:
-        opp_ws = users[opp_name].game_sockets[gameId]
-        if not invalid_move:
-            await opp_ws.send_json(board_response)
-        if game.status > STARTED:
-            await opp_ws.send_json(game.game_end)
+        try:
+            opp_ws = users[opp_name].game_sockets[gameId]
+            if not invalid_move:
+                await opp_ws.send_json(board_response)
+            if game.status > STARTED:
+                await opp_ws.send_json(game.game_end)
+        except IndexError:
+            log.error("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, username, gameId))
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=request.app["channels"])
