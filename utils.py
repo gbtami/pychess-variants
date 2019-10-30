@@ -185,7 +185,7 @@ class User:
         if self.bot:
             return self.bot_online
         else:
-            return self.game_sockets or (self.lobby_ws is not None)
+            return len(self.game_sockets) > 0 or (self.lobby_ws is not None)
 
     @property
     def as_json(self):
