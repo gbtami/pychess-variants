@@ -1,11 +1,11 @@
 aioauth-client==0.17.3
-aiohttp-session==2.7.0
+aiohttp-session==2.8.0
 aiohttp-sse==2.0.0
 aiomonitor==0.4.4
-aiohttp==3.5.4
-cryptography==2.7 
+aiohttp==3.6.2
+cryptography==2.8
 dnspython==1.16.0
 htmlmin==0.1.12
-jinja2==2.10.1
+jinja2==2.10.3
 motor==2.0.0
 pyffish==0.0.27
