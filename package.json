@@ -21,6 +21,7 @@
     "typescript": "^3",
     "vinyl-buffer": "^1",
     "vinyl-source-stream": "^2",
-    "watchify": "^3"
+    "watchify": "^3",
+    "highcharts": "^7.2.1"
   }
 }

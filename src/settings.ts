@@ -14,6 +14,7 @@ import { variants, VARIANTS } from './chess';
 import { pocketView } from './pocket';
 import { needPockets } from './chess';
 import { player } from './player';
+import { analysisChart } from './chart';
 
 // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
 
@@ -101,6 +102,8 @@ function setZoom (ctrl, zoom: number) {
 
         document.body.dispatchEvent(new Event('chessground.resize'));
         localStorage.setItem("zoom-" + ctrl.variant, String(zoom));
+        analysisChart(ctrl);
+
     }
 }
 

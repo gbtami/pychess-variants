@@ -10,7 +10,6 @@
     "noEmitOnError": false,
     "alwaysStrict": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
     "allovsJs": true,

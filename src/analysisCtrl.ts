@@ -25,6 +25,7 @@ import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 import { result } from './profile';
 import { copyTextToClipboard } from './clipboard';
+import { analysisChart } from './chart';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -209,6 +210,9 @@ export default class AnalysisController {
             updatePockets(this, pocket0, pocket1);
         }
 
+        var element = document.getElementById('chart') as HTMLElement;
+        element.style.display = 'none';
+
         patch(document.getElementById('board-settings') as HTMLElement, settingsView(this));
 
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
@@ -216,17 +220,6 @@ export default class AnalysisController {
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         this.vpv = document.getElementById('pv') as HTMLElement;
-/*
-        const btn = h('button#analysis', {
-                        on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) }},
-                        [h('i', {
-                            props: {title: 'Computer Analysis'},
-                            class: {"icon": true, "icon-microscope": true} 
-                            }
-                        )]);
-        var container = document.getElementById('flip') as HTMLElement;
-        patch(container, btn);
-*/
     }
 
     getGround = () => this.chessground;
@@ -235,6 +228,15 @@ export default class AnalysisController {
     private gameOver = () => {
         var container = document.getElementById('result') as HTMLElement;
         patch(container, h('div#result', result(this.status, this.result)));
+    }
+
+    private requestAnalysis = () => {
+        var element = document.getElementById('request-analysis') as HTMLElement;
+        element.style.display = 'none';
+        element = document.getElementById('chart') as HTMLElement;
+        element.style.display = 'block';
+        this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
+        analysisChart(this);
     }
 
     private checkStatus = (msg) => {
@@ -253,7 +255,7 @@ export default class AnalysisController {
                     h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
-                h('button', { on: { click: () => this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] }) } }, [
+                h('button#request-analysis', { on: { click: () => this.requestAnalysis() } }, [
                     h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-microscope": true} }, ' Request Analysis')]),
                 ]),
             );
@@ -596,6 +598,8 @@ export default class AnalysisController {
         }
         this.steps[ply]['ceval'] = msg['ceval'];
         this.steps[ply]['scoreStr'] = scoreStr;
+
+        analysisChart(this);
     }
 
     private onMsgUserConnected = (msg) => {
