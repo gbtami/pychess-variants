@@ -118,8 +118,8 @@ async def fishnet_analysis(request):
                 continue
 
             ply = str(i)
-            response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
-            await user_ws.send_json(response)
+            # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
+            # await user_ws.send_json(response)
 
             response = {"type": "analysis", "ply": ply, "color": "w" if i % 2 == 0 else "b", "ceval": analysis}
             await user_ws.send_json(response)

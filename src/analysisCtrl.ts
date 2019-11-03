@@ -234,6 +234,8 @@ export default class AnalysisController {
     private requestAnalysis = () => {
         var element = document.getElementById('request-analysis') as HTMLElement;
         element.style.display = 'none';
+        element = document.getElementById('loader') as HTMLElement;
+        element.style.display = 'block';
         element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'block';
         this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
@@ -592,7 +594,6 @@ export default class AnalysisController {
             if (msg.color === 'b') nscore = -nscore;
             scoreStr = nscore.toFixed(1);
         }
-        console.log(ply, scoreStr);
         if (ply > 0) {
             var evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
@@ -601,6 +602,10 @@ export default class AnalysisController {
         this.steps[ply]['scoreStr'] = scoreStr;
 
         analysisChart(this);
+        if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
+            var element = document.getElementById('loader-wrapper') as HTMLElement;
+            element.style.display = 'none';
+        }
     }
 
     private onMsgUserConnected = (msg) => {
