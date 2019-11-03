@@ -14,9 +14,10 @@ export function analysisChart (ctrl) {
                           name: turn + dots + ' ' + step.san,
                           y: povChances(step.turnColor, score)
                         };
+                        if (ply === 0) point.name = 'Initial position';
                         return point;
-                    } else return 0;
-                } else return 0;
+                    } else return null;
+                } else return null;
             })
     ctrl.analysisChart = Highcharts.chart('chart', {
         chart: { type: 'area',
