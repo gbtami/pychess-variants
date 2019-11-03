@@ -86,6 +86,7 @@ export default class AnalysisController {
     CSSindexesB: number[];
     CSSindexesP: number[];
     clickDrop: Piece | undefined;
+    analysisChart: any;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -236,7 +237,7 @@ export default class AnalysisController {
         element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'block';
         this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
-        analysisChart(this);
+        this.analysisChart = analysisChart(this);
     }
 
     private checkStatus = (msg) => {

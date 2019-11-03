@@ -18,7 +18,7 @@ export function analysisChart (ctrl) {
                     } else return 0;
                 } else return 0;
             })
-    Highcharts.chart('chart', {
+    ctrl.analysisChart = Highcharts.chart('chart', {
         chart: { type: 'area',
             spacing: [3, 0, 3, 0],
             animation: false,

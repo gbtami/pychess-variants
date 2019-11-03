@@ -71,6 +71,9 @@ export function selectMove (ctrl, ply) {
     }
     ctrl.goPly(ply)
     scrollToPly(ctrl);
+    const hc = ctrl.analysisChart;
+    const hcPt = hc.series[0].data[ply];
+    hcPt.select();
 }
 
 function scrollToPly (ctrl) {
