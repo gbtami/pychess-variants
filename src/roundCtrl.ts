@@ -335,11 +335,11 @@ export default class RoundController {
     }
 
     private gameOver = () => {
-        var container = document.getElementById('moves') as HTMLElement;
+        var container = document.getElementById('movelist') as HTMLElement;
         var movesTail: VNode[] = [];
         if (this.turnColor === 'black') movesTail.push(h('li.move.hidden', 'X'));
         movesTail.push(h('div#result', result(this.status, this.result)));
-        patch(container, h('div#moves', movesTail));
+        patch(container, h('ol.movelist#movelist', movesTail));
 
         if (!this.spectator) {
             this.gameControls = patch(this.gameControls, h('div'));

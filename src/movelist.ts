@@ -13,6 +13,7 @@ import { Color } from 'chessgroundx/types';
 
 import { gearButton, toggleOrientation } from './settings';
 import RoundController from './roundCtrl';
+import AnalysisController from './analysisCtrl';
 
 
 interface Eval {
@@ -71,9 +72,12 @@ export function selectMove (ctrl, ply) {
     }
     ctrl.goPly(ply)
     scrollToPly(ctrl);
-    const hc = ctrl.analysisChart;
-    const hcPt = hc.series[0].data[ply];
-    hcPt.select();
+
+    if (ctrl instanceof AnalysisController) {
+        const hc = ctrl.analysisChart;
+        const hcPt = hc.series[0].data[ply];
+        hcPt.select();
+    }
 }
 
 function scrollToPly (ctrl) {
