@@ -51,7 +51,9 @@ export class Clock {
             diff = that.duration - (Date.now() - that.startTime);
             // console.log("timer()", that.duration, that.startTime, diff);
             if (diff <= 0) {
-                that.flagCallback();
+                if (that.flagCallback !== null) {
+                    that.flagCallback();
+                }
                 that.pause(false);
                 return;
             }

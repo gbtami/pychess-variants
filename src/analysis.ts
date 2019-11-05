@@ -89,7 +89,7 @@ export function analysisView(model): VNode[] {
                     ]),
                 ]),
             ]),
-            h('under-left'),
+            h('under-left#spectators'),
             h('under-board', [
                 h('div#pgn', [
                     h('div.chart-container', [

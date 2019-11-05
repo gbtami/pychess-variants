@@ -805,6 +805,11 @@ export default class RoundController {
         }
     }
 
+    private onMsgSpectators = (msg) => {
+        var container = document.getElementById('spectators') as HTMLElement;
+        patch(container, h('under-left#spectators', 'Spectators: ' + msg.spectators));
+    }
+
     private onMsgUserPresent = (msg) => {
         console.log(msg);
         if (msg.username === this.players[0]) {
@@ -876,6 +881,8 @@ export default class RoundController {
             case "user_present":
                 this.onMsgUserPresent(msg);
                 break;
+            case "spectators":
+                this.onMsgSpectators(msg);
             case "user_disconnected":
                 this.onMsgUserDisconnected(msg);
                 break;

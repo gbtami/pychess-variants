@@ -937,6 +937,9 @@ li.message.server {
   padding: 3px;
   margin-top: auto;
 }
+#spectators {
+  overflow-wrap: break-word
+}
 
 #movelist-block {
   overflow-y: auto;

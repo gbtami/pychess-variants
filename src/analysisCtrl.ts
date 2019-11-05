@@ -615,6 +615,11 @@ export default class AnalysisController {
         this.doSend({ type: "board", gameId: this.model["gameId"] });
     }
 
+    private onMsgSpectators = (msg) => {
+        var container = document.getElementById('spectators') as HTMLElement;
+        patch(container, h('under-left#spectators', 'Spectators: ' + msg.spectators));
+    }
+
     private onMsgChat = (msg) => {
         if (msg.user !== this.model["username"]) {
             if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
@@ -649,6 +654,8 @@ export default class AnalysisController {
             case "game_user_connected":
                 this.onMsgUserConnected(msg);
                 break;
+            case "spectators":
+                this.onMsgSpectators(msg);
             case "roundchat":
                 this.onMsgChat(msg);
                 break;
