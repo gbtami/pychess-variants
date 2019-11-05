@@ -186,14 +186,13 @@ class User:
         else:
             return len(self.game_sockets) > 0 or (self.lobby_ws is not None)
 
-    @property
-    def as_json(self):
+    def as_json(self, requester):
         return {
             "_id": self.username,
             "title": self.title,
             "first_name": self.first_name,
             "last-name": self.last_name,
-            "online": self.online,
+            "online": True if self.username == requester else self.online,
             "country": self.country,
         }
 
@@ -207,7 +206,7 @@ class User:
             await lobby_broadcast(sockets, get_seeks(seeks))
 
     async def quit_lobby(self, sockets, disconnect):
-        print(self.username, "quit()")
+        print(self.username, "quit_lobby()")
 
         self.lobby_ws = None
         if self.username in sockets:

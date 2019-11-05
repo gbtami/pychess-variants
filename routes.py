@@ -12,7 +12,7 @@ import aioauth_client
 import aiohttp_session
 from aiohttp_sse import sse_response
 
-from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH
+from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN
 from utils import load_game, pgn, User, STARTED, MATE
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
@@ -77,6 +77,10 @@ async def login(request):
 
     # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
+
+    if DEV_TOKEN:
+        session["token"] = DEV_TOKEN
+
     if "token" not in session:
         raise web.HTTPFound(REDIRECT_PATH)
 
@@ -93,6 +97,10 @@ async def login(request):
         raise web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
+    users = request.app["users"]
+    prev_user = users.get(session.get("user_name"))
+    prev_user.lobby_ws = None  # make it offline
+
     session["user_name"] = user.username
     session["country"] = user.country
     session["first_name"] = user.first_name
@@ -318,8 +326,22 @@ async def get_games(request):
 
 
 async def get_players(request):
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+
     users = request.app["users"]
-    return web.json_response([user.as_json for user in users.values() if not user.anon], dumps=partial(json.dumps, default=datetime.isoformat))
+
+    online_users = [user.as_json(session_user) for user in users.values() if not user.anon]
+    anon_online = sum((1 for user in users.values() if user.anon and user.online))
+
+    if anon_online > 0:
+        online_users.append({
+            "_id": "Anonymous(%s)" % anon_online,
+            "online": True,
+            "title": "",
+        })
+
+    return web.json_response(online_users, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def export(request):
