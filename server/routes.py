@@ -368,14 +368,6 @@ async def export(request):
     return web.Response(text=pgn_text, content_type="text/pgn")
 
 
-async def variant(request):
-    variant = request.match_info.get("variant")
-
-    template = request.app["jinja"].get_template("variant.html")
-    text = template.render({"variant": variant})
-    return web.Response(text=html_minify(text), content_type="text/html")
-
-
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
@@ -402,7 +394,6 @@ get_routes = (
     ("/api/games", get_games),
     ("/api/players", get_players),
     ("/api/subscribe", subscribe_games),
-    ("/variant/{variant}", variant),
     ("/games/export/{profileId}", export),
     ("/fishnet/monitor", fishnet_monitor),
     ("/fishnet/key/{key}", fishnet_key),
