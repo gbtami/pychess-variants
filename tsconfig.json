@@ -1,6 +1,6 @@
 {
   "include": [
-    "src/*.ts"
+    "client/*.ts"
   ],
   "compilerOptions": {
     "outDir": "./static",

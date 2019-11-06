@@ -13,7 +13,7 @@ function onError(error) {
 };
 
 function build(debug) {
-  return browserify('src/main.ts', {
+  return browserify('client/main.ts', {
       standalone: 'PychessVariants',
       debug: debug
     })
