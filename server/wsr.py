@@ -131,11 +131,6 @@ async def round_socket_handler(request):
                     elif data["type"] == "analysis":
                         game = await load_game(request.app, data["gameId"])
 
-                        if game.variant == "xiangqi":
-                            response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Xiangqi analysis is not supported yet. "}
-                            await ws.send_json(response)
-                            continue
-
                         # If there is any fishnet client, use it.
                         if len(request.app["workers"]) > 0:
                             work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
@@ -161,11 +156,8 @@ async def round_socket_handler(request):
                             request.app["works"][work_id] = work
                             request.app["fishnet"].put_nowait((ANALYSIS, work_id))
                         else:
-                            variant = game.variant
-                            if variant == "xiangqi":
-                                engine = users.get("Elephant-Eye")
-                            else:
-                                engine = users.get("Fairy-Stockfish")
+                            engine = users.get("Fairy-Stockfish")
+
                             if (engine is not None) and engine.online:
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
                                 await engine.event_queue.put(game.analysis_start(data["username"]))
@@ -179,11 +171,8 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
 
                         if opp_player.bot:
-                            variant = game.variant
                             if opp_player.username == "Random-Mover":
                                 engine = users.get("Random-Mover")
-                            elif variant == "xiangqi":
-                                engine = users.get("Elephant-Eye")
                             else:
                                 engine = users.get("Fairy-Stockfish")
 

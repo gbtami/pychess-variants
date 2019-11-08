@@ -313,7 +313,7 @@ export default class AnalysisController {
         if (lastMove !== null) {
             if (this.variant.endsWith('shogi')) {
                 lastMove = usi2uci(lastMove);
-            } else if (this.variant.startsWith('grand')) {
+            } else if (this.variant.endsWith('xiangqi') || this.variant.startsWith('grand')) {
                 lastMove = grand2zero(lastMove);
             }
             lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
@@ -359,7 +359,7 @@ export default class AnalysisController {
         var capture = false;
         if (move !== undefined) {
             if (this.variant.endsWith('shogi')) move = usi2uci(move);
-            if (this.variant.startsWith('grand')) move = grand2zero(move);
+            if (this.variant.endsWith('xiangqi') || this.variant.startsWith('grand')) move = grand2zero(move);
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
@@ -370,7 +370,7 @@ export default class AnalysisController {
             if (ceval.pv !== undefined) {
                 var pv_move = ceval["pv"].split(" ")[0];
                 if (this.variant.endsWith('shogi')) pv_move = usi2uci(pv_move);
-                if (this.variant.startsWith('grand')) pv_move = grand2zero(pv_move);
+                if (this.variant.endsWith('xiangqi') || this.variant.startsWith('grand')) pv_move = grand2zero(pv_move);
                 console.log(pv_move, ceval["pv"]);
                 if (pv_move.slice(1, 2) === '@') {
                     const d = pv_move.slice(2, 4);
@@ -440,7 +440,7 @@ export default class AnalysisController {
         // pause() will add increment!
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
-        const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : this.variant.startsWith('grand') ? zero2grand(uci_move) : uci_move;
+        const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : (this.variant.endsWith('xiangqi') || this.variant.startsWith('grand')) ? zero2grand(uci_move) : uci_move;
         // console.log("sendMove(move)", move);
         this.doSend({ type: "move", gameId: this.model["gameId"], move: move });
     }

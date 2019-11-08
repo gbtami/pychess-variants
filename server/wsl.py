@@ -57,10 +57,7 @@ async def lobby_socket_handler(request):
 
                     elif data["type"] == "create_ai_challenge":
                         variant = data["variant"]
-                        if variant == "xiangqi":
-                            engine = users.get("Elephant-Eye")
-                        else:
-                            engine = users.get("Fairy-Stockfish")
+                        engine = users.get("Fairy-Stockfish")
 
                         if engine is None or not engine.online:
                             # TODO: message that engine is offline, but capture BOT will play instead

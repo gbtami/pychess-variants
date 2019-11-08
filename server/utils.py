@@ -17,8 +17,6 @@ except ImportError:
     print("No pyffish module installed!")
 
 from fairy import FairyBoard, WHITE, BLACK, STANDARD_FEN, SHOGI_FEN, MINISHOGI_FEN
-from xiangqi import XiangqiBoard
-from xiangqi import FEN_START as XIANGQI_FEN_START
 
 from settings import URI
 from compress import encode_moves, decode_moves, R2C, C2R, V2C, C2V
@@ -45,7 +43,7 @@ VARIANTS = (
     "sittuyin",
     "shogi",
     "xiangqi",
-    "standard",
+    "chess",
     "crazyhouse",
     "placement",
     "capablanca",
@@ -61,7 +59,7 @@ VARIANTS = (
 )
 
 VARIANTS960 = {
-    "standard": "Chess960",
+    "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse960",
@@ -471,11 +469,7 @@ class Game:
         self.stopwatch = Clock(self)
 
     def create_board(self, variant, initial_fen, chess960):
-        if variant == "xiangqi":
-            board = XiangqiBoard(initial_fen)
-        else:
-            board = FairyBoard(variant, initial_fen, chess960)
-        return board
+        return FairyBoard(variant, initial_fen, chess960)
 
     async def play_move(self, move, clocks=None):
         self.stopwatch.stop()
@@ -584,7 +578,7 @@ class Game:
                   "r": R2C[self.result],
                   'm': encode_moves(
                       map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
-                      else map(grand2zero, self.board.move_stack) if self.variant == "grand" or self.variant == "grandhouse"
+                      else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse"
                       else self.board.move_stack)}
                  }
             )
@@ -643,7 +637,7 @@ class Game:
         for move in moves:
             if self.variant[-5:] == "shogi":
                 move = usi2uci(move)
-            elif self.variant == "grand" or self.variant == "grandhouse":
+            elif self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse":
                 move = grand2zero(move)
             source, dest = move[0:2], move[2:4]
             if source in dests:
@@ -669,7 +663,7 @@ class Game:
     @property
     def pgn(self):
         moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
-        no_setup = self.initial_fen == self.board.start_fen("standard") and not self.chess960
+        no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
             "PyChess casual game",
             URI + "/" + self.id,
@@ -766,7 +760,7 @@ async def load_game(app, game_id):
 
     if variant[-5:] == "shogi":
         mlist = map(uci2usi, mlist)
-    elif variant == "grand" or variant == "grandhouse":
+    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse":
         mlist = map(zero2grand, mlist)
 
     for move in mlist:
@@ -989,14 +983,11 @@ def pgn(doc):
 
     if variant[-5:] == "shogi":
         mlist = list(map(uci2usi, mlist))
-    elif variant == "grand" or variant == "grandhouse":
+    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse":
         mlist = list(map(zero2grand, mlist))
 
-    if variant == "xiangqi":
-        fen = XIANGQI_FEN_START
-    else:
-        fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else sf.start_fen(variant)
-        mlist = sf.get_san_moves(variant, fen, mlist, chess960)
+    fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else sf.start_fen(variant)
+    mlist = sf.get_san_moves(variant, fen, mlist, chess960)
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
     no_setup = fen == STANDARD_FEN and not chess960
