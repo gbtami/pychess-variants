@@ -2,7 +2,6 @@
 import logging
 import re
 import random
-from collections import Counter
 
 try:
     import pyffish as sf
