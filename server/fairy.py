@@ -2,7 +2,6 @@
 import logging
 import re
 import random
-from collections import Counter
 
 try:
     import pyffish as sf
@@ -91,14 +90,7 @@ class FairyBoard:
         return sf.gives_check(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def insufficient_material(self):
-        # TODO: implement this in pyffish
-        if self.variant == "makruk" or self.variant == "sittuyin" or self.variant == "cambodian":
-            pieces = Counter(self.fen.split()[0])
-            w = pieces["R"] + pieces["S"] == 0 and pieces["M"] + pieces["F"] + pieces["N"] + pieces["P"] < 2
-            b = pieces["r"] + pieces["s"] == 0 and pieces["m"] + pieces["f"] + pieces["n"] + pieces["p"] < 2
-        else:
-            w, b = sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack, self.chess960)
-        return (w, b)
+        return sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def is_immediate_game_end(self):
         return sf.is_immediate_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
