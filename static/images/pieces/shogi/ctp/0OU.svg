@@ -11,8 +11,11 @@
    height="60"
    version="1.1"
    id="svg1717"
-   sodipodi:docname="0OU.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   sodipodi:docname="0OU-2.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0GY.png"
+   inkscape:export-xdpi="365.15302"
+   inkscape:export-ydpi="365.15302">
   <metadata
      id="metadata1723">
     <rdf:RDF>
@@ -21,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -123,9 +126,9 @@
      inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="3.9333333"
-     inkscape:cx="-56.548618"
-     inkscape:cy="30"
+     inkscape:zoom="11.125147"
+     inkscape:cx="37.321588"
+     inkscape:cy="32.774222"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -163,20 +166,22 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
        id="g5696"
        style="display:inline;fill:#ffcc00;fill-opacity:1;filter:url(#drop-shadow-9)">
       <path
-         d="m -10.959999,6.2374999 c -4.319,1 -8.69,2.088 -12.838,3.608 -1.492,6.3310001 -2.103,12.8800001 -3.191,19.3050001 -1.285,8.332 -2.439,16.689 -3.86,24.997 4.847,0.346 10,0.05 14.963,0.148 H 9.0850008 c -0.585,-5.657 -1.718,-11.523 -2.502,-17.26 -1.462,-8.96 -2.486,-18.012 -4.288,-26.903 -0.885,-1.0930001 -2.79899998,-0.9570001 -4.037,-1.5640001 -3.053,-0.81 -6.099,-1.875 -9.2179998,-2.332 z"
+         d="m -10.959999,6.2374999 -12.838,3.608 -7.051,44.4501791 39.9339998,-1.79e-4 -6.79,-44.163 z"
          id="path5694"
          inkscape:connector-curvature="0"
-         style="fill:#ffcc00;fill-opacity:1" />
+         style="fill:#ffcc00;fill-opacity:1"
+         sodipodi:nodetypes="cccccc" />
     </g>
     <g
        aria-label="王"
-       transform="scale(1.0542925,0.94850339)"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.34547663;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="matrix(1.2457109,0,0,1.1207147,-7.6787411,-6.8285203)"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="text2298-4">
       <path
          d="m 41.364137,44.364833 v 7.040866 h 8.062927 v 2.157684 h -8.062927 v 7.949365 h 10.901985 v 2.498371 H 27.96378 v -2.498371 h 10.788423 v -7.949365 h -8.062926 v -2.157684 h 8.062926 v -7.040866 h -9.19855 v -2.498371 h 21.236159 v 2.498371 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke-width:4.34547663;stroke-miterlimit:4;stroke-dasharray:none"
-         id="path4617" />
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke:#000000;stroke-opacity:1"
+         id="path4617"
+         inkscape:connector-curvature="0" />
     </g>
     <path
        sodipodi:nodetypes="ccccc"
