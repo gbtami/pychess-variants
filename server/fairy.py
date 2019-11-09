@@ -46,7 +46,10 @@ class FairyBoard:
 
     @property
     def initial_sfen(self):
-        return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
+        if self.variant == "minishogi":
+            return "rbsgk/4p/5/P4/KGSBR b - 1"
+        else:
+            return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
     def push(self, move):
         try:
