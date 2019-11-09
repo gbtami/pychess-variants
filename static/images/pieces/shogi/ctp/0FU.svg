@@ -11,7 +11,7 @@
    height="60"
    version="1.1"
    id="svg1717"
-   sodipodi:docname="0FU-2.svg"
+   sodipodi:docname="0FU.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0FU.png"
    inkscape:export-xdpi="394.90497"
@@ -929,8 +929,8 @@
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="7.8666667"
-     inkscape:cx="37.042747"
-     inkscape:cy="21.92284"
+     inkscape:cx="10.62924"
+     inkscape:cy="24.617585"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -960,7 +960,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
        id="feBlend1696" />
   </filter>
   <g
-     transform="matrix(0.84305669,0,0,0.84305669,35.25264,4.473357)"
+     transform="matrix(0.84305669,0,0,0.84305669,35.252642,4.483395)"
      id="g5079-1-9-2"
      style="display:inline;filter:url(#drop-shadow-5-1-1)">
     <path
@@ -972,7 +972,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
   </g>
   <g
      style="display:inline;stroke:#000000;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
-     transform="matrix(0.49492926,0,0,0.6024127,37.296007,-7.7370369)"
+     transform="matrix(0.42483153,0,0,0.5170919,35.690641,-2.6883831)"
      id="g2182-3">
     <g
        style="stroke:#000000;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none"
@@ -987,7 +987,8 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
       <path
          style="fill:#000000;stroke:#000000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
          d="m -26.817667,58.549927 c -0.101781,8.756321 -0.371109,15.836633 -11.545204,21.428518 -5.232221,2.785963 -6.963446,4.475105 -7.614698,9.332185 6.784589,1.493568 14.836273,2.210393 22.882279,2.179259 8.046006,0.03113 16.0976895,-0.685691 22.882279,-2.179259 C -0.864263,84.45355 -2.595488,82.764408 -7.827709,79.978445 -19.001804,74.38656 -19.271132,67.306248 -19.372913,58.549927 v 4e-6 c -1.240718,0.01919 -2.481542,0.02015 -3.722377,0.01942 -1.240835,7.29e-4 -2.481659,-2.33e-4 -3.722377,-0.01942 z"
-         id="path2178-9" />
+         id="path2178-9"
+         inkscape:connector-curvature="0" />
     </g>
   </g>
 </svg>

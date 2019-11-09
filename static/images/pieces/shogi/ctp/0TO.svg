@@ -11,7 +11,7 @@
    height="60"
    version="1.1"
    id="svg1717"
-   sodipodi:docname="0TO-2.svg"
+   sodipodi:docname="0TO.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0TO.png"
    inkscape:export-xdpi="394.90497"
@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -940,7 +940,7 @@
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="11.125147"
-     inkscape:cx="28.558676"
+     inkscape:cx="13.592582"
      inkscape:cy="22.933599"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
@@ -982,7 +982,8 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
        style="fill:#feec99" />
   </g>
   <g
-     id="g19811">
+     id="g19811"
+     transform="matrix(0.85836819,0,0,0.85836819,3.6769355,3.512808)">
     <g
        id="g2182-3"
        transform="matrix(0.49492926,0,0,0.6024127,37.296007,-6.4786265)"

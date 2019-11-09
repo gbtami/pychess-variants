@@ -11,7 +11,7 @@
    height="60"
    version="1.1"
    id="svg1717"
-   sodipodi:docname="1FU-2.svg"
+   sodipodi:docname="1FU.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata1723">
@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -954,6 +954,24 @@
          mode="normal"
          id="feBlend5060-8-9-5-0" />
     </filter>
+    <filter
+       id="drop-shadow-5-1-1-7">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur5056-6-9-88-3" />
+      <feOffset
+         result="offsetBlur"
+         dx="2"
+         dy="2"
+         id="feOffset5058-2-6-1-6-6" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         mode="normal"
+         id="feBlend5060-8-9-5-8" />
+    </filter>
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -968,9 +986,9 @@
      inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="15.733333"
-     inkscape:cx="27.293689"
-     inkscape:cy="29.366956"
+     inkscape:zoom="7.8666665"
+     inkscape:cx="17.523978"
+     inkscape:cy="33.006469"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -1021,23 +1039,23 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
   </g>
   <g
      style="display:inline;stroke:#000000;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
-     transform="matrix(-0.49492926,0,0,-0.6024127,14.860993,67.726998)"
-     id="g2182-3">
+     transform="matrix(-0.42483153,0,0,-0.5170919,16.46636,62.688383)"
+     id="g2182-3-4">
     <g
        style="stroke:#000000;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none"
-       id="g2180-9"
+       id="g2180-9-1"
        transform="translate(0.4695196,-1.5015006)">
       <path
          style="fill:#000000;stroke:#000000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
          d="m -23.355851,37.943536 c -2.134544,9.081768 -4.332216,14.438718 -13.389243,20.588223 8.912868,3.135271 18.70037,2.896518 26.778486,0 -9.057027,-6.149505 -11.254699,-11.506455 -13.389243,-20.588223 z"
-         id="path2176-6"
+         id="path2176-6-5"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
       <path
-         inkscape:connector-curvature="0"
          style="fill:#000000;stroke:#000000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
          d="m -26.817667,58.549927 c -0.101781,8.756321 -0.371109,15.836633 -11.545204,21.428518 -5.232221,2.785963 -6.963446,4.475105 -7.614698,9.332185 6.784589,1.493568 14.836273,2.210393 22.882279,2.179259 8.046006,0.03113 16.0976895,-0.685691 22.882279,-2.179259 C -0.864263,84.45355 -2.595488,82.764408 -7.827709,79.978445 -19.001804,74.38656 -19.271132,67.306248 -19.372913,58.549927 v 4e-6 c -1.240718,0.01919 -2.481542,0.02015 -3.722377,0.01942 -1.240835,7.29e-4 -2.481659,-2.33e-4 -3.722377,-0.01942 z"
-         id="path2178-9" />
+         id="path2178-9-8"
+         inkscape:connector-curvature="0" />
     </g>
   </g>
 </svg>
