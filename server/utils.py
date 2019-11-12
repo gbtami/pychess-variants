@@ -611,9 +611,9 @@ class Game:
                 self.status = MATE
                 self.result = "1-0" if self.board.color == BLACK else "0-1"
             else:
-                # being in stalemate loses in xiangqi
+                # being in stalemate loses in xiangqi and shogi variants
                 self.status = STALEMATE
-                if self.variant == "xiangqi":
+                if self.variant.endswith(("xiangqi", "shogi")):
                     self.result = "0-1" if self.board.color == WHITE else "1-0"
                 else:
                     print("1/2 by stalemate")
