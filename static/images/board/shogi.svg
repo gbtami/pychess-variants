@@ -1,13 +1,115 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 468 540">
-   <defs>
-      <pattern id="grid" width="52" height="60" patternUnits="userSpaceOnUse">
-        <rect width="52" height="60" style="fill:#FDD775;stroke-width:2;stroke:black"/>
-      </pattern>
-    </defs>
-    <rect width="468" height="540" fill="url(#grid)" />
-    <circle cx="156" cy="180" r="4"/>
-    <circle cx="156" cy="360" r="4"/>
-    <circle cx="312" cy="180" r="4"/>
-    <circle cx="312" cy="360" r="4"/>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 468 540"
+   id="svg851"
+   sodipodi:docname="shogi.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\Boards\Shogiban1.png"
+   inkscape:export-xdpi="96.300003"
+   inkscape:export-ydpi="96.300003">
+  <metadata
+     id="metadata855">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview853"
+     showgrid="false"
+     inkscape:zoom="1.1104196"
+     inkscape:cx="62.417632"
+     inkscape:cy="320.48754"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg851" />
+  <defs
+     id="defs839">
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern2153"
+       id="pattern2159" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#grid"
+       id="pattern2153" />
+    <pattern
+       id="grid"
+       width="52"
+       height="60"
+       patternUnits="userSpaceOnUse">
+      <rect
+         width="52"
+         height="60"
+         style="fill:#FFFFFF;fill-opacity:0.0;stroke-width:2;stroke:black"
+         id="rect836" />
+    </pattern>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath2155">
+      <rect
+         id="rect2157"
+         height="540"
+         width="468"
+         style="fill:url(#pattern2159)"
+         x="0"
+         y="0" />
+    </clipPath>
+  </defs>
+  <rect
+     style="opacity:1;fill:#fdd775;fill-opacity:1;stroke:#ffeeaa;stroke-width:0.69999999;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+     id="rect5591"
+     width="468"
+     height="540"
+     x="0"
+     y="0" />
+  <circle
+     cx="156"
+     cy="180"
+     r="4"
+     id="circle843" />
+  <circle
+     cx="156"
+     cy="360"
+     r="4"
+     id="circle845" />
+  <circle
+     cx="312"
+     cy="180"
+     r="4"
+     id="circle847" />
+  <circle
+     cx="312"
+     cy="360"
+     r="4"
+     id="circle849" />
+  <path
+     d="M 0,0 0,540 M 52,0 52,540 M 104,0 104,540 M 156,0 156,540 M 208,0 208,540 M 260,0 260,540 M 312,0 312,540 M 364,0 364,540 M 416,0 416,540 M 468,0 468,540 M 0,0 468,0 M 0,60 468,60 m -468,60 468,0 m -468,60 468,0 m -468,60 468,0 m -468,60 468,0 m -468,60 468,0 m -468,60 468,0 m -468,60 468,0 m -468,60 468,0"
+     style="fill:#ff00ff;stroke:#000000;stroke-width:1px;fill-opacity:1"
+     id="path22173" />
 </svg>
