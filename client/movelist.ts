@@ -76,7 +76,7 @@ export function selectMove (ctrl, ply) {
     if (ctrl instanceof AnalysisController) {
         const hc = ctrl.analysisChart;
         const hcPt = hc.series[0].data[ply];
-        hcPt.select();
+        if (hcPt !== undefined) hcPt.select();
     }
 }
 

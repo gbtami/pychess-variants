@@ -69,7 +69,7 @@ export function gamesView(model): VNode[] {
                 if (lastMove !== null) {
                     if (game.variant.endsWith('shogi')) {
                         lastMove = usi2uci(lastMove);
-                    } else if (game.variant.startsWith('grand')) {
+                    } else if (game.variant.startsWith('grand') || game.variant === 'shako') {
                         lastMove = grand2zero(lastMove);
                     }
                     lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];

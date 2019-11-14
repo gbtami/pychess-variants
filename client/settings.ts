@@ -34,22 +34,24 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 6;
     } else if (cssFile.includes("seir")) {
         cssLinkIndex = 7;
-    } else if (cssFile.includes("8x8")) {
+    } else if (cssFile.includes("shako")) {
         cssLinkIndex = 8;
-    } else if (cssFile.includes("10x8")) {
+    } else if (cssFile.includes("8x8")) {
         cssLinkIndex = 9;
-    } else if (cssFile.includes("10x10")) {
+    } else if (cssFile.includes("10x8")) {
         cssLinkIndex = 10;
-    } else if (cssFile.includes("9x9")) {
+    } else if (cssFile.includes("10x10")) {
         cssLinkIndex = 11;
-    } else if (cssFile.includes("9x10")) {
+    } else if (cssFile.includes("9x9")) {
         cssLinkIndex = 12;
-    } else if (cssFile.includes("makrb")) {
+    } else if (cssFile.includes("9x10")) {
         cssLinkIndex = 13;
-    } else if (cssFile.includes("sittb")) {
+    } else if (cssFile.includes("makrb")) {
         cssLinkIndex = 14;
-    } else if (cssFile.includes("5x5")) {
+    } else if (cssFile.includes("sittb")) {
         cssLinkIndex = 15;
+    } else if (cssFile.includes("5x5")) {
+        cssLinkIndex = 16;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

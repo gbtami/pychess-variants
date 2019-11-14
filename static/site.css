@@ -798,20 +798,23 @@ label.board.board3.capablanca, label.board.board3.capahouse, label.board.board3.
 label.board.board4.capablanca, label.board.board4.capahouse, label.board.board4.gothic, label.board.board4.gothhouse {
   background-image: url('images/board/10x8olive.jpg');
 }
-label.board.board0.grand, label.board.board0.grandhouse {
+label.board.board0.grand, label.board.board0.grandhouse, label.board.board0.shako {
   background-image: url('images/board/10x10brown.svg');
 }
-label.board.board1.grand, label.board.board1.grandhouse {
+label.board.board1.grand, label.board.board1.grandhouse, label.board.board1.shako {
   background-image: url('images/board/10x10blue.svg');
 }
-label.board.board2.grand, label.board.board2.grandhouse {
+label.board.board2.grand, label.board.board2.grandhouse, label.board.board2.shako {
   background-image: url('images/board/10x10green.svg');
 }
-label.board.board3.grand, label.board.board3.grandhouse {
+label.board.board3.grand, label.board.board3.grandhouse, label.board.board3.shako {
   background-image: url('images/board/10x10maple.jpg');
 }
-label.board.board4.grand, label.board.board4.grandhouse {
+label.board.board4.grand, label.board.board4.grandhouse, label.board.board4.shako {
   background-image: url('images/board/10x10olive.jpg');
+}
+label.piece.piece0.shako {
+  background-image: url('images/pieces/merida/wE.svg');
 }
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse, label.piece.piece0.gothic, label.piece.piece0.gothhouse {

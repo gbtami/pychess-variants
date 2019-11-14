@@ -26,6 +26,7 @@ V2C = {
     "gothic": "o",
     "gothhouse": "t",
     "cambodian": "b",
+    "shako": "d,"
 }
 C2V = {v: k for k, v in V2C.items()}
 

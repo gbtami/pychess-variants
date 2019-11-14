@@ -1,7 +1,7 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse"];
+export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "xiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
 export const VARIANTS = {
@@ -22,6 +22,7 @@ export const VARIANTS = {
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L", baseURL: ["seir", "capa", "green", "musk"] },
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L", baseURL: ["seir", "capa", "green", "musk"] },
     chess: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "M" },
+    shako: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue", "10x10green", "10x10maple", "10x10olive"], pieces: "shako", PieceCSS: ["shako0"], icon: "G" },
 }
 
 export function pocketRoles(variant: string) {
@@ -78,6 +79,7 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
         return ["p" + role, role];
     case "grandhouse":
     case "grand":
+    case "shako":
         var roles: Role[] = [];
         const moves = promotions.map((move) => move.slice(0, -1));
         promotions.forEach((move) => {
@@ -127,7 +129,7 @@ export function needPockets(variant: string) {
 }
 
 export function hasEp(variant: string) {
-    return variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse";
+    return variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako';
 }
 
 function diff(a: number, b:number):number {
@@ -248,6 +250,7 @@ export function isPromotion(variant, piece, orig, dest, meta, promotions) {
         return piece.role === "pawn" && ( orig === dest || (!meta.captured && dm));
     case 'grandhouse':
     case 'grand':
+    case 'shako':
         // TODO: we can use this for other variants also
         return promotions.map((move) => move.slice(0, -1)).indexOf(orig + dest) !== -1;
     default:

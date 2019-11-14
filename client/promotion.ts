@@ -109,6 +109,7 @@ export default function(ctrl) {
                 break;
             case "grandhouse":
             case "grand":
+            case "shako":
                 promo = promoted ? roleToSan[role].toLowerCase() : "";
                 break;
             default:

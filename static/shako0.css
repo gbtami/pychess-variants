@@ -1,0 +1,49 @@
+.shako .cg-wrap piece.elephant.white {
+  background-image: url('images/pieces/merida/wE.svg');
+}
+.shako .cg-wrap piece.cancellor.white {
+  background-image: url('images/pieces/merida/wH.svg');
+}
+.shako .cg-wrap piece.elephant.black {
+  background-image: url('images/pieces/merida/bE.svg');
+}
+.shako .cg-wrap piece.cancellor.black {
+  background-image: url('images/pieces/merida/bH.svg');
+}
+
+.shako .cg-wrap piece.pawn.white {
+  background-image: url('images/pieces/merida/wP.svg');
+}
+.shako .cg-wrap piece.bishop.white {
+  background-image: url('images/pieces/merida/wB.svg');
+}
+.shako .cg-wrap piece.knight.white {
+  background-image: url('images/pieces/merida/wN.svg');
+}
+.shako .cg-wrap piece.rook.white {
+  background-image: url('images/pieces/merida/wR.svg');
+}
+.shako .cg-wrap piece.queen.white {
+  background-image: url('images/pieces/merida/wQ.svg');
+}
+.shako .cg-wrap piece.king.white {
+  background-image: url('images/pieces/merida/wK.svg');
+}
+.shako .cg-wrap piece.pawn.black {
+  background-image: url('images/pieces/merida/bP.svg');
+}
+.shako .cg-wrap piece.bishop.black {
+  background-image: url('images/pieces/merida/bB.svg');
+}
+.shako .cg-wrap piece.knight.black {
+  background-image: url('images/pieces/merida/bN.svg');
+}
+.shako .cg-wrap piece.rook.black {
+  background-image: url('images/pieces/merida/bR.svg');
+}
+.shako .cg-wrap piece.queen.black {
+  background-image: url('images/pieces/merida/bQ.svg');
+}
+.shako .cg-wrap piece.king.black {
+  background-image: url('images/pieces/merida/bK.svg');
+}

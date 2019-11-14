@@ -56,6 +56,7 @@ VARIANTS = (
     "gothhouse",
     "minishogi",
     "cambodian",
+    "shako",
 )
 
 VARIANTS960 = {
@@ -579,7 +580,7 @@ class Game:
                   "r": R2C[self.result],
                   'm': encode_moves(
                       map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
-                      else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse"
+                      else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
                       else self.board.move_stack)}
                  }
             )
@@ -638,7 +639,7 @@ class Game:
         for move in moves:
             if self.variant[-5:] == "shogi":
                 move = usi2uci(move)
-            elif self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse":
+            elif self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako":
                 move = grand2zero(move)
             source, dest = move[0:2], move[2:4]
             if source in dests:
@@ -761,7 +762,7 @@ async def load_game(app, game_id):
 
     if variant[-5:] == "shogi":
         mlist = map(uci2usi, mlist)
-    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse":
+    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = map(zero2grand, mlist)
 
     for move in mlist:
@@ -984,7 +985,7 @@ def pgn(doc):
 
     if variant[-5:] == "shogi":
         mlist = list(map(uci2usi, mlist))
-    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse":
+    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = list(map(zero2grand, mlist))
 
     fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else sf.start_fen(variant)
