@@ -272,6 +272,7 @@ async def AI_task(ai, app):
                 "id": work_id,
                 "level": level,
             },
+            "time": monotonic(),
             "game_id": gameId,  # optional
             "position": game.board.initial_fen,  # start position (X-FEN)
             "variant": game.variant,

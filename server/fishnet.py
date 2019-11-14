@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import partial
 import json
 import logging
+from time import monotonic
 
 from aiohttp import web
 
@@ -11,6 +12,8 @@ from utils import ANALYSIS, STARTED, INVALIDMOVE, VARIANTS, Seek, load_game,\
 from settings import FISHNET_KEYS
 
 log = logging.getLogger(__name__)
+
+MOVE_WORK_TIME_OUT = 5.0
 
 
 async def get_work(request, data):
@@ -44,6 +47,16 @@ async def get_work(request, data):
 
         return web.json_response(work, status=202)
     except asyncio.QueueEmpty:
+        # There was no new work in the queue. Ok
+        # Now let see are there any long time pending work in app["works"]
+        # (in case when worker grabbed it from queue but not responded after MOVE_WORK_TIME_OUT secs)
+        pending_works = request.app["works"]
+        now = monotonic()
+        for work_id in pending_works:
+            work = pending_works[work_id]
+            if work["work"]["type"] == "move" and (now - work["time"] > MOVE_WORK_TIME_OUT):
+                fm[worker].append("%s %s %s %s for level %s" % (datetime.utcnow(), work_id, "request", "move AGAIN", work["work"]["level"]))
+                return web.json_response(work, status=202)
         return web.Response(status=204)
     except Exception:
         raise
@@ -143,8 +156,16 @@ async def fishnet_move(request):
 
     fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "move"))
 
+    if work_id not in request.app["works"]:
+        response = await get_work(request, data)
+        return response
+
     work = request.app["works"][work_id]
     gameId = work["game_id"]
+
+    # remove work from works
+    del request.app["works"][work_id]
+
     game = await load_game(request.app, gameId)
 
     users = request.app["users"]
@@ -186,9 +207,6 @@ async def fishnet_move(request):
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=request.app["channels"])
-
-    # remove completed work
-    del request.app["works"][work_id]
 
     response = await get_work(request, data)
     return response
