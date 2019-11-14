@@ -33,17 +33,17 @@ export function pocketRoles(variant: string) {
     case "grandhouse":
     case "gothhouse":
     case "capahouse":
-        return ["pawn", "knight", "bishop", "rook", "queen", "archbishop", "cancellor"];
+        return ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"];
     case "shogi":
-        return ["pawn", "lance", "knight", "bishop", "rook", "silver", "gold"];
+        return ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"];
     case "minishogi":
-        return ["pawn", "bishop", "rook", "silver", "gold"];
+        return ["pawn", "silver", "gold", "bishop", "rook"];
     case "shouse":
-        return ["pawn", "knight", "bishop", "rook", "queen", "elephant", "hawk"];
+        return ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"];
     case "seirawan":
-        return ["elephant", "hawk"];
+        return ["hawk", "elephant"];
     default:
-        return ["rook", "knight", "bishop", "queen", "king"];
+        return ["knight", "bishop", "rook", "queen", "king"];
     }
 }
 
