@@ -1,49 +1,49 @@
 .shako .cg-wrap piece.elephant.white {
-  background-image: url('images/pieces/merida/wE.svg');
+  background-image: url('images/pieces/shako/wE.svg');
 }
 .shako .cg-wrap piece.cancellor.white {
-  background-image: url('images/pieces/merida/wH.svg');
+  background-image: url('images/pieces/shako/wC.svg');
 }
 .shako .cg-wrap piece.elephant.black {
-  background-image: url('images/pieces/merida/bE.svg');
+  background-image: url('images/pieces/shako/bE.svg');
 }
 .shako .cg-wrap piece.cancellor.black {
-  background-image: url('images/pieces/merida/bH.svg');
+  background-image: url('images/pieces/shako/bC.svg');
 }
 
 .shako .cg-wrap piece.pawn.white {
-  background-image: url('images/pieces/merida/wP.svg');
+  background-image: url('images/pieces/shako/wP.svg');
 }
 .shako .cg-wrap piece.bishop.white {
-  background-image: url('images/pieces/merida/wB.svg');
+  background-image: url('images/pieces/shako/wB.svg');
 }
 .shako .cg-wrap piece.knight.white {
-  background-image: url('images/pieces/merida/wN.svg');
+  background-image: url('images/pieces/shako/wN.svg');
 }
 .shako .cg-wrap piece.rook.white {
-  background-image: url('images/pieces/merida/wR.svg');
+  background-image: url('images/pieces/shako/wR.svg');
 }
 .shako .cg-wrap piece.queen.white {
-  background-image: url('images/pieces/merida/wQ.svg');
+  background-image: url('images/pieces/shako/wQ.svg');
 }
 .shako .cg-wrap piece.king.white {
-  background-image: url('images/pieces/merida/wK.svg');
+  background-image: url('images/pieces/shako/wK.svg');
 }
 .shako .cg-wrap piece.pawn.black {
-  background-image: url('images/pieces/merida/bP.svg');
+  background-image: url('images/pieces/shako/bP.svg');
 }
 .shako .cg-wrap piece.bishop.black {
-  background-image: url('images/pieces/merida/bB.svg');
+  background-image: url('images/pieces/shako/bB.svg');
 }
 .shako .cg-wrap piece.knight.black {
-  background-image: url('images/pieces/merida/bN.svg');
+  background-image: url('images/pieces/shako/bN.svg');
 }
 .shako .cg-wrap piece.rook.black {
-  background-image: url('images/pieces/merida/bR.svg');
+  background-image: url('images/pieces/shako/bR.svg');
 }
 .shako .cg-wrap piece.queen.black {
-  background-image: url('images/pieces/merida/bQ.svg');
+  background-image: url('images/pieces/shako/bQ.svg');
 }
 .shako .cg-wrap piece.king.black {
-  background-image: url('images/pieces/merida/bK.svg');
+  background-image: url('images/pieces/shako/bK.svg');
 }

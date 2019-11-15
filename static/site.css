@@ -814,7 +814,7 @@ label.board.board4.grand, label.board.board4.grandhouse, label.board.board4.shak
   background-image: url('images/board/10x10olive.jpg');
 }
 label.piece.piece0.shako {
-  background-image: url('images/pieces/merida/wE.svg');
+  background-image: url('images/pieces/shako/wC.svg');
 }
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse, label.piece.piece0.gothic, label.piece.piece0.gothhouse {
