@@ -17,7 +17,7 @@
    viewBox="0 0 50 50"
    version="1.1"
    id="svg974"
-   sodipodi:docname="bCannon.svg"
+   sodipodi:docname="bC.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata978">
@@ -44,9 +44,9 @@
      inkscape:window-height="1017"
      id="namedview976"
      showgrid="false"
-     inkscape:zoom="2.3931817"
-     inkscape:cx="126.72528"
-     inkscape:cy="59.901312"
+     inkscape:zoom="1.1965909"
+     inkscape:cx="0.74891673"
+     inkscape:cy="132.6285"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -54,6 +54,30 @@
      showguides="false" />
   <defs
      id="defs968">
+    <linearGradient
+       id="linearGradient2235"
+       inkscape:collect="always">
+      <stop
+         id="stop2231"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1" />
+      <stop
+         id="stop2233"
+         offset="1"
+         style="stop-color:#808080;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2229"
+       inkscape:collect="always">
+      <stop
+         id="stop2225"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1" />
+      <stop
+         id="stop2227"
+         offset="1"
+         style="stop-color:#808080;stop-opacity:1" />
+    </linearGradient>
     <linearGradient
        id="linearGradient1078"
        inkscape:collect="always">
@@ -64,7 +88,7 @@
       <stop
          id="stop1076"
          offset="1"
-         style="stop-color:#dfdede;stop-opacity:1" />
+         style="stop-color:#999999;stop-opacity:1" />
     </linearGradient>
     <linearGradient
        id="linearGradient1072"
@@ -76,7 +100,7 @@
       <stop
          id="stop1070"
          offset="1"
-         style="stop-color:#dfdede;stop-opacity:1" />
+         style="stop-color:#999999;stop-opacity:1" />
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
@@ -115,38 +139,29 @@
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1002"
+       xlink:href="#linearGradient2229"
        id="linearGradient1012"
-       x1="45.311588"
+       x1="32.33989"
        y1="36.638081"
-       x2="13.496281"
+       x2="8.1896772"
        y2="36.638081"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1002"
-       id="linearGradient1020"
-       x1="45.505043"
-       y1="36.579117"
-       x2="13.12594"
-       y2="36.579117"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient1002"
+       xlink:href="#linearGradient2235"
        id="linearGradient1028"
-       x1="-45.221378"
+       x1="-26.943077"
        y1="42.657791"
-       x2="-9.8650179"
+       x2="1.455737"
        y2="42.657791"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient1072"
        id="linearGradient1058"
-       x1="9.5773268"
+       x1="21.605629"
        y1="18.638321"
-       x2="36.091499"
+       x2="55.431122"
        y2="18.638321"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
@@ -156,7 +171,7 @@
        gradientUnits="userSpaceOnUse"
        x1="12.682456"
        y1="18.638321"
-       x2="36.091499"
+       x2="55.431122"
        y2="18.638321" />
   </defs>
   <g
@@ -167,7 +182,7 @@
        id="g1034">
       <path
          style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.69328892;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="M -15.111118,25.382503 -38.684027,5.1746348 -47.230618,12.13637 c 0.792474,0.867378 20.149143,22.644286 20.149143,22.644286 9.603942,12.91719 22.2009169,-0.03773 11.970357,-9.398153 z"
+         d="M -15.111118,25.382503 -38.684027,5.1746348 -46.579629,12.549053 c 0.792474,0.867378 19.498154,22.231603 19.498154,22.231603 9.603942,12.91719 22.2009169,-0.03773 11.970357,-9.398153 z"
          id="path980"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccc" />
@@ -179,7 +194,7 @@
          cy="36.579117"
          cx="30.376812" />
       <circle
-         style="opacity:1;fill:url(#linearGradient1020);fill-opacity:1;stroke:#000000;stroke-width:1.69328892;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.69328892;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
          id="path984"
          cx="30.376812"
          cy="36.579117"
