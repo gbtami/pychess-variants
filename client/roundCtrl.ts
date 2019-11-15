@@ -450,7 +450,7 @@ export default class RoundController {
         if (lastMove !== null) {
             if (this.variant.endsWith('shogi')) {
                 lastMove = usi2uci(lastMove);
-            } else if (this.variant.endsWith('xiangqi') || this.variant.startsWith('grand') || this.variant === 'shako') {
+            } else if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') {
                 lastMove = grand2zero(lastMove);
             }
             lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
@@ -555,7 +555,7 @@ export default class RoundController {
         var capture = false;
         if (move !== undefined) {
             if (this.variant.endsWith('shogi')) move = usi2uci(move);
-            if (this.variant.endsWith('xiangqi') || this.variant.startsWith('grand') || this.variant === 'shako') move = grand2zero(move);
+            if (this.variant == 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') move = grand2zero(move);
             move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
@@ -601,7 +601,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
-        const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : (this.variant.endsWith('xiangqi') || this.variant.startsWith('grand') || this.variant === 'shako') ? zero2grand(uci_move) : uci_move;
+        const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') ? zero2grand(uci_move) : uci_move;
         // console.log("sendMove(move)", move);
         // TODO: if premoved, send 0 time
         let bclock, clocks;

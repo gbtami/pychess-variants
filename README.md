@@ -9,12 +9,14 @@ Currently supported games are:
 - [Shogi](https://en.wikipedia.org/wiki/Shogi)
 - [Minishogi](https://en.wikipedia.org/wiki/Minishogi)
 - [Xiangqi](https://en.wikipedia.org/wiki/Xiangqi)
+- [Minixiangqi](http://mlwi.magix.net/bg/minixiangqi.htm)
 - [Placement chess](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
 - [Crazyhouse](https://en.wikipedia.org/wiki/Crazyhouse)
 - [Seirawan](https://en.wikipedia.org/wiki/Seirawan_chess)
 - [Capablanca](https://en.wikipedia.org/wiki/Capablanca_Chess)
 - [Gothic](https://en.wikipedia.org/wiki/Gothic_chess)
 - [Grand](https://en.wikipedia.org/wiki/Grand_Chess)
+- [Shako](https://www.chessvariants.com/large.dir/shako.html)
 - [Shouse (Seirawan+Crazyhouse)](https://pychess-variants.herokuapp.com/IRVxMG72)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.twitch.tv/videos/466253815)
 - [Gothhouse (Gothic+Crazyhouse)](https://pychess-variants.herokuapp.com/kGOcweH3)
@@ -26,8 +28,6 @@ Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablan
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish Python3 bindings](https://github.com/gbtami/Fairy-Stockfish) fork of [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
-- [ElephantEye](https://github.com/xqbase/eleeye)
-- [moonfish](https://github.com/walker8088/moonfish)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/niklasf/fishnet)
 - [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/careless25/lichess-bot)
 

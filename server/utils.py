@@ -57,6 +57,7 @@ VARIANTS = (
     "minishogi",
     "cambodian",
     "shako",
+    "minixiangqi",
 )
 
 VARIANTS960 = {

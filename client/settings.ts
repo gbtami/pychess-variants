@@ -52,6 +52,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 15;
     } else if (cssFile.includes("5x5")) {
         cssLinkIndex = 16;
+    } else if (cssFile.includes("7x7")) {
+        cssLinkIndex = 17;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
