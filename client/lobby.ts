@@ -294,6 +294,7 @@ class LobbyController {
              h('th', 'Mode')])]);
         const colorIcon = (color) => { return h('i', {attrs: {"data-icon": color === "w" ? "c" : color === "b" ? "b" : "a"}} ); };
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
+        console.log("VARIANTS", VARIANTS);
         var rows = seeks.map((seek) => h(
             'tr',
             { on: { click: () => this.onClickSeek(seek) } },
