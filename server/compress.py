@@ -30,8 +30,6 @@ V2C = {
     "minixiangqi": "e",
 }
 C2V = {v: k for k, v in V2C.items()}
-# TODO: replace all old shako games variant code from "d," to "d" in mongodb, then remove this
-C2V["d,"] = "shako"
 
 R2C = {"1-0": "a", "0-1": "b", "1/2-1/2": "c", "*": "d"}
 C2R = {v: k for k, v in R2C.items()}

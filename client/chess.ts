@@ -10,8 +10,8 @@ export const VARIANTS = {
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", BoardCSS: ["sittb1", "sittb2"], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R", baseURL: ["makruk", "sittuyin"] },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", BoardCSS: ["9x9a", "9x9b", "9x9c", "9x9d", "9x9e", "9x9f"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "K", baseURL: ["shogi/ctk", "shogi", "shogi/ctw", "shogi/ctp"] },
     minishogi: { geom: Geometry.dim5x5, cg: "cg-260", board: "grid5x5", BoardCSS: ["5x5a", "5x5b", "5x5c"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p"], icon: "6", baseURL: ["shogi/ctk", "shogi", "shogi/ctw", "shogi/ctp"] },
-    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", BoardCSS: ["9x10a", "9x10b", "9x10c", "9x10d", "9x10e"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
-    minixiangqi: { geom: Geometry.dim7x7, cg: "cg-448", board: "minixq", BoardCSS: ["7x7a", "7x7b"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "O" },
+    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", BoardCSS: ["9x10a", "9x10b", "9x10c", "9x10d", "9x10e"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "9" },
+    minixiangqi: { geom: Geometry.dim7x7, cg: "cg-448", board: "minixq", BoardCSS: ["7x7a", "7x7b"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz"], icon: "7" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "S", baseURL: ["merida", "green", "alpha"] },
     crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "H", baseURL: ["merida", "green", "alpha"] },
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "board10x8", BoardCSS: ["10x8brown", "10x8blue", "10x8green", "10x8maple", "10x8olive"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
@@ -23,7 +23,7 @@ export const VARIANTS = {
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L", baseURL: ["seir", "capa", "green", "musk"] },
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L", baseURL: ["seir", "capa", "green", "musk"] },
     chess: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "M" },
-    shako: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue", "10x10green", "10x10maple", "10x10olive"], pieces: "shako", PieceCSS: ["shako0"], icon: "G" },
+    shako: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue", "10x10green", "10x10maple", "10x10olive"], pieces: "shako", PieceCSS: ["shako0"], icon: "8" },
 }
 
 export function pocketRoles(variant: string) {
