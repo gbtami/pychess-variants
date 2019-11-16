@@ -22,12 +22,60 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs1721">
+    <linearGradient
+       id="linearGradient11760"
+       inkscape:collect="always">
+      <stop
+         id="stop11738"
+         offset="0"
+         style="stop-color:#e5c37b;stop-opacity:1" />
+      <stop
+         style="stop-color:#e4bd76;stop-opacity:1"
+         offset="0.04234359"
+         id="stop11740" />
+      <stop
+         style="stop-color:#e7c781;stop-opacity:1"
+         offset="0.09289452"
+         id="stop11742" />
+      <stop
+         style="stop-color:#e2b86e;stop-opacity:1"
+         offset="0.16495684"
+         id="stop11744" />
+      <stop
+         id="stop11746"
+         offset="0.3052367"
+         style="stop-color:#e6c686;stop-opacity:1" />
+      <stop
+         id="stop11748"
+         offset="0.53886235"
+         style="stop-color:#dfb96f;stop-opacity:1" />
+      <stop
+         style="stop-color:#ddbb73;stop-opacity:1"
+         offset="0.58579648"
+         id="stop11750" />
+      <stop
+         id="stop11752"
+         offset="0.83974683"
+         style="stop-color:#e7ce8f;stop-opacity:1" />
+      <stop
+         style="stop-color:#e1bd73;stop-opacity:1"
+         offset="0.92426348"
+         id="stop11754" />
+      <stop
+         style="stop-color:#e0bf78;stop-opacity:1"
+         offset="0.96230692"
+         id="stop11756" />
+      <stop
+         id="stop11758"
+         offset="1"
+         style="stop-color:#e7c685;stop-opacity:1" />
+    </linearGradient>
     <filter
        style="color-interpolation-filters:sRGB"
        inkscape:label="Drop Shadow"
@@ -1049,6 +1097,16 @@
        y2="176.26891"
        gradientUnits="userSpaceOnUse"
        spreadMethod="repeat" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11760"
+       id="linearGradient11736"
+       gradientUnits="userSpaceOnUse"
+       x1="-57.491947"
+       y1="15.247723"
+       x2="-36.526402"
+       y2="15.247723"
+       spreadMethod="repeat" />
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -1063,9 +1121,9 @@
      inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="7.8666665"
-     inkscape:cx="38.857705"
-     inkscape:cy="7.7552132"
+     inkscape:zoom="11.125146"
+     inkscape:cx="2.4879251"
+     inkscape:cy="28.097027"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -1108,7 +1166,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          transform="rotate(180,45.578499,23.8125)"
          style="fill-opacity:1.0;fill:url(#linearGradient9379)">
         <path
-           style="fill:#64490c;fill-opacity:1;stroke-width:0.82775563"
+           style="fill:#886310;fill-opacity:1;stroke-width:0.82775563"
            d="M 42.875 10 L 42.748047 10.890625 L 10.179688 10.890625 L 15.476562 47.060547 L 15.017578 46.949219 L 15.589844 47.839844 L 26.464844 51.207031 L 37.787109 47.587891 L 43.447266 10.890625 L 42.875 10 z "
            transform="matrix(-1.208086,0,0,-1.208086,-5.7484837,29.664881)"
            id="path9383" />
@@ -1119,7 +1177,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
            inkscape:connector-curvature="0"
            style="fill:url(#linearGradient9379);fill-opacity:1.0" />
         <path
-           style="fill:url(#linearGradient9379);fill-opacity:1;"
+           style="fill:url(#linearGradient11736);fill-opacity:1"
            inkscape:connector-curvature="0"
            d="m -50.708338,-26.749999 -6.837,44.33402 h 40.189999 l -6.535,-44.63802 -13.138,-3.935 z"
            id="path9381"
@@ -1149,7 +1207,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     </g>
   </g>
   <path
-     style="fill:#815e0c;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+     style="fill:#a5780f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
      d="m 25.892077,50.206592 0.572767,1.00044 11.322265,-3.61914 -0.571336,-0.890156 z"
      id="path9418"
      inkscape:connector-curvature="0" />
