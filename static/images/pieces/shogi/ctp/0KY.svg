@@ -5,7 +5,6 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="52.157"
@@ -14,9 +13,9 @@
    id="svg1717"
    sodipodi:docname="0KY.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0KE.png"
-   inkscape:export-xdpi="365.56332"
-   inkscape:export-ydpi="365.56332">
+   inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Lance2.png"
+   inkscape:export-xdpi="184.05966"
+   inkscape:export-ydpi="184.05966">
   <metadata
      id="metadata1723">
     <rdf:RDF>
@@ -25,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -705,128 +704,8 @@
          mode="normal"
          id="feBlend5060-8-9" />
     </filter>
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="284.18608,120.29265"
-       end_point="284.18608,137.98161"
-       center_point="284.18608,129.13713"
-       id="path-effect4724-5-6"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="true"
-       oposite_fuse="false" />
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient12530">
-      <stop
-         style="stop-color:#dfb459;stop-opacity:1"
-         offset="0"
-         id="stop12526" />
-      <stop
-         id="stop16843"
-         offset="0.04234359"
-         style="stop-color:#dead54;stop-opacity:1" />
-      <stop
-         id="stop12556"
-         offset="0.09289452"
-         style="stop-color:#e1b85f;stop-opacity:1" />
-      <stop
-         id="stop12532"
-         offset="0.16495684"
-         style="stop-color:#dba84d;stop-opacity:1" />
-      <stop
-         style="stop-color:#dfb765;stop-opacity:1"
-         offset="0.3052367"
-         id="stop12564" />
-      <stop
-         style="stop-color:#d8a94e;stop-opacity:1"
-         offset="0.53886235"
-         id="stop12558" />
-      <stop
-         id="stop12562"
-         offset="0.58579648"
-         style="stop-color:#d5ab53;stop-opacity:1" />
-      <stop
-         style="stop-color:#e0bf6e;stop-opacity:1"
-         offset="0.83974683"
-         id="stop12534" />
-      <stop
-         id="stop16845"
-         offset="0.92426348"
-         style="stop-color:#daae52;stop-opacity:1" />
-      <stop
-         id="stop12560"
-         offset="0.96230692"
-         style="stop-color:#d9af57;stop-opacity:1" />
-      <stop
-         style="stop-color:#e1b663;stop-opacity:1"
-         offset="1"
-         id="stop12528" />
-    </linearGradient>
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="275.14301,98.12006"
-       end_point="275.14301,350.07326"
-       center_point="275.14301,224.09666"
-       id="path-effect4547-0-6-0"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="true"
-       oposite_fuse="false" />
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="273.50283,331.92091"
-       end_point="273.50283,477.30227"
-       center_point="273.50283,404.61159"
-       id="path-effect4557-0-4-6"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="false"
-       oposite_fuse="false" />
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="317.75072,94.839412"
-       end_point="317.75072,96.970714"
-       center_point="317.75072,95.905063"
-       id="path-effect4680-1-1-2"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="false"
-       oposite_fuse="false" />
     <filter
-       id="drop-shadow-22-6">
-      <feGaussianBlur
-         in="SourceAlpha"
-         result="blur"
-         stdDeviation="2"
-         id="feGaussianBlur5056-0-5-2" />
-      <feOffset
-         result="offsetBlur"
-         dx="2"
-         dy="2"
-         id="feOffset5058-0-0-8" />
-      <feBlend
-         in="SourceGraphic"
-         in2="offsetBlur"
-         mode="normal"
-         id="feBlend5060-0-9" />
-    </filter>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient12530"
-       id="linearGradient65888"
-       x1="287.35571"
-       y1="53.513233"
-       x2="301.33521"
-       y2="53.513233"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="repeat" />
-    <filter
-       id="drop-shadow-5-1-2">
+       id="drop-shadow-5-1-3">
       <feGaussianBlur
          in="SourceAlpha"
          result="blur"
@@ -836,15 +715,51 @@
          result="offsetBlur"
          dx="2"
          dy="2"
-         id="feOffset5058-2-6-3" />
+         id="feOffset5058-2-6-1" />
       <feBlend
          in="SourceGraphic"
          in2="offsetBlur"
          mode="normal"
-         id="feBlend5060-8-9-2" />
+         id="feBlend5060-8-9-7" />
     </filter>
     <filter
-       id="drop-shadow-5-1-2-4">
+       id="drop-shadow-2-84-1">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur6807-9-0" />
+      <feOffset
+         result="offsetBlur"
+         dx="2"
+         dy="2"
+         id="feOffset6809-5-3" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         mode="normal"
+         id="feBlend6811-1-0" />
+    </filter>
+    <filter
+       id="drop-shadow-2-84-1-0">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur6807-9-0-0" />
+      <feOffset
+         result="offsetBlur"
+         dx="2"
+         dy="2"
+         id="feOffset6809-5-3-6" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         mode="normal"
+         id="feBlend6811-1-0-3" />
+    </filter>
+    <filter
+       id="drop-shadow-5-1-2">
       <feGaussianBlur
          in="SourceAlpha"
          result="blur"
@@ -861,16 +776,17 @@
          mode="normal"
          id="feBlend5060-8-9-1" />
     </filter>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient12530"
-       id="linearGradient68138"
-       x1="214.8134"
-       y1="1248.9052"
-       x2="366.3508"
-       y2="1248.9052"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="repeat" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="645.03669,116.30607"
+       end_point="644.85991,225.02374"
+       center_point="644.9483,170.66491"
+       id="path-effect10989-0"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="true"
+       oposite_fuse="false" />
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -881,16 +797,16 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1118"
+     inkscape:window-height="844"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="7.8666667"
-     inkscape:cx="54.69559"
-     inkscape:cy="17.363593"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
+     inkscape:zoom="5.5625734"
+     inkscape:cx="-6.8514947"
+     inkscape:cy="25.531163"
+     inkscape:window-x="1992"
+     inkscape:window-y="85"
+     inkscape:window-maximized="0"
      inkscape:current-layer="svg1717"
      showguides="false" />
   <!--
@@ -899,6 +815,12 @@ See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
 
 Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyokusho(svg).svg
 -->
+  <path
+     d="m 26.007464,8.1169622 -11.691716,3.2858488 -6.4214292,40.480736 36.3683622,4e-4 -6.183733,-40.219762 z"
+     id="path5063-7-5-3-3"
+     inkscape:connector-curvature="0"
+     style="display:inline;fill:#fee572;stroke-width:0.91071171;filter:url(#drop-shadow-5-1-2);fill-opacity:1"
+     sodipodi:nodetypes="cccccc" />
   <filter
      id="drop-shadow">
     <feGaussianBlur
@@ -918,34 +840,8 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
        id="feBlend1696" />
   </filter>
   <g
-     transform="translate(-278.42413,-23.074809)"
-     style="display:inline;fill-opacity:1;fill:url(#linearGradient65888)"
-     id="g8374">
-    <g
-       style="display:inline;filter:url(#drop-shadow-5-1);fill-opacity:1.0;fill:url(#linearGradient65888)"
-       id="g5079-1-9"
-       transform="matrix(0.91071172,0,0,0.91071172,314.41299,25.949093)">
-      <path
-         style="fill:#826015;fill-opacity:1;stroke-width:0.91071171"
-         d="M 26.546875 9.8125 C 22.613512 10.723212 18.633101 11.715327 14.855469 13.099609 L 8.4335938 53.580078 L 44.802734 53.580078 L 38.619141 13.361328 L 38.078125 12.101562 L 38.257812 13.253906 C 34.354656 12.107528 30.448452 10.956448 26.546875 9.8125 z "
-         transform="matrix(1.0980423,0,0,1.0980423,-39.517291,-3.1560854)"
-         id="path65890" />
-      <path
-         style="fill:url(#linearGradient65888);fill-opacity:1;"
-         inkscape:connector-curvature="0"
-         id="path5063-7-5"
-         d="m -10.959999,6.2374999 c -4.319,1 -8.69,2.088 -12.838,3.608 l -7.051,44.4501841 39.9339998,-1.84e-4 -6.79,-44.163 C -2.1230437,8.8351673 -6.5435982,7.5323949 -10.959999,6.2374999 Z"
-         sodipodi:nodetypes="cccccc" />
-    </g>
-  </g>
-  <path
-     style="fill:#654b13;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-     d="m 7.8943151,52.322 0.5393198,1.25841 36.3683611,-1.67e-4 -0.539319,-1.258411 z"
-     id="path65918"
-     inkscape:connector-curvature="0" />
-  <g
      id="g12498"
-     transform="matrix(1.0885728,0,0,1.0885728,-2.3098463,-1.3386587)">
+     transform="matrix(1.0885728,0,0,1.0885728,-2.3098421,-1.7765447)">
     <g
        transform="translate(-0.50847472,-2.8942781)"
        id="g2231">
@@ -973,7 +869,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
                inkscape:connector-curvature="0"
                id="path3091-4"
                d="m 373.444,1325.1424 -13.45088,-8.5711 2.65158,-111.3407 16.68695,-28.5677 17.54212,27.7552 2.37276,111.2472 -13.38185,9.2233 z"
-               style="display:inline;opacity:1;fill:url(#linearGradient68138);fill-opacity:1;stroke:#000000;stroke-width:8.69370174;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+               style="display:inline;opacity:1;fill:#e6e6e6;fill-opacity:1;stroke:#000000;stroke-width:8.69370174;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
             <path
                inkscape:connector-curvature="0"
                id="path4614-5"
