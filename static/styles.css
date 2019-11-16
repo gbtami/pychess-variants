@@ -218,9 +218,12 @@
 .icon-minixiangqi:before {
   content: "\37";
 }
-.icon-shako:before {
+.icon-xiangqi2:before {
   content: "\38";
 }
-.icon-xiangqi2:before {
+.icon-shako:before {
   content: "\39";
+}
+.icon-cambodian:before {
+  content: "\21";
 }

@@ -77,7 +77,8 @@ async def fishnet_acquire(request):
 
     if key not in request.app["workers"]:
         request.app["workers"].add(key)
-        fm[worker].append("%s %s %s" % (datetime.utcnow(), "-", "joined"))
+        en = data["stockfish"]["name"]
+        fm[worker].append("%s %s %s %s" % (datetime.utcnow(), "-", "joined", en))
         request.app["users"]["Fairy-Stockfish"].bot_online = True
 
         if not request.app["users"]["Fairy-Stockfish"].seeks:
