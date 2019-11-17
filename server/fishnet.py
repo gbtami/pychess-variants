@@ -69,16 +69,16 @@ async def fishnet_acquire(request):
     fv = request.app["fishnet_versions"]
     key = data["fishnet"]["apikey"]
     version = data["fishnet"]["version"]
+    en = data["stockfish"]["name"]
     worker = FISHNET_KEYS[key]
-    fv[worker] = version
+    fv[worker] = "%s %s" % (version, en)
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
     if key not in request.app["workers"]:
         request.app["workers"].add(key)
-        en = data["stockfish"]["name"]
-        fm[worker].append("%s %s %s %s" % (datetime.utcnow(), "-", "joined", en))
+        fm[worker].append("%s %s %s" % (datetime.utcnow(), "-", "joined"))
         request.app["users"]["Fairy-Stockfish"].bot_online = True
 
         if not request.app["users"]["Fairy-Stockfish"].seeks:
