@@ -498,7 +498,7 @@ class Game:
 
             if cur_player.bot and self.ply > 2:
                 cur_color = "black" if self.board.color == BLACK else "white"
-                clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
+                clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
                 if clocks[cur_color] == 0:
                     w, b = self.board.insufficient_material()
                     if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
