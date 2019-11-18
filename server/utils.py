@@ -246,7 +246,8 @@ class User:
                 await self.event_queue.put("\n")
                 # heroku needs something at least in 50 sec not to close BOT connections (stream events) on server side
             else:
-                await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
+                if self.lobby_ws is not None:
+                    await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
             await asyncio.sleep(3)
             self.ping_counter += 1
 
