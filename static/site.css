@@ -764,6 +764,9 @@ label.board.board0.minixiangqi {
 label.board.board1.minixiangqi {
   background-image: url('images/board/minixiangqiw.png');
 }
+label.board.board2.minixiangqi {
+  background-image: url('images/board/minixqlg.svg');
+}
 
 label.piece.piece0.xiangqi, label.piece.piece0.minixiangqi {
   background-image: url('images/pieces/xiangqi/red_king.svg');
