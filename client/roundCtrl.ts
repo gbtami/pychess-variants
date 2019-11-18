@@ -11,7 +11,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece } from 'chessgroundx/types';
+import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant } from 'chessgroundx/types';
 
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
@@ -171,6 +171,7 @@ export default class RoundController {
 
         this.chessground = Chessground(el, {
             fen: fen_placement,
+            variant: this.variant as Variant,
             geometry: VARIANTS[this.variant].geom,
             orientation: this.mycolor,
             turnColor: this.turnColor,
