@@ -1,6 +1,7 @@
 ## PyChess-Variants
 
-PyChess-Variants is a free, open-source chess server designed to play several chess variants
+PyChess-Variants is a free, open-source chess server designed to play several chess variants.
+
 Currently supported games are:
 
 - [Makruk](https://en.wikipedia.org/wiki/Makruk)
@@ -42,5 +43,3 @@ yarn install
 gulp dev
 python3 server.py
 ```
-
-If you are brave enough you can try an experimental version [here](https://pychess-variants.herokuapp.com)
