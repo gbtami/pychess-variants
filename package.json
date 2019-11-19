@@ -26,7 +26,7 @@
     "watchify": "^3"
   },
   "scripts": {
-    "heroku-prebuild": "yarn install",
+    "heroku-prebuild": "npm install",
     "heroku-postbuild": "gulp prod"
   }
 }
