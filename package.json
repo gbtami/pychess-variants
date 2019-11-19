@@ -1,14 +1,16 @@
 {
   "name": "pychess-variants",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "private": true,
   "description": "Play different chess variants not available on lichess",
   "main": "static/pychess-variants.js",
   "author": "Bajusz Tamás",
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0",
   "dependencies": {
     "chessgroundx": "^7.6.18",
     "snabbdom": "^0.7",
-    "sockette": "^2.0"
+    "sockette": "^2.0",
+    "highcharts": "^7.2.1"
   },
   "devDependencies": {
     "yarn": "^1.17.3",
@@ -21,7 +23,10 @@
     "typescript": "^3",
     "vinyl-buffer": "^1",
     "vinyl-source-stream": "^2",
-    "watchify": "^3",
-    "highcharts": "^7.2.1"
+    "watchify": "^3"
+  },
+  "scripts": {
+    "heroku-prebuild": "yarn install",
+    "heroku-postbuild": "gulp prod"
   }
 }

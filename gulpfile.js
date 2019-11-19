@@ -42,3 +42,11 @@ gulp.task('dev', function() {
     .pipe(source('pychess-variants.js'))
     .pipe(gulp.dest(destination));
 });
+
+gulp.task('prod', function() {
+  return build(false)
+    .bundle()
+    .on('error', onError)
+    .pipe(source('pychess-variants.min.js'))
+    .pipe(gulp.dest(destination));
+});
