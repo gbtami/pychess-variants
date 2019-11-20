@@ -231,14 +231,16 @@ export default class AnalysisController {
         patch(container, h('div#result', result(this.status, this.result)));
     }
 
-    private requestAnalysis = () => {
-        var element = document.getElementById('request-analysis') as HTMLElement;
-        element.style.display = 'none';
-        element = document.getElementById('loader') as HTMLElement;
-        element.style.display = 'block';
+    private requestAnalysis = (withSend) => {
+        if (withSend) {
+            var element = document.getElementById('request-analysis') as HTMLElement;
+            element.style.display = 'none';
+            this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
+            element = document.getElementById('loader') as HTMLElement;
+            element.style.display = 'block';
+        }
         element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'block';
-        this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
         this.analysisChart = analysisChart(this);
     }
 
@@ -253,15 +255,18 @@ export default class AnalysisController {
             this.uci_usi = msg.uci_usi;
 
             var container = document.getElementById('copyfen') as HTMLElement;
-            patch(container, h('div', [
+            var buttons = [
                 h('a.i-pgn', { on: { click: () => download("pachess-variants_" + this.model["gameId"], this.pgn) } }, [
                     h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
-                h('button#request-analysis', { on: { click: () => this.requestAnalysis() } }, [
-                    h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-microscope": true} }, ' Request Analysis')]),
-                ]),
-            );
+                ]
+            if (this.steps[0].analysis === undefined) {
+                buttons.push(h('button#request-analysis', { on: { click: () => this.requestAnalysis(true) } }, [
+                    h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-microscope": true} }, ' Request Analysis')])
+                );
+            }
+            patch(container, h('div', buttons));
 
             container = document.getElementById('fen') as HTMLElement;
             this.vfen = patch(container, h('div#fen', this.fullfen));
@@ -291,10 +296,20 @@ export default class AnalysisController {
             var container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
-            msg.steps.forEach((step) => { 
+            msg.steps.forEach((step, ply) => {
+                if (step.analysis !== undefined) {
+                    step['ceval'] = step.analysis;
+                    const scoreStr = this.buildScoreStr(ply % 2 === 0 ? "w" : "b", step.analysis);
+                    step['scoreStr'] = scoreStr;
+                }
                 this.steps.push(step);
                 });
             updateMovelist(this, 1, this.steps.length);
+
+            if (this.steps[0].analysis !== undefined) {
+                this.requestAnalysis(false);
+                analysisChart(this);
+            };
         } else {
             if (msg.ply === this.steps.length) {
                 const step = {
@@ -577,29 +592,33 @@ export default class AnalysisController {
         }
     }
 
-    private onMsgAnalysis = (msg) => {
-        if (msg['ceval']['score'] === undefined) return;
-
-        const ply = msg['ply'];
-        const score = msg['ceval']['score'];
+    private buildScoreStr = (color, analysis) => {
+        const score = analysis['score'];
         var scoreStr = '';
         var ceval = '';
         if (score['mate'] !== undefined) {
             ceval = score['mate']
-            const sign = ((msg.color === 'b' && Number(ceval) > 0) || (msg.color === 'w' && Number(ceval) < 0)) ? '-': '';
+            const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
             scoreStr = '#' + sign + Math.abs(Number(ceval));
         } else {
             ceval = score['cp']
             var nscore = Number(ceval) / 100.0;
-            if (msg.color === 'b') nscore = -nscore;
+            if (color === 'b') nscore = -nscore;
             scoreStr = nscore.toFixed(1);
         }
-        if (ply > 0) {
-            var evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
-            patch(evalEl, h('eval#ply' + String(ply), scoreStr));
+        return scoreStr;
+    }
+
+    private onMsgAnalysis = (msg) => {
+        if (msg['ceval']['score'] === undefined) return;
+
+        const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
+        if (msg.ply > 0) {
+            var evalEl = document.getElementById('ply' + String(msg.ply)) as HTMLElement;
+            patch(evalEl, h('eval#ply' + String(msg.ply), scoreStr));
         }
-        this.steps[ply]['ceval'] = msg['ceval'];
-        this.steps[ply]['scoreStr'] = scoreStr;
+        this.steps[msg.ply]['ceval'] = msg['ceval'];
+        this.steps[msg.ply]['scoreStr'] = scoreStr;
 
         analysisChart(this);
         if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
@@ -656,6 +675,7 @@ export default class AnalysisController {
                 break;
             case "spectators":
                 this.onMsgSpectators(msg);
+                break
             case "roundchat":
                 this.onMsgChat(msg);
                 break;

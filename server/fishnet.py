@@ -123,10 +123,20 @@ async def fishnet_analysis(request):
     for j, analysis in enumerate(reversed(data["analysis"])):
         i = length - j - 1
         if analysis is not None:
-            if "analysis" not in game.steps[i]:
-                game.steps[i]["analysis"] = analysis
-            else:
-                continue
+            try:
+                if "analysis" not in game.steps[i]:
+                    game.steps[i]["analysis"] = {
+                        "score": analysis["score"],
+                        "depth": analysis["depth"],
+                        "pv_san": analysis["pv_san"],
+                        "pv": analysis["pv"]
+                    }
+                else:
+                    continue
+            except KeyError:
+                game.steps[i]["analysis"] = {
+                    "score": analysis["score"],
+                }
 
             ply = str(i)
             # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
@@ -138,6 +148,8 @@ async def fishnet_analysis(request):
     # remove completed work
     if all(data["analysis"]):
         del request.app["works"][work_id]
+        game.saved = False
+        await game.save_game()
 
     response = await get_work(request, data)
     return response

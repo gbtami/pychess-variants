@@ -884,6 +884,7 @@ export default class RoundController {
                 break;
             case "spectators":
                 this.onMsgSpectators(msg);
+                break
             case "user_disconnected":
                 this.onMsgUserDisconnected(msg);
                 break;

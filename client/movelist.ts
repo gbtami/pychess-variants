@@ -138,9 +138,8 @@ export function updateMovelist (ctrl, plyFrom, plyTo) {
         if (move === null) continue;
 
         moveEl = [h('san', move)];
-        //var ceval = ctrl.steps[ply]['eval'];
-        //if (ceval === null) ceval = '';
-        moveEl.push(h('eval#ply' + String(ply), ''));
+        const scoreStr = (ctrl.steps[ply]['scoreStr'] === null) ? '' : ctrl.steps[ply]['scoreStr'];
+        moveEl.push(h('eval#ply' + String(ply), scoreStr));
         const p = ply;
         el = h('li.move', {class: {active: (ply === plyTo - 1)}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, p) }}, moveEl);
         if (ply % 2 !== 0) {

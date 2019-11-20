@@ -583,19 +583,20 @@ class Game:
             log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
             self.print_game()
-            await self.db.game.find_one_and_update(
-                {"_id": self.id},
-                {"$set":
-                 {"d": self.date,
-                  "f": self.board.fen,
-                  "s": self.status,
-                  "r": R2C[self.result],
-                  'm': encode_moves(
-                      map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
-                      else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
-                      else self.board.move_stack)}
-                 }
-            )
+            new_data = {
+                "d": self.date,
+                "f": self.board.fen,
+                "s": self.status,
+                "r": R2C[self.result],
+                'm': encode_moves(
+                    map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
+                    else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
+                    else self.board.move_stack)}
+
+            if "analysis" in self.steps[0]:
+                new_data["a"] = [step["analysis"] for step in self.steps]
+
+            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def update_status(self, status=None, result=None):
         if status is not None:
@@ -777,7 +778,10 @@ async def load_game(app, game_id):
     elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = map(zero2grand, mlist)
 
-    for move in mlist:
+    if "a" in doc:
+        game.steps[0]["analysis"] = doc["a"][0]
+
+    for ply, move in enumerate(mlist):
         try:
             san = game.board.get_san(move)
             game.board.push(move)
@@ -789,6 +793,10 @@ async def load_game(app, game_id):
                 "turnColor": "black" if game.board.color == BLACK else "white",
                 "check": game.check}
             )
+
+            if "a" in doc:
+                game.steps[-1]["analysis"] = doc["a"][ply + 1]
+
         except Exception:
             log.exception("ERROR: Exception in load_game() %s %s %s %s" % (game_id, variant, doc.get("if"), mlist))
             break
