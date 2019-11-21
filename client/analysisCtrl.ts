@@ -382,11 +382,11 @@ export default class AnalysisController {
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         if (ceval !== undefined) {
-            if (ceval.pv !== undefined) {
-                var pv_move = ceval["pv"].split(" ")[0];
+            if (ceval.p !== undefined) {
+                var pv_move = ceval["m"].split(" ")[0];
                 if (this.variant.endsWith('shogi')) pv_move = usi2uci(pv_move);
                 if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') pv_move = grand2zero(pv_move);
-                console.log(pv_move, ceval["pv"]);
+                console.log(pv_move, ceval["m"]);
                 if (pv_move.slice(1, 2) === '@') {
                     const d = pv_move.slice(2, 4);
                     shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
@@ -402,8 +402,8 @@ export default class AnalysisController {
                 }
 
                 this.vpv = patch(this.vpv, h('div#pv', [
-                    h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval["depth"])]),
-                    h('pv', ceval.pv_san !== undefined ? ceval.pv_san : ceval.pv)
+                    h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval.d)]),
+                    h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
                 ]));
                 const stl = document.body.getAttribute('style');
                 document.body.setAttribute('style', stl + '--PVheight:64px;');
@@ -593,7 +593,7 @@ export default class AnalysisController {
     }
 
     private buildScoreStr = (color, analysis) => {
-        const score = analysis['score'];
+        const score = analysis['s'];
         var scoreStr = '';
         var ceval = '';
         if (score['mate'] !== undefined) {
@@ -610,7 +610,7 @@ export default class AnalysisController {
     }
 
     private onMsgAnalysis = (msg) => {
-        if (msg['ceval']['score'] === undefined) return;
+        if (msg['ceval']['s'] === undefined) return;
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
         if (msg.ply > 0) {

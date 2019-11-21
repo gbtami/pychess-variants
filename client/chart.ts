@@ -6,7 +6,7 @@ export function analysisChart (ctrl) {
     const scores = ctrl.steps.map(
             (step, ply) => {
                 if (step.ceval !== undefined) {
-                    const score = step.ceval.score;
+                    const score = step.ceval.s;
                     if (score !== undefined) {
                         var turn = Math.floor((ply - 1) / 2) + 1;
                         var dots = step.turnColor === 'black' ? '.' : '...';
@@ -72,7 +72,7 @@ export function analysisChart (ctrl) {
             pointFormatter: function(format: string) {
               format = format.replace('{series.name}', 'Advantage');
               var self: Highcharts.Point = this;
-              var ceval = ctrl.steps[self.x].ceval.score;
+              var ceval = ctrl.steps[self.x].ceval.s;
               if (!ceval) return '';
               else return format.replace('{point.y}', ctrl.steps[self.x].scoreStr);
             } as Highcharts.FormatterCallbackFunction<Highcharts.Point>

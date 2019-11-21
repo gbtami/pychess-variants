@@ -125,24 +125,26 @@ async def fishnet_analysis(request):
         if analysis is not None:
             try:
                 if "analysis" not in game.steps[i]:
+                    # TODO: save PV only for inaccuracy, mistake and blunder
+                    # see https://github.com/ornicar/lila/blob/master/modules/analyse/src/main/Advice.scala
                     game.steps[i]["analysis"] = {
-                        "score": analysis["score"],
-                        "depth": analysis["depth"],
-                        "pv_san": analysis["pv_san"],
-                        "pv": analysis["pv"]
+                        "s": analysis["score"],
+                        "d": analysis["depth"],
+                        "p": analysis["pv_san"],
+                        "m": analysis["pv"].partition(" ")[0]  # save first PV move to draw advice arrow
                     }
                 else:
                     continue
             except KeyError:
                 game.steps[i]["analysis"] = {
-                    "score": analysis["score"],
+                    "s": analysis["score"],
                 }
 
             ply = str(i)
             # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
             # await user_ws.send_json(response)
 
-            response = {"type": "analysis", "ply": ply, "color": "w" if i % 2 == 0 else "b", "ceval": analysis}
+            response = {"type": "analysis", "ply": ply, "color": "w" if i % 2 == 0 else "b", "ceval": game.steps[i]["analysis"]}
             await user_ws.send_json(response)
 
     # remove completed work
