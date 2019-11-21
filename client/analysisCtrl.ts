@@ -353,7 +353,7 @@ export default class AnalysisController {
             lastMove = [];
         }
         this.checkStatus(msg);
-        if (msg.check) {
+        if (msg.check && msg.steps.length === 1) {
             sound.check();
         }
 
