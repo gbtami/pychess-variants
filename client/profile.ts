@@ -80,34 +80,37 @@ function renderGames(model, games) {
             ]),
         ]),
         h('td.games-info', [
-            h('div.info0', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}}, [
+            h('div.info0.games', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}}, [
                 h('div.info1', {attrs: {"data-icon": (game["z"] === 1) ? "V" : ""}, class: {"icon": true}}),
                 h('div.info2', [
                     h('div.tc', game["b"] + "+" + game["i"] + " • Casual • " + game["v"]),
                     h('info-date', {attrs: {timestamp: game["d"]}}),
                 ]),
             ]),
-            h('div', [
-                h('player', [
-                    h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, [
-                        h('player-title', " " + game["wt"] + " "),
-                        game["us"][0] + ((game["wt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
+            h('div.info-middle', [
+                h('div.versus', [
+                    h('player', [
+                        h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, [
+                            h('player-title', " " + game["wt"] + " "),
+                            game["us"][0] + ((game["wt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
+                        ]),
+                    ]),
+                    h('vs', '-'),
+                    h('player', [
+                        h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
+                            h('player-title', " " + game["bt"] + " "),
+                            game["us"][1] + ((game["bt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
+                        ]),
                     ]),
                 ]),
-                h('vs', ' - '),
-                h('player', [
-                    h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
-                        h('player-title', " " + game["bt"] + " "),
-                        game["us"][1] + ((game["bt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
-                    ]),
-                ]),
+                h('div.info-result', {
+                    class: {
+                        "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
+                        "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
+                    }}, result(game["s"], game["r"])
+                ),
             ]),
-            h('div.info-result', {
-                class: {
-                    "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
-                    "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
-                }}, result(game["s"], game["r"])
-            ),
+            h('div.info2.games', game["a"] === undefined ? "" : [h('span.icon', {attrs: {"data-icon": "3"}, class: {"icon": true}}), "Computer analysis available"]),
         ])
         ])
         );

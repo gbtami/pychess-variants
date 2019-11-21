@@ -217,8 +217,15 @@ div.info0, div.info1 {
   flex-flow: row;
   margin-bottom: 6px;
 }
+div.info0.games {
+  padding-top: 16px;
+}
 div.info2 {
-  padding-left: 14px;
+  padding-left: 10px;
+  padding-bottom: 6px;
+}
+div.info2.games {
+  padding-top: 26px;
 }
 div.info0::before {
   content: [data-icon];
@@ -229,23 +236,39 @@ div.info1::before {
   font-size: 42px;
   margin-right: 5%;
 }
-
-games-info {
+span.icon {
+  padding-right: 6px;
+}
+.games-info {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  flex: 1 1 100%;
+  justify-content: space-between;
   padding: 12px;
-  width: 50%;
   margin: 0 auto;
+}
+div.info-middle {
+  align-items:center;
+  justify-content: center;
+}
+div.versus {
+  display: flex;
+  justify-content: center;
+}
+vs {
+  padding: 0 6px 0 6px;
 }
 div.info-result {
   padding: 8px;
+  text-align: center;
 }
 div.info-result.win {
   color: Green;
 }
 div.info-result.lose {
   color: Red;
+}
+div.anal-meta {
 }
 tc {
   padding: 8px;
@@ -456,6 +479,7 @@ td.player-data {
 }
 
 #games tr {
+  display: flex;
   width:100%;
   border: 1px solid #ddd;
   padding: 3px;
