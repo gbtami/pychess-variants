@@ -61,7 +61,7 @@ export function selectMove (ctrl, ply) {
     if (gaugeEl) {
         const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
         if (blackEl && ctrl.steps[ply]['ceval'] !== undefined) {
-            var score = ctrl.steps[ply]['ceval']['score'];
+            var score = ctrl.steps[ply]['ceval']['s'];
             if (score !== undefined) {
                 const ev = povChances(ctrl.steps[ply]['turnColor'], score);
                 blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
