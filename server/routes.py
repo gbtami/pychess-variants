@@ -264,6 +264,7 @@ async def get_user_games(request):
     level = request.rel_url.query.get("x")
     if level is not None:
         filter_cond["x"] = int(level)
+        filter_cond["s"] = MATE
 
     if "/win" in request.path:
         filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
@@ -285,13 +286,6 @@ async def get_user_games(request):
             # filter out private games
             if "p" in doc and doc["p"] == 1 and session_user != doc["us"][0] and session_user != doc["us"][1]:
                 continue
-
-            # filter out anonymous players level8win games
-            if (level is not None) and profileId == "Fairy-Stockfish":
-                fairy_opp = doc["us"][0] if doc["us"][1] == "Fairy-Stockfish" else doc["us"][1]
-                reg_user = await db.user.find_one({"_id": fairy_opp})
-                if doc["s"] != MATE or reg_user is None:
-                    continue
 
             doc["v"] = C2V[doc["v"]]
             doc["r"] = C2R[doc["r"]]
