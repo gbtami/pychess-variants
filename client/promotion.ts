@@ -17,6 +17,9 @@ export default function(ctrl) {
 
     function start(orig, dest, meta) {
         const ground = ctrl.getGround();
+        // in 960 castling case (king takes rook) dest piece may be undefined
+        if (ground.state.pieces[dest] === undefined) return false;
+
         if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta, ctrl.promotions)) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;

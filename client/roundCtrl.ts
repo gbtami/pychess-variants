@@ -687,7 +687,7 @@ export default class RoundController {
         // console.log("ground.onUserMove()", orig, dest, meta, pieces);
         const moved = pieces[dest] as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
-        if (meta.captured === undefined && moved.role === "pawn" && orig[0] != dest[0] && hasEp(this.variant)) {
+        if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && hasEp(this.variant)) {
             const pos = key2pos(dest, firstRankIs0),
             pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
             const diff: PiecesDiff = {};
