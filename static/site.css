@@ -804,6 +804,12 @@ label.piece.piece2.xiangqi, label.piece.piece2.minixiangqi {
 label.piece.piece3.xiangqi, label.piece.piece3.minixiangqi {
   background-image: url('images/pieces/xiangqi/hnz/red_king.svg');
 }
+label.piece.piece4.xiangqi, label.piece.piece4.minixiangqi {
+  background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
+}
+label.piece.piece5.xiangqi, label.piece.piece5.minixiangqi {
+  background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+}
 
 label.piece.piece0.seirawan, label.piece.piece0.shouse {
   background-image: url('images/pieces/merida/wH.svg');
