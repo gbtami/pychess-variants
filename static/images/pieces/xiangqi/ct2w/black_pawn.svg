@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -467,9 +467,9 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="4"
-     inkscape:cx="-20.928114"
-     inkscape:cy="32.167063"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="-14.160199"
+     inkscape:cy="37.354306"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -503,19 +503,19 @@
      inkscape:label="Symbol"
      style="display:inline">
     <g
-       transform="matrix(1.3721579,0,0,1.3721579,-17.114075,-17.547305)"
-       style="display:inline;fill:#008000;stroke:#008000;filter:url(#filter11631)"
+       transform="matrix(1.121995,0,0,1.121995,-5.6075278,-3.6490074)"
+       style="display:inline;fill:#005500;stroke:#005500;filter:url(#filter11631);fill-opacity:1;stroke-opacity:1"
        id="g13432">
       <g
-         style="display:inline;fill:#008000;fill-opacity:1;stroke:#008000;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+         style="display:inline;fill:#005500;fill-opacity:1;stroke:#005500;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers;stroke-opacity:1"
          transform="matrix(0.73170801,0,0,0.89061254,62.585414,-13.581686)"
          id="g2182-3">
         <g
-           style="fill:#008000;fill-opacity:1;stroke:#008000;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none"
+           style="fill:#005500;fill-opacity:1;stroke:#005500;stroke-width:1.31294143;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            id="g2180-9"
            transform="translate(0.4695196,-1.5015006)">
           <path
-             style="fill:#008000;fill-opacity:1;stroke:#008000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+             style="fill:#005500;fill-opacity:1;stroke:#005500;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
              d="m -22.715841,41.496901 c -6.709808,7.383569 -10.663816,12.802391 -14.029253,18.972935 9.833495,-1.692893 19.278926,-2.323037 27.646001,0 -2.69856,-4.464975 -7.002481,-10.253202 -13.616748,-18.972935 z"
              id="path2176-6"
              inkscape:connector-curvature="0"
@@ -525,7 +525,7 @@
              inkscape:connector-curvature="0"
              id="path2178-9"
              d="m -26.817667,60.896469 c 1.31085,8.861829 -3.645845,14.386908 -11.545204,19.081976 -5.236973,2.010186 -7.708873,4.499726 -7.614698,9.332185 12.369865,3.211336 31.696805,2.290793 45.67493078,-0.116941 -0.002369,-3.821858 -2.08387088,-9.351048 -7.28998228,-9.958106 -10.3223275,-4.971535 -10.9033515,-10.063579 -11.0201045,-18.30082 -3.173543,-0.438952 -5.925438,-0.207767 -8.204942,-0.03829 z"
-             style="fill:#008000;fill-opacity:1;stroke:#008000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
+             style="fill:#005500;fill-opacity:1;stroke:#005500;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
         </g>
       </g>
     </g>

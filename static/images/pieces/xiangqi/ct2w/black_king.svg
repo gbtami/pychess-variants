@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -314,12 +314,12 @@
        inkscape:collect="always"
        xlink:href="#linearGradient855"
        id="radialGradient7400"
-       cx="45.490532"
-       cy="50.299789"
-       fx="45.490532"
-       fy="50.299789"
+       cx="45.927277"
+       cy="48.156666"
+       fx="45.927277"
+       fy="48.156666"
        r="32.959057"
-       gradientTransform="matrix(0.49937799,0,0,0.37980104,23.459771,31.532761)"
+       gradientTransform="matrix(0.42648134,0,0,0.46889707,26.807716,27.242193)"
        gradientUnits="userSpaceOnUse"
        spreadMethod="repeat" />
     <radialGradient
@@ -363,9 +363,9 @@
        xlink:href="#linearGradient855"
        id="radialGradient7450"
        cx="45.527042"
-       cy="-2.079457"
+       cy="1.3342987"
        fx="45.527042"
-       fy="-2.079457"
+       fy="1.3342987"
        r="21.138325"
        gradientTransform="matrix(0.8266132,0,0,0.86020246,8.5788408,48.869315)"
        gradientUnits="userSpaceOnUse" />
@@ -416,8 +416,8 @@
      id="namedview8"
      showgrid="false"
      inkscape:zoom="5.6568542"
-     inkscape:cx="-1.4405397"
-     inkscape:cy="50.265022"
+     inkscape:cx="65.272445"
+     inkscape:cy="47.917125"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -452,12 +452,12 @@
      style="display:inline">
     <g
        id="g7484"
-       transform="translate(-0.13726589,-1.4491119)">
+       transform="matrix(0.93648227,0,0,0.93648227,2.7932685,2.7076629)">
       <path
          transform="matrix(0.96832791,0,0,0.96832791,2.126989,1.9299831)"
          inkscape:connector-curvature="0"
          d="m 24.27364,63.604236 c -0.07418,5.622877 0.875183,9.594342 2.39104,15.217222 6.973445,3.1003 12.3603,3.44761 18.758933,3.59524 6.398636,-0.11854 13.565436,-1.06891 19.39095,-3.75923 1.515857,-5.62288 2.767359,-9.613388 2.693182,-15.236265 L 45.94461,63.769658 Z m 21.689811,-0.32589 C 39.49602,63.120134 32.833996,64.390322 24.27364,63.604236 19.713511,57.095684 12.838093,33.545358 14.443003,22.500642 26.5701,15.114054 69.5562,13.169581 76.427346,22.746628 c 1.60491,11.044715 -4.35947,34.166025 -8.919601,40.674575"
-         style="display:inline;fill:#008000;fill-opacity:1;stroke:none;stroke-width:0.93059635;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter7463)"
+         style="display:inline;fill:#005500;fill-opacity:1;stroke:none;stroke-width:0.93059635;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter7463)"
          id="path7043-7"
          sodipodi:nodetypes="cccccccccccc" />
       <path
