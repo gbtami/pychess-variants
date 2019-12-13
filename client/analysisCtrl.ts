@@ -256,7 +256,7 @@ export default class AnalysisController {
 
             var container = document.getElementById('copyfen') as HTMLElement;
             var buttons = [
-                h('a.i-pgn', { on: { click: () => download("pachess-variants_" + this.model["gameId"], this.pgn) } }, [
+                h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.model["gameId"], this.pgn) } }, [
                     h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
