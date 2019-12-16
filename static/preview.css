@@ -1,0 +1,206 @@
+/* Board settings */
+.settings-pieces, .settings-boards {
+  display: flex;
+  border: none;
+  margin: 12px;
+}
+label.piece, label.board {
+  background-size: contain;
+  background-repeat: no-repeat;
+  padding: 30px 30px;
+}
+
+label.board.board0.shogi {
+  background-image: url('images/board/shogi.svg');
+}
+label.board.board1.shogi {
+  background-image: url('images/board/Shogiban1.png');
+}
+label.board.board2.shogi {
+  background-image: url('images/board/Shogiban2.png');
+}
+label.board.board3.shogi {
+  background-image: url('images/board/shogic.svg');
+}
+label.board.board4.shogi {
+  background-image: url('images/board/ShogiMaple.png');
+}
+label.board.board5.shogi {
+  background-image: url('images/board/ShogiCheckeredWood.png');
+}
+
+label.piece.piece0.shogi, label.piece.piece0.minishogi {
+  background-image: url('images/pieces/shogi/ctk/0KA.svg');
+}
+label.piece.piece1.shogi, label.piece.piece1.minishogi {
+  background-image: url('images/pieces/shogi/0KA.svg');
+}
+label.piece.piece2.shogi, label.piece.piece2.minishogi {
+  background-image: url('images/pieces/shogi/ctw/0KA.svg');
+}
+label.piece.piece3.shogi, label.piece.piece3.minishogi {
+  background-image: url('images/pieces/shogi/ctp/0KA.svg');
+}
+
+label.board.board0.minishogi {
+  background-image: url('images/board/minishogi.svg');
+}
+label.board.board1.minishogi {
+  background-image: url('images/board/MiniboardWood1.png');
+}
+label.board.board2.minishogi {
+  background-image: url('images/board/MiniboardWood2.png');
+}
+
+label.board.board0.xiangqi {
+  background-image: url('images/board/xiangqi.svg');
+}
+label.board.board1.xiangqi {
+  background-image: url('images/board/xiangqic.svg');
+}
+label.board.board2.xiangqi {
+  background-image: url('images/board/xiangqiCTexture.png');
+}
+label.board.board3.xiangqi {
+  background-image: url('images/board/xiangqiPaper.png');
+}
+label.board.board4.xiangqi {
+  background-image: url('images/board/xiangqiWood.png');
+}
+
+label.board.board0.minixiangqi {
+  background-image: url('images/board/minixiangqi.svg');
+}
+label.board.board1.minixiangqi {
+  background-image: url('images/board/minixiangqiw.png');
+}
+label.board.board2.minixiangqi {
+  background-image: url('images/board/minixqlg.svg');
+}
+
+label.piece.piece0.xiangqi, label.piece.piece0.minixiangqi {
+  background-image: url('images/pieces/xiangqi/red_king.svg');
+}
+label.piece.piece1.xiangqi, label.piece.piece1.minixiangqi {
+  background-image: url('images/pieces/xiangqi/euro/red_king.svg');
+}
+label.piece.piece2.xiangqi, label.piece.piece2.minixiangqi {
+  background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
+}
+label.piece.piece3.xiangqi, label.piece.piece3.minixiangqi {
+  background-image: url('images/pieces/xiangqi/hnz/red_king.svg');
+}
+label.piece.piece4.xiangqi, label.piece.piece4.minixiangqi {
+  background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
+}
+label.piece.piece5.xiangqi, label.piece.piece5.minixiangqi {
+  background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+}
+
+label.piece.piece0.seirawan, label.piece.piece0.shouse {
+  background-image: url('images/pieces/merida/wH.svg');
+}
+label.piece.piece1.seirawan, label.piece.piece1.shouse {
+  background-image: url('images/pieces/merida/wA.svg');
+}
+label.piece.piece2.seirawan, label.piece.piece2.shouse {
+  background-image: url('images/pieces/green/wA.svg');
+}
+label.piece.piece3.seirawan, label.piece.piece3.shouse {
+  background-image: url('images/pieces/merida/wAr.svg');
+}
+
+label.board.board0.capablanca, label.board.board0.capahouse, label.board.board0.gothic, label.board.board0.gothhouse {
+  background-image: url('images/board/10x8brown.svg');
+}
+label.board.board1.capablanca, label.board.board1.capahouse, label.board.board1.gothic, label.board.board1.gothhouse {
+  background-image: url('images/board/10x8blue.svg');
+}
+label.board.board2.capablanca, label.board.board2.capahouse, label.board.board2.gothic, label.board.board2.gothhouse {
+  background-image: url('images/board/10x8green.svg');
+}
+label.board.board3.capablanca, label.board.board3.capahouse, label.board.board3.gothic, label.board.board3.gothhouse {
+  background-image: url('images/board/10x8maple.jpg');
+}
+label.board.board4.capablanca, label.board.board4.capahouse, label.board.board4.gothic, label.board.board4.gothhouse {
+  background-image: url('images/board/10x8olive.jpg');
+}
+label.board.board0.grand, label.board.board0.grandhouse, label.board.board0.shako {
+  background-image: url('images/board/10x10brown.svg');
+}
+label.board.board1.grand, label.board.board1.grandhouse, label.board.board1.shako {
+  background-image: url('images/board/10x10blue.svg');
+}
+label.board.board2.grand, label.board.board2.grandhouse, label.board.board2.shako {
+  background-image: url('images/board/10x10green.svg');
+}
+label.board.board3.grand, label.board.board3.grandhouse, label.board.board3.shako {
+  background-image: url('images/board/10x10maple.jpg');
+}
+label.board.board4.grand, label.board.board4.grandhouse, label.board.board4.shako {
+  background-image: url('images/board/10x10olive.jpg');
+}
+label.piece.piece0.shako {
+  background-image: url('images/pieces/shako/wC.svg');
+}
+
+label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse, label.piece.piece0.gothic, label.piece.piece0.gothhouse {
+  background-image: url('images/pieces/merida/wA.svg');
+}
+label.piece.piece1.capablanca, label.piece.piece1.capahouse, label.piece.piece1.grand, label.piece.piece1.grandhouse, label.piece.piece1.gothic, label.piece.piece1.gothhouse {
+  background-image: url('images/pieces/merida/wH.svg');
+}
+label.piece.piece2.capablanca, label.piece.piece2.capahouse, label.piece.piece2.grand, label.piece.piece2.grandhouse, label.piece.piece2.gothic, label.piece.piece2.gothhouse {
+  background-image: url('images/pieces/green/wA.svg');
+}
+label.piece.piece3.capablanca, label.piece.piece3.capahouse, label.piece.piece3.grand, label.piece.piece3.grandhouse, label.piece.piece3.gothic, label.piece.piece3.gothhouse {
+  background-image: url('images/pieces/merida/wAr.svg');
+}
+
+label.board.board0.makruk {
+  background-image: url('images/board/makruk.svg');
+}
+label.board.board1.makruk {
+  background-image: url('images/board/makruk.jpg');
+}
+label.piece.piece0.makruk {
+  background-image: url('images/pieces/makruk/wK.svg');
+}
+
+label.board.board0.sittuyin {
+  background-image: url('images/board/sittuyin.svg');
+}
+label.board.board1.sittuyin {
+  background-image: url('images/board/sittuyin.jpg');
+}
+label.piece.piece0.sittuyin {
+  background-image: url('images/pieces/makruk/wK.svg');
+}
+label.piece.piece1.sittuyin {
+  background-image: url('images/pieces/sittuyin/wK.svg');
+}
+
+label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.standard, label.board.board0.seirawan, label.board.board0.shouse {
+  background-image: url('images/board/8x8brown.svg');
+}
+label.board.board1.placement, label.board.board1.crazyhouse, label.board.board1.standard, label.board.board1.seirawan, label.board.board1.shouse {
+  background-image: url('images/board/8x8blue.svg');
+}
+label.board.board2.placement, label.board.board2.crazyhouse, label.board.board2.standard, label.board.board2.seirawan, label.board.board2.shouse {
+  background-image: url('images/board/8x8green.svg');
+}
+label.board.board3.placement, label.board.board3.crazyhouse, label.board.board3.standard, label.board.board3.seirawan, label.board.board3.shouse {
+  background-image: url('images/board/8x8maple.jpg');
+}
+label.board.board4.placement, label.board.board4.crazyhouse, label.board.board4.standard, label.board.board4.seirawan, label.board.board4.shouse {
+  background-image: url('images/board/8x8olive.jpg');
+}
+label.piece.piece0.placement, label.piece.piece0.crazyhouse, label.piece.piece0.standard {
+  background-image: url('images/pieces/merida/wN.svg');
+}
+label.piece.piece1.placement, label.piece.piece1.crazyhouse, label.piece.piece1.standard {
+  background-image: url('images/pieces/green/wN.svg');
+}
+label.piece.piece2.placement, label.piece.piece2.crazyhouse, label.piece.piece2.standard {
+  background-image: url('images/pieces/alpha/wN.svg');
+}
