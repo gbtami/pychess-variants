@@ -124,9 +124,8 @@ class LobbyController {
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         // useful for testing with AI
-        const rated = parseInt(e.value);
-        //TODO:
-        //const rated = (this.challengeAI || this.model["anon"] === 'True') ? 0 : parseInt(e.value);
+        // const rated = parseInt(e.value);
+        const rated = (this.challengeAI || this.model["anon"] === 'True') ? 0 : parseInt(e.value);
         localStorage.setItem("seek_rated", e.value);
 
         e = document.getElementById('chess960') as HTMLInputElement;
@@ -288,13 +287,13 @@ class LobbyController {
         h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = true;
-                //document.getElementById('game-mode')!.style.display='none';
-                //TODO
-                if (this.model["anon"] !== 'True') {
-                    document.getElementById('game-mode')!.style.display='inline-flex';
-                } else {
-                    document.getElementById('game-mode')!.style.display='none';
-                }
+                // useful for testing with AI
+                //if (this.model["anon"] !== 'True') {
+                //    document.getElementById('game-mode')!.style.display='inline-flex';
+                //} else {
+                //    document.getElementById('game-mode')!.style.display='none';
+                //}
+                document.getElementById('game-mode')!.style.display='none';
                 document.getElementById('ailevel')!.style.display='inline-block';
                 document.getElementById('id01')!.style.display='block';
                 }
