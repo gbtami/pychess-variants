@@ -23,7 +23,7 @@ import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
-import { result } from './profile';
+//import { result } from './profile';
 import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
 
@@ -83,6 +83,7 @@ export default class AnalysisController {
     ply: number;
     players: string[];
     titles: string[];
+    ratings: string[];
     CSSindexesB: number[];
     CSSindexesP: number[];
     clickDrop: Piece | undefined;
@@ -147,6 +148,10 @@ export default class AnalysisController {
         this.titles = [
             this.mycolor === "white" ? this.model['btitle'] : this.model['wtitle'],
             this.mycolor === "white" ? this.model['wtitle'] : this.model['btitle']
+        ];
+        this.ratings = [
+            this.mycolor === "white" ? this.model['brating'] : this.model['wrating'],
+            this.mycolor === "white" ? this.model['wrating'] : this.model['brating']
         ];
 
         this.result = "";
@@ -226,11 +231,6 @@ export default class AnalysisController {
     getGround = () => this.chessground;
     getDests = () => this.dests;
 
-    private gameOver = () => {
-        var container = document.getElementById('result') as HTMLElement;
-        patch(container, h('div#result', result(this.status, this.result)));
-    }
-
     private requestAnalysis = (withSend) => {
         if (withSend) {
             var element = document.getElementById('request-analysis') as HTMLElement;
@@ -249,7 +249,6 @@ export default class AnalysisController {
         if (msg.status >= 0 && this.result === "") {
             this.result = msg.result;
             this.status = msg.status;
-            this.gameOver();
 
             this.pgn = msg.pgn;
             this.uci_usi = msg.uci_usi;

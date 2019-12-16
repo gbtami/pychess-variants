@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#dbd7d1"><title>{{ title }} • PyChess</title>
+    <link rel="stylesheet" href="/static/chessground.css">
+    <link rel="stylesheet" href="/static/standard.css">
+    <link rel="stylesheet" href="/static/shogi0k.css">
+    <link rel="stylesheet" href="/static/xiangqi.css">
+    <link rel="stylesheet" href="/static/capa0.css">
+    <link rel="stylesheet" href="/static/makruk.css">
+    <link rel="stylesheet" href="/static/sittuyinm.css">
+    <link rel="stylesheet" href="/static/seir0.css">
+    <link rel="stylesheet" href="/static/shako0.css">
+    <link rel="stylesheet" href="/static/8x8brown.css">
+    <link rel="stylesheet" href="/static/10x8brown.css">
+    <link rel="stylesheet" href="/static/10x10brown.css">
+    <link rel="stylesheet" href="/static/9x9a.css">
+    <link rel="stylesheet" href="/static/9x10a.css">
+    <link rel="stylesheet" href="/static/makrb1.css">
+    <link rel="stylesheet" href="/static/sittb1.css">
+    <link rel="stylesheet" href="/static/5x5a.css">
+    <link rel="stylesheet" href="/static/7x7a.css">
+    <link rel="stylesheet" href="/static/extensions.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/site.css">
+    <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon" />
+  </head>
+  <div id="preload">
+    <img src="/static/images/board/8x8brown.svg"/>
+    <img src="/static/images/board/xiangqi.svg"/>
+    <img src="/static/images/board/xiangqic.svg"/>
+    <img src="/static/images/board/10x8brown.svg"/>
+    <img src="/static/images/board/10x10brown.svg"/>
+    <img src="/static/images/board/makruk.svg"/>
+    <img src="/static/images/board/sittuyin.svg"/>
+    <img src="/static/images/board/shogi.svg"/>
+    <img src="/static/images/board/shogic.svg"/>
+  </div>
+  <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --pocketheight: 0px; --PVheight: 0px;"
+        data-view="{{ view }}"
+        data-home="{{ home }}"
+        data-user="{{ username }}"
+        data-anon="{{ anon }}"
+        data-country="{{ country }}"
+        data-gameid="{{ gameid }}"
+        data-date="{{ date }}"
+        data-result="{{ result }}"
+        data-status="{{ status }}"
+        data-profile="{{ profile }}"
+        data-variant="{{ variant }}"
+        data-chess960="{{ chess960 }}"
+        data-rated="{{ rated }}"
+        data-level="{{ level }}"
+        data-wplayer="{{ wplayer }}"
+        data-wtitle="{{ wtitle }}"
+        data-wrating="{{ wrating }}"
+        data-wrdiff="{{ wrdiff }}"
+        data-bplayer="{{ bplayer }}"
+        data-btitle="{{ btitle }}"
+        data-brating="{{ brating }}"
+        data-brdiff="{{ brdiff }}"
+        data-fen="{{ fen }}"
+        data-base="{{ base }}"
+        data-inc="{{ inc }}">
+    <div class="topnav">
+      <a class="nav-link active" href="/">PyChess</a>
+      <a class="nav-link" href="/tv">Tv</a>
+      <a class="nav-link" href="/games">Games</a>
+      <a class="nav-link" href="/players">Players</a>
+      <a class="nav-link" href="/howtoplay">How to play</a>
+      <a class="nav-link" href="/about">About</a>
+      <div class="tool-container">
+        {% if guest %}
+            <a class="login nav-link" href="{{ home }}/login" title="Login with Lichess">Log in</a>
+        {% endif %}
+        <button id="btn-sound" onclick="toggleAudio();" title="Toggle sound"><div class="icon icon-volume-up"></div></button>
+        <div id="username"></div>
+      </div>
+    </div>
+    {% block content %}{% endblock %}
+  </body>
+</html>
+
+<script src="/static/pychess-variants.min.js"></script>
+
+<script>
+var silence = false;
+function toggleAudio() {
+    silence = !silence;
+    var snd_btn = document.getElementById("btn-sound");
+    var allaudio = document.getElementsByTagName('audio');
+    if (silence) snd_btn.innerHTML = '<div class="icon icon-volume-off"></div>';
+    else snd_btn.innerHTML = '<div class="icon icon-volume-up"></div>';
+    for (var j = 0; j < allaudio.length; j++) allaudio[j].muted = silence;
+}
+</script>

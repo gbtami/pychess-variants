@@ -4,6 +4,7 @@ import collections
 import logging
 import os
 import weakref
+from operator import neg
 
 import jinja2
 import aiomonitor
@@ -11,6 +12,7 @@ from aiohttp import web
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 from motor import motor_asyncio as ma
+from sortedcollections import ValueSortedDict
 
 from routes import get_routes, post_routes
 from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
@@ -20,9 +22,13 @@ from utils import Seek, User, VARIANTS, STARTED, AI_task
 async def make_app(loop):
     app = web.Application(loop=loop)
     setup(app, EncryptedCookieStorage(SECRET_KEY))
+
+    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
+    app["db"] = app["client"][MONGO_DB_NAME]
+
     app["users"] = {
-        "Random-Mover": User(bot=True, username="Random-Mover"),
-        "Fairy-Stockfish": User(bot=True, username="Fairy-Stockfish"),
+        "Random-Mover": User(db=app["db"], bot=True, username="Random-Mover"),
+        "Fairy-Stockfish": User(db=app["db"], bot=True, username="Fairy-Stockfish"),
     }
     app["users"]["Random-Mover"].bot_online = True
     app["websockets"] = {}
@@ -31,6 +37,7 @@ async def make_app(loop):
     app["tasks"] = weakref.WeakSet()
     app["chat"] = collections.deque([], 200)
     app["channels"] = set()
+    app["highscore"] = {}
 
     # fishnet active workers
     app["workers"] = set()
@@ -53,24 +60,33 @@ async def make_app(loop):
     ai = app["users"]["Fairy-Stockfish"]
     app["tasks"].add(loop.create_task(AI_task(ai, app)))
 
-    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
-    app["db"] = app["client"][MONGO_DB_NAME]
-
-    # Read users from db
+    # Read users and highscore from db
     cursor = app["db"].user.find()
     try:
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
                 app["users"][doc["_id"]] = User(
+                    db=app["db"],
                     username=doc["_id"],
                     title=doc.get("title"),
                     first_name=doc.get("first_name"),
                     last_name=doc.get("last_name"),
                     country=doc.get("country"),
                     bot=doc.get("title") == "BOT",
+                    perfs=doc.get("perfs")
                 )
+
+        cursor = app["db"].highscore.find()
+        async for doc in cursor:
+            app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+
+        for variant in VARIANTS:
+            if variant not in app["highscore"]:
+                app["highscore"][variant] = ValueSortedDict(neg)
+
     except Exception:
         print("No mongodb!")
+
     app.on_shutdown.append(shutdown)
 
     # Configure templating.

@@ -13,7 +13,7 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN
-from utils import load_game, pgn, User, STARTED, MATE
+from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -22,7 +22,8 @@ from fishnet import fishnet_monitor, fishnet_key, fishnet_acquire,\
 
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
-from compress import C2V, C2R
+from compress import C2V, V2C, C2R
+from glicko2.glicko2 import PROVISIONAL_PHI
 
 try:
     import htmlmin
@@ -99,7 +100,8 @@ async def login(request):
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
     users = request.app["users"]
     prev_user = users.get(session.get("user_name"))
-    prev_user.lobby_ws = None  # make it offline
+    if prev_user is not None:
+        prev_user.lobby_ws = None  # make it offline
 
     session["user_name"] = user.username
     session["country"] = user.country
@@ -117,6 +119,7 @@ async def login(request):
                 "last_name": session.get("last_name"),
                 "country": session.get("country"),
                 "title": session.get("title"),
+                "perfs": {},
             })
             print("db insert user result %s" % repr(result.inserted_id))
         del session["token"]
@@ -147,11 +150,11 @@ async def index(request):
             user = users[session_user]
         else:
             # If server was restarted, we have to recreate users
-            user = User(username=session_user, anon=session["guest"])
+            user = User(db=db, username=session_user, anon=session["guest"])
             users[user.username] = user
         user.ping_counter = 0
     else:
-        user = User(anon=True)
+        user = User(db=db, anon=True)
         log.info("+++ New guest user %s connected." % user.username)
         users[user.username] = user
         session["user_name"] = user.username
@@ -178,6 +181,7 @@ async def index(request):
             gameId = doc["_id"]
 
     profileId = request.match_info.get("profileId")
+    variant = request.match_info.get("variant")
     if profileId is not None:
         view = "profile"
         if request.path[-3:] == "/tv":
@@ -205,7 +209,11 @@ async def index(request):
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.add(user)
 
-    template = request.app["jinja"].get_template("index.html")
+    if view == "profile":
+        template = request.app["jinja"].get_template("profile.html")
+    else:
+        template = request.app["jinja"].get_template("index.html")
+
     render = {
         "app_name": "PyChess",
         "title": view.capitalize(),
@@ -219,16 +227,30 @@ async def index(request):
     }
     if profileId is not None:
         render["title"] = "Profile • " + profileId
+        render["icons"] = VARIANT_ICONS
+        if profileId not in users or users[profileId].perfs is None:
+            render["ratings"] = {}
+        else:
+            render["ratings"] = {
+                k: ("%s%s" % (int(round(v["gl"]["r"], 0)), "?" if v["gl"]["d"] > PROVISIONAL_PHI else ""), v["nb"])
+                for (k, v) in sorted(users[profileId].perfs.items(), key=lambda x: x[1]["nb"], reverse=True)}
+        if variant is not None:
+            render["variant"] = variant
 
     if gameId is not None:
         render["gameid"] = gameId
         render["variant"] = game.variant
         render["wplayer"] = game.wplayer.username
-        render["chess960"] = game.chess960
-        render["level"] = game.level
         render["wtitle"] = game.wplayer.title
+        render["wrating"] = game.wrating
+        render["wrdiff"] = game.wrdiff
+        render["chess960"] = game.chess960
+        render["rated"] = game.rated
+        render["level"] = game.level
         render["bplayer"] = game.bplayer.username
         render["btitle"] = game.bplayer.title
+        render["brating"] = game.brating
+        render["brdiff"] = game.brdiff
         render["fen"] = game.board.fen
         render["base"] = game.base
         render["inc"] = game.inc
@@ -262,6 +284,7 @@ async def get_user_games(request):
     filter_cond = {}
     # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
+    variant = request.path[request.path.rfind("/") + 1:]
     if level is not None:
         filter_cond["x"] = int(level)
         filter_cond["s"] = MATE
@@ -270,6 +293,9 @@ async def get_user_games(request):
         filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
     elif "/loss" in request.path:
         filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
+    elif variant in VARIANTS:
+        v = V2C[variant]
+        filter_cond["$or"] = [{"v": v, "us.1": profileId}, {"v": v, "us.0": profileId}]
     else:
         filter_cond["us"] = profileId
 
@@ -374,6 +400,7 @@ get_routes = (
     (r"/{gameId:\w{8}}", index),
     ("/@/{profileId}", index),
     ("/@/{profileId}/tv", index),
+    ("/@/{profileId}/{variant}", index),
     ("/level8win", index),
     ("/patron/thanks", index),
     ("/wsl", lobby_socket_handler),
@@ -385,10 +412,12 @@ get_routes = (
     ("/api/{profileId}/all", get_user_games),
     ("/api/{profileId}/win", get_user_games),
     ("/api/{profileId}/loss", get_user_games),
+    ("/api/{profileId}/{variant}", get_user_games),
     ("/api/games", get_games),
     ("/api/players", get_players),
     ("/api/subscribe", subscribe_games),
     ("/games/export/{profileId}", export),
+    ("/games/export/variant/{variant}", export),
     ("/fishnet/monitor", fishnet_monitor),
     ("/fishnet/key/{key}", fishnet_key),
 )

@@ -70,7 +70,7 @@ class LobbyController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg (variant, color, fen, minutes, increment, chess960) {
+    createSeekMsg (variant, color, fen, minutes, increment, chess960, rated) {
         this.doSend({
             type: "create_seek",
             user: this.model["username"],
@@ -78,12 +78,12 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
-            rated: false,
+            rated: rated,
             chess960: chess960,
             color: color });
     }
 
-    createBotChallengeMsg (variant, color, fen, minutes, increment, level, chess960) {
+    createBotChallengeMsg (variant, color, fen, minutes, increment, level, chess960, rated) {
         this.doSend({
             type: "create_ai_challenge",
             user: this.model["username"],
@@ -91,7 +91,7 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
-            rated: false,
+            rated: rated,
             level: level,
             chess960: chess960,
             color: color });
@@ -122,21 +122,29 @@ class LobbyController {
         const increment = parseInt(e.value);
         localStorage.setItem("seek_inc", e.value);
 
+        e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
+        // useful for testing with AI
+        const rated = parseInt(e.value);
+        //TODO:
+        //const rated = (this.challengeAI || this.model["anon"] === 'True') ? 0 : parseInt(e.value);
+        localStorage.setItem("seek_rated", e.value);
+
         e = document.getElementById('chess960') as HTMLInputElement;
         const hide = variants960.indexOf(variant) === -1;
         const chess960 = (hide) ? false : e.checked;
-        console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, hide, chess960);
         localStorage.setItem("seek_chess960", e.checked);
+
+        console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
 
         if (this.challengeAI) {
             e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
             const level = parseInt(e.value);
             localStorage.setItem("seek_level", e.value);
             console.log(level, e.value, localStorage.getItem("seek_level"));
-            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960);
+            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960, rated===1);
         } else {
             if (this.isNewSeek(variant, color, fen, minutes, increment)) {
-                this.createSeekMsg(variant, color, fen, minutes, increment, chess960);
+                this.createSeekMsg(variant, color, fen, minutes, increment, chess960, rated===1);
             }
         }
     }
@@ -183,6 +191,7 @@ class LobbyController {
         const vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
+        const vRated = localStorage.seek_rated === undefined ? "0" : localStorage.seek_rated;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
         const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
         console.log("localeStorage.seek_level, vLevel=", localStorage.seek_level, vLevel);
@@ -225,11 +234,19 @@ class LobbyController {
                     on: { input: (e) => setIncrement((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
                 }),
+                h('form#game-mode', [
+                h('div.radio-group', [
+                    h('input#casual', {props: {type: "radio", name: "mode", value: "0", checked: vRated === "0" ? "checked" : ""}}),
+                    h('label', { attrs: {for: "casual"} }, "Casual"),
+                    h('input#rated', {props: {type: "radio", name: "mode", value: "1", checked: vRated === "1" ? "checked" : ""}}),
+                    h('label', { attrs: {for: "rated"} }, "Rated"),
+                ]),
+                ]),
                 // if play with the machine
                 // A.I.Level (1-8 buttons)
                 h('form#ailevel', [
                 h('h4', "A.I. Level"),
-                h('div.ai-radio-group', [
+                h('div.radio-group', [
                     h('input#ai1', { props: { type: "radio", name: "level", value: "1", checked: vLevel === "1" ? "checked" : ""} }),
                     h('label.level-ai.ai1', { attrs: {for: "ai1"} }, "1"),
                     h('input#ai2', { props: { type: "radio", name: "level", value: "2", checked: vLevel === "2" ? "checked" : ""} }),
@@ -259,6 +276,11 @@ class LobbyController {
         h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = false;
+                if (this.model["anon"] !== 'True') {
+                    document.getElementById('game-mode')!.style.display='inline-flex';
+                } else {
+                    document.getElementById('game-mode')!.style.display='none';
+                }
                 document.getElementById('ailevel')!.style.display='none';
                 document.getElementById('id01')!.style.display='block';
                 }
@@ -266,6 +288,13 @@ class LobbyController {
         h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = true;
+                //document.getElementById('game-mode')!.style.display='none';
+                //TODO
+                if (this.model["anon"] !== 'True') {
+                    document.getElementById('game-mode')!.style.display='inline-flex';
+                } else {
+                    document.getElementById('game-mode')!.style.display='none';
+                }
                 document.getElementById('ailevel')!.style.display='inline-block';
                 document.getElementById('id01')!.style.display='block';
                 }
@@ -295,17 +324,17 @@ class LobbyController {
         const colorIcon = (color) => { return h('i', {attrs: {"data-icon": color === "w" ? "c" : color === "b" ? "b" : "a"}} ); };
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
         console.log("VARIANTS", VARIANTS);
-        var rows = seeks.map((seek) => h(
+        var rows = seeks.map((seek) => (this.model["anon"] === 'True' && seek["rated"]) ? "" : h(
             'tr',
             { on: { click: () => this.onClickSeek(seek) } },
             [h('td', [h('player-title', " " + seek["title"] + " "), seek["user"]]),
              h('td', [colorIcon(seek["color"])]),
-             h('td', '1500?'),
+             h('td', seek["rating"]),
              h('td', seek["tc"]),
              h('td', {attrs: {"data-icon": VARIANTS[seek["variant"]].icon}, class: {"icon": true}} ),
              h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
              h('td', seek["variant"]),
-             h('td', seek["rated"]) ])
+             h('td', (seek["rated"]) ? 'Rated' : 'Casual') ])
             );
         return [header, h('tbody', rows)];
     }

@@ -56,6 +56,17 @@ export function result(status, result) {
     return (status <= 0) ? text : text + ', ' + result;
 }
 
+export function renderRdiff(rdiff) {
+    if (rdiff === undefined) {
+        return h('span');
+    } else if (rdiff === 0) {
+        return h('span', '±0');
+    } else if (rdiff< 0) {
+        return h('bad', rdiff);
+    } else {
+        return h('good', '+' + rdiff);
+    }
+}
 
 function renderGames(model, games) {
 //                h('fn', player["first_name"]),
@@ -83,7 +94,7 @@ function renderGames(model, games) {
             h('div.info0.games', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}}, [
                 h('div.info1', {attrs: {"data-icon": (game["z"] === 1) ? "V" : ""}, class: {"icon": true}}),
                 h('div.info2', [
-                    h('div.tc', game["b"] + "+" + game["i"] + " • Casual • " + game["v"]),
+                    h('div.tc', game["b"] + "+" + game["i"] + " • " + ((game["y"] === 1) ? "Rated" : "Casual") + " • " + game["v"]),
                     h('info-date', {attrs: {timestamp: game["d"]}}),
                 ]),
             ]),
@@ -93,13 +104,19 @@ function renderGames(model, games) {
                         h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, [
                             h('player-title', " " + game["wt"] + " "),
                             game["us"][0] + ((game["wt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
+                            h('br'),
+                            (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
+                            (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                         ]),
                     ]),
-                    h('vs', '-'),
+                    h('swords', {attrs: {"data-icon": '"'}, class: {"icon": true}}),
                     h('player', [
                         h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
                             h('player-title', " " + game["bt"] + " "),
                             game["us"][1] + ((game["bt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
+                            h('br'),
+                            (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
+                            (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
                         ]),
                     ]),
                 ]),
@@ -122,6 +139,8 @@ function loadGames(model, page) {
     var url = model["home"] + "/api/" + model["profileid"]
     if (model.level) {
         url = url + "/loss?x=8&p=";
+    } else if (model.variant) {
+        url = url + "/" + model.variant + "?p=";
     } else {
         url = url + "/all?p=";
     }
@@ -168,7 +187,7 @@ function observeSentinel(vnode: VNode, model) {
     intersectionObserver.observe(sentinel!);
 }
 
-export function profileView(model): VNode[] {
+export function profileView(model) {
     renderUsername(model["home"], model["username"]);
     console.log(model);
 
@@ -188,8 +207,7 @@ export function profileView(model): VNode[] {
         };
     });
 
-    return [h('aside.sidebar-first'),
-            h('main.profile', [
+    return [
                 h('player-head', [
                     model["profileid"],
                     h('a.i-dl', {
@@ -201,7 +219,5 @@ export function profileView(model): VNode[] {
                     ]),
                 h('table#games'),
                 h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) }})
-            ]),
-            h('aside.sidebar-second'),
-        ];
+            ]
 }

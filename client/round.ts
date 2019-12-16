@@ -22,7 +22,7 @@ export function roundView(model): VNode[] {
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
                         h('div.info1', {attrs: {"data-icon": (model["chess960"] === 'True') ? "V" : ""}, class: {"icon": true}}),
                         h('div.info2', [
-                            h('div.tc', model["base"] + "+" + model["inc"] + " • Casual • " + model["variant"]),
+                            h('div.tc', model["base"] + "+" + model["inc"] + " • " + ((model["rated"] === 'True') ? "Rated" : "Casual") + " • " + model["variant"]),
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
                         ]),
                     ]),
@@ -31,7 +31,8 @@ export function roundView(model): VNode[] {
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, [
                                 h('player-title', " " + model["wtitle"] + " "),
-                                model["wplayer"] + " (1500?)",
+                                model["wplayer"] + " (" + model["wrating"] + ") ",
+                                h('rdiff#wrdiff'),
                             ]),
                         ]),
                     ]),
@@ -40,7 +41,8 @@ export function roundView(model): VNode[] {
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, [
                                 h('player-title', " " + model["btitle"] + " "),
-                                model["bplayer"] + " (1500?)",
+                                model["bplayer"] + " (" + model["brating"] + ") ",
+                                h('rdiff#brdiff'),
                             ]),
                         ]),
                     ]),

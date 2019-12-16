@@ -37,18 +37,23 @@ export function view(el, model): VNode {
     model["profileid"] = el.getAttribute("data-profile");
     model["variant"] = el.getAttribute("data-variant");
     model["chess960"] = el.getAttribute("data-chess960");
+    model["rated"] = el.getAttribute("data-rated");
     model["level"] = el.getAttribute("data-level");
     model["username"] = user !== "" ? user : el.getAttribute("data-user");
     model["gameId"] = el.getAttribute("data-gameid");
     model["wplayer"] = el.getAttribute("data-wplayer");
     model["wtitle"] = el.getAttribute("data-wtitle");
+    model["wrating"] = el.getAttribute("data-wrating");
+    model["wrdiff"] = el.getAttribute("data-wrdiff");
     model["bplayer"] = el.getAttribute("data-bplayer");
     model["btitle"] = el.getAttribute("data-btitle");
+    model["brating"] = el.getAttribute("data-brating");
+    model["brdiff"] = el.getAttribute("data-brdiff");
     model["fen"] = el.getAttribute("data-fen");
     model["base"] = el.getAttribute("data-base");
     model["inc"] = el.getAttribute("data-inc");
     model["result"] = el.getAttribute("data-result");
-    model["status"] = el.getAttribute("data-status");
+    model["status"] = parseInt(el.getAttribute("data-status"));
     model["date"] = el.getAttribute("data-date");
     model["tv"] = el.getAttribute("data-view") === 'tv';
 
@@ -59,10 +64,9 @@ export function view(el, model): VNode {
         return h('iframe', {props: {src: model["home"] + "/static/docs/variants.html", height: "100%", width:"100%", seamless: ""}});
     case 'players':
         return h('div#placeholder.players-wrapper', playersView(model));
-    case 'profile':
-        return h('div#placeholder.profile-wrapper', profileView(model));
     case 'level8win':
-        return h('div#placeholder.profile-wrapper', profileView(model));
+    case 'profile':
+        return h('main.profile', profileView(model));
     case 'tv':
     case 'round':
         return h('div#placeholder.main-wrapper', roundView(model));

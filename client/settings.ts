@@ -144,8 +144,8 @@ export function toggleOrientation (ctrl) {
     ctrl.clocks[1].setTime(tmp_clock_time);
     if (ctrl.status < 0) new_running_clck.start();
 
-    ctrl.vplayer0 = patch(ctrl.vplayer0, player('player0', ctrl.titles[ctrl.flip ? 1 : 0], ctrl.players[ctrl.flip ? 1 : 0], ctrl.model["level"]));
-    ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.model["level"]));
+    ctrl.vplayer0 = patch(ctrl.vplayer0, player('player0', ctrl.titles[ctrl.flip ? 1 : 0], ctrl.players[ctrl.flip ? 1 : 0], ctrl.ratings[ctrl.flip ? 1 : 0], ctrl.model["level"]));
+    ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.ratings[ctrl.flip ? 0 : 1], ctrl.model["level"]));
 }
 
 export function gearButton (ctrl) {

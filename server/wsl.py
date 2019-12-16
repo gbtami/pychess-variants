@@ -63,7 +63,7 @@ async def lobby_socket_handler(request):
                             # TODO: message that engine is offline, but capture BOT will play instead
                             engine = users.get("Random-Mover")
 
-                        seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
+                        seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], data["rated"], data["chess960"])
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 
@@ -110,7 +110,7 @@ async def lobby_socket_handler(request):
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing lobby_user %s socket connected as %s." % (session_user, data["username"]))
                                 session_user = data["username"]
-                                user = User(username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
                                 users[user.username] = user
                                 response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
@@ -119,7 +119,7 @@ async def lobby_socket_handler(request):
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
-                            user = User(username=data["username"], anon=data["username"].startswith("Anonymous"))
+                            user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
                             users[user.username] = user
                             response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
 

@@ -249,7 +249,7 @@ async def round_socket_handler(request):
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing game_user %s socket connected as %s." % (session_user, data["username"]))
                                 session_user = data["username"]
-                                user = User(username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
                                 users[user.username] = user
 
                                 # Update logged in users as spactators
@@ -260,7 +260,7 @@ async def round_socket_handler(request):
                         else:
                             log.info("+++ Existing game_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
-                            user = User(username=data["username"], anon=data["username"].startswith("Anonymous"))
+                            user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
                             users[user.username] = user
                         user.ping_counter = 0
 

@@ -3,10 +3,11 @@
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
 }
 html {
+  font-size: 14px ;
   min-height: 100%;
+  font-family: 'Noto Sans', Sans-Serif;
 }
 body {
-  font: 14px 'Noto Sans', Sans-Serif;
   margin: 0;
   color: #505050;
   background: #eee;
@@ -37,8 +38,7 @@ iframe {
 
 .profile-wrapper, .players-wrapper{
   display: grid;
-  grid-template-columns: auto 60% auto;
-  grid-gap: 18px;
+  grid-template-columns: auto 70% auto;
   justify-content: center;
 }
 
@@ -50,8 +50,8 @@ iframe {
   justify-content: center;
 }
 
-main{
-  margin-top:30px;
+main {
+  margin-top:15px;
   display: grid;
   grid-template-columns: auto auto;
 }
@@ -60,14 +60,13 @@ main.profile, main.players {
 }
 
 .sidebar-first{
-  margin-top: 30px;
-  flex:1;
+  margin-top: 15px;
   display: flex;
   flex-flow: column nowrap;
   justify-content: right;
 }
 .sidebar-second{
-  margin-top: 30px;
+  margin-top: 15px;
   flex:1;
   display: flex;
   flex-flow: column nowrap;
@@ -211,7 +210,9 @@ button.newopp:hover,  button.analysis:hover {
   padding: 12px;
   font-size: 14px;
 }
-
+div.info1.icon, div.info0.icon::before {
+  opacity: 0.7;
+}
 div.info0, div.info1 {
   display: flex;
   flex-flow: row;
@@ -307,6 +308,61 @@ rating {
   float: right;
   font-size: 16px;
 }
+rating span {
+  font-size: 12px;
+}
+good {
+  color: #629924;
+}
+bad {
+  color: #c33;
+}
+swords {
+  font-size: 2em;
+  padding: 4 8 0 8;
+}
+.sub-ratings {
+  display: flex;
+  flex-flow: row;
+  font-size: 3em;
+}
+.sub-ratings a.empty {
+  opacity: 0.5;
+}
+.sub-ratings a.active {
+  background: White;
+  opacity: 1;
+}
+.sub-ratings h3{
+  font-size: 12px;
+  font-weight:normal;
+  font-family: 'Roboto';
+  letter-spacing: 1.1px;
+  margin: 0;
+}
+.sub-ratings a {
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row;
+  align-items: center;
+  color: #5e5e5e;
+  text-decoration: none;
+  padding: 0.3em;
+  opacity: 0.7;
+}
+.sub-ratings a:hover {
+  background: White;
+}
+.sub-ratings a:hover::before {
+  color: LightSkyBlue;
+}
+.sub-ratings a .info2 {
+  display: flex;
+}
+.sub-ratings a span rating {
+  float: left;
+}
+
 i {
   font-size: 18px;
 }
@@ -682,8 +738,7 @@ button.icon.icon-adjust {
     font-size: 36px;
 }
 
-
-/* A.I. Level https://codepen.io/skeddles/pen/PbROLK */
+/* Casual/Rated and A.I. Level https://codepen.io/skeddles/pen/PbROLK */
 input[type=radio] {
   position: absolute;
   visibility: hidden;
@@ -696,16 +751,16 @@ label {
   padding: 5px 12px;
 }
 
-.ai-radio-group input[type=radio]:checked + label {
+.radio-group input[type=radio]:checked + label {
   color: White;
   background: DimGray;
 }
 
-.ai-radio-group label + input[type=radio] + label {
+.radio-group label + input[type=radio] + label {
   border-left: solid 1px #675f6b;
 }
 
-.ai-radio-group {
+.radio-group {
   border: solid 1px #675f6b;
   display: inline-block;
   margin: 12px;

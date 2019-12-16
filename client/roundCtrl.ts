@@ -24,7 +24,7 @@ import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
-import { result } from './profile'
+import { renderRdiff, result } from './profile'
 import { player } from './player';
 
 const patch = init([klass, attributes, properties, listeners]);
@@ -73,6 +73,7 @@ export default class RoundController {
     ply: number;
     players: string[];
     titles: string[];
+    ratings: string[];
     CSSindexesB: number[];
     CSSindexesP: number[];
     clickDrop: Piece | undefined;
@@ -150,6 +151,10 @@ export default class RoundController {
         this.titles = [
             this.mycolor === "white" ? this.model['btitle'] : this.model['wtitle'],
             this.mycolor === "white" ? this.model['wtitle'] : this.model['btitle']
+        ];
+        this.ratings = [
+            this.mycolor === "white" ? this.model['brating'] : this.model['wrating'],
+            this.mycolor === "white" ? this.model['wrating'] : this.model['brating']
         ];
 
         this.premove = null;
@@ -230,8 +235,8 @@ export default class RoundController {
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
         const player1 = document.getElementById('rplayer1') as HTMLElement;
-        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], model["level"]));
-        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], model["level"]));
+        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], model["level"]));
+        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
 
         // initialize pockets
         if (needPockets(this.variant)) {
@@ -335,13 +340,20 @@ export default class RoundController {
         window.location.assign(home + '/' + this.model["gameId"]);
     }
 
-    private gameOver = () => {
+    private gameOver = (rdiffs) => {
         var container = document.getElementById('movelist') as HTMLElement;
         var movesTail: VNode[] = [];
         if (this.turnColor === 'black') movesTail.push(h('li.move.hidden', 'X'));
         movesTail.push(h('div#result', result(this.status, this.result)));
         patch(container, h('ol.movelist#movelist', movesTail));
 
+        container = document.getElementById('wrdiff') as HTMLElement;
+        patch(container, renderRdiff(rdiffs["wrdiff"]));
+
+        container = document.getElementById('brdiff') as HTMLElement;
+        patch(container, renderRdiff(rdiffs["brdiff"]));
+
+        console.log(rdiffs)
         if (!this.spectator) {
             this.gameControls = patch(this.gameControls, h('div'));
             patch(this.gameControls, h('div#after-game-controls', [
@@ -385,7 +397,7 @@ export default class RoundController {
                 default:
                     break;
             }
-            this.gameOver();
+            this.gameOver(msg.rdiffs);
             selectMove(this, this.ply);
 
             // clean up gating/promotion widget left over the ground while game ended by time out
