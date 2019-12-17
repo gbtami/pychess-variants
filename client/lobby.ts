@@ -30,6 +30,7 @@ class LobbyController {
     constructor(el, model) {
         console.log("LobbyController constructor", el, model);
         // enable for local testong only !!!
+        // this.test_ratings = true;
         this.test_ratings = false;
 
         this.model = model;

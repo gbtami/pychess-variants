@@ -13,7 +13,7 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN
-from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS
+from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANTS960, VARIANT_ICONS
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -299,9 +299,14 @@ async def get_user_games(request):
         filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
     elif "/loss" in request.path:
         filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
-    elif variant in VARIANTS:
-        v = V2C[variant]
-        filter_cond["$or"] = [{"v": v, "us.1": profileId}, {"v": v, "us.0": profileId}]
+    elif variant in VARIANTS + VARIANTS960:
+        if variant.endswith("960"):
+            v = V2C[variant[:-3]]
+            z = 1
+        else:
+            v = V2C[variant]
+            z = 0
+        filter_cond["$or"] = [{"v": v, "z": z, "us.1": profileId}, {"v": v, "z": z, "us.0": profileId}]
     else:
         filter_cond["us"] = profileId
 

@@ -41,6 +41,13 @@ LOSERS = {
     "flag": FLAG,
 }
 
+VARIANTS960 = (
+    "chess960",
+    "capablanca960",
+    "capahouse960",
+    "crazyhouse960",
+)
+
 VARIANTS = (
     "makruk",
     "sittuyin",
@@ -83,9 +90,13 @@ VARIANT_ICONS = {
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",
+    "chess960": "M",
+    "capablanca960": "P",
+    "capahouse960": "P",
+    "crazyhouse960": "H",
 }
 
-VARIANTS960 = {
+VARIANTS_TO_960 = {
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
@@ -159,7 +170,7 @@ class Seek:
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
-        self.rating = int(round(user.get_rating(variant).mu, 0))
+        self.rating = int(round(user.get_rating(variant, chess960).mu, 0))
         self.base = base
         self.inc = inc
         self.level = 0 if user.username == "Random-Mover" else level
@@ -208,11 +219,11 @@ class User:
         self.bot_online = False
 
         if perfs is None:
-            self.perfs = {variant: self.default_perf(variant) for variant in VARIANTS}
+            self.perfs = {variant: self.default_perf() for variant in VARIANTS + VARIANTS960}
         else:
-            self.perfs = {variant: perfs[variant] if variant in perfs else self.default_perf(variant) for variant in VARIANTS}
+            self.perfs = {variant: perfs[variant] if variant in perfs else self.default_perf() for variant in VARIANTS + VARIANTS960}
 
-    def default_perf(self, variant):
+    def default_perf(self):
         rating = gl2.create_rating()
         return {"gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma}, "la": datetime.utcnow(), "nb": 0}
 
@@ -223,23 +234,23 @@ class User:
         else:
             return len(self.game_sockets) > 0 or (self.lobby_ws is not None)
 
-    def get_rating(self, variant):
+    def get_rating(self, variant, chess960):
         if variant in self.perfs:
-            gl = self.perfs[variant]["gl"]
-            la = self.perfs[variant]["la"]
+            gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
+            la = self.perfs[variant + ("960" if chess960 else "")]["la"]
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
         else:
             rating = gl2.create_rating()
-            self.perfs[variant] = self.default_perf(variant)
+            self.perfs[variant + ("960" if chess960 else "")] = self.default_perf()
             return rating
 
-    async def set_rating(self, variant, rating):
+    async def set_rating(self, variant, chess960, rating):
         if self.anon:
             return
         gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
         la = datetime.utcnow()
-        nb = self.perfs[variant].get("nb", 0)
-        self.perfs[variant] = {"gl": gl, "la": la, "nb": nb + 1}
+        nb = self.perfs[variant + ("960" if chess960 else "")].get("nb", 0)
+        self.perfs[variant + ("960" if chess960 else "")] = {"gl": gl, "la": la, "nb": nb + 1}
 
         if self.db is not None:
             await self.db.user.find_one_and_update({"_id": self.username}, {"$set": {"perfs": self.perfs}})
@@ -457,10 +468,10 @@ class Game:
         self.level = level if level is not None else 0
         self.chess960 = chess960
 
-        self.white_rating = wplayer.get_rating(variant)
+        self.white_rating = wplayer.get_rating(variant, chess960)
         self.wrating = "%s%s" % (int(round(self.white_rating.mu, 0)), "?" if self.white_rating.phi > PROVISIONAL_PHI else "")
         self.wrdiff = 0
-        self.black_rating = bplayer.get_rating(variant)
+        self.black_rating = bplayer.get_rating(variant, chess960)
         self.brating = "%s%s" % (int(round(self.black_rating.mu, 0)), "?" if self.black_rating.phi > PROVISIONAL_PHI else "")
         self.brdiff = 0
 
@@ -528,6 +539,8 @@ class Game:
                 self.initial_fen = start_fen
 
         self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
+        if self.chess960 and self.initial_fen == "":
+            self.initial_fen = self.board.initial_fen
 
         self.bot_game = self.bplayer.bot or self.wplayer.bot
         self.random_mover = self.wplayer.username == "Random-Mover" or self.bplayer.username == "Random-Mover"
@@ -655,20 +668,20 @@ class Game:
 
             await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
-    def get_highscore(self, variant):
-        len_hs = len(self.highscore[variant])
+    def get_highscore(self, variant, chess960):
+        len_hs = len(self.highscore[variant + ("960" if chess960 else "")])
         if len_hs > 0:
-            return (self.highscore[variant].peekitem()[1], len_hs)
+            return (self.highscore[variant + ("960" if chess960 else "")].peekitem()[1], len_hs)
         else:
             return (0, 0)
 
-    async def set_highscore(self, variant, value):
-        self.highscore[variant].update(value)
-        if len(self.highscore[variant]) > MAX_HIGH_SCORE:
-            self.highscore[variant].popitem()
+    async def set_highscore(self, variant, chess960, value):
+        self.highscore[variant + ("960" if chess960 else "")].update(value)
+        if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
+            self.highscore[variant + ("960" if chess960 else "")].popitem()
 
-        new_data = {"scores": {key: value for key, value in self.highscore[variant].items()}}
-        await self.db.highscore.find_one_and_update({"_id": variant}, {"$set": new_data}, upsert=True)
+        new_data = {"scores": {key: value for key, value in self.highscore[variant + ("960" if chess960 else "")].items()}}
+        await self.db.highscore.find_one_and_update({"_id": variant + ("960" if chess960 else "")}, {"$set": new_data}, upsert=True)
 
     async def update_ratings(self):
         if self.result == '1-0':
@@ -684,8 +697,8 @@ class Game:
         wr = await gl2.rate(self.white_rating, [(white_score, br)])
         br = await gl2.rate(self.black_rating, [(black_score, wr)])
         print("ratings after updated:", wr, br)
-        await self.wplayer.set_rating(self.variant, wr)
-        await self.bplayer.set_rating(self.variant, br)
+        await self.wplayer.set_rating(self.variant, self.chess960, wr)
+        await self.bplayer.set_rating(self.variant, self.chess960, br)
 
         self.wrdiff = int(round(wr.mu - self.white_rating.mu, 0))
         self.p0 = {"e": self.wrating, "d": self.wrdiff}
@@ -693,11 +706,11 @@ class Game:
         self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
 
-        highscore, len_hs = self.get_highscore(self.variant)
+        highscore, len_hs = self.get_highscore(self.variant, self.chess960)
         if wr.mu > highscore or len_hs < MAX_HIGH_SCORE:
-            await self.set_highscore(self.variant, {self.wplayer.username: int(round(wr.mu, 0))})
+            await self.set_highscore(self.variant, self.chess960, {self.wplayer.username: int(round(wr.mu, 0))})
         elif br.mu > highscore or len_hs < MAX_HIGH_SCORE:
-            await self.set_highscore(self.variant, {self.bplayer.username: int(round(br.mu, 0))})
+            await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     async def update_status(self, status=None, result=None):
         if status is not None:
@@ -788,7 +801,7 @@ class Game:
         moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
-            "PyChess casual game",
+            "PyChess " + ("rated" if self.rated else "casual") + " game",
             URI + "/" + self.id,
             self.date.strftime("%Y.%m.%d"),
             self.wplayer.username,
@@ -798,7 +811,7 @@ class Game:
             self.inc,
             self.wrating,
             self.brating,
-            self.variant.capitalize() if not self.chess960 else VARIANTS960[self.variant],
+            self.variant.capitalize() if not self.chess960 else VARIANTS_TO_960[self.variant],
             moves,
             self.result,
             fen="" if no_setup else '[FEN "%s"]\n' % self.initial_fen,
@@ -1142,7 +1155,7 @@ def pgn(doc):
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
     no_setup = fen == STANDARD_FEN and not chess960
     return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
-        "PyChess casual game",
+        "PyChess " + ("rated" if doc["y"] == 1 else "casual") + " game",
         URI + "/" + doc["_id"],
         doc["d"].strftime("%Y.%m.%d"),
         doc["us"][0],
@@ -1152,7 +1165,7 @@ def pgn(doc):
         doc["i"],
         doc["p0"]["e"],
         doc["p1"]["e"],
-        variant.capitalize() if not chess960 else VARIANTS960[variant],
+        variant.capitalize() if not chess960 else VARIANTS_TO_960[variant],
         moves,
         C2R[doc["r"]],
         fen="" if no_setup else '[FEN "%s"]\n' % fen,

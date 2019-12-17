@@ -16,7 +16,7 @@ from sortedcollections import ValueSortedDict
 
 from routes import get_routes, post_routes
 from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
-from utils import Seek, User, VARIANTS, STARTED, AI_task
+from utils import Seek, User, VARIANTS, VARIANTS960, STARTED, AI_task
 
 
 async def make_app(loop, reset_ratings=False):
@@ -83,7 +83,7 @@ async def make_app(loop, reset_ratings=False):
             async for doc in cursor:
                 app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
-        for variant in VARIANTS:
+        for variant in VARIANTS + VARIANTS960:
             if variant not in app["highscore"]:
                 app["highscore"][variant] = ValueSortedDict(neg)
 
