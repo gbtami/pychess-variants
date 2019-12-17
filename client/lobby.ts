@@ -281,7 +281,7 @@ class LobbyController {
         h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = false;
-                if (this.test_ratings && this.model["anon"] !== 'True') {
+                if (this.model["anon"] !== 'True') {
                     document.getElementById('game-mode')!.style.display='inline-flex';
                 } else {
                     document.getElementById('game-mode')!.style.display='none';
