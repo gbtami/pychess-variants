@@ -18,16 +18,19 @@ import { sound } from './sound';
 
 
 class LobbyController {
+    test_ratings: boolean;
     model;
     sock;
     player;
     logged_in;
-    challengeAI;
+    challengeAI: boolean;
     _ws;
     seeks;
 
     constructor(el, model) {
         console.log("LobbyController constructor", el, model);
+        // enable for local testong only !!!
+        this.test_ratings = false;
 
         this.model = model;
         this.challengeAI = false;
@@ -123,9 +126,12 @@ class LobbyController {
         localStorage.setItem("seek_inc", e.value);
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
-        // useful for testing with AI
-        // const rated = parseInt(e.value);
-        const rated = (this.challengeAI || this.model["anon"] === 'True') ? 0 : parseInt(e.value);
+        var rated = 0;
+        if (this.test_ratings) {
+            rated = parseInt(e.value);
+        } else {
+            rated = (this.challengeAI || this.model["anon"] === 'True') ? 0 : parseInt(e.value);
+        }
         localStorage.setItem("seek_rated", e.value);
 
         e = document.getElementById('chess960') as HTMLInputElement;
@@ -275,12 +281,11 @@ class LobbyController {
         h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = false;
-                //if (this.model["anon"] !== 'True') {
-                //    document.getElementById('game-mode')!.style.display='inline-flex';
-                //} else {
-                //    document.getElementById('game-mode')!.style.display='none';
-                //}
-                document.getElementById('game-mode')!.style.display='none';
+                if (this.test_ratings && this.model["anon"] !== 'True') {
+                    document.getElementById('game-mode')!.style.display='inline-flex';
+                } else {
+                    document.getElementById('game-mode')!.style.display='none';
+                }
                 document.getElementById('ailevel')!.style.display='none';
                 document.getElementById('id01')!.style.display='block';
                 }
@@ -288,13 +293,11 @@ class LobbyController {
         h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = true;
-                // useful for testing with AI
-                //if (this.model["anon"] !== 'True') {
-                //    document.getElementById('game-mode')!.style.display='inline-flex';
-                //} else {
-                //    document.getElementById('game-mode')!.style.display='none';
-                //}
-                document.getElementById('game-mode')!.style.display='none';
+                if (this.test_ratings && this.model["anon"] !== 'True') {
+                    document.getElementById('game-mode')!.style.display='inline-flex';
+                } else {
+                    document.getElementById('game-mode')!.style.display='none';
+                }
                 document.getElementById('ailevel')!.style.display='inline-block';
                 document.getElementById('id01')!.style.display='block';
                 }

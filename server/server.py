@@ -19,7 +19,7 @@ from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
 from utils import Seek, User, VARIANTS, STARTED, AI_task
 
 
-async def make_app(loop):
+async def make_app(loop, reset_ratings=False):
     app = web.Application(loop=loop)
     setup(app, EncryptedCookieStorage(SECRET_KEY))
 
@@ -73,12 +73,15 @@ async def make_app(loop):
                     last_name=doc.get("last_name"),
                     country=doc.get("country"),
                     bot=doc.get("title") == "BOT",
-                    perfs=doc.get("perfs")
+                    perfs=None if reset_ratings else doc.get("perfs")
                 )
 
-        cursor = app["db"].highscore.find()
-        async for doc in cursor:
-            app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+        if reset_ratings:
+            await app["db"].highscore.drop()
+        else:
+            cursor = app["db"].highscore.find()
+            async for doc in cursor:
+                app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
         for variant in VARIANTS:
             if variant not in app["highscore"]:
@@ -148,13 +151,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyChess chess variants server')
     parser.add_argument('-v', action='store_true', help='Verbose output. Changes log level from INFO to DEBUG.')
     parser.add_argument('-w', action='store_true', help='Less verbose output. Changes log level from INFO to WARNING.')
+    parser.add_argument('-r', action='store_true', help='Reset all ratings.')
     args = parser.parse_args()
 
     logging.basicConfig()
     logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
     loop = asyncio.get_event_loop()
-    app = loop.run_until_complete(make_app(loop))
+    app = loop.run_until_complete(make_app(loop, reset_ratings=args.r))
 
     with aiomonitor.start_monitor(loop=loop, locals={"app": app}):
         web.run_app(app, port=os.environ.get("PORT", 8080))

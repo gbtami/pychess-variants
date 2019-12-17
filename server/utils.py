@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 
 gl2 = Glicko2()
 
+MAX_HIGH_SCORE = 10
 MAX_USER_SEEKS = 10
 MORE_TIME = 15 * 1000
 MOVE, ANALYSIS = 0, 1
@@ -604,7 +605,7 @@ class Game:
                 log.exception("ERROR: Exception in game.play_move()!")
                 raise
 
-    async def save_game(self):
+    async def save_game(self, analysis=False):
         self.stopwatch.kill()
 
         async def remove():
@@ -629,75 +630,84 @@ class Game:
         loop = asyncio.get_event_loop()
         self.tasks.add(loop.create_task(remove()))
 
-        if self.rated and self.result != "*":
-            if self.result == '1-0':
-                (white_score, black_score) = (1.0, 0.0)
-            elif self.result == '1/2-1/2':
-                (white_score, black_score) = (0.5, 0.5)
-            elif self.result == '0-1':
-                (white_score, black_score) = (0.0, 1.0)
-            else:
-                raise RuntimeError('game.result: unexpected result code')
-            wr, br = self.white_rating, self.black_rating
-            print("ratings before updated:", wr, br)
-            wr = await gl2.rate(self.white_rating, [(white_score, br)])
-            br = await gl2.rate(self.black_rating, [(black_score, wr)])
-            print("ratings after updated:", wr, br)
-            await self.wplayer.set_rating(self.variant, wr)
-            await self.bplayer.set_rating(self.variant, br)
-
         if self.ply < 3:
             result = await self.db.game.delete_one({"_id": self.id})
             log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
             self.print_game()
-            new_data = {
-                "d": self.date,
-                "f": self.board.fen,
-                "s": self.status,
-                "r": R2C[self.result],
-                'm': encode_moves(
-                    map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
-                    else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
-                    else self.board.move_stack)}
 
-            if self.rated and self.result != "*":
-                self.wrdiff = int(round(wr.mu - self.white_rating.mu, 0))
-                new_data["p0"] = {"e": self.wrating, "d": self.wrdiff}
+            if analysis:
+                new_data = {"a": [step["analysis"] for step in self.steps]}
+            else:
+                new_data = {
+                    "d": self.date,
+                    "f": self.board.fen,
+                    "s": self.status,
+                    "r": R2C[self.result],
+                    'm': encode_moves(
+                        map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
+                        else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
+                        else self.board.move_stack)}
 
-                self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
-                new_data["p1"] = {"e": self.brating, "d": self.brdiff}
-
-                highscore = self.get_highscore(self.variant)
-                if wr.mu > highscore:
-                    await self.set_highscore(self.variant, {self.wplayer.username: int(round(wr.mu, 0))})
-                elif br.mu > highscore:
-                    await self.set_highscore(self.variant, {self.bplayer.username: int(round(br.mu, 0))})
-
-            if "analysis" in self.steps[0]:
-                new_data["a"] = [step["analysis"] for step in self.steps]
+                if self.rated and self.result != "*":
+                    new_data["p0"] = self.p0
+                    new_data["p1"] = self.p1
 
             await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     def get_highscore(self, variant):
-        if len(self.highscore[variant]) > 0:
-            return self.highscore[variant].peekitem()[1]
+        len_hs = len(self.highscore[variant])
+        if len_hs > 0:
+            return (self.highscore[variant].peekitem()[1], len_hs)
         else:
-            return 0
+            return (0, 0)
 
     async def set_highscore(self, variant, value):
         self.highscore[variant].update(value)
-        if len(self.highscore[variant]) > 10:
+        if len(self.highscore[variant]) > MAX_HIGH_SCORE:
             self.highscore[variant].popitem()
 
         new_data = {"scores": {key: value for key, value in self.highscore[variant].items()}}
         await self.db.highscore.find_one_and_update({"_id": variant}, {"$set": new_data}, upsert=True)
+
+    async def update_ratings(self):
+        if self.result == '1-0':
+            (white_score, black_score) = (1.0, 0.0)
+        elif self.result == '1/2-1/2':
+            (white_score, black_score) = (0.5, 0.5)
+        elif self.result == '0-1':
+            (white_score, black_score) = (0.0, 1.0)
+        else:
+            raise RuntimeError('game.result: unexpected result code')
+        wr, br = self.white_rating, self.black_rating
+        print("ratings before updated:", wr, br)
+        wr = await gl2.rate(self.white_rating, [(white_score, br)])
+        br = await gl2.rate(self.black_rating, [(black_score, wr)])
+        print("ratings after updated:", wr, br)
+        await self.wplayer.set_rating(self.variant, wr)
+        await self.bplayer.set_rating(self.variant, br)
+
+        self.wrdiff = int(round(wr.mu - self.white_rating.mu, 0))
+        self.p0 = {"e": self.wrating, "d": self.wrdiff}
+
+        self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
+        self.p1 = {"e": self.brating, "d": self.brdiff}
+
+        highscore, len_hs = self.get_highscore(self.variant)
+        if wr.mu > highscore or len_hs < MAX_HIGH_SCORE:
+            await self.set_highscore(self.variant, {self.wplayer.username: int(round(wr.mu, 0))})
+        elif br.mu > highscore or len_hs < MAX_HIGH_SCORE:
+            await self.set_highscore(self.variant, {self.bplayer.username: int(round(br.mu, 0))})
 
     async def update_status(self, status=None, result=None):
         if status is not None:
             self.status = status
             if result is not None:
                 self.result = result
+
+            if self.rated and self.result != "*":
+                await self.update_ratings()
+
             await self.save_game()
             return
 
@@ -734,6 +744,9 @@ class Game:
             self.result = "1/2-1/2"
 
         if self.status > STARTED:
+            if self.rated and self.result != "*":
+                await self.update_ratings()
+
             await self.save_game()
 
     def set_dests(self):

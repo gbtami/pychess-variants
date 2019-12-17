@@ -151,7 +151,7 @@ async def fishnet_analysis(request):
     if all(data["analysis"]):
         del request.app["works"][work_id]
         game.saved = False
-        await game.save_game()
+        await game.save_game(analysis=True)
 
     response = await get_work(request, data)
     return response
