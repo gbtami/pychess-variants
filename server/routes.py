@@ -211,6 +211,8 @@ async def index(request):
 
     if view == "profile":
         template = request.app["jinja"].get_template("profile.html")
+    elif view == "players":
+        template = request.app["jinja"].get_template("players.html")
     else:
         template = request.app["jinja"].get_template("index.html")
 
@@ -236,6 +238,10 @@ async def index(request):
                 for (k, v) in sorted(users[profileId].perfs.items(), key=lambda x: x[1]["nb"], reverse=True)}
         if variant is not None:
             render["variant"] = variant
+
+    if view == "players":
+        render["icons"] = VARIANT_ICONS
+        render["highscore"] = request.app["highscore"]
 
     if gameId is not None:
         render["gameid"] = gameId

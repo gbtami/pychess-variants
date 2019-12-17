@@ -283,12 +283,13 @@ round-player {
   display: block;
   flex-direction: row;
   justify-content: center;
+  padding: 2px 6px;
 }
 player-title {
   color:GoldenRod;
 }
-i-variant {
-  font-size: 36px;
+.variant {
+  font-size: 18px;
 }
 i-side.online {
   margin-right: .4em;
@@ -363,6 +364,20 @@ swords {
   float: left;
 }
 
+.highscore {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+   grid-gap: 10px;
+   padding-left: 15px;
+}
+.card {
+  border: 1px solid #d3d3d3;
+  border-radius: .25rem;
+  background-color: White;
+}
+.card div.info0 {
+  background-color: PaleGoldenRod;
+}
 i {
   font-size: 18px;
 }

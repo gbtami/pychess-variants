@@ -63,7 +63,7 @@ export function view(el, model): VNode {
     case 'howtoplay':
         return h('iframe', {props: {src: model["home"] + "/static/docs/variants.html", height: "100%", width:"100%", seamless: ""}});
     case 'players':
-        return h('div#placeholder.players-wrapper', playersView(model));
+        return h('main.players', playersView(model));
     case 'level8win':
     case 'profile':
         return h('main.profile', profileView(model));

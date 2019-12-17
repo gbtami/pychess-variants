@@ -1,0 +1,26 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="players-wrapper">
+<div id="placeholder"></div>
+<aside class="sidebar-first">
+    <div class="highscore">
+        {% for key in highscore %}
+        <div class="card">
+            <div class="info0 icon" data-icon="{{ icons[key] }}">
+                <div class="variant">{{ key.upper() }}</div>
+            </div>
+            {% for user, score in highscore[key].items() %}
+                <div class="player-data">
+                    <player>
+                        <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title></player-title>{{ user }}</a>
+                        <rating>{{ score }}</rating>
+                    </player>
+                </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</aside>
+<aside class="sidebar-second"></aside>
+</div>
+{% endblock %}
