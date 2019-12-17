@@ -13,7 +13,7 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN
-from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANTS960, VARIANT_ICONS
+from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANTS960, VARIANT_ICONS, DEFAULT_PERF
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -149,8 +149,9 @@ async def index(request):
         if session_user in users:
             user = users[session_user]
         else:
-            # If server was restarted, we have to recreate users
-            user = User(db=db, username=session_user, anon=session["guest"])
+            # new lichess user appeared!
+            perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
+            user = User(db=db, username=session_user, anon=session["guest"], perfs=perfs)
             users[user.username] = user
         user.ping_counter = 0
     else:

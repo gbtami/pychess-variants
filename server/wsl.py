@@ -110,8 +110,11 @@ async def lobby_socket_handler(request):
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing lobby_user %s socket connected as %s." % (session_user, data["username"]))
                                 session_user = data["username"]
-                                user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
-                                users[user.username] = user
+                                if session_user in users:
+                                    user = users[session_user]
+                                else:
+                                    user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                    users[user.username] = user
                                 response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
                                 user = users[session_user]
@@ -119,8 +122,11 @@ async def lobby_socket_handler(request):
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
-                            user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
-                            users[user.username] = user
+                            if session_user in users:
+                                user = users[session_user]
+                            else:
+                                user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                users[user.username] = user
                             response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
 
                         user.ping_counter = 0

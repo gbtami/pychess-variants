@@ -25,6 +25,8 @@ from glicko2.glicko2 import Glicko2, PROVISIONAL_PHI
 log = logging.getLogger(__name__)
 
 gl2 = Glicko2()
+rating = gl2.create_rating()
+DEFAULT_PERF = {"gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma}, "la": datetime.utcnow(), "nb": 0}
 
 MAX_HIGH_SCORE = 10
 MAX_USER_SEEKS = 10
@@ -219,13 +221,9 @@ class User:
         self.bot_online = False
 
         if perfs is None:
-            self.perfs = {variant: self.default_perf() for variant in VARIANTS + VARIANTS960}
+            self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
         else:
-            self.perfs = {variant: perfs[variant] if variant in perfs else self.default_perf() for variant in VARIANTS + VARIANTS960}
-
-    def default_perf(self):
-        rating = gl2.create_rating()
-        return {"gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma}, "la": datetime.utcnow(), "nb": 0}
+            self.perfs = {variant: perfs[variant] if variant in perfs else DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
 
     @property
     def online(self):
@@ -241,7 +239,7 @@ class User:
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
         else:
             rating = gl2.create_rating()
-            self.perfs[variant + ("960" if chess960 else "")] = self.default_perf()
+            self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
             return rating
 
     async def set_rating(self, variant, chess960, rating):
