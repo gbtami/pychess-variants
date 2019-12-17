@@ -275,11 +275,12 @@ class LobbyController {
         h('button', { class: {'lobby-button': true}, on: {
             click: () => {
                 this.challengeAI = false;
-                if (this.model["anon"] !== 'True') {
-                    document.getElementById('game-mode')!.style.display='inline-flex';
-                } else {
-                    document.getElementById('game-mode')!.style.display='none';
-                }
+                //if (this.model["anon"] !== 'True') {
+                //    document.getElementById('game-mode')!.style.display='inline-flex';
+                //} else {
+                //    document.getElementById('game-mode')!.style.display='none';
+                //}
+                document.getElementById('game-mode')!.style.display='none';
                 document.getElementById('ailevel')!.style.display='none';
                 document.getElementById('id01')!.style.display='block';
                 }
