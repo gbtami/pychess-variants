@@ -709,7 +709,9 @@ class Game:
         highscore, len_hs = self.get_highscore(self.variant, self.chess960)
         if wr.mu > highscore or len_hs < MAX_HIGH_SCORE:
             await self.set_highscore(self.variant, self.chess960, {self.wplayer.username: int(round(wr.mu, 0))})
-        elif br.mu > highscore or len_hs < MAX_HIGH_SCORE:
+
+        highscore, len_hs = self.get_highscore(self.variant, self.chess960)
+        if br.mu > highscore or len_hs < MAX_HIGH_SCORE:
             await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     async def update_status(self, status=None, result=None):
