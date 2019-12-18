@@ -550,7 +550,7 @@ class Game:
             self.check = self.board.is_checked()
 
         self.steps = [{
-            "fen": self.initial_fen,
+            "fen": self.initial_fen if self.initial_fen else self.board.initial_fen,
             "san": None,
             "turnColor": "black" if self.board.color == BLACK else "white",
             "check": self.check}
