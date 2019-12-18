@@ -102,7 +102,7 @@ VARIANTS_TO_960 = {
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
-    "crazyhouse": "Crazyhouse",
+    "crazyhouse": "Crazyhouse",  # to let lichess import work
     "seirawan": "Seirawan960",
     "shogi": "shogi",
     "sittuyin": "sittuyin",
@@ -346,6 +346,7 @@ async def AI_task(ai, app):
             "game_id": gameId,  # optional
             "position": game.board.initial_fen,  # start position (X-FEN)
             "variant": game.variant,
+            "chess960": game.chess960,
             "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
         }
         app["works"][work_id] = work

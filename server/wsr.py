@@ -149,6 +149,7 @@ async def round_socket_handler(request):
                                 "game_id": data["gameId"],  # optional
                                 "position": game.board.initial_fen,  # start position (X-FEN)
                                 "variant": game.variant,
+                                "chess960": game.chess960,
                                 "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
                                 "nodes": 500000,  # optional limit
                                 #  "skipPositions": [1, 4, 5]  # 0 is the first position
