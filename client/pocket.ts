@@ -47,6 +47,7 @@ export function pocketView(ctrl: RoundController | AnalysisController, color: Co
 
 export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
+    if (ctrl.spectator) return;
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
     color = el.getAttribute('data-color') as cg.Color,
