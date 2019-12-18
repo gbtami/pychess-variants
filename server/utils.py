@@ -102,7 +102,7 @@ VARIANTS_TO_960 = {
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
-    "crazyhouse": "Crazyhouse960",
+    "crazyhouse": "Crazyhouse",
     "seirawan": "Seirawan960",
     "shogi": "shogi",
     "sittuyin": "sittuyin",
