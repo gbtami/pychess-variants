@@ -392,8 +392,10 @@ export default class AnalysisController {
                 console.log(pv_move, ceval["m"]);
                 if (pv_move.slice(1, 2) === '@') {
                     const d = pv_move.slice(2, 4);
+                    var color = step.turnColor;
+                    if (this.flip && this.variant.endsWith('shogi')) color = (color === 'white') ? 'balck' : 'white';
                     shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
-                        color: step.turnColor,
+                        color: color,
                         role: sanToRole[pv_move.slice(0, 1)]
                         }},
                         { orig: d, brush: 'paleGreen'}

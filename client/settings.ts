@@ -15,6 +15,7 @@ import { pocketView } from './pocket';
 import { player } from './player';
 import { analysisChart } from './chart';
 import AnalysisController from './analysisCtrl';
+import RoundController from './roundCtrl';
 
 // TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
 
@@ -64,7 +65,7 @@ function setBoard (CSSindexesB, variant, color) {
     changeCSS('/static/' + VARIANTS[variant].BoardCSS[idx] + '.css');
 }
 
-function setPieces (ctrl, color) {
+function setPieces (ctrl, color, flip: boolean = false) {
     const CSSindexesP = ctrl.CSSindexesP, variant = ctrl.variant, chessground = ctrl.chessground;
     var idx = CSSindexesP[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].PieceCSS.length - 1);
@@ -81,14 +82,19 @@ function setPieces (ctrl, color) {
     // For drop moves we also want to draw the dropped piece
     if (ctrl.hasPockets) {
         const baseurl = VARIANTS[variant].baseURL[idx] + '/';
-        console.log("--- baseurl", baseurl);
+        // console.log("--- baseurl", baseurl);
+        console.log("A autoShapes:", chessground.state.drawable.autoShapes);
+        var shapes0 = chessground.state.drawable.autoShapes;
+        if (flip && variant.endsWith('shogi') && chessground.state.drawable.autoShapes[0].piece !== undefined) {
+            shapes0[0].piece.color = (shapes0[0].piece.color === 'white') ? 'balck' : 'white';
+        }
         chessground.set({
             drawable: {
-                pieces: {
-                    baseUrl: ctrl.model['home'] + '/static/images/pieces/' + baseurl
-                }
+                pieces: {baseUrl: ctrl.model['home'] + '/static/images/pieces/' + baseurl},
+                autoShapes: shapes0,
             }
         });
+        console.log("B autoShapes:", chessground.state.drawable.autoShapes);
     }
 }
 
@@ -120,7 +126,7 @@ export function toggleOrientation (ctrl) {
 
     if (ctrl.variant.endsWith('shogi')) {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
-        setPieces(ctrl, color);
+        setPieces(ctrl, color, true);
     };
     
     console.log("FLIP");
@@ -133,18 +139,20 @@ export function toggleOrientation (ctrl) {
     }
 
     // TODO: moretime button
-    const new_running_clck = (ctrl.clocks[0].running) ? ctrl.clocks[1] : ctrl.clocks[0];
-    ctrl.clocks[0].pause(false);
-    ctrl.clocks[1].pause(false);
+    if (ctrl instanceof RoundController) {
+        const new_running_clck = (ctrl.clocks[0].running) ? ctrl.clocks[1] : ctrl.clocks[0];
+        ctrl.clocks[0].pause(false);
+        ctrl.clocks[1].pause(false);
 
-    const tmp_clock = ctrl.clocks[0];
-    const tmp_clock_time = tmp_clock.duration;
-    ctrl.clocks[0].setTime(ctrl.clocks[1].duration);
-    ctrl.clocks[1].setTime(tmp_clock_time);
-    if (ctrl.status < 0) new_running_clck.start();
+        const tmp_clock = ctrl.clocks[0];
+        const tmp_clock_time = tmp_clock.duration;
+        ctrl.clocks[0].setTime(ctrl.clocks[1].duration);
+        ctrl.clocks[1].setTime(tmp_clock_time);
+        if (ctrl.status < 0) new_running_clck.start();
 
-    ctrl.vplayer0 = patch(ctrl.vplayer0, player('player0', ctrl.titles[ctrl.flip ? 1 : 0], ctrl.players[ctrl.flip ? 1 : 0], ctrl.ratings[ctrl.flip ? 1 : 0], ctrl.model["level"]));
-    ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.ratings[ctrl.flip ? 0 : 1], ctrl.model["level"]));
+        ctrl.vplayer0 = patch(ctrl.vplayer0, player('player0', ctrl.titles[ctrl.flip ? 1 : 0], ctrl.players[ctrl.flip ? 1 : 0], ctrl.ratings[ctrl.flip ? 1 : 0], ctrl.model["level"]));
+        ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.ratings[ctrl.flip ? 0 : 1], ctrl.model["level"]));
+    }
 }
 
 export function gearButton (ctrl) {
