@@ -12,7 +12,6 @@ import h from 'snabbdom/h';
 import { dimensions } from 'chessgroundx/types';
 import { variants, VARIANTS } from './chess';
 import { pocketView } from './pocket';
-import { needPockets } from './chess';
 import { player } from './player';
 import { analysisChart } from './chart';
 import AnalysisController from './analysisCtrl';
@@ -80,7 +79,7 @@ function setPieces (ctrl, color) {
     console.log("--- setPieces()");
     // We use paleGreen arrows and circles for analysis PV suggestions
     // For drop moves we also want to draw the dropped piece
-    if (needPockets(ctrl.variant)) {
+    if (ctrl.hasPockets) {
         const baseurl = VARIANTS[variant].baseURL[idx] + '/';
         console.log("--- baseurl", baseurl);
         chessground.set({
@@ -102,7 +101,7 @@ function setZoom (ctrl, zoom: number) {
         const pxh = `${zoom / 100 * baseHeight}px`;
         el.style.width = pxw;
         el.style.height = pxh;
-        var pxp = (needPockets(ctrl.variant)) ? '132px;' : '0px;';
+        var pxp = (ctrl.hasPockets) ? '132px;' : '0px;';
         document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp + '; --PVheight: 0px;');
 
         document.body.dispatchEvent(new Event('chessground.resize'));
@@ -125,7 +124,7 @@ export function toggleOrientation (ctrl) {
     };
     
     console.log("FLIP");
-    if (needPockets(ctrl.variant)) {
+    if (ctrl.hasPockets) {
         const tmp_pocket = ctrl.pockets[0];
         ctrl.pockets[0] = ctrl.pockets[1];
         ctrl.pockets[1] = tmp_pocket;

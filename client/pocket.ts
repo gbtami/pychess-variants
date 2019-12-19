@@ -9,7 +9,7 @@ import { dragNewPiece } from 'chessgroundx/drag';
 import { Color } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import { roleToSan, needPockets, pocketRoles, lc } from './chess';
+import { roleToSan, pocketRoles, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 
@@ -94,7 +94,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
 export function updatePockets(ctrl: RoundController | AnalysisController, vpocket0, vpocket1): void {
     // update pockets from fen
-    if (needPockets(ctrl.variant)) {
+    if (ctrl.hasPockets) {
         const parts = ctrl.fullfen.split(" ");
         const fen_placement = parts[0];
         var pockets = "";

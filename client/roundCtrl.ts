@@ -18,7 +18,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS } from './chess';
+import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, getPockets } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -46,6 +46,7 @@ export default class RoundController {
     abortable: boolean;
     gameId: string;
     variant: string;
+    hasPockets: boolean;
     pockets: any;
     vpocket0: any;
     vpocket1: any;
@@ -129,6 +130,7 @@ export default class RoundController {
         this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
+        this.hasPockets = needPockets(this.variant);
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -239,7 +241,7 @@ export default class RoundController {
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
 
         // initialize pockets
-        if (needPockets(this.variant)) {
+        if (this.hasPockets) {
             const pocket0 = document.getElementById('pocket0') as HTMLElement;
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
             updatePockets(this, pocket0, pocket1);
@@ -419,6 +421,8 @@ export default class RoundController {
     private onMsgBoard = (msg) => {
         if (msg.gameId !== this.model["gameId"]) return;
 
+        const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
+
         // console.log("got board msg:", msg);
         this.ply = msg.ply
         this.fullfen = msg.fen;
@@ -502,7 +506,7 @@ export default class RoundController {
                 check: msg.check,
                 lastMove: lastMove,
             });
-            updatePockets(this, this.vpocket0, this.vpocket1);
+            if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             this.clocks[oppclock].setTime(clocks[this.oppcolor]);
@@ -527,7 +531,7 @@ export default class RoundController {
                     check: msg.check,
                     lastMove: lastMove,
                 });
-                updatePockets(this, this.vpocket0, this.vpocket1);
+                if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
                 this.clocks[oppclock].pause(false);
                 this.clocks[oppclock].setTime(clocks[this.oppcolor]);
                 this.clocks[myclock].setTime(clocks[this.mycolor]);

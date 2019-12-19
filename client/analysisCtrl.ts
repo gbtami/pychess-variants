@@ -17,7 +17,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, sanToRole } from './chess';
+import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, sanToRole, getPockets } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -58,6 +58,7 @@ export default class AnalysisController {
     turnColor: Color;
     gameId: string;
     variant: string;
+    hasPockets: boolean;
     pockets: any;
     vpocket0: any;
     vpocket1: any;
@@ -130,6 +131,7 @@ export default class AnalysisController {
         this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
+        this.hasPockets = needPockets(this.variant);
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -210,7 +212,7 @@ export default class AnalysisController {
         this.promotion = makePromotion(this);
 
         // initialize pockets
-        if (needPockets(this.variant)) {
+        if (this.hasPockets) {
             const pocket0 = document.getElementById('pocket0') as HTMLElement;
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
             updatePockets(this, pocket0, pocket1);
@@ -279,6 +281,8 @@ export default class AnalysisController {
 
     private onMsgBoard = (msg) => {
         if (msg.gameId !== this.model["gameId"]) return;
+
+        const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
         this.ply = msg.ply
@@ -363,7 +367,7 @@ export default class AnalysisController {
                 check: msg.check,
                 lastMove: lastMove,
             });
-            updatePockets(this, this.vpocket0, this.vpocket1);
+            if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
         };
     }
 

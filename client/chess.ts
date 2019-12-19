@@ -26,6 +26,16 @@ export const VARIANTS = {
     shako: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "board10x10", BoardCSS: ["10x10brown", "10x10blue", "10x10green", "10x10maple", "10x10olive"], pieces: "shako", PieceCSS: ["shako0"], icon: "9" },
 }
 
+export function getPockets(fen: string) {
+    const fen_placement = fen.split(" ")[0];
+    var pockets = "";
+    const bracketPos = fen_placement.indexOf("[");
+    if (bracketPos !== -1) {
+        pockets = fen_placement.slice(bracketPos);
+    }
+    return pockets;
+}
+
 export function pocketRoles(variant: string) {
     switch (variant) {
     case "sittuyin":
