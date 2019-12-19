@@ -51,7 +51,7 @@ iframe {
 }
 
 main {
-  margin-top:15px;
+  margin-top:30px;
   display: grid;
   grid-template-columns: auto auto;
 }
@@ -60,13 +60,13 @@ main.profile, main.players {
 }
 
 .sidebar-first{
-  margin-top: 15px;
+  margin-top: 30px;
   display: flex;
   flex-flow: column nowrap;
   justify-content: right;
 }
 .sidebar-second{
-  margin-top: 15px;
+  margin-top: 30px;
   flex:1;
   display: flex;
   flex-flow: column nowrap;
