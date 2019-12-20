@@ -16,7 +16,7 @@ from sortedcollections import ValueSortedDict
 
 from routes import get_routes, post_routes
 from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
-from utils import Seek, User, VARIANTS, VARIANTS960, STARTED, AI_task
+from utils import Seek, User, VARIANTS, VARIANTS960, STARTED, AI_task, DEFAULT_PERF
 
 
 async def make_app(loop, reset_ratings=False):
@@ -65,6 +65,10 @@ async def make_app(loop, reset_ratings=False):
     try:
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
+                perfs = doc.get("perfs")
+                if perfs is None or reset_ratings:
+                    perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
+
                 app["users"][doc["_id"]] = User(
                     db=app["db"],
                     username=doc["_id"],
@@ -73,7 +77,7 @@ async def make_app(loop, reset_ratings=False):
                     last_name=doc.get("last_name"),
                     country=doc.get("country"),
                     bot=doc.get("title") == "BOT",
-                    perfs=None if reset_ratings else doc.get("perfs")
+                    perfs=perfs
                 )
 
         if reset_ratings:
@@ -88,7 +92,8 @@ async def make_app(loop, reset_ratings=False):
                 app["highscore"][variant] = ValueSortedDict(neg)
 
     except Exception:
-        print("No mongodb!")
+        print("Maybe mongodb is not running...")
+        raise
 
     app.on_shutdown.append(shutdown)
 

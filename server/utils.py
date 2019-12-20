@@ -24,6 +24,11 @@ from glicko2.glicko2 import Glicko2, PROVISIONAL_PHI
 
 log = logging.getLogger(__name__)
 
+
+class MissingRatingsException(Exception):
+    pass
+
+
 gl2 = Glicko2()
 rating = gl2.create_rating()
 DEFAULT_PERF = {"gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma}, "la": datetime.utcnow(), "nb": 0}
@@ -221,6 +226,8 @@ class User:
         self.bot_online = False
 
         if perfs is None:
+            if (not anon) and (not bot):
+                raise MissingRatingsException(username)
             self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
         else:
             self.perfs = {variant: perfs[variant] if variant in perfs else DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
@@ -957,7 +964,9 @@ async def draw(games, data, agreement=False):
     if game.is_claimable_draw or agreement:
         result = "1/2-1/2"
         await game.update_status(DRAW, result)
-        return {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn}
+        return {
+            "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn,
+            "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else ""}
     else:
         response = {"type": "offer", "message": "Draw offer sent", "room": "player", "user": ""}
         game.messages.append(response)

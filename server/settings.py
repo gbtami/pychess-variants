@@ -12,8 +12,9 @@ REDIRECT_PATH = "/oauth"  # path of oauth callback in app
 # lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth
 REDIRECT_URI = URI + REDIRECT_PATH
 
-# lichess token for local dev user login
-DEV_TOKEN = os.getenv("DEV_TOKEN")
+# lichess tokens for local dev users login
+DEV_TOKEN1 = os.getenv("DEV_TOKEN1")
+DEV_TOKEN2 = os.getenv("DEV_TOKEN2")
 
 # client app id and secret from lichess.org
 CLIENT_ID = os.getenv("CLIENT_ID")

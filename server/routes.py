@@ -12,7 +12,7 @@ import aioauth_client
 import aiohttp_session
 from aiohttp_sse import sse_response
 
-from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN
+from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
 from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANTS960, VARIANT_ICONS, DEFAULT_PERF
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
@@ -79,8 +79,12 @@ async def login(request):
     # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
 
-    if DEV_TOKEN:
-        session["token"] = DEV_TOKEN
+    if DEV_TOKEN1 and DEV_TOKEN2:
+        if "dev_token" in request.app:
+            session["token"] = DEV_TOKEN2
+        else:
+            session["token"] = DEV_TOKEN1
+        request.app["dev_token"] = True
 
     if "token" not in session:
         raise web.HTTPFound(REDIRECT_PATH)
@@ -149,7 +153,7 @@ async def index(request):
         if session_user in users:
             user = users[session_user]
         else:
-            # new lichess user appeared!
+            log.debug("New lichess user appeared!", session_user)
             perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
             user = User(db=db, username=session_user, anon=session["guest"], perfs=perfs)
             users[user.username] = user
