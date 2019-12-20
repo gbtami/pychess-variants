@@ -29,6 +29,7 @@ async def make_app(loop, reset_ratings=False):
     app["users"] = {
         "Random-Mover": User(db=app["db"], bot=True, username="Random-Mover"),
         "Fairy-Stockfish": User(db=app["db"], bot=True, username="Fairy-Stockfish"),
+        "Discord-Relay": User(db=app["db"], bot=True, username="Discord-Relay"),
     }
     app["users"]["Random-Mover"].bot_online = True
     app["websockets"] = {}
