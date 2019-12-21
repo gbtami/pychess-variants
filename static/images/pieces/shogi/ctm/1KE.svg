@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,9 +41,9 @@
      id="namedview2854"
      showgrid="false"
      showguides="false"
-     inkscape:zoom="44.500587"
-     inkscape:cx="31.41251"
-     inkscape:cy="11.022137"
+     inkscape:zoom="22.250294"
+     inkscape:cx="26.368963"
+     inkscape:cy="11.882001"
      inkscape:window-x="953"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -97,7 +97,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
        id="path3403" />
   </g>
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.986;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 34.394239,52.021366 c -3.249318,-2.825051 -4.429712,-6.149174 -5.645761,-9.44661 -0.02642,3.53438 -0.431539,7.397993 2.543105,10.369242 z"
      id="path4436-9"
      inkscape:connector-curvature="0"
@@ -107,5 +107,5 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
      inkscape:connector-curvature="0"
      id="path12173"
      d="m 17.649763,51.819121 c 3.249318,-2.82505 4.429712,-6.081758 5.645761,-9.379194 0.02642,3.53438 0.498954,7.35305 -2.47569,10.324298 z"
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="opacity:0.986;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
 </svg>

@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,9 +41,9 @@
      id="namedview4164"
      showgrid="false"
      inkscape:zoom="7.8666667"
-     inkscape:cx="-4.4298517"
+     inkscape:cx="-25.595106"
      inkscape:cy="43.233822"
-     inkscape:window-x="-8"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg4162" />
@@ -97,7 +97,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_fuh
        sodipodi:nodetypes="cssccccscsccsssscsccscscscsscscccsccccccccccsccccscccscccccccccccc" />
   </g>
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.923;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 24.74954,50.4281 -2.501917,-0.728636 2.279489,-4.110481 2.438387,4.232147 z"
      id="path4436"
      inkscape:connector-curvature="0"

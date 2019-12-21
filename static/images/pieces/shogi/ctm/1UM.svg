@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,10 +40,10 @@
      inkscape:window-height="1017"
      id="namedview5869"
      showgrid="false"
-     inkscape:zoom="5.5625735"
-     inkscape:cx="-59.772796"
-     inkscape:cy="63.348091"
-     inkscape:window-x="1912"
+     inkscape:zoom="11.125147"
+     inkscape:cx="29.14167"
+     inkscape:cy="23.081779"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg5867" />
@@ -87,7 +87,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_his
     </g>
   </g>
   <path
-     style="opacity:0.74800002;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.983;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="M 45.541523,9.85373 46.155,5.8779998 42.636869,5.8477598 12.86006,48.359056 13.238,50.417 l 2.586081,0.822538 z"
      id="path7520"
      inkscape:connector-curvature="0"
@@ -97,13 +97,13 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_his
      inkscape:connector-curvature="0"
      id="path10009"
      d="M 7.1572302,9.9692322 6.61,5.942 9.6015458,5.9446463 39.31094,48.366056 38.933,50.424 36.28336,51.151199 Z"
-     style="opacity:0.74800002;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="opacity:0.983;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
   <path
      sodipodi:nodetypes="cccc"
      inkscape:connector-curvature="0"
      id="path6283"
      d="M 11.185865,37.197159 8.9985487,21.890243 14.856103,30.856661 Z"
-     style="opacity:0.752;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="opacity:0.983;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
   <g
      aria-label="馬"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.66666603px;line-height:1.25;font-family:KaiTi;-inkscape-font-specification:KaiTi;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
@@ -117,19 +117,19 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_his
        sodipodi:nodetypes="cccccccsccccccccsccccsccscccccccscccccsccccscccccccscsscccccccscccccccccscccccscccscsccccscccscssccscsccccsscscccccc" />
   </g>
   <path
-     style="opacity:0.752;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.983;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 26.073,54.017 2.602463,-0.729737 -2.630191,-4.708755 -2.534209,4.7473 z"
      id="path4436"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.752;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.983;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 41.056535,36.740929 2.13204,-12.322412 -5.681493,6.327416 z"
      id="path4436-9-3"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="cccc" />
   <path
-     style="opacity:0.752;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.983;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 29.135611,5.9259225 -6.217666,-0.04277 3.319123,5.4053145 z"
      id="path4436-9-3-9"
      inkscape:connector-curvature="0"

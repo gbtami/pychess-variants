@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,9 +41,9 @@
      id="namedview2227"
      showgrid="false"
      inkscape:zoom="7.8666667"
-     inkscape:cx="-11.101644"
-     inkscape:cy="6.0303194"
-     inkscape:window-x="-8"
+     inkscape:cx="-32.266898"
+     inkscape:cy="16.199811"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2225" />
@@ -75,27 +75,27 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
      transform="translate(5 5)"
      id="g2223"
      filter="url(#drop-shadow)"
-     style="fill:#ffe680">
+     style="fill:#ffeda5;fill-opacity:1">
     <path
        d="M7.635 4.498l-6.729 44.856 40.488 -0.236 -6.846 -44.502 -14.047 -3.895z"
        id="path2207"
        fill="#FEEC99"
-       style="fill:#ffe680" />
+       style="fill:#ffeda5;fill-opacity:1" />
   </g>
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 25.501,5.721 -2.697802,0.698956 2.72553,4.740535 2.534209,-4.747299 z"
      id="path4436"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 12.635,9.498 -0.448178,2.919577 4.566257,1.536028 -1.617639,-5.080654 z"
      id="path4436-9"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 39.548,9.616 0.44818,2.919577 -4.56626,1.536028 1.64266,-5.155701 z"
      id="path4436-9-4"
      inkscape:connector-curvature="0"
@@ -105,15 +105,15 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
      inkscape:connector-curvature="0"
      id="path6283"
      d="m 42.226923,26.576369 0.73371,5.09164 -5.70085,-2.121884 z"
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 10.104037,26.307572 -0.7086954,5.116656 5.6758314,-2.1469 z"
      id="path4436-9-3"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="cccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 23.581422,54.168515 5.137157,0.04277 -2.810648,-5.341756 z"
      id="path4436-9-3-9"
      inkscape:connector-curvature="0"

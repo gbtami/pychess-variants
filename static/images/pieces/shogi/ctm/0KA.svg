@@ -43,9 +43,9 @@
      inkscape:window-height="1017"
      id="namedview5252"
      showgrid="false"
-     inkscape:zoom="1.3906433"
-     inkscape:cx="-196.51508"
-     inkscape:cy="180.72295"
+     inkscape:zoom="7.8666665"
+     inkscape:cx="2.6470045"
+     inkscape:cy="8.2903397"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -78,16 +78,16 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_his
      filter="url(#drop-shadow)"
      transform="translate(5 5)"
      id="g5248"
-     style="fill:#ffd5f6">
+     style="fill:#ffcdf4;fill-opacity:1">
     <path
        d="M 18.495,1.628 C 15.039,2.557 11.518,3.326 8.168,4.576 L 0.946,49.122 40.856466,49.12156 33.863,4.583 21.028,0.983 Z"
        id="path5232"
-       style="fill:#ffb9f0;fill-opacity:1"
+       style="fill:#ffcdf4;fill-opacity:1"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccc" />
   </g>
   <path
-     style="opacity:0.748;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.92;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="M 6.5594775,50.14627 5.946,54.122 9.4641312,54.152239 39.24094,11.640944 38.863,9.583 36.276919,8.7604617 Z"
      id="path7520"
      inkscape:connector-curvature="0"
@@ -97,7 +97,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_his
      inkscape:connector-curvature="0"
      id="path10009"
      d="m 45.280844,50.075711 0.575622,4.045849 -3.289597,0.02368 L 12.79006,11.633944 13.168,9.576 15.754081,8.7534617 Z"
-     style="opacity:0.748;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="opacity:0.92;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
   <g
      transform="translate(0.30693164,-0.70317427)"
      aria-label="角"

@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -36,17 +36,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="958"
-     inkscape:window-height="1008"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
      id="namedview875"
      showgrid="false"
      inkscape:snap-nodes="false"
-     inkscape:zoom="1.249222"
-     inkscape:cx="-10.522858"
-     inkscape:cy="213.49417"
-     inkscape:window-x="2873"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
+     inkscape:zoom="2.498444"
+     inkscape:cx="-96.611678"
+     inkscape:cy="28.625894"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg873" />
   <!--
 Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
@@ -76,19 +76,19 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kin
      filter="url(#drop-shadow)"
      transform="translate(5 5)"
      id="g871"
-     style="fill:#ffd42a">
+     style="fill:#ffdc51;fill-opacity:1">
     <path
        d="M20.942 0.777l13.51 3.76 6.878 45.133 -40.296 -0.48 6.358 -44.815z"
        fill="#FEEC99"
        id="path855"
-       style="fill:#ffd42a" />
+       style="fill:#ffdc51;fill-opacity:1" />
   </g>
   <path
      sodipodi:nodetypes="cccc"
      inkscape:connector-curvature="0"
      id="path6283"
      d="m 42.102475,26.339659 0.68368,5.09164 -5.650815,-2.121884 z"
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
   <g
      aria-label="金"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.66666603px;line-height:1.25;font-family:KaiTi;-inkscape-font-specification:KaiTi;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -102,31 +102,31 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kin
        sodipodi:nodetypes="ccccccccccccccccscccccccsccsccccccscccccccccssccccsccssccccccccccsccccccsccscccsccccccscccscs" />
   </g>
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 25.916226,5.7978578 -2.697802,0.698957 2.72553,4.7405342 2.534209,-4.7472992 z"
      id="path4436"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 12.401604,9.3604804 -0.448178,2.9195776 4.566257,1.536028 -1.617639,-5.0806546 z"
      id="path4436-9"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 39.461604,9.5224804 0.448178,2.9195776 -4.566257,1.536028 1.642655,-5.1557006 z"
      id="path4436-9-4"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 10.043153,26.070862 -0.6836796,5.09164 5.6508156,-2.121884 z"
      id="path4436-9-3"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="cccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 23.772055,54.37672 5.137157,0.04277 -2.810648,-5.341756 z"
      id="path4436-9-3-9"
      inkscape:connector-curvature="0"

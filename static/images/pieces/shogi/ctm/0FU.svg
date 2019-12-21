@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,9 +40,9 @@
      inkscape:window-height="1008"
      id="namedview3523"
      showgrid="false"
-     inkscape:zoom="7.8666667"
-     inkscape:cx="20.567037"
-     inkscape:cy="29.348062"
+     inkscape:zoom="3.9333334"
+     inkscape:cx="25.564994"
+     inkscape:cy="69.412639"
      inkscape:window-x="2873"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -74,12 +74,13 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_fuh
   <g
      filter="url(#drop-shadow)"
      transform="translate(7 8) scale(0.86)"
-     id="g3519">
+     id="g3519"
+     style="fill:#ffeda5;fill-opacity:1">
     <path
        d="M7.507 4.392l-6.744 44.72 40.64 0.178 -7.454 -44.898 -12.6 -3.727z"
        fill="#FEEC99"
        id="path3503"
-       style="fill:#ffe680" />
+       style="fill:#ffeda5;fill-opacity:1" />
   </g>
   <g
      aria-label="歩"
@@ -94,7 +95,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_fuh
        sodipodi:nodetypes="cssccccscsccsssscsccscscscsscscccsccccccccccsccccscccscccccccccccc" />
   </g>
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.944;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 25.36014,8.5719 -2.501917,0.6387494 2.279489,4.2003676 2.438387,-4.1872041 z"
      id="path4436"
      inkscape:connector-curvature="0"

@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,9 +40,9 @@
      inkscape:window-height="1017"
      id="namedview5869"
      showgrid="false"
-     inkscape:zoom="11.125147"
-     inkscape:cx="8.4483823"
-     inkscape:cy="29.439625"
+     inkscape:zoom="5.5625735"
+     inkscape:cx="5.3935686"
+     inkscape:cy="40.186986"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -87,13 +87,13 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_his
     </g>
   </g>
   <path
-     style="opacity:0.755;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.98;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 26.073,54.017 2.533,-0.77983 V 5.9505077 h -4.979576 l 0.01589,47.4393223 z"
      id="path7518"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="cccccc" />
   <path
-     style="opacity:0.755;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:1;fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 41.890242,32.269237 0.756323,-4.763982 -32.8371421,0.04494 0.7190911,4.853869 z"
      id="path7520"
      inkscape:connector-curvature="0"

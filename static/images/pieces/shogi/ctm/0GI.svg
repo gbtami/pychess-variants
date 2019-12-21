@@ -41,9 +41,9 @@
      id="namedview875"
      showgrid="false"
      inkscape:snap-nodes="true"
-     inkscape:zoom="2.498444"
-     inkscape:cx="49.121206"
-     inkscape:cy="82.731019"
+     inkscape:zoom="7.0666668"
+     inkscape:cx="15.024324"
+     inkscape:cy="29.894599"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -75,11 +75,12 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kin
   <g
      transform="translate(5 5)"
      id="g871"
-     filter="url(#drop-shadow)">
+     filter="url(#drop-shadow)"
+     style="fill:#ececec">
     <path
        d="m 20.942,0.777 13.51,3.76 6.878,45.133 H 1.034 L 7.392,4.375 Z"
        id="path855"
-       style="fill:#e6e6e6"
+       style="fill:#ececec"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
   </g>
@@ -95,31 +96,31 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kin
        inkscape:connector-curvature="0" />
   </g>
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.951;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 25.942,5.777 -2.697802,0.6989564 2.72553,4.7405346 2.534209,-4.747299 z"
      id="path4436"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.951;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 12.392,9.375 -0.448178,2.919577 4.566257,1.536028 -1.617639,-5.0806542 z"
      id="path4436-9"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.951;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 39.452,9.537 0.448178,2.919577 -4.566257,1.536028 1.642655,-5.1557007 z"
      id="path4436-9-4"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.951;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="M 6.5951163,50.354777 6.034,54.67 9.7554923,54.675375 11.867382,48.1123 Z"
      id="path4436-9-5"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.951;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="M 45.718853,50.672176 46.33,54.67 42.758601,54.61754 40.496618,48.5923 Z"
      id="path4436-9-5-1"
      inkscape:connector-curvature="0"

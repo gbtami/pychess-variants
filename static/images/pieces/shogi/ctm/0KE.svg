@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,9 +40,9 @@
      inkscape:window-height="1017"
      id="namedview2227"
      showgrid="false"
-     inkscape:zoom="1.3906434"
-     inkscape:cx="-355.40159"
-     inkscape:cy="6.8715115"
+     inkscape:zoom="2.7812868"
+     inkscape:cx="-130.06128"
+     inkscape:cy="97.743607"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -74,12 +74,13 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
   <g
      filter="url(#drop-shadow)"
      transform="translate(5 5)"
-     id="g2223">
+     id="g2223"
+     style="fill:#ffeda5;fill-opacity:1">
     <path
        d="M7.635 4.498l-6.729 44.856 40.488 -0.236 -6.846 -44.502 -14.047 -3.895z"
        fill="#FEEC99"
        id="path2207"
-       style="fill:#ffe680" />
+       style="fill:#ffeda5;fill-opacity:1" />
   </g>
   <g
      aria-label="桂"
@@ -93,7 +94,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
        inkscape:connector-curvature="0" />
   </g>
   <path
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="opacity:0.969;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 17.675502,8.0657952 c 3.249318,2.8250508 4.429712,6.0817588 5.645761,9.3791948 0.02642,-3.53438 0.498954,-7.35305 -2.47569,-10.3242989 z"
      id="path4436-9"
      inkscape:connector-curvature="0"
@@ -103,5 +104,5 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
      inkscape:connector-curvature="0"
      id="path12173"
      d="m 34.419978,8.2006249 c -3.249318,2.8250501 -4.429712,6.0817581 -5.645761,9.3791941 -0.02642,-3.53438 -0.498954,-7.35305 2.47569,-10.3242982 z"
-     style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="opacity:0.969;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
 </svg>

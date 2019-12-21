@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,8 +41,8 @@
      id="namedview2227"
      showgrid="false"
      inkscape:zoom="0.98333334"
-     inkscape:cx="-40.157377"
-     inkscape:cy="237.51183"
+     inkscape:cx="-31.778996"
+     inkscape:cy="203.1599"
      inkscape:window-x="2873"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -81,7 +81,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_kei
        id="path2207" />
   </g>
   <path
-     style="fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.909"
+     style="fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:1"
      d="m 25.501,5.721 -2.849613,0.8864458 -0.08989,15.8200162 5.84262,-2.516821 0,-13.3930817 z"
      id="path12754"
      inkscape:connector-curvature="0"

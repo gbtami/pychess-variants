@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,9 +41,9 @@
      id="namedview15866"
      showgrid="false"
      showguides="false"
-     inkscape:zoom="5.5625733"
-     inkscape:cx="64.856805"
-     inkscape:cy="41.944669"
+     inkscape:zoom="7.8666666"
+     inkscape:cx="31.593141"
+     inkscape:cy="31.765531"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -80,7 +80,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_tok
        d="M7.696 4.672l-7.022 44.765 40.376 -0.25 -6.646 -44.64 -13.417 -4.139z"
        fill="#FEEC99"
        id="path15846"
-       style="fill:#ffe680" />
+       style="fill:#ffeda5;fill-opacity:1" />
     <path
        d="M20.839 39.032C18.172 37.624 17.016 35.492 17.014 31.976 17.013 30.298 17.345 28.452 17.81 27.553 18.495 26.228 18.518 25.733 17.97 24.071 17.489 22.616 17.454 21.382 17.828 19.118 18.255 16.538 18.198 15.848 17.428 14.341 16.318 12.164 16.616 11.776 18.386 13.089 20.412 14.593 21.158 17.322 20.526 20.92 20.241 22.54 20.097 23.955 20.206 24.063 20.313 24.171 20.966 23.889 21.657 23.437 23.142 22.464 25.133 22.617 25.343 23.719 25.438 24.219 24.599 24.984 23 25.854 19.837 27.575 18.998 28.795 18.998 31.672 18.998 34.536 20.35 36.43 22.711 36.872 24.557 37.219 26.236 38.708 25.721 39.542 25.212 40.365 22.909 40.124 20.839 39.032Z"
        fill="#fecfcf"
@@ -110,19 +110,19 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_tok
        fill="#fe0505"
        id="path15860" />
     <path
-       style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 20.987,0.408 18.379084,1.1518992 21.014728,5.847491 23.548937,1.100192 Z"
        id="path4436"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
     <path
-       style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 7.696,4.672 7.247822,7.591577 11.814079,9.127605 10.151497,3.9570645 Z"
        id="path4436-9"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
     <path
-       style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 34.404,4.547 0.44818,2.919577 -4.56626,1.536028 1.579101,-5.25104 z"
        id="path4436-9-4"
        inkscape:connector-curvature="0"
@@ -132,15 +132,15 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_tok
        inkscape:connector-curvature="0"
        id="path6283"
        d="m 36.840386,20.718598 0.765489,5.186979 -5.66907,-2.121884 z"
-       style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <path
-       style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 5.0243921,21.507563 -0.7722553,5.053097 5.675832,-2.1469 z"
        id="path4436-9-3"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
     <path
-       style="opacity:0.75899999;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="opacity:1;fill:#d38d5f;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 18.293421,49.304947 5.137157,0.04277 -2.810648,-5.341756 z"
        id="path4436-9-3-9"
        inkscape:connector-curvature="0"
