@@ -127,10 +127,10 @@ export function movelistView (ctrl) {
     }
 }
 
-export function updateMovelist (ctrl, plyFrom, plyTo) {
+export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) {
     var container = document.getElementById('movelist') as HTMLElement;
     const active = document.querySelector('li.move.active');
-    if (active) active.classList.remove('active');
+    if (active && activate) active.classList.remove('active');
 
     var moves: VNode[] = [];
     var ply, move, moveEl, el;
@@ -143,12 +143,12 @@ export function updateMovelist (ctrl, plyFrom, plyTo) {
         const scoreStr = (ctrl.steps[ply]['scoreStr'] === null) ? '' : ctrl.steps[ply]['scoreStr'];
         moveEl.push(h('eval#ply' + String(ply), scoreStr));
         const p = ply;
-        el = h('li.move', {class: {active: (ply === plyTo - 1)}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, p) }}, moveEl);
+        el = h('li.move', {class: {active: ((ply === plyTo - 1) && activate)}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, p) }}, moveEl);
         if (ply % 2 !== 0) {
             moves.push(h('li.move.counter', (ply + 1) / 2));
         }
         moves.push(el);
     }
     patch(container, h('ol.movelist#movelist', moves));
-    scrollToPly(ctrl);
+    if (activate) scrollToPly(ctrl);
 }

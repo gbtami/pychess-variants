@@ -262,16 +262,18 @@ export default class RoundController {
             chatMessage('', this.oppcolor + ' +15 seconds', "roundchat");
         }
 
-        var container = document.getElementById('clock0') as HTMLElement;
-        patch(container, h('div.clock-wrap#clock0', [
-            h('div.more-time', [
-                h('button.icon.icon-plus-square', {
-                    props: {type: "button", title: "Give 15 seconds"},
-                    on: {click: () => onMoreTime() }
-                })
+        if (!this.spectator) {
+            var container = document.getElementById('clock0') as HTMLElement;
+            patch(container, h('div.clock-wrap#clock0', [
+                h('div.more-time', [
+                    h('button.icon.icon-plus-square', {
+                        props: {type: "button", title: "Give 15 seconds"},
+                        on: {click: () => onMoreTime() }
+                    })
+                ])
             ])
-        ])
-        );
+            );
+        }
 
         const flagCallback = () => {
             if (this.turnColor === this.mycolor) {
@@ -424,7 +426,9 @@ export default class RoundController {
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
-        this.ply = msg.ply
+        const latestPly = (msg.ply === this.ply + 1);
+        if (latestPly) this.ply = msg.ply
+
         this.fullfen = msg.fen;
         this.dests = msg.dests;
         // list of legal promotion moves
@@ -453,7 +457,8 @@ export default class RoundController {
                     'san': msg.steps[0].san,
                     };
                 this.steps.push(step);
-                updateMovelist(this, this.steps.length - 1, this.steps.length);
+                const activate = !this.spectator || latestPly
+                updateMovelist(this, this.steps.length - 1, this.steps.length, activate);
             }
         }
 
@@ -500,13 +505,15 @@ export default class RoundController {
         const myclock = 1 - oppclock;
 
         if (this.spectator) {
-            this.chessground.set({
-                fen: parts[0],
-                turnColor: this.turnColor,
-                check: msg.check,
-                lastMove: lastMove,
-            });
-            if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+            if (latestPly) {
+                this.chessground.set({
+                    fen: parts[0],
+                    turnColor: this.turnColor,
+                    check: msg.check,
+                    lastMove: lastMove,
+                });
+                if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+            }
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             this.clocks[oppclock].setTime(clocks[this.oppcolor]);
