@@ -545,8 +545,7 @@ class Game:
                 self.initial_fen = start_fen
 
         self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
-        if self.chess960 and self.initial_fen == "":
-            self.initial_fen = self.board.initial_fen
+        self.initial_fen = self.board.initial_fen
 
         self.bot_game = self.bplayer.bot or self.wplayer.bot
         self.random_mover = self.wplayer.username == "Random-Mover" or self.bplayer.username == "Random-Mover"
