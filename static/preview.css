@@ -41,6 +41,9 @@ label.piece.piece2.shogi, label.piece.piece2.minishogi {
 label.piece.piece3.shogi, label.piece.piece3.minishogi {
   background-image: url('images/pieces/shogi/ctp/0KA.svg');
 }
+label.piece.piece4.shogi, label.piece.piece4.minishogi {
+  background-image: url('images/pieces/shogi/ctm/0KA.svg');
+}
 
 label.board.board0.minishogi {
   background-image: url('images/board/minishogi.svg');
