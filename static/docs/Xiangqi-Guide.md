@@ -147,10 +147,50 @@ E | 2.5
 
 ### Opening Principles
 
-The central cannon is by far one the most common opening, where either of the cannons is moved to the central position right behind the central pawn, which threatens the opponent’s central pawn. A common response to this is advancing either horse to protect the pawn. After that, the pawn on the same file of that horse can be advanced. This prevents the opposing pawn from advancing and consequently, keeping the horse blocked from its forward two squares.
+The following information is courtesy of [this site](http://www.shakki.info/english/openings.html)
 
-In this sense, it’s best to think of the role of the pawn (at least in the early game) as a gatekeeper for horses.
+The most common opening move is the central cannon, which is a pretty obvious move because it opens aggression down the central file. About 70% of games start this way, so it's probably the best way to start learning the game.
 
-Less common is advancing one of the elephants to the center instead, forming a much more defense position.
+![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonOpening.png)
 
-Like chess, development of the major pieces is very important, especially the chariot. A chariot advanced into the enemy side or even along the river is already a significant threat.
+There are four very popular defenses, and a fifth will also be mentioned.
+
+**1. Screen horses / Two horse defense**
+
+![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen%20Horses.png)
+
+This is the most common defense. The goal of course is to have both horses protecting the center pawn. There are multiple variations.
+
+**2. Fan Gong Ma / "Sandwich Horses"**
+
+One horse is developed as normal, but before the other is developed, the cannon moves into a "palcorner cannon" position (cannon at the same side palace corner), then finally moves the second horse into place. Black will later connect the elephants to complete the defense. It's a relatively new opening.
+
+![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan%20Gong%20Ma.png)
+
+**3. Same Direction Cannon**
+
+Black moves the cannon from the same side that red moved his. Red capturing the defenseless center pawn is considered a move by amateurs because it loses time and black gets the initiative.
+
+**4. Opposite Direction Cannon**
+
+Like the above, except the opposite cannon. The modern practice is to move the black cannon later though "Delayed Opposite Direction Cannon."
+
+**5. Three Step Tiger**
+
+![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three%20Step%20Tiger.png)
+
+Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
+
+Any other defenses are considered rare.
+
+Aside from the cannon opening, Red has other options as well. These are called "soft openings" because it doesn't open with an immediate threat.
+
+**Pawn Opening** - Advancing the 2nd or 4th pawn. This is a flexible opening allowing Red to adjust to Black's move. Black usually does not answer with the central cannon because Red could then play any of the central cannon openings with colors reversed and the pawn move would be an extra advantage.
+
+**Elephant Opening** - Advancing an elephant to the palace instead of a cannon. This is a solid defensive opening, where the king is protected.
+
+**Horse Opening** - Advancing a horse towards the middle. From there, Red can play the Two horse defence, Fan Gong Ma or Three Step Tiger openings with the colors reversed.
+
+Red can also play his cannon to the front corner of the palace ("Palcorner Cannon") or to the opposite corner ("Crosspalace Cannon"). These moves are also useful developing moves.  
+
+Other red opening moves lare very rare.
