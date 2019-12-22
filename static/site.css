@@ -112,6 +112,7 @@ a.nav-link:link, a.nav-link:visited {
     text-align: center;
     text-decoration: none;
     display: inline-block;
+    padding-right: 6px;
 }
 a.nav-link:hover, a.nav-link:active {
     background-color: LightSlateGray;
