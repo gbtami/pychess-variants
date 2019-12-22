@@ -122,7 +122,7 @@ export default class RoundController {
         this.tv = model["tv"];
         this.steps = [];
         this.pgn = "";
-        this.ply = 0;
+        this.ply = -1;
 
         this.flip = false;
         this.settings = true;
@@ -426,7 +426,7 @@ export default class RoundController {
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
-        const latestPly = (msg.ply === this.ply + 1);
+        const latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
         if (latestPly) this.ply = msg.ply
 
         this.fullfen = msg.fen;
