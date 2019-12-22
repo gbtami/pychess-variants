@@ -169,6 +169,9 @@ label.board.board1.makruk {
 label.piece.piece0.makruk {
   background-image: url('images/pieces/makruk/wK.svg');
 }
+label.piece.piece1.makruk {
+  background-image: url('images/pieces/sittuyin/wK.svg');
+}
 
 label.board.board0.sittuyin {
   background-image: url('images/board/sittuyin.svg');

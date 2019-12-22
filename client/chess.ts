@@ -5,8 +5,8 @@ export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyh
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
 export const VARIANTS = {
-    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: ["makrb1", "makrb2"], pieces: "makruk", PieceCSS: ["makruk"], icon: "Q"},
-    cambodian: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: ["makrb1", "makrb2"], pieces: "makruk", PieceCSS: ["makruk"], icon: "!"},
+    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: ["makrb1", "makrb2"], pieces: "makruk", PieceCSS: ["makruk", "makruks"], icon: "Q"},
+    cambodian: { geom: Geometry.dim8x8, cg: "cg-512", board: "grid", BoardCSS: ["makrb1", "makrb2"], pieces: "makruk", PieceCSS: ["makruk", "makruks"], icon: "!"},
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", BoardCSS: ["sittb1", "sittb2"], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R", baseURL: ["makruk", "sittuyin"] },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", BoardCSS: ["9x9a", "9x9b", "9x9c", "9x9d", "9x9e", "9x9f"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "K", baseURL: ["shogi/ctk", "shogi", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },
     minishogi: { geom: Geometry.dim5x5, cg: "cg-260", board: "grid5x5", BoardCSS: ["5x5a", "5x5b", "5x5c"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "6", baseURL: ["shogi/ctk", "shogi", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },
