@@ -5,3 +5,4 @@
 * [Sittuyin Guide](Sittuyin-Guide.md)
 * [Shogi Guide](Shogi-Guide.md)
 * [Xiangqi Guide](Xiangqi-Guide.md)
+* [Shako Guide](Shako-Guide.md)
