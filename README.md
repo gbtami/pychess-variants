@@ -37,9 +37,12 @@ On client side it is based on
 
 ## Installation
 ```
+(You need mongodb up and running)
+
 pip3 install -r requirements.txt --user
 
 yarn install
 gulp dev
-python3 server.py
+
+python3 server/server.py
 ```
