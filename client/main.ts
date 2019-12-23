@@ -16,7 +16,7 @@ import { analysisView } from './analysis';
 import { playersView } from './players';
 import { profileView } from './profile';
 
-const model = {home: "", username: "", anon: "", variant: "", gameId: 0, wplayer: "", bplayer: "", fen: "", base: "", inc: "", seeks: [], tv: "", profileid: "", status: ""};
+const model = {};
 
 var getCookie = function(name) {
     var cookies = document.cookie.split(';');
@@ -35,6 +35,7 @@ export function view(el, model): VNode {
     model["home"] = el.getAttribute("data-home");
     model["anon"] = el.getAttribute("data-anon");
     model["profileid"] = el.getAttribute("data-profile");
+    model["title"] = el.getAttribute("data-title");
     model["variant"] = el.getAttribute("data-variant");
     model["chess960"] = el.getAttribute("data-chess960");
     model["rated"] = el.getAttribute("data-rated");

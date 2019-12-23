@@ -506,7 +506,7 @@ table#seeks {
 player-head {
   font-size: 24px;
 }
-.i-tv, .i-dl {
+.i-at, .i-tv, .i-dl {
   float: right;
   padding: 0px 4px 0px 4px;
   color: #505050;
@@ -517,11 +517,11 @@ player-head {
   padding: 10px;
   color: RoyalBlue;
 }
-a.i-tv:link, a.i-dl:link, a.i-pgn:link {
+a.i-at:link, a.i-tv:link, a.i-dl:link, a.i-pgn:link {
     display: inline-block;
     text-decoration: none;
 }
-a.i-tv:hover, a.i-dl:hover {
+a.i-at:hover, a.i-tv:hover, a.i-dl:hover {
     color: RoyalBlue;
 }
 .i-pgn:hover {

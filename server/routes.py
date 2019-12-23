@@ -243,6 +243,7 @@ async def index(request):
                 for (k, v) in sorted(users[profileId].perfs.items(), key=lambda x: x[1]["nb"], reverse=True)}
         if variant is not None:
             render["variant"] = variant
+        render["profile_title"] = users[profileId].title if profileId in users else ""
 
     if view == "players":
         render["icons"] = VARIANT_ICONS

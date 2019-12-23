@@ -209,12 +209,20 @@ export function profileView(model) {
 
     return [
                 h('player-head', [
-                    model["profileid"],
+                    h('player', [
+                        h('a.user-link', {attrs: {href: '/@/' + model["profileid"]}}, [
+                            h('player-title', " " + model["title"] + " "),
+                            model["profileid"],
+                        ]),
+                    ]),
+                    h('a.i-at', {
+                        attrs: {href: 'https://lichess.org/@/' + model["profileid"], title: 'Lichess profile'},
+                        class: {"icon": true, "icon-at": true}}),
                     h('a.i-dl', {
-                        attrs: {href: '/games/export/' + model["profileid"], "download": model["profileid"] + '.pgn'},
+                        attrs: {href: '/games/export/' + model["profileid"], download: model["profileid"] + '.pgn', title: 'Export games'},
                         class: {"icon": true, "icon-download": true}}),
                     h('a.i-tv', {
-                        attrs: {href: '/@/' + model["profileid"] + '/tv'},
+                        attrs: {href: '/@/' + model["profileid"] + '/tv', title: 'Watch games'},
                         class: {"icon": true, "icon-tv": true}}),
                     ]),
                 h('table#games'),
