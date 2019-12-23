@@ -214,7 +214,7 @@ async def index(request):
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.add(user)
 
-    if view == "profile":
+    if view == "profile" or view == "level8win":
         template = request.app["jinja"].get_template("profile.html")
     elif view == "players":
         template = request.app["jinja"].get_template("players.html")
