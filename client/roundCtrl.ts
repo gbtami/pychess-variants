@@ -78,6 +78,8 @@ export default class RoundController {
     CSSindexesB: number[];
     CSSindexesP: number[];
     clickDrop: Piece | undefined;
+    clickDropEnabled: boolean;
+    showDests: boolean;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -128,6 +130,8 @@ export default class RoundController {
         this.settings = true;
         this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
         this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
+        this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === true;
+        this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === true;
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = needPockets(this.variant);
@@ -203,7 +207,7 @@ export default class RoundController {
                 movable: {
                     free: false,
                     color: this.mycolor,
-                    showDests: true,
+                    showDests: this.showDests,
                     events: {
                         after: this.onUserMove,
                         afterNewPiece: this.onUserDrop,
@@ -664,7 +668,7 @@ export default class RoundController {
                 } else {
                     sound.move();
                 }
-            } else {
+            } else if (this.clickDropEnabled) {
                 this.clickDrop = piece;
             }
         }
@@ -764,7 +768,7 @@ export default class RoundController {
                 turnColor: this.mycolor,
                 movable: {
                     dests: this.dests,
-                    showDests: true,
+                    showDests: this.showDests,
                     },
                 }
             );
@@ -777,7 +781,7 @@ export default class RoundController {
             // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests === undefined) return;
             if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
-                if (this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
+                if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
                     this.chessground.newPiece(this.clickDrop, key);
                     this.onUserDrop(this.clickDrop.role, key);
                 }
