@@ -515,7 +515,7 @@ export default class AnalysisController {
             meta.captured = {role: "pawn"};
         };
         // increase pocket count
-        if ((this.variant === "crazyhouse" || this.variant === "capahouse" || this.variant === "shouse" || this.variant === "grandhouse" || this.variant.endsWith('shogi')) && meta.captured) {
+        if ((this.variant.endsWith('house') || this.variant.endsWith('shogi')) && meta.captured) {
             var role = meta.captured.role
             if (meta.captured.promoted) role = this.variant.endsWith('shogi') ? meta.captured.role.slice(1) as Role : "pawn";
 
