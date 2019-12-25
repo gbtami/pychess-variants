@@ -215,7 +215,7 @@ export function profileView(model) {
                             model["profileid"],
                         ]),
                     ]),
-                    h('a.i-at', {
+                    (model["profileid"].startsWith('Anonymous')) ? undefined : h('a.i-at', {
                         attrs: {href: 'https://lichess.org/@/' + model["profileid"], title: 'Lichess profile'},
                         class: {"icon": true, "icon-at": true}}),
                     h('a.i-dl', {
