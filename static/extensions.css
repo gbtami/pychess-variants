@@ -64,8 +64,11 @@
   white-space: nowrap;
   display: flex;
 }
-.capahouse .pocket, .shouse .pocket, .grandhouse .pocket, .gothhouse .pocket {
-  width: 448px;
+.capahouse .pocket, .grandhouse .pocket, .gothhouse .pocket {
+  width: 380px;
+}
+.shouse .pocket {
+  width: 440px;
 }
 .shogi .pocket {
   width: 380px;
@@ -86,6 +89,10 @@
   position: relative!important;
   background-position: center;
 }
+.capahouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece {
+  height: 56px!important;;
+}
+
 .shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece {
   flex: 0 0 14.29%;
 }
