@@ -61,7 +61,7 @@ export default function(ctrl) {
         const g = ctrl.getGround();
         const color = g.state.pieces[dest].color;
         g.newPiece({"role": role, "color": color}, orig)
-        ctrl.pockets[color === 'white' ? 0 : 1][role]--;
+        ctrl.pockets[(ctrl.flip) ? 0 : 1][role]--;
         ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, color, "bottom"));
     }
 

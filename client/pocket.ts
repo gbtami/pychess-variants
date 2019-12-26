@@ -115,7 +115,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
         } else {
             ctrl.pockets = [po, pc];
         }
-        console.log(o,c,po,pc)
+        // console.log(o,c,po,pc);
         ctrl.vpocket0 = patch(vpocket0, pocketView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
         ctrl.vpocket1 = patch(vpocket1, pocketView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
     }
