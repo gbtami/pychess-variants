@@ -479,11 +479,10 @@ export default class RoundController {
             } else if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') {
                 lastMove = grand2zero(lastMove);
             }
-            lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
+            // drop lastMove causing scrollbar flicker,
+            // so we remove from part to avoid that
+            lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
         }
-        // drop lastMove causing scrollbar flicker,
-        // so we remove from part to avoid that
-        if (lastMove !== null && lastMove[0][1] === '@') lastMove = [lastMove[1]];
         // save capture state before updating chessground
         const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]]
 
@@ -584,7 +583,7 @@ export default class RoundController {
         if (move !== undefined) {
             if (this.variant.endsWith('shogi')) move = usi2uci(move);
             if (this.variant == 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') move = grand2zero(move);
-            move = move.slice(1, 2) === '@' ? [move.slice(2, 4)] : [move.slice(0, 2), move.slice(2, 4)];
+            move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
         }
 
