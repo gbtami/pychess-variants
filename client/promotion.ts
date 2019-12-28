@@ -24,7 +24,6 @@ export default function(ctrl) {
         if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta, ctrl.promotions)) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;
-            // const movingRole = ground.state.pieces[dest].role;
             roles = promotionRoles(ctrl.variant, movingRole, orig, dest, ctrl.promotions);
 
             switch (ctrl.variant) {
@@ -121,8 +120,9 @@ export default function(ctrl) {
 
             switch (ctrl.variant) {
             case "kyotoshogi":
-                const promotedSign = role.startsWith("p") ? "+" : "";
-                const droppedPiece = role.startsWith("p") ? roleToSan[role.slice(1)] : roleToSan[role];
+                const dropPromoted = role.startsWith("p") && role !== 'pawn';
+                const promotedSign = dropPromoted ? "+" : "";
+                const droppedPiece = dropPromoted ? roleToSan[role.slice(1)] : roleToSan[role];
                 if (promoting.callback) promoting.callback(promotedSign + droppedPiece, "@", promoting.dest);
                 promoting = false;
                 return;
