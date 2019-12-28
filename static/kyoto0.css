@@ -1,5 +1,5 @@
 .kyoto .cg-wrap piece.pawn.white {
-  background-image: url('images/pieces/shogi/ctk/0FU.svg');
+  background-image: url('images/pieces/shogi/ctk/0FUKyoto.svg');
 }
 /* rook */
 .kyoto .cg-wrap piece.ppawn.white {
@@ -31,7 +31,7 @@
 }
 
 .kyoto .cg-wrap piece.pawn.black {
-  background-image: url('images/pieces/shogi/ctk/1FU.svg');
+  background-image: url('images/pieces/shogi/ctk/1FUKyoto.svg');
 }
 /* rook */
 .kyoto .cg-wrap piece.ppawn.black {
