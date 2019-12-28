@@ -530,9 +530,9 @@ export default class AnalysisController {
 
         //  gating elephant/hawk
         if (this.variant === "seirawan" || this.variant === "shouse") {
-            if (!this.promotion.start(orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(orig, dest, meta)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta)) this.sendMove(orig, dest, '');
         };
     }
 
@@ -548,7 +548,11 @@ export default class AnalysisController {
                 this.pockets[1][role]--;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.mycolor, "bottom"));
             }
-            this.sendMove(roleToSan[role] + "@", dest, '')
+            if (this.variant === "kyotoshogi") {
+                if (!this.promotion.start(role, 'z0', dest, undefined)) this.sendMove(roleToSan[role] + "@", dest, '');
+            } else {
+                this.sendMove(roleToSan[role] + "@", dest, '')
+            }
             // console.log("sent move", move);
         } else {
             console.log("!!! invalid move !!!", role, dest);
