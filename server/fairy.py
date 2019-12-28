@@ -15,6 +15,7 @@ FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 SHOGI_FEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
 MINISHOGI_FEN = "rbsgk/4p/5/P4/KGSBR[-] b - 1"
+KYOTOSHOGI_FEN = "p+nks+l/5/5/5/+LSK+NP[-] b 0 1"
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +36,8 @@ class FairyBoard:
         # "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1"
         if variant == "shogi":
             return SHOGI_FEN
+        elif variant == "kyotoshogi":
+            return KYOTOSHOGI_FEN
         elif variant == "minishogi":
             return MINISHOGI_FEN
         else:
@@ -45,7 +48,9 @@ class FairyBoard:
 
     @property
     def initial_sfen(self):
-        if self.variant == "minishogi":
+        if self.variant == "kyotoshogi":
+            return "p+nks+l/5/5/5/+LSK+NP b 0 1"
+        elif self.variant == "minishogi":
             return "rbsgk/4p/5/P4/KGSBR b - 1"
         else:
             return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
@@ -240,6 +245,11 @@ if __name__ == '__main__':
     print(board.legal_moves())
 
     board = FairyBoard("minishogi")
+    print(board.fen)
+    board.print_pos()
+    print(board.legal_moves())
+
+    board = FairyBoard("kyotoshogi")
     print(board.fen)
     board.print_pos()
     print(board.legal_moves())

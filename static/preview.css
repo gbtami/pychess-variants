@@ -29,6 +29,16 @@ label.board.board5.shogi {
   background-image: url('images/board/ShogiCheckeredWood.png');
 }
 
+label.piece.piece0.kyotoshogi {
+  background-image: url('images/pieces/shogi/ctk/0KA.svg');
+}
+label.piece.piece1.kyotoshogi {
+  background-image: url('images/pieces/kyoto/Kanji/0KA.svg');
+}
+label.piece.piece2.kyotoshogi {
+  background-image: url('images/pieces/kyoto/Intl/0KA.svg');
+}
+
 label.piece.piece0.shogi, label.piece.piece0.minishogi {
   background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
@@ -45,13 +55,13 @@ label.piece.piece4.shogi, label.piece.piece4.minishogi {
   background-image: url('images/pieces/shogi/ctm/0KA.svg');
 }
 
-label.board.board0.minishogi {
+label.board.board0.minishogi, label.board.board0.kyotoshogi {
   background-image: url('images/board/minishogi.svg');
 }
-label.board.board1.minishogi {
+label.board.board1.minishogi, label.board.board1.kyotoshogi {
   background-image: url('images/board/MiniboardWood1.png');
 }
-label.board.board2.minishogi {
+label.board.board2.minishogi, label.board.board2.kyotoshogi {
   background-image: url('images/board/MiniboardWood2.png');
 }
 

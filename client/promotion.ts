@@ -5,8 +5,9 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import toVNode from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
+import { Key, Role } from 'chessgroundx/types';
 
-import { isPromotion, mandatoryPromotion, promotionRoles, roleToSan } from './chess';
+import { isPromotion, mandatoryPromotion, promotionRoles, roleToSan, kyotoPromotion } from './chess';
 
 const patch = init([klass, attributes, listeners]);
 
@@ -15,7 +16,7 @@ export default function(ctrl) {
     let promoting: any = false;
     let roles: string[] = [];
 
-    function start(orig, dest, meta) {
+    function start(movingRole: Role, orig: Key, dest: Key, meta) {
         const ground = ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces[dest] === undefined) return false;
@@ -23,14 +24,27 @@ export default function(ctrl) {
         if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta, ctrl.promotions)) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;
-            const movingRole = ground.state.pieces[dest].role;
+            // const movingRole = ground.state.pieces[dest].role;
             roles = promotionRoles(ctrl.variant, movingRole, orig, dest, ctrl.promotions);
 
             switch (ctrl.variant) {
-            // TODO: in grand chess use mandatoryPromotion when promotion happens on back rank
+            case "kyotoshogi":
+                if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
+                    const promoted = kyotoPromotion[movingRole];
+                    promote(ground, dest, promoted);
+                    ctrl.sendMove(orig, dest, (promoted === 'pawn' || promoted === 'silver' || promoted === 'lance' || promoted === 'knight') ? '-' : '+');
+                } else {
+                    draw_promo(dest, color, orientation);
+                    promoting = {
+                        orig: orig,
+                        dest: dest,
+                        callback: ctrl.sendMove,
+                    };
+                };
+                break;
             case "minishogi":
             case "shogi":
-                if (mandatoryPromotion(ctrl.variant, movingRole, dest, color)) {
+                if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
                     promote(ground, dest, 'p' + ground.state.pieces[dest].role);
                     ctrl.sendMove(orig, dest, '+');
                 } else {
@@ -106,6 +120,12 @@ export default function(ctrl) {
             let promo;
 
             switch (ctrl.variant) {
+            case "kyotoshogi":
+                const promotedSign = role.startsWith("p") ? "+" : "";
+                const droppedPiece = role.startsWith("p") ? roleToSan[role.slice(1)] : roleToSan[role];
+                if (promoting.callback) promoting.callback(promotedSign + droppedPiece, "@", promoting.dest);
+                promoting = false;
+                return;
             case "minishogi":
             case "shogi":
                 promo = promoted ? "+" : "";

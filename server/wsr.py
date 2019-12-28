@@ -84,9 +84,12 @@ async def round_socket_handler(request):
                             if game.status > STARTED:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
-                            await opp_ws.send_json(board_response)
+                            try:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
+                                await opp_ws.send_json(board_response)
+                            except KeyError:
+                                log.error("Failed to send move %s to %s in game %s" % (data["move"], opp_name, data["gameId"]))
 
                         await round_broadcast(game, users, board_response, channels=request.app["channels"])
 

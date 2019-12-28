@@ -627,7 +627,7 @@ export default class RoundController {
         const myclock = 1 - oppclock;
         const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
-        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
+        console.log("sendMove(orig, dest, prom)", orig, dest, promo);
         const uci_move = orig + dest + promo;
         const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') ? zero2grand(uci_move) : uci_move;
         // console.log("sendMove(move)", move);
@@ -738,9 +738,9 @@ export default class RoundController {
 
         //  gating elephant/hawk
         if (this.variant === "seirawan" || this.variant === "shouse") {
-            if (!this.promotion.start(orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(orig, dest, meta)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta)) this.sendMove(orig, dest, '');
         };
     }
 
@@ -756,7 +756,11 @@ export default class RoundController {
                 this.pockets[1][role]--;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.mycolor, "bottom"));
             }
-            this.sendMove(roleToSan[role] + "@", dest, '')
+            if (this.variant === "kyotoshogi") {
+                if (!this.promotion.start(role, 'z0', dest, undefined)) this.sendMove(roleToSan[role] + "@", dest, '');
+            } else {
+                this.sendMove(roleToSan[role] + "@", dest, '')
+            }
             // console.log("sent move", move);
         } else {
             console.log("!!! invalid move !!!", role, dest);

@@ -73,6 +73,9 @@
 .shogi .pocket {
   width: 380px;
 }
+.kyoto .pocket {
+  width: 256px;
+}
 .shogi.minishogi .pocket {
   width: 320px;
 }
@@ -95,6 +98,9 @@
 
 .shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece {
   flex: 0 0 14.29%;
+}
+.kyoto .pocket piece {
+  flex: 0 0 25%;
 }
 .shogi.minishogi .pocket piece {
   flex: 0 0 20%;

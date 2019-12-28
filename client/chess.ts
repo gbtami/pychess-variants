@@ -1,7 +1,7 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako"];
+export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi",  "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
 export const VARIANTS = {
@@ -10,6 +10,7 @@ export const VARIANTS = {
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "gridx", BoardCSS: ["sittb1", "sittb2"], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R", baseURL: ["makruk", "sittuyin"] },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "grid9x9", BoardCSS: ["9x9a", "9x9b", "9x9c", "9x9d", "9x9e", "9x9f"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "K", baseURL: ["shogi/ctk", "shogi", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },
     minishogi: { geom: Geometry.dim5x5, cg: "cg-260", board: "grid5x5", BoardCSS: ["5x5a", "5x5b", "5x5c"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "6", baseURL: ["shogi/ctk", "shogi", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },
+    kyotoshogi: { geom: Geometry.dim5x5, cg: "cg-260", board: "grid5x5", BoardCSS: ["5x5a", "5x5b", "5x5c"], pieces: "kyoto", PieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], icon: "6", baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "river", BoardCSS: ["9x10a", "9x10b", "9x10c", "9x10d", "9x10e"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], icon: "8" },
     minixiangqi: { geom: Geometry.dim7x7, cg: "cg-448", board: "minixq", BoardCSS: ["7x7a", "7x7b", "7x7c"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqie", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], icon: "7" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "board8x8", BoardCSS: ["8x8brown", "8x8blue", "8x8green", "8x8maple", "8x8olive"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "S", baseURL: ["merida", "green", "alpha"] },
@@ -48,6 +49,8 @@ export function pocketRoles(variant: string) {
         return ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"];
     case "shogi":
         return ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"];
+    case "kyotoshogi":
+        return ["pawn", "lance", "knight", "silver"];
     case "minishogi":
         return ["pawn", "silver", "gold", "bishop", "rook"];
     case "shouse":
@@ -63,6 +66,8 @@ function promotionZone(variant: string, color: string) {
     switch (variant) {
     case 'shogi':
         return color === 'white' ? 'a9b9c9d9e9f9g9h9i9a8b8c8d8e8f8g8h8i8a7b7c7d7e7f7g7h7i7' : 'a1b1c1d1e1f1g1h1i1a2b2c2d2e2f2g2h2i2a3b3c3d3e3f3g3h3i3';
+    case 'kyotoshogi':
+        return '';
     case 'minishogi':
         return color === 'white' ? 'a5b5c5d5e5' : 'a1b1c1d1e1';
     case 'cambodian':
@@ -85,6 +90,7 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
     case "shouse":
     case "seirawan":
         return ["queen", "knight", "rook", "bishop", "elephant", "hawk"];
+    case "kyotoshogi":
     case "minishogi":
     case "shogi":
         return ["p" + role, role];
@@ -107,7 +113,11 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
     }
 }
 
-export function mandatoryPromotion(variant, role: Role, dest: Key, color: Color) {
+export function mandatoryPromotion(variant, role: Role, orig: Key, dest: Key, color: Color) {
+    // Promotion is mandatory in Kyoto Shogi for all pieces in every move.
+    // Except the King. King cannot promote.
+    if (variant === "kyotoshogi") return role !== "king" && orig !== 'z0';
+
     if (variant === "minishogi" && role === "pawn") {
         if (color === "white") {
             return dest[1] === "5";
@@ -251,6 +261,9 @@ export function isPromotion(variant, piece, orig, dest, meta, promotions) {
     case 'shogi':
         return ['king', 'gold', 'ppawn', 'pknight', 'pbishop', 'prook', 'psilver', 'plance'].indexOf(piece.role) === -1
             && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1);
+    case 'kyotoshogi':
+        console.log('isPromotion()', variant, piece, orig, dest, meta, promotions);
+        return piece.role !== 'king' || orig === 'z0';
     case 'minishogi':
         return ['king', 'gold', 'ppawn', 'pbishop', 'prook', 'psilver'].indexOf(piece.role) === -1
             && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1);
@@ -275,6 +288,10 @@ export function uci2usi(move) {
         parts[1] = "*";
         parts[2] = String.fromCharCode(parts[2].charCodeAt() - 48)
         parts[3] = String.fromCharCode(parts[3].charCodeAt() + 48)
+    } else if (parts[2] === "@") {
+        parts[2] = "*";
+        parts[3] = String.fromCharCode(parts[3].charCodeAt() - 48)
+        parts[4] = String.fromCharCode(parts[4].charCodeAt() + 48)
     } else {
         parts[0] = String.fromCharCode(parts[0].charCodeAt() - 48)
         parts[1] = String.fromCharCode(parts[1].charCodeAt() + 48)
@@ -291,6 +308,10 @@ export function usi2uci(move) {
         parts[1] = "@";
         parts[2] = String.fromCharCode(parts[2].charCodeAt() + 48)
         parts[3] = String.fromCharCode(parts[3].charCodeAt() - 48)
+    } else if (parts[2] === "*") {
+        parts[2] = "@";
+        parts[3] = String.fromCharCode(parts[3].charCodeAt() + 48)
+        parts[4] = String.fromCharCode(parts[4].charCodeAt() - 48)
     } else {
         parts[0] = String.fromCharCode(parts[0].charCodeAt() + 48)
         parts[1] = String.fromCharCode(parts[1].charCodeAt() - 48)
@@ -392,3 +413,15 @@ export function lc(str, letter, uppercase) {
     }
     return letterCount;
 }
+
+export const kyotoPromotion = {
+    'plance': 'lance',
+    'lance': 'plance',
+    'silver': 'psilver',
+    'psilver': 'silver',
+    'pknight': 'knight',
+    'knight': 'pknight',
+    'pawn': 'ppawn',
+    'ppawn': 'pawn'
+}
+    

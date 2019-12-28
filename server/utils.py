@@ -16,7 +16,7 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from fairy import FairyBoard, WHITE, BLACK, STANDARD_FEN, SHOGI_FEN, MINISHOGI_FEN
+from fairy import FairyBoard, WHITE, BLACK, STANDARD_FEN, SHOGI_FEN, MINISHOGI_FEN, KYOTOSHOGI_FEN
 
 from settings import URI
 from compress import encode_moves, decode_moves, R2C, C2R, V2C, C2V
@@ -75,6 +75,7 @@ VARIANTS = (
     "cambodian",
     "shako",
     "minixiangqi",
+    "kyotoshogi",
 )
 
 VARIANT_ICONS = {
@@ -101,6 +102,7 @@ VARIANT_ICONS = {
     "capablanca960": "P",
     "capahouse960": "P",
     "crazyhouse960": "H",
+    "kyotoshogi": "6",
 }
 
 VARIANTS_TO_960 = {
@@ -127,6 +129,8 @@ def usi2uci(move):
     """ Used to create chessground dests UCI coordinates from USI shogi moves and on game save also. """
     if move[1] == "*":
         return "%s@%s%s" % (move[0], chr(ord(move[2]) + 48), chr(ord(move[3]) - 48))
+    elif move[2] == "*":
+        return "%s%s@%s%s" % (move[0], move[1], chr(ord(move[3]) + 48), chr(ord(move[4]) - 48))
     else:
         return "%s%s%s%s%s" % (chr(ord(move[0]) + 48), chr(ord(move[1]) - 48), chr(ord(move[2]) + 48), chr(ord(move[3]) - 48), move[4] if len(move) == 5 else "")
 
@@ -134,6 +138,8 @@ def usi2uci(move):
 def uci2usi(move):
     if move[1] == "@":
         return "%s*%s%s" % (move[0], chr(ord(move[2]) - 48), chr(ord(move[3]) + 48))
+    elif move[2] == "@":
+        return "%s%s*%s%s" % (move[0], move[1], chr(ord(move[3]) - 48), chr(ord(move[4]) + 48))
     else:
         return "%s%s%s%s%s" % (chr(ord(move[0]) - 48), chr(ord(move[1]) + 48), chr(ord(move[2]) - 48), chr(ord(move[3]) + 48), move[4] if len(move) == 5 else "")
 
@@ -631,7 +637,10 @@ class Game:
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(60 * 5 if self.ply > 2 else 10)
 
-            del self.games[self.id]
+            try:
+                del self.games[self.id]
+            except KeyError:
+                log.error("Failed to del %s from games" % self.id)
 
             if self.bot_game:
                 try:
@@ -665,7 +674,7 @@ class Game:
                     'm': encode_moves(
                         map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
                         else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
-                        else self.board.move_stack)}
+                        else self.board.move_stack, self.variant)}
 
                 if self.rated and self.result != "*":
                     new_data["p0"] = self.p0
@@ -898,7 +907,7 @@ async def load_game(app, game_id):
 
     game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")))
 
-    mlist = decode_moves(doc["m"])
+    mlist = decode_moves(doc["m"], variant)
 
     if mlist:
         game.saved = True
@@ -1149,8 +1158,8 @@ def get_board(games, data, full=False):
 
 
 def pgn(doc):
-    mlist = decode_moves(doc["m"])
     variant = C2V[doc["v"]]
+    mlist = decode_moves(doc["m"], variant)
     chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 
     if variant[-5:] == "shogi":
@@ -1158,7 +1167,7 @@ def pgn(doc):
     elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = list(map(zero2grand, mlist))
 
-    fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else sf.start_fen(variant)
+    fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else KYOTOSHOGI_FEN if variant == "kyotoshogi" else sf.start_fen(variant)
     mlist = sf.get_san_moves(variant, fen, mlist, chess960)
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))

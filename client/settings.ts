@@ -21,6 +21,7 @@ import RoundController from './roundCtrl';
 
 export function changeCSS(cssFile) {
     // css file index in template.html
+    console.log("changeCSS()", cssFile);
     var cssLinkIndex = 1;
     if (cssFile.includes("xiangqi")) {
         cssLinkIndex = 3;
@@ -54,6 +55,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 16;
     } else if (cssFile.includes("7x7")) {
         cssLinkIndex = 17;
+    } else if (cssFile.includes("kyoto")) {
+        cssLinkIndex = 18;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
@@ -66,6 +69,7 @@ function setBoard (CSSindexesB, variant, color) {
 }
 
 function setPieces (ctrl, color, flip: boolean = false) {
+    console.log("--- setPieces()");
     const CSSindexesP = ctrl.CSSindexesP, variant = ctrl.variant, chessground = ctrl.chessground;
     var idx = CSSindexesP[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].PieceCSS.length - 1);
@@ -77,12 +81,11 @@ function setPieces (ctrl, color, flip: boolean = false) {
     } else {
         changeCSS('/static/' + VARIANTS[variant].PieceCSS[idx] + '.css');
     }
-    console.log("--- setPieces()");
     // We use paleGreen arrows and circles for analysis PV suggestions
     // For drop moves we also want to draw the dropped piece
     if (ctrl.hasPockets) {
         const baseurl = VARIANTS[variant].baseURL[idx] + '/';
-        // console.log("--- baseurl", baseurl);
+        console.log("--- baseurl", baseurl);
         // console.log("A autoShapes:", chessground.state.drawable.autoShapes);
         var shapes0 = chessground.state.drawable.autoShapes;
         if (flip && variant.endsWith('shogi') && chessground.state.drawable.autoShapes[0].piece !== undefined) {
