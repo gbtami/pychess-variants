@@ -17,7 +17,7 @@
 }
 /* tokin */
 .kyoto .cg-wrap piece.plance.white {
-  background-image: url('images/pieces/shogi/ctk/1NY.svg');
+  background-image: url('images/pieces/shogi/ctk/1TOKyoto.svg');
 }
 .kyoto .cg-wrap piece.silver.white {
   background-image: url('images/pieces/shogi/ctk/1GI.svg');
@@ -49,7 +49,7 @@
 }
 /* tokin */
 .kyoto .cg-wrap piece.plance.black {
-  background-image: url('images/pieces/shogi/ctk/0NY.svg');
+  background-image: url('images/pieces/shogi/ctk/0TOKyoto.svg');
 }
 .kyoto .cg-wrap piece.silver.black {
   background-image: url('images/pieces/shogi/ctk/0GI.svg');
