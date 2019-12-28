@@ -393,14 +393,16 @@ export default class AnalysisController {
                 var pv_move = ceval["m"].split(" ")[0];
                 if (this.variant.endsWith('shogi')) pv_move = usi2uci(pv_move);
                 if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') pv_move = grand2zero(pv_move);
-                console.log(pv_move, ceval["m"]);
-                if (pv_move.slice(1, 2) === '@') {
-                    const d = pv_move.slice(2, 4);
+                // console.log(pv_move, ceval["m"]);
+                const atPos = pv_move.indexOf('@');
+                if (atPos > -1) {
+                    const d = pv_move.slice(atPos + 1, atPos + 3);
                     var color = step.turnColor;
                     if (this.flip && this.variant.endsWith('shogi')) color = (color === 'white') ? 'balck' : 'white';
+                    // console.log(pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
                     shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
                         color: color,
-                        role: sanToRole[pv_move.slice(0, 1)]
+                        role: sanToRole[pv_move.slice(0, atPos)]
                         }},
                         { orig: d, brush: 'paleGreen'}
                     ];

@@ -402,6 +402,10 @@ export const sanToRole = {
     g: 'gold',
     s: 'silver',
     l: 'lance',
+    '+L': 'tokin',
+    '+N': 'gold',
+    '+P': 'rook',
+    '+S': 'bishop'
 };
 
 // Count given letter occurences in a string
