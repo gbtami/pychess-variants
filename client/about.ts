@@ -34,6 +34,8 @@ export function aboutView(model): VNode[] {
                         ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Minishogi'}}, 'Minishogi'),
                         ", ",
+                        h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Kyoto_shogi'}}, 'Kyoto shogi'),
+                        ", ",
                         h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Xiangqi'}}, 'Xiangqi'),
                         ", ",
                         h('a', {attrs: {href: 'http://mlwi.magix.net/bg/minixiangqi.htm'}}, 'Minixiangqi'),

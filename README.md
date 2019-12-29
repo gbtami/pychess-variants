@@ -9,6 +9,7 @@ Currently supported games are:
 - [Sittuyin](https://en.wikipedia.org/wiki/Sittuyin)
 - [Shogi](https://en.wikipedia.org/wiki/Shogi)
 - [Minishogi](https://en.wikipedia.org/wiki/Minishogi)
+- [Kyoto shogi](https://en.wikipedia.org/wiki/Kyoto_shogi)
 - [Xiangqi](https://en.wikipedia.org/wiki/Xiangqi)
 - [Minixiangqi](http://mlwi.magix.net/bg/minixiangqi.htm)
 - [Placement chess](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
