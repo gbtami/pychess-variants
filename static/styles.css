@@ -233,3 +233,18 @@
 .icon-at:before {
   content: "\23";
 }
+.icon-kyotoshogi:before {
+  content: "\29";
+}
+.icon-shouse:before {
+  content: "\24";
+}
+.icon-crazyhouse960:before {
+  content: "\25";
+}
+.icon-chouse:before {
+  content: "\26";
+}
+.icon-capahouse960:before {
+  content: "\27";
+}

@@ -12,7 +12,7 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { renderUsername } from './user';
-import { variants, VARIANTS } from './chess';
+import { variants, VARIANTS, variantIcon, variantName } from './chess';
 import { renderTimeago } from './clock';
 import { changeCSS } from './settings';
 
@@ -69,9 +69,6 @@ export function renderRdiff(rdiff) {
 }
 
 function renderGames(model, games) {
-//                h('fn', player["first_name"]),
-//                h('ln', player["last_name"]),
-//                h('country', player["country"]),
     var rows = games.map((game) => h(
         'tr',
         { on: { click: () => { window.location.assign(model["home"] + '/' + game["_id"]); } },
@@ -91,10 +88,10 @@ function renderGames(model, games) {
             ]),
         ]),
         h('td.games-info', [
-            h('div.info0.games', {attrs: {"data-icon": VARIANTS[game["v"]].icon}, class: {"icon": true}}, [
-                h('div.info1', {attrs: {"data-icon": (game["z"] === 1) ? "V" : ""}, class: {"icon": true}}),
+            h('div.info0.games', {attrs: {"data-icon": variantIcon(game["v"], game["z"])}, class: {"icon": true}}, [
+                // h('div.info1', {attrs: {"data-icon": (game["z"] === 1) ? "V" : ""}, class: {"icon": true}}),
                 h('div.info2', [
-                    h('div.tc', game["b"] + "+" + game["i"] + " • " + ((game["y"] === 1) ? "Rated" : "Casual") + " • " + game["v"]),
+                    h('div.tc', game["b"] + "+" + game["i"] + " • " + ((game["y"] === 1) ? "Rated" : "Casual") + " • " + variantName(game["v"], game["z"])),
                     h('info-date', {attrs: {timestamp: game["d"]}}),
                 ]),
             ]),

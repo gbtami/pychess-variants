@@ -2,7 +2,7 @@ import { h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 
 import AnalysisController from './analysisCtrl';
-import { VARIANTS } from './chess';
+import { VARIANTS, variantIcon, variantName } from './chess';
 import { timeago, renderTimeago } from './clock';
 import { renderRdiff, result } from './profile';
 
@@ -16,14 +16,14 @@ function runGround(vnode: VNode, model) {
 
 export function analysisView(model): VNode[] {
     console.log("analysisView model=", model);
-    const dataIcon = VARIANTS[model["variant"]].icon;
+    const dataIcon = variantIcon(model["variant"], model["chess960"]);
     renderTimeago();
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
-                        h('div.info1', {attrs: {"data-icon": (model["chess960"] === 'True') ? "V" : ""}, class: {"icon": true}}),
+                        // h('div.info1', {attrs: {"data-icon": (model["chess960"] === 'True') ? "V" : ""}, class: {"icon": true}}),
                         h('div.info2', [
-                            h('div.tc', model["base"] + "+" + model["inc"] + " • " + ((model["rated"] === 'True') ? "Rated" : "Casual") + " • " + model["variant"]),
+                            h('div.tc', model["base"] + "+" + model["inc"] + " • " + ((model["rated"] === 'True') ? "Rated" : "Casual") + " • " + variantName(model["variant"], model["chess960"])),
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
                         ]),
                     ]),

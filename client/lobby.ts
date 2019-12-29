@@ -13,7 +13,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { variants, variants960, VARIANTS } from './chess';
+import { variants, variants960, VARIANTS, variantIcon, variantName } from './chess';
 import { sound } from './sound';
 
 
@@ -335,9 +335,9 @@ class LobbyController {
              h('td', [colorIcon(seek["color"])]),
              h('td', seek["rating"]),
              h('td', seek["tc"]),
-             h('td', {attrs: {"data-icon": VARIANTS[seek["variant"]].icon}, class: {"icon": true}} ),
-             h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
-             h('td', seek["variant"]),
+             h('td', {attrs: {"data-icon": variantIcon(seek.variant, seek.chess960)}, class: {"icon": true}} ),
+             // h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
+             h('td', variantName(seek.variant, seek.chess960)),
              h('td', (seek["rated"]) ? 'Rated' : 'Casual') ])
             );
         return [header, h('tbody', rows)];
