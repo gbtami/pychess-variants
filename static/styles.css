@@ -248,3 +248,15 @@
 .icon-capahouse960:before {
   content: "\27";
 }
+.icon-grand:before {
+  content: "\28";
+}
+.icon-grandhouse:before {
+  content: "\2a";
+}
+.icon-zh:before {
+  content: "\2b";
+}
+.icon-caparandom:before {
+  content: "\2c";
+}
