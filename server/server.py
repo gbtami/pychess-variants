@@ -78,7 +78,8 @@ async def make_app(loop, reset_ratings=False):
                     last_name=doc.get("last_name"),
                     country=doc.get("country"),
                     bot=doc.get("title") == "BOT",
-                    perfs=perfs
+                    perfs=perfs,
+                    enabled=doc.get("enabled", True)
                 )
 
         if reset_ratings:

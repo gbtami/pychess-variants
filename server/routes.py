@@ -103,7 +103,9 @@ async def login(request):
 
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
     users = request.app["users"]
-    prev_user = users.get(session.get("user_name"))
+
+    prev_session_user = session.get("user_name")
+    prev_user = users.get(prev_session_user)
     if prev_user is not None:
         prev_user.lobby_ws = None  # make it offline
 
@@ -126,6 +128,10 @@ async def login(request):
                 "perfs": {},
             })
             print("db insert user result %s" % repr(result.inserted_id))
+        elif not doc.get("enabled", "True"):
+            log.info("Closed account %s tried to log in." % user.username)
+            session["user_name"] = prev_session_user
+
         del session["token"]
 
     raise web.HTTPFound("/")
@@ -215,7 +221,10 @@ async def index(request):
             game.spectators.add(user)
 
     if view == "profile" or view == "level8win":
-        template = request.app["jinja"].get_template("profile.html")
+        if (profileId in users) and not users[profileId].enabled:
+            template = request.app["jinja"].get_template("closed.html")
+        else:
+            template = request.app["jinja"].get_template("profile.html")
     elif view == "players":
         template = request.app["jinja"].get_template("players.html")
     else:

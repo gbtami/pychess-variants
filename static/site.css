@@ -105,6 +105,9 @@ div.about {
   background-color: white;
   padding: 24px;
 }
+div.about.closed {
+  width: 100%;
+}
 
 a.nav-link:link, a.nav-link:visited {
     background-color: DimGray;

@@ -208,7 +208,7 @@ class Seek:
 
 
 class User:
-    def __init__(self, db=None, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None):
+    def __init__(self, db=None, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
         self.db = db
         self.lobby_ws = lobby_ws
         self.bot = bot
@@ -237,6 +237,7 @@ class User:
             self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
         else:
             self.perfs = {variant: perfs[variant] if variant in perfs else DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
+        self.enabled = enabled
 
     @property
     def online(self):
