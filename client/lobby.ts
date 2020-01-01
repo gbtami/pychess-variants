@@ -209,23 +209,19 @@ class LobbyController {
               h('span.close', { on: { click: () => document.getElementById('id01')!.style.display='none' }, attrs: {'data-icon': 'j'}, props: {title: "Cancel"} }),
             ]),
             h('div.container', [
-                h('label', { attrs: {for: "variant"} }, "Variant"),
-                h('select#variant', {
-                    props: {name: "variant"},
-                    on: { input: () => setVariant() },
-                    hook: {insert: () => setVariant() },
-                    }, variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
-                h('label', { attrs: {for: "fen"} }, "Start position"),
+                h('div', [
+                    h('label', { attrs: {for: "variant"} }, "Variant"),
+                    h('select#variant', {
+                        props: {name: "variant"},
+                        on: { input: () => setVariant() },
+                        hook: {insert: () => setVariant() },
+                        }, variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
+                ]),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here', value: vFen} }),
                 h('div#chess960-block', [
                     h('label', { attrs: {for: "chess960"} }, "Chess960"),
                     h('input#chess960', {props: {name: "chess960", type: "checkbox", checked: vChess960 === "true" ? "checked" : ""}}),
                 ]),
-                //h('label', { attrs: {for: "tc"} }, "Time Control"),
-                //h('select#timecontrol', { props: {name: "timecontrol"} }, [
-                //    h('option', { props: {value: "1", selected: true} }, "Real time"),
-                //    h('option', { props: {value: "2"} }, "Unlimited"),
-                //]),
                 h('label', { attrs: {for: "min"} }, "Minutes per side:"),
                 h('span#minutes'),
                 h('input#min', { class: { "slider": true },

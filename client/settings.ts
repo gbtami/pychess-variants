@@ -237,6 +237,24 @@ export function settingsView (ctrl) {
     const zoom = localStorage["zoom-" + ctrl.variant];
     if (zoom !== undefined && zoom !== 100) setZoom(ctrl, Number(zoom));
 
+    const vShowDests = localStorage.showDests === undefined ? "true" : localStorage.showDests;
+    const vClick2xdrop = localStorage.clickDropEnabled === undefined ? "false" : localStorage.clickDropEnabled;
+
+    const setShowDests = () => {
+        let e;
+        e = document.getElementById('showdests') as HTMLInputElement;
+        localStorage.setItem("showDests", e.checked);
+        ctrl.showDests = e.checked;
+        ctrl.chessground.set({movable: {showDests: ctrl.showDests}});
+    };
+
+    const setClick2xdrop = () => {
+        let e;
+        e = document.getElementById('click2xdrop') as HTMLInputElement;
+        localStorage.setItem("click2xdrop", e.checked);
+        ctrl.clickDropEnabled = e.checked;
+    };
+
     return h('div#board-settings', [
         h('div.settings-pieces', renderPieces(ctrl)),
         h('div.settings-boards', renderBoards(ctrl)),
@@ -248,5 +266,19 @@ export function settingsView (ctrl) {
             on: { input: (e) => { setZoom(ctrl, parseFloat((e.target as HTMLInputElement).value)); } }
             }
         ),
+        h('div', [
+            h('label', { attrs: {for: "showdests"} }, "Show piece destinations"),
+            h('input#showdests', {
+                props: {name: "showdests", type: "checkbox", checked: vShowDests === "true" ? "checked" : ""},
+                on: { click: () => { setShowDests(); } }
+            }),
+        ]),
+        h('div', [
+            h('label', { attrs: {for: "click2xdrop"} }, "Two click drop moves"),
+            h('input#click2xdrop', {
+                props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
+                on: { click: () => { setClick2xdrop(); } }
+            }),
+        ]),
     ]);
 }

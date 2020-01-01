@@ -589,10 +589,9 @@ td.player-data {
 
 /* Input fields */
 select, input {
-  width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
-  display: block;
+  display: inline;
   border: 1px solid #ccc;
   box-sizing: border-box;
 }
@@ -1119,4 +1118,12 @@ minigame:hover {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+
+input[type="checkbox"] {
+  vertical-align: middle;
+}
+
+input#fen {
+  width: 100%;
 }
