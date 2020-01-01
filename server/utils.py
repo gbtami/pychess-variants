@@ -238,6 +238,7 @@ class User:
         else:
             self.perfs = {variant: perfs[variant] if variant in perfs else DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
         self.enabled = enabled
+        self.fen960_as_white = None
 
     @property
     def online(self):
@@ -551,8 +552,13 @@ class Game:
                 print(invalid0, invalid1, invalid2, invalid3, invalid4)
                 self.initial_fen = start_fen
 
+        if self.chess960 and self.initial_fen:
+            if self.wplayer.fen960_as_white == self.initial_fen:
+                self.initial_fen = ""
+
         self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
         self.initial_fen = self.board.initial_fen
+        self.wplayer.fen960_as_white = self.initial_fen
 
         self.bot_game = self.bplayer.bot or self.wplayer.bot
         self.random_mover = self.wplayer.username == "Random-Mover" or self.bplayer.username == "Random-Mover"
@@ -636,7 +642,7 @@ class Game:
         async def remove():
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(60 * 5 if self.ply > 2 else 10)
+            await asyncio.sleep(60 * 10)
 
             try:
                 del self.games[self.id]

@@ -171,6 +171,13 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "rematch":
                         game = await load_game(request.app, data["gameId"])
+
+                        if game is None:
+                            log.debug("Requseted game %s not found!")
+                            response = {"type": "game_not_found", "username": user.username, "gameId": data["gameId"]}
+                            await ws.send_json(response)
+                            continue
+
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
