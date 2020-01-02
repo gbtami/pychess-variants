@@ -12,7 +12,7 @@
             {% for user, score in highscore[key].items() %}
                 <div class="player-data">
                     <player>
-                        <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title></player-title>{{ user }}</a>
+                        <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
                         <rating>{{ score }}</rating>
                     </player>
                 </div>

@@ -256,6 +256,7 @@ async def index(request):
 
     if view == "players":
         render["icons"] = VARIANT_ICONS
+        render["users"] = request.app["users"]
         render["highscore"] = request.app["highscore"]
 
     if gameId is not None:
