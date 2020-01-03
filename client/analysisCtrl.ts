@@ -7,17 +7,16 @@ import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
 
-import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece } from 'chessgroundx/types';
+import { Color, Dests, Key, Piece } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
 import makeGating from './gating';
 import makePromotion from './promotion';
-import { dropIsValid, pocketView, updatePockets } from './pocket';
+import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, sanToRole, getPockets } from './chess';
+import { variants, needPockets, usi2uci, grand2zero, VARIANTS, sanToRole, getPockets } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -199,15 +198,10 @@ export default class AnalysisController {
                     free: false,
                     color: this.mycolor,
                     showDests: this.showDests,
-                    events: {
-                        after: this.onUserMove,
-                        afterNewPiece: this.onUserDrop,
-                    }
                 },
                 events: {
                     move: this.onMove(),
                     dropNewPiece: this.onDrop(),
-                    select: this.onSelect(this.chessground.state.selected),
                 }
             });
         };
@@ -461,15 +455,6 @@ export default class AnalysisController {
         this.sock.send(JSON.stringify(message));
     }
 
-    private sendMove = (orig, dest, promo) => {
-        // pause() will add increment!
-        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
-        const uci_move = orig + dest + promo;
-        const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') ? zero2grand(uci_move) : uci_move;
-        // console.log("sendMove(move)", move);
-        this.doSend({ type: "move", gameId: this.model["gameId"], move: move });
-    }
-
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
@@ -497,112 +482,6 @@ export default class AnalysisController {
             } else if (this.clickDropEnabled) {
                 this.clickDrop = piece;
             }
-        }
-    }
-
-    private onUserMove = (orig, dest, meta) => {
-        // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = this.chessground.state.pieces;
-        const geom = this.chessground.state.geometry;
-        // console.log("ground.onUserMove()", orig, dest, meta, pieces);
-        const moved = pieces[dest] as Piece;
-        const firstRankIs0 = this.chessground.state.dimensions.height === 10;
-        if (meta.captured === undefined && moved.role === "pawn" && orig[0] != dest[0] && hasEp(this.variant)) {
-            const pos = key2pos(dest, firstRankIs0),
-            pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: PiecesDiff = {};
-            diff[pos2key(pawnPos, geom)] = undefined;
-            this.chessground.setPieces(diff);
-            meta.captured = {role: "pawn"};
-        };
-        // increase pocket count
-        if ((this.variant.endsWith('house') || this.variant.endsWith('shogi')) && meta.captured) {
-            var role = meta.captured.role
-            if (meta.captured.promoted) role = this.variant.endsWith('shogi') ? meta.captured.role.slice(1) as Role : "pawn";
-
-            if (this.flip) {
-                this.pockets[0][role]++;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.mycolor, "top"));
-            } else {
-                this.pockets[1][role]++;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.mycolor, "bottom"));
-            }
-        };
-
-        //  gating elephant/hawk
-        if (this.variant === "seirawan" || this.variant === "shouse") {
-            if (!this.promotion.start(moved.role, orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
-        } else {
-            if (!this.promotion.start(moved.role, orig, dest, meta)) this.sendMove(orig, dest, '');
-        };
-    }
-
-    private onUserDrop = (role, dest) => {
-        // console.log("ground.onUserDrop()", role, dest);
-        // decrease pocket count
-        //cancelDropMode(this.chessground.state);
-        if (dropIsValid(this.dests, role, dest)) {
-            if (this.flip) {
-                this.pockets[0][role]--;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.mycolor, "top"));
-            } else {
-                this.pockets[1][role]--;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.mycolor, "bottom"));
-            }
-            if (this.variant === "kyotoshogi") {
-                if (!this.promotion.start(role, 'z0', dest, undefined)) this.sendMove(roleToSan[role] + "@", dest, '');
-            } else {
-                this.sendMove(roleToSan[role] + "@", dest, '')
-            }
-            // console.log("sent move", move);
-        } else {
-            console.log("!!! invalid move !!!", role, dest);
-            // restore board
-            this.clickDrop = undefined;
-            this.chessground.set({
-                fen: this.fullfen,
-                lastMove: this.lastmove,
-                turnColor: this.mycolor,
-                movable: {
-                    dests: this.dests,
-                    showDests: this.showDests,
-                    },
-                }
-            );
-        }
-    }
-
-    private onSelect = (selected) => {
-        return (key) => {
-            console.log("ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
-            // If drop selection was set dropDests we have to restore dests here
-            if (this.chessground.state.movable.dests === undefined) return;
-            if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
-                if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
-                    this.chessground.newPiece(this.clickDrop, key);
-                    this.onUserDrop(this.clickDrop.role, key);
-                }
-                this.clickDrop = undefined;
-                //cancelDropMode(this.chessground.state);
-                this.chessground.set({ movable: { dests: this.dests }});
-            };
-            // Sittuyin in place promotion on Ctrl+click
-            if (this.chessground.state.stats.ctrlKey && 
-                (key in this.chessground.state.movable.dests) &&
-                (this.chessground.state.movable.dests[key].indexOf(key) >= 0) &&
-                (this.variant === 'sittuyin')) {
-                console.log("Ctrl in place promotion", key);
-                var pieces = {};
-                var piece = this.chessground.state.pieces[key];
-                pieces[key] = {
-                    color: piece!.color,
-                    role: 'ferz',
-                    promoted: true
-                };
-                this.chessground.setPieces(pieces);
-                this.sendMove(key, key, 'f');
-
-            };
         }
     }
 
