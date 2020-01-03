@@ -16,7 +16,7 @@ from sortedcollections import ValueSortedDict
 
 from routes import get_routes, post_routes
 from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
-from utils import Seek, User, VARIANTS, VARIANTS960, STARTED, AI_task, DEFAULT_PERF
+from utils import Seek, User, VARIANTS, STARTED, AI_task, DEFAULT_PERF
 
 
 async def make_app(loop, reset_ratings=False):
@@ -54,7 +54,9 @@ async def make_app(loop, reset_ratings=False):
 
     bot = app["users"]["Random-Mover"]
     for variant in VARIANTS:
-        seek = Seek(bot, variant, base=5, inc=3, level=0)
+        variant960 = variant.endswith("960")
+        variant_name = variant[:-3] if variant960 else variant
+        seek = Seek(bot, variant_name, base=5, inc=3, level=0, chess960=variant960)
         app["seeks"][seek.id] = seek
         bot.seeks[seek.id] = seek
 
@@ -68,7 +70,7 @@ async def make_app(loop, reset_ratings=False):
             if doc["_id"] not in app["users"]:
                 perfs = doc.get("perfs")
                 if perfs is None or reset_ratings:
-                    perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
+                    perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
 
                 app["users"][doc["_id"]] = User(
                     db=app["db"],
@@ -89,7 +91,7 @@ async def make_app(loop, reset_ratings=False):
             async for doc in cursor:
                 app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
-        for variant in VARIANTS + VARIANTS960:
+        for variant in VARIANTS:
             if variant not in app["highscore"]:
                 app["highscore"][variant] = ValueSortedDict(neg)
 

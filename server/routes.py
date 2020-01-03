@@ -13,7 +13,7 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
-from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANTS960, VARIANT_ICONS, DEFAULT_PERF
+from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS, DEFAULT_PERF
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -160,7 +160,7 @@ async def index(request):
             user = users[session_user]
         else:
             log.debug("New lichess user appeared!", session_user)
-            perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
+            perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
             user = User(db=db, username=session_user, anon=session["guest"], perfs=perfs)
             users[user.username] = user
         user.ping_counter = 0
@@ -315,7 +315,7 @@ async def get_user_games(request):
         filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
     elif "/loss" in request.path:
         filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
-    elif variant in VARIANTS + VARIANTS960:
+    elif variant in VARIANTS:
         if variant.endswith("960"):
             v = V2C[variant[:-3]]
             z = 1

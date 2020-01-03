@@ -86,7 +86,9 @@ async def fishnet_acquire(request):
             seeks = request.app["seeks"]
             sockets = request.app["websockets"]
             for variant in VARIANTS:
-                seek = Seek(ai, variant, color="r", base=5, inc=3, level=6)
+                variant960 = variant.endswith("960")
+                variant_name = variant[:-3] if variant960 else variant
+                seek = Seek(ai, variant_name, color="r", base=5, inc=3, level=6, chess960=variant960)
                 seeks[seek.id] = seek
                 ai.seeks[seek.id] = seek
             await lobby_broadcast(sockets, get_seeks(seeks))

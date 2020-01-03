@@ -48,34 +48,31 @@ LOSERS = {
     "flag": FLAG,
 }
 
-VARIANTS960 = (
-    "chess960",
-    "capablanca960",
-    "capahouse960",
-    "crazyhouse960",
-)
-
 VARIANTS = (
-    "makruk",
-    "sittuyin",
+    "crazyhouse",
+    "crazyhouse960",
+    "chess",
+    "chess960",
+    "placement",
     "shogi",
     "xiangqi",
-    "chess",
-    "crazyhouse",
-    "placement",
-    "capablanca",
-    "capahouse",
+    "makruk",
+    "cambodian",
+    "sittuyin",
     "seirawan",
     "shouse",
-    "grand",
-    "grandhouse",
+    "capablanca",
+    "capablanca960",
+    "capahouse",
+    "capahouse960",
     "gothic",
     "gothhouse",
-    "minishogi",
-    "cambodian",
+    "grand",
+    "grandhouse",
     "shako",
-    "minixiangqi",
+    "minishogi",
     "kyotoshogi",
+    "minixiangqi",
 )
 
 VARIANT_ICONS = {
@@ -105,12 +102,13 @@ VARIANT_ICONS = {
     "kyotoshogi": ")",
 }
 
-VARIANTS_TO_960 = {
+VARIANT_960_TO_PGN = {
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "seirawan": "Seirawan960",
+    # some early game is accidentally saved as 960 in mongodb
     "shogi": "shogi",
     "sittuyin": "sittuyin",
     "makruk": "makruk",
@@ -234,9 +232,9 @@ class User:
         if perfs is None:
             if (not anon) and (not bot):
                 raise MissingRatingsException(username)
-            self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
+            self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
         else:
-            self.perfs = {variant: perfs[variant] if variant in perfs else DEFAULT_PERF for variant in VARIANTS + VARIANTS960}
+            self.perfs = {variant: perfs[variant] if variant in perfs else DEFAULT_PERF for variant in VARIANTS}
         self.enabled = enabled
         self.fen960_as_white = None
 
@@ -834,7 +832,7 @@ class Game:
             self.inc,
             self.wrating,
             self.brating,
-            self.variant.capitalize() if not self.chess960 else VARIANTS_TO_960[self.variant],
+            self.variant.capitalize() if not self.chess960 else VARIANT_960_TO_PGN[self.variant],
             moves,
             self.result,
             fen="" if no_setup else '[FEN "%s"]\n' % self.initial_fen,
@@ -1190,7 +1188,7 @@ def pgn(doc):
         doc["i"],
         doc["p0"]["e"],
         doc["p1"]["e"],
-        variant.capitalize() if not chess960 else VARIANTS_TO_960[variant],
+        variant.capitalize() if not chess960 else VARIANT_960_TO_PGN[variant],
         moves,
         C2R[doc["r"]],
         fen="" if no_setup else '[FEN "%s"]\n' % fen,
