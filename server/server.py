@@ -38,7 +38,7 @@ async def make_app(loop, reset_ratings=False):
     app["tasks"] = weakref.WeakSet()
     app["chat"] = collections.deque([], 200)
     app["channels"] = set()
-    app["highscore"] = {}
+    app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
 
     # fishnet active workers
     app["workers"] = set()
@@ -90,10 +90,6 @@ async def make_app(loop, reset_ratings=False):
             cursor = app["db"].highscore.find()
             async for doc in cursor:
                 app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
-
-        for variant in VARIANTS:
-            if variant not in app["highscore"]:
-                app["highscore"][variant] = ValueSortedDict(neg)
 
     except Exception:
         print("Maybe mongodb is not running...")
