@@ -38,7 +38,7 @@ class LobbyController {
 
         const onOpen = (evt) => {
             this._ws = evt.target;
-            console.log("---CONNECTED", evt);
+            // console.log("---CONNECTED", evt);
             this.doSend({ type: "lobby_user_connected", username: this.model["username"]});
             this.doSend({ type: "get_seeks" });
         }
@@ -70,7 +70,7 @@ class LobbyController {
 
 
     doSend (message) {
-        console.log("---> lobby doSend():", message);
+        // console.log("---> lobby doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
 
@@ -101,9 +101,17 @@ class LobbyController {
             color: color });
     }
 
-    isNewSeek (variant, color, fen, minutes, increment) {
+    isNewSeek (variant, color, fen, minutes, increment, chess960, rated) {
+        // console.log("isNewSeek()?", variant, color, fen, minutes, increment, chess960, rated);
+        // console.log(this.seeks);
         return !this.seeks.some(seek => {
-            return seek.user === this.model["username"] && seek.variant === variant && seek.fen === fen && seek.color === color && seek.tc === minutes + "+" + increment;
+            return seek.user === this.model["username"] && 
+                                    seek.variant === variant &&
+                                    seek.fen === fen &&
+                                    seek.color === color &&
+                                    seek.tc === minutes + "+" + increment &&
+                                    seek.chess960 === chess960 &&
+                                    seek.rated === rated;
         })
     }
 
@@ -140,16 +148,16 @@ class LobbyController {
         const chess960 = (hide) ? false : e.checked;
         localStorage.setItem("seek_chess960", e.checked);
 
-        console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
+        // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
 
         if (this.challengeAI) {
             e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
             const level = parseInt(e.value);
             localStorage.setItem("seek_level", e.value);
-            console.log(level, e.value, localStorage.getItem("seek_level"));
+            // console.log(level, e.value, localStorage.getItem("seek_level"));
             this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960, rated===1);
         } else {
-            if (this.isNewSeek(variant, color, fen, minutes, increment)) {
+            if (this.isNewSeek(variant, color, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')) {
                 this.createSeekMsg(variant, color, fen, minutes, increment, chess960, rated===1);
             }
         }
@@ -200,7 +208,7 @@ class LobbyController {
         const vRated = localStorage.seek_rated === undefined ? "0" : localStorage.seek_rated;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
         const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
-        console.log("localeStorage.seek_level, vLevel=", localStorage.seek_level, vLevel);
+        // console.log("localeStorage.seek_level, vLevel=", localStorage.seek_level, vLevel);
 
         return [
         h('div#id01', { class: {"modal": true} }, [
@@ -323,7 +331,7 @@ class LobbyController {
              h('th', 'Mode')])]);
         const colorIcon = (color) => { return h('i', {attrs: {"data-icon": color === "w" ? "c" : color === "b" ? "b" : "a"}} ); };
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
-        console.log("VARIANTS", VARIANTS);
+        // console.log("VARIANTS", VARIANTS);
         var rows = seeks.map((seek) => (this.model["anon"] === 'True' && seek["rated"]) ? "" : h(
             'tr',
             { on: { click: () => this.onClickSeek(seek) } },
@@ -350,7 +358,7 @@ class LobbyController {
     }
 
     private onMsgNewGame = (msg) => {
-        console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
+        // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
         window.location.assign(this.model["home"] + '/' + msg["gameId"]);
 }
 
@@ -379,7 +387,7 @@ class LobbyController {
     }
 
     onMessage (evt) {
-        console.log("<+++ lobby onMessage():", evt.data);
+        // console.log("<+++ lobby onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "get_seeks":
@@ -410,7 +418,7 @@ class LobbyController {
 function runSeeks(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new LobbyController(el, model);
-    console.log("lobbyView() -> runSeeks()", el, model, ctrl);
+    // console.log("lobbyView() -> runSeeks()", el, model, ctrl);
 }
 
 export function lobbyView(model): VNode[] {
