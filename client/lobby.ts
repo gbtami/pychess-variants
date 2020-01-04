@@ -13,7 +13,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { variants, variants960, VARIANTS, variantIcon, variantName } from './chess';
+import { variants, variants960, variantIcon, variantName } from './chess';
 import { sound } from './sound';
 
 
@@ -418,7 +418,7 @@ class LobbyController {
 function runSeeks(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new LobbyController(el, model);
-    // console.log("lobbyView() -> runSeeks()", el, model, ctrl);
+    console.log("lobbyView() -> runSeeks()", el, model, ctrl);
 }
 
 export function lobbyView(model): VNode[] {
