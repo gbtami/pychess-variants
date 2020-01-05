@@ -43,6 +43,7 @@ export default class RoundController {
     oppcolor: Color;
     turnColor: Color;
     clocks: any;
+    clocktimes: any;
     abortable: boolean;
     gameId: string;
     variant: string;
@@ -62,6 +63,7 @@ export default class RoundController {
     lastmove: Key[];
     premove: any;
     predrop: any;
+    preaction: boolean;
     result: string;
     flip: boolean;
     spectator: boolean;
@@ -165,6 +167,7 @@ export default class RoundController {
 
         this.premove = null;
         this.predrop = null;
+        this.preaction = false;
 
         this.result = "";
         const parts = this.fullfen.split(" ");
@@ -252,6 +255,7 @@ export default class RoundController {
         }
 
         // initialize clocks
+        this.clocktimes = {};
         const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0');
         const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1');
         this.clocks = [c0, c1];
@@ -437,7 +441,7 @@ export default class RoundController {
         this.dests = msg.dests;
         // list of legal promotion moves
         this.promotions = msg.promo;
-        const clocks = msg.clocks;
+        this.clocktimes = msg.clocks;
 
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
@@ -519,8 +523,8 @@ export default class RoundController {
             }
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-            this.clocks[oppclock].setTime(clocks[this.oppcolor]);
-            this.clocks[myclock].setTime(clocks[this.mycolor]);
+            this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
+            this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
             if (!this.abortable && msg.status < 0) {
                 if (this.turnColor === this.mycolor) {
                     this.clocks[myclock].start();
@@ -543,15 +547,17 @@ export default class RoundController {
                 });
                 if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
                 this.clocks[oppclock].pause(false);
-                this.clocks[oppclock].setTime(clocks[this.oppcolor]);
-                this.clocks[myclock].setTime(clocks[this.mycolor]);
+                this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
+                this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
                 if (!this.abortable && msg.status < 0) {
-                    this.clocks[myclock].start(clocks[this.mycolor]);
+                    this.clocks[myclock].start(this.clocktimes[this.mycolor]);
                     console.log('MY CLOCK STARTED');
                 }
+
                 // console.log("trying to play premove....");
                 if (this.premove) this.performPremove();
                 if (this.predrop) this.performPredrop();
+
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
@@ -563,14 +569,14 @@ export default class RoundController {
                     check: msg.check,
                 });
                 this.clocks[myclock].pause(false);
-                this.clocks[myclock].setTime(clocks[this.mycolor]);
-                this.clocks[oppclock].setTime(clocks[this.oppcolor]);
+                this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+                this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
                 if (!this.abortable && msg.status < 0) {
-                    this.clocks[oppclock].start(clocks[this.oppcolor]);
+                    this.clocks[oppclock].start(this.clocktimes[this.oppcolor]);
                     console.log('OPP CLOCK  STARTED');
                 }
                 if (this.oppIsRandomMover && msg.rm  !== "") {
-                    this.doSend({ type: "move", gameId: this.model["gameId"], move: msg.rm, clocks: clocks });
+                    this.doSend({ type: "move", gameId: this.model["gameId"], move: msg.rm, clocks: this.clocktimes });
                 };
             };
         };
@@ -627,8 +633,10 @@ export default class RoundController {
         const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
+
         const uci_move = orig + dest + promo;
         const move = this.variant.endsWith('shogi') ? uci2usi(uci_move) : (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') ? zero2grand(uci_move) : uci_move;
+
         // console.log("sendMove(move)", move);
         // TODO: if premoved, send 0 time
         let bclock, clocks;
@@ -638,8 +646,15 @@ export default class RoundController {
             bclock = this.mycolor === "black" ? 0 : 1;
         }
         const wclock = 1 - bclock
-        clocks = {movetime: movetime, black: this.clocks[bclock].duration, white: this.clocks[wclock].duration};
+
+        const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
+        const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
+        const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
+
+        clocks = {movetime: movetime, black: bclocktime, white: wclocktime};
+
         this.doSend({ type: "move", gameId: this.model["gameId"], move: move, clocks: clocks });
+
         if (!this.abortable) this.clocks[oppclock].start();
     }
 
@@ -680,6 +695,7 @@ export default class RoundController {
 
     private unsetPremove = () => {
         this.premove = null;
+        this.preaction = false;
     }
 
     private setPredrop = (role, key) => {
@@ -689,6 +705,7 @@ export default class RoundController {
 
     private unsetPredrop = () => {
         this.predrop = null;
+        this.preaction = false;
     }
 
     private performPremove = () => {
@@ -707,10 +724,11 @@ export default class RoundController {
     }
 
     private onUserMove = (orig, dest, meta) => {
+        this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
         const geom = this.chessground.state.geometry;
-        // console.log("ground.onUserMove()", orig, dest, meta, pieces);
+        // console.log("ground.onUserMove()", orig, dest, meta);
         const moved = pieces[dest] as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
         if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && hasEp(this.variant)) {
@@ -740,13 +758,14 @@ export default class RoundController {
             if (!this.promotion.start(moved.role, orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
             if (!this.promotion.start(moved.role, orig, dest, meta)) this.sendMove(orig, dest, '');
+        this.preaction = false;
         };
     }
 
-    private onUserDrop = (role, dest) => {
-        // console.log("ground.onUserDrop()", role, dest);
+    private onUserDrop = (role, dest, meta) => {
+        this.preaction = meta.predrop === true;
+        // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
-        //cancelDropMode(this.chessground.state);
         if (dropIsValid(this.dests, role, dest)) {
             if (this.flip) {
                 this.pockets[0][role]--;
@@ -776,6 +795,7 @@ export default class RoundController {
                 }
             );
         }
+        this.preaction = false;
     }
 
     private onSelect = (selected) => {
@@ -786,7 +806,7 @@ export default class RoundController {
             if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
                 if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
                     this.chessground.newPiece(this.clickDrop, key);
-                    this.onUserDrop(this.clickDrop.role, key);
+                    this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
                 }
                 this.clickDrop = undefined;
                 //cancelDropMode(this.chessground.state);

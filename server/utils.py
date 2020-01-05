@@ -286,7 +286,7 @@ class User:
             await lobby_broadcast(sockets, get_seeks(seeks))
 
     async def quit_lobby(self, sockets, disconnect):
-        print(self.username, "quit_lobby()")
+        # print(self.username, "quit_lobby()")
 
         self.lobby_ws = None
         if self.username in sockets:
@@ -547,7 +547,7 @@ class Game:
 
             if invalid0 or invalid1 or invalid2 or invalid3 or invalid4:
                 log.error("Got invalid initial_fen %s for game %s" % (self.initial_fen, self.id))
-                print(invalid0, invalid1, invalid2, invalid3, invalid4)
+                # print(invalid0, invalid1, invalid2, invalid3, invalid4)
                 self.initial_fen = start_fen
 
         if self.chess960 and self.initial_fen:
@@ -597,10 +597,11 @@ class Game:
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
-                    "black": self.ply_clocks[-1]["black"]}
-            clocks["movetime"] = movetime
+                    "black": self.ply_clocks[-1]["black"],
+                    "movetime": movetime
+                }
 
-            if cur_player.bot and self.ply > 2:
+            if cur_player.bot and self.ply >= 2:
                 cur_color = "black" if self.board.color == BLACK else "white"
                 clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
                 if clocks[cur_color] == 0:
@@ -712,10 +713,10 @@ class Game:
         else:
             raise RuntimeError('game.result: unexpected result code')
         wr, br = self.white_rating, self.black_rating
-        print("ratings before updated:", wr, br)
+        # print("ratings before updated:", wr, br)
         wr = await gl2.rate(self.white_rating, [(white_score, br)])
         br = await gl2.rate(self.black_rating, [(black_score, wr)])
-        print("ratings after updated:", wr, br)
+        # print("ratings after updated:", wr, br)
         await self.wplayer.set_rating(self.variant, self.chess960, wr)
         await self.bplayer.set_rating(self.variant, self.chess960, br)
 
@@ -750,13 +751,13 @@ class Game:
 
         w, b = self.board.insufficient_material()
         if w and b:
-            print("1/2 by board.insufficient_material()")
+            # print("1/2 by board.insufficient_material()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
         # check 50 move rule and repetition
         if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
-            print("1/2 by board.is_claimable_draw()")
+            # print("1/2 by board.is_claimable_draw()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
@@ -770,7 +771,7 @@ class Game:
                 if self.variant.endswith(("xiangqi", "shogi")):
                     self.result = "0-1" if self.board.color == WHITE else "1-0"
                 else:
-                    print("1/2 by stalemate")
+                    # print("1/2 by stalemate")
                     self.result = "1/2-1/2"
 
         if self.ply > 600:
