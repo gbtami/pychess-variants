@@ -49,7 +49,7 @@ class FairyBoard:
     @property
     def initial_sfen(self):
         if self.variant == "kyotoshogi":
-            return "p+nks+l/5/5/5/+LSK+NP b 0 1"
+            return "p+nks+l/5/5/5/+LSK+NP b - 1"
         elif self.variant == "minishogi":
             return "rbsgk/4p/5/P4/KGSBR b - 1"
         else:
