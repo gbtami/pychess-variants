@@ -151,6 +151,9 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, response)
                         request.app["chat"].append(response)
 
+                    elif data["type"] == "logout":
+                        await ws.close()
+
                     elif data["type"] == "disconnect":
                         # Used only to test socket disconnection...
                         await ws.close(code=1009)

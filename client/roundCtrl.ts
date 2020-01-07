@@ -913,6 +913,10 @@ export default class RoundController {
         window.location.assign(this.model["home"]);
     }
 
+    private onMsgShutdown = (msg) => {
+        alert(msg.message);
+    }
+
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -959,6 +963,12 @@ export default class RoundController {
             case "game_not_found":
                 this.onMsgGameNotFound(msg);
                 break
+            case "shutdown":
+                this.onMsgShutdown(msg);
+                break;
+            case "logout":
+                this.doSend({type: "logout"});
+                break;
         }
     }
 }

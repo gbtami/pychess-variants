@@ -238,6 +238,9 @@ async def round_socket_handler(request):
 
                         await round_broadcast(game, users, response)
 
+                    elif data["type"] == "logout":
+                        await ws.close()
+
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         game = games[data["gameId"]]
                         response = await game_ended(games, user, data, data["type"])

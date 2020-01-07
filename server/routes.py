@@ -13,7 +13,7 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
-from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS, DEFAULT_PERF
+from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS, DEFAULT_PERF, round_broadcast
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -133,6 +133,32 @@ async def login(request):
             session["user_name"] = prev_session_user
 
         del session["token"]
+
+    raise web.HTTPFound("/")
+
+
+async def logout(request):
+    users = request.app["users"]
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users.get(session_user)
+
+    # close lobby socket
+    if session_user in request.app["websockets"]:
+        ws = request.app["websockets"][session_user]
+        response = {"type": "logout"}
+        await ws.send_json(response)
+
+    # lose and close game sockets
+    if user is not None:
+        for gameId in user.game_sockets:
+            game = request.app["games"][gameId]
+            if game.status <= STARTED:
+                response = await game.abandone(user)
+                await round_broadcast(game, users, response, full=True)
+
+    session.invalidate()
 
     raise web.HTTPFound("/")
 
@@ -418,6 +444,7 @@ async def export(request):
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
+    ("/logout", logout),
     ("/", index),
     ("/about", index),
     ("/howtoplay", index),
