@@ -13,8 +13,8 @@ WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-SHOGI_FEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b - 1"
-MINISHOGI_FEN = "rbsgk/4p/5/P4/KGSBR[-] b - 1"
+SHOGI_FEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1"
+MINISHOGI_FEN = "rbsgk/4p/5/P4/KGSBR[-] b 0 1"
 KYOTOSHOGI_FEN = "p+nks+l/5/5/5/+LSK+NP[-] b 0 1"
 
 log = logging.getLogger(__name__)

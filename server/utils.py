@@ -534,20 +534,20 @@ class Game:
             invalid3 = len(init) > 1 and init[1] not in "bw"
 
             # Castling rights (and piece virginity) check
+            invalid4 = False
             if self.variant == "seirawan" or self.variant == "shouse":
                 invalid4 = len(init) > 2 and any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
             elif self.chess960:
                 if all((c in "KQkq-" for c in init[2])):
-                    invalid4 = False
                     self.chess960 = False
                 else:
                     invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
-            else:
+            elif self.variant[-5:] != "shogi":
                 invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
             if invalid0 or invalid1 or invalid2 or invalid3 or invalid4:
                 log.error("Got invalid initial_fen %s for game %s" % (self.initial_fen, self.id))
-                # print(invalid0, invalid1, invalid2, invalid3, invalid4)
+                print(invalid0, invalid1, invalid2, invalid3, invalid4)
                 self.initial_fen = start_fen
 
         if self.chess960 and self.initial_fen:
@@ -881,6 +881,11 @@ class Game:
     async def abort(self):
         await self.update_status(ABORTED)
         return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id, "pgn": self.pgn}
+
+    async def abandone(self, user):
+        result = "0-1" if user.username == self.wplayer.username else "1-0"
+        await self.update_status(LOSERS["abandone"], result)
+        return {"type": "gameEnd", "status": self.status, "result": result, "gameId": self.id, "pgn": self.pgn}
 
 
 async def load_game(app, game_id):
