@@ -1,7 +1,34 @@
 :root {
     --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+    --font-color: #4d4d4d;
+    --text-shadow: #fff;
+    --bg-body: #edebe9 linear-gradient(to bottom, #dbd7d1, #edebe9 116px) no-repeat;
+    --bg-color0: #dbd7d1;
+    --bg-color1: White;
+    --bg-color2: WhiteSmoke;
+    --bg-seek: rgba(255,255,255,0.8);
+    --game-hover: #d1e6fa;
+    --green-hover: #89b25b;
+    --blue-active: #d1e4f6;
+    --blue-hover: #1b78d0;
+    --good: #629924;
+    --bad: #c33;
 }
+[data-theme="dark"] {
+    --font-color: #bababa;
+    --text-shadow: none;
+    --bg-body: #262421;
+    --bg-color0: #262421;
+    --bg-color1: #2e2a24;
+    --bg-color2: #333333;
+    --bg-seek: #2e2a24;
+    --game-hover: #223344;
+    --green-hover: #537c23;
+    --blue-active: #293a49;
+    --blue-hover: #3692e7;
+}
+
 html {
   font-size: 14px ;
   min-height: 100%;
@@ -9,8 +36,8 @@ html {
 }
 body {
   margin: 0;
-  color: #505050;
-  background: #eee;
+  color: var(--font-color);
+  background: var(--bg-body);
   cursor: default;
 }
 body.no-select {
@@ -82,6 +109,8 @@ under-board {
 }
 textarea {
   width: calc(var(--cgwrapwidth));
+  color: var(--font-color);
+  background-color: var(--bg-color1);
   resize: none;
 }
 div.pgn {
@@ -102,36 +131,76 @@ div.about {
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   box-shadow: var(--base-shadow);
-  background-color: white;
+  background-color: var(--bg-color1);
   padding: 24px;
 }
 div.about.closed {
   width: 100%;
 }
 
-a.nav-link:link, a.nav-link:visited {
-    background-color: DimGray;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    padding-right: 6px;
+.nav-link:link, .nav-link:visited {
+  color: var(--font-color);
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 1px 0 var(--text-shadow);
+  display: inline-block;
+  padding-right: 6px;
 }
-a.nav-link:hover, a.nav-link:active {
-    background-color: LightSlateGray;
+.nav-link:hover, .nav-link:active {
+  color: var(--blue-hover);
 }
-a.nav-link.login {
+.nav-link.home {
+  font-size: 25px;
+}
+.nav-link.login {
     float: right;
 }
-a.user-link:link, a.user-link:visited {
+
+
+.topnav {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  line-height: 40px;
+  color: var(--font-color);
+  text-align: center;
+}
+
+.topnav a {
+  float: left;
+  display: block;
+  height: 40px;
+  padding: 0px 4px 0px 4px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav .tool-container button {
+  float: right;
+  color: var(--font-color);
+  background-color: inherit;
+  width: 40px;
+  height: 40px;
+  padding: 0px 4px 0px 4px;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+}
+
+.topnav .tool-container button:hover {
+  color: var(--blue-hover);
+}
+
+a, .user-link:link, .user-link:visited {
     display: inline-block;
-    color: #505050;
+    color: var(--font-color);
     text-decoration: none;
 }
-a.user-link:hover, a.user-link:active {
+a, .user-link:hover, .user-link:active {
     color: RoyalBlue;
 }
-a.reflist {
+.reflist {
     padding: 6px;
     text-decoration: none;
 }
@@ -139,7 +208,7 @@ a.reflist {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  background: White;
+  background: var(--bg-color1);
   box-shadow: var(--base-shadow);
 }
 
@@ -151,11 +220,11 @@ div#result {
   border-top: 1px solid LightGray;
 }
 
-.lobby-button, .donate-button {
+.lobby-button, .donate-button, button#request-analysis {
   width: 280px;
-  background-color: Gray;
+  background-color: var(--bg-color2);
   border: none;
-  color: white;
+  color: var(--font-color);
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
@@ -165,10 +234,10 @@ div#result {
   box-shadow: var(--base-shadow);
 }
 .lobby-button:hover {
-  background-color: LightGray;
+  background-color: var(--bg-color1);
 }
 .donate-button {
-  background-color: White;
+  background-color: var(--bg-color2);
   color: GoldenRod;
 }
 .donate-button:hover {
@@ -180,35 +249,37 @@ div#result {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  background: White;
+  background: var(--bg-color1);
   box-shadow: var(--btn-shadow);
 }
 
 button.rematch {
   border: none;
-  background-color: WhiteSmoke;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
   padding: 12px 0;
   cursor: pointer;
 }
 button.rematch:hover {
-  background-color: LightSkyBlue ;
+  background-color: var(--green-hover) ;
 }
 
 button.newopp, button.analysis {
   border: none;
-  background-color: white;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
   padding: 12px 0;
   cursor: pointer;
 }
 button.newopp:hover,  button.analysis:hover {
-  background-color: DarkSeaGreen;
+  background-color: var(--green-hover);
 }
 
 .game-info {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: White;
+  background: var(--bg-color1);
   box-shadow: var(--base-shadow);
   margin-bottom: 16px;
   padding: 12px;
@@ -268,10 +339,10 @@ div.info-result {
   text-align: center;
 }
 div.info-result.win {
-  color: Green;
+  color: var(--good);;
 }
 div.info-result.lose {
-  color: Red;
+  color: var(--bad);
 }
 div.anal-meta {
 }
@@ -300,7 +371,7 @@ i-side.online {
   font-size: 14px;
 }
 .icon-online::before {
-  color: #629924;
+  color: var(--good);
   vertical-align: -2;
   margin-right: .4em;
 }
@@ -317,10 +388,10 @@ rating span {
   font-size: 12px;
 }
 good {
-  color: #629924;
+  color: var(--good);
 }
 bad {
-  color: #c33;
+  color: var(--bad);
 }
 swords {
   font-size: 2em;
@@ -335,7 +406,7 @@ swords {
   opacity: 0.5;
 }
 .sub-ratings a.active {
-  background: White;
+  background: var(--bg-color1);
   opacity: 1;
 }
 .sub-ratings h3{
@@ -356,7 +427,7 @@ swords {
   opacity: 0.7;
 }
 .sub-ratings a:hover {
-  background: White;
+  background: var(--bg-color1);
 }
 .sub-ratings a:hover::before {
   color: LightSkyBlue;
@@ -377,11 +448,13 @@ swords {
 .card {
   border: 1px solid #d3d3d3;
   border-radius: .25rem;
-  background-color: White;
+  background-color: var(--bg-color1);
 }
 .card div.info0 {
-  background-color: PaleGoldenRod;
+  color: WhiteSmoke;
+  background-color: GoldenRod;
 }
+
 i {
   font-size: 18px;
 }
@@ -407,55 +480,9 @@ li a {
     text-decoration: none;
 }
 
-li a:hover:not(.active) {
-    background-color: #111;
-}
-
-.topnav {
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  height: 40px;
-  line-height: 40px;
-  color: white;
-  background-color: DimGray;
-  text-align: center;
-}
-
-.topnav a {
-  float: left;
-  display: block;
-  height: 40px;
-  padding: 0px 4px 0px 4px;
-  color: white;
-  background-color: DimGray;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.topnav a:hover {
-  background-color: LightSlateGray;
-}
-
 #username {
   padding: 0px 4px 0px 4px;
   float: right;
-}
-
-.topnav .tool-container button {
-  float: right;
-  width: 40px;
-  height: 40px;
-  padding: 0px 4px 0px 4px;
-  background-color: DimGray;
-  font-size: 17px;
-  border: none;
-  cursor: pointer;
-  color: white;
-}
-
-.topnav .tool-container button:hover {
-  background: LightSlateGray;
 }
 
 table#seeks {
@@ -467,7 +494,7 @@ table#seeks {
   box-shadow: var(--base-shadow);
   background-size: contain;
   background-image: url('images/Background2.svg');
-  background-color: rgba(255,255,255,0.8);
+  background-color: var(--bg-seek);
   background-blend-mode: lighten;
 }
 
@@ -488,21 +515,21 @@ table#seeks {
 }
 
 #seeks tr {
-  border: 1px solid #ddd;
+  border: 1px solid var(--bg-color2);
 }
 
 #seeks tbody tr:hover {
   width:100%;
-  background-color: Bisque;
+  background-color: var(--green-hover);
 }
 
 #seeks th {
   text-align: left;
-  background-color: WhiteSmoke;
+  background-color: var(--bg-color2);
 }
 
 #players {
-  background-color: White;
+  background-color: var(--bg-color1);
 }
 
 /* profile games */
@@ -546,7 +573,7 @@ td.player-data {
 
 #games th {
   height: 80px;
-  background-color: WhiteSmoke;
+  background-color: var(--bg-color2);
 }
 
 #games td {
@@ -556,19 +583,19 @@ td.player-data {
 #games tr {
   display: flex;
   width:100%;
-  border: 1px solid #ddd;
+  border: 1px solid var(--bg-color1);
   padding: 3px;
-  background-color: WhiteSmoke;
+  background-color: var(--bg-color2);
 }
 
 #games tr:nth-child(odd) {
   width:100%;
-  background-color: White;
+  background-color: var(--bg-color1);
 }
 
 #games tbody tr:hover {
   width:100%;
-  background-color: #d1e6fa;
+  background-color: var(--game-hover);
   cursor: pointer;
 }
 
@@ -592,8 +619,10 @@ select, input {
   padding: 12px 20px;
   margin: 8px 0;
   display: inline;
-  border: 1px solid #ccc;
+  border: 1px solid #aaa;
   box-sizing: border-box;
+  color: var(--font-color);
+  background: var(--bg-color1);
 }
 
 /* Center the image and position the close button */
@@ -612,7 +641,7 @@ select, input {
 
 /* Modal Content/Box */
 .modal-content {
-  background-color: #fefefe;
+  background-color: var(--bg-color1);
   margin: 10 auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
   border-radius: 3px;
   width: 30%; /* Could be more or less, depending on screen size */
@@ -636,13 +665,12 @@ select, input {
 
 .close:hover, .close:focus {
   cursor: "pointer";
-  background: red;
+  background: var(--bad);
 }
 
 div.btn-controls {
   display: flex;
   justify-content: space-between;
-  background-color: WhiteSmoke;
   box-shadow: var(--btn-shadow);
 }
 
@@ -650,20 +678,21 @@ div.btn-controls {
   flex: 1;
   height: 40px;
   border: none;
-  background-color: WhiteSmoke;
+  color: var(--font-color);
+  background-color: var(--bg-color2);
   cursor: pointer;
 }
 
 .btn-controls button:disabled {
-  color: LightGray;
+  color: var(--bg-color1);
 }
 
 .btn-controls button:hover {
-  background-color: DarkSeaGreen;
+  background-color: var(--green-hover);
 }
 
 .btn-controls button#gear.selected {
-  background-color: DarkSeaGreen;
+  background-color: var(--green-hover);
 }
 
 .btn-controls button:focus {
@@ -686,7 +715,7 @@ div.btn-controls {
 button.icon.icon-plus-square {
   border: none;
   color: LightBlue;
-  background: #eee;
+  background: var(--bg-color0);
   font-size: 36px;
   cursor: pointer;
 }
@@ -709,7 +738,7 @@ button.icon::-moz-focus-inner {
 }
 .clock.time {
   color: #404040;
-  background-color: White;
+  background-color: var(--bg-color1);
 }
 .clock.time.min {
   padding-left: 12px;
@@ -720,7 +749,7 @@ button.icon::-moz-focus-inner {
   box-sizing: border-box;
 }
 .clock.sep {
-  background-color: White;
+  background-color: var(--bg-color1);
   color: #404040;
 }
 
@@ -791,7 +820,7 @@ label {
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  background: White;
+  background: var(--bg-color1);
   box-shadow: var(--base-shadow);
 }
 
@@ -800,12 +829,12 @@ user {
   font-weight: bold;
 }
 div.chatroom {
-  background: White;
+  background: var(--bg-color1);
   padding: 6px;
 }
 
 /* hack: max-height = seek table th+tr height */
-ol {
+ol#lobbychat-messages, ol#roundchat-messages {
   display: flex;
   flex: 1;
   order: 1;
@@ -836,16 +865,18 @@ li.message.offer {
 }
 
 li.message.server {
-  color: Red;
+  color: var(--bad);
 }
 
 #chat-entry {
   display: flex;
   order: 2;
-  border: 1px solid #ddd;
+  border: 1px solid var(--bg-color2);
   margin: 0;
   padding: 3px;
   margin-top: auto;
+  color: var(--font-color);
+  background: var(--bg-color1);
 }
 #spectators {
   overflow-wrap: break-word
@@ -858,13 +889,13 @@ li.message.server {
 /* movelist border: 1px solid #ddd; */
 div#moves {
   display: inline;
-  background: White;
+  background: var(--bg-color1);
   height: 100px;
   max-height: 100px;
 }
 div.anal#moves {
   display: inline;
-  background: White;
+  background: var(--bg-color1);
 }
 
 ol.movelist {
@@ -889,15 +920,16 @@ eval {
 li.move.counter {
   color: Gray;
   width: 16%;
-  background-color: WhiteSmoke;
+  background-color: var(--bg-color2);
   text-align: center;
 }
 
 li.move:hover {
-    background-color: LightSkyBlue;
+  color: var(font-color);
+  background-color: var(--blue-hover);
 }
 li.move.active {
-    background-color: LightBlue;
+  background-color: var(--blue-active);
 }
 li.move.hidden {
   visibility: hidden;
@@ -1032,7 +1064,7 @@ body.no-sidebar .content {
 }
 
 div#pv {
-  background-color: WhiteSmoke;
+  background-color: var(--bg-color2);
   box-shadow: var(--btn-shadow);
 }
 
@@ -1057,12 +1089,12 @@ grid-container{
   overflow-x:hidden;
 }
 minigame {
-  border: 1px solid #ddd;
+  border: 1px solid var(--bg-color2);
   padding: 6px;
-  background-color: WhiteSmoke;
+  background-color: var(--bg-color2);
 }
 minigame:hover {
-  background-color: #d1e6fa;
+  background-color: var(--game-hover);
   cursor: pointer;
 }
 
@@ -1093,7 +1125,7 @@ minigame:hover {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 4px solid WhiteSmoke;
+  border: 4px solid var(--bg-color2);
   border-top: 4px solid DimGray;
   -webkit-animation: spin 0.6s linear infinite;
   animation: spin 0.6s linear infinite;

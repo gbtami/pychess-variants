@@ -67,7 +67,7 @@
         data-base="{{ base }}"
         data-inc="{{ inc }}">
     <div class="topnav">
-      <a class="nav-link active" href="/">PyChess</a>
+      <a class="nav-link active home" href="/">PyChess</a>
       <a class="nav-link" href="/tv">Tv</a>
       <a class="nav-link" href="/games">Current games</a>
       <a class="nav-link" href="/players">Players</a>
@@ -76,8 +76,11 @@
       <div class="tool-container">
         {% if guest %}
             <a class="login nav-link" href="{{ home }}/login" title="Login with Lichess">Log in</a>
+        {% else %}
+            <a class="login nav-link" href="{{ home }}/logout" title="Log out">Log out</a>
         {% endif %}
         <button id="btn-sound" onclick="toggleAudio();" title="Toggle sound"><div class="icon icon-volume-up"></div></button>
+        <button id="btn-darkmode" onclick="toggleDarkmode();" title="Toggle dark mode"><div class="icon icon-light"></div></button>
         <div id="username"></div>
       </div>
     </div>
@@ -96,5 +99,25 @@ function toggleAudio() {
     if (silence) snd_btn.innerHTML = '<div class="icon icon-volume-off"></div>';
     else snd_btn.innerHTML = '<div class="icon icon-volume-up"></div>';
     for (var j = 0; j < allaudio.length; j++) allaudio[j].muted = silence;
+}
+
+var darkmode = false;
+function toggleDarkmode() {
+    darkmode = !darkmode;
+    var darkmode_btn = document.getElementById("btn-darkmode");
+    if (darkmode) {
+        darkmode_btn.innerHTML = '<div class="icon icon-dark"></div>';
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark'); 
+    } else {
+        darkmode_btn.innerHTML = '<div class="icon icon-light"></div>';
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light'); 
+    }
+}
+const currentTheme = localStorage.getItem('theme');
+if (currentTheme !== undefined) {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    if (currentTheme === 'dark') toggleDarkmode();
 }
 </script>
