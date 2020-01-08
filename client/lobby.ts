@@ -143,7 +143,7 @@ class LobbyController {
         if (this.test_ratings) {
             rated = parseInt(e.value);
         } else {
-            rated = (this.challengeAI || this.model["anon"] === 'True') ? 0 : parseInt(e.value);
+            rated = (this.challengeAI || this.model["anon"] === 'True' || fen !== '') ? 0 : parseInt(e.value);
         }
         localStorage.setItem("seek_rated", e.value);
 
