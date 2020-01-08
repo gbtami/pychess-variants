@@ -13,7 +13,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { variants, variants960, variantIcon, variantName } from './chess';
+import { variants, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN } from './chess';
 import { sound } from './sound';
 
 
@@ -126,6 +126,10 @@ class LobbyController {
         const fen = e.value;
         localStorage.setItem("seek_fen", e.value);
 
+        e = document.getElementById('handicap') as HTMLSelectElement;
+        const handicap = e.options[e.selectedIndex].value;
+        localStorage.setItem("seek_handicap", handicap);
+
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = parseInt(e.value);
         localStorage.setItem("seek_min", e.value);
@@ -164,13 +168,23 @@ class LobbyController {
     }
 
     renderSeekButtons () {
+        const setHandicap = () => {
+            let e;
+            e = document.getElementById('handicap') as HTMLSelectElement;
+            const handicap = e.options[e.selectedIndex].value;
+            e = document.getElementById('fen') as HTMLSelectElement;
+            e!.value = SHOGI_HANDICAP_FEN[handicap];
+        }
+
         const setVariant = () => {
             let e;
             e = document.getElementById('variant') as HTMLSelectElement;
             const variant = e.options[e.selectedIndex].value;
-            const hide = variants960.indexOf(variant) === -1;
+            const hide960 = variants960.indexOf(variant) === -1;
+            const hideHandicap = variant !== 'shogi';
 
-            document.getElementById('chess960-block')!.style.display = (hide) ? 'none' : 'block';
+            document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
+            document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
         }
 
         const setMinutes = (minutes) => {
@@ -201,6 +215,7 @@ class LobbyController {
             document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
         }
 
+        const hIdx = localStorage.seek_handicap === undefined ? 0 : SHOGI_HANDICAP_NAME.indexOf(localStorage.seek_handicap);
         const vIdx = localStorage.seek_variant === undefined ? 0 : variants.sort().indexOf(localStorage.seek_variant);
         const vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
@@ -226,6 +241,14 @@ class LobbyController {
                         }, variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
                 ]),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here', value: vFen} }),
+                h('div#handicap-block', [
+                    h('label', { attrs: {for: "handicap"} }, "Handicap"),
+                    h('select#handicap', {
+                        props: {name: "handicap"},
+                        on: { input: () => setHandicap() },
+                        hook: {insert: () => setHandicap() },
+                        }, SHOGI_HANDICAP_NAME.map((handicap, idx) => h('option', { props: {value: handicap, selected: (idx === hIdx) ? "selected" : ""} }, handicap))),
+                ]),
                 h('div#chess960-block', [
                     h('label', { attrs: {for: "chess960"} }, "Chess960"),
                     h('input#chess960', {props: {name: "chess960", type: "checkbox", checked: vChess960 === "true" ? "checked" : ""}}),

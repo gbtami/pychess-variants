@@ -453,4 +453,18 @@ export const kyotoPromotion = {
     'pawn': 'ppawn',
     'ppawn': 'pawn'
 }
-    
+
+export const SHOGI_HANDICAP_NAME = ['', 'Lance', 'Bishop', 'Rook', 'Rook+Lance', '2-Piece', '4-Piece', '6-Piece', '8-Piece', '9-Piece', '10-Piece'];
+export const SHOGI_HANDICAP_FEN = {
+'': '',
+'Lance': 'lnsgkgsn1/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'Bishop': 'lnsgkgsnl/1r7/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'Rook': 'lnsgkgsnl/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'Rook+Lance': 'lnsgkgsn1/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'2-Piece': 'lnsgkgsnl/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'4-Piece': '1nsgkgsn1/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'6-Piece': '2sgkgs2/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'8-Piece': '3gkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'9-Piece': '3gk4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
+'10-Piece': '4k4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1'
+}
