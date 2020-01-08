@@ -1,0 +1,20 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="profile-wrapper">
+<aside class="sidebar-first">
+    <ul class="guide">
+    {% for key in guides %}
+    <li>
+    <a href="{{ home }}/guides/{{ key }}">{{ key }} Guide</a>
+    </li>
+    {% endfor %}
+    </ul>
+</aside>
+<div class="guide">{% include guide %}<div>
+<aside class="sidebar-second"></aside>
+</div>
+
+{% endblock %}
+{% block js %}
+    <script src="/static/pychess-utils.js"></script>
+{% endblock %}

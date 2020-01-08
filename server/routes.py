@@ -201,8 +201,8 @@ async def index(request):
 
     if request.path == "/about":
         view = "about"
-    elif request.path == "/howtoplay":
-        view = "howtoplay"
+    elif request.path.startswith("/guides"):
+        view = "guides"
     elif request.path == "/players":
         view = "players"
     elif request.path == "/games":
@@ -253,6 +253,8 @@ async def index(request):
             template = request.app["jinja"].get_template("profile.html")
     elif view == "players":
         template = request.app["jinja"].get_template("players.html")
+    elif view == "guides":
+        template = request.app["jinja"].get_template("guides.html")
     else:
         template = request.app["jinja"].get_template("index.html")
 
@@ -311,6 +313,10 @@ async def index(request):
         render["level"] = 8
         render["profile"] = "Fairy-Stockfish"
 
+    if view == "guides":
+        render["guides"] = ("Variants", "Makruk", "Sittuyin", "Shogi", "Xiangqi", "Shako")
+        guide = request.match_info.get("guide")
+        render["guide"] = ("Variants" if guide is None else guide) + "-Guide.html"
     text = template.render(render)
 
     # log.debug("Response: %s" % text)
@@ -447,7 +453,6 @@ get_routes = (
     ("/logout", logout),
     ("/", index),
     ("/about", index),
-    ("/howtoplay", index),
     ("/players", index),
     ("/games", index),
     ("/tv", index),
@@ -457,6 +462,8 @@ get_routes = (
     ("/@/{profileId}/{variant}", index),
     ("/level8win", index),
     ("/patron/thanks", index),
+    ("/guides", index),
+    ("/guides/{guide}", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
     ("/api/account", account),

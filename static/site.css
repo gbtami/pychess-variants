@@ -125,7 +125,7 @@ under-right {
   justify-content: center;
 }
 
-div.about {
+div.about, div.guide {
   width: 75%;
   margin: 0 auto;
   border-radius: 3px;
@@ -136,6 +136,16 @@ div.about {
 }
 div.about.closed {
   width: 100%;
+}
+div.guide {
+  width: 100%;
+}
+ul.guide {
+  list-style:none;
+  margin-right: 24px;
+}
+ul.guide li {
+  margin-bottom: 24px;
 }
 
 .nav-link:link, .nav-link:visited {
@@ -454,14 +464,17 @@ swords {
   color: WhiteSmoke;
   background-color: GoldenRod;
 }
+.player-data.odd {
+  background-color: var(--bg-color1);
+}
+.player-data.even {
+  background-color: var(--bg-color2);
+}
 
 i {
   font-size: 18px;
 }
 
-ul {
-    list-style: none;
-}
 ul.header {
     margin: 0;
     padding: 0;
@@ -470,14 +483,6 @@ ul.header {
 
 li.header {
     float: right;
-}
-
-li a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
 }
 
 #username {

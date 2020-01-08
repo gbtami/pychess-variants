@@ -10,7 +10,7 @@
                 <div class="variant">{{ key.upper() }}</div>
             </div>
             {% for user, score in highscore[key].items() %}
-                <div class="player-data">
+                <div class="player-data {{ loop.cycle('odd', 'even') }}">
                     <player>
                         <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
                         <rating>{{ score }}</rating>
@@ -23,4 +23,8 @@
 </aside>
 <aside class="sidebar-second"></aside>
 </div>
+{% endblock %}
+{% block js %}
+    <script src="/static/pychess-utils.js"></script>
+    <script src="/static/pychess-variants.min.js"></script>
 {% endblock %}

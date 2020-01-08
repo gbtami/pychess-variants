@@ -61,8 +61,6 @@ export function view(el, model): VNode {
     switch (el.getAttribute("data-view")) {
     case 'about':
         return h('div#placeholder.main-wrapper', aboutView(model));
-    case 'howtoplay':
-        return h('iframe', {props: {src: model["home"] + "/static/docs/variants.html", height: "100%", width:"100%", seamless: ""}});
     case 'players':
         return h('main.players', playersView(model));
     case 'level8win':
