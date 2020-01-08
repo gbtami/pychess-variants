@@ -125,7 +125,7 @@ under-right {
   justify-content: center;
 }
 
-div.about, div.guide {
+div.about, div.guide, div.patron {
   width: 75%;
   margin: 0 auto;
   border-radius: 3px;
@@ -136,6 +136,9 @@ div.about, div.guide {
 }
 div.about.closed {
   width: 100%;
+}
+div.patron {
+  width: 50%;
 }
 div.guide {
   width: 100%;

@@ -207,6 +207,8 @@ async def index(request):
         view = "players"
     elif request.path == "/games":
         view = "games"
+    elif request.path == "/patron":
+        view = "patron"
     elif request.path == "/patron/thanks":
         view = "thanks"
     elif request.path == "/level8win":
@@ -255,6 +257,8 @@ async def index(request):
         template = request.app["jinja"].get_template("players.html")
     elif view == "guides":
         template = request.app["jinja"].get_template("guides.html")
+    elif view == "patron":
+        template = request.app["jinja"].get_template("patron.html")
     else:
         template = request.app["jinja"].get_template("index.html")
 
@@ -461,6 +465,7 @@ get_routes = (
     ("/@/{profileId}/tv", index),
     ("/@/{profileId}/{variant}", index),
     ("/level8win", index),
+    ("/patron", index),
     ("/patron/thanks", index),
     ("/guides", index),
     ("/guides/{guide}", index),

@@ -446,7 +446,7 @@ export function lobbyView(model): VNode[] {
             h('under-right', [
                 h('a', {
                     class: {'donate-button': true},
-                    attrs: {href: 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NC73JXRBQNTAN&source=url'}
+                    attrs: {href: '/patron'}
                     }, 'Directly support us')
             ]),
         ];
