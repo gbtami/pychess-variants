@@ -423,7 +423,7 @@ swords {
   font-size: 3em;
 }
 .sub-ratings a.empty {
-  opacity: 0.5;
+  opacity: 0.3;
 }
 .sub-ratings a.active {
   background: var(--bg-color1);
@@ -441,7 +441,7 @@ swords {
   flex: 1 1 100%;
   flex-flow: row;
   align-items: center;
-  color: #5e5e5e;
+  color: var(--font-color);
   text-decoration: none;
   padding: 0.3em;
   opacity: 0.7;
