@@ -15,11 +15,19 @@ function toggleDarkmode() {
     if (darkmode) {
         darkmode_btn.innerHTML = '<div class="icon icon-dark"></div>';
         document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark'); 
+        localStorage.setItem('theme', 'dark');
     } else {
         darkmode_btn.innerHTML = '<div class="icon icon-light"></div>';
         document.documentElement.setAttribute('data-theme', 'light');
         localStorage.setItem('theme', 'light'); 
+    }
+    var alliside = document.getElementsByTagName('i-side');
+    for (var j = 0; j < alliside.length; j++) {
+        // take care of random color seek icons
+        if (!alliside[j].classList.contains('icon-adjust')) {
+            alliside[j].classList.toggle("icon-white");
+            alliside[j].classList.toggle("icon-black");
+        }
     }
 }
 const currentTheme = localStorage.getItem('theme');

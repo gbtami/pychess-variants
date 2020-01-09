@@ -352,7 +352,15 @@ class LobbyController {
              h('th', '    '),
              h('th', 'Variant'),
              h('th', 'Mode')])]);
-        const colorIcon = (color) => { return h('i', {attrs: {"data-icon": color === "w" ? "c" : color === "b" ? "b" : "a"}} ); };
+        const darkMode = parseInt(getComputedStyle(document.body).getPropertyValue('--dark-mode')) === 1;
+        const colorIcon = (color) => {
+            return h('i-side', {class: {
+                "icon": true,
+                "icon-adjust": color === "r",
+                "icon-white": color === ((darkMode) ? "b": "w"),
+                "icon-black": color === ((darkMode) ? "w": "b")
+                }}
+            )};
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
         // console.log("VARIANTS", VARIANTS);
         var rows = seeks.map((seek) => (this.model["anon"] === 'True' && seek["rated"]) ? "" : h(

@@ -1,6 +1,7 @@
 :root {
     --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+    --dark-mode: 0;
     --font-color: #4d4d4d;
     --text-shadow: #fff;
     --bg-body: #edebe9 linear-gradient(to bottom, #dbd7d1, #edebe9 116px) no-repeat;
@@ -14,8 +15,11 @@
     --blue-hover: #1b78d0;
     --good: #629924;
     --bad: #c33;
+    --gold: GoldenRod;
+    --rusty: rgba(214,79,0,0.5);
 }
 [data-theme="dark"] {
+    --dark-mode: 1;
     --font-color: #bababa;
     --text-shadow: none;
     --bg-body: #262421;
@@ -27,6 +31,8 @@
     --green-hover: #537c23;
     --blue-active: #293a49;
     --blue-hover: #3692e7;
+    --gold: DarkGoldenRod;
+    --rusty: rgba(214,79,0,0.5);
 }
 
 html {
@@ -251,10 +257,10 @@ div#result {
 }
 .donate-button {
   background-color: var(--bg-color2);
-  color: GoldenRod;
+  color: var(--gold);
 }
 .donate-button:hover {
-  background-color: GoldenRod;
+  background-color: var(--gold);
   color: White;
 }
 
@@ -298,6 +304,7 @@ button.newopp:hover,  button.analysis:hover {
   padding: 12px;
   font-size: 14px;
 }
+
 div.info1.icon, div.info0.icon::before {
   opacity: 0.7;
 }
@@ -374,14 +381,14 @@ round-player {
   padding: 2px 6px;
 }
 player-title {
-  color:GoldenRod;
+  color:var(--gold);
 }
 .variant {
   font-size: 18px;
 }
-i-side.online {
+i-side.icon-white::before, i-side.icon-black::before {
+  vertical-align: -2;
   margin-right: .4em;
-  font-size: 14px;
 }
 .icon-online::before {
   color: var(--good);
@@ -465,17 +472,13 @@ swords {
 }
 .card div.info0 {
   color: WhiteSmoke;
-  background-color: GoldenRod;
+  background-color: var(--gold);
 }
 .player-data.odd {
   background-color: var(--bg-color1);
 }
 .player-data.even {
   background-color: var(--bg-color2);
-}
-
-i {
-  font-size: 18px;
 }
 
 ul.header {
@@ -528,7 +531,7 @@ table#seeks {
 
 #seeks tbody tr:hover {
   width:100%;
-  background-color: var(--green-hover);
+  background-color: var(--rusty);
 }
 
 #seeks th {
@@ -786,8 +789,8 @@ button.icon {
   margin: 5px;
   padding: 5px;
 }
-button.icon.icon-circle, button.icon.icon-circle-o {
-    font-size: 24px;
+button.icon.icon-black, button.icon.icon-white {
+  font-size: 24px;
 }
 button.icon.icon-adjust {
     font-size: 36px;
@@ -1023,16 +1026,6 @@ cg-resize {
   border-radius: 50%;
   background: DimGray;
   cursor: pointer;
-}
-
-/* docsify */
-body.no-sidebar .sidebar,
-body.no-sidebar .sidebar-toggle {
-    display: none !important;
-}
-
-body.no-sidebar .content {
-    left: 0px !important;
 }
 
 /* analysis */
