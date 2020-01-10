@@ -383,7 +383,8 @@ async def AI_task(ai, app):
             await game.abort()
             continue
 
-        if game.variant[-5:] == "shogi":
+        starting_color = game.initial_fen.split()[1]
+        if starting_color == "b":
             starting_player = game.bplayer.username
         else:
             starting_player = game.wplayer.username
