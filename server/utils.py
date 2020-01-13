@@ -175,7 +175,7 @@ def zero2grand(move):
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=6, rated=False, chess960=False):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=6, rated=False, chess960=False, target=""):
         self.user = user
         self.variant = variant
         self.color = color
@@ -186,6 +186,7 @@ class Seek:
         self.inc = inc
         self.level = 0 if user.username == "Random-Mover" else level
         self.chess960 = chess960
+        self.target = target
 
         Seek.gen_id += 1
         self.id = self.gen_id
@@ -197,6 +198,7 @@ class Seek:
             "title": self.user.title,
             "variant": self.variant,
             "chess960": self.chess960,
+            "target": self.target,
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
@@ -1023,7 +1025,7 @@ def create_seek(seeks, user, data):
     if len(user.seeks) >= MAX_USER_SEEKS:
         return None
 
-    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"], rated=data.get("rated"), chess960=data.get("chess960"))
+    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"], rated=data.get("rated"), chess960=data.get("chess960"), target=data.get("target"))
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 

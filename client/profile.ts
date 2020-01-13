@@ -106,7 +106,7 @@ function renderGames(model, games) {
                             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                         ]),
                     ]),
-                    h('swords', {attrs: {"data-icon": '"'}, class: {"icon": true}}),
+                    h('vs-swords', {attrs: {"data-icon": '"'}, class: {"icon": true}}),
                     h('player', [
                         h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
                             h('player-title', " " + game["bt"] + " "),
@@ -221,6 +221,9 @@ export function profileView(model) {
                     h('a.i-tv', {
                         attrs: {href: '/@/' + model["profileid"] + '/tv', title: 'Watch games'},
                         class: {"icon": true, "icon-tv": true}}),
+                    (model["username"].startsWith('Anonymous') || model["username"] === model["profileid"]) ? undefined : h('a.i-ch', {
+                        attrs: {href: '/@/' + model["profileid"] + '/challenge', title: 'Challenge to a game'},
+                        class: {"icon": true, "icon-crossedswords": true}}),
                     ]),
                 h('table#games'),
                 h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) }})

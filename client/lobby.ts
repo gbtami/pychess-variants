@@ -66,8 +66,20 @@ class LobbyController {
         };
         patch(document.getElementById('seekbuttons') as HTMLElement, h('ul#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
-    }
 
+        // challenge!
+        if (model["profileid"] !== '') {
+            this.challengeAI = false;
+            if (this.model["anon"] !== 'True') {
+                document.getElementById('game-mode')!.style.display='inline-flex';
+            } else {
+                document.getElementById('game-mode')!.style.display='none';
+            }
+            document.getElementById('challenge-block')!.style.display='inline-flex';
+            document.getElementById('ailevel')!.style.display='none';
+            document.getElementById('id01')!.style.display='block';
+        }
+    }
 
     doSend (message) {
         // console.log("---> lobby doSend():", message);
@@ -78,6 +90,7 @@ class LobbyController {
         this.doSend({
             type: "create_seek",
             user: this.model["username"],
+            target: this.model["profileid"],
             variant: variant,
             fen: fen,
             minutes: minutes,
@@ -165,6 +178,9 @@ class LobbyController {
                 this.createSeekMsg(variant, color, fen, minutes, increment, chess960, rated===1);
             }
         }
+        // prevent to create challenges continuously
+        this.model["profileid"] = '';
+        window.history.replaceState({}, this.model['title'], this.model["home"] + '/');
     }
 
     renderSeekButtons () {
@@ -229,9 +245,19 @@ class LobbyController {
         h('div#id01', { class: {"modal": true} }, [
           h('form.modal-content', [
             h('div#closecontainer', [
-              h('span.close', { on: { click: () => document.getElementById('id01')!.style.display='none' }, attrs: {'data-icon': 'j'}, props: {title: "Cancel"} }),
+              h('span.close', { on: {
+                click: () => {
+                    document.getElementById('id01')!.style.display='none';
+                    // prevent to create challenges continuously
+                    this.model["profileid"] = '';
+                    window.history.replaceState({}, this.model['title'], this.model["home"] + '/');
+                    }
+                }, attrs: {'data-icon': 'j'}, props: {title: "Cancel"} }),
             ]),
             h('div.container', [
+                h('div#challenge-block', [
+                    h('h3', 'Challenge ' + this.model["profileid"] + ' to a game'),
+                ]),
                 h('div', [
                     h('label', { attrs: {for: "variant"} }, "Variant"),
                     h('select#variant', {
@@ -314,6 +340,7 @@ class LobbyController {
                 } else {
                     document.getElementById('game-mode')!.style.display='none';
                 }
+                document.getElementById('challenge-block')!.style.display='none';
                 document.getElementById('ailevel')!.style.display='none';
                 document.getElementById('id01')!.style.display='block';
                 }
@@ -326,6 +353,7 @@ class LobbyController {
                 } else {
                     document.getElementById('game-mode')!.style.display='none';
                 }
+                document.getElementById('challenge-block')!.style.display='none';
                 document.getElementById('ailevel')!.style.display='inline-block';
                 document.getElementById('id01')!.style.display='block';
                 }
@@ -352,6 +380,7 @@ class LobbyController {
              h('th', '    '),
              h('th', 'Variant'),
              h('th', 'Mode')])]);
+
         const darkMode = parseInt(getComputedStyle(document.body).getPropertyValue('--dark-mode')) === 1;
         const colorIcon = (color) => {
             return h('i-side', {class: {
@@ -361,12 +390,29 @@ class LobbyController {
                 "icon-black": color === ((darkMode) ? "w": "b")
                 }}
             )};
+        const challengeIcon = (seek) => {
+            return (seek['target'] === '') ? null : h('vs-swords.lobby', {attrs: {"data-icon": '"'}, class: {"icon": true}});
+        }
+
+        const title = (seek) => {
+            return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
+        }
+
+        const user = (seek) => {
+            return (seek['target'] === '') ? seek["user"] : ((seek['target'] === this.model['username']) ? seek['user'] : seek['target']);
+        }
+
+        const hide = (seek) => {
+            return ((this.model["anon"] === 'True' && seek["rated"]) ||
+                (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']));
+        }
+
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
         // console.log("VARIANTS", VARIANTS);
-        var rows = seeks.map((seek) => (this.model["anon"] === 'True' && seek["rated"]) ? "" : h(
+        var rows = seeks.map((seek) => hide(seek) ? "" : h(
             'tr',
             { on: { click: () => this.onClickSeek(seek) } },
-            [h('td', [h('player-title', " " + seek["title"] + " "), seek["user"]]),
+            [h('td', [challengeIcon(seek), title(seek), user(seek)]),
              h('td', [colorIcon(seek["color"])]),
              h('td', seek["rating"]),
              h('td', seek["tc"]),

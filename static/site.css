@@ -413,9 +413,15 @@ good {
 bad {
   color: var(--bad);
 }
-swords {
+vs-swords {
   font-size: 2em;
   padding: 4 8 0 8;
+}
+vs-swords.lobby {
+  display:inline-block;
+  font-size:24px;
+  color: var(--bad);
+  vertical-align: bottom;
 }
 .sub-ratings {
   display: flex;
@@ -547,7 +553,7 @@ table#seeks {
 player-head {
   font-size: 24px;
 }
-.i-at, .i-tv, .i-dl {
+.i-at, .i-tv, .i-dl, .i-ch {
   float: right;
   padding: 0px 4px 0px 4px;
   color: #505050;
@@ -558,11 +564,11 @@ player-head {
   padding: 10px;
   color: RoyalBlue;
 }
-a.i-at:link, a.i-tv:link, a.i-dl:link, a.i-pgn:link {
+a.i-at:link, a.i-tv:link, a.i-dl:link, a.i-ch:link, a.i-pgn:link {
     display: inline-block;
     text-decoration: none;
 }
-a.i-at:hover, a.i-tv:hover, a.i-dl:hover {
+a.i-at:hover, a.i-tv:hover, a.i-dl:hover, a.i-ch:hover {
     color: RoyalBlue;
 }
 .i-pgn:hover {

@@ -229,6 +229,10 @@ async def index(request):
             doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
             if doc is not None:
                 gameId = doc["_id"]
+        elif request.path.endswith("/challenge"):
+            view = "lobby"
+            if user.anon:
+                raise web.HTTPFound("/")
 
     # Do we have gameId in request url?
     if gameId is not None:
@@ -463,6 +467,7 @@ get_routes = (
     (r"/{gameId:\w{8}}", index),
     ("/@/{profileId}", index),
     ("/@/{profileId}/tv", index),
+    ("/@/{profileId}/challenge", index),
     ("/@/{profileId}/{variant}", index),
     ("/level8win", index),
     ("/patron", index),
