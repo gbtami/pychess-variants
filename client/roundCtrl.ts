@@ -729,7 +729,9 @@ export default class RoundController {
         const pieces = this.chessground.state.pieces;
         const geom = this.chessground.state.geometry;
         // console.log("ground.onUserMove()", orig, dest, meta);
-        const moved = pieces[dest] as Piece;
+        var moved = pieces[dest];
+        // Fix king to rook 960 castling case
+        if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
         if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && hasEp(this.variant)) {
             const pos = key2pos(dest, firstRankIs0),
