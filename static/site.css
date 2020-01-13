@@ -520,9 +520,11 @@ table#seeks {
 }
 
 #seeks tbody {
-  height: 550px;
+  height: 100%;
+  max-height: 550px;
   display:block;
   overflow-y: auto;
+  -ms-overflow-style: scrollbar;
 }
 
 #seeks td, #seeks th {
