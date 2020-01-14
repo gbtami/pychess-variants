@@ -337,7 +337,8 @@ export default class AnalysisController {
             lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
         }
         // save capture state before updating chessground
-        const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]]
+        // 960 king takes rook castling is not capture
+        const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]] && this.steps[this.steps.length - 1].san.slice(0, 2) !== 'O-'
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
             if (this.variant.endsWith('shogi')) {
@@ -376,7 +377,8 @@ export default class AnalysisController {
             if (this.variant.endsWith('shogi')) move = usi2uci(move);
             if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
-            capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined;
+            // 960 king takes rook castling is not capture
+            capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-';
         }
         var shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
