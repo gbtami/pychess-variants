@@ -391,7 +391,8 @@ class LobbyController {
                 }}
             )};
         const challengeIcon = (seek) => {
-            return (seek['target'] === '') ? null : h('vs-swords.lobby', {attrs: {"data-icon": '"'}, class: {"icon": true}});
+            const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby' : 'vs-swords.lobby.opp';
+            return (seek['target'] === '') ? null : h(swords, {attrs: {"data-icon": '"'}, class: {"icon": true}});
         }
 
         const title = (seek) => {
@@ -437,7 +438,7 @@ class LobbyController {
     private onMsgNewGame = (msg) => {
         // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
         window.location.assign(this.model["home"] + '/' + msg["gameId"]);
-}
+    }
 
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];

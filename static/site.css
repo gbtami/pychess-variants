@@ -420,8 +420,11 @@ vs-swords {
 vs-swords.lobby {
   display:inline-block;
   font-size:24px;
-  color: var(--bad);
+  color: var(--good);
   vertical-align: bottom;
+}
+vs-swords.lobby.opp {
+  color: var(--bad);
 }
 .sub-ratings {
   display: flex;

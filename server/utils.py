@@ -211,6 +211,7 @@ class User:
     def __init__(self, db=None, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
         self.db = db
         self.lobby_ws = lobby_ws
+        self.notify_queue = None
         self.bot = bot
         self.anon = anon
         if username is None:

@@ -404,6 +404,23 @@ async def subscribe_games(request):
     return response
 
 
+async def subscribe_notify(request):
+    async with sse_response(request) as response:
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+
+        user = request.app["users"].get(session_user)
+        user.notify_queue = asyncio.Queue()
+        try:
+            while not response.task.done():
+                payload = await user.notify_queue.get()
+                await response.send(payload)
+                user.notify_queue.task_done()
+        finally:
+            user.notify_queue = None
+    return response
+
+
 async def get_games(request):
     games = request.app["games"]
     # TODO: filter last 10, filter last 10 by variant
@@ -486,7 +503,8 @@ get_routes = (
     ("/api/{profileId}/{variant}", get_user_games),
     ("/api/games", get_games),
     ("/api/players", get_players),
-    ("/api/subscribe", subscribe_games),
+    ("/api/ongoing", subscribe_games),
+    ("/api/notify", subscribe_notify),
     ("/games/export/{profileId}", export),
     ("/games/export/variant/{variant}", export),
     ("/fishnet/monitor", fishnet_monitor),

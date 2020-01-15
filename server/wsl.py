@@ -79,6 +79,11 @@ async def lobby_socket_handler(request):
                         create_seek(seeks, user, data)
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
+                        if data.get("target"):
+                            queue = users[data["target"]].notify_queue
+                            if queue is not None:
+                                await queue.put(json.dumps({"notify": "new_challenge"}))
+
                     elif data["type"] == "delete_seek":
                         del seeks[data["seekID"]]
                         del user.seeks[data["seekID"]]

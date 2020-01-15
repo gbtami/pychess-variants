@@ -57,7 +57,7 @@ export function gamesView(model): VNode[] {
         if (oldVNode instanceof Element) {
             patch(oldVNode as HTMLElement, h('grid-container#games', arr.map((game) => renderGame(model, games, game, game.fen, game.lastMove))));
 
-            var evtSource = new EventSource("/api/subscribe");
+            var evtSource = new EventSource(model["home"] + "/api/ongoing");
             evtSource.onmessage = function(event) {
                 const message = JSON.parse(event.data);
 

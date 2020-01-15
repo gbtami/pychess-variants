@@ -15,6 +15,7 @@ import { gamesView } from './games';
 import { analysisView } from './analysis';
 import { playersView } from './players';
 import { profileView } from './profile';
+import { sound } from './sound';
 
 const model = {};
 
@@ -83,4 +84,14 @@ export function view(el, model): VNode {
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
     patch(document.getElementById('placeholder') as HTMLElement, view(el, model));
+    if (model['anon'] === 'False') {
+        window.onload = () => { 
+            var evtSource = new EventSource(model["home"] + "/api/notify");
+            evtSource.onmessage = function(event) {
+                const message = JSON.parse(event.data);
+                console.log(message);
+                sound.socialNotify();
+            }
+        }
+    }
 }
