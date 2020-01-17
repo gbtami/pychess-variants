@@ -467,7 +467,7 @@ class Clock:
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=0, rated=False, chess960=False):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=0, rated=False, chess960=False, create=True):
         self.db = app["db"]
         self.users = app["users"]
         self.games = app["games"]
@@ -483,6 +483,7 @@ class Game:
         self.inc = inc
         self.level = level if level is not None else 0
         self.chess960 = chess960
+        self.create = create
 
         self.white_rating = wplayer.get_rating(variant, chess960)
         self.wrating = "%s%s" % (int(round(self.white_rating.mu, 0)), "?" if self.white_rating.phi > PROVISIONAL_PHI else "")
@@ -554,7 +555,7 @@ class Game:
                 print(invalid0, invalid1, invalid2, invalid3, invalid4)
                 self.initial_fen = start_fen
 
-        if self.chess960 and self.initial_fen:
+        if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
                 self.initial_fen = ""
 
@@ -920,7 +921,7 @@ async def load_game(app, game_id):
 
     variant = C2V[doc["v"]]
 
-    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")))
+    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")), create=False)
 
     mlist = decode_moves(doc["m"], variant)
 
@@ -1055,7 +1056,7 @@ async def new_game(app, user, seek_id):
         log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
         return {"type": "error"}
     # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
-    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
+    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960, create=True)
     games[new_game.id] = new_game
 
     if not seek.user.bot:

@@ -398,7 +398,8 @@ async def round_socket_handler(request):
         await round_broadcast(game, users, response)
 
     if game is not None and not user.bot:
-        del user.game_sockets[game.id]
+        if game.id in user.game_sockets:
+            del user.game_sockets[game.id]
 
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.discard(user)
