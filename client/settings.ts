@@ -57,6 +57,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 17;
     } else if (cssFile.includes("kyoto")) {
         cssLinkIndex = 18;
+    } else if (cssFile.includes("smini")) {
+        cssLinkIndex = 19;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
