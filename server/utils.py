@@ -863,6 +863,14 @@ class Game:
     def is_claimable_draw(self):
         return self.board.is_claimable_draw()
 
+    @property
+    def spectator_list(self):
+        spectators = ", ".join((spectator.username for spectator in self.spectators if not spectator.anon))
+        anon = sum(1 for user in self.spectators if user.anon)
+        if anon > 0:
+            spectators = "%s, Anonymous(%s)" % (spectators, anon)
+        return {"type": "spectators", "spectators": spectators, "gameId": self.id}
+
     def analysis_start(self, username):
         return '{"type": "analysisStart", "username": "%s", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n' % (username, self.id, self.level, self.chess960)
 

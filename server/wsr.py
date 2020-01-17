@@ -299,8 +299,7 @@ async def round_socket_handler(request):
                             games[data["gameId"]] = game
                             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                                 game.spectators.add(user)
-                                response = {"type": "spectators", "spectators": ", ".join((spectator.username for spectator in game.spectators)), "gameId": data["gameId"]}
-                                await round_broadcast(game, users, response, full=True)
+                                await round_broadcast(game, users, game.spectator_list, full=True)
 
                             response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
                             await ws.send_json(response)
@@ -403,8 +402,7 @@ async def round_socket_handler(request):
 
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.discard(user)
-            response = {"type": "spectators", "spectators": ", ".join((spectator.username for spectator in game.spectators)), "gameId": game.id}
-            await round_broadcast(game, users, response, full=True)
+            await round_broadcast(game, users, game.spectator_list, full=True)
 
     if game_ping_task is not None:
         game_ping_task.cancel()
