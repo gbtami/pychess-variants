@@ -1,0 +1,82 @@
+:root {
+  --makruk-board: url('images/board/makruk.svg');
+  --cambodian-board: url('images/board/makruk.svg');
+  --sittuyin-board: url('images/board/sittuyin.svg');
+  --chess-board: url('images/board/8x8brown.svg');
+  --crazyhouse-board: url('images/board/8x8brown.svg');
+  --placement-board: url('images/board/8x8brown.svg');
+  --seirawan-board: url('images/board/8x8brown.svg');
+  --shouse-board: url('images/board/8x8brown.svg');
+  --shogi-board: url('images/board/shogi.svg');
+  --minishogi-board: url('images/board/minishogi.svg');
+  --kyotoshogi-board: url('images/board/minishogi.svg');
+  --xiangqi-board: url('images/board/xiangqi.svg');
+  --minixiangqi-board: url('images/board/minixiangqi.svg');
+  --capablanca-board: url('images/board/10x8brown.svg');
+  --capahouse-board: url('images/board/10x8brown.svg');
+  --gothic-board: url('images/board/10x8brown.svg');
+  --gothouse-board: url('images/board/10x8brown.svg');
+  --grand-board: url('images/board/10x10brown.svg');
+  --grandhouse-board: url('images/board/10x10brown.svg');
+  --shako-board: url('images/board/10x10brown.svg');
+}
+.makruk-board .cg-wrap {
+  background-image: var(--makruk-board);
+}
+.cambodian-board .cg-wrap {
+  background-image: var(--cambodian-board);
+}
+.sittuyin-board .cg-wrap {
+  background-image: var(--sittuyin-board);
+}
+.chess-board .cg-wrap {
+  background-image: var(--chess-board);
+}
+.placement-board .cg-wrap {
+  background-image: var(--placement-board);
+}
+.crazyhouse-board .cg-wrap {
+  background-image: var(--crazyhouse-board);
+}
+.seirawan-board .cg-wrap {
+  background-image: var(--seirawan-board);
+}
+.shouse-board .cg-wrap {
+  background-image: var(--shouse-board);
+}
+.shogi-board .cg-wrap {
+  background-image: var(--shogi-board);
+}
+.minishogi-board .cg-wrap {
+  background-image: var(--minishogi-board);
+}
+.kyotoshogi-board .cg-wrap {
+  background-image: var(--kyotoshogi-board);
+}
+.xiangqi-board .cg-wrap {
+  background-image: var(--xiangqi-board);
+}
+.minixiangqi-board .cg-wrap {
+  background-image: var(--minixiangqi-board);
+}
+.capablanca-board .cg-wrap {
+  background-image: var(--capablanca-board);
+}
+.capahouse-board .cg-wrap {
+  background-image: var(--capahouse-board);
+}
+.gothic-board .cg-wrap {
+  background-image: var(--gothic-board);
+}
+.gothhouse-board .cg-wrap {
+  background-image: var(--gothouse-board);
+}
+.grand-board .cg-wrap {
+  background-image: var(--grand-board);
+}
+.grandhouse-board .cg-wrap {
+  background-image: var(--grandhouse-board);
+}
+.shako-board .cg-wrap {
+  background-image: var(--shako-board);
+}
