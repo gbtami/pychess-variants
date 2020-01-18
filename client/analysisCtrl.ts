@@ -232,6 +232,10 @@ export default class AnalysisController {
     getDests = () => this.dests;
 
     private requestAnalysis = (withSend) => {
+        if (this.model["anon"] === 'True') {
+            alert('You need an account to do that.');
+            return;
+        }
         if (withSend) {
             var element = document.getElementById('request-analysis') as HTMLElement;
             element.style.display = 'none';
@@ -262,7 +266,7 @@ export default class AnalysisController {
                 ]
             if (this.steps[0].analysis === undefined) {
                 buttons.push(h('button#request-analysis', { on: { click: () => this.requestAnalysis(true) } }, [
-                    h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-microscope": true} }, ' Request Analysis')])
+                    h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-bar-chart": true} }, ' Request Analysis')])
                 );
             }
             patch(container, h('div', buttons));
