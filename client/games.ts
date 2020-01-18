@@ -13,9 +13,10 @@ import { Chessground } from 'chessgroundx';
 
 import { renderUsername } from './user';
 import { VARIANTS, usi2uci, grand2zero } from './chess';
+import { setBoardAndPieceStyles } from './settings';
 
 function renderGame(model, games, game, fen, lastMove) {
-    return h('minigame#' + game.gameId + '.' + VARIANTS[game.variant].board + '.' + VARIANTS[game.variant].pieces,
+    return h('minigame#' + game.gameId + '.' + game.variant + '-board.' + VARIANTS[game.variant].pieces,
                 { on: { click: () => { window.location.assign(model["home"] + '/' + game.gameId); } } },
                 [
                 h('div', game.b),
@@ -38,6 +39,7 @@ function renderGame(model, games, game, fen, lastMove) {
 
 export function gamesView(model): VNode[] {
     renderUsername(model["home"], model["username"]);
+    setBoardAndPieceStyles();
 
     var xmlhttp = new XMLHttpRequest();
     var url = model["home"] + "/api/games";

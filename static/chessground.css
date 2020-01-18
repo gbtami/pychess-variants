@@ -5,6 +5,7 @@
  * board and pieces displayed!
  */
 .cg-wrap {
+  background-size: cover;
   position: relative;
   display: block;
 }

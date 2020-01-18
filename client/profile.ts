@@ -12,9 +12,9 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { renderUsername } from './user';
-import { variants, VARIANTS, variantIcon, variantName } from './chess';
+import { VARIANTS, variantIcon, variantName } from './chess';
 import { renderTimeago } from './clock';
-import { changeCSS } from './settings';
+import { setBoardAndPieceStyles } from './settings';
 
 
 export function result(status, result) {
@@ -74,7 +74,7 @@ function renderGames(model, games) {
         { on: { click: () => { window.location.assign(model["home"] + '/' + game["_id"]); } },
         }, [
         h('td.board', [
-            h('selection.' + VARIANTS[game["v"]].board + '.' + VARIANTS[game["v"]].pieces, [
+            h('selection.' + game["v"] + '-board.' + VARIANTS[game["v"]].pieces, [
                 h('div.cg-wrap.' + VARIANTS[game["v"]].cg + '.mini', { hook: {
                     insert: (vnode) => {
                         Chessground(vnode.elm as HTMLElement, {
@@ -187,23 +187,7 @@ function observeSentinel(vnode: VNode, model) {
 export function profileView(model) {
     renderUsername(model["home"], model["username"]);
     console.log(model);
-
-    const CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
-    const CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
-    Object.keys(VARIANTS).forEach((key) => {
-        const variant = VARIANTS[key];
-        if (variant.BoardCSS.length > 1) {
-            var idx = CSSindexesB[variants.indexOf(key)];
-            idx = Math.min(idx, variant.BoardCSS.length - 1);
-            changeCSS('/static/' + variant.BoardCSS[idx] + '.css');
-        };
-        if (variant.PieceCSS.length > 1) {
-            var idx = CSSindexesP[variants.indexOf(key)];
-            idx = Math.min(idx, variant.PieceCSS.length - 1);
-            changeCSS('/static/' + variant.PieceCSS[idx] + '.css');
-        };
-    });
-
+    setBoardAndPieceStyles();
     return [
                 h('player-head', [
                     h('player', [

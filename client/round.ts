@@ -51,7 +51,7 @@ export function roundView(model): VNode[] {
                 h('div.roundchat#roundchat'),
             ]),
             h('main.round', [
-                h('selection.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].pieces, [
+                h('selection.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
                     h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runGround(vnode, model)},
                     }),

@@ -23,42 +23,24 @@ export function changeCSS(cssFile) {
     // css file index in template.html
     console.log("changeCSS()", cssFile);
     var cssLinkIndex = 1;
-    if (cssFile.includes("xiangqi")) {
-        cssLinkIndex = 3;
-    } else if (cssFile.includes("shogi")) {
+    if (cssFile.includes("seir")) {
         cssLinkIndex = 2;
-    } else if (cssFile.includes("capa")) {
-        cssLinkIndex = 4;
     } else if (cssFile.includes("makruk")) {
-        cssLinkIndex = 5;
+        cssLinkIndex = 3;
     } else if (cssFile.includes("sittuyin")) {
-        cssLinkIndex = 6;
-    } else if (cssFile.includes("seir")) {
-        cssLinkIndex = 7;
-    } else if (cssFile.includes("shako")) {
-        cssLinkIndex = 8;
-    } else if (cssFile.includes("8x8")) {
-        cssLinkIndex = 9;
-    } else if (cssFile.includes("10x8")) {
-        cssLinkIndex = 10;
-    } else if (cssFile.includes("10x10")) {
-        cssLinkIndex = 11;
-    } else if (cssFile.includes("9x9")) {
-        cssLinkIndex = 12;
-    } else if (cssFile.includes("9x10")) {
-        cssLinkIndex = 13;
-    } else if (cssFile.includes("makrb")) {
-        cssLinkIndex = 14;
-    } else if (cssFile.includes("sittb")) {
-        cssLinkIndex = 15;
-    } else if (cssFile.includes("5x5")) {
-        cssLinkIndex = 16;
-    } else if (cssFile.includes("7x7")) {
-        cssLinkIndex = 17;
-    } else if (cssFile.includes("kyoto")) {
-        cssLinkIndex = 18;
+        cssLinkIndex = 4;
+    } else if (cssFile.includes("shogi")) {
+        cssLinkIndex = 5;
     } else if (cssFile.includes("smini")) {
-        cssLinkIndex = 19;
+        cssLinkIndex = 6;
+    } else if (cssFile.includes("kyoto")) {
+        cssLinkIndex = 7;
+    } else if (cssFile.includes("xiangqi")) {
+        cssLinkIndex = 8;
+    } else if (cssFile.includes("capa")) {
+        cssLinkIndex = 9;
+    } else if (cssFile.includes("shako")) {
+        cssLinkIndex = 10;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
@@ -67,7 +49,31 @@ function setBoard (CSSindexesB, variant, color) {
     console.log("setBoard()", CSSindexesB, variant, color)
     var idx = CSSindexesB[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].BoardCSS.length - 1);
-    changeCSS('/static/' + VARIANTS[variant].BoardCSS[idx] + '.css');
+
+    const board = VARIANTS[variant].BoardCSS[idx];
+    const root = document.documentElement;
+    root.style.setProperty('--' + variant + '-board', "url('images/board/" + board + "')");
+}
+
+export function setBoardAndPieceStyles() {
+    const CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
+    const CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
+    Object.keys(VARIANTS).forEach((key) => {
+        const variant = VARIANTS[key];
+        if (variant.BoardCSS.length > 1) {
+            var idx = CSSindexesB[variants.indexOf(key)];
+            idx = Math.min(idx, variant.BoardCSS.length - 1);
+
+            const board = variant.BoardCSS[idx];
+            const root = document.documentElement;
+            root.style.setProperty('--' + key + '-board', "url('images/board/" + board + "')");
+        };
+        if (variant.PieceCSS.length > 1) {
+            var idx = CSSindexesP[variants.indexOf(key)];
+            idx = Math.min(idx, variant.PieceCSS.length - 1);
+            changeCSS('/static/' + variant.PieceCSS[idx] + '.css');
+        };
+    });
 }
 
 function setPieces (ctrl, color, flip: boolean = false) {
