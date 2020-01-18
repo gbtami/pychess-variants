@@ -7,6 +7,7 @@ import string
 from time import monotonic, time
 from datetime import datetime
 from functools import partial
+from itertools import chain
 
 from aiohttp.web import WebSocketResponse
 
@@ -865,10 +866,12 @@ class Game:
 
     @property
     def spectator_list(self):
-        spectators = ", ".join((spectator.username for spectator in self.spectators if not spectator.anon))
+        spectators = (spectator.username for spectator in self.spectators if not spectator.anon)
+        anons = ()
         anon = sum(1 for user in self.spectators if user.anon)
         if anon > 0:
-            spectators = "%s, Anonymous(%s)" % (spectators, anon)
+            anons = ("Anonymous(%s)" % anon,)
+        spectators = ", ".join(chain(spectators, anons))
         return {"type": "spectators", "spectators": spectators, "gameId": self.id}
 
     def analysis_start(self, username):
