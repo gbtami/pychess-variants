@@ -31,16 +31,14 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 4;
     } else if (cssFile.includes("shogi")) {
         cssLinkIndex = 5;
-    } else if (cssFile.includes("smini")) {
-        cssLinkIndex = 6;
     } else if (cssFile.includes("kyoto")) {
-        cssLinkIndex = 7;
+        cssLinkIndex = 6;
     } else if (cssFile.includes("xiangqi")) {
-        cssLinkIndex = 8;
+        cssLinkIndex = 7;
     } else if (cssFile.includes("capa")) {
-        cssLinkIndex = 9;
+        cssLinkIndex = 8;
     } else if (cssFile.includes("shako")) {
-        cssLinkIndex = 10;
+        cssLinkIndex = 9;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
@@ -219,9 +217,13 @@ function renderPieces (ctrl) {
     const togglePieces = (e) => {
         const idx = e.target.value;
         //console.log("togglePieces()", idx);
-        ctrl.CSSindexesP[variants.indexOf(ctrl.variant)] = idx
-        localStorage.setItem(ctrl.variant + "_pieces", String(idx));
+        ctrl.CSSindexesP[variants.indexOf(ctrl.variant)] = idx;
         setPieces(ctrl, ctrl.mycolor);
+
+        const family = VARIANTS[ctrl.variant].pieces;
+        Object.keys(VARIANTS).forEach((key) => {
+            if (VARIANTS[key].pieces === family) localStorage.setItem(key + "_pieces", String(idx));
+        });
     }
 
     for (i = 0; i < VARIANTS[ctrl.variant].PieceCSS.length; i++) {
