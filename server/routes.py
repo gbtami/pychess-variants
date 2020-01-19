@@ -151,6 +151,8 @@ async def logout(request):
         await ws.send_json(response)
 
     # lose and close game sockets
+    # TODO: this can't end game if logout came from an ongoing game
+    # because its ws was already closed and removed from game_sockets
     if user is not None:
         for gameId in user.game_sockets:
             game = request.app["games"][gameId]
