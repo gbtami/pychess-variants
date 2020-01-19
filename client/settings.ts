@@ -261,7 +261,7 @@ export function settingsView (ctrl) {
     const setClick2xdrop = () => {
         let e;
         e = document.getElementById('click2xdrop') as HTMLInputElement;
-        localStorage.setItem("click2xdrop", e.checked);
+        localStorage.setItem("clickDropEnabled", e.checked);
         ctrl.clickDropEnabled = e.checked;
     };
 

@@ -132,8 +132,8 @@ export default class RoundController {
         this.settings = true;
         this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
         this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
-        this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === true;
-        this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === true;
+        this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
+        this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = needPockets(this.variant);
