@@ -358,9 +358,6 @@ export default class AnalysisController {
             lastMove = [];
         }
         this.checkStatus(msg);
-        if (msg.check && msg.steps.length === 1) {
-            sound.check();
-        }
 
         if (this.spectator) {
             this.chessground.set({

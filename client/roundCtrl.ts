@@ -383,7 +383,8 @@ export default class RoundController {
             this.clocks[1].pause(false);
             this.result = msg.result;
             this.status = msg.status;
-            switch (msg.result) {
+            if (!this.spectator) {
+                switch (msg.result) {
                 case "1/2-1/2":
                     sound.draw();
                     break;
@@ -408,6 +409,7 @@ export default class RoundController {
                 // ABORTED
                 default:
                     break;
+                }
             }
             this.gameOver(msg.rdiffs);
             selectMove(this, this.ply);
@@ -505,7 +507,7 @@ export default class RoundController {
             lastMove = [];
         }
         this.checkStatus(msg);
-        if (msg.check) {
+        if (!this.spectator && msg.check) {
             sound.check();
         }
 
