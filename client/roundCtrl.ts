@@ -304,7 +304,9 @@ export default class RoundController {
 
         const resign = () => {
             console.log("Resign");
-            this.doSend({ type: "resign", gameId: this.model["gameId"] });
+            if (confirm('Are you sure you want to resign?')) {
+                this.doSend({ type: "resign", gameId: this.model["gameId"] });
+            }
         }
 
         var container = document.getElementById('game-controls') as HTMLElement;
