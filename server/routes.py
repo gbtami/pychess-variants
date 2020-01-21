@@ -412,6 +412,9 @@ async def subscribe_notify(request):
         session_user = session.get("user_name")
 
         user = request.app["users"].get(session_user)
+        if user is None:
+            return response
+
         user.notify_queue = asyncio.Queue()
         try:
             while not response.task.done():
