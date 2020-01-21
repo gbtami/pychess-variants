@@ -244,8 +244,9 @@ export function settingsView (ctrl) {
 
     // turn settings panel off
     toggleBoardSettings(ctrl);
-    const zoom = localStorage["zoom-" + ctrl.variant];
-    if (zoom !== undefined && zoom !== 100) setZoom(ctrl, Number(zoom));
+    var zoom = localStorage["zoom-" + ctrl.variant];
+    if (zoom === undefined) zoom = 100;
+    setZoom(ctrl, Number(zoom));
 
     const vShowDests = localStorage.showDests === undefined ? "true" : localStorage.showDests;
     const vClick2xdrop = localStorage.clickDropEnabled === undefined ? "false" : localStorage.clickDropEnabled;
