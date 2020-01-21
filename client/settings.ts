@@ -17,7 +17,6 @@ import { analysisChart } from './chart';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 
-// TODO: add dark/light theme buttons (icon-sun-o/icon-moon-o)
 
 export function changeCSS(cssFile) {
     // css file index in template.html
@@ -116,7 +115,8 @@ function setZoom (ctrl, zoom: number) {
         const pxh = `${zoom / 100 * baseHeight}px`;
         el.style.width = pxw;
         el.style.height = pxh;
-        var pxp = (ctrl.hasPockets) ? '132px;' : '0px;';
+        // 2 x (pocket height + pocket-wrapper additional 10px gap)
+        var pxp = (ctrl.hasPockets) ? '148px;' : '0px;';
         document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp + '; --PVheight: 0px;');
 
         document.body.dispatchEvent(new Event('chessground.resize'));

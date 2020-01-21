@@ -228,8 +228,8 @@ cg-board piece.fading {
   font-size: 9px;
 }
 .cg-wrap coords.ranks {
-  right: -15px;
-  top: 0;
+  right: var(--ranks-right);
+  top: var(--ranks-top);
   flex-flow: column-reverse;
   height: 100%;
   width: 12px;
@@ -238,8 +238,8 @@ cg-board piece.fading {
   flex-flow: column;
 }
 .cg-wrap coords.files {
-  bottom: -16px;
-  left: 0;
+  bottom: var(--files-bottom);
+  left: var(--files-left);
   flex-flow: row;
   width: 100%;
   height: 16px;

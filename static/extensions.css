@@ -1,3 +1,16 @@
+:root {
+  --ranks-right: -15px;
+  --ranks-top: 0px;
+  --files-bottom: -16px;
+  --files-left: 0px;
+  --ranks-top-shogi: -25px;
+}
+[data-view="analysis"] {
+  --ranks-right: var(--cgwrapwidth);
+  --ranks-top: 0px;
+  --files-bottom: -16px;
+  --files-left: 0px;
+}
 #extension_choice {
   position: absolute;
   top: 0;
@@ -92,10 +105,6 @@
   position: relative!important;
   background-position: center;
 }
-.capahouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece {
-  height: 56px!important;;
-}
-
 .shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece {
   flex: 0 0 14.29%;
 }
@@ -152,7 +161,7 @@
 
 .shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files {
   left: auto;
-  right: -15px;
+  right: var(--ranks-right);
   top: 0;
   flex-flow: column-reverse;
   height: 100%;
@@ -162,7 +171,7 @@
   flex-flow: column;
 }
 .shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks {
-  top: -25px;
+  top: var(--ranks-top-shogi);
   left: 0;
   flex-flow: row;
   width: 100%;
