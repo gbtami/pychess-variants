@@ -427,7 +427,7 @@ export const sanToRole = {
     g: 'gold',
     s: 'silver',
     l: 'lance',
-    '+L': 'tokin',
+    '+L': 'plance',
     '+N': 'gold',
     '+P': 'rook',
     '+S': 'bishop'
