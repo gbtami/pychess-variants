@@ -232,11 +232,11 @@ export default class AnalysisController {
     getDests = () => this.dests;
 
     private requestAnalysis = (withSend) => {
-        if (this.model["anon"] === 'True') {
-            alert('You need an account to do that.');
-            return;
-        }
         if (withSend) {
+            if (this.model["anon"] === 'True') {
+                alert('You need an account to do that.');
+                return;
+            }
             var element = document.getElementById('request-analysis') as HTMLElement;
             element.style.display = 'none';
             this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
