@@ -467,7 +467,7 @@ export const SHOGI_HANDICAP_FEN = {
 '8-Piece': '3gkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
 '9-Piece': '3gk4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1',
 '10-Piece': '4k4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w 0 1'
-}
+};
 
 export const CAPA_SUB_NAME = ['', 'Bird', 'Carrera', 'Gothic', 'Embassy'];
 export const CAPA_SUB_FEN = {
@@ -476,4 +476,13 @@ export const CAPA_SUB_FEN = {
 'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR w KQkq - 0 1',
 'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
 'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1'
-}
+};
+
+export const WILD_SUB_NAME = ['', 'PawnsPushed', 'PawnsPassed', 'UpsideDown', 'Theban'];
+export const WILD_SUB_FEN = {
+'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
+'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
+'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
+'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1"
+};
+
