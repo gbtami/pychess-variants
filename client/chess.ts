@@ -480,6 +480,7 @@ export const CAPA_SUB_FEN = {
 
 export const WILD_SUB_NAME = ['', 'PawnsPushed', 'PawnsPassed', 'UpsideDown', 'Theban'];
 export const WILD_SUB_FEN = {
+'': '',
 'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
 'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
 'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
