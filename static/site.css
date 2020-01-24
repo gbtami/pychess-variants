@@ -1054,8 +1054,6 @@ cg-resize {
   width: 17px;
   overflow: hidden;
   position: relative;
-  right: calc(var(--cgwrapwidth) * -1);
-  top: calc(var(--cgwrapheight) * -1);
 }
 #gauge::after {
   content: '';
