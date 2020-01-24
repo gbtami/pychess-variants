@@ -19,6 +19,7 @@
     "gulp-sourcemaps": "^2",
     "gulp-typescript": "^3",
     "gulp-util": "^3",
+    "showdown": "^1.9.1",
     "tsify": "^4",
     "typescript": "^3",
     "vinyl-buffer": "^1",

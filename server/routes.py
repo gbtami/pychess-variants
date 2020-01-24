@@ -324,7 +324,7 @@ async def index(request):
         render["profile"] = "Fairy-Stockfish"
 
     if view == "guides":
-        render["guides"] = ("Variants", "Makruk", "Sittuyin", "Shogi", "Xiangqi", "Shako")
+        render["guides"] = ("Variants", "Makruk", "Sittuyin", "Shogi", "Shogi-Variant", "Xiangqi", "Shako")
         guide = request.match_info.get("guide")
         render["guide"] = ("Variants" if guide is None else guide) + "-Guide.html"
     text = template.render(render)
