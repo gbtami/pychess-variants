@@ -282,3 +282,22 @@ Anaguma (AKA “Bear in the hole”) is another *ranging rook* castle, and one o
 **Double Wing Attack**
 
 Not a castle per se, but a *static rook* opening. Both sides advance their rook pawns, leading to an exchange. Part of the joseki is that the silvers must defend the bishop pawns before the enemy pawn reaches its target. Of note, this is AlphaZero’s favorite opening, accounting for more than half of its openings as black.
+
+## Handicaps
+
+Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and the most common setups are described below.
+
+While normal games have black (*gote*) go first, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+
+Name | pieces omitted
+-- | --
+Lance | left lance
+Bishop | bishop
+Rook | rook
+Rook–Lance | rook, left lance 
+2-Piece | rook, bishop
+4-Piece | rook, bishop, both lances
+6-Piece | rook, bishop, both lances, both knights
+8-Piece | rook, bishop, both lances, both knights, both silvers
+9-Piece | rook, bishop, both lances, both knights, both silvers, left gold
+10-Piece | rook, bishop, both lances, both knights, both silvers, both golds
