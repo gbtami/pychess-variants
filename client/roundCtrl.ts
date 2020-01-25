@@ -200,10 +200,12 @@ export default class RoundController {
 
         if (this.spectator) {
             this.chessground.set({
-                viewOnly: true,
-                events: {
-                    move: this.onMove(),
-                }
+                //viewOnly: false,
+                movable: { free: false },
+                draggable: { enabled: false },
+                premovable: { enabled: false },
+                predroppable: { enabled: false },
+                events: { move: this.onMove() }
             });
         } else {
             this.chessground.set({

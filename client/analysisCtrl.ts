@@ -187,7 +187,7 @@ export default class AnalysisController {
 
         if (this.spectator) {
             this.chessground.set({
-                //viewOnly: true,
+                //viewOnly: false,
                 events: {
                     move: this.onMove(),
                 }
