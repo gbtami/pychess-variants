@@ -4,6 +4,8 @@ Currently, two shogi variants are available for play. They are both played on a 
 
 # Minishogi
 
+![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Minishogi.png)
+
 Minishogi is essentially shogi on a 5x5 board. The game was invented (or rediscovered) around 1970 by Shigenobu Kusumoto of Osaka, Japan.
 
 ## Rules
@@ -15,6 +17,8 @@ The starting setup is as above. Unlike standard shogi, there is no knight or lan
 Due to the smaller board size, the rook and bishop are not as dominant as standard shogi. However, their promotions are still very much threatening.
 
 # Kyoto Shogi
+
+![Kyoto Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Kyoto.png)
 
 Kyoto shogi is also played on a 5x5 board, but is quite different than standard shogi. It was invented by Tamiya Katsuya c. 1976. The main distinction is that each piece flips sides to a completely different piece with each move. Many of the piece combinations are puns relating to Kyoto. For example, the lance (kyo) is paired with the tokin (to), which makes "Kyoto."
 
