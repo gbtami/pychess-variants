@@ -31,19 +31,19 @@ export function analysisView(model): VNode[] {
                     h('div.player-data', [
                         h('i-side', {class: {"icon": true, "icon-white": !darkMode, "icon-black": darkMode} } ),
                         h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, [
-                                h('player-title', " " + model["wtitle"] + " "),
-                                model["wplayer"] + " (" + model["wrating"] + ") ",
-                                renderRdiff(model["wrdiff"]),
+                            h('a.user-link', {attrs: {href: '/@/' + model.wplayer}}, [
+                                h('player-title', " " + model.wtitle + " "),
+                                model.wplayer + ((model.wtitle === "BOT" && model.level > 0) ? ' level ' + model.level: '') + " (" + model.wrating + ") ",
+                                renderRdiff(model.wrdiff),
                             ]),
                         ]),
                     ]),
                     h('div.player-data', [
                         h('i-side', {class: {"icon": true, "icon-black": !darkMode, "icon-white": darkMode} } ),
                         h('player', [
-                            h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, [
-                                h('player-title', " " + model["btitle"] + " "),
-                                model["bplayer"] + " (" + model["brating"] + ") ",
+                            h('a.user-link', {attrs: {href: '/@/' + model.bplayer}}, [
+                                h('player-title', " " + model.btitle + " "),
+                                model.bplayer + ((model.btitle === "BOT" && model.level > 0) ? ' level ' + model.level: '') + " (" + model.brating + ") ",
                                 renderRdiff(model["brdiff"]),
                             ]),
                         ]),
