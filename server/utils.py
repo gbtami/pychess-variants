@@ -715,7 +715,10 @@ class Game:
             self.highscore[variant + ("960" if chess960 else "")].popitem()
 
         new_data = {"scores": {key: value for key, value in self.highscore[variant + ("960" if chess960 else "")].items()}}
-        await self.db.highscore.find_one_and_update({"_id": variant + ("960" if chess960 else "")}, {"$set": new_data}, upsert=True)
+        try:
+            await self.db.highscore.find_one_and_update({"_id": variant + ("960" if chess960 else "")}, {"$set": new_data}, upsert=True)
+        except Exception:
+            log.error("Failed to save new highscore to mongodb!")
 
     async def update_ratings(self):
         if self.result == '1-0':
@@ -740,13 +743,8 @@ class Game:
         self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
 
-        highscore, len_hs = self.get_highscore(self.variant, self.chess960)
-        if wr.mu > highscore or len_hs < MAX_HIGH_SCORE:
-            await self.set_highscore(self.variant, self.chess960, {self.wplayer.username: int(round(wr.mu, 0))})
-
-        highscore, len_hs = self.get_highscore(self.variant, self.chess960)
-        if br.mu > highscore or len_hs < MAX_HIGH_SCORE:
-            await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
+        await self.set_highscore(self.variant, self.chess960, {self.wplayer.username: int(round(wr.mu, 0))})
+        await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     async def update_status(self, status=None, result=None):
         if status is not None:
