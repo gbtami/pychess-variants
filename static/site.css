@@ -17,6 +17,9 @@
     --bad: #c33;
     --gold: GoldenRod;
     --rusty: rgba(214,79,0,0.5);
+    --clock-hurry-bg: MistyRose;
+    --clock-running-bg: rgb(208, 224, 189);
+    --clock-running-color: Black;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -33,6 +36,9 @@
     --blue-hover: #3692e7;
     --gold: DarkGoldenRod;
     --rusty: rgba(214,79,0,0.5);
+    --clock-hurry-bg: #502826;
+    --clock-running-bg: #384722;
+    --clock-running-color: #e3e3e3;
 }
 
 html {
@@ -745,7 +751,7 @@ button:disabled {
 button.icon.icon-plus-square {
   border: none;
   color: LightBlue;
-  background: var(--bg-color0);
+  background-color: var(--bg-body);
   font-size: 36px;
   cursor: pointer;
 }
@@ -766,8 +772,7 @@ button.icon::-moz-focus-inner {
   font-size: 50px;
   box-shadow: var(--btn-shadow);
 }
-.clock.time {
-  color: #404040;
+.clock.time, .clock.sep {
   background-color: var(--bg-color1);
 }
 .clock.time.min {
@@ -778,21 +783,17 @@ button.icon::-moz-focus-inner {
   padding-right: 12px;
   box-sizing: border-box;
 }
-.clock.sep {
-  background-color: var(--bg-color1);
-  color: #404040;
-}
 
 .clock.time.running, .clock.sep.running {
-  color: Black;
-  background-color: rgb(208, 224, 189);
+  color: var(--clock-running-color);
+  background-color: var(--clock-running-bg);
 }
 .clock.sep.running.low {
   color: Gray;
 }
 
 .clock.time.hurry, .clock.sep.hurry {
-  background-color: MistyRose;
+  background-color: var(--clock-hurry-bg);
 }
 
 .connecting.clock.time, .connecting.clock.sep {
