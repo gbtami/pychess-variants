@@ -112,7 +112,7 @@ export class Clock {
             secs = String(Math.floor(seconds));
         }
         mins = (minutes < 10 ? "0" : "") + String(minutes);
-        secs = (seconds < 10 ? "0" : "") + secs;
+        secs = (seconds < 10 && secs.length < 4 ? "0" : "") + secs;
         return {
             minutes: mins,
             seconds: secs,
