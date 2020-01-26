@@ -119,7 +119,12 @@ async def fishnet_analysis(request):
 
     users = request.app["users"]
     username = work["username"]
-    user_ws = users[username].game_sockets[gameId]
+
+    try:
+        user_ws = users[username].game_sockets[gameId]
+    except KeyError:
+        log.error("Can't send analysis to %s. Game %s was removed from game_sockets !!!" % (username, gameId))
+        return web.Response(status=204)
 
     length = len(data["analysis"])
     for j, analysis in enumerate(reversed(data["analysis"])):
@@ -154,6 +159,7 @@ async def fishnet_analysis(request):
         del request.app["works"][work_id]
         game.saved = False
         await game.save_game(analysis=True)
+        return web.Response(status=204)
 
     response = await get_work(request, data)
     return response
