@@ -93,7 +93,7 @@ function setPieces (ctrl, color, flip: boolean = false) {
         console.log("--- baseurl", baseurl);
         // console.log("A autoShapes:", chessground.state.drawable.autoShapes);
         var shapes0 = chessground.state.drawable.autoShapes;
-        if (flip && variant.endsWith('shogi') && chessground.state.drawable.autoShapes[0].piece !== undefined) {
+        if (flip && variant.endsWith('shogi') && shapes0[0] !== undefined && shapes0[0].piece !== undefined) {
             shapes0[0].piece.color = (shapes0[0].piece.color === 'white') ? 'balck' : 'white';
         }
         chessground.set({
