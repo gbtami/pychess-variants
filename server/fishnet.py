@@ -159,10 +159,8 @@ async def fishnet_analysis(request):
         del request.app["works"][work_id]
         game.saved = False
         await game.save_game(analysis=True)
-        return web.Response(status=204)
 
-    response = await get_work(request, data)
-    return response
+    return web.Response(status=204)
 
 
 async def fishnet_move(request):
