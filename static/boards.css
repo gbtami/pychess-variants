@@ -19,6 +19,7 @@
   --grand-board: url('images/board/10x10brown.svg');
   --grandhouse-board: url('images/board/10x10brown.svg');
   --shako-board: url('images/board/10x10brown.svg');
+  --shogun-board: url('images/board/ShogunPlain.svg');
 }
 .makruk-board .cg-wrap {
   background-image: var(--makruk-board);
@@ -79,4 +80,7 @@
 }
 .shako-board .cg-wrap {
   background-image: var(--shako-board);
+}
+.shogun-board .cg-wrap {
+  background-image: var(--shogun-board);
 }

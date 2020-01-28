@@ -74,6 +74,7 @@ VARIANTS = (
     "minishogi",
     "kyotoshogi",
     "minixiangqi",
+    "shogun"
 )
 
 VARIANT_ICONS = {
@@ -101,6 +102,7 @@ VARIANT_ICONS = {
     "capahouse960": "'",
     "crazyhouse960": "%",
     "kyotoshogi": ")",
+    "chess": "M",
 }
 
 VARIANT_960_TO_PGN = {
@@ -673,6 +675,10 @@ class Game:
         if self.saved:
             return
 
+        if self.variant == "shogun":
+            self.saved = True
+            return
+
         self.saved = True
         loop = asyncio.get_event_loop()
         self.tasks.add(loop.create_task(remove()))
@@ -800,9 +806,10 @@ class Game:
         dests = {}
         promotions = []
         moves = self.board.legal_moves()
-
+        print("self.board.legal_moves()", moves)
         if self.random_mover:
             self.random_move = random.choice(moves) if moves else ""
+            print("RM: %s" % self.random_move)
 
         for move in moves:
             if self.variant[-5:] == "shogi":
@@ -1102,8 +1109,9 @@ async def new_game(app, user, seek_id):
     if seek.fen or seek.chess960:
         document["if"] = new_game.initial_fen
 
-    result = await db.game.insert_one(document)
-    print("db insert game result %s" % repr(result.inserted_id))
+    if seek.variant != "shogun":
+        result = await db.game.insert_one(document)
+        print("db insert game result %s" % repr(result.inserted_id))
 
     return {"type": "new_game", "gameId": new_game.id}
 

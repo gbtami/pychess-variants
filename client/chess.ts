@@ -1,7 +1,7 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
-export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako"];
+export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
 export const VARIANTS = {
@@ -25,6 +25,7 @@ export const VARIANTS = {
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "$", baseURL: ["seir", "capa", "green", "musk"] },
     chess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "M" },
     shako: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"], pieces: "shako", PieceCSS: ["shako0"], icon: "9" },
+    shogun: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["ShogunPlain.svg", "ShogunMaple.png"], pieces: "shogun", PieceCSS: ["shogun0"], icon: "M" , baseURL: ["shogun"] },
 }
 
 export function variantIcon(variant, chess960) {
@@ -66,6 +67,8 @@ export function pocketRoles(variant: string) {
     switch (variant) {
     case "sittuyin":
         return ["rook", "knight", "silver", "ferz", "king"];
+    case "shogun":
+        return ["pawn", "knight", "bishop", "rook", "ferz"];
     case "crazyhouse":
         return ["pawn", "knight", "bishop", "rook", "queen"];
     case "grandhouse":
@@ -95,6 +98,8 @@ function promotionZone(variant: string, color: string) {
         return '';
     case 'minishogi':
         return color === 'white' ? 'a5b5c5d5e5' : 'a1b1c1d1e1';
+    case 'shogun':
+        return color === 'white' ? 'a6b6c6d6e6f6g6h6a7b7c7d7e7f7g7h7a8b8c8d8e8f8g8h8' : 'a1b1c1d1e1f1g1h1a2b2c2d2e2f2g2h2a3b3c3d3e3f3g3h3';
     case 'cambodian':
     case 'makruk':
         return color === 'white' ? 'a6b6c6d6e6f6g6h6' : 'a3b3c3d3e3f3g3h3';
@@ -133,7 +138,15 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
         // promotion is optional except on back ranks
         if ((dest[1] !== "9") && (dest[1] !== "0")) roles.push(role);
         return roles;
-    default:
+    case "shogun":
+        switch (role) {
+        case "pawn": return ["ppawn", "pawn"];
+        case "knight": return ["pknight", "knight"];
+        case "bishop": return ["pbishop", "bishop"];
+        case "rook": return ["prook", "rook"];
+        case "ferz": return ["pferz", "ferz"];
+        }
+default:
         return ["queen", "knight", "rook", "bishop"];
     }
 }
@@ -150,6 +163,8 @@ export function mandatoryPromotion(variant, role: Role, orig: Key, dest: Key, co
             return dest[1] === "1";
         }
     }
+
+    if (variant === "shogun") return false;
 
     switch (role) {
     case "pawn":
@@ -171,11 +186,11 @@ export function mandatoryPromotion(variant, role: Role, orig: Key, dest: Key, co
 }
 
 export function needPockets(variant: string) {
-    return variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant.endsWith('shogi') || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
+    return variant === 'shogun' || variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant.endsWith('shogi') || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
 }
 
 export function hasEp(variant: string) {
-    return variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako';
+    return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako';
 }
 
 function diff(a: number, b:number):number {
@@ -299,6 +314,7 @@ export function isPromotion(variant, piece, orig, dest, meta, promotions) {
         return piece.role === "pawn" && ( orig === dest || (!meta.captured && dm));
     case 'grandhouse':
     case 'grand':
+    case 'shogun':
     case 'shako':
         // TODO: we can use this for other variants also
         return promotions.map((move) => move.slice(0, -1)).indexOf(orig + dest) !== -1;

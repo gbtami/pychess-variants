@@ -27,6 +27,13 @@ export default function(ctrl) {
             roles = promotionRoles(ctrl.variant, movingRole, orig, dest, ctrl.promotions);
 
             switch (ctrl.variant) {
+            case "shogun":
+                draw_promo(dest, color, orientation);
+                promoting = {
+                    orig: orig,
+                    dest: dest,
+                    callback: ctrl.sendMove,
+                };
             case "kyotoshogi":
                 if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
                     const promoted = kyotoPromotion[movingRole];
@@ -126,6 +133,7 @@ export default function(ctrl) {
                 if (promoting.callback) promoting.callback(promotedSign + droppedPiece, "@", promoting.dest);
                 promoting = false;
                 return;
+            case "shogun":
             case "minishogi":
             case "shogi":
                 promo = promoted ? "+" : "";

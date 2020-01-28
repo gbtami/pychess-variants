@@ -22,6 +22,8 @@ log = logging.getLogger(__name__)
 
 class FairyBoard:
     def __init__(self, variant, initial_fen="", chess960=False):
+        if variant == "shogun":
+            sf.set_option("Protocol", "uci")
         self.variant = variant
         self.chess960 = chess960
         self.initial_fen = initial_fen if initial_fen else self.start_fen(variant, chess960)
@@ -86,7 +88,7 @@ class FairyBoard:
         return sf.get_san(self.variant, self.fen, move, self.chess960)
 
     def legal_moves(self):
-        # print("   self.move_stack:", self.move_stack)
+        # print("FEN, vaiant, self.move_stack:", self.variant, self.initial_fen, self.move_stack)
         legals = sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
         # print("       legal_moves:", legals)
         return legals
@@ -253,3 +255,11 @@ if __name__ == '__main__':
     print(board.fen)
     board.print_pos()
     print(board.legal_moves())
+
+    board = FairyBoard("shogun")
+    for move in ("c2c4", "b8c6", "b2b4", "b7b5", "c4b5", "c6b8"):
+        print("push move", move)
+        board.push(move)
+        board.print_pos()
+        print(board.fen)
+        print(board.legal_moves())

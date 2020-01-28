@@ -156,6 +156,15 @@ label.board.board4.grand, label.board.board4.grandhouse, label.board.board4.shak
 label.piece.piece0.shako {
   background-image: url('images/pieces/shako/wC.svg');
 }
+label.piece.piece0.shogun {
+  background-image: url('images/pieces/shogun/wC.svg');
+}
+label.board.board0.shogun {
+  background-image: url('images/board/ShogunPlain.svg');
+}
+label.board.board1.shogun {
+  background-image: url('images/board/ShogunMaple.png');
+}
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse, label.piece.piece0.gothic, label.piece.piece0.gothhouse {
   background-image: url('images/pieces/merida/wA.svg');

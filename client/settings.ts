@@ -38,6 +38,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 8;
     } else if (cssFile.includes("shako")) {
         cssLinkIndex = 9;
+    } else if (cssFile.includes("shogun")) {
+        cssLinkIndex = 10;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
