@@ -159,3 +159,64 @@ More strategy pending.
 ## X-house
 
 All of the above three variants above also have crazyhouse variants: **Capahouse**, **Grandhouse**, and **S-house**. As with Crazyhouse, players now have the ability to drop a piece on their turn. Both the base variant and crazyhouse rules apply. The major exception is in Grand Chess, where a pawn cannot be dropped on the final three ranks. Due to how new these variants are, the knowledge bank for strategy is very limited at this time.
+
+# SHOGUN CHESS
+
+![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shogun.png)
+
+## Intro
+
+Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in Seirawan chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also intruced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
+
+The name was originally thought as "general's chess," based on what was then the name of the pawn promotion, now currently the name of the knight promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same the one in shogi also pays tribute to that.
+
+## General Rules
+
+1. Setup is exactly the same as chess.
+
+2. New pieces are as defined in the image above, and their moves are described in detail below. Of note, promoted sides are colored differently. Also, the queen *starts* as a promoted piece despite having a new unpromoted form (the Duchess). See details about drops below. For the sake of terminology, a rook will now be considered a "minor piece," while the queen, mortar, archbishop, and general (but NOT the captain) are considered "major pieces." 
+
+3. The three farthest ranks are the promotion zone. Every starting (or dropped) piece except the king and queen may promote by moving into the promotion zone or moving from within the promotion zone. 
+
+4. However, only one of *each* **major** piece (queen, mortar, archbishop, or general) can be out on each side at a time. For example, if a player has an archbishop in play, then a bishop cannot promote into an archbishop until the current one is captured.
+
+5. As in crazyhouse and shogi, captured pieces may be dropped back into the board as your own piece. Pieces can be dropped anywhere within the first 5 ranks (in other words, anywhere but the promotion zone). Note that unlike crazyhouse, pawns can be dropped on the first rank.
+
+6. When promoted pieces are captured, they revert to their unpromoted side. This is the only way that a queen becomes a duchess.
+
+Additional minor rules for clarification:
+* Dropped rooks cannot castle, as in crazyhouse.
+* Pawns dropped on the first rank can still double step when reaching the second rank.
+* Pawns cannot promote if capturing by en passant. 
+
+(Note that images were designed for computer play. Over the board pieces are not available but would require shogi-like designs of two-sided directional pieces to be viable.)
+
+## Pieces
+
+### Archbishop
+
+![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ArchbishopShogun.png)
+
+The archbishop is a hybrid piece seen in multiple other chess variants. In this game, it promotes from bishop and gains the move of a knight. Because of its unique moves, it is the only piece that can checkmate on its own.
+
+### Mortar
+
+![Mortar](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Mortar.png)
+
+The mortar is a hybrid piece seen in multiple other chess variants, often with other names such as the chancellor or marshall. In this game, it promotes from the rook and gains the move of a knight. 
+
+### General
+
+![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/GeneralShogun.png)
+
+The mortar is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.
+
+### Captain
+
+![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
+
+The captain is the only promotion of the pawn and moves exactly like a king.
+
+## Strategy
+
+The game is still young, so strategy is still being developed! Of course, with the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.
