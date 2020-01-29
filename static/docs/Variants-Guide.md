@@ -106,6 +106,8 @@ Capablanca chess was created by World Chess Champion José Raúl Capablanca in t
 
 The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
 
+There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the queen and chancellor starting positions are swapped.
+
 ### Strategy
 
 One should not simply make just developing moves. You can afford to lag in development so long as you are working on controling key squares. Quality over quantity.
@@ -166,9 +168,9 @@ All of the above three variants above also have crazyhouse variants: **Capahouse
 
 ## Intro
 
-Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in Seirawan chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also intruced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
+Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in Seirawan chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
 
-The name was originally thought as "general's chess," based on what was then the name of the pawn promotion, now currently the name of the knight promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same the one in shogi also pays tribute to that.
+The name was originally thought as "general's chess," based on what was then the name of the pawn promotion, now currently the name of the knight promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.
 
 ## General Rules
 
@@ -209,13 +211,13 @@ The mortar is a hybrid piece seen in multiple other chess variants, often with o
 
 ![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/General.png)
 
-The mortar is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.
+The general is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.
 
 ### Captain
 
 ![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
 
-The captain is the only promotion of the pawn and moves exactly like a king.
+The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game.
 
 ## Strategy
 
