@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="50"
+   height="50"
+   viewBox="0 0 13.229166 13.229167"
+   version="1.1"
+   id="svg1579"
+   sodipodi:docname="Shogun.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <defs
+     id="defs1573">
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="-15.691712,-45.362002"
+       end_point="-15.691712,4.437998"
+       center_point="-15.691712,-20.462002"
+       id="path-effect7365"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="true"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="275.14301,98.12006"
+       end_point="275.14301,350.07326"
+       center_point="275.14301,224.09666"
+       id="path-effect4547-0"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="true"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="274.67636,240.21573"
+       end_point="274.67636,418.88419"
+       center_point="274.67636,329.54996"
+       id="path-effect4551-7"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="false"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="273.50283,331.92091"
+       end_point="273.50283,477.30227"
+       center_point="273.50283,404.61159"
+       id="path-effect4557-0"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="false"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="315.71788,90.192596"
+       end_point="315.71788,96.192596"
+       center_point="315.71788,93.192596"
+       id="path-effect4669"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="false"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       oposite_fuse="false"
+       fuse_paths="false"
+       discard_orig_path="false"
+       mode="free"
+       is_visible="true"
+       id="path-effect4802"
+       center_point="316.91112,93.060013"
+       end_point="316.91112,96.060013"
+       start_point="316.91112,90.060013"
+       effect="mirror_symmetry" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7.919596"
+     inkscape:cx="54.831794"
+     inkscape:cy="39.818292"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     showguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:lockguides="true" />
+  <metadata
+     id="metadata1576">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-283.77082)"
+     style="opacity:0.98999999">
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#1f1a17;fill-opacity:1;stroke:none;stroke-width:0.5182634;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 6.6053975,285.26992 c -0.568759,0.003 -0.854133,0.42268 -0.977806,1.02356 -2.529085,0.068 -5.32646706,0.70826 -5.32646706,3.30131 0,1.31145 0.76847596,1.96122 2.24421006,3.34376 v 1.47241 c 2.581192,1.45803 5.216593,1.44845 7.9048715,0 l 0.0035,-1.4501 h 1.69e-4 c 1.016218,-0.96473 2.474167,-1.88727 2.474167,-3.44355 0,-1.15916 -0.756879,-1.88297 -1.608531,-2.3544 -1.017561,-0.56326 -2.3766465,-0.75013 -3.6916705,-0.82682 -0.122679,-0.66452 -0.522554,-1.06868 -1.02241,-1.06617 z m -3.2e-4,0.27884 c 0.235973,-0.004 0.587936,0.16616 0.645097,0.76008 h -1.271197 c 0.07116,-0.56762 0.383213,-0.75617 0.6261,-0.76008 z m -0.367896,1.14219 c 0.166198,9.6e-4 0.329916,0.004 0.490142,0.009 1.467366,0.043 3.123598,0.15708 4.2954685,0.77907 0.797957,0.42353 1.507098,1.07364 1.507098,2.11503 0,1.39815 -1.534173,2.30577 -2.396522,2.56634 -2.7251465,-0.86468 -4.6007935,-0.82051 -7.2751385,0.036 -0.754105,-0.20939 -2.15896806,-1.35445 -2.15896806,-2.53265 0,-2.51069 3.04496406,-2.98486 5.53792006,-2.9724 z m 0.07996,0.41795 c -2.176586,-0.01 -5.011757,0.36775 -4.882251,2.33969 0.06468,0.98486 0.515071,1.53012 1.544268,2.04366 2.235433,-0.8865 4.778744,-0.88382 7.0995335,-1.7e-4 0.963348,-0.32299 1.858638,-0.96629 1.858638,-2.06679 0,-0.81969 -0.75994,-1.36305 -1.454399,-1.69642 -1.0198755,-0.48957 -2.4613795,-0.57935 -3.7384225,-0.6132 -0.139443,-0.004 -0.28226,-0.006 -0.427367,-0.007 z m 0.336838,5.23775 c 1.06008,0.009 2.133934,0.21352 3.24184,0.65799 v 1.17224 c -2.170119,-0.82221 -4.37026,-0.93136 -6.822663,0 v -1.17224 c 1.195665,-0.4273 2.37939,-0.6682 3.580814,-0.65799 z"
+       id="path4760" />
+  </g>
+</svg>

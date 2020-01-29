@@ -103,6 +103,7 @@ VARIANT_ICONS = {
     "crazyhouse960": "%",
     "kyotoshogi": ")",
     "chess": "M",
+    "shogun": "-",
 }
 
 VARIANT_960_TO_PGN = {
