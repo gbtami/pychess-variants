@@ -806,10 +806,10 @@ class Game:
         dests = {}
         promotions = []
         moves = self.board.legal_moves()
-        print("self.board.legal_moves()", moves)
+        # print("self.board.legal_moves()", moves)
         if self.random_mover:
             self.random_move = random.choice(moves) if moves else ""
-            print("RM: %s" % self.random_move)
+            # print("RM: %s" % self.random_move)
 
         for move in moves:
             if self.variant[-5:] == "shogi":

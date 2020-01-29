@@ -256,9 +256,13 @@ if __name__ == '__main__':
     board.print_pos()
     print(board.legal_moves())
 
+    print("--- SHOGUN ---")
+    print(sf.start_fen("shogun"))
     board = FairyBoard("shogun")
     for move in ("c2c4", "b8c6", "b2b4", "b7b5", "c4b5", "c6b8"):
-        print("push move", move)
+        print("push move", move, board.get_san(move))
+        if board.move_stack:
+            print("is_checked(), insuff material, draw?", board.is_checked(), board.insufficient_material(), board.is_claimable_draw())
         board.push(move)
         board.print_pos()
         print(board.fen)
