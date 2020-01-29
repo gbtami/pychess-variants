@@ -675,10 +675,6 @@ class Game:
         if self.saved:
             return
 
-        if self.variant == "shogun":
-            self.saved = True
-            return
-
         self.saved = True
         loop = asyncio.get_event_loop()
         self.tasks.add(loop.create_task(remove()))
@@ -1109,9 +1105,8 @@ async def new_game(app, user, seek_id):
     if seek.fen or seek.chess960:
         document["if"] = new_game.initial_fen
 
-    if seek.variant != "shogun":
-        result = await db.game.insert_one(document)
-        print("db insert game result %s" % repr(result.inserted_id))
+    result = await db.game.insert_one(document)
+    print("db insert game result %s" % repr(result.inserted_id))
 
     return {"type": "new_game", "gameId": new_game.id}
 
