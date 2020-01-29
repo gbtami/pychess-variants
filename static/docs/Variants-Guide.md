@@ -162,7 +162,7 @@ All of the above three variants above also have crazyhouse variants: **Capahouse
 
 # SHOGUN CHESS
 
-![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shogun.png)
+![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions.png)
 
 ## Intro
 
@@ -207,7 +207,7 @@ The mortar is a hybrid piece seen in multiple other chess variants, often with o
 
 ### General
 
-![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/GeneralShogun.png)
+![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/General.png)
 
 The mortar is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.
 
