@@ -231,14 +231,15 @@ export default class AnalysisController {
     getGround = () => this.chessground;
     getDests = () => this.dests;
 
-    private requestAnalysis = (withSend) => {
-        if (withSend) {
+    private drawAnalysis = (withRequest) => {
+        if (withRequest) {
             if (this.model["anon"] === 'True') {
                 alert('You need an account to do that.');
                 return;
             }
             var element = document.getElementById('request-analysis') as HTMLElement;
-            element.style.display = 'none';
+            if (element !== null) element.style.display = 'none';
+
             this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
             element = document.getElementById('loader') as HTMLElement;
             element.style.display = 'block';
@@ -265,7 +266,7 @@ export default class AnalysisController {
                     h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
                 ]
             if (this.steps[0].analysis === undefined) {
-                buttons.push(h('button#request-analysis', { on: { click: () => this.requestAnalysis(true) } }, [
+                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysis(true) } }, [
                     h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-bar-chart": true} }, ' Request Analysis')])
                 );
             }
@@ -312,7 +313,7 @@ export default class AnalysisController {
             updateMovelist(this, 1, this.steps.length);
 
             if (this.steps[0].analysis !== undefined) {
-                this.requestAnalysis(false);
+                this.drawAnalysis(false);
                 analysisChart(this);
             };
         } else {
@@ -523,6 +524,16 @@ export default class AnalysisController {
         }
     }
 
+    private onMsgRequestAnalysis = () => {
+        this.steps.forEach((step) => {
+            step.analysis = undefined;
+            step.ceval = undefined;
+            step.score = undefined;
+        });
+        analysisChart(this);
+        this.drawAnalysis(true);
+    }
+
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
         renderUsername(this.model["home"], this.model["username"]);
@@ -590,6 +601,9 @@ export default class AnalysisController {
                 break;
             case "logout":
                 this.doSend({type: "logout"});
+                break;
+            case "request_analysis":
+                this.onMsgRequestAnalysis()
                 break;
         }
     }

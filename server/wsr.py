@@ -338,9 +338,16 @@ async def round_socket_handler(request):
                             await opp_ws.send_json(response)
 
                     elif data["type"] == "roundchat":
-                        response = {"type": "roundchat", "user": user.username, "message": data["message"], "room": data["room"]}
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
+                        if data["message"] == "!analysis" and user.username in request.app["fishnet_versions"]:
+                            for step in game.steps:
+                                if "analysis" in step:
+                                    del step["analysis"]
+                            await ws.send_json({"type": "request_analysis"})
+                            continue
+
+                        response = {"type": "roundchat", "user": user.username, "message": data["message"], "room": data["room"]}
                         game.messages.append(response)
 
                         for name in (game.wplayer.username, game.bplayer.username):
