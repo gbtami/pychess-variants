@@ -141,9 +141,14 @@ class LobbyController {
         const fen = e.value;
         localStorage.setItem("seek_fen", e.value);
 
-        e = document.getElementById('handicap') as HTMLSelectElement;
-        const handicap = e.options[e.selectedIndex].value;
-        localStorage.setItem("seek_handicap", handicap);
+        let handicap;
+        if (variant == 'shogi') {
+            e = document.getElementById('handicap') as HTMLSelectElement;
+            handicap = e.options[e.selectedIndex].value;
+            localStorage.setItem("seek_handicap", handicap);
+        } else {
+            handicap = '';
+        }
 
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = parseInt(e.value);
