@@ -113,11 +113,11 @@ VARIANT_960_TO_PGN = {
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
-    "shogi": "shogi",
-    "sittuyin": "sittuyin",
-    "makruk": "makruk",
-    "placement": "placement",
-    "grand": "grand",
+    "shogi": "Shogi",
+    "sittuyin": "Sittuyin",
+    "makruk": "Makruk",
+    "placement": "Placement",
+    "grand": "Grand",
 }
 
 
@@ -1211,8 +1211,9 @@ def pgn(doc):
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
     no_setup = fen == STANDARD_FEN and not chess960
+
     return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
-        "PyChess " + ("rated" if doc["y"] == 1 else "casual") + " game",
+        "PyChess " + ("rated" if "y" in doc and doc["y"] == 1 else "casual") + " game",
         URI + "/" + doc["_id"],
         doc["d"].strftime("%Y.%m.%d"),
         doc["us"][0],
@@ -1220,8 +1221,8 @@ def pgn(doc):
         C2R[doc["r"]],
         doc["b"] * 60,
         doc["i"],
-        doc["p0"]["e"],
-        doc["p1"]["e"],
+        doc["p0"]["e"] if "p0" in doc else "?",
+        doc["p1"]["e"] if "p1" in doc else "?",
         variant.capitalize() if not chess960 else VARIANT_960_TO_PGN[variant],
         moves,
         C2R[doc["r"]],

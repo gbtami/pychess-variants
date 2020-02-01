@@ -466,16 +466,18 @@ async def export(request):
 
     game_list = []
     if profileId is not None:
-        cursor = db.game.find({"us": profileId})
-        async for doc in cursor:
-            # filter out private games
-            if "p" in doc and doc["p"] == 1 and session_user != doc["us"][0] and session_user != doc["us"][1]:
-                continue
+        if profileId == "all_games" and session_user in request.app["fishnet_versions"]:
+            cursor = db.game.find()
+        else:
+            cursor = db.game.find({"us": profileId})
 
+        async for doc in cursor:
             try:
                 game_list.append(pgn(doc))
             except Exception:
-                log.error("Failed to load game %s %s" % (doc["_id"], C2V[doc["v"]]))
+                log.error("Failed to load game %s %s %s (early games may contain invalid moves)" % (doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d")))
+                continue
+
     pgn_text = "\n".join(game_list)
     return web.Response(text=pgn_text, content_type="text/pgn")
 
