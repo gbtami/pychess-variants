@@ -241,8 +241,8 @@ function renderPieces (ctrl) {
 
 export function settingsView (ctrl) {
 
-    if (VARIANTS[ctrl.variant].BoardCSS.length > 1) setBoard(ctrl.CSSindexesB, ctrl.variant, ctrl.mycolor);
-    if (VARIANTS[ctrl.variant].PieceCSS.length > 1) setPieces(ctrl, ctrl.mycolor);
+    setBoard(ctrl.CSSindexesB, ctrl.variant, ctrl.mycolor);
+    setPieces(ctrl, ctrl.mycolor);
 
     // turn settings panel off
     toggleBoardSettings(ctrl);
