@@ -18,7 +18,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, getPockets } from './chess';
+import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN } from './chess';
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -82,6 +82,7 @@ export default class RoundController {
     clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
     showDests: boolean;
+    handicap: boolean;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -137,6 +138,7 @@ export default class RoundController {
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = needPockets(this.variant);
+        this.handicap = (this.variant === 'shogi') ? Object.keys(SHOGI_HANDICAP_FEN).some(e => SHOGI_HANDICAP_FEN[e] === this.fullfen) : false;
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -344,7 +346,7 @@ export default class RoundController {
     }
 
     private rematch = () => {
-        this.doSend({ type: "rematch", gameId: this.model["gameId"] });
+        this.doSend({ type: "rematch", gameId: this.model["gameId"], handicap: this.handicap });
     }
 
     private newOpponent = (home) => {

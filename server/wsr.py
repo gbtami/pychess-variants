@@ -180,6 +180,7 @@ async def round_socket_handler(request):
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
+                        handicap = data["handicap"]
 
                         if opp_player.bot:
                             if opp_player.username == "Random-Mover":
@@ -192,6 +193,8 @@ async def round_socket_handler(request):
                                 engine = users.get("Random-Mover")
 
                             color = "w" if game.wplayer.username == opp_name else "b"
+                            if handicap:
+                                color = "w" if color == "b" else "b"
                             seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
                             seeks[seek.id] = seek
 
@@ -205,6 +208,8 @@ async def round_socket_handler(request):
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             if opp_name in game.rematch_offers:
                                 color = "w" if game.wplayer.username == opp_name else "b"
+                                if handicap:
+                                    color = "w" if color == "b" else "b"
                                 seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
                                 seeks[seek.id] = seek
 
