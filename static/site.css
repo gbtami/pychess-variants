@@ -548,6 +548,7 @@ table#seeks {
   padding: 8px;
   width:100%;
   line-height: 28px;
+  white-space: nowrap;
 }
 
 #seeks tr {

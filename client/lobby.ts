@@ -86,7 +86,7 @@ class LobbyController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg (variant, color, fen, minutes, increment, chess960, rated) {
+    createSeekMsg (variant, color, fen, minutes, increment, chess960, rated, handicap) {
         this.doSend({
             type: "create_seek",
             user: this.model["username"],
@@ -96,11 +96,12 @@ class LobbyController {
             minutes: minutes,
             increment: increment,
             rated: rated,
+            handicap: handicap,
             chess960: chess960,
             color: color });
     }
 
-    createBotChallengeMsg (variant, color, fen, minutes, increment, level, chess960, rated) {
+    createBotChallengeMsg (variant, color, fen, minutes, increment, level, chess960, rated, handicap) {
         this.doSend({
             type: "create_ai_challenge",
             user: this.model["username"],
@@ -109,6 +110,7 @@ class LobbyController {
             minutes: minutes,
             increment: increment,
             rated: rated,
+            handicap: handicap,
             level: level,
             chess960: chess960,
             color: color });
@@ -172,10 +174,10 @@ class LobbyController {
             const level = parseInt(e.value);
             localStorage.setItem("seek_level", e.value);
             // console.log(level, e.value, localStorage.getItem("seek_level"));
-            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960, rated===1);
+            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960, rated===1, handicap);
         } else {
             if (this.isNewSeek(variant, color, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')) {
-                this.createSeekMsg(variant, color, fen, minutes, increment, chess960, rated===1);
+                this.createSeekMsg(variant, color, fen, minutes, increment, chess960, rated===1, handicap);
             }
         }
         // prevent to create challenges continuously
@@ -420,7 +422,7 @@ class LobbyController {
              h('td', {attrs: {"data-icon": variantIcon(seek.variant, seek.chess960)}, class: {"icon": true}} ),
              // h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
              h('td', variantName(seek.variant, seek.chess960)),
-             h('td', (seek["rated"]) ? 'Rated' : 'Casual') ])
+             h('td', (seek["handicap"]) ? seek["handicap"] : (seek["rated"]) ? 'Rated' : 'Casual') ])
             );
         return [header, h('tbody', rows)];
     }
