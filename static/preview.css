@@ -185,6 +185,9 @@ label.board.board0.shogun {
 label.board.board1.shogun {
   background-image: url('images/board/ShogunMaple.png');
 }
+label.board.board2.shogun {
+  background-image: url('images/board/ShogunMaple2.png');
+}
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse, label.piece.piece0.gothic, label.piece.piece0.gothhouse {
   background-image: url('images/pieces/merida/wA.svg');
