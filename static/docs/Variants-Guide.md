@@ -178,11 +178,11 @@ The name was originally thought as "general's chess," based on what was then the
 
 2. New pieces are as defined in the image above, and their moves are described in detail below. Of note, promoted sides are colored differently. Also, the queen *starts* as a promoted piece despite having a new unpromoted form (the Duchess). See details about drops below. For the sake of terminology, a rook will now be considered a "minor piece," while the queen, mortar, archbishop, and general (but NOT the captain) are considered "major pieces." 
 
-3. The three farthest ranks are the promotion zone. Every starting (or dropped) piece except the king and queen may promote by moving into the promotion zone or moving from within the promotion zone. 
+3. The three farthest ranks are the promotion zone. Every starting (or dropped) piece except the king and queen may promote by moving into the promotion zone **or moving from within the promotion zone**. 
 
 4. However, only one of *each* **major** piece (queen, mortar, archbishop, or general) can be out on each side at a time. For example, if a player has an archbishop in play, then a bishop cannot promote into an archbishop until the current one is captured.
 
-5. As in crazyhouse and shogi, captured pieces may be dropped back into the board as your own piece. Pieces can be dropped anywhere within the first 5 ranks (in other words, anywhere but the promotion zone). Note that unlike crazyhouse, pawns can be dropped on the first rank.
+5. As in crazyhouse and shogi, captured pieces may be dropped back into the board as your own piece. Pieces can be dropped anywhere within the first 5 ranks (in other words, anywhere but the promotion zone). Note that unlike crazyhouse, **pawns can be dropped on the first rank**.
 
 6. When promoted pieces are captured, they revert to their unpromoted side. This is the only way that a queen becomes a duchess.
 
@@ -217,7 +217,7 @@ The general is a hybrid piece, often known as a centaur. In this game, it promot
 
 ![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
 
-The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game.
+The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game. Also, unlike the rest of promoted pieces, there can be multiple captains, as it is not a major piece.
 
 ### Duchess
 
