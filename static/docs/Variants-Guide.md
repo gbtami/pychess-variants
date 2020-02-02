@@ -219,6 +219,12 @@ The general is a hybrid piece, often known as a centaur. In this game, it promot
 
 The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game.
 
+### Duchess
+
+![Duchess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duchess.png)
+
+The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz"). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in Shogun chess).
+
 ## Strategy
 
 The game is still young, so strategy is still being developed! Of course, with the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.
