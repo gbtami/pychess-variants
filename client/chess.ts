@@ -5,7 +5,7 @@ export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyh
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
 export const VARIANTS = {
-    makruk: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makruk", "makruks"], icon: "Q"},
+    makruk: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makruk", "makruks", "makrukwb", "makrukwr"], icon: "Q"},
     cambodian: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makruk", "makruks"], icon: "!"},
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["sittuyin.svg", "sittuyin.jpg"], pieces: "sittuyin", PieceCSS: ["sittuyinm", "sittuyins"], icon: "R", baseURL: ["makruk", "sittuyin"] },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", BoardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "ShogiCheckeredWood.png"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "K", baseURL: ["shogi/ctk", "shogi", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },

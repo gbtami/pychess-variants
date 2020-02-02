@@ -188,6 +188,12 @@ label.piece.piece0.makruk, label.piece.piece0.cambodian, label.piece.piece0.sitt
 label.piece.piece1.makruk, label.piece.piece1.cambodian, label.piece.piece1.sittuyin  {
   background-image: url('images/pieces/sittuyin/wK.svg');
 }
+label.piece.piece2.makruk, label.piece.piece2.cambodian, label.piece.piece2.sittuyin  {
+  background-image: url('images/pieces/makruk2/wK.svg');
+}
+label.piece.piece3.makruk, label.piece.piece3.cambodian, label.piece.piece3.sittuyin  {
+  background-image: url('images/pieces/makruk2/rK.svg');
+}
 
 label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.chess, label.board.board0.seirawan, label.board.board0.shouse {
   background-image: url('images/board/8x8brown.svg');
