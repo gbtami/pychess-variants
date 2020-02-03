@@ -19,6 +19,7 @@ Currently supported games are:
 - [Gothic](https://en.wikipedia.org/wiki/Gothic_chess)
 - [Grand](https://en.wikipedia.org/wiki/Grand_Chess)
 - [Shako](https://www.chessvariants.com/large.dir/shako.html)
+- [Shogun](https://pychess-variants.herokuapp.com/guides/Variants)
 - [Shouse (Seirawan+Crazyhouse)](https://pychess-variants.herokuapp.com/IRVxMG72)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.twitch.tv/videos/466253815)
 - [Gothhouse (Gothic+Crazyhouse)](https://pychess-variants.herokuapp.com/kGOcweH3)

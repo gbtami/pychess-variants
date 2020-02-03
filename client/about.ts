@@ -54,6 +54,8 @@ export function aboutView(model): VNode[] {
                         ", ",
                         h('a', {attrs: {href: 'https://www.chessvariants.com/large.dir/shako.html'}}, 'Shako'),
                         ", ",
+                        h('a', {attrs: {href: 'https://pychess-variants.herokuapp.com/guides/Variants'}}, 'Shogun'),
+                        ", ",
                         h('a', {attrs: {href: 'https://pychess-variants.herokuapp.com/IRVxMG72'}}, 'Shouse (Seirawan+Crazyhouse)'),
                         ", ",
                         h('a', {attrs: {href: 'https://www.twitch.tv/videos/466253815'}}, 'Capahouse (Capablanca+Crazyhouse)'),
