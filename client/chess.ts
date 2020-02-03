@@ -49,7 +49,14 @@ export function variantName(variant, chess960) {
     if (chess960 === "True" || chess960 === 1 || chess960 === true) {
         return variant.toUpperCase(variant) + "960";
     } else {
-        return variant.toUpperCase(variant);
+        switch (variant) {
+        case "seirawan":
+            return "S-CHESS";
+        case "shouse":
+            return "S-HOUSE";
+        default:
+            return variant.toUpperCase(variant);
+        }
     }
 }
 

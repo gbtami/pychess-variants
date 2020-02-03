@@ -271,7 +271,7 @@ class LobbyController {
                         props: {name: "variant"},
                         on: { input: () => setVariant() },
                         hook: {insert: () => setVariant() },
-                        }, variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variant))),
+                        }, variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variantName(variant, 0)))),
                 ]),
                 h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here', value: vFen} }),
                 h('div#handicap-block', [
