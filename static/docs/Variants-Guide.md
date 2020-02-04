@@ -70,9 +70,9 @@ The princess is a compound piece combining the moves of the **bishop** and the *
 
 * **Archbishop (A)** in Capablanca chess
 * **Cardinal (C)** in Grand chess
-* **Hawk (H)** in Seirawan chess
+* **Hawk (H)** in S-chess
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, Yasser Seirawan specifically uses a hawk in Seirawan chess.
+The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, Yasser Seirawan specifically uses a hawk in S-chess.
 
 The princess is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
 
@@ -88,9 +88,9 @@ The empress is a compound piece combining the moves of the **rook** and the **kn
 
 * **Chancellor (C)** in Capablanca chess
 * **Marshal (M)** in Grand chess
-* **Elephant (E)** in Seirawan chess
+* **Elephant (E)** in S-chess
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, Yasser Seirawan specifically uses an elephant in Seirawan chess.
+The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, Yasser Seirawan specifically uses an elephant in S-chess.
 
 The value of a princess is considered better than a princess, but equivalent or slightly less than a queen.
 
@@ -140,11 +140,11 @@ One should not simply make just developing moves. You can afford to lag in devel
 
 More strategy pending.
 
-## Seirawan Chess (S-Chess, SHARPER Chess)
+## S-chess (Seirawan Chess, SHARPER Chess)
 
 ### Intro
 
-Seirawan Chess was created by Yasser Seirawan and Bruce Harper in 2007.  
+S-chess was created by Yasser Seirawan and Bruce Harper in 2007.  
 
 ### Rules
 
@@ -168,7 +168,7 @@ All of the above three variants above also have crazyhouse variants: **Capahouse
 
 ## Intro
 
-Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in Seirawan chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
+Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in S-chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
 
 The name was originally thought as "general's chess," based on what was then the name of the pawn promotion, now currently the name of the knight promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.
 
