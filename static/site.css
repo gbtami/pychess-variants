@@ -83,7 +83,7 @@ iframe {
 
 .main-wrapper{
   display: grid;
-  grid-template-columns: 20% auto 25%;
+  grid-template-columns: 20% auto 20%;
   grid-template-rows: minmax(0, 1fr) 40px;
   grid-gap: 18px;
   justify-content: center;
@@ -246,11 +246,11 @@ div#result {
 }
 
 .lobby-button, .donate-button, button#request-analysis {
-  width: 280px;
+  width: 270px;
   background-color: var(--bg-color2);
   border: none;
   color: var(--font-color);
-  padding: 15px 32px;
+  padding: 15px 2px;
   text-align: center;
   text-decoration: none;
   font-size: 18px;
