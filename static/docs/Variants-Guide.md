@@ -164,7 +164,7 @@ All of the above three variants above also have crazyhouse variants: **Capahouse
 
 # SHOGUN CHESS
 
-![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions.png)
+![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions3.png)
 
 ## Intro
 
@@ -227,4 +227,10 @@ The duchess is the only demoted form of the queen, and only comes into play afte
 
 ## Strategy
 
-The game is still young, so strategy is still being developed! Of course, with the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.
+The game is still young, so strategy is still being developed! 
+
+With the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.
+
+General strategy-wise, many players will be tempted to play this as crazyhouse. However, the game diverges quite quickly from crazyhouse due to the drop zone restriction. While players in crazyhouse will often take advantage of weaknesses in the opponents' camps to deliver devastating drops, the gameplay in shogun chess. In shogun chess, your army needs to maneuver itself in a way to breach the opponents' camp; even the slightest breach can result in a piece promotion. Therefore, strategy relies more on chess tactics than crazyhouse tactics for this purpose, as well as for the purposes of delivering checkmate.
+
+The ability to drop pawns on the first rank (unlike in crazyhouse) allows a player to build a much stronger castle. To crack this, focus on gaining material and promoted pieces, then push at the weak point.
