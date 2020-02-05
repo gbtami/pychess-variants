@@ -83,7 +83,7 @@ iframe {
 
 .main-wrapper{
   display: grid;
-  grid-template-columns: 20% auto 20%;
+  grid-template-columns: 20% auto 25%;
   grid-template-rows: minmax(0, 1fr) 40px;
   grid-gap: 18px;
   justify-content: center;
