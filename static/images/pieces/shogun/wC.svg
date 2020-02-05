@@ -27,7 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -44,15 +44,39 @@
      inkscape:window-height="1017"
      id="namedview4800"
      showgrid="false"
-     inkscape:zoom="3.7676176"
-     inkscape:cx="50.797406"
-     inkscape:cy="72.833676"
-     inkscape:window-x="-8"
+     inkscape:zoom="1.8838088"
+     inkscape:cx="206.42999"
+     inkscape:cy="50.213344"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg4798" />
   <defs
      id="defs4788">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient6292">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop6288" />
+      <stop
+         style="stop-color:#dadaec;stop-opacity:1"
+         offset="1"
+         id="stop6290" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6286"
+       inkscape:collect="always">
+      <stop
+         id="stop6282"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop6284"
+         offset="1"
+         style="stop-color:#000080;stop-opacity:1" />
+    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient5385">
@@ -61,7 +85,7 @@
          offset="0"
          id="stop5381" />
       <stop
-         style="stop-color:#999999;stop-opacity:1"
+         style="stop-color:#9898cc;stop-opacity:1"
          offset="1"
          id="stop5383" />
     </linearGradient>
@@ -81,11 +105,11 @@
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient5385"
+       xlink:href="#linearGradient6286"
        id="linearGradient5387"
        x1="62.930347"
        y1="26.730312"
-       x2="91.34343"
+       x2="131.59767"
        y2="26.730312"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
@@ -99,11 +123,11 @@
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient5385"
+       xlink:href="#linearGradient6292"
        id="linearGradient5403"
-       x1="62.955688"
+       x1="67.722641"
        y1="13.960634"
-       x2="88.305"
+       x2="79.088898"
        y2="13.960634"
        gradientUnits="userSpaceOnUse" />
   </defs>
