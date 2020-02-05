@@ -177,9 +177,12 @@ label.board.board1.sittuyin {
   background-image: url('images/board/sittuyin.jpg');
 }
 label.board.board0.makruk, label.board.board0.cambodian {
-  background-image: url('images/board/makruk.svg');
+  background-image: url('images/board/makruk2.svg');
 }
 label.board.board1.makruk, label.board.board1.cambodian {
+  background-image: url('images/board/makruk.svg');
+}
+label.board.board2.makruk, label.board.board2.cambodian {
   background-image: url('images/board/makruk.jpg');
 }
 label.piece.piece0.makruk, label.piece.piece0.cambodian {
