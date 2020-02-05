@@ -191,8 +191,9 @@ async def index(request):
             user = users[session_user]
         else:
             log.debug("New lichess user appeared!", session_user)
+            title = session["title"] if "title" in session else ""
             perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
-            user = User(db=db, username=session_user, anon=session["guest"], perfs=perfs)
+            user = User(db=db, username=session_user, anon=session["guest"], title=title, perfs=perfs)
             users[user.username] = user
         user.ping_counter = 0
     else:
