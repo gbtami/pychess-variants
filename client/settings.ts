@@ -10,6 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 import h from 'snabbdom/h';
 
 import { dimensions } from 'chessgroundx/types';
+
 import { variants, VARIANTS } from './chess';
 import { pocketView } from './pocket';
 import { player } from './player';
@@ -104,6 +105,7 @@ function setPieces (ctrl, color, flip: boolean = false) {
                 autoShapes: shapes0,
             }
         });
+        chessground.redrawAll();
         // console.log("B autoShapes:", chessground.state.drawable.autoShapes);
     }
 }
@@ -220,7 +222,9 @@ function renderPieces (ctrl) {
         const idx = e.target.value;
         //console.log("togglePieces()", idx);
         ctrl.CSSindexesP[variants.indexOf(ctrl.variant)] = idx;
-        setPieces(ctrl, ctrl.mycolor);
+        var color = ctrl.mycolor;
+        if (ctrl.flip && ctrl.variant.endsWith('shogi')) color = (color === 'white') ? 'balck' : 'white';
+        setPieces(ctrl, color);
 
         const family = VARIANTS[ctrl.variant].pieces;
         Object.keys(VARIANTS).forEach((key) => {
