@@ -12,7 +12,7 @@ From a Chess player's standpoint, that is fairly accurate. In fact, one obvious 
 
 ## Rules
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The major difference is the some pieces having different moves and the starting positions, with the pawns starting on the third rank. There is no castling as in chess. Stalemates are draws, as in chess.
+The general rules are extremely similar to Chess, so this guide will focus on the few differences. The objective is the same: checkmating your opponent's king. The major difference is some pieces having different moves and the starting positions: the pawns start on the third rank, and the king is always on the left side of the player regardless of color. Stalemates are draws, as in chess.
 
 ## The Pieces
 
@@ -22,13 +22,13 @@ Thai piece names are in parentheses.
 
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/King.png?raw=true) 
 
-The king moves exactly the same as in chess.
+The king moves one square orthogonally or diagonally. There is no castling as in chess.
 
 ### Queen (*Met*)
 
 ![Queen](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Queen.png?raw=true)
 
-Unlike the queen in chess, the queen is a relatively weak piece that only moves one space diagonally.
+Unlike the queen in chess, the queen is a relatively weak piece that only moves one square diagonally.
 
 The queen is worth about 1.5 to 2 pawns in general. The queen is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
 
@@ -36,7 +36,7 @@ The queen is worth about 1.5 to 2 pawns in general. The queen is a good piece to
 
 ![Bishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Bishop.png?raw=true)
 
-The bishop moves one step diagonally or one step forward, just like the silver general in shogi.
+The bishop moves one square diagonally or one square forward, just like the silver general in shogi.
 
 The bishop is a powerful piece for controlling squares immediately in front of it, and for shouldering off enemy forces. It is also a good defender around its King.
  
