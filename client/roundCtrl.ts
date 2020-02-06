@@ -497,8 +497,9 @@ export default class RoundController {
         }
         // save capture state before updating chessground
         // 960 king takes rook castling is not capture
-        const capture = lastMove !== null && this.chessground.state.pieces[lastMove[1]] && this.steps[this.steps.length - 1].san.slice(0, 2) !== 'O-'
-
+        const step = this.steps[this.steps.length - 1];
+        const capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
+        console.log("CAPTURE ?", capture, lastMove, step);
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
             if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
@@ -600,7 +601,7 @@ export default class RoundController {
             if (this.variant == 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
-            capture = this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-';
+            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
