@@ -25,7 +25,7 @@ export const VARIANTS = {
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "$", baseURL: ["seir", "capa", "green", "musk"] },
     chess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "M" },
     shako: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"], pieces: "shako", PieceCSS: ["shako0"], icon: "9" },
-    shogun: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg"], pieces: "shogun", PieceCSS: ["shogun0", "shogun1"], icon: "-" , baseURL: ["shogun"] },
+    shogun: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg"], pieces: "shogun", PieceCSS: ["shogun0", "shogun1"], icon: "-" , baseURL: ["shogun", "shogun1"] },
 }
 
 export function variantIcon(variant, chess960) {
