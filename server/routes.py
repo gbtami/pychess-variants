@@ -356,6 +356,7 @@ async def get_user_games(request):
     if level is not None:
         filter_cond["x"] = int(level)
         filter_cond["s"] = MATE
+        filter_cond["if"] = None
 
     if "/win" in request.path:
         filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
