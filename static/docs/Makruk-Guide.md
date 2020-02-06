@@ -72,25 +72,25 @@ The pawn moves and attacks the same as in chess. However, there is no double-ste
 
 ## Counting Rules
 
-When neither side has any pawns, the game must be completed within a certain number of moves or it is declared a draw.
+When neither side has any unpromoted pawns, the game must be completed within a certain number of moves or it is declared a draw. In real games, the disadvantaged player verbally counts his moves according to these rules.
 
-### Board's Honour Counting
+### Board's Honor Counting
 
-When there are no unpromoted pawns left on the board, the disadvantaged player may start the board honour's counting. The count starts from 1, and mate must be achieved in 64 moves (that is, before the count goes to 65) or the game is a draw. The player may choose to stop counting at any time, but if either player wants to start counting again, the count will restart from 1. If the disadvantaged player checkmates the advantaged side and did not stop counting, the game is declared a draw.
+When there are no unpromoted pawns left on the board, the disadvantaged player may start the board's honor counting. The count starts from 1, and mate must be achieved in 64 moves (that is, before the count goes to 65) or the game is a draw. The player may choose to stop counting at any time, but if either player wants to start counting again, the count will restart from 1. If the disadvantaged player checkmates the advantaged side and did not stop counting, the game is declared a draw.
 
-### Piece's Honour Counting
+### Piece's Honor Counting
 
-When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honour counting must be started, or restarted from the board's honour counting, by the disadvantaged player. The count starts from the number of pieces left on the board, including both kings, plus one. The maximum number of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
-* If there are two rooks left: 8
-* If there is one rook left: 16
+When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honor counting will start. The count starts from the number of pieces left on the board, including both kings, plus one. The maximum number of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
+* If there are two rooks: 8
+* If there is one rook: 16
 * If there are two bishops: 22
 * If there are two knights: 32
 * If there is one bishop: 44
 * If there is one knight: 64
 * If there are only (any number of) queen and promoted pawns: 64
 
-The winning player has to checkmate his opponent's king before the number after the maximum is announced. Otherwise, the game is declared a draw. Once the piece's honour counting is started, the maximum number is "locked in", and it will not change in any case, even if the pieces on the board get captured.
-For example, if White has two rooks and a knight against a lone black king, the piece's honour counting will go from 6 to 8. If Black captures a white rook, the count does not restart, and the game is still drawn after black counts to 9.
+The winning player has to checkmate his opponent's king before the count exceeds the maximum number. Otherwise, the game is declared a draw. Once the piece's honor counting is started, the maximum number is "locked in", and it will not change in any case, even if the pieces on the board get captured.
+For example, if White has two rooks and a knight against a lone black king, the piece's honor counting will go from 6 to 8. If Black captures a white rook, the count does not restart, nor is the maximum count recalculated. The game is still drawn after black counts to 9.
 
 ## Makruk vs Sittuyin
  
