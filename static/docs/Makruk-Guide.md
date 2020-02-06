@@ -28,13 +28,9 @@ The king moves exactly the same as in chess.
 
 ![Queen](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Queen.png?raw=true)
 
-Unlike the queen in chess, the queen is a relatively weak piece that only moves one space diagonally. Additional queens are gained through pawn promotion.
+Unlike the queen in chess, the queen is a relatively weak piece that only moves one space diagonally.
 
-The queen is worth about 1.5 to 2 pawns in general. It is also the only renewable piece type. The queen is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
- 
-Since it is rare for one side to be up by two pieces, the easy-to-promote-to queen is commonly present in most endgames, assisting the stronger side in delivering checkmate.
- 
-For the disadvantaged side, a queen is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the king for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules.
+The queen is worth about 1.5 to 2 pawns in general. The queen is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
 
 ### Bishop (*Khon*)
 
@@ -69,6 +65,10 @@ In the absence of mighty chess queens, the rooks dominate the board. Lateral roo
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true)
 
 The pawn moves and attacks the same as in chess. However, there is no double-step first move. Pawns promote and move like queens when they reach the sixth rank.
+
+Since it is rare for one side to be up by two pieces, the promoted pawn is commonly present in most endgames, assisting the stronger side in delivering checkmate.
+ 
+For the disadvantaged side, a promoted pawn is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the king for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules (see below).
 
 ## Counting Rules
 
