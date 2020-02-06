@@ -179,6 +179,9 @@ label.piece.piece0.shako {
 label.piece.piece0.shogun {
   background-image: url('images/pieces/shogun/wC.svg');
 }
+label.piece.piece1.shogun {
+  background-image: url('images/pieces/shogun1/wC.svg');
+}
 label.board.board0.shogun {
   background-image: url('images/board/ShogunPlain.svg');
 }
@@ -187,6 +190,9 @@ label.board.board1.shogun {
 }
 label.board.board2.shogun {
   background-image: url('images/board/ShogunMaple2.png');
+}
+label.board.board3.shogun {
+  background-image: url('images/board/ShogunBlue.svg');
 }
 
 label.piece.piece0.capablanca, label.piece.piece0.capahouse, label.piece.piece0.grand, label.piece.piece0.grandhouse, label.piece.piece0.gothic, label.piece.piece0.gothhouse {
