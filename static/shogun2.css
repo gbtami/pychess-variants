@@ -1,0 +1,67 @@
+.shogun .cg-wrap piece.ferz.white {
+  background-image: url('images/pieces/shogun2/wF.svg');
+}
+.shogun .cg-wrap piece.ferz.black {
+  background-image: url('images/pieces/shogun2/bF.svg');
+}
+.shogun .cg-wrap piece.pferz.white {
+  background-image: url('images/pieces/shogun2/wQ.svg');
+}
+.shogun .cg-wrap piece.pferz.black {
+  background-image: url('images/pieces/shogun2/bQ.svg');
+}
+.shogun .cg-wrap piece.pknight.white {
+  background-image: url('images/pieces/shogun2/wG.svg');
+}
+.shogun .cg-wrap piece.pknight.black {
+  background-image: url('images/pieces/shogun2/bG.svg');
+}
+.shogun .cg-wrap piece.prook.white {
+  background-image: url('images/pieces/shogun2/wM.svg');
+}
+.shogun .cg-wrap piece.prook.black {
+  background-image: url('images/pieces/shogun2/bM.svg');
+}
+.shogun .cg-wrap piece.pbishop.white {
+  background-image: url('images/pieces/shogun2/wA.svg');
+}
+.shogun .cg-wrap piece.pbishop.black {
+  background-image: url('images/pieces/shogun2/bA.svg');
+}
+.shogun .cg-wrap piece.ppawn.white {
+  background-image: url('images/pieces/shogun2/wC.svg');
+}
+.shogun .cg-wrap piece.ppawn.black {
+  background-image: url('images/pieces/shogun2/bC.svg');
+}
+
+.shogun .cg-wrap piece.pawn.white {
+  background-image: url('images/pieces/shogun2/wP.svg');
+}
+.shogun .cg-wrap piece.bishop.white {
+  background-image: url('images/pieces/shogun2/wB.svg');
+}
+.shogun .cg-wrap piece.knight.white {
+  background-image: url('images/pieces/shogun2/wN.svg');
+}
+.shogun .cg-wrap piece.rook.white {
+  background-image: url('images/pieces/shogun2/wR.svg');
+}
+.shogun .cg-wrap piece.king.white {
+  background-image: url('images/pieces/shogun2/wK.svg');
+}
+.shogun .cg-wrap piece.pawn.black {
+  background-image: url('images/pieces/shogun2/bP.svg');
+}
+.shogun .cg-wrap piece.bishop.black {
+  background-image: url('images/pieces/shogun2/bB.svg');
+}
+.shogun .cg-wrap piece.knight.black {
+  background-image: url('images/pieces/shogun2/bN.svg');
+}
+.shogun .cg-wrap piece.rook.black {
+  background-image: url('images/pieces/shogun2/bR.svg');
+}
+.shogun .cg-wrap piece.king.black {
+  background-image: url('images/pieces/shogun2/bK.svg');
+}
