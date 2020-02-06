@@ -4,7 +4,7 @@
 
 ## What is Makruk?
 
-*Makruk*, or Thai Chess is a classic board game native to Thailand and is closely descended from Chatturanga, the same ancestor as Chess. The game is played in Thailand and Cambodia, where it is known as *Ouk Chatrang* (with slightly different rules). Markuk offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
+*Makruk*, or Thai Chess, is a classic board game native to Thailand and is closely descended from Chaturanga, the same ancestor as Chess. The game is played in Thailand and Cambodia, where it is known as *Ouk Chatrang* (with slightly different rules). Markuk offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
 
 Kramnik has tried his hand at Makruk, and had this insight to offer, "Makruk Thai is more strategic than International Chess. You have to plan your operations with total care since Makruk Thai can be compared to an anticipated endgame of International Chess."
  
@@ -13,24 +13,6 @@ From a Chess player's standpoint, that is fairly accurate. In fact, one obvious 
 ## Rules
 
 The general rules are extremely similar to Chess, so this guide will focus on the few differences. The major difference is the some pieces having different moves and the starting positions, with the pawns starting on the third rank. There is no castling as in chess. Stalemates are draws, as in chess.
-
-### Counting Rules
-
-When neither side has any pawns, the game must be completed within a certain number of moves or it is declared a draw. When a piece is captured the count restarts only if it is the last piece of a player in the game.
-* When neither player has any pawns left, mate must be achieved in 64 moves. The disadvantaged player counts, and may at any time choose to stop counting. If the disadvantaged player checkmates the advantage side and did not stop counting, the game is declared a draw.
-
-When the last piece (that is not the king) of the disadvantaged player is captured, the count may be started, or restarted from the aforementioned counting, by the weaker player, and the stronger player now has a maximum number of moves based on the pieces left:
-* If there are two rooks left: 8 moves
-* If there is one rook left: 16 moves
-* If there are no rooks left, but there are two bishops: 22 moves
-* If there are no rooks or bishops left, but there are two knights: 32 moves
-* If there are no rooks left, but there is one bishop: 44 moves
-* If there are no rooks or bishops left, but there is one knight: 64 moves
-* If there are no rooks, bishops or knights left, but only queens: 64 moves
-
-The disadvantaged player announces the counting of his fleeing moves, starting from the number of pieces left on the board, including both kings. The winning player has to checkmate his opponent's king before the maximum number is announced, otherwise the game is declared a draw. During this process, the count may restart if the counting player would like to stop and start counting again.
-For example, if White has two rooks and a knight against a lone black king, he has three moves to checkmate his opponent (the given value of 8 minus the total number of pieces, 5). If Black captures a white rook, the count does not automatically restart, unless Black is willing to do so, at his own disadvantage. However, many players do not understand this and restart the counting while fleeing the king.
-
 
 ## The Pieces
 
@@ -87,6 +69,28 @@ In the absence of mighty chess queens, the rooks dominate the board. Lateral roo
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true)
 
 The pawn moves and attacks the same as in chess. However, there is no double-step first move. Pawns promote and move like queens when they reach the sixth rank.
+
+## Counting Rules
+
+When neither side has any pawns, the game must be completed within a certain number of moves or it is declared a draw.
+
+### Board's Honour Counting
+
+When there are no unpromoted pawns left on the board, the disadvantaged player may start the board honour's counting. The count starts from 1, and mate must be achieved in 64 moves (that is, before the count goes to 65) or the game is a draw. The player may choose to stop counting at any time, but if either player wants to start counting again, the count will restart from 1. If the disadvantaged player checkmates the advantaged side and did not stop counting, the game is declared a draw.
+
+### Piece's Honour Counting
+
+When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honour counting must be started, or restarted from the board's honour counting, by the disadvantaged player. The count starts from the number of pieces left on the board, including both kings, plus one. The maximum number of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
+* If there are two rooks left: 8
+* If there is one rook left: 16
+* If there are two bishops: 22
+* If there are two knights: 32
+* If there is one bishop: 44
+* If there is one knight: 64
+* If there are only (any number of) queen and promoted pawns: 64
+
+The winning player has to checkmate his opponent's king before the number after the maximum is announced. Otherwise, the game is declared a draw. Once the piece's honour counting is started, the maximum number is "locked in", and it will not change in any case, even if the pieces on the board get captured.
+For example, if White has two rooks and a knight against a lone black king, the piece's honour counting will go from 6 to 8. If Black captures a white rook, the count does not restart, and the game is still drawn after black counts to 9.
 
 ## Makruk vs Sittuyin
  
