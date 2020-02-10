@@ -82,6 +82,7 @@ export default class RoundController {
     clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
     showDests: boolean;
+    blindfold: boolean;
     handicap: boolean;
 
     constructor(el, model) {
@@ -135,6 +136,7 @@ export default class RoundController {
         this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
         this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
+        this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = needPockets(this.variant);
