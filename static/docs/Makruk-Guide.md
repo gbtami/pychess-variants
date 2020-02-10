@@ -4,7 +4,7 @@
 
 ## What is Makruk?
 
-*Makruk*, or Thai Chess is a classic board game native to Thailand and is closely descended from Chatturanga, the same ancestor as Chess. The game is played in Thailand and Cambodia, where it is known as *Ouk Chatrang* (with slightly different rules). Markuk offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
+*Makruk*, or Thai Chess, is a classic board game native to Thailand and is closely descended from Chaturanga, the same ancestor as Chess. The game is played in Thailand and Cambodia, where it is known as *Ouk Chatrang* (with slightly different rules). Markuk offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
 
 Kramnik has tried his hand at Makruk, and had this insight to offer, "Makruk Thai is more strategic than International Chess. You have to plan your operations with total care since Makruk Thai can be compared to an anticipated endgame of International Chess."
  
@@ -12,25 +12,7 @@ From a Chess player's standpoint, that is fairly accurate. In fact, one obvious 
 
 ## Rules
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The major difference is the some pieces having different moves and the starting positions, with the pawns starting on the third rank. There is no castling as in chess. Stalemates are draws, as in chess.
-
-### Counting Rules
-
-When neither side has any pawns, the game must be completed within a certain number of moves or it is declared a draw. When a piece is captured the count restarts only if it is the last piece of a player in the game.
-* When neither player has any pawns left, mate must be achieved in 64 moves. The disadvantaged player counts, and may at any time choose to stop counting. If the disadvantaged player checkmates the advantage side and did not stop counting, the game is declared a draw.
-
-When the last piece (that is not the king) of the disadvantaged player is captured, the count may be started, or restarted from the aforementioned counting, by the weaker player, and the stronger player now has a maximum number of moves based on the pieces left:
-* If there are two rooks left: 8 moves
-* If there is one rook left: 16 moves
-* If there are no rooks left, but there are two bishops: 22 moves
-* If there are no rooks or bishops left, but there are two knights: 32 moves
-* If there are no rooks left, but there is one bishop: 44 moves
-* If there are no rooks or bishops left, but there is one knight: 64 moves
-* If there are no rooks, bishops or knights left, but only queens: 64 moves
-
-The disadvantaged player announces the counting of his fleeing moves, starting from the number of pieces left on the board, including both kings. The winning player has to checkmate his opponent's king before the maximum number is announced, otherwise the game is declared a draw. During this process, the count may restart if the counting player would like to stop and start counting again.
-For example, if White has two rooks and a knight against a lone black king, he has three moves to checkmate his opponent (the given value of 8 minus the total number of pieces, 5). If Black captures a white rook, the count does not automatically restart, unless Black is willing to do so, at his own disadvantage. However, many players do not understand this and restart the counting while fleeing the king.
-
+The general rules are extremely similar to Chess, so this guide will focus on the few differences. The objective is the same: checkmating your opponent's king. The major difference is some pieces having different moves and the starting positions: the pawns start on the third rank, and the king is always on the left side of the player regardless of color. Stalemates are draws, as in chess.
 
 ## The Pieces
 
@@ -40,25 +22,21 @@ Thai piece names are in parentheses.
 
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/King.png?raw=true) 
 
-The king moves exactly the same as in chess.
+The king moves one square orthogonally or diagonally. There is no castling as in chess.
 
 ### Queen (*Met*)
 
 ![Queen](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Queen.png?raw=true)
 
-Unlike the queen in chess, the queen is a relatively weak piece that only moves one space diagonally. Additional queens are gained through pawn promotion.
+Unlike the queen in chess, the queen is a relatively weak piece that only moves one square diagonally.
 
-The queen is worth about 1.5 to 2 pawns in general. It is also the only renewable piece type. The queen is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
- 
-Since it is rare for one side to be up by two pieces, the easy-to-promote-to queen is commonly present in most endgames, assisting the stronger side in delivering checkmate.
- 
-For the disadvantaged side, a queen is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the king for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules.
+The queen is worth about 1.5 to 2 pawns in general. The queen is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
 
 ### Bishop (*Khon*)
 
 ![Bishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Bishop.png?raw=true)
 
-The bishop moves one step diagonally or one step forward, just like the silver general in shogi.
+The bishop moves one square diagonally or one square forward, just like the silver general in shogi.
 
 The bishop is a powerful piece for controlling squares immediately in front of it, and for shouldering off enemy forces. It is also a good defender around its King.
  
@@ -84,9 +62,35 @@ In the absence of mighty chess queens, the rooks dominate the board. Lateral roo
 
 ### Pawn (*Bia*)
 
-![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true)
+![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true) ![ProPawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/ProPawn.png?raw=true)
 
 The pawn moves and attacks the same as in chess. However, there is no double-step first move. Pawns promote and move like queens when they reach the sixth rank.
+
+Since it is rare for one side to be up by two pieces, the promoted pawn is commonly present in most endgames, assisting the stronger side in delivering checkmate.
+ 
+For the disadvantaged side, a promoted pawn is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the king for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules (see below).
+
+## Counting Rules
+
+When neither side has any unpromoted pawns, the game must be completed within a certain number of moves or it is declared a draw. In real games, the disadvantaged player verbally counts his moves according to these rules.
+
+### Board's Honor Counting
+
+When there are no unpromoted pawns left on the board, the disadvantaged player may start the board's honor counting. The count starts from 1, and mate must be achieved in 64 moves (that is, before the count goes to 65) or the game is a draw. The player may choose to stop counting at any time, but if either player wants to start counting again, the count will restart from 1. If the disadvantaged player checkmates the advantaged side and did not stop counting, the game is declared a draw.
+
+### Piece's Honor Counting
+
+When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honor counting will start. This overrides the board's honor counting. The count starts from the number of pieces left on the board, including both kings, plus one. The maximum number of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
+* If there are two rooks: 8
+* If there is one rook: 16
+* If there are two bishops: 22
+* If there are two knights: 32
+* If there is one bishop: 44
+* If there is one knight: 64
+* If there are only (any number of) queen and promoted pawns: 64
+
+The winning player has to checkmate his opponent's king before the count exceeds the maximum number. Otherwise, the game is declared a draw. Once the piece's honor counting is started, the maximum number is set in stone, and it will not change in any case, even if the pieces on the board get captured.
+For example, if White has two rooks and a knight against a lone black king, the piece's honor counting will go from 6 to 8. If Black captures a white rook, the count does not restart, nor is the maximum count recalculated. The game is still drawn after Black counts to 9.
 
 ## Makruk vs Sittuyin
  
