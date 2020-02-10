@@ -58,6 +58,7 @@ export function roundView(model): VNode[] {
                 ]),
             ]),
             h('aside.sidebar-second', [
+                h('div#count'),
                 h('div#pocket-wrapper', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
