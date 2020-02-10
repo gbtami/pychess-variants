@@ -26,6 +26,8 @@ class FairyBoard:
             sf.set_option("Protocol", "uci")
         self.variant = variant
         self.chess960 = chess960
+        self.sfen = False
+        self.show_promoted = variant == "makruk" or variant == "cambodian"
         self.initial_fen = initial_fen if initial_fen else self.start_fen(variant, chess960)
         self.move_stack = []
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
@@ -70,7 +72,7 @@ class FairyBoard:
     def get_fen(self):
         if self.variant[-5:] == "shogi":
             # TODO: move this to pyffish.cpp
-            parts = sf.get_fen(self.variant, self.initial_fen, self.move_stack).split()
+            parts = sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960, self.sfen, self.show_promoted).split()
             color = "w" if parts[1] == "b" else "b"
             placement, pockets = parts[0][:-1].split("[")
             if pockets == "":
@@ -79,7 +81,7 @@ class FairyBoard:
             return "%s[%s] %s %s" % (placement, pockets, color, ply)
         else:
             try:
-                return sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960)
+                return sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960, self.sfen, self.show_promoted)
             except Exception:
                 log.error("ERROR: sf.get_fen() failed on %s %s %s" % (self.initial_fen, ",".join(self.move_stack), self.chess960))
                 raise
