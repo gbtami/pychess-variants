@@ -80,7 +80,7 @@ When there are no unpromoted pawns left on the board, the disadvantaged player m
 
 ### Piece's Honor Counting
 
-When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honor counting will start. This overrides the board's honor counting. The count starts from the number of pieces left on the board, including both kings, plus one. The maximum number of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
+When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honor counting will start. This overrides the board's honor counting. The count starts from the number of pieces left on the board, including both kings, plus one. The limit of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
 * If there are two rooks: 8
 * If there is one rook: 16
 * If there are two bishops: 22
@@ -89,8 +89,8 @@ When there are no unpromoted pawns left on the board, and the last piece (that i
 * If there is one knight: 64
 * If there are only (any number of) queen and promoted pawns: 64
 
-The winning player has to checkmate his opponent's king before the count exceeds the maximum number. Otherwise, the game is declared a draw. Once the piece's honor counting is started, the maximum number is set in stone, and it will not change in any case, even if the pieces on the board get captured.
-For example, if White has two rooks and a knight against a lone black king, the piece's honor counting will go from 6 to 8. If Black captures a white rook, the count does not restart, nor is the maximum count recalculated. The game is still drawn after Black counts to 9.
+The winning player has to checkmate his opponent's king before the count exceeds the limit. Otherwise, the game is declared a draw. Once the piece's honor counting is started, the limit is set in stone, and it will not change in any case, even if the pieces on the board get captured.
+For example, if White has two rooks against a lone black king, the piece's honor counting will go from 5 to 8. If Black captures one of the white rooks, the count does not restart, nor is the limit recalculated. The game is still drawn after Black counts to 9.
 
 ## Makruk vs Sittuyin
  

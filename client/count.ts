@@ -10,9 +10,9 @@ const patch = init([klass, attributes, properties, listeners]);
 function countString(fen) {
     const parts = fen.split(" ");
     if (parts[3] === "-") return "";
-    const maxPlies = parseInt(parts[3]);
-    const currentPlies = parseInt(parts[4]);
-    return `${Math.floor((currentPlies+1)/2)}/${maxPlies/2}`;
+    const countingLimit = parseInt(parts[3]);
+    const countingPly = parseInt(parts[4]);
+    return `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`;
 }
 
 export function updateCount(fen) {
