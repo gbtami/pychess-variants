@@ -52,7 +52,7 @@ export function roundView(model): VNode[] {
             ]),
             h('main.round', [
                 h('selection.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
-                    h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
+                    h('div.cg-wrap.' + VARIANTS[model["variant"]].cg + '#mainboard',
                         { hook: { insert: (vnode) => runGround(vnode, model)},
                     }),
                 ]),

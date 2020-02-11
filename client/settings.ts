@@ -243,10 +243,22 @@ function renderPieces (ctrl) {
     return pieces;
 }
 
+function setBlindfold (checked) {
+    const el = document.getElementById('mainboard') as HTMLInputElement;
+    if (el) {
+        if (checked) {
+            el.classList.add('blindfold');
+        } else {
+            el.classList.remove('blindfold');
+        }
+    }
+}
+
 export function settingsView (ctrl) {
 
     setBoard(ctrl.CSSindexesB, ctrl.variant, ctrl.mycolor);
     setPieces(ctrl, ctrl.mycolor);
+    setBlindfold(ctrl.blindfold);
 
     // turn settings panel off
     toggleBoardSettings(ctrl);
@@ -256,6 +268,7 @@ export function settingsView (ctrl) {
 
     const vShowDests = localStorage.showDests === undefined ? "true" : localStorage.showDests;
     const vClick2xdrop = localStorage.clickDropEnabled === undefined ? "false" : localStorage.clickDropEnabled;
+    const vBlindfold = localStorage.blindfold === undefined ? "false" : localStorage.blindfold;
 
     const setShowDests = () => {
         let e;
@@ -271,6 +284,14 @@ export function settingsView (ctrl) {
         localStorage.setItem("clickDropEnabled", e.checked);
         ctrl.clickDropEnabled = e.checked;
     };
+
+    const changeBlindfold = () => {
+        let e;
+        e = document.getElementById('blindfold') as HTMLInputElement;
+        localStorage.setItem("blindfold", e.checked);
+        ctrl.blindfold = e.checked;
+        setBlindfold(e.checked);
+    }
 
     return h('div#board-settings', [
         h('div.settings-pieces', renderPieces(ctrl)),
@@ -295,6 +316,13 @@ export function settingsView (ctrl) {
             h('input#click2xdrop', {
                 props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
                 on: { click: () => { setClick2xdrop(); } }
+            }),
+        ]),
+        h('div', [
+            h('label', { attrs: {for: "blindfold"} }, "Blindfold chess (invisible pieces)"),
+            h('input#blindfold', {
+                props: {name: "blindfold", type: "checkbox", checked: vBlindfold === "true" ? "checked" : ""},
+                on: { click: () => { changeBlindfold(); } }
             }),
         ]),
     ]);

@@ -232,11 +232,17 @@ label.piece.piece0.makruk, label.piece.piece0.cambodian {
 label.piece.piece1.makruk, label.piece.piece1.cambodian {
   background-image: url('images/pieces/makruk2/rK.svg');
 }
-label.piece.piece2.makruk, label.piece.piece2.cambodian, label.piece.piece0.sittuyin  {
+label.piece.piece2.makruk, label.piece.piece2.cambodian {
   background-image: url('images/pieces/makruk/wK.svg');
 }
-label.piece.piece3.makruk, label.piece.piece3.cambodian, label.piece.piece1.sittuyin  {
+label.piece.piece3.makruk, label.piece.piece3.cambodian  {
   background-image: url('images/pieces/sittuyin/wK.svg');
+}
+label.piece.piece0.sittuyin  {
+  background-image: url('images/pieces/sittuyin/wK.svg');
+}
+label.piece.piece1.sittuyin  {
+  background-image: url('images/pieces/makruk/wK.svg');
 }
 
 label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.chess, label.board.board0.seirawan, label.board.board0.shouse {
