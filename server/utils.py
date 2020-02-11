@@ -452,7 +452,8 @@ class Clock:
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
                         if self.ply < 2:
-                            await self.game.update_status(ABORTED)
+                            self.game.update_status(ABORTED)
+                            await self.save_game()
                             log.info("Game %s ABORT by server." % self.game.id)
                         else:
                             w, b = self.game.board.insufficient_material()
@@ -461,7 +462,8 @@ class Clock:
                                 result = "1/2-1/2"
                             else:
                                 result = "1-0" if self.color == BLACK else "0-1"
-                            await self.game.update_status(FLAG, result)
+                            self.game.update_status(FLAG, result)
+                            await self.save_game()
                             log.info("Game %s FLAG by server!" % self.game.id)
 
                         response = {"type": "gameEnd", "status": self.game.status, "result": self.game.result, "gameId": self.game.id, "pgn": self.game.pgn}
@@ -629,7 +631,8 @@ class Game:
                         result = "1/2-1/2"
                     else:
                         result = "1-0" if self.board.color == BLACK else "0-1"
-                    await self.update_status(FLAG, result)
+                    self.update_status(FLAG, result)
+                    await self.save_game()
         self.last_server_clock = cur_time
 
         if self.status != FLAG:
@@ -639,7 +642,9 @@ class Game:
                 self.board.push(move)
                 self.ply_clocks.append(clocks)
                 self.set_dests()
-                await self.update_status()
+                self.update_status()
+                if self.status > STARTED:
+                    await self.save_game()
 
                 self.steps.append({
                     "fen": self.board.fen,
@@ -655,6 +660,12 @@ class Game:
                 raise
 
     async def save_game(self, analysis=False):
+        if self.saved:
+            return
+
+        if self.rated and self.result != "*":
+            await self.update_ratings()
+
         self.stopwatch.kill()
 
         async def remove():
@@ -675,8 +686,6 @@ class Game:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
                     log.error("Failed to del %s from game_queues" % self.id)
-        if self.saved:
-            return
 
         self.saved = True
         loop = asyncio.get_event_loop()
@@ -751,16 +760,11 @@ class Game:
         await self.set_highscore(self.variant, self.chess960, {self.wplayer.username: int(round(wr.mu, 0))})
         await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
-    async def update_status(self, status=None, result=None):
+    def update_status(self, status=None, result=None):
         if status is not None:
             self.status = status
             if result is not None:
                 self.result = result
-
-            if self.rated and self.result != "*":
-                await self.update_ratings()
-
-            await self.save_game()
             return
 
         if self.board.move_stack:
@@ -768,13 +772,13 @@ class Game:
 
         w, b = self.board.insufficient_material()
         if w and b:
-            # print("1/2 by board.insufficient_material()")
+            print("1/2 by board.insufficient_material()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
         # check 50 move rule and repetition
         if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
-            # print("1/2 by board.is_claimable_draw()")
+            print("1/2 by board.is_claimable_draw()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
@@ -794,12 +798,6 @@ class Game:
         if self.ply > 600:
             self.status = DRAW
             self.result = "1/2-1/2"
-
-        if self.status > STARTED:
-            if self.rated and self.result != "*":
-                await self.update_ratings()
-
-            await self.save_game()
 
     def set_dests(self):
         dests = {}
@@ -907,12 +905,14 @@ class Game:
         return '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s}\n' % (" ".join(self.board.move_stack), clocks["white"], clocks["black"], self.inc, self.inc)
 
     async def abort(self):
-        await self.update_status(ABORTED)
+        self.update_status(ABORTED)
+        await self.save_game()
         return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id, "pgn": self.pgn}
 
     async def abandone(self, user):
         result = "0-1" if user.username == self.wplayer.username else "1-0"
-        await self.update_status(LOSERS["abandone"], result)
+        self.update_status(LOSERS["abandone"], result)
+        await self.save_game()
         return {"type": "gameEnd", "status": self.status, "result": result, "gameId": self.id, "pgn": self.pgn}
 
 
@@ -1010,7 +1010,8 @@ async def draw(games, data, agreement=False):
     game = games[data["gameId"]]
     if game.is_claimable_draw or agreement:
         result = "1/2-1/2"
-        await game.update_status(DRAW, result)
+        game.update_status(DRAW, result)
+        await game.save_game()
         return {
             "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn,
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else ""}
@@ -1035,7 +1036,9 @@ async def game_ended(games, user, data, reason):
                     result = "0-1" if user.username == game.wplayer.username else "1-0"
             else:
                 result = "0-1" if user.username == game.wplayer.username else "1-0"
-        await game.update_status(LOSERS[reason], result)
+
+        game.update_status(LOSERS[reason], result)
+        await game.save_game()
 
     return {
         "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn,
@@ -1192,7 +1195,7 @@ def get_board(games, data, full=False):
             "pgn": game.pgn if game.status > STARTED else "",
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else "",
             "uci_usi": game.uci_usi if game.status > STARTED else "",
-            "rm": game.random_move,
+            "rm": game.random_move if game.status <= STARTED else "" ,
             }
 
 
