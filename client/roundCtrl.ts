@@ -26,6 +26,7 @@ import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 import { renderRdiff, result } from './profile'
 import { player } from './player';
+import { updateCount } from './count';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -520,6 +521,10 @@ export default class RoundController {
 
         const oppclock = !this.flip ? 0 : 1;
         const myclock = 1 - oppclock;
+
+        if (this.variant === "makruk" || this.variant === "cambodian") {
+            updateCount(msg.fen);
+        }
 
         if (this.spectator) {
             if (latestPly) {
