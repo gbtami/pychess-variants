@@ -678,14 +678,13 @@ select, input {
 
 #count {
   font-family: "Roboto Mono", "Roboto";
-  font-size: 40px;
+  font-size: 30px;
   text-align: center;
-  white-space: pre-line;
   background-color: var(--bg-color1);
   box-shadow: var(--base-shadow);
   margin-bottom: 15px;
-  margin-left: 100px;
-  margin-right: 100px;
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 /* Modal Content/Box */
