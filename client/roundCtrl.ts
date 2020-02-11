@@ -524,7 +524,7 @@ export default class RoundController {
         const oppclock = !this.flip ? 0 : 1;
         const myclock = 1 - oppclock;
 
-        if (this.variant === "makruk" || this.variant === "cambodian") {
+        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
             updateCount(msg.fen);
         }
 
