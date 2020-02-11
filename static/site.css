@@ -676,6 +676,18 @@ select, input {
   padding: 24px;
 }
 
+#count {
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 40px;
+  text-align: center;
+  white-space: pre-line;
+  background-color: var(--bg-color1);
+  box-shadow: var(--base-shadow);
+  margin-bottom: 15px;
+  margin-left: 100px;
+  margin-right: 100px;
+}
+
 /* Modal Content/Box */
 .modal-content {
   background-color: var(--bg-color1);

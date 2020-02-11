@@ -20,7 +20,7 @@ export function updateCount(fen) {
     console.log(container);
     var count = countString(fen);
     if (count !== "") {
-        patch(container, h('div#count', `Counting: ${count}`));
+        patch(container, h('div#count', `Counting\n${count}`));
     } else {
         patch(container, h('div#count', ''));
     }
