@@ -208,7 +208,8 @@ class FairyBoard:
             body = '/pppppppppp/10/10/10/10/PPPPPPPPPP/'
         else:
             body = '/pppppppp/8/8/8/8/PPPPPPPP/'
-        fen = fen + body + fen.upper() + ' w ' + castl.upper() + castl + ' - 0 1'
+        holdings = "[]" if self.variant == "crazyhouse" or self.variant == "capahouse" else ""
+        fen = fen + body + fen.upper() + holdings + ' w ' + castl.upper() + castl + ' - 0 1'
         return fen
 
 
