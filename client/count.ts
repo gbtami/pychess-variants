@@ -12,12 +12,16 @@ function countString(fen) {
     if (parts[3] === "-") return "";
     const maxPlies = parseInt(parts[3]);
     const currentPlies = parseInt(parts[4]);
-    return `${Math.floor(currentPlies/2) + 1}/${maxPlies/2}`;
+    return `${Math.floor((currentPlies+1)/2)}/${maxPlies/2}`;
 }
 
 export function updateCount(fen) {
     var container = document.getElementById('count') as HTMLElement;
     console.log(container);
     var count = countString(fen);
-    patch(container, h('div.count#count',`${count}`));
+    if (count !== "") {
+        patch(container, h('div#count', `Counting: ${count}`));
+    } else {
+        patch(container, h('div#count', ''));
+    }
 }
