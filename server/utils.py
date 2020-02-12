@@ -838,6 +838,8 @@ class Game:
     def pgn(self):
         moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
+        # Use lichess format for crazyhouse games to support easy import
+        setup_fen = self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
             "PyChess " + ("rated" if self.rated else "casual") + " game",
             URI + "/" + self.id,
@@ -852,7 +854,7 @@ class Game:
             self.variant.capitalize() if not self.chess960 else VARIANT_960_TO_PGN[self.variant],
             moves,
             self.result,
-            fen="" if no_setup else '[FEN "%s"]\n' % self.initial_fen,
+            fen="" if no_setup else '[FEN "%s"]\n' % setup_fen,
             setup="" if no_setup else '[SetUp "1"]\n')
 
     @property
@@ -1195,7 +1197,7 @@ def get_board(games, data, full=False):
             "pgn": game.pgn if game.status > STARTED else "",
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else "",
             "uci_usi": game.uci_usi if game.status > STARTED else "",
-            "rm": game.random_move if game.status <= STARTED else "" ,
+            "rm": game.random_move if game.status <= STARTED else "",
             }
 
 
@@ -1214,6 +1216,8 @@ def pgn(doc):
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
     no_setup = fen == STANDARD_FEN and not chess960
+    # Use lichess format for crazyhouse games to support easy import
+    setup_fen = fen if variant != "crazyhouse" else fen.replace("[]", "")
 
     return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
         "PyChess " + ("rated" if "y" in doc and doc["y"] == 1 else "casual") + " game",
@@ -1229,5 +1233,5 @@ def pgn(doc):
         variant.capitalize() if not chess960 else VARIANT_960_TO_PGN[variant],
         moves,
         C2R[doc["r"]],
-        fen="" if no_setup else '[FEN "%s"]\n' % fen,
+        fen="" if no_setup else '[FEN "%s"]\n' % setup_fen,
         setup="" if no_setup else '[SetUp "1"]\n')
