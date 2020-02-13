@@ -7,7 +7,7 @@ export function player(id, title, name, rating, level) {
             h('player', [
                 h('a.user-link', {attrs: {href: '/@/' + name}}, [
                     h('player-title', " " + title + " "),
-                    name + ((title === "BOT" && level > 0) ? ' level ' + level: ''),
+                    name + ((title === "BOT" && level >= 0) ? ' level ' + level: ''),
                 ]),
                 h('rating', rating),
             ]),

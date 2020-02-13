@@ -35,7 +35,7 @@ export function analysisView(model): VNode[] {
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model.wplayer}}, [
                                 h('player-title', " " + model.wtitle + " "),
-                                model.wplayer + ((model.wtitle === "BOT" && model.level > 0) ? ' level ' + model.level: '') + " (" + model.wrating + ") ",
+                                model.wplayer + ((model.wtitle === "BOT" && model.level >= 0) ? ' level ' + model.level: '') + " (" + model.wrating + ") ",
                                 renderRdiff(model.wrdiff),
                             ]),
                         ]),
@@ -45,7 +45,7 @@ export function analysisView(model): VNode[] {
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model.bplayer}}, [
                                 h('player-title', " " + model.btitle + " "),
-                                model.bplayer + ((model.btitle === "BOT" && model.level > 0) ? ' level ' + model.level: '') + " (" + model.brating + ") ",
+                                model.bplayer + ((model.btitle === "BOT" && model.level >= 0) ? ' level ' + model.level: '') + " (" + model.brating + ") ",
                                 renderRdiff(model["brdiff"]),
                             ]),
                         ]),

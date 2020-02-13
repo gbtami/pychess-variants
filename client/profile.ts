@@ -100,7 +100,7 @@ function renderGames(model, games) {
                     h('player', [
                         h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, [
                             h('player-title', " " + game["wt"] + " "),
-                            game["us"][0] + ((game["wt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
+                            game["us"][0] + ((game["wt"] === 'BOT' && game['x'] >= 0) ? ' level ' + game['x']: ''),
                             h('br'),
                             (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
                             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
@@ -110,7 +110,7 @@ function renderGames(model, games) {
                     h('player', [
                         h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
                             h('player-title', " " + game["bt"] + " "),
-                            game["us"][1] + ((game["bt"] === 'BOT' && game['x'] > 0) ? ' level ' + game['x']: ''),
+                            game["us"][1] + ((game["bt"] === 'BOT' && game['x'] >= 0) ? ' level ' + game['x']: ''),
                             h('br'),
                             (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
                             (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
