@@ -72,7 +72,7 @@ Each variant also has its own selection of piece sets and boards to choose from!
 
 ## Southeast Asian variants
 
-![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
+![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
 **Makruk (Thai Chess)** - A game closely resembling the original Chaturanga is both familiar and different for Chess players
 
