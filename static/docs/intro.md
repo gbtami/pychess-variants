@@ -20,6 +20,8 @@ If you need to practice with the piece moves and rules before diving into a real
 
 ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
+**Chess (Western/International Chess)** - Chess, unmodified, as it's played by FIDE standards
+
 **Chess 960** - Starting positions in the back row are randomized
 
 **Crazyhouse** - Take captured pieces and drop them back on to the board as your own
