@@ -22,7 +22,7 @@ Various symbols used for the archbishop. (Note that the hawk is only for Seiwara
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The archbishop (A) is a compound piece combining the moves of the **bishop** and knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+The archbishop (A) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
 
 The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
 
