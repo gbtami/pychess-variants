@@ -35,7 +35,7 @@ The piece is often symbolized with a combination of a knight and bishop; most va
 
 The cardinal is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
 
-The value of a cardinal is considered slightly better than a rook, but less than the chancellor and queen.
+The value of a cardinal is considered slightly better than a rook, but less than the elephant and queen.
 
 ### Marshal
 
@@ -49,7 +49,7 @@ The marshal (C in Pychess, for chancellor) is a compound piece combining the mov
 
 The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
 
-The value of a marshal is considered better than an archbishop, but equivalent or slightly less than a queen.
+The value of a marshal is considered better than a cardinal, but equivalent or slightly less than a queen.
 
 ## Strategy
 
