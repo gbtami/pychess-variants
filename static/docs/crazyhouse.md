@@ -1,7 +1,5 @@
 # ![Crazyhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse.svg) Crazyhouse
 
-## Intro
-
 Crazyhouse is a popular chess variant where captured chess pieces can be dropped back on the board as your own piece (as in Shogi). This leads to a much different game than standard chess. A competitive scene also exists for crazyhouse.
 
 ## Rules
