@@ -1,4 +1,4 @@
-# ![S-House](https://github.com/gbtami/pychess-variants/blob/master/icons/SHouse.svg) S-House
+# ![S-House](https://github.com/gbtami/pychess-variants/blob/master/static/icons/SHouse.svg) S-House
 
 ## Intro
 

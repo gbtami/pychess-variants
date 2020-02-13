@@ -1,4 +1,4 @@
-# ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/icons/Capahouse960.svg) Capahouse 960
+# ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Capahouse960.svg) Capahouse 960
 
 ## Intro
 

@@ -1,5 +1,5 @@
 
-# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/icons/Grand.svg) Grand Chess
+# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Grand.svg) Grand Chess
 
 ![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
 

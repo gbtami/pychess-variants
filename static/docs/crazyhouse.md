@@ -1,4 +1,4 @@
-# ![Crazyhouse](https://github.com/gbtami/pychess-variants/blob/master/icons/Crazyhouse.svg) Crazyhouse
+# ![Crazyhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse.svg) Crazyhouse
 
 ## Intro
 

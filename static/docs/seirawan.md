@@ -1,4 +1,4 @@
-# ![Seirawan](https://github.com/gbtami/pychess-variants/blob/master/icons/schess.svg) S-chess (Seirawan Chess, SHARPER Chess)
+# ![Seirawan](https://github.com/gbtami/pychess-variants/blob/master/static/icons/schess.svg) S-chess (Seirawan Chess, SHARPER Chess)
 
 ## Intro
 

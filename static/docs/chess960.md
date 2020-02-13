@@ -1,4 +1,4 @@
-# ![960](https://github.com/gbtami/pychess-variants/blob/master/icons/dice.svg) Chess960 (Fischer’s Random Chess)
+# ![960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/dice.svg) Chess960 (Fischer’s Random Chess)
 
 ## Intro
 

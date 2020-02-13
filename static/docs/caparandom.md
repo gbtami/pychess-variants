@@ -1,4 +1,4 @@
-# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/icons/Caparandom.svg) Capablanca 960
+# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Caparandom.svg) Capablanca 960
 
 ## Intro
 

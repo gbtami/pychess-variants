@@ -1,4 +1,4 @@
-# ![Capahouse](https://github.com/gbtami/pychess-variants/blob/master/icons/CHouse.svg) Capahouse
+# ![Capahouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/CHouse.svg) Capahouse
 
 ## Intro
 

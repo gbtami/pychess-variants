@@ -1,4 +1,4 @@
-# ![Shako](https://github.com/gbtami/pychess-variants/blob/master/icons/shako.svg) Shako
+# ![Shako](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shako.svg) Shako
 
 ![Shako](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shako.png)
 

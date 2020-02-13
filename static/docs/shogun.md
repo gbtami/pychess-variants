@@ -1,4 +1,4 @@
-# ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/icons/Shogun.svg) Shogun Chess
+# ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Shogun.svg) Shogun Chess
 
 ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions3.png)
 
