@@ -12,4 +12,6 @@ Drops can be performed with captured pieces, which would be done in lieu of movi
 * Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
 * A dropped rook can't castle.
 
-All other rules are as in S chess.
+## Clarifications
+
+The elephant and archbishop are also counted as pieces in hand, so they are able to be dropped on the board starting from the beginning.
