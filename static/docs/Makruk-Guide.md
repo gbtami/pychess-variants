@@ -1,4 +1,4 @@
-# Makruk
+# ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/icons/makruk.svg) Makruk
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
