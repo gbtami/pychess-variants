@@ -113,7 +113,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="7.919596"
-     inkscape:cx="45.175774"
+     inkscape:cx="24.151974"
      inkscape:cy="4.0946846"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -122,7 +122,7 @@
      showguides="true"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
-     inkscape:window-x="-8"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:lockguides="true" />
@@ -134,7 +134,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -145,7 +145,7 @@
      transform="translate(0,-283.77082)"
      style="opacity:0.98999999">
     <path
-       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       style="opacity:1;fill:#88aa00;fill-opacity:1;stroke:none;stroke-width:0.99999994;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        d="M 24.789062 2.5585938 L 19.300781 7.890625 L 11.722656 6.8359375 L 10.416016 14.375 L 3.6660156 17.976562 L 7.0410156 24.84375 L 3.6953125 31.726562 L 10.462891 35.296875 L 11.800781 42.832031 L 19.375 41.742188 L 24.886719 47.050781 L 30.375 41.71875 L 37.953125 42.773438 L 39.259766 35.234375 L 46.011719 31.632812 L 42.634766 24.765625 L 45.980469 17.884766 L 39.212891 14.3125 L 37.875 6.7792969 L 30.300781 7.8671875 L 24.789062 2.5585938 z M 24.837891 8.734375 A 16.071429 16.071429 0 0 1 40.910156 24.804688 A 16.071429 16.071429 0 0 1 24.837891 40.876953 A 16.071429 16.071429 0 0 1 8.765625 24.804688 A 16.071429 16.071429 0 0 1 24.837891 8.734375 z "
        transform="matrix(0.26458333,0,0,0.26458333,0,283.77082)"
        id="path13274" />
