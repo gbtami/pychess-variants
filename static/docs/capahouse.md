@@ -1,7 +1,5 @@
 # ![Capahouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/CHouse.svg) Capahouse
 
-## Intro
-
 Capahouse is a custom variant combining the rules of Capablanca chess with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse rules are as below for a reminder.
 
 ## Crazyhouse Rules
