@@ -1,7 +1,5 @@
 # ![S-House](https://github.com/gbtami/pychess-variants/blob/master/static/icons/SHouse.svg) S-House
 
-## Intro
-
 S-House is a custom variant combining the rules of S chess (AKA Seirawan or SHARPER chess) with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of S chess, please check the rules in its separate guide. Crazyhouse rules are as below for a reminder.
 
 ## Crazyhouse Rules
