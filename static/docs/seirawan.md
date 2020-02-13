@@ -12,11 +12,7 @@ Pawns can also promote to elephants and hawks.
 
 ### Hawk
 
-![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
-
-Various symbols used for the bishop-knight hybrid, with the hawk on the right.
-
-![Hawk moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
+![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
 
 The hawk (H) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
 
@@ -26,11 +22,7 @@ The value of a hawk is considered slightly better than a rook, but less than the
 
 ### Elephant
 
-![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
-
-Various symbols used for the rook-knight hybrid, with the elephant on the right.
-
-![Elephant moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
+![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ElephantSeirawan.png)
 
 The elephant (E) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
 
