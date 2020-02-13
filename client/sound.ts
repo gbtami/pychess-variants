@@ -22,12 +22,13 @@ class sounds {
 
     private buildManySounds = (file, qty) => {
         var soundArray: HTMLAudioElement[] = [];
+        var soundTheme = localStorage.soundTheme === undefined ? 'standard' : localStorage.soundTheme;
         while (soundArray.length < qty) {
             var el = document.createElement("audio");
             if (el.canPlayType('audio/mpeg')) {
-                el.src = '/static/sound/' + file + '.mp3';
+                el.src = '/static/sound/' + soundTheme + '/' + file + '.mp3';
             } else {
-                el.src = '/static/sound/' + file + '.ogg';
+                el.src = '/static/sound/' + soundTheme + '/' + file + '.ogg';
             }
             el.setAttribute("preload", "none");
             el.style.display = "none";
