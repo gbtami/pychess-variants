@@ -14,6 +14,8 @@ Each variant also has its own selection of piece sets and boards to choose from!
 
 ![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
 
+If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot. 
+
 ## Chess variants using standard pieces
 
 ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
