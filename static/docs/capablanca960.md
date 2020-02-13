@@ -1,6 +1,4 @@
-# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Caparandom.svg) Capablanca 960
-
-## Intro
+# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
 
 Capablanca 960 is a custom variant combining the rules of Capablanca chess with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca chess rules in its separate guide. 960 rules are as below for a reminder.
 
