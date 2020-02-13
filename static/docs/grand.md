@@ -1,9 +1,7 @@
 
-# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Grand.svg) Grand Chess
+# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/grand.svg) Grand Chess
 
 ![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
-
-## Intro
 
 Grand Chess was created by Christian Freeling in 1984 and is one of the highest regarded chess variants according to the Chess Variants site.  
 
