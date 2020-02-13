@@ -3,14 +3,16 @@
 <div class="profile-wrapper">
 <aside class="sidebar-first">
     <ul class="guide">
-    {% for key in guides %}
+    {% for key in variants %}
     <li>
-    <a href="{{ home }}/guides/{{ key }}">{{ key }} Guide</a>
+    <div class="icon" data-icon="{{ icons[key] }}">
+        <a href="{{ home }}/variant/{{ key }}">{{ key.capitalize() }}</a>
+    </div>
     </li>
     {% endfor %}
     </ul>
 </aside>
-<div class="guide">{% include guide %}<div>
+<div class="guide">{% include variant %}<div>
 <aside class="sidebar-second"></aside>
 </div>
 
