@@ -1,8 +1,6 @@
-# ![gothic](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Capablanca Chess
+# ![gothic](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Gothic Chess
 
 ![Gothic setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Gothic.png)
-
-## Intro
 
 Gothic chess was created by Ed Trice in 2000. In 2019, the name was changed to Trice's Chess. The game uses the same pieces and 10 x 8 board as Capablanca chess, but has a different starting arrangement. 
 
