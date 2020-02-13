@@ -54,7 +54,7 @@ Each variant also has its own selection of piece sets and boards to choose from!
 
 ## Shogi variants
 
-![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png?raw=true)
+![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
 
 **Shogi (Japanese Chess)** - Pieces promote and can be dropped in this game of intense tactics
 
@@ -64,7 +64,7 @@ Each variant also has its own selection of piece sets and boards to choose from!
 
 ## Xiangqi variants
 
-![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Boards.png?raw=true)
+![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Xiangqi.png?raw=true)
 
 **Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
 
