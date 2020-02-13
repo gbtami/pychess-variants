@@ -1,4 +1,4 @@
-# SHOGI
+# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/icons/shogi.svg) Shogi
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
