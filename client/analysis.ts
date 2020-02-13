@@ -22,9 +22,11 @@ export function analysisView(model): VNode[] {
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
-                        // h('div.info1', {attrs: {"data-icon": (model["chess960"] === 'True') ? "V" : ""}, class: {"icon": true}}),
                         h('div.info2', [
-                            h('div.tc', model["base"] + "+" + model["inc"] + " • " + ((model["rated"] === 'True') ? "Rated" : "Casual") + " • " + variantName(model["variant"], model["chess960"])),
+                            h('div.tc', [
+                                model["base"] + "+" + model["inc"] + " • " + ((model["rated"] === 'True') ? "Rated" : "Casual") + " • ",
+                                h('a.user-link', {attrs: {target: '_blank', href: '/variant/' + model["variant"] + ((model["chess960"]==='True') ? '960': '')}}, variantName(model["variant"], model["chess960"]) ),
+                            ]),
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
                         ]),
                     ]),

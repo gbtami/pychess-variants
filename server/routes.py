@@ -332,7 +332,11 @@ async def index(request):
         render["icons"] = VARIANT_ICONS
         variant = request.match_info.get("variant")
         render["variant"] = ("intro" if variant is None else variant) + ".html"
-    text = template.render(render)
+
+    try:
+        text = template.render(render)
+    except Exception:
+        raise web.HTTPFound("/")
 
     # log.debug("Response: %s" % text)
     response = web.Response(text=html_minify(text), content_type="text/html")
