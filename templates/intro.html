@@ -1,143 +1,43 @@
-<h1 id="intro">Intro</h1>
-<p>A lot of chess variants are available to play here. The rules presented here will assume you know how to play chess first, and so only the differences will be discussed. If you don’t know how to play chess, you must start with that first!</p>
-<h1 id="standard-board--piece-variants">Standard Board + Piece Variants</h1>
-<h2 id="chess960-fischer’s-random-chess">Chess960 (Fischer’s Random Chess)</h2>
-<h3 id="intro-1">Intro</h3>
-<p>Chess960 was created by Bobby Fischer to make the game more variable and remove a lot of the rote memorization for openings that standard chess forces you into. This is one of the most popular variants, and it will separate those who have truly mastered strategy and tactics from those who rely on memorizing opening lines.</p>
-<p>This can be played by checking the 960 box for a standard chess game.</p>
-<h3 id="rules">Rules</h3>
-<p>The starting bottom ranks are randomized, but two rules must be followed:</p>
-<ul>
-<li>The bishops must be placed on opposite-color squares.</li>
-<li>The king must be placed on a square between the rooks.</li>
-</ul>
-<p>Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).</p>
-<p>All other rules are the same.</p>
-<h3 id="strategy">Strategy</h3>
-<p>Normal chess strategy and tactics apply, except for openings! Since the starting position is random, standard opening lines don’t apply.</p>
-<h2 id="crazyhouse">Crazyhouse</h2>
-<h3 id="intro-2">Intro</h3>
-<p>Crazyhouse is a popular variant where captured chess pieces can be dropped back on the board as your own piece (as in Shogi). This leads to a much different game than standard chess. A competitive scene also exists for crazyhouse.</p>
-<h3 id="rules-1">Rules</h3>
-<p>As above, drops can be performed with captured pieces. This would be in lieu of moving a piece on the board. These are noted with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:</p>
-<ul>
-<li>Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.</li>
-<li>Pawns may not be dropped on the players' 1st or 8th ranks.</li>
-<li>Pawns that have been promoted and later captured are dropped as pawns.</li>
-<li>Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.</li>
-<li>A dropped rook can't castle.</li>
-</ul>
-<h3 id="strategy-1">Strategy</h3>
-<p>Strategy <a href="https://lichess.org/variant/crazyhouse">as on Lichess</a></p>
-<ul>
-<li>Pawns and knights increase in relative importance in Crazyhouse, while rooks, queens, and bishops decrease in relative importance. If a king is put in check by any of the latter three pieces, from two or more squares away, dropping a pawn next to the king becomes defensively useful. A knight, on the other hand, cannot be blocked by anything and its offensive value is more manifest. That piece can be used effectively to maintain a strategic influence over a region.</li>
-<li>After an early exchange of queens, it is usually unwise to reintroduce the queen too soon, particularly if she can be harassed by dropped minor pieces. Careful preparation is needed in order to reintroduce the queen to maximum effect</li>
-<li>Pawns could be dropped deep in the enemy position where, for example, they can fork pieces or give an uncomfortable check.</li>
-<li>Initiative is paramount.</li>
-</ul>
-<h2 id="placement-chess">Placement Chess</h2>
-<p>Different than the “Placement Chess” described on Chess Variants, this variant is simply a modification where players take turns placing their back rank pieces. Castling only works when the king and the corresponding rook are in their normal position.</p>
-<h1 id="princess-and-empress-variants">Princess and Empress Variants</h1>
-<p>All the variants in this section use the fairy chess pieces of the Princess and Empress, with the major differences being board size and starting position. </p>
-<h3 id="princess">Princess</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Princesses.png" alt="Princess" /></p>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Archbishop.png" alt="Princess moves" /></p>
-<p>The princess is a compound piece combining the moves of the <strong>bishop</strong> and the <strong>knight</strong> and is known by different names dependending on the variant:</p>
-<ul>
-<li><strong>Archbishop (A)</strong> in Capablanca chess</li>
-<li><strong>Cardinal (C)</strong> in Grand chess</li>
-<li><strong>Hawk (H)</strong> in S-chess</li>
-</ul>
-<p>The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, Yasser Seirawan specifically uses a hawk in S-chess.</p>
-<p>The princess is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.</p>
-<p>The value of a princess is considered slightly better than a rook, but less than the empress and queen.</p>
-<h3 id="empress">Empress</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Empresses.png" alt="Empress" /></p>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Chancellor.png" alt="Empress moves" /></p>
-<p>The empress is a compound piece combining the moves of the <strong>rook</strong> and the <strong>knight</strong> and is known by different names dependending on the variant:</p>
-<ul>
-<li><strong>Chancellor (C)</strong> in Capablanca chess</li>
-<li><strong>Marshal (M)</strong> in Grand chess</li>
-<li><strong>Elephant (E)</strong> in S-chess</li>
-</ul>
-<p>The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, Yasser Seirawan specifically uses an elephant in S-chess.</p>
-<p>The value of a princess is considered better than a princess, but equivalent or slightly less than a queen.</p>
-<h2 id="capablanca-chess">Capablanca Chess</h2>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Capablanca.png" alt="Capablanca setup" /></p>
-<h3 id="intro-3">Intro</h3>
-<p>Capablanca chess was created by World Chess Champion José Raúl Capablanca in the 1920s </p>
-<h3 id="rules-2">Rules</h3>
-<p>The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.</p>
-<p>There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the queen and chancellor starting positions are swapped.</p>
-<h3 id="strategy-2">Strategy</h3>
-<p>One should not simply make just developing moves. You can afford to lag in development so long as you are working on controling key squares. Quality over quantity.</p>
-<p>More strategy pending.</p>
-<h2 id="grand-chess">Grand Chess</h2>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Grand.png" alt="Grand Chess setup" /></p>
-<h3 id="intro-4">Intro</h3>
-<p>Grand Chess was created by Christian Freeling in 1984 and is one of the highest regarded chess variants.  </p>
-<h3 id="rules-3">Rules</h3>
-<p>The game is played on a 10 x 10 board, with additional files for the new Marshal (Knight/Rook)  and Cardinal (Knight/Bishop), which are both placed on the king side. Because of the larger board size, most of the starting pieces are moved up one rank, with the exception of the rooks which remain in the last ranks.</p>
-<p>In addition to the pieces and setup, there are three other significant differences:</p>
-<ul>
-<li>Pawns can promote when reaching the eighth or ninth rank. Promotion must happen upon reaching the 10th rank. If not possible (see next point), then the pawn can’t move.</li>
-<li>Pawns can only promote to pieces of the same color that have been lost.</li>
-<li>There is no castling.</li>
-</ul>
-<p>(Please note that despite the names of Marshal and Cardinal, the notation used here uses A and C for both of those, respectively (as in Capablanca chess), so that the PGN is compatible with other chess variant software.)</p>
-<h3 id="strategy-3">Strategy</h3>
-<p>One should not simply make just developing moves. You can afford to lag in development so long as you are working on controling key squares. Quality over quantity.</p>
-<p>More strategy pending.</p>
-<h2 id="s-chess-seirawan-chess-sharper-chess">S-chess (Seirawan Chess, SHARPER Chess)</h2>
-<h3 id="intro-5">Intro</h3>
-<p>S-chess was created by Yasser Seirawan and Bruce Harper in 2007.  </p>
-<h3 id="rules-4">Rules</h3>
-<p>Unlike the above variants, this is played on a standard 8 x 8 board. The <strong>elephant</strong> is the rook/knight hybrid, while the <strong>hawk</strong> is the bishop/knight hybrid. Both of these pieces instead start off the board, although they are not to be dropped as in Crazyhouse. Instead, when a piece in a player’s first rank moves for the first time, these pieces may optionally come into the square evacuated by that piece. If all first rank pieces have moved or been captured, then any remaining elephant or hawk cannot be entered into play. For castling, the extra pieces can enter either of the original king or rook squares.</p>
-<p>Pawns can also promote to elephants and hawks.</p>
-<h3 id="strategy-4">Strategy</h3>
-<p>Per Yasser Seirawan, protecting the king is even more important in this game because a ranged attack by a back rank piece such as the queen, bishop, or rook, can immediately be supported by an incoming hawk or elephant, in some cases leading to checkmate! </p>
-<p>More strategy pending.</p>
-<h2 id="x-house">X-house</h2>
-<p>All of the above three variants above also have crazyhouse variants: <strong>Capahouse</strong>, <strong>Grandhouse</strong>, and <strong>S-house</strong>. As with Crazyhouse, players now have the ability to drop a piece on their turn. Both the base variant and crazyhouse rules apply. The major exception is in Grand Chess, where a pawn cannot be dropped on the final three ranks. Due to how new these variants are, the knowledge bank for strategy is very limited at this time.</p>
-<h1 id="shogun-chess">SHOGUN CHESS</h1>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/ShogunPromotions3.png" alt="Shogun" /></p>
-<h2 id="intro-6">Intro</h2>
-<p>Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in S-chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.</p>
-<p>The name was originally thought as "general's chess," based on what was then the name of the pawn promotion, now currently the name of the knight promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.</p>
-<h2 id="general-rules">General Rules</h2>
-<ol>
-<li><p>Setup is exactly the same as chess.</p></li>
-<li><p>New pieces are as defined in the image above, and their moves are described in detail below. Of note, promoted sides are colored differently. Also, the queen <em>starts</em> as a promoted piece despite having a new unpromoted form (the Duchess). See details about drops below. For the sake of terminology, a rook will now be considered a "minor piece," while the queen, mortar, archbishop, and general (but NOT the captain) are considered "major pieces." </p></li>
-<li><p>The three farthest ranks are the promotion zone. Every starting (or dropped) piece except the king and queen may promote by moving into the promotion zone <strong>or moving from within the promotion zone</strong>. </p></li>
-<li><p>However, only one of <em>each</em> <strong>major</strong> piece (queen, mortar, archbishop, or general) can be out on each side at a time. For example, if a player has an archbishop in play, then a bishop cannot promote into an archbishop until the current one is captured.</p></li>
-<li><p>As in crazyhouse and shogi, captured pieces may be dropped back into the board as your own piece. Pieces can be dropped anywhere within the first 5 ranks (in other words, anywhere but the promotion zone). Note that unlike crazyhouse, <strong>pawns can be dropped on the first rank</strong>.</p></li>
-<li><p>When promoted pieces are captured, they revert to their unpromoted side. This is the only way that a queen becomes a duchess.</p></li>
-</ol>
-<p>Additional minor rules for clarification:</p>
-<ul>
-<li>Dropped rooks cannot castle, as in crazyhouse.</li>
-<li>Pawns dropped on the first rank can still double step when reaching the second rank.</li>
-<li>Pawns cannot promote if capturing by en passant. </li>
-</ul>
-<p>(Note that images were designed for computer play. Over the board pieces are not available but would require shogi-like designs of two-sided directional pieces to be viable.)</p>
-<h2 id="pieces">Pieces</h2>
-<h3 id="archbishop">Archbishop</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/ArchbishopShogun.png" alt="Archbishop" /></p>
-<p>The archbishop is a hybrid piece seen in multiple other chess variants. In this game, it promotes from bishop and gains the move of a knight. Because of its unique moves, it is the only piece that can checkmate on its own.</p>
-<h3 id="mortar">Mortar</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Mortar.png" alt="Mortar" /></p>
-<p>The mortar is a hybrid piece seen in multiple other chess variants, often with other names such as the chancellor or marshall. In this game, it promotes from the rook and gains the move of a knight. </p>
-<h3 id="general">General</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/General.png" alt="General" /></p>
-<p>The general is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.</p>
-<h3 id="captain">Captain</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Captain.png" alt="Captain" /></p>
-<p>The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game. Also, unlike the rest of promoted pieces, there can be multiple captains, as it is not a major piece.</p>
-<h3 id="duchess">Duchess</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Duchess.png" alt="Duchess" /></p>
-<p>The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz"). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in Shogun chess).</p>
-<h2 id="strategy-5">Strategy</h2>
-<p>The game is still young, so strategy is still being developed! </p>
-<p>With the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.</p>
-<p>General strategy-wise, many players will be tempted to play this as crazyhouse. However, the game diverges quite quickly from crazyhouse due to the drop zone restriction. While players in crazyhouse will often take advantage of weaknesses in the opponents' camps to deliver devastating drops, the gameplay in shogun chess. In shogun chess, your army needs to maneuver itself in a way to breach the opponents' camp; even the slightest breach can result in a piece promotion. Therefore, strategy relies more on chess tactics than crazyhouse tactics for this purpose, as well as for the purposes of delivering checkmate.</p>
-<p>The ability to drop pawns on the first rank (unlike in crazyhouse) allows a player to build a much stronger castle. To crack this, focus on gaining material and promoted pieces, then push at the weak point.</p>
+<p><img src="https://www.pychess.org/static/favicon/apple-icon-152x152.png?raw=true" alt="Xiangqi" /></p>
+<h1 id="pychess-variants">Pychess Variants</h1>
+<p>Many chess variants are available to play here.  Options include range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.</p>
+<h2 id="tips">Tips</h2>
+<p>Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.</p>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Link.png?raw=true" alt="Link" /></p>
+<p>Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.</p>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Settings.png?raw=true" alt="Settings" /></p>
+<p>If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the <em>Random Mover</em> bot. </p>
+<h2 id="chess-variants-using-standard-pieces">Chess variants using standard pieces</h2>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Chess.png?raw=true" alt="Chess" /></p>
+<p><strong>Chess (Western/International Chess)</strong> - Chess, unmodified, as it's played by FIDE standards</p>
+<p><strong>Chess 960</strong> - Starting positions in the back row are randomized</p>
+<p><strong>Crazyhouse</strong> - Take captured pieces and drop them back on to the board as your own</p>
+<p><strong>Placement Chess</strong> - Choose where your pieces start</p>
+<p><strong>Crazyhouse 960</strong> - Combines Crazyhouse and Chess 960</p>
+<h2 id="chess-variants-using-fairy-pieces">Chess variants using fairy pieces</h2>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Capablanca.png?raw=true" alt="Capablanca" /></p>
+<p><strong>Capablanca Chess</strong> - Play with the archbishop (bishop+knight) and chancellor (rook+knight) on a 10x8 board</p>
+<p><strong>Gothic Chess / Trice's Chess</strong> - Like Capablanca Chess but with a different starting setup</p>
+<p><strong>S-Chess / Seirawan Chess / SHARPER Chess</strong> - Uses the same hybrid pieces but are introduced into a standard 8x8 board in a unique manner</p>
+<p><strong>Grand Chess</strong> - Uses the same hybrid pieces, but played on a <em>grand</em> 10x10 board</p>
+<p><strong>Shako</strong> - Introduces the cannon and elephant from Xiangqi into a 10x10 chess board</p>
+<p><strong>Shogun Chess</strong> - Pieces promote and can be dropped, similar to Shogi</p>
+<p><strong>Capablanca 960</strong> - Capablanca with Chess 960 rules</p>
+<p><strong>Capahouse</strong> - Capablanca with Crazyhouse drop rules</p>
+<p><strong>Capahouse 960</strong> - Capablanca with Crazyhouse and 960 rules</p>
+<p><strong>S-House</strong> - S-Chess with Crazyhouse drop rules</p>
+<p><strong>Grandhouse</strong> = Grand Chess with Crazyhouse drop rules</p>
+<h2 id="shogi-variants">Shogi variants</h2>
+<p><img src="https://www.pychess.org/static/images/ShogiGuide/Shogi.png?raw=true" alt="Shogi" /></p>
+<p><strong>Shogi (Japanese Chess)</strong> - Pieces promote and can be dropped in this game of intense tactics</p>
+<p><strong>Minishogi</strong> - Shogi on a 5x5 board</p>
+<p><strong>Kyoto Shogi</strong> - Pieces flip to a different piece each move</p>
+<h2 id="xiangqi-variants">Xiangqi variants</h2>
+<p><img src="https://www.pychess.org/static/images/XiangqiGuide/Xiangqi.png?raw=true" alt="Xiangqi" /></p>
+<p><strong>Xiangqi (Chinese Chess)</strong> - Open fire on your opponent in this highly aggressive ancient game</p>
+<p><strong>Minixiangqi</strong> - Xiangqi on a 7x7 board</p>
+<h2 id="southeast-asian-variants">Southeast Asian variants</h2>
+<p><img src="https://www.pychess.org/static/images/MakrukGuide/MakrukSmall.png?raw=true" alt="Makruk" /></p>
+<p><strong>Makruk (Thai Chess)</strong> - A game closely resembling the original Chaturanga is both familiar and different for Chess players</p>
+<p><strong>Cambodian Chess / Ok / Ouk Chatrang</strong> - Makruk with a few additional opening abilities</p>
+<p><strong>Sittuyin (Burmese Chess)</strong> - Similar to Makruk, but pieces are placed at the start of the match</p>

@@ -67,7 +67,7 @@ VARIANTS = (
     "capahouse",
     "capahouse960",
     "gothic",
-    "gothhouse",
+#    "gothhouse",
     "grand",
     "grandhouse",
     "shako",
