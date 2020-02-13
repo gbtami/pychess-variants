@@ -263,3 +263,18 @@
 .icon-shogun:before {
   content: "\2d";
 }
+.icon-bullhorn:before {
+  content: "\2e";
+}
+.icon-phone:before {
+  content: "\2f";
+}
+.icon-sittuyin-new:before {
+  content: "\3a";
+}
+.icon-unlock:before {
+  content: "\3b";
+}
+.icon-unlock-alt:before {
+  content: "\3c";
+}

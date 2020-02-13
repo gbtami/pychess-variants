@@ -79,7 +79,7 @@ VARIANTS = (
 
 VARIANT_ICONS = {
     "makruk": "Q",
-    "sittuyin": "R",
+    "sittuyin": ":",
     "shogi": "K",
     "xiangqi": "8",
     "chess": "M",
