@@ -36,7 +36,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
 
-**S-Chess / Seirawan Chess / SHARPER Chess** - Uses the same hybrid pieces but are introduced into a standard 8x8 board in a unique manner!
+**S-Chess / Seirawan Chess / SHARPER Chess** - Uses the same hybrid pieces but are introduced into a standard 8x8 board in a unique manner
 
 **Grand Chess** - Uses the same hybrid pieces, but played on a *grand* 10x10 board
 
