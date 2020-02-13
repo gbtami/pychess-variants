@@ -4,7 +4,7 @@
 
 ## Intro
 
-Capablanca chess was created by World Chess Champion José Raúl Capablanca in the 1920s 
+Capablanca chess (or Capablanca's chess) was created by World Chess Champion José Raúl Capablanca in the 1920s. The game is played on a 10 x 8 board and adds two new hybrid pieces.
 
 ## Rules
 
