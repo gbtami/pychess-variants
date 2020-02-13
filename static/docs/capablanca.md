@@ -10,7 +10,7 @@ Capablanca chess was created by World Chess Champion José Raúl Capablanca in t
 
 The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
 
-There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the queen and chancellor starting positions are swapped.
+There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the  starting positions are swapped.
 
 ## New Pieces
 
