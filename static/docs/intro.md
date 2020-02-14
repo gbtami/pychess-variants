@@ -2,7 +2,7 @@
 
 # Pychess Variants
 
-Many chess variants are available to play here.  Options include range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.
+Many chess variants are available to play here.  Available games range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.
 
 ## Tips
 
