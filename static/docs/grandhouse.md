@@ -1,6 +1,6 @@
 # ![Grandhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Grandhouse.svg) Grandhouse
 
-Grandhouse is a custom variant combining the rules of Grand chess with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Grand chess rules in its separate guide. Crazyhouse rules are as below for a reminder.
+Grandhouse is a custom variant combining the rules of Grand chess with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of Grand chess, please check the Grand chess rules in its separate guide. Crazyhouse rules are as below for a reminder.
 
 Given the larger board size, the rules are slightly different for the last three ranks. Pawns cannot be dropped in the last three ranks.
 
