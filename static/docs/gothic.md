@@ -30,7 +30,7 @@ The value of an archbishop is considered slightly better than a rook, but less t
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the hawk is only for Seiwaran Chess)
+Various symbols used for the chancellor. (Note that the elephant is only for Seiwaran Chess)
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
