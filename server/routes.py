@@ -180,6 +180,7 @@ async def index(request):
     session["guest"] = True
     if session_user is not None:
         log.info("+++ Existing user %s connected." % session_user)
+        doc = None
         try:
             doc = await db.user.find_one({"_id": session_user})
         except Exception:

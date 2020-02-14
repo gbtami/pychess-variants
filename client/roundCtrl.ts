@@ -436,6 +436,8 @@ export default class RoundController {
     private onMsgUpdateTV = (msg) => {
         if (msg.gameId !== this.model["gameId"]) {
             window.location.assign(this.model["home"] + '/tv');
+            // TODO: reuse current websocket
+            // this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: msg.gameId });
         }
     }
 
