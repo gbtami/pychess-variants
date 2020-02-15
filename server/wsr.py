@@ -13,7 +13,7 @@ import aiohttp_session
 from fairy import WHITE, BLACK
 from utils import play_move, get_board, start, draw, game_ended, round_broadcast,\
     new_game, challenge, load_game, User, Seek, STARTED, DRAW, MyWebSocketResponse,\
-    MORE_TIME, ANALYSIS
+    MORE_TIME, ANALYSIS, tv_game, tv_game_user
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ async def round_socket_handler(request):
     sockets = request.app["websockets"]
     seeks = request.app["seeks"]
     games = request.app["games"]
+    db = request.app["db"]
 
     ws = MyWebSocketResponse()
 
@@ -79,17 +80,17 @@ async def round_socket_handler(request):
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
-                        if opp_player.bot:
-                            await opp_player.game_queues[data["gameId"]].put(game.game_state)
-                            if game.status > STARTED:
-                                await opp_player.game_queues[data["gameId"]].put(game.game_end)
-                        else:
-                            try:
+                        try:
+                            if opp_player.bot:
+                                await opp_player.game_queues[data["gameId"]].put(game.game_state)
+                                if game.status > STARTED:
+                                    await opp_player.game_queues[data["gameId"]].put(game.game_end)
+                            else:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
                                 await opp_ws.send_json(board_response)
-                            except KeyError:
-                                log.error("Failed to send move %s to %s in game %s" % (data["move"], opp_name, data["gameId"]))
+                        except KeyError:
+                            log.error("Failed to send move %s to %s in game %s" % (data["move"], opp_name, data["gameId"]))
 
                         await round_broadcast(game, users, board_response, channels=request.app["channels"])
 
@@ -385,12 +386,11 @@ async def round_socket_handler(request):
                         await round_broadcast(game, users, response)
 
                     elif data["type"] == "updateTV":
-                        db = request.app["db"]
-                        query_filter = {"us": data["profileId"]} if "profileId" in data and data["profileId"] != "" else {}
-                        doc = await db.game.find_one(query_filter, sort=[('$natural', -1)])
-                        gameId = None
-                        if doc is not None:
-                            gameId = doc["_id"]
+                        if "profileId" in data and data["profileId"] != "":
+                            gameId = await tv_game_user(db, users, data["profileId"])
+                        else:
+                            gameId = await tv_game(db, request.app)
+
                         if gameId != data["gameId"] and gameId is not None:
                             response = {"type": "updateTV", "gameId": gameId}
                             await ws.send_json(response)

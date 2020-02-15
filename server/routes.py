@@ -13,7 +13,8 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
-from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS, DEFAULT_PERF, round_broadcast
+from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS,\
+    DEFAULT_PERF, round_broadcast, tv_game, tv_game_user
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -222,9 +223,7 @@ async def index(request):
         view = "level8win"
     elif request.path == "/tv":
         view = "tv"
-        doc = await db.game.find_one({}, sort=[('$natural', -1)])
-        if doc is not None:
-            gameId = doc["_id"]
+        gameId = await tv_game(db, request.app)
 
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
@@ -233,9 +232,7 @@ async def index(request):
         if request.path[-3:] == "/tv":
             view = "tv"
             # TODO: tv for variants
-            doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
-            if doc is not None:
-                gameId = doc["_id"]
+            gameId = await tv_game_user(db, users, profileId)
         elif request.path.endswith("/challenge"):
             view = "lobby"
             if user.anon:

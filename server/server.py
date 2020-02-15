@@ -40,6 +40,9 @@ async def make_app(loop, reset_ratings=False):
     app["channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
 
+    # last game played
+    app["tv"] = None
+
     # fishnet active workers
     app["workers"] = set()
     # fishnet works

@@ -67,7 +67,7 @@ VARIANTS = (
     "capahouse",
     "capahouse960",
     "gothic",
-#    "gothhouse",
+    # "gothhouse",
     "grand",
     "grandhouse",
     "shako",
@@ -176,6 +176,30 @@ def zero2grand(move):
     return "%s%s%s%s%s" % (move[0], int(move[1]) + 1, move[2], int(move[3]) + 1, move[4] if len(move) == 5 else "")
 
 
+async def tv_game(db, app):
+    if app["tv"] is not None:
+        return app["tv"]
+    else:
+        game_id = None
+        doc = await db.game.find_one({}, sort=[('$natural', -1)])
+        if doc is not None:
+            game_id = doc["_id"]
+            app["tv"] = game_id
+        return game_id
+
+
+async def tv_game_user(db, users, profileId):
+    if users[profileId].tv is not None:
+        return users[profileId].tv
+    else:
+        game_id = None
+        doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
+        if doc is not None:
+            game_id = doc["_id"]
+            users[profileId].tv = game_id
+        return game_id
+
+
 class Seek:
     gen_id = 0
 
@@ -246,6 +270,9 @@ class User:
             self.perfs = {variant: perfs[variant] if variant in perfs else DEFAULT_PERF for variant in VARIANTS}
         self.enabled = enabled
         self.fen960_as_white = None
+
+        # last game played
+        self.tv = None
 
     @property
     def online(self):
@@ -347,7 +374,12 @@ class User:
 async def AI_task(ai, app):
     async def game_task(ai, game, gameId, level):
         while game.status <= STARTED:
-            line = await ai.game_queues[gameId].get()
+            try:
+                line = await ai.game_queues[gameId].get()
+            except KeyError:
+                log.error("Break in AI_task() game_task(). %s not in ai.game_queues" % gameId)
+                break
+
             event = json.loads(line)
             if event["type"] != "gameState":
                 break
@@ -1116,7 +1148,11 @@ async def new_game(app, user, seek_id):
     result = await db.game.insert_one(document)
     print("db insert game result %s" % repr(result.inserted_id))
 
-    return {"type": "new_game", "gameId": new_game.id}
+    app["tv"] = new_id
+    wplayer.tv = new_id
+    bplayer.tv = new_id
+
+    return {"type": "new_game", "gameId": new_id}
 
 
 async def lobby_broadcast(sockets, response):
