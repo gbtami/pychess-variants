@@ -435,8 +435,12 @@ export default class RoundController {
 
     private onMsgUpdateTV = (msg) => {
         if (msg.gameId !== this.model["gameId"]) {
-            window.location.assign(this.model["home"] + '/tv');
-            // TODO: reuse current websocket
+            if (this.model["profileid"] !== "") {
+                window.location.assign(this.model["home"] + '/@/' + this.model["profileid"] + '/tv');
+            } else {
+                window.location.assign(this.model["home"] + '/tv');
+            }
+            // TODO: reuse current websocket to fix https://github.com/gbtami/pychess-variants/issues/142
             // this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: msg.gameId });
         }
     }

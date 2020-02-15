@@ -4,6 +4,8 @@ import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
+export const enabled_variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun"];
+
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks"], icon: "Q"},
     cambodian: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks"], icon: "!"},
@@ -18,7 +20,7 @@ export const VARIANTS = {
     capablanca: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
     capahouse: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "&", baseURL: ["capa", "seir", "green", "musk"] },
     gothic: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "P" },
-//    gothhouse: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "&", baseURL: ["capa", "seir", "green", "musk"] },
+    gothhouse: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "&", baseURL: ["capa", "seir", "green", "musk"] },
     grand: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "(" },
     grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3"], icon: "*", baseURL: ["capa", "seir", "green", "musk"] },
     seirawan: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3"], icon: "L", baseURL: ["seir", "capa", "green", "musk"] },
