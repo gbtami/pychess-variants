@@ -13,7 +13,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, variants, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN } from './chess';
+import { enabled_variants, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN } from './chess';
 import { sound } from './sound';
 
 
@@ -239,7 +239,7 @@ class LobbyController {
         }
 
         const hIdx = localStorage.seek_handicap === undefined ? 0 : SHOGI_HANDICAP_NAME.indexOf(localStorage.seek_handicap);
-        const vIdx = localStorage.seek_variant === undefined ? 0 : variants.sort().indexOf(localStorage.seek_variant);
+        const vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
         const vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
