@@ -11,7 +11,7 @@ function countString(fen) {
     const parts = fen.split(" ");
     if (parts[3] === "-") return "";
     const countingLimit = parseInt(parts[3]);
-    const countingPly = parseInt(parts[4]);
+    const countingMove = parseInt(parts[4]);
     return `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`;
 }
 
