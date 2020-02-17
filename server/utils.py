@@ -962,14 +962,13 @@ async def load_game(app, game_id):
     if doc is None:
         return None
 
-    wp = doc["us"][0]
+    wp, bp = doc["us"]
     if wp in users:
         wplayer = users[wp]
     else:
         wplayer = User(db=db, username=wp, anon=True)
         users[wp] = wplayer
 
-    bp = doc["us"][1]
     if bp in users:
         bplayer = users[bp]
     else:

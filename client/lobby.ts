@@ -528,7 +528,7 @@ export function lobbyView(model): VNode[] {
             h('under-left', [
                 h('a.reflist', {attrs: {href: 'https://discord.gg/aPs8RKr'}}, 'Discord'),
                 h('a.reflist', {attrs: {href: 'https://github.com/gbtami/pychess-variants'}}, 'Github'),
-                h('a.reflist', {attrs: {href: 'https://pychess.github.io/'}}, 'Original PyChess site'),
+                // h('a.reflist', {attrs: {href: 'https://pychess.github.io/'}}, 'Original PyChess site'),
             ]),
             h('under-lobby'),
             h('under-right', [
