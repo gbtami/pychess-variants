@@ -1,4 +1,3 @@
-//import { h } from "snabbdom"
 import { h, init } from "snabbdom";
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -9,8 +8,8 @@ const patch = init([klass, attributes, properties, listeners]);
 
 function countString(fen) {
     const parts = fen.split(" ");
-    if (parts[3] === "-") return "";
     const countingLimit = parseInt(parts[3]);
+    if (isNaN(countingLimit) || countingLimit == 0) return "";
     const countingMove = parseInt(parts[4]);
     return `${Math.floor((countingMove+1)/2)}/${countingLimit/2}`;
 }
