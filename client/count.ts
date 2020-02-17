@@ -12,7 +12,7 @@ function countString(fen) {
     if (parts[3] === "-") return "";
     const countingLimit = parseInt(parts[3]);
     const countingMove = parseInt(parts[4]);
-    return `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`;
+    return `${Math.floor((countingMove+1)/2)}/${countingLimit/2}`;
 }
 
 export function updateCount(fen) {
