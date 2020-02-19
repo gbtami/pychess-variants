@@ -706,7 +706,7 @@ class Game:
                 log.exception("ERROR: Exception in game.play_move()!")
                 raise
 
-    async def save_game(self, analysis=False):
+    async def save_game(self):
         if self.saved:
             return
 
@@ -747,22 +747,19 @@ class Game:
 
             self.print_game()
 
-            if analysis:
-                new_data = {"a": [step["analysis"] for step in self.steps]}
-            else:
-                new_data = {
-                    "d": self.date,
-                    "f": self.board.fen,
-                    "s": self.status,
-                    "r": R2C[self.result],
-                    'm': encode_moves(
-                        map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
-                        else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
-                        else self.board.move_stack, self.variant)}
+            new_data = {
+                "d": self.date,
+                "f": self.board.fen,
+                "s": self.status,
+                "r": R2C[self.result],
+                'm': encode_moves(
+                    map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
+                    else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
+                    else self.board.move_stack, self.variant)}
 
-                if self.rated and self.result != "*":
-                    new_data["p0"] = self.p0
-                    new_data["p1"] = self.p1
+            if self.rated and self.result != "*":
+                new_data["p0"] = self.p0
+                new_data["p1"] = self.p1
 
             await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 

@@ -157,8 +157,8 @@ async def fishnet_analysis(request):
     # remove completed work
     if all(data["analysis"]):
         del request.app["works"][work_id]
-        game.saved = False
-        await game.save_game(analysis=True)
+        new_data = {"a": [step["analysis"] for step in game.steps]}
+        await request.app["db"].game.find_one_and_update({"_id": game.id}, {"$set": new_data})
 
     return web.Response(status=204)
 
