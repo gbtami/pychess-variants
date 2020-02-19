@@ -21,18 +21,19 @@ ZH960 = {
     "the_Crocodile_Hunter": 1644,
     "Doooovid": 1642,
     "dlrowolleh": 1642,
-    "dovijanic": 1639
+    "dovijanic": 1639,
 }
 
 PERFS = {
     "Doooovid": {variant: DEFAULT_PERF for variant in VARIANTS},
     "pepellou": {variant: DEFAULT_PERF for variant in VARIANTS},
+    "strongplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
 }
 PERFS["Doooovid"]["crazyhouse960"] = {
     "gl": {
-        "r": 1641.7143992837507,
-        "d": 124.6200669914835,
-        "v": 0.060006717378193776
+        "r": 1642,
+        "d": 125,
+        "v": 0.06
     },
     "la": datetime.utcnow(),
     "nb": 12
@@ -40,9 +41,19 @@ PERFS["Doooovid"]["crazyhouse960"] = {
 
 PERFS["pepellou"]["crazyhouse960"] = {
     "gl": {
-        "r": 1480.831610950447,
-        "d": 135.78112791668346,
-        "v": 0.05999889473488027
+        "r": 1481,
+        "d": 136,
+        "v": 0.06
+    },
+    "la": datetime.utcnow(),
+    "nb": 7
+}
+
+PERFS["strongplayer"]["crazyhouse960"] = {
+    "gl": {
+        "r": 1500,
+        "d": 350,
+        "v": 0.06
     },
     "la": datetime.utcnow(),
     "nb": 7
@@ -63,8 +74,9 @@ class HighscoreTestCase(unittest.TestCase):
 
         self.wplayer = User(username="Doooovid", perfs=PERFS["Doooovid"])
         self.bplayer = User(username="pepellou", perfs=PERFS["pepellou"])
+        self.splayer = User(username="strongplayer", perfs=PERFS["strongplayer"])
 
-    def test_lost_game(self):
+    def test_lost_but_still_there(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
         self.assertEqual(game.status, CREATED)
 
@@ -85,6 +97,30 @@ class HighscoreTestCase(unittest.TestCase):
         highscore1 = game.highscore["crazyhouse960"].peekitem(7)
 
         self.assertNotEqual(highscore0, highscore1)
+        self.assertTrue(self.wplayer.username in game.highscore["crazyhouse960"])
+
+    def test_lost_and_out(self):
+        game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.splayer, rated=True, chess960=True, create=True)
+        self.assertEqual(game.status, CREATED)
+
+        for row in game.highscore["crazyhouse960"].items():
+            print(row)
+        highscore0 = game.highscore["crazyhouse960"].peekitem(7)
+
+        game.update_status(status=RESIGN, result="0-1")
+        self.loop.run_until_complete(game.update_ratings())
+
+        print("-------")
+        print(game.p0, game.p1)
+        print(self.splayer.perfs["crazyhouse960"])
+        print(self.wplayer.perfs["crazyhouse960"])
+
+        for row in game.highscore["crazyhouse960"].items():
+            print(row)
+        highscore1 = game.highscore["crazyhouse960"].peekitem(7)
+
+        self.assertNotEqual(highscore0, highscore1)
+        self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"])
 
 
 class TestRatings(unittest.TestCase):
