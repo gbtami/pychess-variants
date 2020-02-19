@@ -14,3 +14,7 @@ Drops can be performed with captured pieces, which would be done in lieu of movi
 * Dropped white and black pawns on the 3rd and 8th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
 
 All other rules are as in Grand chess.
+
+## Strategy
+
+As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
