@@ -13,7 +13,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="red_pawn.svg"
+   sodipodi:docname="red_advisor.svg"
    inkscape:export-filename="D:\Pictures\Chess Variants\Xiangqi\pieces\Internationalized\Wood\Red Cannon.png"
    inkscape:export-xdpi="365.15302"
    inkscape:export-ydpi="365.15302">
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -723,9 +723,9 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="-316.45474"
-     inkscape:cy="250.41691"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="-54.066417"
+     inkscape:cy="91.89355"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -759,7 +759,7 @@
      inkscape:label="Symbol"
      style="display:inline">
     <g
-       transform="matrix(1.352647,0,0,1.352647,-15.853185,-16.116086)"
+       transform="matrix(1.2273361,0,0,1.2273361,-10.457462,-10.361575)"
        aria-label="仕"
        style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;line-height:1.25;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#ff0101;fill-opacity:1;stroke:#ff0101;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter17234)"
        id="text32186-5">

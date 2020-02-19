@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -883,9 +883,9 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="4"
-     inkscape:cx="18.5"
-     inkscape:cy="74.874999"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="-85.110506"
+     inkscape:cy="21.195499"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -919,7 +919,7 @@
      inkscape:label="Symbol"
      style="display:inline">
     <g
-       transform="matrix(1.4638679,0,0,1.4638679,-21.254946,-21.388798)"
+       transform="matrix(1.3413175,0,0,1.3413175,-15.700609,-15.735544)"
        aria-label="帥"
        style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;line-height:1.25;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter21226)"
        id="text32186">

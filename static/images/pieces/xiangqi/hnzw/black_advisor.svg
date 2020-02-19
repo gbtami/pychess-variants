@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -500,7 +500,7 @@
      id="namedview8"
      showgrid="false"
      inkscape:zoom="2"
-     inkscape:cx="-91.45033"
+     inkscape:cx="-174.70033"
      inkscape:cy="77.493506"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
@@ -535,14 +535,14 @@
      inkscape:label="Symbol"
      style="display:inline">
     <g
-       transform="matrix(1.3621228,0,0,1.3621228,-16.638541,-16.657648)"
+       transform="matrix(1.232493,0,0,1.232493,-10.694685,-10.694678)"
        aria-label="士"
-       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;line-height:1.25;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#008000;fill-opacity:1;stroke:#008000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter12769)"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;line-height:1.25;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#005500;fill-opacity:1;stroke:#005500;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter12769)"
        id="text32186">
       <path
          inkscape:connector-curvature="0"
          d="m 62.302084,42.093749 q 0.989583,0 3.072916,1.40625 2.135417,1.354167 2.135417,2.1875 0,0.416667 -0.625,0.677083 L 56.9375,45.947916 q -5.052083,0 -10.364583,0.833333 l -0.3125,13.697916 q 0.572917,0 3.802084,-0.572916 3.229166,-0.572917 4.270833,-0.572917 1.822916,0 3.177083,0.625 1.354167,0.625 1.822917,1.25 0.46875,0.625 0.416666,0.9375 0,0.05208 -0.05208,0.15625 0,0.05208 -0.05208,0.104167 l -0.625,0.364583 q -10.3125,0 -16.5625,0.677083 l -7.395833,1.145834 h -0.05208 -0.3125 q -1.875,0 -2.96875,-1.666667 0,-0.46875 0.364583,-0.520833 L 43.552093,60.947915 43.65626,47.145832 q -6.822917,0.729167 -9.375,1.354167 l -4.270833,1.25 q -0.625,0.15625 -1.197917,0.15625 -2.864583,0 -4.322916,-2.1875 l 0.104166,-0.572917 q 0.05208,-0.208333 0.3125,-0.208333 3.125,0 10.729167,-0.989583 7.604166,-1.041667 7.916666,-1.09375 V 32.927083 q 0,-1.666667 -1.614583,-4.21875 0,-1.302083 1.5625,-1.302083 0.677083,0 1.979166,0.78125 1.354167,0.729166 2.34375,1.71875 0.15625,0.520833 -0.260416,1.562499 0,0.104167 -0.104167,0.364584 -0.104167,0.260416 -0.260417,0.9375 -0.104166,0.625 -0.260416,1.71875 -0.104167,1.09375 -0.208334,3.333333 -0.104166,2.239583 -0.104166,5.208333 l -0.05208,1.40625 h 0.520834 q 1.354166,0 5.729166,-0.625 4.427083,-0.625 6.041667,-0.989583 l 2.864583,-0.677083 q 0.208333,-0.05208 0.572917,-0.05208 z"
-         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke:#008000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill:#008000"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:53.33333206px;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#005500;stroke:#005500;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
          id="path36665" />
     </g>
   </g>
