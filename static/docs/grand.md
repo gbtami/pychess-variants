@@ -51,6 +51,8 @@ The value of a marshal is considered better than a cardinal, but equivalent or s
 
 ## Strategy
 
-One should not simply make just developing moves. You can afford to lag in development so long as you are working on controling key squares. Quality over quantity.
+Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
 
-More strategy pending.
+Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+
+Continue to play more and if you discover new strategies or advice, let us know!
