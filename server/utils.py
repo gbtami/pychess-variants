@@ -513,6 +513,8 @@ class Game:
         self.games = app["games"]
         self.tasks = app["tasks"]
         self.highscore = app["highscore"]
+        self.db_crosstable = app["crosstable"]
+
         self.saved = False
         self.variant = variant
         self.initial_fen = initial_fen
@@ -525,12 +527,27 @@ class Game:
         self.chess960 = chess960
         self.create = create
 
+        # rating info
         self.white_rating = wplayer.get_rating(variant, chess960)
         self.wrating = "%s%s" % (int(round(self.white_rating.mu, 0)), "?" if self.white_rating.phi > PROVISIONAL_PHI else "")
         self.wrdiff = 0
         self.black_rating = bplayer.get_rating(variant, chess960)
         self.brating = "%s%s" % (int(round(self.black_rating.mu, 0)), "?" if self.black_rating.phi > PROVISIONAL_PHI else "")
         self.brdiff = 0
+
+        # crosstable info
+        self.bot_game = self.bplayer.bot or self.wplayer.bot
+        if self.bot_game or self.wplayer.anon or self.bplayer.anon:
+            self.crosstable = ""
+        else:
+            if self.wplayer.username < self.bplayer.username:
+                self.s1player = self.wplayer.username
+                self.s2player = self.bplayer.username
+            else:
+                self.s1player = self.bplayer.username
+                self.s2player = self.wplayer.username
+            self.ct_id = self.s1player + "/" + self.s2player
+            self.crosstable = self.db_crosstable.get(self.ct_id, {"s1": 0, "s2": 0, "r": []})
 
         self.spectators = set()
         self.draw_offers = set()
@@ -549,7 +566,6 @@ class Game:
         self.check = False
         self.status = CREATED
         self.result = "*"
-        self.bot_game = False
         self.last_server_clock = monotonic()
 
         self.id = gameId
@@ -611,7 +627,6 @@ class Game:
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
 
-        self.bot_game = self.bplayer.bot or self.wplayer.bot
         self.random_mover = self.wplayer.username == "Random-Mover" or self.bplayer.username == "Random-Mover"
         self.random_move = ""
 
@@ -695,9 +710,6 @@ class Game:
         if self.saved:
             return
 
-        if self.rated and self.result != "*":
-            await self.update_ratings()
-
         self.stopwatch.kill()
 
         async def remove():
@@ -727,6 +739,12 @@ class Game:
             result = await self.db.game.delete_one({"_id": self.id})
             log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
+            if self.result != "*":
+                if self.rated:
+                    await self.update_ratings()
+                if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
+                    await self.set_crosstable()
+
             self.print_game()
 
             if analysis:
@@ -747,6 +765,34 @@ class Game:
                     new_data["p1"] = self.p1
 
             await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+
+    async def set_crosstable(self):
+        if self.result == "1/2-1/2":
+            s1 = s2 = 5
+            tail = "="
+        elif (self.result == "1-0" and self.s1player == self.wplayer.username) or (self.result == "0-1" and self.s1player == self.bplayer.username):
+            s1 = 10
+            s2 = 0
+            tail = "+"
+        else:
+            s1 = 0
+            s2 = 10
+            tail = "-"
+
+        self.crosstable["s1"] += s1
+        self.crosstable["s2"] += s2
+        self.crosstable["r"].append("%s%s" % (self.id, tail))
+        self.crosstable["r"] = self.crosstable["r"][-20:]
+
+        new_data = {
+            "s1": self.crosstable["s1"],
+            "s2": self.crosstable["s2"],
+            "r": self.crosstable["r"],
+        }
+        try:
+            await self.db.crosstable.find_one_and_update({"_id": self.ct_id}, {"$set": new_data}, upsert=True)
+        except Exception:
+            log.error("Failed to save new crosstable to mongodb!")
 
     def get_highscore(self, variant, chess960):
         len_hs = len(self.highscore[variant + ("960" if chess960 else "")])
@@ -1213,9 +1259,11 @@ def get_board(games, data, full=False):
 
             cur_color = "black" if game.board.color == BLACK else "white"
             clocks[cur_color] = max(0, clocks[cur_color] - elapsed)
+        crosstable = game.crosstable
     else:
         clocks = game.clocks
         steps = (game.steps[-1],)
+        crosstable = ""
 
     return {"type": "board",
             "gameId": data["gameId"],
@@ -1233,6 +1281,7 @@ def get_board(games, data, full=False):
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else "",
             "uci_usi": game.uci_usi if game.status > STARTED else "",
             "rm": game.random_move if game.status <= STARTED else "",
+            "ct": crosstable,
             }
 
 

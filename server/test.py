@@ -57,6 +57,7 @@ class HighscoreTestCase(unittest.TestCase):
         self.app["users"] = {}
         self.app["games"] = {}
         self.app["tasks"] = weakref.WeakSet()
+        self.app["crosstable"] = {}
         self.app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
         self.app["highscore"]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
 
@@ -67,16 +68,17 @@ class HighscoreTestCase(unittest.TestCase):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
         self.assertEqual(game.status, CREATED)
 
-        game.saved = True
-
-        async def coro():
-            await game.update_status(status=RESIGN, result="0-1")
-
         for row in game.highscore["crazyhouse960"].items():
             print(row)
         highscore0 = game.highscore["crazyhouse960"].peekitem(7)
 
-        self.loop.run_until_complete(coro())
+        game.update_status(status=RESIGN, result="0-1")
+        self.loop.run_until_complete(game.update_ratings())
+
+        print("-------")
+        print(game.p0, game.p1)
+        print(self.bplayer.perfs["crazyhouse960"])
+        print(self.wplayer.perfs["crazyhouse960"])
 
         for row in game.highscore["crazyhouse960"].items():
             print(row)

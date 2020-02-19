@@ -17,9 +17,11 @@ from sortedcollections import ValueSortedDict
 from routes import get_routes, post_routes
 from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
 from utils import Seek, User, VARIANTS, STARTED, AI_task, DEFAULT_PERF
+from generate_crosstable import generate_crosstable
+from generate_highscore import generate_highscore
 
 
-async def make_app(loop, reset_ratings=False):
+async def make_app(loop):
     app = web.Application(loop=loop)
     setup(app, EncryptedCookieStorage(SECRET_KEY))
 
@@ -39,6 +41,7 @@ async def make_app(loop, reset_ratings=False):
     app["chat"] = collections.deque([], 200)
     app["channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
+    app["crosstable"] = {}
 
     # last game played
     app["tv"] = None
@@ -72,7 +75,7 @@ async def make_app(loop, reset_ratings=False):
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
                 perfs = doc.get("perfs")
-                if perfs is None or reset_ratings:
+                if perfs is None:
                     perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
 
                 app["users"][doc["_id"]] = User(
@@ -87,12 +90,19 @@ async def make_app(loop, reset_ratings=False):
                     enabled=doc.get("enabled", True)
                 )
 
-        if reset_ratings:
-            await app["db"].highscore.drop()
-        else:
-            cursor = app["db"].highscore.find()
-            async for doc in cursor:
-                app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+        db_collections = await app["db"].list_collection_names()
+
+        if "highscore" not in db_collections:
+            await generate_highscore(app["db"])
+        cursor = app["db"].highscore.find()
+        async for doc in cursor:
+            app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+
+        if "crosstable" not in db_collections:
+            await generate_crosstable(app["db"])
+        cursor = app["db"].crosstable.find()
+        async for doc in cursor:
+            app["crosstable"][doc["_id"]] = doc
 
     except Exception:
         print("Maybe mongodb is not running...")
@@ -159,14 +169,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyChess chess variants server')
     parser.add_argument('-v', action='store_true', help='Verbose output. Changes log level from INFO to DEBUG.')
     parser.add_argument('-w', action='store_true', help='Less verbose output. Changes log level from INFO to WARNING.')
-    parser.add_argument('-r', action='store_true', help='Reset all ratings.')
     args = parser.parse_args()
 
     logging.basicConfig()
     logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
     loop = asyncio.get_event_loop()
-    app = loop.run_until_complete(make_app(loop, reset_ratings=args.r))
+    app = loop.run_until_complete(make_app(loop))
 
     with aiomonitor.start_monitor(loop=loop, locals={"app": app}):
         web.run_app(app, port=os.environ.get("PORT", 8080))
