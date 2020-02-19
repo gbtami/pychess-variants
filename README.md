@@ -8,7 +8,7 @@ Currently supported games are:
 - [Ouk Chatrang](https://www.pychess.org/variant/cambodian)
 - [Sittuyin](https://www.pychess.org/variant/sittuyin)
 - [Shogi](https://www.pychess.org/variant/shogi)
-- [Minishogi](hhttps://www.pychess.org/variant/minishogi)
+- [Minishogi](https://www.pychess.org/variant/minishogi)
 - [Kyoto shogi](https://www.pychess.org/variant/kyotoshogi)
 - [Xiangqi](https://www.pychess.org/variant/xiangqi)
 - [Minixiangqi](https://www.pychess.org/variant/minixiangqi)
