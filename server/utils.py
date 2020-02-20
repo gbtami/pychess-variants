@@ -6,7 +6,6 @@ import random
 import string
 from time import monotonic, time
 from datetime import datetime
-from functools import partial
 from itertools import chain
 
 from aiohttp.web import WebSocketResponse
@@ -382,7 +381,7 @@ async def AI_task(ai, app):
 
             event = json.loads(line)
             if event["type"] != "gameState":
-                break
+                continue
             # print("   +++ game_queues get()", event)
             if len(app["workers"]) > 0:
                 AI_move(game, gameId, level)
