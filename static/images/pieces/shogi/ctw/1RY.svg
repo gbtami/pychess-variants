@@ -470,12 +470,13 @@
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="5.5625736"
-     inkscape:cx="-26.367144"
-     inkscape:cy="21.091221"
+     inkscape:cx="38.871403"
+     inkscape:cy="34.558066"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1717" />
+     inkscape:current-layer="svg1717"
+     showguides="false" />
   <!--
 Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
 See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
@@ -653,7 +654,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
        inkscape:connector-curvature="0"
        id="path5965-7"
        d="m 99.938985,158.29805 c -5.049569,1.29768 -6.422852,9.83907 -10.660754,13.34408 -0.735784,-0.3683 -0.827866,-1.19226 -0.797743,-2.90089 l -2.828362,-1.52297 4.568891,-0.58017 -2.900881,-1.59549 3.843672,-0.6527 -1.595486,-2.24818 3.118448,0.50765 -0.145043,-3.26349 1.377919,-0.72522 V 156.485 l -0.725219,-1.08783 -1.160357,0.14505 0.07252,1.0153 -1.668009,0.14505 -0.145043,1.23287 -1.3054,-0.43513 -1.01531,0.29009 0.217567,2.46575 -2.103139,-0.0725 -0.07252,3.98871 c -0.474479,-0.38678 -1.149378,-0.77356 -2.393228,-1.16035 -0.385357,2.27236 -0.285839,4.32716 -0.290091,6.59952 l -3.408538,-4.78647 c 0.270013,-0.65709 1.00717,-0.59849 1.522962,-2.10313 -0.04517,-1.04998 -0.08546,-2.09753 -0.507653,-3.33602 2.560131,-1.26401 4.783339,-3.53879 6.962125,-5.94682 l 0.07252,-5.00402 c 0.912496,-2.4981 1.545022,-3.85079 2.330563,-5.13578 0.05745,1.85848 0.158458,3.39643 0.63207,4.44578 1.445697,-1.53827 0.02762,-6.2873 5.159844,-8.95545 -1.287354,2.87748 -3.690968,5.89449 -2.103138,8.41257 5.71244,-7.08218 11.658228,-12.49758 18.710708,-10.00805 -6.95992,0.57064 -12.10611,4.59635 -10.90437,8.94829 4.37307,-4.88595 9.73578,-3.75434 11.45621,-2.9151 -5.42728,0.56055 -7.6467,2.64073 -6.49866,5.71537 6.14453,-1.76511 10.84868,-1.49675 13.70668,1.37792 -3.44196,-0.37601 -8.44829,-1.44309 -8.58036,0.57138 24.08767,10.62873 -3.53199,26.36757 -3.96597,28.43747 -1.5017,3.71433 -0.64992,5.12274 -0.58017,7.61483 -7.879318,3.80827 -13.31468,3.16505 -17.405309,0.0725 -0.789902,-11.11852 9.080919,-15.02287 14.019159,-17.34785 5.40946,-2.54682 8.74343,-12.41169 0.80866,-12.52149 -0.67413,1.41992 -1.05907,3.56566 -0.68601,6.29969 -1.65605,-4.87067 -4.461578,-6.29292 -8.049949,-5.36664"
-       style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#c80000;fill-opacity:1;stroke:#c80000;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <g
        style="stroke-width:0.80000001;stroke-miterlimit:4;stroke-dasharray:none"
        id="g5985-6">
@@ -718,6 +719,6 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
        inkscape:connector-curvature="0"
        id="path5989-0"
        d="m 84.445625,161.43408 c 6.80241,0.22864 16.721125,8.88531 19.076495,4.30759"
-       style="fill:none;stroke:#ff0000;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#c80000;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

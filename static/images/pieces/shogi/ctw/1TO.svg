@@ -1189,7 +1189,7 @@
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="11.125146"
-     inkscape:cx="4.6775303"
+     inkscape:cx="-10.288565"
      inkscape:cy="26.727931"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
@@ -1273,19 +1273,19 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
            inkscape:connector-curvature="0"
            id="path2176-6-1"
            d="m -23.355851,44.732625 c -4.132306,8.932558 -4.332216,7.649629 -13.389243,13.799134 8.912868,3.135271 18.70037,2.896518 26.778486,0 -9.057027,-6.149505 -9.438551,-5.164998 -13.389243,-13.799134 z"
-           style="fill:#ff0000;stroke:#ff0000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
+           style="fill:#c80000;stroke:#c80000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers;fill-opacity:1" />
         <path
            inkscape:connector-curvature="0"
            id="path2178-9-6"
            d="m -26.817667,58.549927 c -0.101781,8.756321 -0.371109,15.836633 -11.545204,21.428518 -5.232221,2.785963 -6.963446,4.475105 -7.614698,9.332185 6.784589,1.493568 14.836273,2.210393 22.882279,2.179259 8.046006,0.03113 16.0976895,-0.685691 22.882279,-2.179259 C -0.864263,84.45355 -2.595488,82.764408 -7.827709,79.978445 -19.001804,74.38656 -19.271132,67.306248 -19.372913,58.549927 v 4e-6 c -1.240718,0.01919 -2.481542,0.02015 -3.722377,0.01942 -1.240835,7.29e-4 -2.481659,-2.33e-4 -3.722377,-0.01942 z"
-           style="fill:#ff0000;stroke:#ff0000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
+           style="fill:#c80000;stroke:#c80000;stroke-width:1.31294143;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers;fill-opacity:1" />
       </g>
     </g>
     <g
        transform="matrix(0.70055036,0,0,0.70055036,-399.76856,-65.880019)"
        id="g3401-4">
       <path
-         style="display:inline;fill:url(#linearGradient69553);fill-opacity:1.0;stroke:#ff0000;stroke-width:13.42656422;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="display:inline;fill:url(#linearGradient69553);fill-opacity:1;stroke:#c80000;stroke-width:13.42656422;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 89.878164,104.45867 c 71.228006,71.22916 31.757136,135.82089 52.509626,165.37853 28.87071,49.94709 71.08258,59.60515 129.34256,59.36887 1.13228,-0.005 2.26995,-0.0394 3.41266,-0.10377 1.14271,0.0644 2.28038,0.0992 3.41266,0.10377 58.25998,0.23628 100.47185,-9.42178 129.34256,-59.36887 20.75249,-29.55764 -18.71838,-94.14937 52.50963,-165.37853 -11.60482,-5.014637 -42.72517,25.60524 -62.89753,25.52484 -25.61193,-15.17069 -47.03143,3.07994 -52.25128,16.77733 37.83854,-11.30105 70.07869,121.46792 -45.53806,137.91415 -7.06656,1.97083 -16.16354,2.51444 -24.57798,2.71917 -8.41444,-0.20473 -17.51142,-0.74834 -24.57798,-2.71917 -115.61675,-16.44623 -83.3766,-149.2152 -45.53806,-137.91415 -5.21985,-13.69739 -26.63935,-31.94802 -52.25128,-16.77733 -20.17236,0.0804 -51.29271,-30.539477 -62.897526,-25.52484 z"
          id="path4702-7-4"
          inkscape:connector-curvature="0"
@@ -1299,7 +1299,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          cy="124.95992"
          cx="608"
          id="path4730-4-5"
-         style="display:inline;opacity:1;fill:url(#linearGradient69545);fill-opacity:1.0;stroke:#ff0000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
+         style="display:inline;opacity:1;fill:url(#linearGradient69545);fill-opacity:1;stroke:#c80000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
     </g>
   </g>
 </svg>
