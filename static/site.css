@@ -17,6 +17,7 @@
     --bad: #c33;
     --gold: GoldenRod;
     --rusty: rgba(214,79,0,0.5);
+    --ct-current: #e2834d;
     --clock-hurry-bg: MistyRose;
     --clock-running-bg: rgb(208, 224, 189);
     --clock-running-color: Black;
@@ -36,6 +37,7 @@
     --blue-hover: #3692e7;
     --gold: DarkGoldenRod;
     --rusty: rgba(214,79,0,0.5);
+    --ct-current: #a1420a;
     --clock-hurry-bg: #502826;
     --clock-running-bg: #384722;
     --clock-running-color: #e3e3e3;
@@ -368,14 +370,16 @@ div.versus {
 vs {
   padding: 0 6px 0 6px;
 }
-div.info-result {
-  padding: 8px;
+.info-result {
   text-align: center;
 }
-div.info-result.win {
+div.info-result {
+  padding: 8px;
+}
+.info-result.win {
   color: var(--good);;
 }
-div.info-result.lose {
+.info-result.lose {
   color: var(--bad);
 }
 div.anal-meta {
@@ -1191,4 +1195,63 @@ input[type="checkbox"] {
 
 input#fen {
   width: 100%;
+}
+
+div.ctable{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-top: 1vmin;
+  padding-bottom: 1vmin;
+}
+.crosstable {
+  display: flex;
+  width: 100%;
+  line-height: 1.9em;
+  background-color: var(--bg-color1);
+  box-shadow: var(--base-shadow);
+}
+.crosstable povs {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column;
+  text-align: center;
+}
+.crosstable povs a {
+  color: var(--font-color);
+}
+.crosstable povs .win {
+  font-weight: bold;
+}
+.crosstable povs.current a {
+  color: #fff;
+  background-color: var(--ct-current);
+}
+.ct-users {
+  flex: 7 1 auto;
+  display: flex;
+  flex-flow: column;
+  max-width: 40vw;
+  text-align: left;
+  padding-left: 2vmin;
+  background-color: var(--bg-color2);
+}
+.ct-users a {
+  color: var(--font-color);
+}
+.ct-score {
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: column;
+  font-weight: bold;
+  text-align: right;
+  padding-right: 2vmin;
+  background-color: var(--bg-color2);
+}
+.crosstable fill {
+  flex: 14.25 1 auto;
+}
+.crosstable povs a {
+  flex: 0 0 50%;
 }

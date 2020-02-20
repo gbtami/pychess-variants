@@ -38,7 +38,7 @@ function renderGame(model, games, game, fen, lastMove) {
 
 
 export function gamesView(model): VNode[] {
-    renderUsername(model["home"], model["username"]);
+    renderUsername(model["username"]);
     setBoardAndPieceStyles();
 
     var xmlhttp = new XMLHttpRequest();

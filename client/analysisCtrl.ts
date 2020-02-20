@@ -18,6 +18,7 @@ import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
 import { variants, needPockets, usi2uci, grand2zero, VARIANTS, sanToRole, getPockets } from './chess';
 import { renderUsername } from './user';
+import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
@@ -537,7 +538,7 @@ export default class AnalysisController {
 
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
-        renderUsername(this.model["home"], this.model["username"]);
+        renderUsername(this.model["username"]);
         // we want to know lastMove and check status
         this.doSend({ type: "board", gameId: this.model["gameId"] });
     }
@@ -572,6 +573,10 @@ export default class AnalysisController {
         alert(msg.message);
     }
 
+    private onMsgCtable = (ctable, gameId) => {
+        patch(document.getElementById('ctable-container') as HTMLElement, crosstableView(ctable, gameId));
+    }
+
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -579,6 +584,9 @@ export default class AnalysisController {
             case "board":
                 this.onMsgBoard(msg);
                 break;
+            case "crosstable":
+                this.onMsgCtable(msg.ctable, this.model["gameId"]);
+                break
             case "analysis":
                 this.onMsgAnalysis(msg);
                 break;

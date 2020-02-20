@@ -1089,7 +1089,7 @@ async def draw(games, data, agreement=False):
         game.update_status(DRAW, result)
         await game.save_game()
         return {
-            "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn,
+            "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else ""}
     else:
         response = {"type": "offer", "message": "Draw offer sent", "room": "player", "user": ""}
@@ -1117,7 +1117,7 @@ async def game_ended(games, user, data, reason):
         await game.save_game()
 
     return {
-        "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn,
+        "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
         "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else ""}
 
 
@@ -1200,7 +1200,7 @@ async def new_game(app, user, seek_id):
 async def lobby_broadcast(sockets, response):
     for client_ws in sockets.values():
         if client_ws is not None:
-            await client_ws.send_json(response, dumps=partial(json.dumps, default=datetime.isoformat))
+            await client_ws.send_json(response)
 
 
 async def round_broadcast(game, users, response, full=False, channels=None):

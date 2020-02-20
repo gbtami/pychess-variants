@@ -91,6 +91,8 @@ export function roundView(model): VNode[] {
                 ]),
             ]),
             h('under-left#spectators'),
-            h('under-board'),
+            h('under-board', [
+                h('div#ctable-container'),
+            ]),
         ];
 }

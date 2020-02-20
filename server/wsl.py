@@ -1,8 +1,6 @@
 import asyncio
 import json
 import logging
-from datetime import datetime
-from functools import partial
 
 import aiohttp
 from aiohttp import web
@@ -145,7 +143,7 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                         response = {"type": "fullchat", "lines": list(request.app["chat"])}
-                        await ws.send_json(response, dumps=partial(json.dumps, default=datetime.isoformat))
+                        await ws.send_json(response)
 
                         loop = asyncio.get_event_loop()
                         lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, users, games))

@@ -98,6 +98,7 @@ export function analysisView(model): VNode[] {
             h('under-left#spectators'),
             h('under-board', [
                 h('div#pgn', [
+                    h('div#ctable-container'),
                     h('div.chart-container', [
                         h('div#chart'),
                         h('div#loader-wrapper', [h('div#loader')])

@@ -451,7 +451,7 @@ class LobbyController {
 
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
-        renderUsername(this.model["home"], this.model["username"]);
+        renderUsername(this.model["username"]);
     }
 
     private onMsgChat = (msg) => {

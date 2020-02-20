@@ -185,7 +185,7 @@ function observeSentinel(vnode: VNode, model) {
 }
 
 export function profileView(model) {
-    renderUsername(model["home"], model["username"]);
+    renderUsername(model["username"]);
     console.log(model);
     setBoardAndPieceStyles();
     return [

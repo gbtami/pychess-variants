@@ -38,7 +38,7 @@ function renderAllPlayers(players) {
 }
 
 export function playersView(model): VNode[] {
-    renderUsername(model["home"], model["username"]);
+    renderUsername(model["username"]);
 
     var xmlhttp = new XMLHttpRequest();
     var url = model["home"] + "/api/players";

@@ -13,7 +13,7 @@ const untitled = [
 ]
 
 export function aboutView(model): VNode[] {
-    renderUsername(model["home"], model["username"]);
+    renderUsername(model["username"]);
 
     console.log(model);
     return [h('aside.sidebar-first'),

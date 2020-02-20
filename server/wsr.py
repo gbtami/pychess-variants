@@ -3,8 +3,6 @@ import json
 import logging
 import random
 import string
-from datetime import datetime
-from functools import partial
 
 import aiohttp
 from aiohttp import web
@@ -310,8 +308,11 @@ async def round_socket_handler(request):
                             response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
                             await ws.send_json(response)
 
+                        response = {"type": "crosstable", "ctable": game.crosstable}
+                        await ws.send_json(response)
+
                         response = {"type": "fullchat", "lines": list(game.messages)}
-                        await ws.send_json(response, dumps=partial(json.dumps, default=datetime.isoformat))
+                        await ws.send_json(response)
 
                         loop = asyncio.get_event_loop()
                         game_ping_task = loop.create_task(game_pinger())

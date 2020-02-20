@@ -20,6 +20,7 @@ import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
 import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN } from './chess';
 import { renderUsername } from './user';
+import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
@@ -57,6 +58,7 @@ export default class RoundController {
     vpng: any;
     gameControls: any;
     moveControls: any;
+    ctableContainer: any;
     gating: any;
     promotion: any;
     dests: Dests;
@@ -422,6 +424,8 @@ export default class RoundController {
             }
             this.gameOver(msg.rdiffs);
             selectMove(this, this.ply);
+
+            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.model["gameId"]));
 
             // clean up gating/promotion widget left over the ground while game ended by time out
             var container = document.getElementById('extension_choice') as HTMLElement;
@@ -860,7 +864,7 @@ export default class RoundController {
 
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
-        renderUsername(this.model["home"], this.model["username"]);
+        renderUsername(this.model["username"]);
         if (this.spectator) {
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.model["gameId"] });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.model["gameId"] });
@@ -943,6 +947,10 @@ export default class RoundController {
         alert(msg.message);
     }
 
+    private onMsgCtable = (ctable, gameId) => {
+        this.ctableContainer = patch(document.getElementById('ctable-container') as HTMLElement, crosstableView(ctable, gameId));
+    }
+
     private onMessage = (evt) => {
         console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -950,6 +958,9 @@ export default class RoundController {
             case "board":
                 this.onMsgBoard(msg);
                 break;
+            case "crosstable":
+                this.onMsgCtable(msg.ctable, this.model["gameId"]);
+                break
             case "gameEnd":
                 this.checkStatus(msg);
                 break;
