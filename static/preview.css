@@ -25,8 +25,13 @@ label.board.board3.shogi {
 label.board.board4.shogi {
   background-image: url('images/board/ShogiMaple.png');
 }
+/*
 label.board.board5.shogi {
   background-image: url('images/board/ShogiCheckeredWood.png');
+}
+*/
+label.board.board5.shogi {
+  background-image: url('images/board/doubutsu.svg');
 }
 
 label.piece.piece0.kyotoshogi {
@@ -53,6 +58,9 @@ label.piece.piece3.shogi, label.piece.piece3.minishogi {
 }
 label.piece.piece4.shogi, label.piece.piece4.minishogi {
   background-image: url('images/pieces/shogi/ctm/0KA.svg');
+}
+label.piece.piece5.shogi {
+  background-image: url('images/pieces/shogi/Ka/0KA.svg');
 }
 
 label.board.board0.minishogi, label.board.board0.kyotoshogi {
