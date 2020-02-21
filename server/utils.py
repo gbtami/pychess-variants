@@ -546,7 +546,7 @@ class Game:
                 self.s1player = self.bplayer.username
                 self.s2player = self.wplayer.username
             self.ct_id = self.s1player + "/" + self.s2player
-            self.crosstable = self.db_crosstable.get(self.ct_id, {"s1": 0, "s2": 0, "r": []})
+            self.crosstable = self.db_crosstable.get(self.ct_id, {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []})
 
         self.spectators = set()
         self.draw_offers = set()
