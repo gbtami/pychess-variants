@@ -9,7 +9,7 @@ async def generate_highscore(db):
         # print(variant)
         d = "perfs.%s.gl.d" % variant
         r = "perfs.%s.gl.r" % variant
-        filt = {d: {"$lt": 350}}
+        filt = {d: {"$lt": 350}, "enabled": {"$ne": False}}
 
         scores = {}
         cursor = db.user.find(filt, sort=[(r, -1)], limit=10)
