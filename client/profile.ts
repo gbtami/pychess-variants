@@ -49,6 +49,12 @@ export function result(status, result) {
     case 7:
         text = ((result === '1-0') ? 'Black' : 'White') + ' abandoned the game';
         break
+    case 8:
+        text = 'Cheat detected';
+        break;
+    case 10:
+        text = 'Invalid move';
+        break;
     default:
         text = '*';
         break

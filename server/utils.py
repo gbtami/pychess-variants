@@ -681,9 +681,19 @@ class Game:
                         result = "1-0" if self.board.color == BLACK else "0-1"
                     self.update_status(FLAG, result)
                     await self.save_game()
+
         self.last_server_clock = cur_time
 
-        if self.status != FLAG:
+        opp_color = "black" if self.board.color == WHITE else "white"
+        if clocks is not None:
+            # print("--------------")
+            # print(opp_color, clocks, self.ply_clocks)
+            if clocks[opp_color] != self.clocks[opp_color]:
+                result = "1-0" if self.board.color == BLACK else "0-1"
+                self.update_status(CHEAT, result)
+                await self.save_game()
+
+        if self.status <= STARTED:
             try:
                 san = self.board.get_san(move)
                 self.lastmove = move
@@ -705,7 +715,9 @@ class Game:
 
             except Exception:
                 log.exception("ERROR: Exception in game.play_move()!")
-                raise
+                result = "1-0" if self.board.color == BLACK else "0-1"
+                self.update_status(INVALIDMOVE, result)
+                await self.save_game()
 
     async def save_game(self):
         if self.saved:

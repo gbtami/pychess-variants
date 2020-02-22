@@ -61,11 +61,7 @@ async def round_socket_handler(request):
 
                     if data["type"] == "move":
                         log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
-                        move_is_ok = await play_move(games, data)
-                        if not move_is_ok:
-                            message = "Something went wrong! Server can't accept move %s. Try another one, please!" % data["move"]
-                            chat_response = {"type": "roundchat", "user": "_server", "message": message, "room": "player"}
-                            await ws.send_json(chat_response)
+                        await play_move(games, data)
 
                         board_response = get_board(games, data, full=False)
                         log.info("   Server send to %s: %s" % (user.username, board_response["fen"]))
