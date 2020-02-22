@@ -129,7 +129,7 @@ async def login(request):
                 "perfs": {},
             })
             print("db insert user result %s" % repr(result.inserted_id))
-        elif not doc.get("enabled", "True"):
+        elif not doc.get("enabled", True):
             log.info("Closed account %s tried to log in." % user.username)
             session["user_name"] = prev_session_user
 

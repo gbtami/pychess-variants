@@ -139,7 +139,7 @@ under-right {
   justify-content: center;
 }
 
-div.about, div.guide, div.patron {
+div.about, div.guide, div.patron, div.closed {
   width: 75%;
   margin: 0 auto;
   border-radius: 3px;
@@ -148,14 +148,14 @@ div.about, div.guide, div.patron {
   background-color: var(--bg-color1);
   padding: 24px;
 }
-div.about.closed {
-  width: 100%;
-}
 div.patron {
   width: 50%;
 }
 div.guide {
   width: 100%;
+}
+div.closed {
+  width: 610px;
 }
 ul.guide {
   list-style:none;
