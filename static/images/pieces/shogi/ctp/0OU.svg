@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -127,8 +127,8 @@
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="7.8666669"
-     inkscape:cx="-13.750733"
-     inkscape:cy="39.759652"
+     inkscape:cx="-22.630351"
+     inkscape:cy="25.107894"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -164,30 +164,24 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     <g
        transform="translate(53.174891,20.367693)"
        id="g5696"
-       style="display:inline;fill:#f0c000;fill-opacity:1;filter:url(#drop-shadow-9)">
+       style="display:inline;fill:#f9f9f9;fill-opacity:1;filter:url(#drop-shadow-9)">
       <path
          d="m -10.959999,6.2374999 -12.838,3.608 -7.051,44.4501791 39.9339998,-1.79e-4 -6.79,-44.163 z"
          id="path5694"
          inkscape:connector-curvature="0"
-         style="fill:#f0c000;fill-opacity:1"
+         style="fill:#f9f9f9;fill-opacity:1"
          sodipodi:nodetypes="cccccc" />
     </g>
     <g
        aria-label="王"
-       transform="matrix(1.2457109,0,0,1.1207147,-7.6787411,-6.8285203)"
+       transform="matrix(1.1324336,0,0,1.0188038,-3.1346249,-0.2835273)"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="text2298-4">
       <path
          d="m 41.364137,44.364833 v 7.040866 h 8.062927 v 2.157684 h -8.062927 v 7.949365 h 10.901985 v 2.498371 H 27.96378 v -2.498371 h 10.788423 v -7.949365 h -8.062926 v -2.157684 h 8.062926 v -7.040866 h -9.19855 v -2.498371 h 21.236159 v 2.498371 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke:#000000;stroke-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="path4617"
          inkscape:connector-curvature="0" />
     </g>
-    <path
-       sodipodi:nodetypes="ccccc"
-       inkscape:connector-curvature="0"
-       id="rect4838-9"
-       d="m 24.815497,69.464765 34.938979,-0.13942 0.459486,3.18815 -35.842138,0.19378 z"
-       style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.44734064;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
   </g>
 </svg>

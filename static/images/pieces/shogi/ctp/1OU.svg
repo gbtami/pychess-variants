@@ -11,7 +11,7 @@
    height="60"
    version="1.1"
    id="svg1717"
-   sodipodi:docname="1OU-2.svg"
+   sodipodi:docname="1OU.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata1723">
@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -177,9 +177,9 @@
      inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="11.125147"
-     inkscape:cx="13.888083"
-     inkscape:cy="29.94133"
+     inkscape:zoom="7.8666669"
+     inkscape:cx="10.775424"
+     inkscape:cy="21.94862"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -213,15 +213,15 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
      id="g9304"
      transform="matrix(1,0,0,-1,34.434925,93.267291)">
     <g
-       style="fill:#fecb00;fill-opacity:1;filter:url(#drop-shadow-2-8)"
+       style="fill:#ffffff;fill-opacity:1;filter:url(#drop-shadow-2-8)"
        transform="matrix(0.98185054,0,0,-0.98185054,-134.62961,116.48624)"
        id="g9259">
       <g
-         style="fill:#fecb00;fill-opacity:1"
+         style="fill:#ffffff;fill-opacity:1"
          transform="rotate(180,45.578499,23.8125)"
          id="g9257">
         <path
-           style="fill:#fecb00;fill-opacity:1"
+           style="fill:#ffffff;fill-opacity:1"
            inkscape:connector-curvature="0"
            d="m -37.299339,-31.009999 -13.408999,4.26 -6.837,44.557885 40.189999,1.15e-4 -6.535,-44.862 -13.138,-3.935 c -0.09,-0.017 -0.18,-0.032 -0.271,-0.021 z"
            id="path9255"
@@ -230,7 +230,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     </g>
     <g
        aria-label="王"
-       transform="matrix(-1.2457109,0,0,1.1207147,41.615212,5.8044796)"
+       transform="matrix(-1.1324336,0,0,1.0188038,37.071092,10.049565)"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="text2298-4">
       <path
@@ -239,11 +239,5 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          id="path4617"
          inkscape:connector-curvature="0" />
     </g>
-    <path
-       sodipodi:nodetypes="ccccc"
-       inkscape:connector-curvature="0"
-       id="rect4838-9"
-       d="m 9.1209716,82.16133 -34.9389786,-0.13942 -0.459486,3.18815 35.8421376,0.19378 z"
-       style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.44734064;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
   </g>
 </svg>
