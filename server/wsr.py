@@ -93,7 +93,7 @@ async def round_socket_handler(request):
                         await round_broadcast(game, users, board_response, channels=request.app["channels"])
 
                     elif data["type"] == "ready":
-                        game = games[data["gameId"]]
+                        game = await load_game(request.app, data["gameId"])
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.bot:
@@ -223,7 +223,7 @@ async def round_socket_handler(request):
                                 await opp_ws.send_json(response)
 
                     elif data["type"] == "draw":
-                        game = games[data["gameId"]]
+                        game = await load_game(request.app, data["gameId"])
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
 
@@ -246,7 +246,10 @@ async def round_socket_handler(request):
                         await ws.close()
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
-                        game = games[data["gameId"]]
+                        game = await load_game(request.app, data["gameId"])
+                        if data["type"] == "abort" and game.ply > 2:
+                            continue
+
                         response = await game_ended(games, user, data, data["type"])
 
                         await ws.send_json(response)
@@ -329,7 +332,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "moretime":
                         # TODO: stop and update game stopwatch time with updated secs
-                        game = games[data["gameId"]]
+                        game = await load_game(request.app, data["gameId"])
 
                         opp_color = WHITE if user.username == game.bplayer.username else BLACK
                         if opp_color == game.stopwatch.color:
