@@ -377,6 +377,8 @@ async def AI_task(ai, app):
                 line = await ai.game_queues[gameId].get()
             except KeyError:
                 log.error("Break in AI_task() game_task(). %s not in ai.game_queues" % gameId)
+                if game.status <= STARTED:
+                    await game.abort()
                 break
 
             event = json.loads(line)
@@ -1157,7 +1159,11 @@ async def new_game(app, user, seek_id):
         log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
         return {"type": "error"}
     # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
-    new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960, create=True)
+    try:
+        new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960, create=True)
+    except Exception:
+        log.error("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
+        return {"type": "error"}
     games[new_game.id] = new_game
 
     if not seek.user.bot:
