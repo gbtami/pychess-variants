@@ -1,6 +1,6 @@
 ## PyChess-Variants
 
-PyChess-Variants is a free, open-source chess server designed to play several chess variants.
+PyChess-Variants is a free, open-source chess server designed to play chess variants.
 
 Currently supported games are:
 
