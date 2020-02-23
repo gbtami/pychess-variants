@@ -50,4 +50,5 @@ async def generate_crosstable(db):
 
     await db.crosstable.drop()
     # bulk insert to crosstable
-    await db.crosstable.insert_many(ct.values())
+    if len(ct) > 0:
+        await db.crosstable.insert_many(ct.values())

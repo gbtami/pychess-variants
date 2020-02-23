@@ -20,4 +20,5 @@ async def generate_highscore(db):
 
     await db.highscore.drop()
     # bulk insert to highscore
-    await db.highscore.insert_many(hs)
+    if len(hs) > 0:
+        await db.highscore.insert_many(hs)

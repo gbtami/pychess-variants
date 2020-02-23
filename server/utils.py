@@ -801,6 +801,8 @@ class Game:
         }
         try:
             await self.db.crosstable.find_one_and_update({"_id": self.ct_id}, {"$set": new_data}, upsert=True)
+            new_data["_id"] = self.ct_id
+            self.db_crosstable[self.ct_id] = new_data
         except Exception:
             log.error("Failed to save new crosstable to mongodb!")
 

@@ -573,8 +573,10 @@ export default class AnalysisController {
         alert(msg.message);
     }
 
-    private onMsgCtable = (ctable, gameId) => {
-        patch(document.getElementById('ctable-container') as HTMLElement, crosstableView(ctable, gameId));
+    private onMsgCtable = (ct, gameId) => {
+        if (ct !== "") {
+            patch(document.getElementById('ctable-container') as HTMLElement, crosstableView(ct, gameId));
+        }
     }
 
     private onMessage = (evt) => {
@@ -585,7 +587,7 @@ export default class AnalysisController {
                 this.onMsgBoard(msg);
                 break;
             case "crosstable":
-                this.onMsgCtable(msg.ctable, this.model["gameId"]);
+                this.onMsgCtable(msg.ct, this.model["gameId"]);
                 break
             case "analysis":
                 this.onMsgAnalysis(msg);

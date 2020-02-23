@@ -307,7 +307,7 @@ async def round_socket_handler(request):
                             response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
                             await ws.send_json(response)
 
-                        response = {"type": "crosstable", "ctable": game.crosstable}
+                        response = {"type": "crosstable", "ct": game.crosstable}
                         await ws.send_json(response)
 
                         response = {"type": "fullchat", "lines": list(game.messages)}

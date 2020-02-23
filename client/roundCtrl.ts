@@ -271,6 +271,8 @@ export default class RoundController {
         this.clocks[0].onTick(renderTime);
         this.clocks[1].onTick(renderTime);
 
+        // initialize crosstable
+        this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
         const onMoreTime = () => {
             // TODO: enable when this.flip is true
             if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
@@ -425,7 +427,10 @@ export default class RoundController {
             this.gameOver(msg.rdiffs);
             selectMove(this, this.ply);
 
-            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.model["gameId"]));
+            if (msg.ct !== "") {
+                this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+                this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.model["gameId"]));
+            }
 
             // clean up gating/promotion widget left over the ground while game ended by time out
             var container = document.getElementById('extension_choice') as HTMLElement;
@@ -947,8 +952,10 @@ export default class RoundController {
         alert(msg.message);
     }
 
-    private onMsgCtable = (ctable, gameId) => {
-        this.ctableContainer = patch(document.getElementById('ctable-container') as HTMLElement, crosstableView(ctable, gameId));
+    private onMsgCtable = (ct, gameId) => {
+        if (ct !== "") {
+            this.ctableContainer = patch(this.ctableContainer, crosstableView(ct, gameId));
+        }
     }
 
     private onMessage = (evt) => {
@@ -959,7 +966,7 @@ export default class RoundController {
                 this.onMsgBoard(msg);
                 break;
             case "crosstable":
-                this.onMsgCtable(msg.ctable, this.model["gameId"]);
+                this.onMsgCtable(msg.ct, this.model["gameId"]);
                 break
             case "gameEnd":
                 this.checkStatus(msg);

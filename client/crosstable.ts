@@ -1,7 +1,6 @@
 import h from 'snabbdom/h';
 
 export function crosstableView (ctable, gameId) {
-    if (ctable === "") return h('div#ctable');
 
     const s1 = ctable.s1, s2 = ctable.s2, games = ctable.r;
     let rows;
@@ -51,5 +50,5 @@ export function crosstableView (ctable, gameId) {
 
     rows.push(h('div.ct-score', [lt1, lt2]));
 
-    return h('div#ctable-container', [h('div.ctable', [h('div.crosstable', rows)])]);
+    return h('div#ctable-container', [h('div.crosstable', rows)]);
 }
