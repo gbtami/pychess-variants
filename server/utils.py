@@ -688,7 +688,7 @@ class Game:
         if clocks is not None:
             # print("--------------")
             # print(opp_color, clocks, self.ply_clocks)
-            if clocks[opp_color] != self.clocks[opp_color]:
+            if clocks[opp_color] < self.clocks[opp_color]:
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(CHEAT, result)
                 await self.save_game()
