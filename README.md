@@ -51,7 +51,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 ### Project setup
 ```
-// You need mongodb up and running
+// While mongodb running
 
 pip3 install -r requirements.txt --user
 yarn install
