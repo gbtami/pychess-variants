@@ -44,13 +44,22 @@ If you like our work and find our server useful, please donate through [patreon]
 Your contribution will be greatly appreciated and help me continue to develop this awesome server.
 
 ## Installation
+
+### Prerequisites
+* Mongo daemon (You need mongodb up and running)
+
+
+### Project setup
 ```
-(You need mongodb up and running)
+// You need mongodb up and running
 
 pip3 install -r requirements.txt --user
-
 yarn install
 gulp prod
 
+```
+
+### Running project
+```
 python3 server/server.py
 ```
