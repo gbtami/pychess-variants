@@ -207,7 +207,7 @@ export function profileView(model) {
                         class: {"icon": true, "icon-at": true}}),
                     h('a.i-dl', {
                         attrs: {href: '/games/export/' + model["profileid"], download: model["profileid"] + '.pgn', title: 'Export games'},
-                        class: {"icon": true, "icon-download": true}}),
+                        class: {"icon": true, "icon-download": true, "disabled": model["title"] === 'BOT'}}),
                     h('a.i-tv', {
                         attrs: {href: '/@/' + model["profileid"] + '/tv', title: 'Watch games'},
                         class: {"icon": true, "icon-tv": true}}),

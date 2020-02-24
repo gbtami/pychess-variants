@@ -227,6 +227,11 @@ a, .user-link:link, .user-link:visited {
 a, .user-link:hover, .user-link:active {
     color: RoyalBlue;
 }
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.6;
+}
 .reflist {
     padding: 6px;
     text-decoration: none;
