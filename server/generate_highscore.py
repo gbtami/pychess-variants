@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from utils import VARIANTS
+from const import VARIANTS
 
 
 async def generate_highscore(db):

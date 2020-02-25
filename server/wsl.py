@@ -6,8 +6,10 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from utils import get_seeks, create_seek, new_game, challenge, lobby_broadcast,\
-    User, Seek, MyWebSocketResponse
+from broadcast import lobby_broadcast
+from seek import challenge, create_seek, get_seeks, Seek
+from user import User
+from utils import new_game, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 

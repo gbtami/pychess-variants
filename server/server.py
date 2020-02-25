@@ -14,11 +14,15 @@ from aiohttp_session import setup
 from motor import motor_asyncio as ma
 from sortedcollections import ValueSortedDict
 
-from routes import get_routes, post_routes
-from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
-from utils import Seek, User, VARIANTS, STARTED, AI_task, DEFAULT_PERF
+from ai import AI_task
+from const import VARIANTS, STARTED
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
+from glicko2.glicko2 import DEFAULT_PERF
+from routes import get_routes, post_routes
+from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
+from seek import Seek
+from user import User
 
 
 async def make_app(loop):

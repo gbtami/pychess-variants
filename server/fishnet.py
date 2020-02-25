@@ -7,8 +7,10 @@ from time import monotonic
 
 from aiohttp import web
 
-from utils import ANALYSIS, STARTED, INVALIDMOVE, VARIANTS, Seek, load_game,\
-    lobby_broadcast, round_broadcast, get_board, get_seeks
+from broadcast import round_broadcast, lobby_broadcast
+from const import ANALYSIS, STARTED, INVALIDMOVE, VARIANTS
+from seek import get_seeks, Seek
+from utils import load_game, get_board
 from settings import FISHNET_KEYS
 
 log = logging.getLogger(__name__)

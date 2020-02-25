@@ -4,8 +4,11 @@ import logging
 
 from aiohttp import web
 
-from utils import STARTED, RESIGN, INVALIDMOVE, lobby_broadcast,\
-    round_broadcast, get_board, new_game, challenge, get_seeks, User, Seek
+from const import STARTED, RESIGN, INVALIDMOVE
+from broadcast import round_broadcast, lobby_broadcast
+from user import User
+from seek import challenge, get_seeks, Seek
+from utils import get_board, new_game
 from settings import BOT_TOKENS
 
 log = logging.getLogger(__name__)

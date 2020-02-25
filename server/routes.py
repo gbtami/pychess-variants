@@ -12,9 +12,12 @@ import aioauth_client
 import aiohttp_session
 from aiohttp_sse import sse_response
 
+from broadcast import round_broadcast
+from const import STARTED, MATE, VARIANTS, VARIANT_ICONS
 from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
-from utils import load_game, pgn, User, STARTED, MATE, VARIANTS, VARIANT_ICONS,\
-    DEFAULT_PERF, round_broadcast, tv_game, tv_game_user
+from glicko2.glicko2 import DEFAULT_PERF
+from utils import load_game, pgn, tv_game, tv_game_user
+from user import User
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis

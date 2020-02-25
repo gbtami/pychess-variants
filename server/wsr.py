@@ -8,12 +8,17 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from broadcast import round_broadcast
+from const import STARTED, DRAW, ANALYSIS
 from fairy import WHITE, BLACK
-from utils import play_move, get_board, start, draw, game_ended, round_broadcast,\
-    new_game, challenge, load_game, User, Seek, STARTED, DRAW, MyWebSocketResponse,\
-    MORE_TIME, ANALYSIS, tv_game, tv_game_user
+from seek import challenge, Seek
+from user import User
+from utils import play_move, get_board, draw, game_ended, \
+    new_game, load_game, MyWebSocketResponse, tv_game, tv_game_user
 
 log = logging.getLogger(__name__)
+
+MORE_TIME = 15 * 1000
 
 
 async def round_socket_handler(request):
@@ -57,14 +62,14 @@ async def round_socket_handler(request):
                     break
                 else:
                     data = json.loads(msg.data)
-                    log.debug("Websocket (%s) message: %s" % (id(ws), msg))
+                    # log.debug("Websocket (%s) message: %s" % (id(ws), msg))
 
                     if data["type"] == "move":
-                        log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
+                        # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
                         await play_move(games, data)
 
                         board_response = get_board(games, data, full=False)
-                        log.info("   Server send to %s: %s" % (user.username, board_response["fen"]))
+                        # log.info("   Server send to %s: %s" % (user.username, board_response["fen"]))
                         await ws.send_json(board_response)
 
                         game = games[data["gameId"]]
@@ -81,7 +86,7 @@ async def round_socket_handler(request):
                                     await opp_player.game_queues[data["gameId"]].put(game.game_end)
                             else:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
+                                # log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
                                 await opp_ws.send_json(board_response)
                         except KeyError:
                             log.error("Failed to send move %s to %s in game %s" % (data["move"], opp_name, data["gameId"]))
@@ -94,7 +99,7 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
                         if opp_player.bot:
                             await opp_player.event_queue.put(game.game_start)
-                            response = start(games, data)
+                            response = {"type": "gameStart", "gameId": data["gameId"]}
                             await ws.send_json(response)
                         else:
                             opp_ok = data["gameId"] in users[opp_name].game_sockets
@@ -114,7 +119,7 @@ async def round_socket_handler(request):
                                         break
                             if opp_ok:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                response = start(games, data)
+                                response = {"type": "gameStart", "gameId": data["gameId"]}
                                 await opp_ws.send_json(response)
                                 await ws.send_json(response)
 
@@ -123,7 +128,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "board":
                         board_response = get_board(games, data, full=True)
-                        log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
+                        # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                         await ws.send_json(board_response)
 
                     elif data["type"] == "analysis":

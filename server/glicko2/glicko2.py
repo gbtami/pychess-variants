@@ -198,3 +198,8 @@ class Glicko2:
         expected_score2 = self.expect_score(rating2, rating1, self.reduce_impact(rating2))
         expected_score = (expected_score1 + expected_score2) / 2
         return 2 * (0.5 - abs(0.5 - expected_score))
+
+
+gl2 = Glicko2()
+rating = gl2.create_rating()
+DEFAULT_PERF = {"gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma}, "la": datetime.utcnow(), "nb": 0}
