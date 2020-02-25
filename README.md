@@ -51,12 +51,9 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 ### Project setup
 ```
-// While mongodb running
-
 pip3 install -r requirements.txt --user
 yarn install
 gulp prod
-
 ```
 
 ### Running project
