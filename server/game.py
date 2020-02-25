@@ -181,7 +181,7 @@ class Game:
         # BOT players doesn't send times used for moves
         if self.bot_game:
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
-            # print(movetime)
+            # print(move, movetime)
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
@@ -220,6 +220,7 @@ class Game:
                 self.ply_clocks.append(clocks)
                 self.set_dests()
                 self.update_status()
+
                 if self.status > STARTED:
                     await self.save_game()
 

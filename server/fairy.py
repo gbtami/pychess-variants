@@ -63,49 +63,45 @@ class FairyBoard:
         try:
             self.move_stack.append(move)
             self.color = not self.color
-            self.fen = self.get_fen()
+
+            if self.variant[-5:] == "shogi":
+                # TODO: move this to pyffish.cpp
+                parts = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted).split()
+                color = "w" if parts[1] == "b" else "b"
+                placement, pockets = parts[0][:-1].split("[")
+                if pockets == "":
+                    pockets = "-"
+                ply = parts[-1]
+                self.fen = "%s[%s] %s %s" % (placement, pockets, color, ply)
+            else:
+                self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted)
+
         except Exception:
             self.move_stack.pop()
             self.color = not self.color
+            log.error("ERROR: sf.get_fen() failed on %s %s %s" % (self.initial_fen, ",".join(self.move_stack), self.chess960))
             raise
-
-    def get_fen(self):
-        if self.variant[-5:] == "shogi":
-            # TODO: move this to pyffish.cpp
-            parts = sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960, self.sfen, self.show_promoted).split()
-            color = "w" if parts[1] == "b" else "b"
-            placement, pockets = parts[0][:-1].split("[")
-            if pockets == "":
-                pockets = "-"
-            ply = parts[-1]
-            return "%s[%s] %s %s" % (placement, pockets, color, ply)
-        else:
-            try:
-                return sf.get_fen(self.variant, self.initial_fen, self.move_stack, self.chess960, self.sfen, self.show_promoted)
-            except Exception:
-                log.error("ERROR: sf.get_fen() failed on %s %s %s" % (self.initial_fen, ",".join(self.move_stack), self.chess960))
-                raise
 
     def get_san(self, move):
         return sf.get_san(self.variant, self.fen, move, self.chess960)
 
     def legal_moves(self):
         # print("FEN, vaiant, self.move_stack:", self.variant, self.initial_fen, self.move_stack)
-        legals = sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        legals = sf.legal_moves(self.variant, self.fen, [], self.chess960)
         # print("       legal_moves:", legals)
         return legals
 
     def is_checked(self):
-        return sf.gives_check(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return sf.gives_check(self.variant, self.fen, [], self.chess960)
 
     def insufficient_material(self):
-        return sf.has_insufficient_material(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
 
     def is_immediate_game_end(self):
-        return sf.is_immediate_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return sf.is_immediate_game_end(self.variant, self.fen, [], self.chess960)
 
     def is_optional_game_end(self):
-        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return sf.is_optional_game_end(self.variant, self.fen, [], self.chess960)
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
