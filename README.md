@@ -56,7 +56,7 @@ yarn install
 gulp prod
 ```
 
-### Running project
+### Start server
 ```
 python3 server/server.py
 ```
