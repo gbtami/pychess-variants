@@ -442,7 +442,7 @@ async def get_games(request):
     # TODO: filter last 10, filter last 10 by variant
     return web.json_response([
         {"gameId": game.id, "variant": game.variant, "fen": game.board.fen, "w": game.wplayer.username, "b": game.bplayer.username}
-        for game in games.values() if game.status <= STARTED and game.ply > 0])
+        for game in games.values() if game.status <= STARTED and game.ply > 0][-20:])
 
 
 async def get_players(request):

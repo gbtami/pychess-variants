@@ -181,7 +181,7 @@ class Game:
         # BOT players doesn't send times used for moves
         if self.bot_game:
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
-            # print(move, movetime)
+            # print(self.ply, move, movetime)
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
@@ -199,6 +199,7 @@ class Game:
                     else:
                         result = "1-0" if self.board.color == BLACK else "0-1"
                     self.update_status(FLAG, result)
+                    print(self.result, "flag")
                     await self.save_game()
 
         self.last_server_clock = cur_time
@@ -396,18 +397,20 @@ class Game:
             if self.check:
                 self.status = MATE
                 self.result = "1-0" if self.board.color == BLACK else "0-1"
+                print(self.result, "chackmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 self.status = STALEMATE
                 if self.variant.endswith(("xiangqi", "shogi")):
                     self.result = "0-1" if self.board.color == WHITE else "1-0"
                 else:
-                    # print("1/2 by stalemate")
                     self.result = "1/2-1/2"
+                print(self.result, "stalemate")
 
         if self.ply > 600:
             self.status = DRAW
             self.result = "1/2-1/2"
+            print(self.result, "300 move reached")
 
     def set_dests(self):
         dests = {}

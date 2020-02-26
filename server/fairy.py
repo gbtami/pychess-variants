@@ -97,11 +97,8 @@ class FairyBoard:
     def insufficient_material(self):
         return sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
 
-    def is_immediate_game_end(self):
-        return sf.is_immediate_game_end(self.variant, self.fen, [], self.chess960)
-
     def is_optional_game_end(self):
-        return sf.is_optional_game_end(self.variant, self.fen, [], self.chess960)
+        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
