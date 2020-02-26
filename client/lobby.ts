@@ -429,7 +429,7 @@ class LobbyController {
              h('td', {attrs: {"data-icon": variantIcon(seek.variant, seek.chess960)}, class: {"icon": true}} ),
              // h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
              h('td', variantName(seek.variant, seek.chess960)),
-             h('td', (seek["handicap"]) ? seek["handicap"] : (seek["rated"]) ? 'Rated' : 'Casual') ])
+             h('td', (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? 'Custom' : (seek["rated"]) ? 'Rated' : 'Casual') ])
             );
         return [header, h('tbody', rows)];
     }
