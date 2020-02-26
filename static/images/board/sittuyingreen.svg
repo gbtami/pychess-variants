@@ -2,7 +2,7 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 800">
    <defs>
       <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-        <rect width="100" height="100" style="fill:#99ca3a;stroke-width:2;stroke:white"/>
+        <rect width="100" height="100" style="fill:#88be0b;stroke-width:2;stroke:white"/>
       </pattern>
     </defs>
     <rect width="800" height="800" fill="url(#grid)" />
