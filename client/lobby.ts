@@ -11,9 +11,11 @@ const patch = init([klass, attributes, properties, listeners]);
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
+import { Chessground } from 'chessgroundx';
+
 import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN } from './chess';
+import { enabled_variants, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
 import { sound } from './sound';
 
 
@@ -419,7 +421,21 @@ class LobbyController {
 
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
         // console.log("VARIANTS", VARIANTS);
-        var rows = seeks.map((seek) => hide(seek) ? "" : h(
+        var rows = seeks.map((seek) => {
+            const variant = seek.variant;
+            let tooltiptext;
+            if (seek["fen"]) {
+                // tooltiptext = seek["fen"];
+                tooltiptext = h('minigame.' + variant + '-board.' + VARIANTS[variant].pieces, [
+                   h('div.cg-wrap.' + VARIANTS[variant].cg + '.mini',
+                        { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {coordinates: false, fen: seek["fen"], geometry: VARIANTS[variant].geom }) } }
+                    ),
+                ]);
+            } else {
+                tooltiptext = '';
+            }
+            const tooltip = h('span.tooltiptext', [tooltiptext]);
+            return hide(seek) ? "" : h(
             'tr',
             { on: { click: () => this.onClickSeek(seek) } },
             [h('td', [challengeIcon(seek), title(seek), user(seek)]),
@@ -429,8 +445,11 @@ class LobbyController {
              h('td', {attrs: {"data-icon": variantIcon(seek.variant, seek.chess960)}, class: {"icon": true}} ),
              // h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
              h('td', variantName(seek.variant, seek.chess960)),
-             h('td', (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? 'Custom' : (seek["rated"]) ? 'Rated' : 'Casual') ])
-            );
+             h('td', {class: {"tooltip": (seek["fen"])}}, [
+                tooltip,
+                (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? 'Custom' : (seek["rated"]) ? 'Rated' : 'Casual'])
+            ])
+            });
         return [header, h('tbody', rows)];
     }
 

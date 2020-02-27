@@ -1202,6 +1202,7 @@ input#fen {
   width: 100%;
 }
 
+/* crosstable */
 div.ctable{
   display: flex;
   align-items: center;
@@ -1259,4 +1260,23 @@ div.ctable{
 }
 .crosstable povs a {
   flex: 0 0 50%;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  position: absolute;
+  top: -28px;
+  right: 105%;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }
