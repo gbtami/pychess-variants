@@ -132,33 +132,78 @@ class LobbyController {
         })
     }
 
-    createSeek (color) {
+    getStoredButtons():any{
+        let storedButtonsBlob = localStorage.getItem("storedButtons")
+
+        let storedButtons:any = {
+            buttons: []
+        }
+
+        if(storedButtonsBlob) storedButtons = JSON.parse(storedButtonsBlob)
+
+        return storedButtons
+    }
+
+    storeButtons(storedButtons:any){
+        localStorage.setItem("storedButtons", JSON.stringify(storedButtons))
+    }
+
+    createSeek (color, preset:any) {
+        //console.log("preset", preset)
+
+        let button:any = {
+            seekColor: color
+        }
+
+        if(preset) color = preset.seekColor
+
         document.getElementById('id01')!.style.display='none';
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
-        const variant = e.options[e.selectedIndex].value;
-        localStorage.setItem("seek_variant", variant);
+        let variant = e.options[e.selectedIndex].value;
+        if(preset) variant = preset.seekVariant
+        if(!preset){
+            localStorage.setItem("seek_variant", variant);
+            button.seekVariant = variant
+        }
 
         e = document.getElementById('fen') as HTMLInputElement;
-        const fen = e.value;
-        localStorage.setItem("seek_fen", e.value);
+        let fen = e.value;
+        if(preset) fen = preset.seekFen
+        if(!preset){
+            localStorage.setItem("seek_fen", e.value);
+            button.seekFen = fen
+        }
 
         let handicap;
+        button.seekHandicap=''
         if (variant == 'shogi') {
             e = document.getElementById('handicap') as HTMLSelectElement;
             handicap = e.options[e.selectedIndex].value;
-            localStorage.setItem("seek_handicap", handicap);
+            if(preset.handicap) handicap = preset.seekHandicap
+            if(!preset){
+                localStorage.setItem("seek_handicap", handicap);
+                button.seekHandicap = handicap
+            }           
         } else {
             handicap = '';
         }
 
         e = document.getElementById('min') as HTMLInputElement;
-        const minutes = parseInt(e.value);
-        localStorage.setItem("seek_min", e.value);
+        let minutes = parseInt(e.value);
+        if(preset) minutes = preset.seekMin
+        if(!preset){
+            localStorage.setItem("seek_min", e.value);
+            button.seekMin = minutes
+        }
 
         e = document.getElementById('inc') as HTMLInputElement;
-        const increment = parseInt(e.value);
-        localStorage.setItem("seek_inc", e.value);
+        let increment = parseInt(e.value);
+        if(preset) increment = preset.seekInc
+        if(!preset){
+            localStorage.setItem("seek_inc", e.value);
+            button.seekInc = increment
+        }
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         var rated = 0;
@@ -167,29 +212,63 @@ class LobbyController {
         } else {
             rated = (this.challengeAI || this.model["anon"] === 'True' || fen !== '') ? 0 : parseInt(e.value);
         }
-        localStorage.setItem("seek_rated", e.value);
+        if(preset) rated = preset.seekRated
+        if(!preset){
+            localStorage.setItem("seek_rated", e.value);        
+            button.seekRated = rated
+        }
 
         e = document.getElementById('chess960') as HTMLInputElement;
         const hide = variants960.indexOf(variant) === -1;
-        const chess960 = (hide) ? false : e.checked;
-        localStorage.setItem("seek_chess960", e.checked);
+        let chess960 = (hide) ? false : e.checked;
+        if(preset) chess960 = preset.seekChess960
+        if(!preset){
+            localStorage.setItem("seek_chess960", e.checked);
+            button.seekChess960 = chess960
+        }
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
 
-        if (this.challengeAI) {
+        let challengeAI:any = this.challengeAI
+
+        if(preset) challengeAI = preset.challengeAI
+
+        if (challengeAI) {
             e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
-            const level = parseInt(e.value);
-            localStorage.setItem("seek_level", e.value);
+            let level = parseInt(e.value);
+            if(preset) level = preset.seekLevel
+            if(!preset){
+                localStorage.setItem("seek_level", e.value);
+                button.seekLevel = level
+                button.challengeAI = true
+            }
             // console.log(level, e.value, localStorage.getItem("seek_level"));
+            //console.log("creating ai", variant, color, fen, minutes, increment, level, chess960, rated===1, handicap)        
             this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960, rated===1, handicap);
-        } else {
+        } else {    
+            //console.log("creating seek conditional", variant, color, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')        
             if (this.isNewSeek(variant, color, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')) {
+                //console.log("creating seek", variant, color, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')        
                 this.createSeekMsg(variant, color, fen, minutes, increment, chess960, rated===1, handicap);
             }
+            button.challengeAI = false
         }
         // prevent to create challenges continuously
         this.model["profileid"] = '';
         window.history.replaceState({}, this.model['title'], this.model["home"] + '/');
+
+        if(!preset){
+            let storedButtons = this.getStoredButtons()
+            storedButtons.buttons.unshift(button)
+            while(storedButtons.buttons.length > 5) storedButtons.buttons.pop()
+            this.storeButtons(storedButtons)      
+
+            const sbe = document.getElementById('seekbuttons')
+
+            if(sbe){sbe.innerHTML = ""}
+
+            patch(document.getElementById('seekbuttons') as HTMLElement, h('ul#seekbuttons', this.renderSeekButtons()));
+        }
     }
 
     renderSeekButtons () {
@@ -250,7 +329,7 @@ class LobbyController {
         const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
         // console.log("localeStorage.seek_level, vLevel=", localStorage.seek_level, vLevel);
 
-        return [
+        let elements:any = [
         h('div#id01', { class: {"modal": true} }, [
           h('form.modal-content', [
             h('div#closecontainer', [
@@ -336,9 +415,9 @@ class LobbyController {
                 ]),
                 ]),
                 h('div#color-button-group', [
-                    h('button.icon.icon-black', { props: {type: "button", title: "Black"}, on: {click: () => this.createSeek('b') } }),
-                    h('button.icon.icon-adjust', { props: {type: "button", title: "Random"}, on: {click: () => this.createSeek('r')} }),
-                    h('button.icon.icon-white', { props: {type: "button", title: "White"}, on: {click: () => this.createSeek('w')} }),
+                    h('button.icon.icon-black', { props: {type: "button", title: "Black"}, on: {click: () => this.createSeek('b', null) } }),
+                    h('button.icon.icon-adjust', { props: {type: "button", title: "Random"}, on: {click: () => this.createSeek('r', null)} }),
+                    h('button.icon.icon-white', { props: {type: "button", title: "White"}, on: {click: () => this.createSeek('w', null)} }),
                 ]),
             ]),
           ]),
@@ -370,6 +449,14 @@ class LobbyController {
                 }
             } }, "Play with the machine"),
         ];
+        let storedButtons:any = this.getStoredButtons()
+        for(let button of storedButtons.buttons){
+            elements.push(h('button', { class: {'lobby-button': true}, on: {
+                click: () => {
+                    this.createSeek(button.seekColor, button)
+                } } }, `Create ${button.seekVariant} ${{w:"white", b:"black", r:"random"}[button.seekColor]} ${button.seekMin} + ${button.seekInc}`),)
+        }
+        return elements
     }
 
     onClickSeek(seek) {
