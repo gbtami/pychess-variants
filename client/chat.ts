@@ -17,7 +17,7 @@ export function chatView (ctrl, chatType) {
             (e.target as HTMLInputElement).value = "";
         }
     }
-
+    const anon = ctrl.model["anon"] === 'True';
     return h(`div.${chatType}#${chatType}`, { class: {"chat": true} }, [
                 h('div.chatroom', ctrl.spectator ? 'Spectator room' : 'Chat room'),
                 // TODO: lock/unlock chat to spectators
@@ -28,7 +28,8 @@ export function chatView (ctrl, chatType) {
                         type: "text",
                         name: "entry",
                         autocomplete: "off",
-                        placeholder: "Please be nice in the chat!",
+                        placeholder: (anon) ? 'Sign in to chat' : 'Please be nice in the chat!',
+                        disabled: anon,
                         maxlength: "140",
                     },
                     on: { keypress: (e) => onKeyPress(e) },
