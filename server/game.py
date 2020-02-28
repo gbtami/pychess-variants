@@ -205,7 +205,7 @@ class Game:
         self.last_server_clock = cur_time
 
         opp_color = "black" if self.board.color == WHITE else "white"
-        if clocks is not None:
+        if False:  # clocks is not None:
             # print("--------------")
             # print(opp_color, clocks, self.ply_clocks)
             if clocks[opp_color] < self.clocks[opp_color]:

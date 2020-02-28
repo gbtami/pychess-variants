@@ -34,7 +34,7 @@ class Clock:
         else:
             # give 5 min per player to make first move
             if self.ply < 2:
-                self.secs = 5 * 60 * 1000
+                self.secs = 15 * 60 * 1000
             else:
                 self.secs = self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
         self.running = True
