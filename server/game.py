@@ -494,9 +494,14 @@ class Game:
         spectators = (spectator.username for spectator in self.spectators if not spectator.anon)
         anons = ()
         anon = sum(1 for user in self.spectators if user.anon)
-        if anon > 0:
-            anons = ("Anonymous(%s)" % anon,)
-        spectators = ", ".join(chain(spectators, anons))
+
+        cnt = len(self.spectators)
+        if cnt > 10:
+            spectators = str(cnt)
+        else:
+            if anon > 0:
+                anons = ("Anonymous(%s)" % anon,)
+            spectators = ", ".join(chain(spectators, anons))
         return {"type": "spectators", "spectators": spectators, "gameId": self.id}
 
     def analysis_start(self, username):
