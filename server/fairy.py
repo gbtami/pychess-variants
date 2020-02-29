@@ -63,7 +63,6 @@ class FairyBoard:
         try:
             self.move_stack.append(move)
             self.color = not self.color
-
             if self.variant[-5:] == "shogi":
                 # TODO: move this to pyffish.cpp
                 parts = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted).split()
@@ -71,8 +70,7 @@ class FairyBoard:
                 placement, pockets = parts[0][:-1].split("[")
                 if pockets == "":
                     pockets = "-"
-                ply = parts[-1]
-                self.fen = "%s[%s] %s %s" % (placement, pockets, color, ply)
+                self.fen = "%s[%s] %s %s" % (placement, pockets, color, len(self.move_stack))
             else:
                 self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted)
 

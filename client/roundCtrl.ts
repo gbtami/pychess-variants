@@ -496,7 +496,7 @@ export default class RoundController {
             }
         }
 
-        this.abortable = Number(parts[parts.length - 1]) <= 1;
+        this.abortable = Number(msg.ply) <= 1;
         if (!this.spectator && !this.abortable && this.result === "") {
             var container = document.getElementById('abort') as HTMLElement;
             patch(container, h('button#abort', { props: {disabled: true} }));

@@ -36,6 +36,9 @@ async def get_work(request, data):
             # delete previous analysis
             gameId = work["game_id"]
             game = await load_game(request.app, gameId)
+            if game is None:
+                return web.Response(status=204)
+
             for step in game.steps:
                 if "analysis" in step:
                     del step["analysis"]
@@ -190,6 +193,8 @@ async def fishnet_move(request):
     del request.app["works"][work_id]
 
     game = await load_game(request.app, gameId)
+    if game is None:
+        return web.Response(status=204)
 
     users = request.app["users"]
     games = request.app["games"]
@@ -249,7 +254,10 @@ async def fishnet_abort(request):
     fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "abort"))
 
     # remove fishnet client
-    request.app["workers"].remove(data["fishnet"]["apikey"])
+    try:
+        request.app["workers"].remove(data["fishnet"]["apikey"])
+    except KeyError:
+        log.debug("Worker %s was was already removed" % key)
 
     # re-schedule the job
     request.app["fishnet"].put_nowait((ANALYSIS, work_id))
