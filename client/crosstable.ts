@@ -36,8 +36,8 @@ export function crosstableView (ctable, gameId) {
 
     let lt1, lt2, half;
     half = (s1 % 10 === 5) ? '½' : '';
-    lt1 = Math.floor(s1 / 10);
-    lt2 = Math.floor(s2 / 10);
+    lt1 = (s1 === 5) ? '' : Math.floor(s1 / 10);
+    lt2 = (s2 === 5) ? '' : Math.floor(s2 / 10);
     if (s1 === s2) {
         lt1 = lt2= h('span.info-result', lt1 + half);
     } else if (s1 > s2) {
