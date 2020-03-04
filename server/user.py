@@ -18,8 +18,9 @@ class MissingRatingsException(Exception):
 
 
 class User:
-    def __init__(self, db=None, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
-        self.db = db
+    def __init__(self, app, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
+        self.app = app
+        self.db = app["db"]
         self.lobby_ws = lobby_ws
         self.notify_queue = None
         self.bot = bot
@@ -107,6 +108,12 @@ class User:
         self.lobby_ws = None
         if self.username in sockets:
             del sockets[self.username]
+
+        # not connected to lobby socket and not connected to game socket
+        if len(self.game_sockets) == 0:
+            self.app["u_cnt"] -= 1
+            response = {"type": "u_cnt", "cnt": self.app["u_cnt"]}
+            await lobby_broadcast(sockets, response)
 
         text = "disconnected" if disconnect else "left the lobby"
         response = {"type": "lobbychat", "user": "", "message": "%s %s" % (self.username, text)}

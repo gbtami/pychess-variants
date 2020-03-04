@@ -12,13 +12,14 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
+from broadcast import lobby_broadcast
 from clock import Clock
-from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CHEAT, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS
-from glicko2.glicko2 import gl2, PROVISIONAL_PHI
 from compress import encode_moves, R2C
-from fairy import FairyBoard, WHITE, BLACK
-from settings import URI
+from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CHEAT, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS
 from convert import grand2zero, usi2uci
+from fairy import FairyBoard, WHITE, BLACK
+from glicko2.glicko2 import gl2, PROVISIONAL_PHI
+from settings import URI
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ MAX_HIGH_SCORE = 10
 
 class Game:
     def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=0, rated=False, chess960=False, create=True):
+        self.app = app
         self.db = app["db"]
         self.users = app["users"]
         self.games = app["games"]
@@ -172,6 +174,9 @@ class Game:
             return
         elif self.status == CREATED:
             self.status = STARTED
+            self.app["g_cnt"] += 1
+            response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+            await lobby_broadcast(self.app["websockets"], response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         if cur_player.username in self.draw_offers:
@@ -245,6 +250,10 @@ class Game:
             return
 
         self.stopwatch.kill()
+
+        self.app["g_cnt"] -= 1
+        response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+        await lobby_broadcast(self.app["websockets"], response)
 
         async def remove():
             # Keep it in our games dict a little to let players get the last board

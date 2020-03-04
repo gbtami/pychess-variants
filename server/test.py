@@ -8,8 +8,9 @@ from operator import neg
 
 from sortedcollections import ValueSortedDict
 
-from utils import Game, User, CREATED, DEFAULT_PERF, RESIGN, VARIANTS
-from glicko2.glicko2 import Glicko2, WIN, LOSS
+from const import CREATED, RESIGN, VARIANTS
+from utils import Game, User
+from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 
 ZH960 = {
     "d4rkn3ss23": 1868,
@@ -72,9 +73,9 @@ class HighscoreTestCase(unittest.TestCase):
         self.app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
         self.app["highscore"]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
 
-        self.wplayer = User(username="Doooovid", perfs=PERFS["Doooovid"])
-        self.bplayer = User(username="pepellou", perfs=PERFS["pepellou"])
-        self.splayer = User(username="strongplayer", perfs=PERFS["strongplayer"])
+        self.wplayer = User(self.app, username="Doooovid", perfs=PERFS["Doooovid"])
+        self.bplayer = User(self.app, username="pepellou", perfs=PERFS["pepellou"])
+        self.splayer = User(self.app, username="strongplayer", perfs=PERFS["strongplayer"])
 
     def test_lost_but_still_there(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
@@ -127,31 +128,33 @@ class TestRatings(unittest.TestCase):
     def setUp(self):
         self.loop = asyncio.get_event_loop()
         self.gl2 = Glicko2(tau=0.5)
+        self.app = {}
+        self.app["db"] = None
 
     def test_new_rating(self):
         new_rating = self.gl2.create_rating()
 
-        user = User(username="testuser", perfs={variant: DEFAULT_PERF for variant in VARIANTS})
+        user = User(self.app, username="testuser", perfs={variant: DEFAULT_PERF for variant in VARIANTS})
         result = user.get_rating("chess", False)
         self.assertEqual(result.mu, new_rating.mu)
 
     def test_rating(self):
-        u1 = User(perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
+        u1 = User(self.app, perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
         r1 = u1.get_rating("chess", False)
 
         self.assertEqual(r1.mu, 1500)
         self.assertEqual(r1.phi, 200)
         self.assertEqual(r1.sigma, 0.06)
 
-        u2 = User(perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1400, "d": 30, "v": 0.06}}})
+        u2 = User(self.app, perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1400, "d": 30, "v": 0.06}}})
         r2 = u2.get_rating("chess", False)
         self.assertEqual(r2.mu, 1400)
 
-        u3 = User(perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1550, "d": 100, "v": 0.06}}})
+        u3 = User(self.app, perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1550, "d": 100, "v": 0.06}}})
         r3 = u3.get_rating("chess", False)
         self.assertEqual(r3.mu, 1550)
 
-        u4 = User(perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1700, "d": 300, "v": 0.06}}})
+        u4 = User(self.app, perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1700, "d": 300, "v": 0.06}}})
         r4 = u4.get_rating("chess", False)
         self.assertEqual(r4.mu, 1700)
 

@@ -8,7 +8,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from broadcast import round_broadcast
+from broadcast import lobby_broadcast, round_broadcast
 from const import STARTED, DRAW, ANALYSIS
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
@@ -274,7 +274,7 @@ async def round_socket_handler(request):
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
-                                    user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anonymous"))
                                     users[user.username] = user
 
                                 # Update logged in users as spactators
@@ -288,7 +288,7 @@ async def round_socket_handler(request):
                             if session_user in users:
                                 user = users[session_user]
                             else:
-                                user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                user = User(request.app, username=data["username"], anon=data["username"].startswith("Anonymous"))
                                 users[user.username] = user
                         user.ping_counter = 0
 
@@ -321,6 +321,12 @@ async def round_socket_handler(request):
                         loop = asyncio.get_event_loop()
                         game_ping_task = loop.create_task(game_pinger())
                         request.app["tasks"].add(game_ping_task)
+
+                        # not connected to lobby socket but connected to game socket
+                        if len(user.game_sockets) == 1 and user.username not in sockets:
+                            request.app["u_cnt"] += 1
+                            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+                            await lobby_broadcast(sockets, response)
 
                     elif data["type"] == "is_user_present":
                         player_name = data["username"]
@@ -420,6 +426,12 @@ async def round_socket_handler(request):
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.discard(user)
             await round_broadcast(game, users, game.spectator_list, full=True)
+
+        # not connected to lobby socket and not connected to game socket
+        if len(user.game_sockets) == 0 and user.username not in sockets:
+            request.app["u_cnt"] -= 1
+            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+            await lobby_broadcast(sockets, response)
 
     if game_ping_task is not None:
         game_ping_task.cancel()

@@ -181,7 +181,7 @@ async def event_stream(request):
             if gameId in games and games[gameId].status == STARTED:
                 await bot_player.event_queue.put(games[gameId].game_start)
     else:
-        bot_player = User(bot=True, username=username)
+        bot_player = User(request.app, bot=True, username=username)
         users[bot_player.username] = bot_player
 
         doc = await db.user.find_one({"_id": username})

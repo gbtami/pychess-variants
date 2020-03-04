@@ -118,7 +118,7 @@ async def lobby_socket_handler(request):
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
-                                    user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anonymous"))
                                     users[user.username] = user
                                 response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
@@ -130,7 +130,7 @@ async def lobby_socket_handler(request):
                             if session_user in users:
                                 user = users[session_user]
                             else:
-                                user = User(db=request.app["db"], username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                user = User(request.app, username=data["username"], anon=data["username"].startswith("Anonymous"))
                                 users[user.username] = user
                             response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
 
@@ -150,6 +150,20 @@ async def lobby_socket_handler(request):
                         loop = asyncio.get_event_loop()
                         lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, users, games))
                         request.app["tasks"].add(lobby_ping_task)
+
+                        # send game count
+                        response = {"type": "g_cnt", "cnt": request.app["g_cnt"]}
+                        await ws.send_json(response)
+
+                        # send user count
+                        if len(user.game_sockets) == 0:
+                            # not connected to any game socket but connected to lobby socket
+                            request.app["u_cnt"] += 1
+                            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+                            await lobby_broadcast(sockets, response)
+                        else:
+                            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+                            await ws.send_json(response)
 
                     elif data["type"] == "lobbychat":
                         response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
@@ -176,5 +190,7 @@ async def lobby_socket_handler(request):
         lobby_ping_task.cancel()
         if user is not None:
             await user.clear_seeks(sockets, seeks)
+            # online user counter will be updated in quit_lobby also!
             await user.quit_lobby(sockets, disconnect=False)
+
     return ws

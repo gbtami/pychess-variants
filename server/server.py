@@ -33,9 +33,9 @@ async def make_app(loop):
     app["db"] = app["client"][MONGO_DB_NAME]
 
     app["users"] = {
-        "Random-Mover": User(db=app["db"], bot=True, username="Random-Mover"),
-        "Fairy-Stockfish": User(db=app["db"], bot=True, username="Fairy-Stockfish"),
-        "Discord-Relay": User(db=app["db"], anon=True, username="Discord-Relay"),
+        "Random-Mover": User(app, bot=True, username="Random-Mover"),
+        "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
+        "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
     app["users"]["Random-Mover"].bot_online = True
     app["websockets"] = {}
@@ -46,6 +46,10 @@ async def make_app(loop):
     app["channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
     app["crosstable"] = {}
+
+    # counters for games and users
+    app["g_cnt"] = 0
+    app["u_cnt"] = 0
 
     # last game played
     app["tv"] = None
@@ -83,7 +87,7 @@ async def make_app(loop):
                     perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
 
                 app["users"][doc["_id"]] = User(
-                    db=app["db"],
+                    app,
                     username=doc["_id"],
                     title=doc.get("title"),
                     first_name=doc.get("first_name"),

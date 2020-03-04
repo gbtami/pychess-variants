@@ -71,13 +71,13 @@ async def load_game(app, game_id):
     if wp in users:
         wplayer = users[wp]
     else:
-        wplayer = User(db=db, username=wp, anon=True)
+        wplayer = User(app, username=wp, anon=True)
         users[wp] = wplayer
 
     if bp in users:
         bplayer = users[bp]
     else:
-        bplayer = User(db=db, username=bp, anon=True)
+        bplayer = User(app, username=bp, anon=True)
         users[bp] = bplayer
 
     variant = C2V[doc["v"]]

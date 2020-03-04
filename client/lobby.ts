@@ -492,6 +492,24 @@ class LobbyController {
         alert(msg.message);
     }
 
+    private onMsgGameCounter = (msg) => {
+        console.log("Gcnt=", msg["cnt"]);
+        const oldVNode = document.getElementById('g_cnt');
+        if (oldVNode instanceof Element) {
+            // oldVNode.innerHTML = '';
+            patch(oldVNode as HTMLElement, h('counter#g_cnt', msg["cnt"] + ' games in play'));
+        }
+    }
+
+    private onMsgUserCounter = (msg) => {
+        console.log("Ucnt=", msg["cnt"]);
+        const oldVNode = document.getElementById('u_cnt');
+        if (oldVNode instanceof Element) {
+            // oldVNode.innerHTML = '';
+            patch(oldVNode as HTMLElement, h('counter#u_cnt', msg["cnt"] + ' players'));
+        }
+    }
+
     onMessage (evt) {
         // console.log("<+++ lobby onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -513,6 +531,12 @@ class LobbyController {
                 break;
             case "ping":
                 this.onMsgPing(msg);
+                break;
+            case "g_cnt":
+                this.onMsgGameCounter(msg);
+                break;
+            case "u_cnt":
+                this.onMsgUserCounter(msg);
                 break;
             case "shutdown":
                 this.onMsgShutdown(msg);
@@ -547,14 +571,12 @@ export function lobbyView(model): VNode[] {
             h('under-left', [
                 h('a.reflist', {attrs: {href: 'https://discord.gg/aPs8RKr'}}, 'Discord'),
                 h('a.reflist', {attrs: {href: 'https://github.com/gbtami/pychess-variants'}}, 'Github'),
-                // h('a.reflist', {attrs: {href: 'https://pychess.github.io/'}}, 'Original PyChess site'),
+                h('a.reflist', {attrs: {href: '/patron'}}, 'Donate'),
             ]),
             h('under-lobby'),
             h('under-right', [
-                h('a', {
-                    class: {'donate-button': true},
-                    attrs: {href: '/patron'}
-                    }, 'Directly support us')
+                h('a', {attrs: {href: '/players'}}, [h('counter#u_cnt', '0 players')]),
+                h('a', {attrs: {href: '/games'}}, [h('counter#g_cnt', '0 games in play')]),
             ]),
         ];
 }
