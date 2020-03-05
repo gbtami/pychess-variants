@@ -15,7 +15,7 @@ async def generate_crosstable(db):
         ct_id = s1p + "/" + s2p
 
         # R2C = {"1-0": "a", "0-1": "b", "1/2-1/2": "c", "*": "d"}
-        if result == "d" or wp.startswith("Anonymous") or bp.startswith("Anonymous") or wp == "Random-Mover" or wp == "Fairy-Stockfish" or bp == "Random-Mover" or bp == "Fairy-Stockfish":
+        if result == "d" or wp.startswith("Anon ") or bp.startswith("Anon ") or wp == "Random-Mover" or wp == "Fairy-Stockfish" or bp == "Random-Mover" or bp == "Fairy-Stockfish":
             continue
 
         if result == "c":

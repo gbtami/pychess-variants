@@ -274,7 +274,7 @@ async def round_socket_handler(request):
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
-                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon "))
                                     users[user.username] = user
 
                                 # Update logged in users as spactators
@@ -288,7 +288,7 @@ async def round_socket_handler(request):
                             if session_user in users:
                                 user = users[session_user]
                             else:
-                                user = User(request.app, username=data["username"], anon=data["username"].startswith("Anonymous"))
+                                user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon "))
                                 users[user.username] = user
                         user.ping_counter = 0
 
