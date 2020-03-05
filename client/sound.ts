@@ -1,60 +1,52 @@
+import { Howl } from 'howler';
+
+
 class sounds {
     tracks;
     constructor() {
         this.tracks = {
-            GenericNotify: { name: 'GenericNotify', qty : 1, pool : [], index : 0},
-            SocialNotify: { name: 'SocialNotify', qty : 1, pool : [], index : 0},
-            Move: { name: 'Move', qty : 4, pool : [], index : 0},
-            Capture: { name: 'Capture', qty : 3, pool : [], index : 0},
-            Check: { name: 'Check', qty : 2, pool : [], index : 0},
-            Draw: { name: 'Draw', qty : 1, pool : [], index : 0},
-            Victory: { name: 'Victory', qty : 1, pool : [], index : 0},
-            Defeat: { name: 'Defeat', qty : 1, pool : [], index : 0},
-            ShogiMove: { name: 'komaoto5', qty : 3, pool : [], index : 0},
-            Chat: { name: 'chat', qty : 1, pool : [], index : 0},
+            GenericNotify: 'GenericNotify',
+            SocialNotify: 'SocialNotify',
+            Move: 'Move',
+            Capture: 'Capture',
+            Check: 'Check',
+            Draw: 'Draw',
+            Victory: 'Victory',
+            Defeat: 'Defeat',
+            ShogiMove: 'komaoto5',
+            Chat: 'chat', 
         }
 
         Object.keys(this.tracks).forEach(key => {
-            let type = this.tracks[key];
-            type.pool = this.buildManySounds(type.name, type.qty);
+            this.tracks[key] = this.buildSound(this.tracks[key]);
         });
     }
 
-    private buildManySounds = (file, qty) => {
-        var soundArray: HTMLAudioElement[] = [];
+    private buildSound = (file) => {
         var soundTheme = localStorage.soundTheme === undefined ? 'standard' : localStorage.soundTheme;
-        while (soundArray.length < qty) {
-            var el = document.createElement("audio");
-            if (el.canPlayType('audio/mpeg')) {
-                el.src = '/static/sound/' + soundTheme + '/' + file + '.mp3';
-            } else {
-                el.src = '/static/sound/' + soundTheme + '/' + file + '.ogg';
-            }
-            el.setAttribute("preload", "none");
-            el.style.display = "none";
-            soundArray.push(el);
-            document.body.appendChild(el);
-        }
-        return soundArray;
+        var sound = new Howl({
+          src: ['/static/sound/' + soundTheme + '/' + file + '.ogg', '/static/sound/' + soundTheme + '/' + file + '.mp3'],
+          onplayerror: function() {
+            sound.once('unlock', function() {
+              sound.play();
+            });
+          }
+        });
+        return sound;
     }
 
-    private getSound = (type) => {
-        let target = this.tracks[type];
-        target.index = (target.index + 1) % target.pool.length;
-        // console.log("SOUND:", type, target.index);
-        return target.pool[target.index];
-    }
+    private audio = () => { return (localStorage.getItem('audio') === undefined ? true : localStorage.getItem('audio') === 'true') };
 
-    genericNotify() { this.getSound('GenericNotify').play(); };
-    socialNotify() { this.getSound('SocialNotify').play(); };
-    move() { this.getSound('Move').play(); };
-    capture() { this.getSound('Capture').play(); };
-    check() { this.getSound('Check').play(); };
-    draw() { this.getSound('Draw').play(); };
-    victory() { this.getSound('Victory').play(); };
-    defeat() { this.getSound('Defeat').play(); };
-    shogimove() { this.getSound('ShogiMove').play(); };
-    chat() { this.getSound('Chat').play(); };
+    genericNotify() { if ((this.audio())) {this.tracks.GenericNotify.play();} };
+    socialNotify() { if ((this.audio())) {this.tracks.SocialNotify.play();} };
+    move() { if ((this.audio())) {this.tracks.Move.play();} };
+    capture() { if ((this.audio())) {this.tracks.Capture.play();} };
+    check() { if ((this.audio())) {this.tracks.Check.play();} };
+    draw() { if ((this.audio())) {this.tracks.Draw.play();} };
+    victory() { if ((this.audio())) {this.tracks.Victory.play();} };
+    defeat() { if ((this.audio())) {this.tracks.Defeat.play();} };
+    shogimove() { if ((this.audio())) {this.tracks.ShogiMove.play();} };
+    chat() { if ((this.audio())) {this.tracks.Chat.play();} };
 }
 
 export const sound = new(sounds);

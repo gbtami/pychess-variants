@@ -1,12 +1,13 @@
-var silence = false;
+var audio = 'true';
 function toggleAudio() {
-    silence = !silence;
+    audio = (audio === 'false') ? 'true': 'false' ;
     var snd_btn = document.getElementById("btn-sound");
     var allaudio = document.getElementsByTagName('audio');
-    if (silence) snd_btn.innerHTML = '<div class="icon icon-volume-off"></div>';
+    if (audio === 'false') snd_btn.innerHTML = '<div class="icon icon-volume-off"></div>';
     else snd_btn.innerHTML = '<div class="icon icon-volume-up"></div>';
-    for (var j = 0; j < allaudio.length; j++) allaudio[j].muted = silence;
+    localStorage.setItem('audio', audio);
 }
+
 
 var darkmode = false;
 function toggleDarkmode() {
@@ -34,4 +35,9 @@ const currentTheme = localStorage.getItem('theme');
 if (currentTheme !== undefined) {
     document.documentElement.setAttribute('data-theme', currentTheme);
     if (currentTheme === 'dark') toggleDarkmode();
+}
+
+const currentAudio = localStorage.getItem('audio');
+if (currentAudio !== undefined) {
+    if (currentAudio === 'false') toggleAudio();
 }
