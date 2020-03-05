@@ -26,7 +26,7 @@ class User:
         self.bot = bot
         self.anon = anon
         if username is None:
-            self.username = "Anon " + "".join(random.sample(string.ascii_letters, 8))
+            self.username = "Anon-" + "".join(random.sample(string.ascii_letters, 8))
         else:
             self.username = username
         self.first_name = first_name
