@@ -14,7 +14,7 @@ from aiohttp_sse import sse_response
 
 from broadcast import round_broadcast
 from const import STARTED, MATE, VARIANTS, VARIANT_ICONS
-from settings import URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
+from settings import MAX_AGE, URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
 from glicko2.glicko2 import DEFAULT_PERF
 from utils import load_game, pgn, tv_game, tv_game_user
 from user import User
@@ -195,7 +195,11 @@ async def index(request):
         if session_user in users:
             user = users[session_user]
         else:
-            log.debug("New lichess user appeared!", session_user)
+            if session_user.startswith("Anon-"):
+                session.invalidate()
+                raise web.HTTPFound("/")
+
+            log.debug("New lichess user %s joined." % session_user)
             title = session["title"] if "title" in session else ""
             perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
             user = User(request.app, username=session_user, anon=session["guest"], title=title, perfs=perfs)
@@ -342,7 +346,7 @@ async def index(request):
     # log.debug("Response: %s" % text)
     response = web.Response(text=html_minify(text), content_type="text/html")
     hostname = urlparse(URI).hostname
-    response.set_cookie("user", session["user_name"], domain=hostname, secure="." not in hostname, max_age=31536000)
+    response.set_cookie("user", session["user_name"], domain=hostname, secure="." not in hostname, max_age=None if user.anon else MAX_AGE)
     return response
 
 

@@ -31,7 +31,7 @@ async def lobby_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = users[session_user] if session_user else None
+    user = users[session_user] if session_user is not None and session_user in users else None
 
     lobby_ping_task = None
 

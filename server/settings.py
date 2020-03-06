@@ -1,8 +1,7 @@
+import base64
 import os
 import json
 import logging
-import base64
-from cryptography import fernet
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -22,8 +21,9 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 # secret_key for session encryption
 # key must be 32 url-safe base64-encoded bytes
-fernet_key = fernet.Fernet.generate_key()
-SECRET_KEY = base64.urlsafe_b64decode(fernet_key)
+FERNET_KEY = os.getenv("FERNET_KEY")
+SECRET_KEY = base64.urlsafe_b64decode(FERNET_KEY)
+MAX_AGE = 3600 * 24 * 365
 
 MONGO_HOST = os.getenv("MONGO_HOST", "mongodb://127.0.0.1:27017")
 MONGO_DB_NAME = "pychess-variants"

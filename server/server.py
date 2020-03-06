@@ -20,14 +20,14 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
+from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
 from seek import Seek
 from user import User
 
 
 async def make_app(loop):
     app = web.Application(loop=loop)
-    setup(app, EncryptedCookieStorage(SECRET_KEY))
+    setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE))
 
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]
