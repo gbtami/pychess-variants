@@ -9,8 +9,8 @@ from operator import neg
 import jinja2
 import aiomonitor
 from aiohttp import web
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
-from aiohttp_session_mongo import MongoStorage
 from motor import motor_asyncio as ma
 from sortedcollections import ValueSortedDict
 
@@ -20,21 +20,17 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
+from settings import SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
 from seek import Seek
 from user import User
 
 
 async def make_app(loop):
     app = web.Application(loop=loop)
+    setup(app, EncryptedCookieStorage(SECRET_KEY))
 
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]
-
-    max_age = 3600 * 24 * 365  # 1 year
-    session_collection = app["db"]['sessions']
-
-    setup(app, MongoStorage(session_collection, max_age=max_age))
 
     app["users"] = {
         "Random-Mover": User(app, bot=True, username="Random-Mover"),
@@ -170,9 +166,6 @@ async def shutdown(app):
     for ws in app['websockets'].values():
         await ws.close()
     app['websockets'].clear()
-
-    # delete anon sessions
-    await app["db"].sessions.delete_many({'data.session.guest': True})
 
     app["client"].close()
 

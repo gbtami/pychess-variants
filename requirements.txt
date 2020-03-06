@@ -1,6 +1,5 @@
 aioauth-client==0.18.0
 aiohttp-session==2.8.0
-aiohttp-session-mongo==0.0.1
 aiohttp-sse==2.0.0
 aiomonitor==0.4.4
 aiohttp==3.6.2
