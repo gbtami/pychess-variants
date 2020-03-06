@@ -11,7 +11,6 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { renderUsername } from './user';
 import { VARIANTS, usi2uci, grand2zero } from './chess';
 import { setBoardAndPieceStyles } from './settings';
 
@@ -38,7 +37,6 @@ function renderGame(model, games, game, fen, lastMove) {
 
 
 export function gamesView(model): VNode[] {
-    renderUsername(model["username"]);
     setBoardAndPieceStyles();
 
     var xmlhttp = new XMLHttpRequest();

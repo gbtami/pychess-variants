@@ -13,7 +13,6 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { renderUsername } from './user';
 import { chatMessage, chatView } from './chat';
 import { enabled_variants, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
 import { sound } from './sound';
@@ -470,7 +469,6 @@ class LobbyController {
 
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
-        renderUsername(this.model["username"]);
     }
 
     private onMsgChat = (msg) => {

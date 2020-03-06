@@ -284,6 +284,7 @@ async def index(request):
         "home": URI,
         "user": user.username if session["guest"] else "",
         "anon": user.anon,
+        "username": user.username,
         "country": session["country"] if "country" in session else "",
         "guest": session["guest"],
         "profile": profileId if profileId is not None else "",
@@ -302,8 +303,19 @@ async def index(request):
         render["profile_title"] = users[profileId].title if profileId in users else ""
 
     if view == "players":
+        online_users = [user for user in users.values() if user.online and not user.anon]
+        offline_users = (user for user in users.values() if not user.online and not user.anon)
+        anon_online = sum((1 for user in users.values() if user.anon and user.online))
+        if user.anon:
+            anon_online += 1
+        else:
+            online_users.append(user)
+
         render["icons"] = VARIANT_ICONS
-        render["users"] = request.app["users"]
+        render["users"] = users
+        render["online_users"] = online_users
+        render["anon_online"] = anon_online
+        render["offline_users"] = offline_users
         render["highscore"] = request.app["highscore"]
 
     if gameId is not None:
@@ -449,25 +461,6 @@ async def get_games(request):
         for game in games.values() if game.status <= STARTED and game.ply > 0][-20:])
 
 
-async def get_players(request):
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-
-    users = request.app["users"]
-
-    online_users = [user.as_json(session_user) for user in users.values() if not user.anon]
-    anon_online = sum((1 for user in users.values() if user.anon and user.online))
-
-    if anon_online > 0:
-        online_users.append({
-            "_id": "Anonymous(%s)" % anon_online,
-            "online": True,
-            "title": "",
-        })
-
-    return web.json_response(online_users)
-
-
 async def export(request):
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
@@ -524,7 +517,6 @@ get_routes = (
     ("/api/{profileId}/loss", get_user_games),
     ("/api/{profileId}/{variant}", get_user_games),
     ("/api/games", get_games),
-    ("/api/players", get_players),
     ("/api/ongoing", subscribe_games),
     ("/api/notify", subscribe_notify),
     ("/games/export/{profileId}", export),

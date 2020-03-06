@@ -1,8 +1,6 @@
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
-import { renderUsername } from './user';
-
 
 const untitled = [
 "\"To me, how we've got here today is owing to Stockfish in a BIG way. They rallied global volunteers to come together in the open-source spirit and create such a powerful engine for FREE. That's a lot of great minds and computing power they've managed to harness.",
@@ -13,8 +11,6 @@ const untitled = [
 ]
 
 export function aboutView(model): VNode[] {
-    renderUsername(model["username"]);
-
     console.log(model);
     return [h('aside.sidebar-first'),
             h('main.main', [

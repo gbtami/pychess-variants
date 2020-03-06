@@ -1,7 +1,56 @@
 {% extends "template.html" %}
 {% block content %}
 <div class="players-wrapper">
-<div id="placeholder"></div>
+<main class="players">
+    <table id="players">
+        <thead>
+            <tr>
+                <th>Online</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in online_users %}
+            <tr>
+                <td class="player-data">
+                <i-side class="online icon icon-online"></i-side>
+                <player>
+                    <a class="user-link" href="{{ home }}/@/{{ user.username }}"><player-title>{{ user.title }}</player-title> {{ user.username }}</a>
+                </player>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if anon_online > 0 %}
+            <tr>
+                <td class="player-data">
+                <i-side class="online icon icon-online"></i-side>
+                <player>
+                    <div">Anonymous({{ anon_online }})</a>
+                </player>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <table id="players">
+        <thead>
+            <tr>
+                <th>Offline</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in offline_users %}
+            <tr>
+                <td class="player-data">
+                <i-side class="icon icon-offline"></i-side>
+                <player>
+                    <a class="user-link" href="{{ home }}/@/{{ user.username }}"><player-title>{{ user.title }}</player-title> {{ user.username }}</a>
+                </player>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
 <aside class="sidebar-first">
     <div class="highscore">
         {% for key in highscore %}
@@ -26,5 +75,4 @@
 {% endblock %}
 {% block js %}
     <script src="/static/pychess-utils.js"></script>
-    <script src="/static/pychess-variants.min.js"></script>
 {% endblock %}

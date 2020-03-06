@@ -19,7 +19,6 @@ import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
 import { variants, hasEp, needPockets, roleToSan, uci2usi, usi2uci, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN } from './chess';
-import { renderUsername } from './user';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -869,7 +868,6 @@ export default class RoundController {
 
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
-        renderUsername(this.model["username"]);
         if (this.spectator) {
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.model["gameId"] });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.model["gameId"] });

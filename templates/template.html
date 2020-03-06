@@ -75,7 +75,7 @@
         {% endif %}
         <button id="btn-sound" onclick="toggleAudio();" title="Toggle sound"><div class="icon icon-volume-up"></div></button>
         <button id="btn-darkmode" onclick="toggleDarkmode();" title="Toggle dark mode"><div class="icon icon-light"></div></button>
-        <div id="username"></div>
+        <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
       </div>
     </div>
     {% block content %}{% endblock %}

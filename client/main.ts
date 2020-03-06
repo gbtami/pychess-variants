@@ -13,7 +13,6 @@ import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
 import { analysisView } from './analysis';
-import { playersView } from './players';
 import { profileView } from './profile';
 import { sound } from './sound';
 
@@ -62,8 +61,6 @@ export function view(el, model): VNode {
     switch (el.getAttribute("data-view")) {
     case 'about':
         return h('div#placeholder.main-wrapper', aboutView(model));
-    case 'players':
-        return h('main.players', playersView(model));
     case 'level8win':
     case 'profile':
         return h('main.profile', profileView(model));

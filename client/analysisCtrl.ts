@@ -17,7 +17,6 @@ import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
 import { variants, needPockets, usi2uci, grand2zero, VARIANTS, sanToRole, getPockets } from './chess';
-import { renderUsername } from './user';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -538,7 +537,6 @@ export default class AnalysisController {
 
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
-        renderUsername(this.model["username"]);
         // we want to know lastMove and check status
         this.doSend({ type: "board", gameId: this.model["gameId"] });
     }

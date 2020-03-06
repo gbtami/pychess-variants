@@ -11,7 +11,6 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { renderUsername } from './user';
 import { VARIANTS, variantIcon, variantName } from './chess';
 import { renderTimeago } from './clock';
 import { setBoardAndPieceStyles } from './settings';
@@ -191,7 +190,6 @@ function observeSentinel(vnode: VNode, model) {
 }
 
 export function profileView(model) {
-    renderUsername(model["username"]);
     console.log(model);
     setBoardAndPieceStyles();
     const anon = model["anon"] === 'True';
