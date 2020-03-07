@@ -163,7 +163,6 @@ class Game:
         ]
 
         self.stopwatch = Clock(self)
-        self.app["g_cnt"] += 1
 
     def create_board(self, variant, initial_fen, chess960):
         return FairyBoard(variant, initial_fen, chess960)
@@ -175,6 +174,7 @@ class Game:
             return
         elif self.status == CREATED:
             self.status = STARTED
+            self.app["g_cnt"] += 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
             await lobby_broadcast(self.app["websockets"], response)
 
@@ -251,8 +251,10 @@ class Game:
 
         self.stopwatch.kill()
 
-        self.app["g_cnt"] -= 1
-        response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+        if self.ply > 0:
+            self.app["g_cnt"] -= 1
+            response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+
         await lobby_broadcast(self.app["websockets"], response)
 
         async def remove():

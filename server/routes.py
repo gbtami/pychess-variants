@@ -455,10 +455,10 @@ async def subscribe_notify(request):
 
 async def get_games(request):
     games = request.app["games"]
-    # TODO: filter last 10, filter last 10 by variant
+    # TODO: filter last 10 by variant
     return web.json_response([
         {"gameId": game.id, "variant": game.variant, "fen": game.board.fen, "w": game.wplayer.username, "b": game.bplayer.username}
-        for game in games.values() if game.status <= STARTED and game.ply > 0][-20:])
+        for game in games.values() if game.status == STARTED][-20:])
 
 
 async def export(request):
