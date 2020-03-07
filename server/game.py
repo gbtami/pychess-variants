@@ -440,7 +440,8 @@ class Game:
             self.result = "1/2-1/2"
             print(self.result, "300 move reached")
 
-        self.set_crosstable()
+        if self.status > STARTED:
+            self.set_crosstable()
 
     def set_dests(self):
         dests = {}
