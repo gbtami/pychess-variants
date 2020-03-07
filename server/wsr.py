@@ -162,7 +162,7 @@ async def round_socket_handler(request):
                         else:
                             engine = users.get("Fairy-Stockfish")
 
-                            if (engine is not None) and engine.online:
+                            if (engine is not None) and engine.online():
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
                                 await engine.event_queue.put(game.analysis_start(data["username"]))
 
@@ -188,7 +188,7 @@ async def round_socket_handler(request):
                             else:
                                 engine = users.get("Fairy-Stockfish")
 
-                            if engine is None or not engine.online:
+                            if engine is None or not engine.online():
                                 # TODO: message that engine is offline, but capture BOT will play instead
                                 engine = users.get("Random-Mover")
 

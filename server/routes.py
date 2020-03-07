@@ -303,13 +303,9 @@ async def index(request):
         render["profile_title"] = users[profileId].title if profileId in users else ""
 
     if view == "players":
-        online_users = [user for user in users.values() if user.online and not user.anon]
-        offline_users = (user for user in users.values() if not user.online and not user.anon)
-        anon_online = sum((1 for user in users.values() if user.anon and user.online))
-        if user.anon:
-            anon_online += 1
-        else:
-            online_users.append(user)
+        online_users = [u for u in users.values() if u.online(user.username) and not u.anon]
+        offline_users = (u for u in users.values() if not u.online(user.username) and not u.anon)
+        anon_online = sum((1 for u in users.values() if u.anon and u.online(user.username)))
 
         render["icons"] = VARIANT_ICONS
         render["users"] = users

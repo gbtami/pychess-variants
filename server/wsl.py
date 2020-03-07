@@ -59,7 +59,7 @@ async def lobby_socket_handler(request):
                         variant = data["variant"]
                         engine = users.get("Fairy-Stockfish")
 
-                        if engine is None or not engine.online:
+                        if engine is None or not engine.online():
                             # TODO: message that engine is offline, but capture BOT will play instead
                             engine = users.get("Random-Mover")
 

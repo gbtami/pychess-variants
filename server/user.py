@@ -56,12 +56,14 @@ class User:
         # last game played
         self.tv = None
 
-    @property
-    def online(self):
-        if self.bot:
-            return self.bot_online
+    def online(self, username=None):
+        if username is None:
+            if self.bot:
+                return self.bot_online
+            else:
+                return len(self.game_sockets) > 0 or (self.lobby_ws is not None)
         else:
-            return len(self.game_sockets) > 0 or (self.lobby_ws is not None)
+            return username == self.username or self.online()
 
     def get_rating(self, variant, chess960):
         if variant in self.perfs:
@@ -90,7 +92,7 @@ class User:
             "title": self.title,
             "first_name": self.first_name,
             "last-name": self.last_name,
-            "online": True if self.username == requester else self.online,
+            "online": True if self.username == requester else self.online(),
             "country": self.country,
         }
 

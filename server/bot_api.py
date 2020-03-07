@@ -110,7 +110,7 @@ async def create_bot_seek(request):
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
-            if seek.variant == data["variant"] and seek.user.bot and seek.user.online and seek.user.username != username and seek.level > 0:
+            if seek.variant == data["variant"] and seek.user.bot and seek.user.online() and seek.user.username != username and seek.level > 0:
                 log.debug("MATCHING BOT SEEK %s FOUND!" % seek.id)
                 matching_seek = seek
                 break
@@ -208,7 +208,7 @@ async def event_stream(request):
     await lobby_broadcast(sockets, get_seeks(seeks))
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
-    while bot_player.online:
+    while bot_player.online():
         answer = await bot_player.event_queue.get()
         try:
             if request.protocol.transport.is_closing():
