@@ -201,18 +201,18 @@ export function profileView(model) {
                             model["profileid"],
                         ]),
                     ]),
-                    (anon) ? undefined : h('a.i-at', {
+                    h('a.i-at', {
                         attrs: {href: 'https://lichess.org/@/' + model["profileid"], title: 'Lichess profile'},
-                        class: {"icon": true, "icon-at": true}}),
+                        class: {"icon": true, "icon-at": true, "disabled": anon}}),
                     h('a.i-dl', {
                         attrs: {href: '/games/export/' + model["profileid"], download: model["profileid"] + '.pgn', title: 'Export games'},
-                        class: {"icon": true, "icon-download": true, "disabled": model["title"] === 'BOT'}}),
+                        class: {"icon": true, "icon-download": true, "disabled": anon || model["title"] === 'BOT'}}),
                     h('a.i-tv', {
                         attrs: {href: '/@/' + model["profileid"] + '/tv', title: 'Watch games'},
                         class: {"icon": true, "icon-tv": true}}),
-                    (anon || model["username"] === model["profileid"]) ? undefined : h('a.i-ch', {
+                    h('a.i-ch', {
                         attrs: {href: '/@/' + model["profileid"] + '/challenge', title: 'Challenge to a game'},
-                        class: {"icon": true, "icon-crossedswords": true}}),
+                        class: {"icon": true, "icon-crossedswords": true, "disabled": anon || model["username"] === model["profileid"]}}),
                     ]),
                 h('table#games'),
                 h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) }})
