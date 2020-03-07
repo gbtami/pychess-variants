@@ -119,6 +119,8 @@ function promotionZone(variant: string, color: string) {
     }
 }
 
+export const autoqueenable = ["placement", "crazyhouse", "chess", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako"];
+
 export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key, promotions) {
     switch (variant) {
     case "gothic":

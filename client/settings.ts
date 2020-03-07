@@ -269,6 +269,7 @@ export function settingsView (ctrl) {
     const vShowDests = localStorage.showDests === undefined ? "true" : localStorage.showDests;
     const vClick2xdrop = localStorage.clickDropEnabled === undefined ? "false" : localStorage.clickDropEnabled;
     // const vBlindfold = localStorage.blindfold === undefined ? "false" : localStorage.blindfold;
+    const vAutoQueen = localStorage.autoqueen === undefined ? "false" : localStorage.autoqueen;
 
     const setShowDests = () => {
         let e;
@@ -293,6 +294,14 @@ export function settingsView (ctrl) {
         // setBlindfold(e.checked);
     }
 */
+
+    const setAutoQueen = () => {
+        let e;
+        e = document.getElementById('autoqueen') as HTMLInputElement;
+        localStorage.setItem("autoqueen", e.checked);
+        ctrl.autoqueen = e.checked;
+    };
+
     return h('div#board-settings', [
         h('div.settings-pieces', renderPieces(ctrl)),
         h('div.settings-boards', renderBoards(ctrl)),
@@ -327,5 +336,12 @@ export function settingsView (ctrl) {
             }),
         ]),
 */
+        h('div', [
+            h('label', { attrs: {for: "autoqueen"} }, "Promote to Queen automatically"),
+            h('input#autoqueen', {
+                props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
+                on: { click: () => { setAutoQueen(); } }
+            }),
+        ]),
     ]);
 }

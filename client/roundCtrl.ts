@@ -86,6 +86,7 @@ export default class RoundController {
     showDests: boolean;
     blindfold: boolean;
     handicap: boolean;
+    autoqueen: boolean;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -139,6 +140,7 @@ export default class RoundController {
         this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
+        this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = needPockets(this.variant);
