@@ -57,6 +57,7 @@ class Game:
         self.brdiff = 0
 
         # crosstable info
+        self.need_crosstable_save = False
         self.bot_game = self.bplayer.bot or self.wplayer.bot
         if self.bot_game or self.wplayer.anon or self.bplayer.anon:
             self.crosstable = ""
@@ -254,8 +255,7 @@ class Game:
         if self.ply > 0:
             self.app["g_cnt"] -= 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
-
-        await lobby_broadcast(self.app["websockets"], response)
+            await lobby_broadcast(self.app["websockets"], response)
 
         async def remove():
             # Keep it in our games dict a little to let players get the last board
@@ -288,7 +288,7 @@ class Game:
                 if self.rated:
                     await self.update_ratings()
                 if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
-                    await self.set_crosstable()
+                    await self.save_crosstable()
 
             # self.print_game()
 
@@ -308,7 +308,14 @@ class Game:
 
             await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
-    async def set_crosstable(self):
+    def set_crosstable(self):
+        if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.ply < 3 or self.result == "*":
+            return
+
+        if self.crosstable["r"][-1].startswith(self.id):
+            print("Crosstable was already updated with %s result" % self.id)
+            return
+
         if self.result == "1/2-1/2":
             s1 = s2 = 5
             tail = "="
@@ -326,6 +333,13 @@ class Game:
         self.crosstable["r"].append("%s%s" % (self.id, tail))
         self.crosstable["r"] = self.crosstable["r"][-20:]
 
+        self.need_crosstable_save = True
+
+    async def save_crosstable(self):
+        if not self.need_crosstable_save:
+            print("Crosstable update for %s was already saved to mongodb" % self.id)
+            return
+
         new_data = {
             "s1": self.crosstable["s1"],
             "s2": self.crosstable["s2"],
@@ -337,6 +351,8 @@ class Game:
             self.db_crosstable[self.ct_id] = new_data
         except Exception:
             log.error("Failed to save new crosstable to mongodb!")
+
+        self.need_crosstable_save = False
 
     def get_highscore(self, variant, chess960):
         len_hs = len(self.highscore[variant + ("960" if chess960 else "")])
@@ -387,6 +403,7 @@ class Game:
             self.status = status
             if result is not None:
                 self.result = result
+            self.set_crosstable()
             return
 
         if self.board.move_stack:
@@ -422,6 +439,8 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
             print(self.result, "300 move reached")
+
+        self.set_crosstable()
 
     def set_dests(self):
         dests = {}
