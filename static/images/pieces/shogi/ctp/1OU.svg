@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -163,6 +163,24 @@
          mode="normal"
          id="feBlend5060-3" />
     </filter>
+    <filter
+       id="drop-shadow-2-8-5">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur6807-2-8" />
+      <feOffset
+         result="offsetBlur"
+         dx="2"
+         dy="2"
+         id="feOffset6809-8-8" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         mode="normal"
+         id="feBlend6811-0-3" />
+    </filter>
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -177,10 +195,10 @@
      inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="7.8666669"
-     inkscape:cx="10.775424"
-     inkscape:cy="21.94862"
-     inkscape:window-x="1912"
+     inkscape:zoom="5.5625734"
+     inkscape:cx="-9.3872335"
+     inkscape:cy="37.218782"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="g9304" />
@@ -213,11 +231,11 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
      id="g9304"
      transform="matrix(1,0,0,-1,34.434925,93.267291)">
     <g
-       style="fill:#ffffff;fill-opacity:1;filter:url(#drop-shadow-2-8)"
+       style="fill:#fecb00;fill-opacity:1;filter:url(#drop-shadow-2-8)"
        transform="matrix(0.98185054,0,0,-0.98185054,-134.62961,116.48624)"
        id="g9259">
       <g
-         style="fill:#ffffff;fill-opacity:1"
+         style="fill:#fecb00;fill-opacity:1"
          transform="rotate(180,45.578499,23.8125)"
          id="g9257">
         <path
@@ -230,14 +248,15 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     </g>
     <g
        aria-label="王"
-       transform="matrix(-1.1324336,0,0,1.0188038,37.071092,10.049565)"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="text2298-4">
+       transform="matrix(-1.1324336,0,0,1.0188038,63.497709,10.967331)"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:#efbf00;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="text2298-4-3">
       <path
-         d="m 41.364137,44.364833 v 7.040866 h 8.062927 v 2.157684 h -8.062927 v 7.949365 h 10.901985 v 2.498371 H 27.96378 v -2.498371 h 10.788423 v -7.949365 h -8.062926 v -2.157684 h 8.062926 v -7.040866 h -9.19855 v -2.498371 h 21.236159 v 2.498371 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;stroke:#000000;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="path4617"
-         inkscape:connector-curvature="0" />
+         d="m 64.700266,43.292166 v 8.086113 h 6.078562 v 2.478001 h -6.078562 v 9.129483 h 10.901985 v 2.869265 H 51.299909 V 62.985763 H 62.088332 V 53.85628 h -6.237311 v -2.478001 h 6.237311 v -8.086113 h -7.972233 v -2.869265 h 18.596713 v 2.869265 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#1a1a1a;fill-opacity:1;stroke:#1a1a1a;stroke-width:0.45349312;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path4617-3"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccccccccc" />
     </g>
   </g>
 </svg>

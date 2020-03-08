@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -113,131 +113,22 @@
          id="feBlend5060" />
     </filter>
     <filter
-       id="drop-shadow-9-8">
+       id="drop-shadow-9-3">
       <feGaussianBlur
          in="SourceAlpha"
          result="blur"
          stdDeviation="2"
-         id="feGaussianBlur5056-9" />
+         id="feGaussianBlur5056-6" />
       <feOffset
          result="offsetBlur"
          dx="2"
          dy="2"
-         id="feOffset5058-2" />
+         id="feOffset5058-9" />
       <feBlend
          in="SourceGraphic"
          in2="offsetBlur"
          mode="normal"
-         id="feBlend5060-2" />
-    </filter>
-    <filter
-       id="drop-shadow-2-8">
-      <feGaussianBlur
-         in="SourceAlpha"
-         result="blur"
-         stdDeviation="2"
-         id="feGaussianBlur6807-2" />
-      <feOffset
-         result="offsetBlur"
-         dx="2"
-         dy="2"
-         id="feOffset6809-8" />
-      <feBlend
-         in="SourceGraphic"
-         in2="offsetBlur"
-         mode="normal"
-         id="feBlend6811-0" />
-    </filter>
-    <filter
-       id="drop-shadow-8">
-      <feGaussianBlur
-         in="SourceAlpha"
-         result="blur"
-         stdDeviation="2"
-         id="feGaussianBlur848" />
-      <feOffset
-         result="offsetBlur"
-         dx="2"
-         dy="2"
-         id="feOffset850" />
-      <feBlend
-         in="SourceGraphic"
-         in2="offsetBlur"
-         mode="normal"
-         id="feBlend852" />
-    </filter>
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="275.14301,98.12006"
-       end_point="275.14301,350.07326"
-       center_point="275.14301,224.09666"
-       id="path-effect4547-0-2"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="true"
-       oposite_fuse="false" />
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="274.67636,240.21573"
-       end_point="274.67636,418.88419"
-       center_point="274.67636,329.54996"
-       id="path-effect4551-7-2"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="false"
-       oposite_fuse="false" />
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="273.50283,331.40861"
-       end_point="273.50283,476.78997"
-       center_point="273.50283,404.09929"
-       id="path-effect4557-0-7"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="false"
-       oposite_fuse="false" />
-    <inkscape:path-effect
-       effect="mirror_symmetry"
-       start_point="315.67341,90.311359"
-       end_point="315.6155,96.047457"
-       center_point="315.64446,93.179408"
-       id="path-effect4669-0"
-       is_visible="true"
-       mode="free"
-       discard_orig_path="false"
-       fuse_paths="false"
-       oposite_fuse="false" />
-    <inkscape:path-effect
-       oposite_fuse="false"
-       fuse_paths="false"
-       discard_orig_path="false"
-       mode="free"
-       is_visible="true"
-       id="path-effect4802-2"
-       center_point="316.91112,93.060013"
-       end_point="316.91112,96.060013"
-       start_point="316.91112,90.060013"
-       effect="mirror_symmetry" />
-    <filter
-       id="drop-shadow-22">
-      <feGaussianBlur
-         in="SourceAlpha"
-         result="blur"
-         stdDeviation="2"
-         id="feGaussianBlur5056-0-5" />
-      <feOffset
-         result="offsetBlur"
-         dx="2"
-         dy="2"
-         id="feOffset5058-0-0" />
-      <feBlend
-         in="SourceGraphic"
-         in2="offsetBlur"
-         mode="normal"
-         id="feBlend5060-0" />
+         id="feBlend5060-6" />
     </filter>
   </defs>
   <sodipodi:namedview
@@ -253,9 +144,9 @@
      inkscape:window-height="1017"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="1.9666667"
-     inkscape:cx="74.062762"
-     inkscape:cy="-2.1548121"
+     inkscape:zoom="11.125147"
+     inkscape:cx="-17.307593"
+     inkscape:cy="23.099779"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -291,24 +182,25 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     <g
        transform="translate(53.174891,20.367693)"
        id="g5696"
-       style="display:inline;fill:#333333;fill-opacity:1;filter:url(#drop-shadow-9)">
+       style="display:inline;fill:#f9f9f9;fill-opacity:1;filter:url(#drop-shadow-9)">
       <path
          d="m -10.959999,6.2374999 -12.838,3.608 -7.051,44.4501791 39.9339998,-1.79e-4 -6.79,-44.163 z"
          id="path5694"
          inkscape:connector-curvature="0"
-         style="fill:#333333;fill-opacity:1"
+         style="fill:#313131;fill-opacity:1"
          sodipodi:nodetypes="cccccc" />
     </g>
     <g
        aria-label="王"
-       transform="matrix(1.1324336,0,0,1.0188038,-3.1346249,-1.9014834)"
+       transform="matrix(1.1324336,0,0,1.0188038,-3.1346247,-0.2835273)"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.07196045px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#efbf00;fill-opacity:1;stroke:#efbf00;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="text2298-4">
       <path
-         d="m 41.364137,44.364833 v 7.040866 h 8.062927 v 2.157684 h -8.062927 v 7.949365 h 10.901985 v 2.498371 H 27.96378 v -2.498371 h 10.788423 v -7.949365 h -8.062926 v -2.157684 h 8.062926 v -7.040866 h -9.19855 v -2.498371 h 21.236159 v 2.498371 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#efbf00;stroke:#efbf00;stroke-width:0.42316899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+         d="m 41.364137,42.418759 v 8.086113 h 6.078562 v 2.478001 h -6.078562 v 9.129483 h 10.901985 v 2.869265 H 27.96378 v -2.869265 h 10.788423 v -9.129483 h -6.237311 v -2.478001 h 6.237311 V 42.418759 H 30.77997 v -2.869265 h 18.596713 v 2.869265 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#efbf00;stroke:#efbf00;stroke-width:0.45349312;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
          id="path4617"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccccccccc" />
     </g>
   </g>
 </svg>
