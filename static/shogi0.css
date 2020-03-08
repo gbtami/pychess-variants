@@ -1,84 +1,84 @@
 .shogi .cg-wrap piece.pawn.white {
-  background-image: url('images/pieces/shogi/0FU.svg');
+  background-image: url('images/pieces/shogi/2kanji/0FU.svg');
 }
 .shogi .cg-wrap piece.ppawn.white {
-  background-image: url('images/pieces/shogi/0TO.svg');
+  background-image: url('images/pieces/shogi/2kanji/0TO.svg');
 }
 .shogi .cg-wrap piece.bishop.white {
-  background-image: url('images/pieces/shogi/0KA.svg');
+  background-image: url('images/pieces/shogi/2kanji/0KA.svg');
 }
 .shogi .cg-wrap piece.pbishop.white {
-  background-image: url('images/pieces/shogi/0UM.svg');
+  background-image: url('images/pieces/shogi/2kanji/0UM.svg');
 }
 .shogi .cg-wrap piece.knight.white {
-  background-image: url('images/pieces/shogi/0KE.svg');
+  background-image: url('images/pieces/shogi/2kanji/0KE.svg');
 }
 .shogi .cg-wrap piece.pknight.white {
-  background-image: url('images/pieces/shogi/0NK.svg');
+  background-image: url('images/pieces/shogi/2kanji/0NK.svg');
 }
 .shogi .cg-wrap piece.rook.white {
-  background-image: url('images/pieces/shogi/0HI.svg');
+  background-image: url('images/pieces/shogi/2kanji/0HI.svg');
 }
 .shogi .cg-wrap piece.prook.white {
-  background-image: url('images/pieces/shogi/0RY.svg');
+  background-image: url('images/pieces/shogi/2kanji/0RY.svg');
 }
 .shogi .cg-wrap piece.lance.white {
-  background-image: url('images/pieces/shogi/0KY.svg');
+  background-image: url('images/pieces/shogi/2kanji/0KY.svg');
 }
 .shogi .cg-wrap piece.plance.white {
-  background-image: url('images/pieces/shogi/0NY.svg');
+  background-image: url('images/pieces/shogi/2kanji/0NY.svg');
 }
 .shogi .cg-wrap piece.silver.white {
-  background-image: url('images/pieces/shogi/0GI.svg');
+  background-image: url('images/pieces/shogi/2kanji/0GI.svg');
 }
 .shogi .cg-wrap piece.psilver.white {
-  background-image: url('images/pieces/shogi/0NG.svg');
+  background-image: url('images/pieces/shogi/2kanji/0NG.svg');
 }
 .shogi .cg-wrap piece.gold.white {
-  background-image: url('images/pieces/shogi/0KI.svg');
+  background-image: url('images/pieces/shogi/2kanji/0KI.svg');
 }
 .shogi .cg-wrap piece.king.white {
-  background-image: url('images/pieces/shogi/0OU.svg');
+  background-image: url('images/pieces/shogi/2kanji/0OU.svg');
 }
 .shogi .cg-wrap piece.pawn.black {
-  background-image: url('images/pieces/shogi/1FU.svg');
+  background-image: url('images/pieces/shogi/2kanji/1FU.svg');
 }
 .shogi .cg-wrap piece.ppawn.black {
-  background-image: url('images/pieces/shogi/1TO.svg');
+  background-image: url('images/pieces/shogi/2kanji/1TO.svg');
 }
 .shogi .cg-wrap piece.bishop.black {
-  background-image: url('images/pieces/shogi/1KA.svg');
+  background-image: url('images/pieces/shogi/2kanji/1KA.svg');
 }
 .shogi .cg-wrap piece.pbishop.black {
-  background-image: url('images/pieces/shogi/1UM.svg');
+  background-image: url('images/pieces/shogi/2kanji/1UM.svg');
 }
 .shogi .cg-wrap piece.knight.black {
-  background-image: url('images/pieces/shogi/1KE.svg');
+  background-image: url('images/pieces/shogi/2kanji/1KE.svg');
 }
 .shogi .cg-wrap piece.pknight.black {
-  background-image: url('images/pieces/shogi/1NK.svg');
+  background-image: url('images/pieces/shogi/2kanji/1NK.svg');
 }
 .shogi .cg-wrap piece.rook.black {
-  background-image: url('images/pieces/shogi/1HI.svg');
+  background-image: url('images/pieces/shogi/2kanji/1HI.svg');
 }
 .shogi .cg-wrap piece.prook.black {
-  background-image: url('images/pieces/shogi/1RY.svg');
+  background-image: url('images/pieces/shogi/2kanji/1RY.svg');
 }
 .shogi .cg-wrap piece.lance.black {
-  background-image: url('images/pieces/shogi/1KY.svg');
+  background-image: url('images/pieces/shogi/2kanji/1KY.svg');
 }
 .shogi .cg-wrap piece.plance.black {
-  background-image: url('images/pieces/shogi/1NY.svg');
+  background-image: url('images/pieces/shogi/2kanji/1NY.svg');
 }
 .shogi .cg-wrap piece.silver.black {
-  background-image: url('images/pieces/shogi/1GI.svg');
+  background-image: url('images/pieces/shogi/2kanji/1GI.svg');
 }
 .shogi .cg-wrap piece.psilver.black {
-  background-image: url('images/pieces/shogi/1NG.svg');
+  background-image: url('images/pieces/shogi/2kanji/1NG.svg');
 }
 .shogi .cg-wrap piece.gold.black {
-  background-image: url('images/pieces/shogi/1KI.svg');
+  background-image: url('images/pieces/shogi/2kanji/1KI.svg');
 }
 .shogi .cg-wrap piece.king.black {
-  background-image: url('images/pieces/shogi/1GY.svg');
+  background-image: url('images/pieces/shogi/2kanji/1GY.svg');
 }
