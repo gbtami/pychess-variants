@@ -188,13 +188,13 @@ label.piece.piece0.shako {
   background-image: url('images/pieces/shako/wC.svg');
 }
 label.piece.piece0.shogun {
-  background-image: url('images/pieces/shogun/wC.svg');
+  background-image: url('images/pieces/shogun/blue/wC.svg');
 }
 label.piece.piece1.shogun {
-  background-image: url('images/pieces/shogun1/wC.svg');
+  background-image: url('images/pieces/shogun/red/wC.svg');
 }
 label.piece.piece2.shogun {
-  background-image: url('images/pieces/shogun2/wC.svg');
+  background-image: url('images/pieces/shogun/white/wC.svg');
 }
 label.board.board0.shogun {
   background-image: url('images/board/ShogunPlain.svg');
