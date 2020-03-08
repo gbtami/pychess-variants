@@ -88,6 +88,9 @@ label.board.board3.xiangqi {
 label.board.board4.xiangqi {
   background-image: url('images/board/xiangqiWood.png');
 }
+label.board.board5.xiangqi {
+  background-image: url('images/board/xiangqiDark.svg');
+}
 
 label.board.board0.minixiangqi {
   background-image: url('images/board/minixiangqi.svg');
