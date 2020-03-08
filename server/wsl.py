@@ -122,7 +122,11 @@ async def lobby_socket_handler(request):
                                     users[user.username] = user
                                 response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
-                                user = users[session_user]
+                                if session_user in users:
+                                    user = users[session_user]
+                                else:
+                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                    users[user.username] = user
                                 response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])

@@ -281,7 +281,11 @@ async def round_socket_handler(request):
                                 if user.username != game.wplayer.username and user.username != game.bplayer.username and game is not None:
                                     game.spectators.add(user)
                             else:
-                                user = users[session_user]
+                                if session_user in users:
+                                    user = users[session_user]
+                                else:
+                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                    users[user.username] = user
                         else:
                             log.info("+++ Existing game_user %s socket reconnected." % data["username"])
                             session_user = data["username"]
