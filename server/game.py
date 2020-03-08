@@ -312,7 +312,7 @@ class Game:
         if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.ply < 3 or self.result == "*":
             return
 
-        if self.crosstable["r"][-1].startswith(self.id):
+        if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
             print("Crosstable was already updated with %s result" % self.id)
             return
 
