@@ -48,7 +48,7 @@ label.piece.piece0.shogi, label.piece.piece0.minishogi {
   background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
 label.piece.piece1.shogi, label.piece.piece1.minishogi {
-  background-image: url('images/pieces/shogi/0KA.svg');
+  background-image: url('images/pieces/shogi/2kanji/0KA.svg');
 }
 label.piece.piece2.shogi, label.piece.piece2.minishogi {
   background-image: url('images/pieces/shogi/ctw/0KA.svg');
@@ -103,7 +103,7 @@ label.board.board2.minixiangqi {
 }
 
 label.piece.piece0.xiangqi, label.piece.piece0.minixiangqi {
-  background-image: url('images/pieces/xiangqi/red_king.svg');
+  background-image: url('images/pieces/xiangqi/playok/red_king.svg');
 }
 label.piece.piece1.xiangqi, label.piece.piece1.minixiangqi {
   background-image: url('images/pieces/xiangqi/euro/red_king.svg');
@@ -188,13 +188,13 @@ label.piece.piece0.shako {
   background-image: url('images/pieces/shako/wC.svg');
 }
 label.piece.piece0.shogun {
-  background-image: url('images/pieces/shogun/wC.svg');
+  background-image: url('images/pieces/shogun/blue/wC.svg');
 }
 label.piece.piece1.shogun {
-  background-image: url('images/pieces/shogun1/wC.svg');
+  background-image: url('images/pieces/shogun/red/wC.svg');
 }
 label.piece.piece2.shogun {
-  background-image: url('images/pieces/shogun2/wC.svg');
+  background-image: url('images/pieces/shogun/white/wC.svg');
 }
 label.board.board0.shogun {
   background-image: url('images/board/ShogunPlain.svg');
