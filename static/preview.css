@@ -259,10 +259,13 @@ label.piece.piece4.makruk, label.piece.piece4.cambodian  {
   background-image: url('images/pieces/makruk3/wB.svg');
 }
 label.piece.piece0.sittuyin  {
-  background-image: url('images/pieces/sittuyin/wK.svg');
+  background-image: url('images/pieces/sittuyin/wB.svg');
 }
 label.piece.piece1.sittuyin  {
-  background-image: url('images/pieces/makruk/wK.svg');
+  background-image: url('images/pieces/makruk/wB.svg');
+}
+label.piece.piece2.sittuyin  {
+  background-image: url('images/pieces/makruk3/wB.svg');
 }
 
 label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.chess, label.board.board0.seirawan, label.board.board0.shouse {
