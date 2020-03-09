@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/gbtami/pychess-variants.svg?branch=master)](https://travis-ci.org/gbtami/pychess-variants)
+[![Build Status](https://travis-ci.com/gbtami/pychess-variants.svg?branch=master)](https://travis-ci.com/gbtami/pychess-variants)
 ## PyChess-Variants
 
 PyChess-Variants is a free, open-source chess server designed to play chess variants.
