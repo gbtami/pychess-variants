@@ -13,24 +13,25 @@ from utils import Game, User
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 
 ZH960 = {
-    "d4rkn3ss23": 1868,
-    "Nordlandia": 1861,
-    "catask": 1696,
-    "LegionDestroyer": 1685,
-    "vectorveld": 1681,
-    "eekarf": 1668,
-    "the_Crocodile_Hunter": 1644,
-    "Doooovid": 1642,
-    "dlrowolleh": 1642,
-    "dovijanic": 1639,
+    "user0": 1868,
+    "user1": 1861,
+    "user2": 1696,
+    "user3": 1685,
+    "user4": 1681,
+    "user5": 1668,
+    "user6": 1644,
+    "user7": 1642,
+    "user8": 1642,
+    "user9": 1639,
 }
 
 PERFS = {
-    "Doooovid": {variant: DEFAULT_PERF for variant in VARIANTS},
-    "pepellou": {variant: DEFAULT_PERF for variant in VARIANTS},
+    "user7": {variant: DEFAULT_PERF for variant in VARIANTS},
+    "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
     "strongplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
+    "weakplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
 }
-PERFS["Doooovid"]["crazyhouse960"] = {
+PERFS["user7"]["crazyhouse960"] = {
     "gl": {
         "r": 1642,
         "d": 125,
@@ -40,9 +41,9 @@ PERFS["Doooovid"]["crazyhouse960"] = {
     "nb": 12
 }
 
-PERFS["pepellou"]["crazyhouse960"] = {
+PERFS["newplayer"]["crazyhouse960"] = {
     "gl": {
-        "r": 1481,
+        "r": 1500,
         "d": 136,
         "v": 0.06
     },
@@ -57,7 +58,17 @@ PERFS["strongplayer"]["crazyhouse960"] = {
         "v": 0.06
     },
     "la": datetime.utcnow(),
-    "nb": 7
+    "nb": 0
+}
+
+PERFS["weakplayer"]["crazyhouse960"] = {
+    "gl": {
+        "r": 1500,
+        "d": 350,
+        "v": 0.06
+    },
+    "la": datetime.utcnow(),
+    "nb": 0
 }
 
 
@@ -73,9 +84,10 @@ class HighscoreTestCase(unittest.TestCase):
         self.app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
         self.app["highscore"]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
 
-        self.wplayer = User(self.app, username="Doooovid", perfs=PERFS["Doooovid"])
-        self.bplayer = User(self.app, username="pepellou", perfs=PERFS["pepellou"])
-        self.splayer = User(self.app, username="strongplayer", perfs=PERFS["strongplayer"])
+        self.wplayer = User(self.app, username="user7", perfs=PERFS["user7"])
+        self.bplayer = User(self.app, username="newplayer", perfs=PERFS["newplayer"])
+        self.strong_player = User(self.app, username="strongplayer", perfs=PERFS["strongplayer"])
+        self.weak_player = User(self.app, username="weakplayer", perfs=PERFS["weakplayer"])
 
     def test_lost_but_still_there(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
@@ -101,7 +113,7 @@ class HighscoreTestCase(unittest.TestCase):
         self.assertTrue(self.wplayer.username in game.highscore["crazyhouse960"])
 
     def test_lost_and_out(self):
-        game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.splayer, rated=True, chess960=True, create=True)
+        game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
         self.assertEqual(game.status, CREATED)
 
         for row in game.highscore["crazyhouse960"].items():
@@ -113,7 +125,7 @@ class HighscoreTestCase(unittest.TestCase):
 
         print("-------")
         print(game.p0, game.p1)
-        print(self.splayer.perfs["crazyhouse960"])
+        print(self.strong_player.perfs["crazyhouse960"])
         print(self.wplayer.perfs["crazyhouse960"])
 
         for row in game.highscore["crazyhouse960"].items():
@@ -122,6 +134,27 @@ class HighscoreTestCase(unittest.TestCase):
 
         self.assertNotEqual(highscore0, highscore1)
         self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"])
+
+    def test_win_and_in(self):
+        game = Game(self.app, "12345678", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
+        self.assertEqual(game.status, CREATED)
+
+        for row in game.highscore["crazyhouse960"].items():
+            print(row)
+
+        game.update_status(status=RESIGN, result="1-0")
+        self.loop.run_until_complete(game.update_ratings())
+
+        print("-------")
+        print(game.p0, game.p1)
+        print(self.strong_player.perfs["crazyhouse960"])
+        print(self.weak_player.perfs["crazyhouse960"])
+
+        for row in game.highscore["crazyhouse960"].items():
+            print(row)
+
+        self.assertTrue(self.weak_player.username not in game.highscore["crazyhouse960"])
+        self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"])
 
 
 class TestRatings(unittest.TestCase):
