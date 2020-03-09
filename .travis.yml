@@ -8,6 +8,8 @@ python:
 
 install:
   - pip install -r requirements.txt
-  - pip install .
+  - pip install flake8
 
-script: python3 server/test.py
+script:
+  - python3 flake8 server
+  - python3 server/test.py
