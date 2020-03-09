@@ -139,7 +139,7 @@ class TestRatings(unittest.TestCase):
         self.assertEqual(result.mu, new_rating.mu)
 
     def test_rating(self):
-        u1 = User(self.app, perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
+        u1 = User(self.app, username="testuser", perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
         r1 = u1.get_rating("chess", False)
 
         self.assertEqual(r1.mu, 1500)
