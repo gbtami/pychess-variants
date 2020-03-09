@@ -1,1 +1,10 @@
+Credits and Thanks
+
+All the pieces featured in this set are licensed under the CC BY-SA 3.0. 
 https://creativecommons.org/licenses/by-sa/3.0/
+
+The Chancellor and Archbishop pieces are designed by Uray M. János of https://greenchess.net/ 
+
+The rest are Cburnett pieces, originally designed by Wikipedia user Colin M. L. Burnett, and obtained via https://github.com/ornicar/lila/tree/master/public/piece/cburnett 
+
+Many thanks to U. M. János, C. M. L. Burnett, and the Lichess developers.
