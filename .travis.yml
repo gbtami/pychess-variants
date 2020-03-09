@@ -1,0 +1,13 @@
+language: python
+
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "pypy3"
+
+install:
+  - pip install -r requirements.txt
+  - pip install .
+
+script: python3 server/test.py
