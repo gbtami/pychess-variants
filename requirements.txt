@@ -1,7 +1,6 @@
 aioauth-client==0.18.0
 aiohttp-session==2.8.0
 aiohttp-sse==2.0.0
-aiomonitor==0.4.4
 aiohttp==3.6.2
 cryptography==2.8
 dnspython==1.16.0

@@ -7,7 +7,6 @@ import weakref
 from operator import neg
 
 import jinja2
-import aiomonitor
 from aiohttp import web
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
@@ -25,8 +24,8 @@ from seek import Seek
 from user import User
 
 
-async def make_app(loop):
-    app = web.Application(loop=loop)
+async def make_app():
+    app = web.Application()
     setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE))
 
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
@@ -75,8 +74,28 @@ async def make_app(loop):
         bot.seeks[seek.id] = seek
 
     ai = app["users"]["Fairy-Stockfish"]
-    app["tasks"].add(loop.create_task(AI_task(ai, app)))
+    task = asyncio.ensure_future(AI_task(ai, app))
+    app["tasks"].add(task)
 
+    app.on_startup.append(init_db)
+    app.on_shutdown.append(shutdown)
+
+    # Configure templating.
+    app["jinja"] = jinja2.Environment(
+        loader=jinja2.FileSystemLoader("templates"),
+        autoescape=jinja2.select_autoescape(["html"]))
+
+    # Setup routes.
+    for route in get_routes:
+        app.router.add_get(route[0], route[1])
+    for route in post_routes:
+        app.router.add_post(route[0], route[1])
+    app.router.add_static("/static", "static")
+
+    return app
+
+
+async def init_db(app):
     # Read users and highscore from db
     cursor = app["db"].user.find()
     try:
@@ -115,22 +134,6 @@ async def make_app(loop):
     except Exception:
         print("Maybe mongodb is not running...")
         raise
-
-    app.on_shutdown.append(shutdown)
-
-    # Configure templating.
-    app["jinja"] = jinja2.Environment(
-        loader=jinja2.FileSystemLoader("templates"),
-        autoescape=jinja2.select_autoescape(["html"]))
-
-    # Setup routes.
-    for route in get_routes:
-        app.router.add_get(route[0], route[1])
-    for route in post_routes:
-        app.router.add_post(route[0], route[1])
-    app.router.add_static("/static", "static")
-
-    return app
 
 
 async def shutdown(app):
@@ -182,8 +185,5 @@ if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
-    loop = asyncio.get_event_loop()
-    app = loop.run_until_complete(make_app(loop))
-
-    with aiomonitor.start_monitor(loop=loop, locals={"app": app}):
-        web.run_app(app, port=os.environ.get("PORT", 8080))
+    app = make_app()
+    web.run_app(app, port=os.environ.get("PORT", 8080))
