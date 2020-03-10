@@ -22,7 +22,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 # secret_key for session encryption
 # key must be 32 url-safe base64-encoded bytes
-FERNET_KEY = os.getenv("FERNET_KEY", string.ascii_letters[:32])
+FERNET_KEY = os.getenv("FERNET_KEY", string.ascii_letters[:42] + "_=")
 SECRET_KEY = base64.urlsafe_b64decode(FERNET_KEY)
 MAX_AGE = 3600 * 24 * 365
 
