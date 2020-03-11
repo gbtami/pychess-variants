@@ -23,6 +23,8 @@ from settings import URI
 log = logging.getLogger(__name__)
 
 MAX_HIGH_SCORE = 10
+MAX_PLY = 600
+KEEP_TIME = 600  # keep game in app["games"] for KEEP_TIME secs
 
 
 class Game:
@@ -255,10 +257,10 @@ class Game:
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
             await lobby_broadcast(self.app["websockets"], response)
 
-        async def remove():
+        async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(60 * 10)
+            await asyncio.sleep(keep_time)
 
             try:
                 del self.games[self.id]
@@ -276,9 +278,9 @@ class Game:
 
         self.saved = True
         loop = asyncio.get_event_loop()
-        loop.create_task(remove())
+        loop.create_task(remove(KEEP_TIME))
 
-        if self.ply < 3:
+        if self.ply < 3 and (self.db is not None):
             result = await self.db.game.delete_one({"_id": self.id})
             log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
@@ -304,7 +306,8 @@ class Game:
                 new_data["p0"] = self.p0
                 new_data["p1"] = self.p1
 
-            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+            if self.db is not None:
+                await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     def set_crosstable(self):
         if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.ply < 3 or self.result == "*":
@@ -435,10 +438,10 @@ class Game:
                     self.result = "1/2-1/2"
                 print(self.result, "stalemate")
 
-        if self.ply > 600:
+        if self.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
-            print(self.result, "300 move reached")
+            print(self.result, "%s play reached" % MAX_PLY)
 
         if self.status > STARTED:
             self.set_crosstable()

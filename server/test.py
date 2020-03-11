@@ -9,10 +9,16 @@ from sortedcollections import ValueSortedDict
 
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
-from const import CREATED, RESIGN, VARIANTS
-from utils import Game, User
+from const import CREATED, STARTED, VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
+from game import Game
+from user import User
+from utils import game_ended
 from server import make_app
+
+import game
+game.KEEP_TIME = 0
+game.MAX_PLY = 300
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)
@@ -91,6 +97,43 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         assert "<title>Lobby" in text
 
 
+class GamePlayTestCase(AioHTTPTestCase):
+
+    async def startup(self, app):
+        self.test_player = User(self.app, username="test_player", perfs=PERFS["newplayer"])
+        self.random_mover = self.app["users"]["Random-Mover"]
+
+    async def get_application(self):
+        app = make_app(with_db=False)
+        app.on_startup.append(self.startup)
+        return app
+
+    async def play_random(self, game):
+        while game.status <= STARTED:
+            move = game.random_move
+            await game.play_move(move, clocks={"white": 60, "black": 60})
+
+    @unittest_run_loop
+    async def test_game_play(self):
+        """ Playtest test_player vs Random-Mover """
+        for i, variant in enumerate(VARIANTS):
+            print(i, variant)
+            variant960 = variant.endswith("960")
+            variant_name = variant[:-3] if variant960 else variant
+            game_id = str(i)
+            game = Game(self.app, game_id, variant_name, "", self.test_player, self.random_mover, rated=False, chess960=variant960, create=True)
+            self.app["games"][game.id] = game
+            self.random_mover.game_queues[game_id] = None
+
+            await self.play_random(game)
+
+            pgn = game.pgn
+            pgn_result = pgn[pgn.rfind(" ") + 1:-1]
+
+            self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
+            self.assertEqual(game.result, pgn_result)
+
+
 class HighscoreTestCase(AioHTTPTestCase):
 
     async def startup(self, app):
@@ -113,55 +156,67 @@ class HighscoreTestCase(AioHTTPTestCase):
         for row in game.highscore["crazyhouse960"].items():
             print(row)
 
+    async def play_and_resign(self, game, player):
+        for move in ("e2e4", "e7e5", "f2f4"):
+            await game.play_move(move, clocks={"white": 0, "black": 0})
+        data = {"type": "resign", "gameId": game.id}
+        await game_ended(self.app["games"], player, data, data["type"])
+
     @unittest_run_loop
     async def test_lost_but_still_there(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
+        self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
+        self.assertEqual(len(game.crosstable["r"]), 0)
 
         self.print_game_highscore(game)
         highscore0 = game.highscore["crazyhouse960"].peekitem(7)
 
-        game.update_status(status=RESIGN, result="0-1")
-        game.stopwatch.kill()
-        await game.update_ratings()
+        # wplayer resign 0-1
+        await self.play_and_resign(game, self.wplayer)
 
         self.print_game_highscore(game)
         highscore1 = game.highscore["crazyhouse960"].peekitem(7)
 
+        self.assertEqual(len(game.crosstable["r"]), 1)
         self.assertNotEqual(highscore0, highscore1)
         self.assertTrue(self.wplayer.username in game.highscore["crazyhouse960"])
 
     @unittest_run_loop
     async def test_lost_and_out(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
+        self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
+        self.assertEqual(len(game.crosstable["r"]), 0)
 
         self.print_game_highscore(game)
         highscore0 = game.highscore["crazyhouse960"].peekitem(7)
 
-        game.update_status(status=RESIGN, result="0-1")
-        game.stopwatch.kill()
-        await game.update_ratings()
+        # wplayer resign 0-1
+        await self.play_and_resign(game, self.wplayer)
 
         self.print_game_highscore(game)
         highscore1 = game.highscore["crazyhouse960"].peekitem(7)
 
+        self.assertEqual(len(game.crosstable["r"]), 1)
         self.assertNotEqual(highscore0, highscore1)
         self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"])
 
     @unittest_run_loop
     async def test_win_and_in(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
+        self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
+        self.assertEqual(len(game.crosstable["r"]), 0)
 
         self.print_game_highscore(game)
 
-        game.update_status(status=RESIGN, result="1-0")
-        game.stopwatch.kill()
-        await game.update_ratings()
+        # weak_player resign 1-0
+        await self.play_and_resign(game, self.weak_player)
 
         self.print_game_highscore(game)
 
+        self.assertEqual(len(game.crosstable["r"]), 1)
         self.assertTrue(self.weak_player.username not in game.highscore["crazyhouse960"])
         self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"])
 
