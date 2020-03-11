@@ -18,7 +18,7 @@ from server import make_app
 
 import game
 game.KEEP_TIME = 0
-game.MAX_PLY = 300
+game.MAX_PLY = 120
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)

@@ -441,7 +441,7 @@ class Game:
         if self.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
-            print(self.result, "%s play reached" % MAX_PLY)
+            print(self.result, "Ply %s reached" % MAX_PLY)
 
         if self.status > STARTED:
             self.set_crosstable()
