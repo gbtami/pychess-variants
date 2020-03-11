@@ -8,7 +8,6 @@ from time import monotonic
 
 try:
     import pyffish as sf
-    sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     print("No pyffish module installed!")
 
@@ -29,10 +28,9 @@ MAX_HIGH_SCORE = 10
 class Game:
     def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, level=0, rated=False, chess960=False, create=True):
         self.app = app
-        self.db = app["db"]
+        self.db = app["db"] if "db" in app else None
         self.users = app["users"]
         self.games = app["games"]
-        self.tasks = app["tasks"]
         self.highscore = app["highscore"]
         self.db_crosstable = app["crosstable"]
 
@@ -278,7 +276,7 @@ class Game:
 
         self.saved = True
         loop = asyncio.get_event_loop()
-        self.tasks.add(loop.create_task(remove()))
+        loop.create_task(remove())
 
         if self.ply < 3:
             result = await self.db.game.delete_one({"_id": self.id})
@@ -350,7 +348,8 @@ class Game:
             new_data["_id"] = self.ct_id
             self.db_crosstable[self.ct_id] = new_data
         except Exception:
-            log.error("Failed to save new crosstable to mongodb!")
+            if self.db is not None:
+                log.error("Failed to save new crosstable to mongodb!")
 
         self.need_crosstable_save = False
 
@@ -370,7 +369,8 @@ class Game:
         try:
             await self.db.highscore.find_one_and_update({"_id": variant + ("960" if chess960 else "")}, {"$set": new_data}, upsert=True)
         except Exception:
-            log.error("Failed to save new highscore to mongodb!")
+            if self.db is not None:
+                log.error("Failed to save new highscore to mongodb!")
 
     async def update_ratings(self):
         if self.result == '1-0':
@@ -383,8 +383,8 @@ class Game:
             raise RuntimeError('game.result: unexpected result code')
         wr, br = self.white_rating, self.black_rating
         # print("ratings before updated:", wr, br)
-        wr = await gl2.rate(self.white_rating, [(white_score, br)])
-        br = await gl2.rate(self.black_rating, [(black_score, wr)])
+        wr = gl2.rate(self.white_rating, [(white_score, br)])
+        br = gl2.rate(self.black_rating, [(black_score, wr)])
         # print("ratings after updated:", wr, br)
         await self.wplayer.set_rating(self.variant, self.chess960, wr)
         await self.bplayer.set_rating(self.variant, self.chess960, br)

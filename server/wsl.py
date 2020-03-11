@@ -153,7 +153,6 @@ async def lobby_socket_handler(request):
 
                         loop = asyncio.get_event_loop()
                         lobby_ping_task = loop.create_task(user.pinger(sockets, seeks, users, games))
-                        request.app["tasks"].add(lobby_ping_task)
 
                         # send game count
                         response = {"type": "g_cnt", "cnt": request.app["g_cnt"]}

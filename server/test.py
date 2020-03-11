@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
-import asyncio
+import logging
 import unittest
-import weakref
 from datetime import datetime
 from operator import neg
 
 from sortedcollections import ValueSortedDict
 
+from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
+
 from const import CREATED, RESIGN, VARIANTS
 from utils import Game, User
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
+from server import make_app
+
+logging.basicConfig()
+logging.getLogger().setLevel(level=logging.ERROR)
 
 ZH960 = {
     "user0": 1868,
@@ -20,7 +25,7 @@ ZH960 = {
     "user4": 1681,
     "user5": 1668,
     "user6": 1644,
-    "user7": 1642,
+    "user7": 1642,  # peekitem(7)
     "user8": 1642,
     "user9": 1639,
 }
@@ -72,15 +77,23 @@ PERFS["weakplayer"]["crazyhouse960"] = {
 }
 
 
-class HighscoreTestCase(unittest.TestCase):
-    def setUp(self):
-        self.loop = asyncio.get_event_loop()
-        self.app = {}
-        self.app["db"] = None
-        self.app["users"] = {}
-        self.app["games"] = {}
-        self.app["tasks"] = weakref.WeakSet()
-        self.app["crosstable"] = {}
+class RequestLobbyTestCase(AioHTTPTestCase):
+
+    async def get_application(self):
+        app = make_app(with_db=False)
+        return app
+
+    @unittest_run_loop
+    async def test_example(self):
+        resp = await self.client.request("GET", "/")
+        assert resp.status == 200
+        text = await resp.text()
+        assert "<title>Lobby" in text
+
+
+class HighscoreTestCase(AioHTTPTestCase):
+
+    async def startup(self, app):
         self.app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
         self.app["highscore"]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
 
@@ -89,89 +102,94 @@ class HighscoreTestCase(unittest.TestCase):
         self.strong_player = User(self.app, username="strongplayer", perfs=PERFS["strongplayer"])
         self.weak_player = User(self.app, username="weakplayer", perfs=PERFS["weakplayer"])
 
-    def test_lost_but_still_there(self):
+    async def get_application(self):
+        app = make_app(with_db=False)
+        app.on_startup.append(self.startup)
+        return app
+
+    def print_game_highscore(self, game):
+        return
+        print("----")
+        for row in game.highscore["crazyhouse960"].items():
+            print(row)
+
+    @unittest_run_loop
+    async def test_lost_but_still_there(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
         self.assertEqual(game.status, CREATED)
 
-        for row in game.highscore["crazyhouse960"].items():
-            print(row)
+        self.print_game_highscore(game)
         highscore0 = game.highscore["crazyhouse960"].peekitem(7)
 
         game.update_status(status=RESIGN, result="0-1")
-        self.loop.run_until_complete(game.update_ratings())
+        game.stopwatch.kill()
+        await game.update_ratings()
 
-        print("-------")
-        print(game.p0, game.p1)
-        print(self.bplayer.perfs["crazyhouse960"])
-        print(self.wplayer.perfs["crazyhouse960"])
-
-        for row in game.highscore["crazyhouse960"].items():
-            print(row)
+        self.print_game_highscore(game)
         highscore1 = game.highscore["crazyhouse960"].peekitem(7)
 
         self.assertNotEqual(highscore0, highscore1)
         self.assertTrue(self.wplayer.username in game.highscore["crazyhouse960"])
 
-    def test_lost_and_out(self):
+    @unittest_run_loop
+    async def test_lost_and_out(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
         self.assertEqual(game.status, CREATED)
 
-        for row in game.highscore["crazyhouse960"].items():
-            print(row)
+        self.print_game_highscore(game)
         highscore0 = game.highscore["crazyhouse960"].peekitem(7)
 
         game.update_status(status=RESIGN, result="0-1")
-        self.loop.run_until_complete(game.update_ratings())
+        game.stopwatch.kill()
+        await game.update_ratings()
 
-        print("-------")
-        print(game.p0, game.p1)
-        print(self.strong_player.perfs["crazyhouse960"])
-        print(self.wplayer.perfs["crazyhouse960"])
-
-        for row in game.highscore["crazyhouse960"].items():
-            print(row)
+        self.print_game_highscore(game)
         highscore1 = game.highscore["crazyhouse960"].peekitem(7)
 
         self.assertNotEqual(highscore0, highscore1)
         self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"])
 
-    def test_win_and_in(self):
+    @unittest_run_loop
+    async def test_win_and_in(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.assertEqual(game.status, CREATED)
 
-        for row in game.highscore["crazyhouse960"].items():
-            print(row)
+        self.print_game_highscore(game)
 
         game.update_status(status=RESIGN, result="1-0")
-        self.loop.run_until_complete(game.update_ratings())
+        game.stopwatch.kill()
+        await game.update_ratings()
 
-        print("-------")
-        print(game.p0, game.p1)
-        print(self.strong_player.perfs["crazyhouse960"])
-        print(self.weak_player.perfs["crazyhouse960"])
-
-        for row in game.highscore["crazyhouse960"].items():
-            print(row)
+        self.print_game_highscore(game)
 
         self.assertTrue(self.weak_player.username not in game.highscore["crazyhouse960"])
         self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"])
 
 
-class TestRatings(unittest.TestCase):
-    def setUp(self):
-        self.loop = asyncio.get_event_loop()
-        self.gl2 = Glicko2(tau=0.5)
-        self.app = {}
-        self.app["db"] = None
+class TestRatings(AioHTTPTestCase):
 
-    def test_new_rating(self):
-        new_rating = self.gl2.create_rating()
+    async def get_application(self):
+        app = make_app(with_db=False)
+        return app
+
+    async def setUpAsync(self):
+        self.gl2 = Glicko2(tau=0.5)
+
+    @unittest_run_loop
+    async def test_new_rating(self):
+        # New User ratings are equals to default
+
+        default_rating = self.gl2.create_rating()
 
         user = User(self.app, username="testuser", perfs={variant: DEFAULT_PERF for variant in VARIANTS})
         result = user.get_rating("chess", False)
-        self.assertEqual(result.mu, new_rating.mu)
 
-    def test_rating(self):
+        self.assertEqual(result.mu, default_rating.mu)
+
+    @unittest_run_loop
+    async def test_rating(self):
+        # New Glicko2 rating calculation example from original paper
+
         u1 = User(self.app, username="testuser", perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
         r1 = u1.get_rating("chess", False)
 
@@ -191,20 +209,14 @@ class TestRatings(unittest.TestCase):
         r4 = u4.get_rating("chess", False)
         self.assertEqual(r4.mu, 1700)
 
-        async def coro():
-            rating = await self.gl2.rate(r1, [(WIN, r2), (LOSS, r3), (LOSS, r4)])
-            return rating
-
-        new_rating = self.loop.run_until_complete(coro())
+        new_rating = self.gl2.rate(r1, [(WIN, r2), (LOSS, r3), (LOSS, r4)])
 
         self.assertEqual(round(new_rating.mu, 3), 1464.051)
         self.assertEqual(round(new_rating.phi, 3), 151.515)
         self.assertEqual(round(new_rating.sigma, 6), 0.059996)
 
-        async def coro(user, rating):
-            await user.set_rating("chess", False, rating)
+        await u1.set_rating("chess", False, new_rating)
 
-        self.loop.run_until_complete(coro(u1, new_rating))
         r1 = u1.get_rating("chess", False)
 
         self.assertEqual(round(r1.mu, 3), 1464.051)

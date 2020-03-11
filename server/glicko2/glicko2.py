@@ -145,7 +145,7 @@ class Glicko2:
         # 5. Once |B-A| <= e, set s' <- e^(A/2)
         return math.exp(1) ** (a / 2)
 
-    async def rate(self, rating, series):
+    def rate(self, rating, series):
         # print("rate()", rating, series)
         # Step 2. For each player, convert the rating and RD's onto the
         #         Glicko-2 scale.
@@ -158,11 +158,13 @@ class Glicko2:
         d_square_inv = 0
         variance_inv = 0
         difference = 0
+
         if not series:
             # If the team didn't play in the series, do only Step 6
             # phi_star = math.sqrt(rating.phi ** 2 + rating.sigma ** 2)
             phi_star = pre_rating_RD(rating.phi, rating.sigma, rating.ltime)
             return self.scale_up(self.create_rating(rating.mu, phi_star, rating.sigma, rating.ltime))
+
         for actual_score, other_rating in series:
             other_rating = self.scale_down(other_rating)
             impact = self.reduce_impact(other_rating)
@@ -172,6 +174,7 @@ class Glicko2:
             d_square_inv += (
                 expected_score * (1 - expected_score) *
                 (Q ** 2) * (impact ** 2))
+
         difference /= variance_inv
         variance = 1. / variance_inv
         denom = rating.phi ** -2 + d_square_inv

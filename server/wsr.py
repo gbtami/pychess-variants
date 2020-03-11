@@ -324,7 +324,6 @@ async def round_socket_handler(request):
 
                         loop = asyncio.get_event_loop()
                         game_ping_task = loop.create_task(game_pinger())
-                        request.app["tasks"].add(game_ping_task)
 
                         # not connected to lobby socket but connected to game socket
                         if len(user.game_sockets) == 1 and user.username not in sockets:

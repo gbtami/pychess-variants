@@ -17,10 +17,11 @@ class Clock:
         self.alive = True
         self.restart()
         loop = asyncio.get_event_loop()
-        self.countdown_task = loop.create_task(self.countdown())
+        loop.create_task(self.countdown())
 
     def kill(self):
         self.alive = False
+        self.running = False
 
     def stop(self):
         self.running = False

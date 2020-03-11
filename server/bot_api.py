@@ -201,7 +201,6 @@ async def event_stream(request):
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(bot_player.pinger(sockets, seeks, users, games))
-    request.app["tasks"].add(pinger_task)
 
     # inform others
     # TODO: do we need this at all?
@@ -267,7 +266,6 @@ async def game_stream(request):
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(pinger())
-    request.app["tasks"].add(pinger_task)
 
     while True:
         answer = await bot_player.game_queues[gameId].get()

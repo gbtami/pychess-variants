@@ -47,7 +47,7 @@ async def AI_task(ai, app):
         app["works"][work_id] = work
         app["fishnet"].put_nowait((MOVE, work_id))
 
-    while True:
+    while not app["data"]["kill"]:
         line = await ai.event_queue.get()
         event = json.loads(line)
         # print("+++ AI event_queue.get()", event)
@@ -74,4 +74,4 @@ async def AI_task(ai, app):
             AI_move(game, gameId, level)
 
         loop = asyncio.get_event_loop()
-        app["tasks"].add(loop.create_task(game_task(ai, game, gameId, level)))
+        loop.create_task(game_task(ai, game, gameId, level))

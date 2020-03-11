@@ -20,7 +20,7 @@ class MissingRatingsException(Exception):
 class User:
     def __init__(self, app, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
         self.app = app
-        self.db = app["db"]
+        self.db = app["db"] if "db" in app else None
         self.lobby_ws = lobby_ws
         self.notify_queue = None
         self.bot = bot

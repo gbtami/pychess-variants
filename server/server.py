@@ -3,7 +3,6 @@ import asyncio
 import collections
 import logging
 import os
-import weakref
 from operator import neg
 
 import jinja2
@@ -23,13 +22,42 @@ from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEY
 from seek import Seek
 from user import User
 
+log = logging.getLogger(__name__)
 
-async def make_app():
+
+def make_app(with_db=True):
     app = web.Application()
     setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE))
 
+    if with_db:
+        app.on_startup.append(init_db)
+
+    app.on_startup.append(init_state)
+    app.on_shutdown.append(shutdown)
+    app.on_cleanup.append(cleanup)
+
+    # Setup routes.
+    for route in get_routes:
+        app.router.add_get(route[0], route[1])
+    for route in post_routes:
+        app.router.add_post(route[0], route[1])
+    app.router.add_static("/static", "static")
+
+    return app
+
+
+async def init_db(app):
     app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
     app["db"] = app["client"][MONGO_DB_NAME]
+
+
+async def init_state(app):
+    # We have to put "kill" into a dict to prevent getting:
+    # DeprecationWarning: Changing state of started or joined application is deprecated
+    app["data"] = {"kill": False}
+
+    if "db" not in app:
+        app["db"] = None
 
     app["users"] = {
         "Random-Mover": User(app, bot=True, username="Random-Mover"),
@@ -40,7 +68,6 @@ async def make_app():
     app["websockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
-    app["tasks"] = weakref.WeakSet()
     app["chat"] = collections.deque([], 200)
     app["channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
@@ -74,31 +101,20 @@ async def make_app():
         bot.seeks[seek.id] = seek
 
     ai = app["users"]["Fairy-Stockfish"]
-    task = asyncio.ensure_future(AI_task(ai, app))
-    app["tasks"].add(task)
-
-    app.on_startup.append(init_db)
-    app.on_shutdown.append(shutdown)
+    loop = asyncio.get_event_loop()
+    loop.create_task(AI_task(ai, app))
 
     # Configure templating.
     app["jinja"] = jinja2.Environment(
         loader=jinja2.FileSystemLoader("templates"),
         autoescape=jinja2.select_autoescape(["html"]))
 
-    # Setup routes.
-    for route in get_routes:
-        app.router.add_get(route[0], route[1])
-    for route in post_routes:
-        app.router.add_post(route[0], route[1])
-    app.router.add_static("/static", "static")
+    if app["db"] is None:
+        return
 
-    return app
-
-
-async def init_db(app):
     # Read users and highscore from db
-    cursor = app["db"].user.find()
     try:
+        cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
                 perfs = doc.get("perfs")
@@ -137,18 +153,22 @@ async def init_db(app):
 
 
 async def shutdown(app):
+    app["data"]["kill"] = True
+
+
+async def cleanup(app):
     # notify users
     msg = "Server update started. Sorry for the inconvenience!"
     response = {"type": "shutdown", "message": msg}
     for user in app["users"].values():
         if user.username in app["websockets"]:
             ws = app["websockets"][user.username]
-            await ws.send_json(response)
+            try:
+                await ws.send_json(response)
+            except Exception:
+                pass
         if user.bot:
-            await user.event_queue.put({"type": "terminated"})
-
-    # delete seeks
-    app["seeks"] = {}
+            await user.event_queue.put('{"type": "terminated"}')
 
     # abort games
     for game in app["games"].values():
@@ -157,23 +177,25 @@ async def shutdown(app):
                 response = await game.abort()
                 if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]
-                    await ws.send_json(response)
-    app["games"] = {}
+                    try:
+                        await ws.send_json(response)
+                    except Exception:
+                        print("Failed to send game %s abort to %s" % (game.id, player.username))
 
     # close websockets
     for user in app["users"].values():
         if not user.bot:
             for ws in user.game_sockets.values():
-                await ws.close()
+                try:
+                    await ws.close()
+                except Exception:
+                    pass
 
     for ws in app['websockets'].values():
         await ws.close()
-    app['websockets'].clear()
 
-    app["client"].close()
-
-    for task in set(app["tasks"]):
-        task.cancel()
+    if "client" in app:
+        app["client"].close()
 
 
 if __name__ == "__main__":
@@ -186,4 +208,5 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
     app = make_app()
+
     web.run_app(app, port=os.environ.get("PORT", 8080))

@@ -5,7 +5,6 @@ import random
 
 try:
     import pyffish as sf
-    sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     print("No pyffish module installed!")
 
