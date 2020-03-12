@@ -428,7 +428,7 @@ class Game:
             if self.check:
                 self.status = MATE
                 self.result = "1-0" if self.board.color == BLACK else "0-1"
-                print(self.result, "chackmate")
+                print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 self.status = STALEMATE

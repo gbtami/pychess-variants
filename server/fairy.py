@@ -110,6 +110,7 @@ class FairyBoard:
             board, rest = fen.split("[")
         else:
             board = fen.split()[0]
+        board = board.replace("+", "")
         board = re.sub(r"\d", (lambda m: "." * int(m.group(0))), board)
         print("", " ".join(uni_pieces.get(p, p) for p in board))
 
@@ -204,6 +205,9 @@ class FairyBoard:
 
 
 if __name__ == '__main__':
+
+    sf.set_option("VariantPath", "variants.ini")
+
     board = FairyBoard("shogi")
     print(board.fen)
     board.print_pos()
@@ -260,3 +264,15 @@ if __name__ == '__main__':
         board.print_pos()
         print(board.fen)
         print(board.legal_moves())
+
+    FEN = "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1"
+    board = FairyBoard("shogun", initial_fen=FEN)
+    for move in ("c2c4", "h7h6", "c4c5", "h6h5", "c5c6+", "h8h6", "c6b7", "g7g6", "b7a8", "c8a6", "a8b7", "b8c6", "d1b3", "a6e2+", "b3b6", "e7e6", "b6c7", "P@h4", "c7c8", "e2c4", "f1c4", "h6h8", "c4e6+", "g8h6", "b2b4", "h8g8", "b4b5", "g6g5", "b5c6", "f8e7", "c6c7", "d7e6", "c8b8", "B@b6"):
+        print("push move", move, board.get_san(move))
+        if board.move_stack:
+            print("is_checked(), insuff material, draw?", board.is_checked(), board.insufficient_material(), board.is_claimable_draw())
+        board.push(move)
+        board.print_pos()
+        print(board.fen)
+        print(board.legal_moves())
+    
