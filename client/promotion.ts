@@ -32,12 +32,18 @@ export default function(ctrl) {
 
             switch (ctrl.variant) {
             case "shogun":
-                draw_promo(dest, color, orientation);
-                promoting = {
-                    orig: orig,
-                    dest: dest,
-                    callback: ctrl.sendMove,
+                if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
+                    promote(ground, dest, 'ppawn');
+                    ctrl.sendMove(orig, dest, '+');
+                } else {
+                    draw_promo(dest, color, orientation);
+                    promoting = {
+                        orig: orig,
+                        dest: dest,
+                        callback: ctrl.sendMove,
+                    };
                 };
+                break;
             case "kyotoshogi":
                 if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
                     const promoted = kyotoPromotion[movingRole];

@@ -175,7 +175,17 @@ export function mandatoryPromotion(variant, role: Role, orig: Key, dest: Key, co
         }
     }
 
-    if (variant === "shogun") return false;
+    if (variant === "shogun") {
+        if (role === "pawn") {
+            if (color === "white") {
+                return dest[1] === "8";
+            } else {
+                return dest[1] === "1";
+            }
+        } else {
+            return false;
+        }
+    }
 
     switch (role) {
     case "pawn":
