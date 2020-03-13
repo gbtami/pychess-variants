@@ -68,7 +68,7 @@ class Clock:
                             else:
                                 result = "1-0" if self.color == BLACK else "0-1"
                             self.game.update_status(FLAG, result)
-                            await self.save_game()
+                            await self.game.save_game()
                             log.info("Game %s FLAG by server!" % self.game.id)
 
                         response = {"type": "gameEnd", "status": self.game.status, "result": self.game.result, "gameId": self.game.id, "pgn": self.game.pgn}
