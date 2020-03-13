@@ -334,6 +334,14 @@ class Game:
         self.crosstable["r"].append("%s%s" % (self.id, tail))
         self.crosstable["r"] = self.crosstable["r"][-20:]
 
+        new_data = {
+            "_id": self.ct_id,
+            "s1": self.crosstable["s1"],
+            "s2": self.crosstable["s2"],
+            "r": self.crosstable["r"],
+        }
+        self.db_crosstable[self.ct_id] = new_data
+
         self.need_crosstable_save = True
 
     async def save_crosstable(self):
@@ -348,8 +356,6 @@ class Game:
         }
         try:
             await self.db.crosstable.find_one_and_update({"_id": self.ct_id}, {"$set": new_data}, upsert=True)
-            new_data["_id"] = self.ct_id
-            self.db_crosstable[self.ct_id] = new_data
         except Exception:
             if self.db is not None:
                 log.error("Failed to save new crosstable to mongodb!")
@@ -365,10 +371,10 @@ class Game:
 
     async def set_highscore(self, variant, chess960, value):
         self.highscore[variant + ("960" if chess960 else "")].update(value)
-        if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
-            self.highscore[variant + ("960" if chess960 else "")].popitem()
+        # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
+        #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
-        new_data = {"scores": {key: value for key, value in self.highscore[variant + ("960" if chess960 else "")].items()}}
+        new_data = {"scores": {key: value for key, value in self.highscore[variant + ("960" if chess960 else "")].items()[:10]}}
         try:
             await self.db.highscore.find_one_and_update({"_id": variant + ("960" if chess960 else "")}, {"$set": new_data}, upsert=True)
         except Exception:

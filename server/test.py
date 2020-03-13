@@ -74,7 +74,7 @@ PERFS["strongplayer"]["crazyhouse960"] = {
 
 PERFS["weakplayer"]["crazyhouse960"] = {
     "gl": {
-        "r": 1500,
+        "r": 1450,
         "d": 350,
         "v": 0.06
     },
@@ -114,7 +114,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
     @unittest_run_loop
-    async def test_game_play(self):
+    async def xxxtest_game_play(self):
         """ Playtest test_player vs Random-Mover """
         for i, variant in enumerate(VARIANTS):
             print(i, variant)
@@ -151,8 +151,10 @@ class HighscoreTestCase(AioHTTPTestCase):
         return app
 
     def print_game_highscore(self, game):
-        return
+        # return
         print("----")
+        print(game.wplayer.perfs["crazyhouse960"])
+        print(game.bplayer.perfs["crazyhouse960"])
         for row in game.highscore["crazyhouse960"].items():
             print(row)
 
@@ -200,10 +202,10 @@ class HighscoreTestCase(AioHTTPTestCase):
 
         self.assertEqual(len(game.crosstable["r"]), 1)
         self.assertNotEqual(highscore0, highscore1)
-        self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"])
+        self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"].keys()[:10])
 
     @unittest_run_loop
-    async def test_win_and_in(self):
+    async def test_win_and_in_then_lost_and_out(self):
         game = Game(self.app, "12345678", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
@@ -217,8 +219,24 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.print_game_highscore(game)
 
         self.assertEqual(len(game.crosstable["r"]), 1)
-        self.assertTrue(self.weak_player.username not in game.highscore["crazyhouse960"])
-        self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"])
+        print(game.crosstable)
+        self.assertTrue(self.weak_player.username not in game.highscore["crazyhouse960"].keys()[:10])
+        self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"].keys()[:10])
+
+        # now strong player will lose to weak_player and should be out from leaderboard
+        game = Game(self.app, "98765432", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
+        self.app["games"][game.id] = game
+        print(game.crosstable)
+
+        # strong_player resign 0-1
+        await self.play_and_resign(game, self.strong_player)
+
+        self.print_game_highscore(game)
+
+        print(game.crosstable)
+        self.assertEqual(len(game.crosstable["r"]), 2)
+        self.assertTrue(self.weak_player.username not in game.highscore["crazyhouse960"].keys()[:10])
+        self.assertTrue(self.strong_player.username not in game.highscore["crazyhouse960"].keys()[:10])
 
 
 class TestRatings(AioHTTPTestCase):
