@@ -12,6 +12,7 @@ import { aboutView } from './about';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
+import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
 import { sound } from './sound';
@@ -69,6 +70,8 @@ export function view(el, model): VNode {
         return h('div#placeholder.main-wrapper', roundView(model));
     case 'analysis':
         return h('div#placeholder.main-wrapper', analysisView(model));
+    case 'editor':
+        return h('div#placeholder.main-wrapper', editorView(model));
     case 'games':
         return h('div#placeholder', gamesView(model));
     case 'thanks':

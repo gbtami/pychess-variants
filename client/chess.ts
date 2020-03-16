@@ -72,6 +72,44 @@ export function getPockets(fen: string) {
     return pockets;
 }
 
+
+export function pieceRoles(variant: string) {
+    switch (variant) {
+    case "grandhouse":
+    case "grand":
+    case "gothic":
+    case "gothhouse":
+    case "capahouse":
+    case "capablanca":
+        return ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"];
+    case "shouse":
+    case "seirawan":
+        return ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"];
+    case "kyotoshogi":
+        return ["pawn", "pknight", "king", "silver", "plance", "ppawn", "knight", "psilver", "lance"];
+    case "minishogi":
+        return ["pawn", "silver", "gold", "bishop", "rook", "king", "ppawn", "psilver", "pbishop", "prook"];
+    case "shogi":
+        return ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook", "king", "ppawn", "plance", "pknight", "psilver", "pbishop", "prook"];
+    case "shako":
+        return ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"];
+    case "shogun":
+        return ["king", "pferz", "rook", "bishop", "knight", "pawn", "ferz", "prook", "pbishop", "pknight", "ppawn"];
+    case "xiangqi":
+        return ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"];
+    case "minixiangqi":
+        return ["king", "cannon", "rook", "knight", "pawn"];
+    case "makruk":
+    case "cambodian":
+        return ["king", "met", "ferz", "silver", "rook", "knight", "pawn"];
+    case "sittuyin":
+        return ["king", "ferz", "silver", "rook", "knight", "pawn"];
+    default:
+        return ["king", "queen", "rook", "bishop", "knight", "pawn"];
+    }
+}
+
+
 export function pocketRoles(variant: string) {
     switch (variant) {
     case "sittuyin":

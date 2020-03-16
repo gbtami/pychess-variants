@@ -54,8 +54,6 @@ export function roundView(model): VNode[] {
             ]),
             h('main.round', [
                 h('selection.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
-                    // TODO: this breaks > 8x8 boards
-                    // h('div.cg-wrap.' + VARIANTS[model["variant"]].cg + '#mainboard',
                     h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runGround(vnode, model)},
                     }),
@@ -63,7 +61,7 @@ export function roundView(model): VNode[] {
             ]),
             h('aside.sidebar-second', [
                 h('div#count'),
-                h('div#pocket-wrapper', [
+                h('div#pocket-wrapper0', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket0'),
@@ -82,7 +80,7 @@ export function roundView(model): VNode[] {
                     h('round-player#rplayer1'),
                 ]),
                 h('div#clock1'),
-                h('div#pocket-wrapper', [
+                h('div#pocket-wrapper1', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket1'),

@@ -70,15 +70,22 @@ class LobbyController {
 
         // challenge!
         if (model["profileid"] !== '') {
-            this.challengeAI = false;
+            this.challengeAI = model["profileid"] === 'Fairy-Stockfish';
             if (this.model["anon"] !== 'True') {
                 document.getElementById('game-mode')!.style.display='inline-flex';
             } else {
                 document.getElementById('game-mode')!.style.display='none';
             }
             document.getElementById('challenge-block')!.style.display='inline-flex';
-            document.getElementById('ailevel')!.style.display='none';
+            document.getElementById('ailevel')!.style.display= ((this.challengeAI) ? 'block' : 'none');
             document.getElementById('id01')!.style.display='block';
+        }
+
+        var vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
+        var e = document.getElementById("seek-fen") as HTMLInputElement;
+            e.value = vFen;
+        if (this.model["fen"] !== "") {
+            e.value = this.model["fen"];
         }
     }
 
@@ -138,7 +145,7 @@ class LobbyController {
         const variant = e.options[e.selectedIndex].value;
         localStorage.setItem("seek_variant", variant);
 
-        e = document.getElementById('fen') as HTMLInputElement;
+        e = document.getElementById('seek-fen') as HTMLInputElement;
         const fen = e.value;
         localStorage.setItem("seek_fen", e.value);
 
@@ -196,7 +203,7 @@ class LobbyController {
             let e;
             e = document.getElementById('handicap') as HTMLSelectElement;
             const handicap = e.options[e.selectedIndex].value;
-            e = document.getElementById('fen') as HTMLSelectElement;
+            e = document.getElementById('seek-fen') as HTMLSelectElement;
             e!.value = SHOGI_HANDICAP_FEN[handicap];
         }
 
@@ -238,9 +245,12 @@ class LobbyController {
 
             document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
         }
-
+        console.log("ls FEN:", localStorage.seek_fen);
         const hIdx = localStorage.seek_handicap === undefined ? 0 : SHOGI_HANDICAP_NAME.indexOf(localStorage.seek_handicap);
-        const vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
+
+        var vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
+        if (this.model["variant"] !== "") vIdx = enabled_variants.sort().indexOf(this.model["variant"]);
+
         const vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
@@ -274,7 +284,7 @@ class LobbyController {
                         hook: {insert: () => setVariant() },
                         }, enabled_variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variantName(variant, 0)))),
                 ]),
-                h('input#fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here', value: vFen} }),
+                h('input#seek-fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here',  autocomplete: "off", value: '"' + vFen + '"'} }),
                 h('div#handicap-block', [
                     h('label', { attrs: {for: "handicap"} }, "Handicap"),
                     h('select#handicap', {
@@ -486,6 +496,10 @@ class LobbyController {
         this.doSend({type: "pong", timestamp: msg.timestamp});
     }
 
+    private onMsgError = (msg) => {
+        alert(msg.message);
+    }
+
     private onMsgShutdown = (msg) => {
         alert(msg.message);
     }
@@ -538,6 +552,9 @@ class LobbyController {
                 break;
             case "shutdown":
                 this.onMsgShutdown(msg);
+                break;
+            case "error":
+                this.onMsgError(msg);
                 break;
             case "logout":
                 this.doSend({type: "logout"});

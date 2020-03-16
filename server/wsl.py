@@ -70,9 +70,10 @@ async def lobby_socket_handler(request):
                         response = await new_game(request.app, engine, seek.id)
                         await ws.send_json(response)
 
-                        gameId = response["gameId"]
-                        engine.game_queues[gameId] = asyncio.Queue()
-                        await engine.event_queue.put(challenge(seek, response))
+                        if response["type"] != "error":
+                            gameId = response["gameId"]
+                            engine.game_queues[gameId] = asyncio.Queue()
+                            await engine.event_queue.put(challenge(seek, response))
 
                     elif data["type"] == "create_seek":
                         print("create_seek", data)

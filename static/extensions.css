@@ -4,6 +4,8 @@
   --files-bottom: -16px;
   --files-left: 0px;
   --ranks-top-shogi: -25px;
+  --files: 8;
+  --pieces: 6;
 }
 [data-view="analysis"] {
   --ranks-right: var(--cgwrapwidth);
@@ -95,8 +97,17 @@
 .pocket.top {
   margin-bottom: 10px;
 }
+.pocket.top.editor {
+  margin-bottom: 18px;
+}
 .pocket.bottom {
   margin-top: 10px;
+}
+.pocket.bottom.editor {
+  margin-top: 18px;
+}
+.pocket .editor {
+  width: calc(var(--pieces) * (var(--cgwrapwidth) / var(--files)));
 }
 .pocket piece {
   flex: 0 0 20%;
@@ -113,6 +124,9 @@
 }
 .shogi.minishogi .pocket piece {
   flex: 0 0 20%;
+}
+.pocket .editor piece {
+  flex: 0 0 calc(100% / var(--pieces));
 }
 .pocket.usable piece:first-child:hover {
   border-radius: 3px 0 0 3px;
@@ -150,6 +164,10 @@
   font-size: 18px;
 }
 .pocket piece[data-nb='0']::after {
+  content: none;
+}
+/* board editor pieces are unlimited */
+.pocket piece[data-nb='-1']::after {
   content: none;
 }
 .pocket piece::after {

@@ -45,7 +45,7 @@ export function changeCSS(cssFile) {
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
 
-function setBoard (CSSindexesB, variant, color) {
+export function setBoard (CSSindexesB, variant, color) {
     console.log("setBoard()", CSSindexesB, variant, color)
     var idx = CSSindexesB[variants.indexOf(variant)];
     idx = Math.min(idx, VARIANTS[variant].BoardCSS.length - 1);
@@ -76,7 +76,7 @@ export function setBoardAndPieceStyles() {
     });
 }
 
-function setPieces (ctrl, color, flip: boolean = false) {
+export function setPieces (ctrl, color, flip: boolean = false) {
     console.log("--- setPieces()");
     const CSSindexesP = ctrl.CSSindexesP, variant = ctrl.variant, chessground = ctrl.chessground;
     var idx = CSSindexesP[variants.indexOf(variant)];
@@ -110,7 +110,7 @@ function setPieces (ctrl, color, flip: boolean = false) {
     }
 }
 
-function setZoom (ctrl, zoom: number) {
+export function setZoom (ctrl, zoom: number) {
     const el = document.querySelector('.cg-wrap') as HTMLElement;
     if (el) {
         const baseWidth = dimensions[VARIANTS[ctrl.variant].geom].width * (ctrl.variant.endsWith('shogi') ? 52 : 64);

@@ -6,11 +6,6 @@ from datetime import datetime
 from itertools import chain
 from time import monotonic
 
-try:
-    import pyffish as sf
-except ImportError:
-    print("No pyffish module installed!")
-
 from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
@@ -91,55 +86,6 @@ class Game:
         self.last_server_clock = monotonic()
 
         self.id = gameId
-        # print("Game", self.variant, self.initial_fen, self.chess960)
-
-        # Initial_fen needs validation to prevent segfaulting in pyffish
-        if self.initial_fen:
-            start_fen = sf.start_fen(self.variant)  # self.board.start_fen(self.variant)
-            start = start_fen.split()
-            init = self.initial_fen.split()
-
-            # Cut off tail
-            if len(init) > 6:
-                init = init[:6]
-                self.initial_fen = " ".join(init)
-
-            # We need starting color
-            invalid0 = len(init) < 2
-
-            # Only piece types listed in variant start position can be used later
-            invalid1 = any((c not in start[0] + "~+0123456789[]" for c in init[0]))
-
-            # Required number of rows
-            invalid2 = start[0].count("/") != init[0].count("/")
-
-            # Accept zh FEN in lichess format (they use / instead if [] for pockets)
-            if invalid2 and self.variant == "crazyhouse":
-                if (init[0].count("/") == 8) and ("[" not in init[0]) and ("]" not in init[0]):
-                    k = init[0].rfind("/")
-                    init[0] = init[0][:k] + "[" + init[0][k + 1:] + "]"
-                    self.initial_fen = " ".join(init)
-                    invalid2 = False
-
-            # Allowed starting colors
-            invalid3 = len(init) > 1 and init[1] not in "bw"
-
-            # Castling rights (and piece virginity) check
-            invalid4 = False
-            if self.variant == "seirawan" or self.variant == "shouse":
-                invalid4 = len(init) > 2 and any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
-            elif self.chess960:
-                if all((c in "KQkq-" for c in init[2])):
-                    self.chess960 = False
-                else:
-                    invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
-            elif self.variant[-5:] != "shogi":
-                invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
-
-            if invalid0 or invalid1 or invalid2 or invalid3 or invalid4:
-                log.error("Got invalid initial_fen %s for game %s" % (self.initial_fen, self.id))
-                print(invalid0, invalid1, invalid2, invalid3, invalid4)
-                self.initial_fen = start_fen
 
         if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:

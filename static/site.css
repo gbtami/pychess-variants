@@ -685,6 +685,12 @@ select, input {
   padding: 24px;
 }
 
+.editor-container div{
+  text-align: left;
+  padding-left: 24px;
+  padding-bottom: 12px;
+}
+
 #count {
   font-family: "Roboto Mono", "Roboto";
   font-size: 30px;
@@ -1198,7 +1204,7 @@ input[type="checkbox"] {
   vertical-align: middle;
 }
 
-input#fen {
+input#seek-fen {
   width: 100%;
 }
 
@@ -1279,4 +1285,10 @@ div.ctable{
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
   visibility: visible;
+}
+
+boardeditor {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-content: center;
 }

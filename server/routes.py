@@ -18,6 +18,7 @@ from settings import MAX_AGE, URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIR
 from glicko2.glicko2 import DEFAULT_PERF
 from utils import load_game, pgn, tv_game, tv_game_user
 from user import User
+from fairy import FairyBoard
 from bot_api import account, playing, event_stream, game_stream, bot_abort,\
     bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
     create_bot_seek, challenge_create, bot_pong, bot_analysis
@@ -231,16 +232,19 @@ async def index(request):
     elif request.path == "/tv":
         view = "tv"
         gameId = await tv_game(db, request.app)
+    elif request.path.startswith("/editor"):
+        view = "editor"
 
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
+    fen = request.rel_url.query.get("fen")
     if profileId is not None:
         view = "profile"
         if request.path[-3:] == "/tv":
             view = "tv"
             # TODO: tv for variants
             gameId = await tv_game_user(db, users, profileId)
-        elif request.path.endswith("/challenge"):
+        elif "/challenge" in request.path:
             view = "lobby"
             if user.anon:
                 raise web.HTTPFound("/")
@@ -288,8 +292,10 @@ async def index(request):
         "country": session["country"] if "country" in session else "",
         "guest": session["guest"],
         "profile": profileId if profileId is not None else "",
+        "variant": variant if variant is not None else "",
+        "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
     }
-    if profileId is not None:
+    if view == "profile" or view == "level8win":
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
         if profileId not in users or users[profileId].perfs is None:
@@ -340,11 +346,17 @@ async def index(request):
         render["level"] = 8
         render["profile"] = "Fairy-Stockfish"
 
-    if view == "variant":
+    elif view == "variant":
         render["variants"] = VARIANTS
         render["icons"] = VARIANT_ICONS
-        variant = request.match_info.get("variant")
+        variant = variant
         render["variant"] = ("intro" if variant is None else variant) + ".html"
+
+    elif view == "editor":
+        if fen is None:
+            fen = FairyBoard(variant).start_fen(variant)
+        render["variant"] = variant
+        render["fen"] = fen
 
     try:
         text = template.render(render)
@@ -492,10 +504,13 @@ get_routes = (
     ("/players", index),
     ("/games", index),
     ("/tv", index),
+    ("/editor/{variant}", index),
+    ("/editor/{variant}/{fen}", index),
     (r"/{gameId:\w{8}}", index),
     ("/@/{profileId}", index),
     ("/@/{profileId}/tv", index),
     ("/@/{profileId}/challenge", index),
+    ("/@/{profileId}/challenge/{variant}", index),
     ("/@/{profileId}/{variant}", index),
     ("/level8win", index),
     ("/patron", index),

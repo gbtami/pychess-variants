@@ -181,11 +181,22 @@ async def game_ended(games, user, data, reason):
 
 
 async def new_game(app, user, seek_id):
-    log.info("+++ Seek %s accepted by%s" % (seek_id, user.username))
     db = app["db"]
     games = app["games"]
     seeks = app["seeks"]
     seek = seeks[seek_id]
+    log.info("+++ Seek %s accepted by %s FEN:%s 960:%s" % (seek_id, user.username, seek.fen, seek.chess960))
+
+    fen_valid = True
+    if seek.fen:
+        fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
+        if not fen_valid:
+            message = "Failed to create game. Invalid FEN %s" % seek.fen
+            log.debug(message)
+            remove_seek(seeks, seek)
+            return {"type": "error", "message": message}
+    else:
+        sanitized_fen = ""
 
     if seek.color == "r":
         wplayer = random.choice((user, seek.user))
@@ -197,20 +208,20 @@ async def new_game(app, user, seek_id):
     new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
     existing = await db.game.find_one({'_id': {'$eq': new_id}})
     if existing:
-        log.debug("!!! Game ID %s allready in mongodb !!!" % new_id)
-        return {"type": "error"}
+        message = "Failed to create game. Game ID %s allready in mongodb." % new_id
+        log.debug(message)
+        remove_seek(seeks, seek)
+        return {"type": "error", "message": message}
     # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
-        new_game = Game(app, new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960, create=True)
+        new_game = Game(app, new_id, seek.variant, sanitized_fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960, create=True)
     except Exception:
         log.error("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
-        return {"type": "error"}
+        remove_seek(seeks, seek)
+        return {"type": "error", "message": "Failed to create game"}
     games[new_game.id] = new_game
 
-    if not seek.user.bot:
-        del seeks[seek_id]
-        if seek_id in seek.user.seeks:
-            del seek.user.seeks[seek_id]
+    remove_seek(seeks, seek)
 
     document = {
         "_id": new_id,
@@ -241,6 +252,13 @@ async def new_game(app, user, seek_id):
     bplayer.tv = new_id
 
     return {"type": "new_game", "gameId": new_id}
+
+
+def remove_seek(seeks, seek):
+    if (not seek.user.bot) and seek.id in seeks:
+        del seeks[seek.id]
+        if seek.id in seek.user.seeks:
+            del seek.user.seeks[seek.id]
 
 
 async def play_move(games, data):
@@ -333,3 +351,62 @@ def pgn(doc):
         C2R[doc["r"]],
         fen="" if no_setup else '[FEN "%s"]\n' % setup_fen,
         setup="" if no_setup else '[SetUp "1"]\n')
+
+
+def sanitize_fen(variant, initial_fen, chess960):
+    # Initial_fen needs validation to prevent segfaulting in pyffish
+    sanitized_fen = initial_fen
+
+    start_fen = sf.start_fen(variant)  # self.board.start_fen(self.variant)
+    start = start_fen.split()
+    init = initial_fen.split()
+
+    # Cut off tail
+    if len(init) > 6:
+        init = init[:6]
+        sanitized_fen = " ".join(init)
+
+    # We need starting color
+    invalid0 = len(init) < 2
+
+    # Only piece types listed in variant start position can be used later
+    if variant == "makruk" or variant == "cambodian":
+        non_piece = "~+0123456789[]fF"
+    else:
+        non_piece = "~+0123456789[]"
+    invalid1 = any((c not in start[0] + non_piece for c in init[0]))
+
+    # Required number of rows
+    invalid2 = start[0].count("/") != init[0].count("/")
+
+    # Accept zh FEN in lichess format (they use / instead if [] for pockets)
+    if invalid2 and variant == "crazyhouse":
+        if (init[0].count("/") == 8) and ("[" not in init[0]) and ("]" not in init[0]):
+            k = init[0].rfind("/")
+            init[0] = init[0][:k] + "[" + init[0][k + 1:] + "]"
+            sanitized_fen = " ".join(init)
+            invalid2 = False
+
+    # Allowed starting colors
+    invalid3 = len(init) > 1 and init[1] not in "bw"
+
+    # Castling rights (and piece virginity) check
+    invalid4 = False
+    if variant == "seirawan" or variant == "shouse":
+        invalid4 = len(init) > 2 and any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
+    elif chess960:
+        if all((c in "KQkq-" for c in init[2])):
+            chess960 = False
+        else:
+            invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
+    elif variant[-5:] != "shogi":
+        invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
+
+    invalid5 = init[0].count("k") != 1 or init[0].count("K") != 1
+
+    if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5:
+        print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5)
+        sanitized_fen = start_fen
+        return False, start_fen
+    else:
+        return True, sanitized_fen
