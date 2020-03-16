@@ -1204,7 +1204,7 @@ input[type="checkbox"] {
   vertical-align: middle;
 }
 
-input#seek-fen {
+input#seek-fen, input#fen {
   width: 100%;
 }
 

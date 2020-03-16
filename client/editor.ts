@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Variant } from 'chessgroundx/types';
+import { Color, Variant, dimensions } from 'chessgroundx/types';
 
 import { enabled_variants, variantName, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
@@ -22,7 +22,7 @@ export default class EditorController {
     model;
     flip;
     chessground: Api;
-    fullfen: string;
+    startfen: string;
     mycolor: Color;
     oppcolor: Color;
     parts: string[];
@@ -38,19 +38,19 @@ export default class EditorController {
     constructor(el, model) {
         this.model = model;
         this.variant = model["variant"] as string;
-        this.fullfen = model["fen"] as string;
+        this.startfen = model["fen"] as string;
         this.flip = false;
 
-        this.parts = this.fullfen.split(" ");
-        const fen_placement = this.parts[0];
+        this.parts = this.startfen.split(" ");
 
         this.mycolor = this.variant.endsWith('shogi') ? 'black' : 'white';
         this.oppcolor = this.variant.endsWith('shogi') ? 'white' : 'black';
+
         this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
         this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.chessground = Chessground(el, {
-            fen: fen_placement,
+            fen: this.parts[0],
             autoCastle: false,
             variant: this.variant as Variant,
             geometry: VARIANTS[this.variant].geom,
@@ -74,7 +74,7 @@ export default class EditorController {
         const pocket1 = document.getElementById('pocket1') as HTMLElement;
         iniPieces(this, pocket0, pocket1);
 
-        const e = document.getElementById('fen') as HTMLElement;
+        var e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
             h('input#fen', {
                 props: { name: 'fen', value: model["fen"] },
@@ -83,23 +83,47 @@ export default class EditorController {
             }),
         );
 
-        const p = document.getElementById('challenge') as HTMLElement;
-        patch(p, h('div', [h('a', {on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+        e = document.getElementById('clear') as HTMLElement;
+        patch(e, h('div', [h('a', {on: {click: () => this.setEmptyFen()}}, 'CLEAR BOARD')]));
+
+        e = document.getElementById('start') as HTMLElement;
+        patch(e, h('div', [h('a', {on: {click: () => this.setStartFen()}}, 'STARTING POSITION')]));
+
+        e = document.getElementById('challenge') as HTMLElement;
+        patch(e, h('div', [h('a', {on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+    }
+
+    private setStartFen = () => {
+        this.parts = this.startfen.split(" ");
+        this.chessground.set({fen: this.parts[0]});
+        const e = document.getElementById('fen') as HTMLInputElement;
+        e.value = this.startfen;
+    }
+
+    private setEmptyFen = () => {
+        const w = dimensions[VARIANTS[this.variant].geom].width;
+        const h = dimensions[VARIANTS[this.variant].geom].height
+        const empty_fen = (String(w) + '/').repeat(h);
+
+        this.chessground.set({fen: empty_fen});
+        this.parts[0] = this.chessground.getFen();
+
+        const e = document.getElementById('fen') as HTMLInputElement;
+        e.value = this.parts.join(' ');
     }
 
     private setLinkFen = () => {
         this.parts[0] = this.chessground.getFen();
-        var fen = this.parts.join('_').replace(/\+/g, '.')
+        var fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
     private setFen = (isInput) => {
         const e = document.getElementById('fen') as HTMLInputElement;
-        const fen = e.value;
         if (isInput) {
-            this.chessground.set({ fen: fen });
+            this.chessground.set({ fen: e.value });
         } else {
-            e.value = this.fullfen;
+            e.value = this.startfen;
         }
     }
 
@@ -170,8 +194,8 @@ export function editorView(model): VNode[] {
             ])]),
             h('aside.sidebar-second', [
                 h('div.editor-container', [
-                    h('div', [h('a', {attrs: {href: '/editor/' + model["variant"]}}, 'CLEAR BOARD')]),
-                    h('div', [h('a', {attrs: {href: '/editor/' + model["variant"]}}, 'STARTING POSITION')]),
+                    h('div#clear'),
+                    h('div#start'),
 //                    h('div', [h('a', {attrs: {href: '/editor/' + model["variant"]}}, 'CREATE A GAME')]),
                     h('div#challenge'),
                 ])
