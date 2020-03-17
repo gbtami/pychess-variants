@@ -227,6 +227,9 @@ a, .user-link:link, .user-link:visited {
 a, .user-link:hover, .user-link:active {
     color: RoyalBlue;
 }
+div a {
+  cursor: pointer;
+}
 .disabled {
   pointer-events: none;
   cursor: default;
@@ -727,7 +730,7 @@ select, input {
 }
 
 .close:hover, .close:focus {
-  cursor: "pointer";
+  cursor: pointer;
   background: var(--bad);
 }
 

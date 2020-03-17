@@ -12,11 +12,16 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions } from 'chessgroundx/types';
+import { read } from 'chessgroundx/fen';
 
-import { enabled_variants, variantName, variants, VARIANTS } from './chess';
+import { lc, enabled_variants, variantName, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
 import { iniPieces } from './pieces';
 
+
+function diff(a: number, b:number):number {
+  return Math.abs(a - b);
+}
 
 export default class EditorController {
     model;
@@ -34,6 +39,7 @@ export default class EditorController {
     CSSindexesB: number[];
     CSSindexesP: number[];
     vfen: any;
+    vChallenge: any;
 
     constructor(el, model) {
         this.model = model;
@@ -90,7 +96,63 @@ export default class EditorController {
         patch(e, h('div', [h('a', {on: {click: () => this.setStartFen()}}, 'STARTING POSITION')]));
 
         e = document.getElementById('challenge') as HTMLElement;
-        patch(e, h('div', [h('a', {on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+        this.vChallenge = patch(e, h('div', [h('a', {on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+    }
+
+    private validFen = () => {
+        const e = document.getElementById('fen') as HTMLInputElement;
+        const start = this.startfen.split(' ');
+        const parts = e.value.split(' ');
+
+        // Need starting color
+        if (parts.length < 2) return false;
+
+        // Allowed characters in placement part
+        const placement = parts[0];
+        let good;
+        if (this.variant === "makruk" || this.variant === "cambodian") {
+            good = start[0] + "~+0123456789[]fF";
+        } else {
+            good = start[0] + "~+0123456789[]";
+        }
+        const alien = (element) => {console.log(element, good, good.indexOf(element) === -1); return good.indexOf(element) === -1};
+        if (parts[0].split('').some(alien)) return false;
+
+        // Number of rows
+        if (lc(start[0], '/', false) !== lc(parts[0], '/', false)) return false;
+
+        // Starting colors
+        if (parts[1] !== 'b' && parts[1] !== 'w') return false;
+
+        // Castling rights (piece virginity)
+        good = start[2] + "-";
+        const wrong = (element) => good.indexOf(element) === -1;
+        if (parts.length > 2 && parts[2].split('').some(wrong)) return false;
+
+        // Number of kings
+        if (lc(placement, 'k', false) !== 1 || lc(placement, 'k', true) !== 1) return false;
+
+        // Touching kings
+        const pieces = read(parts[0], VARIANTS[this.variant].geom);
+        if (this.touchingKings(pieces)) return false;
+
+        return true;
+    }
+
+    private touchingKings = (pieces) => {
+        var wk = 'xx', bk = 'zz';
+        for (var key of Object.keys(pieces)) {
+            if (pieces[key].role === 'king' && pieces[key].color === 'white') wk = key;
+            if (pieces[key].role === 'king' && pieces[key].color === 'black') bk = key;
+        }
+        const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) < 2 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) < 2;
+        return touching;
+    }
+
+    private setInvalid = (invalid) => {
+        this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid}, on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+        const e = document.getElementById('fen') as HTMLInputElement;
+        e.setCustomValidity(invalid ? 'Invalid FEN' : '');
     }
 
     private setStartFen = () => {
@@ -98,6 +160,7 @@ export default class EditorController {
         this.chessground.set({fen: this.parts[0]});
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.startfen;
+        this.setInvalid(false);
     }
 
     private setEmptyFen = () => {
@@ -110,6 +173,7 @@ export default class EditorController {
 
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
+        this.setInvalid(true);
     }
 
     private setLinkFen = () => {
@@ -122,6 +186,7 @@ export default class EditorController {
         const e = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.chessground.set({ fen: e.value });
+            this.setInvalid(!this.validFen());
         } else {
             e.value = this.startfen;
         }
@@ -131,6 +196,7 @@ export default class EditorController {
         this.parts[0] = this.chessground.getFen();
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
+        this.setInvalid(!this.validFen());
     }
 }
 

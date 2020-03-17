@@ -402,6 +402,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     elif variant[-5:] != "shogi":
         invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
+    # Number of kings
     invalid5 = init[0].count("k") != 1 or init[0].count("K") != 1
 
     if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5:
