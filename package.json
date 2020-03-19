@@ -11,7 +11,8 @@
     "howler": "^2.1.3",
     "snabbdom": "^0.7",
     "sockette": "^2.0",
-    "highcharts": "^7.2.1"
+    "highcharts": "^7.2.1",
+    "html-to-image": "^0.1.1"
   },
   "devDependencies": {
     "yarn": "^1.17.3",

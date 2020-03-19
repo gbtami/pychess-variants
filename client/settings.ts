@@ -270,6 +270,7 @@ export function settingsView (ctrl) {
     const vClick2xdrop = localStorage.clickDropEnabled === undefined ? "false" : localStorage.clickDropEnabled;
     // const vBlindfold = localStorage.blindfold === undefined ? "false" : localStorage.blindfold;
     const vAutoQueen = localStorage.autoqueen === undefined ? "false" : localStorage.autoqueen;
+    const vArrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
 
     const setShowDests = () => {
         let e;
@@ -300,6 +301,13 @@ export function settingsView (ctrl) {
         e = document.getElementById('autoqueen') as HTMLInputElement;
         localStorage.setItem("autoqueen", e.checked);
         ctrl.autoqueen = e.checked;
+    };
+
+    const setArrow = () => {
+        let e;
+        e = document.getElementById('arrow') as HTMLInputElement;
+        localStorage.setItem("arrow", e.checked);
+        ctrl.arrow = e.checked;
     };
 
     return h('div#board-settings', [
@@ -341,6 +349,13 @@ export function settingsView (ctrl) {
             h('input#autoqueen', {
                 props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
                 on: { click: () => { setAutoQueen(); } }
+            }),
+        ]),
+        h('div', [
+            h('label', { attrs: {for: "arrow"} }, "Best move arrow"),
+            h('input#arrow', {
+                props: {name: "arrow", type: "checkbox", checked: vArrow === "true" ? "checked" : ""},
+                on: { click: () => { setArrow(); } }
             }),
         ]),
     ]);

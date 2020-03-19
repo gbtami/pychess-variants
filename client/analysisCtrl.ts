@@ -1,4 +1,5 @@
 import Sockette from 'sockette';
+import { toPng } from 'html-to-image';
 
 import { init } from 'snabbdom';
 import { h } from 'snabbdom/h';
@@ -40,6 +41,21 @@ function download(filename, text) {
   element.click();
 
   document.body.removeChild(element);
+}
+
+
+function copyBoardToPNG(fen) {
+    const el = document.getElementById('board2png') as HTMLElement;
+    const style = getComputedStyle(document.body);
+    const width = parseInt(style.getPropertyValue('--cgwrapwidth'));
+    const height = parseInt(style.getPropertyValue('--cgwrapheight'));
+    toPng(el, {width: width, height: height})
+        .then(function (dataUrl) {
+        var link = document.createElement('a');
+        link.download = fen.split(' ')[0].replace(/\+/g, '.') + '.png';
+        link.href = dataUrl;
+        link.click();
+    });
 }
 
 
@@ -264,6 +280,8 @@ export default class AnalysisController {
                     h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
+                h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
+                    h('i', {props: {title: 'Download position to PNG image file'}, class: {"icon": true, "icon-download": true} }, ' PNG image')]),
                 ]
             if (this.steps[0].analysis === undefined) {
                 buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysis(true) } }, [
@@ -386,30 +404,32 @@ export default class AnalysisController {
         var shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
+        const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
         if (ceval !== undefined) {
             if (ceval.p !== undefined) {
                 var pv_move = ceval["m"].split(" ")[0];
                 if (this.variant.endsWith('shogi')) pv_move = usi2uci(pv_move);
                 if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') pv_move = grand2zero(pv_move);
                 // console.log(pv_move, ceval["m"]);
-                const atPos = pv_move.indexOf('@');
-                if (atPos > -1) {
-                    const d = pv_move.slice(atPos + 1, atPos + 3);
-                    var color = step.turnColor;
-                    if (this.flip && this.variant.endsWith('shogi')) color = (color === 'white') ? 'balck' : 'white';
-                    // console.log(pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
-                    shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
-                        color: color,
-                        role: sanToRole[pv_move.slice(0, atPos)]
-                        }},
-                        { orig: d, brush: 'paleGreen'}
-                    ];
-                } else {
-                    const o = pv_move.slice(0, 2);
-                    const d = pv_move.slice(2, 4);
-                    shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
-                }
-
+                if (arrow === 'true') {
+                    const atPos = pv_move.indexOf('@');
+                    if (atPos > -1) {
+                        const d = pv_move.slice(atPos + 1, atPos + 3);
+                        var color = step.turnColor;
+                        if (this.flip && this.variant.endsWith('shogi')) color = (color === 'white') ? 'balck' : 'white';
+                        // console.log(pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
+                        shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
+                            color: color,
+                            role: sanToRole[pv_move.slice(0, atPos)]
+                            }},
+                            { orig: d, brush: 'paleGreen'}
+                        ];
+                    } else {
+                        const o = pv_move.slice(0, 2);
+                        const d = pv_move.slice(2, 4);
+                        shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+                    }
+                };
                 this.vpv = patch(this.vpv, h('div#pv', [
                     h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval.d)]),
                     h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
