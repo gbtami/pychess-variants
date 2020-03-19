@@ -98,7 +98,7 @@ export default class EditorController {
 
     private validFen = () => {
         const e = document.getElementById('fen') as HTMLInputElement;
-        return validFen(this.variant, e.value, this.startfen);
+        return validFen(this.variant, e.value);
     }
 
     private setInvalid = (invalid) => {
