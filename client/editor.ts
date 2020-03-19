@@ -205,7 +205,7 @@ export default class EditorController {
         this.setInvalid(!this.validFen());
     }
 
-    private variantFenChange = () {
+    private variantFenChange = () => {
         if (this.variant === "makruk" || this.variant === "cambodian") {
             this.parts[0] = this.parts[0].replace(/F/g, "M~").replace(/f/g, "m~");
         }
