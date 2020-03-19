@@ -236,7 +236,7 @@ export function editorView(model): VNode[] {
 
     const vIdx = enabled_variants.sort().indexOf(model["variant"]);
     console.log(model["variant"], model["fen"]);
-    const disabled = ['cambodian', 'makruk', 'shogi', 'minishogi', 'kyotoshogi', 'xiangqi'];
+    const disabled = ['shogi', 'minishogi', 'kyotoshogi', 'xiangqi'];
 
     return [h('aside.sidebar-first', [
                 h('div.container', [
