@@ -99,53 +99,7 @@ export default class EditorController {
     private validFen = () => {
         const e = document.getElementById('fen') as HTMLInputElement;
         return validFen(this.variant, e.value, this.startfen);
-        /*
-        const e = document.getElementById('fen') as HTMLInputElement;
-        const start = this.startfen.split(' ');
-        const parts = e.value.split(' ');
-
-        // Need starting color
-        if (parts.length < 2) return false;
-
-        // Allowed characters in placement part
-        const placement = parts[0];
-        let good = start[0] + "~+0123456789[]";
-        const alien = (element) => {console.log(element, good, good.indexOf(element) === -1); return good.indexOf(element) === -1};
-        if (parts[0].split('').some(alien)) return false;
-
-        // Number of rows
-        if (lc(start[0], '/', false) !== lc(parts[0], '/', false)) return false;
-
-        // Starting colors
-        if (parts[1] !== 'b' && parts[1] !== 'w') return false;
-
-        // Castling rights (piece virginity)
-        good = start[2] + "-";
-        const wrong = (element) => good.indexOf(element) === -1;
-        if (parts.length > 2 && parts[2].split('').some(wrong)) return false;
-
-        // Number of kings
-        if (lc(placement, 'k', false) !== 1 || lc(placement, 'k', true) !== 1) return false;
-
-        // Touching kings
-        const pieces = read(parts[0], VARIANTS[this.variant].geom);
-        if (this.touchingKings(pieces)) return false;
-
-        return true;
-        */
     }
-
-    /*
-    private touchingKings = (pieces) => {
-        var wk = 'xx', bk = 'zz';
-        for (var key of Object.keys(pieces)) {
-            if (pieces[key].role === 'king' && pieces[key].color === 'white') wk = key;
-            if (pieces[key].role === 'king' && pieces[key].color === 'black') bk = key;
-        }
-        const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) < 2 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) < 2;
-        return touching;
-    }
-    */
 
     private setInvalid = (invalid) => {
         this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid}, on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
