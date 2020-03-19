@@ -101,7 +101,7 @@ export function pieceRoles(variant: string) {
         return ["king", "cannon", "rook", "knight", "pawn"];
     case "makruk":
     case "cambodian":
-        return ["king", "met", "ferz", "silver", "rook", "knight", "pawn"];
+        return ["king", "met", "silver", "rook", "knight", "pawn", "ferz"];
     case "sittuyin":
         return ["king", "ferz", "silver", "rook", "knight", "pawn"];
     default:
