@@ -191,7 +191,6 @@ export default class EditorController {
     private onChange = () => {
         this.parts[0] = this.chessground.getFen();
         this.variantFenChange();
-        console.log(this.chessground.getFen());
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());
