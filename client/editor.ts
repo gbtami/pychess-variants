@@ -112,12 +112,7 @@ export default class EditorController {
 
         // Allowed characters in placement part
         const placement = parts[0];
-        let good;
-        if (this.variant === "makruk" || this.variant === "cambodian") {
-            good = start[0] + "~+0123456789[]fF";
-        } else {
-            good = start[0] + "~+0123456789[]";
-        }
+        let good = start[0] + "~+0123456789[]";
         const alien = (element) => {console.log(element, good, good.indexOf(element) === -1); return good.indexOf(element) === -1};
         if (parts[0].split('').some(alien)) return false;
 
@@ -183,6 +178,7 @@ export default class EditorController {
 
     private setLinkFen = () => {
         //this.parts[0] = this.chessground.getFen() + this.pockets;
+        //this.variantFenChange();
         var fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
@@ -203,9 +199,16 @@ export default class EditorController {
         console.log('onChange() will get then set and validate FEN from chessground pieces');
         this.chessground.set({lastMove: []});
         this.parts[0] = this.chessground.getFen() + this.pockets;
+        this.variantFenChange();
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());
+    }
+
+    private variantFenChange = () {
+        if (this.variant === "makruk" || this.variant === "cambodian") {
+            this.parts[0] = this.parts[0].replace(/F/g, "M~").replace(/f/g, "m~");
+        }
     }
 }
 
