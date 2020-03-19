@@ -12,16 +12,10 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions } from 'chessgroundx/types';
-import { read } from 'chessgroundx/fen';
 
-import { lc, enabled_variants, getPockets, needPockets, variantName, variants, VARIANTS } from './chess';
+import { enabled_variants, getPockets, needPockets, validFen, variantName, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
 import { iniPieces } from './pieces';
-
-
-function diff(a: number, b:number):number {
-  return Math.abs(a - b);
-}
 
 export default class EditorController {
     model;
@@ -104,6 +98,9 @@ export default class EditorController {
 
     private validFen = () => {
         const e = document.getElementById('fen') as HTMLInputElement;
+        return validFen(this.variant, e.value, this.startfen);
+        /*
+        const e = document.getElementById('fen') as HTMLInputElement;
         const start = this.startfen.split(' ');
         const parts = e.value.split(' ');
 
@@ -135,8 +132,10 @@ export default class EditorController {
         if (this.touchingKings(pieces)) return false;
 
         return true;
+        */
     }
 
+    /*
     private touchingKings = (pieces) => {
         var wk = 'xx', bk = 'zz';
         for (var key of Object.keys(pieces)) {
@@ -146,6 +145,7 @@ export default class EditorController {
         const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) < 2 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) < 2;
         return touching;
     }
+    */
 
     private setInvalid = (invalid) => {
         this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid}, on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));

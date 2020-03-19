@@ -1,6 +1,8 @@
 import { key2pos } from 'chessgroundx/util';
 import { Color, Geometry, Key, Role } from 'chessgroundx/types';
 
+import { read } from 'chessgroundx/fen';
+
 export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
@@ -452,6 +454,50 @@ export function grand2zero(move) {
         parts[3] = String(Number(move.slice(3)) - 1);
         return parts[0] + parts[1] + parts[2] + parts[3] + promo;
     }
+}
+
+export function validFen(variant, fen, startfen) {
+    const start = startfen.split(' ');
+    const parts = fen.split(' ');
+
+    // Need starting color
+    if (parts.length < 2) return false;
+
+    // Allowed characters in placement part
+    const placement = parts[0];
+    let good = start[0] + "~+0123456789[]";
+    const alien = (element) => {console.log(element, good, good.indexOf(element) === -1); return good.indexOf(element) === -1};
+    if (parts[0].split('').some(alien)) return false;
+
+    // Number of rows
+    if (lc(start[0], '/', false) !== lc(parts[0], '/', false)) return false;
+
+    // Starting colors
+    if (parts[1] !== 'b' && parts[1] !== 'w') return false;
+
+    // Castling rights (piece virginity)
+    good = start[2] + "-";
+    const wrong = (element) => good.indexOf(element) === -1;
+    if (parts.length > 2 && parts[2].split('').some(wrong)) return false;
+
+    // Number of kings
+    if (lc(placement, 'k', false) !== 1 || lc(placement, 'k', true) !== 1) return false;
+
+    // Touching kings
+    const pieces = read(parts[0], VARIANTS[variant].geom);
+    if (touchingKings(pieces)) return false;
+
+    return true;
+}
+
+function touchingKings(pieces) {
+    var wk = 'xx', bk = 'zz';
+    for (var key of Object.keys(pieces)) {
+        if (pieces[key].role === 'king' && pieces[key].color === 'white') wk = key;
+        if (pieces[key].role === 'king' && pieces[key].color === 'black') bk = key;
+    }
+    const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) < 2 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) < 2;
+    return touching;
 }
 
 export const roleToSan = {
