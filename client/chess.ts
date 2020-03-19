@@ -62,6 +62,7 @@ export function variantName(variant, chess960) {
     }
 }
 
+// pocket part of the FEN (including brackets)
 export function getPockets(fen: string) {
     const fen_placement = fen.split(" ")[0];
     var pockets = "";
@@ -86,15 +87,15 @@ export function pieceRoles(variant: string) {
     case "seirawan":
         return ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"];
     case "kyotoshogi":
-        return ["pawn", "pknight", "king", "silver", "plance", "ppawn", "knight", "psilver", "lance"];
+        return ["king", "pknight", "silver", "plance", "pawn"];
     case "minishogi":
-        return ["pawn", "silver", "gold", "bishop", "rook", "king", "ppawn", "psilver", "pbishop", "prook"];
+        return ["king", "rook", "bishop", "gold", "silver", "pawn"];
     case "shogi":
-        return ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook", "king", "ppawn", "plance", "pknight", "psilver", "pbishop", "prook"];
+        return ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn"];
     case "shako":
         return ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"];
     case "shogun":
-        return ["king", "pferz", "rook", "bishop", "knight", "pawn", "ferz", "prook", "pbishop", "pknight", "ppawn"];
+        return ["king", "pferz", "rook", "bishop", "knight", "pawn"];
     case "xiangqi":
         return ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"];
     case "minixiangqi":

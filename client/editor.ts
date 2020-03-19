@@ -14,7 +14,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions } from 'chessgroundx/types';
 import { read } from 'chessgroundx/fen';
 
-import { lc, enabled_variants, variantName, variants, VARIANTS } from './chess';
+import { lc, enabled_variants, getPockets, needPockets, variantName, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
 import { iniPieces } from './pieces';
 
@@ -32,6 +32,7 @@ export default class EditorController {
     oppcolor: Color;
     parts: string[];
     castling: string;
+    pockets: string;
     variant: string;
     pieces: any;
     vpocket0: any;
@@ -48,6 +49,8 @@ export default class EditorController {
         this.flip = false;
 
         this.parts = this.startfen.split(" ");
+        this.castling = this.parts.length > 2 ? this.parts[2] : '';
+        this.pockets = needPockets(this.variant) ? getPockets(this.startfen) : '';
 
         this.mycolor = this.variant.endsWith('shogi') ? 'black' : 'white';
         this.oppcolor = this.variant.endsWith('shogi') ? 'white' : 'black';
@@ -68,10 +71,10 @@ export default class EditorController {
                 change: this.onChange,
             },
             selectable: {
-              enabled: false
+                enabled: false
             },
             draggable: {
-              deleteOnDropOff: true,
+                deleteOnDropOff: true,
             },
         });
 
@@ -152,6 +155,7 @@ export default class EditorController {
 
     private setStartFen = () => {
         this.parts = this.startfen.split(" ");
+        this.pockets = needPockets(this.variant) ? getPockets(this.startfen) : '';
         this.chessground.set({fen: this.parts[0]});
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.startfen;
@@ -164,16 +168,17 @@ export default class EditorController {
         const empty_fen = (String(w) + '/').repeat(h);
 
         this.chessground.set({fen: empty_fen});
-        this.parts[0] = this.chessground.getFen();
-
+        this.pockets = needPockets(this.variant) ? '[]' : '';
+        this.parts[0] = this.chessground.getFen() + this.pockets;
+        if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(true);
     }
 
     private setLinkFen = () => {
-        this.parts[0] = this.chessground.getFen();
-        this.variantFenChange();
+        //this.parts[0] = this.chessground.getFen() + this.pockets;
+        //this.variantFenChange();
         var fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
@@ -181,6 +186,8 @@ export default class EditorController {
     private setFen = (isInput) => {
         const e = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
+            this.parts = e.value.split(' ');
+            this.pockets = (needPockets(this.variant) ? getPockets(e.value) : '');
             this.chessground.set({ fen: e.value });
             this.setInvalid(!this.validFen());
         } else {
@@ -189,7 +196,9 @@ export default class EditorController {
     }
 
     private onChange = () => {
-        this.parts[0] = this.chessground.getFen();
+        console.log('onChange() will get then set and validate FEN from chessground pieces');
+        this.chessground.set({lastMove: []});
+        this.parts[0] = this.chessground.getFen() + this.pockets;
         this.variantFenChange();
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
@@ -227,6 +236,7 @@ export function editorView(model): VNode[] {
 
     const vIdx = enabled_variants.sort().indexOf(model["variant"]);
     console.log(model["variant"], model["fen"]);
+    const disabled = ['cambodian', 'makruk', 'shogi', 'minishogi', 'kyotoshogi', 'xiangqi'];
 
     return [h('aside.sidebar-first', [
                 h('div.container', [
@@ -236,7 +246,9 @@ export function editorView(model): VNode[] {
                             props: {name: "variant"},
                             on: { input: () => setVariant(true) },
                             hook: {insert: () => setVariant(false) },
-                            }, enabled_variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variantName(variant, 0)))),
+                            }, enabled_variants.sort().map((variant, idx) => h('option', {
+                                props: {value: variant, disabled: disabled.indexOf(variant) !== -1, selected: (idx === vIdx) ? "selected" : ""}
+                                }, variantName(variant, 0)))),
                     ]),
                 ])
             ]),
