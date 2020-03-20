@@ -16,7 +16,8 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="bia_b.svg"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14">
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
+   enable-background="new">
   <defs
      id="defs2">
     <linearGradient
@@ -29,7 +30,7 @@
       <stop
          id="stop2255"
          offset="0.78260881"
-         style="stop-color:#666666;stop-opacity:1" />
+         style="stop-color:#4d4d4d;stop-opacity:1" />
       <stop
          style="stop-color:#1a1a1a;stop-opacity:1"
          offset="1"
@@ -45,7 +46,7 @@
       <stop
          id="stop2247"
          offset="0.73684192"
-         style="stop-color:#666666;stop-opacity:1" />
+         style="stop-color:#4d4d4d;stop-opacity:1" />
       <stop
          style="stop-color:#1a1a1a;stop-opacity:1"
          offset="1"
@@ -59,7 +60,7 @@
          offset="0"
          style="stop-color:#1a1a1a;stop-opacity:1" />
       <stop
-         style="stop-color:#666666;stop-opacity:1"
+         style="stop-color:#4d4d4d;stop-opacity:1"
          offset="0.71428567"
          id="stop1533" />
       <stop
@@ -71,7 +72,7 @@
        inkscape:collect="always"
        id="linearGradient883">
       <stop
-         style="stop-color:#666666;stop-opacity:1"
+         style="stop-color:#4d4d4d;stop-opacity:1"
          offset="0"
          id="stop879" />
       <stop
@@ -132,16 +133,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="178.78331"
+     inkscape:cx="162.35474"
      inkscape:cy="191.04546"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="1897"
-     inkscape:window-height="993"
-     inkscape:window-x="29"
-     inkscape:window-y="68"
+     inkscape:window-width="1896"
+     inkscape:window-height="1027"
+     inkscape:window-x="4"
+     inkscape:window-y="48"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -163,7 +164,8 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-201.74997)">
+     transform="translate(0,-201.74997)"
+     style="">
     <path
        style="fill:url(#radialGradient1545);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
        id="path3752"
