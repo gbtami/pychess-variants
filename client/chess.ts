@@ -1,5 +1,5 @@
 import { key2pos } from 'chessgroundx/util';
-import { Color, Geometry, Key, Role } from 'chessgroundx/types';
+import { Color, dimensions, Geometry, Key, Role } from 'chessgroundx/types';
 
 import { read } from 'chessgroundx/fen';
 
@@ -489,8 +489,8 @@ export function validFen(variant, fen) {
 
     // Allowed characters in placement part
     const placement = parts[0];
-    let good = start[0] + "~+0123456789[]";
-    const alien = (element) => {console.log(element, good, good.indexOf(element) === -1); return good.indexOf(element) === -1};
+    var good = start[0] + "~+0123456789[]";
+    const alien = (element) => {return good.indexOf(element) === -1;}
     if (parts[0].split('').some(alien)) return false;
 
     // Number of rows
@@ -499,10 +499,31 @@ export function validFen(variant, fen) {
     // Starting colors
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
 
+    // Rows filled with empty sqares correctly
+    var rows = parts[0].split('/');
+    const leftBracketPos = rows[rows.length-1].indexOf('[');
+    if (leftBracketPos !== -1) rows[rows.length-1] = rows[rows.length-1].slice(0, leftBracketPos);
+
+    const boardWidth = dimensions[VARIANTS[variant].geom].width;
+    const notFilled = (row) => {
+        var stuffedRow = row.replace(/10/g, ' '.repeat(10));
+        stuffedRow = row.replace(/\d/g, function stuff (x) {return ' '.repeat(parseInt(x));});
+        // console.log(row, stuffedRow);
+        return stuffedRow.length !== boardWidth;
+    };
+    if (rows.some(notFilled)) return false;
+
     // Castling rights (piece virginity)
-    good = start[2] + "-";
-    const wrong = (element) => good.indexOf(element) === -1;
-    if (parts.length > 2 && parts[2].split('').some(wrong)) return false;
+    good = (variant === 'seirawan' || variant === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
+    const wrong = (element) => {good.indexOf(element) === -1;};
+    if (parts.length > 2)
+        if (parts[2].split('').some(wrong)) return false;
+        
+        // Castling right need rooks and king placed in starting square
+        if (parts[2].indexOf('q') !== -1 && rows[0].charAt(0) !== 'r') return false;
+        if (parts[2].indexOf('k') !== -1 && rows[0].charAt(rows[0].length-1) !== 'r') return false;
+        if (parts[2].indexOf('Q') !== -1 && rows[rows.length-1].charAt(0) !== 'R') return false;
+        if (parts[2].indexOf('K') !== -1 && rows[rows.length-1].charAt(rows[rows.length-1].length-1) !== 'R') return false;
 
     // Number of kings
     if (lc(placement, 'k', false) !== 1 || lc(placement, 'k', true) !== 1) return false;
@@ -510,6 +531,9 @@ export function validFen(variant, fen) {
     // Touching kings
     const pieces = read(parts[0], VARIANTS[variant].geom);
     if (touchingKings(pieces)) return false;
+
+    // Brackets paired
+    if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
 
     return true;
 }

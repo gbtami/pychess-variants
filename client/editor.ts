@@ -150,7 +150,7 @@ export default class EditorController {
     }
 
     private onChange = () => {
-        console.log('onChange() will get then set and validate FEN from chessground pieces');
+        // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
         this.parts[0] = this.chessground.getFen() + this.pockets;
         this.variantFenChange();
