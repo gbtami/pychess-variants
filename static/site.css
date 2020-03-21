@@ -1295,3 +1295,7 @@ boardeditor {
   grid-template-rows: auto auto auto;
   justify-content: center;
 }
+.pocket-wrapper {
+  justify-content: center;
+  display: flex;
+}

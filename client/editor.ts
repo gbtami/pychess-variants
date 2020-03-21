@@ -213,7 +213,7 @@ export function editorView(model): VNode[] {
                 ])
             ]),
             h('main.round', [h('boardeditor', [
-                h('div#pocket-wrapper0', [
+                h('div.pocket-wrapper', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket0'),
@@ -225,7 +225,7 @@ export function editorView(model): VNode[] {
                         { hook: { insert: (vnode) => runEditor(vnode, model)},
                     }),
                 ]),
-                h('div#pocket-wrapper1', [
+                h('div.pocket-wrapper', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket1'),
