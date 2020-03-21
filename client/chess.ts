@@ -506,9 +506,8 @@ export function validFen(variant, fen) {
 
     const boardWidth = dimensions[VARIANTS[variant].geom].width;
     const notFilled = (row) => {
-        var stuffedRow = row.replace(/10/g, ' '.repeat(10));
-        stuffedRow = row.replace(/\d/g, function stuff (x) {return ' '.repeat(parseInt(x));});
-        // console.log(row, stuffedRow);
+        var stuffedRow = row.replace('10', '_'.repeat(10));
+        stuffedRow = stuffedRow.replace(/\d/g, function stuff (x) {return '_'.repeat(parseInt(x));});
         return stuffedRow.length !== boardWidth;
     };
     if (rows.some(notFilled)) return false;
