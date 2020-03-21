@@ -16,6 +16,8 @@ import { Color, Variant, dimensions } from 'chessgroundx/types';
 import { enabled_variants, getPockets, needPockets, validFen, variantName, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
 import { iniPieces } from './pieces';
+import { copyBoardToPNG } from './png'; 
+
 
 export default class EditorController {
     model;
@@ -94,6 +96,10 @@ export default class EditorController {
 
         e = document.getElementById('challenge') as HTMLElement;
         this.vChallenge = patch(e, h('div', [h('a', {on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+
+        e = document.getElementById('png') as HTMLElement;
+        patch(e, h('div', [h('a', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}, 'EXPORT TO PNG')]));
+
     }
 
     private validFen = () => {
@@ -214,7 +220,7 @@ export function editorView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('selection.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
+                h('selection#board2png.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
                     h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runEditor(vnode, model)},
                     }),
@@ -233,6 +239,7 @@ export function editorView(model): VNode[] {
                     h('div#start'),
 //                    h('div', [h('a', {attrs: {href: '/editor/' + model["variant"]}}, 'CREATE A GAME')]),
                     h('div#challenge'),
+                    h('div#png'),
                 ])
             ]),
             h('under-board', [
