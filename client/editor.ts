@@ -196,7 +196,6 @@ export function editorView(model): VNode[] {
 
     const vIdx = enabled_variants.sort().indexOf(model["variant"]);
     console.log(model["variant"], model["fen"]);
-    const disabled = ['xxxshogi', 'minishogi', 'kyotoshogi'];
 
     return [h('aside.sidebar-first', [
                 h('div.container', [
@@ -207,7 +206,7 @@ export function editorView(model): VNode[] {
                             on: { input: () => setVariant(true) },
                             hook: {insert: () => setVariant(false) },
                             }, enabled_variants.sort().map((variant, idx) => h('option', {
-                                props: {value: variant, disabled: disabled.indexOf(variant) !== -1, selected: (idx === vIdx) ? "selected" : ""}
+                                props: {value: variant, selected: (idx === vIdx) ? "selected" : ""}
                                 }, variantName(variant, 0)))),
                     ]),
                 ])

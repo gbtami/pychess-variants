@@ -13,7 +13,7 @@ except ImportError:
 
 from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN
 from compress import decode_moves, R2C, C2R, V2C, C2V
-from convert import zero2grand, uci2usi
+from convert import zero2grand
 from fairy import WHITE, BLACK, STANDARD_FEN, SHOGI_FEN, MINISHOGI_FEN, KYOTOSHOGI_FEN
 from game import Game
 from user import User
@@ -89,9 +89,7 @@ async def load_game(app, game_id):
     if mlist:
         game.saved = True
 
-    if variant[-5:] == "shogi":
-        mlist = map(uci2usi, mlist)
-    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
+    if variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = map(zero2grand, mlist)
 
     if "a" in doc:
@@ -322,9 +320,7 @@ def pgn(doc):
     mlist = decode_moves(doc["m"], variant)
     chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 
-    if variant[-5:] == "shogi":
-        mlist = list(map(uci2usi, mlist))
-    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
+    if variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = list(map(zero2grand, mlist))
 
     fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else KYOTOSHOGI_FEN if variant == "kyotoshogi" else sf.start_fen(variant)

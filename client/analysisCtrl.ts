@@ -16,7 +16,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, needPockets, usi2uci, grand2zero, VARIANTS, sanToRole, getPockets } from './chess';
+import { variants, needPockets, grand2zero, VARIANTS, sanToRole, getPockets } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -335,9 +335,7 @@ export default class AnalysisController {
 
         var lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.variant.endsWith('shogi')) {
-                lastMove = usi2uci(lastMove);
-            } else if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') {
+            if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') {
                 lastMove = grand2zero(lastMove);
             }
             // drop lastMove causing scrollbar flicker,
@@ -380,7 +378,6 @@ export default class AnalysisController {
         var move = step.move;
         var capture = false;
         if (move !== undefined) {
-            if (this.variant.endsWith('shogi')) move = usi2uci(move);
             if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
@@ -393,7 +390,6 @@ export default class AnalysisController {
         if (ceval !== undefined) {
             if (ceval.p !== undefined) {
                 var pv_move = ceval["m"].split(" ")[0];
-                if (this.variant.endsWith('shogi')) pv_move = usi2uci(pv_move);
                 if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') pv_move = grand2zero(pv_move);
                 // console.log(pv_move, ceval["m"]);
                 if (arrow === 'true') {

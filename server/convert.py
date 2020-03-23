@@ -1,5 +1,4 @@
-def usi2uci(move):
-    return move
+def xxxusi2uci(move):
     """ Used to create chessground dests UCI coordinates from USI shogi moves and on game save also. """
     if move[1] == "*":
         return "%s@%s%s" % (move[0], chr(ord(move[2]) + 48), chr(ord(move[3]) - 48))
@@ -9,8 +8,7 @@ def usi2uci(move):
         return "%s%s%s%s%s" % (chr(ord(move[0]) + 48), chr(ord(move[1]) - 48), chr(ord(move[2]) + 48), chr(ord(move[3]) - 48), move[4] if len(move) == 5 else "")
 
 
-def uci2usi(move):
-    return move
+def xxxuci2usi(move):
     if move[1] == "@":
         return "%s*%s%s" % (move[0], chr(ord(move[2]) - 48), chr(ord(move[3]) + 48))
     elif move[2] == "@":

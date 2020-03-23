@@ -10,7 +10,7 @@ from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CHEAT, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS
-from convert import grand2zero, usi2uci
+from convert import grand2zero
 from fairy import FairyBoard, WHITE, BLACK
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
 from settings import URI
@@ -244,8 +244,7 @@ class Game:
                 "s": self.status,
                 "r": R2C[self.result],
                 'm': encode_moves(
-                    map(usi2uci, self.board.move_stack) if self.variant[-5:] == "shogi"
-                    else map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
+                    map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
                     else self.board.move_stack, self.variant)}
 
             if self.rated and self.result != "*":
@@ -408,9 +407,7 @@ class Game:
             # print("RM: %s" % self.random_move)
 
         for move in moves:
-            if self.variant[-5:] == "shogi":
-                move = usi2uci(move)
-            elif self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako":
+            if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako":
                 move = grand2zero(move)
             source, dest = move[0:2], move[2:4]
             if source in dests:

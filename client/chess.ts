@@ -408,47 +408,6 @@ export function isPromotion(variant, piece, orig, dest, meta, promotions) {
     }
 }
 
-export function uci2usi(move) {
-    return move;
-    const parts = move.split("");
-    if (parts[1] === "@") {
-        parts[1] = "*";
-        parts[2] = String.fromCharCode(parts[2].charCodeAt() - 48)
-        parts[3] = String.fromCharCode(parts[3].charCodeAt() + 48)
-    } else if (parts[2] === "@") {
-        parts[2] = "*";
-        parts[3] = String.fromCharCode(parts[3].charCodeAt() - 48)
-        parts[4] = String.fromCharCode(parts[4].charCodeAt() + 48)
-    } else {
-        parts[0] = String.fromCharCode(parts[0].charCodeAt() - 48)
-        parts[1] = String.fromCharCode(parts[1].charCodeAt() + 48)
-        parts[2] = String.fromCharCode(parts[2].charCodeAt() - 48)
-        parts[3] = String.fromCharCode(parts[3].charCodeAt() + 48)
-    }
-    return parts.join("");
-}
-
-export function usi2uci(move) {
-    return move;
-    // console.log("usi2uci()", move);
-    const parts = move.split("");
-    if (parts[1] === "*") {
-        parts[1] = "@";
-        parts[2] = String.fromCharCode(parts[2].charCodeAt() + 48)
-        parts[3] = String.fromCharCode(parts[3].charCodeAt() - 48)
-    } else if (parts[2] === "*") {
-        parts[2] = "@";
-        parts[3] = String.fromCharCode(parts[3].charCodeAt() + 48)
-        parts[4] = String.fromCharCode(parts[4].charCodeAt() - 48)
-    } else {
-        parts[0] = String.fromCharCode(parts[0].charCodeAt() + 48)
-        parts[1] = String.fromCharCode(parts[1].charCodeAt() - 48)
-        parts[2] = String.fromCharCode(parts[2].charCodeAt() + 48)
-        parts[3] = String.fromCharCode(parts[3].charCodeAt() - 48)
-    }
-    return parts.join("");
-}
-
 export function zero2grand(move) {
     const parts = move.split("");
     if (parts[1] !== "@") {

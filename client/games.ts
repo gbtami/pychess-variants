@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { VARIANTS, usi2uci, grand2zero } from './chess';
+import { VARIANTS, grand2zero } from './chess';
 import { setBoardAndPieceStyles } from './settings';
 
 function renderGame(model, games, game, fen, lastMove) {
@@ -67,9 +67,7 @@ export function gamesView(model): VNode[] {
                 const parts = message.fen.split(" ");
                 var lastMove = message.lastMove;
                 if (lastMove !== null) {
-                    if (game.variant.endsWith('shogi')) {
-                        lastMove = usi2uci(lastMove);
-                    } else if (game.variant.startsWith('grand') || game.variant === 'shako') {
+                    if (game.variant === 'xiangqi' || game.variant.startsWith('grand') || game.variant === 'shako') {
                         lastMove = grand2zero(lastMove);
                     }
                     lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
