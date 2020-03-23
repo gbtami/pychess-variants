@@ -934,9 +934,17 @@ export default class RoundController {
         });
     }
 
-    private onMsgMoreTime = () => {
+    private onMsgMoreTime = (msg) => {
         chatMessage('', this.mycolor + ' +15 seconds', "roundchat");
-        this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
+        if (this.spectator) {
+            if (msg.username === this.players[0]) {
+                this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
+            } else {
+                this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
+            };
+        } else {
+            this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
+        };
     }
 
     private onMsgOffer = (msg) => {
@@ -999,7 +1007,7 @@ export default class RoundController {
                 this.onMsgOffer(msg);
                 break;
             case "moretime":
-                this.onMsgMoreTime();
+                this.onMsgMoreTime(msg);
                 break;
             case "updateTV":
                 this.onMsgUpdateTV(msg);

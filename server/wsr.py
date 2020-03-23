@@ -354,8 +354,9 @@ async def round_socket_handler(request):
 
                         if not opp_player.bot:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            response = {"type": "moretime"}
+                            response = {"type": "moretime", "username": opp_name}
                             await opp_ws.send_json(response)
+                            await round_broadcast(game, users, response)
 
                     elif data["type"] == "roundchat":
                         gameId = data["gameId"]
