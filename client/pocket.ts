@@ -108,8 +108,8 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
         const roles = pocketRoles(ctrl.variant);
         var po = {};
         var pc = {};
-        roles.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c===(ctrl.variant.endsWith('shogi') ? 'b' : 'w')));
-        roles.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o===(ctrl.variant.endsWith('shogi') ? 'b' : 'w')));
+        roles.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c===(ctrl.variant.endsWith('xxxshogi') ? 'b' : 'w')));
+        roles.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o===(ctrl.variant.endsWith('xxxshogi') ? 'b' : 'w')));
         if (ctrl.flip) {
             ctrl.pockets = [pc, po];
         } else {

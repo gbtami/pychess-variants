@@ -62,7 +62,7 @@ class FairyBoard:
         try:
             self.move_stack.append(move)
             self.color = not self.color
-            if self.variant[-5:] == "shogi":
+            if self.variant[-5:] == "xxxshogi":
                 # TODO: move this to pyffish.cpp
                 parts = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted).split()
                 color = "w" if parts[1] == "b" else "b"

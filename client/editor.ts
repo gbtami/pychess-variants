@@ -196,7 +196,7 @@ export function editorView(model): VNode[] {
 
     const vIdx = enabled_variants.sort().indexOf(model["variant"]);
     console.log(model["variant"], model["fen"]);
-    const disabled = ['shogi', 'minishogi', 'kyotoshogi'];
+    const disabled = ['xxxshogi', 'minishogi', 'kyotoshogi'];
 
     return [h('aside.sidebar-first', [
                 h('div.container', [
