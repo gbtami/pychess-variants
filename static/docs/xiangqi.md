@@ -191,4 +191,4 @@ Aside from the cannon opening, Red has other options as well. These are called "
 
 Red can also play his cannon to the front corner of the palace ("Palcorner Cannon") or to the opposite corner ("Crosspalace Cannon"). These moves are also useful developing moves.  
 
-Other red opening moves lare very rare.
+Other red opening moves are very rare.
