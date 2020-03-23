@@ -409,6 +409,7 @@ export function isPromotion(variant, piece, orig, dest, meta, promotions) {
 }
 
 export function uci2usi(move) {
+    return move;
     const parts = move.split("");
     if (parts[1] === "@") {
         parts[1] = "*";
@@ -428,6 +429,7 @@ export function uci2usi(move) {
 }
 
 export function usi2uci(move) {
+    return move;
     // console.log("usi2uci()", move);
     const parts = move.split("");
     if (parts[1] === "*") {
