@@ -58,7 +58,7 @@ class Clock:
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
                         if self.ply < 2:
                             self.game.update_status(ABORTED)
-                            await self.save_game()
+                            await self.game.save_game()
                             log.info("Game %s ABORT by server." % self.game.id)
                         else:
                             w, b = self.game.board.insufficient_material()
