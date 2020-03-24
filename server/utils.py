@@ -14,7 +14,7 @@ except ImportError:
 from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from convert import zero2grand
-from fairy import WHITE, BLACK, STANDARD_FEN, SHOGI_FEN, MINISHOGI_FEN, KYOTOSHOGI_FEN
+from fairy import WHITE, BLACK, STANDARD_FEN
 from game import Game
 from user import User
 from settings import URI
@@ -323,7 +323,7 @@ def pgn(doc):
     if variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = list(map(zero2grand, mlist))
 
-    fen = doc["if"] if "if" in doc else SHOGI_FEN if variant == "shogi" else MINISHOGI_FEN if variant == "minishogi" else KYOTOSHOGI_FEN if variant == "kyotoshogi" else sf.start_fen(variant)
+    fen = doc["if"] if "if" in doc else sf.start_fen(variant)
     mlist = sf.get_san_moves(variant, fen, mlist, chess960)
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
