@@ -48,8 +48,8 @@ export default class EditorController {
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
         this.pockets = needPockets(this.variant) ? getPockets(this.startfen) : '';
 
-        this.mycolor = this.variant.endsWith('shogi') ? 'black' : 'white';
-        this.oppcolor = this.variant.endsWith('shogi') ? 'white' : 'black';
+        this.mycolor = 'white';
+        this.oppcolor = 'black';
 
         this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
         this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
