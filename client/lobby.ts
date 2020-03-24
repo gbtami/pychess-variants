@@ -145,6 +145,13 @@ class LobbyController {
         const variant = e.options[e.selectedIndex].value;
         localStorage.setItem("seek_variant", variant);
 
+        let seekColor;
+        if (variant.endsWith('shogi') && color !== 'r') {
+            seekColor = (color === 'w') ? 'b' : 'w';
+        } else {
+            seekColor = color;
+        }
+
         e = document.getElementById('seek-fen') as HTMLInputElement;
         const fen = e.value;
         localStorage.setItem("seek_fen", e.value);
@@ -187,10 +194,10 @@ class LobbyController {
             const level = parseInt(e.value);
             localStorage.setItem("seek_level", e.value);
             // console.log(level, e.value, localStorage.getItem("seek_level"));
-            this.createBotChallengeMsg(variant, color, fen, minutes, increment, level, chess960, rated===1, handicap);
+            this.createBotChallengeMsg(variant, seekColor, fen, minutes, increment, level, chess960, rated===1, handicap);
         } else {
-            if (this.isNewSeek(variant, color, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')) {
-                this.createSeekMsg(variant, color, fen, minutes, increment, chess960, rated===1, handicap);
+            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')) {
+                this.createSeekMsg(variant, seekColor, fen, minutes, increment, chess960, rated===1, handicap);
             }
         }
         // prevent to create challenges continuously
