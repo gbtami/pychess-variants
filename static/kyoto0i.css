@@ -23,7 +23,7 @@
   background-image: url('images/pieces/kyoto/Intl/0KA.svg');
 }
 .kyoto .cg-wrap piece.king.white {
-  background-image: url('images/pieces/shogi/ctp/0OU.svg');
+  background-image: url('images/pieces/shogi/ctp/0GY.svg');
 }
 .kyoto .cg-wrap piece.pawn.black {
   background-image: url('images/pieces/kyoto/Intl/1FU.svg');
@@ -50,5 +50,5 @@
   background-image: url('images/pieces/kyoto/Intl/1KA.svg');
 }
 .kyoto .cg-wrap piece.king.black {
-  background-image: url('images/pieces/shogi/ctp/1GY.svg');
+  background-image: url('images/pieces/shogi/ctp/1OU.svg');
 }

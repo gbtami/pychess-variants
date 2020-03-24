@@ -38,7 +38,7 @@
   background-image: url('images/pieces/shogi/2kanji/0KI.svg');
 }
 .shogi .cg-wrap piece.king.white {
-  background-image: url('images/pieces/shogi/2kanji/0OU.svg');
+  background-image: url('images/pieces/shogi/2kanji/0GY.svg');
 }
 .shogi .cg-wrap piece.pawn.black {
   background-image: url('images/pieces/shogi/2kanji/1FU.svg');
@@ -80,5 +80,5 @@
   background-image: url('images/pieces/shogi/2kanji/1KI.svg');
 }
 .shogi .cg-wrap piece.king.black {
-  background-image: url('images/pieces/shogi/2kanji/1GY.svg');
+  background-image: url('images/pieces/shogi/2kanji/1OU.svg');
 }
