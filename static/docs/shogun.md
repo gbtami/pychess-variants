@@ -4,7 +4,7 @@
 
 Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in S-chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
 
-The name was originally tenatively "General's Chess," based on what was then the name of the pawn's promotion, now currently the name of the knight's promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.
+The name was originally tentatively "General's Chess," based on what was then the name of the pawn's promotion, now currently the name of the knight's promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.
 
 ## General Rules
 
