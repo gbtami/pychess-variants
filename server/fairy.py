@@ -39,12 +39,7 @@ class FairyBoard:
 
     @property
     def initial_sfen(self):
-        if self.variant == "kyotoshogi":
-            return "p+nks+l/5/5/5/+LSK+NP b - 1"
-        elif self.variant == "minishogi":
-            return "rbsgk/4p/5/P4/KGSBR b - 1"
-        else:
-            return "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
+        return sf.get_fen(self.variant, self.initial_fen, [], False, True)
 
     def push(self, move):
         try:

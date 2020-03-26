@@ -13,7 +13,7 @@ except ImportError:
 
 from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN
 from compress import decode_moves, R2C, C2R, V2C, C2V
-from convert import zero2grand
+from convert import mirror5, mirror9, usi2uci, zero2grand
 from fairy import WHITE, BLACK, STANDARD_FEN
 from game import Game
 from user import User
@@ -82,17 +82,38 @@ async def load_game(app, game_id):
 
     variant = C2V[doc["v"]]
 
-    game = Game(app, game_id, variant, doc.get("if"), wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")), create=False)
+    initial_fen = doc.get("if")
+    # USI SFEN from handicapped shogi games from old database games
+    if initial_fen and variant.endswith("shogi") and "[" not in initial_fen and initial_fen.endswith("w 0 1"):
+        print("load_game() USI SFEN was:", initial_fen)
+        initial_fen = initial_fen.split()[0] + "[-] b 0 1"
+        print("   changed to:", initial_fen)
+
+    game = Game(app, game_id, variant, initial_fen, wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")), create=False)
 
     mlist = decode_moves(doc["m"], variant)
+    usi_format = False
 
     if mlist:
         game.saved = True
 
-    if variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
+    # Old USI Shogi games saved using usi2uci() need special handling
+    if variant == "shogi" and mlist[0][1] > "3":
+        usi_format = True
+        mirror = mirror9
+        mlist = list(map(mirror, mlist))
+
+    elif (variant == "minishogi" or variant == "kyotoshogi") and mlist[0][1] > "1":
+        usi_format = True
+        mirror = mirror5
+        mlist = list(map(mirror, mlist))
+
+    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
         mlist = map(zero2grand, mlist)
 
     if "a" in doc:
+        if usi_format and "m" in doc["a"][0]:
+            doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
         game.steps[0]["analysis"] = doc["a"][0]
 
     for ply, move in enumerate(mlist):
@@ -109,6 +130,8 @@ async def load_game(app, game_id):
             )
 
             if "a" in doc:
+                if usi_format and "m" in doc["a"][ply + 1]:
+                    doc["a"][ply + 1]["m"] = mirror(usi2uci(doc["a"][ply + 1]["m"]))
                 game.steps[-1]["analysis"] = doc["a"][ply + 1]
 
         except Exception:

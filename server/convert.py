@@ -1,5 +1,5 @@
-def xxxusi2uci(move):
-    """ Used to create chessground dests UCI coordinates from USI shogi moves and on game save also. """
+def usi2uci(move):
+    """ Used to read USI format moves from old db games """
     if move[1] == "*":
         return "%s@%s%s" % (move[0], chr(ord(move[2]) + 48), chr(ord(move[3]) - 48))
     elif move[2] == "*":
@@ -8,7 +8,34 @@ def xxxusi2uci(move):
         return "%s%s%s%s%s" % (chr(ord(move[0]) + 48), chr(ord(move[1]) - 48), chr(ord(move[2]) + 48), chr(ord(move[3]) - 48), move[4] if len(move) == 5 else "")
 
 
-def xxxuci2usi(move):
+# reversed letters
+L5 = str.maketrans("abcde", "edcba")
+L9 = str.maketrans("abcdefghi", "ihgfedcba")
+
+# reversed digits
+D5 = str.maketrans("12345", "54321")
+D9 = str.maketrans("123456789", "987654321")
+
+
+def mirror5(move):
+    if move[1] == "@":
+        return "%s@%s%s" % (move[0], move[2].translate(L5), move[3].translate(D5))
+    elif move[2] == "@":
+        return "%s%s@%s%s" % (move[0], move[1], move[3].translate(L5), move[4].translate(D5))
+    else:
+        return "%s%s%s%s%s" % (move[0].translate(L5), move[1].translate(D5), move[2].translate(L5), move[3].translate(D5), move[4] if len(move) == 5 else "")
+
+
+def mirror9(move):
+    if move[1] == "@":
+        return "%s@%s%s" % (move[0], move[2].translate(L9), move[3].translate(D9))
+    elif move[2] == "@":
+        return "%s%s@%s%s" % (move[0], move[1], move[3].translate(L9), move[4].translate(D9))
+    else:
+        return "%s%s%s%s%s" % (move[0].translate(L9), move[1].translate(D9), move[2].translate(L9), move[3].translate(D9), move[4] if len(move) == 5 else "")
+
+
+def uci2usi(move):
     if move[1] == "@":
         return "%s*%s%s" % (move[0], chr(ord(move[2]) - 48), chr(ord(move[3]) + 48))
     elif move[2] == "@":
