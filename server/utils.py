@@ -83,28 +83,31 @@ async def load_game(app, game_id):
     variant = C2V[doc["v"]]
 
     initial_fen = doc.get("if")
-    # USI SFEN from handicapped shogi games from old database games
-    if initial_fen and variant.endswith("shogi") and "[" not in initial_fen and initial_fen.endswith("w 0 1"):
-        print("load_game() USI SFEN was:", initial_fen)
-        initial_fen = initial_fen.split()[0] + "[-] b 0 1"
-        print("   changed to:", initial_fen)
+
+    # Old USI Shogi games saved using usi2uci() need special handling
+    usi_format = variant.endswith("shogi") and doc.get("uci") is None
+
+    if usi_format:
+        wplayer, bplayer = bplayer, wplayer
+        if initial_fen:
+            print("load_game() USI SFEN was:", initial_fen)
+            parts = initial_fen.split()
+            pockets = "[%s]" % parts[2]
+            initial_fen = parts[0] + pockets + (" w" if parts[1] == " b" else " w") + " 0 " + parts[3]
+            print("   changed to:", initial_fen)
 
     game = Game(app, game_id, variant, initial_fen, wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")), create=False)
 
     mlist = decode_moves(doc["m"], variant)
-    usi_format = False
 
     if mlist:
         game.saved = True
 
-    # Old USI Shogi games saved using usi2uci() need special handling
-    if variant == "shogi" and mlist[0][1] > "3":
-        usi_format = True
+    if usi_format and variant == "shogi":
         mirror = mirror9
         mlist = list(map(mirror, mlist))
 
-    elif (variant == "minishogi" or variant == "kyotoshogi") and mlist[0][1] > "1":
-        usi_format = True
+    elif usi_format and (variant == "minishogi" or variant == "kyotoshogi"):
         mirror = mirror5
         mlist = list(map(mirror, mlist))
 
@@ -264,6 +267,9 @@ async def new_game(app, user, seek_id):
 
     if seek.fen or seek.chess960:
         document["if"] = new_game.initial_fen
+
+    if seek.variant.endswith("shogi"):
+        document["uci"] = 1
 
     result = await db.game.insert_one(document)
     print("db insert game result %s" % repr(result.inserted_id))
