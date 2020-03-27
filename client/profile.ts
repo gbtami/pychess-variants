@@ -16,9 +16,11 @@ import { renderTimeago } from './clock';
 import { setBoardAndPieceStyles } from './settings';
 
 
-export function result(status, result) {
+export function result(variant, status, result) {
     var text = '';
-    console.log("result()", status, result);
+    console.log("result()", variant, status, result);
+    const first = (variant.endsWith('shogi')) ? 'Black' : 'White';
+    const second = (variant.endsWith('shogi')) ? 'White' : 'Black';
     switch (status) {
     case -2:
     case -1:
@@ -31,7 +33,7 @@ export function result(status, result) {
         text = 'Checkmate';
         break;
     case 2:
-        text = ((result === '1-0') ? 'Black' : 'White') + ' resigned';
+        text = ((result === '1-0') ? second : first) + ' resigned';
         break;
     case 3:
         text = 'Stalemate';
@@ -46,7 +48,7 @@ export function result(status, result) {
         text = 'Time out';
         break;
     case 7:
-        text = ((result === '1-0') ? 'Black' : 'White') + ' abandoned the game';
+        text = ((result === '1-0') ? second : first) + ' abandoned the game';
         break
     case 8:
         text = 'Cheat detected';
@@ -126,7 +128,7 @@ function renderGames(model, games) {
                     class: {
                         "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
                         "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
-                    }}, result(game["s"], game["r"])
+                    }}, result(game["v"], game["s"], game["r"])
                 ),
             ]),
             h('div.info2.games', game["a"] === undefined ? "" : [h('span.icon', {attrs: {"data-icon": "3"}, class: {"icon": true}}), "Computer analysis available"]),

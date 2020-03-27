@@ -370,7 +370,7 @@ export default class RoundController {
         var container = document.getElementById('movelist') as HTMLElement;
         var movesTail: VNode[] = [];
         if (this.turnColor === 'black') movesTail.push(h('li.move.hidden', 'X'));
-        movesTail.push(h('div#result', result(this.status, this.result)));
+        movesTail.push(h('div#result', result(this.variant, this.status, this.result)));
         patch(container, h('ol.movelist#movelist', movesTail));
 
         container = document.getElementById('wrdiff') as HTMLElement;

@@ -62,8 +62,10 @@ export function selectMove (ctrl, ply) {
         const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
         if (blackEl && ctrl.steps[ply]['ceval'] !== undefined) {
             var score = ctrl.steps[ply]['ceval']['s'];
+            const turnColor = ctrl.steps[ply]['turnColor'];
+            const color = (ctrl.variant.endsWith('shogi')) ? turnColor === 'black' ? 'white' : 'black' : turnColor;
             if (score !== undefined) {
-                const ev = povChances(ctrl.steps[ply]['turnColor'], score);
+                const ev = povChances(color, score);
                 blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
             } else {
                 blackEl.style.height = '50%';

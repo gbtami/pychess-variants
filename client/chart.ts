@@ -7,12 +7,13 @@ export function analysisChart (ctrl) {
             (step, ply) => {
                 if (step.ceval !== undefined) {
                     const score = step.ceval.s;
+                    const color = (ctrl.variant.endsWith('shogi')) ? step.turnColor === 'black' ? 'white' : 'black' : step.turnColor;
                     if (score !== undefined) {
                         var turn = Math.floor((ply - 1) / 2) + 1;
                         var dots = step.turnColor === 'black' ? '.' : '...';
                         var point = {
                           name: turn + dots + ' ' + step.san,
-                          y: povChances(step.turnColor, score)
+                          y: povChances(color, score)
                         };
                         if (ply === 0) point.name = 'Initial position';
                         return point;

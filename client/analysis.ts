@@ -84,7 +84,7 @@ export function analysisView(model): VNode[] {
                     h('div#pv'),
                     h('div#movelist-block', [
                         h('div#movelist'),
-                        h('div#result', result(model.status, model.result)),
+                        h('div#result', result(model.variant, model.status, model.result)),
                     ]),
                     h('div#move-controls'),
                 ]),
