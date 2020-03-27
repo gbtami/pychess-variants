@@ -7,9 +7,8 @@ from time import monotonic
 
 from aiohttp import web
 
-from broadcast import round_broadcast, lobby_broadcast
-from const import ANALYSIS, STARTED, INVALIDMOVE, VARIANTS
-from seek import get_seeks, Seek
+from broadcast import round_broadcast
+from const import ANALYSIS, STARTED, INVALIDMOVE
 from utils import load_game, get_board
 from settings import FISHNET_KEYS
 
@@ -85,18 +84,6 @@ async def fishnet_acquire(request):
         request.app["workers"].add(key)
         fm[worker].append("%s %s %s" % (datetime.utcnow(), "-", "joined"))
         request.app["users"]["Fairy-Stockfish"].bot_online = True
-
-        if not request.app["users"]["Fairy-Stockfish"].seeks:
-            ai = request.app["users"]["Fairy-Stockfish"]
-            seeks = request.app["seeks"]
-            sockets = request.app["websockets"]
-            for variant in VARIANTS:
-                variant960 = variant.endswith("960")
-                variant_name = variant[:-3] if variant960 else variant
-                seek = Seek(ai, variant_name, color="r", base=5, inc=3, level=6, chess960=variant960)
-                seeks[seek.id] = seek
-                ai.seeks[seek.id] = seek
-            await lobby_broadcast(sockets, get_seeks(seeks))
 
     response = await get_work(request, data)
     return response
