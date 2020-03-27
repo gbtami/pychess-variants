@@ -279,7 +279,8 @@ export default class RoundController {
             if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
             this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.model["gameId"] });
-            chatMessage('', this.oppcolor + ' +15 seconds', "roundchat");
+            const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
+            chatMessage('', oppName + ' +15 seconds', "roundchat");
         }
 
         if (!this.spectator) {
@@ -932,7 +933,7 @@ export default class RoundController {
     }
 
     private onMsgMoreTime = (msg) => {
-        chatMessage('', this.mycolor + ' +15 seconds', "roundchat");
+        chatMessage('', msg.username + ' +15 seconds', "roundchat");
         if (this.spectator) {
             if (msg.username === this.players[0]) {
                 this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);

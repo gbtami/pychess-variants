@@ -87,6 +87,25 @@ export function variantName(variant, chess960) {
     }
 }
 
+export function firstColor(variant) {
+    switch (variant) {
+    case 'shogi':
+    case 'minishogi':
+    case 'kyotoshogi':
+        return 'Black';
+    case 'xiangqi':
+    case 'minixiangqi':
+    case "sittuyin":
+        return 'Red';
+    default:
+        return 'White';
+    }
+}
+
+export function secondColor(variant) {
+    return (variant.endsWith('shogi')) ? 'White' : 'Black';
+}
+
 // pocket part of the FEN (including brackets)
 export function getPockets(fen: string) {
     const fen_placement = fen.split(" ")[0];

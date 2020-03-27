@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { VARIANTS, variantIcon, variantName } from './chess';
+import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
 import { renderTimeago } from './clock';
 import { setBoardAndPieceStyles } from './settings';
 
@@ -19,8 +19,8 @@ import { setBoardAndPieceStyles } from './settings';
 export function result(variant, status, result) {
     var text = '';
     console.log("result()", variant, status, result);
-    const first = (variant.endsWith('shogi')) ? 'Black' : 'White';
-    const second = (variant.endsWith('shogi')) ? 'White' : 'Black';
+    const first = firstColor(variant);
+    const second = secondColor(variant);
     switch (status) {
     case -2:
     case -1:
