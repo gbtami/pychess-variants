@@ -401,7 +401,7 @@ export default class AnalysisController {
                             color = (color === 'white') ? 'black' : 'white';
                             if (this.flip) color = (color === 'white') ? 'black' : 'white';
                         }
-                        console.log(color, pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
+                        // console.log(color, pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
                         shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
                             color: color,
                             role: sanToRole[pv_move.slice(0, atPos)]
@@ -427,7 +427,7 @@ export default class AnalysisController {
             }
         }
 
-        console.log(shapes0);
+        // console.log(shapes0);
         this.chessground.set({
             fen: step.fen,
             turnColor: step.turnColor,
@@ -460,7 +460,7 @@ export default class AnalysisController {
     }
 
     private doSend = (message) => {
-        console.log("---> doSend():", message);
+        // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
 
@@ -481,7 +481,7 @@ export default class AnalysisController {
 
     private onDrop = () => {
         return (piece, dest) => {
-            console.log("ground.onDrop()", piece, dest);
+            // console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 if (this.variant.endsWith('shogi')) {
                     sound.shogimove();
@@ -582,7 +582,7 @@ export default class AnalysisController {
     }
 
     private onMessage = (evt) => {
-        console.log("<+++ onMessage():", evt.data);
+        // console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":

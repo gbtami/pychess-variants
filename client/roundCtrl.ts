@@ -243,7 +243,7 @@ export default class RoundController {
                 events: {
                     move: this.onMove(),
                     dropNewPiece: this.onDrop(),
-                    select: this.onSelect(this.chessground.state.selected),
+                    select: this.onSelect(),
                 }
             });
         };
@@ -299,24 +299,24 @@ export default class RoundController {
         const flagCallback = () => {
             if (this.turnColor === this.mycolor) {
                 this.chessground.stop();
-                console.log("Flag");
+                // console.log("Flag");
                 this.doSend({ type: "flag", gameId: this.model["gameId"] });
             }
         }
         if (!this.spectator) this.clocks[1].onFlag(flagCallback);
 
         const abort = () => {
-            console.log("Abort");
+            // console.log("Abort");
             this.doSend({ type: "abort", gameId: this.model["gameId"] });
         }
 
         const draw = () => {
-            console.log("Draw");
+            // console.log("Draw");
             this.doSend({ type: "draw", gameId: this.model["gameId"] });
         }
 
         const resign = () => {
-            console.log("Resign");
+            // console.log("Resign");
             if (confirm('Are you sure you want to resign?')) {
                 this.doSend({ type: "resign", gameId: this.model["gameId"] });
             }
@@ -380,7 +380,7 @@ export default class RoundController {
         container = document.getElementById('brdiff') as HTMLElement;
         patch(container, renderRdiff(rdiffs["brdiff"]));
 
-        console.log(rdiffs)
+        // console.log(rdiffs)
         if (!this.spectator) {
             this.gameControls = patch(this.gameControls, h('div'));
             patch(this.gameControls, h('div#after-game-controls', [
@@ -517,7 +517,7 @@ export default class RoundController {
         // 960 king takes rook castling is not capture
         const step = this.steps[this.steps.length - 1];
         const capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
-        console.log("CAPTURE ?", capture, lastMove, step);
+        // console.log("CAPTURE ?", capture, lastMove, step);
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
             if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
@@ -583,7 +583,7 @@ export default class RoundController {
                 this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
                 if (!this.abortable && msg.status < 0) {
                     this.clocks[myclock].start(this.clocktimes[this.mycolor]);
-                    console.log('MY CLOCK STARTED');
+                    // console.log('MY CLOCK STARTED');
                 }
 
                 // console.log("trying to play premove....");
@@ -605,7 +605,7 @@ export default class RoundController {
                 this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
                 if (!this.abortable && msg.status < 0) {
                     this.clocks[oppclock].start(this.clocktimes[this.oppcolor]);
-                    console.log('OPP CLOCK  STARTED');
+                    // console.log('OPP CLOCK  STARTED');
                 }
                 if (this.oppIsRandomMover && msg.rm  !== "") {
                     this.doSend({ type: "move", gameId: this.model["gameId"], move: msg.rm, clocks: this.clocktimes });
@@ -654,7 +654,7 @@ export default class RoundController {
     }
 
     private doSend = (message) => {
-        console.log("---> doSend():", message);
+        // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
 
@@ -707,7 +707,7 @@ export default class RoundController {
 
     private onDrop = () => {
         return (piece, dest) => {
-            console.log("ground.onDrop()", piece, dest);
+            // console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 if (this.variant.endsWith('shogi')) {
                     sound.shogimove();
@@ -741,16 +741,16 @@ export default class RoundController {
     }
 
     private performPremove = () => {
-        const { orig, dest, meta } = this.premove;
+        // const { orig, dest, meta } = this.premove;
         // TODO: promotion?
-        console.log("performPremove()", orig, dest, meta);
+        // console.log("performPremove()", orig, dest, meta);
         this.chessground.playPremove();
         this.premove = null;
     }
 
     private performPredrop = () => {
-        const { role, key } = this.predrop;
-        console.log("performPredrop()", role, key);
+        // const { role, key } = this.predrop;
+        // console.log("performPredrop()", role, key);
         this.chessground.playPredrop(drop => { return dropIsValid(this.dests, drop.role, drop.key); });
         this.predrop = null;
     }
@@ -815,7 +815,7 @@ export default class RoundController {
             }
             // console.log("sent move", move);
         } else {
-            console.log("!!! invalid move !!!", role, dest);
+            // console.log("!!! invalid move !!!", role, dest);
             // restore board
             this.clickDrop = undefined;
             this.chessground.set({
@@ -832,9 +832,9 @@ export default class RoundController {
         this.preaction = false;
     }
 
-    private onSelect = (selected) => {
+    private onSelect = () => {
         return (key) => {
-            console.log("ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
+            // console.log("ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
             // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests === undefined) return;
             if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
@@ -851,7 +851,7 @@ export default class RoundController {
                 (key in this.chessground.state.movable.dests) &&
                 (this.chessground.state.movable.dests[key].indexOf(key) >= 0) &&
                 (this.variant === 'sittuyin')) {
-                console.log("Ctrl in place promotion", key);
+                // console.log("Ctrl in place promotion", key);
                 var pieces = {};
                 var piece = this.chessground.state.pieces[key];
                 pieces[key] = {
@@ -895,7 +895,7 @@ export default class RoundController {
     }
 
     private onMsgUserPresent = (msg) => {
-        console.log(msg);
+        // console.log(msg);
         if (msg.username === this.players[0]) {
             var container = document.getElementById('player0') as HTMLElement;
             patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
@@ -906,7 +906,7 @@ export default class RoundController {
     }
 
     private onMsgUserDisconnected = (msg) => {
-        console.log(msg);
+        // console.log(msg);
         if (msg.username === this.players[0]) {
             var container = document.getElementById('player0') as HTMLElement;
             patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
@@ -965,7 +965,7 @@ export default class RoundController {
     }
 
     private onMessage = (evt) => {
-        console.log("<+++ onMessage():", evt.data);
+        // console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
