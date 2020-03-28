@@ -124,11 +124,14 @@ async def load_game(app, game_id):
             san = game.board.get_san(move)
             game.board.push(move)
             game.check = game.board.is_checked()
+            turnColor = "black" if game.board.color == BLACK else "white"
+            if usi_format:
+                turnColor = "black" if turnColor == "white" else "white"
             game.steps.append({
                 "fen": game.board.fen,
                 "move": move,
                 "san": san,
-                "turnColor": "black" if game.board.color == BLACK else "white",
+                "turnColor": turnColor,
                 "check": game.check}
             )
 
