@@ -97,7 +97,7 @@ export function setPieces (ctrl, color, flip: boolean = false) {
         // console.log("A autoShapes:", chessground.state.drawable.autoShapes);
         var shapes0 = chessground.state.drawable.autoShapes;
         if (flip && variant.endsWith('shogi') && shapes0[0] !== undefined && shapes0[0].piece !== undefined) {
-            shapes0[0].piece.color = (shapes0[0].piece.color === 'white') ? 'balck' : 'white';
+            shapes0[0].piece.color = (shapes0[0].piece.color === 'white') ? 'black' : 'white';
         }
         chessground.set({
             drawable: {
@@ -223,7 +223,7 @@ function renderPieces (ctrl) {
         //console.log("togglePieces()", idx);
         ctrl.CSSindexesP[variants.indexOf(ctrl.variant)] = idx;
         var color = ctrl.mycolor;
-        if (ctrl.flip && ctrl.variant.endsWith('shogi')) color = (color === 'white') ? 'balck' : 'white';
+        if (ctrl.flip && ctrl.variant.endsWith('shogi')) color = (color === 'white') ? 'black' : 'white';
         setPieces(ctrl, color);
 
         const family = VARIANTS[ctrl.variant].pieces;
