@@ -139,12 +139,13 @@ export default class AnalysisController {
 
         // orientation = this.mycolor
         if (this.spectator) {
-            this.mycolor = this.variant.endsWith('shogi') ? 'black' : 'white';
-            this.oppcolor = this.variant.endsWith('shogi') ? 'white' : 'black';
+            this.mycolor = 'white';
+            this.oppcolor = 'black';
         } else {
             this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
         }
+        if (this.variant.endsWith('shogi') && this.mycolor === 'white') this.flip = true;
 
         // players[0] is top player, players[1] is bottom player
         this.players = [

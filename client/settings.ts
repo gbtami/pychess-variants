@@ -223,7 +223,7 @@ function renderPieces (ctrl) {
         //console.log("togglePieces()", idx);
         ctrl.CSSindexesP[variants.indexOf(ctrl.variant)] = idx;
         var color = ctrl.mycolor;
-        if (ctrl.flip && ctrl.variant.endsWith('shogi')) color = (color === 'white') ? 'black' : 'white';
+        //if (ctrl.flip && ctrl.variant.endsWith('shogi')) color = (color === 'white') ? 'black' : 'white';
         setPieces(ctrl, color);
 
         const family = VARIANTS[ctrl.variant].pieces;
