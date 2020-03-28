@@ -10,7 +10,7 @@ from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CHEAT, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS
-from convert import grand2zero, uci2usi
+from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, WHITE, BLACK
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
 from settings import URI
@@ -456,7 +456,8 @@ class Game:
     @property
     def uci_usi(self):
         if self.variant[-5:] == "shogi":
-            return "position sfen %s moves %s" % (self.board.initial_sfen, " ".join(map(uci2usi, self.board.move_stack)))
+            mirror = mirror9 if self.variant == "shogi" else mirror5
+            return "position sfen %s moves %s" % (self.board.initial_sfen, " ".join(map(uci2usi, map(mirror, self.board.move_stack))))
         else:
             return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
 
