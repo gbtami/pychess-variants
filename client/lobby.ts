@@ -384,7 +384,7 @@ class LobbyController {
                 document.getElementById('ailevel')!.style.display='inline-block';
                 document.getElementById('id01')!.style.display='block';
                 }
-            } }, "Play with Fairy-Stockfish"),
+            } }, "Play with AI(Fairy-Stockfish)"),
         ];
     }
 
