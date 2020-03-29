@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -168,9 +168,9 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="5.2444445"
-     inkscape:cx="-21.833895"
-     inkscape:cy="83.426267"
+     inkscape:zoom="7.4167645"
+     inkscape:cx="22.881422"
+     inkscape:cy="51.356505"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -187,64 +187,68 @@
      inkscape:label="Background"
      style="display:inline">
     <g
-       transform="matrix(1.2229935,0,0,1.2229935,-350.25112,-526.31938)"
-       id="g2768">
+       transform="matrix(1.4064425,0,0,1.4064425,-409.68878,-612.16728)"
+       id="g2768"
+       style="stroke:none">
       <g
-         id="XMLID_8_">
+         id="XMLID_8_"
+         style="stroke:none">
         <g
-           id="g2738">
+           id="g2738"
+           style="stroke:none">
           <polygon
-             style="fill:#ffffff"
-             points="307.152,459.453 317.022,449.586 330.979,449.586 340.85,459.453 340.85,473.412 340.818,473.442 330.979,483.282 317.063,483.282 317.022,483.282 307.152,473.412 "
+             style="fill:#ffffff;stroke:none"
+             points="340.85,459.453 340.85,473.412 340.818,473.442 330.979,483.282 317.063,483.282 317.022,483.282 307.152,473.412 307.152,459.453 317.022,449.586 330.979,449.586 "
              id="polygon2730" />
           <polygon
-             style="fill:#bcbab8"
-             points="340.82,476.539 340.84,476.558 331.089,486.311 330.979,486.311 330.979,483.325 330.979,483.282 340.818,473.442 340.82,473.446 "
+             style="fill:#bcbab8;stroke:none"
+             points="330.979,486.311 330.979,483.325 330.979,483.282 340.818,473.442 340.82,473.446 340.82,476.539 340.84,476.558 331.089,486.311 "
              id="polygon2732" />
           <polygon
-             style="fill:#cecac8"
-             points="317.063,483.282 330.979,483.282 330.979,483.325 330.979,486.311 330.979,486.346 330.95,486.346 317.067,486.346 317.063,486.346 317.063,486.271 317.063,483.325 "
+             style="fill:#cecac8;stroke:none"
+             points="330.979,486.311 330.979,486.346 330.95,486.346 317.067,486.346 317.063,486.346 317.063,486.271 317.063,483.325 317.063,483.282 330.979,483.282 330.979,483.325 "
              id="polygon2734" />
           <polygon
-             style="fill:#e2e1e0"
-             points="317.063,483.325 317.063,486.271 316.997,486.271 307.152,476.427 307.152,473.412 317.022,483.282 317.063,483.282 "
+             style="fill:#e2e1e0;stroke:none"
+             points="307.152,476.427 307.152,473.412 317.022,483.282 317.063,483.282 317.063,483.325 317.063,486.271 316.997,486.271 "
              id="polygon2736" />
         </g>
         <g
-           id="g2756">
+           id="g2756"
+           style="stroke:none">
           <polygon
-             style="fill:none;stroke:#000000;stroke-width:0.25"
-             points="340.85,473.412 340.818,473.442 330.979,483.282 317.063,483.282 317.022,483.282 307.152,473.412 307.152,459.453 317.022,449.586 330.979,449.586 340.85,459.453 "
+             style="fill:none;stroke:none;stroke-width:0.25"
+             points="317.063,483.282 317.022,483.282 307.152,473.412 307.152,459.453 317.022,449.586 330.979,449.586 340.85,459.453 340.85,473.412 340.818,473.442 330.979,483.282 "
              id="polygon2740" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="307.152,473.412 307.152,476.427 307.152,476.505    "
              id="polyline2742" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="317.063,483.325 317.063,486.271 317.063,486.346      317.063,486.414    "
              id="polyline2744" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="330.979,483.325 330.979,486.311 330.979,486.346      330.979,486.414    "
              id="polyline2746" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="340.82001"
              y1="473.44601"
              x2="340.82001"
              y2="476.539"
              id="line2748" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="307.123,476.396 307.152,476.427 316.997,486.271    "
              id="polyline2750" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="331.089,486.311 340.84,476.558 340.875,476.521    "
              id="polyline2752" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="317.06699"
              y1="486.34601"
              x2="330.95001"
@@ -254,7 +258,7 @@
       </g>
     </g>
     <g
-       transform="matrix(0.72709866,0,0,0.72709866,12.615006,9.9311835)"
+       transform="matrix(0.83616346,0,0,0.83616346,7.6072646,4.5208691)"
        style="display:inline;fill:#0d00b4;fill-opacity:1;stroke:#0d00b4;stroke-opacity:1"
        id="g9866">
       <g

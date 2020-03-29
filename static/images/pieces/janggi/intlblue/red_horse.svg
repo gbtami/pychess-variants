@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -167,8 +167,8 @@
      id="namedview8"
      showgrid="false"
      inkscape:zoom="5.6568542"
-     inkscape:cx="42.877327"
-     inkscape:cy="36.140783"
+     inkscape:cx="13.444007"
+     inkscape:cy="50.282919"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -185,64 +185,68 @@
      inkscape:label="Background"
      style="display:inline">
     <g
-       transform="matrix(1.2230064,0,0,1.2230064,-526.36811,2.0310851)"
-       id="g2170">
+       transform="matrix(1.4064574,0,0,1.4064574,-612.22334,-4.5642535)"
+       id="g2170"
+       style="stroke:none">
       <g
-         id="XMLID_19_">
+         id="XMLID_19_"
+         style="stroke:none">
         <g
-           id="g2144">
+           id="g2144"
+           style="stroke:none">
           <polygon
-             style="fill:#ffffff"
-             points="491.332,43.496 491.287,43.539 477.666,57.16 458.395,57.16 458.338,57.16 444.674,43.496 444.674,24.167 458.338,10.501 477.666,10.501 491.332,24.167 "
+             style="fill:#ffffff;stroke:none"
+             points="458.395,57.16 458.338,57.16 444.674,43.496 444.674,24.167 458.338,10.501 477.666,10.501 491.332,24.167 491.332,43.496 491.287,43.539 477.666,57.16 "
              id="polygon2136" />
           <polygon
-             style="fill:#bcbab8"
-             points="477.666,57.218 477.666,57.16 491.287,43.539 491.291,43.542 491.291,47.825 491.32,47.854 477.818,61.352 477.666,61.352 "
+             style="fill:#bcbab8;stroke:none"
+             points="491.291,43.542 491.291,47.825 491.32,47.854 477.818,61.352 477.666,61.352 477.666,57.218 477.666,57.16 491.287,43.539 "
              id="polygon2138" />
           <polygon
-             style="fill:#cecac8"
-             points="477.666,61.402 477.627,61.402 458.402,61.402 458.395,61.402 458.395,61.303 458.395,57.218 458.395,57.16 477.666,57.16 477.666,57.218 477.666,61.352 "
+             style="fill:#cecac8;stroke:none"
+             points="458.395,61.402 458.395,61.303 458.395,57.218 458.395,57.16 477.666,57.16 477.666,57.218 477.666,61.352 477.666,61.402 477.627,61.402 458.402,61.402 "
              id="polygon2140" />
           <polygon
-             style="fill:#e2e1e0"
-             points="444.674,43.496 458.338,57.16 458.395,57.16 458.395,57.218 458.395,61.303 458.307,61.303 444.674,47.67 "
+             style="fill:#e2e1e0;stroke:none"
+             points="458.395,57.218 458.395,61.303 458.307,61.303 444.674,47.67 444.674,43.496 458.338,57.16 458.395,57.16 "
              id="polygon2142" />
         </g>
         <g
-           id="g2162">
+           id="g2162"
+           style="stroke:none">
           <polygon
-             style="fill:none;stroke:#000000;stroke-width:0.25"
-             points="458.338,57.16 444.674,43.496 444.674,24.167 458.338,10.501 477.666,10.501 491.332,24.167 491.332,43.496 491.287,43.539 477.666,57.16 458.395,57.16 "
+             style="fill:none;stroke:none;stroke-width:0.25"
+             points="458.338,10.501 477.666,10.501 491.332,24.167 491.332,43.496 491.287,43.539 477.666,57.16 458.395,57.16 458.338,57.16 444.674,43.496 444.674,24.167 "
              id="polygon2146" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="444.674,43.496 444.674,47.67 444.674,47.776    "
              id="polyline2148" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="458.395,57.218 458.395,61.303 458.395,61.402      458.395,61.499    "
              id="polyline2150" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="477.666,57.218 477.666,61.352 477.666,61.402      477.666,61.499    "
              id="polyline2152" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="491.29099"
              y1="43.542"
              x2="491.29099"
              y2="47.825001"
              id="line2154" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="444.633,47.629 444.674,47.67 458.307,61.303    "
              id="polyline2156" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="477.818,61.352 491.32,47.854 491.367,47.805    "
              id="polyline2158" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="458.40201"
              y1="61.402"
              x2="477.62701"
@@ -251,20 +255,8 @@
         </g>
       </g>
     </g>
-    <path
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.02404404px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 40.477249,38.692473 c -0.698152,-0.258835 -0.891389,0.29367 -1.228853,0.614427 0.0637,0.395111 -0.133146,0.574333 0.614427,1.536066 0.650104,0.226983 1.456078,0.05044 2.252897,-0.102405 0.863586,0.1485 1.335138,0.493013 1.843279,0.819235 -0.06431,-0.700603 -0.46211,-1.256364 -1.024044,-1.740874 z"
-       id="path5363"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccccc" />
-    <path
-       style="fill:#ffffff;stroke:none;stroke-width:1.02565658;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 40.886867,37.46362 c -0.841887,0.102662 -1.375773,0.446167 -1.740875,0.92164 0.327315,-0.01004 0.670708,-0.02814 1.126448,-0.102404 0.831524,-0.734477 1.33903,-0.289149 1.945684,-0.204809 -0.351339,-0.235611 -0.784766,-0.443865 -1.331257,-0.614427 z"
-       id="path5365"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccc" />
     <g
-       transform="matrix(1.3342555,0,0,1.3342555,70.660313,-32.783204)"
+       transform="matrix(1.5343938,0,0,1.5343938,74.359347,-44.600686)"
        id="g4496"
        style="display:inline">
       <path

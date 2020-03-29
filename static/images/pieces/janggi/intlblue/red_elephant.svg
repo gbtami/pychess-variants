@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -166,13 +166,13 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="5.6568542"
-     inkscape:cx="45.106972"
-     inkscape:cy="24.156548"
+     inkscape:zoom="7.9999999"
+     inkscape:cx="29.929663"
+     inkscape:cy="41.430502"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g5374"
+     inkscape:current-layer="layer1"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -185,64 +185,68 @@
      inkscape:label="Background"
      style="display:inline">
     <g
-       transform="matrix(1.2230064,0,0,1.2230064,-526.36811,2.0310851)"
-       id="g2170">
+       transform="matrix(1.4064574,0,0,1.4064574,-612.22334,-4.5642535)"
+       id="g2170"
+       style="stroke:none">
       <g
-         id="XMLID_19_">
+         id="XMLID_19_"
+         style="stroke:none">
         <g
-           id="g2144">
+           id="g2144"
+           style="stroke:none">
           <polygon
-             style="fill:#ffffff"
-             points="491.332,43.496 491.287,43.539 477.666,57.16 458.395,57.16 458.338,57.16 444.674,43.496 444.674,24.167 458.338,10.501 477.666,10.501 491.332,24.167 "
+             style="fill:#ffffff;stroke:none"
+             points="458.395,57.16 458.338,57.16 444.674,43.496 444.674,24.167 458.338,10.501 477.666,10.501 491.332,24.167 491.332,43.496 491.287,43.539 477.666,57.16 "
              id="polygon2136" />
           <polygon
-             style="fill:#bcbab8"
-             points="477.666,57.218 477.666,57.16 491.287,43.539 491.291,43.542 491.291,47.825 491.32,47.854 477.818,61.352 477.666,61.352 "
+             style="fill:#bcbab8;stroke:none"
+             points="491.291,43.542 491.291,47.825 491.32,47.854 477.818,61.352 477.666,61.352 477.666,57.218 477.666,57.16 491.287,43.539 "
              id="polygon2138" />
           <polygon
-             style="fill:#cecac8"
-             points="477.666,61.402 477.627,61.402 458.402,61.402 458.395,61.402 458.395,61.303 458.395,57.218 458.395,57.16 477.666,57.16 477.666,57.218 477.666,61.352 "
+             style="fill:#cecac8;stroke:none"
+             points="458.395,61.402 458.395,61.303 458.395,57.218 458.395,57.16 477.666,57.16 477.666,57.218 477.666,61.352 477.666,61.402 477.627,61.402 458.402,61.402 "
              id="polygon2140" />
           <polygon
-             style="fill:#e2e1e0"
-             points="444.674,43.496 458.338,57.16 458.395,57.16 458.395,57.218 458.395,61.303 458.307,61.303 444.674,47.67 "
+             style="fill:#e2e1e0;stroke:none"
+             points="458.395,57.218 458.395,61.303 458.307,61.303 444.674,47.67 444.674,43.496 458.338,57.16 458.395,57.16 "
              id="polygon2142" />
         </g>
         <g
-           id="g2162">
+           id="g2162"
+           style="stroke:none">
           <polygon
-             style="fill:none;stroke:#000000;stroke-width:0.25"
-             points="458.338,57.16 444.674,43.496 444.674,24.167 458.338,10.501 477.666,10.501 491.332,24.167 491.332,43.496 491.287,43.539 477.666,57.16 458.395,57.16 "
+             style="fill:none;stroke:none;stroke-width:0.25"
+             points="458.338,10.501 477.666,10.501 491.332,24.167 491.332,43.496 491.287,43.539 477.666,57.16 458.395,57.16 458.338,57.16 444.674,43.496 444.674,24.167 "
              id="polygon2146" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="444.674,43.496 444.674,47.67 444.674,47.776    "
              id="polyline2148" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="458.395,57.218 458.395,61.303 458.395,61.402      458.395,61.499    "
              id="polyline2150" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="477.666,57.218 477.666,61.352 477.666,61.402      477.666,61.499    "
              id="polyline2152" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="491.29099"
              y1="43.542"
              x2="491.29099"
              y2="47.825001"
              id="line2154" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="444.633,47.629 444.674,47.67 458.307,61.303    "
              id="polyline2156" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="477.818,61.352 491.32,47.854 491.367,47.805    "
              id="polyline2158" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="458.40201"
              y1="61.402"
              x2="477.62701"
@@ -254,7 +258,7 @@
     <g
        style="display:inline"
        id="g5374"
-       transform="matrix(1.024044,0,0,1.024044,-41.07144,9.4406153)">
+       transform="matrix(1.1776506,0,0,1.1776506,-54.132169,3.9567062)">
       <g
          transform="translate(-35.93211,25.548233)"
          style="opacity:1"

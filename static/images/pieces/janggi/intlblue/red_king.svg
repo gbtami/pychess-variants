@@ -136,13 +136,13 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="1.8541912"
-     inkscape:cx="18.415899"
-     inkscape:cy="-1.5770577"
+     inkscape:zoom="5.2444445"
+     inkscape:cx="-24.49702"
+     inkscape:cy="56.359783"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g17436"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -155,64 +155,68 @@
      inkscape:label="Background"
      style="display:inline">
     <g
-       transform="matrix(1.2230302,0,0,1.2230302,-350.26322,-86.010822)"
-       id="g3316">
+       transform="matrix(1.1618787,0,0,1.1618787,-330.4487,-79.4829)"
+       id="g3316"
+       style="stroke:none">
       <g
-         id="XMLID_18_">
+         id="XMLID_18_"
+         style="stroke:none">
         <g
-           id="g3290">
+           id="g3290"
+           style="stroke:none">
           <polygon
-             style="fill:#ffffff"
-             points="358.357,119.037 358.293,119.102 338.232,139.159 309.854,139.159 309.771,139.159 289.65,119.037 289.65,90.573 309.771,70.451 338.232,70.451 358.357,90.573 "
+             style="fill:#ffffff;stroke:none"
+             points="309.854,139.159 309.771,139.159 289.65,119.037 289.65,90.573 309.771,70.451 338.232,70.451 358.357,90.573 358.357,119.037 358.293,119.102 338.232,139.159 "
              id="polygon3282" />
           <polygon
-             style="fill:#bcbab8"
-             points="358.293,119.102 358.299,119.105 358.299,125.413 358.342,125.456 338.459,145.334 338.232,145.334 338.232,139.245 338.232,139.159 "
+             style="fill:#bcbab8;stroke:none"
+             points="358.342,125.456 338.459,145.334 338.232,145.334 338.232,139.245 338.232,139.159 358.293,119.102 358.299,119.105 358.299,125.413 "
              id="polygon3284" />
           <polygon
-             style="fill:#cecac8"
-             points="338.232,145.406 338.176,145.406 309.867,145.406 309.854,145.406 309.854,145.261 309.854,139.245 309.854,139.159 338.232,139.159 338.232,139.245 338.232,145.334 "
+             style="fill:#cecac8;stroke:none"
+             points="309.854,145.406 309.854,145.261 309.854,139.245 309.854,139.159 338.232,139.159 338.232,139.245 338.232,145.334 338.232,145.406 338.176,145.406 309.867,145.406 "
              id="polygon3286" />
           <polygon
-             style="fill:#e2e1e0"
-             points="309.854,139.245 309.854,145.261 309.725,145.261 289.65,125.186 289.65,119.037 309.771,139.159 309.854,139.159 "
+             style="fill:#e2e1e0;stroke:none"
+             points="289.65,125.186 289.65,119.037 309.771,139.159 309.854,139.159 309.854,139.245 309.854,145.261 309.725,145.261 "
              id="polygon3288" />
         </g>
         <g
-           id="g3308">
+           id="g3308"
+           style="stroke:none">
           <polygon
-             style="fill:none;stroke:#000000;stroke-width:0.25"
-             points="309.771,139.159 289.65,119.037 289.65,90.573 309.771,70.451 338.232,70.451 358.357,90.573 358.357,119.037 358.293,119.102 338.232,139.159 309.854,139.159 "
+             style="fill:none;stroke:none;stroke-width:0.25"
+             points="309.771,70.451 338.232,70.451 358.357,90.573 358.357,119.037 358.293,119.102 338.232,139.159 309.854,139.159 309.771,139.159 289.65,119.037 289.65,90.573 "
              id="polygon3292" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="289.65,119.037 289.65,125.186 289.65,125.34    "
              id="polyline3294" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="309.854,139.245 309.854,145.261 309.854,145.406      309.854,145.549    "
              id="polyline3296" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="338.232,139.245 338.232,145.334 338.232,145.406      338.232,145.549    "
              id="polyline3298" />
           <line
-             style="fill:#000000;stroke:#000000;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:#000000;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none"
              x1="358.29901"
              y1="119.105"
              x2="358.29901"
              y2="125.413"
              id="line3300" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="289.59,125.125 289.65,125.186 309.725,145.261    "
              id="polyline3302" />
           <polyline
-             style="fill:#000000;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:#000000;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="338.459,145.334 358.342,125.456 358.41,125.383    "
              id="polyline3304" />
           <line
-             style="fill:#000000;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:#000000;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="309.867"
              y1="145.40601"
              x2="338.17599"
@@ -223,7 +227,7 @@
     </g>
     <g
        id="g17436"
-       transform="translate(103.28358,-11.543619)">
+       transform="matrix(0.855,0,0,0.855,94.978815,-3.2724128)">
       <path
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
