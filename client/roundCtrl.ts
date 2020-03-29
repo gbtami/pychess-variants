@@ -154,7 +154,6 @@ export default class RoundController {
             this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
         }
-        if (this.variant.endsWith('shogi') && this.mycolor === 'white') this.flip = true;
 
         this.oppIsRandomMover = (
             (this.mycolor === "white" && this.bplayer === "Random-Mover") ||

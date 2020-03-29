@@ -145,7 +145,6 @@ export default class AnalysisController {
             this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
         }
-        if (this.variant.endsWith('shogi') && this.mycolor === 'white') this.flip = true;
 
         // players[0] is top player, players[1] is bottom player
         this.players = [
@@ -398,10 +397,7 @@ export default class AnalysisController {
                     if (atPos > -1) {
                         const d = pv_move.slice(atPos + 1, atPos + 3);
                         var color = step.turnColor;
-                        if (this.variant.endsWith('shogi')) {
-                            color = (color === 'white') ? 'black' : 'white';
-                            if (this.flip) color = (color === 'white') ? 'black' : 'white';
-                        }
+                        if (this.flip) color = (color === 'white') ? 'black' : 'white';
                         // console.log(color, pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
                         shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
                             color: color,
