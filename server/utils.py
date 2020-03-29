@@ -111,7 +111,7 @@ async def load_game(app, game_id):
         mirror = mirror5
         mlist = list(map(mirror, mlist))
 
-    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
+    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako" or variant == "janggi":
         mlist = map(zero2grand, mlist)
 
     if "a" in doc:
@@ -352,7 +352,7 @@ def pgn(doc):
     mlist = decode_moves(doc["m"], variant)
     chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 
-    if variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako":
+    if variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako" or variant == "janggi":
         mlist = list(map(zero2grand, mlist))
 
     fen = doc["if"] if "if" in doc else sf.start_fen(variant)

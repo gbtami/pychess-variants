@@ -3,10 +3,10 @@ import { Color, dimensions, Geometry, Key, Role } from 'chessgroundx/types';
 
 import { read } from 'chessgroundx/fen';
 
-export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
+export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
-export const enabled_variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun"];
+export const enabled_variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun"];
 
 export const start_fen = {
     makruk: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
@@ -18,6 +18,7 @@ export const start_fen = {
     shogi: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
     minishogi: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
     kyotoshogi: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
+    janggi: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
     xiangqi: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
     minixiangqi: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
     capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
@@ -38,6 +39,7 @@ export const VARIANTS = {
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", BoardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "doubutsu.svg"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0d"], icon: "K", baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/Ka"] },
     minishogi: { geom: Geometry.dim5x5, cg: "cg-260", BoardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "6", baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },
     kyotoshogi: { geom: Geometry.dim5x5, cg: "cg-260", BoardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"], pieces: "kyoto", PieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], icon: ")", baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
+    janggi: { geom: Geometry.dim9x10, cg: "cg-576-640", BoardCSS: ["Janggi.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg"], pieces: "janggi", PieceCSS: ["janggihb", "janggihg", "janggiib", "janggiig"], icon: "8" },
     xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", BoardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], icon: "8" },
     minixiangqi: { geom: Geometry.dim7x7, cg: "cg-448", BoardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], icon: "7" },
     placement: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha"], icon: "S", baseURL: ["merida", "green", "alpha"] },
@@ -95,15 +97,17 @@ export function firstColor(variant) {
         return 'Black';
     case 'xiangqi':
     case 'minixiangqi':
-    case "sittuyin":
+    case 'sittuyin':
         return 'Red';
+    case 'janggi':
+        return 'Blue';
     default:
         return 'White';
     }
 }
 
 export function secondColor(variant) {
-    return (variant.endsWith('shogi')) ? 'White' : 'Black';
+    return (variant.endsWith('shogi')) ? 'White' : (variant === 'janggi') ? 'Red' : 'Black';
 }
 
 // pocket part of the FEN (including brackets)
@@ -140,6 +144,7 @@ export function pieceRoles(variant: string) {
         return ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"];
     case "shogun":
         return ["king", "pferz", "rook", "bishop", "knight", "pawn"];
+    case "janggi":
     case "xiangqi":
         return ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"];
     case "minixiangqi":
@@ -399,7 +404,7 @@ export function canGate(fen, piece, orig) {
 }
 
 export function isPromotion(variant, piece, orig, dest, meta, promotions) {
-    if (variant === 'xiangqi' || variant === 'minixiangqi') return false;
+    if (variant === 'xiangqi' || variant === 'minixiangqi' || variant === 'janggi') return false;
     const pz = promotionZone(variant, piece.color)
     switch (variant) {
     case 'shogi':

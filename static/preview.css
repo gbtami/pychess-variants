@@ -73,6 +73,19 @@ label.board.board2.minishogi, label.board.board2.kyotoshogi {
   background-image: url('images/board/MiniboardWood2.png');
 }
 
+label.board.board0.janggi {
+  background-image: url('images/board/Janggi.svg');
+}
+label.board.board1.janggi {
+  background-image: url('images/board/JanggiPaper.png');
+}
+label.board.board2.janggi {
+  background-image: url('images/board/JanggiWood.png');
+}
+label.board.board3.janggi {
+  background-image: url('images/board/JanggiDark.svg');
+}
+
 label.board.board0.xiangqi {
   background-image: url('images/board/xiangqi.svg');
 }
@@ -100,6 +113,19 @@ label.board.board1.minixiangqi {
 }
 label.board.board2.minixiangqi {
   background-image: url('images/board/minixqlg.svg');
+}
+
+label.piece.piece0.janggi {
+  background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
+}
+label.piece.piece1.janggi {
+  background-image: url('images/pieces/janggi/hanjagreen/blue_king.svg');
+}
+label.piece.piece2.janggi {
+  background-image: url('images/pieces/janggi/intlblue/blue_king.svg');
+}
+label.piece.piece3.janggi {
+  background-image: url('images/pieces/janggi/intlgreen/blue_king.svg');
 }
 
 label.piece.piece0.xiangqi, label.piece.piece0.minixiangqi {

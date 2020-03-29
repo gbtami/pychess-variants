@@ -1,0 +1,43 @@
+.janggi .cg-wrap piece.pawn.white {
+  background-image: url('images/pieces/janggi/intlgreen/blue_pawn.svg');
+}
+.janggi .cg-wrap piece.bishop.white {
+  background-image: url('images/pieces/janggi/intlgreen/blue_elephant.svg');
+}
+.janggi .cg-wrap piece.knight.white {
+  background-image: url('images/pieces/janggi/intlgreen/blue_horse.svg');
+}
+.janggi .cg-wrap piece.rook.white {
+  background-image: url('images/pieces/janggi/intlgreen/blue_chariot.svg');
+}
+.janggi .cg-wrap piece.advisor.white {
+  background-image: url('images/pieces/janggi/intlgreen/blue_advisor.svg');
+}
+.janggi .cg-wrap piece.cannon.white {
+  background-image: url('images/pieces/janggi/intlgreen/blue_cannon.svg');
+}
+.janggi .cg-wrap piece.king.white {
+  background-image: url('images/pieces/janggi/intlgreen/blue_king.svg');
+}
+
+.janggi .cg-wrap piece.pawn.black {
+  background-image: url('images/pieces/janggi/intlgreen/red_pawn.svg');
+}
+.janggi .cg-wrap piece.bishop.black {
+  background-image: url('images/pieces/janggi/intlgreen/red_elephant.svg');
+}
+.janggi .cg-wrap piece.knight.black {
+  background-image: url('images/pieces/janggi/intlgreen/red_horse.svg');
+}
+.janggi .cg-wrap piece.rook.black {
+  background-image: url('images/pieces/janggi/intlgreen/red_chariot.svg');
+}
+.janggi .cg-wrap piece.advisor.black {
+  background-image: url('images/pieces/janggi/intlgreen/red_advisor.svg');
+}
+.janggi .cg-wrap piece.cannon.black {
+  background-image: url('images/pieces/janggi/intlgreen/red_cannon.svg');
+}
+.janggi .cg-wrap piece.king.black {
+  background-image: url('images/pieces/janggi/intlgreen/red_king.svg');
+}

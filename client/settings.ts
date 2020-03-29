@@ -41,6 +41,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 9;
     } else if (cssFile.includes("shogun")) {
         cssLinkIndex = 10;
+    } else if (cssFile.includes("janggi")) {
+        cssLinkIndex = 11;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

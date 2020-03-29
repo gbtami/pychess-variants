@@ -244,7 +244,7 @@ class Game:
                 "s": self.status,
                 "r": R2C[self.result],
                 'm': encode_moves(
-                    map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako"
+                    map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako" or self.variant == "janggi"
                     else self.board.move_stack, self.variant)}
 
             if self.rated and self.result != "*":
@@ -407,7 +407,7 @@ class Game:
             # print("RM: %s" % self.random_move)
 
         for move in moves:
-            if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako":
+            if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako" or self.variant == "janggi":
                 move = grand2zero(move)
             source, dest = move[0:2], move[2:4]
             if source in dests:

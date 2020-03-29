@@ -506,7 +506,7 @@ export default class RoundController {
 
         var lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') {
+            if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') {
                 lastMove = grand2zero(lastMove);
             }
             // drop lastMove causing scrollbar flicker,
@@ -619,7 +619,7 @@ export default class RoundController {
         var move = step['move'];
         var capture = false;
         if (move !== undefined) {
-            if (this.variant == 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') move = grand2zero(move);
+            if (this.variant == 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
@@ -667,7 +667,7 @@ export default class RoundController {
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
         const uci_move = orig + dest + promo;
-        const move = (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako') ? zero2grand(uci_move) : uci_move;
+        const move = (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') ? zero2grand(uci_move) : uci_move;
 
         // console.log("sendMove(move)", move);
         // TODO: if premoved, send 0 time

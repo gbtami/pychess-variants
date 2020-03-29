@@ -30,6 +30,7 @@ V2C = {
     "minixiangqi": "e",
     "kyotoshogi": "k",
     "shogun": "u",
+    "janggi": "j",
 }
 C2V = {v: k for k, v in V2C.items()}
 

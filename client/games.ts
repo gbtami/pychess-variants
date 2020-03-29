@@ -67,7 +67,7 @@ export function gamesView(model): VNode[] {
                 const parts = message.fen.split(" ");
                 var lastMove = message.lastMove;
                 if (lastMove !== null) {
-                    if (game.variant === 'xiangqi' || game.variant.startsWith('grand') || game.variant === 'shako') {
+                    if (game.variant === 'xiangqi' || game.variant.startsWith('grand') || game.variant === 'shako' || game.variant === 'janggi') {
                         lastMove = grand2zero(lastMove);
                     }
                     lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
