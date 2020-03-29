@@ -136,9 +136,9 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="1.3111111"
-     inkscape:cx="338.9022"
-     inkscape:cy="5.8872943"
+     inkscape:zoom="3.7083822"
+     inkscape:cx="47.332685"
+     inkscape:cy="36.260622"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -154,74 +154,78 @@
      inkscape:label="Background"
      style="display:inline">
     <g
-       transform="matrix(1.2229938,0,0,1.2229938,-438.41561,2.2168218)"
-       id="g2612">
+       transform="matrix(1.4064429,0,0,1.4064429,-511.07797,-4.350656)"
+       id="g2612"
+       style="stroke:none">
       <g
-         id="XMLID_42_">
+         id="XMLID_42_"
+         style="stroke:none">
         <g
-           id="g2584">
+           id="g2584"
+           style="stroke:none">
           <polygon
-             style="fill:#ffffff"
-             points="403.068,17.42 412.938,27.289 412.938,41.246 412.909,41.277 403.068,51.116 389.15,51.116 389.111,51.116 379.242,41.246 379.242,27.289 389.111,17.42 "
+             style="fill:#ffffff;stroke:none"
+             points="412.909,41.277 403.068,51.116 389.15,51.116 389.111,51.116 379.242,41.246 379.242,27.289 389.111,17.42 403.068,17.42 412.938,27.289 412.938,41.246 "
              id="polygon2576" />
           <polygon
-             style="fill:#e2e1e0"
-             points="389.15,54.108 389.088,54.108 379.242,44.261 379.242,44.259 379.242,41.246 389.111,51.116 389.15,51.116 389.15,51.158 "
+             style="fill:#e2e1e0;stroke:none"
+             points="379.242,44.259 379.242,41.246 389.111,51.116 389.15,51.116 389.15,51.158 389.15,54.108 389.088,54.108 379.242,44.261 "
              id="polygon2578" />
           <polygon
-             style="fill:#bcbab8"
-             points="403.068,54.145 403.068,51.158 403.068,51.116 412.909,41.277 412.911,41.279 412.911,44.375 412.93,44.394 403.18,54.145 "
+             style="fill:#bcbab8;stroke:none"
+             points="412.909,41.277 412.911,41.279 412.911,44.375 412.93,44.394 403.18,54.145 403.068,54.145 403.068,51.158 403.068,51.116 "
              id="polygon2580" />
           <polygon
-             style="fill:#cecac8"
-             points="403.04,54.18 389.157,54.18 389.15,54.18 389.15,54.108 389.15,51.158 389.15,51.116 403.068,51.116 403.068,51.158 403.068,54.145 403.068,54.18 "
+             style="fill:#cecac8;stroke:none"
+             points="389.15,54.108 389.15,51.158 389.15,51.116 403.068,51.116 403.068,51.158 403.068,54.145 403.068,54.18 403.04,54.18 389.157,54.18 389.15,54.18 "
              id="polygon2582" />
         </g>
         <g
-           id="g2604">
+           id="g2604"
+           style="stroke:none">
           <polygon
-             style="fill:none;stroke:#000000;stroke-width:0.25"
-             points="403.068,51.116 389.15,51.116 389.111,51.116 379.242,41.246 379.242,27.289 389.111,17.42 403.068,17.42 412.938,27.289 412.938,41.246 412.909,41.277 "
+             style="fill:none;stroke:none;stroke-width:0.25"
+             points="379.242,41.246 379.242,27.289 389.111,17.42 403.068,17.42 412.938,27.289 412.938,41.246 412.909,41.277 403.068,51.116 389.15,51.116 389.111,51.116 "
              id="polygon2586" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              x1="379.242"
              y1="44.261002"
              x2="379.242"
              y2="44.339001"
              id="line2588" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              x1="379.242"
              y1="41.245998"
              x2="379.242"
              y2="44.258999"
              id="line2590" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="389.15,51.158 389.15,54.108 389.15,54.18 389.15,54.25         "
              id="polyline2592" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25"
+             style="fill:none;stroke:none;stroke-width:0.25"
              points="403.068,51.158 403.068,54.145 403.068,54.18      403.068,54.25    "
              id="polyline2594" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="412.91101"
              y1="41.278999"
              x2="412.91101"
              y2="44.375"
              id="line2596" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="379.213,44.23 379.242,44.259 379.242,44.261      389.088,54.108    "
              id="polyline2598" />
           <polyline
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              points="403.18,54.145 412.93,44.394 412.964,44.362    "
              id="polyline2600" />
           <line
-             style="fill:none;stroke:#000000;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
+             style="fill:none;stroke:none;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none"
              x1="389.15701"
              y1="54.18"
              x2="403.04001"
@@ -230,12 +234,14 @@
         </g>
       </g>
       <g
-         id="XMLID_15_">
+         id="XMLID_15_"
+         style="stroke:none">
         <g
-           id="g2609">
+           id="g2609"
+           style="stroke:none">
           <path
              inkscape:connector-curvature="0"
-             style="fill:#dd1f26"
+             style="fill:#dd1f26;stroke:none"
              d="m 383.174,35.151 c -0.494,-0.426 -1.345,-1.273 -1.128,-2.124 0.255,-1.001 2.624,-1.571 3.979,-1.657 1.029,-0.063 2.188,0.086 3.047,0.063 2.011,-0.033 3.844,-0.542 5.635,-0.658 0.121,-1.5 -0.07,-3.66 -0.598,-5.037 -0.189,-0.495 -0.688,-1.011 -0.661,-1.456 0.038,-0.83 2.146,-2.108 3.313,-2.259 0.494,-0.063 1.034,0.047 1.525,0 0.164,0.559 1.27,0.666 1.789,1.394 0.521,0.731 0.605,2.025 0.525,3.38 -0.069,1.209 -0.548,2.316 -0.525,3.182 0.862,0.138 1.804,-0.382 2.784,-0.596 1.254,-0.271 2.879,-0.631 4.104,-0.265 1.037,0.308 1.859,1.266 2.32,2.386 0.187,0.454 0.159,1.012 0.465,1.458 -1.168,1.958 -4.911,1.678 -7.757,1.592 -0.789,-0.021 -2.008,-0.142 -2.583,0.196 -0.938,0.551 -1.48,3.673 -0.797,5.57 1.629,-0.256 3.813,-0.854 5.368,-0.47 0.567,0.146 1.475,0.727 1.725,1.193 0.288,0.545 0.089,1.531 0.331,2.32 -0.714,1.885 -3.69,1.206 -6.23,1.188 -3.023,-0.016 -6.471,-0.137 -9.677,0.862 -0.663,0.207 -1.307,0.454 -1.854,0.396 -1.229,-0.125 -2.646,-1.834 -2.521,-3.515 0.603,-1.138 1.604,-1.791 3.514,-1.592 0.328,0.035 0.618,0.212 0.936,0.199 1.278,-0.051 2.479,-0.27 3.645,-0.663 -0.051,-1.168 1.13,-3.386 0.199,-4.645 -1.104,0.293 -2.328,0.771 -3.646,1.063 -1.133,0.247 -2.688,0.712 -3.908,0.462 -0.903,-0.163 -2.636,-1.391 -3.319,-1.967 z"
              id="path2607" />
         </g>
