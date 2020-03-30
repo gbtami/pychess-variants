@@ -67,6 +67,10 @@ class FairyBoard:
     def insufficient_material(self):
         return sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
 
+    def is_immediate_game_end(self):
+        immediate_end, result = sf.is_immediate_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return immediate_end, result
+
     def is_optional_game_end(self):
         return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
 

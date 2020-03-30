@@ -9,7 +9,7 @@ from time import monotonic
 from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
-from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CHEAT, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS
+from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CHEAT, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, WHITE, BLACK
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
@@ -388,6 +388,12 @@ class Game:
                 else:
                     self.result = "1/2-1/2"
                 print(self.result, "stalemate")
+
+        if self.variant == "janggi":
+            immediate_end, result = self.board.is_immediate_game_end()
+            if immediate_end:
+                self.status = VARIANTEND
+                self.result = "0-1" if result > 0 else "1-0"
 
         if self.ply > MAX_PLY:
             self.status = DRAW

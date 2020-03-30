@@ -53,8 +53,17 @@ export function result(variant, status, result) {
     case 8:
         text = 'Cheat detected';
         break;
+    case 9:
+        text = 'Not started';
+        break;
     case 10:
         text = 'Invalid move';
+        break;
+    case 11:
+        text = 'Unknown reason';
+        break;
+    case 12:
+        text = 'Variant ending';
         break;
     default:
         text = '*';
