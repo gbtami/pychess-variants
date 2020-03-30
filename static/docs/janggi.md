@@ -43,7 +43,7 @@ Currently, Pychess uses tournament style and does not allow draw. Therefore, gam
 Aside from the rules above...
 
 * There is no river in Janggi. Consequently, pawns and elephants move differently. Pawns can move sideways from the start. The Elephant moves completely differently (see below).
-* Visually, pieces are on octagons rather than circles. Kings (generals) are named after the two sides rather than being called "general." Boards use x's instead of crosses for starting pieces.
+* Visually, pieces are on octagons rather than circles. Piece sizes also vary based on value. Kings (generals) are named after the two sides rather than being called "general." Boards use x's instead of crosses for starting pieces.
 * The Kings start in the middle of the palace instead of the back of the palace.
 * Cannons are different in that they both move and capture the same way (by jumping over a piece first). They also have additional restrictions.
 * The Palace affects all piece movement except the Horse and Elephant. Kings and advisors only moves along the lines. Chariots, cannons, and pawns can move along the diagonals.
