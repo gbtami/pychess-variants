@@ -35,7 +35,7 @@ export const start_fen = {
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "Q"},
     cambodian: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "!"},
-    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg"], pieces: "sittuyin", PieceCSS: ["sittuyins", "sittuyinm", "sittuyini"], icon: ":", baseURL: ["sittuyin", "makruk/cambodian", "makruk/intl"] },
+    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"], pieces: "sittuyin", PieceCSS: ["sittuyinkabr", "sittuyinkagr", "sittuyins", "sittuyinm", "sittuyini"], icon: ":", baseURL: ["sittuyin/Ka_blackred", "sittuyin/Ka_greenred", "sittuyin/original", "makruk/cambodian", "makruk/intl"] },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", BoardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "doubutsu.svg"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0d"], icon: "K", baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/Ka"] },
     minishogi: { geom: Geometry.dim5x5, cg: "cg-260", BoardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "6", baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },
     kyotoshogi: { geom: Geometry.dim5x5, cg: "cg-260", BoardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"], pieces: "kyoto", PieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], icon: ")", baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
@@ -503,7 +503,7 @@ export function validFen(variant, fen) {
     const wrong = (element) => {good.indexOf(element) === -1;};
     if (parts.length > 2)
         if (parts[2].split('').some(wrong)) return false;
-        
+
         // Castling right need rooks and king placed in starting square
         if (parts[2].indexOf('q') !== -1 && rows[0].charAt(0) !== 'r') return false;
         if (parts[2].indexOf('k') !== -1 && rows[0].charAt(rows[0].length-1) !== 'r') return false;

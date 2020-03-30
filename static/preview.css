@@ -263,6 +263,9 @@ label.board.board1.sittuyin {
 label.board.board2.sittuyin {
   background-image: url('images/board/sittuyingreen.svg');
 }
+label.board.board3.sittuyin {
+  background-image: url('images/board/sittuyinGrainBrown.svg');
+}
 label.board.board0.makruk, label.board.board0.cambodian {
   background-image: url('images/board/makruk2.svg');
 }
@@ -282,18 +285,24 @@ label.piece.piece2.makruk, label.piece.piece2.cambodian {
   background-image: url('images/pieces/makruk/cambodian/wB.svg');
 }
 label.piece.piece3.makruk, label.piece.piece3.cambodian  {
-  background-image: url('images/pieces/sittuyin/wB.svg');
+  background-image: url('images/pieces/sittuyin/original/wB.svg');
 }
 label.piece.piece4.makruk, label.piece.piece4.cambodian  {
   background-image: url('images/pieces/makruk/intl/wB.svg');
 }
 label.piece.piece0.sittuyin  {
-  background-image: url('images/pieces/sittuyin/wB.svg');
+  background-image: url('images/pieces/sittuyin/Ka_blackred/wB.svg');
 }
 label.piece.piece1.sittuyin  {
-  background-image: url('images/pieces/makruk/cambodian/wB.svg');
+  background-image: url('images/pieces/sittuyin/Ka_greenred/wB.svg');
 }
 label.piece.piece2.sittuyin  {
+  background-image: url('images/pieces/sittuyin/original/wB.svg');
+}
+label.piece.piece3.sittuyin  {
+  background-image: url('images/pieces/makruk/cambodian/wB.svg');
+}
+label.piece.piece4.sittuyin  {
   background-image: url('images/pieces/makruk/intl/wB.svg');
 }
 
