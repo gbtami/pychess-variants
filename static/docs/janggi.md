@@ -58,7 +58,7 @@ Several piecs have special movement in the Palace, which will be discussed below
 
 ![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
 
-The King (also known by its Chinese name, the **general**) is restricted to the palace and can only move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any spot in the Palace, it only has 3 moves.
+The King (also known by its Chinese name, the **general**) is restricted to the palace and can only move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
 
 *Special rule:* When a King faces the other King, this causes *bikjang*. The next player must then move his king out of the way or else they draw. See rules above regarding draws.
 
