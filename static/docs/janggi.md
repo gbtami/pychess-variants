@@ -10,10 +10,10 @@ There are two sides, one is colored red (called Han), and the other blue (called
 
 Setup for all pieces except for the horse and elephant are as in the picture above. Like xiangqi, janggi is placed on a 9 x 10 board, where pieces are placed on intersections rather than squares. The 3x3 square with the X on each side is called the *Palace*. Unlike in most other chess variants, in janggi, players can choose the starting positions of the horses and elephants. There are four types to choose from:
 
-1. Both horses are closer to the edge (won ang ma)
-2. Both horses are closer to the general (yang gwee ma)
-3. Left inner horse, right outer horse (gwee ma)
-4. Left outer horse, right inner horse (mat sang jang gi)
+1. Both horses are closer to the edge (*won ang ma*)
+2. Both horses are closer to the general (*yang gwee ma*)
+3. Left inner horse, right outer horse (*gwee ma*)
+4. Left outer horse, right inner horse (*mat sang jang gi*)
 
 Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
 
