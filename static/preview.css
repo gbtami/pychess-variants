@@ -291,19 +291,19 @@ label.piece.piece4.makruk, label.piece.piece4.cambodian  {
   background-image: url('images/pieces/makruk/intl/wB.svg');
 }
 label.piece.piece0.sittuyin  {
-  background-image: url('images/pieces/sittuyin/Ka_blackred/wB.svg');
+  background-image: url('images/pieces/sittuyin/original/bK.svg');
 }
 label.piece.piece1.sittuyin  {
-  background-image: url('images/pieces/sittuyin/Ka_greenred/wB.svg');
+  background-image: url('images/pieces/sittuyin/Ka_greenred/bK.svg');
 }
 label.piece.piece2.sittuyin  {
-  background-image: url('images/pieces/sittuyin/original/wB.svg');
+  background-image: url('images/pieces/sittuyin/Ka_blackred/bK.svg');
 }
 label.piece.piece3.sittuyin  {
-  background-image: url('images/pieces/makruk/cambodian/wB.svg');
+  background-image: url('images/pieces/makruk/cambodian/bK.svg');
 }
 label.piece.piece4.sittuyin  {
-  background-image: url('images/pieces/makruk/intl/wB.svg');
+  background-image: url('images/pieces/makruk/intl/bK.svg');
 }
 
 label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.chess, label.board.board0.seirawan, label.board.board0.shouse {
