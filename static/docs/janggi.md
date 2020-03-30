@@ -1,4 +1,4 @@
-# ![Janggi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/janggi.svg) Janggi
+# ![Janggi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Janggi.svg) Janggi
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
 
