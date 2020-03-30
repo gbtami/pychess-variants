@@ -58,7 +58,7 @@ Several piecs have special movement in the Palace, which will be discussed below
 
 ![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
 
-The King (also known by its Chinese name, the **general**) is restricted to the palace and can only move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
+The **King** (also known by its Chinese name, the **general**) is restricted to the palace and can only move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
 
 *Special rule:* When a King faces the other King, this causes *bikjang*. The next player must then move his king out of the way or else they draw. See rules above regarding draws.
 
@@ -68,7 +68,7 @@ The King (also known by its Chinese name, the **general**) is restricted to the 
 
 ![Advisors](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Advisors.png) 
 
-The Advisor (also known by its Western name, the **guard**) moves exactly like the King, which is one space along lines within the palace. Like the King, the advisor is confined to the palace.
+The **Advisor** (also known by its Western name, the **guard**) moves exactly like the King, which is one space along lines within the palace. Like the King, the Advisor is confined to the palace.
 
 ### Horse
 
@@ -76,7 +76,7 @@ The Advisor (also known by its Western name, the **guard**) moves exactly like t
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/HorseDiagram.png)
 
-The horse (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
 
 ### Elephant
 
@@ -84,7 +84,7 @@ The horse (also called by its Western name, the **knight**) moves almost exactly
  
  ![Elephant movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ElephantDiagram.png)
 
-The Elephant is much different than its xiangqi counterpart. Movement is similar to the horse in that it moves in a Y-shaped pattern. While the horse moves one step orthogonally and then one step further diagonally, the elephant moves one step orthoganally and then *two* steps diagonally. The elephant, like the horse, can be blocked on any intervening point along this path.
+The **Elephant** is much different than its xiangqi counterpart. Movement is similar to the horse in that it moves in a Y-shaped pattern. While the horse moves one step orthogonally and then one step further diagonally, the elephant moves one step orthoganally and then *two* steps diagonally. The elephant, like the horse, can be blocked on any intervening point along this path.
 
 ### Chariot
 
@@ -92,7 +92,7 @@ The Elephant is much different than its xiangqi counterpart. Movement is similar
  
  ![Chariot movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ChariotDiagram.png)
 
-The Chariot (also called by its Western name, the **rook**) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
+The **Chariot** (also called by its Western name, the **rook**) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
 
 *Palace move*: When in the palace, the chariot can also move along the diagonal lines.
 
@@ -102,7 +102,7 @@ The Chariot (also called by its Western name, the **rook**) moves exactly like a
 
 ![Cannon movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/CannonDiagram.png)
 
-The Cannon is slightly different than its xiangqi counterpart. It moves orthogonally like the chariot, but it needs an intervening piece (called a "screen") to hop over first. It can then capture the next piece along the same line. Unlike xiangqi, the Cannon cannot move without a screen.
+The **Cannon** is slightly different than its xiangqi counterpart. It moves orthogonally like the chariot, but it needs an intervening piece (called a "screen") to hop over first. It can then capture the next piece along the same line. Unlike xiangqi, the Cannon cannot move without a screen.
 
 *EXCEPTION*: The cannon cannot use another cannon as a screen. Additionally, it can't capture the opponent's cannons.
 
@@ -114,7 +114,7 @@ The Cannon is slightly different than its xiangqi counterpart. It moves orthogon
 
 ![Pawn movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/PawnDiagram.png)
 
-The Pawn (also called by its Chinese name, the **soldier**) moves and captures by moving forward or sideways one square. This is different than the xiangqi pawn, which needed to cross the river first to move sideways.
+The **Pawn** (also called by its Chinese name, the **soldier**) moves and captures by moving forward or sideways one square. This is different than the xiangqi pawn, which needed to cross the river first to move sideways.
 
 *Palace move*: When in the palace, the pawn can also move forwards along the diagonal lines.
 
