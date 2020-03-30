@@ -45,7 +45,7 @@ VARIANT_ICONS = {
     "makruk": "Q",
     "sittuyin": ":",
     "shogi": "K",
-    "janggi": "8",
+    "janggi": "=",
     "xiangqi": "8",
     "chess": "M",
     "crazyhouse": "+",
