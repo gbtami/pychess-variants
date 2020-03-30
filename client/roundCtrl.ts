@@ -834,7 +834,7 @@ export default class RoundController {
 
     private onSelect = () => {
         return (key) => {
-            // console.log("ground.onSelect()", key, selected, this.clickDrop, this.chessground.state);
+            // console.log("ground.onSelect()", key, this.chessground.state);
             // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests === undefined) return;
             if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
@@ -849,19 +849,22 @@ export default class RoundController {
             // Sittuyin in place promotion on Ctrl+click
             if (this.chessground.state.stats.ctrlKey && 
                 (key in this.chessground.state.movable.dests) &&
-                (this.chessground.state.movable.dests[key].indexOf(key) >= 0) &&
-                (this.variant === 'sittuyin')) {
-                // console.log("Ctrl in place promotion", key);
-                var pieces = {};
-                var piece = this.chessground.state.pieces[key];
-                pieces[key] = {
-                    color: piece!.color,
-                    role: 'ferz',
-                    promoted: true
-                };
-                this.chessground.setPieces(pieces);
-                this.sendMove(key, key, 'f');
-
+                (this.chessground.state.movable.dests[key].indexOf(key) >= 0)
+                ) {
+                const piece = this.chessground.state.pieces[key];
+                if (this.variant === 'sittuyin') {
+                    // console.log("Ctrl in place promotion", key);
+                    var pieces = {};
+                    pieces[key] = {
+                        color: piece!.color,
+                        role: 'ferz',
+                        promoted: true
+                    };
+                    this.chessground.setPieces(pieces);
+                    this.sendMove(key, key, 'f');
+                } else if (this.variant === 'janggi' && piece!.role === 'king') {
+                    this.sendMove(key, key, '');
+                }
             };
         }
     }
