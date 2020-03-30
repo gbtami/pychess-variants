@@ -8,7 +8,7 @@
 
 If you enjoy Chess, Xiangqi is definitely worth trying. While slightly slower paced and longer than Chess, the game starts more open and is more geared towards fast-paced play leading to a quick endgame. Compared to Chess, Xiangqi is also far more tactical (as opposed to strategic). As with other chess variants, improving your skill in Xiangqi can also improve your skills in Chess (tactics, in particular) as well as open up new ways of thinking! [See here for more about that.](https://en.chessbase.com/post/why-you-need-to-learn-xiangqi-for-playing-better-chess)
 
-## What are the rules of Xiangqi?
+## The Rules
 
 The general rules are extremely similar to Chess, so this guide will focus on the few differences. The most striking difference is that pieces are on intersections instead of squares, which is mainly an aesthetic difference. Players take turns moving pieces on a board to checkmate the enemy king. The red player traditionally moves first, followed by black, although the order is not crucial as the board is symmetric. The only other main difference from chess is that stalemates are considered losses for the player who got stalemated (i.e. can’t move any pieces).
 
@@ -92,7 +92,7 @@ The pawn (also called by its Chinese name, the **soldier**) moves and captures b
 
 ## Notation
 
-Algebraic notation is not implemented at this time.
+Pychess currently uses the same algebraic notation as in chess. A more commonly used notation system is not currently implemented in Pychess.
 
 ### Symbols
 
