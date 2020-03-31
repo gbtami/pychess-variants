@@ -52,7 +52,7 @@ Aside from the rules above...
 
 This guide will be based on the internationalized set. Traditional sets use Chinese characters (hanja), and many sites, including Wikipedia, already explain the rules as such.
 
-Several piecs have special movement in the Palace, which will be discussed below. In the diagrams, a lighter shade of green is used.
+Several pieces have special moves utilizing the diagonals in either palace, which will be discussed below. In the diagrams, a lighter shade of green is used.
 
 ### King
 
