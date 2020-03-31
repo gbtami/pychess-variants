@@ -26,7 +26,7 @@ import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 import { renderRdiff, result } from './profile'
 import { player } from './player';
-import { updateCount } from './count';
+import { updateCount, updatePoint } from './info';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -541,6 +541,10 @@ export default class RoundController {
 
         if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
             updateCount(msg.fen);
+        }
+
+        if (this.variant === "janggi") {
+            updatePoint(msg.fen);
         }
 
         if (this.spectator) {
