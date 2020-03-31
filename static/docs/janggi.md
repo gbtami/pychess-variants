@@ -23,7 +23,7 @@ Like chess, the goal is to checkmate the other king. Also like chess, repetition
 
 Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
 
-Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not move the king away, then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
+Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not make a move to break bikjang (for example moving a king or moving a piece in between), then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
 
 Piece | Value 
 ------------ | ------------- 
@@ -37,6 +37,8 @@ Pawn | 2
 Because blue (Cho) starts the game, they start with an advantage and thus red (Han) also receives 1.5 points (*deom*) to avoid ties.
 
 Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang, repetition, or perpetual check occurs.
+
+Additionally, it's possible to cause bikjang and check at the same time. In this case, bikjang takes priority.
 
 ## Differences from Xiangqi
 
