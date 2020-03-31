@@ -143,7 +143,7 @@ P = **P**awn
 
 ## Strategy
 
-[These videos by Amphibian Hoplite are an excellent start for English players](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM)
+[These videos by Amphibian Hoplite](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM) are an excellent start for English players. Available resources in English are otherwise fairly limited.
 
 ### General Concepts
 
