@@ -6,7 +6,7 @@
 
 ## Rules: Board and Setup
 
-There are two sides, one is colored red (called Han), and the other blue (called Cho). The blue side can also be colored green. These two sides represents the two sides in the Chu-Han Contention from Chinese history. Red pieces are written using Chinese characters (hanja), while blue pieces are written in cursive-style hanja.
+There are two sides, one is colored red (called Han), and the other blue (called Cho). The blue side can also be colored green. These two sides represent the two sides in the Chu-Han Contention from Chinese history. Red pieces are written using Chinese characters (hanja), while blue pieces are written in cursive-style hanja.
 
 Setup for all pieces except for the horse and elephant are as in the picture above. Like xiangqi, janggi is placed on a 9 x 10 board, where pieces are placed on intersections rather than squares. The 3x3 square with the X on each side is called the *Palace*. Unlike in most other chess variants, in janggi, players can choose the starting positions of the horses and elephants. There are four types to choose from:
 
@@ -36,7 +36,7 @@ Pawn | 2
 
 Because blue (Cho) starts the game, they start with an advantage and thus red (Han) also receives 1.5 points (*deom*) to avoid ties.
 
-Currently, Pychess uses tournament style and does not allow draw. Therefore, games are settled by points when bikjang, repetition, or perpetual check occurs.
+Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang, repetition, or perpetual check occurs.
 
 ## Differences from Xiangqi
 
