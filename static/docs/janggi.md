@@ -86,7 +86,7 @@ The **Horse** (also called by its Western name, the **knight**) moves almost exa
  
  ![Elephant movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ElephantDiagram.png)
 
-The **Elephant** is much different than its xiangqi counterpart. Movement is similar to the horse in that it moves in a Y-shaped pattern. While the horse moves one step orthogonally and then one step further diagonally, the elephant moves one step orthoganally and then *two* steps diagonally. The elephant, like the horse, can be blocked on any intervening point along this path.
+The **Elephant** is much different than its xiangqi counterpart. Movement is similar to the horse in that it moves in a Y-shaped pattern. While the horse moves one step orthogonally and then one step further diagonally, the elephant moves one step orthogonally and then *two* steps diagonally. The elephant, like the horse, can be blocked on any intervening point along this path.
 
 ### Chariot
 
