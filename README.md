@@ -12,6 +12,7 @@ Currently supported games are:
 - [Minishogi](https://www.pychess.org/variant/minishogi)
 - [Kyoto shogi](https://www.pychess.org/variant/kyotoshogi)
 - [Xiangqi](https://www.pychess.org/variant/xiangqi)
+- [Janggi](https://www.pychess.org/variant/janggi)
 - [Minixiangqi](https://www.pychess.org/variant/minixiangqi)
 - [Placement chess](https://www.pychess.org/variant/placement)
 - [Crazyhouse](https://www.pychess.org/variant/crazyhouse)

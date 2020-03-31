@@ -34,6 +34,8 @@ export function aboutView(model): VNode[] {
                         ", ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/xiangqi'}}, 'Xiangqi'),
                         ", ",
+                        h('a', {attrs: {href: 'https://www.pychess.org/variant/janggi'}}, 'Janggi'),
+                        ", ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/minixiangqi'}}, 'Minixiangqi'),
                         ", ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/placement'}}, 'Placement'),
