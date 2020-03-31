@@ -21,7 +21,7 @@ Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue 
 
 Like chess, the goal is to checkmate the other king. Also like chess, repetition and perpertual check (same position three times) are draws.
 
-Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible.
+Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
 
 Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang**. If the next player to move does not move the king away, then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
 
