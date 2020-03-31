@@ -19,7 +19,7 @@ Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue 
 
 ## Rules: Gameplay
 
-Like chess, the goal is to checkmate the other king. Also like chess, repetition and perpertual check (same position three times) are draws.
+Like chess, the goal is to checkmate the other king. Also like chess, repetition and perpetual check (same position three times) are draws.
 
 Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
 
