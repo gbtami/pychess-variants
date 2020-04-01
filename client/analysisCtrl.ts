@@ -26,6 +26,7 @@ import resizeHandle from './resize';
 import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
+import { updateCount, updatePoint } from './info';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -440,6 +441,14 @@ export default class AnalysisController {
 
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
+
+        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
+            updateCount(step.fen);
+        }
+
+        if (this.variant === "janggi") {
+            updatePoint(step.fen);
+        }
 
         if (ply === this.ply + 1) {
             if (this.variant.endsWith('shogi')) {

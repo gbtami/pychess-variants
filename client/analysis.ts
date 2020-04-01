@@ -86,6 +86,11 @@ export function analysisView(model): VNode[] {
                         h('div#movelist'),
                         h('div#result', result(model.variant, model.status, model.result)),
                     ]),
+                    h('div#count'),
+                    h('div#janggi-points', [
+                        h('div#janggi-point-cho'),
+                        h('div#janggi-point-han')
+                    ]),
                     h('div#move-controls'),
                 ]),
                 h('div#pocket-wrapper1', [
