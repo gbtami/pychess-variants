@@ -643,6 +643,14 @@ export default class RoundController {
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
 
+        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
+            updateCount(step.fen);
+        }
+
+        if (this.variant === "janggi") {
+            updatePoint(step.fen);
+        }
+
         if (ply === this.ply + 1) {
             if (this.variant.endsWith('shogi')) {
                 sound.shogimove();
