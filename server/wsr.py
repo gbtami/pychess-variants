@@ -127,9 +127,43 @@ async def round_socket_handler(request):
                                 await ws.send_json(response)
 
                     elif data["type"] == "board":
-                        board_response = get_board(games, data, full=True)
-                        # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
-                        await ws.send_json(board_response)
+                        game = await load_game(request.app, data["gameId"])
+                        # TODO: game.bot_game
+                        if game.variant == "janggi" and (game.bsetup or game.wsetup) and not game.bot_game:
+                            if game.bsetup:
+                                await ws.send_json({"type": "setup", "color": "black", "fen": game.board.initial_fen})
+                            elif game.wsetup:
+                                await ws.send_json({"type": "setup", "color": "white", "fen": game.board.initial_fen})
+                        else:
+                            board_response = get_board(games, data, full=True)
+                            # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
+                            await ws.send_json(board_response)
+
+                    elif data["type"] == "setup":
+                        # Janggi game starts with a prelude phase to set up horses and elephants
+                        # First the second player (Red) choses his setup! Then the first player (Blue)
+                        game = await load_game(request.app, data["gameId"])
+                        game.board.initial_fen = data["fen"]
+                        game.initial_fen = game.board.initial_fen
+                        game.board.fen = game.board.initial_fen
+                        print("--- Got FEN from %s %s" % (data["color"], data["fen"]))
+                        if data["color"] == "black":
+                            game.bsetup = False
+                            response = {"type": "setup", "color": "white", "fen": data["fen"]}
+                            await ws.send_json(response)
+                        else:
+                            game.wsetup = False
+                            game.steps[0]["fen"] = data["fen"]
+                            game.set_dests()
+                            response = get_board(games, data, full=True)
+                            # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
+                            await ws.send_json(response)
+
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+                        if not opp_player.bot:
+                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                            await opp_ws.send_json(response)
 
                     elif data["type"] == "analysis":
                         game = await load_game(request.app, data["gameId"])

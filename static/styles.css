@@ -281,3 +281,9 @@
 .icon-janggi:before {
   content: "\3d";
 }
+.icon-exchange:before {
+  content: "\3e";
+}
+.icon-check:before {
+  content: "\3f";
+}

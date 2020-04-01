@@ -1323,3 +1323,11 @@ boardeditor {
   justify-content: center;
   display: flex;
 }
+
+/* Janggi setup buttons */
+#janggi-setup-buttons {
+  display: grid;
+  grid-template-columns: 22% 12% 22%;
+  grid-gap: 11%;
+  justify-content: center;
+}

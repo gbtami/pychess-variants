@@ -91,6 +91,15 @@ class Game:
             if self.wplayer.fen960_as_white == self.initial_fen:
                 self.initial_fen = ""
 
+        # Janggi setup needed when player is not BOT
+        if self.variant == "janggi":
+            if self.initial_fen:
+                self.bsetup = False
+                self.wsetup = False
+            else:
+                self.bsetup = not self.bplayer.bot
+                self.wsetup = not self.wplayer.bot
+
         self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
@@ -250,6 +259,11 @@ class Game:
             if self.rated and self.result != "*":
                 new_data["p0"] = self.p0
                 new_data["p1"] = self.p1
+
+            # Janggi game starts with a prelude phase to set up horses and elephants, so
+            # initial FEN may be different compared to one we used when db game document was created
+            if self.variant == "janggi":
+                new_data["if"] = self.board.initial_fen
 
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})

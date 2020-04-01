@@ -87,6 +87,7 @@ export default class RoundController {
     blindfold: boolean;
     handicap: boolean;
     autoqueen: boolean;
+    setupFen: string;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -343,6 +344,43 @@ export default class RoundController {
 
     getGround = () => this.chessground;
     getDests = () => this.dests;
+
+    // Janggi second player (Red) setup
+    private onMsgSetup = (msg) => {
+        this.setupFen = msg.fen;
+        this.chessground.set({fen: this.setupFen});
+        if (this.spectator || msg.color !== this.mycolor) return;
+
+        const switchLetters = (side) => {
+            const white = this.mycolor === 'white';
+            const rank = (white) ? 9 : 0;
+            const horse = (white) ? 'N' : 'n';
+            const elephant = (white) ? 'B' : 'b';
+            var parts = this.setupFen.split(' ')[0].split('/');
+            var [left, right] = parts[rank].split('1')
+            if (side === -1) {
+                left = left.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
+            } else {
+                right = right.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
+            }
+            parts[rank] = left + '1' + right;
+            this.setupFen = parts.join('/');
+            this.chessground.set({fen: this.setupFen});
+        }
+
+        const sendSetup = () => {
+            patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#empty'));
+            this.doSend({ type: "setup", gameId: this.model["gameId"], color: this.mycolor, fen: this.setupFen + ' w - - 0 1' });
+        }
+
+        const leftSide = (this.mycolor === 'white') ? -1 : 1;
+        const rightSide = leftSide * -1;
+        patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#janggi-setup-buttons', [
+            h('button#flipLeft', { on: { click: () => switchLetters(leftSide) } }, [h('i', {props: {title: 'Switch pieces'}, class: {"icon": true, "icon-exchange": true} } ), ]),
+            h('button', { on: { click: () => sendSetup() } }, [h('i', {props: {title: 'Ready'}, class: {"icon": true, "icon-check": true} } ), ]),
+            h('button#flipRight', { on: { click: () => switchLetters(rightSide) } }, [h('i', {props: {title: 'Switch pieces'}, class: {"icon": true, "icon-exchange": true} } ), ]),
+        ]));
+    }
 
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);
@@ -1025,6 +1063,9 @@ export default class RoundController {
                 break;
             case "logout":
                 this.doSend({type: "logout"});
+                break;
+            case "setup":
+                this.onMsgSetup(msg);
                 break;
         }
     }
