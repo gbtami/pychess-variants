@@ -38,19 +38,21 @@ function getJanggiPoints(board) {
 
 // Counting for makruk, cambodian, sittuyin
 export function updateCount(fen) {
-    var container = document.getElementById('misc-info') as HTMLElement;
+    var container = document.getElementById('count') as HTMLElement;
     const count = countString(fen);
     if (count !== "") {
-        patch(container, h('div#misc-info', `Counting: ${count}`));
+        patch(container, h('div#count', `Counting: ${count}`));
     } else {
-        patch(container, h('div#misc-info', ''));
+        patch(container, h('div#count', ''));
     }
 }
 
 // Point count for janggi
 export function updatePoint(fen) {
-    var container = document.getElementById('misc-info') as HTMLElement;
+    var choContainer = document.getElementById('janggi-point-cho') as HTMLElement;
+    var hanContainer = document.getElementById('janggi-point-han') as HTMLElement;
     const board = fen.split(" ")[0];
     const [choPoint, hanPoint] = getJanggiPoints(board)
-    patch(container, h('div#misc-info', `Cho ${choPoint} | ${hanPoint} Han`));
+    patch(choContainer, h('div#janggi-point-cho', choPoint));
+    patch(hanContainer, h('div#janggi-point-han', hanPoint));
 }

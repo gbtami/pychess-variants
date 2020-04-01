@@ -694,7 +694,7 @@ select, input {
   padding-bottom: 12px;
 }
 
-#misc-info {
+#count {
   font-family: "Roboto Mono", "Roboto";
   font-size: 30px;
   text-align: center;
@@ -703,6 +703,30 @@ select, input {
   margin-bottom: 15px;
   margin-left: 50px;
   margin-right: 50px;
+}
+
+#janggi-points {
+  display: flex;
+  justify-content: space-around;
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 30px;
+  text-align: center;
+}
+
+#janggi-point-cho {
+  color: blue;
+  background-color: var(--bg-color1);
+  box-shadow: var(--base-shadow);
+  margin-bottom: 15px;
+  width: 80px;
+}
+
+#janggi-point-han {
+  color: red;
+  background-color: var(--bg-color1);
+  box-shadow: var(--base-shadow);
+  margin-bottom: 15px;
+  width: 100px;
 }
 
 /* Modal Content/Box */
