@@ -78,6 +78,9 @@ class FairyBoard:
         optional_end, result = self.is_optional_game_end()
         return optional_end and result == 0
 
+    def game_result(self):
+        return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
+
     def print_pos(self):
         print()
         uni_pieces = {"R": "♜", "N": "♞", "B": "♝", "Q": "♛", "K": "♚", "P": "♟",

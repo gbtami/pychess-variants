@@ -390,24 +390,32 @@ class Game:
             self.result = "1/2-1/2"
 
         if not self.dests:
+            game_result_value = self.board.game_result()
+
+            if game_result_value < 0:
+                self.result = "1-0" if self.board.color == BLACK else "0-1"
+            elif game_result_value > 0:
+                self.result = "0-1" if self.board.color == BLACK else "1-0"
+            else:
+                self.result = "1/2-1/2"
+
             if self.check:
                 self.status = MATE
-                self.result = "1-0" if self.board.color == BLACK else "0-1"
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 self.status = STALEMATE
-                if self.variant.endswith(("xiangqi", "shogi")):
-                    self.result = "0-1" if self.board.color == WHITE else "1-0"
-                else:
-                    self.result = "1/2-1/2"
                 print(self.result, "stalemate")
 
         if self.variant == "janggi":
-            immediate_end, result = self.board.is_immediate_game_end()
+            immediate_end, game_result_value = self.board.is_immediate_game_end()
             if immediate_end:
                 self.status = VARIANTEND
-                self.result = "0-1" if result > 0 else "1-0"
+                if game_result_value < 0:
+                    self.result = "1-0" if self.board.color == BLACK else "0-1"
+                else:
+                    self.result = "0-1" if self.board.color == BLACK else "1-0"
+                print(self.result, "point counting")
 
         if self.ply > MAX_PLY:
             self.status = DRAW
