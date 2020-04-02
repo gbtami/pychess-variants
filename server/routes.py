@@ -193,10 +193,10 @@ async def index(request):
         if doc is not None:
             session["guest"] = False
 
-        if not doc.get("enabled", True):
-            log.info("Closed account %s tried to connect." % session_user)
-            session.invalidate()
-            raise web.HTTPFound("/")
+            if not doc.get("enabled", True):
+                log.info("Closed account %s tried to connect." % session_user)
+                session.invalidate()
+                raise web.HTTPFound("/")
 
         if session_user in users:
             user = users[session_user]

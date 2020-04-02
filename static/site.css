@@ -975,7 +975,7 @@ li.message.server {
 
 #movelist-block {
   overflow-y: auto;
-  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - 40px);
+  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - 110px);
 }
 /* movelist border: 1px solid #ddd; */
 div#moves {
