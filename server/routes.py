@@ -301,6 +301,8 @@ async def index(request):
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
     }
     if view == "profile" or view == "level8win":
+        if view == "level8win":
+            profileId = "Fairy-Stockfish"
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
         if profileId not in users or users[profileId].perfs is None:
