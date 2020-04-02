@@ -21,6 +21,8 @@
     --clock-hurry-bg: MistyRose;
     --clock-running-bg: rgb(208, 224, 189);
     --clock-running-color: Black;
+    --blue-point: RoyalBlue;
+    --red-point: Crimson;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -41,6 +43,8 @@
     --clock-hurry-bg: #502826;
     --clock-running-bg: #384722;
     --clock-running-color: #e3e3e3;
+    --blue-point: DodgerBlue;
+    --red-point: Crimson;
 }
 
 html {
@@ -715,7 +719,7 @@ select, input {
   font-size: 50px;
   text-align: right;
   padding-right: 10px;
-  color: blue;
+  color: var(--blue-point);
   width: 100px;
 }
 
@@ -725,7 +729,7 @@ select, input {
   text-align: center;
   text-align: right;
   padding-right: 10px;
-  color: red;
+  color: var(--red-point);
   width: 100px;
 }
 
