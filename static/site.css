@@ -1236,7 +1236,7 @@ input#seek-fen, input#fen {
 }
 
 /* crosstable */
-div.ctable{
+div#ctable-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1330,4 +1330,10 @@ boardeditor {
   grid-template-columns: 22% 12% 22%;
   grid-gap: 11%;
   justify-content: center;
+}
+#janggi-setup-buttons button {
+  height: 40px;
+  color: var(--font-color);
+  background-color: var(--bg-color2);
+  cursor: pointer;
 }
