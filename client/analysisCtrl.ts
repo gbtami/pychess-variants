@@ -228,6 +228,12 @@ export default class AnalysisController {
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         this.vpv = document.getElementById('pv') as HTMLElement;
+
+        if (this.variant === 'janggi') {
+            (document.getElementById('janggi-point-cho') as HTMLElement).style.textAlign = 'right';
+            (document.getElementById('janggi-point-han') as HTMLElement).style.textAlign = 'left';
+            patch(document.getElementById('janggi-point-dash') as HTMLElement, h('div#janggi-point-dash', '-'));
+        }
     }
 
     getGround = () => this.chessground;

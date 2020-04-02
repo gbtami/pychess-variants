@@ -89,7 +89,8 @@ export function analysisView(model): VNode[] {
                     h('div#count'),
                     h('div#janggi-points', [
                         h('div#janggi-point-cho'),
-                        h('div#janggi-point-han')
+                        h('div#janggi-point-dash'),
+                        h('div#janggi-point-han'),
                     ]),
                     h('div#move-controls'),
                 ]),
