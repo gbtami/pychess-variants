@@ -63,7 +63,7 @@ export function result(variant, status, result) {
         text = 'Unknown reason';
         break;
     case 12:
-        text = 'Variant ending';
+        text = 'Point counting';
         break;
     default:
         text = '*';
