@@ -19,7 +19,7 @@ Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue 
 
 ## Rules: Gameplay
 
-Like chess, the goal is to checkmate the other king. 
+Like chess, the goal is to checkmate the other king.
 
 Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
 
@@ -39,6 +39,8 @@ Because blue (Cho) starts the game, they start with an advantage and thus red (H
 Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang occurs.
 
 Additionally, it's possible to cause bikjang and check at the same time. In this case, bikjang takes priority.
+
+Repetition is illegal; however, the way this is handled is variable. Repetition is not handled in Pychess, so in the event of repetition, the players should adjudicate the outcome between themselves.
 
 ## Differences from Xiangqi
 
