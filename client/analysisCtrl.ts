@@ -447,7 +447,7 @@ export default class AnalysisController {
         }
 
         if (this.variant === "janggi") {
-            updatePoint(step.fen);
+            updatePoint(step.fen, document.getElementById('janggi-point-cho') as HTMLElement, document.getElementById('janggi-point-han') as HTMLElement);
         }
 
         if (ply === this.ply + 1) {

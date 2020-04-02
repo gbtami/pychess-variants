@@ -708,24 +708,24 @@ select, input {
 #janggi-points {
   display: flex;
   justify-content: space-around;
-  font-family: "Roboto Mono", "Roboto";
-  font-size: 30px;
-  text-align: center;
 }
 
 #janggi-point-cho {
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 50px;
+  text-align: right;
+  padding-right: 10px;
   color: blue;
-  background-color: var(--bg-color1);
-  box-shadow: var(--base-shadow);
-  margin-bottom: 15px;
-  width: 80px;
+  width: 100px;
 }
 
 #janggi-point-han {
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 50px;
+  text-align: center;
+  text-align: right;
+  padding-right: 10px;
   color: red;
-  background-color: var(--bg-color1);
-  box-shadow: var(--base-shadow);
-  margin-bottom: 15px;
   width: 100px;
 }
 

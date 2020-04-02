@@ -48,11 +48,13 @@ export function updateCount(fen) {
 }
 
 // Point count for janggi
-export function updatePoint(fen) {
-    var choContainer = document.getElementById('janggi-point-cho') as HTMLElement;
-    var hanContainer = document.getElementById('janggi-point-han') as HTMLElement;
+export function updatePoint(fen, choContainer, hanContainer) {
+    //var choContainer = document.getElementById('janggi-point-cho') as HTMLElement;
+    //var hanContainer = document.getElementById('janggi-point-han') as HTMLElement;
     const board = fen.split(" ")[0];
     const [choPoint, hanPoint] = getJanggiPoints(board)
-    patch(choContainer, h('div#janggi-point-cho', choPoint));
-    patch(hanContainer, h('div#janggi-point-han', hanPoint));
+    console.log([choPoint, hanPoint]);
+    choContainer = patch(choContainer, h('div#janggi-point-cho', choPoint));
+    hanContainer = patch(hanContainer, h('div#janggi-point-han', hanPoint));
+    return [choContainer, hanContainer];
 }

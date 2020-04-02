@@ -54,6 +54,8 @@ export default class RoundController {
     vpocket1: any;
     vplayer0: any;
     vplayer1: any;
+    vpointCho: any;
+    vpointHan: any;
     vpng: any;
     gameControls: any;
     moveControls: any;
@@ -282,6 +284,12 @@ export default class RoundController {
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + ' +15 seconds', "roundchat");
         }
+
+        // initialize janggi point indicator
+        const point0 = document.getElementById('janggi-point0') as HTMLElement;
+        const point1 = document.getElementById('janggi-point1') as HTMLElement;
+        this.vpointCho = this.mycolor === 'white' ? patch(point1, h('div#janggi-point-cho')) : patch(point0, h('div#janggi-point-cho'));
+        this.vpointHan = this.mycolor === 'white' ? patch(point0, h('div#janggi-point-han')) : patch(point1, h('div#janggi-point-han'));
 
         if (!this.spectator) {
             var container = document.getElementById('clock0') as HTMLElement;
@@ -544,7 +552,7 @@ export default class RoundController {
         }
 
         if (this.variant === "janggi") {
-            updatePoint(msg.fen);
+            [this.vpointCho, this.vpointHan] = updatePoint(msg.fen, this.vpointCho, this.vpointHan);
         }
 
         if (this.spectator) {
@@ -648,7 +656,7 @@ export default class RoundController {
         }
 
         if (this.variant === "janggi") {
-            updatePoint(step.fen);
+            [this.vpointCho, this.vpointHan] = updatePoint(step.fen, this.vpointCho, this.vpointHan);
         }
 
         if (ply === this.ply + 1) {
