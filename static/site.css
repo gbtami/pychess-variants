@@ -43,7 +43,7 @@
     --clock-hurry-bg: #502826;
     --clock-running-bg: #384722;
     --clock-running-color: #e3e3e3;
-    --blue-point: DodgerBlue;
+    --blue-point: RoyalBlue;
     --red-point: Crimson;
 }
 
@@ -710,6 +710,8 @@ select, input {
 }
 
 #janggi-points {
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 50px;
   display: flex;
   justify-content: space-around;
 }
@@ -1326,4 +1328,12 @@ boardeditor {
 .pocket-wrapper {
   justify-content: center;
   display: flex;
+}
+
+/* Janggi setup buttons */
+#janggi-setup-buttons {
+  display: grid;
+  grid-template-columns: 22% 12% 22%;
+  grid-gap: 11%;
+  justify-content: center;
 }
