@@ -98,9 +98,11 @@ async def round_socket_handler(request):
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.bot:
-                            await opp_player.event_queue.put(game.game_start)
-                            response = {"type": "gameStart", "gameId": data["gameId"]}
-                            await ws.send_json(response)
+                            # Janggi game start have to wait for human player setup!
+                            if game.variant != "janggi":
+                                await opp_player.event_queue.put(game.game_start)
+                                response = {"type": "gameStart", "gameId": data["gameId"]}
+                                await ws.send_json(response)
                         else:
                             opp_ok = data["gameId"] in users[opp_name].game_sockets
                             # waiting for opp to be ready also
@@ -129,7 +131,7 @@ async def round_socket_handler(request):
                     elif data["type"] == "board":
                         game = await load_game(request.app, data["gameId"])
                         # TODO: game.bot_game
-                        if game.variant == "janggi" and (game.bsetup or game.wsetup) and not game.bot_game:
+                        if game.variant == "janggi" and (game.bsetup or game.wsetup) and not game.random_mover:
                             if game.bsetup:
                                 await ws.send_json({"type": "setup", "color": "black", "fen": game.board.initial_fen})
                             elif game.wsetup:
@@ -147,23 +149,35 @@ async def round_socket_handler(request):
                         game.initial_fen = game.board.initial_fen
                         game.board.fen = game.board.initial_fen
                         print("--- Got FEN from %s %s" % (data["color"], data["fen"]))
+
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+
+                        game.steps[0]["fen"] = data["fen"]
+                        game.set_dests()
+
                         if data["color"] == "black":
                             game.bsetup = False
                             response = {"type": "setup", "color": "white", "fen": data["fen"]}
                             await ws.send_json(response)
+
+                            if not opp_player.bot:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                await opp_ws.send_json(response)
                         else:
                             game.wsetup = False
-                            game.steps[0]["fen"] = data["fen"]
-                            game.set_dests()
                             response = get_board(games, data, full=True)
                             # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                             await ws.send_json(response)
 
-                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-                        opp_player = users[opp_name]
-                        if not opp_player.bot:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            await opp_ws.send_json(response)
+                            if not opp_player.bot:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                await opp_ws.send_json(response)
+
+                        if opp_player.bot:
+                            await opp_player.event_queue.put(game.game_start)
+                            response = {"type": "gameStart", "gameId": data["gameId"]}
+                            await ws.send_json(response)
 
                     elif data["type"] == "analysis":
                         game = await load_game(request.app, data["gameId"])
@@ -215,6 +229,7 @@ async def round_socket_handler(request):
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         handicap = data["handicap"]
+                        fen = "" if game.variant == "janggi" else game.initial_fen
 
                         if opp_player.bot:
                             if opp_player.username == "Random-Mover":
@@ -229,7 +244,7 @@ async def round_socket_handler(request):
                             color = "w" if game.wplayer.username == opp_name else "b"
                             if handicap:
                                 color = "w" if color == "b" else "b"
-                            seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
+                            seek = Seek(user, game.variant, fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
                             seeks[seek.id] = seek
 
                             response = await new_game(request.app, engine, seek.id)
@@ -244,7 +259,7 @@ async def round_socket_handler(request):
                                 color = "w" if game.wplayer.username == opp_name else "b"
                                 if handicap:
                                     color = "w" if color == "b" else "b"
-                                seek = Seek(user, game.variant, game.initial_fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
+                                seek = Seek(user, game.variant, fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
                                 seeks[seek.id] = seek
 
                                 response = await new_game(request.app, opp_player, seek.id)
