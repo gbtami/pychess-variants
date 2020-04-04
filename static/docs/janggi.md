@@ -17,41 +17,6 @@ Setup for all pieces except for the horse and elephant are as in the picture abo
 
 Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
 
-## Rules: Gameplay
-
-Like chess, the goal is to checkmate the other king.
-
-Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
-
-Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not make a move to break bikjang (for example moving a king or moving a piece in between), then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
-
-Piece | Value 
------------- | ------------- 
-Chariot | 13
-Cannon | 7
-Horse | 5
-Elephant | 3
-Advisor | 3
-Pawn | 2
-
-Because blue (Cho) starts the game, they start with an advantage and thus red (Han) also receives 1.5 points (*deom*) to avoid ties.
-
-Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang occurs.
-
-Additionally, it's possible to cause bikjang and check at the same time. In this case, bikjang takes priority.
-
-Repetition is illegal; however, the way this is handled is variable. Repetition is not handled in Pychess, so in the event of repetition, the players should adjudicate the outcome between themselves.
-
-## Differences from Xiangqi
-
-Aside from the rules above...
-
-* There is no river in Janggi. Consequently, pawns and elephants move differently. Pawns can move sideways from the start. The Elephant moves completely differently (see below).
-* Visually, pieces are on octagons rather than circles. Piece sizes also vary based on value. Kings (generals) are named after the two sides rather than being called "general." Boards use x's instead of crosses for starting pieces.
-* The Kings start in the middle of the palace instead of the back of the palace.
-* Cannons are different in that they both move and capture the same way (by jumping over a piece first). They also have additional restrictions.
-* The Palace affects all piece movement except the Horse and Elephant. Kings and advisors only moves along the lines. Chariots, cannons, and pawns can move along the diagonals.
-
 ## The Pieces
 
 This guide will be based on the internationalized set. Traditional sets use Chinese characters (hanja), and many sites, including Wikipedia, already explain the rules as such.
@@ -62,9 +27,9 @@ Several pieces have special moves utilizing the diagonals in either palace, whic
 
 ![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
 
-The **King** (also known by its Chinese name, the **general**) is restricted to the palace and can only move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
+The **King** (also known by its Chinese name, the **general**) is restricted to the palace and can move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
 
-*Special rule:* When a King faces the other King, this causes *bikjang*. The next player must then move his king out of the way or else the game is ended. See rules above regarding bikjang.
+*Special rule:* When a King faces the other King, this causes *bikjang*. The next player must then move his king out of the way or else the game is ended. See rules below regarding bikjang.
 
 ![King and advisor](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Palace.png)
 
@@ -143,6 +108,44 @@ R = Cha**R**iot
 P = **P**awn
 
 
+
+## Rules: Gameplay
+
+Like chess, the goal is to checkmate the other king.
+
+Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
+
+Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not make a move to break bikjang (for example moving a king or moving a piece in between), then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
+
+Piece | Value 
+------------ | ------------- 
+Chariot | 13
+Cannon | 7
+Horse | 5
+Elephant | 3
+Advisor | 3
+Pawn | 2
+
+Because blue (Cho) starts the game, they start with an advantage and thus red (Han) also receives 1.5 points (*deom*) as a compensation. The .5 is added to avoid ties.
+
+Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang occurs.
+
+Additionally, it's possible to cause bikjang and check at the same time. In this case, bikjang takes priority.
+
+Repetition is illegal; however, the way this is handled is variable. Repetition is not handled in Pychess, so in the event of repetition, the players should adjudicate the outcome between themselves.
+
+## Differences from Xiangqi
+
+Aside from the rules above...
+
+* There is no river in Janggi. Consequently, pawns and elephants move differently. Pawns can move sideways from the start. The Elephant moves completely differently.
+* Visually, pieces are on octagons rather than circles. Piece sizes also vary based on value. Kings (generals) are named after the two sides rather than being called "general." Boards use x's instead of crosses for starting pieces.
+* The Kings start in the middle of the palace instead of the back of the palace.
+* Cannons are different in that they both move and capture the same way (by jumping over a piece first). They also have additional restrictions.
+* The Palace affects all piece movement except the Horse and Elephant. Kings and advisors moves along the lines instead of only orthogonally or diagonally. Chariots, cannons, and pawns can move along the diagonals.
+
+
+
 ## Strategy
 
 [These videos by Amphibian Hoplite](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM) are an excellent start for English players. Available resources in English are otherwise fairly limited.
@@ -151,7 +154,7 @@ P = **P**awn
 
 * Pawn structure is very important. Because pawns can move sideways, they're strongest when protecting each other in pairs. A line of three pawns is a poor formation (because they're stretched out thin). Also because of this, it's not advised to advance pawns if possible.
 
-![Bad Pawn Formationss](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/BadPawns.png)
+![Bad Pawn Formations](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/BadPawns.png)
 
 * Regarding the choice of horse-elephant positioning in setup, one way to think about it is how your elephants are positioned, and this has significant implications for the opening. An elephant on the outer position is able to move into towards the center between two pawns. However, an elephant in the inner position is blocked by the pawns (although it does protect them).
 * Continuing from this, the positioning of your elephant determines which **edge file to open up**. For example, when playhing a setup where the left elephant can advance (and the opponent's opposite elephant is also on the outside), you want to move your left edge pawn to the side, opening up the chariot's file. The reason for this is that now the opponent's edge pawn cannot move, so if you attack the cannon file pawn with your elephant, if his edge pawn defends, he would lose his chariot. Note that if the opponent instead had two inner elephants, then you would instead open up the opposite edge.
