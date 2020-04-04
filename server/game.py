@@ -91,6 +91,8 @@ class Game:
             if self.wplayer.fen960_as_white == self.initial_fen:
                 self.initial_fen = ""
 
+        self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
+
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
             if self.initial_fen:
@@ -99,8 +101,9 @@ class Game:
             else:
                 self.bsetup = not self.bplayer.bot
                 self.wsetup = not self.wplayer.bot
+                if self.bplayer.bot:
+                    self.board.janggi_setup("b")
 
-        self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
 

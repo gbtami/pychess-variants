@@ -137,7 +137,11 @@ async def round_socket_handler(request):
                             response = {"type": "setup", "color": "white", "fen": data["fen"]}
                             await ws.send_json(response)
 
-                            if not opp_player.bot:
+                            if opp_player.bot:
+                                game.board.janggi_setup("w")
+                                game.steps[0]["fen"] = game.board.initial_fen
+                                game.set_dests()
+                            else:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)
                         else:

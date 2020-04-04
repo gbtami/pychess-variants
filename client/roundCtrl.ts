@@ -352,7 +352,17 @@ export default class RoundController {
     private onMsgSetup = (msg) => {
         this.setupFen = msg.fen;
         this.chessground.set({fen: this.setupFen});
-        if (this.spectator || msg.color !== this.mycolor) return;
+
+        const side = (msg.color === 'white') ? 'Blue (Cho)' : 'Red (Han)';
+        const message = 'Waiting for ' + side + ' to choose starting positions of the horses and elephants...';
+
+        if (this.spectator || msg.color !== this.mycolor) {
+            chatMessage('', message, "roundchat");
+            return;
+        }
+
+        sound.setup();
+        chatMessage('', message, "roundchat");
 
         const switchLetters = (side) => {
             const white = this.mycolor === 'white';

@@ -97,6 +97,21 @@ class FairyBoard:
         board = re.sub(r"\d", (lambda m: "." * int(m.group(0))), board)
         print("", " ".join(uni_pieces.get(p, p) for p in board))
 
+    def janggi_setup(self, color):
+        if color == "b":
+            left = random.choice(("nb", "bn"))
+            right = random.choice(("nb", "bn"))
+            fen = "r%sa1a%sr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1" % (left, right)
+        else:
+            left = random.choice(("NB", "BN"))
+            right = random.choice(("NB", "BN"))
+            parts = self.initial_fen.split("/")
+            parts[-1] = "R%sA1A%sR w - - 0 1" % (left, right)
+            fen = "/".join(parts)
+        print("-------new FEN", fen)
+        self.initial_fen = fen
+        self.fen = self.initial_fen
+
     def shuffle_start(self):
         """ Create random initial position.
             The king is placed somewhere between the two rooks.

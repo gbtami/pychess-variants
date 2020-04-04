@@ -14,7 +14,8 @@ class sounds {
             Victory: 'Victory',
             Defeat: 'Defeat',
             ShogiMove: 'komaoto5',
-            Chat: 'chat', 
+            Chat: 'chat',
+            Setup: 'dinding',
         }
 
         Object.keys(this.tracks).forEach(key => {
@@ -47,6 +48,7 @@ class sounds {
     defeat() { if ((this.audio())) {this.tracks.Defeat.play();} };
     shogimove() { if ((this.audio())) {this.tracks.ShogiMove.play();} };
     chat() { if ((this.audio())) {this.tracks.Chat.play();} };
+    setup() { if ((this.audio())) {this.tracks.Setup.play();} };
 }
 
 export const sound = new(sounds);
