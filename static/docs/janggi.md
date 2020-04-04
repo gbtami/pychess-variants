@@ -160,16 +160,3 @@ Aside from the rules above...
 * Continuing from this, the positioning of your elephant determines which **edge file to open up**. For example, when playhing a setup where the left elephant can advance (and the opponent's opposite elephant is also on the outside), you want to move your left edge pawn to the side, opening up the chariot's file. The reason for this is that now the opponent's edge pawn cannot move, so if you attack the cannon file pawn with your elephant, if his edge pawn defends, he would lose his chariot. Note that if the opponent instead had two inner elephants, then you would instead open up the opposite edge.
 
 ![Activating the elephant and chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ActiveElephant.png)
-
-### Piece Values
-
-Piece | Value 
------------- | ------------- 
-Chariot | 13
-Cannon | 7
-Horse | 5
-Elephant | 3
-Advisor | 3
-Pawn | 2
-
-As discussed above, these values are also used when deciding a draw.
