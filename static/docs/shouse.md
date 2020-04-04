@@ -14,7 +14,7 @@ Drops can be performed with captured pieces, which would be done in lieu of movi
 
 ## Clarifications
 
-The elephant and archbishop are also counted as pieces in hand, so they are able to be dropped on the board starting from the beginning.
+The elephant and hawk are also counted as pieces in hand, so they are able to be dropped on the board starting from the beginning.
 
 ## Strategy
 
