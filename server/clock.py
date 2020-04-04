@@ -28,7 +28,7 @@ class Clock:
         return self.secs
 
     def restart(self, secs=None):
-        self.ply = self.game.ply
+        self.ply = self.game.board.ply
         self.color = self.game.board.color
         if secs is not None:
             self.secs = secs
@@ -48,7 +48,7 @@ class Clock:
 
             # Time was running out
             if self.running:
-                if self.game.ply == self.ply:
+                if self.game.board.ply == self.ply:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.

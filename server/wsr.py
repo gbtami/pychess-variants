@@ -9,11 +9,11 @@ from aiohttp import web
 import aiohttp_session
 
 from broadcast import lobby_broadcast, round_broadcast
-from const import STARTED, DRAW, ANALYSIS
+from const import DRAW, ANALYSIS
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
-from utils import play_move, get_board, draw, game_ended, \
+from utils import play_move, draw, game_ended, \
     new_game, load_game, MyWebSocketResponse, tv_game, tv_game_user
 
 log = logging.getLogger(__name__)
@@ -66,32 +66,9 @@ async def round_socket_handler(request):
 
                     if data["type"] == "move":
                         # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
-                        await play_move(games, data)
-
-                        board_response = get_board(games, data, full=False)
-                        # log.info("   Server send to %s: %s" % (user.username, board_response["fen"]))
-                        await ws.send_json(board_response)
-
-                        game = games[data["gameId"]]
-                        if game.status > STARTED and user.bot:
-                            await user.game_queues[data["gameId"]].put(game.game_end)
-
-                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-                        opp_player = users[opp_name]
-
-                        try:
-                            if opp_player.bot:
-                                await opp_player.game_queues[data["gameId"]].put(game.game_state)
-                                if game.status > STARTED:
-                                    await opp_player.game_queues[data["gameId"]].put(game.game_end)
-                            else:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                # log.info("   Server send to %s: %s" % (opp_name, board_response["fen"]))
-                                await opp_ws.send_json(board_response)
-                        except KeyError:
-                            log.error("Failed to send move %s to %s in game %s" % (data["move"], opp_name, data["gameId"]))
-
-                        await round_broadcast(game, users, board_response, channels=request.app["channels"])
+                        game = await load_game(request.app, data["gameId"])
+                        move = data["move"]
+                        await play_move(request.app, user, game, move, data["clocks"])
 
                     elif data["type"] == "ready":
                         game = await load_game(request.app, data["gameId"])
@@ -130,14 +107,13 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "board":
                         game = await load_game(request.app, data["gameId"])
-                        # TODO: game.bot_game
-                        if game.variant == "janggi" and (game.bsetup or game.wsetup) and not game.random_mover:
+                        if game.variant == "janggi" and (game.bsetup or game.wsetup):
                             if game.bsetup:
                                 await ws.send_json({"type": "setup", "color": "black", "fen": game.board.initial_fen})
                             elif game.wsetup:
                                 await ws.send_json({"type": "setup", "color": "white", "fen": game.board.initial_fen})
                         else:
-                            board_response = get_board(games, data, full=True)
+                            board_response = game.get_board(full=True)
                             # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                             await ws.send_json(board_response)
 
@@ -148,7 +124,7 @@ async def round_socket_handler(request):
                         game.board.initial_fen = data["fen"]
                         game.initial_fen = game.board.initial_fen
                         game.board.fen = game.board.initial_fen
-                        print("--- Got FEN from %s %s" % (data["color"], data["fen"]))
+                        # print("--- Got FEN from %s %s" % (data["color"], data["fen"]))
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
@@ -166,7 +142,7 @@ async def round_socket_handler(request):
                                 await opp_ws.send_json(response)
                         else:
                             game.wsetup = False
-                            response = get_board(games, data, full=True)
+                            response = game.get_board(full=True)
                             # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                             await ws.send_json(response)
 
@@ -297,7 +273,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         game = await load_game(request.app, data["gameId"])
-                        if data["type"] == "abort" and game.ply > 2:
+                        if data["type"] == "abort" and game.board.ply > 2:
                             continue
 
                         response = await game_ended(games, user, data, data["type"])
@@ -362,7 +338,7 @@ async def round_socket_handler(request):
                                 game.spectators.add(user)
                                 await round_broadcast(game, users, game.spectator_list, full=True)
 
-                            response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.ply}
+                            response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.board.ply}
                             await ws.send_json(response)
 
                         response = {"type": "crosstable", "ct": game.crosstable}

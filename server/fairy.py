@@ -26,6 +26,7 @@ class FairyBoard:
         self.show_promoted = variant == "makruk" or variant == "cambodian"
         self.initial_fen = initial_fen if initial_fen else self.start_fen(variant, chess960)
         self.move_stack = []
+        self.ply = 0
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
         self.fen = self.initial_fen
         if chess960 and initial_fen == self.start_fen(variant):
@@ -44,10 +45,12 @@ class FairyBoard:
     def push(self, move):
         try:
             self.move_stack.append(move)
+            self.ply += 1
             self.color = not self.color
             self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted)
         except Exception:
             self.move_stack.pop()
+            self.ply -= 1
             self.color = not self.color
             log.error("ERROR: sf.get_fen() failed on %s %s %s" % (self.initial_fen, ",".join(self.move_stack), self.chess960))
             raise

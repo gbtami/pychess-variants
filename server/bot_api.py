@@ -4,11 +4,11 @@ import logging
 
 from aiohttp import web
 
-from const import STARTED, RESIGN, INVALIDMOVE
+from const import STARTED, RESIGN
 from broadcast import round_broadcast, lobby_broadcast
 from user import User
 from seek import challenge, get_seeks, Seek
-from utils import get_board, new_game
+from utils import new_game, play_move
 from settings import BOT_TOKENS
 
 log = logging.getLogger(__name__)
@@ -300,48 +300,10 @@ async def bot_move(request):
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
-    users = request.app["users"]
-    games = request.app["games"]
+    user = request.app["users"][username]
+    game = request.app["games"][gameId]
 
-    bot_player = users[username]
-    game = games[gameId]
-
-    invalid_move = False
-    # log.info("BOT move %s %s %s %s - %s" % (username, gameId, move, game.wplayer.username, game.bplayer.username))
-    if game.status <= STARTED:
-        try:
-            await game.play_move(move)
-        except SystemError:
-            invalid_move = True
-            log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, username))
-            game.status = INVALIDMOVE
-            game.result = "0-1" if username == game.wplayer.username else "1-0"
-            bot_player.bot_online = False
-
-    await bot_player.game_queues[gameId].put(game.game_state)
-
-    if game.status > STARTED:
-        await bot_player.game_queues[gameId].put(game.game_end)
-
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
-
-    if not invalid_move:
-        board_response = get_board(games, {"gameId": gameId}, full=False)
-
-    if users[opp_name].bot:
-        if game.status > STARTED:
-            await users[opp_name].game_queues[gameId].put(game.game_end)
-        else:
-            await users[opp_name].game_queues[gameId].put(game.game_state)
-    else:
-        opp_ws = users[opp_name].game_sockets[gameId]
-        if not invalid_move:
-            await opp_ws.send_json(board_response)
-        if game.status > STARTED:
-            await opp_ws.send_json(game.game_end)
-
-    if not invalid_move:
-        await round_broadcast(game, users, board_response, channels=request.app["channels"])
+    await play_move(request.app, user, game, move)
 
     return web.json_response({"ok": True})
 

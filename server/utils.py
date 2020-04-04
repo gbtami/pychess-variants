@@ -1,7 +1,6 @@
 import logging
 import random
 import string
-from time import monotonic
 
 from aiohttp.web import WebSocketResponse
 
@@ -11,7 +10,8 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN
+from broadcast import round_broadcast
+from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, zero2grand
 from fairy import WHITE, BLACK, STANDARD_FEN
@@ -153,7 +153,7 @@ async def load_game(app, game_id):
     game.status = doc["s"]
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
-    game.random_move = ""
+
     try:
         game.wrating = doc["p0"]["e"]
         game.wrdiff = doc["p0"]["d"]
@@ -291,60 +291,50 @@ def remove_seek(seeks, seek):
             del seek.user.seeks[seek.id]
 
 
-async def play_move(games, data):
-    game = games[data["gameId"]]
-    move = data["move"]
-    clocks = data["clocks"]
+async def play_move(app, user, game, move, clocks=None):
     assert move
-    try:
-        await game.play_move(move, clocks)
-        return True
-    except Exception:
-        return False
+    gameId = game.id
+    users = app["users"]
+    invalid_move = False
+    log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
+    if game.status <= STARTED:
+        try:
+            await game.play_move(move, clocks)
+        except SystemError:
+            invalid_move = True
+            log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, user.username))
+            game.status = INVALIDMOVE
+            game.result = "0-1" if user.username == game.wplayer.username else "1-0"
 
-def get_board(games, data, full=False):
-    game = games[data["gameId"]]
-    if full:
-        steps = game.steps
+    if not invalid_move:
+        board_response = game.get_board(full=game.board.ply == 1)
 
-        # To not touch game.ply_clocks we are creating deep copy from clocks
-        clocks = {"black": game.clocks["black"], "white": game.clocks["white"]}
+    if not user.bot:
+        ws = user.game_sockets[gameId]
+        await ws.send_json(board_response)
 
-        if game.status == STARTED and game.ply >= 2:
-            # We have to adjust current player latest saved clock time
-            # unless he will get free extra time on browser page refresh
-            # (also needed for spectators entering to see correct clock times)
+    if user.bot and game.status > STARTED:
+        await user.game_queues[gameId].put(game.game_end)
 
-            cur_time = monotonic()
-            elapsed = int(round((cur_time - game.last_server_clock) * 1000))
-
-            cur_color = "black" if game.board.color == BLACK else "white"
-            clocks[cur_color] = max(0, clocks[cur_color] - elapsed)
-        crosstable = game.crosstable
+    opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+    if users[opp_name].bot:
+        if game.status > STARTED:
+            await users[opp_name].game_queues[gameId].put(game.game_end)
+        else:
+            await users[opp_name].game_queues[gameId].put(game.game_state)
     else:
-        clocks = game.clocks
-        steps = (game.steps[-1],)
-        crosstable = ""
+        try:
+            opp_ws = users[opp_name].game_sockets[gameId]
+            if not invalid_move:
+                await opp_ws.send_json(board_response)
+            if game.status > STARTED:
+                await opp_ws.send_json(game.game_end)
+        except KeyError:
+            log.error("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, user.username, gameId))
 
-    return {"type": "board",
-            "gameId": data["gameId"],
-            "status": game.status,
-            "result": game.result,
-            "fen": game.board.fen,
-            "lastMove": game.lastmove,
-            "steps": steps,
-            "dests": game.dests,
-            "promo": game.promotions,
-            "check": game.check,
-            "ply": game.ply,
-            "clocks": {"black": clocks["black"], "white": clocks["white"]},
-            "pgn": game.pgn if game.status > STARTED else "",
-            "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else "",
-            "uci_usi": game.uci_usi if game.status > STARTED else "",
-            "rm": game.random_move if game.status <= STARTED else "",
-            "ct": crosstable,
-            }
+    if not invalid_move:
+        await round_broadcast(game, users, board_response, channels=app["channels"])
 
 
 def pgn(doc):

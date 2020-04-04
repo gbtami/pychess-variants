@@ -12,7 +12,7 @@ from aiohttp_session import setup
 from motor import motor_asyncio as ma
 from sortedcollections import ValueSortedDict
 
-from ai import AI_task
+from ai import BOT_task
 from const import VARIANTS, STARTED
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
@@ -92,17 +92,19 @@ async def init_state(app):
     for key in FISHNET_KEYS:
         app["fishnet_monitor"][FISHNET_KEYS[key]] = collections.deque([], 50)
 
-    bot = app["users"]["Random-Mover"]
+    rm = app["users"]["Random-Mover"]
     for variant in VARIANTS:
         variant960 = variant.endswith("960")
         variant_name = variant[:-3] if variant960 else variant
-        seek = Seek(bot, variant_name, base=5, inc=3, level=0, chess960=variant960)
+        seek = Seek(rm, variant_name, base=5, inc=3, level=0, chess960=variant960)
         app["seeks"][seek.id] = seek
-        bot.seeks[seek.id] = seek
+        rm.seeks[seek.id] = seek
 
     ai = app["users"]["Fairy-Stockfish"]
     loop = asyncio.get_event_loop()
-    loop.create_task(AI_task(ai, app))
+
+    loop.create_task(BOT_task(ai, app))
+    loop.create_task(BOT_task(rm, app))
 
     # Configure templating.
     app["jinja"] = jinja2.Environment(

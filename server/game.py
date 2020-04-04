@@ -142,7 +142,7 @@ class Game:
         # BOT players doesn't send times used for moves
         if self.bot_game:
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
-            # print(self.ply, move, movetime)
+            # print(self.board.ply, move, movetime)
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
@@ -150,7 +150,7 @@ class Game:
                     "movetime": movetime
                 }
 
-            if cur_player.bot and self.ply >= 2:
+            if cur_player.bot and self.board.ply >= 2:
                 cur_color = "black" if self.board.color == BLACK else "white"
                 clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
                 if clocks[cur_color] == 0:
@@ -207,7 +207,7 @@ class Game:
 
         self.stopwatch.kill()
 
-        if self.ply > 0:
+        if self.board.ply > 0:
             self.app["g_cnt"] -= 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
             await lobby_broadcast(self.app["websockets"], response)
@@ -235,7 +235,7 @@ class Game:
         loop = asyncio.get_event_loop()
         loop.create_task(remove(KEEP_TIME))
 
-        if self.ply < 3 and (self.db is not None):
+        if self.board.ply < 3 and (self.db is not None):
             result = await self.db.game.delete_one({"_id": self.id})
             log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
@@ -269,7 +269,7 @@ class Game:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     def set_crosstable(self):
-        if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.ply < 3 or self.result == "*":
+        if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.board.ply < 3 or self.result == "*":
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
@@ -417,7 +417,7 @@ class Game:
                     self.result = "0-1" if self.board.color == BLACK else "1-0"
                 print(self.result, "point counting")
 
-        if self.ply > MAX_PLY:
+        if self.board.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
             print(self.result, "Ply %s reached" % MAX_PLY)
@@ -490,10 +490,6 @@ class Game:
             return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
 
     @property
-    def ply(self):
-        return len(self.board.move_stack)
-
-    @property
     def clocks(self):
         return self.ply_clocks[-1]
 
@@ -546,3 +542,44 @@ class Game:
         self.update_status(LOSERS["abandone"], result)
         await self.save_game()
         return {"type": "gameEnd", "status": self.status, "result": result, "gameId": self.id, "pgn": self.pgn}
+
+    def get_board(self, full=False):
+        if full:
+            steps = self.steps
+
+            # To not touch self.ply_clocks we are creating deep copy from clocks
+            clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
+
+            if self.status == STARTED and self.board.ply >= 2:
+                # We have to adjust current player latest saved clock time
+                # unless he will get free extra time on browser page refresh
+                # (also needed for spectators entering to see correct clock times)
+
+                cur_time = monotonic()
+                elapsed = int(round((cur_time - self.last_server_clock) * 1000))
+
+                cur_color = "black" if self.board.color == BLACK else "white"
+                clocks[cur_color] = max(0, clocks[cur_color] - elapsed)
+            crosstable = self.crosstable
+        else:
+            clocks = self.clocks
+            steps = (self.steps[-1],)
+            crosstable = ""
+
+        return {"type": "board",
+                "gameId": self.id,
+                "status": self.status,
+                "result": self.result,
+                "fen": self.board.fen,
+                "lastMove": self.lastmove,
+                "steps": steps,
+                "dests": self.dests,
+                "promo": self.promotions,
+                "check": self.check,
+                "ply": self.board.ply,
+                "clocks": {"black": clocks["black"], "white": clocks["white"]},
+                "pgn": self.pgn if self.status > STARTED else "",
+                "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else "",
+                "uci_usi": self.uci_usi if self.status > STARTED else "",
+                "ct": crosstable,
+                }
