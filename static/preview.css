@@ -1,6 +1,6 @@
 /* Board settings */
 .settings-pieces, .settings-boards {
-  display: flex;
+  display: block;
   border: none;
   margin: 12px;
 }
