@@ -76,7 +76,7 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
                         if opp_player.bot:
                             # Janggi game start have to wait for human player setup!
-                            if game.variant != "janggi":
+                            if game.variant != "janggi" or not (game.bsetup or game.wsetup):
                                 await opp_player.event_queue.put(game.game_start)
                                 response = {"type": "gameStart", "gameId": data["gameId"]}
                                 await ws.send_json(response)
@@ -107,14 +107,17 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "board":
                         game = await load_game(request.app, data["gameId"])
-                        if game.variant == "janggi" and (game.bsetup or game.wsetup):
-                            if game.bsetup:
-                                await ws.send_json({"type": "setup", "color": "black", "fen": game.board.initial_fen})
-                            elif game.wsetup:
-                                await ws.send_json({"type": "setup", "color": "white", "fen": game.board.initial_fen})
+                        if game.variant == "janggi":
+                            if game.bsetup or game.wsetup:
+                                if game.bsetup:
+                                    await ws.send_json({"type": "setup", "color": "black", "fen": game.board.initial_fen})
+                                elif game.wsetup:
+                                    await ws.send_json({"type": "setup", "color": "white", "fen": game.board.initial_fen})
+                            else:
+                                board_response = game.get_board(full=True)
+                                await ws.send_json(board_response)
                         else:
                             board_response = game.get_board(full=True)
-                            # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                             await ws.send_json(board_response)
 
                     elif data["type"] == "setup":
