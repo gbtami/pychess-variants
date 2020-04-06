@@ -328,6 +328,8 @@ async def round_socket_handler(request):
                         user.ping_counter = 0
 
                         # update websocket
+                        if data["gameId"] in user.game_sockets:
+                            await user.game_sockets[data["gameId"]].close()
                         user.game_sockets[data["gameId"]] = ws
 
                         # remove user seeks

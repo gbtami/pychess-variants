@@ -484,6 +484,13 @@ class LobbyController {
         window.location.assign(this.model["home"] + '/' + msg["gameId"]);
     }
 
+    private onMsgGameInProgress = (msg) => {
+        var response = confirm("You have an unfinished game!\nPress OK to continue.");
+        if (response === true) {
+            window.location.assign(this.model["home"] + '/' + msg["gameId"]);
+        }
+    }
+
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
     }
@@ -538,6 +545,9 @@ class LobbyController {
                 break;
             case "new_game":
                 this.onMsgNewGame(msg);
+                break;
+            case "game_in_progress":
+                this.onMsgGameInProgress(msg);
                 break;
             case "lobby_user_connected":
                 this.onMsgUserConnected(msg);

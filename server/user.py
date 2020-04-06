@@ -34,6 +34,7 @@ class User:
         self.last_name = last_name
         self.country = country
         self.seeks = {}
+
         if self.bot:
             self.event_queue = asyncio.Queue()
             self.game_queues = {}
@@ -41,6 +42,8 @@ class User:
         else:
             self.game_sockets = {}
             self.title = title
+            self.game_in_progress = None
+
         self.ping_counter = 0
         self.bot_online = False
 

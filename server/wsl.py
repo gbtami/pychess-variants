@@ -56,6 +56,11 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "create_ai_challenge":
+                        if user.game_in_progress is not None:
+                            response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+                            await ws.send_json(response)
+                            continue
+
                         variant = data["variant"]
                         engine = users.get("Fairy-Stockfish")
 
@@ -92,11 +97,16 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
+                        if user.game_in_progress is not None:
+                            response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+                            await ws.send_json(response)
+                            continue
+
                         if data["seekID"] not in seeks:
                             continue
 
                         seek = seeks[data["seekID"]]
-                        print("accept_seek", seek.as_json)
+                        # print("accept_seek", seek.as_json)
                         response = await new_game(request.app, user, data["seekID"])
                         await ws.send_json(response)
 

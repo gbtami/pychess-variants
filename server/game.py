@@ -123,6 +123,11 @@ class Game:
 
         self.stopwatch = Clock(self)
 
+        if not self.bplayer.bot:
+            self.bplayer.game_in_progress = self.id
+        if not self.wplayer.bot:
+            self.wplayer.game_in_progress = self.id
+
     def create_board(self, variant, initial_fen, chess960):
         return FairyBoard(variant, initial_fen, chess960)
 
@@ -374,7 +379,13 @@ class Game:
             self.status = status
             if result is not None:
                 self.result = result
+
             self.set_crosstable()
+
+            if not self.bplayer.bot:
+                self.bplayer.game_in_progress = None
+            if not self.wplayer.bot:
+                self.wplayer.game_in_progress = None
             return
 
         if self.board.move_stack:
@@ -427,6 +438,10 @@ class Game:
 
         if self.status > STARTED:
             self.set_crosstable()
+            if not self.bplayer.bot:
+                self.bplayer.game_in_progress = None
+            if not self.wplayer.bot:
+                self.wplayer.game_in_progress = None
 
     def set_dests(self):
         dests = {}
