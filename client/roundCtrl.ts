@@ -361,10 +361,6 @@ export default class RoundController {
             return;
         }
 
-        if (this.mycolor === "white") {
-            sound.setup();
-        }
-
         chatMessage('', message, "roundchat");
 
         const switchLetters = (side) => {
@@ -387,9 +383,6 @@ export default class RoundController {
         const sendSetup = () => {
             patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#empty'));
             this.doSend({ type: "setup", gameId: this.model["gameId"], color: this.mycolor, fen: this.setupFen + ' w - - 0 1' });
-            if (this.mycolor === "black") {
-                sound.setup();
-            }
         }
 
         const leftSide = (this.mycolor === 'white') ? -1 : 1;

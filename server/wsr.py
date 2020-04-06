@@ -78,8 +78,9 @@ async def round_socket_handler(request):
                             # Janggi game start have to wait for human player setup!
                             if game.variant != "janggi" or not (game.bsetup or game.wsetup):
                                 await opp_player.event_queue.put(game.game_start)
-                                response = {"type": "gameStart", "gameId": data["gameId"]}
-                                await ws.send_json(response)
+
+                            response = {"type": "gameStart", "gameId": data["gameId"]}
+                            await ws.send_json(response)
                         else:
                             opp_ok = data["gameId"] in users[opp_name].game_sockets
                             # waiting for opp to be ready also
@@ -159,8 +160,6 @@ async def round_socket_handler(request):
 
                         if opp_player.bot:
                             await opp_player.event_queue.put(game.game_start)
-                            response = {"type": "gameStart", "gameId": data["gameId"]}
-                            await ws.send_json(response)
 
                     elif data["type"] == "analysis":
                         game = await load_game(request.app, data["gameId"])
