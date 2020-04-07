@@ -314,7 +314,7 @@ class LobbyController {
                 h('label', { attrs: {for: "inc"} }, "Increment in seconds:"),
                 h('span#increment'),
                 h('input#inc', { class: {"slider": true },
-                    props: {name: "inc", type: "range", min: 0, max: 30, value: vInc},
+                    props: {name: "inc", type: "range", min: 0, max: 60, value: vInc},
                     on: { input: (e) => setIncrement((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
                 }),
