@@ -20,9 +20,11 @@ export class Clock {
     flagCallback: any;
     el: HTMLElement;
     id: string;
+    overtime: boolean;
+    byoyomi: boolean;
 
     // game baseTime (min) and increment (sec)
-    constructor(baseTime, increment, el, id) {
+    constructor(baseTime, increment, el, id, byoyomi) {
     this.duration = baseTime * 1000 * 60;
     this.increment = increment * 1000;
     this.granularity = 500;
@@ -34,6 +36,8 @@ export class Clock {
     this.flagCallback = null;
     this.el = el;
     this.id = id;
+    this.overtime = false;
+    this.byoyomi = byoyomi;
 
     renderTime(this, this.duration);
     }
@@ -51,11 +55,17 @@ export class Clock {
             diff = that.duration - (Date.now() - that.startTime);
             // console.log("timer()", that.duration, that.startTime, diff);
             if (diff <= 0) {
-                if (that.flagCallback !== null) {
-                    that.flagCallback();
+                if (that.byoyomi && !that.overtime) {
+                    that.overtime = true;
+                    that.duration = that.increment;
+                    that.startTime = Date.now();
+                } else {
+                    if (that.flagCallback !== null) {
+                        that.flagCallback();
+                    }
+                    that.pause(false);
+                    return;
                 }
-                that.pause(false);
-                return;
             }
             that.timeout = setTimeout(timer, that.granularity);
             that.tickCallbacks.forEach(function(callback) {
@@ -87,7 +97,13 @@ export class Clock {
         this.timeout = null;
 
         this.duration -= Date.now() - this.startTime;
-        if (withIncrement && this.increment) this.duration += this.increment;
+        if (withIncrement && this.increment) {
+            if (this.byoyomi) {
+                if (this.overtime) this.duration = this.increment;
+            } else {
+                this.duration += this.increment;
+            }
+        }
         renderTime(this, this.duration);
     }
 
