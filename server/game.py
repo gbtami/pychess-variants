@@ -104,6 +104,9 @@ class Game:
                 if self.bplayer.bot:
                     self.board.janggi_setup("b")
 
+        self.overtime = False
+        self.byoyomi = self.variant == "janggi" or self.variant.endswith("shogi")
+
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
 
@@ -160,16 +163,27 @@ class Game:
 
             if cur_player.bot and self.board.ply >= 2:
                 cur_color = "black" if self.board.color == BLACK else "white"
-                clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
-                if clocks[cur_color] == 0:
-                    w, b = self.board.insufficient_material()
-                    if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
-                        result = "1/2-1/2"
+                if self.byoyomi:
+                    if self.overtime:
+                        clocks[cur_color] = self.inc * 1000
                     else:
-                        result = "1-0" if self.board.color == BLACK else "0-1"
-                    self.update_status(FLAG, result)
-                    print(self.result, "flag")
-                    await self.save_game()
+                        clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
+                else:
+                    clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
+
+                if clocks[cur_color] == 0:
+                    if self.byoyomi and not self.overtime:
+                        self.overtime = True
+                        clocks[cur_color] = self.inc * 1000
+                    else:
+                        w, b = self.board.insufficient_material()
+                        if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
+                            result = "1/2-1/2"
+                        else:
+                            result = "1-0" if self.board.color == BLACK else "0-1"
+                        self.update_status(FLAG, result)
+                        print(self.result, "flag")
+                        await self.save_game()
 
         self.last_server_clock = cur_time
 
