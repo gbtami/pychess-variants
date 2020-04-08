@@ -205,3 +205,6 @@
 .shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord {
   transform: translateY(39%);
 }
+.janggi .cg-wrap coords.ranks {
+  --ranks-right: var(--cgwrapwidth);
+}

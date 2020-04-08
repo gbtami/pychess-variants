@@ -9,7 +9,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, Key, Piece } from 'chessgroundx/types';
+import { Color, Dests, Key, Piece, Variant, Notation } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
 import makeGating from './gating';
@@ -176,7 +176,9 @@ export default class AnalysisController {
 
         this.chessground = Chessground(el, {
             fen: fen_placement,
+            variant: this.variant as Variant,
             geometry: VARIANTS[this.variant].geom,
+            notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
             orientation: this.mycolor,
             turnColor: this.turnColor,
             animation: {
