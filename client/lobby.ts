@@ -85,6 +85,7 @@ class LobbyController {
         if (this.model["fen"] !== "") {
             e.value = this.model["fen"];
         }
+        if (this.model["anon"] === 'True') e.disabled = true;
     }
 
     doSend (message) {
@@ -283,7 +284,7 @@ class LobbyController {
                         hook: {insert: () => setVariant() },
                         }, enabled_variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variantName(variant, 0)))),
                 ]),
-                h('input#seek-fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here',  autocomplete: "off"} }),
+                h('input#seek-fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here' + ((this.model['anon'] === 'True') ? ' (must be signed in)' : ''),  autocomplete: "off"} }),
                 h('div#handicap-block', [
                     h('label', { attrs: {for: "handicap"} }, "Handicap"),
                     h('select#handicap', {
