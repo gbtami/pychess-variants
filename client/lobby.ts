@@ -220,6 +220,10 @@ class LobbyController {
 
             document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
             document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
+
+            e = document.getElementById('incrementlabel') as HTMLSelectElement;
+            const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
+            patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? 'Byoyomi' : 'Increment') + ' in seconds:'));
         }
 
         const setMinutes = (minutes) => {
@@ -304,7 +308,7 @@ class LobbyController {
                     on: { input: (e) => setMinutes((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setMinutes((vnode.elm as HTMLInputElement).value) },
                 }),
-                h('label', { attrs: {for: "inc"} }, "Increment in seconds:"),
+                h('label#incrementlabel', { attrs: {for: "inc"} }, ''),
                 h('span#increment'),
                 h('input#inc', { class: {"slider": true },
                     props: {name: "inc", type: "range", min: 0, max: 60, value: vInc},
