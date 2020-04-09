@@ -258,6 +258,7 @@ async def new_game(app, user, seek_id):
         "v": V2C[seek.variant],
         "b": seek.base,
         "i": seek.inc,
+        "bp": seek.byoyomi_period,
         "m": [],
         "d": new_game.date,
         "f": new_game.initial_fen,
