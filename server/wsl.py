@@ -74,7 +74,17 @@ async def lobby_socket_handler(request):
                             # TODO: message that engine is offline, but capture BOT will play instead
                             engine = users.get("Random-Mover")
 
-                        seek = Seek(user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], data["rated"], data["chess960"], data["handicap"])
+                        seek = Seek(
+                            user, variant,
+                            fen=data["fen"],
+                            color=data["color"],
+                            base=data["minutes"],
+                            inc=data["increment"],
+                            byoyomi_period=data["byoyomi_period"],
+                            level=data["level"],
+                            rated=data["rated"],
+                            chess960=data["chess960"],
+                            handicap=data["handicap"])
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 

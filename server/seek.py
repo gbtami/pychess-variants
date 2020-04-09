@@ -43,7 +43,18 @@ def create_seek(seeks, user, data):
     if len(user.seeks) >= MAX_USER_SEEKS:
         return None
 
-    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"], data["byoyomi_period"], rated=data.get("rated"), chess960=data.get("chess960"), handicap=data.get("handicap"), target=data.get("target"))
+    seek = Seek(
+        user, data["variant"],
+        fen=data["fen"],
+        color=data["color"],
+        base=data["minutes"],
+        inc=data["increment"],
+        byoyomi_period=data["byoyomi_period"],
+        rated=data.get("rated"),
+        chess960=data.get("chess960"),
+        handicap=data.get("handicap"),
+        target=data.get("target"))
+
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 
