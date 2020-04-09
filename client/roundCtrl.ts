@@ -313,9 +313,10 @@ export default class RoundController {
 
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
+            const pass = this.variant === 'janggi';
             this.gameControls = patch(container, h('div.btn-controls', [
                 h('button#abort', { on: { click: () => this.abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
-                h('button#draw', { on: { click: () => (this.variant === 'janggi') ? this.pass() : this.draw() }, props: {title: (this.variant === 'janggi') ? 'Pass' : "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
+                h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? 'Pass' : "Draw"} }, [(pass) ? 'Pass' : h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
                 h('button#resign', { on: { click: () => this.resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
                 ])
             );

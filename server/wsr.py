@@ -261,7 +261,6 @@ async def round_socket_handler(request):
 
                         response = await draw(games, data, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
-
                         if opp_player.bot:
                             if game.status > STARTED:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
