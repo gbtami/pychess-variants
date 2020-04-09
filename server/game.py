@@ -23,7 +23,7 @@ KEEP_TIME = 600  # keep game in app["games"] for KEEP_TIME secs
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_count=0, level=0, rated=False, chess960=False, create=True):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=False, chess960=False, create=True):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.users = app["users"]
@@ -105,8 +105,8 @@ class Game:
                     self.board.janggi_setup("b")
 
         self.overtime = False
-        self.byoyomi = byoyomi_count > 0
-        self.byoyomi_count = byoyomi_count
+        self.byoyomi = byoyomi_period > 0
+        self.byoyomi_period = byoyomi_period
 
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
@@ -173,10 +173,10 @@ class Game:
                     clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
 
                 if clocks[cur_color] == 0:
-                    if self.byoyomi and self.byoyomi_count > 0:
+                    if self.byoyomi and self.byoyomi_period > 0:
                         self.overtime = True
                         clocks[cur_color] = self.inc * 1000
-                        self.byoyomi_count -= 1
+                        self.byoyomi_period -= 1
                     else:
                         w, b = self.board.insufficient_material()
                         if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
