@@ -265,7 +265,7 @@ export default class RoundController {
 
         // initialize clocks
         this.clocktimes = {};
-        const byoyomi = this.variant.endsWith('shogi') || this.variant === 'janggi';
+        const byoyomi = (this.variant.endsWith('shogi') || this.variant === 'janggi') ? 1 : 0;
         const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0', byoyomi);
         const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1', byoyomi);
         this.clocks = [c0, c1];
