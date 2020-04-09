@@ -147,7 +147,13 @@ class Game:
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         if cur_player.username in self.draw_offers:
-            self.draw_offers.remove(cur_player.username)
+            # Move cancels draw offer
+            # Except Janggi pass moves (like e2e2 or f10f10)
+            # They are draw offers at the same time!
+            half, rem = divmod(len(move), 2)
+            pass_move = rem == 0 and move[:half] == move[half:]
+            if not pass_move:
+                self.draw_offers.remove(cur_player.username)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
@@ -413,9 +419,14 @@ class Game:
 
         # check 50 move rule and repetition
         if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
-            print("1/2 by board.is_claimable_draw()")
-            self.status = DRAW
-            self.result = "1/2-1/2"
+            if self.variant == 'janggi':
+                w, b = self.board.get_janggi_points()
+                self.status = VARIANTEND
+                self.result = "1-0" if w > b else "0-1"
+            else:
+                print("1/2 by board.is_claimable_draw()")
+                self.status = DRAW
+                self.result = "1/2-1/2"
 
         if not self.dests:
             game_result_value = self.board.game_result()

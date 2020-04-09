@@ -84,6 +84,12 @@ class FairyBoard:
     def game_result(self):
         return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
+    def get_janggi_points(self):
+        fen = self.fen.split()[0]
+        cho_point = fen.count("P") * 2 + fen.count("B") * 3 + fen.count("N") * 5 + fen.count("C") * 7 + fen.count("R") * 13
+        han_point = fen.count("p") * 2 + fen.count("b") * 3 + fen.count("n") * 5 + fen.count("c") * 7 + fen.count("r") * 13
+        return (cho_point, han_point + 1.5)
+
     def print_pos(self):
         print()
         uni_pieces = {"R": "♜", "N": "♞", "B": "♝", "Q": "♛", "K": "♚", "P": "♟",

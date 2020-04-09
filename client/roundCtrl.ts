@@ -311,29 +311,12 @@ export default class RoundController {
         }
         if (!this.spectator) this.clocks[1].onFlag(flagCallback);
 
-        const abort = () => {
-            // console.log("Abort");
-            this.doSend({ type: "abort", gameId: this.model["gameId"] });
-        }
-
-        const draw = () => {
-            // console.log("Draw");
-            this.doSend({ type: "draw", gameId: this.model["gameId"] });
-        }
-
-        const resign = () => {
-            // console.log("Resign");
-            if (confirm('Are you sure you want to resign?')) {
-                this.doSend({ type: "resign", gameId: this.model["gameId"] });
-            }
-        }
-
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             this.gameControls = patch(container, h('div.btn-controls', [
-                h('button#abort', { on: { click: () => abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
-                h('button#draw', { on: { click: () => draw() }, props: {title: "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
-                h('button#resign', { on: { click: () => resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
+                h('button#abort', { on: { click: () => this.abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
+                h('button#draw', { on: { click: () => (this.variant === 'janggi') ? this.pass() : this.draw() }, props: {title: (this.variant === 'janggi') ? 'Pass' : "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
+                h('button#resign', { on: { click: () => this.resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
                 ])
             );
         } else {
@@ -349,6 +332,40 @@ export default class RoundController {
 
     getGround = () => this.chessground;
     getDests = () => this.dests;
+
+    private abort = () => {
+        // console.log("Abort");
+        this.doSend({ type: "abort", gameId: this.model["gameId"] });
+    }
+
+    private draw = () => {
+        // console.log("Draw");
+        this.doSend({ type: "draw", gameId: this.model["gameId"] });
+    }
+
+    private resign = () => {
+        // console.log("Resign");
+        if (confirm('Are you sure you want to resign?')) {
+            this.doSend({ type: "resign", gameId: this.model["gameId"] });
+        }
+    }
+
+    private pass = () => {
+        var passKey = 'z0';
+        const pieces = this.chessground.state.pieces;
+        const dests = this.chessground.state.movable.dests;
+        for (let key in pieces) {
+            if (pieces[key]!.role === 'king' && pieces[key]!.color === this.turnColor) {
+                if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
+            }
+        }
+        if (passKey !== 'z0') {
+            this.chessground.selectSquare(passKey as Key);
+            sound.move();
+            this.sendMove(passKey, passKey, '');
+            this.doSend({ type: "draw", gameId: this.model["gameId"], pass: "pass" });
+        }
+    }
 
     // Janggi second player (Red) setup
     private onMsgSetup = (msg) => {
@@ -924,7 +941,7 @@ export default class RoundController {
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
                 } else if (this.variant === 'janggi' && piece!.role === 'king') {
-                    this.sendMove(key, key, '');
+                    this.pass();
                 }
             };
         }

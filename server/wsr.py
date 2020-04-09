@@ -9,7 +9,7 @@ from aiohttp import web
 import aiohttp_session
 
 from broadcast import lobby_broadcast, round_broadcast
-from const import DRAW, ANALYSIS
+from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
@@ -263,7 +263,7 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                         if opp_player.bot:
-                            if game.status == DRAW:
+                            if game.status > STARTED:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]

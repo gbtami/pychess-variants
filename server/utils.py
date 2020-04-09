@@ -11,7 +11,7 @@ except ImportError:
     print("No pyffish module installed!")
 
 from broadcast import round_broadcast
-from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE
+from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, VARIANTEND
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, zero2grand
 from fairy import WHITE, BLACK, STANDARD_FEN
@@ -171,14 +171,19 @@ async def draw(games, data, agreement=False):
     """ Draw or offer """
     game = games[data["gameId"]]
     if game.is_claimable_draw or agreement:
-        result = "1/2-1/2"
-        game.update_status(DRAW, result)
+        if game.variant == 'janggi':
+            w, b = game.board.get_janggi_points()
+            result = "1-0" if w > b else "0-1"
+            game.update_status(VARIANTEND, result)
+        else:
+            result = "1/2-1/2"
+            game.update_status(DRAW, result)
         await game.save_game()
         return {
             "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else ""}
     else:
-        response = {"type": "offer", "message": "Draw offer sent", "room": "player", "user": ""}
+        response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
         game.messages.append(response)
         return response
 
