@@ -4,7 +4,7 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=6, rated=False, chess960=False, handicap="", target=""):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_count=0, level=6, rated=False, chess960=False, handicap="", target=""):
         self.user = user
         self.variant = variant
         self.color = color
@@ -17,6 +17,7 @@ class Seek:
         self.chess960 = chess960
         self.handicap = handicap
         self.target = target
+        self.byoyomi_count = byoyomi_count
 
         Seek.gen_id += 1
         self.id = self.gen_id
@@ -34,7 +35,7 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "rating": self.rating,
-            "tc": "%s+%s" % (self.base, self.inc)
+            "tc": "%s+%s%s" % (self.base, ("%sx" % (self.byoyomi_count)) if self.byoyomi_count > 1 else "", self.inc)
         }
 
 
