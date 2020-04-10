@@ -325,10 +325,10 @@ class LobbyController {
                     hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
                 }),
                 h('div#byoyomi-period', [
-                    h('label#byoLabel', { attrs: {for: "inc"} }, 'Periods'),
-                    h('span#byoyomi'),
-                    h('select#byo', { props: {name: "byo", value: vByo} },
-                        [1, 2, 3].map((n) => h('option', { props: { value: n } }, n))
+                    h('label#byoyomiLabel', { attrs: {for: "byo"} }, 'Periods'),
+                    h('select#byo', {
+                        props: {name: "byo", value: vByo},
+                        }, [1, 2, 3].map((n) => h('option', { props: { value: n } }, n))
                      ),
                 ]),
                 h('form#game-mode', [

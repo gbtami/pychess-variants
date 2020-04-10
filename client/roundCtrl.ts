@@ -130,7 +130,7 @@ export default class RoundController {
         this.bplayer = model["bplayer"] as string;
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
-        this.byoyomiPeriod = model["byoyomiPeriod"] as number;
+        this.byoyomiPeriod = model["byo"] as number;
         this.status = model["status"] as number;
         this.tv = model["tv"];
         this.steps = [];
