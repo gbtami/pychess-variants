@@ -533,6 +533,39 @@ function touchingKings(pieces) {
     return touching;
 }
 
+// Get counting information for makruk etc
+export function getCounting(fen) {
+    const parts = fen.split(" ");
+    var countingLimit = parseInt(parts[3]);
+    if (isNaN(countingLimit)) countingLimit = 0;
+    var countingPly = parseInt(parts[4]);
+    if (isNaN(countingPly)) countingPly = 0;
+    return [countingPly, countingLimit];
+}
+
+// Get janggi material points
+export function getJanggiPoints(board) {
+    var choPoint = 0;
+    var hanPoint = 1.5;
+    for (const c of board) {
+        switch (c) {
+            case 'P': choPoint += 2; break;
+            case 'A':
+            case 'B': choPoint += 3; break;
+            case 'N': choPoint += 5; break;
+            case 'C': choPoint += 7; break;
+            case 'R': choPoint += 13; break;
+            case 'p': hanPoint += 2; break;
+            case 'a':
+            case 'b': hanPoint += 3; break;
+            case 'n': hanPoint += 5; break;
+            case 'c': hanPoint += 7; break;
+            case 'r': hanPoint += 13; break;
+        }
+    }
+    return [choPoint, hanPoint];
+}
+
 export const roleToSan = {
     pawn: 'P',
     knight: 'N',
