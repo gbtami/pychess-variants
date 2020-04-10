@@ -1,2 +1,3 @@
-komaoto5.ogg http://shineleckoma.web.fc2.com/
-chat.ogg https://freesound.org/people/YourFriendJesse/sounds/235911/
+komaoto5 http://shineleckoma.web.fc2.com/
+chat https://freesound.org/people/YourFriendJesse/sounds/235911/
+dinding https://freesound.org/people/Daenn/sounds/159158/

@@ -21,6 +21,8 @@
     --clock-hurry-bg: MistyRose;
     --clock-running-bg: rgb(208, 224, 189);
     --clock-running-color: Black;
+    --blue-point: RoyalBlue;
+    --red-point: Crimson;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -41,6 +43,8 @@
     --clock-hurry-bg: #502826;
     --clock-running-bg: #384722;
     --clock-running-color: #e3e3e3;
+    --blue-point: RoyalBlue;
+    --red-point: Crimson;
 }
 
 html {
@@ -705,6 +709,32 @@ select, input {
   margin-right: 50px;
 }
 
+#janggi-points {
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 50px;
+  display: flex;
+  justify-content: space-around;
+}
+
+#janggi-point-cho {
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 50px;
+  text-align: right;
+  padding-right: 10px;
+  color: var(--blue-point);
+  width: 100px;
+}
+
+#janggi-point-han {
+  font-family: "Roboto Mono", "Roboto";
+  font-size: 50px;
+  text-align: center;
+  text-align: right;
+  padding-right: 10px;
+  color: var(--red-point);
+  width: 100px;
+}
+
 /* Modal Content/Box */
 .modal-content {
   background-color: var(--bg-color1);
@@ -945,7 +975,7 @@ li.message.server {
 
 #movelist-block {
   overflow-y: auto;
-  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - 40px);
+  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - 110px);
 }
 /* movelist border: 1px solid #ddd; */
 div#moves {
@@ -1046,7 +1076,8 @@ cg-resize {
 /* range input slider */
 .slider {
   -webkit-appearance: none;
-  width: 100%;
+  width: 98%;
+  margin: 2px auto;
   height: 25px;
   border-radius: 5px;
   background: LightGray;
@@ -1181,7 +1212,7 @@ minigame:hover {
   -webkit-animation: spin 0.6s linear infinite;
   animation: spin 0.6s linear infinite;
 }
- 
+
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -1212,7 +1243,7 @@ input#seek-fen, input#fen {
 }
 
 /* crosstable */
-div.ctable{
+div#ctable-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1298,4 +1329,18 @@ boardeditor {
 .pocket-wrapper {
   justify-content: center;
   display: flex;
+}
+
+/* Janggi setup buttons */
+#janggi-setup-buttons {
+  display: grid;
+  grid-template-columns: 22% 12% 22%;
+  grid-gap: 11%;
+  justify-content: center;
+}
+#janggi-setup-buttons button {
+  height: 40px;
+  color: var(--font-color);
+  background-color: var(--bg-color2);
+  cursor: pointer;
 }

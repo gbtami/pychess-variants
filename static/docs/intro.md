@@ -72,6 +72,8 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
 
+**Janggi (Korean Chess)** - A refreshing and yet even more aggressive spin of Xiangqi
+
 **Minixiangqi** - Xiangqi on a 7x7 board
 
 ## Southeast Asian variants

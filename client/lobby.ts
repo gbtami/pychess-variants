@@ -81,12 +81,11 @@ class LobbyController {
             document.getElementById('id01')!.style.display='block';
         }
 
-        var vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
         var e = document.getElementById("seek-fen") as HTMLInputElement;
-            e.value = vFen;
         if (this.model["fen"] !== "") {
             e.value = this.model["fen"];
         }
+        if (this.model["anon"] === 'True') e.disabled = true;
     }
 
     doSend (message) {
@@ -154,13 +153,11 @@ class LobbyController {
 
         e = document.getElementById('seek-fen') as HTMLInputElement;
         const fen = e.value;
-        localStorage.setItem("seek_fen", e.value);
 
         let handicap;
         if (variant == 'shogi') {
             e = document.getElementById('handicap') as HTMLSelectElement;
             handicap = e.options[e.selectedIndex].value;
-            localStorage.setItem("seek_handicap", handicap);
         } else {
             handicap = '';
         }
@@ -223,6 +220,10 @@ class LobbyController {
 
             document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
             document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
+
+            e = document.getElementById('incrementlabel') as HTMLSelectElement;
+            const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
+            patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? 'Byoyomi' : 'Increment') + ' in seconds:'));
         }
 
         const setMinutes = (minutes) => {
@@ -252,19 +253,15 @@ class LobbyController {
 
             document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
         }
-        console.log("ls FEN:", localStorage.seek_fen);
-        const hIdx = localStorage.seek_handicap === undefined ? 0 : SHOGI_HANDICAP_NAME.indexOf(localStorage.seek_handicap);
 
         var vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
         if (this.model["variant"] !== "") vIdx = enabled_variants.sort().indexOf(this.model["variant"]);
 
-        const vFen = localStorage.seek_fen === undefined ? "" : localStorage.seek_fen;
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
         const vRated = localStorage.seek_rated === undefined ? "0" : localStorage.seek_rated;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
         const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
-        // console.log("localeStorage.seek_level, vLevel=", localStorage.seek_level, vLevel);
 
         return [
         h('div#id01', { class: {"modal": true} }, [
@@ -291,14 +288,14 @@ class LobbyController {
                         hook: {insert: () => setVariant() },
                         }, enabled_variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variantName(variant, 0)))),
                 ]),
-                h('input#seek-fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here',  autocomplete: "off", value: '"' + vFen + '"'} }),
+                h('input#seek-fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here' + ((this.model['anon'] === 'True') ? ' (must be signed in)' : ''),  autocomplete: "off"} }),
                 h('div#handicap-block', [
                     h('label', { attrs: {for: "handicap"} }, "Handicap"),
                     h('select#handicap', {
                         props: {name: "handicap"},
                         on: { input: () => setHandicap() },
                         hook: {insert: () => setHandicap() },
-                        }, SHOGI_HANDICAP_NAME.map((handicap, idx) => h('option', { props: {value: handicap, selected: (idx === hIdx) ? "selected" : ""} }, handicap))),
+                        }, SHOGI_HANDICAP_NAME.map((handicap) => h('option', { props: {value: handicap} }, handicap))),
                 ]),
                 h('div#chess960-block', [
                     h('label', { attrs: {for: "chess960"} }, "Chess960"),
@@ -311,10 +308,10 @@ class LobbyController {
                     on: { input: (e) => setMinutes((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setMinutes((vnode.elm as HTMLInputElement).value) },
                 }),
-                h('label', { attrs: {for: "inc"} }, "Increment in seconds:"),
+                h('label#incrementlabel', { attrs: {for: "inc"} }, ''),
                 h('span#increment'),
                 h('input#inc', { class: {"slider": true },
-                    props: {name: "inc", type: "range", min: 0, max: 15, value: vInc},
+                    props: {name: "inc", type: "range", min: 0, max: 60, value: vInc},
                     on: { input: (e) => setIncrement((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
                 }),
@@ -384,7 +381,7 @@ class LobbyController {
                 document.getElementById('ailevel')!.style.display='inline-block';
                 document.getElementById('id01')!.style.display='block';
                 }
-            } }, "Play with AI(Fairy-Stockfish)"),
+            } }, "Play with AI (Fairy-Stockfish)"),
         ];
     }
 
@@ -439,6 +436,7 @@ class LobbyController {
         // console.log("VARIANTS", VARIANTS);
         var rows = seeks.map((seek) => {
             const variant = seek.variant;
+            const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
             let tooltiptext;
             if (seek["fen"]) {
                 // tooltiptext = seek["fen"];
@@ -457,7 +455,7 @@ class LobbyController {
             [h('td', [challengeIcon(seek), title(seek), user(seek)]),
              h('td', [colorIcon(seek["color"])]),
              h('td', seek["rating"]),
-             h('td', seek["tc"]),
+             h('td', seek["tc"] + ((byoyomi) ? '(b)': '')),
              h('td', {attrs: {"data-icon": variantIcon(seek.variant, seek.chess960)}, class: {"icon": true}} ),
              // h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
              h('td', variantName(seek.variant, seek.chess960)),
@@ -482,6 +480,13 @@ class LobbyController {
     private onMsgNewGame = (msg) => {
         // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
         window.location.assign(this.model["home"] + '/' + msg["gameId"]);
+    }
+
+    private onMsgGameInProgress = (msg) => {
+        var response = confirm("You have an unfinished game!\nPress OK to continue.");
+        if (response === true) {
+            window.location.assign(this.model["home"] + '/' + msg["gameId"]);
+        }
     }
 
     private onMsgUserConnected = (msg) => {
@@ -538,6 +543,9 @@ class LobbyController {
                 break;
             case "new_game":
                 this.onMsgNewGame(msg);
+                break;
+            case "game_in_progress":
+                this.onMsgGameInProgress(msg);
                 break;
             case "lobby_user_connected":
                 this.onMsgUserConnected(msg);

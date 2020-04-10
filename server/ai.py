@@ -6,17 +6,18 @@ import string
 from time import monotonic
 
 from const import MOVE, STARTED
+from utils import play_move
 
 log = logging.getLogger(__name__)
 
 
-async def AI_task(ai, app):
-    async def game_task(ai, game, gameId, level):
+async def BOT_task(bot, app):
+    async def game_task(bot, game, level, random_mover):
         while game.status <= STARTED:
             try:
-                line = await ai.game_queues[gameId].get()
+                line = await bot.game_queues[game.id].get()
             except KeyError:
-                log.error("Break in AI_task() game_task(). %s not in ai.game_queues" % gameId)
+                log.error("Break in BOT_task() game_task(). %s not in ai.game_queues" % game.id)
                 if game.status <= STARTED:
                     await game.abort()
                 break
@@ -25,11 +26,12 @@ async def AI_task(ai, app):
             if event["type"] != "gameState":
                 continue
             # print("   +++ game_queues get()", event)
-            if len(app["workers"]) > 0:
-                AI_move(game, gameId, level)
+            if random_mover:
+                await play_move(app, bot, game, game.random_move)
+            elif len(app["workers"]) > 0:
+                AI_move(game, level)
 
-    def AI_move(game, gameId, level):
-        game = app["games"][gameId]
+    def AI_move(game, level):
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
         work = {
             "work": {
@@ -38,7 +40,7 @@ async def AI_task(ai, app):
                 "level": level,
             },
             "time": monotonic(),
-            "game_id": gameId,  # optional
+            "game_id": game.id,  # optional
             "position": game.board.initial_fen,  # start position (X-FEN)
             "variant": game.variant,
             "chess960": game.chess960,
@@ -47,8 +49,10 @@ async def AI_task(ai, app):
         app["works"][work_id] = work
         app["fishnet"].put_nowait((MOVE, work_id))
 
+    random_mover = bot.username == "Random-Mover"
+
     while not app["data"]["kill"]:
-        line = await ai.event_queue.get()
+        line = await bot.event_queue.get()
         event = json.loads(line)
         # print("+++ AI event_queue.get()", event)
 
@@ -59,7 +63,7 @@ async def AI_task(ai, app):
         level = int(event["game"]["skill_level"])
         game = app["games"][gameId]
 
-        if len(app["workers"]) == 0:
+        if len(app["workers"]) == 0 and not random_mover:
             log.error("ERROR: No fairyfisnet worker alive!")
             # TODO: send msg to player
             await game.abort()
@@ -70,8 +74,12 @@ async def AI_task(ai, app):
             starting_player = game.bplayer.username
         else:
             starting_player = game.wplayer.username
-        if starting_player == ai.username:
-            AI_move(game, gameId, level)
+
+        if starting_player == bot.username:
+            if random_mover:
+                await play_move(app, bot, game, game.random_move)
+            else:
+                AI_move(game, level)
 
         loop = asyncio.get_event_loop()
-        loop.create_task(game_task(ai, game, gameId, level))
+        loop.create_task(game_task(bot, game, level, random_mover))

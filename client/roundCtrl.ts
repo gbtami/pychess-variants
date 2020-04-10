@@ -11,7 +11,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant } from 'chessgroundx/types';
+import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
@@ -26,7 +26,7 @@ import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 import { renderRdiff, result } from './profile'
 import { player } from './player';
-import { updateCount } from './count';
+import { updateCount, updatePoint } from './info';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -54,6 +54,8 @@ export default class RoundController {
     vpocket1: any;
     vplayer0: any;
     vplayer1: any;
+    vpointCho: any;
+    vpointHan: any;
     vpng: any;
     gameControls: any;
     moveControls: any;
@@ -69,7 +71,6 @@ export default class RoundController {
     result: string;
     flip: boolean;
     spectator: boolean;
-    oppIsRandomMover: boolean;
     settings: boolean;
     tv: boolean;
     status: number;
@@ -87,6 +88,7 @@ export default class RoundController {
     blindfold: boolean;
     handicap: boolean;
     autoqueen: boolean;
+    setupFen: string;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -155,10 +157,6 @@ export default class RoundController {
             this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
         }
 
-        this.oppIsRandomMover = (
-            (this.mycolor === "white" && this.bplayer === "Random-Mover") ||
-            (this.mycolor === "black" && this.wplayer === "Random-Mover"));
-
         // players[0] is top player, players[1] is bottom player
         this.players = [
             this.mycolor === "white" ? this.bplayer : this.wplayer,
@@ -195,6 +193,7 @@ export default class RoundController {
             fen: fen_placement,
             variant: this.variant as Variant,
             geometry: VARIANTS[this.variant].geom,
+            notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
             orientation: this.mycolor,
             turnColor: this.turnColor,
             autoCastle: this.variant !== 'cambodian',
@@ -266,8 +265,9 @@ export default class RoundController {
 
         // initialize clocks
         this.clocktimes = {};
-        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0');
-        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1');
+        const byoyomi = this.variant.endsWith('shogi') || this.variant === 'janggi';
+        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0', byoyomi);
+        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1', byoyomi);
         this.clocks = [c0, c1];
         this.clocks[0].onTick(renderTime);
         this.clocks[1].onTick(renderTime);
@@ -282,6 +282,12 @@ export default class RoundController {
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + ' +15 seconds', "roundchat");
         }
+
+        // initialize janggi point indicator
+        const point0 = document.getElementById('janggi-point0') as HTMLElement;
+        const point1 = document.getElementById('janggi-point1') as HTMLElement;
+        this.vpointCho = this.mycolor === 'white' ? patch(point1, h('div#janggi-point-cho')) : patch(point0, h('div#janggi-point-cho'));
+        this.vpointHan = this.mycolor === 'white' ? patch(point0, h('div#janggi-point-han')) : patch(point1, h('div#janggi-point-han'));
 
         if (!this.spectator) {
             var container = document.getElementById('clock0') as HTMLElement;
@@ -305,29 +311,13 @@ export default class RoundController {
         }
         if (!this.spectator) this.clocks[1].onFlag(flagCallback);
 
-        const abort = () => {
-            // console.log("Abort");
-            this.doSend({ type: "abort", gameId: this.model["gameId"] });
-        }
-
-        const draw = () => {
-            // console.log("Draw");
-            this.doSend({ type: "draw", gameId: this.model["gameId"] });
-        }
-
-        const resign = () => {
-            // console.log("Resign");
-            if (confirm('Are you sure you want to resign?')) {
-                this.doSend({ type: "resign", gameId: this.model["gameId"] });
-            }
-        }
-
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
+            const pass = this.variant === 'janggi';
             this.gameControls = patch(container, h('div.btn-controls', [
-                h('button#abort', { on: { click: () => abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
-                h('button#draw', { on: { click: () => draw() }, props: {title: "Draw"} }, [h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
-                h('button#resign', { on: { click: () => resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
+                h('button#abort', { on: { click: () => this.abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
+                h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? 'Pass' : "Draw"} }, [(pass) ? 'Pass' : h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
+                h('button#resign', { on: { click: () => this.resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
                 ])
             );
         } else {
@@ -343,6 +333,86 @@ export default class RoundController {
 
     getGround = () => this.chessground;
     getDests = () => this.dests;
+
+    private abort = () => {
+        // console.log("Abort");
+        this.doSend({ type: "abort", gameId: this.model["gameId"] });
+    }
+
+    private draw = () => {
+        // console.log("Draw");
+        this.doSend({ type: "draw", gameId: this.model["gameId"] });
+    }
+
+    private resign = () => {
+        // console.log("Resign");
+        if (confirm('Are you sure you want to resign?')) {
+            this.doSend({ type: "resign", gameId: this.model["gameId"] });
+        }
+    }
+
+    private pass = () => {
+        var passKey = 'z0';
+        const pieces = this.chessground.state.pieces;
+        const dests = this.chessground.state.movable.dests;
+        for (let key in pieces) {
+            if (pieces[key]!.role === 'king' && pieces[key]!.color === this.turnColor) {
+                if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
+            }
+        }
+        if (passKey !== 'z0') {
+            this.chessground.selectSquare(passKey as Key);
+            sound.move();
+            this.sendMove(passKey, passKey, '');
+            this.doSend({ type: "draw", gameId: this.model["gameId"], pass: "pass" });
+        }
+    }
+
+    // Janggi second player (Red) setup
+    private onMsgSetup = (msg) => {
+        this.setupFen = msg.fen;
+        this.chessground.set({fen: this.setupFen});
+
+        const side = (msg.color === 'white') ? 'Blue (Cho)' : 'Red (Han)';
+        const message = 'Waiting for ' + side + ' to choose starting positions of the horses and elephants...';
+
+        if (this.spectator || msg.color !== this.mycolor) {
+            chatMessage('', message, "roundchat");
+            return;
+        }
+
+        chatMessage('', message, "roundchat");
+
+        const switchLetters = (side) => {
+            const white = this.mycolor === 'white';
+            const rank = (white) ? 9 : 0;
+            const horse = (white) ? 'N' : 'n';
+            const elephant = (white) ? 'B' : 'b';
+            var parts = this.setupFen.split(' ')[0].split('/');
+            var [left, right] = parts[rank].split('1')
+            if (side === -1) {
+                left = left.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
+            } else {
+                right = right.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
+            }
+            parts[rank] = left + '1' + right;
+            this.setupFen = parts.join('/');
+            this.chessground.set({fen: this.setupFen});
+        }
+
+        const sendSetup = () => {
+            patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#empty'));
+            this.doSend({ type: "setup", gameId: this.model["gameId"], color: this.mycolor, fen: this.setupFen + ' w - - 0 1' });
+        }
+
+        const leftSide = (this.mycolor === 'white') ? -1 : 1;
+        const rightSide = leftSide * -1;
+        patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#janggi-setup-buttons', [
+            h('button#flipLeft', { on: { click: () => switchLetters(leftSide) } }, [h('i', {props: {title: 'Switch pieces'}, class: {"icon": true, "icon-exchange": true} } ), ]),
+            h('button', { on: { click: () => sendSetup() } }, [h('i', {props: {title: 'Ready'}, class: {"icon": true, "icon-check": true} } ), ]),
+            h('button#flipRight', { on: { click: () => switchLetters(rightSide) } }, [h('i', {props: {title: 'Switch pieces'}, class: {"icon": true, "icon-exchange": true} } ), ]),
+        ]));
+    }
 
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);
@@ -543,6 +613,10 @@ export default class RoundController {
             updateCount(msg.fen);
         }
 
+        if (this.variant === "janggi") {
+            [this.vpointCho, this.vpointHan] = updatePoint(msg.fen, this.vpointCho, this.vpointHan);
+        }
+
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
@@ -607,9 +681,6 @@ export default class RoundController {
                     this.clocks[oppclock].start(this.clocktimes[this.oppcolor]);
                     // console.log('OPP CLOCK  STARTED');
                 }
-                if (this.oppIsRandomMover && msg.rm  !== "") {
-                    this.doSend({ type: "move", gameId: this.model["gameId"], move: msg.rm, clocks: this.clocktimes });
-                };
             };
         };
     }
@@ -638,6 +709,14 @@ export default class RoundController {
         });
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
+
+        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
+            updateCount(step.fen);
+        }
+
+        if (this.variant === "janggi") {
+            [this.vpointCho, this.vpointHan] = updatePoint(step.fen, this.vpointCho, this.vpointHan);
+        }
 
         if (ply === this.ply + 1) {
             if (this.variant.endsWith('shogi')) {
@@ -863,7 +942,7 @@ export default class RoundController {
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
                 } else if (this.variant === 'janggi' && piece!.role === 'king') {
-                    this.sendMove(key, key, '');
+                    this.pass();
                 }
             };
         }
@@ -1021,6 +1100,9 @@ export default class RoundController {
                 break;
             case "logout":
                 this.doSend({type: "logout"});
+                break;
+            case "setup":
+                this.onMsgSetup(msg);
                 break;
         }
     }

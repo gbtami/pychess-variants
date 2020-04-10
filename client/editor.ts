@@ -37,12 +37,14 @@ export default class EditorController {
     CSSindexesP: number[];
     vfen: any;
     vChallenge: any;
+    anon: boolean;
 
     constructor(el, model) {
         this.model = model;
         this.variant = model["variant"] as string;
         this.startfen = model["fen"] as string;
         this.flip = false;
+        this.anon = model["anon"] === 'True';
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
@@ -95,7 +97,8 @@ export default class EditorController {
         patch(e, h('div', [h('a', {on: {click: () => this.setStartFen()}}, 'STARTING POSITION')]));
 
         e = document.getElementById('challenge') as HTMLElement;
-        this.vChallenge = patch(e, h('div', [h('a', {on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+        const text = 'PLAY WITH MACHINE' + ((this.anon) ? ' (must be signed in)' : '');
+        this.vChallenge = patch(e, h('div', [h('a', {class: {disabled: this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
 
         e = document.getElementById('png') as HTMLElement;
         patch(e, h('div', [h('a', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}, 'EXPORT TO PNG')]));
@@ -108,7 +111,8 @@ export default class EditorController {
     }
 
     private setInvalid = (invalid) => {
-        this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid}, on: {click: () => this.setLinkFen()}}, 'PLAY WITH THE MACHINE')]));
+        const text = 'PLAY WITH MACHINE' + ((this.anon) ? ' (must be signed in)' : '');
+        this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid || this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(invalid ? 'Invalid FEN' : '');
     }

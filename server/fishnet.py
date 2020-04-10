@@ -7,9 +7,8 @@ from time import monotonic
 
 from aiohttp import web
 
-from broadcast import round_broadcast
-from const import ANALYSIS, STARTED, INVALIDMOVE
-from utils import load_game, get_board
+from const import ANALYSIS
+from utils import load_game, play_move
 from settings import FISHNET_KEYS
 
 log = logging.getLogger(__name__)
@@ -74,11 +73,12 @@ async def fishnet_acquire(request):
     key = data["fishnet"]["apikey"]
     version = data["fishnet"]["version"]
     en = data["stockfish"]["name"]
-    worker = FISHNET_KEYS[key]
-    fv[worker] = "%s %s" % (version, en)
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
+
+    worker = FISHNET_KEYS[key]
+    fv[worker] = "%s %s" % (version, en)
 
     if key not in request.app["workers"]:
         request.app["workers"].add(key)
@@ -183,45 +183,10 @@ async def fishnet_move(request):
     if game is None:
         return web.Response(status=204)
 
-    users = request.app["users"]
-    games = request.app["games"]
-    username = "Fairy-Stockfish"
-
+    user = request.app["users"]["Fairy-Stockfish"]
     move = data["move"]["bestmove"]
 
-    invalid_move = False
-    log.info("BOT move %s %s %s %s - %s" % (username, gameId, move, game.wplayer.username, game.bplayer.username))
-    if game.status <= STARTED:
-        try:
-            await game.play_move(move)
-        except SystemError:
-            invalid_move = True
-            log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, username))
-            game.status = INVALIDMOVE
-            game.result = "0-1" if username == game.wplayer.username else "1-0"
-
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
-
-    if not invalid_move:
-        board_response = get_board(games, {"gameId": gameId}, full=False)
-
-    if users[opp_name].bot:
-        if game.status > STARTED:
-            await users[opp_name].game_queues[gameId].put(game.game_end)
-        else:
-            await users[opp_name].game_queues[gameId].put(game.game_state)
-    else:
-        try:
-            opp_ws = users[opp_name].game_sockets[gameId]
-            if not invalid_move:
-                await opp_ws.send_json(board_response)
-            if game.status > STARTED:
-                await opp_ws.send_json(game.game_end)
-        except KeyError:
-            log.error("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, username, gameId))
-
-    if not invalid_move:
-        await round_broadcast(game, users, board_response, channels=request.app["channels"])
+    await play_move(request.app, user, game, move)
 
     response = await get_work(request, data)
     return response

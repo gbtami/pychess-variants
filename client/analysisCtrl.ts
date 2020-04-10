@@ -9,7 +9,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, Key, Piece } from 'chessgroundx/types';
+import { Color, Dests, Key, Piece, Variant, Notation } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
 import makeGating from './gating';
@@ -26,6 +26,7 @@ import resizeHandle from './resize';
 import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
+import { updateCount, updatePoint } from './info';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -175,7 +176,9 @@ export default class AnalysisController {
 
         this.chessground = Chessground(el, {
             fen: fen_placement,
+            variant: this.variant as Variant,
             geometry: VARIANTS[this.variant].geom,
+            notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
             orientation: this.mycolor,
             turnColor: this.turnColor,
             animation: {
@@ -227,6 +230,12 @@ export default class AnalysisController {
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         this.vpv = document.getElementById('pv') as HTMLElement;
+
+        if (this.variant === 'janggi') {
+            (document.getElementById('janggi-point-cho') as HTMLElement).style.textAlign = 'right';
+            (document.getElementById('janggi-point-han') as HTMLElement).style.textAlign = 'left';
+            patch(document.getElementById('janggi-point-dash') as HTMLElement, h('div#janggi-point-dash', '-'));
+        }
     }
 
     getGround = () => this.chessground;
@@ -440,6 +449,14 @@ export default class AnalysisController {
 
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
+
+        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
+            updateCount(step.fen);
+        }
+
+        if (this.variant === "janggi") {
+            updatePoint(step.fen, document.getElementById('janggi-point-cho') as HTMLElement, document.getElementById('janggi-point-han') as HTMLElement);
+        }
 
         if (ply === this.ply + 1) {
             if (this.variant.endsWith('shogi')) {

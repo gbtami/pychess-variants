@@ -26,6 +26,7 @@ class FairyBoard:
         self.show_promoted = variant == "makruk" or variant == "cambodian"
         self.initial_fen = initial_fen if initial_fen else self.start_fen(variant, chess960)
         self.move_stack = []
+        self.ply = 0
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
         self.fen = self.initial_fen
         if chess960 and initial_fen == self.start_fen(variant):
@@ -44,16 +45,18 @@ class FairyBoard:
     def push(self, move):
         try:
             self.move_stack.append(move)
+            self.ply += 1
             self.color = not self.color
             self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted)
         except Exception:
             self.move_stack.pop()
+            self.ply -= 1
             self.color = not self.color
             log.error("ERROR: sf.get_fen() failed on %s %s %s" % (self.initial_fen, ",".join(self.move_stack), self.chess960))
             raise
 
     def get_san(self, move):
-        return sf.get_san(self.variant, self.fen, move, self.chess960)
+        return sf.get_san(self.variant, self.fen, move, self.chess960, sf.NOTATION_JANGGI if self.variant == "janggi" else sf.NOTATION_DEFAULT)
 
     def legal_moves(self):
         # print("FEN, vaiant, self.move_stack:", self.variant, self.initial_fen, self.move_stack)
@@ -78,6 +81,15 @@ class FairyBoard:
         optional_end, result = self.is_optional_game_end()
         return optional_end and result == 0
 
+    def game_result(self):
+        return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
+
+    def get_janggi_points(self):
+        fen = self.fen.split()[0]
+        cho_point = fen.count("P") * 2 + fen.count("B") * 3 + fen.count("N") * 5 + fen.count("C") * 7 + fen.count("R") * 13
+        han_point = fen.count("p") * 2 + fen.count("b") * 3 + fen.count("n") * 5 + fen.count("c") * 7 + fen.count("r") * 13
+        return (cho_point, han_point + 1.5)
+
     def print_pos(self):
         print()
         uni_pieces = {"R": "♜", "N": "♞", "B": "♝", "Q": "♛", "K": "♚", "P": "♟",
@@ -90,6 +102,21 @@ class FairyBoard:
         board = board.replace("+", "")
         board = re.sub(r"\d", (lambda m: "." * int(m.group(0))), board)
         print("", " ".join(uni_pieces.get(p, p) for p in board))
+
+    def janggi_setup(self, color):
+        if color == "b":
+            left = random.choice(("nb", "bn"))
+            right = random.choice(("nb", "bn"))
+            fen = "r%sa1a%sr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1" % (left, right)
+        else:
+            left = random.choice(("NB", "BN"))
+            right = random.choice(("NB", "BN"))
+            parts = self.initial_fen.split("/")
+            parts[-1] = "R%sA1A%sR w - - 0 1" % (left, right)
+            fen = "/".join(parts)
+        print("-------new FEN", fen)
+        self.initial_fen = fen
+        self.fen = self.initial_fen
 
     def shuffle_start(self):
         """ Create random initial position.

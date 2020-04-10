@@ -69,7 +69,10 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#clock0'),
+                h('div.clock-wrap', [
+                    h('div#clock0'),
+                    h('div#janggi-point0'),
+                ]),
                 h('div.round-data', [
                     h('round-player#rplayer0'),
                     h('div#move-controls'),
@@ -80,7 +83,10 @@ export function roundView(model): VNode[] {
                     h('div#game-controls'),
                     h('round-player#rplayer1'),
                 ]),
-                h('div#clock1'),
+                h('div.clock-wrap', [
+                    h('div#clock1'),
+                    h('div#janggi-point1'),
+                ]),
                 h('div#pocket-wrapper1', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
@@ -91,6 +97,7 @@ export function roundView(model): VNode[] {
             ]),
             h('under-left#spectators'),
             h('under-board', [
+                h('div#janggi-setup-buttons'),
                 h('div#ctable-container'),
             ]),
         ];

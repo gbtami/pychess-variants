@@ -7,9 +7,10 @@ from aiohttp import web
 import aiohttp_session
 
 from broadcast import lobby_broadcast
+from const import STARTED
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import new_game, MyWebSocketResponse
+from utils import new_game, MyWebSocketResponse, load_game
 
 log = logging.getLogger(__name__)
 
@@ -56,6 +57,16 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "create_ai_challenge":
+                        # Prevent users to start new games if they have an unfinished one
+                        if user.game_in_progress is not None:
+                            game = await load_game(request.app, user.game_in_progress)
+                            if (game is None) or game.status > STARTED:
+                                user.game_in_progress = None
+                            else:
+                                response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+                                await ws.send_json(response)
+                                continue
+
                         variant = data["variant"]
                         engine = users.get("Fairy-Stockfish")
 
@@ -92,11 +103,21 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
+                        # Prevent users to start new games if they have an unfinished one
+                        if user.game_in_progress is not None:
+                            game = await load_game(request.app, user.game_in_progress)
+                            if (game is None) or game.status > STARTED:
+                                user.game_in_progress = None
+                            else:
+                                response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+                                await ws.send_json(response)
+                                continue
+
                         if data["seekID"] not in seeks:
                             continue
 
                         seek = seeks[data["seekID"]]
-                        print("accept_seek", seek.as_json)
+                        # print("accept_seek", seek.as_json)
                         response = await new_game(request.app, user, data["seekID"])
                         await ws.send_json(response)
 

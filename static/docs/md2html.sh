@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PATH="../../node_modules/.bin/:$PATH"
+
 for f in *.md; do
 showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
 done

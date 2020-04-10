@@ -92,6 +92,21 @@ class Game:
                 self.initial_fen = ""
 
         self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
+
+        # Janggi setup needed when player is not BOT
+        if self.variant == "janggi":
+            if self.initial_fen:
+                self.bsetup = False
+                self.wsetup = False
+            else:
+                self.bsetup = not self.bplayer.bot
+                self.wsetup = not self.wplayer.bot
+                if self.bplayer.bot:
+                    self.board.janggi_setup("b")
+
+        self.overtime = False
+        self.byoyomi = self.variant == "janggi" or self.variant.endswith("shogi")
+
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
 
@@ -111,6 +126,11 @@ class Game:
 
         self.stopwatch = Clock(self)
 
+        if not self.bplayer.bot:
+            self.bplayer.game_in_progress = self.id
+        if not self.wplayer.bot:
+            self.wplayer.game_in_progress = self.id
+
     def create_board(self, variant, initial_fen, chess960):
         return FairyBoard(variant, initial_fen, chess960)
 
@@ -127,13 +147,19 @@ class Game:
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         if cur_player.username in self.draw_offers:
-            self.draw_offers.remove(cur_player.username)
+            # Move cancels draw offer
+            # Except Janggi pass moves (like e2e2 or f10f10)
+            # They are draw offers at the same time!
+            half, rem = divmod(len(move), 2)
+            pass_move = rem == 0 and move[:half] == move[half:]
+            if not pass_move:
+                self.draw_offers.remove(cur_player.username)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
         if self.bot_game:
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
-            # print(self.ply, move, movetime)
+            # print(self.board.ply, move, movetime)
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
@@ -141,18 +167,29 @@ class Game:
                     "movetime": movetime
                 }
 
-            if cur_player.bot and self.ply >= 2:
+            if cur_player.bot and self.board.ply >= 2:
                 cur_color = "black" if self.board.color == BLACK else "white"
-                clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
-                if clocks[cur_color] == 0:
-                    w, b = self.board.insufficient_material()
-                    if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
-                        result = "1/2-1/2"
+                if self.byoyomi:
+                    if self.overtime:
+                        clocks[cur_color] = self.inc * 1000
                     else:
-                        result = "1-0" if self.board.color == BLACK else "0-1"
-                    self.update_status(FLAG, result)
-                    print(self.result, "flag")
-                    await self.save_game()
+                        clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
+                else:
+                    clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
+
+                if clocks[cur_color] == 0:
+                    if self.byoyomi and not self.overtime:
+                        self.overtime = True
+                        clocks[cur_color] = self.inc * 1000
+                    else:
+                        w, b = self.board.insufficient_material()
+                        if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
+                            result = "1/2-1/2"
+                        else:
+                            result = "1-0" if self.board.color == BLACK else "0-1"
+                        self.update_status(FLAG, result)
+                        print(self.result, "flag")
+                        await self.save_game()
 
         self.last_server_clock = cur_time
 
@@ -198,7 +235,7 @@ class Game:
 
         self.stopwatch.kill()
 
-        if self.ply > 0:
+        if self.board.ply > 0:
             self.app["g_cnt"] -= 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
             await lobby_broadcast(self.app["websockets"], response)
@@ -226,7 +263,7 @@ class Game:
         loop = asyncio.get_event_loop()
         loop.create_task(remove(KEEP_TIME))
 
-        if self.ply < 3 and (self.db is not None):
+        if self.board.ply < 3 and (self.db is not None):
             result = await self.db.game.delete_one({"_id": self.id})
             log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
@@ -251,11 +288,16 @@ class Game:
                 new_data["p0"] = self.p0
                 new_data["p1"] = self.p1
 
+            # Janggi game starts with a prelude phase to set up horses and elephants, so
+            # initial FEN may be different compared to one we used when db game document was created
+            if self.variant == "janggi":
+                new_data["if"] = self.board.initial_fen
+
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     def set_crosstable(self):
-        if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.ply < 3 or self.result == "*":
+        if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.board.ply < 3 or self.result == "*":
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
@@ -357,7 +399,13 @@ class Game:
             self.status = status
             if result is not None:
                 self.result = result
+
             self.set_crosstable()
+
+            if not self.bplayer.bot:
+                self.bplayer.game_in_progress = None
+            if not self.wplayer.bot:
+                self.wplayer.game_in_progress = None
             return
 
         if self.board.move_stack:
@@ -371,37 +419,54 @@ class Game:
 
         # check 50 move rule and repetition
         if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
-            print("1/2 by board.is_claimable_draw()")
-            self.status = DRAW
-            self.result = "1/2-1/2"
+            if self.variant == 'janggi':
+                w, b = self.board.get_janggi_points()
+                self.status = VARIANTEND
+                self.result = "1-0" if w > b else "0-1"
+            else:
+                print("1/2 by board.is_claimable_draw()")
+                self.status = DRAW
+                self.result = "1/2-1/2"
 
         if not self.dests:
+            game_result_value = self.board.game_result()
+
+            if game_result_value < 0:
+                self.result = "1-0" if self.board.color == BLACK else "0-1"
+            elif game_result_value > 0:
+                self.result = "0-1" if self.board.color == BLACK else "1-0"
+            else:
+                self.result = "1/2-1/2"
+
             if self.check:
                 self.status = MATE
-                self.result = "1-0" if self.board.color == BLACK else "0-1"
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 self.status = STALEMATE
-                if self.variant.endswith(("xiangqi", "shogi")):
-                    self.result = "0-1" if self.board.color == WHITE else "1-0"
-                else:
-                    self.result = "1/2-1/2"
                 print(self.result, "stalemate")
 
         if self.variant == "janggi":
-            immediate_end, result = self.board.is_immediate_game_end()
+            immediate_end, game_result_value = self.board.is_immediate_game_end()
             if immediate_end:
                 self.status = VARIANTEND
-                self.result = "0-1" if result > 0 else "1-0"
+                if game_result_value < 0:
+                    self.result = "1-0" if self.board.color == BLACK else "0-1"
+                else:
+                    self.result = "0-1" if self.board.color == BLACK else "1-0"
+                print(self.result, "point counting")
 
-        if self.ply > MAX_PLY:
+        if self.board.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
             print(self.result, "Ply %s reached" % MAX_PLY)
 
         if self.status > STARTED:
             self.set_crosstable()
+            if not self.bplayer.bot:
+                self.bplayer.game_in_progress = None
+            if not self.wplayer.bot:
+                self.wplayer.game_in_progress = None
 
     def set_dests(self):
         dests = {}
@@ -468,10 +533,6 @@ class Game:
             return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
 
     @property
-    def ply(self):
-        return len(self.board.move_stack)
-
-    @property
     def clocks(self):
         return self.ply_clocks[-1]
 
@@ -524,3 +585,44 @@ class Game:
         self.update_status(LOSERS["abandone"], result)
         await self.save_game()
         return {"type": "gameEnd", "status": self.status, "result": result, "gameId": self.id, "pgn": self.pgn}
+
+    def get_board(self, full=False):
+        if full:
+            steps = self.steps
+
+            # To not touch self.ply_clocks we are creating deep copy from clocks
+            clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
+
+            if self.status == STARTED and self.board.ply >= 2:
+                # We have to adjust current player latest saved clock time
+                # unless he will get free extra time on browser page refresh
+                # (also needed for spectators entering to see correct clock times)
+
+                cur_time = monotonic()
+                elapsed = int(round((cur_time - self.last_server_clock) * 1000))
+
+                cur_color = "black" if self.board.color == BLACK else "white"
+                clocks[cur_color] = max(0, clocks[cur_color] - elapsed)
+            crosstable = self.crosstable
+        else:
+            clocks = self.clocks
+            steps = (self.steps[-1],)
+            crosstable = ""
+
+        return {"type": "board",
+                "gameId": self.id,
+                "status": self.status,
+                "result": self.result,
+                "fen": self.board.fen,
+                "lastMove": self.lastmove,
+                "steps": steps,
+                "dests": self.dests,
+                "promo": self.promotions,
+                "check": self.check,
+                "ply": self.board.ply,
+                "clocks": {"black": clocks["black"], "white": clocks["white"]},
+                "pgn": self.pgn if self.status > STARTED else "",
+                "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else "",
+                "uci_usi": self.uci_usi if self.status > STARTED else "",
+                "ct": crosstable,
+                }
