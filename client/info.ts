@@ -6,12 +6,13 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-function countString(fen) {
+function getCounting(fen) {
     const parts = fen.split(" ");
-    const countingLimit = parseInt(parts[3]);
-    if (isNaN(countingLimit) || countingLimit == 0) return "";
-    const countingMove = parseInt(parts[4]);
-    return `${Math.floor((countingMove+1)/2)}/${countingLimit/2}`;
+    var countingLimit = parseInt(parts[3]);
+    if (isNaN(countingLimit)) countingLimit = 0;
+    var countingPly = parseInt(parts[4]);
+    if (isNaN(countingPly)) countingPly = 0;
+    return [countingPly, countingLimit];
 }
 
 function getJanggiPoints(board) {
@@ -38,10 +39,10 @@ function getJanggiPoints(board) {
 
 // Counting for makruk, cambodian, sittuyin
 export function updateCount(fen) {
+    const [countingPly, countingLimit] = getCounting(fen);
     var container = document.getElementById('count') as HTMLElement;
-    const count = countString(fen);
-    if (count !== "") {
-        patch(container, h('div#count', `Counting: ${count}`));
+    if (countingLimit > 0) {
+        patch(container, h('div#count', `Counting: ${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
     } else {
         patch(container, h('div#count', ''));
     }
@@ -49,8 +50,6 @@ export function updateCount(fen) {
 
 // Point count for janggi
 export function updatePoint(fen, choContainer, hanContainer) {
-    //var choContainer = document.getElementById('janggi-point-cho') as HTMLElement;
-    //var hanContainer = document.getElementById('janggi-point-han') as HTMLElement;
     const board = fen.split(" ")[0];
     const [choPoint, hanPoint] = getJanggiPoints(board)
     console.log([choPoint, hanPoint]);
