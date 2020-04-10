@@ -19,6 +19,7 @@
     --rusty: rgba(214,79,0,0.5);
     --ct-current: #e2834d;
     --clock-hurry-bg: MistyRose;
+    --clock-overtime-bg: #fffbad;
     --clock-running-bg: rgb(208, 224, 189);
     --clock-running-color: Black;
     --blue-point: RoyalBlue;
@@ -41,6 +42,7 @@
     --rusty: rgba(214,79,0,0.5);
     --ct-current: #a1420a;
     --clock-hurry-bg: #502826;
+    --clock-overtime-bg: #474722;
     --clock-running-bg: #384722;
     --clock-running-color: #e3e3e3;
     --blue-point: RoyalBlue;
@@ -850,6 +852,10 @@ button.icon::-moz-focus-inner {
 }
 .clock.sep.running.low {
   color: Gray;
+}
+
+.clock.time.overtime, .clock.sep.overtime {
+  background-color: var(--clock-overtime-bg);
 }
 
 .clock.time.hurry, .clock.sep.hurry {

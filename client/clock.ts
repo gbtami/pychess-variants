@@ -148,9 +148,9 @@ export function renderTime(clock, time) {
     const millis = date.getUTCMilliseconds();
     clock.el = patch(clock.el, h('div.clock-wrap#' + clock.id, [
         h('div.clock', [
-            h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.minutes),
-            h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500, connecting: clock.connecting}} , ':'),
-            h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting}}, parsed.seconds)
+            h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime}}, parsed.minutes),
+            h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500, connecting: clock.connecting, overtime: clock.overtime}} , ':'),
+            h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime}}, parsed.seconds)
         ])
     ])
     );
