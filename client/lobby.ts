@@ -93,7 +93,7 @@ class LobbyController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg (variant, color, fen, minutes, increment, chess960, rated, handicap) {
+    createSeekMsg (variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated, handicap) {
         this.doSend({
             type: "create_seek",
             user: this.model["username"],
@@ -102,13 +102,14 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
+            byoyomi_period: byoyomiPeriod,
             rated: rated,
             handicap: handicap,
             chess960: chess960,
             color: color });
     }
 
-    createBotChallengeMsg (variant, color, fen, minutes, increment, level, chess960, rated, handicap) {
+    createBotChallengeMsg (variant, color, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, handicap) {
         this.doSend({
             type: "create_ai_challenge",
             user: this.model["username"],
@@ -116,6 +117,7 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
+            byoyomi_period: byoyomiPeriod,
             rated: rated,
             handicap: handicap,
             level: level,
@@ -123,7 +125,7 @@ class LobbyController {
             color: color });
     }
 
-    isNewSeek (variant, color, fen, minutes, increment, chess960, rated) {
+    isNewSeek (variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek => {
@@ -131,7 +133,7 @@ class LobbyController {
                                     seek.variant === variant &&
                                     seek.fen === fen &&
                                     seek.color === color &&
-                                    seek.tc === minutes + "+" + increment &&
+                                    seek.tc === minutes + "+" + ((byoyomiPeriod > 1) ? (byoyomiPeriod + "x") : "") + increment &&
                                     seek.chess960 === chess960 &&
                                     seek.rated === rated;
         })
@@ -170,6 +172,11 @@ class LobbyController {
         const increment = parseInt(e.value);
         localStorage.setItem("seek_inc", e.value);
 
+        e = document.getElementById('byo') as HTMLInputElement;
+        const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
+        const byoyomiPeriod = (byoyomi) ? parseInt(e.value) : 0;
+        localStorage.setItem("seek_byo", e.value);
+
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         var rated = 0;
         if (this.test_ratings) {
@@ -191,10 +198,10 @@ class LobbyController {
             const level = parseInt(e.value);
             localStorage.setItem("seek_level", e.value);
             // console.log(level, e.value, localStorage.getItem("seek_level"));
-            this.createBotChallengeMsg(variant, seekColor, fen, minutes, increment, level, chess960, rated===1, handicap);
+            this.createBotChallengeMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, level, chess960, rated===1, handicap);
         } else {
-            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, chess960, (rated===1) ? 'Rated' : 'Casual')) {
-                this.createSeekMsg(variant, seekColor, fen, minutes, increment, chess960, rated===1, handicap);
+            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, (rated===1) ? 'Rated' : 'Casual')) {
+                this.createSeekMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1, handicap);
             }
         }
         // prevent to create challenges continuously
@@ -217,12 +224,13 @@ class LobbyController {
             const variant = e.options[e.selectedIndex].value;
             const hide960 = variants960.indexOf(variant) === -1;
             const hideHandicap = variant !== 'shogi';
+            const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
 
             document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
             document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
+            document.getElementById('byoyomi-period')!.style.display = (byoyomi) ? 'block' : 'none';
 
             e = document.getElementById('incrementlabel') as HTMLSelectElement;
-            const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
             patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? 'Byoyomi' : 'Increment') + ' in seconds:'));
         }
 
@@ -259,6 +267,7 @@ class LobbyController {
 
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
+        const vByo = localStorage.seek_byo === undefined ? "1" : localStorage.seek_min;
         const vRated = localStorage.seek_rated === undefined ? "0" : localStorage.seek_rated;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
         const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
@@ -304,7 +313,7 @@ class LobbyController {
                 h('label', { attrs: {for: "min"} }, "Minutes per side:"),
                 h('span#minutes'),
                 h('input#min', { class: { "slider": true },
-                    props: {name: "min", type: "range", min: 1, max: 60, value: vMin},
+                    props: {name: "min", type: "range", min: 0, max: 60, value: vMin},
                     on: { input: (e) => setMinutes((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setMinutes((vnode.elm as HTMLInputElement).value) },
                 }),
@@ -315,6 +324,13 @@ class LobbyController {
                     on: { input: (e) => setIncrement((e.target as HTMLInputElement).value) },
                     hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
                 }),
+                h('div#byoyomi-period', [
+                    h('label#byoyomiLabel', { attrs: {for: "byo"} }, 'Periods'),
+                    h('select#byo', {
+                        props: {name: "byo", value: vByo},
+                        }, [1, 2, 3].map((n) => h('option', { props: { value: n } }, n))
+                     ),
+                ]),
                 h('form#game-mode', [
                 h('div.radio-group', [
                     h('input#casual', {props: {type: "radio", name: "mode", value: "0", checked: vRated === "0" ? "checked" : ""}}),

@@ -22,9 +22,10 @@ export class Clock {
     id: string;
     overtime: boolean;
     byoyomi: boolean;
+    byoyomiPeriod: number;
 
     // game baseTime (min) and increment (sec)
-    constructor(baseTime, increment, el, id, byoyomi) {
+    constructor(baseTime, increment, el, id, byoyomiPeriod) {
     this.duration = baseTime * 1000 * 60;
     this.increment = increment * 1000;
     this.granularity = 500;
@@ -37,7 +38,8 @@ export class Clock {
     this.el = el;
     this.id = id;
     this.overtime = false;
-    this.byoyomi = byoyomi;
+    this.byoyomi = byoyomiPeriod > 0;
+    this.byoyomiPeriod = byoyomiPeriod;
 
     renderTime(this, this.duration);
     }
@@ -55,8 +57,9 @@ export class Clock {
             diff = that.duration - (Date.now() - that.startTime);
             // console.log("timer()", that.duration, that.startTime, diff);
             if (diff <= 0) {
-                if (that.byoyomi && !that.overtime) {
+                if (that.byoyomi && that.byoyomiPeriod > 0) {
                     that.overtime = true;
+                    that.byoyomiPeriod -= 1;
                     that.duration = that.increment;
                     that.startTime = Date.now();
                 } else {

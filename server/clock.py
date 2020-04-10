@@ -52,7 +52,7 @@ class Clock:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
-                    await asyncio.sleep(10 + self.game.inc)
+                    await asyncio.sleep(10 + self.game.byoyomi_period * self.game.inc)
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:

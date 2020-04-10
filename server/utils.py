@@ -246,7 +246,7 @@ async def new_game(app, user, seek_id):
         return {"type": "error", "message": message}
     # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
-        new_game = Game(app, new_id, seek.variant, sanitized_fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960, create=True)
+        new_game = Game(app, new_id, seek.variant, sanitized_fen, wplayer, bplayer, seek.base, seek.inc, seek.byoyomi_period, seek.level, seek.rated, seek.chess960, create=True)
     except Exception:
         log.error("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
         remove_seek(seeks, seek)
@@ -263,6 +263,7 @@ async def new_game(app, user, seek_id):
         "v": V2C[seek.variant],
         "b": seek.base,
         "i": seek.inc,
+        "bp": seek.byoyomi_period,
         "m": [],
         "d": new_game.date,
         "f": new_game.initial_fen,

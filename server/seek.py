@@ -4,7 +4,7 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, level=6, rated=False, chess960=False, handicap="", target=""):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, handicap="", target=""):
         self.user = user
         self.variant = variant
         self.color = color
@@ -13,6 +13,7 @@ class Seek:
         self.rating = int(round(user.get_rating(variant, chess960).mu, 0))
         self.base = base
         self.inc = inc
+        self.byoyomi_period = byoyomi_period
         self.level = 0 if user.username == "Random-Mover" else level
         self.chess960 = chess960
         self.handicap = handicap
@@ -34,7 +35,7 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "rating": self.rating,
-            "tc": "%s+%s" % (self.base, self.inc)
+            "tc": "%s+%s%s" % (self.base, ("%sx" % (self.byoyomi_period)) if self.byoyomi_period > 1 else "", self.inc)
         }
 
 
@@ -42,7 +43,18 @@ def create_seek(seeks, user, data):
     if len(user.seeks) >= MAX_USER_SEEKS:
         return None
 
-    seek = Seek(user, data["variant"], data["fen"], data["color"], data["minutes"], data["increment"], rated=data.get("rated"), chess960=data.get("chess960"), handicap=data.get("handicap"), target=data.get("target"))
+    seek = Seek(
+        user, data["variant"],
+        fen=data["fen"],
+        color=data["color"],
+        base=data["minutes"],
+        inc=data["increment"],
+        byoyomi_period=data["byoyomi_period"],
+        rated=data.get("rated"),
+        chess960=data.get("chess960"),
+        handicap=data.get("handicap"),
+        target=data.get("target"))
+
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 

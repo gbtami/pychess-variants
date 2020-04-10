@@ -226,7 +226,16 @@ async def round_socket_handler(request):
                             color = "w" if game.wplayer.username == opp_name else "b"
                             if handicap:
                                 color = "w" if color == "b" else "b"
-                            seek = Seek(user, game.variant, fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
+                            seek = Seek(
+                                user, game.variant,
+                                fen=fen,
+                                color=color,
+                                base=game.base,
+                                inc=game.inc,
+                                byoyomi_period=game.byoyomi_period,
+                                level=game.level,
+                                rated=game.rated,
+                                chess960=game.chess960)
                             seeks[seek.id] = seek
 
                             response = await new_game(request.app, engine, seek.id)
@@ -241,7 +250,16 @@ async def round_socket_handler(request):
                                 color = "w" if game.wplayer.username == opp_name else "b"
                                 if handicap:
                                     color = "w" if color == "b" else "b"
-                                seek = Seek(user, game.variant, fen, color, game.base, game.inc, game.level, game.rated, game.chess960)
+                                seek = Seek(
+                                    user, game.variant,
+                                    fen=fen,
+                                    color=color,
+                                    base=game.base,
+                                    inc=game.inc,
+                                    byoyomi_period=game.byoyomi_period,
+                                    level=game.level,
+                                    rated=game.rated,
+                                    chess960=game.chess960)
                                 seeks[seek.id] = seek
 
                                 response = await new_game(request.app, opp_player, seek.id)

@@ -40,6 +40,7 @@ export default class RoundController {
     bplayer: string;
     base: number;
     inc: number;
+    byoyomiPeriod: number;
     mycolor: Color;
     oppcolor: Color;
     turnColor: Color;
@@ -129,6 +130,7 @@ export default class RoundController {
         this.bplayer = model["bplayer"] as string;
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
+        this.byoyomiPeriod = model["byo"] as number;
         this.status = model["status"] as number;
         this.tv = model["tv"];
         this.steps = [];
@@ -265,9 +267,8 @@ export default class RoundController {
 
         // initialize clocks
         this.clocktimes = {};
-        const byoyomi = this.variant.endsWith('shogi') || this.variant === 'janggi';
-        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0', byoyomi);
-        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1', byoyomi);
+        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0', this.byoyomiPeriod);
+        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1', this.byoyomiPeriod);
         this.clocks = [c0, c1];
         this.clocks[0].onTick(renderTime);
         this.clocks[1].onTick(renderTime);

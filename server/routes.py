@@ -344,6 +344,7 @@ async def index(request):
         render["fen"] = game.board.fen
         render["base"] = game.base
         render["inc"] = game.inc
+        render["byo"] = game.byoyomi_period
         render["result"] = game.result
         render["status"] = game.status
         render["date"] = game.date.isoformat()

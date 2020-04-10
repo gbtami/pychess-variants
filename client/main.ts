@@ -54,6 +54,7 @@ export function view(el, model): VNode {
     model["fen"] = el.getAttribute("data-fen");
     model["base"] = el.getAttribute("data-base");
     model["inc"] = el.getAttribute("data-inc");
+    model["byo"] = el.getAttribute("data-byo");
     model["result"] = el.getAttribute("data-result");
     model["status"] = parseInt(el.getAttribute("data-status"));
     model["date"] = el.getAttribute("data-date");
