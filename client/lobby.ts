@@ -267,7 +267,7 @@ class LobbyController {
 
         const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
         const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
-        const vByo = localStorage.seek_byo === undefined ? "1" : localStorage.seek_min;
+        const vByoIdx = localStorage.seek_byo === undefined ? 0 : localStorage.seek_byo - 1;
         const vRated = localStorage.seek_rated === undefined ? "0" : localStorage.seek_rated;
         const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
         const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
@@ -327,8 +327,8 @@ class LobbyController {
                 h('div#byoyomi-period', [
                     h('label#byoyomiLabel', { attrs: {for: "byo"} }, 'Periods'),
                     h('select#byo', {
-                        props: {name: "byo", value: vByo},
-                        }, [1, 2, 3].map((n) => h('option', { props: { value: n } }, n))
+                        props: {name: "byo"},
+                        }, [1, 2, 3].map((n, idx) => h('option', { props: { value: n, selected: (idx === vByoIdx) } }, n))
                      ),
                 ]),
                 h('form#game-mode', [
