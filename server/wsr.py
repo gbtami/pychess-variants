@@ -296,7 +296,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         game = await load_game(request.app, data["gameId"])
-                        if data["type"] == "abort" and game.board.ply > 2:
+                        if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
                         response = await game_ended(games, user, data, data["type"])
