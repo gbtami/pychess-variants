@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Variant, dimensions } from 'chessgroundx/types';
+import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { enabled_variants, getPockets, needPockets, validFen, variantName, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
@@ -61,6 +61,7 @@ export default class EditorController {
             autoCastle: false,
             variant: this.variant as Variant,
             geometry: VARIANTS[this.variant].geom,
+            notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
             orientation: this.mycolor,
             movable: {
                 free: true,
