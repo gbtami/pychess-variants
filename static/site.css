@@ -864,8 +864,9 @@ button.icon::-moz-focus-inner {
 
 .clock.time.byo.byoyomi {
   display: block;
-  padding-top: 25px;
-  font-size: 25px;
+  padding-right: 12px;
+  padding-top: 30px;
+  font-size: 20px;
 }
 
 .clock.time.byo:not(.byoyomi) {
