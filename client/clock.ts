@@ -151,7 +151,7 @@ export function renderTime(clock, time) {
             h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime}}, parsed.minutes),
             h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500, connecting: clock.connecting, overtime: clock.overtime}} , ':'),
             h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime}}, parsed.seconds),
-            h('div.clock.time.byo', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime, byoyomi: clock.byoyomiPeriod > 0}}, `+${clock.increment / 1000}s` + ((clock.byoyomiPeriod > 1) ? ` (x${clock.byoyomiPeriod})` : "")),
+            h('div.clock.time.byo', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime, byoyomi: (clock.byoyomiPeriod > 0 && clock.increment > 0)}}, `+${clock.increment / 1000}s` + ((clock.byoyomiPeriod > 1) ? ` (x${clock.byoyomiPeriod})` : "")),
         ])
     ])
     );
