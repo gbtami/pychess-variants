@@ -828,7 +828,7 @@ button.icon::-moz-focus-inner {
 }
 
 .clock {
-  display: inline;
+  display: inline-flex;
   text-align: center;
   font-family: "Roboto Mono", "Roboto";
   font-size: 50px;
@@ -860,6 +860,16 @@ button.icon::-moz-focus-inner {
 
 .clock.time.hurry, .clock.sep.hurry {
   background-color: var(--clock-hurry-bg);
+}
+
+.clock.time.byo.byoyomi {
+  display: block;
+  padding-top: 25px;
+  font-size: 25px;
+}
+
+.clock.time.byo:not(.byoyomi) {
+  display: none;
 }
 
 .connecting.clock.time, .connecting.clock.sep {
