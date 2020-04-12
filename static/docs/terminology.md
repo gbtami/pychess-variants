@@ -50,7 +50,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 **Repetition** - When the board state repeats itself, usually at least three times. This is often due to pieces chasing each other. Different variants handle repetition differently. Even within the same game, different federations have different rules for repetition.
 
-**Perpetual check** - Like repetition, but one player keeps checking the king and eventually repeating the same position.
+**Perpetual check** - Like repetition, but one player keeps checking the king and eventually repeating the same position. Rules for perpetual check similarly vary between variants and governing federations.
 
 **Rank** - A row on the board.
 
@@ -62,9 +62,13 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 **Move** - A move in chess is a piece movement by both players. However, in shogi, a move is described as a single movement by each player. In chess, you can have "checkmate in 1," 2, 3, etc. But in shogi, you can only have checkmate in 1, 3, 5, 7, etc.
 
+**Drop** - A move made by taking a captured piece and dropping it onto the board as your own. This is a staple of Shogi and Crazyhouse, but cannot be done in chess. Variants that allow drops are called "drop variants," and there are several in Pychess (often with the suffix "house")
+
+**Promotion Zone** - The area of the board in which pieces can promote. In chess, only pawns can promote on the furthest rank. However, in shogi, the promotion zone is the last three ranks, and most pieces can promote. Other variations can vary on how the promotion zone is defined.
+
 # Tactics
 
-**Fork** - Attacking two pieces at the same time.
+**Fork** - Attacking two pieces at the same time. Knights most commonly deliver forks in all variants. In drop variants, rooks and bishops are also a little more capable of delivering forks, especially bishops.
 
 ![Fork example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fork.png)
 
