@@ -58,7 +58,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 **Notation** - System used in each game to refer to the positions on the board, abbreviations for pieces, as well as movements for each turn.
 
-**Semialgebraic Notation (SAN)** - The notation used in chess. Each move is described by using the piece name (except for the pawn), followed by its destination. Additional letters are used for disambiguation.
+**Standard Algebraic Notation (SAN)** - The notation used in chess. Each move is described by using the piece name (except for the pawn), followed by its destination. Additional letters are used for disambiguation.
 
 **Move** - A move in chess is a piece movement by both players. However, in shogi, a move is described as a single movement by each player. In chess, you can have "checkmate in 1," 2, 3, etc. But in shogi, you can only have checkmate in 1, 3, 5, 7, etc.
 
