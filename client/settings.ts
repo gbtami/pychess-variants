@@ -323,7 +323,7 @@ export function settingsView (ctrl) {
         // h('label.zoom', { attrs: {for: "zoom"} }, "Board size"),
         h('input#zoom', {
             class: {"slider": true },
-            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(zoom), min: 50, max: 150, step: (ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
+            attrs: { name: 'zoom', title: '[-] Zoom [+]', width: '280px', type: 'range', value: Number(zoom), min: 50, max: 150, step: (ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
             on: { input: (e) => { setZoom(ctrl, parseFloat((e.target as HTMLInputElement).value)); } }
             }
         ),
