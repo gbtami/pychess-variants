@@ -573,6 +573,24 @@ table#seeks {
   border: 1px solid var(--bg-color2);
 }
 
+/*Adjust lobby game table/headers*/
+
+#seeks > thead > tr > th:nth-child(6) {
+    padding-right:7.4em;
+}
+
+#seeks > thead > tr > th:nth-child(7) {
+    padding-right:2em;
+}
+
+#seeks > tbody > tr > td:nth-child(3) {
+    padding-right:1.4em;
+}
+
+i-side.icon.icon-adjust {
+    padding-right:1em;
+}
+
 #seeks tbody tr:hover {
   width:100%;
   background-color: var(--rusty);
@@ -1100,8 +1118,8 @@ cg-resize {
   background: LightGray;
   outline: none;
   opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+/*  -webkit-transition: .2s;*/
+  /*transition: opacity .2s;*/
 }
 
 .slider:hover {
