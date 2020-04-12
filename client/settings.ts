@@ -144,7 +144,7 @@ export function toggleOrientation (ctrl) {
         const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
         setPieces(ctrl, color, true);
     };
-    
+
     console.log("FLIP");
     if (ctrl.hasPockets) {
         const tmp_pocket = ctrl.pockets[0];
@@ -181,7 +181,7 @@ export function gearButton (ctrl) {
         class: {"selected": ctrl.settings} },
         [h('i', {
             props: {title: 'Settings'},
-            class: {"icon": true, "icon-cog": true} 
+            class: {"icon": true, "icon-cog": true}
             }
         )])
 }
@@ -323,7 +323,7 @@ export function settingsView (ctrl) {
         // h('label.zoom', { attrs: {for: "zoom"} }, "Board size"),
         h('input#zoom', {
             class: {"slider": true },
-            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(zoom), min: 60, max: 160 },
+            attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(zoom), min: 50, max: 150, step: (ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
             on: { input: (e) => { setZoom(ctrl, parseFloat((e.target as HTMLInputElement).value)); } }
             }
         ),
