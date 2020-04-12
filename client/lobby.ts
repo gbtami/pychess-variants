@@ -125,6 +125,11 @@ class LobbyController {
             color: color });
     }
 
+    isByoyomi (variant) {
+        const lowercased = variant.toLowerCase();
+        return lowercased.endsWith('shogi') || lowercased === 'janggi' || lowercased === 'shogun';
+    }
+
     isNewSeek (variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, chess960, rated);
         // console.log(this.seeks);
@@ -173,7 +178,7 @@ class LobbyController {
         localStorage.setItem("seek_inc", e.value);
 
         e = document.getElementById('byo') as HTMLInputElement;
-        const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
+        const byoyomi = this.isByoyomi(variant);
         const byoyomiPeriod = (byoyomi) ? parseInt(e.value) : 0;
         localStorage.setItem("seek_byo", e.value);
 
@@ -224,7 +229,7 @@ class LobbyController {
             const variant = e.options[e.selectedIndex].value;
             const hide960 = variants960.indexOf(variant) === -1;
             const hideHandicap = variant !== 'shogi';
-            const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
+            const byoyomi = this.isByoyomi(variant);
 
             document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
             document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
@@ -452,7 +457,7 @@ class LobbyController {
         // console.log("VARIANTS", VARIANTS);
         var rows = seeks.map((seek) => {
             const variant = seek.variant;
-            const byoyomi = variant.toLowerCase().endsWith('shogi') || variant.toLowerCase() === 'janggi';
+            const byoyomi = this.isByoyomi(variant);
             let tooltiptext;
             if (seek["fen"]) {
                 // tooltiptext = seek["fen"];
