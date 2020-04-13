@@ -357,8 +357,10 @@ async def index(request):
     elif view == "variant":
         render["variants"] = VARIANTS
         render["icons"] = VARIANT_ICONS
-        variant = variant
-        render["variant"] = ("intro" if variant is None else variant) + ".html"
+        if variant == "terminology":
+            render["variant"] = "terminology.html"
+        else:
+            render["variant"] = ("intro" if variant is None else variant) + ".html"
 
     elif view == "editor":
         if fen is None:
