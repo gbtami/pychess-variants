@@ -824,6 +824,9 @@ button:disabled {
   flex-direction: row;
   justify-content: space-between;
 }
+#clock0 {
+  display: flex;
+}
 .more-time {
   float: right;
   font-size: 32px;
