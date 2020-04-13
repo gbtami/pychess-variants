@@ -3,6 +3,11 @@
 <div class="profile-wrapper">
 <aside class="sidebar-first">
     <ul class="guide">
+    <li>
+    <div class="icon" data-icon="">
+        <a href="{{ home }}/variant/terminology">Terminology</a>
+    </div>
+    </li>
     {% for key in variants %}
     <li>
     <div class="icon" data-icon="{{ icons[key] }}">
@@ -10,11 +15,6 @@
     </div>
     </li>
     {% endfor %}
-    <li>
-    <div class="icon" data-icon="">
-        <a href="{{ home }}/variant/terminology">Terminology</a>
-    </div>
-    </li>
     </ul>
 </aside>
 <div class="guide">{% include variant %}<div>
