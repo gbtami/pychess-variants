@@ -365,7 +365,6 @@ export default class RoundController {
             this.chessground.selectSquare(passKey as Key);
             sound.move();
             this.sendMove(passKey, passKey, '');
-            this.doSend({ type: "draw", gameId: this.model["gameId"], pass: "pass" });
         }
     }
 
