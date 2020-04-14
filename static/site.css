@@ -45,8 +45,6 @@
     --clock-overtime-bg: #474722;
     --clock-running-bg: #384722;
     --clock-running-color: #e3e3e3;
-    --blue-point: RoyalBlue;
-    --red-point: Crimson;
 }
 
 html {
@@ -421,6 +419,14 @@ player-title {
 i-side.icon-white::before, i-side.icon-black::before {
   vertical-align: -2;
   margin-right: .4em;
+}
+.icon-blue:before {
+  content: "\62";
+  color: var(--blue-point);
+}
+.icon-red:before {
+  content: "\62";
+  color: var(--red-point);
 }
 .icon-online::before {
   color: var(--good);
