@@ -243,6 +243,8 @@ async def index(request):
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
     fen = request.rel_url.query.get("fen")
+    if (fen is not None) and "//" in fen:
+        fen = None
     if profileId is not None:
         view = "profile"
         if request.path[-3:] == "/tv":
