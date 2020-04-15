@@ -85,6 +85,9 @@ label.board.board2.janggi {
 label.board.board3.janggi {
   background-image: url('images/board/JanggiDark.svg');
 }
+label.board.board4.janggi {
+  background-image: url('images/board/JanggiBrown.svg');
+}
 
 label.board.board0.xiangqi {
   background-image: url('images/board/xiangqi.svg');
