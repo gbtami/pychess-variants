@@ -159,6 +159,9 @@ label.piece.piece2.seirawan, label.piece.piece2.shouse {
 label.piece.piece3.seirawan, label.piece.piece3.shouse {
   background-image: url('images/pieces/merida/wAr.svg');
 }
+label.piece.piece4.seirawan, label.piece.piece4.shouse {
+  background-image: url('images/pieces/kaneo/wH.svg');
+}
 
 label.board.board0.capablanca, label.board.board0.capahouse, label.board.board0.gothic, label.board.board0.gothhouse {
   background-image: url('images/board/10x8brown.svg');
@@ -213,6 +216,12 @@ label.board.board4.shako {
 label.piece.piece0.shako {
   background-image: url('images/pieces/shako/wC.svg');
 }
+label.piece.piece0.shako {
+  background-image: url('images/pieces/shako/wC.svg');
+}
+label.piece.piece1.shako {
+  background-image: url('images/pieces/kaneo/wC.svg');
+}
 label.piece.piece0.shogun {
   background-image: url('images/pieces/shogun/blue/wC.svg');
 }
@@ -252,6 +261,9 @@ label.piece.piece2.capablanca, label.piece.piece2.capahouse, label.piece.piece2.
 }
 label.piece.piece3.capablanca, label.piece.piece3.capahouse, label.piece.piece3.grand, label.piece.piece3.grandhouse, label.piece.piece3.gothic, label.piece.piece3.gothhouse {
   background-image: url('images/pieces/merida/wAr.svg');
+}
+label.piece.piece4.capablanca, label.piece.piece4.capahouse, label.piece.piece4.grand, label.piece.piece4.grandhouse, label.piece.piece4.gothic, label.piece.piece4.gothhouse {
+  background-image: url('images/pieces/kaneo/wA.svg');
 }
 
 label.board.board0.sittuyin {
@@ -329,4 +341,7 @@ label.piece.piece1.placement, label.piece.piece1.crazyhouse, label.piece.piece1.
 }
 label.piece.piece2.placement, label.piece.piece2.crazyhouse, label.piece.piece2.chess {
   background-image: url('images/pieces/alpha/wN.svg');
+}
+label.piece.piece3.placement, label.piece.piece3.crazyhouse, label.piece.piece3.chess {
+  background-image: url('images/pieces/kaneo/wN.svg');
 }

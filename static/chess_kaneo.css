@@ -1,0 +1,36 @@
+.standard .cg-wrap piece.pawn.white {
+  background-image: url('images/pieces/kaneo/wP.svg');
+}
+.standard .cg-wrap piece.bishop.white {
+  background-image: url('images/pieces/kaneo/wB.svg');
+}
+.standard .cg-wrap piece.knight.white {
+  background-image: url('images/pieces/kaneo/wN.svg');
+}
+.standard .cg-wrap piece.rook.white {
+  background-image: url('images/pieces/kaneo/wR.svg');
+}
+.standard .cg-wrap piece.queen.white {
+  background-image: url('images/pieces/kaneo/wQ.svg');
+}
+.standard .cg-wrap piece.king.white {
+  background-image: url('images/pieces/kaneo/wK.svg');
+}
+.standard .cg-wrap piece.pawn.black {
+  background-image: url('images/pieces/kaneo/bP.svg');
+}
+.standard .cg-wrap piece.bishop.black {
+  background-image: url('images/pieces/kaneo/bB.svg');
+}
+.standard .cg-wrap piece.knight.black {
+  background-image: url('images/pieces/kaneo/bN.svg');
+}
+.standard .cg-wrap piece.rook.black {
+  background-image: url('images/pieces/kaneo/bR.svg');
+}
+.standard .cg-wrap piece.queen.black {
+  background-image: url('images/pieces/kaneo/bQ.svg');
+}
+.standard .cg-wrap piece.king.black {
+  background-image: url('images/pieces/kaneo/bK.svg');
+}
