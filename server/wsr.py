@@ -68,7 +68,7 @@ async def round_socket_handler(request):
                         # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
                         game = await load_game(request.app, data["gameId"])
                         move = data["move"]
-                        await play_move(request.app, user, game, move, data["clocks"])
+                        await play_move(request.app, user, game, move, data["clocks"], data["ply"])
 
                     elif data["type"] == "ready":
                         game = await load_game(request.app, data["gameId"])

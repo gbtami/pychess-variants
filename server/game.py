@@ -9,9 +9,9 @@ from time import monotonic
 from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
-from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CHEAT, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND
+from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND
 from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import FairyBoard, WHITE, BLACK
+from fairy import FairyBoard, BLACK
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
 from settings import URI
 
@@ -135,7 +135,7 @@ class Game:
     def create_board(self, variant, initial_fen, chess960):
         return FairyBoard(variant, initial_fen, chess960)
 
-    async def play_move(self, move, clocks=None):
+    async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
 
         if self.status > STARTED:
@@ -195,15 +195,6 @@ class Game:
 
         self.last_server_clock = cur_time
 
-        opp_color = "black" if self.board.color == WHITE else "white"
-        if False:  # clocks is not None:
-            # print("--------------")
-            # print(opp_color, clocks, self.ply_clocks)
-            if clocks[opp_color] < self.clocks[opp_color]:
-                result = "1-0" if self.board.color == BLACK else "0-1"
-                self.update_status(CHEAT, result)
-                await self.save_game()
-
         if self.status <= STARTED:
             try:
                 san = self.board.get_san(move)
@@ -231,7 +222,15 @@ class Game:
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
 
-    async def save_game(self):
+            if not self.bot_game:
+                # print("--------------ply-", ply)
+                # print(self.board.color, clocks, self.ply_clocks)
+                opp_color = self.steps[-1]["turnColor"]
+                if clocks[opp_color] < self.ply_clocks[ply - 1][opp_color]:
+                    self.update_status(ABORTED)
+                    await self.save_game(with_clocks=True)
+
+    async def save_game(self, with_clocks=False):
         if self.saved:
             return
 
@@ -294,6 +293,9 @@ class Game:
             # initial FEN may be different compared to one we used when db game document was created
             if self.variant == "janggi":
                 new_data["if"] = self.board.initial_fen
+
+            if with_clocks:
+                new_data["clocks"] = self.ply_clocks
 
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})

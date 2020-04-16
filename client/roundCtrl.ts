@@ -759,12 +759,13 @@ export default class RoundController {
         const wclock = 1 - bclock
 
         const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
+
         const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
         const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
 
         clocks = {movetime: movetime, black: bclocktime, white: wclocktime};
 
-        this.doSend({ type: "move", gameId: this.model["gameId"], move: move, clocks: clocks });
+        this.doSend({ type: "move", gameId: this.model["gameId"], move: move, clocks: clocks, ply: this.ply + 1 });
 
         if (!this.abortable) this.clocks[oppclock].start();
     }

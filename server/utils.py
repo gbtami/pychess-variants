@@ -297,7 +297,7 @@ def remove_seek(seeks, seek):
             del seek.user.seeks[seek.id]
 
 
-async def play_move(app, user, game, move, clocks=None):
+async def play_move(app, user, game, move, clocks=None, ply=None):
     assert move
     gameId = game.id
     users = app["users"]
@@ -306,7 +306,7 @@ async def play_move(app, user, game, move, clocks=None):
 
     if game.status <= STARTED:
         try:
-            await game.play_move(move, clocks)
+            await game.play_move(move, clocks, ply)
         except SystemError:
             invalid_move = True
             log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, user.username))
