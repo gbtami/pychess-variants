@@ -29,6 +29,7 @@ from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from compress import C2V, V2C, C2R
 from glicko2.glicko2 import PROVISIONAL_PHI
+from robots import ROBOTS_TXT
 
 try:
     import htmlmin
@@ -509,6 +510,10 @@ async def export(request):
     return web.Response(text=pgn_text, content_type="text/pgn")
 
 
+async def robots(request):
+    return web.Response(text=ROBOTS_TXT, content_type="text/plain")
+
+
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
@@ -548,6 +553,7 @@ get_routes = (
     ("/games/export/variant/{variant}", export),
     ("/fishnet/monitor", fishnet_monitor),
     ("/fishnet/key/{key}", fishnet_key),
+    ("/robots.txt", robots),
 )
 
 post_routes = (
