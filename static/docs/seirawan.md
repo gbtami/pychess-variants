@@ -30,6 +30,8 @@ The value of an elephant is considered better than a hawk, but equivalent or sli
 
 ## Strategy
 
-Per Yasser Seirawan, protecting the king is even more important in this game because a ranged attack by a back rank piece such as the queen, bishop, or rook, can immediately be supported by an incoming hawk or elephant, in some cases leading to checkmate! 
+Per Yasser Seirawan, protecting the king is even more important in this game because a ranged attack by a back rank piece such as the queen, bishop, or rook, can immediately be supported by an incoming hawk or elephant, in some cases leading to checkmate!
+
+You can also see a stream of Yasser Seirawan playing against JannLee [here](https://www.youtube.com/watch?v=ujWzsxm18aQ).
 
 More strategy pending.
