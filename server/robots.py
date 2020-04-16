@@ -1,4 +1,4 @@
-User-agent: *
+ROBOTS_TXT = """User-agent: *
 Disallow: /@/
 Disallow: /tv/
 Disallow: /api/
@@ -11,3 +11,4 @@ Disallow: /oauth/
 Disallow: /players/
 Disallow: /patron/
 Disallow: /level8win/
+"""

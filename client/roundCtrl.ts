@@ -749,7 +749,6 @@ export default class RoundController {
         const move = (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') ? zero2grand(uci_move) : uci_move;
 
         // console.log("sendMove(move)", move);
-        // TODO: if premoved, send 0 time
         let bclock, clocks;
         if (!this.flip) {
             bclock = this.mycolor === "black" ? 1 : 0;
@@ -759,12 +758,13 @@ export default class RoundController {
         const wclock = 1 - bclock
 
         const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
+
         const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
         const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
 
-        clocks = {movetime: movetime, black: bclocktime, white: wclocktime};
+        clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.doSend({ type: "move", gameId: this.model["gameId"], move: move, clocks: clocks });
+        this.doSend({ type: "move", gameId: this.model["gameId"], move: move, clocks: clocks, ply: this.ply + 1 });
 
         if (!this.abortable) this.clocks[oppclock].start();
     }

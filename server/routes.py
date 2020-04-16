@@ -13,7 +13,7 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from broadcast import round_broadcast
-from const import STARTED, MATE, VARIANTS, VARIANT_ICONS
+from const import STARTED, MATE, VARIANTS, VARIANT_ICONS, INVALIDMOVE, VARIANTEND
 from settings import MAX_AGE, URI, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
 from glicko2.glicko2 import DEFAULT_PERF
 from utils import load_game, pgn, tv_game, tv_game_user
@@ -29,6 +29,7 @@ from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from compress import C2V, V2C, C2R
 from glicko2.glicko2 import PROVISIONAL_PHI
+from robots import ROBOTS_TXT
 
 try:
     import htmlmin
@@ -397,15 +398,20 @@ async def get_user_games(request):
     # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
     variant = request.path[request.path.rfind("/") + 1:]
-    if level is not None:
-        filter_cond["x"] = int(level)
-        filter_cond["s"] = MATE
-        filter_cond["if"] = None
 
     if "/win" in request.path:
         filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
     elif "/loss" in request.path:
-        filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
+        # level8win requests Fairy-Stockfish lost games
+        if level is not None:
+            filter_cond["$and"] = [
+                {"$or": [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]},
+                {"x": int(level)},
+                {"$or": [{"if": None}, {"v": "j"}]},  # Janggi games always have initial FEN!
+                {"$or": [{"s": MATE}, {"s": VARIANTEND}, {"s": INVALIDMOVE}]},
+            ]
+        else:
+            filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
     elif variant in VARIANTS:
         if variant.endswith("960"):
             v = V2C[variant[:-3]]
@@ -509,6 +515,10 @@ async def export(request):
     return web.Response(text=pgn_text, content_type="text/pgn")
 
 
+async def robots(request):
+    return web.Response(text=ROBOTS_TXT, content_type="text/plain")
+
+
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
@@ -548,6 +558,7 @@ get_routes = (
     ("/games/export/variant/{variant}", export),
     ("/fishnet/monitor", fishnet_monitor),
     ("/fishnet/key/{key}", fishnet_key),
+    ("/robots.txt", robots),
 )
 
 post_routes = (
