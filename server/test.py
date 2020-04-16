@@ -159,8 +159,9 @@ class HighscoreTestCase(AioHTTPTestCase):
             print(row)
 
     async def play_and_resign(self, game, player):
-        for move in ("e2e4", "e7e5", "f2f4"):
-            await game.play_move(move, clocks={"white": 0, "black": 0})
+        clock = game.ply_clocks[0]["white"]
+        for i, move in enumerate(("e2e4", "e7e5", "f2f4"), start=1):
+            await game.play_move(move, clocks={"white": clock, "black": clock}, ply=i)
         data = {"type": "resign", "gameId": game.id}
         await game_ended(self.app["games"], player, data, data["type"])
 
