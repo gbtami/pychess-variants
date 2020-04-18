@@ -34,13 +34,13 @@ If you need to practice with the piece moves and rules before diving into a real
 
 ![Capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png?raw=true)
 
-**Capablanca Chess** - Play with the archbishop (bishop+knight) and chancellor (rook+knight) on a 10x8 board
+**Capablanca Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board
 
 **Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
 
-**S-Chess / Seirawan Chess / SHARPER Chess** - Uses the same hybrid pieces but are introduced into a standard 8x8 board in a unique manner
+**S-Chess / Seirawan Chess / SHARPER Chess** - Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece
 
-**Grand Chess** - Uses the same hybrid pieces, but played on a *grand* 10x10 board
+**Grand Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board
 
 **Shako** - Introduces the cannon and elephant from Xiangqi into a 10x10 chess board
 
@@ -60,11 +60,11 @@ If you need to practice with the piece moves and rules before diving into a real
 
 ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
 
-**Shogi (Japanese Chess)** - Pieces promote and can be dropped in this game of intense tactics
+**Shogi (Japanese Chess)** - Pieces promote and can be dropped
 
 **Minishogi** - Shogi on a 5x5 board
 
-**Kyoto Shogi** - Pieces flip to a different piece each move
+**Kyoto Shogi** - 5x5 Shogi where pieces flip to a different piece each move
 
 ## Xiangqi variants
 
@@ -72,7 +72,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
 
-**Janggi (Korean Chess)** - A refreshing and yet even more aggressive spin of Xiangqi
+**Janggi (Korean Chess)** - Similar to Xiangqi, but plays very different. Tournament rules are used.
 
 **Minixiangqi** - Xiangqi on a 7x7 board
 
@@ -80,7 +80,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
-**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga is both familiar and different for Chess players
+**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga
 
 **Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
 
