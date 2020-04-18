@@ -628,5 +628,6 @@ class Game:
                 "pgn": self.pgn if self.status > STARTED else "",
                 "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else "",
                 "uci_usi": self.uci_usi if self.status > STARTED else "",
+                "rm": self.random_move if self.status <= STARTED else "",
                 "ct": crosstable,
                 }
