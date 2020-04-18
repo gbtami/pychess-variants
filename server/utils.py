@@ -96,7 +96,15 @@ async def load_game(app, game_id):
             initial_fen = parts[0] + pockets + (" w" if parts[1] == " b" else " w") + " 0 " + parts[3]
             print("   changed to:", initial_fen)
 
-    game = Game(app, game_id, variant, initial_fen, wplayer, bplayer, doc["b"], doc["i"], doc.get("x"), bool(doc.get("y")), bool(doc.get("z")), create=False)
+    game = Game(
+        app, game_id, variant, initial_fen, wplayer, bplayer,
+        base=doc["b"],
+        inc=doc["i"],
+        byoyomi_period=int(bool(doc.get("bp"))),
+        level=doc.get("x"),
+        rated=bool(doc.get("y")),
+        chess960=bool(doc.get("z")),
+        create=False)
 
     mlist = decode_moves(doc["m"], variant)
 
@@ -138,7 +146,10 @@ async def load_game(app, game_id):
             if "a" in doc:
                 if usi_format and "m" in doc["a"][ply + 1]:
                     doc["a"][ply + 1]["m"] = mirror(usi2uci(doc["a"][ply + 1]["m"]))
-                game.steps[-1]["analysis"] = doc["a"][ply + 1]
+                try:
+                    game.steps[-1]["analysis"] = doc["a"][ply + 1]
+                except IndexError:
+                    print("IndexError", ply, move, san)
 
         except Exception:
             log.exception("ERROR: Exception in load_game() %s %s %s %s" % (game_id, variant, doc.get("if"), mlist))
@@ -246,7 +257,15 @@ async def new_game(app, user, seek_id):
         return {"type": "error", "message": message}
     # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
-        new_game = Game(app, new_id, seek.variant, sanitized_fen, wplayer, bplayer, seek.base, seek.inc, seek.byoyomi_period, seek.level, seek.rated, seek.chess960, create=True)
+        new_game = Game(
+            app, new_id, seek.variant, sanitized_fen, wplayer, bplayer,
+            base=seek.base,
+            inc=seek.inc,
+            byoyomi_period=seek.byoyomi_period,
+            level=seek.level,
+            rated=seek.rated,
+            chess960=seek.chess960,
+            create=True)
     except Exception:
         log.error("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
         remove_seek(seeks, seek)
@@ -287,7 +306,7 @@ async def new_game(app, user, seek_id):
     wplayer.tv = new_id
     bplayer.tv = new_id
 
-    return {"type": "new_game", "gameId": new_id}
+    return {"type": "new_game", "gameId": new_id, "wplayer": wplayer.username, "bplayer": bplayer.username}
 
 
 def remove_seek(seeks, seek):
@@ -302,7 +321,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
     gameId = game.id
     users = app["users"]
     invalid_move = False
-    log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
+    # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
         try:
