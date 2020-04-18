@@ -32,6 +32,30 @@ export const start_fen = {
     shogun: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1"
 }
 
+export const variantTooltip = {
+    makruk: "A game closely resembling the original Chaturanga",
+    cambodian: "Makruk with a few additional opening abilities",
+    sittuyin: "Similar to Makruk, but pieces are placed at the start of the match",
+    placement: "Choose where your pieces start",
+    crazyhouse: "Take captured pieces and drop them back on to the board as your own",
+    chess: "Chess, unmodified, as it's played by FIDE standards",
+    shogi: "Pieces promote and can be dropped",
+    minishogi: "Shogi on a 5x5 board",
+    kyotoshogi: "5x5 Shogi where pieces flip to a different piece each move",
+    janggi: "Similar to Xiangqi, but plays very differently. Tournament rules are used",
+    xiangqi: "Open fire on your opponent in this highly aggressive ancient game",
+    minixiangqi: "Xiangqi on a 7x7 board",
+    capablanca: "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board",
+    seirawan: "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece",
+    capahouse: "Capablanca with Crazyhouse drop rules",
+    shouse: "S-Chess with Crazyhouse drop rules",
+    grand: "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board",
+    grandhouse: "Grand Chess with Crazyhouse drop rules",
+    gothic: "Like Capablanca Chess but with a different starting setup",
+    shako: "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board",
+    shogun: "Pieces promote and can be dropped, similar to Shogi"
+}
+
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "Q"},
     cambodian: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "!"},

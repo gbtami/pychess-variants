@@ -2,7 +2,7 @@ import { h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 
 import AnalysisController from './analysisCtrl';
-import { VARIANTS, variantIcon, variantName } from './chess';
+import { VARIANTS, variantIcon, variantName, variantTooltip } from './chess';
 import { timeago, renderTimeago } from './clock';
 import { renderRdiff, result } from './profile';
 
@@ -28,7 +28,11 @@ export function analysisView(model): VNode[] {
                         h('div.info2', [
                             h('div.tc', [
                                 model["base"] + "+" + model["inc"] + " • " + ((model["rated"] === 'True') ? "Rated" : "Casual") + " • ",
-                                h('a.user-link', {attrs: {target: '_blank', href: '/variant/' + model["variant"] + ((model["chess960"]==='True') ? '960': '')}}, variantName(model["variant"], model["chess960"]) ),
+                                h('a.user-link', {attrs: {
+                                    target: '_blank',
+                                    href: '/variant/' + model["variant"] + ((model["chess960"]==='True') ? '960': ''),
+                                    title: variantTooltip[model["variant"]]
+                                    }}, variantName(model["variant"], model["chess960"]) ),
                             ]),
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : "Playing right now",
                         ]),
