@@ -54,7 +54,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **S-House** - S-Chess with Crazyhouse drop rules
 
-**Grandhouse** = Grand Chess with Crazyhouse drop rules
+**Grandhouse** - Grand Chess with Crazyhouse drop rules
 
 ## Shogi variants
 
