@@ -9,9 +9,10 @@ from time import monotonic
 from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
-from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND
+from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG,\
+    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND
 from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import FairyBoard, BLACK
+from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
 from settings import URI
 
@@ -584,11 +585,27 @@ class Game:
         await self.save_game()
         return {"type": "gameEnd", "status": self.status, "result": "Game aborted.", "gameId": self.id, "pgn": self.pgn}
 
-    async def abandone(self, user):
-        result = "0-1" if user.username == self.wplayer.username else "1-0"
-        self.update_status(LOSERS["abandone"], result)
-        await self.save_game()
-        return {"type": "gameEnd", "status": self.status, "result": result, "gameId": self.id, "pgn": self.pgn}
+    async def game_ended(self, user, reason):
+        """ Abort, resign, flag, abandone """
+        if self.result == "*":
+            if reason == "abort":
+                result = "*"
+            else:
+                if reason == "flag":
+                    w, b = self.board.insufficient_material()
+                    if (w and b) or (self.board.color == BLACK and w) or (self.board.color == WHITE and b):
+                        result = "1/2-1/2"
+                    else:
+                        result = "0-1" if user.username == self.wplayer.username else "1-0"
+                else:
+                    result = "0-1" if user.username == self.wplayer.username else "1-0"
+
+            self.update_status(LOSERS[reason], result)
+            await self.save_game()
+
+        return {
+            "type": "gameEnd", "status": self.status, "result": self.result, "gameId": self.id, "pgn": self.pgn, "ct": self.crosstable,
+            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else ""}
 
     def get_board(self, full=False):
         if full:
@@ -611,7 +628,7 @@ class Game:
         else:
             clocks = self.clocks
             steps = (self.steps[-1],)
-            crosstable = ""
+            crosstable = self.crosstable if self.status > STARTED else ""
 
         return {"type": "board",
                 "gameId": self.id,

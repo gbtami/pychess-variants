@@ -13,8 +13,7 @@ from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
-from utils import play_move, draw, game_ended, \
-    new_game, load_game, MyWebSocketResponse, tv_game, tv_game_user
+from utils import play_move, draw, new_game, load_game, MyWebSocketResponse, tv_game, tv_game_user
 
 log = logging.getLogger(__name__)
 
@@ -299,7 +298,7 @@ async def round_socket_handler(request):
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
-                        response = await game_ended(games, user, data, data["type"])
+                        response = await game.game_ended(user, data["type"])
 
                         await ws.send_json(response)
 

@@ -13,7 +13,6 @@ from const import CREATED, STARTED, VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from game import Game
 from user import User
-from utils import game_ended
 from server import make_app
 
 import game
@@ -162,8 +161,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         clock = game.ply_clocks[0]["white"]
         for i, move in enumerate(("e2e4", "e7e5", "f2f4"), start=1):
             await game.play_move(move, clocks={"white": clock, "black": clock}, ply=i)
-        data = {"type": "resign", "gameId": game.id}
-        await game_ended(self.app["games"], player, data, data["type"])
+        await game.game_ended(player, "resign")
 
     @unittest_run_loop
     async def test_lost_but_still_there(self):

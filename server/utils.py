@@ -11,10 +11,10 @@ except ImportError:
     print("No pyffish module installed!")
 
 from broadcast import round_broadcast
-from const import DRAW, LOSERS, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, VARIANTEND
+from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, VARIANTEND
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, zero2grand
-from fairy import WHITE, BLACK, STANDARD_FEN
+from fairy import BLACK, STANDARD_FEN
 from game import Game
 from user import User
 from settings import URI
@@ -199,30 +199,6 @@ async def draw(games, data, agreement=False):
         return response
 
 
-async def game_ended(games, user, data, reason):
-    """ Abort, resign, flag, abandone """
-    game = games[data["gameId"]]
-    if game.result == "*":
-        if reason == "abort":
-            result = "*"
-        else:
-            if reason == "flag":
-                w, b = game.board.insufficient_material()
-                if (w and b) or (game.board.color == BLACK and w) or (game.board.color == WHITE and b):
-                    result = "1/2-1/2"
-                else:
-                    result = "0-1" if user.username == game.wplayer.username else "1-0"
-            else:
-                result = "0-1" if user.username == game.wplayer.username else "1-0"
-
-        game.update_status(LOSERS[reason], result)
-        await game.save_game()
-
-    return {
-        "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
-        "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else ""}
-
-
 async def new_game(app, user, seek_id):
     db = app["db"]
     games = app["games"]
@@ -354,7 +330,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             if not invalid_move:
                 await opp_ws.send_json(board_response)
             if game.status > STARTED:
-                await opp_ws.send_json(game.game_end)
+                response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id, "pgn": game.pgn}
+                await opp_ws.send_json(response)
         except KeyError:
             log.error("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, user.username, gameId))
 

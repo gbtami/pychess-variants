@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from const import ABORTED, FLAG
+from const import ABORTED
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 
@@ -56,22 +56,9 @@ class Clock:
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        if self.ply < 2:
-                            self.game.update_status(ABORTED)
-                            await self.game.save_game()
-                            log.info("Game %s ABORT by server." % self.game.id)
-                        else:
-                            w, b = self.game.board.insufficient_material()
-                            cur_color = "black" if self.color == BLACK else "white"
-                            if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
-                                result = "1/2-1/2"
-                            else:
-                                result = "1-0" if self.color == BLACK else "0-1"
-                            self.game.update_status(FLAG, result)
-                            await self.game.save_game()
-                            log.info("Game %s FLAG by server!" % self.game.id)
-
-                        response = {"type": "gameEnd", "status": self.game.status, "result": self.game.result, "gameId": self.game.id, "pgn": self.game.pgn}
+                        user = self.game.bplayer if self.color == BLACK else self.game.wplayer
+                        reason = "abort" if self.ply < 2 else "flag"
+                        response = await self.game.game_ended(user, reason)
                         await round_broadcast(self.game, self.game.users, response, full=True)
                         return
 
