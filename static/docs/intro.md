@@ -85,3 +85,5 @@ If you need to practice with the piece moves and rules before diving into a real
 **Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
 
 **Sittuyin (Burmese Chess)** - Similar to Makruk, but pieces are placed at the start of the match
+
+**Makpong** - Makruk variant where kings cannot move to escape out of check
