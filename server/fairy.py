@@ -23,7 +23,7 @@ class FairyBoard:
         self.variant = variant
         self.chess960 = chess960
         self.sfen = False
-        self.show_promoted = variant == "makruk" or variant == "cambodian"
+        self.show_promoted = variant == "makruk" or variant == "makpong" or variant == "cambodian"
         self.initial_fen = initial_fen if initial_fen else self.start_fen(variant, chess960)
         self.move_stack = []
         self.ply = 0

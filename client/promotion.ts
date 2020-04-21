@@ -74,6 +74,7 @@ export default function(ctrl) {
                 break;
             case 'cambodian':
             case 'makruk':
+            case 'makpong':
                 promote(ground, dest, 'met');
                 ctrl.sendMove(orig, dest, 'm');
                 break;

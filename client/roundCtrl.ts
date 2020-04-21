@@ -609,7 +609,7 @@ export default class RoundController {
         const oppclock = !this.flip ? 0 : 1;
         const myclock = 1 - oppclock;
 
-        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
+        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
             updateCount(msg.fen);
         }
 
@@ -710,7 +710,7 @@ export default class RoundController {
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
 
-        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
+        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
             updateCount(step.fen);
         }
 
