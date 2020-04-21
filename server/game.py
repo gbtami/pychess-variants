@@ -108,6 +108,7 @@ class Game:
         self.overtime = False
         self.byoyomi = byoyomi_period > 0
         self.byoyomi_period = byoyomi_period
+        self.cur_byoyomi_period = byoyomi_period
 
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen

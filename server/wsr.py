@@ -293,6 +293,10 @@ async def round_socket_handler(request):
                     elif data["type"] == "logout":
                         await ws.close()
 
+                    elif data["type"] == "byoyomi":
+                        game = await load_game(request.app, data["gameId"])
+                        game.cur_byoyomi_period = data["period"]
+
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         game = await load_game(request.app, data["gameId"])
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:

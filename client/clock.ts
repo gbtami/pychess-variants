@@ -18,6 +18,7 @@ export class Clock {
     startTime: any;
     tickCallbacks: any[];
     flagCallback: any;
+    byoyomiCallback: any;
     el: HTMLElement;
     id: string;
     overtime: boolean;
@@ -35,6 +36,7 @@ export class Clock {
     this.startTime = null;
     this.tickCallbacks = [];
     this.flagCallback = null;
+    this.byoyomiCallback = null;
     this.el = el;
     this.id = id;
     this.overtime = false;
@@ -62,6 +64,9 @@ export class Clock {
                     that.byoyomiPeriod -= 1;
                     that.duration = that.increment;
                     that.startTime = Date.now();
+                    if (that.byoyomiCallback !== null) {
+                        that.byoyomiCallback();
+                    }
                 } else {
                     if (that.flagCallback !== null) {
                         that.flagCallback();
@@ -88,6 +93,13 @@ export class Clock {
         if (typeof callback === 'function') {
             this.pause(false);
             this.flagCallback = callback;
+        }
+        return this;
+    }
+
+    onByoyomi = (callback) => {
+        if (typeof callback === 'function') {
+            this.byoyomiCallback = callback;
         }
         return this;
     }

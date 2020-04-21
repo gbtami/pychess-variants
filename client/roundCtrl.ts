@@ -310,7 +310,20 @@ export default class RoundController {
                 this.doSend({ type: "flag", gameId: this.model["gameId"] });
             }
         }
-        if (!this.spectator) this.clocks[1].onFlag(flagCallback);
+
+        const byoyomiCallback = () => {
+            if (this.turnColor === this.mycolor) {
+                // console.log("Byoyomi", this.clocks[1].byoyomiPeriod);
+                this.doSend({ type: "byoyomi", gameId: this.model["gameId"], period: this.clocks[1].byoyomiPeriod });
+            }
+        }
+
+        if (!this.spectator) {
+            if (this.byoyomiPeriod > 0) {
+                this.clocks[1].onByoyomi(byoyomiCallback);
+            }
+            this.clocks[1].onFlag(flagCallback);
+        }
 
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
