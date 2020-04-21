@@ -450,7 +450,7 @@ export default class AnalysisController {
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
 
-        if (this.variant === "makruk" || this.variant === "cambodian" || this.variant === "sittuyin") {
+        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
             updateCount(step.fen);
         }
 

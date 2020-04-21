@@ -1,5 +1,6 @@
 :root {
   --makruk-board: url('images/board/makruk.svg');
+  --makpong-board: url('images/board/makruk.svg');
   --cambodian-board: url('images/board/makruk.svg');
   --sittuyin-board: url('images/board/sittuyin.svg');
   --chess-board: url('images/board/8x8brown.svg');
@@ -24,6 +25,9 @@
 }
 .makruk-board .cg-wrap {
   background-image: var(--makruk-board);
+}
+.makpong-board .cg-wrap {
+  background-image: var(--makpong-board);
 }
 .cambodian-board .cg-wrap {
   background-image: var(--cambodian-board);

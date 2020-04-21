@@ -3,13 +3,14 @@ import { Color, dimensions, Geometry, Key, Role } from 'chessgroundx/types';
 
 import { read } from 'chessgroundx/fen';
 
-export const variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
+export const variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
-export const enabled_variants = ["makruk", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun"];
+export const enabled_variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun"];
 
 export const start_fen = {
     makruk: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
+    makpong: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
     cambodian: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
     sittuyin: "8/8/4pppp/pppp4/4PPPP/PPPP4/8/8[KFRRSSNNkfrrssnn] w - - 0 1",
     placement: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
@@ -34,6 +35,7 @@ export const start_fen = {
 
 export const variantTooltip = {
     makruk: "A game closely resembling the original Chaturanga",
+    makpong: "Makruk with a restriction on the king to reduce draws",
     cambodian: "Makruk with a few additional opening abilities",
     sittuyin: "Similar to Makruk, but pieces are placed at the start of the match",
     placement: "Choose where your pieces start",
@@ -58,6 +60,7 @@ export const variantTooltip = {
 
 export const VARIANTS = {
     makruk: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "Q"},
+    makpong: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "Q"},
     cambodian: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "!"},
     sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"], pieces: "sittuyin", PieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"], icon: ":", baseURL: ["sittuyin/original", "sittuyin/Ka_blackred", "sittuyin/Ka_greenred", "makruk/ada", "makruk/intl"] },
     shogi: { geom: Geometry.dim9x9, cg: "cg-576", BoardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "doubutsu.svg"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0d"], icon: "K", baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/Ka"] },
@@ -174,6 +177,7 @@ export function pieceRoles(variant: string) {
     case "minixiangqi":
         return ["king", "cannon", "rook", "knight", "pawn"];
     case "makruk":
+    case "makpong":
     case "cambodian":
         return ["king", "silver", "met", "knight", "rook", "pawn", "ferz"];
     case "sittuyin":
@@ -223,6 +227,7 @@ function promotionZone(variant: string, color: string) {
         return color === 'white' ? 'a6b6c6d6e6f6g6h6a7b7c7d7e7f7g7h7a8b8c8d8e8f8g8h8' : 'a1b1c1d1e1f1g1h1a2b2c2d2e2f2g2h2a3b3c3d3e3f3g3h3';
     case 'cambodian':
     case 'makruk':
+    case 'makpong':
         return color === 'white' ? 'a6b6c6d6e6f6g6h6' : 'a3b3c3d3e3f3g3h3';
     case 'sittuyin':
         return color === 'white' ? 'a8b7c6d5e5f6g7h8' : 'a1b2c3d4e4f3g2h1';

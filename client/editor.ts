@@ -171,7 +171,7 @@ export default class EditorController {
     }
 
     private variantFenChange = () => {
-        if (this.variant === "makruk" || this.variant === "cambodian") {
+        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian") {
             this.parts[0] = this.parts[0].replace(/F/g, "M~").replace(/f/g, "m~");
         }
     }
