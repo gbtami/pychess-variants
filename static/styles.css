@@ -158,14 +158,8 @@
 .icon-crazyhouse:before {
   content: "\4e";
 }
-.icon-xiangqi:before {
-  content: "\4f";
-}
 .icon-capablanca:before {
   content: "\50";
-}
-.icon-makruk:before {
-  content: "\51";
 }
 .icon-sittuyin:before {
   content: "\52";
@@ -212,14 +206,8 @@
 .icon-crown:before {
   content: "\35";
 }
-.icon-minishogi:before {
-  content: "\36";
-}
 .icon-minixiangqi:before {
   content: "\37";
-}
-.icon-xiangqi2:before {
-  content: "\38";
 }
 .icon-shako:before {
   content: "\39";
@@ -232,9 +220,6 @@
 }
 .icon-at:before {
   content: "\23";
-}
-.icon-kyotoshogi:before {
-  content: "\29";
 }
 .icon-shouse:before {
   content: "\24";
@@ -269,21 +254,24 @@
 .icon-phone:before {
   content: "\2f";
 }
-.icon-sittuyin-new:before {
-  content: "\3a";
-}
 .icon-unlock:before {
   content: "\3b";
 }
 .icon-unlock-alt:before {
   content: "\3c";
 }
-.icon-janggi:before {
-  content: "\3d";
-}
 .icon-exchange:before {
   content: "\3e";
 }
 .icon-check:before {
   content: "\3f";
+}
+.icon-standardchess-1:before {
+  content: "\51";
+}
+.icon-makpong:before {
+  content: "\4f";
+}
+.icon-orda:before {
+  content: "\36";
 }

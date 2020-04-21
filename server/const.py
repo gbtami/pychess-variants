@@ -44,7 +44,7 @@ VARIANTS = (
 
 VARIANT_ICONS = {
     "makruk": "Q",
-    "makpong": "Q",
+    "makpong": "O",
     "sittuyin": ":",
     "shogi": "K",
     "janggi": "=",
