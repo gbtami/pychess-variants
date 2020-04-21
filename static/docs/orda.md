@@ -63,8 +63,8 @@ Lancers were one of the two core components of the Mongol cavalry, functioning a
 
 Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to Orda chess.
 
-Kingdom piece	Value (Early / Late) | Horde piece | Value (Early / Late)
--- | -- | --
+Kingdom piece	| Value (Early / Late) | Horde piece | Value (Early / Late)
+-- | -- | -- | --
 Pawn | 120 / 213	| Pawn | 120 / 213
 Queen | 2538 / 2682	| Yurt | 630 / 630
 Bishop | 825 / 915	| Horse Archer	| 1100 / 1200
@@ -73,8 +73,8 @@ Rook | 1276 / 1380	| Lancer | 1050 / 1250
 
 For those who want a more simplified approach, this table may be an approximation.
 
-Kingdom piece	| Value | Horde piece	Value
--- | -- | --
+Kingdom piece	| Value | Horde piece	| Value
+-- | -- | -- | --
 Pawn | 1	| Pawn | 1
 Queen	| 9	| Yurt | 2
 Bishop | 3 | Horse Archer | 4
