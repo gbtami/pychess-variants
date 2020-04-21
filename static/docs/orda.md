@@ -86,7 +86,7 @@ As a whole, the Horde army is weaker than the Kingdom in value (based on Stockfi
 ## Strategy
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
 
-The Horde cannot castle. However, a very fundamental component of a majority Horde openings is to move the Khan to f7. Reaching this spot in within the first four moves is ideal – in fact, Fairy Stockfish opened up with Kg7 in 56% of its games. The rest is variable. 
+The Horde cannot castle. However, a very fundamental component of a majority Horde openings is to move the Khan to g7. Reaching this spot in within the first four moves is ideal – in fact, Fairy Stockfish opened up with Kf7 in 56% of its games. The rest is variable. 
 For the Kingdom, d4, g3, and b3 are the most common openings in that order.
 
 A major Horde weakness is that the lancers and horse archers cannot sustain a threat on a piece. If you attack a lancer/archer, if they must retreat, they lose their attack. It's important for the Kingdom to take advantage of this.
