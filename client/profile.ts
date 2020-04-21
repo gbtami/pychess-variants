@@ -140,7 +140,12 @@ function renderGames(model, games) {
                     }}, result(game["v"], game["s"], game["r"])
                 ),
             ]),
-            h('div.info2.games', game["a"] === undefined ? "" : [h('span.icon', {attrs: {"data-icon": "3"}, class: {"icon": true}}), "Computer analysis available"]),
+            h('div.info0.games', [
+                h('div', [
+                    h('div.info0', game["m"] === undefined ? "" : game["m"].length + " moves"),
+                    h('div.info0', game["a"] === undefined ? "" : [h('span.icon', {attrs: {"data-icon": "3"}, class: {"icon": true}}), "Computer analysis available"]),
+                ]),
+            ]),
         ])
         ])
         );
