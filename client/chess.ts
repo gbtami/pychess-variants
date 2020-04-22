@@ -35,7 +35,7 @@ export const start_fen = {
 
 export const variantTooltip = {
     makruk: "A game closely resembling the original Chaturanga",
-    makpong: "Makruk with a restriction on the king to reduce draws",
+    makpong: "Makruk variant where kings cannot move to escape out of check",
     cambodian: "Makruk with a few additional opening abilities",
     sittuyin: "Similar to Makruk, but pieces are placed at the start of the match",
     placement: "Choose where your pieces start",
