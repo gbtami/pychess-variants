@@ -3,10 +3,10 @@ import { Color, dimensions, Geometry, Key, Role } from 'chessgroundx/types';
 
 import { read } from 'chessgroundx/fen';
 
-export const variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun"];
+export const variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun", "orda"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
-export const enabled_variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun"];
+export const enabled_variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun", "orda"];
 
 export const start_fen = {
     makruk: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
@@ -30,7 +30,8 @@ export const start_fen = {
     grandhouse: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
     gothic: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
     shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
-    shogun: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1"
+    shogun: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
+    orda: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
 }
 
 export const variantTooltip = {
@@ -55,7 +56,8 @@ export const variantTooltip = {
     grandhouse: "Grand Chess with Crazyhouse drop rules",
     gothic: "Like Capablanca Chess but with a different starting setup",
     shako: "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board",
-    shogun: "Pieces promote and can be dropped, similar to Shogi"
+    shogun: "Pieces promote and can be dropped, similar to Shogi",
+    orda: "Asymmetric chess with two different armies"
 }
 
 export const VARIANTS = {
@@ -82,6 +84,7 @@ export const VARIANTS = {
     chess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha", "chess_kaneo"], icon: "M" },
     shako: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"], pieces: "shako", PieceCSS: ["shako0", "shako1"], icon: "9" },
     shogun: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"], pieces: "shogun", PieceCSS: ["shogunb", "shogunr", "shogunw"], icon: "-" , baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
+    orda: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "orda", PieceCSS: ["orda0"], icon: "R" , baseURL: ["orda"]}
 }
 
 export function variantIcon(variant, chess960) {
@@ -149,7 +152,7 @@ export function getPockets(fen: string) {
 }
 
 
-export function pieceRoles(variant: string) {
+export function pieceRoles(variant: string, color: Color) {
     switch (variant) {
     case "grandhouse":
     case "grand":
@@ -182,6 +185,8 @@ export function pieceRoles(variant: string) {
         return ["king", "silver", "met", "knight", "rook", "pawn", "ferz"];
     case "sittuyin":
         return ["king", "ferz", "silver", "knight", "rook", "pawn"];
+    case "orda":
+        return (color === 'black') ? ["king", "yurt", "lancer", "archbishop", "hawk", "pawn"] : ["king", "queen", "rook", "bishop", "knight", "pawn"];
     default:
         return ["king", "queen", "rook", "bishop", "knight", "pawn"];
     }
@@ -274,6 +279,8 @@ export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key
         case "rook": return ["prook", "rook"];
         case "ferz": return ["pferz", "ferz"];
         }
+    case "orda":
+        return ["queen", "hawk"];
 default:
         return ["queen", "knight", "rook", "bishop"];
     }
@@ -328,7 +335,7 @@ export function needPockets(variant: string) {
 }
 
 export function hasEp(variant: string) {
-    return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako';
+    return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako' || variant === 'orda';
 }
 
 function diff(a: number, b:number):number {

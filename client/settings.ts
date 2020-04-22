@@ -44,6 +44,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 10;
     } else if (cssFile.includes("janggi")) {
         cssLinkIndex = 11;
+    } else if (cssFile.includes("orda")) {
+        cssLinkIndex = 12;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

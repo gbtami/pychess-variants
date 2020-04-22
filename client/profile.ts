@@ -63,7 +63,7 @@ export function result(variant, status, result) {
         text = 'Unknown reason';
         break;
     case 12:
-        text = 'Point counting';
+        text = (variant === 'orda') ? 'Campmate' : 'Point counting';
         break;
     default:
         text = '*';

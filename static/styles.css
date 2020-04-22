@@ -161,9 +161,6 @@
 .icon-capablanca:before {
   content: "\50";
 }
-.icon-sittuyin:before {
-  content: "\52";
-}
 .icon-placement:before {
   content: "\53";
 }
@@ -266,12 +263,27 @@
 .icon-check:before {
   content: "\3f";
 }
-.icon-standardchess-1:before {
+.icon-xiangqi2:before {
+  content: "\38";
+}
+.icon-kyotoshogi:before {
+  content: "\29";
+}
+.icon-janggi:before {
+  content: "\3d";
+}
+.icon-makruk:before {
   content: "\51";
+}
+.icon-minishogi:before {
+  content: "\36";
+}
+.icon-sittuyin-1:before {
+  content: "\3a";
 }
 .icon-makpong:before {
   content: "\4f";
 }
 .icon-orda:before {
-  content: "\36";
+  content: "\52";
 }

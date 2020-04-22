@@ -452,7 +452,7 @@ class Game:
                 self.status = STALEMATE
                 print(self.result, "stalemate")
 
-        if self.variant == "janggi":
+        if self.variant == "janggi" or self.variant == "orda":
             immediate_end, game_result_value = self.board.is_immediate_game_end()
             if immediate_end:
                 self.status = VARIANTEND
@@ -460,7 +460,7 @@ class Game:
                     self.result = "1-0" if self.board.color == BLACK else "0-1"
                 else:
                     self.result = "0-1" if self.board.color == BLACK else "1-0"
-                print(self.result, "point counting")
+                print(self.result, "variant end")
 
         if self.board.ply > MAX_PLY:
             self.status = DRAW

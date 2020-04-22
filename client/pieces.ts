@@ -19,7 +19,7 @@ type Position = 'top' | 'bottom';
 const eventNames = ['mousedown', 'touchstart'];
 
 export function piecesView(ctrl: EditorController, color: Color, position: Position) {
-  const roles = pieceRoles(ctrl.variant);
+  const roles = pieceRoles(ctrl.variant, color);
   return h('div.pocket.' + position + '.editor', {
     style: {'--pieces': String(roles.length), '--files': String(dimensions[VARIANTS[ctrl.variant].geom].width)},
     class: { usable: true },

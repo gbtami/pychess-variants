@@ -39,7 +39,8 @@ VARIANTS = (
     "minishogi",
     "kyotoshogi",
     "minixiangqi",
-    "shogun"
+    "shogun",
+    "orda",
 )
 
 VARIANT_ICONS = {
@@ -71,6 +72,7 @@ VARIANT_ICONS = {
     "kyotoshogi": ")",
     "chess": "M",
     "shogun": "-",
+    "orda": "R",
 }
 
 VARIANT_960_TO_PGN = {
