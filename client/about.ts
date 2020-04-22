@@ -22,7 +22,6 @@ export function aboutView(model): VNode[] {
                         "Currently supported games are ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/makruk'}}, 'Makruk'),
                         ", ",
-                        "Currently supported games are ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/makpong'}}, 'Makpong'),
                         ", ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/cambodian'}}, 'Ouk Chatrang'),

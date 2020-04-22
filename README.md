@@ -6,6 +6,7 @@ PyChess-Variants is a free, open-source chess server designed to play chess vari
 Currently supported games are:
 
 - [Makruk](https://www.pychess.org/variant/makruk)
+- [Makpong](https://www.pychess.org/variant/makpong)
 - [Ouk Chatrang](https://www.pychess.org/variant/cambodian)
 - [Sittuyin](https://www.pychess.org/variant/sittuyin)
 - [Shogi](https://www.pychess.org/variant/shogi)
