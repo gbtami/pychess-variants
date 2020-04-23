@@ -18,6 +18,7 @@ get_routes = (
     ("/", index),
     ("/about", index),
     ("/players", index),
+    ("/allplayers", index),
     ("/games", index),
     ("/tv", index),
     ("/editor/{variant}", index),

@@ -1,0 +1,15 @@
+{% extends "template.html" %}
+{% block content %}
+<main class="allplayers">
+    {% for user in allusers %}
+        <div class="player-data">
+        <player>
+            <a class="user-link" href="{{ home }}/@/{{ user.username }}"><player-title>{{ user.title }}</player-title> {{ user.username }}</a>
+        </player>
+        </div>
+    {% endfor %}
+</main>
+{% endblock %}
+{% block js %}
+    <script src="/static/pychess-utils.js"></script>
+{% endblock %}

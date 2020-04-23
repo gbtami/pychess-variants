@@ -85,6 +85,8 @@ async def index(request):
         view = "variant"
     elif request.path == "/players":
         view = "players"
+    elif request.path == "/allplayers":
+        view = "allplayers"
     elif request.path == "/games":
         view = "games"
     elif request.path == "/patron":
@@ -142,6 +144,8 @@ async def index(request):
             template = request.app["jinja"].get_template("profile.html")
     elif view == "players":
         template = request.app["jinja"].get_template("players.html")
+    elif view == "allplayers":
+        template = request.app["jinja"].get_template("allplayers.html")
     elif view == "variant":
         template = request.app["jinja"].get_template("variant.html")
     elif view == "patron":
@@ -180,15 +184,18 @@ async def index(request):
 
     if view == "players":
         online_users = [u for u in users.values() if u.online(user.username) and not u.anon]
-        offline_users = (u for u in users.values() if not u.online(user.username) and not u.anon)
+        # offline_users = (u for u in users.values() if not u.online(user.username) and not u.anon)
         anon_online = sum((1 for u in users.values() if u.anon and u.online(user.username)))
 
         render["icons"] = VARIANT_ICONS
         render["users"] = users
         render["online_users"] = online_users
         render["anon_online"] = anon_online
-        render["offline_users"] = offline_users
+        # render["offline_users"] = offline_users
         render["highscore"] = request.app["highscore"]
+    elif view == "allplayers":
+        allusers = [u for u in users.values() if not u.anon]
+        render["allusers"] = allusers
 
     if gameId is not None:
         render["gameid"] = gameId

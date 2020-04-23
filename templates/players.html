@@ -31,25 +31,7 @@
             {% endif %}
         </tbody>
     </table>
-    <table id="players">
-        <thead>
-            <tr>
-                <th>Offline</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in offline_users %}
-            <tr>
-                <td class="player-data">
-                <i-side class="icon icon-offline"></i-side>
-                <player>
-                    <a class="user-link" href="{{ home }}/@/{{ user.username }}"><player-title>{{ user.title }}</player-title> {{ user.username }}</a>
-                </player>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <a class="allplayers-button" href="{{ home }}/allplayers">All players</a>
 </main>
 <aside class="sidebar-first">
     <div class="highscore">
