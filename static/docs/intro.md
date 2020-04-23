@@ -46,6 +46,8 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Shogun Chess** - Pieces promote and can be dropped, similar to Shogi
 
+**Orda Chess** - Asymmetric variant where one army has pieces that move like knights but capture differently
+
 **Capablanca 960** - Capablanca with Chess 960 rules
 
 **Capahouse** - Capablanca with Crazyhouse drop rules
