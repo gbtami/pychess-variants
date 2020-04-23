@@ -186,7 +186,7 @@ export function pieceRoles(variant: string, color: Color) {
     case "sittuyin":
         return ["king", "ferz", "silver", "knight", "rook", "pawn"];
     case "orda":
-        return (color === 'black') ? ["king", "yurt", "lancer", "archbishop", "hawk", "pawn"] : ["king", "queen", "rook", "bishop", "knight", "pawn"];
+        return (color === 'black') ? ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"] : ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"];
     default:
         return ["king", "queen", "rook", "bishop", "knight", "pawn"];
     }
@@ -510,7 +510,7 @@ export function validFen(variant, fen) {
 
     // Allowed characters in placement part
     const placement = parts[0];
-    var good = start[0] + "~+0123456789[]";
+    const good = start[0] + ((variant === "orda") ? "Hq" : "") + "~+0123456789[]";
     const alien = (element) => {return good.indexOf(element) === -1;}
     if (parts[0].split('').some(alien)) return false;
 
