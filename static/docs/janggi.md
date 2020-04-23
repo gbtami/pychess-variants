@@ -89,7 +89,11 @@ The **Pawn** (also called by its Chinese name, the **soldier**) moves and captur
 
 ## Notation
 
-Algebraic notation is not implemented at this time.
+Janggi notation works much differently than other variants. First of all, coordinate numbering. From blue's perspective, ranks are numbered from 1 to 10 going down from top to botttom. However, the 10th rank is called 0. Files are numbered 1 to 9 from left to right. Describing a piece location is the opposite of chess. A location is described by *rank* then *file* (in all other variants, it's file, then rank). So for example, the blue chariot in the bottom left corner is at **01**. The intersection above it is **91**. The blue king is located at **95**.
+
+Describing moves does not have a standardized international version. We use a modified version of the Korean way. In Korean, the syntax is (starting location)(piece name in Korean)(ending location). Here on Pychess, we use (English piece abbreviation)(starting location)-(ending location). Like in chess, captures are denoted with x instead of -, check has a + at the end, and checkmate is #.
+
+For example, the left chariot moving three spaces up is denoted by R01-71. "R" refers to the chariot. For piece abbreviations, see below.
 
 ### Abbreviations
 
