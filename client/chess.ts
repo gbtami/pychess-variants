@@ -620,6 +620,9 @@ export const roleToSan = {
     lance: 'L',
 };
 
+// Use cases
+// 1. determine piece role from analysis suggested (SAN) drop moves
+// 2. determine promotion piece roles from possible (UCI) promotion moves in grand, grandhouse, shako
 export const sanToRole = {
     P: 'pawn',
     N: 'knight',

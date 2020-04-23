@@ -14,7 +14,7 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
+import { enabled_variants, validFen, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
 import { sound } from './sound';
 
 
@@ -81,7 +81,7 @@ class LobbyController {
             document.getElementById('id01')!.style.display='block';
         }
 
-        var e = document.getElementById("seek-fen") as HTMLInputElement;
+        var e = document.getElementById("fen") as HTMLInputElement;
         if (this.model["fen"] !== "") {
             e.value = this.model["fen"];
         }
@@ -158,7 +158,7 @@ class LobbyController {
             seekColor = color;
         }
 
-        e = document.getElementById('seek-fen') as HTMLInputElement;
+        e = document.getElementById('fen') as HTMLInputElement;
         const fen = e.value;
 
         let handicap;
@@ -219,7 +219,7 @@ class LobbyController {
             let e;
             e = document.getElementById('handicap') as HTMLSelectElement;
             const handicap = e.options[e.selectedIndex].value;
-            e = document.getElementById('seek-fen') as HTMLSelectElement;
+            e = document.getElementById('fen') as HTMLSelectElement;
             e!.value = SHOGI_HANDICAP_FEN[handicap];
         }
 
@@ -267,6 +267,20 @@ class LobbyController {
             document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
         }
 
+        const validateFen = () => {
+            let e;
+            e = document.getElementById('variant') as HTMLSelectElement;
+            const variant = e.options[e.selectedIndex].value;
+            e = document.getElementById('fen') as HTMLInputElement;
+            return validFen(variant, e.value);
+        }
+
+        const setInvalid = (invalid) => {
+            const e = document.getElementById('fen') as HTMLInputElement;
+            e.setCustomValidity(invalid ? 'Invalid FEN' : '');
+            document.getElementById('color-button-group')!.style.display = (invalid) ? 'none' : 'block';
+        }
+
         var vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
         if (this.model["variant"] !== "") vIdx = enabled_variants.sort().indexOf(this.model["variant"]);
 
@@ -302,7 +316,10 @@ class LobbyController {
                         hook: {insert: () => setVariant() },
                         }, enabled_variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variantName(variant, 0)))),
                 ]),
-                h('input#seek-fen', { props: {name: 'fen', placeholder: 'Paste the FEN text here' + ((this.model['anon'] === 'True') ? ' (must be signed in)' : ''),  autocomplete: "off"} }),
+                h('input#fen', {
+                    props: {name: 'fen', placeholder: 'Paste the FEN text here' + ((this.model['anon'] === 'True') ? ' (must be signed in)' : ''),  autocomplete: "off"},
+                    on: { input: () => setInvalid(!validateFen()) },
+                }),
                 h('div#handicap-block', [
                     h('label', { attrs: {for: "handicap"} }, "Handicap"),
                     h('select#handicap', {
