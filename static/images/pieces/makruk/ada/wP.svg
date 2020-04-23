@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="bia_w.svg"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <defs
      id="defs2">
     <linearGradient
@@ -123,6 +123,38 @@
        r="27.252082"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(-6.4768257e-6,-1.1165049,1.1165049,-1.9920658e-7,-230.80306,302.54857)" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter13481">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood13471" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite13473" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1"
+         result="blur"
+         id="feGaussianBlur13475" />
+      <feOffset
+         dx="1.5"
+         dy="1.5"
+         result="offset"
+         id="feOffset13477" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite13479" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -132,16 +164,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="162.17617"
+     inkscape:cx="145.7476"
      inkscape:cy="191.04546"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="1854"
-     inkscape:window-height="941"
-     inkscape:window-x="4"
-     inkscape:window-y="48"
+     inkscape:window-width="1911"
+     inkscape:window-height="1027"
+     inkscape:window-x="90"
+     inkscape:window-y="46"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -165,7 +197,7 @@
      id="layer1"
      transform="translate(0,-201.74997)">
     <path
-       style="fill:url(#radialGradient1545);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:url(#radialGradient1545);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;filter:url(#filter13481)"
        id="path3752"
        sodipodi:type="arc"
        sodipodi:cx="47.625"

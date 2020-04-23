@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="bia_b.svg"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    enable-background="new">
   <defs
      id="defs2">
@@ -124,6 +124,38 @@
        r="27.252082"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(-6.4768257e-6,-1.1165049,1.1165049,-1.9920658e-7,-230.80306,302.54857)" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter1649">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood1639" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite1641" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1"
+         result="blur"
+         id="feGaussianBlur1643" />
+      <feOffset
+         dx="1.5"
+         dy="1.5"
+         result="offset"
+         id="feOffset1645" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite1647" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -133,14 +165,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="162.35474"
+     inkscape:cx="145.92617"
      inkscape:cy="191.04546"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="1896"
-     inkscape:window-height="1027"
+     inkscape:window-width="1911"
+     inkscape:window-height="1026"
      inkscape:window-x="4"
      inkscape:window-y="48"
      inkscape:window-maximized="0">
@@ -167,7 +199,7 @@
      transform="translate(0,-201.74997)"
      style="">
     <path
-       style="fill:url(#radialGradient1545);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:url(#radialGradient1545);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;filter:url(#filter1649)"
        id="path3752"
        sodipodi:type="arc"
        sodipodi:cx="47.625"
