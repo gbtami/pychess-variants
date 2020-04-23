@@ -510,7 +510,7 @@ export function validFen(variant, fen) {
 
     // Allowed characters in placement part
     const placement = parts[0];
-    const good = start[0] + ((variant === "orda") ? "Hq" : "") + "~+0123456789[]";
+    var good = start[0] + ((variant === "orda") ? "Hq" : "") + "~+0123456789[]";
     const alien = (element) => {return good.indexOf(element) === -1;}
     if (parts[0].split('').some(alien)) return false;
 
