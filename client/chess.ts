@@ -57,7 +57,7 @@ export const variantTooltip = {
     gothic: "Like Capablanca Chess but with a different starting setup",
     shako: "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board",
     shogun: "Pieces promote and can be dropped, similar to Shogi",
-    orda: "Asymmetric chess with two different armies"
+    orda: "Asymmetric variant where one army has pieces that move like knights but capture differently"
 }
 
 export const VARIANTS = {
