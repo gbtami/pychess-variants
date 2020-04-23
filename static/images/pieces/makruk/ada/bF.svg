@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="biangai_b.svg"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <defs
      id="defs2">
     <linearGradient
@@ -69,6 +69,70 @@
        r="27.516665"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.6398958e-6,-1.5384617,1.5384618,-3.634101e-8,-336.02894,322.64422)" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter888">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood878" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="out"
+         result="composite1"
+         id="feComposite880" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="3"
+         result="blur"
+         id="feGaussianBlur882" />
+      <feOffset
+         dx="1.5"
+         dy="1.5"
+         result="offset"
+         id="feOffset884" />
+      <feComposite
+         in="offset"
+         in2="SourceGraphic"
+         operator="atop"
+         result="composite2"
+         id="feComposite886" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter924">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood914" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite916" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1"
+         result="blur"
+         id="feGaussianBlur918" />
+      <feOffset
+         dx="1.5"
+         dy="1.5"
+         result="offset"
+         id="feOffset920" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite922" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -78,14 +142,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="52.187243"
+     inkscape:cx="53.197396"
      inkscape:cy="206.10625"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="1906"
-     inkscape:window-height="977"
+     inkscape:window-width="1839"
+     inkscape:window-height="975"
      inkscape:window-x="4"
      inkscape:window-y="48"
      inkscape:window-maximized="0">
@@ -111,7 +175,7 @@
      id="layer1"
      transform="translate(0,-201.74997)">
     <path
-       style="fill:url(#radialGradient1478);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:url(#radialGradient1478);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;filter:url(#filter924)"
        id="path4194"
        sodipodi:type="arc"
        sodipodi:cx="47.625"
@@ -123,7 +187,7 @@
        sodipodi:open="true"
        d="M 21.166668,249.37497 A 26.458332,26.458332 0 0 1 47.62327,222.91664 26.458332,26.458332 0 0 1 74.083332,249.37151 26.458332,26.458332 0 0 1 47.630194,275.8333 26.458332,26.458332 0 0 1 21.166669,249.3819" />
     <path
-       style="fill:url(#radialGradient1476);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:url(#radialGradient1476);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;filter:url(#filter888)"
        id="path5378"
        sodipodi:type="arc"
        sodipodi:cx="47.625"

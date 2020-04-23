@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="biangai_r.svg"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <defs
      id="defs2">
     <linearGradient
@@ -69,6 +69,70 @@
        r="27.516665"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.6398958e-6,-1.5384617,1.5384618,-3.634101e-8,-336.02894,322.64422)" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter2973">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood2963" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite2965" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1"
+         result="blur"
+         id="feGaussianBlur2967" />
+      <feOffset
+         dx="1.5"
+         dy="1.5"
+         result="offset"
+         id="feOffset2969" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite2971" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter2985">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood2975" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="out"
+         result="composite1"
+         id="feComposite2977" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="3"
+         result="blur"
+         id="feGaussianBlur2979" />
+      <feOffset
+         dx="1.5"
+         dy="1.5"
+         result="offset"
+         id="feOffset2981" />
+      <feComposite
+         in="offset"
+         in2="SourceGraphic"
+         operator="atop"
+         result="composite2"
+         id="feComposite2983" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -78,14 +142,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="135.45027"
+     inkscape:cx="102.59313"
      inkscape:cy="133.16685"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="1551"
-     inkscape:window-height="927"
+     inkscape:window-width="1621"
+     inkscape:window-height="995"
      inkscape:window-x="4"
      inkscape:window-y="48"
      inkscape:window-maximized="0">
@@ -101,7 +165,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -111,7 +175,7 @@
      id="layer1"
      transform="translate(0,-201.74997)">
     <path
-       style="fill:url(#radialGradient1478);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:url(#radialGradient1478);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;filter:url(#filter2973)"
        id="path4194"
        sodipodi:type="arc"
        sodipodi:cx="47.625"
@@ -123,7 +187,7 @@
        sodipodi:open="true"
        d="M 21.166668,249.37497 A 26.458332,26.458332 0 0 1 47.62327,222.91664 26.458332,26.458332 0 0 1 74.083332,249.37151 26.458332,26.458332 0 0 1 47.630194,275.8333 26.458332,26.458332 0 0 1 21.166669,249.3819" />
     <path
-       style="fill:url(#radialGradient1476);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:url(#radialGradient1476);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;filter:url(#filter2985)"
        id="path5378"
        sodipodi:type="arc"
        sodipodi:cx="47.625"

@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="bia_r.svg"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <defs
      id="defs2">
     <linearGradient
@@ -123,6 +123,38 @@
        r="27.252082"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(-6.4768257e-6,-1.1165049,1.1165049,-1.9920658e-7,-230.80306,302.54857)" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter2320">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood2310" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite2312" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1"
+         result="blur"
+         id="feGaussianBlur2314" />
+      <feOffset
+         dx="1.5"
+         dy="1.5"
+         result="offset"
+         id="feOffset2316" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite2318" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -132,14 +164,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="144.99408"
+     inkscape:cx="128.56551"
      inkscape:cy="190.61404"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="1884"
-     inkscape:window-height="971"
+     inkscape:window-width="1852"
+     inkscape:window-height="1027"
      inkscape:window-x="4"
      inkscape:window-y="48"
      inkscape:window-maximized="0">
@@ -155,7 +187,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -165,7 +197,7 @@
      id="layer1"
      transform="translate(0,-201.74997)">
     <path
-       style="fill:url(#radialGradient1545);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:url(#radialGradient1545);stroke:#000000;stroke-width:2.11666667;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1;filter:url(#filter2320)"
        id="path3752"
        sodipodi:type="arc"
        sodipodi:cx="47.625"
