@@ -23,6 +23,7 @@ Currently supported games are:
 - [Grand](https://www.pychess.org/variant/grand)
 - [Shako](https://www.pychess.org/variant/shako)
 - [Shogun](https://www.pychess.org/variant/shogun)
+- [Orda](https://www.pychess.org/variant/orda)
 - [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variant/shouse)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variant/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variant/grandhouse)
