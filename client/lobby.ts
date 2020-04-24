@@ -272,7 +272,7 @@ class LobbyController {
             e = document.getElementById('variant') as HTMLSelectElement;
             const variant = e.options[e.selectedIndex].value;
             e = document.getElementById('fen') as HTMLInputElement;
-            return validFen(variant, e.value);
+            return e.value === "" || validFen(variant, e.value);
         }
 
         const setInvalid = (invalid) => {
