@@ -24,6 +24,7 @@
     --clock-running-color: Black;
     --blue-point: RoyalBlue;
     --red-point: Crimson;
+    --gold-point: GoldenRod;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -427,6 +428,10 @@ i-side.icon-white::before, i-side.icon-black::before {
 .icon-red:before {
   content: "\62";
   color: var(--red-point);
+}
+.icon-gold:before {
+  content: "\62";
+  color: var(--gold-point);
 }
 .icon-online::before {
   color: var(--good);

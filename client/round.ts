@@ -21,6 +21,7 @@ export function roundView(model): VNode[] {
     const shogi =  model["variant"].endsWith('shogi');
     const janggi = model["variant"] === 'janggi';
     const redfirst = model["variant"].endsWith('xiangqi') || model["variant"] === 'sittuyin';
+    const orda = model["variant"] === 'orda';
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
@@ -37,7 +38,13 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                     h('div.player-data', [
-                        h('i-side', {class: {"icon": true, "icon-red": redfirst, "icon-blue": janggi, "icon-white": (shogi) ? darkMode : !darkMode, "icon-black": (shogi) ? !darkMode : darkMode} } ),
+                        h('i-side', {class: {
+                            "icon": true,
+                            "icon-red": redfirst,
+                            "icon-blue": janggi,
+                            "icon-white": (shogi) ? darkMode : !darkMode,
+                            "icon-black": (shogi) ? !darkMode : darkMode
+                        }}),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, [
                                 h('player-title', " " + model["wtitle"] + " "),
@@ -47,7 +54,13 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                     h('div.player-data', [
-                        h('i-side', {class: {"icon": true, "icon-red": janggi, "icon-black": (shogi) ? darkMode : !darkMode, "icon-white": (shogi) ? !darkMode : darkMode} } ),
+                        h('i-side', {class: {
+                            "icon": true,
+                            "icon-red": janggi,
+                            "icon-gold": orda,
+                            "icon-black": (shogi) ? darkMode : !darkMode,
+                            "icon-white": (shogi) ? !darkMode : darkMode
+                        }}),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, [
                                 h('player-title', " " + model["btitle"] + " "),

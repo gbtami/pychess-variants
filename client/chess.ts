@@ -137,7 +137,18 @@ export function firstColor(variant) {
 }
 
 export function secondColor(variant) {
-    return (variant.endsWith('shogi')) ? 'White' : (variant === 'janggi') ? 'Red' : 'Black';
+    switch (variant) {
+    case 'shogi':
+    case 'minishogi':
+    case 'kyotoshogi':
+        return 'White';
+    case 'janggi':
+        return 'Red';
+    case 'orda':
+        return 'Gold';
+    default:
+        return 'Black';
+    }
 }
 
 // pocket part of the FEN (including brackets)
