@@ -238,35 +238,55 @@ class LobbyController {
             e = document.getElementById('incrementlabel') as HTMLSelectElement;
             patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? 'Byoyomi' : 'Increment') + ' in seconds:'));
 
-            setInvalid(!validateFen());
+            setStartButton();
         }
 
         const setMinutes = (minutes) => {
-            var min, inc = 0;
+            //var min, inc = 0;
             var el = document.getElementById("minutes") as HTMLElement;
             if (el) el.innerHTML = minutes;
 
-            var e = document.getElementById('min') as HTMLInputElement;
-            if (e) min = parseInt(e.value);
+            //var e = document.getElementById('min') as HTMLInputElement;
+            //if (e) min = parseInt(e.value);
 
-            e = document.getElementById('inc') as HTMLInputElement;
-            if (e) inc = parseInt(e.value);
+            //e = document.getElementById('inc') as HTMLInputElement;
+            //if (e) inc = parseInt(e.value);
 
-            document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
+            //document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
+            setStartButton();
         }
 
         const setIncrement = (increment) => {
-            var min, inc = 0;
+            //var min, inc = 0;
             var el = document.getElementById("increment") as HTMLElement;
             if (el) el.innerHTML = increment;
 
-            var e = document.getElementById('min') as HTMLInputElement;
+            //var e = document.getElementById('min') as HTMLInputElement;
+            //if (e) min = parseInt(e.value);
+
+            //e = document.getElementById('inc') as HTMLInputElement;
+            //if (e) inc = parseInt(e.value);
+
+            //document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
+            setStartButton();
+        }
+
+        const setFen = () => {
+            const e = document.getElementById('fen') as HTMLInputElement;
+            e.setCustomValidity(validateFen() ? '' : 'Invalid FEN');
+            setStartButton();
+        }
+
+        const validateTimeControl = () => {
+            var min, inc = 0;
+            let e;
+            e = document.getElementById('min') as HTMLInputElement;
             if (e) min = parseInt(e.value);
 
             e = document.getElementById('inc') as HTMLInputElement;
             if (e) inc = parseInt(e.value);
 
-            document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
+            return min + inc > 0;
         }
 
         const validateFen = () => {
@@ -277,10 +297,9 @@ class LobbyController {
             return e.value === "" || validFen(variant, e.value);
         }
 
-        const setInvalid = (invalid) => {
-            const e = document.getElementById('fen') as HTMLInputElement;
-            e.setCustomValidity(invalid ? 'Invalid FEN' : '');
-            document.getElementById('color-button-group')!.style.display = (invalid) ? 'none' : 'block';
+        const setStartButton = () => {
+            const valid = validateTimeControl() && validateFen();
+            document.getElementById('color-button-group')!.style.display = (valid) ? 'block' : 'none';
         }
 
         var vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
@@ -320,7 +339,7 @@ class LobbyController {
                 ]),
                 h('input#fen', {
                     props: {name: 'fen', placeholder: 'Paste the FEN text here' + ((this.model['anon'] === 'True') ? ' (must be signed in)' : ''),  autocomplete: "off"},
-                    on: { input: () => setInvalid(!validateFen()) },
+                    on: { input: () => setFen() },
                 }),
                 h('div#handicap-block', [
                     h('label', { attrs: {for: "handicap"} }, "Handicap"),
