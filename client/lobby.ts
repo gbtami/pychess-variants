@@ -238,43 +238,25 @@ class LobbyController {
             e = document.getElementById('incrementlabel') as HTMLSelectElement;
             patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? 'Byoyomi' : 'Increment') + ' in seconds:'));
 
-            setStartButton();
+            setStartButtons();
         }
 
         const setMinutes = (minutes) => {
-            //var min, inc = 0;
             var el = document.getElementById("minutes") as HTMLElement;
             if (el) el.innerHTML = minutes;
-
-            //var e = document.getElementById('min') as HTMLInputElement;
-            //if (e) min = parseInt(e.value);
-
-            //e = document.getElementById('inc') as HTMLInputElement;
-            //if (e) inc = parseInt(e.value);
-
-            //document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
-            setStartButton();
+            setStartButtons();
         }
 
         const setIncrement = (increment) => {
-            //var min, inc = 0;
             var el = document.getElementById("increment") as HTMLElement;
             if (el) el.innerHTML = increment;
-
-            //var e = document.getElementById('min') as HTMLInputElement;
-            //if (e) min = parseInt(e.value);
-
-            //e = document.getElementById('inc') as HTMLInputElement;
-            //if (e) inc = parseInt(e.value);
-
-            //document.getElementById('color-button-group')!.style.display = (min + inc === 0) ? 'none' : 'block';
-            setStartButton();
+            setStartButtons();
         }
 
         const setFen = () => {
             const e = document.getElementById('fen') as HTMLInputElement;
             e.setCustomValidity(validateFen() ? '' : 'Invalid FEN');
-            setStartButton();
+            setStartButtons();
         }
 
         const validateTimeControl = () => {
@@ -297,9 +279,13 @@ class LobbyController {
             return e.value === "" || validFen(variant, e.value);
         }
 
-        const setStartButton = () => {
+        const setStartButtons = () => {
             const valid = validateTimeControl() && validateFen();
-            document.getElementById('color-button-group')!.style.display = (valid) ? 'block' : 'none';
+            const e = document.getElementById('color-button-group') as HTMLElement;
+            if (valid)
+                e.classList.remove("disabled");
+            else
+                e.classList.add("disabled");
         }
 
         var vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
