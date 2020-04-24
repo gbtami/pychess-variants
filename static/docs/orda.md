@@ -91,3 +91,49 @@ For the Kingdom, d4, g3, and b3 are the most common openings in that order.
 
 A major Horde weakness is that the lancers and horse archers cannot sustain a threat on a piece. If you attack a lancer/archer, if they must retreat, they lose their attack. It's important for the Kingdom to take advantage of this.
 
+### Openings
+
+The following is based off an analysis of the first few moves played by Fairy-Stockfish against itself
+
+White first move	| Percent of games (number) | White Win % | Gold Win % | Gold response
+-- | -- | -- | -- | --
+d4 | 38%	(47) | 45% | 38% | Kf7 ~= c5 >> Hb7
+g3	| 24% (30)	| 33% | 43% | Kf7 >> d5
+b3 | 14% (18) | 33% | 44% | Kf7 >> Lc7
+e3 | 11% (14) | 50% | 50% | Kf7 ~50% of the time
+d3 | 6% (8) | 25% | 25% | e5 ~=Kf7
+Nf3 | 3% (4) | 25% | 50% | e5 always
+e4 | 2% (3) | 33% | 67% | d5
+c4 | 1% (1) | 100% | 0% | Kf7
+
+Some particular lines have been also played for multiple games. Here are the four most common. We'll use the name "castle" for any variation where the Horde tucks away the khan to Kf7 as soon as possible. The last moves in parentheses are where variations start to significantly happen.
+
+**Benko's Castle - Double Corner Opening** - Most common opening
+1. g3 Kf7
+2. e4 Kg7
+3. (Bd3 or Nf3) ...
+
+![Benko's Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/BenkoCastle.png)
+
+*Benko's Castle after 2... Kg7*
+
+**Stockfish Defense - Closed Variation**
+1. d4 c5
+2. dxc5 *bxc5*
+3. c4 Kf7
+4. (Nc3) ...
+
+**Stockfish Defense - Open Variation**
+1. d4 c5
+2. dxc5 *dxc5*
+
+**Stockfish Defense - Queenside Push**
+1. d4 c5
+2. *e3* cxd4
+3. exd4 b5
+4. b3 Kf7
+5. c4
+
+![Stockfish Defense Queenside Push](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/QueensidePush.png)
+
+*Stockfish Defense- Queenside Push after 5. c4*
