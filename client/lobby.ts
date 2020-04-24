@@ -237,6 +237,8 @@ class LobbyController {
 
             e = document.getElementById('incrementlabel') as HTMLSelectElement;
             patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? 'Byoyomi' : 'Increment') + ' in seconds:'));
+
+            setInvalid(!validateFen());
         }
 
         const setMinutes = (minutes) => {
