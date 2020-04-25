@@ -108,7 +108,7 @@ async def round_socket_handler(request):
                     elif data["type"] == "board":
                         game = await load_game(request.app, data["gameId"])
                         if game.variant == "janggi":
-                            if game.bsetup or game.wsetup:
+                            if (game.bsetup or game.wsetup) and game.status <= STARTED:
                                 if game.bsetup:
                                     await ws.send_json({"type": "setup", "color": "black", "fen": game.board.initial_fen})
                                 elif game.wsetup:

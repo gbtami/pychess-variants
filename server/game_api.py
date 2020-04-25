@@ -138,7 +138,10 @@ async def export(request):
 
         async for doc in cursor:
             try:
-                game_list.append(pgn(doc))
+                # log.info("%s %s %s" % (doc["d"].strftime("%Y.%m.%d"), doc["_id"], C2V[doc["v"]]))
+                pgn_text = pgn(doc)
+                if pgn_text is not None:
+                    game_list.append(pgn_text)
             except Exception:
                 log.error("Failed to load game %s %s %s (early games may contain invalid moves)" % (doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d")))
                 continue

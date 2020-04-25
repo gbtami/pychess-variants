@@ -90,11 +90,14 @@ async def load_game(app, game_id):
     if usi_format:
         wplayer, bplayer = bplayer, wplayer
         if initial_fen:
-            print("load_game() USI SFEN was:", initial_fen)
+            # print("load_game() USI SFEN was:", initial_fen)
             parts = initial_fen.split()
-            pockets = "[%s]" % parts[2]
-            initial_fen = parts[0] + pockets + (" w" if parts[1] == " b" else " w") + " 0 " + parts[3]
-            print("   changed to:", initial_fen)
+            if len(parts) > 3 and parts[1] in "wb":
+                pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
+                initial_fen = parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+            else:
+                initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
+            # print("   changed to:", initial_fen)
 
     game = Game(
         app, game_id, variant, initial_fen, wplayer, bplayer,
@@ -113,11 +116,11 @@ async def load_game(app, game_id):
 
     if usi_format and variant == "shogi":
         mirror = mirror9
-        mlist = list(map(mirror, mlist))
+        mlist = map(mirror, mlist)
 
     elif usi_format and (variant == "minishogi" or variant == "kyotoshogi"):
         mirror = mirror5
-        mlist = list(map(mirror, mlist))
+        mlist = map(mirror, mlist)
 
     elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako" or variant == "janggi":
         mlist = map(zero2grand, mlist)
@@ -152,7 +155,7 @@ async def load_game(app, game_id):
                     print("IndexError", ply, move, san)
 
         except Exception:
-            log.exception("ERROR: Exception in load_game() %s %s %s %s" % (game_id, variant, doc.get("if"), mlist))
+            log.exception("ERROR: Exception in load_game() %s %s %s %s %s" % (game_id, variant, doc.get("if"), move, list(mlist)))
             break
 
     if len(game.steps) > 1:
@@ -342,13 +345,47 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
 def pgn(doc):
     variant = C2V[doc["v"]]
     mlist = decode_moves(doc["m"], variant)
+    if len(mlist) == 0:
+        return None
+
     chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 
-    if variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako" or variant == "janggi":
+    initial_fen = doc.get("if")
+    usi_format = variant.endswith("shogi") and doc.get("uci") is None
+
+    if usi_format:
+        # wplayer, bplayer = bplayer, wplayer
+        if initial_fen:
+            # print("load_game() USI SFEN was:", initial_fen)
+            parts = initial_fen.split()
+            if len(parts) > 3 and parts[1] in "wb":
+                pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
+                initial_fen = parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+            else:
+                initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
+            # print("   changed to:", initial_fen)
+
+    if usi_format and variant == "shogi":
+        mirror = mirror9
+        mlist = list(map(mirror, mlist))
+
+    elif usi_format and (variant == "minishogi" or variant == "kyotoshogi"):
+        mirror = mirror5
+        mlist = list(map(mirror, mlist))
+
+    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako" or variant == "janggi":
         mlist = list(map(zero2grand, mlist))
 
-    fen = doc["if"] if "if" in doc else sf.start_fen(variant)
-    mlist = sf.get_san_moves(variant, fen, mlist, chess960)
+    fen = initial_fen if initial_fen is not None else sf.start_fen(variant)
+    # print(variant, fen, mlist)
+    try:
+        mlist = sf.get_san_moves(variant, fen, mlist, chess960)
+    except Exception:
+        try:
+            mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960)
+        except Exception:
+            log.error("Movelist contains invalid move %s" % mlist)
+            mlist = mlist[0]
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
     no_setup = fen == STANDARD_FEN and not chess960
