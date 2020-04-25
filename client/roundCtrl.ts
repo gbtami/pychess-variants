@@ -375,6 +375,8 @@ export default class RoundController {
             }
         }
         if (passKey !== 'z0') {
+            // prevent calling pass() again by selectSquare() -> onSelect()
+            this.chessground.state.movable.dests = undefined;
             this.chessground.selectSquare(passKey as Key);
             sound.move();
             this.sendMove(passKey, passKey, '');
@@ -409,13 +411,13 @@ export default class RoundController {
                 right = right.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
             }
             parts[rank] = left + '1' + right;
-            this.setupFen = parts.join('/');
+            this.setupFen = parts.join('/') + ' w - - 0 1' ;
             this.chessground.set({fen: this.setupFen});
         }
 
         const sendSetup = () => {
             patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#empty'));
-            this.doSend({ type: "setup", gameId: this.model["gameId"], color: this.mycolor, fen: this.setupFen + ' w - - 0 1' });
+            this.doSend({ type: "setup", gameId: this.model["gameId"], color: this.mycolor, fen: this.setupFen });
         }
 
         const leftSide = (this.mycolor === 'white') ? -1 : 1;

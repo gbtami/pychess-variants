@@ -311,9 +311,9 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
     if not invalid_move:
         board_response = game.get_board(full=game.board.ply == 1)
 
-    if not user.bot:
-        ws = user.game_sockets[gameId]
-        await ws.send_json(board_response)
+        if not user.bot:
+            ws = user.game_sockets[gameId]
+            await ws.send_json(board_response)
 
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
