@@ -109,12 +109,8 @@ export default class AnalysisController {
             onerror: e => console.log('Error:', e),
             };
 
-        try {
-            this.sock = new Sockette("ws://" + location.host + "/wsr", opts);
-        }
-        catch(err) {
-            this.sock = new Sockette("wss://" + location.host + "/wsr", opts);
-        }
+        const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
+        this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
         this.model = model;
         this.variant = model["variant"] as string;

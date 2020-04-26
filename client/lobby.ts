@@ -54,12 +54,9 @@ class LobbyController {
             onclose: e => {console.log('Closed!', e);},
             onerror: e => console.log('Error:', e),
             };
-        try {
-            this.sock = new Sockette("ws://" + location.host + "/wsl", opts);
-        }
-        catch(err) {
-            this.sock = new Sockette("wss://" + location.host + "/wsl", opts);
-        }
+
+        const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
+        this.sock = new Sockette(ws + location.host + "/wsl", opts);
 
         // get seeks when we are coming back after a game
         if (this._ws.readyState === 1) {
