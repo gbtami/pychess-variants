@@ -68,7 +68,7 @@ Kingdom piece	| Value (Early / Late) | Horde piece | Value (Early / Late)
 Pawn | 120 / 213	| Pawn | 120 / 213
 Queen | 2538 / 2682	| Yurt | 630 / 630
 Bishop | 825 / 915	| Horse Archer	| 1100 / 1200
-Knight | 781 / 854	| Kheshig | 1600 / 1700
+Knight | 781 / 854	| Kheshig | 1800 / 1900
 Rook | 1276 / 1380	| Lancer | 1050 / 1250
 
 For those who want a more simplified approach, this table may be an approximation.
@@ -80,8 +80,6 @@ Queen	| 9	| Yurt | 2
 Bishop | 3 | Horse Archer | 4
 Knight | 3 | Kheshig | 7
 Rook | 5 | Lancer | 4
-
-As a whole, the Horde army is weaker than the Kingdom in value (based on Stockfish valuation). However, the Horde also starts with pawns in the third rank, which balances the material.
 
 ## Strategy
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
