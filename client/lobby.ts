@@ -265,7 +265,7 @@ class LobbyController {
             e = document.getElementById('inc') as HTMLInputElement;
             if (e) inc = parseInt(e.value);
 
-            return min + inc > 0;
+            return min + inc > ((this.challengeAI) ? 4 : 0);
         }
 
         const validateFen = () => {
