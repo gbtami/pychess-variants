@@ -462,6 +462,19 @@ async def round_socket_handler(request):
                         if gameId != data["gameId"] and gameId is not None:
                             response = {"type": "updateTV", "gameId": gameId}
                             await ws.send_json(response)
+
+                    elif data["type"] == "count":
+                        gameId = data["gameId"]
+                        game = await load_game(request.app, gameId)
+                        if data["mode"] == "start":
+                            await game.start_count()
+                            response = {"type": "count", "message": "Board's honor counting started", "room": "player", "user": "" }
+                            await ws.send_json(response)
+                        elif data["mode"] == "stop":
+                            await game.stop_count()
+                            response = {"type": "count", "message": "Board's honor counting stopped", "room": "player", "user": "" }
+                            await ws.send_json(response)
+
             else:
                 log.debug("type(msg.data) != str %s" % msg)
         elif msg.type == aiohttp.WSMsgType.ERROR:

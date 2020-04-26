@@ -227,6 +227,11 @@ export default class AnalysisController {
 
         this.vpv = document.getElementById('pv') as HTMLElement;
 
+        if (this.variant === 'makruk' || this.variant === 'makpong' || this.variant === 'cambodian' || this.variant === 'sittuyin') {
+            (document.getElementById('count-white') as HTMLElement).style.textAlign = 'center';
+            (document.getElementById('count-black') as HTMLElement).style.textAlign = 'center';
+        }
+
         if (this.variant === 'janggi') {
             (document.getElementById('janggi-point-cho') as HTMLElement).style.textAlign = 'right';
             (document.getElementById('janggi-point-han') as HTMLElement).style.textAlign = 'left';
@@ -447,7 +452,7 @@ export default class AnalysisController {
         updatePockets(this, this.vpocket0, this.vpocket1);
 
         if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
-            updateCount(step.fen);
+            updateCount(step.fen, document.getElementById('count-white'), document.getElementById('count-black'));
         }
 
         if (this.variant === "janggi") {

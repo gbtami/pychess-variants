@@ -730,15 +730,11 @@ select, input {
   padding-bottom: 12px;
 }
 
-#count {
+#count-white, #count-black {
   font-family: "Roboto Mono", "Roboto";
-  font-size: 30px;
-  text-align: center;
-  background-color: var(--bg-color1);
-  box-shadow: var(--base-shadow);
-  margin-bottom: 15px;
-  margin-left: 50px;
-  margin-right: 50px;
+  font-size: 50px;
+  text-align: right;
+  padding-right: 10px;
 }
 
 #janggi-points {

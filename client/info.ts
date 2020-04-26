@@ -8,14 +8,23 @@ import {getCounting, getJanggiPoints} from './chess';
 const patch = init([klass, attributes, properties, listeners]);
 
 // Counting for makruk, cambodian, sittuyin
-export function updateCount(fen) {
-    const [countingPly, countingLimit] = getCounting(fen);
-    var container = document.getElementById('count') as HTMLElement;
-    if (countingLimit > 0) {
-        patch(container, h('div#count', `Counting: ${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
-    } else {
-        patch(container, h('div#count', ''));
+export function updateCount(fen, whiteContainer, blackContainer) {
+    const [countingPly, countingLimit, countingSide, ] = getCounting(fen);
+    if (countingLimit === 0 || countingPly === 0) {
+        whiteContainer = patch(whiteContainer, h('div#count-white', ''));
+        blackContainer = patch(blackContainer, h('div#count-black', ''));
     }
+    else {
+        if (countingSide === 'w') {
+            whiteContainer = patch(whiteContainer, h('div#count-white', `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
+            blackContainer = patch(blackContainer, h('div#count-black', ''));
+        }
+        else {
+            whiteContainer = patch(whiteContainer, h('div#count-white', ''));
+            blackContainer = patch(blackContainer, h('div#count-black', `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
+        }
+    }
+    return [whiteContainer, blackContainer];
 }
 
 // Point count for janggi

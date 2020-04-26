@@ -18,7 +18,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN } from './chess';
+import { variants, hasEp, needPockets, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -55,8 +55,8 @@ export default class RoundController {
     vpocket1: any;
     vplayer0: any;
     vplayer1: any;
-    vpointCho: any;
-    vpointHan: any;
+    vmiscInfoW: any;
+    vmiscInfoB: any;
     vpng: any;
     gameControls: any;
     moveControls: any;
@@ -280,11 +280,20 @@ export default class RoundController {
             chatMessage('', oppName + ' +15 seconds', "roundchat");
         }
 
+        const misc0 = document.getElementById('misc-info0') as HTMLElement;
+        const misc1 = document.getElementById('misc-info1') as HTMLElement;
+
         // initialize janggi point indicator
-        const point0 = document.getElementById('janggi-point0') as HTMLElement;
-        const point1 = document.getElementById('janggi-point1') as HTMLElement;
-        this.vpointCho = this.mycolor === 'white' ? patch(point1, h('div#janggi-point-cho')) : patch(point0, h('div#janggi-point-cho'));
-        this.vpointHan = this.mycolor === 'white' ? patch(point0, h('div#janggi-point-han')) : patch(point1, h('div#janggi-point-han'));
+        if (this.variant === 'janggi') {
+            this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#janggi-point-cho')) : patch(misc0, h('div#janggi-point-cho'));
+            this.vmiscInfoB = this.mycolor === 'white' ? patch(misc0, h('div#janggi-point-han')) : patch(misc1, h('div#janggi-point-han'));
+        }
+
+        // initialize counting indicator
+        if (this.variant === 'makruk' || this.variant === 'makpong' || this.variant === 'cambodian' || this.variant === 'sittuyin') {
+            this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#count-white')) : patch(misc0, h('div#count-white'));
+            this.vmiscInfoB = this.mycolor === 'white' ? patch(misc0, h('div#count-black')) : patch(misc1, h('div#count-black'));
+        }
 
         if (!this.spectator) {
             var container = document.getElementById('clock0') as HTMLElement;
@@ -326,10 +335,15 @@ export default class RoundController {
             const pass = this.variant === 'janggi';
             this.gameControls = patch(container, h('div.btn-controls', [
                 h('button#abort', { on: { click: () => this.abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
+                h('button#count', 'Count'),
                 h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? 'Pass' : "Draw"} }, [(pass) ? 'Pass' : h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
                 h('button#resign', { on: { click: () => this.resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
-                ])
-            );
+            ]));
+
+            const manualCount = !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT') && (this.variant === 'makruk' || this.variant === 'makpong' || this.variant === 'cambodian');
+            if (!manualCount)
+                patch(document.getElementById('count') as HTMLElement, h('div'));
+
         } else {
             this.gameControls = patch(container, h('div'));
         }
@@ -621,11 +635,11 @@ export default class RoundController {
         const myclock = 1 - oppclock;
 
         if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
-            updateCount(msg.fen);
+            this.updateCount(msg.fen);
         }
 
         if (this.variant === "janggi") {
-            [this.vpointCho, this.vpointHan] = updatePoint(msg.fen, this.vpointCho, this.vpointHan);
+            this.updatePoint(msg.fen);
         }
 
         if (this.spectator) {
@@ -722,11 +736,11 @@ export default class RoundController {
         updatePockets(this, this.vpocket0, this.vpocket1);
 
         if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
-            updateCount(step.fen);
+            this.updateCount(step.fen);
         }
 
         if (this.variant === "janggi") {
-            [this.vpointCho, this.vpointHan] = updatePoint(step.fen, this.vpointCho, this.vpointHan);
+            this.updatePoint(step.fen);
         }
 
         if (ply === this.ply + 1) {
@@ -778,6 +792,33 @@ export default class RoundController {
         this.doSend({ type: "move", gameId: this.model["gameId"], move: move, clocks: clocks, ply: this.ply + 1 });
 
         if (!this.abortable) this.clocks[oppclock].start();
+    }
+
+    private startCount = () => {
+        this.doSend({ type: "count", gameId: this.model["gameId"], mode: "start" });
+    }
+
+    private stopCount = () => {
+        this.doSend({ type: "count", gameId: this.model["gameId"], mode: "stop" });
+    }
+
+    private updateCount = (fen) => {
+        [this.vmiscInfoW, this.vmiscInfoB] = updateCount(fen, this.vmiscInfoW, this.vmiscInfoB);
+        var countButton = document.getElementById('count') as HTMLElement;
+        if (countButton) {
+            const [ , , countingSide, countingType ] = getCounting(fen);
+            if (countingType === 'board')
+                if ((countingSide === 'w' && this.mycolor === 'white') || (countingSide === 'b' && this.mycolor === 'black'))
+                    patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: 'Stop counting'} }, 'Stop'));
+                else
+                    patch(countButton, h('button#count', { on: { click: () => this.startCount() }, props: {title: 'Start counting'}, class: { disabled: countingSide !== '' } }, 'Count'));
+            else
+                patch(countButton, h('button#count', { props: {title: 'Start counting'}, class: { disabled: true } }, 'Count'));
+        }
+    }
+
+    private updatePoint = (fen) => {
+        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(fen, this.vmiscInfoW, this.vmiscInfoB);
     }
 
     private onMove = () => {
@@ -1057,6 +1098,10 @@ export default class RoundController {
         }
     }
 
+    private onMsgCount = (msg) => {
+        chatMessage("", msg.message, "roundchat");
+    }
+
     private onMessage = (evt) => {
         // console.log("<+++ onMessage():", evt.data);
         var msg = JSON.parse(evt.data);
@@ -1114,6 +1159,9 @@ export default class RoundController {
                 break;
             case "setup":
                 this.onMsgSetup(msg);
+                break;
+            case "count":
+                this.onMsgCount(msg);
                 break;
         }
     }

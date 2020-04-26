@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 class FairyBoard:
-    def __init__(self, variant, initial_fen="", chess960=False):
+    def __init__(self, variant, initial_fen="", chess960=False, manual_count=False):
         if variant == "shogun":
             sf.set_option("Protocol", "uci")
         self.variant = variant
@@ -31,6 +31,8 @@ class FairyBoard:
         self.fen = self.initial_fen
         if chess960 and initial_fen == self.start_fen(variant):
             self.chess960 = False
+        self.manual_count = manual_count
+        self.count_started = -1 if self.manual_count else 0
 
     def start_fen(self, variant, chess960=False):
         if chess960:
@@ -47,7 +49,7 @@ class FairyBoard:
             self.move_stack.append(move)
             self.ply += 1
             self.color = not self.color
-            self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted)
+            self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted, self.count_started)
         except Exception:
             self.move_stack.pop()
             self.ply -= 1
@@ -206,6 +208,14 @@ class FairyBoard:
         holdings = "[]" if self.variant == "crazyhouse" or self.variant == "capahouse" else ""
         fen = fen + body + fen.upper() + holdings + ' w ' + castl.upper() + castl + ' - 0 1'
         return fen
+
+    def start_count(self):
+        if self.manual_count:
+            self.count_started = self.ply + 1
+
+    def stop_count(self):
+        if self.manual_count:
+            self.count_started = -1
 
 
 if __name__ == '__main__':

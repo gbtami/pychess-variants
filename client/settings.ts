@@ -17,7 +17,7 @@ import { player } from './player';
 import { analysisChart } from './chart';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
-import { updatePoint } from './info';
+import { updateCount, updatePoint } from './info';
 
 
 export function changeCSS(cssFile) {
@@ -171,9 +171,11 @@ export function toggleOrientation (ctrl) {
         ctrl.vplayer0 = patch(ctrl.vplayer0, player('player0', ctrl.titles[ctrl.flip ? 1 : 0], ctrl.players[ctrl.flip ? 1 : 0], ctrl.ratings[ctrl.flip ? 1 : 0], ctrl.model["level"]));
         ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.ratings[ctrl.flip ? 0 : 1], ctrl.model["level"]));
 
-        if (ctrl.variant === 'janggi') {
-            [ctrl.vpointCho, ctrl.vpointHan] = updatePoint(ctrl.fullfen, ctrl.vpointHan, ctrl.vpointCho);
-        }
+        if (ctrl.variant === 'makruk' || ctrl.variant === 'makpong' || ctrl.variant === 'cambodian' || ctrl.variant === 'sittuyin')
+            [ctrl.vmiscInfoW, ctrl.vmiscInfoB] = updateCount(ctrl.fullfen, ctrl.vmiscInfoB, ctrl.vmiscInfoW);
+
+        if (ctrl.variant === 'janggi')
+            [ctrl.vmiscInfoW, ctrl.vmiscInfoB] = updatePoint(ctrl.fullfen, ctrl.vmiscInfoB, ctrl.vmiscInfoW);
     }
 }
 
