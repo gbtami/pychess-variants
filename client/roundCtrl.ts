@@ -796,10 +796,18 @@ export default class RoundController {
 
     private startCount = () => {
         this.doSend({ type: "count", gameId: this.model["gameId"], mode: "start" });
+        if (this.mycolor === 'white')
+            this.vmiscInfoW = patch(this.vmiscInfoW, h('div#count-white', '0/64'));
+        else
+            this.vmiscInfoB = patch(this.vmiscInfoB, h('div#count-black', '0/64'));
     }
 
     private stopCount = () => {
         this.doSend({ type: "count", gameId: this.model["gameId"], mode: "stop" });
+        if (this.mycolor === 'white')
+            this.vmiscInfoW = patch(this.vmiscInfoW, h('div#count-white', ''));
+        else
+            this.vmiscInfoB = patch(this.vmiscInfoB, h('div#count-black', ''));
     }
 
     private updateCount = (fen) => {
@@ -807,7 +815,7 @@ export default class RoundController {
         var countButton = document.getElementById('count') as HTMLElement;
         if (countButton) {
             const [ , , countingSide, countingType ] = getCounting(fen);
-            const myturn = this.mycolor.startsWith(fen.split(" ")[1]);
+            const myturn = this.mycolor === this.turnColor;
             if (countingType === 'board')
                 if ((countingSide === 'w' && this.mycolor === 'white') || (countingSide === 'b' && this.mycolor === 'black'))
                     patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: 'Stop counting'}, class: { disabled: !myturn } }, 'Stop'));
