@@ -149,14 +149,15 @@ class Game:
             await lobby_broadcast(self.app["websockets"], response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
-        if cur_player.username in self.draw_offers:
+        opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
+        if opp_player.username in self.draw_offers:
             # Move cancels draw offer
             # Except Janggi pass moves (like e2e2 or f10f10)
             # They are draw offers at the same time!
             half, rem = divmod(len(move), 2)
             pass_move = rem == 0 and move[:half] == move[half:]
             if not pass_move:
-                self.draw_offers.remove(cur_player.username)
+                self.draw_offers.remove(opp_player.username)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
