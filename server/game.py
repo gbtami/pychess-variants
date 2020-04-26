@@ -452,6 +452,24 @@ class Game:
                 self.status = STALEMATE
                 print(self.result, "stalemate")
 
+            # If the checkmating player is the one counting
+            if self.manual_count and self.status == MATE:
+                parts = self.board.fen.split()
+                if parts[3] != "-":
+                    counting_ply = int(parts[4])
+                    if counting_ply > 0:
+                        side_to_move = parts[1]
+                        if counting_ply % 2 == 0:
+                            counting_side = side_to_move
+                        else:
+                            counting_side = 'w' if side_to_move == 'b' else 'b'
+                        if counting_side == 'w':
+                            if self.result == "1-0":
+                                self.result = "1/2-1/2"
+                        else:
+                            if self.result == "0-1":
+                                self.result = "1/2-1/2"
+
         if self.variant == "janggi" or self.variant == "orda":
             immediate_end, game_result_value = self.board.is_immediate_game_end()
             if immediate_end:
