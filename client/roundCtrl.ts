@@ -807,11 +807,12 @@ export default class RoundController {
         var countButton = document.getElementById('count') as HTMLElement;
         if (countButton) {
             const [ , , countingSide, countingType ] = getCounting(fen);
+            const myturn = this.mycolor.startsWith(fen.split(" ")[1]);
             if (countingType === 'board')
                 if ((countingSide === 'w' && this.mycolor === 'white') || (countingSide === 'b' && this.mycolor === 'black'))
-                    patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: 'Stop counting'} }, 'Stop'));
+                    patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: 'Stop counting'}, class: { disabled: !myturn } }, 'Stop'));
                 else
-                    patch(countButton, h('button#count', { on: { click: () => this.startCount() }, props: {title: 'Start counting'}, class: { disabled: countingSide !== '' } }, 'Count'));
+                    patch(countButton, h('button#count', { on: { click: () => this.startCount() }, props: {title: 'Start counting'}, class: { disabled: !(myturn && countingSide === '') } }, 'Count'));
             else
                 patch(countButton, h('button#count', { props: {title: 'Start counting'}, class: { disabled: true } }, 'Count'));
         }
