@@ -456,23 +456,22 @@ class Game:
 
             if self.check:
                 self.status = MATE
+                # Draw if the checkmating player is the one counting
+                if self.board.count_started > 0:
+                    counting_side = 'b' if self.board.count_started % 2 == 0 else 'w'
+                    if counting_side == 'w':
+                        if self.result == "1-0":
+                            self.status = DRAW
+                            self.result = "1/2-1/2"
+                    else:
+                        if self.result == "0-1":
+                            self.status = DRAW
+                            self.result = "1/2-1/2"
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 self.status = STALEMATE
                 print(self.result, "stalemate")
-
-            # If the checkmating player is the one counting
-            if self.board.count_started > 0 and self.status == MATE:
-                counting_side = 'b' if self.board.count_started % 2 == 0 else 'w'
-                if counting_side == 'w':
-                    if self.result == "1-0":
-                        self.status = DRAW
-                        self.result = "1/2-1/2"
-                else:
-                    if self.result == "0-1":
-                        self.status = DRAW
-                        self.result = "1/2-1/2"
 
         if self.variant == "janggi" or self.variant == "orda":
             immediate_end, game_result_value = self.board.is_immediate_game_end()
