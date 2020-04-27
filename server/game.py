@@ -154,9 +154,12 @@ class Game:
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
-        if opp_player.username in self.draw_offers:
-            # Move cancels draw offer
-            self.draw_offers.remove(opp_player.username)
+
+
+        # Move cancels draw offer
+        # Except in board honor's counting
+        if self.board.count_started <= 0:
+            self.draw_offers.discard(opp_player.username)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
@@ -628,10 +631,16 @@ class Game:
 
     async def start_count(self):
         if self.manual_count:
+            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+            opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
+            self.draw_offers.discard(opp_player.username)
+            self.draw_offers.add(cur_player.username)
             self.board.start_count()
 
     async def stop_count(self):
         if self.manual_count:
+            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+            self.draw_offers.discard(cur_player.username)
             self.board.stop_count()
 
     def get_board(self, full=False):
