@@ -155,10 +155,9 @@ class Game:
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
-
-        # Move cancels draw offer
-        # Except in board honor's counting
         if self.board.count_started <= 0:
+            # Move cancels draw offer
+            # Except in manual counting, since it is a permanent draw offer
             self.draw_offers.discard(opp_player.username)
 
         cur_time = monotonic()
@@ -208,6 +207,14 @@ class Game:
                 self.ply_clocks.append(clocks)
                 self.set_dests()
                 self.update_status()
+
+                # Stop manual counting when the king is bared
+                if self.board.count_started > 0:
+                    board_state = self.board.fen.split()[0]
+                    white_pieces = sum(1 for c in board_state if c.isupper())
+                    black_pieces = sum(1 for c in board_state if c.islower())
+                    if white_pieces <= 1 or black_pieces <= 1:
+                        await self.stop_manual_count()
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -456,22 +463,14 @@ class Game:
                 print(self.result, "stalemate")
 
             # If the checkmating player is the one counting
-            if self.manual_count and self.status == MATE:
-                parts = self.board.fen.split()
-                if parts[3] != "-":
-                    counting_ply = int(parts[4])
-                    if counting_ply > 0:
-                        side_to_move = parts[1]
-                        if counting_ply % 2 == 0:
-                            counting_side = side_to_move
-                        else:
-                            counting_side = 'w' if side_to_move == 'b' else 'b'
-                        if counting_side == 'w':
-                            if self.result == "1-0":
-                                self.result = "1/2-1/2"
-                        else:
-                            if self.result == "0-1":
-                                self.result = "1/2-1/2"
+            if self.board.count_started > 0 and self.status == MATE:
+                counting_side = 'b' if self.board.count_started % 2 == 0 else 'w'
+                if counting_side == 'w':
+                    if self.result == "1-0":
+                        self.result = "1/2-1/2"
+                else:
+                    if self.result == "0-1":
+                        self.result = "1/2-1/2"
 
         if self.variant == "janggi" or self.variant == "orda":
             immediate_end, game_result_value = self.board.is_immediate_game_end()
@@ -629,19 +628,21 @@ class Game:
             "type": "gameEnd", "status": self.status, "result": self.result, "gameId": self.id, "pgn": self.pgn, "ct": self.crosstable,
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else ""}
 
-    async def start_count(self):
+    async def start_manual_count(self):
         if self.manual_count:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
             self.draw_offers.discard(opp_player.username)
             self.draw_offers.add(cur_player.username)
-            self.board.start_count()
+            self.board.start_manual_count()
 
-    async def stop_count(self):
+    async def stop_manual_count(self):
         if self.manual_count:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+            opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
             self.draw_offers.discard(cur_player.username)
-            self.board.stop_count()
+            self.draw_offers.discard(opp_player.username)
+            self.board.stop_manual_count()
 
     def get_board(self, full=False):
         if full:

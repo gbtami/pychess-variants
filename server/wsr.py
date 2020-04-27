@@ -473,13 +473,13 @@ async def round_socket_handler(request):
 
                         if user.username == cur_player.username:
                             if data["mode"] == "start":
-                                await game.start_count()
+                                await game.start_manual_count()
                                 response = {"type": "count", "message": "Board's honor counting started", "room": "player", "user": "" }
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                                 await round_broadcast(game, users, response)
                             elif data["mode"] == "stop":
-                                await game.stop_count()
+                                await game.stop_manual_count()
                                 response = {"type": "count", "message": "Board's honor counting stopped", "room": "player", "user": "" }
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
