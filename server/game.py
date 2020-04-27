@@ -224,7 +224,7 @@ class Game:
                 # print("--------------ply-", ply)
                 # print(self.board.color, clocks, self.ply_clocks)
                 opp_color = self.steps[-1]["turnColor"]
-                if clocks[opp_color] < self.ply_clocks[ply - 1][opp_color]:
+                if clocks[opp_color] < self.ply_clocks[ply - 1][opp_color] and self.status <= STARTED:
                     self.update_status(ABORTED)
                     await self.save_game(with_clocks=True)
 
