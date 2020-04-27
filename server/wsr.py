@@ -464,18 +464,26 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
 
                     elif data["type"] == "count":
-                        gameId = data["gameId"]
-                        game = await load_game(request.app, gameId)
+
+                        game = await load_game(request.app, data["gameId"])
                         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        opp_player = users[opp_name]
+                        opp_ws = users[opp_name].game_sockets[data["gameId"]]
+
                         if user.username == cur_player.username:
                             if data["mode"] == "start":
                                 await game.start_count()
                                 response = {"type": "count", "message": "Board's honor counting started", "room": "player", "user": "" }
                                 await ws.send_json(response)
+                                await opp_ws.send_json(response)
+                                await round_broadcast(game, users, response)
                             elif data["mode"] == "stop":
                                 await game.stop_count()
                                 response = {"type": "count", "message": "Board's honor counting stopped", "room": "player", "user": "" }
                                 await ws.send_json(response)
+                                await opp_ws.send_json(response)
+                                await round_broadcast(game, users, response)
                         else:
                             response = {"type": "count", "message": "You can only start/stop board's honor counting on your own turn!", "room": "player", "user": "" }
                             await ws.send_json(response)
