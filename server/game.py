@@ -467,9 +467,11 @@ class Game:
                 counting_side = 'b' if self.board.count_started % 2 == 0 else 'w'
                 if counting_side == 'w':
                     if self.result == "1-0":
+                        self.status = DRAW
                         self.result = "1/2-1/2"
                 else:
                     if self.result == "0-1":
+                        self.status = DRAW
                         self.result = "1/2-1/2"
 
         if self.variant == "janggi" or self.variant == "orda":
