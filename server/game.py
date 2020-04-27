@@ -214,7 +214,7 @@ class Game:
                     white_pieces = sum(1 for c in board_state if c.isupper())
                     black_pieces = sum(1 for c in board_state if c.islower())
                     if white_pieces <= 1 or black_pieces <= 1:
-                        await self.stop_manual_count()
+                        self.stop_manual_count()
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -630,7 +630,7 @@ class Game:
             "type": "gameEnd", "status": self.status, "result": self.result, "gameId": self.id, "pgn": self.pgn, "ct": self.crosstable,
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else ""}
 
-    async def start_manual_count(self):
+    def start_manual_count(self):
         if self.manual_count:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
@@ -638,7 +638,7 @@ class Game:
             self.draw_offers.add(cur_player.username)
             self.board.start_manual_count()
 
-    async def stop_manual_count(self):
+    def stop_manual_count(self):
         if self.manual_count:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
