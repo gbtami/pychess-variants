@@ -484,6 +484,16 @@ class Game:
                     self.result = "0-1" if self.board.color == BLACK else "1-0"
                 print(self.result, "variant end")
 
+        if self.variant == 'makruk' or self.variant == 'makpong' or self.variant == 'cambodian' or self.variant == 'sittuyin':
+            parts = self.board.fen.split()
+            if parts[3].isdigit():
+                counting_limit = int(parts[3])
+                counting_ply = int(parts[4])
+                if counting_ply > counting_limit:
+                    self.status = DRAW
+                    self.result = "1/2-1/2"
+                    print(self.result, "counting limit reached")
+
         if self.board.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
