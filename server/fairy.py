@@ -209,14 +209,6 @@ class FairyBoard:
         fen = fen + body + fen.upper() + holdings + ' w ' + castl.upper() + castl + ' - 0 1'
         return fen
 
-    def start_manual_count(self):
-        if self.manual_count:
-            self.count_started = self.ply + 1
-
-    def stop_manual_count(self):
-        if self.manual_count:
-            self.count_started = -1
-
 
 if __name__ == '__main__':
 

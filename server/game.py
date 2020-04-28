@@ -105,23 +105,27 @@ class Game:
 
             white_pieces = sum(1 for c in board_state if c.isupper())
             black_pieces = sum(1 for c in board_state if c.islower())
-            if counting_limit > 0 and counting_ply > 0 and white_pieces > 1 and black_pieces > 1:
-                last_ply = 2 * move_number - (2 if side_to_move == 'w' else 1)
-                count_started = last_ply - counting_ply + 1
-                if count_started < 1:
-                    count_started = -1
-                else:
-                    if side_to_move == 'w':
-                        if counting_ply % 2 == 0:
-                            counting_player = self.wplayer
-                        else:
-                            counting_player = self.bplayer
+            if counting_limit > 0 and counting_ply > 0:
+                if white_pieces > 1 and black_pieces > 1:
+                    last_ply = 2 * move_number - (2 if side_to_move == 'w' else 1)
+                    count_started = last_ply - counting_ply + 1
+                    if count_started < 1:
+                        # Move number is too small for the current count
+                        count_started = 0
                     else:
-                        if counting_ply % 2 == 0:
-                            counting_player = self.bplayer
+                        if side_to_move == 'w':
+                            if counting_ply % 2 == 0:
+                                counting_player = self.wplayer
+                            else:
+                                counting_player = self.bplayer
                         else:
-                            counting_player = self.wplayer
-                    self.draw_offers.add(counting_player.username)
+                            if counting_ply % 2 == 0:
+                                counting_player = self.bplayer
+                            else:
+                                counting_player = self.wplayer
+                        self.draw_offers.add(counting_player.username)
+                else:
+                    count_started = 0
 
         if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
@@ -246,6 +250,7 @@ class Game:
                     black_pieces = sum(1 for c in board_state if c.islower())
                     if white_pieces <= 1 or black_pieces <= 1:
                         self.stop_manual_count()
+                        self.board.count_started = 0
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -676,7 +681,7 @@ class Game:
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
             self.draw_offers.discard(opp_player.username)
             self.draw_offers.add(cur_player.username)
-            self.board.start_manual_count()
+            self.board.count_started = self.board.ply + 1
 
     def stop_manual_count(self):
         if self.manual_count:
@@ -684,7 +689,7 @@ class Game:
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
             self.draw_offers.discard(cur_player.username)
             self.draw_offers.discard(opp_player.username)
-            self.board.stop_manual_count()
+            self.board.count_started = -1
 
     def get_board(self, full=False):
         if full:
