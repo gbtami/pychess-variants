@@ -220,7 +220,8 @@ class Game:
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
 
-            if not self.bot_game:
+            # TODO: this causes random game abort
+            if False:  # not self.bot_game:
                 # print("--------------ply-", ply)
                 # print(self.board.color, clocks, self.ply_clocks)
                 opp_color = self.steps[-1]["turnColor"]
