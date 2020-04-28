@@ -88,15 +88,46 @@ class Game:
 
         self.id = gameId
 
-        # makruk manual counting
+        # Makruk manual counting
         use_manual_counting = self.variant == "makruk" or self.variant == "makpong" or self.variant == "cambodian"
         self.manual_count = use_manual_counting and not self.bot_game
+
+        # Calculate the start of manual counting
+        count_started = 0
+        if self.manual_count:
+            count_started = -1
+            parts = initial_fen.split()
+            board_state = parts[0]
+            side_to_move = parts[1]
+            counting_limit = int(parts[3]) if len(parts) >= 4 and parts[3].isdigit() else 0
+            counting_ply = int(parts[4]) if len(parts) >= 5 else 0
+            move_number = int(parts[5]) if len(parts) >= 6 else 0
+
+            white_pieces = sum(1 for c in board_state if c.isupper())
+            black_pieces = sum(1 for c in board_state if c.islower())
+            if counting_limit > 0 and counting_ply > 0 and white_pieces > 1 and black_pieces > 1:
+                last_ply = 2 * move_number - (2 if side_to_move == 'w' else 1)
+                count_started = last_ply - counting_ply + 1
+                if count_started < 1:
+                    count_started = -1
+                else:
+                    if side_to_move == 'w':
+                        if counting_ply % 2 == 0:
+                            counting_player = self.wplayer
+                        else:
+                            counting_player = self.bplayer
+                    else:
+                        if counting_ply % 2 == 0:
+                            counting_player = self.bplayer
+                        else:
+                            counting_player = self.wplayer
+                    self.draw_offers.add(counting_player.username)
 
         if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
                 self.initial_fen = ""
 
-        self.board = self.create_board(self.variant, self.initial_fen, self.chess960, self.manual_count)
+        self.board = self.create_board(self.variant, self.initial_fen, self.chess960, count_started)
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -138,8 +169,8 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
-    def create_board(self, variant, initial_fen, chess960, manual_count):
-        return FairyBoard(variant, initial_fen, chess960, manual_count)
+    def create_board(self, variant, initial_fen, chess960, count_started):
+        return FairyBoard(variant, initial_fen, chess960, count_started)
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()

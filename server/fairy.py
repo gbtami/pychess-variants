@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 class FairyBoard:
-    def __init__(self, variant, initial_fen="", chess960=False, manual_count=False):
+    def __init__(self, variant, initial_fen="", chess960=False, count_started=0):
         if variant == "shogun":
             sf.set_option("Protocol", "uci")
         self.variant = variant
@@ -31,8 +31,8 @@ class FairyBoard:
         self.fen = self.initial_fen
         if chess960 and initial_fen == self.start_fen(variant):
             self.chess960 = False
-        self.manual_count = manual_count
-        self.count_started = -1 if self.manual_count else 0
+        self.manual_count = count_started != 0
+        self.count_started = count_started
 
     def start_fen(self, variant, chess960=False):
         if chess960:
