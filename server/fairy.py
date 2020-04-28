@@ -77,7 +77,7 @@ class FairyBoard:
         return immediate_end, result
 
     def is_optional_game_end(self):
-        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960, self.count_started)
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
