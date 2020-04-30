@@ -91,6 +91,8 @@ class Game:
         # Makruk manual counting
         use_manual_counting = self.variant == "makruk" or self.variant == "makpong" or self.variant == "cambodian"
         self.manual_count = use_manual_counting and not self.bot_game
+        self.manual_count_toggled = []
+        self.manual_count_ended = 0
 
         # Calculate the start of manual counting
         count_started = 0
@@ -106,26 +108,21 @@ class Game:
             white_pieces = sum(1 for c in board_state if c.isupper())
             black_pieces = sum(1 for c in board_state if c.islower())
             if counting_limit > 0 and counting_ply > 0:
-                if white_pieces > 1 and black_pieces > 1:
+                if white_pieces <= 1 or black_pieces <= 1:
+                    # Disable manual count if either side is already down to lone king
+                    count_started = 0
+                    self.manual_count = False
+                else:
                     last_ply = 2 * move_number - (2 if side_to_move == 'w' else 1)
                     count_started = last_ply - counting_ply + 1
                     if count_started < 1:
                         # Move number is too small for the current count
                         count_started = 0
+                        self.manual_count = False
                     else:
-                        if side_to_move == 'w':
-                            if counting_ply % 2 == 0:
-                                counting_player = self.wplayer
-                            else:
-                                counting_player = self.bplayer
-                        else:
-                            if counting_ply % 2 == 0:
-                                counting_player = self.bplayer
-                            else:
-                                counting_player = self.wplayer
+                        counting_player = self.bplayer if counting_ply % 2 == 0 else self.wplayer
+                        self.manual_count_toggled.append(counting_ply)
                         self.draw_offers.add(counting_player.username)
-                else:
-                    count_started = 0
 
         if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
@@ -251,6 +248,7 @@ class Game:
                     if white_pieces <= 1 or black_pieces <= 1:
                         self.stop_manual_count()
                         self.board.count_started = 0
+                        self.manual_count_ended = self.board.ply + 1
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -682,6 +680,7 @@ class Game:
             self.draw_offers.discard(opp_player.username)
             self.draw_offers.add(cur_player.username)
             self.board.count_started = self.board.ply + 1
+            self.manual_count_toggled.append(self.board.ply + 1)
 
     def stop_manual_count(self):
         if self.manual_count:
@@ -690,6 +689,7 @@ class Game:
             self.draw_offers.discard(cur_player.username)
             self.draw_offers.discard(opp_player.username)
             self.board.count_started = -1
+            self.manual_count_toggled.append(self.board.ply + 1)
 
     def get_board(self, full=False):
         if full:
