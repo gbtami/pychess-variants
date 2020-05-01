@@ -3,6 +3,7 @@ import random
 import string
 
 from aiohttp.web import WebSocketResponse
+from game import MAX_PLY
 
 try:
     import pyffish as sf
@@ -130,8 +131,30 @@ async def load_game(app, game_id):
             doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
         game.steps[0]["analysis"] = doc["a"][0]
 
+    if "mct" in doc:
+        print(doc["mct"])
+        manual_count_toggled = (tuple(x) for x in doc["mct"])
+        count_started = -1
+        count_ended = -1 
+
     for ply, move in enumerate(mlist):
         try:
+            if "mct" in doc:
+                print("Ply", ply, "Move", move)
+                if ply + 1 >= count_ended:
+                    try:
+                        game.board.count_started = -1
+                        count_started, count_ended = next(manual_count_toggled)
+                        print("New count interval", (count_started, count_ended))
+                    except StopIteration:
+                        print("Piece's honour counting started")
+                        count_started = 0
+                        count_ended = MAX_PLY + 1
+                        game.board.count_started = 0
+                if ply + 1 == count_started:
+                    print("Count started", count_started)
+                    game.board.count_started = ply
+
             san = game.board.get_san(move)
             game.board.push(move)
             game.check = game.board.is_checked()

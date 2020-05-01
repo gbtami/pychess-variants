@@ -92,7 +92,6 @@ class Game:
         use_manual_counting = self.variant == "makruk" or self.variant == "makpong" or self.variant == "cambodian"
         self.manual_count = use_manual_counting and not self.bot_game
         self.manual_count_toggled = []
-        self.manual_count_ended = 0
 
         # Calculate the start of manual counting
         count_started = 0
@@ -121,7 +120,6 @@ class Game:
                         self.manual_count = False
                     else:
                         counting_player = self.bplayer if counting_ply % 2 == 0 else self.wplayer
-                        self.manual_count_toggled.append(counting_ply)
                         self.draw_offers.add(counting_player.username)
 
         if self.chess960 and self.initial_fen and self.create:
@@ -248,7 +246,6 @@ class Game:
                     if white_pieces <= 1 or black_pieces <= 1:
                         self.stop_manual_count()
                         self.board.count_started = 0
-                        self.manual_count_ended = self.board.ply + 1
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -342,6 +339,11 @@ class Game:
 
             if with_clocks:
                 new_data["clocks"] = self.ply_clocks
+
+            if self.manual_count:
+                if self.board.count_started > 0:
+                    self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
+                new_data["mct"] = self.manual_count_toggled
 
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
@@ -680,7 +682,6 @@ class Game:
             self.draw_offers.discard(opp_player.username)
             self.draw_offers.add(cur_player.username)
             self.board.count_started = self.board.ply + 1
-            self.manual_count_toggled.append(self.board.ply + 1)
 
     def stop_manual_count(self):
         if self.manual_count:
@@ -688,8 +689,8 @@ class Game:
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
             self.draw_offers.discard(cur_player.username)
             self.draw_offers.discard(opp_player.username)
+            self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
             self.board.count_started = -1
-            self.manual_count_toggled.append(self.board.ply + 1)
 
     def get_board(self, full=False):
         if full:
