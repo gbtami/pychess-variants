@@ -133,14 +133,14 @@ async def load_game(app, game_id):
 
     if "mct" in doc:
         print(doc["mct"])
-        manual_count_toggled = (tuple(x) for x in doc["mct"])
+        manual_count_toggled = iter(doc["mct"])
         count_started = -1
         count_ended = -1 
 
     for ply, move in enumerate(mlist):
         try:
             if "mct" in doc:
-                print("Ply", ply, "Move", move)
+                #print("Ply", ply, "Move", move)
                 if ply + 1 >= count_ended:
                     try:
                         game.board.count_started = -1
