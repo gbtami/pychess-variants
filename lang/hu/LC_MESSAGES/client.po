@@ -1,0 +1,634 @@
+# Translations template for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# Automatically generated, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"PO-Revision-Date: 2020-04-30 13:42+0200\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../client/about.ts:8
+msgid ""
+"\"To me, how we've got here today is owing to Stockfish in a BIG way. They "
+"rallied global volunteers to come together in the open-source spirit and "
+"create such a powerful engine for FREE. That's a lot of great minds and "
+"computing power they've managed to harness."
+msgstr ""
+
+#: ../client/about.ts:9
+msgid ""
+"Then we've got Lichess to thank. Lichess was also born out of the same open-"
+"source spirit, and it too drew in great people as well. Once Lichess "
+"incorporated Stockfish as its brains, the rest is history."
+msgstr ""
+
+#: ../client/about.ts:10
+msgid ""
+"Lichess enables the online, real-time, and competitive aspects of game-play. "
+"They also bring the enormous power of Stockfish to the masses, who can now "
+"benefit from it without configuring a local GUI. I believe this development "
+"turns out to be of great consequence and significance."
+msgstr ""
+
+#: ../client/about.ts:11
+msgid ""
+"Later on, developers close to the Lichess project eventually extended "
+"Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al. "
+"The father of Fairy-Stockfish, Fabian, is also one of those devs (still) "
+"working on that fork, and he later took several steps further in terms of "
+"variant support and extensibility. Thus Fairy-Stockfish was born, so "
+"powerful because it builds on the Stockfish project."
+msgstr ""
+
+#: ../client/about.ts:12
+msgid ""
+"Then comes our beloved pychess-variants, which again very smartly harnesses "
+"the underlying superpowers of the big projects. Same online, real-time, and "
+"competitive aspects. Same clean and familiar Lichess look and feel. Plus the "
+"power of Stockfish!\""
+msgstr ""
+
+#: ../client/about.ts:21
+msgid "About pychess"
+msgstr "A pychess névjegye"
+
+#: ../client/about.ts:22
+msgid ""
+"pychess is a free, open-source chess server designed to play several chess "
+"variant."
+msgstr "Apychess egy ingyenes, nyílt forrású sakk variáns szerver "
+
+#: ../client/about.ts:24
+msgid "Currently supported games are "
+msgstr "A Jelenleg játszható variánsok "
+
+#: ../client/about.ts:71
+msgid ""
+"Additionally you can check Chess960 option in for Standard, Crazyhouse, "
+"Capablanca and Capahouse to start games from random positions with "
+msgstr "A Standard, Crazyhouse, Capablanca és Capahouse "
+"variánsokhoz kiválasztható a Chess960 opció is véletlen alapállásal és "
+
+#: ../client/about.ts:72
+msgid "Chess960 castling rules."
+msgstr "Fischer random sáncolási szabályokkal."
+
+#: ../client/about.ts:75
+msgid "For move generation, validation, analysis and engine play it uses "
+msgstr "A szabályos lépések ellenőrzéséhez és a gép elleni játékhoz haszált program a "
+
+#: ../client/about.ts:83
+msgid "On client side it is based on "
+msgstr "A böngészőben futó program alapja a "
+
+#: ../client/about.ts:87
+msgid "Source code of server is available at "
+msgstr "A szerver forráskódja elérhető itt "
+
+#: ../client/about.ts:91
+msgid ""
+"Regarding Privacy and Terms of Service, the rules of lichess.org are applied "
+"here."
+msgstr ""
+
+#: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:526
+#: ../client/profile.ts:112 ../client/round.ts:31
+msgid "Rated"
+msgstr "Értékelt"
+
+#: ../client/analysis.ts:32 ../client/lobby.ts:376 ../client/lobby.ts:526
+#: ../client/profile.ts:112 ../client/round.ts:31
+msgid "Casual"
+msgstr "Nem értékelt"
+
+#: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
+msgid "Playing right now"
+msgstr "Folyamatban lévő játszma"
+
+#: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
+#: ../client/profile.ts:121 ../client/profile.ts:131
+msgid " level "
+msgstr " szint "
+
+#: ../client/analysisCtrl.ts:254
+msgid "You need an account to do that."
+msgstr "Csak regisztrált felhasználók számára elérhető."
+
+#: ../client/analysisCtrl.ts:281
+msgid "Download game to PGN file"
+msgstr "Játszma leöltése PGN fájlba."
+
+#: ../client/analysisCtrl.ts:281
+msgid " Download PGN"
+msgstr "PGN letöltése"
+
+#: ../client/analysisCtrl.ts:283
+msgid "Copy USI/UCI to clipboard"
+msgstr "UCI/USI másolása a vágólapra."
+
+#: ../client/analysisCtrl.ts:283
+msgid " Copy UCI/USI"
+msgstr " UCI/USI másolása"
+
+#: ../client/analysisCtrl.ts:285
+msgid "Download position to PNG image file"
+msgstr "Állás másolása PNG kép fájlba."
+
+#: ../client/analysisCtrl.ts:285
+msgid " PNG image"
+msgstr " PNG kép"
+
+#: ../client/analysisCtrl.ts:289
+msgid "Request Computer Analysis"
+msgstr "Számítógépes elemzés kérése"
+
+#: ../client/analysisCtrl.ts:289
+msgid " Request Analysis"
+msgstr " Elemzés kérése"
+
+#: ../client/analysisCtrl.ts:440
+msgid "Fairy-Stockfish, Depth "
+msgstr "Fairy-Stockfish, mélység "
+
+#: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
+msgid "Spectators: "
+msgstr "néző(k)"
+
+#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
+msgid "Requseted game "
+msgstr "A kért játszma "
+
+#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
+msgid " not found!"
+msgstr " nem található!"
+
+#: ../client/chart.ts:19
+msgid "Initial position"
+msgstr "Kezdőállás"
+
+#: ../client/chart.ts:75
+msgid "Advantage"
+msgstr "Előny"
+
+#: ../client/chat.ts:24
+msgid "Spectator room"
+msgstr "Figyelőszoba"
+
+#: ../client/chat.ts:24
+msgid "Chat room"
+msgstr "Csevegő"
+
+#: ../client/chat.ts:33
+msgid "Sign in to chat"
+msgstr "Jelentkezz be"
+
+#: ../client/chat.ts:33
+msgid "Please be nice in the chat!"
+msgstr "Légy udvarias másokkal!"
+
+#: ../client/chat.ts:51
+msgid "Server"
+msgstr "Szerver"
+
+#: ../client/chess.ts:40
+msgid "A game closely resembling the original Chaturanga"
+msgstr ""
+
+#: ../client/chess.ts:41
+msgid "Makruk variant where kings cannot move to escape out of check"
+msgstr ""
+
+#: ../client/chess.ts:42
+msgid "Makruk with a few additional opening abilities"
+msgstr ""
+
+#: ../client/chess.ts:43
+msgid "Similar to Makruk, but pieces are placed at the start of the match"
+msgstr ""
+
+#: ../client/chess.ts:44
+msgid "Choose where your pieces start"
+msgstr ""
+
+#: ../client/chess.ts:45
+msgid "Take captured pieces and drop them back on to the board as your own"
+msgstr ""
+
+#: ../client/chess.ts:46
+msgid "Chess, unmodified, as it's played by FIDE standards"
+msgstr ""
+
+#: ../client/chess.ts:47
+msgid "Pieces promote and can be dropped"
+msgstr ""
+
+#: ../client/chess.ts:48
+msgid "Shogi on a 5x5 board"
+msgstr ""
+
+#: ../client/chess.ts:49
+msgid "5x5 Shogi where pieces flip to a different piece each move"
+msgstr ""
+
+#: ../client/chess.ts:50
+msgid ""
+"Similar to Xiangqi, but plays very differently. Tournament rules are used"
+msgstr ""
+
+#: ../client/chess.ts:51
+msgid "Open fire on your opponent in this highly aggressive ancient game"
+msgstr ""
+
+#: ../client/chess.ts:52
+msgid "Xiangqi on a 7x7 board"
+msgstr ""
+
+#: ../client/chess.ts:53
+msgid ""
+"Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
+"10x8 board"
+msgstr ""
+
+#: ../client/chess.ts:54
+msgid ""
+"Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
+"moving a back rank piece"
+msgstr ""
+
+#: ../client/chess.ts:55
+msgid "Capablanca with Crazyhouse drop rules"
+msgstr ""
+
+#: ../client/chess.ts:56
+msgid "S-Chess with Crazyhouse drop rules"
+msgstr ""
+
+#: ../client/chess.ts:57
+msgid ""
+"Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
+"*grand* 10x10 board"
+msgstr ""
+
+#: ../client/chess.ts:58
+msgid "Grand Chess with Crazyhouse drop rules"
+msgstr ""
+
+#: ../client/chess.ts:59
+msgid "Like Capablanca Chess but with a different starting setup"
+msgstr ""
+
+#: ../client/chess.ts:60
+msgid ""
+"Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
+msgstr ""
+
+#: ../client/chess.ts:61
+msgid "Pieces promote and can be dropped, similar to Shogi"
+msgstr ""
+
+#: ../client/chess.ts:62
+msgid ""
+"Asymmetric variant where one army has pieces that move like knights but "
+"capture differently"
+msgstr ""
+
+#: ../client/chess.ts:129 ../client/chess.ts:152 ../client/lobby.ts:409
+msgid "Black"
+msgstr "Sötét"
+
+#: ../client/chess.ts:133 ../client/chess.ts:148
+#, fuzzy
+msgid "Red"
+msgstr "Piros"
+
+#: ../client/chess.ts:135
+msgid "Blue"
+msgstr "Kék"
+
+#: ../client/chess.ts:137 ../client/chess.ts:146 ../client/lobby.ts:411
+msgid "White"
+msgstr "Világos"
+
+#: ../client/chess.ts:150
+msgid "Gold"
+msgstr "Arany"
+
+#: ../client/editor.ts:97
+msgid "CLEAR BOARD"
+msgstr "ÜRES TÁBLA"
+
+#: ../client/editor.ts:100
+msgid "STARTING POSITION"
+msgstr "KEZDŐÁLLÁS"
+
+#: ../client/editor.ts:103 ../client/editor.ts:117
+msgid "PLAY WITH MACHINE"
+msgstr "JÁTÉK A GÉP ELLEN"
+
+#: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:337
+msgid " (must be signed in)"
+msgstr " (jelentkezz be ehhez)"
+
+#: ../client/editor.ts:107
+msgid "EXPORT TO PNG"
+msgstr "PGN EXPORT"
+
+#: ../client/editor.ts:120 ../client/lobby.ts:267
+msgid "Invalid FEN"
+msgstr "Érvénytelen FEN"
+
+#: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:464
+msgid "Variant"
+msgstr "Variáns"
+
+#: ../client/lobby.ts:248
+msgid "Byoyomi"
+msgstr "Byoyomi"
+
+#: ../client/lobby.ts:248
+msgid "Increment"
+msgstr "Többletidő"
+
+#: ../client/lobby.ts:248
+msgid " in seconds:"
+msgstr " másodpercben"
+
+#: ../client/lobby.ts:322
+msgid "Cancel"
+msgstr "Mégsem"
+
+#: ../client/lobby.ts:326
+msgid "Challenge "
+msgstr "Kihívás"
+
+#: ../client/lobby.ts:326
+msgid " to a game"
+msgstr " egy játszmára"
+
+#: ../client/lobby.ts:337
+msgid "Paste the FEN text here"
+msgstr "Másold ide a FEN szöveget"
+
+#: ../client/lobby.ts:341
+msgid "Handicap"
+msgstr "Előny"
+
+#: ../client/lobby.ts:352
+msgid "Minutes per side:"
+msgstr "Perc játékosonként"
+
+#: ../client/lobby.ts:367
+msgid "Periods"
+msgstr "Periódus"
+
+#: ../client/lobby.ts:386
+msgid "A.I. Level"
+msgstr "A.I.szint"
+
+#: ../client/lobby.ts:410
+msgid "Random"
+msgstr "Véletlen szín"
+
+#: ../client/lobby.ts:428
+msgid "Create a game"
+msgstr "Játék létrehozása"
+
+#: ../client/lobby.ts:441
+msgid "Play with AI (Fairy-Stockfish)"
+msgstr "Játék a gép ellen (Fairy-Stockfish)"
+
+#: ../client/lobby.ts:459
+msgid "Player"
+msgstr "Játékos"
+
+#: ../client/lobby.ts:460
+msgid "Color"
+msgstr "Szín"
+
+#: ../client/lobby.ts:461
+msgid "Rating"
+msgstr "Értékszám"
+
+#: ../client/lobby.ts:462
+msgid "Time"
+msgstr "Játékidő"
+
+#: ../client/lobby.ts:465
+msgid "Mode"
+msgstr "Mód"
+
+#: ../client/lobby.ts:526
+msgid "Custom"
+msgstr "Egyéni"
+
+#: ../client/lobby.ts:550
+msgid ""
+"You have an unfinished game!\n"
+"Press OK to continue."
+msgstr ""
+"Van egy befejezetlen játszmád!\n"
+"OK a folytatáshoz"
+
+#: ../client/lobby.ts:596
+msgid " games in play"
+msgstr " játszma"
+
+#: ../client/lobby.ts:606
+msgid " players"
+msgstr " játékos"
+
+#: ../client/lobby.ts:682
+msgid "Donate"
+msgstr "Támogatás"
+
+#: ../client/lobby.ts:686
+msgid "0 players"
+msgstr "0 játékos"
+
+#: ../client/lobby.ts:687
+msgid "0 games in play"
+msgstr "0 játszma"
+
+#: ../client/profile.ts:31
+msgid "Game aborted"
+msgstr "Abortált játszma"
+
+#: ../client/profile.ts:34
+msgid "Checkmate"
+msgstr "Matt"
+
+#: ../client/profile.ts:37
+msgid " resigned"
+msgstr " feladta"
+
+#: ../client/profile.ts:40
+msgid "Stalemate"
+msgstr "Patt"
+
+#: ../client/profile.ts:43 ../client/profile.ts:49
+#, fuzzy
+msgid "Time out"
+msgstr "Letelt az idő"
+
+#: ../client/profile.ts:46 ../client/roundCtrl.ts:352
+msgid "Draw"
+msgstr "Döntetlen"
+
+#: ../client/profile.ts:52
+msgid " abandoned the game"
+msgstr " elhagyta a játszmát"
+
+#: ../client/profile.ts:55
+msgid "Cheat detected"
+msgstr "Csalás"
+
+#: ../client/profile.ts:58
+msgid "Not started"
+msgstr "Nem kezdték el"
+
+#: ../client/profile.ts:61
+msgid "Invalid move"
+msgstr "Érvénytelen FEN"
+
+#: ../client/profile.ts:64
+msgid "Unknown reason"
+msgstr "Ismeretlen ok"
+
+#: ../client/profile.ts:67
+msgid "Campmate"
+msgstr "Király betörés"
+
+#: ../client/profile.ts:67
+msgid "Point counting"
+msgstr "Pont számolás"
+
+#: ../client/profile.ts:148
+msgid "Computer analysis available"
+msgstr "Számítógép elemzés elérhető"
+
+#: ../client/profile.ts:227
+msgid "Lichess profile"
+msgstr "Lichess profil"
+
+#: ../client/profile.ts:230
+msgid "Export games"
+msgstr "Játszmák exportálása"
+
+#: ../client/profile.ts:233
+msgid "Watch games"
+msgstr "Játszmák figyelése"
+
+#: ../client/profile.ts:236
+#, fuzzy
+msgid "Challenge to a game"
+msgstr "Kihívás"
+
+#: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1138
+#, fuzzy
+msgid " +15 seconds"
+msgstr " +15 másodperc"
+
+#: ../client/roundCtrl.ts:314
+#, fuzzy
+msgid "Give 15 seconds"
+msgstr "+15 másodperc az ellenfélnek"
+
+#: ../client/roundCtrl.ts:350
+msgid "Abort"
+msgstr "Játszma elvetése"
+
+#: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
+#: ../client/roundCtrl.ts:857
+msgid "Count"
+msgstr "Számolás"
+
+#: ../client/roundCtrl.ts:352
+msgid "Pass"
+msgstr "Passz"
+
+#: ../client/roundCtrl.ts:353
+msgid "Resign"
+msgstr "Feladás"
+
+#: ../client/roundCtrl.ts:389
+msgid "Are you sure you want to resign?"
+msgstr "Biztosan fel akarod adni?"
+
+#: ../client/roundCtrl.ts:419
+msgid "Blue (Cho)"
+msgstr "Kék (Cho)"
+
+#: ../client/roundCtrl.ts:419
+msgid "Red (Han)"
+msgstr "Piros (Han)"
+
+#: ../client/roundCtrl.ts:420
+msgid "Waiting for "
+msgstr "Várakozás. "
+
+#: ../client/roundCtrl.ts:420
+msgid " to choose starting positions of the horses and elephants..."
+msgstr " kiválaszthatja a lovak és elefántok kezdő pozícióját..."
+
+#: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
+msgid "Switch pieces"
+msgstr "Figurák cseréje"
+
+#: ../client/roundCtrl.ts:455
+msgid "Ready"
+msgstr "Kész"
+
+#: ../client/roundCtrl.ts:502
+msgid "REMATCH"
+msgstr "VISSZAVÁGÓ"
+
+#: ../client/roundCtrl.ts:503
+msgid "NEW OPPONENT"
+msgstr "ÚJ JÁTSZMA"
+
+#: ../client/roundCtrl.ts:504
+msgid "ANALYSIS BOARD"
+msgstr "ELEMZÉS"
+
+#: ../client/roundCtrl.ts:853
+msgid "Stop counting"
+msgstr "Számolás leállítása"
+
+#: ../client/roundCtrl.ts:853
+msgid "Stop"
+msgstr "Stop!"
+
+#: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
+msgid "Start counting"
+msgstr "számolás indítása"
+
+#: ../client/settings.ts:352
+msgid "[-] Zoom [+]"
+msgstr "[-] Zoom [+]"
+
+#: ../client/settings.ts:357
+msgid "Show piece destinations"
+msgstr "Lehetséges lépések mutatása"
+
+#: ../client/settings.ts:364
+msgid "Two click drop moves"
+msgstr "Visszarakás két kattintással"
+
+#: ../client/settings.ts:380
+msgid "Promote to Queen automatically"
+msgstr "Automatikus vezér átvátozás"
+
+#: ../client/settings.ts:387
+msgid "Best move arrow"
+msgstr "Javaslat nyilak mutatása"

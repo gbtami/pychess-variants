@@ -12,6 +12,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Dests, Key, Piece, Variant, Notation } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
+import { _ } from './i18n';
 import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
@@ -245,7 +246,7 @@ export default class AnalysisController {
     private drawAnalysis = (withRequest) => {
         if (withRequest) {
             if (this.model["anon"] === 'True') {
-                alert('You need an account to do that.');
+                alert(_('You need an account to do that.'));
                 return;
             }
             var element = document.getElementById('request-analysis') as HTMLElement;
@@ -272,15 +273,15 @@ export default class AnalysisController {
             var container = document.getElementById('copyfen') as HTMLElement;
             var buttons = [
                 h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.model["gameId"], this.pgn) } }, [
-                    h('i', {props: {title: 'Download game to PGN file'}, class: {"icon": true, "icon-download": true} }, ' Download PGN')]),
+                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
-                    h('i', {props: {title: 'Copy USI/UCI to clipboard'}, class: {"icon": true, "icon-clipboard": true} }, ' Copy UCI/USI')]),
+                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
                 h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
-                    h('i', {props: {title: 'Download position to PNG image file'}, class: {"icon": true, "icon-download": true} }, ' PNG image')]),
+                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
                 ]
             if (this.steps[0].analysis === undefined) {
                 buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysis(true) } }, [
-                    h('i', {props: {title: 'Request Computer Analysis'}, class: {"icon": true, "icon-bar-chart": true} }, ' Request Analysis')])
+                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
                 );
             }
             patch(container, h('div', buttons));
@@ -422,7 +423,7 @@ export default class AnalysisController {
                     }
                 };
                 this.vpv = patch(this.vpv, h('div#pv', [
-                    h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, Depth ' + String(ceval.d)]),
+                    h('div', [h('score', this.steps[ply]['scoreStr']), _('Fairy-Stockfish, Depth ') + String(ceval.d)]),
                     h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
                 ]));
                 const stl = document.body.getAttribute('style');
@@ -562,7 +563,7 @@ export default class AnalysisController {
 
     private onMsgSpectators = (msg) => {
         var container = document.getElementById('spectators') as HTMLElement;
-        patch(container, h('under-left#spectators', 'Spectators: ' + msg.spectators));
+        patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
     }
 
     private onMsgChat = (msg) => {
@@ -582,7 +583,7 @@ export default class AnalysisController {
     }
 
     private onMsgGameNotFound = (msg) => {
-        alert("Requseted game " + msg['gameId'] + " not found!");
+        alert(_("Requseted game ") + msg['gameId'] + _(" not found!"));
         window.location.assign(this.model["home"]);
     }
 

@@ -16,11 +16,11 @@
 </head>
 <body>
 <article>
-    <h2>404 GAME NOT FOUND</h2>
+    <h2>{% trans %}404 GAME NOT FOUND{% endtrans %}</h2>
     <div>
-        <p>Sorry, but not all games saved on PyChess-Variants server.</p>
-        <p>Probably it was abandoned or stopped before the third move.</p>
-        <p>Return to <a href="{{ home }}">the homepage</a></p>
+        <p>{% trans %}Sorry, but not all games saved on PyChess-Variants server.{% endtrans %}</p>
+        <p>{% trans %}Probably it was abandoned or stopped before the third move.{% endtrans %}</p>
+        <p>{% trans %}Return to {% endtrans %}<a href="{{ home }}">{% trans %}the homepage{% endtrans %}</a></p>
     </div>
 </article>
 </body>

@@ -8,6 +8,7 @@ import { VNode } from 'snabbdom/vnode';
 
 const patch = init([klass, attributes, properties, listeners]);
 
+import { _, i18n } from './i18n';
 import { aboutView } from './about';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
@@ -16,7 +17,7 @@ import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
 import { sound } from './sound';
-import { getCookie, i18n } from './settings';
+import { getCookie } from './settings';
 
 const model = {};
 
@@ -68,7 +69,7 @@ export function view(el, model): VNode {
     case 'games':
         return h('div#placeholder', gamesView(model));
     case 'thanks':
-        return h('div#placeholder.main-wrapper', h('h2', 'Thank you for your support!'));
+        return h('div#placeholder.main-wrapper', h('h2', _('Thank you for your support!')));
     default:
         return h('div#placeholder.main-wrapper', lobbyView(model));
     }

@@ -11,8 +11,7 @@ import h from 'snabbdom/h';
 
 import { dimensions } from 'chessgroundx/types';
 
-import trans from './gettext.cjs.min.js';
-
+import { _ } from './i18n';
 import { variants, VARIANTS } from './chess';
 import { pocketView } from './pocket';
 import { player } from './player';
@@ -21,9 +20,6 @@ import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { updateCount, updatePoint } from './info';
 
-
-export const i18n = trans();
-export function _(msgid) {return i18n.gettext(msgid)};
 
 export function getCookie(name) {
     var cookies = document.cookie.split(';');
@@ -349,19 +345,19 @@ export function settingsView (ctrl) {
         // h('label.zoom', { attrs: {for: "zoom"} }, "Board size"),
         h('input#zoom', {
             class: {"slider": true },
-            attrs: { name: 'zoom', title: '[-] Zoom [+]', width: '280px', type: 'range', value: Number(zoom), min: 50, max: 150, step: (ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
+            attrs: { name: 'zoom', title: _('[-] Zoom [+]'), width: '280px', type: 'range', value: Number(zoom), min: 50, max: 150, step: (ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
             on: { input: (e) => { setZoom(ctrl, parseFloat((e.target as HTMLInputElement).value)); } }
             }
         ),
         h('div', [
-            h('label', { attrs: {for: "showdests"} }, "Show piece destinations"),
+            h('label', { attrs: {for: "showdests"} }, _("Show piece destinations")),
             h('input#showdests', {
                 props: {name: "showdests", type: "checkbox", checked: vShowDests === "true" ? "checked" : ""},
                 on: { click: () => { setShowDests(); } }
             }),
         ]),
         h('div', [
-            h('label', { attrs: {for: "click2xdrop"} }, "Two click drop moves"),
+            h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
             h('input#click2xdrop', {
                 props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
                 on: { click: () => { setClick2xdrop(); } }
@@ -369,7 +365,7 @@ export function settingsView (ctrl) {
         ]),
 /*
         h('div', [
-            h('label', { attrs: {for: "blindfold"} }, "Blindfold chess (invisible pieces)"),
+            h('label', { attrs: {for: "blindfold"} }, _("Blindfold chess (invisible pieces)")),
             h('input#blindfold', {
                 props: {name: "blindfold", type: "checkbox", checked: vBlindfold === "true" ? "checked" : ""},
                 on: { click: () => { changeBlindfold(); } }
@@ -377,14 +373,14 @@ export function settingsView (ctrl) {
         ]),
 */
         h('div', [
-            h('label', { attrs: {for: "autoqueen"} }, "Promote to Queen automatically"),
+            h('label', { attrs: {for: "autoqueen"} }, _("Promote to Queen automatically")),
             h('input#autoqueen', {
                 props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
                 on: { click: () => { setAutoQueen(); } }
             }),
         ]),
         h('div', [
-            h('label', { attrs: {for: "arrow"} }, "Best move arrow"),
+            h('label', { attrs: {for: "arrow"} }, _("Best move arrow")),
             h('input#arrow', {
                 props: {name: "arrow", type: "checkbox", checked: vArrow === "true" ? "checked" : ""},
                 on: { click: () => { setArrow(); } }

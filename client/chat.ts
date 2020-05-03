@@ -8,7 +8,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
-import { _ } from './settings';
+import { _ } from './i18n';
 
 export function chatView (ctrl, chatType) {
     function onKeyPress (e) {

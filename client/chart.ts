@@ -1,5 +1,6 @@
 import Highcharts from "highcharts";
 
+import { _ } from './i18n';
 import { povChances, selectMove } from './movelist';
 
 export function analysisChart (ctrl) {
@@ -15,7 +16,7 @@ export function analysisChart (ctrl) {
                           name: turn + dots + ' ' + step.san,
                           y: povChances(color, score)
                         };
-                        if (ply === 0) point.name = 'Initial position';
+                        if (ply === 0) point.name = _('Initial position');
                         return point;
                     } else return null;
                 } else return null;
@@ -71,7 +72,7 @@ export function analysisChart (ctrl) {
         },
         tooltip: {
             pointFormatter: function(format: string) {
-              format = format.replace('{series.name}', 'Advantage');
+              format = format.replace('{series.name}', _('Advantage'));
               var self: Highcharts.Point = this;
               var ceval = ctrl.steps[self.x].ceval.s;
               if (!ceval) return '';

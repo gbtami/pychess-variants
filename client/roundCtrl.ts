@@ -13,6 +13,7 @@ import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
+import { _ } from './i18n';
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
 import makePromotion from './promotion';
@@ -277,7 +278,7 @@ export default class RoundController {
             this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.model["gameId"] });
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
-            chatMessage('', oppName + ' +15 seconds', "roundchat");
+            chatMessage('', oppName + _(' +15 seconds'), "roundchat");
         }
 
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
@@ -300,7 +301,7 @@ export default class RoundController {
             patch(container, h('div.clock-wrap#clock0', [
                 h('div.more-time', [
                     h('button.icon.icon-plus-square', {
-                        props: {type: "button", title: "Give 15 seconds"},
+                        props: {type: "button", title: _("Give 15 seconds")},
                         on: {click: () => onMoreTime() }
                     })
                 ])
@@ -334,10 +335,10 @@ export default class RoundController {
         if (!this.spectator) {
             const pass = this.variant === 'janggi';
             this.gameControls = patch(container, h('div.btn-controls', [
-                h('button#abort', { on: { click: () => this.abort() }, props: {title: 'Abort'} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
-                h('button#count', 'Count'),
-                h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? 'Pass' : "Draw"} }, [(pass) ? 'Pass' : h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
-                h('button#resign', { on: { click: () => this.resign() }, props: {title: "Resign"} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
+                h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
+                h('button#count', _('Count')),
+                h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? _('Pass') : _("Draw")} }, [(pass) ? _('Pass') : h('i', {class: {"icon": true, "icon-hand-paper-o": true} } ), ]),
+                h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
             ]));
 
             const manualCount = !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT') && (this.variant === 'makruk' || this.variant === 'makpong' || this.variant === 'cambodian');
@@ -370,7 +371,7 @@ export default class RoundController {
 
     private resign = () => {
         // console.log("Resign");
-        if (confirm('Are you sure you want to resign?')) {
+        if (confirm(_('Are you sure you want to resign?'))) {
             this.doSend({ type: "resign", gameId: this.model["gameId"] });
         }
     }
@@ -398,8 +399,8 @@ export default class RoundController {
         this.setupFen = msg.fen;
         this.chessground.set({fen: this.setupFen});
 
-        const side = (msg.color === 'white') ? 'Blue (Cho)' : 'Red (Han)';
-        const message = 'Waiting for ' + side + ' to choose starting positions of the horses and elephants...';
+        const side = (msg.color === 'white') ? _('Blue (Cho)') : _('Red (Han)');
+        const message = _('Waiting for ') + side + _(' to choose starting positions of the horses and elephants...');
 
         if (this.spectator || msg.color !== this.mycolor) {
             chatMessage('', message, "roundchat");
@@ -433,9 +434,9 @@ export default class RoundController {
         const leftSide = (this.mycolor === 'white') ? -1 : 1;
         const rightSide = leftSide * -1;
         patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#janggi-setup-buttons', [
-            h('button#flipLeft', { on: { click: () => switchLetters(leftSide) } }, [h('i', {props: {title: 'Switch pieces'}, class: {"icon": true, "icon-exchange": true} } ), ]),
-            h('button', { on: { click: () => sendSetup() } }, [h('i', {props: {title: 'Ready'}, class: {"icon": true, "icon-check": true} } ), ]),
-            h('button#flipRight', { on: { click: () => switchLetters(rightSide) } }, [h('i', {props: {title: 'Switch pieces'}, class: {"icon": true, "icon-exchange": true} } ), ]),
+            h('button#flipLeft', { on: { click: () => switchLetters(leftSide) } }, [h('i', {props: {title: _('Switch pieces')}, class: {"icon": true, "icon-exchange": true} } ), ]),
+            h('button', { on: { click: () => sendSetup() } }, [h('i', {props: {title: _('Ready')}, class: {"icon": true, "icon-check": true} } ), ]),
+            h('button#flipRight', { on: { click: () => switchLetters(rightSide) } }, [h('i', {props: {title: _('Switch pieces')}, class: {"icon": true, "icon-exchange": true} } ), ]),
         ]));
     }
 
@@ -479,9 +480,9 @@ export default class RoundController {
         if (!this.spectator) {
             this.gameControls = patch(this.gameControls, h('div'));
             patch(this.gameControls, h('div#after-game-controls', [
-                h('button.rematch', { on: { click: () => this.rematch() } }, "REMATCH"),
-                h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, "NEW OPPONENT"),
-                h('button.analysis', { on: { click: () => this.analysis(this.model["home"]) } }, "ANALYSIS BOARD"),
+                h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")),
+                h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, _("NEW OPPONENT")),
+                h('button.analysis', { on: { click: () => this.analysis(this.model["home"]) } }, _("ANALYSIS BOARD")),
             ]));
         }
     }
@@ -810,11 +811,11 @@ export default class RoundController {
             const myturn = this.mycolor === this.turnColor;
             if (countingType === 'board')
                 if ((countingSide === 'w' && this.mycolor === 'white') || (countingSide === 'b' && this.mycolor === 'black'))
-                    patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: 'Stop counting'}, class: { disabled: !myturn } }, 'Stop'));
+                    patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: _('Stop counting')}, class: { disabled: !myturn } }, _('Stop')));
                 else
-                    patch(countButton, h('button#count', { on: { click: () => this.startCount() }, props: {title: 'Start counting'}, class: { disabled: !(myturn && countingSide === '') } }, 'Count'));
+                    patch(countButton, h('button#count', { on: { click: () => this.startCount() }, props: {title: _('Start counting')}, class: { disabled: !(myturn && countingSide === '') } }, _('Count')));
             else
-                patch(countButton, h('button#count', { props: {title: 'Start counting'}, class: { disabled: true } }, 'Count'));
+                patch(countButton, h('button#count', { props: {title: _('Start counting')}, class: { disabled: true } }, _('Count')));
         }
     }
 
@@ -1026,7 +1027,7 @@ export default class RoundController {
 
     private onMsgSpectators = (msg) => {
         var container = document.getElementById('spectators') as HTMLElement;
-        patch(container, h('under-left#spectators', 'Spectators: ' + msg.spectators));
+        patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
     }
 
     private onMsgUserPresent = (msg) => {
@@ -1068,7 +1069,7 @@ export default class RoundController {
     }
 
     private onMsgMoreTime = (msg) => {
-        chatMessage('', msg.username + ' +15 seconds', "roundchat");
+        chatMessage('', msg.username + _(' +15 seconds'), "roundchat");
         if (this.spectator) {
             if (msg.username === this.players[0]) {
                 this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
@@ -1085,7 +1086,7 @@ export default class RoundController {
     }
 
     private onMsgGameNotFound = (msg) => {
-        alert("Requseted game " + msg['gameId'] + " not found!");
+        alert(_("Requseted game ") + msg['gameId'] + _(" not found!"));
         window.location.assign(this.model["home"]);
     }
 

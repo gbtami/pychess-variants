@@ -3,6 +3,8 @@ import { Color, dimensions, Geometry, Key, Role } from 'chessgroundx/types';
 
 import { read } from 'chessgroundx/fen';
 
+import { _ } from './i18n';
+
 export const variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun", "orda"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
@@ -35,29 +37,29 @@ export const start_fen = {
 }
 
 export const variantTooltip = {
-    makruk: "A game closely resembling the original Chaturanga",
-    makpong: "Makruk variant where kings cannot move to escape out of check",
-    cambodian: "Makruk with a few additional opening abilities",
-    sittuyin: "Similar to Makruk, but pieces are placed at the start of the match",
-    placement: "Choose where your pieces start",
-    crazyhouse: "Take captured pieces and drop them back on to the board as your own",
-    chess: "Chess, unmodified, as it's played by FIDE standards",
-    shogi: "Pieces promote and can be dropped",
-    minishogi: "Shogi on a 5x5 board",
-    kyotoshogi: "5x5 Shogi where pieces flip to a different piece each move",
-    janggi: "Similar to Xiangqi, but plays very differently. Tournament rules are used",
-    xiangqi: "Open fire on your opponent in this highly aggressive ancient game",
-    minixiangqi: "Xiangqi on a 7x7 board",
-    capablanca: "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board",
-    seirawan: "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece",
-    capahouse: "Capablanca with Crazyhouse drop rules",
-    shouse: "S-Chess with Crazyhouse drop rules",
-    grand: "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board",
-    grandhouse: "Grand Chess with Crazyhouse drop rules",
-    gothic: "Like Capablanca Chess but with a different starting setup",
-    shako: "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board",
-    shogun: "Pieces promote and can be dropped, similar to Shogi",
-    orda: "Asymmetric variant where one army has pieces that move like knights but capture differently"
+    makruk: _("A game closely resembling the original Chaturanga"),
+    makpong: _("Makruk variant where kings cannot move to escape out of check"),
+    cambodian: _("Makruk with a few additional opening abilities"),
+    sittuyin: _("Similar to Makruk, but pieces are placed at the start of the match"),
+    placement: _("Choose where your pieces start"),
+    crazyhouse: _("Take captured pieces and drop them back on to the board as your own"),
+    chess: _("Chess, unmodified, as it's played by FIDE standards"),
+    shogi: _("Pieces promote and can be dropped"),
+    minishogi: _("Shogi on a 5x5 board"),
+    kyotoshogi: _("5x5 Shogi where pieces flip to a different piece each move"),
+    janggi: _("Similar to Xiangqi, but plays very differently. Tournament rules are used"),
+    xiangqi: _("Open fire on your opponent in this highly aggressive ancient game"),
+    minixiangqi: _("Xiangqi on a 7x7 board"),
+    capablanca: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
+    seirawan: _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
+    capahouse: _("Capablanca with Crazyhouse drop rules"),
+    shouse: _("S-Chess with Crazyhouse drop rules"),
+    grand: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
+    grandhouse: _("Grand Chess with Crazyhouse drop rules"),
+    gothic: _("Like Capablanca Chess but with a different starting setup"),
+    shako: _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
+    shogun: _("Pieces promote and can be dropped, similar to Shogi"),
+    orda: _("Asymmetric variant where one army has pieces that move like knights but capture differently")
 }
 
 export const VARIANTS = {
@@ -124,15 +126,15 @@ export function firstColor(variant) {
     case 'shogi':
     case 'minishogi':
     case 'kyotoshogi':
-        return 'Black';
+        return _('Black');
     case 'xiangqi':
     case 'minixiangqi':
     case 'sittuyin':
-        return 'Red';
+        return _('Red');
     case 'janggi':
-        return 'Blue';
+        return _('Blue');
     default:
-        return 'White';
+        return _('White');
     }
 }
 
@@ -141,13 +143,13 @@ export function secondColor(variant) {
     case 'shogi':
     case 'minishogi':
     case 'kyotoshogi':
-        return 'White';
+        return _('White');
     case 'janggi':
-        return 'Red';
+        return _('Red');
     case 'orda':
-        return 'Gold';
+        return _('Gold');
     default:
-        return 'Black';
+        return _('Black');
     }
 }
 

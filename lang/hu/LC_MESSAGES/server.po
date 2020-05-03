@@ -1,0 +1,116 @@
+# Translations template for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# Automatically generated, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"PO-Revision-Date: 2020-04-30 13:42+0200\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: hu/\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: ../templates/404.html:19
+msgid "404 GAME NOT FOUND"
+msgstr "404 JÁTSZMA NEM TALÁLHATÓ"
+
+#: ../templates/404.html:21
+msgid "Sorry, but not all games saved on PyChess-Variants server."
+msgstr "Elnézést, de nincs minden játszme mentve a pychess serveren."
+
+#: ../templates/404.html:22
+msgid "Probably it was abandoned or stopped before the third move."
+msgstr "Valószínűleg a játszmát elhagyták vagy már a harmadik lépés előtt véget ért."
+
+#: ../templates/404.html:23
+msgid "Return to "
+msgstr "Visszatérés a "
+
+#: ../templates/404.html:23
+msgid "the homepage"
+msgstr "honlapra"
+
+#: ../templates/closed.html:8
+msgid "This account is closed."
+msgstr "Ezt a fiókot lezárták."
+
+#: ../templates/patron.html:8
+msgid ""
+"As you know, pychess-variants is a free server and it will remain free "
+"forever. However, maintaining and improving the server costs time and "
+"money.\n"
+"If you like our work and find our server useful, please donate through "
+"patreon"
+msgstr ""
+
+#: ../templates/patron.html:12
+msgid "or through paypal"
+msgstr ""
+
+#: ../templates/players.html:8
+msgid "Online"
+msgstr "Online"
+
+#: ../templates/players.html:27
+msgid "Anonymous"
+msgstr "Vendég"
+
+#: ../templates/players.html:34
+#, fuzzy
+msgid "All players"
+msgstr "Játékosok"
+
+#: ../templates/template.html:69
+msgid "Tv"
+msgstr "Tv"
+
+#: ../templates/template.html:70
+msgid "Current games"
+msgstr "Játszmák"
+
+#: ../templates/template.html:71
+msgid "Players"
+msgstr "Játékosok"
+
+#: ../templates/template.html:72
+msgid "Editor"
+msgstr "Szerkesztő"
+
+#: ../templates/template.html:73
+msgid "Learn"
+msgstr "Tanulás"
+
+#: ../templates/template.html:74
+msgid "About"
+msgstr "Névjegy"
+
+#: ../templates/template.html:75
+msgid "Original PyChess site"
+msgstr "Régi PyChess"
+
+#: ../templates/template.html:78
+msgid "Login with Lichess"
+msgstr "Belépés lichess azonosítóval"
+
+#: ../templates/template.html:78
+msgid "Log in"
+msgstr "Belépés"
+
+#: ../templates/template.html:80
+msgid "Log out"
+msgstr "Kilépés"
+
+#: ../templates/template.html:91
+msgid "Toggle sound"
+msgstr "Hangok ki/be"
+
+#: ../templates/template.html:92
+msgid "Toggle dark mode"
+msgstr "Éjszakai/nappali háttér"

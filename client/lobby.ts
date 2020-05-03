@@ -13,10 +13,10 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
+import { _ } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { enabled_variants, validFen, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
 import { sound } from './sound';
-import { _ } from './settings';
 
 
 class LobbyController {

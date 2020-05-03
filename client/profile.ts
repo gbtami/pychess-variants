@@ -11,6 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
+import { _ } from './i18n';
 import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
 import { renderTimeago } from './clock';
 import { setBoardAndPieceStyles } from './settings';
@@ -24,46 +25,46 @@ export function result(variant, status, result) {
     switch (status) {
     case -2:
     case -1:
-        text = 'Playing right now';
+        text = _('Playing right now');
         break;
     case 0:
-        text = 'Game aborted';
+        text = _('Game aborted');
         break;
     case 1:
-        text = 'Checkmate';
+        text = _('Checkmate');
         break;
     case 2:
-        text = ((result === '1-0') ? second : first) + ' resigned';
+        text = ((result === '1-0') ? second : first) + _(' resigned');
         break;
     case 3:
-        text = 'Stalemate';
+        text = _('Stalemate');
         break;
     case 4:
-        text = 'Time out';
+        text = _('Time out');
         break;
     case 5:
-        text = 'Draw';
+        text = _('Draw');
         break;
     case 6:
-        text = 'Time out';
+        text = _('Time out');
         break;
     case 7:
-        text = ((result === '1-0') ? second : first) + ' abandoned the game';
+        text = ((result === '1-0') ? second : first) + _(' abandoned the game');
         break
     case 8:
-        text = 'Cheat detected';
+        text = _('Cheat detected');
         break;
     case 9:
-        text = 'Not started';
+        text = _('Not started');
         break;
     case 10:
-        text = 'Invalid move';
+        text = _('Invalid move');
         break;
     case 11:
-        text = 'Unknown reason';
+        text = _('Unknown reason');
         break;
     case 12:
-        text = (variant === 'orda') ? 'Campmate' : 'Point counting';
+        text = (variant === 'orda') ? _('Campmate') : _('Point counting');
         break;
     default:
         text = '*';
@@ -107,7 +108,7 @@ function renderGames(model, games) {
             h('div.info0.games', {attrs: {"data-icon": variantIcon(game["v"], game["z"])}, class: {"icon": true}}, [
                 // h('div.info1', {attrs: {"data-icon": (game["z"] === 1) ? "V" : ""}, class: {"icon": true}}),
                 h('div.info2', [
-                    h('div.tc', game["b"] + "+" + game["i"] + " • " + ((game["y"] === 1) ? "Rated" : "Casual") + " • " + variantName(game["v"], game["z"])),
+                    h('div.tc', game["b"] + "+" + game["i"] + " • " + ((game["y"] === 1) ? _("Rated") : _("Casual")) + " • " + variantName(game["v"], game["z"])),
                     h('info-date', {attrs: {timestamp: game["d"]}}),
                 ]),
             ]),
@@ -116,7 +117,7 @@ function renderGames(model, games) {
                     h('player', [
                         h('a.user-link', {attrs: {href: '/@/' + game["us"][0]}}, [
                             h('player-title', " " + game["wt"] + " "),
-                            game["us"][0] + ((game["wt"] === 'BOT' && game['x'] >= 0) ? ' level ' + game['x']: ''),
+                            game["us"][0] + ((game["wt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
                             h('br'),
                             (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
                             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
@@ -126,7 +127,7 @@ function renderGames(model, games) {
                     h('player', [
                         h('a.user-link', {attrs: {href: '/@/' + game["us"][1]}}, [
                             h('player-title', " " + game["bt"] + " "),
-                            game["us"][1] + ((game["bt"] === 'BOT' && game['x'] >= 0) ? ' level ' + game['x']: ''),
+                            game["us"][1] + ((game["bt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
                             h('br'),
                             (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
                             (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
@@ -143,7 +144,7 @@ function renderGames(model, games) {
             h('div.info0.games', [
                 h('div', [
                     h('div.info0', game["m"] === undefined ? "" : game["m"].length + " moves"),
-                    h('div.info0', game["a"] === undefined ? "" : [h('span.icon', {attrs: {"data-icon": "3"}, class: {"icon": true}}), "Computer analysis available"]),
+                    h('div.info0', game["a"] === undefined ? "" : [h('span.icon', {attrs: {"data-icon": "3"}, class: {"icon": true}}), _("Computer analysis available")]),
                 ]),
             ]),
         ])
@@ -218,16 +219,16 @@ export function profileView(model) {
                         ]),
                     ]),
                     h('a.i-at', {
-                        attrs: {href: 'https://lichess.org/@/' + model["profileid"], title: 'Lichess profile'},
+                        attrs: {href: 'https://lichess.org/@/' + model["profileid"], title: _('Lichess profile')},
                         class: {"icon": true, "icon-at": true, "disabled": anon}}),
                     h('a.i-dl', {
-                        attrs: {href: '/games/export/' + model["profileid"], download: model["profileid"] + '.pgn', title: 'Export games'},
+                        attrs: {href: '/games/export/' + model["profileid"], download: model["profileid"] + '.pgn', title: _('Export games')},
                         class: {"icon": true, "icon-download": true, "disabled": anon || model["title"] === 'BOT'}}),
                     h('a.i-tv', {
-                        attrs: {href: '/@/' + model["profileid"] + '/tv', title: 'Watch games'},
+                        attrs: {href: '/@/' + model["profileid"] + '/tv', title: _('Watch games')},
                         class: {"icon": true, "icon-tv": true}}),
                     h('a.i-ch', {
-                        attrs: {href: '/@/' + model["profileid"] + '/challenge', title: 'Challenge to a game'},
+                        attrs: {href: '/@/' + model["profileid"] + '/challenge', title: _('Challenge to a game')},
                         class: {"icon": true, "icon-crossedswords": true, "disabled": anon || model["username"] === model["profileid"]}}),
                     ]),
                 h('table#games'),

@@ -1,5 +1,7 @@
 import h from 'snabbdom/h';
 
+import { _ } from './i18n';
+
 export function player(id, title, name, rating, level) {
     return h('round-player', [
         h('div.player-data', [
@@ -7,7 +9,7 @@ export function player(id, title, name, rating, level) {
             h('player', [
                 h('a.user-link', {attrs: {href: '/@/' + name}}, [
                     h('player-title', " " + title + " "),
-                    name + ((title === "BOT" && level >= 0) ? ' level ' + level: ''),
+                    name + ((title === "BOT" && level >= 0) ? _(' level ') + level: ''),
                 ]),
                 h('rating', rating),
             ]),

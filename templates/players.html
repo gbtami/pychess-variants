@@ -5,7 +5,7 @@
     <table id="players">
         <thead>
             <tr>
-                <th>Online</th>
+                <th>{% trans %}Online{% endtrans %}</th>
             </tr>
         </thead>
         <tbody>
@@ -24,14 +24,14 @@
                 <td class="player-data">
                 <i-side class="online icon icon-online"></i-side>
                 <player>
-                    <div">Anonymous({{ anon_online }})</a>
+                    <div">{% trans %}Anonymous{% endtrans %}({{ anon_online }})</a>
                 </player>
                 </td>
             </tr>
             {% endif %}
         </tbody>
     </table>
-    <a class="allplayers-button" href="{{ home }}/allplayers">All players</a>
+    <a class="allplayers-button" href="{{ home }}/allplayers">{% trans %}All players{% endtrans %}</a>
 </main>
 <aside class="sidebar-first">
     <div class="highscore">

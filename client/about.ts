@@ -1,13 +1,15 @@
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
+import { _ } from './i18n';
+
 
 const untitled = [
-"\"To me, how we've got here today is owing to Stockfish in a BIG way. They rallied global volunteers to come together in the open-source spirit and create such a powerful engine for FREE. That's a lot of great minds and computing power they've managed to harness.",
-"Then we've got Lichess to thank. Lichess was also born out of the same open-source spirit, and it too drew in great people as well. Once Lichess incorporated Stockfish as its brains, the rest is history.",
-"Lichess enables the online, real-time, and competitive aspects of game-play. They also bring the enormous power of Stockfish to the masses, who can now benefit from it without configuring a local GUI. I believe this development turns out to be of great consequence and significance.",
-"Later on, developers close to the Lichess project eventually extended Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al. The father of Fairy-Stockfish, Fabian, is also one of those devs (still) working on that fork, and he later took several steps further in terms of variant support and extensibility. Thus Fairy-Stockfish was born, so powerful because it builds on the Stockfish project.",
-"Then comes our beloved pychess-variants, which again very smartly harnesses the underlying superpowers of the big projects. Same online, real-time, and competitive aspects. Same clean and familiar Lichess look and feel. Plus the power of Stockfish!\"",
+_("\"To me, how we've got here today is owing to Stockfish in a BIG way. They rallied global volunteers to come together in the open-source spirit and create such a powerful engine for FREE. That's a lot of great minds and computing power they've managed to harness."),
+_("Then we've got Lichess to thank. Lichess was also born out of the same open-source spirit, and it too drew in great people as well. Once Lichess incorporated Stockfish as its brains, the rest is history."),
+_("Lichess enables the online, real-time, and competitive aspects of game-play. They also bring the enormous power of Stockfish to the masses, who can now benefit from it without configuring a local GUI. I believe this development turns out to be of great consequence and significance."),
+_("Later on, developers close to the Lichess project eventually extended Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al. The father of Fairy-Stockfish, Fabian, is also one of those devs (still) working on that fork, and he later took several steps further in terms of variant support and extensibility. Thus Fairy-Stockfish was born, so powerful because it builds on the Stockfish project."),
+_("Then comes our beloved pychess-variants, which again very smartly harnesses the underlying superpowers of the big projects. Same online, real-time, and competitive aspects. Same clean and familiar Lichess look and feel. Plus the power of Stockfish!\""),
 ]
 
 export function aboutView(model): VNode[] {
@@ -16,10 +18,10 @@ export function aboutView(model): VNode[] {
             h('main.main', [
                 h('div.about', [
                     h('img.center', {attrs: {src: '/static/favicon/favicon-96x96.png'}}),
-                    h('h1', {attrs: {align: 'center'}}, 'About pychess-variants'),
-                    h('p', 'pychess-variants is a free, open-source chess server designed to play several chess variant.'),
+                    h('h1', {attrs: {align: 'center'}}, _('About pychess')),
+                    h('p', _('pychess is a free, open-source chess server designed to play several chess variant.')),
                     h('p', [
-                        "Currently supported games are ",
+                        _("Currently supported games are "),
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/makruk'}}, 'Makruk'),
                         ", ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/makpong'}}, 'Makpong'),
@@ -66,11 +68,11 @@ export function aboutView(model): VNode[] {
                         " and standard ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/chess'}}, 'Chess.'),
                     ]),
-                    h('p', ['Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with ',
-                            h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Chess960#Castling_rules'}}, 'Chess960 castling rules.')
+                    h('p', [_('Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with '),
+                            h('a', {attrs: {href: 'https://en.wikipedia.org/wiki/Chess960#Castling_rules'}}, _('Chess960 castling rules.'))
                         ]),
                     h('p', [
-                        'For move generation, validation, analysis and engine play it uses ',
+                        _('For move generation, validation, analysis and engine play it uses '),
                         h('a', {attrs: {href: 'https://github.com/gbtami/Fairy-Stockfish'}}, 'Fairy-Stockfish'),
                         ", ",
                         h('a', {attrs: {href: 'https://github.com/gbtami/fairyfishnet'}}, 'fairyfishnet'),
@@ -78,15 +80,15 @@ export function aboutView(model): VNode[] {
                         h('a', {attrs: {href: 'https://github.com/gbtami/lichess-bot-variants'}}, 'lichess-bot-variants.'),
                     ]),
                     h('p', [
-                        'On client side it is based on ',
+                        _('On client side it is based on '),
                         h('a', {attrs: {href: 'https://github.com/gbtami/chessgroundx'}}, 'chessgroundx.'),
                     ]),
                     h('p', [
-                        'Source code of server is available at ',
+                        _('Source code of server is available at '),
                         h('a', {attrs: {href: 'https://github.com/gbtami/pychess-variants'}}, 'GitHub.'),
                     ]),
                     h('hr'),
-                    h('p', 'Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.'),
+                    h('p', _('Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.')),
                     h('hr'),
                     h('p', untitled.map((paragraph) => {return h('p', paragraph)})),
                     h('p', 'Untitled_Entity'),

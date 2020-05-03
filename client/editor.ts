@@ -13,6 +13,7 @@ import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
+import { _ } from './i18n';
 import { enabled_variants, getPockets, needPockets, validFen, variantName, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
 import { iniPieces } from './pieces';
@@ -92,17 +93,17 @@ export default class EditorController {
         );
 
         e = document.getElementById('clear') as HTMLElement;
-        patch(e, h('div', [h('a', {on: {click: () => this.setEmptyFen()}}, 'CLEAR BOARD')]));
+        patch(e, h('div', [h('a', {on: {click: () => this.setEmptyFen()}}, _('CLEAR BOARD'))]));
 
         e = document.getElementById('start') as HTMLElement;
-        patch(e, h('div', [h('a', {on: {click: () => this.setStartFen()}}, 'STARTING POSITION')]));
+        patch(e, h('div', [h('a', {on: {click: () => this.setStartFen()}}, _('STARTING POSITION'))]));
 
         e = document.getElementById('challenge') as HTMLElement;
-        const text = 'PLAY WITH MACHINE' + ((this.anon) ? ' (must be signed in)' : '');
+        const text = _('PLAY WITH MACHINE') + ((this.anon) ? _(' (must be signed in)') : '');
         this.vChallenge = patch(e, h('div', [h('a', {class: {disabled: this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
 
         e = document.getElementById('png') as HTMLElement;
-        patch(e, h('div', [h('a', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}, 'EXPORT TO PNG')]));
+        patch(e, h('div', [h('a', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}, _('EXPORT TO PNG'))]));
 
     }
 
@@ -112,10 +113,10 @@ export default class EditorController {
     }
 
     private setInvalid = (invalid) => {
-        const text = 'PLAY WITH MACHINE' + ((this.anon) ? ' (must be signed in)' : '');
+        const text = _('PLAY WITH MACHINE') + ((this.anon) ? _(' (must be signed in)') : '');
         this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid || this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
         const e = document.getElementById('fen') as HTMLInputElement;
-        e.setCustomValidity(invalid ? 'Invalid FEN' : '');
+        e.setCustomValidity(invalid ? _('Invalid FEN') : '');
     }
 
     private setStartFen = () => {
@@ -205,7 +206,7 @@ export function editorView(model): VNode[] {
     return [h('aside.sidebar-first', [
                 h('div.container', [
                     h('div', [
-                        h('label', { attrs: {for: "variant"} }, "Variant"),
+                        h('label', { attrs: {for: "variant"} }, _("Variant")),
                         h('select#variant', {
                             props: {name: "variant"},
                             on: { input: () => setVariant(true) },
