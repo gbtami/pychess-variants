@@ -208,7 +208,7 @@ ul.guide li {
   font-size: 17px;
 }
 
-.topnav .tool-container button {
+.topnav .tool-container button, .topnav .tool-container .langs {
   float: right;
   color: var(--font-color);
   background-color: inherit;
@@ -1406,4 +1406,14 @@ boardeditor {
 
 .allplayers-button {
   padding-top: 10px;
+}
+
+.langs select {
+  padding: 0px 4px 0px 4px;
+  margin: 10px 0;
+  border: none;
+  background-color: inherit;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }

@@ -16,18 +16,10 @@ import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
 import { sound } from './sound';
+import { getCookie, i18n } from './settings';
 
 const model = {};
 
-var getCookie = function(name) {
-    var cookies = document.cookie.split(';');
-    for(var i=0 ; i < cookies.length ; ++i) {
-        var pair = cookies[i].trim().split('=');
-        if(pair[0] == name)
-            return pair[1];
-    }
-    return "";
-}
 
 export function view(el, model): VNode {
     const user = getCookie("user");
@@ -141,8 +133,25 @@ function setupEventSource() {
     };
 }
 
-const el = document.getElementById('pychess-variants');
-if (el instanceof Element) {
+function start() {
     patch(document.getElementById('placeholder') as HTMLElement, view(el, model));
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
+}
+ 
+const el = document.getElementById('pychess-variants');
+if (el instanceof Element) {
+    const lang = el.getAttribute("data-lang");
+    fetch('static/lang/' + lang + '/LC_MESSAGES/client.json')
+      .then((res) => res.json())
+      .then((translation) => {
+        i18n.loadJSON(translation, 'messages');
+        i18n.setLocale(lang);
+        console.log('Loaded translations for lang', lang);
+        start();
+      })
+      .catch(() => {
+        console.error('Could not load translations for lang', lang);
+        i18n.setLocale('');
+        start();
+      });
 }

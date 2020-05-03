@@ -11,6 +11,8 @@ import h from 'snabbdom/h';
 
 import { dimensions } from 'chessgroundx/types';
 
+import trans from './gettext.cjs.min.js';
+
 import { variants, VARIANTS } from './chess';
 import { pocketView } from './pocket';
 import { player } from './player';
@@ -19,6 +21,26 @@ import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { updateCount, updatePoint } from './info';
 
+
+export const i18n = trans();
+export function _(msgid) {return i18n.gettext(msgid)};
+
+export function getCookie(name) {
+    var cookies = document.cookie.split(';');
+    for(var i=0 ; i < cookies.length ; ++i) {
+        var pair = cookies[i].trim().split('=');
+        if(pair[0] == name)
+            return pair[1];
+    }
+    return "";
+}
+
+export function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  var expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
 
 export function changeCSS(cssFile) {
     // css file index in template.html
