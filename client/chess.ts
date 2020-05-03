@@ -583,11 +583,23 @@ function touchingKings(pieces) {
 // Get counting information for makruk etc
 export function getCounting(fen) {
     const parts = fen.split(" ");
+
     var countingLimit = parseInt(parts[3]);
     if (isNaN(countingLimit)) countingLimit = 0;
+
     var countingPly = parseInt(parts[4]);
     if (isNaN(countingPly)) countingPly = 0;
-    return [countingPly, countingLimit];
+
+    const board = parts[0];
+    const whitePieces = (board.match(/[A-Z]/g) || []).length;
+    const blackPieces = (board.match(/[a-z]/g) || []).length;
+    const countingType = (countingLimit === 0) ? 'none' : ((whitePieces > 1 && blackPieces > 1) ? 'board' : 'piece');
+
+    const sideToMove = parts[1];
+    const opponent = (sideToMove === 'w') ? 'b' : 'w';
+    const countingSide = (countingType === 'none' || countingPly === 0) ? '' : ((countingPly % 2 === 0) ? sideToMove : opponent);
+
+    return [countingPly, countingLimit, countingSide, countingType];
 }
 
 // Get janggi material points

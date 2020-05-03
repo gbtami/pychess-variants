@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 class FairyBoard:
-    def __init__(self, variant, initial_fen="", chess960=False):
+    def __init__(self, variant, initial_fen="", chess960=False, count_started=0):
         if variant == "shogun":
             sf.set_option("Protocol", "uci")
         self.variant = variant
@@ -31,6 +31,8 @@ class FairyBoard:
         self.fen = self.initial_fen
         if chess960 and initial_fen == self.start_fen(variant):
             self.chess960 = False
+        self.manual_count = count_started != 0
+        self.count_started = count_started
 
     def start_fen(self, variant, chess960=False):
         if chess960:
@@ -47,7 +49,7 @@ class FairyBoard:
             self.move_stack.append(move)
             self.ply += 1
             self.color = not self.color
-            self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted)
+            self.fen = sf.get_fen(self.variant, self.fen, [move], self.chess960, self.sfen, self.show_promoted, self.count_started)
         except Exception:
             self.move_stack.pop()
             self.ply -= 1
@@ -75,7 +77,7 @@ class FairyBoard:
         return immediate_end, result
 
     def is_optional_game_end(self):
-        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return sf.is_optional_game_end(self.variant, self.initial_fen, self.move_stack, self.chess960, self.count_started)
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()

@@ -88,11 +88,45 @@ class Game:
 
         self.id = gameId
 
+        # Makruk manual counting
+        use_manual_counting = self.variant == "makruk" or self.variant == "makpong" or self.variant == "cambodian"
+        self.manual_count = use_manual_counting and not self.bot_game
+        self.manual_count_toggled = []
+
+        # Calculate the start of manual counting
+        count_started = 0
+        if self.manual_count:
+            count_started = -1
+            parts = initial_fen.split()
+            board_state = parts[0]
+            side_to_move = parts[1]
+            counting_limit = int(parts[3]) if len(parts) >= 4 and parts[3].isdigit() else 0
+            counting_ply = int(parts[4]) if len(parts) >= 5 else 0
+            move_number = int(parts[5]) if len(parts) >= 6 else 0
+
+            white_pieces = sum(1 for c in board_state if c.isupper())
+            black_pieces = sum(1 for c in board_state if c.islower())
+            if counting_limit > 0 and counting_ply > 0:
+                if white_pieces <= 1 or black_pieces <= 1:
+                    # Disable manual count if either side is already down to lone king
+                    count_started = 0
+                    self.manual_count = False
+                else:
+                    last_ply = 2 * move_number - (2 if side_to_move == 'w' else 1)
+                    count_started = last_ply - counting_ply + 1
+                    if count_started < 1:
+                        # Move number is too small for the current count
+                        count_started = 0
+                        self.manual_count = False
+                    else:
+                        counting_player = self.bplayer if counting_ply % 2 == 0 else self.wplayer
+                        self.draw_offers.add(counting_player.username)
+
         if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
                 self.initial_fen = ""
 
-        self.board = self.create_board(self.variant, self.initial_fen, self.chess960)
+        self.board = self.create_board(self.variant, self.initial_fen, self.chess960, count_started)
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -134,8 +168,8 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
-    def create_board(self, variant, initial_fen, chess960):
-        return FairyBoard(variant, initial_fen, chess960)
+    def create_board(self, variant, initial_fen, chess960, count_started):
+        return FairyBoard(variant, initial_fen, chess960, count_started)
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
@@ -150,9 +184,11 @@ class Game:
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
-        if opp_player.username in self.draw_offers:
+
+        if self.board.count_started <= 0:
             # Move cancels draw offer
-            self.draw_offers.remove(opp_player.username)
+            # Except in manual counting, since it is a permanent draw offer
+            self.draw_offers.discard(opp_player.username)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
@@ -201,6 +237,15 @@ class Game:
                 self.ply_clocks.append(clocks)
                 self.set_dests()
                 self.update_status()
+
+                # Stop manual counting when the king is bared
+                if self.board.count_started > 0:
+                    board_state = self.board.fen.split()[0]
+                    white_pieces = sum(1 for c in board_state if c.isupper())
+                    black_pieces = sum(1 for c in board_state if c.islower())
+                    if white_pieces <= 1 or black_pieces <= 1:
+                        self.stop_manual_count()
+                        self.board.count_started = 0
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -295,6 +340,11 @@ class Game:
 
             if with_clocks:
                 new_data["clocks"] = self.ply_clocks
+
+            if self.manual_count:
+                if self.board.count_started > 0:
+                    self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
+                new_data["mct"] = self.manual_count_toggled
 
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
@@ -443,6 +493,17 @@ class Game:
 
             if self.check:
                 self.status = MATE
+                # Draw if the checkmating player is the one counting
+                if self.board.count_started > 0:
+                    counting_side = 'b' if self.board.count_started % 2 == 0 else 'w'
+                    if counting_side == 'w':
+                        if self.result == "1-0":
+                            self.status = DRAW
+                            self.result = "1/2-1/2"
+                    else:
+                        if self.result == "0-1":
+                            self.status = DRAW
+                            self.result = "1/2-1/2"
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
@@ -458,6 +519,16 @@ class Game:
                 else:
                     self.result = "0-1" if self.board.color == BLACK else "1-0"
                 print(self.result, "variant end")
+
+        if self.variant == 'makruk' or self.variant == 'makpong' or self.variant == 'cambodian' or self.variant == 'sittuyin':
+            parts = self.board.fen.split()
+            if parts[3].isdigit():
+                counting_limit = int(parts[3])
+                counting_ply = int(parts[4])
+                if counting_ply > counting_limit:
+                    self.status = DRAW
+                    self.result = "1/2-1/2"
+                    print(self.result, "counting limit reached")
 
         if self.board.ply > MAX_PLY:
             self.status = DRAW
@@ -604,6 +675,23 @@ class Game:
         return {
             "type": "gameEnd", "status": self.status, "result": self.result, "gameId": self.id, "pgn": self.pgn, "ct": self.crosstable,
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else ""}
+
+    def start_manual_count(self):
+        if self.manual_count:
+            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+            opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
+            self.draw_offers.discard(opp_player.username)
+            self.draw_offers.add(cur_player.username)
+            self.board.count_started = self.board.ply + 1
+
+    def stop_manual_count(self):
+        if self.manual_count:
+            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+            opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
+            self.draw_offers.discard(cur_player.username)
+            self.draw_offers.discard(opp_player.username)
+            self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
+            self.board.count_started = -1
 
     def get_board(self, full=False):
         if full:

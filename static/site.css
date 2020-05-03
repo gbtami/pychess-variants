@@ -730,27 +730,23 @@ select, input {
   padding-bottom: 12px;
 }
 
-#count {
+#count-white, #count-black {
   font-family: "Roboto Mono", "Roboto";
-  font-size: 30px;
-  text-align: center;
-  background-color: var(--bg-color1);
-  box-shadow: var(--base-shadow);
-  margin-bottom: 15px;
-  margin-left: 50px;
-  margin-right: 50px;
+  font-size: 40px;
+  text-align: right;
+  padding-right: 10px;
 }
 
 #janggi-points {
   font-family: "Roboto Mono", "Roboto";
-  font-size: 50px;
+  font-size: 40px;
   display: flex;
   justify-content: space-around;
 }
 
 #janggi-point-cho {
   font-family: "Roboto Mono", "Roboto";
-  font-size: 50px;
+  font-size: 40px;
   text-align: right;
   padding-right: 10px;
   color: var(--blue-point);
@@ -759,7 +755,7 @@ select, input {
 
 #janggi-point-han {
   font-family: "Roboto Mono", "Roboto";
-  font-size: 50px;
+  font-size: 40px;
   text-align: center;
   text-align: right;
   padding-right: 10px;
@@ -835,6 +831,7 @@ button:disabled {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 }
 #clock0 {
   display: flex;
