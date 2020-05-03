@@ -135,24 +135,24 @@ async def load_game(app, game_id):
         print(doc["mct"])
         manual_count_toggled = iter(doc["mct"])
         count_started = -1
-        count_ended = -1 
+        count_ended = -1
 
     for ply, move in enumerate(mlist):
         try:
             if "mct" in doc:
-                #print("Ply", ply, "Move", move)
+                # print("Ply", ply, "Move", move)
                 if ply + 1 >= count_ended:
                     try:
                         game.board.count_started = -1
                         count_started, count_ended = next(manual_count_toggled)
-                        #print("New count interval", (count_started, count_ended))
+                        # print("New count interval", (count_started, count_ended))
                     except StopIteration:
-                        #print("Piece's honour counting started")
+                        # print("Piece's honour counting started")
                         count_started = 0
                         count_ended = MAX_PLY + 1
                         game.board.count_started = 0
                 if ply + 1 == count_started:
-                    #print("Count started", count_started)
+                    # print("Count started", count_started)
                     game.board.count_started = ply
 
             san = game.board.get_san(move)
