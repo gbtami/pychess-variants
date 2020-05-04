@@ -112,11 +112,16 @@ async def init_state(app):
     # Configure templating.
     app["jinja"] = {}
     for lang in LANGUAGES:
+        try:
+            translation = gettext.translation("server", localedir="lang", languages=[lang])
+        except FileNotFoundError:
+            log.warning("Missing translations file for lang %s" % lang)
+            translation = gettext.NullTranslations()
+
         env = jinja2.Environment(
             extensions=['jinja2.ext.i18n'],
             loader=jinja2.FileSystemLoader("templates"),
             autoescape=jinja2.select_autoescape(["html"]))
-        translation = gettext.translation("server", localedir="lang", languages=[lang])
         env.install_gettext_translations(translation, newstyle=True)
         app["jinja"][lang] = env
 
