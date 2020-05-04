@@ -142,7 +142,7 @@ function start() {
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
     const lang = el.getAttribute("data-lang");
-    fetch('static/lang/' + lang + '/LC_MESSAGES/client.json')
+    fetch('/static/lang/' + lang + '/LC_MESSAGES/client.json')
       .then((res) => res.json())
       .then((translation) => {
         i18n.loadJSON(translation, 'messages');
