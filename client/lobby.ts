@@ -13,7 +13,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { _ } from './i18n';
+import { _, i18n } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { enabled_variants, validFen, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
 import { sound } from './sound';
@@ -311,7 +311,7 @@ class LobbyController {
             ]),
             h('div.container', [
                 h('div#challenge-block', [
-                    h('h3', _('Challenge ') + this.model["profileid"] + _(' to a game')),
+                    h('h3', i18n.gettext('Challenge %1 to a game', this.model["profileid"])),
                 ]),
                 h('div', [
                     h('label', { attrs: {for: "variant"} }, _("Variant")),

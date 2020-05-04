@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"POT-Creation-Date: 2020-05-04 23:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -156,7 +156,7 @@ msgid " Request Analysis"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:440
-msgid "Fairy-Stockfish, Depth "
+msgid "Depth"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
@@ -364,11 +364,7 @@ msgid "Cancel"
 msgstr ""
 
 #: ../client/lobby.ts:326
-msgid "Challenge "
-msgstr ""
-
-#: ../client/lobby.ts:326
-msgid " to a game"
+msgid "Challenge %1 to a game"
 msgstr ""
 
 #: ../client/lobby.ts:337
@@ -451,6 +447,10 @@ msgstr ""
 
 #: ../client/lobby.ts:687
 msgid "0 games in play"
+msgstr ""
+
+#: ../client/main.ts:72
+msgid "Thank you for your support!"
 msgstr ""
 
 #: ../client/profile.ts:31
@@ -563,11 +563,7 @@ msgid "Red (Han)"
 msgstr ""
 
 #: ../client/roundCtrl.ts:420
-msgid "Waiting for "
-msgstr ""
-
-#: ../client/roundCtrl.ts:420
-msgid " to choose starting positions of the horses and elephants..."
+msgid "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr ""
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
@@ -602,23 +598,23 @@ msgstr ""
 msgid "Start counting"
 msgstr ""
 
-#: ../client/settings.ts:352
+#: ../client/settings.ts:348
 msgid "[-] Zoom [+]"
 msgstr ""
 
-#: ../client/settings.ts:357
+#: ../client/settings.ts:353
 msgid "Show piece destinations"
 msgstr ""
 
-#: ../client/settings.ts:364
+#: ../client/settings.ts:360
 msgid "Two click drop moves"
 msgstr ""
 
-#: ../client/settings.ts:380
+#: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
 msgstr ""
 
-#: ../client/settings.ts:387
+#: ../client/settings.ts:383
 msgid "Best move arrow"
 msgstr ""
 

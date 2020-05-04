@@ -13,7 +13,7 @@ import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
-import { _ } from './i18n';
+import { _, i18n } from './i18n';
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
 import makePromotion from './promotion';
@@ -400,7 +400,7 @@ export default class RoundController {
         this.chessground.set({fen: this.setupFen});
 
         const side = (msg.color === 'white') ? _('Blue (Cho)') : _('Red (Han)');
-        const message = _('Waiting for ') + side + _(' to choose starting positions of the horses and elephants...');
+        const message = i18n.gettext('Waiting for %1 to choose starting positions of the horses and elephants...', side);
 
         if (this.spectator || msg.color !== this.mycolor) {
             chatMessage('', message, "roundchat");

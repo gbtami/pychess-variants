@@ -423,7 +423,7 @@ export default class AnalysisController {
                     }
                 };
                 this.vpv = patch(this.vpv, h('div#pv', [
-                    h('div', [h('score', this.steps[ply]['scoreStr']), _('Fairy-Stockfish, Depth ') + String(ceval.d)]),
+                    h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, ' + _('Depth') + ' ' + String(ceval.d)]),
                     h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
                 ]));
                 const stl = document.body.getAttribute('style');

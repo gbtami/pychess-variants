@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"POT-Creation-Date: 2020-05-04 23:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,11 +30,7 @@ msgid "Probably it was abandoned or stopped before the third move."
 msgstr ""
 
 #: ../templates/404.html:23
-msgid "Return to "
-msgstr ""
-
-#: ../templates/404.html:23
-msgid "the homepage"
+msgid "Return to the main page"
 msgstr ""
 
 #: ../templates/closed.html:8
@@ -47,11 +43,7 @@ msgid ""
 "forever. However, maintaining and improving the server costs time and "
 "money.\n"
 "If you like our work and find our server useful, please donate through "
-"patreon"
-msgstr ""
-
-#: ../templates/patron.html:12
-msgid "or through paypal"
+"patreon or paypal."
 msgstr ""
 
 #: ../templates/players.html:8
