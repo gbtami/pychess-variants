@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-04 23:55+0200\n"
+"POT-Creation-Date: 2020-05-05 00:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,6 +57,13 @@ msgstr ""
 #: ../templates/players.html:34
 msgid "All players"
 msgstr ""
+
+#: ../templates/profile.html:13
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../templates/template.html:69
 msgid "Tv"

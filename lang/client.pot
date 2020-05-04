@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-04 23:55+0200\n"
+"POT-Creation-Date: 2020-05-05 00:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -430,12 +430,16 @@ msgid ""
 msgstr ""
 
 #: ../client/lobby.ts:596
-msgid " games in play"
-msgstr ""
+msgid "%1 game in play"
+msgid_plural "%1 games in play"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../client/lobby.ts:606
-msgid " players"
-msgstr ""
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../client/lobby.ts:682
 msgid "Donate"
