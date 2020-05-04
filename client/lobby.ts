@@ -569,7 +569,7 @@ class LobbyController {
         const oldVNode = document.getElementById('g_cnt');
         if (oldVNode instanceof Element) {
             // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#g_cnt', msg["cnt"] + _(' games in play')));
+            patch(oldVNode as HTMLElement, h('counter#g_cnt', i18n.ngettext('%1 game in play', '%1 games in play', msg["cnt"])));
         }
     }
 
@@ -578,7 +578,7 @@ class LobbyController {
         const oldVNode = document.getElementById('u_cnt');
         if (oldVNode instanceof Element) {
             // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#u_cnt', msg["cnt"] + _(' players')));
+            patch(oldVNode as HTMLElement, h('counter#u_cnt', i18n.ngettext('%1 player', '%1 players', msg["cnt"])));
         }
     }
 

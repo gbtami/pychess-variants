@@ -10,7 +10,7 @@
                 <h3>{{ "S-CHESS" if key=="seirawan" else "S-HOUSE" if key=="shouse" else key.upper() }}</h3>
                 <rating>
                     <strong>{{ ratings[key][0] }}</strong>
-                    <span>{{ ratings[key][1] }} games</span>
+                    <span>{% trans count=ratings[key][1] %}{{ count }} game{% pluralize %}{{ count }} games{% endtrans %}</span>
                 </rating>
             </span>
         </div>
