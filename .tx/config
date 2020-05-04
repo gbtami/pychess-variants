@@ -1,0 +1,12 @@
+[main]
+host = https://www.transifex.com
+
+[pychess-variants.client]
+file_filter = lang/<lang>/LC_MESSAGES/client.po
+source_file = lang/client.pot
+source_lang = en
+
+[pychess-variants.server]
+file_filter = lang/<lang>/LC_MESSAGES/server.po
+source_file = lang/server.pot
+source_lang = en

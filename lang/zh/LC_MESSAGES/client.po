@@ -3,9 +3,6 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
-# Translators:
-# gbtami <gbtami@gmail.com>, 2020
-# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -13,14 +10,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-05-03 23:49+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
-"Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
+"Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
-"Language: hu\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: zh\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../client/about.ts:8
 msgid ""
@@ -65,43 +61,39 @@ msgstr ""
 
 #: ../client/about.ts:21
 msgid "About pychess"
-msgstr "A pychess névjegye"
+msgstr ""
 
 #: ../client/about.ts:22
 msgid ""
 "pychess is a free, open-source chess server designed to play several chess "
 "variant."
-msgstr "Apychess egy ingyenes, nyílt forrású sakk variáns szerver "
+msgstr ""
 
 #: ../client/about.ts:24
 msgid "Currently supported games are "
-msgstr "A Jelenleg játszható variánsok "
+msgstr ""
 
 #: ../client/about.ts:71
 msgid ""
 "Additionally you can check Chess960 option in for Standard, Crazyhouse, "
 "Capablanca and Capahouse to start games from random positions with "
 msgstr ""
-"A Standard, Crazyhouse, Capablanca és Capahouse variánsokhoz kiválasztható a"
-" Chess960 opció is véletlen alapállásal és "
 
 #: ../client/about.ts:72
 msgid "Chess960 castling rules."
-msgstr "Fischer random sáncolási szabályokkal."
+msgstr ""
 
 #: ../client/about.ts:75
 msgid "For move generation, validation, analysis and engine play it uses "
 msgstr ""
-"A szabályos lépések ellenőrzéséhez és a gép elleni játékhoz haszált program "
-"a "
 
 #: ../client/about.ts:83
 msgid "On client side it is based on "
-msgstr "A böngészőben futó program alapja a "
+msgstr ""
 
 #: ../client/about.ts:87
 msgid "Source code of server is available at "
-msgstr "A szerver forráskódja elérhető itt "
+msgstr ""
 
 #: ../client/about.ts:91
 msgid ""
@@ -112,101 +104,101 @@ msgstr ""
 #: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:526
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Rated"
-msgstr "Értékelt"
+msgstr ""
 
 #: ../client/analysis.ts:32 ../client/lobby.ts:376 ../client/lobby.ts:526
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Casual"
-msgstr "Nem értékelt"
+msgstr ""
 
 #: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
 msgid "Playing right now"
-msgstr "Folyamatban lévő játszma"
+msgstr ""
 
 #: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
 #: ../client/profile.ts:121 ../client/profile.ts:131
 msgid " level "
-msgstr " szint "
+msgstr ""
 
 #: ../client/analysisCtrl.ts:254
 msgid "You need an account to do that."
-msgstr "Csak regisztrált felhasználók számára elérhető."
+msgstr ""
 
 #: ../client/analysisCtrl.ts:281
 msgid "Download game to PGN file"
-msgstr "Játszma leöltése PGN fájlba."
+msgstr ""
 
 #: ../client/analysisCtrl.ts:281
 msgid " Download PGN"
-msgstr "PGN letöltése"
+msgstr ""
 
 #: ../client/analysisCtrl.ts:283
 msgid "Copy USI/UCI to clipboard"
-msgstr "UCI/USI másolása a vágólapra."
+msgstr ""
 
 #: ../client/analysisCtrl.ts:283
 msgid " Copy UCI/USI"
-msgstr " UCI/USI másolása"
+msgstr ""
 
 #: ../client/analysisCtrl.ts:285
 msgid "Download position to PNG image file"
-msgstr "Állás másolása PNG kép fájlba."
+msgstr ""
 
 #: ../client/analysisCtrl.ts:285
 msgid " PNG image"
-msgstr " PNG kép"
+msgstr ""
 
 #: ../client/analysisCtrl.ts:289
 msgid "Request Computer Analysis"
-msgstr "Számítógépes elemzés kérése"
+msgstr ""
 
 #: ../client/analysisCtrl.ts:289
 msgid " Request Analysis"
-msgstr " Elemzés kérése"
+msgstr ""
 
 #: ../client/analysisCtrl.ts:440
 msgid "Fairy-Stockfish, Depth "
-msgstr "Fairy-Stockfish, mélység "
+msgstr ""
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
-msgstr "néző(k)"
+msgstr ""
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
 msgid "Requseted game "
-msgstr "A kért játszma "
+msgstr ""
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
 msgid " not found!"
-msgstr " nem található!"
+msgstr ""
 
 #: ../client/chart.ts:19
 msgid "Initial position"
-msgstr "Kezdőállás"
+msgstr ""
 
 #: ../client/chart.ts:75
 msgid "Advantage"
-msgstr "Előny"
+msgstr ""
 
 #: ../client/chat.ts:24
 msgid "Spectator room"
-msgstr "Figyelőszoba"
+msgstr ""
 
 #: ../client/chat.ts:24
 msgid "Chat room"
-msgstr "Csevegő"
+msgstr ""
 
 #: ../client/chat.ts:33
 msgid "Sign in to chat"
-msgstr "Jelentkezz be"
+msgstr ""
 
 #: ../client/chat.ts:33
 msgid "Please be nice in the chat!"
-msgstr "Légy udvarias másokkal!"
+msgstr ""
 
 #: ../client/chat.ts:51
 msgid "Server"
-msgstr "Szerver"
+msgstr ""
 
 #: ../client/chess.ts:40
 msgid "A game closely resembling the original Chaturanga"
@@ -312,325 +304,323 @@ msgstr ""
 
 #: ../client/chess.ts:129 ../client/chess.ts:152 ../client/lobby.ts:409
 msgid "Black"
-msgstr "Sötét"
+msgstr ""
 
 #: ../client/chess.ts:133 ../client/chess.ts:148
 msgid "Red"
-msgstr "Piros"
+msgstr ""
 
 #: ../client/chess.ts:135
 msgid "Blue"
-msgstr "Kék"
+msgstr ""
 
 #: ../client/chess.ts:137 ../client/chess.ts:146 ../client/lobby.ts:411
 msgid "White"
-msgstr "Világos"
+msgstr ""
 
 #: ../client/chess.ts:150
 msgid "Gold"
-msgstr "Arany"
+msgstr ""
 
 #: ../client/editor.ts:97
 msgid "CLEAR BOARD"
-msgstr "ÜRES TÁBLA"
+msgstr ""
 
 #: ../client/editor.ts:100
 msgid "STARTING POSITION"
-msgstr "KEZDŐÁLLÁS"
+msgstr ""
 
 #: ../client/editor.ts:103 ../client/editor.ts:117
 msgid "PLAY WITH MACHINE"
-msgstr "JÁTÉK A GÉP ELLEN"
+msgstr ""
 
 #: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:337
 msgid " (must be signed in)"
-msgstr " (jelentkezz be ehhez)"
+msgstr ""
 
 #: ../client/editor.ts:107
 msgid "EXPORT TO PNG"
-msgstr "PGN EXPORT"
+msgstr ""
 
 #: ../client/editor.ts:120 ../client/lobby.ts:267
 msgid "Invalid FEN"
-msgstr "Érvénytelen FEN"
+msgstr ""
 
 #: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:464
 msgid "Variant"
-msgstr "Variáns"
+msgstr ""
 
 #: ../client/lobby.ts:248
 msgid "Byoyomi"
-msgstr "Byoyomi"
+msgstr ""
 
 #: ../client/lobby.ts:248
 msgid "Increment"
-msgstr "Többletidő"
+msgstr ""
 
 #: ../client/lobby.ts:248
 msgid " in seconds:"
-msgstr " másodpercben"
+msgstr ""
 
 #: ../client/lobby.ts:322
 msgid "Cancel"
-msgstr "Mégsem"
+msgstr ""
 
 #: ../client/lobby.ts:326
 msgid "Challenge "
-msgstr "Kihívás"
+msgstr ""
 
 #: ../client/lobby.ts:326
 msgid " to a game"
-msgstr " egy játszmára"
+msgstr ""
 
 #: ../client/lobby.ts:337
 msgid "Paste the FEN text here"
-msgstr "Másold ide a FEN szöveget"
+msgstr ""
 
 #: ../client/lobby.ts:341
 msgid "Handicap"
-msgstr "Előny"
+msgstr ""
 
 #: ../client/lobby.ts:352
 msgid "Minutes per side:"
-msgstr "Perc játékosonként"
+msgstr ""
 
 #: ../client/lobby.ts:367
 msgid "Periods"
-msgstr "Periódus"
+msgstr ""
 
 #: ../client/lobby.ts:386
 msgid "A.I. Level"
-msgstr "A.I.szint"
+msgstr ""
 
 #: ../client/lobby.ts:410
 msgid "Random"
-msgstr "Véletlen szín"
+msgstr ""
 
 #: ../client/lobby.ts:428
 msgid "Create a game"
-msgstr "Játék létrehozása"
+msgstr ""
 
 #: ../client/lobby.ts:441
 msgid "Play with AI (Fairy-Stockfish)"
-msgstr "Játék a gép ellen (Fairy-Stockfish)"
+msgstr ""
 
 #: ../client/lobby.ts:459
 msgid "Player"
-msgstr "Játékos"
+msgstr ""
 
 #: ../client/lobby.ts:460
 msgid "Color"
-msgstr "Szín"
+msgstr ""
 
 #: ../client/lobby.ts:461
 msgid "Rating"
-msgstr "Értékszám"
+msgstr ""
 
 #: ../client/lobby.ts:462
 msgid "Time"
-msgstr "Játékidő"
+msgstr ""
 
 #: ../client/lobby.ts:465
 msgid "Mode"
-msgstr "Mód"
+msgstr ""
 
 #: ../client/lobby.ts:526
 msgid "Custom"
-msgstr "Egyéni"
+msgstr ""
 
 #: ../client/lobby.ts:550
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
 msgstr ""
-"Van egy befejezetlen játszmád!\n"
-"OK a folytatáshoz"
 
 #: ../client/lobby.ts:596
 msgid " games in play"
-msgstr " játszma"
+msgstr ""
 
 #: ../client/lobby.ts:606
 msgid " players"
-msgstr " játékos"
+msgstr ""
 
 #: ../client/lobby.ts:682
 msgid "Donate"
-msgstr "Támogatás"
+msgstr ""
 
 #: ../client/lobby.ts:686
 msgid "0 players"
-msgstr "0 játékos"
+msgstr ""
 
 #: ../client/lobby.ts:687
 msgid "0 games in play"
-msgstr "0 játszma"
+msgstr ""
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
-msgstr "Abortált játszma"
+msgstr ""
 
 #: ../client/profile.ts:34
 msgid "Checkmate"
-msgstr "Matt"
+msgstr ""
 
 #: ../client/profile.ts:37
 msgid " resigned"
-msgstr " feladta"
+msgstr ""
 
 #: ../client/profile.ts:40
 msgid "Stalemate"
-msgstr "Patt"
+msgstr ""
 
 #: ../client/profile.ts:43 ../client/profile.ts:49
 msgid "Time out"
-msgstr "Letelt az idő"
+msgstr ""
 
 #: ../client/profile.ts:46 ../client/roundCtrl.ts:352
 msgid "Draw"
-msgstr "Döntetlen"
+msgstr ""
 
 #: ../client/profile.ts:52
 msgid " abandoned the game"
-msgstr " elhagyta a játszmát"
+msgstr ""
 
 #: ../client/profile.ts:55
 msgid "Cheat detected"
-msgstr "Csalás"
+msgstr ""
 
 #: ../client/profile.ts:58
 msgid "Not started"
-msgstr "Nem kezdték el"
+msgstr ""
 
 #: ../client/profile.ts:61
 msgid "Invalid move"
-msgstr "Érvénytelen FEN"
+msgstr ""
 
 #: ../client/profile.ts:64
 msgid "Unknown reason"
-msgstr "Ismeretlen ok"
+msgstr ""
 
 #: ../client/profile.ts:67
 msgid "Campmate"
-msgstr "Király betörés"
+msgstr ""
 
 #: ../client/profile.ts:67
 msgid "Point counting"
-msgstr "Pont számolás"
+msgstr ""
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
-msgstr "Számítógép elemzés elérhető"
+msgstr ""
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
-msgstr "Lichess profil"
+msgstr ""
 
 #: ../client/profile.ts:230
 msgid "Export games"
-msgstr "Játszmák exportálása"
+msgstr ""
 
 #: ../client/profile.ts:233
 msgid "Watch games"
-msgstr "Játszmák figyelése"
+msgstr ""
 
 #: ../client/profile.ts:236
 msgid "Challenge to a game"
-msgstr "Kihívás"
+msgstr ""
 
 #: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1138
 msgid " +15 seconds"
-msgstr "+15 másodperc"
+msgstr ""
 
 #: ../client/roundCtrl.ts:314
 msgid "Give 15 seconds"
-msgstr "+15 másodperc az ellenfélnek"
+msgstr ""
 
 #: ../client/roundCtrl.ts:350
 msgid "Abort"
-msgstr "Játszma elvetése"
+msgstr ""
 
 #: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
 #: ../client/roundCtrl.ts:857
 msgid "Count"
-msgstr "Számolás"
+msgstr ""
 
 #: ../client/roundCtrl.ts:352
 msgid "Pass"
-msgstr "Passz"
+msgstr ""
 
 #: ../client/roundCtrl.ts:353
 msgid "Resign"
-msgstr "Feladás"
+msgstr ""
 
 #: ../client/roundCtrl.ts:389
 msgid "Are you sure you want to resign?"
-msgstr "Biztosan fel akarod adni?"
+msgstr ""
 
 #: ../client/roundCtrl.ts:419
 msgid "Blue (Cho)"
-msgstr "Kék (Cho)"
+msgstr ""
 
 #: ../client/roundCtrl.ts:419
 msgid "Red (Han)"
-msgstr "Piros (Han)"
+msgstr ""
 
 #: ../client/roundCtrl.ts:420
 msgid "Waiting for "
-msgstr "Várakozás. "
+msgstr ""
 
 #: ../client/roundCtrl.ts:420
 msgid " to choose starting positions of the horses and elephants..."
-msgstr " kiválaszthatja a lovak és elefántok kezdő pozícióját..."
+msgstr ""
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"
-msgstr "Figurák cseréje"
+msgstr ""
 
 #: ../client/roundCtrl.ts:455
 msgid "Ready"
-msgstr "Kész"
+msgstr ""
 
 #: ../client/roundCtrl.ts:502
 msgid "REMATCH"
-msgstr "VISSZAVÁGÓ"
+msgstr ""
 
 #: ../client/roundCtrl.ts:503
 msgid "NEW OPPONENT"
-msgstr "ÚJ JÁTSZMA"
+msgstr ""
 
 #: ../client/roundCtrl.ts:504
 msgid "ANALYSIS BOARD"
-msgstr "ELEMZÉS"
+msgstr ""
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop counting"
-msgstr "Számolás leállítása"
+msgstr ""
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop"
-msgstr "Stop!"
+msgstr ""
 
 #: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
 msgid "Start counting"
-msgstr "számolás indítása"
+msgstr ""
 
 #: ../client/settings.ts:352
 msgid "[-] Zoom [+]"
-msgstr "[-] Zoom [+]"
+msgstr ""
 
 #: ../client/settings.ts:357
 msgid "Show piece destinations"
-msgstr "Lehetséges lépések mutatása"
+msgstr ""
 
 #: ../client/settings.ts:364
 msgid "Two click drop moves"
-msgstr "Visszarakás két kattintással"
+msgstr ""
 
 #: ../client/settings.ts:380
 msgid "Promote to Queen automatically"
-msgstr "Automatikus vezér átvátozás"
+msgstr ""
 
 #: ../client/settings.ts:387
 msgid "Best move arrow"
-msgstr "Javaslat nyilak mutatása"
+msgstr ""

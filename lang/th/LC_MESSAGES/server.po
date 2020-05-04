@@ -3,9 +3,6 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
-# Translators:
-# gbtami <gbtami@gmail.com>, 2020
-# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -13,39 +10,37 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-05-03 23:49+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
-"Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
+"Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
-"Language: hu\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: th\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../templates/404.html:19
 msgid "404 GAME NOT FOUND"
-msgstr "404 JÁTSZMA NEM TALÁLHATÓ"
+msgstr ""
 
 #: ../templates/404.html:21
 msgid "Sorry, but not all games saved on PyChess-Variants server."
-msgstr "Elnézést, de nincs minden játszme mentve a pychess serveren."
+msgstr ""
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
 msgstr ""
-"Valószínűleg a játszmát elhagyták vagy már a harmadik lépés előtt véget ért."
 
 #: ../templates/404.html:23
 msgid "Return to "
-msgstr "Visszatérés a "
+msgstr ""
 
 #: ../templates/404.html:23
 msgid "the homepage"
-msgstr "honlapra"
+msgstr ""
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr "Ezt a fiókot lezárták."
+msgstr ""
 
 #: ../templates/patron.html:8
 msgid ""
@@ -55,64 +50,64 @@ msgstr ""
 
 #: ../templates/patron.html:12
 msgid "or through paypal"
-msgstr "vagy PayPal-on keresztül"
+msgstr ""
 
 #: ../templates/players.html:8
 msgid "Online"
-msgstr "Online"
+msgstr ""
 
 #: ../templates/players.html:27
 msgid "Anonymous"
-msgstr "Vendég"
+msgstr ""
 
 #: ../templates/players.html:34
 msgid "All players"
-msgstr "Játékosok"
+msgstr ""
 
 #: ../templates/template.html:69
 msgid "Tv"
-msgstr "Tv"
+msgstr ""
 
 #: ../templates/template.html:70
 msgid "Current games"
-msgstr "Játszmák"
+msgstr ""
 
 #: ../templates/template.html:71
 msgid "Players"
-msgstr "Játékosok"
+msgstr ""
 
 #: ../templates/template.html:72
 msgid "Editor"
-msgstr "Szerkesztő"
+msgstr ""
 
 #: ../templates/template.html:73
 msgid "Learn"
-msgstr "Tanulás"
+msgstr ""
 
 #: ../templates/template.html:74
 msgid "About"
-msgstr "Névjegy"
+msgstr ""
 
 #: ../templates/template.html:75
 msgid "Original PyChess site"
-msgstr "Régi PyChess"
+msgstr ""
 
 #: ../templates/template.html:78
 msgid "Login with Lichess"
-msgstr "Belépés lichess azonosítóval"
+msgstr ""
 
 #: ../templates/template.html:78
 msgid "Log in"
-msgstr "Belépés"
+msgstr ""
 
 #: ../templates/template.html:80
 msgid "Log out"
-msgstr "Kilépés"
+msgstr ""
 
 #: ../templates/template.html:91
 msgid "Toggle sound"
-msgstr "Hangok ki/be"
+msgstr ""
 
 #: ../templates/template.html:92
 msgid "Toggle dark mode"
-msgstr "Éjszakai/nappali háttér"
+msgstr ""
