@@ -128,7 +128,7 @@ async def index(request):
             view = "round"
         game = await load_game(request.app, gameId)
         if game is None:
-            log.debug("Requseted game %s not in app['games']" % gameId)
+            log.debug("Requested game %s not in app['games']" % gameId)
             template = get_template("404.html")
             return web.Response(
                 text=html_minify(template.render({"home": URI})), content_type="text/html")

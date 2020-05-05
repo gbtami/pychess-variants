@@ -12,7 +12,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Dests, Key, Piece, Variant, Notation } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
-import { _ } from './i18n';
+import { _, i18n } from './i18n';
 import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
@@ -583,7 +583,7 @@ export default class AnalysisController {
     }
 
     private onMsgGameNotFound = (msg) => {
-        alert(_("Requseted game ") + msg['gameId'] + _(" not found!"));
+        alert(i18n.gettext("Requested game %1 not found!", msg['gameId']));
         window.location.assign(this.model["home"]);
     }
 

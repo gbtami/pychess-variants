@@ -1086,7 +1086,7 @@ export default class RoundController {
     }
 
     private onMsgGameNotFound = (msg) => {
-        alert(_("Requseted game ") + msg['gameId'] + _(" not found!"));
+        alert(i18n.gettext("Requested game %1 not found!", msg['gameId']));
         window.location.assign(this.model["home"]);
     }
 

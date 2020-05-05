@@ -202,7 +202,7 @@ async def round_socket_handler(request):
                         game = await load_game(request.app, data["gameId"])
 
                         if game is None:
-                            log.debug("Requseted game %s not found!")
+                            log.debug("Requested game %s not found!")
                             response = {"type": "game_not_found", "username": user.username, "gameId": data["gameId"]}
                             await ws.send_json(response)
                             continue
@@ -356,7 +356,7 @@ async def round_socket_handler(request):
                         await user.clear_seeks(sockets, seeks)
 
                         if game is None:
-                            log.debug("Requseted game %s not found!")
+                            log.debug("Requested game %s not found!")
                             response = {"type": "game_not_found", "username": user.username, "gameId": data["gameId"]}
                             await ws.send_json(response)
                             continue
