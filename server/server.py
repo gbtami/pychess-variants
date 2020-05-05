@@ -12,6 +12,8 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 from motor import motor_asyncio as ma
 from sortedcollections import ValueSortedDict
+from pythongettext.msgfmt import Msgfmt
+from pythongettext.msgfmt import PoSyntaxError
 
 # from i18n import gettext, ngettext
 from ai import BOT_task
@@ -111,7 +113,22 @@ async def init_state(app):
 
     # Configure templating.
     app["jinja"] = {}
+    base = os.path.dirname(__file__)
     for lang in LANGUAGES:
+        # Generate compiled mo file
+        folder = os.path.join(base, "../lang/", lang, "LC_MESSAGES")
+        poname = os.path.join(folder, "server.po")
+        moname = os.path.join(folder, "server.mo")
+        try:
+            with open(poname, 'rb') as po_file:
+                po_lines = [line for line in po_file if line[:8] != b"#, fuzzy"]
+                mo = Msgfmt(po_lines).get()
+                with open(moname, 'wb') as mo_file:
+                    mo_file.write(mo)
+        except PoSyntaxError:
+            log.error("PoSyntaxError in %s" % poname)
+
+        # Create translation class
         try:
             translation = gettext.translation("server", localedir="lang", languages=[lang])
         except FileNotFoundError:
@@ -123,6 +140,7 @@ async def init_state(app):
             loader=jinja2.FileSystemLoader("templates"),
             autoescape=jinja2.select_autoescape(["html"]))
         env.install_gettext_translations(translation, newstyle=True)
+
         app["jinja"][lang] = env
 
     if app["db"] is None:

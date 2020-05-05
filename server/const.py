@@ -1,5 +1,5 @@
 # translations
-LANGUAGES = ["en", "hu"]
+LANGUAGES = ["en", "fr", "hu", "pt", "th", "zh"]
 
 # fishnet work types
 MOVE, ANALYSIS = 0, 1
