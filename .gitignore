@@ -5,3 +5,4 @@ static/pychess-variants.min.js
 package-lock.json
 yarn.lock
 server.sh
+*.mo
