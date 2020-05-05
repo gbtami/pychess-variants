@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"POT-Creation-Date: 2020-05-05 00:48+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -157,7 +157,7 @@ msgid " Request Analysis"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:440
-msgid "Fairy-Stockfish, Depth "
+msgid "Depth"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
@@ -367,11 +367,7 @@ msgid "Cancel"
 msgstr ""
 
 #: ../client/lobby.ts:326
-msgid "Challenge "
-msgstr ""
-
-#: ../client/lobby.ts:326
-msgid " to a game"
+msgid "Challenge %1 to a game"
 msgstr ""
 
 #: ../client/lobby.ts:337
@@ -437,12 +433,14 @@ msgid ""
 msgstr ""
 
 #: ../client/lobby.ts:596
-msgid " games in play"
-msgstr ""
+msgid "%1 game in play"
+msgid_plural "%1 games in play"
+msgstr[0] ""
 
 #: ../client/lobby.ts:606
-msgid " players"
-msgstr ""
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] ""
 
 #: ../client/lobby.ts:682
 msgid "Donate"
@@ -454,6 +452,10 @@ msgstr ""
 
 #: ../client/lobby.ts:687
 msgid "0 games in play"
+msgstr ""
+
+#: ../client/main.ts:72
+msgid "Thank you for your support!"
 msgstr ""
 
 #: ../client/profile.ts:31
@@ -566,11 +568,8 @@ msgid "Red (Han)"
 msgstr ""
 
 #: ../client/roundCtrl.ts:420
-msgid "Waiting for "
-msgstr ""
-
-#: ../client/roundCtrl.ts:420
-msgid " to choose starting positions of the horses and elephants..."
+msgid ""
+"Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr ""
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
@@ -605,22 +604,22 @@ msgstr ""
 msgid "Start counting"
 msgstr ""
 
-#: ../client/settings.ts:352
+#: ../client/settings.ts:348
 msgid "[-] Zoom [+]"
 msgstr ""
 
-#: ../client/settings.ts:357
+#: ../client/settings.ts:353
 msgid "Show piece destinations"
 msgstr ""
 
-#: ../client/settings.ts:364
+#: ../client/settings.ts:360
 msgid "Two click drop moves"
 msgstr ""
 
-#: ../client/settings.ts:380
+#: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
 msgstr ""
 
-#: ../client/settings.ts:387
+#: ../client/settings.ts:383
 msgid "Best move arrow"
 msgstr ""

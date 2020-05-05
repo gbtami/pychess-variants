@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"POT-Creation-Date: 2020-05-05 00:48+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Language-Team: Spanish (https://www.transifex.com/gbtami/teams/14790/es/)\n"
 "MIME-Version: 1.0\n"
@@ -31,11 +31,7 @@ msgid "Probably it was abandoned or stopped before the third move."
 msgstr ""
 
 #: ../templates/404.html:23
-msgid "Return to "
-msgstr ""
-
-#: ../templates/404.html:23
-msgid "the homepage"
+msgid "Return to the main page"
 msgstr ""
 
 #: ../templates/closed.html:8
@@ -45,11 +41,7 @@ msgstr ""
 #: ../templates/patron.html:8
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
-"If you like our work and find our server useful, please donate through patreon"
-msgstr ""
-
-#: ../templates/patron.html:12
-msgid "or through paypal"
+"If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
 
 #: ../templates/players.html:8
@@ -63,6 +55,13 @@ msgstr ""
 #: ../templates/players.html:34
 msgid "All players"
 msgstr ""
+
+#: ../templates/profile.html:13
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../templates/template.html:69
 msgid "Tv"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"POT-Creation-Date: 2020-05-05 00:48+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -165,8 +165,8 @@ msgid " Request Analysis"
 msgstr " Elemzés kérése"
 
 #: ../client/analysisCtrl.ts:440
-msgid "Fairy-Stockfish, Depth "
-msgstr "Fairy-Stockfish, mélység "
+msgid "Depth"
+msgstr ""
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
@@ -375,12 +375,8 @@ msgid "Cancel"
 msgstr "Mégsem"
 
 #: ../client/lobby.ts:326
-msgid "Challenge "
-msgstr "Kihívás"
-
-#: ../client/lobby.ts:326
-msgid " to a game"
-msgstr " egy játszmára"
+msgid "Challenge %1 to a game"
+msgstr ""
 
 #: ../client/lobby.ts:337
 msgid "Paste the FEN text here"
@@ -447,12 +443,16 @@ msgstr ""
 "OK a folytatáshoz"
 
 #: ../client/lobby.ts:596
-msgid " games in play"
-msgstr " játszma"
+msgid "%1 game in play"
+msgid_plural "%1 games in play"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../client/lobby.ts:606
-msgid " players"
-msgstr " játékos"
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../client/lobby.ts:682
 msgid "Donate"
@@ -465,6 +465,10 @@ msgstr "0 játékos"
 #: ../client/lobby.ts:687
 msgid "0 games in play"
 msgstr "0 játszma"
+
+#: ../client/main.ts:72
+msgid "Thank you for your support!"
+msgstr ""
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
@@ -576,12 +580,9 @@ msgid "Red (Han)"
 msgstr "Piros (Han)"
 
 #: ../client/roundCtrl.ts:420
-msgid "Waiting for "
-msgstr "Várakozás. "
-
-#: ../client/roundCtrl.ts:420
-msgid " to choose starting positions of the horses and elephants..."
-msgstr " kiválaszthatja a lovak és elefántok kezdő pozícióját..."
+msgid ""
+"Waiting for %1 to choose starting positions of the horses and elephants..."
+msgstr ""
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"
@@ -615,22 +616,22 @@ msgstr "Stop!"
 msgid "Start counting"
 msgstr "számolás indítása"
 
-#: ../client/settings.ts:352
+#: ../client/settings.ts:348
 msgid "[-] Zoom [+]"
 msgstr "[-] Zoom [+]"
 
-#: ../client/settings.ts:357
+#: ../client/settings.ts:353
 msgid "Show piece destinations"
 msgstr "Lehetséges lépések mutatása"
 
-#: ../client/settings.ts:364
+#: ../client/settings.ts:360
 msgid "Two click drop moves"
 msgstr "Visszarakás két kattintással"
 
-#: ../client/settings.ts:380
+#: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
 msgstr "Automatikus vezér átvátozás"
 
-#: ../client/settings.ts:387
+#: ../client/settings.ts:383
 msgid "Best move arrow"
 msgstr "Javaslat nyilak mutatása"

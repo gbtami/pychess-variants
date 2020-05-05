@@ -3,13 +3,17 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
+# Translators:
+# Marken Foo <marken.foo.yw@gmail.com>, 2020
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-03 23:49+0200\n"
+"POT-Creation-Date: 2020-05-05 00:48+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,94 +24,92 @@ msgstr ""
 
 #: ../templates/404.html:19
 msgid "404 GAME NOT FOUND"
-msgstr ""
+msgstr "404 未查到棋局"
 
 #: ../templates/404.html:21
 msgid "Sorry, but not all games saved on PyChess-Variants server."
-msgstr ""
+msgstr "对不起，但并非所有棋局保存在PyChes-Variants服务器。"
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr ""
+msgstr "可能是在第三步之前停止。"
 
 #: ../templates/404.html:23
-msgid "Return to "
-msgstr ""
-
-#: ../templates/404.html:23
-msgid "the homepage"
+msgid "Return to the main page"
 msgstr ""
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr ""
+msgstr "此帐户已被关闭。"
 
 #: ../templates/patron.html:8
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
-"If you like our work and find our server useful, please donate through patreon"
-msgstr ""
-
-#: ../templates/patron.html:12
-msgid "or through paypal"
+"If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
 
 #: ../templates/players.html:8
 msgid "Online"
-msgstr ""
+msgstr "在线"
 
 #: ../templates/players.html:27
 msgid "Anonymous"
-msgstr ""
+msgstr "匿名"
 
 #: ../templates/players.html:34
 msgid "All players"
-msgstr ""
+msgstr "所有棋手"
+
+#: ../templates/profile.html:13
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] ""
 
 #: ../templates/template.html:69
 msgid "Tv"
-msgstr ""
+msgstr "TV"
 
 #: ../templates/template.html:70
 msgid "Current games"
-msgstr ""
+msgstr "当前对局"
 
 #: ../templates/template.html:71
 msgid "Players"
-msgstr ""
+msgstr "棋手"
 
 #: ../templates/template.html:72
 msgid "Editor"
-msgstr ""
+msgstr "棋盘编辑器"
 
 #: ../templates/template.html:73
 msgid "Learn"
-msgstr ""
+msgstr "学棋"
 
 #: ../templates/template.html:74
 msgid "About"
-msgstr ""
+msgstr "关于本网站"
 
 #: ../templates/template.html:75
 msgid "Original PyChess site"
-msgstr ""
+msgstr "原本PyChess网站"
 
 #: ../templates/template.html:78
 msgid "Login with Lichess"
-msgstr ""
+msgstr "Lichess登录"
 
 #: ../templates/template.html:78
 msgid "Log in"
-msgstr ""
+msgstr "登录"
 
 #: ../templates/template.html:80
 msgid "Log out"
-msgstr ""
+msgstr "登出"
 
 #: ../templates/template.html:91
 msgid "Toggle sound"
-msgstr ""
+msgstr "切换声音"
 
 #: ../templates/template.html:92
 msgid "Toggle dark mode"
-msgstr ""
+msgstr "切换暗模式"
