@@ -1,0 +1,726 @@
+# Translations template for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# 
+# Translators:
+# Frederico Cabral <fjscabral@gmail.com>, 2020
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-05-05 10:12+0200\n"
+"PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Frederico Cabral <fjscabral@gmail.com>, 2020\n"
+"Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+"Language: pt\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../client/about.ts:8
+msgid ""
+"\"To me, how we've got here today is owing to Stockfish in a BIG way. They "
+"rallied global volunteers to come together in the open-source spirit and "
+"create such a powerful engine for FREE. That's a lot of great minds and "
+"computing power they've managed to harness."
+msgstr ""
+"\"Para mim, onde estamos presentemente é graças ao Stockfish. Eles "
+"angariaram voluntários do mundo inteiro e conseguiram criar um engine de "
+"xadrez poderoso GRÁTIS. São várias as capacidades mentais e energia "
+"computacional que eles conseguiram juntar."
+
+#: ../client/about.ts:9
+msgid ""
+"Then we've got Lichess to thank. Lichess was also born out of the same open-"
+"source spirit, and it too drew in great people as well. Once Lichess "
+"incorporated Stockfish as its brains, the rest is history."
+msgstr ""
+"Além disso também temos o Lichess a agradecer. Lichess foi criado pelo mesmo"
+" espírito open-source, e este também atraiu uma grande porção de pessoas. O "
+"Lichess também implementou o Stockfish como o seu cérebro de I.A. e o resto "
+"é história."
+
+#: ../client/about.ts:10
+msgid ""
+"Lichess enables the online, real-time, and competitive aspects of game-play."
+" They also bring the enormous power of Stockfish to the masses, who can now "
+"benefit from it without configuring a local GUI. I believe this development "
+"turns out to be of great consequence and significance."
+msgstr ""
+"O Lichess deu aspectos competitivos às partidas online e em tempo real. Eles"
+" também trouxeram o enorme poder do Stockfish em massa, o que é possivel "
+"agora destrutar deste sem configuração de uma Interface Gráfica Local. Penso"
+" que este desenvolvimento teve um grande significado. "
+
+#: ../client/about.ts:11
+msgid ""
+"Later on, developers close to the Lichess project eventually extended "
+"Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al."
+" The father of Fairy-Stockfish, Fabian, is also one of those devs (still) "
+"working on that fork, and he later took several steps further in terms of "
+"variant support and extensibility. Thus Fairy-Stockfish was born, so "
+"powerful because it builds on the Stockfish project."
+msgstr ""
+"Mais tarde, os desenvolvedores do Lichess eventualmente desenvolveram o "
+"Stockfish para suportar várias Variantes do Xadrez (Multivariant-Stockfish),"
+" a fim de suportar Crazyhouse, etc. O pai do Fairy-Stockfish, Fabian Fichter"
+" é um dos autores e desenvolvedores deste projeto e ainda trabalha na "
+"manutenção do mesmo, que mais tarde tomou o passo seguinte. Daí o nascimento"
+" do Fairy-Stockfish, super poderoso por ser construido a partir do projeto "
+"Stockfish."
+
+#: ../client/about.ts:12
+msgid ""
+"Then comes our beloved pychess-variants, which again very smartly harnesses "
+"the underlying superpowers of the big projects. Same online, real-time, and "
+"competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
+" power of Stockfish!\""
+msgstr ""
+"E após isto temos o nosso adorável pychess-variants, que também foi "
+"implementado de forma inteligente usando os super-poderes dos grandes "
+"projetos. O mesmo ambiente competitivo, jogos online e em tempo real. O "
+"mesmo visual do Lichess, mais o uso do poder do Stockfish!\""
+
+#: ../client/about.ts:21
+msgid "About pychess"
+msgstr "Acerca do pychess"
+
+#: ../client/about.ts:22
+msgid ""
+"pychess is a free, open-source chess server designed to play several chess "
+"variant."
+msgstr ""
+"pychess é um servidor de xadrez grátis, open-source destinado a várias "
+"variantes de xadrez"
+
+#: ../client/about.ts:24
+msgid "Currently supported games are "
+msgstr "Jogos suportados presentemente são"
+
+#: ../client/about.ts:71
+msgid ""
+"Additionally you can check Chess960 option in for Standard, Crazyhouse, "
+"Capablanca and Capahouse to start games from random positions with "
+msgstr ""
+"Adicionalmente pode selecionar a opção de Chess960 para Standard, "
+"Crazyhouse, Capablanca e Capahouse a fim de iniciar partidas com posição "
+"inicial aleatória"
+
+#: ../client/about.ts:72
+msgid "Chess960 castling rules."
+msgstr "Regras de Roque de Xadrez960"
+
+#: ../client/about.ts:75
+msgid "For move generation, validation, analysis and engine play it uses "
+msgstr ""
+"Para geração de jogadas, validação, análise e jogo de Inteligência Artifical"
+" é usado"
+
+#: ../client/about.ts:83
+msgid "On client side it is based on "
+msgstr "O cliente é baseado em"
+
+#: ../client/about.ts:87
+msgid "Source code of server is available at "
+msgstr "O código-fonte do servidor está disponível em"
+
+#: ../client/about.ts:91
+msgid ""
+"Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
+" here."
+msgstr ""
+"Acerca da Privacidade e Termos de Serviço, as regras do lichess.org são "
+"aplicadas aqui."
+
+#: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:526
+#: ../client/profile.ts:112 ../client/round.ts:31
+msgid "Rated"
+msgstr "Valendo Pontos"
+
+#: ../client/analysis.ts:32 ../client/lobby.ts:376 ../client/lobby.ts:526
+#: ../client/profile.ts:112 ../client/round.ts:31
+msgid "Casual"
+msgstr "Amigável"
+
+#: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
+msgid "Playing right now"
+msgstr "Jogos a decorrer"
+
+#: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
+#: ../client/profile.ts:121 ../client/profile.ts:131
+msgid " level "
+msgstr "nível"
+
+#: ../client/analysisCtrl.ts:254
+msgid "You need an account to do that."
+msgstr "Precisas de uma conta para fazer isto."
+
+#: ../client/analysisCtrl.ts:281
+msgid "Download game to PGN file"
+msgstr "Transferir jogo para ficheiro PGN"
+
+#: ../client/analysisCtrl.ts:281
+msgid " Download PGN"
+msgstr "Transferir PGN"
+
+#: ../client/analysisCtrl.ts:283
+msgid "Copy USI/UCI to clipboard"
+msgstr "Copiar USI/UCI para o clipboard"
+
+#: ../client/analysisCtrl.ts:283
+msgid " Copy UCI/USI"
+msgstr "Copiar UCI/USI"
+
+#: ../client/analysisCtrl.ts:285
+msgid "Download position to PNG image file"
+msgstr "Transferir posição para ficheiro de imagem PNG"
+
+#: ../client/analysisCtrl.ts:285
+msgid " PNG image"
+msgstr "Imagem PNG"
+
+#: ../client/analysisCtrl.ts:289
+msgid "Request Computer Analysis"
+msgstr "Solicitar Análise de Computador"
+
+#: ../client/analysisCtrl.ts:289
+msgid " Request Analysis"
+msgstr "Solicitar Análise"
+
+#: ../client/analysisCtrl.ts:440
+msgid "Depth"
+msgstr ""
+
+#: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
+msgid "Spectators: "
+msgstr "Espetadores:"
+
+#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
+msgid "Requseted game "
+msgstr "Jogo Requisitado"
+
+#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
+msgid " not found!"
+msgstr "não encontrado!"
+
+#: ../client/chart.ts:19
+msgid "Initial position"
+msgstr "Posição Inicial"
+
+#: ../client/chart.ts:75
+msgid "Advantage"
+msgstr "Vantagem"
+
+#: ../client/chat.ts:24
+msgid "Spectator room"
+msgstr "Sala de Espetador"
+
+#: ../client/chat.ts:24
+msgid "Chat room"
+msgstr "Sala de Chat"
+
+#: ../client/chat.ts:33
+msgid "Sign in to chat"
+msgstr "Inicie sessão para poder conversar"
+
+#: ../client/chat.ts:33
+msgid "Please be nice in the chat!"
+msgstr "Por favor seja educado ao conversar!"
+
+#: ../client/chat.ts:51
+msgid "Server"
+msgstr "Servidor"
+
+#: ../client/chess.ts:40
+msgid "A game closely resembling the original Chaturanga"
+msgstr "Um jogo semelhante ao Chaturanga original"
+
+#: ../client/chess.ts:41
+msgid "Makruk variant where kings cannot move to escape out of check"
+msgstr "Uma variante de Makruk onde os reis não podem escapar cheque."
+
+#: ../client/chess.ts:42
+msgid "Makruk with a few additional opening abilities"
+msgstr "Makruk com novas funcionalidades na abertura"
+
+#: ../client/chess.ts:43
+msgid "Similar to Makruk, but pieces are placed at the start of the match"
+msgstr "Semelhante ao Makruk, mas as peças são colocadas no inicio de jogo."
+
+#: ../client/chess.ts:44
+msgid "Choose where your pieces start"
+msgstr "Escolha a posição inicial das suas peças"
+
+#: ../client/chess.ts:45
+msgid "Take captured pieces and drop them back on to the board as your own"
+msgstr "Capture peças adversárias e coloque-as no tabuleiro como suas"
+
+#: ../client/chess.ts:46
+msgid "Chess, unmodified, as it's played by FIDE standards"
+msgstr "Xadrez, não modificado, como é jogado a partir das regras FIDE"
+
+#: ../client/chess.ts:47
+msgid "Pieces promote and can be dropped"
+msgstr "Peças podem ser promovidas e colocadas no tabuleiro"
+
+#: ../client/chess.ts:48
+msgid "Shogi on a 5x5 board"
+msgstr "Shogi num tabuleiro de 5x5"
+
+#: ../client/chess.ts:49
+msgid "5x5 Shogi where pieces flip to a different piece each move"
+msgstr ""
+"Shogi em Tabuleiro de 5x5 onde as peças se transformam em peças diferentes a"
+" cada jogada"
+
+#: ../client/chess.ts:50
+msgid ""
+"Similar to Xiangqi, but plays very differently. Tournament rules are used"
+msgstr ""
+"Semelhante ao Xiangqi, mas com diferenças. Regras de Torneio são usadas aqui"
+
+#: ../client/chess.ts:51
+msgid "Open fire on your opponent in this highly aggressive ancient game"
+msgstr "Disparar contra o seu oponente neste jogo super agressivo"
+
+#: ../client/chess.ts:52
+msgid "Xiangqi on a 7x7 board"
+msgstr "Xiangqi num tabuleiro 7x7"
+
+#: ../client/chess.ts:53
+msgid ""
+"Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
+"10x8 board"
+msgstr ""
+"Jogue com as peças Híbridas, Arcebispo (Bispo+Cavalo) e o "
+"Chanceler(Torre+Cavalo), num tabuleiro 10x8"
+
+#: ../client/chess.ts:54
+msgid ""
+"Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
+"moving a back rank piece"
+msgstr ""
+"Peças Híbridas, a Águia (Bispo+Cavalo) e o Elefante(Torre+Cavalo) podem ser "
+"colocadas no tabuleiro após serem movidas as peças localizadas na primeira "
+"Linha."
+
+#: ../client/chess.ts:55
+msgid "Capablanca with Crazyhouse drop rules"
+msgstr "Xadrez Capablanca com regras de Crazyhouse"
+
+#: ../client/chess.ts:56
+msgid "S-Chess with Crazyhouse drop rules"
+msgstr "Xadrez Seirawan com regras de Crazyhouse"
+
+#: ../client/chess.ts:57
+msgid ""
+"Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
+"*grand* 10x10 board"
+msgstr ""
+"Jogue com peças híbridas, Arcebispo (Bispo+Cavalo) e o Chancelor "
+"(Torre+Cavalo) num enorme tabuleiro 10x10"
+
+#: ../client/chess.ts:58
+msgid "Grand Chess with Crazyhouse drop rules"
+msgstr "Xadrez Grand com regras de Crazyhouse"
+
+#: ../client/chess.ts:59
+msgid "Like Capablanca Chess but with a different starting setup"
+msgstr "Semelhante ao Xadrez Capablanca mas com posição inicial diferente."
+
+#: ../client/chess.ts:60
+msgid ""
+"Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
+msgstr ""
+"Introdução do Canhão e do Elefante do XiangQi para um tabuleiro de 10x10"
+
+#: ../client/chess.ts:61
+msgid "Pieces promote and can be dropped, similar to Shogi"
+msgstr "Peças podem ser promovidas e usadas à disposição. Semelhante ao Shogi"
+
+#: ../client/chess.ts:62
+msgid ""
+"Asymmetric variant where one army has pieces that move like knights but "
+"capture differently"
+msgstr ""
+"Variante assimétrica onde um exército tem peças que se movem como um Cavalo "
+"mas capturam de maneira diferente"
+
+#: ../client/chess.ts:129 ../client/chess.ts:152 ../client/lobby.ts:409
+msgid "Black"
+msgstr "Pretas"
+
+#: ../client/chess.ts:133 ../client/chess.ts:148
+msgid "Red"
+msgstr "Vermelho"
+
+#: ../client/chess.ts:135
+msgid "Blue"
+msgstr "Azul"
+
+#: ../client/chess.ts:137 ../client/chess.ts:146 ../client/lobby.ts:411
+msgid "White"
+msgstr "Brancas"
+
+#: ../client/chess.ts:150
+msgid "Gold"
+msgstr "Dourado"
+
+#: ../client/clock.ts:186
+msgid "%1 year ago"
+msgid_plural "%1 years ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/clock.ts:188
+msgid "%1 month ago"
+msgid_plural "%1 months ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/clock.ts:190
+msgid "%1 week ago"
+msgid_plural "%1 weeks ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/clock.ts:192
+msgid "%1 day ago"
+msgid_plural "%1 days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/clock.ts:194
+msgid "%1 hour ago"
+msgid_plural "%1 hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/clock.ts:196
+msgid "%1 minute ago"
+msgid_plural "%1 minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/clock.ts:198
+msgid "%1 second ago"
+msgid_plural "%1 seconds ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/editor.ts:97
+msgid "CLEAR BOARD"
+msgstr "LIMPAR TABULEIRO"
+
+#: ../client/editor.ts:100
+msgid "STARTING POSITION"
+msgstr "POSIÇÃO INICIAL"
+
+#: ../client/editor.ts:103 ../client/editor.ts:117
+msgid "PLAY WITH MACHINE"
+msgstr "JOGAR COM COMPUTADOR"
+
+#: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:337
+msgid " (must be signed in)"
+msgstr "(precisa de ter sessão iniciada)"
+
+#: ../client/editor.ts:107
+msgid "EXPORT TO PNG"
+msgstr "EXPORTAR PARA PNG"
+
+#: ../client/editor.ts:120 ../client/lobby.ts:267
+msgid "Invalid FEN"
+msgstr "FEN Inválido"
+
+#: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:464
+msgid "Variant"
+msgstr "Variante"
+
+#: ../client/lobby.ts:248
+msgid "Byoyomi"
+msgstr "Byoyomi"
+
+#: ../client/lobby.ts:248
+msgid "Increment"
+msgstr "Incremento"
+
+#: ../client/lobby.ts:248
+msgid " in seconds:"
+msgstr "em segundos:"
+
+#: ../client/lobby.ts:322
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: ../client/lobby.ts:326
+msgid "Challenge %1 to a game"
+msgstr ""
+
+#: ../client/lobby.ts:337
+msgid "Paste the FEN text here"
+msgstr "Cole o texto FEN aqui"
+
+#: ../client/lobby.ts:341
+msgid "Handicap"
+msgstr "Desvantagem"
+
+#: ../client/lobby.ts:352
+msgid "Minutes per side:"
+msgstr "Minutos por jogador:"
+
+#: ../client/lobby.ts:367
+msgid "Periods"
+msgstr "Períodos"
+
+#: ../client/lobby.ts:386
+msgid "A.I. Level"
+msgstr "Nível I.A."
+
+#: ../client/lobby.ts:410
+msgid "Random"
+msgstr "Aleatório"
+
+#: ../client/lobby.ts:428
+msgid "Create a game"
+msgstr "Criar uma Partida"
+
+#: ../client/lobby.ts:441
+msgid "Play with AI (Fairy-Stockfish)"
+msgstr "Jogar com Computador (Fairy-Stockfish)"
+
+#: ../client/lobby.ts:459
+msgid "Player"
+msgstr "Jogador"
+
+#: ../client/lobby.ts:460
+msgid "Color"
+msgstr "Cor"
+
+#: ../client/lobby.ts:461
+msgid "Rating"
+msgstr "Pontuação"
+
+#: ../client/lobby.ts:462
+msgid "Time"
+msgstr "Tempo"
+
+#: ../client/lobby.ts:465
+msgid "Mode"
+msgstr "Modo"
+
+#: ../client/lobby.ts:526
+msgid "Custom"
+msgstr "Personalizado"
+
+#: ../client/lobby.ts:550
+msgid ""
+"You have an unfinished game!\n"
+"Press OK to continue."
+msgstr ""
+"Tens um jogo a decorrer!\n"
+"Pressione OK para continuar."
+
+#: ../client/lobby.ts:596
+msgid "%1 game in play"
+msgid_plural "%1 games in play"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/lobby.ts:606
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/lobby.ts:682
+msgid "Donate"
+msgstr "Donativo"
+
+#: ../client/lobby.ts:686
+msgid "0 players"
+msgstr "0 jogadores"
+
+#: ../client/lobby.ts:687
+msgid "0 games in play"
+msgstr "0 jogos em decurso"
+
+#: ../client/main.ts:72
+msgid "Thank you for your support!"
+msgstr ""
+
+#: ../client/profile.ts:31
+msgid "Game aborted"
+msgstr "Jogo cancelado"
+
+#: ../client/profile.ts:34
+msgid "Checkmate"
+msgstr "Cheque-mate"
+
+#: ../client/profile.ts:37
+msgid " resigned"
+msgstr "desistiram"
+
+#: ../client/profile.ts:40
+msgid "Stalemate"
+msgstr "Rei afogado"
+
+#: ../client/profile.ts:43 ../client/profile.ts:49
+msgid "Time out"
+msgstr "Tempo esgotado"
+
+#: ../client/profile.ts:46 ../client/roundCtrl.ts:352
+msgid "Draw"
+msgstr "Empate"
+
+#: ../client/profile.ts:52
+msgid " abandoned the game"
+msgstr "abandonaram o jogo"
+
+#: ../client/profile.ts:55
+msgid "Cheat detected"
+msgstr "Ajuda de computador detectada"
+
+#: ../client/profile.ts:58
+msgid "Not started"
+msgstr "Não começou"
+
+#: ../client/profile.ts:61
+msgid "Invalid move"
+msgstr "Jogada inválida"
+
+#: ../client/profile.ts:64
+msgid "Unknown reason"
+msgstr "Razão desconhecida"
+
+#: ../client/profile.ts:67
+msgid "Campmate"
+msgstr "Mate de Linha"
+
+#: ../client/profile.ts:67
+msgid "Point counting"
+msgstr "Contagem de Pontos"
+
+#: ../client/profile.ts:147
+msgid "%1 move"
+msgid_plural "%1 moves"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../client/profile.ts:148
+msgid "Computer analysis available"
+msgstr "Análise de Computador disponível"
+
+#: ../client/profile.ts:227
+msgid "Lichess profile"
+msgstr "Conta Lichess"
+
+#: ../client/profile.ts:230
+msgid "Export games"
+msgstr "Exportar jogos"
+
+#: ../client/profile.ts:233
+msgid "Watch games"
+msgstr "Observar jogos"
+
+#: ../client/profile.ts:236
+msgid "Challenge to a game"
+msgstr "Desafiar para uma partida"
+
+#: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1138
+msgid " +15 seconds"
+msgstr "+15 segundos"
+
+#: ../client/roundCtrl.ts:314
+msgid "Give 15 seconds"
+msgstr "Adicionar 15 segundos"
+
+#: ../client/roundCtrl.ts:350
+msgid "Abort"
+msgstr "Cancelar"
+
+#: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
+#: ../client/roundCtrl.ts:857
+msgid "Count"
+msgstr "Contagem"
+
+#: ../client/roundCtrl.ts:352
+msgid "Pass"
+msgstr "Passar"
+
+#: ../client/roundCtrl.ts:353
+msgid "Resign"
+msgstr "Desistir"
+
+#: ../client/roundCtrl.ts:389
+msgid "Are you sure you want to resign?"
+msgstr "Tem a certeza que quer desistir?"
+
+#: ../client/roundCtrl.ts:419
+msgid "Blue (Cho)"
+msgstr "Azul (Cho)"
+
+#: ../client/roundCtrl.ts:419
+msgid "Red (Han)"
+msgstr "Vermelho (Han)"
+
+#: ../client/roundCtrl.ts:420
+msgid ""
+"Waiting for %1 to choose starting positions of the horses and elephants..."
+msgstr ""
+
+#: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
+msgid "Switch pieces"
+msgstr "Trocar peças"
+
+#: ../client/roundCtrl.ts:455
+msgid "Ready"
+msgstr "Pronto"
+
+#: ../client/roundCtrl.ts:502
+msgid "REMATCH"
+msgstr "DESFORRA"
+
+#: ../client/roundCtrl.ts:503
+msgid "NEW OPPONENT"
+msgstr "NOVO OPONENTE"
+
+#: ../client/roundCtrl.ts:504
+msgid "ANALYSIS BOARD"
+msgstr "ANÁLISE"
+
+#: ../client/roundCtrl.ts:853
+msgid "Stop counting"
+msgstr "Parar contagem"
+
+#: ../client/roundCtrl.ts:853
+msgid "Stop"
+msgstr "Parar"
+
+#: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
+msgid "Start counting"
+msgstr "Começar contagem"
+
+#: ../client/settings.ts:348
+msgid "[-] Zoom [+]"
+msgstr "[-] Lupa [+]"
+
+#: ../client/settings.ts:353
+msgid "Show piece destinations"
+msgstr "Mostrar destinos da peça"
+
+#: ../client/settings.ts:360
+msgid "Two click drop moves"
+msgstr "Jogada a dois cliques"
+
+#: ../client/settings.ts:376
+msgid "Promote to Queen automatically"
+msgstr "Promover a Rainha automaticamente"
+
+#: ../client/settings.ts:383
+msgid "Best move arrow"
+msgstr "Seta com melhor jogada"
