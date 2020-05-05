@@ -14,7 +14,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { enabled_variants, getPockets, needPockets, validFen, variantName, variants, VARIANTS } from './chess';
+import { enabled_variants, getPockets, needPockets, validFen, variantName, variantTooltip, variants, VARIANTS } from './chess';
 import { setBoard, setPieces, setZoom } from './settings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png'; 
@@ -212,7 +212,7 @@ export function editorView(model): VNode[] {
                             on: { input: () => setVariant(true) },
                             hook: {insert: () => setVariant(false) },
                             }, enabled_variants.sort().map((variant, idx) => h('option', {
-                                props: {value: variant, selected: (idx === vIdx) ? "selected" : ""}
+                                props: {value: variant, title: variantTooltip(variant), selected: (idx === vIdx) ? "selected" : ""}
                                 }, variantName(variant, 0)))),
                     ]),
                 ])

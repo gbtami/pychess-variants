@@ -32,7 +32,7 @@ export function roundView(model): VNode[] {
                                 h('a.user-link', {attrs: {
                                     target: '_blank',
                                     href: '/variant/' + model["variant"] + ((model["chess960"]==='True') ? '960': ''),
-                                    title: variantTooltip[model["variant"]]
+                                    title: variantTooltip(model["variant"])
                                     }}, variantName(model["variant"], model["chess960"]) ),
                             ]),
                             Number(model["status"]) >= 0 ? h('info-date', {attrs: {timestamp: model["date"]}}, timeago(model["date"])) : _("Playing right now"),

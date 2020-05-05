@@ -15,7 +15,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, i18n } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, validFen, variants960, variantIcon, variantName, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
+import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
 import { sound } from './sound';
 
 
@@ -319,7 +319,13 @@ class LobbyController {
                         props: {name: "variant"},
                         on: { input: () => setVariant() },
                         hook: {insert: () => setVariant() },
-                        }, enabled_variants.sort().map((variant, idx) => h('option', { props: {value: variant, selected: (idx === vIdx) ? "selected" : ""} }, variantName(variant, 0)))),
+                        }, enabled_variants.sort().map((variant, idx) => h('option', {
+                            props: {
+                                value: variant,
+                                title: variantTooltip(variant),
+                                selected: (idx === vIdx) ? "selected" : ""
+                            }
+                        }, variantName(variant, 0)))),
                 ]),
                 h('input#fen', {
                     props: {name: 'fen', placeholder: _('Paste the FEN text here') + ((this.model['anon'] === 'True') ? _(' (must be signed in)') : ''),  autocomplete: "off"},

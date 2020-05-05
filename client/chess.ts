@@ -36,7 +36,8 @@ export const start_fen = {
     orda: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
 }
 
-export const variantTooltip = {
+export function variantTooltip(variant) {
+    const tooltip = {
     makruk: _("A game closely resembling the original Chaturanga"),
     makpong: _("Makruk variant where kings cannot move to escape out of check"),
     cambodian: _("Makruk with a few additional opening abilities"),
@@ -60,6 +61,8 @@ export const variantTooltip = {
     shako: _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
     shogun: _("Pieces promote and can be dropped, similar to Shogi"),
     orda: _("Asymmetric variant where one army has pieces that move like knights but capture differently")
+    }
+    return tooltip[variant];
 }
 
 export const VARIANTS = {
