@@ -36,7 +36,7 @@ msgstr "可能是在第三步之前停止。"
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
-msgstr ""
+msgstr "回返主页"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -47,6 +47,8 @@ msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
+"如您所知，pychess-"
+"variants是免费为您提供的，而永远会是免费的。然而，维持与更新我们的服务器导致时间与金钱的消费。如果您想支持我们的工作，请通过我们的Patreon或PayPal捐赠。"
 
 #: ../templates/players.html:8
 msgid "Online"
@@ -64,7 +66,7 @@ msgstr "所有棋手"
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] ""
+msgstr[0] "%(count)s对局"
 
 #: ../templates/template.html:69
 msgid "Tv"
