@@ -108,6 +108,8 @@ msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
 " here."
 msgstr ""
+"A személyes adatok védelme és a felhasználási feltételek tekintetében itt is"
+" a lichess.org szabályai érvényesek."
 
 #: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:526
 #: ../client/profile.ts:112 ../client/round.ts:31
@@ -166,7 +168,7 @@ msgstr " Elemzés kérése"
 
 #: ../client/analysisCtrl.ts:440
 msgid "Depth"
-msgstr ""
+msgstr "mélység"
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
@@ -210,105 +212,119 @@ msgstr "Szerver"
 
 #: ../client/chess.ts:40
 msgid "A game closely resembling the original Chaturanga"
-msgstr ""
+msgstr "Thai sakk. Az eredeti Chaturangára leginkább hasonlító variáns."
 
 #: ../client/chess.ts:41
 msgid "Makruk variant where kings cannot move to escape out of check"
-msgstr ""
+msgstr "Makruk variáns, ahol a király nem léphet ki a sakkból."
 
 #: ../client/chess.ts:42
 msgid "Makruk with a few additional opening abilities"
-msgstr ""
+msgstr "Makruk variáns néhány extra lépéssel a megnyitásban"
 
 #: ../client/chess.ts:43
 msgid "Similar to Makruk, but pieces are placed at the start of the match"
 msgstr ""
+"A Makrukhoz hasonló, de a játékosok helyezhetik el a tiszteket kezdés előtt."
 
 #: ../client/chess.ts:44
 msgid "Choose where your pieces start"
-msgstr ""
+msgstr "Helyezd el a tiszteket a kezdés előtt!"
 
 #: ../client/chess.ts:45
 msgid "Take captured pieces and drop them back on to the board as your own"
-msgstr ""
+msgstr "A leütött figurákat visszarakhatod a táblára lépés helyett."
 
 #: ../client/chess.ts:46
 msgid "Chess, unmodified, as it's played by FIDE standards"
-msgstr ""
+msgstr "Hagyományos sakk a FIDE szabályai szerint."
 
 #: ../client/chess.ts:47
 msgid "Pieces promote and can be dropped"
 msgstr ""
+"Japán sakk. A figurák átváltozhatnak és a leütött figurák visszarakhatók."
 
 #: ../client/chess.ts:48
 msgid "Shogi on a 5x5 board"
-msgstr ""
+msgstr "Shogi 5x5-ös táblán."
 
 #: ../client/chess.ts:49
 msgid "5x5 Shogi where pieces flip to a different piece each move"
-msgstr ""
+msgstr "5x5-ös Shogi, ahol a figurák minden lépésnél oda-vissza változnak."
 
 #: ../client/chess.ts:50
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
 msgstr ""
+"Koreai sakk. A Xiangqi-hoz hasonló, de sok mindenben el is tér. A verseny "
+"szabályok érvényesek."
 
 #: ../client/chess.ts:51
 msgid "Open fire on your opponent in this highly aggressive ancient game"
-msgstr ""
+msgstr "Kínai sakk. Nagyon agresszív, ősi sakk variáns."
 
 #: ../client/chess.ts:52
 msgid "Xiangqi on a 7x7 board"
-msgstr ""
+msgstr "Xiangqi 7x7-es táblán."
 
 #: ../client/chess.ts:53
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board"
 msgstr ""
+"10x8-as sakk két új figurával. Az archbishop = futó + ló, a chancellor = "
+"bástya + ló."
 
 #: ../client/chess.ts:54
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
 msgstr ""
+"A sólyom = futó + ló és az elefánt = bástya + ló a táblára léphet amikor az "
+"alapsorról először lép el egy figura."
 
 #: ../client/chess.ts:55
 msgid "Capablanca with Crazyhouse drop rules"
-msgstr ""
+msgstr "Capablanca variáns Crazyhouse szabályokkal"
 
 #: ../client/chess.ts:56
 msgid "S-Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "S-Chess Crazyhouse szabályokkal"
 
 #: ../client/chess.ts:57
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
 msgstr ""
+"10x10-es sakk két új figurával. Az archbishop = futó + ló, a chancellor = "
+"bástya + ló."
 
 #: ../client/chess.ts:58
 msgid "Grand Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "Grand Chess Crazyhouse szabályokkal"
 
 #: ../client/chess.ts:59
 msgid "Like Capablanca Chess but with a different starting setup"
-msgstr ""
+msgstr "Capablanca sakk más kezdőállással"
 
 #: ../client/chess.ts:60
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
-msgstr ""
+msgstr "10x10-es variáns Xiangqi ágyúval és elefánttal"
 
 #: ../client/chess.ts:61
 msgid "Pieces promote and can be dropped, similar to Shogi"
 msgstr ""
+"A figurák átváltozhatnak és a leütött figurák visszarakhatók a Shogi-hoz "
+"hasonlóan."
 
 #: ../client/chess.ts:62
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
 msgstr ""
+"Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de "
+"másként ütnek! "
 
 #: ../client/chess.ts:129 ../client/chess.ts:152 ../client/lobby.ts:409
 msgid "Black"
@@ -376,7 +392,7 @@ msgstr "Mégsem"
 
 #: ../client/lobby.ts:326
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "%1 kihívása egy játszmára"
 
 #: ../client/lobby.ts:337
 msgid "Paste the FEN text here"
@@ -445,14 +461,14 @@ msgstr ""
 #: ../client/lobby.ts:596
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 játszma"
+msgstr[1] "%1 játszma"
 
 #: ../client/lobby.ts:606
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 játékos"
+msgstr[1] "%1 játékos"
 
 #: ../client/lobby.ts:682
 msgid "Donate"
@@ -468,7 +484,7 @@ msgstr "0 játszma"
 
 #: ../client/main.ts:72
 msgid "Thank you for your support!"
-msgstr ""
+msgstr "Köszönet a támogatásért!"
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
@@ -582,7 +598,7 @@ msgstr "Piros (Han)"
 #: ../client/roundCtrl.ts:420
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr ""
+msgstr " %1 kiválaszthatja a lovak és elefántok kezdő pozícióját..."
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"

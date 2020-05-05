@@ -462,11 +462,11 @@ msgstr ""
 
 #: ../client/main.ts:72
 msgid "Thank you for your support!"
-msgstr ""
+msgstr "感谢您的支持！"
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
-msgstr ""
+msgstr "棋局中止"
 
 #: ../client/profile.ts:34
 msgid "Checkmate"
@@ -522,31 +522,31 @@ msgstr ""
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
-msgstr ""
+msgstr "Lichess个人资料"
 
 #: ../client/profile.ts:230
 msgid "Export games"
-msgstr ""
+msgstr "导出棋局"
 
 #: ../client/profile.ts:233
 msgid "Watch games"
-msgstr ""
+msgstr "观看棋局"
 
 #: ../client/profile.ts:236
 msgid "Challenge to a game"
-msgstr ""
+msgstr "挑战"
 
 #: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1138
 msgid " +15 seconds"
-msgstr ""
+msgstr "+15秒"
 
 #: ../client/roundCtrl.ts:314
 msgid "Give 15 seconds"
-msgstr ""
+msgstr "添加15秒"
 
 #: ../client/roundCtrl.ts:350
 msgid "Abort"
-msgstr ""
+msgstr "中止本局"
 
 #: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
 #: ../client/roundCtrl.ts:857
@@ -563,7 +563,7 @@ msgstr "认输"
 
 #: ../client/roundCtrl.ts:389
 msgid "Are you sure you want to resign?"
-msgstr ""
+msgstr "您确定要认输吗？"
 
 #: ../client/roundCtrl.ts:419
 msgid "Blue (Cho)"
@@ -612,11 +612,11 @@ msgstr ""
 
 #: ../client/settings.ts:348
 msgid "[-] Zoom [+]"
-msgstr ""
+msgstr "[-] 放大 [+]"
 
 #: ../client/settings.ts:353
 msgid "Show piece destinations"
-msgstr ""
+msgstr "表示棋子走到位置"
 
 #: ../client/settings.ts:360
 msgid "Two click drop moves"
