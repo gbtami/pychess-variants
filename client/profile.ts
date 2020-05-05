@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { _ } from './i18n';
+import { _, i18n } from './i18n';
 import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
 import { renderTimeago } from './clock';
 import { setBoardAndPieceStyles } from './settings';
@@ -143,7 +143,7 @@ function renderGames(model, games) {
             ]),
             h('div.info0.games', [
                 h('div', [
-                    h('div.info0', game["m"] === undefined ? "" : game["m"].length + " moves"),
+                    h('div.info0', game["m"] === undefined ? "" : i18n.ngettext("%1 move", "%1 moves", game["m"].length)),
                     h('div.info0', game["a"] === undefined ? "" : [h('span.icon', {attrs: {"data-icon": "3"}, class: {"icon": true}}), _("Computer analysis available")]),
                 ]),
             ]),

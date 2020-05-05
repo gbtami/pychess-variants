@@ -8,6 +8,9 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
+import { i18n } from './i18n';
+
+
 export class Clock {
     duration: number;
     increment: number;
@@ -174,11 +177,27 @@ export function timeago(date) {
     var val = 0 | (Date.now() - TZdate.getTime()) / 1000;
     var unit, length = { second: 60, minute: 60, hour: 24, day: 7, week: 4.35,
         month: 12, year: 10000 }, result;
- 
+
     for (unit in length) {
         result = val % length[unit];
-        if (!(val = 0 | val / length[unit]))
-            return result + ' ' + (result-1 ? unit + 's' : unit) + ' ago';
+        if (!(val = 0 | val / length[unit])) {
+            switch (unit) {
+            case "year":
+                return i18n.ngettext("%1 year ago", "%1 years ago", result);
+            case "month":
+                return i18n.ngettext("%1 month ago", "%1 months ago", result);
+            case "week":
+                return i18n.ngettext("%1 week ago", "%1 weeks ago", result);
+            case "day":
+                return i18n.ngettext("%1 day ago", "%1 days ago", result);
+            case "hour":
+                return i18n.ngettext("%1 hour ago", "%1 hours ago", result);
+            case "minute":
+                return i18n.ngettext("%1 minute ago", "%1 minutes ago", result);
+            case "second":
+                return i18n.ngettext("%1 second ago", "%1 seconds ago", result);
+            }
+        }
     }
     return '';
 }

@@ -88,7 +88,11 @@ export function aboutView(model): VNode[] {
                         h('a', {attrs: {href: 'https://github.com/gbtami/pychess-variants'}}, 'GitHub.'),
                     ]),
                     h('hr'),
-                    h('p', _('Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.')),
+                    h('p', [
+                        _('Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.'),
+                        h('a', {attrs: {href: 'https://lichess.org/privacy'}}, 'Privacy, '),
+                        h('a', {attrs: {href: 'https://lichess.org/terms-of-service'}}, 'ToS'),
+                    ]),
                     h('hr'),
                     h('p', untitled.map((paragraph) => {return h('p', paragraph)})),
                     h('p', 'Untitled_Entity'),
