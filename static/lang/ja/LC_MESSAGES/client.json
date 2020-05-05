@@ -1,8 +1,32 @@
 {
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
     "%1 game in play": [
         ""
     ],
     "%1 player": [
+        ""
+    ],
+    "%1 move": [
         ""
     ],
     "": {

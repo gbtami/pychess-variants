@@ -7,6 +7,7 @@
     "For move generation, validation, analysis and engine play it uses ": "A szabályos lépések ellenőrzéséhez és a gép elleni játékhoz haszált program a ",
     "On client side it is based on ": "A böngészőben futó program alapja a ",
     "Source code of server is available at ": "A szerver forráskódja elérhető itt ",
+    "Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.": "A személyes adatok védelme és a felhasználási feltételek tekintetében itt is a lichess.org szabályai érvényesek.",
     "Rated": "Értékelt",
     "Casual": "Nem értékelt",
     "Playing right now": "Folyamatban lévő játszma",
@@ -20,6 +21,7 @@
     " PNG image": " PNG kép",
     "Request Computer Analysis": "Számítógépes elemzés kérése",
     " Request Analysis": " Elemzés kérése",
+    "Depth": "mélység",
     "Spectators: ": "néző(k)",
     "Requseted game ": "A kért játszma ",
     " not found!": " nem található!",
@@ -30,11 +32,62 @@
     "Sign in to chat": "Jelentkezz be",
     "Please be nice in the chat!": "Légy udvarias másokkal!",
     "Server": "Szerver",
+    "A game closely resembling the original Chaturanga": "Thai sakk. Az eredeti Chaturangára leginkább hasonlító variáns.",
+    "Makruk variant where kings cannot move to escape out of check": "Makruk variáns, ahol a király nem léphet ki a sakkból.",
+    "Makruk with a few additional opening abilities": "Makruk variáns néhány extra lépéssel a megnyitásban",
+    "Similar to Makruk, but pieces are placed at the start of the match": "A Makrukhoz hasonló, de a játékosok helyezhetik el a tiszteket kezdés előtt.",
+    "Choose where your pieces start": "Helyezd el a tiszteket a kezdés előtt!",
+    "Take captured pieces and drop them back on to the board as your own": "A leütött figurákat visszarakhatod a táblára lépés helyett.",
+    "Chess, unmodified, as it's played by FIDE standards": "Hagyományos sakk a FIDE szabályai szerint.",
+    "Pieces promote and can be dropped": "Japán sakk. A figurák átváltozhatnak és a leütött figurák visszarakhatók.",
+    "Shogi on a 5x5 board": "Shogi 5x5-ös táblán.",
+    "5x5 Shogi where pieces flip to a different piece each move": "5x5-ös Shogi, ahol a figurák minden lépésnél oda-vissza változnak.",
+    "Similar to Xiangqi, but plays very differently. Tournament rules are used": "Koreai sakk. A Xiangqi-hoz hasonló, de sok mindenben el is tér. A verseny szabályok érvényesek.",
+    "Open fire on your opponent in this highly aggressive ancient game": "Kínai sakk. Nagyon agresszív, ősi sakk variáns.",
+    "Xiangqi on a 7x7 board": "Xiangqi 7x7-es táblán.",
+    "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board": "10x8-as sakk két új figurával. Az archbishop = futó + ló, a chancellor = bástya + ló.",
+    "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece": "A sólyom = futó + ló és az elefánt = bástya + ló a táblára léphet amikor az alapsorról először lép el egy figura.",
+    "Capablanca with Crazyhouse drop rules": "Capablanca variáns Crazyhouse szabályokkal",
+    "S-Chess with Crazyhouse drop rules": "S-Chess Crazyhouse szabályokkal",
+    "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board": "10x10-es sakk két új figurával. Az archbishop = futó + ló, a chancellor = bástya + ló.",
+    "Grand Chess with Crazyhouse drop rules": "Grand Chess Crazyhouse szabályokkal",
+    "Like Capablanca Chess but with a different starting setup": "Capablanca sakk más kezdőállással",
+    "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board": "10x10-es variáns Xiangqi ágyúval és elefánttal",
+    "Pieces promote and can be dropped, similar to Shogi": "A figurák átváltozhatnak és a leütött figurák visszarakhatók a Shogi-hoz hasonlóan.",
+    "Asymmetric variant where one army has pieces that move like knights but capture differently": "Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de másként ütnek! ",
     "Black": "Sötét",
     "Red": "Piros",
     "Blue": "Kék",
     "White": "Világos",
     "Gold": "Arany",
+    "%1 year ago": [
+        "%1 éve",
+        "%1 éve"
+    ],
+    "%1 month ago": [
+        "%1 hónapja",
+        "%1 hónapja"
+    ],
+    "%1 week ago": [
+        "%1 hete",
+        "%1 hete"
+    ],
+    "%1 day ago": [
+        "%1 napja",
+        "%1 napja"
+    ],
+    "%1 hour ago": [
+        "%1 órája",
+        "%1 órája"
+    ],
+    "%1 minute ago": [
+        "%1 perce",
+        "%1 perce"
+    ],
+    "%1 second ago": [
+        "%1 másodperce",
+        "%1 másodperce"
+    ],
     "CLEAR BOARD": "ÜRES TÁBLA",
     "STARTING POSITION": "KEZDŐÁLLÁS",
     "PLAY WITH MACHINE": "JÁTÉK A GÉP ELLEN",
@@ -46,6 +99,7 @@
     "Increment": "Többletidő",
     " in seconds:": " másodpercben",
     "Cancel": "Mégsem",
+    "Challenge %1 to a game": "%1 kihívása egy játszmára",
     "Paste the FEN text here": "Másold ide a FEN szöveget",
     "Handicap": "Előny",
     "Minutes per side:": "Perc játékosonként",
@@ -61,9 +115,18 @@
     "Mode": "Mód",
     "Custom": "Egyéni",
     "You have an unfinished game!\nPress OK to continue.": "Van egy befejezetlen játszmád!\nOK a folytatáshoz",
+    "%1 game in play": [
+        "%1 játszma",
+        "%1 játszma"
+    ],
+    "%1 player": [
+        "%1 játékos",
+        "%1 játékos"
+    ],
     "Donate": "Támogatás",
     "0 players": "0 játékos",
     "0 games in play": "0 játszma",
+    "Thank you for your support!": "Köszönet a támogatásért!",
     "Game aborted": "Abortált játszma",
     "Checkmate": "Matt",
     " resigned": " feladta",
@@ -77,6 +140,10 @@
     "Unknown reason": "Ismeretlen ok",
     "Campmate": "Király betörés",
     "Point counting": "Pont számolás",
+    "%1 move": [
+        "%1 lépés",
+        "%1 lépés"
+    ],
     "Computer analysis available": "Számítógép elemzés elérhető",
     "Lichess profile": "Lichess profil",
     "Export games": "Játszmák exportálása",
@@ -91,6 +158,7 @@
     "Are you sure you want to resign?": "Biztosan fel akarod adni?",
     "Blue (Cho)": "Kék (Cho)",
     "Red (Han)": "Piros (Han)",
+    "Waiting for %1 to choose starting positions of the horses and elephants...": " %1 kiválaszthatja a lovak és elefántok kezdő pozícióját...",
     "Switch pieces": "Figurák cseréje",
     "Ready": "Kész",
     "REMATCH": "VISSZAVÁGÓ",

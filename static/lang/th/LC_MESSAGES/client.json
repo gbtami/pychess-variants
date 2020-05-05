@@ -4,6 +4,7 @@
     "Casual": "ไม่คิดคะแนน",
     "Playing right now": "กำลังเล่นอยู่",
     " level ": "ระดับ",
+    "You need an account to do that.": "คุณต้องลงชื่อเข้าใช้",
     "Download game to PGN file": "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN",
     " Download PGN": "ดาวน์โหลด PGN",
     "Copy USI/UCI to clipboard": "คัดลอก USI/UCI ไปยังคลิปบอร์ด",
@@ -12,6 +13,7 @@
     " PNG image": "ภาพ PNG",
     "Request Computer Analysis": "ขอการวิเคราะห์จากคอมพิวเตอร์",
     " Request Analysis": "ขอการวิเคราะห์",
+    "Depth": "ความลึก",
     "Spectators: ": "ผู้ชม:",
     "Initial position": "ตำแหน่งเริ่มต้น",
     "Black": "ดำ",
@@ -19,6 +21,27 @@
     "Blue": "น้ำเงิน",
     "White": "ขาว",
     "Gold": "ทอง",
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
     "CLEAR BOARD": "ล้างกระดาน",
     "STARTING POSITION": "ตำแหน่งเริ่มต้น",
     "Invalid FEN": "FEN ไม่ถูกต้อง",
@@ -57,6 +80,9 @@
     "Unknown reason": "ไม่ทราบสาเหตุ",
     "Campmate": "คิงถึงแถวหลัง",
     "Point counting": "นับคะแนน",
+    "%1 move": [
+        ""
+    ],
     "Computer analysis available": "มีการวิเคราะห์โดยคอมพิวเตอร์",
     "Lichess profile": "หน้าบัญชี lichess",
     "Export games": "ส่งออกเกม",

@@ -2,7 +2,7 @@
     "About pychess": "关于pychess",
     "pychess is a free, open-source chess server designed to play several chess variant.": "pychess是个免费开源象棋网站，支持下多种棋类。",
     "Currently supported games are ": "目前支持的棋类包括",
-    "Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with ": "您也可以在创建 Standard（正统国际象棋），Crazyhouse，Capablanca和Capahouse对局时选择“Chess960”选项，这将会随机产生大子的初始排列，并使用",
+    "Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with ": "您也可以在创建 Standard，Crazyhouse，Capablanca和Capahouse对局时选择“Chess960”选项，这将会随机产生大子的初始排列，并使用",
     "Chess960 castling rules.": "Chess960的王车易位规则。",
     "Rated": "积分",
     "Casual": "无积分",
@@ -26,7 +26,10 @@
     "Sign in to chat": "聊天请登录",
     "Please be nice in the chat!": "聊天请注意文明用语。",
     "Server": "服务器",
+    "A game closely resembling the original Chaturanga": "相似古印度象棋Chaturanga的棋类。",
+    "Makruk variant where kings cannot move to escape out of check": "泰国象棋，但不准动王逃出将军。",
     "Makruk with a few additional opening abilities": "泰国象棋，但增加几个开局的特殊着法",
+    "Similar to Makruk, but pieces are placed at the start of the match": "相似泰国象棋，但大子在对局开始后一一排列。",
     "Chess, unmodified, as it's played by FIDE standards": "国际象棋，无变，随从国际棋联创下的规则",
     "Shogi on a 5x5 board": "在5x5棋盘上的日本将棋",
     "Open fire on your opponent in this highly aggressive ancient game": "正统中国象棋",
@@ -36,6 +39,27 @@
     "Blue": "蓝",
     "White": "白",
     "Gold": "金",
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
     "CLEAR BOARD": "清空棋盘",
     "STARTING POSITION": "起始局面",
     "PLAY WITH MACHINE": "和电脑下棋",
@@ -60,6 +84,8 @@
         ""
     ],
     "Donate": "捐赠",
+    "Thank you for your support!": "感谢您的支持！",
+    "Game aborted": "棋局中止",
     "Checkmate": "将死",
     " resigned": "认输",
     "Stalemate": "逼和",
@@ -67,12 +93,25 @@
     "Draw": "和棋",
     "Not started": "未开始",
     "Unknown reason": "原因不明",
+    "%1 move": [
+        ""
+    ],
+    "Lichess profile": "Lichess个人资料",
+    "Export games": "导出棋局",
+    "Watch games": "观看棋局",
+    "Challenge to a game": "挑战",
+    " +15 seconds": "+15秒",
+    "Give 15 seconds": "添加15秒",
+    "Abort": "中止本局",
     "Resign": "认输",
+    "Are you sure you want to resign?": "您确定要认输吗？",
     "Blue (Cho)": "蓝（楚）",
     "Red (Han)": "红（汉）",
     "REMATCH": "重赛",
     "NEW OPPONENT": "新对手",
     "ANALYSIS BOARD": "拆棋",
+    "[-] Zoom [+]": "[-] 放大 [+]",
+    "Show piece destinations": "表示棋子走到位置",
     "Promote to Queen automatically": "自动升变为皇后",
     "": {
         "language": "zh",
