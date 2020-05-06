@@ -65,7 +65,7 @@ export function aboutView(model): VNode[] {
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/capahouse'}}, 'Capahouse (Capablanca+Crazyhouse)'),
                         ", ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/grandhouse'}}, 'Grandhouse (Grand+Crazyhouse)'),
-                        " and standard ",
+                        ", ",
                         h('a', {attrs: {href: 'https://www.pychess.org/variant/chess'}}, 'Chess.'),
                     ]),
                     h('p', [_('Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with '),
@@ -76,7 +76,7 @@ export function aboutView(model): VNode[] {
                         h('a', {attrs: {href: 'https://github.com/gbtami/Fairy-Stockfish'}}, 'Fairy-Stockfish'),
                         ", ",
                         h('a', {attrs: {href: 'https://github.com/gbtami/fairyfishnet'}}, 'fairyfishnet'),
-                        " and ",
+                        ", ",
                         h('a', {attrs: {href: 'https://github.com/gbtami/lichess-bot-variants'}}, 'lichess-bot-variants.'),
                     ]),
                     h('p', [
@@ -90,7 +90,7 @@ export function aboutView(model): VNode[] {
                     h('hr'),
                     h('p', [
                         _('Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.'),
-                        h('a', {attrs: {href: 'https://lichess.org/privacy'}}, 'Privacy, '),
+                        h('a', {attrs: {href: 'https://lichess.org/privacy'}}, ' Privacy, '),
                         h('a', {attrs: {href: 'https://lichess.org/terms-of-service'}}, 'ToS'),
                     ]),
                     h('hr'),
