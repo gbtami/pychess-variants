@@ -1,91 +1,91 @@
 ![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/favicon/apple-icon-152x152.png?raw=true)
 
-# {% trans %}Pychess Variants{% endtrans %}
+# Pychess Variants
 
-{% trans %}Many chess variants are available to play here. Available games range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.{% endtrans %}
+Many chess variants are available to play here. Available games range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.
 
-## {% trans %}Tips{% endtrans %}
+## Tips
 
-{% trans %}Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.{% endtrans %}
+Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.
 
 ![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
 
-{% trans %}Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.{% endtrans %}
+Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.
 
 ![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
 
-{% trans %}If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.{% endtrans %}
+If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
 
-## {% trans %}Chess variants using standard pieces{% endtrans %}
+## Chess variants using standard pieces
 
 ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-**{% trans %}Chess (Western/International Chess){% endtrans %}** - {% trans %}Chess, unmodified, as it's played by FIDE standards{% endtrans %}
+**Chess (Western/International Chess)** - Chess, unmodified, as it's played by FIDE standards
 
-**{% trans %}Chess 960{% endtrans %}** - {% trans %}Starting positions in the back row are randomized{% endtrans %}
+**Chess 960** - Starting positions in the back row are randomized
 
-**{% trans %}Crazyhouse{% endtrans %}** - {% trans %}Take captured pieces and drop them back on to the board as your own{% endtrans %}
+**Crazyhouse** - Take captured pieces and drop them back on to the board as your own
 
-**{% trans %}Placement Chess{% endtrans %}** - {% trans %}Choose where your pieces start{% endtrans %}
+**Placement Chess** - Choose where your pieces start
 
-**{% trans %}Crazyhouse 960{% endtrans %}** - {% trans %}Combines Crazyhouse and Chess 960{% endtrans %}
+**Crazyhouse 960** - Combines Crazyhouse and Chess 960
 
-## {% trans %}Chess variants using fairy pieces{% endtrans %}
+## Chess variants using fairy pieces
 
 ![Capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png?raw=true)
 
-**{% trans %}Capablanca Chess{% endtrans %}** - {% trans %}Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board{% endtrans %}
+**Capablanca Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board
 
-**{% trans %}Gothic Chess / Trice's Chess{% endtrans %}** - {% trans %}Like Capablanca Chess but with a different starting setup{% endtrans %}
+**Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
 
-**{% trans %}S-Chess / Seirawan Chess / SHARPER Chess{% endtrans %}** - {% trans %}Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece{% endtrans %}
+**S-Chess / Seirawan Chess / SHARPER Chess** - Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece
 
-**{% trans %}Grand Chess{% endtrans %}** - {% trans %}Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board{% endtrans %}
+**Grand Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board
 
-**{% trans %}Shako{% endtrans %}** - {% trans %}Introduces the cannon and elephant from Xiangqi into a 10x10 chess board{% endtrans %}
+**Shako** - Introduces the cannon and elephant from Xiangqi into a 10x10 chess board
 
-**{% trans %}Shogun Chess{% endtrans %}** - {% trans %}Pieces promote and can be dropped, similar to Shogi{% endtrans %}
+**Shogun Chess** - Pieces promote and can be dropped, similar to Shogi
 
-**{% trans %}Orda Chess{% endtrans %}** - {% trans %}Asymmetric variant where one army has pieces that move like knights but capture differently{% endtrans %}
+**Orda Chess** - Asymmetric variant where one army has pieces that move like knights but capture differently
 
-**{% trans %}Capablanca 960{% endtrans %}** - {% trans %}Capablanca with Chess 960 rules{% endtrans %}
+**Capablanca 960** - Capablanca with Chess 960 rules
 
-**{% trans %}Capahouse{% endtrans %}** - {% trans %}Capablanca with Crazyhouse drop rules{% endtrans %}
+**Capahouse** - Capablanca with Crazyhouse drop rules
 
-**{% trans %}Capahouse 960{% endtrans %}** - {% trans %}Capablanca with Crazyhouse and 960 rules{% endtrans %}
+**Capahouse 960** - Capablanca with Crazyhouse and 960 rules
 
-**{% trans %}S-House{% endtrans %}** - {% trans %}S-Chess with Crazyhouse drop rules{% endtrans %}
+**S-House** - S-Chess with Crazyhouse drop rules
 
-**{% trans %}Grandhouse{% endtrans %}** - {% trans %}Grand Chess with Crazyhouse drop rules{% endtrans %}
+**Grandhouse** - Grand Chess with Crazyhouse drop rules
 
-## {% trans %}Shogi variants{% endtrans %}
+## Shogi variants
 
 ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
 
-**{% trans %}Shogi (Japanese Chess){% endtrans %}** - {% trans %}Pieces promote and can be dropped{% endtrans %}
+**Shogi (Japanese Chess)** - Pieces promote and can be dropped
 
-**{% trans %}Minishogi{% endtrans %}** - {% trans %}Shogi on a 5x5 board{% endtrans %}
+**Minishogi** - Shogi on a 5x5 board
 
-**{% trans %}Kyoto Shogi{% endtrans %}** - {% trans %}5x5 Shogi where pieces flip to a different piece each move{% endtrans %}
+**Kyoto Shogi** - 5x5 Shogi where pieces flip to a different piece each move
 
-## {% trans %}Xiangqi variants{% endtrans %}
+## Xiangqi variants
 
 ![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Xiangqi.png?raw=true)
 
-**{% trans %}Xiangqi (Chinese Chess){% endtrans %}** - {% trans %}Open fire on your opponent in this highly aggressive ancient game{% endtrans %}
+**Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
 
-**{% trans %}Janggi (Korean Chess){% endtrans %}** - {% trans %}Similar to Xiangqi, but plays very differently. Tournament rules are used.{% endtrans %}
+**Janggi (Korean Chess)** - Similar to Xiangqi, but plays very differently. Tournament rules are used.
 
-**{% trans %}Minixiangqi{% endtrans %}** - {% trans %}Xiangqi on a 7x7 board{% endtrans %}
+**Minixiangqi** - Xiangqi on a 7x7 board
 
-## {% trans %}Southeast Asian variants{% endtrans %}
+## Southeast Asian variants
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
-**{% trans %}Makruk (Thai Chess){% endtrans %}** - {% trans %}A game closely resembling the original Chaturanga{% endtrans %}
+**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga
 
-**{% trans %}Cambodian Chess / Ok / Ouk Chatrang{% endtrans %}** - {% trans %}Makruk with a few additional opening abilities{% endtrans %}
+**Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
 
-**{% trans %}Sittuyin (Burmese Chess){% endtrans %}** - {% trans %}Similar to Makruk, but pieces are placed at the start of the match{% endtrans %}
+**Sittuyin (Burmese Chess)** - Similar to Makruk, but pieces are placed at the start of the match
 
-**{% trans %}Makpong{% endtrans %}** - {% trans %}Makruk variant where kings cannot move to escape out of check{% endtrans %}
+**Makpong** - Makruk variant where kings cannot move to escape out of check
