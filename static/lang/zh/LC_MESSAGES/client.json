@@ -4,9 +4,11 @@
     "Currently supported games are ": "目前支持的棋类包括",
     "Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with ": "您也可以在创建 Standard，Crazyhouse，Capablanca和Capahouse对局时选择“Chess960”选项，这将会随机产生大子的初始排列，并使用",
     "Chess960 castling rules.": "Chess960的王车易位规则。",
+    "Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.": "关于隐私和服务条款，我们向lichess.org借之而行。",
     "Rated": "积分",
     "Casual": "无积分",
     "Playing right now": "正在进行",
+    " level ": "级别",
     "You need an account to do that.": "请登录以完成该操作。",
     "Download game to PGN file": "下载本局到PGN文件",
     " Download PGN": "下载PGN",
@@ -18,7 +20,7 @@
     " Request Analysis": "要求分析",
     "Depth": "深度",
     "Spectators: ": "观众：",
-    " not found!": "未找到！",
+    "Requested game %1 not found!": "未找到要求的棋局 %1 ！",
     "Initial position": "初始局面",
     "Advantage": "优势",
     "Spectator room": "观众室",
@@ -26,39 +28,54 @@
     "Sign in to chat": "聊天请登录",
     "Please be nice in the chat!": "聊天请注意文明用语。",
     "Server": "服务器",
-    "A game closely resembling the original Chaturanga": "相似古印度象棋Chaturanga的棋类。",
+    "A game closely resembling the original Chaturanga": "泰国象棋。相似古印度象棋Chaturanga的棋类。",
     "Makruk variant where kings cannot move to escape out of check": "泰国象棋，但不准动王逃出将军。",
     "Makruk with a few additional opening abilities": "泰国象棋，但增加几个开局的特殊着法",
-    "Similar to Makruk, but pieces are placed at the start of the match": "相似泰国象棋，但大子在对局开始后一一排列。",
-    "Chess, unmodified, as it's played by FIDE standards": "国际象棋，无变，随从国际棋联创下的规则",
+    "Similar to Makruk, but pieces are placed at the start of the match": "缅甸象棋。相似泰国象棋，但大子在对局开始后一一排列。",
+    "Choose where your pieces start": "选择您棋子的起始位置",
+    "Take captured pieces and drop them back on to the board as your own": "把己方吃掉的棋子放回棋盘成为己方的棋子",
+    "Chess, unmodified, as it's played by FIDE standards": "国际象棋，无变，随从国际棋联的规则",
+    "Pieces promote and can be dropped": "日本将棋。棋子既可升变，又能打入",
     "Shogi on a 5x5 board": "在5x5棋盘上的日本将棋",
+    "5x5 Shogi where pieces flip to a different piece each move": "5x5的日本将棋，但棋子每走一步会翻转成为别种棋子",
+    "Similar to Xiangqi, but plays very differently. Tournament rules are used": "朝鲜将棋。相似象棋，但玩法异同。本网站使用大赛规则。",
     "Open fire on your opponent in this highly aggressive ancient game": "正统中国象棋",
     "Xiangqi on a 7x7 board": "在7x7棋盘上的象棋",
-    "Black": "黑",
-    "Red": "红",
-    "Blue": "蓝",
-    "White": "白",
-    "Gold": "金",
+    "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board": "在10x8路的棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）",
+    "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece": "仙灵棋子大主教（马+象）和首相（马+车）能在棋子离开己方底线后降临参战",
+    "Capablanca with Crazyhouse drop rules": "在Capablanca上添加Crazyhouse的打入规则",
+    "S-Chess with Crazyhouse drop rules": "在S-Chess上添加Crazyhouse的打入规则",
+    "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board": "在10x10路的豪大棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）",
+    "Grand Chess with Crazyhouse drop rules": "在Grand Chess上添加Crazyhouse的打入规则",
+    "Like Capablanca Chess but with a different starting setup": "相似Capablanca但起始局面不一致",
+    "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board": "来自象棋的“炮”和“象”进入10x10路棋盘上的国际象棋大战",
+    "Pieces promote and can be dropped, similar to Shogi": "棋子既可升变，又能打入，如同日本将棋",
+    "Asymmetric variant where one army has pieces that move like knights but capture differently": "非对称棋类，一方指挥走法如马但吃法不一致的棋子",
+    "Black": "黑方",
+    "Red": "红方",
+    "Blue": "绿方",
+    "White": "白方",
+    "Gold": "金方",
     "%1 year ago": [
-        ""
+        "%1 年前"
     ],
     "%1 month ago": [
-        ""
+        "%1 月前"
     ],
     "%1 week ago": [
-        ""
+        "%1 周前"
     ],
     "%1 day ago": [
-        ""
+        "%1 天前"
     ],
     "%1 hour ago": [
-        ""
+        "%1 小时前"
     ],
     "%1 minute ago": [
-        ""
+        "%1 分钟前"
     ],
     "%1 second ago": [
-        ""
+        "%1 秒前"
     ],
     "CLEAR BOARD": "清空棋盘",
     "STARTING POSITION": "起始局面",
@@ -68,22 +85,33 @@
     "Invalid FEN": "无法识别FEN",
     "Variant": "棋类",
     "Byoyomi": "读秒",
-    "Increment": "加秒",
+    "Increment": "每步加",
+    " in seconds:": "秒额：",
     "Cancel": "取消",
+    "Challenge %1 to a game": "挑战 %1 下棋",
     "Paste the FEN text here": "在此处粘贴FEN字串",
     "Handicap": "让子",
+    "Minutes per side:": "各方时限（分钟）：",
     "Periods": "次数",
+    "A.I. Level": "A.I.级别",
+    "Random": "随机",
     "Create a game": "创建对局",
     "Play with AI (Fairy-Stockfish)": "和电脑下棋（Fairy-Stockfish）",
+    "Player": "棋手",
+    "Color": "先后手",
     "Rating": "积分",
     "Time": "时限",
+    "Mode": "模式",
+    "You have an unfinished game!\nPress OK to continue.": "您正在下一局未结束的棋！\n请按确定以继续。",
     "%1 game in play": [
-        ""
+        "%1 对局进行中"
     ],
     "%1 player": [
-        ""
+        "%1 在线棋手"
     ],
     "Donate": "捐赠",
+    "0 players": "无棋手",
+    "0 games in play": "无对局进行中",
     "Thank you for your support!": "感谢您的支持！",
     "Game aborted": "棋局中止",
     "Checkmate": "将死",
@@ -91,11 +119,17 @@
     "Stalemate": "逼和",
     "Time out": "超时",
     "Draw": "和棋",
+    " abandoned the game": "离开了棋局",
+    "Cheat detected": "检测了作弊行为",
     "Not started": "未开始",
+    "Invalid move": "走步无效",
     "Unknown reason": "原因不明",
+    "Campmate": "抢占",
+    "Point counting": "数分",
     "%1 move": [
-        ""
+        "%1 步"
     ],
+    "Computer analysis available": "提供电脑分析",
     "Lichess profile": "Lichess个人资料",
     "Export games": "导出棋局",
     "Watch games": "观看棋局",
@@ -103,16 +137,22 @@
     " +15 seconds": "+15秒",
     "Give 15 seconds": "添加15秒",
     "Abort": "中止本局",
+    "Pass": "虚着",
     "Resign": "认输",
     "Are you sure you want to resign?": "您确定要认输吗？",
-    "Blue (Cho)": "蓝（楚）",
-    "Red (Han)": "红（汉）",
+    "Blue (Cho)": "绿方（楚）",
+    "Red (Han)": "红方（汉）",
+    "Waiting for %1 to choose starting positions of the horses and elephants...": "等待 %1 选择己方马和象的起始位置 ...",
+    "Switch pieces": "易位",
+    "Ready": "确定",
     "REMATCH": "重赛",
     "NEW OPPONENT": "新对手",
     "ANALYSIS BOARD": "拆棋",
     "[-] Zoom [+]": "[-] 放大 [+]",
     "Show piece destinations": "表示棋子走到位置",
-    "Promote to Queen automatically": "自动升变为皇后",
+    "Two click drop moves": "启用点击打入",
+    "Promote to Queen automatically": "兵自动升变为皇后",
+    "Best move arrow": "箭头指示最佳着",
     "": {
         "language": "zh",
         "plural-forms": "nplurals=1; plural=0;"

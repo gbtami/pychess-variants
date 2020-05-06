@@ -61,12 +61,14 @@
     "Color": "สี",
     "Rating": "คะแนน",
     "Time": "เวลา",
+    "You have an unfinished game!\nPress OK to continue.": "คุณมีเกมที่ยังเล่นไม่จบอยู่!\nกด OK เพื่อไปต่อ",
     "%1 game in play": [
-        ""
+        "%1 เกมกำลังเล่นอยู่"
     ],
     "%1 player": [
-        ""
+        "%1 คนออนไลน์"
     ],
+    "Donate": "บริจาค",
     "Game aborted": "เกมถูกยกเลิก",
     "Checkmate": "รุกจน",
     " resigned": "ยอมแพ้",
@@ -78,7 +80,7 @@
     "Not started": "เกมไม่เริ่ม",
     "Invalid move": "เดินผิดกติกา",
     "Unknown reason": "ไม่ทราบสาเหตุ",
-    "Campmate": "คิงถึงแถวหลัง",
+    "Campmate": "ยึดฐาน",
     "Point counting": "นับคะแนน",
     "%1 move": [
         ""
@@ -90,13 +92,14 @@
     "Challenge to a game": "ท้าเล่นเกม",
     " +15 seconds": "+15 วินาที",
     "Give 15 seconds": "เพิ่มให้ 15 วินาที",
-    "Abort": "ยกเลิกเกม",
+    "Abort": "ยกเลิก",
     "Count": "นับ",
     "Pass": "ผ่าน",
     "Resign": "ยอมแพ้",
     "Are you sure you want to resign?": "ต้องการยอมแพ้จริงหรือไม่?",
-    "Blue (Cho)": "ฝ่ายน้ำเงิน (โช)",
-    "Red (Han)": "ฝ่ายแดง (ฮัน)",
+    "Blue (Cho)": "น้ำเงิน (โช) ",
+    "Red (Han)": "แดง (ฮัน) ",
+    "Waiting for %1 to choose starting positions of the horses and elephants...": "กำลังรอให้%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง...",
     "Switch pieces": "สลับตัวหมาก",
     "Ready": "พร้อม",
     "REMATCH": "ขอเล่นอีกครั้ง",
@@ -109,7 +112,7 @@
     "Show piece destinations": "แสดงตาที่สามารถเดินได้",
     "Two click drop moves": "วางตัวหมากจากมือด้วยการคลิก",
     "Promote to Queen automatically": "เลื่อนยศเป็นควีนอัตโนมัติ",
-    "Best move arrow": "ลูกศรชี้แต้มเดินที่แนะนำ",
+    "Best move arrow": "ลูกศรแนะนำแต้มเดิน",
     "": {
         "language": "th",
         "plural-forms": "nplurals=1; plural=0;"

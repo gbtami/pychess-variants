@@ -1,6 +1,6 @@
 {
     "About pychess": "A pychess névjegye",
-    "pychess is a free, open-source chess server designed to play several chess variant.": "Apychess egy ingyenes, nyílt forrású sakk variáns szerver ",
+    "pychess is a free, open-source chess server designed to play several chess variant.": "A pychess egy ingyenes, nyílt forrású sakk variáns szerver ",
     "Currently supported games are ": "A Jelenleg játszható variánsok ",
     "Additionally you can check Chess960 option in for Standard, Crazyhouse, Capablanca and Capahouse to start games from random positions with ": "A Standard, Crazyhouse, Capablanca és Capahouse variánsokhoz kiválasztható a Chess960 opció is véletlen alapállásal és ",
     "Chess960 castling rules.": "Fischer random sáncolási szabályokkal.",
@@ -23,8 +23,7 @@
     " Request Analysis": " Elemzés kérése",
     "Depth": "mélység",
     "Spectators: ": "néző(k)",
-    "Requseted game ": "A kért játszma ",
-    " not found!": " nem található!",
+    "Requested game %1 not found!": "A kért %1 játszma nem található!",
     "Initial position": "Kezdőállás",
     "Advantage": "Előny",
     "Spectator room": "Figyelőszoba",
@@ -138,7 +137,7 @@
     "Not started": "Nem kezdték el",
     "Invalid move": "Érvénytelen FEN",
     "Unknown reason": "Ismeretlen ok",
-    "Campmate": "Király betörés",
+    "Campmate": "Tábor matt",
     "Point counting": "Pont számolás",
     "%1 move": [
         "%1 lépés",
