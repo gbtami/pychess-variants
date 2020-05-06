@@ -78,7 +78,7 @@ Note: While some beginner chess players sometimes call the knight a horse, you c
 
 While the movement pattern of the gold general may seem confusing at first, the easiest way to remember it is that it moves **one step orthogonally in any direction**… or any of the three squares in front. In the internationalized set, the protrusions of the helmet (including the golden circle symbol) also point in all its directions.
 
-**All promoted pieces move exactly like a gold.**
+**All promoted minor pieces move exactly like a gold.**
 
 ### Silver General (Silver)
 
