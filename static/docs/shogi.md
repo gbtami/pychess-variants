@@ -33,7 +33,7 @@ Regarding promoted pieces, most sets, including the ones used on this site, dist
 
 The king moves exactly like a chess king: one step in any direction. In kanji piece sets, the king with a dot, 玉將 gyokushō, is the black player, while the king without, 王將 ōshō, is the white player. 
 
-This is the only piece in the internationalized set to maintain its kanji form, 王. In these sets, the color black or white is depicted as a colored bar at the bottom of this piece. For the wooden version, the lack of a bar means white. 
+This is the only piece in the internationalized set to maintain its kanji form, 王. In these sets, the color black or white is also depicted in this piece. The wooden set uses a bar below the 王. 
 
 ### Rook
 
@@ -135,6 +135,8 @@ Unlike the dragon king and dragon horse, these do not have special names. The ex
 *Perpetual check* - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
 
 *Repetition* - Similar to the above, repeating the same position (including pieces in hand) results in a draw.
+
+*Timer* - Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
 
 ## Notation
 
