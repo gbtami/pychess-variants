@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 00:48+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -28,15 +28,15 @@ msgstr ""
 
 #: ../templates/404.html:21
 msgid "Sorry, but not all games saved on PyChess-Variants server."
-msgstr ""
+msgstr "ขออภัย ไม่ใช่ทุกเกมที่จะถูกบันทึกในเซิร์ฟเวอร์ของ PyChess-Variants"
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr ""
+msgstr "เป็นไปได้ว่าเกมนี้ถูกละทิ้งหรือหยุดไปก่อนถึงตาที่สาม"
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
-msgstr ""
+msgstr "กลับสู่หน้าหลัก"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -47,18 +47,20 @@ msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
+"เป็นที่ทราบกันดีว่า pychess-variants เป็นเซิร์ฟเวอร์ฟรี และจะฟรีตลอดไป แต่การดูแลรักษาและพัฒนาเซิร์ฟเวอร์ต้องใช้เวลาและทุนทรัพย์อย่างมาก\n"
+"หากท่านชอบผลงานของเรา ท่านสามารถสนับสนุนเราได้ด้วยการบริจาคผ่าน patreon หรือ paypal"
 
 #: ../templates/players.html:8
 msgid "Online"
-msgstr ""
+msgstr "ออนไลน์"
 
 #: ../templates/players.html:27
 msgid "Anonymous"
-msgstr ""
+msgstr "ไม่ระบุตัวตน"
 
 #: ../templates/players.html:34
 msgid "All players"
-msgstr ""
+msgstr "ผู้เล่นทั้งหมด"
 
 #: ../templates/profile.html:13
 #, python-format

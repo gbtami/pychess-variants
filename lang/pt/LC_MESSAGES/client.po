@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 10:12+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Frederico Cabral <fjscabral@gmail.com>, 2020\n"
 "Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
@@ -129,7 +129,7 @@ msgstr "O cliente é baseado em"
 msgid "Source code of server is available at "
 msgstr "O código-fonte do servidor está disponível em"
 
-#: ../client/about.ts:91
+#: ../client/about.ts:92
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
 " here."
@@ -201,12 +201,8 @@ msgid "Spectators: "
 msgstr "Espetadores:"
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid "Requseted game "
-msgstr "Jogo Requisitado"
-
-#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid " not found!"
-msgstr "não encontrado!"
+msgid "Requested game %1 not found!"
+msgstr ""
 
 #: ../client/chart.ts:19
 msgid "Initial position"

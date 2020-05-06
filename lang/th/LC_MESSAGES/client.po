@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 10:12+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -99,7 +99,7 @@ msgstr ""
 msgid "Source code of server is available at "
 msgstr ""
 
-#: ../client/about.ts:91
+#: ../client/about.ts:92
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
 " here."
@@ -169,11 +169,7 @@ msgid "Spectators: "
 msgstr "ผู้ชม:"
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid "Requseted game "
-msgstr ""
-
-#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid " not found!"
+msgid "Requested game %1 not found!"
 msgstr ""
 
 #: ../client/chart.ts:19
@@ -470,20 +466,22 @@ msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
 msgstr ""
+"คุณมีเกมที่ยังเล่นไม่จบอยู่!\n"
+"กด OK เพื่อไปต่อ"
 
 #: ../client/lobby.ts:596
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
+msgstr[0] "%1 เกมกำลังเล่นอยู่"
 
 #: ../client/lobby.ts:606
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
+msgstr[0] "%1 คนออนไลน์"
 
 #: ../client/lobby.ts:682
 msgid "Donate"
-msgstr ""
+msgstr "บริจาค"
 
 #: ../client/lobby.ts:686
 msgid "0 players"
@@ -543,7 +541,7 @@ msgstr "ไม่ทราบสาเหตุ"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
-msgstr "คิงถึงแถวหลัง"
+msgstr "ยึดฐาน"
 
 #: ../client/profile.ts:67
 msgid "Point counting"
@@ -584,7 +582,7 @@ msgstr "เพิ่มให้ 15 วินาที"
 
 #: ../client/roundCtrl.ts:350
 msgid "Abort"
-msgstr "ยกเลิกเกม"
+msgstr "ยกเลิก"
 
 #: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
 #: ../client/roundCtrl.ts:857
@@ -605,16 +603,16 @@ msgstr "ต้องการยอมแพ้จริงหรือไม่
 
 #: ../client/roundCtrl.ts:419
 msgid "Blue (Cho)"
-msgstr "ฝ่ายน้ำเงิน (โช)"
+msgstr "น้ำเงิน (โช) "
 
 #: ../client/roundCtrl.ts:419
 msgid "Red (Han)"
-msgstr "ฝ่ายแดง (ฮัน)"
+msgstr "แดง (ฮัน) "
 
 #: ../client/roundCtrl.ts:420
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr ""
+msgstr "กำลังรอให้%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง..."
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"
@@ -666,4 +664,4 @@ msgstr "เลื่อนยศเป็นควีนอัตโนมัต
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"
-msgstr "ลูกศรชี้แต้มเดินที่แนะนำ"
+msgstr "ลูกศรแนะนำแต้มเดิน"

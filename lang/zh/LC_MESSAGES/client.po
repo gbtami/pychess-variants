@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 10:12+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -101,11 +101,11 @@ msgstr ""
 msgid "Source code of server is available at "
 msgstr ""
 
-#: ../client/about.ts:91
+#: ../client/about.ts:92
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
 " here."
-msgstr ""
+msgstr "关于隐私和服务条款，我们向lichess.org借之而行。"
 
 #: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:526
 #: ../client/profile.ts:112 ../client/round.ts:31
@@ -124,7 +124,7 @@ msgstr "正在进行"
 #: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
 #: ../client/profile.ts:121 ../client/profile.ts:131
 msgid " level "
-msgstr ""
+msgstr "级别"
 
 #: ../client/analysisCtrl.ts:254
 msgid "You need an account to do that."
@@ -171,12 +171,8 @@ msgid "Spectators: "
 msgstr "观众："
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid "Requseted game "
-msgstr ""
-
-#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid " not found!"
-msgstr "未找到！"
+msgid "Requested game %1 not found!"
+msgstr "未找到要求的棋局 %1 ！"
 
 #: ../client/chart.ts:19
 msgid "Initial position"
@@ -208,7 +204,7 @@ msgstr "服务器"
 
 #: ../client/chess.ts:40
 msgid "A game closely resembling the original Chaturanga"
-msgstr "相似古印度象棋Chaturanga的棋类。"
+msgstr "泰国象棋。相似古印度象棋Chaturanga的棋类。"
 
 #: ../client/chess.ts:41
 msgid "Makruk variant where kings cannot move to escape out of check"
@@ -220,23 +216,23 @@ msgstr "泰国象棋，但增加几个开局的特殊着法"
 
 #: ../client/chess.ts:43
 msgid "Similar to Makruk, but pieces are placed at the start of the match"
-msgstr "相似泰国象棋，但大子在对局开始后一一排列。"
+msgstr "缅甸象棋。相似泰国象棋，但大子在对局开始后一一排列。"
 
 #: ../client/chess.ts:44
 msgid "Choose where your pieces start"
-msgstr ""
+msgstr "选择您棋子的起始位置"
 
 #: ../client/chess.ts:45
 msgid "Take captured pieces and drop them back on to the board as your own"
-msgstr ""
+msgstr "把己方吃掉的棋子放回棋盘成为己方的棋子"
 
 #: ../client/chess.ts:46
 msgid "Chess, unmodified, as it's played by FIDE standards"
-msgstr "国际象棋，无变，随从国际棋联创下的规则"
+msgstr "国际象棋，无变，随从国际棋联的规则"
 
 #: ../client/chess.ts:47
 msgid "Pieces promote and can be dropped"
-msgstr ""
+msgstr "日本将棋。棋子既可升变，又能打入"
 
 #: ../client/chess.ts:48
 msgid "Shogi on a 5x5 board"
@@ -244,12 +240,12 @@ msgstr "在5x5棋盘上的日本将棋"
 
 #: ../client/chess.ts:49
 msgid "5x5 Shogi where pieces flip to a different piece each move"
-msgstr ""
+msgstr "5x5的日本将棋，但棋子每走一步会翻转成为别种棋子"
 
 #: ../client/chess.ts:50
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
-msgstr ""
+msgstr "朝鲜将棋。相似象棋，但玩法异同。本网站使用大赛规则。"
 
 #: ../client/chess.ts:51
 msgid "Open fire on your opponent in this highly aggressive ancient game"
@@ -263,105 +259,105 @@ msgstr "在7x7棋盘上的象棋"
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board"
-msgstr ""
+msgstr "在10x8路的棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）"
 
 #: ../client/chess.ts:54
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
-msgstr ""
+msgstr "仙灵棋子大主教（马+象）和首相（马+车）能在棋子离开己方底线后降临参战"
 
 #: ../client/chess.ts:55
 msgid "Capablanca with Crazyhouse drop rules"
-msgstr ""
+msgstr "在Capablanca上添加Crazyhouse的打入规则"
 
 #: ../client/chess.ts:56
 msgid "S-Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "在S-Chess上添加Crazyhouse的打入规则"
 
 #: ../client/chess.ts:57
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
-msgstr ""
+msgstr "在10x10路的豪大棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）"
 
 #: ../client/chess.ts:58
 msgid "Grand Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "在Grand Chess上添加Crazyhouse的打入规则"
 
 #: ../client/chess.ts:59
 msgid "Like Capablanca Chess but with a different starting setup"
-msgstr ""
+msgstr "相似Capablanca但起始局面不一致"
 
 #: ../client/chess.ts:60
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
-msgstr ""
+msgstr "来自象棋的“炮”和“象”进入10x10路棋盘上的国际象棋大战"
 
 #: ../client/chess.ts:61
 msgid "Pieces promote and can be dropped, similar to Shogi"
-msgstr ""
+msgstr "棋子既可升变，又能打入，如同日本将棋"
 
 #: ../client/chess.ts:62
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
-msgstr ""
+msgstr "非对称棋类，一方指挥走法如马但吃法不一致的棋子"
 
 #: ../client/chess.ts:129 ../client/chess.ts:152 ../client/lobby.ts:409
 msgid "Black"
-msgstr "黑"
+msgstr "黑方"
 
 #: ../client/chess.ts:133 ../client/chess.ts:148
 msgid "Red"
-msgstr "红"
+msgstr "红方"
 
 #: ../client/chess.ts:135
 msgid "Blue"
-msgstr "蓝"
+msgstr "绿方"
 
 #: ../client/chess.ts:137 ../client/chess.ts:146 ../client/lobby.ts:411
 msgid "White"
-msgstr "白"
+msgstr "白方"
 
 #: ../client/chess.ts:150
 msgid "Gold"
-msgstr "金"
+msgstr "金方"
 
 #: ../client/clock.ts:186
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
+msgstr[0] "%1 年前"
 
 #: ../client/clock.ts:188
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
+msgstr[0] "%1 月前"
 
 #: ../client/clock.ts:190
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
+msgstr[0] "%1 周前"
 
 #: ../client/clock.ts:192
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
+msgstr[0] "%1 天前"
 
 #: ../client/clock.ts:194
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
+msgstr[0] "%1 小时前"
 
 #: ../client/clock.ts:196
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
+msgstr[0] "%1 分钟前"
 
 #: ../client/clock.ts:198
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
+msgstr[0] "%1 秒前"
 
 #: ../client/editor.ts:97
 msgid "CLEAR BOARD"
@@ -397,11 +393,11 @@ msgstr "读秒"
 
 #: ../client/lobby.ts:248
 msgid "Increment"
-msgstr "加秒"
+msgstr "每步加"
 
 #: ../client/lobby.ts:248
 msgid " in seconds:"
-msgstr ""
+msgstr "秒额："
 
 #: ../client/lobby.ts:322
 msgid "Cancel"
@@ -409,7 +405,7 @@ msgstr "取消"
 
 #: ../client/lobby.ts:326
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "挑战 %1 下棋"
 
 #: ../client/lobby.ts:337
 msgid "Paste the FEN text here"
@@ -421,7 +417,7 @@ msgstr "让子"
 
 #: ../client/lobby.ts:352
 msgid "Minutes per side:"
-msgstr ""
+msgstr "各方时限（分钟）："
 
 #: ../client/lobby.ts:367
 msgid "Periods"
@@ -429,11 +425,11 @@ msgstr "次数"
 
 #: ../client/lobby.ts:386
 msgid "A.I. Level"
-msgstr ""
+msgstr "A.I.级别"
 
 #: ../client/lobby.ts:410
 msgid "Random"
-msgstr ""
+msgstr "随机"
 
 #: ../client/lobby.ts:428
 msgid "Create a game"
@@ -445,11 +441,11 @@ msgstr "和电脑下棋（Fairy-Stockfish）"
 
 #: ../client/lobby.ts:459
 msgid "Player"
-msgstr ""
+msgstr "棋手"
 
 #: ../client/lobby.ts:460
 msgid "Color"
-msgstr ""
+msgstr "先后手"
 
 #: ../client/lobby.ts:461
 msgid "Rating"
@@ -461,7 +457,7 @@ msgstr "时限"
 
 #: ../client/lobby.ts:465
 msgid "Mode"
-msgstr ""
+msgstr "模式"
 
 #: ../client/lobby.ts:526
 msgid "Custom"
@@ -472,16 +468,18 @@ msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
 msgstr ""
+"您正在下一局未结束的棋！\n"
+"请按确定以继续。"
 
 #: ../client/lobby.ts:596
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
+msgstr[0] "%1 对局进行中"
 
 #: ../client/lobby.ts:606
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
+msgstr[0] "%1 在线棋手"
 
 #: ../client/lobby.ts:682
 msgid "Donate"
@@ -489,11 +487,11 @@ msgstr "捐赠"
 
 #: ../client/lobby.ts:686
 msgid "0 players"
-msgstr ""
+msgstr "无棋手"
 
 #: ../client/lobby.ts:687
 msgid "0 games in play"
-msgstr ""
+msgstr "无对局进行中"
 
 #: ../client/main.ts:72
 msgid "Thank you for your support!"
@@ -525,11 +523,11 @@ msgstr "和棋"
 
 #: ../client/profile.ts:52
 msgid " abandoned the game"
-msgstr ""
+msgstr "离开了棋局"
 
 #: ../client/profile.ts:55
 msgid "Cheat detected"
-msgstr ""
+msgstr "检测了作弊行为"
 
 #: ../client/profile.ts:58
 msgid "Not started"
@@ -537,7 +535,7 @@ msgstr "未开始"
 
 #: ../client/profile.ts:61
 msgid "Invalid move"
-msgstr ""
+msgstr "走步无效"
 
 #: ../client/profile.ts:64
 msgid "Unknown reason"
@@ -545,20 +543,20 @@ msgstr "原因不明"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
-msgstr ""
+msgstr "抢占"
 
 #: ../client/profile.ts:67
 msgid "Point counting"
-msgstr ""
+msgstr "数分"
 
 #: ../client/profile.ts:147
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
+msgstr[0] "%1 步"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
-msgstr ""
+msgstr "提供电脑分析"
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
@@ -595,7 +593,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:352
 msgid "Pass"
-msgstr ""
+msgstr "虚着"
 
 #: ../client/roundCtrl.ts:353
 msgid "Resign"
@@ -607,24 +605,24 @@ msgstr "您确定要认输吗？"
 
 #: ../client/roundCtrl.ts:419
 msgid "Blue (Cho)"
-msgstr "蓝（楚）"
+msgstr "绿方（楚）"
 
 #: ../client/roundCtrl.ts:419
 msgid "Red (Han)"
-msgstr "红（汉）"
+msgstr "红方（汉）"
 
 #: ../client/roundCtrl.ts:420
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr ""
+msgstr "等待 %1 选择己方马和象的起始位置 ..."
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"
-msgstr ""
+msgstr "易位"
 
 #: ../client/roundCtrl.ts:455
 msgid "Ready"
-msgstr ""
+msgstr "确定"
 
 #: ../client/roundCtrl.ts:502
 msgid "REMATCH"
@@ -660,12 +658,12 @@ msgstr "表示棋子走到位置"
 
 #: ../client/settings.ts:360
 msgid "Two click drop moves"
-msgstr ""
+msgstr "启用点击打入"
 
 #: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
-msgstr "自动升变为皇后"
+msgstr "兵自动升变为皇后"
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"
-msgstr ""
+msgstr "箭头指示最佳着"

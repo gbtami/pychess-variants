@@ -4,6 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
 # Translators:
+# Ka_HU <uplinknode@gmail.com>, 2020
 # gbtami <gbtami@gmail.com>, 2020
 # 
 #, fuzzy
@@ -11,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 10:12+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -71,7 +72,7 @@ msgstr "A pychess névjegye"
 msgid ""
 "pychess is a free, open-source chess server designed to play several chess "
 "variant."
-msgstr "Apychess egy ingyenes, nyílt forrású sakk variáns szerver "
+msgstr "A pychess egy ingyenes, nyílt forrású sakk variáns szerver "
 
 #: ../client/about.ts:24
 msgid "Currently supported games are "
@@ -103,7 +104,7 @@ msgstr "A böngészőben futó program alapja a "
 msgid "Source code of server is available at "
 msgstr "A szerver forráskódja elérhető itt "
 
-#: ../client/about.ts:91
+#: ../client/about.ts:92
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
 " here."
@@ -175,12 +176,8 @@ msgid "Spectators: "
 msgstr "néző(k)"
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid "Requseted game "
-msgstr "A kért játszma "
-
-#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid " not found!"
-msgstr " nem található!"
+msgid "Requested game %1 not found!"
+msgstr "A kért %1 játszma nem található!"
 
 #: ../client/chart.ts:19
 msgid "Initial position"
@@ -574,7 +571,7 @@ msgstr "Ismeretlen ok"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
-msgstr "Király betörés"
+msgstr "Tábor matt"
 
 #: ../client/profile.ts:67
 msgid "Point counting"

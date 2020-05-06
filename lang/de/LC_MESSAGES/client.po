@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 10:12+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
@@ -95,7 +95,7 @@ msgstr ""
 msgid "Source code of server is available at "
 msgstr ""
 
-#: ../client/about.ts:91
+#: ../client/about.ts:92
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
 " here."
@@ -165,11 +165,7 @@ msgid "Spectators: "
 msgstr ""
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid "Requseted game "
-msgstr ""
-
-#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
-msgid " not found!"
+msgid "Requested game %1 not found!"
 msgstr ""
 
 #: ../client/chart.ts:19
