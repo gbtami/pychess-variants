@@ -1,12 +1,12 @@
 ![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/favicon/apple-icon-152x152.png?raw=true)
 
-# Pychess Variants
+# PyChess sakk variánsok
 
-Many chess variants are available to play here. Available games range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.
+Sokféle sakkvariáns játszható itt. Elérhetők a hagyományos keleti variánsok és az újabb kori feltalálók nyugati sakkon alapuló új variásai is. Mindegyik képes valami érdekeset nyújtani, úgyhogy érdemes mindet kipróbálni! A bal oldalon látható menüből választva minden variánsról további részletes információk olvashatók.
 
-## Tips
+## Tippek
 
-Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.
+Minden játszma lapján elérhető az adott variáns részletes leírása a bal felső sarokban, a variáns nevére kattintva.
 
 ![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
 
