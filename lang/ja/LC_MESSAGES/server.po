@@ -3,13 +3,17 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
+# Translators:
+# Marken Foo <marken.foo.yw@gmail.com>, 2020
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 00:48+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,7 +24,7 @@ msgstr ""
 
 #: ../templates/404.html:19
 msgid "404 GAME NOT FOUND"
-msgstr ""
+msgstr "ゲームが見つかりません"
 
 #: ../templates/404.html:21
 msgid "Sorry, but not all games saved on PyChess-Variants server."
@@ -32,11 +36,11 @@ msgstr ""
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
-msgstr ""
+msgstr "ホームページへ戻る"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr ""
+msgstr "このアカウントは停止されました。"
 
 #: ../templates/patron.html:8
 msgid ""
@@ -46,66 +50,66 @@ msgstr ""
 
 #: ../templates/players.html:8
 msgid "Online"
-msgstr ""
+msgstr "接続中"
 
 #: ../templates/players.html:27
 msgid "Anonymous"
-msgstr ""
+msgstr "匿名"
 
 #: ../templates/players.html:34
 msgid "All players"
-msgstr ""
+msgstr "プレイヤーの一覧"
 
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] ""
+msgstr[0] "%(count)s局対局"
 
 #: ../templates/template.html:69
 msgid "Tv"
-msgstr ""
+msgstr "TV"
 
 #: ../templates/template.html:70
 msgid "Current games"
-msgstr ""
+msgstr "現在対局中"
 
 #: ../templates/template.html:71
 msgid "Players"
-msgstr ""
+msgstr "プレイヤー"
 
 #: ../templates/template.html:72
 msgid "Editor"
-msgstr ""
+msgstr "盤面入力"
 
 #: ../templates/template.html:73
 msgid "Learn"
-msgstr ""
+msgstr "将棋類の一覧"
 
 #: ../templates/template.html:74
 msgid "About"
-msgstr ""
+msgstr "Pychessについて"
 
 #: ../templates/template.html:75
 msgid "Original PyChess site"
-msgstr ""
+msgstr "デスクトップ版PyChessのサイト"
 
 #: ../templates/template.html:78
 msgid "Login with Lichess"
-msgstr ""
+msgstr "Lichessアカウントでログイン"
 
 #: ../templates/template.html:78
 msgid "Log in"
-msgstr ""
+msgstr "ログイン"
 
 #: ../templates/template.html:80
 msgid "Log out"
-msgstr ""
+msgstr "ログアウト"
 
 #: ../templates/template.html:91
 msgid "Toggle sound"
-msgstr ""
+msgstr "音を切り替える"
 
 #: ../templates/template.html:92
 msgid "Toggle dark mode"
-msgstr ""
+msgstr "ダーク・モードを切り替える"

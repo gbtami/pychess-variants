@@ -681,7 +681,7 @@ msgstr "ECHIQUIER D'ANALYSE"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop counting"
-msgstr ""
+msgstr "Arrêter de compter"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop"
@@ -689,7 +689,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
 msgid "Start counting"
-msgstr ""
+msgstr "Commencer à compter les coups"
 
 #: ../client/settings.ts:348
 msgid "[-] Zoom [+]"

@@ -91,15 +91,15 @@ msgstr "Chess960的王车易位规则。"
 
 #: ../client/about.ts:75
 msgid "For move generation, validation, analysis and engine play it uses "
-msgstr ""
+msgstr "生成，验证，分析棋步和电脑对局功能一律基于"
 
 #: ../client/about.ts:83
 msgid "On client side it is based on "
-msgstr ""
+msgstr "在客户端使用"
 
 #: ../client/about.ts:87
 msgid "Source code of server is available at "
-msgstr ""
+msgstr "本服务器的源码投稿在"
 
 #: ../client/about.ts:92
 msgid ""
@@ -638,7 +638,7 @@ msgstr "拆棋"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop counting"
-msgstr ""
+msgstr "停止数步"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop"
@@ -646,7 +646,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
 msgid "Start counting"
-msgstr ""
+msgstr "开始数步"
 
 #: ../client/settings.ts:348
 msgid "[-] Zoom [+]"

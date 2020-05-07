@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 00:48+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -60,7 +60,7 @@ msgstr "匿名"
 
 #: ../templates/players.html:34
 msgid "All players"
-msgstr "所有棋手"
+msgstr "棋手一览"
 
 #: ../templates/profile.html:13
 #, python-format
@@ -86,11 +86,11 @@ msgstr "棋盘编辑器"
 
 #: ../templates/template.html:73
 msgid "Learn"
-msgstr "学棋"
+msgstr "棋类介绍"
 
 #: ../templates/template.html:74
 msgid "About"
-msgstr "关于本网站"
+msgstr "关于我们"
 
 #: ../templates/template.html:75
 msgid "Original PyChess site"

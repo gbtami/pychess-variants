@@ -1,4 +1,17 @@
 {
+    "Rated": "レート戦",
+    "Casual": "非レート戦",
+    "Playing right now": "対局中",
+    " level ": "レベル",
+    "You need an account to do that.": "アカウントが必要です",
+    "Download game to PGN file": "ダウンロード（PGN形式）",
+    " Download PGN": "ダウンロード（PGN形式）",
+    " Copy UCI/USI": "UCI/USIをコピーする",
+    "Download position to PNG image file": "局面をPNG画像でダウンロードする",
+    " PNG image": "PNG画像",
+    "Request Computer Analysis": "コンピューターより解析をリクエストする",
+    " Request Analysis": "解析をリクエストする",
+    "Depth": "深度",
     "%1 year ago": [
         ""
     ],
