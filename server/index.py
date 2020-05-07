@@ -232,10 +232,11 @@ async def index(request):
     elif view == "variant":
         render["variants"] = VARIANTS
         render["icons"] = VARIANT_ICONS
+        locale = ".%s" % lang if (variant is None) and lang in ("hu",) else ""
         if variant == "terminology":
-            render["variant"] = "terminology.html"
+            render["variant"] = "terminology%s.html" % locale
         else:
-            render["variant"] = ("intro" if variant is None else variant) + ".html"
+            render["variant"] = ("intro" if variant is None else variant) + "%s.html" % locale
 
     elif view == "editor":
         if fen is None:
