@@ -42,7 +42,7 @@ Mielőtt komolyabb játszmákba kezdenél, és szeretnéd a szabályokat és a l
 
 **Grand** - 10x10-es sakk két új figurával. Az archbishop = futó + ló, a chancellor = bástya + ló.
 
-**Shako** - 10x10-es variáns Xiangqi ágyúval és elefánttal
+**Shako** - 10x10-es variáns Xiangqi ágyúval és elefánttal.
 
 **Shogun** - A figurák átváltozhatnak és a leütött figurák visszarakhatók a Shogi-hoz hasonlóan.
 
@@ -78,7 +78,7 @@ Mielőtt komolyabb játszmákba kezdenél, és szeretnéd a szabályokat és a l
 
 **Minixiangqi** - Xiangqi 7x7-es táblán.
 
-## Southeast Asian variants
+## Délkelet-ázsiai variánsok
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
