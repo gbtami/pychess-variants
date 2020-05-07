@@ -149,7 +149,7 @@ msgstr "Amigável"
 
 #: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
 msgid "Playing right now"
-msgstr "Jogos a decorrer"
+msgstr "Partida a decorrer"
 
 #: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
 #: ../client/profile.ts:121 ../client/profile.ts:131
@@ -194,7 +194,7 @@ msgstr "Solicitar Análise"
 
 #: ../client/analysisCtrl.ts:440
 msgid "Depth"
-msgstr ""
+msgstr "Profundidade"
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
@@ -202,7 +202,7 @@ msgstr "Espetadores:"
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
 msgid "Requested game %1 not found!"
-msgstr ""
+msgstr "Partida solicitada %1 não encontrada!"
 
 #: ../client/chart.ts:19
 msgid "Initial position"
@@ -370,44 +370,44 @@ msgstr "Dourado"
 #: ../client/clock.ts:186
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 ano atrás"
+msgstr[1] "%1 anos atrás"
 
 #: ../client/clock.ts:188
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 mês atrás"
+msgstr[1] "%1 meses atrás"
 
 #: ../client/clock.ts:190
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 semana atrás"
+msgstr[1] "%1 semanas atrás"
 
 #: ../client/clock.ts:192
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 dia atrás"
+msgstr[1] "%1 dias atrás"
 
 #: ../client/clock.ts:194
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 hora atrás"
+msgstr[1] "%1 horas atrás"
 
 #: ../client/clock.ts:196
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 minuto atrás"
+msgstr[1] "%1 minutos atrás"
 
 #: ../client/clock.ts:198
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 segundo atrás"
+msgstr[1] "%1 segundos atrás"
 
 #: ../client/editor.ts:97
 msgid "CLEAR BOARD"
@@ -455,7 +455,7 @@ msgstr "Cancelar"
 
 #: ../client/lobby.ts:326
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "Desafia %1 para uma partida"
 
 #: ../client/lobby.ts:337
 msgid "Paste the FEN text here"
@@ -524,14 +524,14 @@ msgstr ""
 #: ../client/lobby.ts:596
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 jogo a decorrer"
+msgstr[1] "%1 jogos a decorrer"
 
 #: ../client/lobby.ts:606
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 jogador"
+msgstr[1] "%1 jogadores"
 
 #: ../client/lobby.ts:682
 msgid "Donate"
@@ -547,7 +547,7 @@ msgstr "0 jogos em decurso"
 
 #: ../client/main.ts:72
 msgid "Thank you for your support!"
-msgstr ""
+msgstr "Muito obrigado pelo seu suporte!"
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
@@ -604,8 +604,8 @@ msgstr "Contagem de Pontos"
 #: ../client/profile.ts:147
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 jogada"
+msgstr[1] "%1 jogadas"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
@@ -668,6 +668,7 @@ msgstr "Vermelho (Han)"
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr ""
+"À espera que %1 escolha as posições iniciais dos Elefantes e dos Cavalos..."
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"

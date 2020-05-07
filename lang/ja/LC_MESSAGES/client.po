@@ -166,7 +166,7 @@ msgstr "深度"
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
-msgstr ""
+msgstr "観覧者："
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
 msgid "Requested game %1 not found!"
@@ -174,31 +174,31 @@ msgstr ""
 
 #: ../client/chart.ts:19
 msgid "Initial position"
-msgstr ""
+msgstr "開始局面"
 
 #: ../client/chart.ts:75
 msgid "Advantage"
-msgstr ""
+msgstr "優勢"
 
 #: ../client/chat.ts:24
 msgid "Spectator room"
-msgstr ""
+msgstr "観戦席"
 
 #: ../client/chat.ts:24
 msgid "Chat room"
-msgstr ""
+msgstr "チャットルーム"
 
 #: ../client/chat.ts:33
 msgid "Sign in to chat"
-msgstr ""
+msgstr "（ログインが必要）"
 
 #: ../client/chat.ts:33
 msgid "Please be nice in the chat!"
-msgstr ""
+msgstr "チャットでは礼儀を忘れず"
 
 #: ../client/chat.ts:51
 msgid "Server"
-msgstr ""
+msgstr "サーバ"
 
 #: ../client/chess.ts:40
 msgid "A game closely resembling the original Chaturanga"
@@ -230,7 +230,7 @@ msgstr ""
 
 #: ../client/chess.ts:47
 msgid "Pieces promote and can be dropped"
-msgstr ""
+msgstr "将棋です。"
 
 #: ../client/chess.ts:48
 msgid "Shogi on a 5x5 board"
@@ -304,158 +304,158 @@ msgstr ""
 
 #: ../client/chess.ts:129 ../client/chess.ts:152 ../client/lobby.ts:409
 msgid "Black"
-msgstr ""
+msgstr "黒"
 
 #: ../client/chess.ts:133 ../client/chess.ts:148
 msgid "Red"
-msgstr ""
+msgstr "赤"
 
 #: ../client/chess.ts:135
 msgid "Blue"
-msgstr ""
+msgstr "緑"
 
 #: ../client/chess.ts:137 ../client/chess.ts:146 ../client/lobby.ts:411
 msgid "White"
-msgstr ""
+msgstr "白"
 
 #: ../client/chess.ts:150
 msgid "Gold"
-msgstr ""
+msgstr "黄金"
 
 #: ../client/clock.ts:186
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
+msgstr[0] "%1 年前"
 
 #: ../client/clock.ts:188
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
+msgstr[0] "%1 月前"
 
 #: ../client/clock.ts:190
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
+msgstr[0] "%1 週前"
 
 #: ../client/clock.ts:192
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
+msgstr[0] "%1 日前"
 
 #: ../client/clock.ts:194
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
+msgstr[0] "%1 時間前"
 
 #: ../client/clock.ts:196
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
+msgstr[0] "%1 分前"
 
 #: ../client/clock.ts:198
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
+msgstr[0] "%1 秒前"
 
 #: ../client/editor.ts:97
 msgid "CLEAR BOARD"
-msgstr ""
+msgstr "盤面をクリアする"
 
 #: ../client/editor.ts:100
 msgid "STARTING POSITION"
-msgstr ""
+msgstr "開始局面"
 
 #: ../client/editor.ts:103 ../client/editor.ts:117
 msgid "PLAY WITH MACHINE"
-msgstr ""
+msgstr "マシンと対戦"
 
 #: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:337
 msgid " (must be signed in)"
-msgstr ""
+msgstr "（ログインが必要）"
 
 #: ../client/editor.ts:107
 msgid "EXPORT TO PNG"
-msgstr ""
+msgstr "PNG画像にエクスポートする"
 
 #: ../client/editor.ts:120 ../client/lobby.ts:267
 msgid "Invalid FEN"
-msgstr ""
+msgstr "無効な FEN"
 
 #: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:464
 msgid "Variant"
-msgstr ""
+msgstr "将棋類"
 
 #: ../client/lobby.ts:248
 msgid "Byoyomi"
-msgstr ""
+msgstr "秒読み"
 
 #: ../client/lobby.ts:248
 msgid "Increment"
-msgstr ""
+msgstr "１手ごとに増える"
 
 #: ../client/lobby.ts:248
 msgid " in seconds:"
-msgstr ""
+msgstr "秒数："
 
 #: ../client/lobby.ts:322
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 #: ../client/lobby.ts:326
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "%1 を対戦に申し込む"
 
 #: ../client/lobby.ts:337
 msgid "Paste the FEN text here"
-msgstr ""
+msgstr "ここにFEN形式の局面をペースト"
 
 #: ../client/lobby.ts:341
 msgid "Handicap"
-msgstr ""
+msgstr "手合い割"
 
 #: ../client/lobby.ts:352
 msgid "Minutes per side:"
-msgstr ""
+msgstr "持ち時間（分）"
 
 #: ../client/lobby.ts:367
 msgid "Periods"
-msgstr ""
+msgstr "秒読み回数"
 
 #: ../client/lobby.ts:386
 msgid "A.I. Level"
-msgstr ""
+msgstr "A.I. レベル"
 
 #: ../client/lobby.ts:410
 msgid "Random"
-msgstr ""
+msgstr "ランダムカラー"
 
 #: ../client/lobby.ts:428
 msgid "Create a game"
-msgstr ""
+msgstr "対局を作成する"
 
 #: ../client/lobby.ts:441
 msgid "Play with AI (Fairy-Stockfish)"
-msgstr ""
+msgstr "A.I. と対局する（Fairy-Stockfish）"
 
 #: ../client/lobby.ts:459
 msgid "Player"
-msgstr ""
+msgstr "プレイヤー"
 
 #: ../client/lobby.ts:460
 msgid "Color"
-msgstr ""
+msgstr "カラー"
 
 #: ../client/lobby.ts:461
 msgid "Rating"
-msgstr ""
+msgstr "レーティング"
 
 #: ../client/lobby.ts:462
 msgid "Time"
-msgstr ""
+msgstr "時間"
 
 #: ../client/lobby.ts:465
 msgid "Mode"
-msgstr ""
+msgstr "モード"
 
 #: ../client/lobby.ts:526
 msgid "Custom"
@@ -470,24 +470,24 @@ msgstr ""
 #: ../client/lobby.ts:596
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
+msgstr[0] "%1 局プレイ中"
 
 #: ../client/lobby.ts:606
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
+msgstr[0] "現在 %1 人接続中"
 
 #: ../client/lobby.ts:682
 msgid "Donate"
-msgstr ""
+msgstr "寄付"
 
 #: ../client/lobby.ts:686
 msgid "0 players"
-msgstr ""
+msgstr "現在０人接続中"
 
 #: ../client/lobby.ts:687
 msgid "0 games in play"
-msgstr ""
+msgstr "０局プレイ中"
 
 #: ../client/main.ts:72
 msgid "Thank you for your support!"
@@ -495,27 +495,27 @@ msgstr ""
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
-msgstr ""
+msgstr "対局中止"
 
 #: ../client/profile.ts:34
 msgid "Checkmate"
-msgstr ""
+msgstr "詰み"
 
 #: ../client/profile.ts:37
 msgid " resigned"
-msgstr ""
+msgstr "投了"
 
 #: ../client/profile.ts:40
 msgid "Stalemate"
-msgstr ""
+msgstr "ステイルメイト"
 
 #: ../client/profile.ts:43 ../client/profile.ts:49
 msgid "Time out"
-msgstr ""
+msgstr "時間切れ"
 
 #: ../client/profile.ts:46 ../client/roundCtrl.ts:352
 msgid "Draw"
-msgstr ""
+msgstr "引き分け"
 
 #: ../client/profile.ts:52
 msgid " abandoned the game"
@@ -535,7 +535,7 @@ msgstr ""
 
 #: ../client/profile.ts:64
 msgid "Unknown reason"
-msgstr ""
+msgstr "理由不明"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
@@ -548,39 +548,39 @@ msgstr ""
 #: ../client/profile.ts:147
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
+msgstr[0] "%1 手"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
-msgstr ""
+msgstr "コンピュータ解析がされています"
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
-msgstr ""
+msgstr "Lichess プロフィール"
 
 #: ../client/profile.ts:230
 msgid "Export games"
-msgstr ""
+msgstr "対局をエクスポートする"
 
 #: ../client/profile.ts:233
 msgid "Watch games"
-msgstr ""
+msgstr "観戦する"
 
 #: ../client/profile.ts:236
 msgid "Challenge to a game"
-msgstr ""
+msgstr "対戦を申し込む"
 
 #: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1138
 msgid " +15 seconds"
-msgstr ""
+msgstr "+15 秒"
 
 #: ../client/roundCtrl.ts:314
 msgid "Give 15 seconds"
-msgstr ""
+msgstr "15秒を与える"
 
 #: ../client/roundCtrl.ts:350
 msgid "Abort"
-msgstr ""
+msgstr "中止"
 
 #: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
 #: ../client/roundCtrl.ts:857
@@ -589,23 +589,23 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:352
 msgid "Pass"
-msgstr ""
+msgstr "パス"
 
 #: ../client/roundCtrl.ts:353
 msgid "Resign"
-msgstr ""
+msgstr "投了"
 
 #: ../client/roundCtrl.ts:389
 msgid "Are you sure you want to resign?"
-msgstr ""
+msgstr "本当に投了したいですか？"
 
 #: ../client/roundCtrl.ts:419
 msgid "Blue (Cho)"
-msgstr ""
+msgstr "緑（楚）"
 
 #: ../client/roundCtrl.ts:419
 msgid "Red (Han)"
-msgstr ""
+msgstr "赤（漢）"
 
 #: ../client/roundCtrl.ts:420
 msgid ""
@@ -622,15 +622,15 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:502
 msgid "REMATCH"
-msgstr ""
+msgstr "再戦"
 
 #: ../client/roundCtrl.ts:503
 msgid "NEW OPPONENT"
-msgstr ""
+msgstr "新しい相手"
 
 #: ../client/roundCtrl.ts:504
 msgid "ANALYSIS BOARD"
-msgstr ""
+msgstr "棋譜解析"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop counting"
@@ -650,7 +650,7 @@ msgstr ""
 
 #: ../client/settings.ts:353
 msgid "Show piece destinations"
-msgstr ""
+msgstr "駒の行き先を表示する"
 
 #: ../client/settings.ts:360
 msgid "Two click drop moves"
@@ -658,8 +658,8 @@ msgstr ""
 
 #: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
-msgstr ""
+msgstr "自動的にクイーンに昇格する"
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"
-msgstr ""
+msgstr "最善手を表示"

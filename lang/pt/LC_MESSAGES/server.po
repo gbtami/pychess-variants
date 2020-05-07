@@ -5,15 +5,16 @@
 # 
 # Translators:
 # Frederico Cabral <fjscabral@gmail.com>, 2020
+# gbtami <gbtami@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 00:48+0200\n"
+"POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Frederico Cabral <fjscabral@gmail.com>, 2020\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
 "Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -38,7 +39,7 @@ msgstr "Provavelmente foi cancelado ou parado antes da terceira jogada."
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
-msgstr ""
+msgstr "Voltar à página principal"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -49,6 +50,8 @@ msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
+"Como sabes, o pychess-variants é um servidor grátis e irá continuar a sê-lo eternamente. No entanto, para fins de manutenção e melhoramento do servidor existem custos de tempo e dinheiro.\n"
+"Se gosta do nosso trabalho e acha o servidor útil, por favor faça um donativo a partir do Patreon ou do Paypal.  "
 
 #: ../templates/players.html:8
 msgid "Online"
@@ -66,8 +69,8 @@ msgstr "Todos os Jogadores"
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s partida"
+msgstr[1] "%(count)s partidas"
 
 #: ../templates/template.html:69
 msgid "Tv"

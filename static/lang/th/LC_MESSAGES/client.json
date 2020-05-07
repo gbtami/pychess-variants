@@ -3,7 +3,7 @@
     "Rated": "คิดคะแนน",
     "Casual": "ไม่คิดคะแนน",
     "Playing right now": "กำลังเล่นอยู่",
-    " level ": "ระดับ",
+    " level ": "ระดับ ",
     "You need an account to do that.": "คุณต้องลงชื่อเข้าใช้",
     "Download game to PGN file": "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN",
     " Download PGN": "ดาวน์โหลด PGN",
@@ -15,43 +15,52 @@
     " Request Analysis": "ขอการวิเคราะห์",
     "Depth": "ความลึก",
     "Spectators: ": "ผู้ชม:",
+    "Requested game %1 not found!": "หาเกม %1 ไม่พบ!",
     "Initial position": "ตำแหน่งเริ่มต้น",
+    "Spectator room": "ห้องผู้ชม",
+    "Chat room": "ห้องแชต",
+    "Sign in to chat": "เข้าสู่ระบบเพื่อเริ่มแชต",
     "Black": "ดำ",
     "Red": "แดง",
     "Blue": "น้ำเงิน",
     "White": "ขาว",
     "Gold": "ทอง",
     "%1 year ago": [
-        ""
+        "%1 ปีที่แล้ว"
     ],
     "%1 month ago": [
-        ""
+        "%1 เดือนที่แล้ว"
     ],
     "%1 week ago": [
-        ""
+        "%1 สัปดาห์ที่แล้ว"
     ],
     "%1 day ago": [
-        ""
+        "%1 วันที่แล้ว"
     ],
     "%1 hour ago": [
-        ""
+        "%1 ชั่วโมงที่แล้ว"
     ],
     "%1 minute ago": [
-        ""
+        "%1 นาทีที่แล้ว"
     ],
     "%1 second ago": [
-        ""
+        "%1 วินาทีที่แล้ว"
     ],
     "CLEAR BOARD": "ล้างกระดาน",
     "STARTING POSITION": "ตำแหน่งเริ่มต้น",
+    "PLAY WITH MACHINE": "เล่นกับคอมพิวเตอร์",
+    " (must be signed in)": "(ต้องเข้าสู่ระบบก่อน)",
+    "EXPORT TO PNG": "บันทึกเป็น PNG",
     "Invalid FEN": "FEN ไม่ถูกต้อง",
+    "Variant": "ชนิดเกม",
     "Byoyomi": "เบียวโยมิ",
     "Increment": "ทดเวลาต่อตาเดิน",
-    " in seconds:": "เป็นวินาที",
+    " in seconds:": "เป็นวินาที:",
     "Cancel": "ยกเลิก",
-    "Paste the FEN text here": "วาง FEN ตำแหน่งเริ่มต้นที่นี่",
-    "Handicap": "ต่อตัวหมาก",
-    "Minutes per side:": "เวลาเริ่มต้น เป็นนาที:",
+    "Challenge %1 to a game": "ท้า %1 เล่นเกม",
+    "Paste the FEN text here": "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่",
+    "Handicap": "ลดตัวหมาก",
+    "Minutes per side:": "เวลาเริ่มต้นเป็นนาที:",
     "Periods": "จำนวนรอบ",
     "A.I. Level": "ระดับ AI",
     "Random": "สุ่ม",
@@ -61,6 +70,8 @@
     "Color": "สี",
     "Rating": "คะแนน",
     "Time": "เวลา",
+    "Mode": "รูปแบบการเล่น",
+    "Custom": "กำหนดเอง",
     "You have an unfinished game!\nPress OK to continue.": "คุณมีเกมที่ยังเล่นไม่จบอยู่!\nกด OK เพื่อไปต่อ",
     "%1 game in play": [
         "%1 เกมกำลังเล่นอยู่"
@@ -69,6 +80,9 @@
         "%1 คนออนไลน์"
     ],
     "Donate": "บริจาค",
+    "0 players": "0 คนออนไลน์",
+    "0 games in play": "0 เกมกำลังเล่นอยู่",
+    "Thank you for your support!": "ขอบคุณสำหรับการสนับสนุน!",
     "Game aborted": "เกมถูกยกเลิก",
     "Checkmate": "รุกจน",
     " resigned": "ยอมแพ้",
@@ -83,7 +97,7 @@
     "Campmate": "ยึดฐาน",
     "Point counting": "นับคะแนน",
     "%1 move": [
-        ""
+        "%1 ตาเดิน"
     ],
     "Computer analysis available": "มีการวิเคราะห์โดยคอมพิวเตอร์",
     "Lichess profile": "หน้าบัญชี lichess",
@@ -112,7 +126,7 @@
     "Show piece destinations": "แสดงตาที่สามารถเดินได้",
     "Two click drop moves": "วางตัวหมากจากมือด้วยการคลิก",
     "Promote to Queen automatically": "เลื่อนยศเป็นควีนอัตโนมัติ",
-    "Best move arrow": "ลูกศรแนะนำแต้มเดิน",
+    "Best move arrow": "ลูกศรแนะนำตาเดิน",
     "": {
         "language": "th",
         "plural-forms": "nplurals=1; plural=0;"

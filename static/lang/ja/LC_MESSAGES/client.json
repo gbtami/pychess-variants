@@ -12,36 +12,104 @@
     "Request Computer Analysis": "コンピューターより解析をリクエストする",
     " Request Analysis": "解析をリクエストする",
     "Depth": "深度",
+    "Spectators: ": "観覧者：",
+    "Initial position": "開始局面",
+    "Advantage": "優勢",
+    "Spectator room": "観戦席",
+    "Chat room": "チャットルーム",
+    "Sign in to chat": "（ログインが必要）",
+    "Please be nice in the chat!": "チャットでは礼儀を忘れず",
+    "Server": "サーバ",
+    "Pieces promote and can be dropped": "将棋です。",
+    "Black": "黒",
+    "Red": "赤",
+    "Blue": "緑",
+    "White": "白",
+    "Gold": "黄金",
     "%1 year ago": [
-        ""
+        "%1 年前"
     ],
     "%1 month ago": [
-        ""
+        "%1 月前"
     ],
     "%1 week ago": [
-        ""
+        "%1 週前"
     ],
     "%1 day ago": [
-        ""
+        "%1 日前"
     ],
     "%1 hour ago": [
-        ""
+        "%1 時間前"
     ],
     "%1 minute ago": [
-        ""
+        "%1 分前"
     ],
     "%1 second ago": [
-        ""
+        "%1 秒前"
     ],
+    "CLEAR BOARD": "盤面をクリアする",
+    "STARTING POSITION": "開始局面",
+    "PLAY WITH MACHINE": "マシンと対戦",
+    " (must be signed in)": "（ログインが必要）",
+    "EXPORT TO PNG": "PNG画像にエクスポートする",
+    "Invalid FEN": "無効な FEN",
+    "Variant": "将棋類",
+    "Byoyomi": "秒読み",
+    "Increment": "１手ごとに増える",
+    " in seconds:": "秒数：",
+    "Cancel": "キャンセル",
+    "Challenge %1 to a game": "%1 を対戦に申し込む",
+    "Paste the FEN text here": "ここにFEN形式の局面をペースト",
+    "Handicap": "手合い割",
+    "Minutes per side:": "持ち時間（分）",
+    "Periods": "秒読み回数",
+    "A.I. Level": "A.I. レベル",
+    "Random": "ランダムカラー",
+    "Create a game": "対局を作成する",
+    "Play with AI (Fairy-Stockfish)": "A.I. と対局する（Fairy-Stockfish）",
+    "Player": "プレイヤー",
+    "Color": "カラー",
+    "Rating": "レーティング",
+    "Time": "時間",
+    "Mode": "モード",
     "%1 game in play": [
-        ""
+        "%1 局プレイ中"
     ],
     "%1 player": [
-        ""
+        "現在 %1 人接続中"
     ],
+    "Donate": "寄付",
+    "0 players": "現在０人接続中",
+    "0 games in play": "０局プレイ中",
+    "Game aborted": "対局中止",
+    "Checkmate": "詰み",
+    " resigned": "投了",
+    "Stalemate": "ステイルメイト",
+    "Time out": "時間切れ",
+    "Draw": "引き分け",
+    "Unknown reason": "理由不明",
     "%1 move": [
-        ""
+        "%1 手"
     ],
+    "Computer analysis available": "コンピュータ解析がされています",
+    "Lichess profile": "Lichess プロフィール",
+    "Export games": "対局をエクスポートする",
+    "Watch games": "観戦する",
+    "Challenge to a game": "対戦を申し込む",
+    " +15 seconds": "+15 秒",
+    "Give 15 seconds": "15秒を与える",
+    "Abort": "中止",
+    "Pass": "パス",
+    "Resign": "投了",
+    "Are you sure you want to resign?": "本当に投了したいですか？",
+    "Blue (Cho)": "緑（楚）",
+    "Red (Han)": "赤（漢）",
+    "REMATCH": "再戦",
+    "NEW OPPONENT": "新しい相手",
+    "ANALYSIS BOARD": "棋譜解析",
+    "Show piece destinations": "駒の行き先を表示する",
+    "Promote to Queen automatically": "自動的にクイーンに昇格する",
+    "Best move arrow": "最善手を表示",
     "": {
         "language": "ja",
         "plural-forms": "nplurals=1; plural=0;"

@@ -15,7 +15,7 @@
     "Regarding Privacy and Terms of Service, the rules of lichess.org are applied here.": "Acerca da Privacidade e Termos de Serviço, as regras do lichess.org são aplicadas aqui.",
     "Rated": "Valendo Pontos",
     "Casual": "Amigável",
-    "Playing right now": "Jogos a decorrer",
+    "Playing right now": "Partida a decorrer",
     " level ": "nível",
     "You need an account to do that.": "Precisas de uma conta para fazer isto.",
     "Download game to PGN file": "Transferir jogo para ficheiro PGN",
@@ -26,7 +26,9 @@
     " PNG image": "Imagem PNG",
     "Request Computer Analysis": "Solicitar Análise de Computador",
     " Request Analysis": "Solicitar Análise",
+    "Depth": "Profundidade",
     "Spectators: ": "Espetadores:",
+    "Requested game %1 not found!": "Partida solicitada %1 não encontrada!",
     "Initial position": "Posição Inicial",
     "Advantage": "Vantagem",
     "Spectator room": "Sala de Espetador",
@@ -62,6 +64,34 @@
     "Blue": "Azul",
     "White": "Brancas",
     "Gold": "Dourado",
+    "%1 year ago": [
+        "%1 ano atrás",
+        "%1 anos atrás"
+    ],
+    "%1 month ago": [
+        "%1 mês atrás",
+        "%1 meses atrás"
+    ],
+    "%1 week ago": [
+        "%1 semana atrás",
+        "%1 semanas atrás"
+    ],
+    "%1 day ago": [
+        "%1 dia atrás",
+        "%1 dias atrás"
+    ],
+    "%1 hour ago": [
+        "%1 hora atrás",
+        "%1 horas atrás"
+    ],
+    "%1 minute ago": [
+        "%1 minuto atrás",
+        "%1 minutos atrás"
+    ],
+    "%1 second ago": [
+        "%1 segundo atrás",
+        "%1 segundos atrás"
+    ],
     "CLEAR BOARD": "LIMPAR TABULEIRO",
     "STARTING POSITION": "POSIÇÃO INICIAL",
     "PLAY WITH MACHINE": "JOGAR COM COMPUTADOR",
@@ -73,6 +103,7 @@
     "Increment": "Incremento",
     " in seconds:": "em segundos:",
     "Cancel": "Cancelar",
+    "Challenge %1 to a game": "Desafia %1 para uma partida",
     "Paste the FEN text here": "Cole o texto FEN aqui",
     "Handicap": "Desvantagem",
     "Minutes per side:": "Minutos por jogador:",
@@ -88,9 +119,18 @@
     "Mode": "Modo",
     "Custom": "Personalizado",
     "You have an unfinished game!\nPress OK to continue.": "Tens um jogo a decorrer!\nPressione OK para continuar.",
+    "%1 game in play": [
+        "%1 jogo a decorrer",
+        "%1 jogos a decorrer"
+    ],
+    "%1 player": [
+        "%1 jogador",
+        "%1 jogadores"
+    ],
     "Donate": "Donativo",
     "0 players": "0 jogadores",
     "0 games in play": "0 jogos em decurso",
+    "Thank you for your support!": "Muito obrigado pelo seu suporte!",
     "Game aborted": "Jogo cancelado",
     "Checkmate": "Cheque-mate",
     " resigned": "desistiram",
@@ -104,6 +144,10 @@
     "Unknown reason": "Razão desconhecida",
     "Campmate": "Mate de Linha",
     "Point counting": "Contagem de Pontos",
+    "%1 move": [
+        "%1 jogada",
+        "%1 jogadas"
+    ],
     "Computer analysis available": "Análise de Computador disponível",
     "Lichess profile": "Conta Lichess",
     "Export games": "Exportar jogos",
@@ -118,6 +162,7 @@
     "Are you sure you want to resign?": "Tem a certeza que quer desistir?",
     "Blue (Cho)": "Azul (Cho)",
     "Red (Han)": "Vermelho (Han)",
+    "Waiting for %1 to choose starting positions of the horses and elephants...": "À espera que %1 escolha as posições iniciais dos Elefantes e dos Cavalos...",
     "Switch pieces": "Trocar peças",
     "Ready": "Pronto",
     "REMATCH": "DESFORRA",

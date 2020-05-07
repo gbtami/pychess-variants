@@ -122,7 +122,7 @@ msgstr "กำลังเล่นอยู่"
 #: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
 #: ../client/profile.ts:121 ../client/profile.ts:131
 msgid " level "
-msgstr "ระดับ"
+msgstr "ระดับ "
 
 #: ../client/analysisCtrl.ts:254
 msgid "You need an account to do that."
@@ -170,7 +170,7 @@ msgstr "ผู้ชม:"
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
 msgid "Requested game %1 not found!"
-msgstr ""
+msgstr "หาเกม %1 ไม่พบ!"
 
 #: ../client/chart.ts:19
 msgid "Initial position"
@@ -182,15 +182,15 @@ msgstr ""
 
 #: ../client/chat.ts:24
 msgid "Spectator room"
-msgstr ""
+msgstr "ห้องผู้ชม"
 
 #: ../client/chat.ts:24
 msgid "Chat room"
-msgstr ""
+msgstr "ห้องแชต"
 
 #: ../client/chat.ts:33
 msgid "Sign in to chat"
-msgstr ""
+msgstr "เข้าสู่ระบบเพื่อเริ่มแชต"
 
 #: ../client/chat.ts:33
 msgid "Please be nice in the chat!"
@@ -325,37 +325,37 @@ msgstr "ทอง"
 #: ../client/clock.ts:186
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
+msgstr[0] "%1 ปีที่แล้ว"
 
 #: ../client/clock.ts:188
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
+msgstr[0] "%1 เดือนที่แล้ว"
 
 #: ../client/clock.ts:190
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
+msgstr[0] "%1 สัปดาห์ที่แล้ว"
 
 #: ../client/clock.ts:192
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
+msgstr[0] "%1 วันที่แล้ว"
 
 #: ../client/clock.ts:194
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
+msgstr[0] "%1 ชั่วโมงที่แล้ว"
 
 #: ../client/clock.ts:196
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
+msgstr[0] "%1 นาทีที่แล้ว"
 
 #: ../client/clock.ts:198
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
+msgstr[0] "%1 วินาทีที่แล้ว"
 
 #: ../client/editor.ts:97
 msgid "CLEAR BOARD"
@@ -367,15 +367,15 @@ msgstr "ตำแหน่งเริ่มต้น"
 
 #: ../client/editor.ts:103 ../client/editor.ts:117
 msgid "PLAY WITH MACHINE"
-msgstr ""
+msgstr "เล่นกับคอมพิวเตอร์"
 
 #: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:337
 msgid " (must be signed in)"
-msgstr ""
+msgstr "(ต้องเข้าสู่ระบบก่อน)"
 
 #: ../client/editor.ts:107
 msgid "EXPORT TO PNG"
-msgstr ""
+msgstr "บันทึกเป็น PNG"
 
 #: ../client/editor.ts:120 ../client/lobby.ts:267
 msgid "Invalid FEN"
@@ -383,7 +383,7 @@ msgstr "FEN ไม่ถูกต้อง"
 
 #: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:464
 msgid "Variant"
-msgstr ""
+msgstr "ชนิดเกม"
 
 #: ../client/lobby.ts:248
 msgid "Byoyomi"
@@ -395,7 +395,7 @@ msgstr "ทดเวลาต่อตาเดิน"
 
 #: ../client/lobby.ts:248
 msgid " in seconds:"
-msgstr "เป็นวินาที"
+msgstr "เป็นวินาที:"
 
 #: ../client/lobby.ts:322
 msgid "Cancel"
@@ -403,19 +403,19 @@ msgstr "ยกเลิก"
 
 #: ../client/lobby.ts:326
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "ท้า %1 เล่นเกม"
 
 #: ../client/lobby.ts:337
 msgid "Paste the FEN text here"
-msgstr "วาง FEN ตำแหน่งเริ่มต้นที่นี่"
+msgstr "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่"
 
 #: ../client/lobby.ts:341
 msgid "Handicap"
-msgstr "ต่อตัวหมาก"
+msgstr "ลดตัวหมาก"
 
 #: ../client/lobby.ts:352
 msgid "Minutes per side:"
-msgstr "เวลาเริ่มต้น เป็นนาที:"
+msgstr "เวลาเริ่มต้นเป็นนาที:"
 
 #: ../client/lobby.ts:367
 msgid "Periods"
@@ -455,11 +455,11 @@ msgstr "เวลา"
 
 #: ../client/lobby.ts:465
 msgid "Mode"
-msgstr ""
+msgstr "รูปแบบการเล่น"
 
 #: ../client/lobby.ts:526
 msgid "Custom"
-msgstr ""
+msgstr "กำหนดเอง"
 
 #: ../client/lobby.ts:550
 msgid ""
@@ -485,15 +485,15 @@ msgstr "บริจาค"
 
 #: ../client/lobby.ts:686
 msgid "0 players"
-msgstr ""
+msgstr "0 คนออนไลน์"
 
 #: ../client/lobby.ts:687
 msgid "0 games in play"
-msgstr ""
+msgstr "0 เกมกำลังเล่นอยู่"
 
 #: ../client/main.ts:72
 msgid "Thank you for your support!"
-msgstr ""
+msgstr "ขอบคุณสำหรับการสนับสนุน!"
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
@@ -550,7 +550,7 @@ msgstr "นับคะแนน"
 #: ../client/profile.ts:147
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
+msgstr[0] "%1 ตาเดิน"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
@@ -664,4 +664,4 @@ msgstr "เลื่อนยศเป็นควีนอัตโนมัต
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"
-msgstr "ลูกศรแนะนำแต้มเดิน"
+msgstr "ลูกศรแนะนำตาเดิน"

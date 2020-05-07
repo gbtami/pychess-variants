@@ -24,11 +24,12 @@ msgstr ""
 
 #: ../templates/404.html:19
 msgid "404 GAME NOT FOUND"
-msgstr ""
+msgstr "404 หาเกมไม่พบ"
 
 #: ../templates/404.html:21
 msgid "Sorry, but not all games saved on PyChess-Variants server."
-msgstr "ขออภัย ไม่ใช่ทุกเกมที่จะถูกบันทึกในเซิร์ฟเวอร์ของ PyChess-Variants"
+msgstr ""
+"ขออภัย เซิร์ฟเวอร์ของ PyChess-Variants ไม่ได้บันทึกเกมที่ได้เล่นไว้ทุกเกม"
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
@@ -98,7 +99,7 @@ msgstr ""
 
 #: ../templates/template.html:78
 msgid "Login with Lichess"
-msgstr "เข้าสู่ระบบผ่าน lichess"
+msgstr "เข้าสู่ระบบด้วย lichess"
 
 #: ../templates/template.html:78
 msgid "Log in"
