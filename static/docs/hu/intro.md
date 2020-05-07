@@ -10,82 +10,82 @@ Minden játszma lapján elérhető az adott variáns részletes leírása a bal 
 
 ![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
 
-Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.
+Minden variánshoz saját tábla és figura-készlet választható. Az ázsiai variánsokhoz, amelyek írásjeleket használnak a figurákon (Xiangqi, Janggi, Shogi), grafikus jeleket használó figura-készletek is elérhetők. Ezek beállításához a jobb oldali ikonok közül a fogskerék használható. Ugyanott a tábla mérete is változtatható a csúszka elhúzásával.
 
 ![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
 
-If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
+Mielőtt komolyabb játszmákba kezdenél, és szeretnéd a szabályokat és a lépéseket gyakorolni, választhatod a *Random mover* (véletlen lépéseket játszó) BOT-ot.
 
-## Chess variants using standard pieces
+## Sakk variánsok hagyományos figurákkal
 
 ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-**Chess (Western/International Chess)** - Chess, unmodified, as it's played by FIDE standards
+**Chess** - Hagyományos sakk a FIDE szabályai szerint.
 
-**Chess 960** - Starting positions in the back row are randomized
+**Chess 960** - Sakk véletlenszerűen választott kezdőállásból.
 
-**Crazyhouse** - Take captured pieces and drop them back on to the board as your own
+**Crazyhouse** - A leütött figurákat visszarakhatod a táblára lépés helyett.
 
-**Placement Chess** - Choose where your pieces start
+**Placement** - Helyezd el a tiszteket a kezdés előtt!
 
-**Crazyhouse 960** - Combines Crazyhouse and Chess 960
+**Crazyhouse 960** - Crazyhouse kombinálva Chess 960-nal.
 
-## Chess variants using fairy pieces
+## Tündér sakk variánsok
 
 ![Capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png?raw=true)
 
-**Capablanca Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board
+**Capablanca** - 10x8-as sakk két új figurával. Az archbishop = futó + ló, a chancellor = bástya + ló.
 
-**Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
+**Gothic** - Capablanca sakk más kezdőállással.
 
-**S-Chess / Seirawan Chess / SHARPER Chess** - Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece
+**S-Chess** - A sólyom = futó + ló és az elefánt = bástya + ló a táblára léphet amikor az alapsorról először lép el egy figura.
 
-**Grand Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board
+**Grand** - 10x10-es sakk két új figurával. Az archbishop = futó + ló, a chancellor = bástya + ló.
 
-**Shako** - Introduces the cannon and elephant from Xiangqi into a 10x10 chess board
+**Shako** - 10x10-es variáns Xiangqi ágyúval és elefánttal
 
-**Shogun Chess** - Pieces promote and can be dropped, similar to Shogi
+**Shogun** - A figurák átváltozhatnak és a leütött figurák visszarakhatók a Shogi-hoz hasonlóan.
 
-**Orda Chess** - Asymmetric variant where one army has pieces that move like knights but capture differently
+**Orda** - Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de másként ütnek!
 
-**Capablanca 960** - Capablanca with Chess 960 rules
+**Capablanca 960** - Capablanca sakk Chess 960 szabályokkal.
 
-**Capahouse** - Capablanca with Crazyhouse drop rules
+**Capahouse** - Capablanca sakk Crazyhouse szabályokkal.
 
-**Capahouse 960** - Capablanca with Crazyhouse and 960 rules
+**Capahouse 960** - Capablanca sakk Crazyhouse és 960 szabályokkal.
 
-**S-House** - S-Chess with Crazyhouse drop rules
+**S-House** - S-Chess Crazyhouse szabályokkal.
 
-**Grandhouse** - Grand Chess with Crazyhouse drop rules
+**Grandhouse** - Grand Chess Crazyhouse szabályokkal.
 
-## Shogi variants
+## Sógi variánsok
 
 ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
 
-**Shogi (Japanese Chess)** - Pieces promote and can be dropped
+**Sógi (Shogi)** - Japán sakk. A figurák átváltozhatnak és a leütött figurák visszarakhatók.
 
-**Minishogi** - Shogi on a 5x5 board
+**Minishogi** - Sógi 5x5-ös táblán.
 
-**Kyoto Shogi** - 5x5 Shogi where pieces flip to a different piece each move
+**Kyoto Shogi** - 5x5-ös Sógi, ahol a figurák minden lépésnél oda-vissza változnak.
 
-## Xiangqi variants
+## Xiangqi variánsok
 
 ![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Xiangqi.png?raw=true)
 
-**Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
+**Xiangqi** - Kínai sakk. Nagyon agresszív, ősi sakk variáns.
 
-**Janggi (Korean Chess)** - Similar to Xiangqi, but plays very differently. Tournament rules are used.
+**Janggi** - Koreai sakk. A Xiangqi-hoz hasonló, de sok mindenben el is tér. A verseny szabályok érvényesek.
 
-**Minixiangqi** - Xiangqi on a 7x7 board
+**Minixiangqi** - Xiangqi 7x7-es táblán.
 
 ## Southeast Asian variants
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
-**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga
+**Makruk** - Thai sakk. Az eredeti Chaturangára leginkább hasonlító variáns.
 
-**Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
+**Cambodian** - Kambodzsai sakk. Makruk variáns néhány extra lépéssel a megnyitásban.
 
-**Sittuyin (Burmese Chess)** - Similar to Makruk, but pieces are placed at the start of the match
+**Sittuyin** - Burmai sakk. A Makrukhoz hasonló, de a játékosok helyezhetik el a tiszteket kezdés előtt.
 
-**Makpong** - Makruk variant where kings cannot move to escape out of check
+**Makpong** - Makruk variáns, ahol a király nem léphet ki a sakkból.
