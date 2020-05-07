@@ -1,4 +1,11 @@
 {
+    "pychess is a free, open-source chess server designed to play several chess variant.": "Pychess to darmowy serwer szachowy o otwartym kodzie źródłowym, przeznaczony do gry w kilka odmian szachów.",
+    "%1 year ago": [
+        "%1 rok temu",
+        "%1 lata temu",
+        "%1 lat temu",
+        "%1 lat temu"
+    ],
     "": {
         "language": "pl",
         "plural-forms": "nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);"

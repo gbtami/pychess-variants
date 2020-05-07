@@ -3,6 +3,10 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
+# Translators:
+# witekjeden <tauryna01@wp.pl>, 2020
+# gbtami <gbtami@gmail.com>, 2020
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -10,6 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -68,6 +73,8 @@ msgid ""
 "pychess is a free, open-source chess server designed to play several chess "
 "variant."
 msgstr ""
+"Pychess to darmowy serwer szachowy o otwartym kodzie źródłowym, przeznaczony"
+" do gry w kilka odmian szachów."
 
 #: ../client/about.ts:24
 msgid "Currently supported games are "
@@ -321,10 +328,10 @@ msgstr ""
 #: ../client/clock.ts:186
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%1 rok temu"
+msgstr[1] "%1 lata temu"
+msgstr[2] "%1 lat temu"
+msgstr[3] "%1 lat temu"
 
 #: ../client/clock.ts:188
 msgid "%1 month ago"

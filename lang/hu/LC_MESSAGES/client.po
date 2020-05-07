@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
 # Translators:
-# Ka_HU <uplinknode@gmail.com>, 2020
 # gbtami <gbtami@gmail.com>, 2020
+# Ka_HU <uplinknode@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-05-05 17:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
+"Last-Translator: Ka_HU <uplinknode@gmail.com>, 2020\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -72,7 +72,7 @@ msgstr "A pychess névjegye"
 msgid ""
 "pychess is a free, open-source chess server designed to play several chess "
 "variant."
-msgstr "A pychess egy ingyenes, nyílt forrású sakk variáns szerver "
+msgstr "A pychess egy ingyenes, nyílt forrású sakk variáns szerver."
 
 #: ../client/about.ts:24
 msgid "Currently supported games are "
@@ -93,12 +93,12 @@ msgstr "Fischer random sáncolási szabályokkal."
 #: ../client/about.ts:75
 msgid "For move generation, validation, analysis and engine play it uses "
 msgstr ""
-"A szabályos lépések ellenőrzéséhez és a gép elleni játékhoz haszált program "
-"a "
+"A szabályos lépések ellenőrzéséhez és a gép elleni játékhoz használt "
+"programok a "
 
 #: ../client/about.ts:83
 msgid "On client side it is based on "
-msgstr "A böngészőben futó program alapja a "
+msgstr "A kliens oldali program alapja a "
 
 #: ../client/about.ts:87
 msgid "Source code of server is available at "
@@ -173,7 +173,7 @@ msgstr "mélység"
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
-msgstr "néző(k)"
+msgstr "Néző(k):"
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
 msgid "Requested game %1 not found!"
@@ -403,7 +403,7 @@ msgstr " (jelentkezz be ehhez)"
 
 #: ../client/editor.ts:107
 msgid "EXPORT TO PNG"
-msgstr "PGN EXPORT"
+msgstr "EXPORTÁLÁS PNG KÉPKÉNT"
 
 #: ../client/editor.ts:120 ../client/lobby.ts:267
 msgid "Invalid FEN"
@@ -527,7 +527,7 @@ msgstr "Köszönet a támogatásért!"
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
-msgstr "Abortált játszma"
+msgstr "Játszma megszakítva"
 
 #: ../client/profile.ts:34
 msgid "Checkmate"
@@ -571,11 +571,11 @@ msgstr "Ismeretlen ok"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
-msgstr "Tábor matt"
+msgstr "Tábormatt"
 
 #: ../client/profile.ts:67
 msgid "Point counting"
-msgstr "Pont számolás"
+msgstr "Pontszámítás"
 
 #: ../client/profile.ts:147
 msgid "%1 move"
@@ -585,7 +585,7 @@ msgstr[1] "%1 lépés"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
-msgstr "Számítógép elemzés elérhető"
+msgstr "Számítógépes elemzés elérhető"
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
@@ -691,7 +691,7 @@ msgstr "Visszarakás két kattintással"
 
 #: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
-msgstr "Automatikus vezér átvátozás"
+msgstr "Automatikus előléptetés vezérré"
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"
