@@ -2,19 +2,19 @@
 
 # Pychess Variants
 
-Many chess variants are available to play here. Available games range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.
+您可以在本网站下多种棋类。无论是历史悠久的各国道地棋类或是现代开发的西洋棋变种，都可以在此与人对弈或对抗电脑。每一种棋都含有它独特的气味，等着您试一试！欲知各个棋类的规则，请浏览左边的链接。
 
-## Tips
+## 提示
 
-Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.
+在棋局页面（游戏页面）的左上框里，棋类名称是一个链接，可以直接浏览到该棋类的专门网页。
 
 ![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
 
-Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.
+每一个棋类也提供它各自的棋子和棋盘定制选项。尤其是亚洲国家的当地棋类，您可以选择使用各种传统或国际化的棋子设计。要切换棋子棋盘，请打击游戏页面右边棋谱框里的齿轮图标。您同时也能移动滑块调整棋盘的大小。
 
 ![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
 
-If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
+如果您在进行新棋类对局之前想熟悉棋规和棋子的走法，可以挑战 *Random Mover* bot (随机着法AI）夺得一些经验。
 
 ## Chess variants using standard pieces
 
