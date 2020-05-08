@@ -1,29 +1,30 @@
-# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogi.svg) Shogi
+# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogi.svg) Sógi (Shogi)
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chatturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
+A sógi ((将棋), avagy a japán sakk egy klasszikus táblajáték, mely Japánban őshonos és a [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk. Modern formájában körülbelül a 16. századtól van jelen. A játék nagyon népszerű Japánban, ahol többen játszák, mint a nyugati sakkot, és ahol professzionális játékosok száma is virágzó. A játék maga egyszerre hasonló és nagyon más is, mint a nyugati sakk, aztáltal, hogy a leültött bábukat vissza lehet helyezni a táblára.
 
-## Why learn Shogi?
+## Miért érdemes megtanulni sógizni?
 
-If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking! [See here for more about that.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
-
-## Rules
-
-The rules are similar to Chess, so this guide will focus on the differences. Shogi is played on a 9 x 9 board. Players take turns moving pieces on a board to checkmate the enemy king. The black player, or *sente* (先手 first player), moves first, followed by white or *gote* (後手 second player), which is the opposite of chess. These colors are just arbitrary and do not reflect the actual color of pieces. 
-
-A significant difference from Chess but similar to its Crazyhouse variant is that you can drop captured pieces onto the board as a move. There are a few restrictions to dropping notably with pawns, which are discussed later, but otherwise pieces can be generally dropped anywhere. Additionally, almost all pieces can be promoted. Pieces are promoted upon entering the promotion zone / enemy camp (last three ranks) or moving a piece already in the enemy camp. The piece will then flip over. Captured promoted pieces are returned to their unpromoted side when added to your hand.
-
-## Pieces
-
-This guide will be based on the internationalized set. Traditional sets use Chinese characters, *kanji*, and piece sets come in either a full 2-kanji form, a 1-kanji abbreviated form. As it is now, knowledge of the kanji will be required if you want to utilize all English resources. 
-
-In general, shogi pieces are much more restricted than chess pieces. Minor pieces (i.e. not the rook or bishop) often move forward and not so much backwards.
-
-Regarding promoted pieces, most sets, including the ones used on this site, distinguish them by being colored red. There are two basic rules that will make learning all the pieces **much** less intimidating. All *minor* pieces move like a gold general when promoted. The gold general, therefore, cannot promote. Secondly, the two *major* pieces (rook and bishop), both gain the moves of a king on top of their original moves. The king does not promote.
+Ha élvezed a sakkot, akkor a sógit határozottan megéri kipróbálni. Miközben egy kicsit lassabb tempójú és hosszabbra nyúló játék, mint a sakk, a sógi dinamikusabb és a komplexebb, egészen másféle élményt nyújt. A sógi a sakk és a go között helyezkedik el komplexitás tekintetében, de ne hagyd, hogy ez elriasszon. Ahogyan más sakkvariánsok esetében is, a sógiban szerzett tapasztalat is segíthet fejleszteni a képességeidet a sakkban, és egyben új gondolkodásmódokat is megnyithat számodra. [Erről többet itt olvashatsz angol nyelven.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
 
 
-### King
+## Szabályok
+
+A szabályok hasonlóak a sakkhoz, így ez az útmutató a különbségekre fókuszál. A sógit egy 9x9-es táblán játszák. A játékosok felváltva lépnek, a cél itt is az ellenfél királyának mattolása. A sakkal ellentétben a "sötét" játékos (melynek neve *sente* (ejtsd: szente) 先手 , első játékos) lép először, aztán a "világos" játékos (melynek neve *gote* 後手 , második játékos). A színek itt csak jelzésértékűek, nem a bábuk valódi színét tűkrözik.
+
+Jelentős különbség a sakkhoz képest, de hasonló a Crazyhouse variánshoz, hogy a leütött bábukat vissza lehet helyezni a táblára egy-egy lépés helyett. Vannak behozási szabályok (különösen a gyalogok esetében, amiről később lesz szó), de általánosságban elmondható, hogy bárhova el lehet helyezni a bábukat. Továbbá, szinte minden bábut elő lehet léptetni. A bábuk akkor léptethetők elő, amikor elérik az előléptetési zónát (az ellenfél utolsó három sora), vagy már ebben a zónában/zónából lépnek. A bábu ekkor átfordul (az előléptetett felét mutatva). A leütött bábuk az eredeti (nem előléptetett) formájukban kerülnek a játékoshoz, illetve így is helyezhetők vissza a táblára.
+
+## Bábuk
+
+Ez az útmutató a nemzetközi bábukészleten alapul. A tradicionális készletek a kínaiktól átvett írásjegyeket, azaz "kanji"-kat használnak, és a bábukészletek vagy 2 kanjival, vagy rövidített formában 1 kanjival vannak ellátva. Jelenleg a kanjik ismerete szükséges ahhoz, hogy minden angol nyelvű forrást fel tudj használni a tanuláshoz. (Megjegyzés: ezek legtöbbje magyar nyelven nem is elérhető).
+
+Általánosságban elmondható, hogy a sógibábuk sokkal korlátozottabbak, mint a sakkbábuk. A könnyűtisztek inkább előrefelé mozognak és hátrafelé nem annyira.
+
+Az előléptetett bábukat a legtöbb készlet pirossal különbözteti meg (többek között az ezen az oldalon használtak is). Két alapvető szabály van, ami segít abban, hogy a bábuk megtanulása sokkal könnyebb legyen. A gyalogok és a könnyűtisztek aranytábornokká lépnek elő. Ebből következik, hogy az aranytábornok már nem léptethető elő. A nehéztisztek (a bástya és a futó) a király lépéslehetőségeit is megkapják előléptetés után (az eredeti lépéseinken felül). A király természetesen nem léptethető elő.
+
+
+### Király
 
 ![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png) 
 
@@ -31,88 +32,88 @@ Regarding promoted pieces, most sets, including the ones used on this site, dist
 
 ![KingDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/King.png)
 
-The king moves exactly like a chess king: one step in any direction. In kanji piece sets, the king with a dot, 玉將 gyokushō, is the black player, while the king without, 王將 ōshō, is the white player. 
+A király pontosan ugyanúgy lép, mint a sakkban: egy lépés bármelyik irányba. A kanji készleteknél a "vonással" jelölt király az "alacsonyabb rangú játékos" királya (玉將 gyokushō), a sötét játékosé. A "vonás" nélküli király a "magasabb rangú játékos" királya, a világos játékosé.
 
-This is the only piece in the internationalized set to maintain its kanji form, 王. In these sets, the color black or white is also depicted in this piece. The wooden set uses a bar below the 王. 
+A nemzetközi készletben ez az egyetlen bábu, amely megtartotta az eredeti, kanjival jelzett formáját. Ebben a készletben a "sötét" játékos bábuja sötét, a "világos" játékos bábuja pedig világos hátterű. A famintázatú készletben ennek megfelelően egy sötés vagy világos vonal látható a 王 kanji alatt.
 
-### Rook
+### Bástya (Szekér)
 
 ![Rooks](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rooks.png)
 
 ![RookDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rook.png)
 
-The rook moves exactly like a chess rook: any number of squares orthogonally. The international piece depicts a chariot, which refers to the Japanese name “flying chariot.” In English, the name rook is based off the Persian word for chariot. This is the most valuable unpromoted piece in the game, excluding the king.
+A bástya pontosan ugyanúgy mozog, mint a sakkban: tetszőleges számú mezőt függőlegesen vagy vízszintesen. A nemzetközi bábu egy szekért ábrázol, ami a bábu eredeti japán nevére utal: "égi szekér". Ez a legértékesebb alapbábu a királyt leszámítva.
 
-### Bishop
-
-The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The is the second most valuable unpromoted piece in the game, excluding the king.
+### Futó
 
 ![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
 
 ![BishopDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishop.png)
 
-### Dragon King (Dragon, Promoted Rook)
+A futó pontosan ugyanúgy mozog, mint a sakkban: akárhány mezőt átlósan. A nemzetközi bábu egy egy tradicionálisan kalapot ábrázol, amit a japán tisztek hordtak. Ez a második legértékesebb alapbábu a királyt leszámítva.
+
+### Sárkánykirály (Sárkány, Előléptetett bástya)
 
 ![Dragons](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragons.png)
 
 ![DragonDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragon.png)
 
-The dragon king is a promoted rook, which gains the king’s moves on top of a rook’s. This is the most valuable piece in the game, excluding the king.
+A sárkánykirály az előléptetett bástya, mely megkapja a király lépéslehetőségeit is a bástya lépésein felül. Ez a legértékesebb bábu a királyt leszámítva.
 
-### Dragon Horse (Horse, Promoted Bishop)
+### Sárkányló (Ló, Előléptetett futó)
 
 ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horses.png)
 
 ![HorseDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horse.png)
 
-The dragon horse is a promoted bishop, which gains the king’s moves on top of a bishop’s. This is the second most valuable piece in the game, excluding the king.
+A sárkányló az előléptetett futó, mely megkapja a király lépéslehetőségeit is a futó lépésein felül. Ez a második legértékesebb bábu a királyt leszámítva.
 
-Note: While some beginner chess players sometimes call the knight a horse, you can't make that mistake in shogi because they are two completely different pieces!
+Megjegyzés: A sakkban a huszárt szokták lónak is nevezni, de a sógiban a ló a sárkányló rövidített elnevezése. Nem összekeverendő az L-alakzatban mozgó lovassal.
 
 
-### Gold General (Gold)
+### Aranytábornok (Arany)
 
 ![Golds](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Golds.png)
 
 ![GoldDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Gold.png)
 
-While the movement pattern of the gold general may seem confusing at first, the easiest way to remember it is that it moves **one step orthogonally in any direction**… or any of the three squares in front. In the internationalized set, the protrusions of the helmet (including the golden circle symbol) also point in all its directions.
+Az aranytábornok lépései zavarosnak tűnhetnek elsőre, talán a legkönnyebb úgy megjegyezni, hogy egyet léphet vízsintesen vagy függőlegesen, vagy átlósan előre egyet. A nemzetközi készletben a sisak hegyes részei (és az aranyszínű kör a sisak tetején) a lehetséges lépések irányát szimbolizálják.
 
-**All promoted minor pieces move exactly like a gold.**
+**Minden alapbábu (a bástya és a futó kivételével) aranytábornokká lép elő.**
 
-### Silver General (Silver)
+### Ezüsttábornok (Ezüst)
 
 ![Silvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silvers.png)
 
 ![SilverDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silver.png)
 
-While the movement pattern of the silver general may seem confusing at first, the easiest way to remember it is that it moves **one step diagonally in any direction**… or any of the three square in front. In the internationalized set, the protrusions of the helmet also point in all its directions.
+Az ezüsttábornok lépései zavarosnak tűnhetnek elsőre, talán a legkönnyebb úgy megjegyezni, hogy egyet léphet átlósan, vagy egyet előre. A nemzetközi készletben a sisak élei a lehetséges lépések irányát szimbolizálják.
 
-### Knight
+### Lovas
 
 ![Knights](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Knights.png)
 
 ![KnightDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Knight.png)
 
-Similar to a chess knight, but can only move to the two spaces in front, i.e. it can move forward two and sideways one. Like the chess knight, this piece can jump over pieces.
+Hasonló a sakk huszárjához, de annál kötöttebb a mozgása: csak előrefelé tud mozogni, azaz két mezőt lép előre és egyet balra vagy jobbra. A sakk huszárjához hasonlóan a lovas is át tudja ugrani a köztes bábukat.
 
-### Lance
+### Lándzsás (Lándzsás szekér)
 
 ![Lances](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Lances.png)
 
 ![LanceeDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Lance.png)
 
-A lance can only move forward, but in any number of squares (similar to a rook).
+A lándzsás tetszőleges számú mezőt léphet előre. Hasonló a bástyához, de oldalirányba illetve visszafele nem léphet.
 
-### Pawn
+### Gyalog
 
 ![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawns.png)
 
 ![PawnDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawn.png)
 
-The pawn moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
+A gyalog csak előre léphet egyet, és csak így üthet. Ebben különbözik a sakk gyalogjától.
 
-### Promoted minor pieces
+### Előléptetett könnyűtisztek
 
 ![PSilvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PSilvers.png)
 
@@ -122,76 +123,77 @@ The pawn moves and captures by moving forward one square. This is different than
 
 ![Tokins](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Tokins.png)
 
-Unlike the dragon king and dragon horse, these do not have special names. The exception is the pawn, which is sometimes called by its Japanese name, *tokin*. As above, they move just like the gold general. Note that the kanji versions are all different stylistic variants of the character for gold.
+Az előléptetett bábuk (a sárkánykirályt és a sárkánylovat leszámítva) úgy lépnek, mint az aranytábornok.
+
+A sárkánykirályt és a sárkánylovat leszámítva csak az előléptetett gyalognak van más neve, ezt a bábut úgy nevezik, hogy **tokin**. 
 
 
-## Additional Rules
+## További szabályok
 
-*Drops* - The main exceptions to dropping a piece anywhere are with pawns. 
-1) Pawns cannot be dropped in the same file as another one of your unpromoted pawns (promoted are okay). 
-2) A pawn drop cannot checkmate, but checks are okay. 
-3) The final exception applies to all minor pieces. You cannot drop a piece so that it can’t move, which usually means the last rank… or the last two ranks in the case of a knight.
+*Visszahelyezés / Behozás*
+1) Gyalog nem helyezhető vissza a táblára egy olyan oszlopra, amelyen az adott játékosnak már van egy másik gyalogja. Tehát két saját gyalog nem lehet egy oszlopban (kivéve, ha a másik egy előléptett gyalog, azaz *tokin*).
+2) Behozott gyaloggal nem lehet mattod adni, de sakk adható.
+3) Nem helyezhető vissza bábu olyan mezőre, ahonnan utána nem lenne szabályos lépése. Ez általában az utolsó sort jelenti, vagy az utolsó kettőt a lovas esetében.
 
-*Perpetual check* - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
+*Örökös sakk*: Ha négyszer megismétlődik a játékállás és ezáltal a sakkadás, akkor a folyamatosan sakkot adó játékos veszít.
 
-*Repetition* - Similar to the above, repeating the same position (including pieces in hand) results in a draw.
+*Lépésismétlés*: Hasonlóan az előzőhöz, ha négyszer megismétlődik ugyanaz az állás (beleértve a leütött, azaz kézben lévő bábukat is), akkor döntetlennel véget ér a játék.
 
-*Timer* - Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
+*Byo-yomi*: A sógiban úgynevezett byo-yomi ("másodperc olvasás") is része az időmérésnek. Amikor egy játékos ideje letelik, akkor következik a byo-yomi, azaz onnantól mindig egy fixen meghatározott ideje marad egy-egy lépésre (pl. 30 másodperc). Ha lép, akkor ez az idő újra rendelkezésre áll majd a következő lépésben, ha kifut az időből, akkor elveszíti a játszmát.
 
-## Notation
+### Játszmajegyzés és koordináták
 
-There are different notations used, including one in Japanese. We use a form of western notation (Hodges notation) similar to chess.
+Különféle jegyzésmódszerek vannak használatban, ezen az oldalon a Hodges-jegyzést használjuk, ami a sakkban is használt algebrai jegyzésmódszerből ered. Szembetűnő különbség a sakkhoz képest, hogy a koordináták fel vannak cserélve. Az oszlopok számokkal, a sorok pedig betűkkel vannak jelölve. Például a világos (második játékos) királya az 5a mezőn áll. (Ez a *Hodges*-jegyzés)
 
-### Coordinates
+A *Hoskings*-jegyés során a betűk helyett is számok vannak, tehát pl. az 5e helyett 55-ot jegyzünk, ami az 5. sort és 5. oszlopot jelenti. Ez hasonló a japánok jegyzésmódszeréhez, ahol szintén csak számokat használnak.
 
-One noticeable difference is that the board coordinates are switched from chess. Files are numbered, and ranks are alphabetized. The origin is the bottom left for the white player. However, since most diagrams are oriented for the black player (first player), these will seem to originate from the top right. As an example, the white king is on square 5a.
+### Bábuk
 
-In the Hoskings notation, only numbers are used. Instead of 5e, someone might say 55 (5th rank, 5th file). This is similar to the Japanese style, which also uses numbers. 
+K = király
 
-### Pieces
+G = aranytábornok
 
-K = king
+S = ezüsttábornok
 
-G = gold general
+N = lovas
 
-S = silver general
+L = lándzsás
 
-N = knight
+R = bástya
 
-L = lance
+B = futó
 
-R = rook
+P = gyalog
 
-B = bishop
++R vagy D = sárkánykirály (előléptetett bástya)
 
-P = pawn
++B or H = sárkányló (előléptetett futó)
 
-+R or D = dragon king
++S, +N, +L, +P jelölések a fenti bábuk előléptetett formáját jelenti.
 
-+B or H = dragon horse
+### Szimbólumok
 
-+S, +N, +L, +P for the other promoted pieces, respectively.
+* A behozások jelölése egy **\*** vagy egy **‘** karakterrel történik. Mi a **\*** karaktert használjuk (Hodges-jegyzés). Például egy gyalog behozásának jelölése **P\*5e** lenne.
+* Azok a lépések, melyek előléptetéssel végződnek egy **+** karakterrel vannak jelölve. Például ha egy gyalog az 1c mezőre érkezve előlép, akkor annak a jelölése **P1c+**.
+* Ha a bábut nem léptetjük elő, akkor azt egy **=** karakterrel jelöljük. Például ha az ezüsttábornok üti *5c*-t és nem léptetjük elő, akkor annak a jelölése **Sx5c=**
+* A sakk és a matt nincs jelölve.
 
-### Symbols
+## Források a sógi megtanulásához
 
-* Drops are either indicated with a \* (Hodges) or ‘ (Hosking). Here we use \*, so a pawn drop on 5e would be P*5e.
-* Moves that end in promotion add a + at the end. A pawn promoting on 1c would be P1c+.
-* If you choose to not promote, instead an = goes at the end.
-* Checks and checkmates are not notated.
+[YouTube: Hidetchi](https://www.youtube.com/playlist?list=PL587865CAE59EB84A): kiváló csatorna kezdőknek és haladóknak egyaránt. Angol nyelvű, de részletes magyarázatokkal szolgál. A kanjis bábukat ismerni kell a videók megértéséhez, de azokat is bemutatja a kezdőknek szóló videókban.
 
-## Resources for Learning Shogi
+[Youtube: Shogi Harbour](https://www.youtube.com/channel/UCRnXG7CkKfEN6IINKcO_uBg/videos): Karolina Styczyńska, egy Japánban élő lengyel profi játékos csatornája. Weboldala a [shogi.pl](http://www.shogi.pl)
 
-[Hidetchi’s YouTube channel](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) is an excellent place for beginner and intermediate players, alike. They are in English and very carefully break down the aspects of the game. Please note that like all other resources, you will need to be familiar with the kanji pieces in order to understand the videos (he also introduces the pieces in the beginner videos).
+[81dojo.com](http://www.81dojo.com) az egyik legnagyobb sógis oldal, ahol tapasztaltabb játékosok ellen játhatsz a világ minden tájáról. Gép elleni, illetve "levelező" játékra nincs lehetőség.
 
-[81dojo.com](http://www.81dojo.com) is a site where you can play internationally against tougher players. However, it does not support correspondence play at this time.
+## Stratégia
 
-## Strategy
+### A bábuk értéke
 
-### Piece Values
+A bábuknak nincs egy "standard" értéke, mint a sakkban. Érdemes azt is megjegyezni, hogy ezek az értékek nem annyira fontosak, hiszen a leütött bábuk visszahozhatók a játszmába és a jól kialakított helyzet sokkal fontosabb lehet. Ennek ellenére van egy alap értékrendszer, de a profi játékosok is kialakították a saját értékrendszerűket. Az alábbiakban Kōji Tanigawa és Yasumitsu Satoh értéktáblázata látható.
 
-There is no standard piece value in shogi unlike chess. However, it's important to keep in mind that values are not worth as much, as losing pieces isn't permanent and position is far more important. That said, there is a basic piece value system, but professional players have also made more specific values; Tanigawa and Satoh's are shown below.
 
-Piece | Basic | Tanigawa | Satoh 
+Bábu | Alap | Tanigawa | Satoh 
 ------------ | ------------- | ------------- | -------------
 P | 1 | 1 | 1
 L | 3 | 5 | 6
@@ -200,50 +202,51 @@ S | 5 | 8 | 10
 G | 5 | 9 | 11
 B | 7 | 13 | 17
 R | 8 | 15 | 19
-*H* |  | 15 | 20
-*D* |  | 17 | 22
+*+B* |  | 15 | 20
+*+R* |  | 17 | 22
 *+P* |  | 12 | 
 *+L* |  | 10 | 
 *+N* |  | 10 | 
 *+S* |  | 9 | 
 
-### Opening Principles
 
-In general, there are two types of opening styles: *static rook* and *ranging rook*. In *static* rook, the rook does not move. Attacks, therefore, are directed on the right side of the board. In *ranging* rook, the rook moves to the left side (typically 2nd to 5th file), shifting the offense to that side of the board.
+### Megnyitási alapelvek
 
-This difference matters because opening moves (called *joseki*) are classified as one of these two and can drastically change what kind of game is played. Certain static rook openings are meant for enemy static rook openings, while others are directed against ranging rook players.
+Általánosságban kétféle megnyitási módszerről beszélhetünk: *statikus bástya* és *mozgó bástya*. A statikus bástya esetétben a bástya a kezdőhelyén marad megnyitáskor, ezáltal a támadás a tábla jobb oldalára koncentrálódik. A mozgó bástya esetében a bástya középre vagy a bal oldalra lép, ott támogatva a támadást. Ez a különbség azért is fontos, mert a megnyitási lépések (*dzsoszeki*, 定跡) általában ebbe a két osztályba vannak sorolva, és drasztikusan más játékstílust eredményezhetnek.
 
-### Castles
 
-Castles in shogi are defensive formations that take multiple steps to form. Knowledge of castles is essential because weak king defenses can be quickly exploited with drops in your own territory. It is also important to know each castle’s strengths and weaknesses.
+### A védelem kiépítése
 
-As above, castles depend on static / ranging rook matchup. In static rook openings, kings castle to the left. In ranging rook openings, kings castle to the right. There are many, many castles, many of which are covered in Hidetchi’s videos (see below). Here are three of the most important ones to know:
+A védelem kiépítése a sógiban több lépést vesz igénye (és nem lehet sáncolni, mint a sakkban). A megfelelő védelem kiépítése nagyon fontos, mert a gyengén védett király nagyon gyorsan támadhatóvá válik a behozott bábukkal. Fontos ismerni a kiépített védelmek erősségeit és gyengeségeit.
 
-**Yagura (AKA Fortress)**
+A védelem kiépítése a statikus vagy mozgó bástya megnyitástól is függ. A statikus esetében a király számára a tábla bal oldalán kerül kialakításra a védelem, míg a mozgó bástya esetében a tábla jobb oldalán. Sokféle védelem van, melyeket [Hidetchi be is mutat a youtube csatornáján](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) (angol nyelven). A három legfontosabb védelem, amit fontos ismerni:
+
+
+**Yagura (Erőd)**
 
 ![Yagura](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Yagura.png)
 
-The Yagura castle is one of the most powerful *static rook* castles, used against static rook. A mnemonic that may be useful for remembering the positions of the generals is “S G | G B,” or perhaps remembering that the king is guarded by the gold general, a strong defensive piece. Yagura is strong at its front, but weak on its edge and side.
+A Yagura az egyik legerősebb védelem, amikor mindkét játékos statikus bástyát játszik. A kialakításhoz jó emlékeztető lehet, ha ezt a pozíciót megjegyezzük: “S G | G B”. A Yagura erős védelem szemből, de oldalirányból már gyengébb.
 
-For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows:
+A Yagura kialakításához érdemes megjegyezni, hogy a leghatékonyabb, ha a tábornokok átlóban mozognak. Többféle dzsoszeki is létezik a védelem kialakítására, de fontos észben tartani, hogy az ellenfél bármikor támadásba lendülhet, amire a védelem kialakítása közben reagálni kell. Egy 24 lépéses standard dzsoszeki például így néz ki ([forrás: Hidetchi](https://www.youtube.com/watch?v=h7jPat3_WG4)):
 
 1. ☗P-7f
 2. ☖P-8d
 3. ☗S-6h
-4. ☖P-d3
+4. ☖P-3d
 5. ☗P-6f
 6. ☖S-6b
 7. ☗P-5f
 8. ☖P-5d
 9. ☗S-4h
 10. ☖S-4b
-11. ☗G-5h
+11. ☗G4i-5h
 12. ☖G-3b
 13. ☗G-7h
 14. ☖K-4a
 15. ☗K-6i
 16. ☖P-7d
-17. ☗G-6g
+17. ☗G5h-6g
 18. ☖G-5b 
 19. ☗S-7g
 20. ☖S-3c
@@ -252,52 +255,56 @@ For development of the Yagura, remember that generals always move diagonally to 
 23. ☗P-3f
 24. ☖P-4d
 
-**Mino Castle**
+Ezzel még nem teljes a védelem, a királynak és a futónak további lépésekre van szüksége.
+
+
+**Mino védelem**
 
 ![Mino Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Mino.png)
 
-The Mino castle is a classic *ranging rook* castle, used against static rook. The king moves to the rook’s starting spot, the left gold moves up+right, and then the right silver moves up to form a “G G S” V formation. This castle is strong to the left, but weak to the front and edge.
+A Mino egy klasszikus mozgó bástyás védelem a statikus bástya ellen (de alakalmazható más esetekben is). A király a bástya kezdőhelyére mozog, a bal oldali aranytábornok egyet átlóban jobbra, a jobb oldali ezüsttábornok pedig egyet előre lép, hogy egy "G G S" formáció alakuljon ki V-alakzatban. Ez a védelem erős bal oldalon, de gyengébb a szemből érkező támadások ellen.
 
-Example opening for black using a 4th file rook:
+Példa megnyitás a "sötét" játékosnak a 4. mezőre mozgó bástya esetében:
 
-* P76
-* B77 (protects the 86/8f square) 
-* P66 (reject bishop exchange if white opens bishop up)
-* R68 (fourth file rook)
-* S78 
-* K48 -> K38 -> K28
-* S38 (silver up)
-* G58 (gold up-right)
-* P16 (creates escape route for the king)
-* P46
-
-After this point, you are free to exchange bishops and as many pieces as you want, including rooks to generate an attack.
+* P-7f
+* B-7g (védi a 8f mezőt) 
+* P-6f (védekezik a futók cseréje ellen, ha a "világos" játékos megnyitná az utat a futójának)
+* R-6h (4. mezőre lépő bástya)
+* S-7h 
+* K-4h -> K-3h -> K-2h (a bástya kezdőhelyére mozog a király)
+* S-3h (az ezüsttábornok előre mozog)
+* G6i-5h (a bal oldali aranytábornok jobb átlóban előre lép)
+* P-1f (menekülési útvonalat nyit a királynak)
 
 **Anaguma**
 
 ![Anaguma](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Anaguma.png)
 
-Anaguma (AKA “Bear in the hole”) is another *ranging rook* castle, and one of the most impenetrable in the game. However, it takes a long time to form.
+Az Anaguma ("Medvebarlang") egy másik mozgóbástyás védelem, amikor a király a jobb sarokban bújik meg. Ez az egyik legnehezebben áttörhető védelem, azonban sok időbe telik kialakítani. 
 
-**Double Wing Attack**
+Kialakítható a másik oldalon is, amikor statikus bástyával játszuk, ilyenkor a király a bal sarokban bújik meg.
 
-Not a castle per se, but a *static rook* opening. Both sides advance their rook pawns, leading to an exchange. Part of the joseki is that the silvers must defend the bishop pawns before the enemy pawn reaches its target. Of note, this is AlphaZero’s favorite opening, accounting for more than half of its openings as black.
+**Kétszárnyú támadás**
 
-## Handicaps
+Nem egyfajta védelem, hanem egy statikus bástya megnyitás (ami ellen védekezni kell). Mindkét fél előretolja a bástyája előtti gyalogot mely kölcsönös leütéshez (cseréhez) vezet. A dzsoszeki része, hogy az ezüsttábornoknak védenie kell a futó előtti gyalogot, mielőtt az ellefél bástya előtti gyalogja elérné azt.
 
-Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and the most common setups are described below.
+## Hendikep
 
-While normal games have black (*gote*) go first, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+A hendikep fontos része a tanításnak és nem úgy kell rá tekinteni, mintha egy játékos könyörületet tanusítana ellenfele irányába. Nagyszerű módja a játék megtanulásának és vannak a "standard" stratégiák is a kölönböző hendikep játszmákra.
 
-Name | pieces omitted
+Míg normál esetben a "sötét" játékos (*sente*) lép először, a hendikepes játszmákban a "világos" játékos lép elsőnek. A hendikep ellenére a matériakülönbség kiküszöbölhető a behozási szabály miatt.
+
+A leggyakoribb hendikepek:
+
+Név | hiányzó bábu
 -- | --
-Lance | left lance
-Bishop | bishop
-Rook | rook
-Rook–Lance | rook, left lance 
-2-Piece | rook, bishop
-4-Piece | rook, bishop, both lances
-6-Piece | rook, bishop, both lances, both knights
-8-Piece | rook, bishop, both lances, both knights, both silvers
-9-Piece | rook, bishop, both lances, both knights, both silvers, left gold
-10-Piece | rook, bishop, both lances, both knights, both silvers, both golds
+Lándzsás | bal oldali lándzsás
+Futó | futó
+Bástya | bástya
+Bástya-Lándzsás | bástya és a bal oldali lándzsás 
+2 bábu | bástya, futó
+4 bábu | bástya, futó, mindkét lándzsás
+6 bábu | bástya, futó, mindkét lándzsás, mindkét lovas
+8 bábu | bástya, futó, mindkét lándzsás, mindkét lovas, mindkét ezüsttábornok
+9 bábu | bástya, futó, mindkét lándzsás, mindkét lovas, mindkét ezüsttábornok, bal oldali aranytábornok
+10 bábu | bástya, futó, mindkét lándzsás, mindkét lovas, mindkét ezüsttábornok, mindkét aranytábornok
