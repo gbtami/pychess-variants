@@ -225,19 +225,19 @@ As above, castles depend on static / ranging rook matchup. In static rook openin
 
 The Yagura castle is one of the most powerful *static rook* castles, used against static rook. A mnemonic that may be useful for remembering the positions of the generals is “S G | G B,” or perhaps remembering that the king is guarded by the gold general, a strong defensive piece. Yagura is strong at its front, but weak on its edge and side.
 
-For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows:
+For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows (Source: Hidetchi):
 
 1. ☗P-7f
 2. ☖P-8d
 3. ☗S-6h
-4. ☖P-d3
+4. ☖P-3d
 5. ☗P-6f
 6. ☖S-6b
 7. ☗P-5f
 8. ☖P-5d
 9. ☗S-4h
 10. ☖S-4b
-11. ☗G-5h
+11. ☗G4i-5h
 12. ☖G-3b
 13. ☗G-7h
 14. ☖K-4a
@@ -287,7 +287,7 @@ Not a castle per se, but a *static rook* opening. Both sides advance their rook 
 
 Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and the most common setups are described below.
 
-While normal games have black (*gote*) go first, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+While normal games have black (*sente*) go first, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
 
 Name | pieces omitted
 -- | --
