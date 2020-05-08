@@ -16,19 +16,19 @@
 
 如果您在进行新棋类对局之前想熟悉棋规和棋子的走法，可以挑战 *Random Mover* bot (随机着法AI）夺得一些经验。
 
-## Chess variants using standard pieces
+## 国际象棋的变种棋类简介
 
 ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-**Chess (Western/International Chess)** - Chess, unmodified, as it's played by FIDE standards
+**国际象棋（又称西洋棋）** - 随从国际棋联定下的规则的正常国际象棋。
 
-**Chess 960** - Starting positions in the back row are randomized
+**Chess960（又称菲舍爾任意制象棋，Fischer Random Chess）** - 与国际象棋大致相同，但在对局开始前，双方大子在底线的排列顺序被随机产生。（双方初始布阵依然对称。）
 
-**Crazyhouse** - Take captured pieces and drop them back on to the board as your own
+**Crazyhouse** - 把吃掉的对方棋子放回棋盘上当为己方棋子，如同日本将棋的“打入”。
 
-**Placement Chess** - Choose where your pieces start
+**Placement Chess** - 走棋前，双方轮流在己方底线逐一摆大子。全十六子摆完之后，开始走棋。
 
-**Crazyhouse 960** - Combines Crazyhouse and Chess 960
+**Crazyhouse960** - 混合Crazyhouse和Chess960的规则。
 
 ## Chess variants using fairy pieces
 
