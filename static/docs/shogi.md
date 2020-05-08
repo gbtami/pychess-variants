@@ -243,7 +243,7 @@ For development of the Yagura, remember that generals always move diagonally to 
 14. ☖K-4a
 15. ☗K-6i
 16. ☖P-7d
-17. ☗G-6g
+17. ☗G5h-6g
 18. ☖G-5b 
 19. ☗S-7g
 20. ☖S-3c
