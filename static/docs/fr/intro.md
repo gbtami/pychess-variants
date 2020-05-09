@@ -2,90 +2,92 @@
 
 # Pychess Variants
 
-Many chess variants are available to play here. Available games range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.
+Vous pouvez jouer plusieurs variantes du jeu d'échecs ici. Disponible sont plusieurs jeux, des jeux d'échecs traditionnels provenant des quatre coins du monde aux variantes modernes basées sur les échecs occidentaux. Chaque jeu apporte son intérêt unique ; n'hésitez pas d'en essayer chacun ! Vous pouvez cliquer les liens à gauche pour en savoir plus.
 
-## Tips
+## Astuces
 
-Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.
+Sur la page de jeu, vous pouvez naviguer directement à la page d'information de cette variante-là en cliquant sur son nom dans la boîte en haut à gauche.
 
 ![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
 
-Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.
+À chaque variante appartiennent ses propres pièces et plateaux ! Découvrir la gamme en cliquant le symbole de roue dentée dans la boîte de notation à droite du plateau de jeu. Pour les jeux d'Asie utilisant des pièces avec le *hanzi/kanji* (écriture chinois/japonais), des pièces internationalisées sont aussi disponibles (avec des symboles abstraits au lieu du *hanzi/kanji*).
+
+Dans le même endroit, vous pouvez aussi changer la taille du plateau avec le curseur là-bas.
 
 ![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
 
-If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
+Si vous voulez vous familiariser avec des pièces et règles d'une variante avant de vous lancer en partie classée, soyez libre de défier le bot *Random-Mover*, qui ne fait que des coups tirés au hasard.
 
-## Chess variants using standard pieces
+## Variantes du jeu d'échecs avec les pièces standardes
 
 ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-**Chess (Western/International Chess)** - Chess, unmodified, as it's played by FIDE standards
+**Les échecs (occidentaux)** - Le jeu d'échecs classiques, sans aucune modification, tel qu'il est joué sous les règles de la FIDÉ.
 
-**Chess 960** - Starting positions in the back row are randomized
+**Chess960** - L'emplacement initial des pièces sur la première et la dernière rangées est tiré au hasard, de façon à ce que les deux camps ont la même disposition.
 
-**Crazyhouse** - Take captured pieces and drop them back on to the board as your own
+**Crazyhouse** - Prendre les pièces adversaires et les parachuter sur l'échiquier en tant que les vôtres.
 
-**Placement Chess** - Choose where your pieces start
+**Placement Chess** - Avec seulement les pions sur l'échiquier, les deux joueurs, chacun à son tour, placent leurs pièces sur leur première rangée. Après cette phase de placement commence la partie normale.
 
-**Crazyhouse 960** - Combines Crazyhouse and Chess 960
+**Crazyhouse 960** - Mélangeant les règles du Crazyhouse avec une position de départ aléatoire du Chess960.
 
-## Chess variants using fairy pieces
+## Variantes avec des pièces féeriques
 
 ![Capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png?raw=true)
 
-**Capablanca Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board
+**Capablanca Chess** - Jouez avec des pièce hybrides, la princesse (fou + cavalier) et l'impératrice (tour + cavalier), sur un échiquier de 10x8.
 
-**Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
+**Gothic Chess / Trice's Chess** - Comme les échecs Capablanca, mais avec une position de départ légèrement différente.
 
-**S-Chess / Seirawan Chess / SHARPER Chess** - Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece
+**S-Chess / Seirawan Chess / SHARPER Chess** - Deux pièces hybrides, le faucon (fou + cavalier) et l'éléphant (tour + cavalier) peuvent rentrer dans l'échiquier après qu'une pièce de la première rangée se déplace pour la première fois.
 
-**Grand Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board
+**Grand Chess** - Jouez avec des pièce hybrides, la princesse (fou + cavalier) et l'impératrice (tour + cavalier), sur un grand échiquier de 10x10.
 
-**Shako** - Introduces the cannon and elephant from Xiangqi into a 10x10 chess board
+**Shako** - On fait venir deux pièces du xiangqi, le canon et l'éléphant, sur un échiquier de 10x10.
 
-**Shogun Chess** - Pieces promote and can be dropped, similar to Shogi
+**Shogun Chess** - Utilisant des pièces principalement occidentaux qui se promeuvent et peuvent être parachutées, comme dans le shogi.
 
-**Orda Chess** - Asymmetric variant where one army has pieces that move like knights but capture differently
+**Orda Chess** - Une variante asymétrique. Un côté joue avec l'armée classique, alors que l'autre dirige des pièces qui se déplacent comme des cavaliers mais qui prennent des pièces adversaires de différentes façons.
 
-**Capablanca 960** - Capablanca with Chess 960 rules
+**Capablanca 960** - Capablanca avec les règles du Chess960.
 
-**Capahouse** - Capablanca with Crazyhouse drop rules
+**Capahouse** - Capablanca avec les règles du Crazyhouse.
 
-**Capahouse 960** - Capablanca with Crazyhouse and 960 rules
+**Capahouse 960** - Capablanca avec les règles du Crazyhouse et du Chess960.
 
-**S-House** - S-Chess with Crazyhouse drop rules
+**S-House** - S-Chess avec les règles du Crazyhouse.
 
-**Grandhouse** - Grand Chess with Crazyhouse drop rules
+**Grandhouse** - Grand Chess avec les règles du Crazyhouse.
 
-## Shogi variants
+## Variantes du jeu de shogi
 
 ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
 
-**Shogi (Japanese Chess)** - Pieces promote and can be dropped
+**Shogi (échecs japonais)** - Le jeu d'échecs traditionnel au Japon. Les pièces se promeuvent et peuvent être parachutées.
 
-**Minishogi** - Shogi on a 5x5 board
+**Minishogi** - Le shogi sur un shogiban de 5x5.
 
-**Kyoto Shogi** - 5x5 Shogi where pieces flip to a different piece each move
+**Kyoto Shogi** - Le shogi sur un shogiban de 5x5 où les pièces basculent entre formes après chaque coup.
 
-## Xiangqi variants
+## Variantes du jeu de xiangqi
 
 ![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Xiangqi.png?raw=true)
 
-**Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
+**Xiangqi (échecs chinois)** - Le jeu d'échecs traditionnel en Chine.
 
-**Janggi (Korean Chess)** - Similar to Xiangqi, but plays very differently. Tournament rules are used.
+**Janggi (échecs coréens)** - Le jeu d'échecs traditionnel en Corée (du nord et du sud). Il ressemble au xiangqi, mais se joue très différemment. On utilise les règles du tournoi.
 
-**Minixiangqi** - Xiangqi on a 7x7 board
+**Minixiangqi** - Le xiangqi sur un echiquier de 7x7.
 
-## Southeast Asian variants
+## Jeux de l'Asie du Sud-Est
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
-**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga
+**Makruk (échecs thaïlandais)** - Le jeu d'échecs traditionnel au Thaïlande. Il ressemble beaucoup au chaturanga, ancestre des échecs occidentaux.
 
-**Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
+**Cambodian Chess / Ok / Ouk Chatrang (échecs cambodgiens)** - Le jeu d'échecs traditionnel au Cambodge. Il est presque identique au makruk, hormis quelques pouvoirs spéciaux (appelés des *sutras*) dans la phase d'ouverture.
 
-**Sittuyin (Burmese Chess)** - Similar to Makruk, but pieces are placed at the start of the match
+**Sittuyin (échecs birmans)** - Le jeu d'échecs traditionnel en Birmanie. Il ressemble au makruk, mais les joueurs placent les pièces comme ils veulent avant de commencer jouer.
 
-**Makpong** - Makruk variant where kings cannot move to escape out of check
+**Makpong** - Une variante de makruk où il est interdit de bouger le roi tant qu'il est en échec, sauf s'il prendre la pièce qui lui donne échec.
