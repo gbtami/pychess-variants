@@ -1,4 +1,25 @@
 {
+    "About pychess": "pychess 정보",
+    "pychess is a free, open-source chess server designed to play several chess variant.": "pychess 는 무료로 제공되는 오픈소스 서버로 다양한 종류의 장기/체스를 즐기실 수 있습니다.",
+    "Currently supported games are ": "현재 지원되는 게임",
+    "Rated": "승강전",
+    "Casual": "친선전",
+    "Playing right now": "지금 대국하기",
+    " level ": "레벨",
+    "You need an account to do that.": "계정이 필요합니다.",
+    "Download game to PGN file": "PGN 파일로 기보 저장하기",
+    " Download PGN": "PGN 파일로 저장",
+    " PNG image": "PNG 그림파일",
+    "Request Computer Analysis": "컴퓨터 분석 의뢰하기",
+    " Request Analysis": "분석 의뢰하기",
+    "Spectators: ": "관전자:",
+    "Spectator room": "관전방",
+    "Chat room": "채팅방",
+    "Black": "흑",
+    "Red": "홍",
+    "Blue": "청",
+    "White": "백",
+    "Gold": "금",
     "%1 year ago": [
         ""
     ],
@@ -20,15 +41,41 @@
     "%1 second ago": [
         ""
     ],
+    "EXPORT TO PNG": "PNG 파일로 내보내기",
+    "Cancel": "취소",
+    "Periods": "횟수",
+    "A.I. Level": "AI 레벨",
+    "Random": "랜덤",
+    "Play with AI (Fairy-Stockfish)": "페어리 스톡피쉬 AI와 대국하기",
+    "Player": "대국자",
+    "Rating": "레이팅",
     "%1 game in play": [
         ""
     ],
     "%1 player": [
         ""
     ],
+    "Donate": "기부하기",
+    "Checkmate": "외통수",
     "%1 move": [
         ""
     ],
+    "Watch games": "관전하기",
+    "Challenge to a game": "대국 신청하기",
+    "Abort": "중단하기",
+    "Pass": "한수쉼",
+    "Resign": "기권",
+    "Are you sure you want to resign?": "기권 하시겠습니까?",
+    "Blue (Cho)": "청",
+    "Red (Han)": "홍",
+    "Switch pieces": "기물 바꾸기",
+    "Ready": "준비",
+    "REMATCH": "재대국",
+    "NEW OPPONENT": "새로운 상대",
+    "ANALYSIS BOARD": "분석판",
+    "[-] Zoom [+]": "[-] 돋보기 [+]",
+    "Promote to Queen automatically": "퀸 자동 프로모션",
+    "Best move arrow": "최적수 화살표",
     "": {
         "language": "ko",
         "plural-forms": "nplurals=1; plural=0;"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 17:37+0200\n"
+"POT-Creation-Date: 2020-05-09 14:10+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
@@ -114,12 +114,12 @@ msgstr ""
 "En ce qui concerne la confidentialité et les conditions d'utilisation, nous "
 "appliquons ici celles de lichess.org."
 
-#: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:526
+#: ../client/analysis.ts:32 ../client/lobby.ts:384 ../client/lobby.ts:532
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Rated"
 msgstr "Classée"
 
-#: ../client/analysis.ts:32 ../client/lobby.ts:376 ../client/lobby.ts:526
+#: ../client/analysis.ts:32 ../client/lobby.ts:382 ../client/lobby.ts:532
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Casual"
 msgstr "Amicale"
@@ -209,70 +209,70 @@ msgstr "Soyez courtois dans le tchat !"
 msgid "Server"
 msgstr "Serveur"
 
-#: ../client/chess.ts:40
-msgid "A game closely resembling the original Chaturanga"
-msgstr "Un jeu qui ressemble l'ancien jeu de chaturanga"
-
 #: ../client/chess.ts:41
-msgid "Makruk variant where kings cannot move to escape out of check"
-msgstr ""
-"Une variante de makruk où les rois ne doivent pas se déplacer afin "
-"d'échapper d'un échec"
+msgid "A game closely resembling the original Chaturanga"
+msgstr "Un jeu qui ressemble à l'ancien jeu, le chaturanga."
 
 #: ../client/chess.ts:42
+msgid "Makruk variant where kings cannot move to escape out of check"
+msgstr ""
+"Une variante de makruk où les rois sont interdits de se déplacer lors d'un "
+"échec (sauf pour prendre la pièce qui donne échec)"
+
+#: ../client/chess.ts:43
 msgid "Makruk with a few additional opening abilities"
 msgstr "Makruk avec quelques pouvoirs spéciaux dans l'ouverture"
 
-#: ../client/chess.ts:43
+#: ../client/chess.ts:44
 msgid "Similar to Makruk, but pieces are placed at the start of the match"
 msgstr "Comme le makruk, mais les pièces sont placées au début de la partie."
 
-#: ../client/chess.ts:44
+#: ../client/chess.ts:45
 msgid "Choose where your pieces start"
 msgstr "Choisir où vos pièces commencent la partie"
 
-#: ../client/chess.ts:45
+#: ../client/chess.ts:46
 msgid "Take captured pieces and drop them back on to the board as your own"
 msgstr ""
 "Prendre les pièces adversaires et les parachuter sur l'échiquier en tant que"
 " les vôtres"
 
-#: ../client/chess.ts:46
+#: ../client/chess.ts:47
 msgid "Chess, unmodified, as it's played by FIDE standards"
 msgstr ""
 "Les échecs, sans modification, tels qu'ils sont joués sous les règles de "
 "FIDÉ"
 
-#: ../client/chess.ts:47
-msgid "Pieces promote and can be dropped"
-msgstr "Des pièces se promeuvent et peuvent être parachutées"
-
 #: ../client/chess.ts:48
-msgid "Shogi on a 5x5 board"
-msgstr "Shogi sur un shogiban de 5x5"
+msgid "Pieces promote and can be dropped"
+msgstr "Les pièces se promeuvent et peuvent être parachutées"
 
 #: ../client/chess.ts:49
-msgid "5x5 Shogi where pieces flip to a different piece each move"
-msgstr ""
-"Shogi sur un shogiban de 5x5 où les pièces basculent entre formes après "
-"chaque coup"
+msgid "Shogi on a 5x5 board"
+msgstr "Le shogi sur un shogiban de 5x5"
 
 #: ../client/chess.ts:50
+msgid "5x5 Shogi where pieces flip to a different piece each move"
+msgstr ""
+"Le shogi sur un shogiban de 5x5 où les pièces basculent entre formes après "
+"chaque coup"
+
+#: ../client/chess.ts:51
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
 msgstr ""
 "Comme le xiangqi mais se joue très différemment. On utilise les règles de "
 "tournoi."
 
-#: ../client/chess.ts:51
+#: ../client/chess.ts:52
 msgid "Open fire on your opponent in this highly aggressive ancient game"
 msgstr "Le jeu d'échecs classique de la Chine"
 
-#: ../client/chess.ts:52
-msgid "Xiangqi on a 7x7 board"
-msgstr "Xiangqi sur un echiquier de 7x7"
-
 #: ../client/chess.ts:53
+msgid "Xiangqi on a 7x7 board"
+msgstr "Le xiangqi sur un echiquier de 7x7"
+
+#: ../client/chess.ts:54
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board"
@@ -280,24 +280,24 @@ msgstr ""
 "Jouez avec des pièce hybrides, la princesse (fou + cavalier) et "
 "l'impératrice (tour + cavalier), sur un échiquier de 10x8"
 
-#: ../client/chess.ts:54
+#: ../client/chess.ts:55
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
 msgstr ""
 "Des pièces hybrides, le faucon (fou + cavalier) et l'éléphant (tour + "
-"cavalier) peuvent rentrer dans l'échiquier après qu'une pièce se déplace de "
-"la première rangée"
+"cavalier) peuvent rentrer dans l'échiquier après qu'une pièce de la première"
+" rangée se déplace"
 
-#: ../client/chess.ts:55
+#: ../client/chess.ts:56
 msgid "Capablanca with Crazyhouse drop rules"
 msgstr "Les échecs Capablanca avec la règle de parachutage de Crazyhouse"
 
-#: ../client/chess.ts:56
+#: ../client/chess.ts:57
 msgid "S-Chess with Crazyhouse drop rules"
 msgstr "Le S-Chess avec la règle de parachutage de Crazyhouse"
 
-#: ../client/chess.ts:57
+#: ../client/chess.ts:58
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
@@ -305,28 +305,28 @@ msgstr ""
 "Jouez avec des pièce hybrides, la princesse (fou + cavalier) et "
 "l'impératrice (tour + cavalier), sur un grand échiquier de 10x10"
 
-#: ../client/chess.ts:58
+#: ../client/chess.ts:59
 msgid "Grand Chess with Crazyhouse drop rules"
 msgstr "Le \"Grand Chess\" avec la règle de parachutage de Crazyhouse"
 
-#: ../client/chess.ts:59
+#: ../client/chess.ts:60
 msgid "Like Capablanca Chess but with a different starting setup"
 msgstr ""
 "Comme les échecs Capablanca mais avec une position de départ différente"
 
-#: ../client/chess.ts:60
+#: ../client/chess.ts:61
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
 msgstr ""
-"Introduisons le canon et l'éléphant du xiangqi aux échecs sur un échiquier "
-"de 10x10"
-
-#: ../client/chess.ts:61
-msgid "Pieces promote and can be dropped, similar to Shogi"
-msgstr ""
-"Des pièces se promeuvent et peuvent être parachutées, comme dans le shogi"
+"On fait venir deux pièces du xiangqi, le canon et l'éléphant, sur un "
+"échiquier de 10x10"
 
 #: ../client/chess.ts:62
+msgid "Pieces promote and can be dropped, similar to Shogi"
+msgstr ""
+"Les pièces se promeuvent et peuvent être parachutées, comme dans le shogi"
+
+#: ../client/chess.ts:63
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
@@ -335,23 +335,23 @@ msgstr ""
 " des cavaliers mais qui prennent des pièces adversaires de différentes "
 "façons"
 
-#: ../client/chess.ts:129 ../client/chess.ts:152 ../client/lobby.ts:409
+#: ../client/chess.ts:132 ../client/chess.ts:155 ../client/lobby.ts:415
 msgid "Black"
 msgstr "Les noirs"
 
-#: ../client/chess.ts:133 ../client/chess.ts:148
+#: ../client/chess.ts:136 ../client/chess.ts:151
 msgid "Red"
 msgstr "Les rouges"
 
-#: ../client/chess.ts:135
+#: ../client/chess.ts:138
 msgid "Blue"
 msgstr "Les bleus"
 
-#: ../client/chess.ts:137 ../client/chess.ts:146 ../client/lobby.ts:411
+#: ../client/chess.ts:140 ../client/chess.ts:149 ../client/lobby.ts:417
 msgid "White"
 msgstr "Les blancs"
 
-#: ../client/chess.ts:150
+#: ../client/chess.ts:153
 msgid "Gold"
 msgstr "Les ors"
 
@@ -409,7 +409,7 @@ msgstr "POSITION DE DÉPART"
 msgid "PLAY WITH MACHINE"
 msgstr "JOUER CONTRE L'ORDINATEUR"
 
-#: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:337
+#: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:343
 msgid " (must be signed in)"
 msgstr "(connexion requise)"
 
@@ -421,21 +421,17 @@ msgstr "EXPORTER EN FORMAT PNG"
 msgid "Invalid FEN"
 msgstr "FEN invalide"
 
-#: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:464
+#: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:470
 msgid "Variant"
 msgstr "Variante"
 
 #: ../client/lobby.ts:248
-msgid "Byoyomi"
-msgstr "Byoyomi"
+msgid "Byoyomi in seconds:"
+msgstr "Byoyomi en secondes :"
 
 #: ../client/lobby.ts:248
-msgid "Increment"
-msgstr "Incrément"
-
-#: ../client/lobby.ts:248
-msgid " in seconds:"
-msgstr "en secondes :"
+msgid "Increment in seconds:"
+msgstr "Incrément en secondes :"
 
 #: ../client/lobby.ts:322
 msgid "Cancel"
@@ -445,63 +441,63 @@ msgstr "Annuler"
 msgid "Challenge %1 to a game"
 msgstr "Défier %1 à une partie"
 
-#: ../client/lobby.ts:337
+#: ../client/lobby.ts:343
 msgid "Paste the FEN text here"
 msgstr "Coller la FEN ici"
 
-#: ../client/lobby.ts:341
+#: ../client/lobby.ts:347
 msgid "Handicap"
 msgstr "Handicap"
 
-#: ../client/lobby.ts:352
+#: ../client/lobby.ts:358
 msgid "Minutes per side:"
 msgstr "Minutes par joueur :"
 
-#: ../client/lobby.ts:367
+#: ../client/lobby.ts:373
 msgid "Periods"
 msgstr "Périodes"
 
-#: ../client/lobby.ts:386
+#: ../client/lobby.ts:392
 msgid "A.I. Level"
 msgstr "Niveau I.A."
 
-#: ../client/lobby.ts:410
+#: ../client/lobby.ts:416
 msgid "Random"
 msgstr "Aléatoire"
 
-#: ../client/lobby.ts:428
+#: ../client/lobby.ts:434
 msgid "Create a game"
 msgstr "Créer une partie"
 
-#: ../client/lobby.ts:441
+#: ../client/lobby.ts:447
 msgid "Play with AI (Fairy-Stockfish)"
 msgstr "Jouer contre IA (Fairy-Stockfish)"
 
-#: ../client/lobby.ts:459
+#: ../client/lobby.ts:465
 msgid "Player"
 msgstr "Joueur"
 
-#: ../client/lobby.ts:460
+#: ../client/lobby.ts:466
 msgid "Color"
 msgstr "Couleur"
 
-#: ../client/lobby.ts:461
+#: ../client/lobby.ts:467
 msgid "Rating"
 msgstr "Classement"
 
-#: ../client/lobby.ts:462
+#: ../client/lobby.ts:468
 msgid "Time"
 msgstr "Temps"
 
-#: ../client/lobby.ts:465
+#: ../client/lobby.ts:471
 msgid "Mode"
 msgstr "Mode"
 
-#: ../client/lobby.ts:526
+#: ../client/lobby.ts:532
 msgid "Custom"
 msgstr ""
 
-#: ../client/lobby.ts:550
+#: ../client/lobby.ts:556
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -509,27 +505,27 @@ msgstr ""
 "Vous avez une partie non-terminée !\n"
 "Appuyer sur \"OK\" pour continuer."
 
-#: ../client/lobby.ts:596
+#: ../client/lobby.ts:602
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 partie en cours"
 msgstr[1] "%1 parties en cours"
 
-#: ../client/lobby.ts:606
+#: ../client/lobby.ts:612
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 joueur"
 msgstr[1] "%1 joueurs"
 
-#: ../client/lobby.ts:682
+#: ../client/lobby.ts:688
 msgid "Donate"
 msgstr "Faire un don"
 
-#: ../client/lobby.ts:686
+#: ../client/lobby.ts:692
 msgid "0 players"
 msgstr "Aucun joueur"
 
-#: ../client/lobby.ts:687
+#: ../client/lobby.ts:693
 msgid "0 games in play"
 msgstr "Aucune partie en cours"
 
@@ -546,8 +542,8 @@ msgid "Checkmate"
 msgstr "Échec et mat"
 
 #: ../client/profile.ts:37
-msgid " resigned"
-msgstr "ont abandonné"
+msgid "%1 resigned"
+msgstr "%1 ont abandonné"
 
 #: ../client/profile.ts:40
 msgid "Stalemate"
@@ -562,8 +558,8 @@ msgid "Draw"
 msgstr "Nulle"
 
 #: ../client/profile.ts:52
-msgid " abandoned the game"
-msgstr "ont quitté la partie"
+msgid "%1 abandoned the game"
+msgstr "%1 ont quitté la partie"
 
 #: ../client/profile.ts:55
 msgid "Cheat detected"

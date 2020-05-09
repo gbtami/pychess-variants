@@ -235,7 +235,7 @@ async def index(request):
         # variant None indicates intro.md
         if lang == "hu":
             locale = ".%s" % lang if variant in (None, "shogi") else ""
-        elif lang == "zh":
+        elif lang == "zh" or lang == "fr":
             locale = ".%s" % lang if variant in (None,) else ""
         else:
             locale = ""

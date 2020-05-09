@@ -11,6 +11,8 @@ showdown makehtml -i "hu/shogi.md" -o "shogi.hu.html" --flavor github
 
 showdown makehtml -i "zh/intro.md" -o "intro.zh.html" --flavor github
 
+showdown makehtml -i "fr/intro.md" -o "intro.fr.html" --flavor github
+
 SRC='https://github.com/gbtami/pychess-variants/blob/master'; 
 DST='https://www.pychess.org';
 find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
