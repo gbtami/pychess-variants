@@ -220,7 +220,7 @@ msgstr "缅甸象棋。相似泰国象棋，但大子在对局开始后一一排
 
 #: ../client/chess.ts:44
 msgid "Choose where your pieces start"
-msgstr "选择您棋子的起始位置"
+msgstr "选择您棋子的初始位置"
 
 #: ../client/chess.ts:45
 msgid "Take captured pieces and drop them back on to the board as your own"

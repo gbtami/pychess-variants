@@ -7,6 +7,9 @@ showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
 done
 
 showdown makehtml -i "hu/intro.md" -o "intro.hu.html" --flavor github
+showdown makehtml -i "hu/shogi.md" -o "shogi.hu.html" --flavor github
+
+showdown makehtml -i "zh/intro.md" -o "intro.zh.html" --flavor github
 
 SRC='https://github.com/gbtami/pychess-variants/blob/master'; 
 DST='https://www.pychess.org';

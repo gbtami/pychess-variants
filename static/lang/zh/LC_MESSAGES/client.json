@@ -35,7 +35,7 @@
     "Makruk variant where kings cannot move to escape out of check": "泰国象棋，但不准动王逃出将军。",
     "Makruk with a few additional opening abilities": "泰国象棋，但增加几个开局的特殊着法",
     "Similar to Makruk, but pieces are placed at the start of the match": "缅甸象棋。相似泰国象棋，但大子在对局开始后一一排列。",
-    "Choose where your pieces start": "选择您棋子的起始位置",
+    "Choose where your pieces start": "选择您棋子的初始位置",
     "Take captured pieces and drop them back on to the board as your own": "把己方吃掉的棋子放回棋盘成为己方的棋子",
     "Chess, unmodified, as it's played by FIDE standards": "国际象棋，无变，随从国际棋联的规则",
     "Pieces promote and can be dropped": "日本将棋。棋子既可升变，又能打入",
