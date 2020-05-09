@@ -34,7 +34,7 @@ export function result(variant, status, result) {
         text = _('Checkmate');
         break;
     case 2:
-        text = ((result === '1-0') ? second : first) + _(' resigned');
+        text = ((result === '1-0') ? i18n.gettext('%1 resigned', second) : i18n.gettext('%1 resigned', first));
         break;
     case 3:
         text = _('Stalemate');
@@ -49,7 +49,7 @@ export function result(variant, status, result) {
         text = _('Time out');
         break;
     case 7:
-        text = ((result === '1-0') ? second : first) + _(' abandoned the game');
+        text = ((result === '1-0') ? i18n.gettext('%1 abandoned the game', second) : i18n.gettext('%1 abandoned the game', first));
         break
     case 8:
         text = _('Cheat detected');

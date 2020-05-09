@@ -234,7 +234,7 @@ class LobbyController {
             document.getElementById('byoyomi-period')!.style.display = (byoyomi) ? 'block' : 'none';
 
             e = document.getElementById('incrementlabel') as HTMLSelectElement;
-            patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? _('Byoyomi') : _('Increment')) + _(' in seconds:')));
+            patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
 
             setStartButtons();
         }
