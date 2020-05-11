@@ -9,6 +9,9 @@ import listeners from 'snabbdom/modules/eventlisteners';
 const patch = init([klass, attributes, properties, listeners]);
 
 import { i18n } from './i18n';
+import { sound } from './sound';
+
+const HURRY = 10000;
 
 
 export class Clock {
@@ -27,6 +30,8 @@ export class Clock {
     overtime: boolean;
     byoyomi: boolean;
     byoyomiPeriod: number;
+    hurry: boolean;
+    ticks: boolean[];
 
     // game baseTime (min) and increment (sec)
     constructor(baseTime, increment, el, id, byoyomiPeriod) {
@@ -45,6 +50,8 @@ export class Clock {
     this.overtime = false;
     this.byoyomi = byoyomiPeriod > 0;
     this.byoyomiPeriod = byoyomiPeriod;
+    this.hurry = false;
+    this.ticks = [false, false, false, false, false, false, false, false, false, false];
 
     renderTime(this, this.duration);
     }
@@ -60,11 +67,29 @@ export class Clock {
 
         (function timer() {
             diff = that.duration - (Date.now() - that.startTime);
-            // console.log("timer()", that.duration, that.startTime, diff);
+            // console.log("timer()", that.duration, that.startTime, diff, that.hurry);
+            if (diff <= HURRY && !that.hurry && !that.byoyomi) {
+                that.hurry = true;
+                sound.lowTime();
+            }
+
+            if (that.byoyomi) {
+                var i;
+                for (i = 0; i < 10; i++) { 
+                    if (diff <= 1000 * (i + 1) && !that.ticks[i]) {
+                        that.ticks[i] = true;
+                        sound.tick();
+                        break;
+                    }
+                }
+            }
+
             if (diff <= 0) {
                 if (that.byoyomi && that.byoyomiPeriod > 0) {
+                    sound.lowTime();
                     that.overtime = true;
                     that.byoyomiPeriod -= 1;
+                    that.ticks = [false, false, false, false, false, false, false, false, false, false];
                     that.duration = that.increment;
                     that.startTime = Date.now();
                     if (that.byoyomiCallback !== null) {
@@ -117,9 +142,13 @@ export class Clock {
         this.duration -= Date.now() - this.startTime;
         if (withIncrement && this.increment) {
             if (this.byoyomi) {
-                if (this.overtime) this.duration = this.increment;
+                if (this.overtime) {
+                    this.duration = this.increment;
+                    this.ticks = [false, false, false, false, false, false, false, false, false, false];
+                }
             } else {
                 this.duration += this.increment;
+                this.hurry = (this.duration < HURRY);
             }
         }
         renderTime(this, this.duration);
@@ -155,7 +184,7 @@ export class Clock {
 }
 
 export function renderTime(clock, time) {
-    if (clock.granularity > 100 && time < 10000) clock.granularity = 100;
+    if (clock.granularity > 100 && time < HURRY) clock.granularity = 100;
     const parsed = clock.parseTime(time);
     // console.log("renderTime():", time, parsed);
 
@@ -163,10 +192,10 @@ export function renderTime(clock, time) {
     const millis = date.getUTCMilliseconds();
     clock.el = patch(clock.el, h('div.clock-wrap#' + clock.id, [
         h('div.clock', [
-            h('div.clock.time.min', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime}}, parsed.minutes),
-            h('div.clock.sep', {class: {running: clock.running, hurry: time < 10000, low: millis < 500, connecting: clock.connecting, overtime: clock.overtime}} , ':'),
-            h('div.clock.time.sec', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime}}, parsed.seconds),
-            h('div.clock.time.byo', {class: {running: clock.running, hurry: time < 10000, connecting: clock.connecting, overtime: clock.overtime, byoyomi: (clock.byoyomiPeriod > 0 && clock.increment > 0)}}, `+${clock.increment / 1000}s` + ((clock.byoyomiPeriod > 1) ? ` (x${clock.byoyomiPeriod})` : "")),
+            h('div.clock.time.min', {class: {running: clock.running, hurry: time < HURRY, connecting: clock.connecting, overtime: clock.overtime}}, parsed.minutes),
+            h('div.clock.sep', {class: {running: clock.running, hurry: time < HURRY, low: millis < 500, connecting: clock.connecting, overtime: clock.overtime}} , ':'),
+            h('div.clock.time.sec', {class: {running: clock.running, hurry: time < HURRY, connecting: clock.connecting, overtime: clock.overtime}}, parsed.seconds),
+            h('div.clock.time.byo', {class: {running: clock.running, hurry: time < HURRY, connecting: clock.connecting, overtime: clock.overtime, byoyomi: (clock.byoyomiPeriod > 0 && clock.increment > 0)}}, `+${clock.increment / 1000}s` + ((clock.byoyomiPeriod > 1) ? ` (x${clock.byoyomiPeriod})` : "")),
         ])
     ])
     );

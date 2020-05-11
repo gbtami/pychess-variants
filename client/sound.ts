@@ -16,6 +16,8 @@ class sounds {
             ShogiMove: 'komaoto5',
             Chat: 'chat',
             Setup: 'dinding',
+            LowTime: 'LowTime',
+            Tick: 'Tick',
         }
 
         Object.keys(this.tracks).forEach(key => {
@@ -49,6 +51,8 @@ class sounds {
     shogimove() { if ((this.audio())) {this.tracks.ShogiMove.play();} };
     chat() { if ((this.audio())) {this.tracks.Chat.play();} };
     setup() { if ((this.audio())) {this.tracks.Setup.play();} };
+    lowTime() { if ((this.audio())) {this.tracks.LowTime.play();} };
+    tick() { if ((this.audio())) {this.tracks.Tick.play();} };
 }
 
 export const sound = new(sounds);
