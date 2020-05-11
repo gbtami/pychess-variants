@@ -1,11 +1,34 @@
 {
+    "About pychess": "O pychess",
     "pychess is a free, open-source chess server designed to play several chess variant.": "Pychess to darmowy serwer szachowy o otwartym kodzie źródłowym, przeznaczony do gry w kilka odmian szachów.",
+    "Source code of server is available at ": "Kod źródłowy dostępny na: ",
+    "Rated": "Rankingowa",
+    "Casual": "Towarzyska",
+    " Download PGN": "Pobierz PGN",
+    "Request Computer Analysis": "Zleć analizę komputerową",
+    "Initial position": "Pozycja wyjściowa",
+    "Please be nice in the chat!": "Bądź miły na czacie",
+    "Shogi on a 5x5 board": "Shogi na planszy 5x5",
+    "Xiangqi on a 7x7 board": "Xiangqi na planszy 7x7",
+    "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece": "Dodatkowe figury: jastrząb (gońcoskoczek) i słoń (wieżoskoczek) mogą zostać wstawione na planszę po ruchu figurą z pierwszej linii",
     "%1 year ago": [
         "%1 rok temu",
         "%1 lata temu",
         "%1 lat temu",
-        "%1 lat temu"
+        "%1 lat(a) temu"
     ],
+    "Play with AI (Fairy-Stockfish)": "Zagraj z komputerem (Fairy-Stockfish)",
+    "%1 resigned": "%1 poddał(a) się",
+    "Time out": "Przegrana na czas",
+    "Invalid move": "Niedozwolony ruch",
+    "Lichess profile": "Profil na Lichess",
+    "Watch games": "Obserwuj gry",
+    "Challenge to a game": "Zaproś do gry",
+    "Abort": "Przerwij grę",
+    "Resign": "Poddaj się",
+    "REMATCH": "REWANŻ",
+    "Show piece destinations": "Pokazuj możliwe ruchy",
+    "Promote to Queen automatically": "Automatyczna promocja na hetmana",
     "": {
         "language": "pl",
         "plural-forms": "nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);"

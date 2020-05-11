@@ -3,6 +3,9 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
+# Translators:
+# Jonathan Kubik <j.kubik97@gmail.com>, 2020
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -10,6 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-05-09 14:10+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2020\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -61,7 +65,7 @@ msgstr ""
 
 #: ../client/about.ts:21
 msgid "About pychess"
-msgstr ""
+msgstr "Über pychess"
 
 #: ../client/about.ts:22
 msgid ""
@@ -71,7 +75,7 @@ msgstr ""
 
 #: ../client/about.ts:24
 msgid "Currently supported games are "
-msgstr ""
+msgstr "Derzeit unterstützte Spiele sind"
 
 #: ../client/about.ts:71
 msgid ""
@@ -104,16 +108,16 @@ msgstr ""
 #: ../client/analysis.ts:32 ../client/lobby.ts:384 ../client/lobby.ts:532
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Rated"
-msgstr ""
+msgstr "Gewertet"
 
 #: ../client/analysis.ts:32 ../client/lobby.ts:382 ../client/lobby.ts:532
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Casual"
-msgstr ""
+msgstr "Ungewertet"
 
 #: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
 msgid "Playing right now"
-msgstr ""
+msgstr "Spielt gerade"
 
 #: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
 #: ../client/profile.ts:121 ../client/profile.ts:131
@@ -130,7 +134,7 @@ msgstr ""
 
 #: ../client/analysisCtrl.ts:281
 msgid " Download PGN"
-msgstr ""
+msgstr "Download PGN"
 
 #: ../client/analysisCtrl.ts:283
 msgid "Copy USI/UCI to clipboard"
@@ -150,15 +154,15 @@ msgstr ""
 
 #: ../client/analysisCtrl.ts:289
 msgid "Request Computer Analysis"
-msgstr ""
+msgstr "Computer Analyse anfordern"
 
 #: ../client/analysisCtrl.ts:289
 msgid " Request Analysis"
-msgstr ""
+msgstr "Analyse anfordern"
 
 #: ../client/analysisCtrl.ts:440
 msgid "Depth"
-msgstr ""
+msgstr "Tiefe"
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
@@ -170,19 +174,19 @@ msgstr ""
 
 #: ../client/chart.ts:19
 msgid "Initial position"
-msgstr ""
+msgstr "Anfangsposition"
 
 #: ../client/chart.ts:75
 msgid "Advantage"
-msgstr ""
+msgstr "Vorteil"
 
 #: ../client/chat.ts:24
 msgid "Spectator room"
-msgstr ""
+msgstr "Zuschauerraum"
 
 #: ../client/chat.ts:24
 msgid "Chat room"
-msgstr ""
+msgstr "Chat Raum"
 
 #: ../client/chat.ts:33
 msgid "Sign in to chat"
@@ -194,7 +198,7 @@ msgstr ""
 
 #: ../client/chat.ts:51
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 #: ../client/chess.ts:41
 msgid "A game closely resembling the original Chaturanga"
@@ -300,65 +304,65 @@ msgstr ""
 
 #: ../client/chess.ts:132 ../client/chess.ts:155 ../client/lobby.ts:415
 msgid "Black"
-msgstr ""
+msgstr "Schwarz"
 
 #: ../client/chess.ts:136 ../client/chess.ts:151
 msgid "Red"
-msgstr ""
+msgstr "Rot"
 
 #: ../client/chess.ts:138
 msgid "Blue"
-msgstr ""
+msgstr "Blau"
 
 #: ../client/chess.ts:140 ../client/chess.ts:149 ../client/lobby.ts:417
 msgid "White"
-msgstr ""
+msgstr "Weiß"
 
 #: ../client/chess.ts:153
 msgid "Gold"
-msgstr ""
+msgstr "Gold"
 
 #: ../client/clock.ts:186
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "vor %1 Jahr"
+msgstr[1] "vor %1 Jahren"
 
 #: ../client/clock.ts:188
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "vor %1 Monat"
+msgstr[1] "vor %1 Monaten"
 
 #: ../client/clock.ts:190
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "vor %1 Woche"
+msgstr[1] "vor %1 Wochen"
 
 #: ../client/clock.ts:192
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "vor %1 Tag"
+msgstr[1] "vor %1 Tagen"
 
 #: ../client/clock.ts:194
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "vor %1 Stunde"
+msgstr[1] "vor %1 Stunden"
 
 #: ../client/clock.ts:196
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "vor %1 Minute"
+msgstr[1] "vor %1 Minuten"
 
 #: ../client/clock.ts:198
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "vor %1 Sekunde"
+msgstr[1] "vor %1 Sekunden"
 
 #: ../client/editor.ts:97
 msgid "CLEAR BOARD"
@@ -366,11 +370,11 @@ msgstr ""
 
 #: ../client/editor.ts:100
 msgid "STARTING POSITION"
-msgstr ""
+msgstr "ANFANGSPOSITION"
 
 #: ../client/editor.ts:103 ../client/editor.ts:117
 msgid "PLAY WITH MACHINE"
-msgstr ""
+msgstr "SPIELE MIT DEM COMPUTER"
 
 #: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:343
 msgid " (must be signed in)"
@@ -378,39 +382,39 @@ msgstr ""
 
 #: ../client/editor.ts:107
 msgid "EXPORT TO PNG"
-msgstr ""
+msgstr "NACH PNG EXPORTIEREN"
 
 #: ../client/editor.ts:120 ../client/lobby.ts:267
 msgid "Invalid FEN"
-msgstr ""
+msgstr "Ungültiger FEN"
 
 #: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:470
 msgid "Variant"
-msgstr ""
+msgstr "Variante"
 
 #: ../client/lobby.ts:248
 msgid "Byoyomi in seconds:"
-msgstr ""
+msgstr "Byoyomi in Sekunden:"
 
 #: ../client/lobby.ts:248
 msgid "Increment in seconds:"
-msgstr ""
+msgstr "Inkrement in Sekunden:"
 
 #: ../client/lobby.ts:322
 msgid "Cancel"
-msgstr ""
+msgstr "Abbrechen"
 
 #: ../client/lobby.ts:326
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "%1 zu einem Spiel herausfordern"
 
 #: ../client/lobby.ts:343
 msgid "Paste the FEN text here"
-msgstr ""
+msgstr "FEN Text hier einfügen"
 
 #: ../client/lobby.ts:347
 msgid "Handicap"
-msgstr ""
+msgstr "Vorgabe"
 
 #: ../client/lobby.ts:358
 msgid "Minutes per side:"
@@ -418,43 +422,43 @@ msgstr ""
 
 #: ../client/lobby.ts:373
 msgid "Periods"
-msgstr ""
+msgstr "Perioden"
 
 #: ../client/lobby.ts:392
 msgid "A.I. Level"
-msgstr ""
+msgstr "K.I. Level"
 
 #: ../client/lobby.ts:416
 msgid "Random"
-msgstr ""
+msgstr "Zufällig"
 
 #: ../client/lobby.ts:434
 msgid "Create a game"
-msgstr ""
+msgstr "Spiel erstellen"
 
 #: ../client/lobby.ts:447
 msgid "Play with AI (Fairy-Stockfish)"
-msgstr ""
+msgstr "Spiel mit der K.I. (Fairy-Stockfish)"
 
 #: ../client/lobby.ts:465
 msgid "Player"
-msgstr ""
+msgstr "Spieler"
 
 #: ../client/lobby.ts:466
 msgid "Color"
-msgstr ""
+msgstr "Farbe"
 
 #: ../client/lobby.ts:467
 msgid "Rating"
-msgstr ""
+msgstr "Wertung"
 
 #: ../client/lobby.ts:468
 msgid "Time"
-msgstr ""
+msgstr "Zeit"
 
 #: ../client/lobby.ts:471
 msgid "Mode"
-msgstr ""
+msgstr "Modus"
 
 #: ../client/lobby.ts:532
 msgid "Custom"
@@ -465,78 +469,80 @@ msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
 msgstr ""
+"Du hast ein unbeendetes Spiel!\n"
+"Drücke OK um fortzufahren.  "
 
 #: ../client/lobby.ts:602
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 laufende Partie"
+msgstr[1] "%1 laufende Partien"
 
 #: ../client/lobby.ts:612
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "1% Spieler"
+msgstr[1] "%1 Spieler"
 
 #: ../client/lobby.ts:688
 msgid "Donate"
-msgstr ""
+msgstr "Spenden"
 
 #: ../client/lobby.ts:692
 msgid "0 players"
-msgstr ""
+msgstr "0 Spieler"
 
 #: ../client/lobby.ts:693
 msgid "0 games in play"
-msgstr ""
+msgstr "0 laufende Partien"
 
 #: ../client/main.ts:72
 msgid "Thank you for your support!"
-msgstr ""
+msgstr "Danke für deine Unterstützung!"
 
 #: ../client/profile.ts:31
 msgid "Game aborted"
-msgstr ""
+msgstr "Partie abgebrochen"
 
 #: ../client/profile.ts:34
 msgid "Checkmate"
-msgstr ""
+msgstr "Schachmatt"
 
 #: ../client/profile.ts:37
 msgid "%1 resigned"
-msgstr ""
+msgstr "%1 hat aufgegeben"
 
 #: ../client/profile.ts:40
 msgid "Stalemate"
-msgstr ""
+msgstr "Patt"
 
 #: ../client/profile.ts:43 ../client/profile.ts:49
 msgid "Time out"
-msgstr ""
+msgstr "Zeit abgelaufen"
 
 #: ../client/profile.ts:46 ../client/roundCtrl.ts:352
 msgid "Draw"
-msgstr ""
+msgstr "Remis"
 
 #: ../client/profile.ts:52
 msgid "%1 abandoned the game"
-msgstr ""
+msgstr "%1 hat das Spiel verlassen"
 
 #: ../client/profile.ts:55
 msgid "Cheat detected"
-msgstr ""
+msgstr "Betrug entdeckt"
 
 #: ../client/profile.ts:58
 msgid "Not started"
-msgstr ""
+msgstr "Nicht gestartet"
 
 #: ../client/profile.ts:61
 msgid "Invalid move"
-msgstr ""
+msgstr "Ungültiger Zug"
 
 #: ../client/profile.ts:64
 msgid "Unknown reason"
-msgstr ""
+msgstr "Unbekannter Grund"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
@@ -549,90 +555,92 @@ msgstr ""
 #: ../client/profile.ts:147
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 Zug"
+msgstr[1] "%1 Züge"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
-msgstr ""
+msgstr "Computer Analyse verfügbar"
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
-msgstr ""
+msgstr "Lichess Profil"
 
 #: ../client/profile.ts:230
 msgid "Export games"
-msgstr ""
+msgstr "Partien exportieren"
 
 #: ../client/profile.ts:233
 msgid "Watch games"
-msgstr ""
+msgstr "Partien zusehen"
 
 #: ../client/profile.ts:236
 msgid "Challenge to a game"
-msgstr ""
+msgstr "Zu einer Partie herausfordern"
 
 #: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1138
 msgid " +15 seconds"
-msgstr ""
+msgstr "+15 Sekunden"
 
 #: ../client/roundCtrl.ts:314
 msgid "Give 15 seconds"
-msgstr ""
+msgstr "Gebe 15 Sekunden"
 
 #: ../client/roundCtrl.ts:350
 msgid "Abort"
-msgstr ""
+msgstr "Abbrechen"
 
 #: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
 #: ../client/roundCtrl.ts:857
 msgid "Count"
-msgstr ""
+msgstr "Abzählen"
 
 #: ../client/roundCtrl.ts:352
 msgid "Pass"
-msgstr ""
+msgstr "Aussetzen"
 
 #: ../client/roundCtrl.ts:353
 msgid "Resign"
-msgstr ""
+msgstr "Aufgeben"
 
 #: ../client/roundCtrl.ts:389
 msgid "Are you sure you want to resign?"
-msgstr ""
+msgstr "Bist du sicher dass du aufgeben willst?"
 
 #: ../client/roundCtrl.ts:419
 msgid "Blue (Cho)"
-msgstr ""
+msgstr "Blau (Cho)"
 
 #: ../client/roundCtrl.ts:419
 msgid "Red (Han)"
-msgstr ""
+msgstr "Rot (Han)"
 
 #: ../client/roundCtrl.ts:420
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr ""
+"Warte bis %1 die Startposition für die Pferde und Elefanten ausgewählt "
+"hat..."
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"
-msgstr ""
+msgstr "Figuren wechseln"
 
 #: ../client/roundCtrl.ts:455
 msgid "Ready"
-msgstr ""
+msgstr "Bereit"
 
 #: ../client/roundCtrl.ts:502
 msgid "REMATCH"
-msgstr ""
+msgstr "REVANCHE"
 
 #: ../client/roundCtrl.ts:503
 msgid "NEW OPPONENT"
-msgstr ""
+msgstr "NEUER GEGNER"
 
 #: ../client/roundCtrl.ts:504
 msgid "ANALYSIS BOARD"
-msgstr ""
+msgstr "ANALYSEBRETT"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop counting"
@@ -640,7 +648,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop"
-msgstr ""
+msgstr "Stopp"
 
 #: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
 msgid "Start counting"
@@ -660,8 +668,8 @@ msgstr ""
 
 #: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
-msgstr ""
+msgstr "Automatische Umwandlung zur Dame"
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"
-msgstr ""
+msgstr "Bester Zug Pfeil"

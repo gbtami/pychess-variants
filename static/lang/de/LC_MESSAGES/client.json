@@ -1,4 +1,123 @@
 {
+    "About pychess": "Über pychess",
+    "Currently supported games are ": "Derzeit unterstützte Spiele sind",
+    "Rated": "Gewertet",
+    "Casual": "Ungewertet",
+    "Playing right now": "Spielt gerade",
+    " Download PGN": "Download PGN",
+    "Request Computer Analysis": "Computer Analyse anfordern",
+    " Request Analysis": "Analyse anfordern",
+    "Depth": "Tiefe",
+    "Initial position": "Anfangsposition",
+    "Advantage": "Vorteil",
+    "Spectator room": "Zuschauerraum",
+    "Chat room": "Chat Raum",
+    "Server": "Server",
+    "Black": "Schwarz",
+    "Red": "Rot",
+    "Blue": "Blau",
+    "White": "Weiß",
+    "Gold": "Gold",
+    "%1 year ago": [
+        "vor %1 Jahr",
+        "vor %1 Jahren"
+    ],
+    "%1 month ago": [
+        "vor %1 Monat",
+        "vor %1 Monaten"
+    ],
+    "%1 week ago": [
+        "vor %1 Woche",
+        "vor %1 Wochen"
+    ],
+    "%1 day ago": [
+        "vor %1 Tag",
+        "vor %1 Tagen"
+    ],
+    "%1 hour ago": [
+        "vor %1 Stunde",
+        "vor %1 Stunden"
+    ],
+    "%1 minute ago": [
+        "vor %1 Minute",
+        "vor %1 Minuten"
+    ],
+    "%1 second ago": [
+        "vor %1 Sekunde",
+        "vor %1 Sekunden"
+    ],
+    "STARTING POSITION": "ANFANGSPOSITION",
+    "PLAY WITH MACHINE": "SPIELE MIT DEM COMPUTER",
+    "EXPORT TO PNG": "NACH PNG EXPORTIEREN",
+    "Invalid FEN": "Ungültiger FEN",
+    "Variant": "Variante",
+    "Byoyomi in seconds:": "Byoyomi in Sekunden:",
+    "Increment in seconds:": "Inkrement in Sekunden:",
+    "Cancel": "Abbrechen",
+    "Challenge %1 to a game": "%1 zu einem Spiel herausfordern",
+    "Paste the FEN text here": "FEN Text hier einfügen",
+    "Handicap": "Vorgabe",
+    "Periods": "Perioden",
+    "A.I. Level": "K.I. Level",
+    "Random": "Zufällig",
+    "Create a game": "Spiel erstellen",
+    "Play with AI (Fairy-Stockfish)": "Spiel mit der K.I. (Fairy-Stockfish)",
+    "Player": "Spieler",
+    "Color": "Farbe",
+    "Rating": "Wertung",
+    "Time": "Zeit",
+    "Mode": "Modus",
+    "You have an unfinished game!\nPress OK to continue.": "Du hast ein unbeendetes Spiel!\nDrücke OK um fortzufahren.  ",
+    "%1 game in play": [
+        "%1 laufende Partie",
+        "%1 laufende Partien"
+    ],
+    "%1 player": [
+        "1% Spieler",
+        "%1 Spieler"
+    ],
+    "Donate": "Spenden",
+    "0 players": "0 Spieler",
+    "0 games in play": "0 laufende Partien",
+    "Thank you for your support!": "Danke für deine Unterstützung!",
+    "Game aborted": "Partie abgebrochen",
+    "Checkmate": "Schachmatt",
+    "%1 resigned": "%1 hat aufgegeben",
+    "Stalemate": "Patt",
+    "Time out": "Zeit abgelaufen",
+    "Draw": "Remis",
+    "%1 abandoned the game": "%1 hat das Spiel verlassen",
+    "Cheat detected": "Betrug entdeckt",
+    "Not started": "Nicht gestartet",
+    "Invalid move": "Ungültiger Zug",
+    "Unknown reason": "Unbekannter Grund",
+    "%1 move": [
+        "%1 Zug",
+        "%1 Züge"
+    ],
+    "Computer analysis available": "Computer Analyse verfügbar",
+    "Lichess profile": "Lichess Profil",
+    "Export games": "Partien exportieren",
+    "Watch games": "Partien zusehen",
+    "Challenge to a game": "Zu einer Partie herausfordern",
+    " +15 seconds": "+15 Sekunden",
+    "Give 15 seconds": "Gebe 15 Sekunden",
+    "Abort": "Abbrechen",
+    "Count": "Abzählen",
+    "Pass": "Aussetzen",
+    "Resign": "Aufgeben",
+    "Are you sure you want to resign?": "Bist du sicher dass du aufgeben willst?",
+    "Blue (Cho)": "Blau (Cho)",
+    "Red (Han)": "Rot (Han)",
+    "Waiting for %1 to choose starting positions of the horses and elephants...": "Warte bis %1 die Startposition für die Pferde und Elefanten ausgewählt hat...",
+    "Switch pieces": "Figuren wechseln",
+    "Ready": "Bereit",
+    "REMATCH": "REVANCHE",
+    "NEW OPPONENT": "NEUER GEGNER",
+    "ANALYSIS BOARD": "ANALYSEBRETT",
+    "Stop": "Stopp",
+    "Promote to Queen automatically": "Automatische Umwandlung zur Dame",
+    "Best move arrow": "Bester Zug Pfeil",
     "": {
         "language": "de",
         "plural-forms": "nplurals=2; plural=(n != 1);"

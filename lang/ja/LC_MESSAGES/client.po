@@ -501,7 +501,7 @@ msgstr "詰み"
 
 #: ../client/profile.ts:37
 msgid "%1 resigned"
-msgstr ""
+msgstr "%1 が投了しました"
 
 #: ../client/profile.ts:40
 msgid "Stalemate"
@@ -517,7 +517,7 @@ msgstr "引き分け"
 
 #: ../client/profile.ts:52
 msgid "%1 abandoned the game"
-msgstr ""
+msgstr "%1 が退席しました"
 
 #: ../client/profile.ts:55
 msgid "Cheat detected"
@@ -529,7 +529,7 @@ msgstr ""
 
 #: ../client/profile.ts:61
 msgid "Invalid move"
-msgstr ""
+msgstr "無効な手"
 
 #: ../client/profile.ts:64
 msgid "Unknown reason"
@@ -537,7 +537,7 @@ msgstr "理由不明"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
-msgstr ""
+msgstr "キャンプメイト"
 
 #: ../client/profile.ts:67
 msgid "Point counting"
@@ -616,7 +616,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:455
 msgid "Ready"
-msgstr ""
+msgstr "準備"
 
 #: ../client/roundCtrl.ts:502
 msgid "REMATCH"
@@ -632,7 +632,7 @@ msgstr "棋譜解析"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop counting"
-msgstr ""
+msgstr "手数を数え止める"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop"
@@ -640,7 +640,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
 msgid "Start counting"
-msgstr ""
+msgstr "手数を数え始める"
 
 #: ../client/settings.ts:348
 msgid "[-] Zoom [+]"

@@ -5,7 +5,7 @@
 # 
 # Translators:
 # witekjeden <tauryna01@wp.pl>, 2020
-# gbtami <gbtami@gmail.com>, 2020
+# a b <kezsulap@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-05-09 14:10+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
+"Last-Translator: a b <kezsulap@gmail.com>, 2020\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -66,7 +66,7 @@ msgstr ""
 
 #: ../client/about.ts:21
 msgid "About pychess"
-msgstr ""
+msgstr "O pychess"
 
 #: ../client/about.ts:22
 msgid ""
@@ -100,7 +100,7 @@ msgstr ""
 
 #: ../client/about.ts:87
 msgid "Source code of server is available at "
-msgstr ""
+msgstr "Kod źródłowy dostępny na: "
 
 #: ../client/about.ts:92
 msgid ""
@@ -111,12 +111,12 @@ msgstr ""
 #: ../client/analysis.ts:32 ../client/lobby.ts:384 ../client/lobby.ts:532
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Rated"
-msgstr ""
+msgstr "Rankingowa"
 
 #: ../client/analysis.ts:32 ../client/lobby.ts:382 ../client/lobby.ts:532
 #: ../client/profile.ts:112 ../client/round.ts:31
 msgid "Casual"
-msgstr ""
+msgstr "Towarzyska"
 
 #: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
 msgid "Playing right now"
@@ -137,7 +137,7 @@ msgstr ""
 
 #: ../client/analysisCtrl.ts:281
 msgid " Download PGN"
-msgstr ""
+msgstr "Pobierz PGN"
 
 #: ../client/analysisCtrl.ts:283
 msgid "Copy USI/UCI to clipboard"
@@ -157,7 +157,7 @@ msgstr ""
 
 #: ../client/analysisCtrl.ts:289
 msgid "Request Computer Analysis"
-msgstr ""
+msgstr "Zleć analizę komputerową"
 
 #: ../client/analysisCtrl.ts:289
 msgid " Request Analysis"
@@ -177,7 +177,7 @@ msgstr ""
 
 #: ../client/chart.ts:19
 msgid "Initial position"
-msgstr ""
+msgstr "Pozycja wyjściowa"
 
 #: ../client/chart.ts:75
 msgid "Advantage"
@@ -197,7 +197,7 @@ msgstr ""
 
 #: ../client/chat.ts:33
 msgid "Please be nice in the chat!"
-msgstr ""
+msgstr "Bądź miły na czacie"
 
 #: ../client/chat.ts:51
 msgid "Server"
@@ -237,7 +237,7 @@ msgstr ""
 
 #: ../client/chess.ts:49
 msgid "Shogi on a 5x5 board"
-msgstr ""
+msgstr "Shogi na planszy 5x5"
 
 #: ../client/chess.ts:50
 msgid "5x5 Shogi where pieces flip to a different piece each move"
@@ -254,7 +254,7 @@ msgstr ""
 
 #: ../client/chess.ts:53
 msgid "Xiangqi on a 7x7 board"
-msgstr ""
+msgstr "Xiangqi na planszy 7x7"
 
 #: ../client/chess.ts:54
 msgid ""
@@ -267,6 +267,8 @@ msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
 msgstr ""
+"Dodatkowe figury: jastrząb (gońcoskoczek) i słoń (wieżoskoczek) mogą zostać "
+"wstawione na planszę po ruchu figurą z pierwszej linii"
 
 #: ../client/chess.ts:56
 msgid "Capablanca with Crazyhouse drop rules"
@@ -331,7 +333,7 @@ msgid_plural "%1 years ago"
 msgstr[0] "%1 rok temu"
 msgstr[1] "%1 lata temu"
 msgstr[2] "%1 lat temu"
-msgstr[3] "%1 lat temu"
+msgstr[3] "%1 lat(a) temu"
 
 #: ../client/clock.ts:188
 msgid "%1 month ago"
@@ -455,7 +457,7 @@ msgstr ""
 
 #: ../client/lobby.ts:447
 msgid "Play with AI (Fairy-Stockfish)"
-msgstr ""
+msgstr "Zagraj z komputerem (Fairy-Stockfish)"
 
 #: ../client/lobby.ts:465
 msgid "Player"
@@ -529,7 +531,7 @@ msgstr ""
 
 #: ../client/profile.ts:37
 msgid "%1 resigned"
-msgstr ""
+msgstr "%1 poddał(a) się"
 
 #: ../client/profile.ts:40
 msgid "Stalemate"
@@ -537,7 +539,7 @@ msgstr ""
 
 #: ../client/profile.ts:43 ../client/profile.ts:49
 msgid "Time out"
-msgstr ""
+msgstr "Przegrana na czas"
 
 #: ../client/profile.ts:46 ../client/roundCtrl.ts:352
 msgid "Draw"
@@ -557,7 +559,7 @@ msgstr ""
 
 #: ../client/profile.ts:61
 msgid "Invalid move"
-msgstr ""
+msgstr "Niedozwolony ruch"
 
 #: ../client/profile.ts:64
 msgid "Unknown reason"
@@ -585,7 +587,7 @@ msgstr ""
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
-msgstr ""
+msgstr "Profil na Lichess"
 
 #: ../client/profile.ts:230
 msgid "Export games"
@@ -593,11 +595,11 @@ msgstr ""
 
 #: ../client/profile.ts:233
 msgid "Watch games"
-msgstr ""
+msgstr "Obserwuj gry"
 
 #: ../client/profile.ts:236
 msgid "Challenge to a game"
-msgstr ""
+msgstr "Zaproś do gry"
 
 #: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1138
 msgid " +15 seconds"
@@ -609,7 +611,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:350
 msgid "Abort"
-msgstr ""
+msgstr "Przerwij grę"
 
 #: ../client/roundCtrl.ts:351 ../client/roundCtrl.ts:855
 #: ../client/roundCtrl.ts:857
@@ -622,7 +624,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:353
 msgid "Resign"
-msgstr ""
+msgstr "Poddaj się"
 
 #: ../client/roundCtrl.ts:389
 msgid "Are you sure you want to resign?"
@@ -651,7 +653,7 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:502
 msgid "REMATCH"
-msgstr ""
+msgstr "REWANŻ"
 
 #: ../client/roundCtrl.ts:503
 msgid "NEW OPPONENT"
@@ -679,7 +681,7 @@ msgstr ""
 
 #: ../client/settings.ts:353
 msgid "Show piece destinations"
-msgstr ""
+msgstr "Pokazuj możliwe ruchy"
 
 #: ../client/settings.ts:360
 msgid "Two click drop moves"
@@ -687,7 +689,7 @@ msgstr ""
 
 #: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
-msgstr ""
+msgstr "Automatyczna promocja na hetmana"
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"

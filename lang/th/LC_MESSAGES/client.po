@@ -546,7 +546,7 @@ msgstr "นับคะแนน"
 #: ../client/profile.ts:147
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] "%1 ตาเดิน"
+msgstr[0] "%1 ตา"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
