@@ -31,6 +31,9 @@ log = logging.getLogger(__name__)
 
 async def index(request):
     """ Create home html. """
+    url = str(request.url)
+    if url[:11] != URI[:11]:
+        raise web.HTTPFound(URI)
 
     users = request.app["users"]
     games = request.app["games"]
