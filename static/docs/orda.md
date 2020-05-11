@@ -13,7 +13,7 @@ Orda Chess is a chess variant designed in 2020 by Couch Tomato. The idea of the 
 4.	The Horde (AKA Gold) cannot castle.
 5.	As the Horde’s pawns start on the third rank, they do not have the option to move two spaces or be captured by en passant. Kingdom pawns retain the ability to move two spaces initially and to be captured via en passant.
 6.	Pawns *on either side* can only promote to a queen or kheshig.
-7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without being check.
+7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
 8.	Other rules, including stalemate and repetition are as in chess.
 
 ## Horde Pieces
@@ -24,7 +24,7 @@ The Horde's Lancer and Horse Archer are unique in that they capture differently 
 **Horde** piece	| **Kingdom** “counterpart”	| Movement | Capture/Check
 -- | -- | -- | --
 Yurt | Queen | “Silver” | “Silver”
-Horse | Archer | Bishop | Knight | Bishop
+Horse Archer | Bishop | Knight | Bishop
 Kheshig | Knight | Knight+King | Knight+King
 Lancer | Rook | Knight | Rook
 
