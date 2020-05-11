@@ -97,30 +97,31 @@ class Game:
         count_started = 0
         if self.manual_count:
             count_started = -1
-            parts = initial_fen.split()
-            board_state = parts[0]
-            side_to_move = parts[1]
-            counting_limit = int(parts[3]) if len(parts) >= 4 and parts[3].isdigit() else 0
-            counting_ply = int(parts[4]) if len(parts) >= 5 else 0
-            move_number = int(parts[5]) if len(parts) >= 6 else 0
+            if self.initial_fen:
+                parts = self.initial_fen.split()
+                board_state = parts[0]
+                side_to_move = parts[1]
+                counting_limit = int(parts[3]) if len(parts) >= 4 and parts[3].isdigit() else 0
+                counting_ply = int(parts[4]) if len(parts) >= 5 else 0
+                move_number = int(parts[5]) if len(parts) >= 6 else 0
 
-            white_pieces = sum(1 for c in board_state if c.isupper())
-            black_pieces = sum(1 for c in board_state if c.islower())
-            if counting_limit > 0 and counting_ply > 0:
-                if white_pieces <= 1 or black_pieces <= 1:
-                    # Disable manual count if either side is already down to lone king
-                    count_started = 0
-                    self.manual_count = False
-                else:
-                    last_ply = 2 * move_number - (2 if side_to_move == 'w' else 1)
-                    count_started = last_ply - counting_ply + 1
-                    if count_started < 1:
-                        # Move number is too small for the current count
+                white_pieces = sum(1 for c in board_state if c.isupper())
+                black_pieces = sum(1 for c in board_state if c.islower())
+                if counting_limit > 0 and counting_ply > 0:
+                    if white_pieces <= 1 or black_pieces <= 1:
+                        # Disable manual count if either side is already down to lone king
                         count_started = 0
                         self.manual_count = False
                     else:
-                        counting_player = self.bplayer if counting_ply % 2 == 0 else self.wplayer
-                        self.draw_offers.add(counting_player.username)
+                        last_ply = 2 * move_number - (2 if side_to_move == 'w' else 1)
+                        count_started = last_ply - counting_ply + 1
+                        if count_started < 1:
+                            # Move number is too small for the current count
+                            count_started = 0
+                            self.manual_count = False
+                        else:
+                            counting_player = self.bplayer if counting_ply % 2 == 0 else self.wplayer
+                            self.draw_offers.add(counting_player.username)
 
         if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
