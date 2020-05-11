@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 17:37+0200\n"
+"POT-Creation-Date: 2020-05-09 14:10+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -71,31 +71,31 @@ msgstr[0] ""
 
 #: ../templates/template.html:69
 msgid "Tv"
-msgstr ""
+msgstr "ทีวี"
 
 #: ../templates/template.html:70
 msgid "Current games"
-msgstr ""
+msgstr "เกมที่กำลังเล่น"
 
 #: ../templates/template.html:71
 msgid "Players"
-msgstr ""
+msgstr "ผู้เล่น"
 
 #: ../templates/template.html:72
 msgid "Editor"
-msgstr ""
+msgstr "ตั้งกระดาน"
 
 #: ../templates/template.html:73
 msgid "Learn"
-msgstr ""
+msgstr "เรียนรู้"
 
 #: ../templates/template.html:74
 msgid "About"
-msgstr ""
+msgstr "เกี่ยวกับ"
 
 #: ../templates/template.html:75
 msgid "Original PyChess site"
-msgstr ""
+msgstr "เว็บ PyChess เดิม"
 
 #: ../templates/template.html:78
 msgid "Login with Lichess"

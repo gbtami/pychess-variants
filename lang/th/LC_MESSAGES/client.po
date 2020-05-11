@@ -126,7 +126,7 @@ msgstr "ระดับ "
 
 #: ../client/analysisCtrl.ts:254
 msgid "You need an account to do that."
-msgstr "คุณต้องลงชื่อเข้าใช้"
+msgstr "จำเป็นต้องเข้าสู่ระบบ"
 
 #: ../client/analysisCtrl.ts:281
 msgid "Download game to PGN file"
@@ -178,7 +178,7 @@ msgstr "ตำแหน่งเริ่มต้น"
 
 #: ../client/chart.ts:75
 msgid "Advantage"
-msgstr ""
+msgstr "ความได้เปรียบ"
 
 #: ../client/chat.ts:24
 msgid "Spectator room"
@@ -194,11 +194,11 @@ msgstr "เข้าสู่ระบบเพื่อเริ่มแชต
 
 #: ../client/chat.ts:33
 msgid "Please be nice in the chat!"
-msgstr ""
+msgstr "กรุณาสนทนาอย่างสุภาพ"
 
 #: ../client/chat.ts:51
 msgid "Server"
-msgstr ""
+msgstr "เซิร์ฟเวอร์"
 
 #: ../client/chess.ts:41
 msgid "A game closely resembling the original Chaturanga"
