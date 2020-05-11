@@ -15,7 +15,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, i18n } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS} from './chess';
+import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isByoyomiVariant} from './chess';
 import { sound } from './sound';
 
 
@@ -123,11 +123,6 @@ class LobbyController {
             color: color });
     }
 
-    isByoyomi (variant) {
-        const lowercased = variant.toLowerCase();
-        return lowercased.endsWith('shogi') || lowercased === 'janggi' || lowercased === 'shogun';
-    }
-
     isNewSeek (variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, chess960, rated);
         // console.log(this.seeks);
@@ -176,7 +171,7 @@ class LobbyController {
         localStorage.setItem("seek_inc", e.value);
 
         e = document.getElementById('byo') as HTMLInputElement;
-        const byoyomi = this.isByoyomi(variant);
+        const byoyomi = isByoyomiVariant(variant);
         const byoyomiPeriod = (byoyomi) ? parseInt(e.value) : 0;
         localStorage.setItem("seek_byo", e.value);
 
@@ -227,7 +222,7 @@ class LobbyController {
             const variant = e.options[e.selectedIndex].value;
             const hide960 = variants960.indexOf(variant) === -1;
             const hideHandicap = variant !== 'shogi';
-            const byoyomi = this.isByoyomi(variant);
+            const byoyomi = isByoyomiVariant(variant);
 
             document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
             document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
@@ -485,7 +480,7 @@ class LobbyController {
         // console.log("VARIANTS", VARIANTS);
         var rows = seeks.map((seek) => {
             const variant = seek.variant;
-            const byoyomi = this.isByoyomi(variant);
+            const byoyomi = isByoyomiVariant(variant);
             let tooltiptext;
             if (seek["fen"]) {
                 // tooltiptext = seek["fen"];

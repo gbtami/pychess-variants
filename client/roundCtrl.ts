@@ -19,7 +19,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting } from './chess';
+import { variants, hasEp, needPockets, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isByoyomiVariant } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -41,6 +41,7 @@ export default class RoundController {
     bplayer: string;
     base: number;
     inc: number;
+    byoyomi: boolean;
     byoyomiPeriod: number;
     mycolor: Color;
     oppcolor: Color;
@@ -128,6 +129,7 @@ export default class RoundController {
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
         this.byoyomiPeriod = model["byo"] as number;
+        this.byoyomi = isByoyomiVariant(this.variant);
         this.status = model["status"] as number;
         this.tv = model["tv"];
         this.steps = [];
@@ -783,7 +785,7 @@ export default class RoundController {
         }
         const wclock = 1 - bclock
 
-        const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
+        const increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
 
         const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
         const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;

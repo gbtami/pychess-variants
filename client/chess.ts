@@ -354,6 +354,12 @@ export function hasEp(variant: string) {
     return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako' || variant === 'orda';
 }
 
+export function isByoyomiVariant(variant: string) {
+    // variant can be upper case when called from lobby!
+    const vari = variant.toLowerCase();
+    return vari === 'shogun' || vari === 'janggi' || vari.endsWith('shogi') ;
+}
+
 function diff(a: number, b:number):number {
   return Math.abs(a - b);
 }
