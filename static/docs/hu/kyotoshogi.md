@@ -1,28 +1,25 @@
-# ![Kyoto](https://github.com/gbtami/pychess-variants/blob/master/static/icons/KyotoShogi.svg) Kyoto Shogi
+# ![Kiotó sógi ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/KyotoShogi.svg) Kiotó Sógi (Kyoto Shogi)
 
-![Kyoto Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Kyoto.png)
+![ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Kyoto.png)
 
-Kyoto shogi is a shogi variant on a 5x5 board, but is quite different than standard shogi. It was invented by Tamiya Katsuya c. 1976. The main distinction is that each piece flips sides to a completely different piece with each move. Many of the piece combinations are puns relating to Kyoto. For example, the lance (kyo) is paired with the tokin (to), which makes "Kyoto."
+A *Kiotó Sógi* egy sógi variáns, melyet Tamiya Katsuya talált fel 1976 körül. A játékot 5x5-ös táblán játszák és eléggé különbözik a standard sógitól vagy a minisógitól. A legfőbb különbség az, hogy minden bábu minden lépés után átfordul a másik oldalára, ezáltal egy másik bábuvá alakul. A következő lépés után megint átfordul, így újra az előző bábuvá alakul. Minden lépés során ez a két oldal váltakozik.
 
-## Rules
+Például a lándzsás előléptett gyaloggá (tokin) fordul át. Az előbbinek az eredeti japán neve rövidítve **kyo**, míg utóbbié **to**. A két szó összetételéből adódik a játék neve is: **kyoto**, ami egyben a japán nagyváros, *Kyoto* (Kiotó) neve is. A játék neve tehát egyfajta szóviccen alapul.
 
-As this game is based off shogi, please see the corresponding guide for the piece movement rules first if you are not familiar with them.
+## Szabályok
 
-The starting setup is as above. Unlike in shogi, each piece (except the King) must flip to the other side fater moving. All pieces represent a pair of pieces. Every piece in standard shogi is used except the dragon king and dragon horse.
+Mivel ez a játék a standard sógin alapul, kérlek olvasd el a sógi útmutatót, ha még nem ismered az alapvető szabályokat.
 
-Original piece | Other side
+A kezdőállás a fenti ábrán látható. A standard sógival ellentétben a király kivételével minden bábu átfordul egy-egy lépés után. A sárkánykirály és a sárkányló kivételével minden bábu jelen van itt is, mint a standard sógiban.
+
+Kezdő bábu | Másik oldala
 --- | ---
-Tokin | Lance
-Silver | Bishop
-Gold | Knight
-Pawn | Rook
+Tokin | Lándzsás
+Ezüsttábornok | Futó
+Aranytábornok | Lovas
+Gyalog | Bástya
 
-Additional rules:
+További szabályok:
 
-- When dropping a piece, you may choose *either* side to drop.
-- You *can* move a piece such that it can't move until it's captured (this is illegal in standard shogi).
-- Reptition: Repeating the same position results in a draw.
-
-## Strategy
-
-Still being worked out -- please feel free to offer advice as you find it!
+- Amikor visszahelyezünk egy bábut a táblára, akkor választhatunk, hogy melyik oldalára fordítva kerüljön vissza.
+- Léphetünk úgy egy bábuval, hogy utána (miután átváltozik) nem lesz szabályos lépése. Például a bástyával léphetünk az utolsó sorba, majd miután gyaloggá változik, nem fog tudni lépni, csak leütni lehet. Ez a standard sógiban illegális lépés lenne.
