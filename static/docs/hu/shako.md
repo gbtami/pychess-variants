@@ -1,25 +1,25 @@
-# ![Shako](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shako.svg) Shako
+# ![Shako ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shako.svg) Shako
 
-![Shako](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shako.png)
+![Shako ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shako.png)
 
-Shako is a chess variant created by Jean-Louis Cazaux. The game is played on a 10x10 board and introduces two new pieces, the cannon and elephant, which are both derived from Xiangqi (Chinese chess). In his own words:
+A Shako egy sakkvariáns, melyet Jean-Louis Cazaux tervezett meg. Ezt a játékot egy 10x10-es táblán játszák és kétféle új bábut vonultat fel: az ágyút és az elefántot, mindkettő a kínai sakkból (Xiangqi) származik.
 
-"The name Shako means Chess in Esperanto, another kind of non-conformism and utopia. The idea is to make a new game without directly disposing the large heritage of the classical game. All rules of orthodox chess are kept, and the way the pieces are placed in the opening setup allows players to follow practically all the openings used for usual chess. One new pieces are taken from Xiangqi (Chinese Chess), with the intention to bring back together the two branches of the game that went of from India either east to the Orient, and west to the Arabs. The second new piece is taken from Shatranj and mediaeval Chess in order to bridge with a prestigious past.
+A Shako eszperantó nyelven sakkot jelent. A tervezője úgy szeretett volna egy új játékot alkotni, hogy közben a klasszikus sakk örökségét is magával hordozza. A standard sakk minden szabálya itt is érvényes, és a kezdőállás is úgy van kialakítva, hogy szinte minden megszokott megnyitás továbbra is működjön.
 
-I finished to design this game in 1990. Shako has an entry in D.B.Pritchard's "The Classified Encyclopedia of Chess Variants" (2007)."
+A játék megtervezése 1990-ben fejeződött be és 2007-ben a D.B. Pritchard által szerkesztett Sakkváltozatok enciklopédiájába is bekerült.
 
-## Rules
+## Szabályok
 
-The rules are essentially the same as chess, but with two new pieces, the elephant and cannon. Because of the 10x10 board, pawns promote at the 10th rank, and they may also promote to an elephant or cannon if desired.
+A szabályok alapvetően ugyanazok, mint a standard sakkban. Mivel a játékot 10x10-es táblán játszák, ezért a gyalogot a 10. sorban lehet előléptetni (akár elefánttá vagy ágyúvá is).
 
-### Elephant
+### Elefánt
 
-![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShakoElephant.png)
+![Elefánt ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShakoElephant.png)
 
-The elephant is similar to the one in xiangqi. However, there is a significant difference. While the xiangqi elephant can only move exactly two spaces diagonally, the Shako elephant can move one or two spaces diagonally. In addition, it can leap over the first diagonal spot like a knight can leap over pieces. While there is less range than a bishop, the ability to leap gives it a little more flexibility.
+Az elefánt hasonló, mint a kínai sakkban, de van egy jelentős különbség: a shako elefántja egy vagy két mezőt is léphet átlósan (míg a kínai sakk elefántja csak kettőt). Továbbá az első átlós mezőt képes átugrani. A futónál ugyan kisebb távot képes mozogni, az ugrási képessége azonban hasznos lehet a játszma során.
 
-### Cannon
+### Ágyú
 
-![Cannon](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Cannon.png)
+![Ágyú ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Cannon.png)
 
-The cannon functions exactly like it does in Xiangqi. When moving, it moves exaclty like a rook. However, when attacking, it needs to jump over a piece (a "screen") to attack the next piece beyond. In Shako, the cannon is one of the weakest pieces. However, it can be a very tricky piece that can be used in a variety situations. Because of its need to use other pieces to attack, the cannon is very weak in the endgame.
+Az ágyú ugyanúgy működik, mint a kínai sakkban: úgy mozog, mint a bástya (függőlegesen vagy vízszintesen akárhány mezőt), viszont ütni csak úgy tud, ha van egy köztes bábu, amit közben "átugorik". Mivel erre a köztes bábura minden ütéshez szüksége van, ezért az ágyú az egyik leggyengébb egység a Shakoban, főleg a végjátékban. Ugyanakkor nagyon trükkös helyzeteket lehet vele teremteni, amire érdemes odafigyelni.
