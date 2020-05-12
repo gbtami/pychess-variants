@@ -1,16 +1,16 @@
 
-# ![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/minishogi.svg) Minishogi
+# ![Minisógi ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/minishogi.svg) Minisógi (Minishogi)
 
-![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Minishogi.png)
+![Minisógi ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Minishogi.png)
 
-Minishogi is essentially shogi on a 5x5 board. The game was invented (or rediscovered) around 1970 by Shigenobu Kusumoto of Osaka, Japan.
+A Minisógi alapvetően a standard (9x9-es) sógi kisebb változata, melyet 5x5-ös táblán játszanak. A játékot 1970 körül találta fel (vagy fedezte fel újra) a japán Shigenobu Kusumoto.
 
-## Rules
+## Szabályok
 
-As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
+Mivel a minisógi a standard sógin alapul, kérlek olvasd el a sógi útmutatót, ha még nem ismered az alapvető szabályokat.
 
-The starting setup is as above. Unlike standard shogi, there is no knight or lance. There is only one pawn, a bishhop and rook, and one of each general. Promotion is only done in the last rank. 
+A kezdőállás a fenti ábrán látható. A standard sógival ellentétben itt nincs lovas és lándzsás. Csak egy gyalog, egy futó, egy bástya, egy ezüsttábornok és egy aranytábornok (és természetesen a király). Bábukat előléptetni csak az utolsó sorban lehet.
 
-## Strategy
+## Stratégia
 
-Due to the smaller board size, the rook and bishop are not as dominant as standard shogi. However, their promotions are still very much threatening.
+A kisebb táblaméret miatt a bástya és a futó itt nem annyira domináns, mint a standard sógiban. Azonban előléptetéssel itt is nagyon veszélyessé válnak.
