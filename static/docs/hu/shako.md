@@ -22,4 +22,4 @@ Az elefánt hasonló, mint a kínai sakkban, de van egy jelentős különbség: 
 
 ![Ágyú ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Cannon.png)
 
-Az ágyú ugyanúgy működik, mint a kínai sakkban: úgy mozog, mint a bástya (függőlegesen vagy vízszintesen akárhány mezőt), viszont ütni csak úgy tud, ha van egy köztes bábu, amit közben "átugorik". Mivel erre a köztes bábura minden ütéshez szüksége van, ezért az ágyú az egyik leggyengébb egység a Shakoban, főleg a végjátékban. Ugyanakkor nagyon trükkös helyzeteket lehet vele teremteni, amire érdemes odafigyelni.
+Az ágyú ugyanúgy működik, mint a kínai sakkban: úgy mozog, mint a bástya (függőlegesen vagy vízszintesen akárhány mezőt), viszont ütni csak úgy tud, ha van egy köztes bábu, amit közben "átugrik". Mivel erre a köztes bábura minden ütéshez szüksége van, ezért az ágyú az egyik leggyengébb egység a Shakoban, főleg a végjátékban. Ugyanakkor nagyon trükkös helyzeteket lehet vele teremteni, amire érdemes odafigyelni.
