@@ -3,13 +3,17 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
+# Translators:
+# Ignacio Poggi <ignaciop.3@gmail.com>, 2020
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 00:48+0200\n"
+"POT-Creation-Date: 2020-05-09 14:10+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Ignacio Poggi <ignaciop.3@gmail.com>, 2020\n"
 "Language-Team: Spanish (https://www.transifex.com/gbtami/teams/14790/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,93 +24,98 @@ msgstr ""
 
 #: ../templates/404.html:19
 msgid "404 GAME NOT FOUND"
-msgstr ""
+msgstr "404 PARTIDA NO ENCONTRADA"
 
 #: ../templates/404.html:21
 msgid "Sorry, but not all games saved on PyChess-Variants server."
 msgstr ""
+"Lo siento, pero no todas las partidas están guardadas en el servidor "
+"PyChess-Variants."
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
 msgstr ""
+"Es posible que haya sido abandonada o detenida antes del tercer movimiento."
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
-msgstr ""
+msgstr "Volver a la página principal"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr ""
+msgstr "Esta cuenta está cerrada."
 
 #: ../templates/patron.html:8
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
+"Como sabe, pychess-variants es un servidor gratuito y permanecerá así por siempre. Sin embargo, el mantenimiento y las mejoras del servidor cuestan tiempo y dinero.\n"
+"Si está satisfecho con nuestro trabajo y considera que nuestro servidor es útil, puede hacer una donación a través de Patreon o PayPal."
 
 #: ../templates/players.html:8
 msgid "Online"
-msgstr ""
+msgstr "En línea"
 
 #: ../templates/players.html:27
 msgid "Anonymous"
-msgstr ""
+msgstr "Anónimo"
 
 #: ../templates/players.html:34
 msgid "All players"
-msgstr ""
+msgstr "Todos los jugadores"
 
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)spartida"
+msgstr[1] "%(count)spartidas"
 
 #: ../templates/template.html:69
 msgid "Tv"
-msgstr ""
+msgstr "Tv"
 
 #: ../templates/template.html:70
 msgid "Current games"
-msgstr ""
+msgstr "Partidas actuales"
 
 #: ../templates/template.html:71
 msgid "Players"
-msgstr ""
+msgstr "Jugadores"
 
 #: ../templates/template.html:72
 msgid "Editor"
-msgstr ""
+msgstr "Editor"
 
 #: ../templates/template.html:73
 msgid "Learn"
-msgstr ""
+msgstr "Aprender"
 
 #: ../templates/template.html:74
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 #: ../templates/template.html:75
 msgid "Original PyChess site"
-msgstr ""
+msgstr "Sitio original de PyChess"
 
 #: ../templates/template.html:78
 msgid "Login with Lichess"
-msgstr ""
+msgstr "Iniciar sesión con Lichess"
 
 #: ../templates/template.html:78
 msgid "Log in"
-msgstr ""
+msgstr "Iniciar sesión"
 
 #: ../templates/template.html:80
 msgid "Log out"
-msgstr ""
+msgstr "Cerrar sesión"
 
 #: ../templates/template.html:91
 msgid "Toggle sound"
-msgstr ""
+msgstr "Habilitar sonido"
 
 #: ../templates/template.html:92
 msgid "Toggle dark mode"
-msgstr ""
+msgstr "Habilitar modo oscuro"
