@@ -2,24 +2,24 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-A sógi ((将棋), avagy a japán sakk egy klasszikus táblajáték, mely Japánban őshonos és a [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk. Modern formájában körülbelül a 16. századtól van jelen. A játék nagyon népszerű Japánban, ahol többen játszák, mint a nyugati sakkot, és ahol professzionális játékosok száma is virágzó. A játék maga egyszerre hasonló és nagyon más is, mint a nyugati sakk, aztáltal, hogy a leültött bábukat vissza lehet helyezni a táblára.
+A sógi ((将棋), avagy a japán sakk egy klasszikus táblajáték, mely Japánban őshonos és a [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk. Modern formájában körülbelül a 16. századtól van jelen. A játék nagyon népszerű Japánban, ahol többen játszák, mint a nyugati sakkot, és a professzionális sógi is virágzó. A játék maga egyszerre hasonló és nagyon más is, mint a nyugati sakk, aztáltal, hogy a leültött bábukat vissza lehet helyezni a táblára.
 
 ## Miért érdemes megtanulni sógizni?
 
-Ha élvezed a sakkot, akkor a sógit határozottan megéri kipróbálni. Miközben egy kicsit lassabb tempójú és hosszabbra nyúló játék, mint a sakk, a sógi dinamikusabb és a komplexebb, egészen másféle élményt nyújt. A sógi a sakk és a go között helyezkedik el komplexitás tekintetében, de ne hagyd, hogy ez elriasszon. Ahogyan más sakkvariánsok esetében is, a sógiban szerzett tapasztalat is segíthet fejleszteni a képességeidet a sakkban, és egyben új gondolkodásmódokat is megnyithat számodra. [Erről többet itt olvashatsz angol nyelven.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
+Ha élvezed a sakkot, akkor a sógit határozottan megéri kipróbálni. Miközben egy kicsit lassabb tempójú és hosszabbra nyúló játék, mint a sakk, a sógi dinamikusabb és a komplexebb, egészen másféle élményt nyújt. A sógi a sakk és a go között helyezkedik el komplexitás tekintetében, de ne hagyd, hogy ez elriasszon. Ahogyan más sakkvariánsok esetében is, a sógiban szerzett tapasztalat is segíthet fejleszteni a képességeidet a sakkban, és egyben új gondolkodásmódot is adhat. [Erről többet itt olvashatsz angol nyelven.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
 
 
 ## Szabályok
 
 A szabályok hasonlóak a sakkhoz, így ez az útmutató a különbségekre fókuszál. A sógit egy 9x9-es táblán játszák. A játékosok felváltva lépnek, a cél itt is az ellenfél királyának mattolása. A sakkal ellentétben a "sötét" játékos (melynek neve *sente* (ejtsd: szente) 先手 , első játékos) lép először, aztán a "világos" játékos (melynek neve *gote* 後手 , második játékos). A színek itt csak jelzésértékűek, nem a bábuk valódi színét tűkrözik.
 
-Jelentős különbség a sakkhoz képest, de hasonló a Crazyhouse variánshoz, hogy a leütött bábukat vissza lehet helyezni a táblára egy-egy lépés helyett. Vannak behozási szabályok (különösen a gyalogok esetében, amiről később lesz szó), de általánosságban elmondható, hogy bárhova el lehet helyezni a bábukat. Továbbá, szinte minden bábut elő lehet léptetni. A bábuk akkor léptethetők elő, amikor elérik az előléptetési zónát (az ellenfél utolsó három sora), vagy már ebben a zónában/zónából lépnek. A bábu ekkor átfordul (az előléptetett felét mutatva). A leütött bábuk az eredeti (nem előléptetett) formájukban kerülnek a játékoshoz, illetve így is helyezhetők vissza a táblára.
+Jelentős különbség a sakkhoz képest, de hasonló a Crazyhouse variánshoz, hogy a leütött bábukat vissza lehet helyezni a táblára egy-egy lépés helyett. Vannak behozási szabályok (különösen a gyalogok esetében, amiről később lesz szó), de általánosságban elmondható, hogy bárhova el lehet helyezni a bábukat. Továbbá, szinte minden bábut elő lehet léptetni. A bábuk akkor léptethetők elő, amikor elérik az előléptetési zónát (az utolsó három sort), vagy már ebben a zónában/zónából lépnek. A bábu ekkor átfordul (az előléptetett felét mutatva). A leütött bábuk az eredeti (nem előléptetett) formájukban kerülnek a játékoshoz, illetve így is helyezhetők vissza a táblára.
 
 ## Bábuk
 
-Ez az útmutató a nemzetközi bábukészleten alapul. A tradicionális készletek a kínaiktól átvett írásjegyeket, azaz "kanji"-kat használnak, és a bábukészletek vagy 2 kanjival, vagy rövidített formában 1 kanjival vannak ellátva. Jelenleg a kanjik ismerete szükséges ahhoz, hogy minden angol nyelvű forrást fel tudj használni a tanuláshoz. (Megjegyzés: ezek legtöbbje magyar nyelven nem is elérhető).
+Ez az útmutató a nemzetközi bábukészleten alapul. A tradicionális készletek a kínaiktól átvett írásjegyeket, azaz kandzsikat használnak, és a bábukészletek vagy 2 kandzsival, vagy rövidített formában 1 kandzsival vannak ellátva. Jelenleg a kandzsik ismerete szükséges ahhoz, hogy minden angol nyelvű forrást fel tudj használni a tanuláshoz. (Megjegyzés: ezek legtöbbje magyar nyelven nem is elérhető).
 
-Általánosságban elmondható, hogy a sógibábuk sokkal korlátozottabbak, mint a sakkbábuk. A könnyűtisztek inkább előrefelé mozognak és hátrafelé nem annyira.
+Általánosságban elmondható, hogy a sógibábuk mozgása sokkal korlátozottabb, mint a sakkbábuké. A könnyűtisztek inkább előrefelé mozoghatnak, hátrafelé sokkal kevésbé.
 
 Az előléptetett bábukat a legtöbb készlet pirossal különbözteti meg (többek között az ezen az oldalon használtak is). Két alapvető szabály van, ami segít abban, hogy a bábuk megtanulása sokkal könnyebb legyen. A gyalogok és a könnyűtisztek aranytábornokká lépnek elő. Ebből következik, hogy az aranytábornok már nem léptethető elő. A nehéztisztek (a bástya és a futó) a király lépéslehetőségeit is megkapják előléptetés után (az eredeti lépéseinken felül). A király természetesen nem léptethető elő.
 
@@ -32,9 +32,9 @@ Az előléptetett bábukat a legtöbb készlet pirossal különbözteti meg (tö
 
 ![KingDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/King.png)
 
-A király pontosan ugyanúgy lép, mint a sakkban: egy lépés bármelyik irányba. A kanji készleteknél a "vonással" jelölt király az "alacsonyabb rangú játékos" királya (玉將 gyokushō), a sötét játékosé. A "vonás" nélküli király a "magasabb rangú játékos" királya, a világos játékosé.
+A király pontosan ugyanúgy lép, mint a sakkban: egy lépés bármelyik irányba. A kandzsi készleteknél a "vonással" jelölt király az "alacsonyabb rangú játékos" királya (玉將 gyokushō), a sötét játékosé. A "vonás" nélküli király a "magasabb rangú játékos" királya, a világos játékosé.
 
-A nemzetközi készletben ez az egyetlen bábu, amely megtartotta az eredeti, kanjival jelzett formáját. Ebben a készletben a "sötét" játékos bábuja sötét, a "világos" játékos bábuja pedig világos hátterű. A famintázatú készletben ennek megfelelően egy sötés vagy világos vonal látható a 王 kanji alatt.
+A nemzetközi készletben ez az egyetlen bábu, amely megtartotta az eredeti, kandzsival jelzett formáját. Ebben a készletben a "sötét" játékos bábuja sötét, a "világos" játékos bábuja pedig világos hátterű. A famintázatú készletben ennek megfelelően egy sötés vagy világos vonal látható a 王 kandzsi alatt.
 
 ### Bástya (Szekér)
 
@@ -42,7 +42,7 @@ A nemzetközi készletben ez az egyetlen bábu, amely megtartotta az eredeti, ka
 
 ![RookDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rook.png)
 
-A bástya pontosan ugyanúgy mozog, mint a sakkban: tetszőleges számú mezőt függőlegesen vagy vízszintesen. A nemzetközi bábu egy szekért ábrázol, ami a bábu eredeti japán nevére utal: "égi szekér". Ez a legértékesebb alapbábu a királyt leszámítva.
+A bástya pontosan ugyanúgy mozog, mint a sakkban: tetszőleges számú mezőt függőlegesen vagy vízszintesen. A nemzetközi bábu egy szekeret ábrázol, ami a bábu eredeti japán nevére utal: "égi szekér". Ez a legértékesebb alapbábu a királyt leszámítva.
 
 ### Futó
 
@@ -77,7 +77,7 @@ Megjegyzés: A sakkban a huszárt szokták lónak is nevezni, de a sógiban a l�
 
 ![GoldDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Gold.png)
 
-Az aranytábornok lépései zavarosnak tűnhetnek elsőre, talán a legkönnyebb úgy megjegyezni, hogy egyet léphet vízsintesen vagy függőlegesen, vagy átlósan előre egyet. A nemzetközi készletben a sisak hegyes részei (és az aranyszínű kör a sisak tetején) a lehetséges lépések irányát szimbolizálják.
+Az aranytábornok lépései szokatlannak tűnhetnek elsőre. Talán a legkönnyebb úgy megjegyezni, hogy egyet léphet vízsintesen vagy függőlegesen, vagy átlósan előre egyet. A nemzetközi készletben a sisak hegyes részei (és az aranyszínű kör a sisak tetején) a lehetséges lépések irányait szimbolizálják.
 
 **Minden alapbábu (a bástya és a futó kivételével) aranytábornokká lép elő.**
 
@@ -87,7 +87,7 @@ Az aranytábornok lépései zavarosnak tűnhetnek elsőre, talán a legkönnyebb
 
 ![SilverDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silver.png)
 
-Az ezüsttábornok lépései zavarosnak tűnhetnek elsőre, talán a legkönnyebb úgy megjegyezni, hogy egyet léphet átlósan, vagy egyet előre. A nemzetközi készletben a sisak élei a lehetséges lépések irányát szimbolizálják.
+Az ezüsttábornok lépései szokatlannak tűnhetnek elsőre. Talán a legkönnyebb úgy megjegyezni, hogy egyet léphet átlósan, vagy egyet előre. A nemzetközi készletben a sisak élei a lehetséges lépések irányait szimbolizálják.
 
 ### Lovas
 
@@ -135,11 +135,11 @@ A sárkánykirályt és a sárkánylovat leszámítva csak az előléptetett gya
 2) Behozott gyaloggal nem lehet mattod adni, de sakk adható.
 3) Nem helyezhető vissza bábu olyan mezőre, ahonnan utána nem lenne szabályos lépése. Ez általában az utolsó sort jelenti, vagy az utolsó kettőt a lovas esetében.
 
-*Örökös sakk*: Ha négyszer megismétlődik a játékállás és ezáltal a sakkadás, akkor a folyamatosan sakkot adó játékos veszít.
+*Örökös sakk*: Ha négyszer megismétlődik az állás és ezáltal a sakkadás, akkor a folyamatosan sakkot adó játékos veszít.
 
-*Lépésismétlés*: Hasonlóan az előzőhöz, ha négyszer megismétlődik ugyanaz az állás (beleértve a leütött, azaz kézben lévő bábukat is), akkor döntetlennel véget ér a játék.
+*Lépésismétlés*: Hasonlóan az előzőhöz, ha négyszer megismétlődik ugyanaz az állás (beleértve a leütött, azaz kézben lévő bábukat is), akkor döntetlennel ér véget a játék.
 
-*Byo-yomi*: A sógiban úgynevezett byo-yomi ("másodperc olvasás") is része az időmérésnek. Amikor egy játékos ideje letelik, akkor következik a byo-yomi, azaz onnantól mindig egy fixen meghatározott ideje marad egy-egy lépésre (pl. 30 másodperc). Ha lép, akkor ez az idő újra rendelkezésre áll majd a következő lépésben, ha kifut az időből, akkor elveszíti a játszmát.
+*Időmérés*: A sógiban úgynevezett bjójomi (byo-yomi) ("másodperc olvasás") is része az időmérésnek. Amikor egy játékos ideje letelik, akkor következik a bjójomi, azaz onnantól mindig egy fixen meghatározott ideje marad egy-egy lépésre (pl. 30 másodperc). Ha lép, akkor ez az idő újra rendelkezésre áll majd a következő lépésben, ha kifut az időből, akkor elveszíti a játszmát.
 
 ### Játszmajegyzés és koordináták
 
@@ -180,17 +180,17 @@ P = gyalog
 
 ## Források a sógi megtanulásához
 
-[YouTube: Hidetchi](https://www.youtube.com/playlist?list=PL587865CAE59EB84A): kiváló csatorna kezdőknek és haladóknak egyaránt. Angol nyelvű, de részletes magyarázatokkal szolgál. A kanjis bábukat ismerni kell a videók megértéséhez, de azokat is bemutatja a kezdőknek szóló videókban.
+[YouTube: Hidetchi](https://www.youtube.com/playlist?list=PL587865CAE59EB84A): kiváló csatorna kezdőknek és haladóknak egyaránt. Angol nyelvű, de részletes magyarázatokkal szolgál. A kandzsis bábukat ismerni kell a videók megértéséhez, de azokat is bemutatja a kezdőknek szóló videókban.
 
 [Youtube: Shogi Harbour](https://www.youtube.com/channel/UCRnXG7CkKfEN6IINKcO_uBg/videos): Karolina Styczyńska, egy Japánban élő lengyel profi játékos csatornája. Weboldala a [shogi.pl](http://www.shogi.pl)
 
-[81dojo.com](http://www.81dojo.com) az egyik legnagyobb sógis oldal, ahol tapasztaltabb játékosok ellen játhatsz a világ minden tájáról. Gép elleni, illetve "levelező" játékra nincs lehetőség.
+[81dojo.com](http://www.81dojo.com) az egyik legnagyobb sógi oldal, ahol tapasztaltabb játékosok ellen játhatsz a világ minden tájáról. Gép elleni, illetve "levelező" játékra nincs lehetőség.
 
 ## Stratégia
 
 ### A bábuk értéke
 
-A bábuknak nincs egy "standard" értéke, mint a sakkban. Érdemes azt is megjegyezni, hogy ezek az értékek nem annyira fontosak, hiszen a leütött bábuk visszahozhatók a játszmába és a jól kialakított helyzet sokkal fontosabb lehet. Ennek ellenére van egy alap értékrendszer, de a profi játékosok is kialakították a saját értékrendszerűket. Az alábbiakban Kōji Tanigawa és Yasumitsu Satoh értéktáblázata látható.
+A bábuknak nincs egy "standard" értéke, mint a sakkban. Érdemes azt is megjegyezni, hogy ezek az értékek nem annyira fontosak, hiszen a leütött bábuk visszahozhatók a játszmába és a jól felépített állás sokkal fontosabb lehet. Ennek ellenére van egy alap értékrendszer, de a profi játékosok is kialakították a saját értékrendszerűket. Az alábbiakban Kōji Tanigawa és Yasumitsu Satoh értéktáblázata látható.
 
 
 Bábu | Alap | Tanigawa | Satoh 
@@ -292,7 +292,7 @@ Nem egyfajta védelem, hanem egy statikus bástya megnyitás (ami ellen védekez
 
 A hendikep fontos része a tanításnak és nem úgy kell rá tekinteni, mintha egy játékos könyörületet tanusítana ellenfele irányába. Nagyszerű módja a játék megtanulásának és vannak a "standard" stratégiák is a kölönböző hendikep játszmákra.
 
-Míg normál esetben a "sötét" játékos (*sente*) lép először, a hendikepes játszmákban a "világos" játékos lép elsőnek. A hendikep ellenére a matériakülönbség kiküszöbölhető a behozási szabály miatt.
+Míg normál esetben a "sötét" játékos (*sente*) lép először, a hendikepes játszmákban a "világos" játékos lép elsőnek. A hendikep ellenére az anyag miatti különbség kiküszöbölhető a behozási szabály miatt.
 
 A leggyakoribb hendikepek:
 
