@@ -1,15 +1,11 @@
-# ![Makpong](https://github.com/gbtami/pychess-variants/blob/master/static/icons/makpong.svg) Makpong
+# ![Makpong ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/makpong.svg) Makpong
 
-![Makpong Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
+![Makpong tábla](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-Makpong is a variant of Makruk (Thai chess) designed to reduce draws. It is played in Makruk single elimination tournaments in Thailand to decide a winner after a certain number of Makruk games have been drawn.
+A makpong a makruk (thai sakk) egy változata, melyet azért terveztek, hogy csökkentsék a döntetlen játszmák számát. Thaiföldön az egyenes kieséses rendszerű makruk bajnokságokban alkalmazzák, hogy győztest hirdethessenek egy bizonyos számú döntetlen játszma után.
 
-If you are not familiar with the rules of Makruk, please see that first.
+Ha nem ismered a makruk szabályait, kérlek előbb olvasd el az arról szóló leírást.
 
-## Rules
+## Szabályok
 
-The only difference from Makruk is as follows:
-
-* The king may not move away from check
-
-There were generally three ways to answer a check: move the king away, block with another piece, or capture the attacker. In Makpong, you are not allowed to move away from check, so you can only answer it by blocking the check or capturing the attacker. You are allowed to capture the attacker with the king, provided that it is legal to do so.
+Az egyetlen különbség a makrukhoz képest, hogy **a király nem léphet ki a sakkból**. A sakkot adó bábut csak blokkolni vagy leütni lehet (a király is ütheti).
