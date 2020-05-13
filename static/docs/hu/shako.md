@@ -4,7 +4,7 @@
 
 A Shako egy sakkvariáns, melyet Jean-Louis Cazaux tervezett meg. Ezt a játékot egy 10x10-es táblán játszák és kétféle új bábut vonultat fel: az ágyút és az elefántot, mindkettő a kínai sakkból (Xiangqi) származik.
 
-A Shako eszperantó nyelven sakkot jelent. A tervezője úgy szeretett volna egy új játékot alkotni, hogy közben a klasszikus sakk örökségét is magával hordozza. A standard sakk minden szabálya itt is érvényes, és a kezdőállás is úgy van kialakítva, hogy szinte minden megszokott megnyitás továbbra is működjön.
+A Shako eszperantó nyelven sakkot jelent. A tervezője úgy szeretett volna egy új játékot alkotni, hogy közben a klasszikus sakk örökségét is megőrizze. A standard sakk minden szabálya itt is érvényes, és a kezdőállás is úgy van kialakítva, hogy szinte minden megszokott megnyitás továbbra is működjön.
 
 A játék megtervezése 1990-ben fejeződött be és 2007-ben a D.B. Pritchard által szerkesztett Sakkváltozatok enciklopédiájába is bekerült.
 
