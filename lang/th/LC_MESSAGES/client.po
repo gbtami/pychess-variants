@@ -122,7 +122,7 @@ msgstr "กำลังเล่นอยู่"
 #: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
 #: ../client/profile.ts:121 ../client/profile.ts:131
 msgid " level "
-msgstr "ระดับ "
+msgstr " ระดับ "
 
 #: ../client/analysisCtrl.ts:254
 msgid "You need an account to do that."
@@ -166,7 +166,7 @@ msgstr "ความลึก"
 
 #: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1094
 msgid "Spectators: "
-msgstr "ผู้ชม:"
+msgstr "ผู้ชม: "
 
 #: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1155
 msgid "Requested game %1 not found!"
@@ -407,7 +407,7 @@ msgstr "ใส่ FEN ตำแหน่งเริ่มต้นที่น�
 
 #: ../client/lobby.ts:347
 msgid "Handicap"
-msgstr "ลดตัวหมาก"
+msgstr "ต่อหมาก"
 
 #: ../client/lobby.ts:358
 msgid "Minutes per side:"
@@ -558,7 +558,7 @@ msgstr "หน้าบัญชี lichess"
 
 #: ../client/profile.ts:230
 msgid "Export games"
-msgstr "ส่งออกเกม"
+msgstr "บันทึกไฟล์เกม"
 
 #: ../client/profile.ts:233
 msgid "Watch games"
@@ -599,16 +599,16 @@ msgstr "ต้องการยอมแพ้จริงหรือไม่
 
 #: ../client/roundCtrl.ts:419
 msgid "Blue (Cho)"
-msgstr "ฝ่ายน้ำเงิน (โช) "
+msgstr "น้ำเงิน (โช) "
 
 #: ../client/roundCtrl.ts:419
 msgid "Red (Han)"
-msgstr "ฝ่ายแดง (ฮัน) "
+msgstr "แดง (ฮัน) "
 
 #: ../client/roundCtrl.ts:420
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr "กำลังรอให้%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง..."
+msgstr "กำลังรอให้ฝ่าย%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง..."
 
 #: ../client/roundCtrl.ts:454 ../client/roundCtrl.ts:456
 msgid "Switch pieces"

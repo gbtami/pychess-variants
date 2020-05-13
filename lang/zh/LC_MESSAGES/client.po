@@ -389,11 +389,11 @@ msgstr "棋类"
 
 #: ../client/lobby.ts:248
 msgid "Byoyomi in seconds:"
-msgstr "读秒额："
+msgstr "读秒："
 
 #: ../client/lobby.ts:248
 msgid "Increment in seconds:"
-msgstr "每步加秒额："
+msgstr "每步加时（秒）："
 
 #: ../client/lobby.ts:322
 msgid "Cancel"
