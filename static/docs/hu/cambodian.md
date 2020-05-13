@@ -1,16 +1,16 @@
-# ![Cambodian](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) Cambodian Chess (Ok, Ouk Chatrang)
+# ![Kambodzsai sakk ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) Kambodzsai sakk (Cambodian Chess, Ok, Ouk Chatrang)
 
-![Cambodian Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
+![Kambodzsai sakk ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-Cambodian chess, also known as "Ok" (Khmer: អុក) or "Ouk Chatrang" is a variant of Makruk (Thai chess) played in Cambodia.
+A kambodzsai sakk, másnéven "*Ok*" (khmer nyelven: អុក) vagy "*Ouk Chatrang*" a makruk (thai sakk) egy változata, melyet Kambodzsában játszanak.
 
-If you are not familiar with the rules of Makruk, please see that first.
+Ha nem ismered a makruk szabályait, kérlek előbb olvasd el az arról szóló leírást.
 
-## Rules
+## Szabályok
 
-The only differences from Makruk are as follows:
+Ezekben az apró különbségekben tér el a makruktól:
 
-If no pieces have been captured, the players have the options:
+Ha még egy bábu sem került leütésre, akkor az alábbi lehetőségei vannak a játékosnak:
 
-* on the king's first move, and only if not in check, of moving the king like a knight; and
-* on the queen's first move, of moving the queen two squares straight ahead
+* a király első lépésében (ha nincs sakkban) két távolabbi mezőre is ugorhat: világosként *b2*-re vagy *f2*-re, sötétként *c2-re* vagy *g2-re*.
+* a vezér első lépésében kettőt léphet előre
