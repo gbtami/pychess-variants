@@ -237,7 +237,7 @@ async def index(request):
         render["icons"] = VARIANT_ICONS
         # variant None indicates intro.md
         if lang == "hu":
-            locale = ".%s" % lang if variant in (None, "shogi") else ""
+            locale = ".hu"
         elif lang == "zh" or lang == "fr":
             locale = ".%s" % lang if variant in (None,) else ""
         else:
