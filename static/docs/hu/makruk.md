@@ -83,8 +83,8 @@ Miután a számolás a fentiek alapján megkezdődött, a maximális lépések s
 
 A játék tempója lassúnak mondható, a legtöbb bábu csak egy mezőt tud lépni valamilyen irányba. Érdemes a bábukat csoportokba szervezni és úgy mozgatni őket, hogy kölcsönös támogatást nyújtsanak egymásnak. Nem érdemes egy időben több frontot megnyitni. A kulcs a megfelelő koordináció.
 
-## Taktikák
+## Taktika
 
-Egyedül a bástya képes kötést kialakítani. A taktikák többi része a kettős támadásokból (villa) áll.
+Egyedül a bástya képes kötést létrehozni. Ezen kívül leginkább a kettős támadás (villa) fordul még elő.
 
 Amikor az egyik oldalnak már csak egy királya marad, akkor az életbe lépő számlálási szabályok nyomás alá helyezik a támadó oldalt. A vesztésre álló játékost ez arra ösztönzi, hogy végigjátssza a játékot, ahelyett, hogy feladná. Ezért fontos, hogy minden alapvető mattolási módszert megtanuljunk az egyedüli királlyal szemben.
