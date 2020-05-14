@@ -2,15 +2,15 @@
 
 ![Cambodian Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-Cambodian chess, also known as "Ok" (Khmer: អុក) or "Ouk Chatrang" is a variant of Makruk (Thai chess) played in Cambodia.
+Cambodian chess, também conhecido como "Ok" (Khmer: អុក) ou "Ouk Chatrang" é uma variante de Makruk (Xadrez Tailandês) jogada na Cambodia.
 
-If you are not familiar with the rules of Makruk, please see that first.
+Se não conhece as regras de Makruk, por favor leia-as primeiro.
 
-## Rules
+## Regras
 
-The only differences from Makruk are as follows:
+As únicas diferenças entre o Cambodian Chess e o Makruk são as seguintes:
 
-If no pieces have been captured, the players have the options:
+Se não forem capturadas nenhumas peças, os jogadores têm as seguintes opções:
 
-* on the king's first move, and only if not in check, of moving the king like a knight; and
-* on the queen's first move, of moving the queen two squares straight ahead
+* na primeira jogada do Rei, e apenas se não estiver em cheque, movê-lo como um cavalo; e
+* na primeira jogada da Dama, movê-la duas casas em frente
