@@ -2,167 +2,166 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
 
-*Janggi* (장기, pronounced like “*jahng-ghee*”), or Korean Chess, is a classic board game native to Korea. The game is derived from Xiangqi and is very similar to it.
+*Janggi* (장기, pronounced like “*jahng-ghee*”), ou Xadrez Coreano, é um jogo de tabuleiro clássico proveniente da Coreira. Este jogo é derivado do Xiangqi e é extremamente semelhante a este.
 
-## Rules: Board and Setup
+## Regras: Tabuleiro e Configuração
 
-There are two sides, one is colored red (called Han), and the other blue (called Cho). The blue side can also be colored green. These two sides represent the two sides in the Chu-Han Contention from Chinese history. Red pieces are written using Chinese characters (hanja), while blue pieces are written in cursive-style hanja.
+Existem dois lados, um tem a cor vermelho (denominado Han) e o outro a cor azul (denominado Cho). O lado azul pode ser também verde. Ambos os lados correspondem aos dois lados da Contenção de Chu-Han da História da China. As peças vermelhas são escritas usando caracteres chineses (hanja), ao passo que as peças azuis são escritas em estilo-cursivo hanja. 
 
-Setup for all pieces except for the horse and elephant are as in the picture above. Like xiangqi, janggi is placed on a 9 x 10 board, where pieces are placed on intersections rather than squares. The 3x3 square with the X on each side is called the *Palace*. Unlike in most other chess variants, in janggi, players can choose the starting positions of the horses and elephants. There are four types to choose from:
+A configuração de todas as peças com a exceção do cavalo e do elefante são descritas na figura acima. Como no Xiangqi, o Janggi é feito num tabuleiro de 9x10, onde as peças são colocadas em interseções ao invés de casas. A casa 3x3 com um X de cada lado é chamada de *Palácio*. Ao contrário de outras variantes de Xadrez, em Janggi, os jogadores escolhem a posição inicial dos seus Cavalos e dos Elefantes. Existem quatro tipos de escolha:
 
-1. Both horses are closer to the edge (*won ang ma*)
-2. Both horses are closer to the general (*yang gwee ma*)
-3. Left inner horse, right outer horse (*gwee ma*)
-4. Left outer horse, right inner horse (*mat sang jang gi*)
+1. Ambos os cavalos começam na beira (*won ang ma*)
+2. Ambos os cavalos começam perto do general (*yang gwee ma*)
+3. Cavalo da esquerda dentro, Cavalo da direita fora (*gwee ma*)
+4. Cavalo da esquerda fora, Cavalo da esquerda dentro (*mat sang jang gi*)
 
-Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
+O lado Vermelho (Han) escolhe a sua posição primeiro, após isto o lado Azul (Cho) faz a sua escolha. No entanto, o lado Azul é quem faz o primeiro lance.
 
-## The Pieces
+## As Peças
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters (hanja), and many sites, including Wikipedia, already explain the rules as such.
+Este guia tem como base os grafismos internacionais. Tradicionalmente as peças são representadas com caracteres chineses (hanja), e em vários sites, incluindo a Wikipedia, já são explicadas as regras.
 
-Several pieces have special moves utilizing the diagonals in either palace, which will be discussed below. In the diagrams, a lighter shade of green is used.
+Algumas peças têm movimentos especiais usando as diagonais dentro de qualquer Palácio, o que vai ser referido abaixo. Nos diagramas, irá ser usado um sombreado em verde claro.
 
-### King
+### Rei
 
 ![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
 
-The **King** (also known by its Chinese name, the **general**) is restricted to the palace and can move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
+O **Rei** (também conhecido por **general** o seu nome chinês) está restringido apenas ao palácio e pode-se mover dentro das linhas do mesmo. Isto significa que, quando o Rei está no centro, este tem 8 possíveis lances. No entanto, em qualquer outro sítio dentro do Palácio, só tem 3 lances possíveis.
 
-*Special rule:* When a King faces the other King, this causes *bikjang*. The next player must then move his king out of the way or else the game is ended. See rules below regarding bikjang.
+*Regra especial:* Quando um Rei se encontra na mesma linha de fogo do outro Rei, isto é chamado de *bikjang*. O outro jogador terá então de mover o seu Rei para fora desta linha ou jogo se dará por terminado. Veja as regras abaixo que explicam o bikjang.
 
 ![King and advisor](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Palace.png)
 
-### Advisor
+### Assistente
 
 ![Advisors](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Advisors.png) 
 
-The **Advisor** (also known by its Western name, the **guard**) moves exactly like the King, which is one space along lines within the palace. Like the King, the Advisor is confined to the palace.
+O **Assistente** (também conhecido como **guarda** o seu nome ocidental) move-se exactamente como o Rei, isto é um espaço por cada linha dentro do Palácio. Tal como o Rei, o Assistente está restringido ao Palácio.
 
-### Horse
+### Cavalo
 
  ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Horses.png)
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/HorseDiagram.png)
 
-The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+O **Cavalo** move-se exatamente como o cavalo do Xadrez. No entanto em vez do pensamento normal "dois passos na ortogonal, e um para o lado", é melhor pensarmos como se fosse *um passo na ortogonal, diagonal para a frente em qualquer direção*, em forma de Y. Isto porque o Cavalo **pode ser bloqueado** se tiver uma peça adjacente a esta. Isto irá bloquear o caminho aos dois pontos finais deste Y. Caso este que pode levar a situações em que dois Cavalos se estão a atacar mutuamente, mas apenas um deles pode atacar enquanto o outro está bloqueado. Bons lances tomam partido do bloqueio do Cavalo e limitam o seu movimento. 
 
-### Elephant
+### Elefante
 
  ![Elephants](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Elephants.png)
  
  ![Elephant movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ElephantDiagram.png)
 
-The **Elephant** is much different than its xiangqi counterpart. Movement is similar to the horse in that it moves in a Y-shaped pattern. While the horse moves one step orthogonally and then one step further diagonally, the elephant moves one step orthogonally and then *two* steps diagonally. The elephant, like the horse, can be blocked on any intervening point along this path.
+O **Elefante** é muito diferente do descrito em Xiangqi. O seu movimento é semelhante ao do Cavalo pelo facto de se mover em forma de Y. Enquanto o cavalo se move um passo na ortogonal e um passo na diagonal, o elefante move-se um passo na ortogonal e após isto *dois* passos na diagonal. O Elefante, tal como o Cavalo pode ser bloqueado por qualquer peça no seu caminho.
 
-### Chariot
+### Biga
 
  ![Chariots](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Chariots.png)
  
  ![Chariot movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ChariotDiagram.png)
 
-The **Chariot** (also called by its Western name, the **rook**) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
+A **Biga** (também conhecida como **Torre** o seu nome ocidental) move-se exatamente como a torre do Xadrez: qualquer número de linhas na ortogonal. Esta é a peça mais valiosa do jogo, excluindo o Rei.
 
-*Palace move*: When in the palace, the chariot can also move along the diagonal lines.
+*Movimento no Palácio*: Dentro do palácio, a biga também se move na diagonal.
 
-### Cannon
+### Canhão
 
 ![Cannons](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Cannons.png)
 
 ![Cannon movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/CannonDiagram.png)
 
-The **Cannon** is slightly different than its xiangqi counterpart. It moves orthogonally like the chariot, but it needs an intervening piece (called a "screen") to hop over first. It can then capture the next piece along the same line. Unlike xiangqi, the Cannon cannot move without a screen.
+O **Canhão** é um bocado diferente do Xiangqi. Move-se na ortogonal como a Biga, no entanto este precisa de um interveniente (chamada a "mira") a fim de pular esta peça. Após isto, o canhão pode capturar qualquer peça que esteja nesta linha de fogo. Ao contrário do Xiangqi, o Canhão não se pode movimentar sem mira.
 
-*EXCEPTION*: The cannon cannot use another cannon as a screen. Additionally, it can't capture the opponent's cannons.
+*EXCEÇÃO*: O Canhão não pode usar qualquer outro Canhão como mira. Além disso, também não pode capturar o Canhão adversário.
 
-*Palace move*: When in the palace, the cannon can also move along the diagonal line. Practically speaking, the cannon must be on one corner, where it can move or attack the opposite corner if a non-cannon piece is in the center (as in the diagram).
+*Movimento no Palácio*: Quando está dentro do Palácio, o Canhão pode-se mover na diagonal. Basicamente, o Canhão tem de estar no canto do Palácio, onde se pode mover ou atacar o canto contrário se nenhuma peça que não seja canhão esteja no centro (como se vê no diagrama).
 
-### Pawn
+### Peão
 
 ![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Pawns.png)
 
 ![Pawn movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/PawnDiagram.png)
 
-The **Pawn** (also called by its Chinese name, the **soldier**) moves and captures by moving forward or sideways one square. This is different than the xiangqi pawn, which needed to cross the river first to move sideways.
+O **Peão** (também denominado de **soldado** o seu nome chinês) movimenta-se e captura uma casa em frente ou numa casa em cada lado. Este é diferente do Peão em Xiangqi, que necessita atravessar o Rio primeiro antes de se mover para os lados.
 
-*Palace move*: When in the palace, the pawn can also move forwards along the diagonal lines.
+*Movimento no Palácio*: Quando está dentro do palácio, o Peão também se pode mover na diagonal.
 
-## Notation
+## Notação
 
-Janggi notation works much differently than other variants. First of all, coordinate numbering. From blue's perspective, ranks are numbered from 1 to 10 going down from top to botttom. However, the 10th rank is called 0. Files are numbered 1 to 9 from left to right. Describing a piece location is the opposite of chess. A location is described by *rank* then *file* (in all other variants, it's file, then rank). So for example, the blue chariot in the bottom left corner is at **01**. The intersection above it is **91**. The blue king is located at **95**.
+A Notação em Janggi funciona de forma diferente das outras variantes. Primeiramente, os números das coordenadas. No ponto de vista do lado Azul, as linhas são numeradas de 1 a 10 decrescendo do cimo para o fundo. No entanto, a 10ª linha é denominada por 0. As colunas são numeradas de 1 a 9 da esquerda para a direita. Descrevendo o local da peça é o posto do Xadrez. A localização é descrita por *coluna* logo de seguida *linha* (em todas as outras variantes dá-se primeiramente a linha e após esta a coluna). Por exemplo, a Biga Azul no canto inferior esquerdo está em **01**. A interseção acima está em **91**. O Rei azul está localizado em **95**.
 
-Describing moves does not have a standardized international version. We use a modified version of the Korean way. In Korean, the syntax is (starting location)(piece name in Korean)(ending location). Here on Pychess, we use (English piece abbreviation)(starting location)-(ending location). Like in chess, captures are denoted with x instead of -, check has a + at the end, and checkmate is #.
+A descrição dos lances não tem uma versão internacionalizada. Nós usamos uma versão modificada do estilo Coreano. Em Coreano, a síntaxe é (localização inicial)(nome da peça em coreano)(posição final). Aqui no Pychess, nós usamos (Nome das peças em Inglês abreviadas) (localização inicial)-(localização final). Como no Xadrez, as capturas são denotadas com x em vez de -, um Xeque tem um + no fim e o Xeque-mate tem #.
 
-For example, the left chariot moving three spaces up is denoted by R01-71. "R" refers to the chariot. For piece abbreviations, see below.
+Por Exemplo, a Biga da esquerda move-se três espaços acima é denotado por R01-71, "R" refere-se à Biga. Para abreviaturas das peças, veja abaixo.
 
-### Abbreviations
+### Abreviações
 
-K = **K**ing
+K = **K**ing (Rei)
 
-A = **A**dvisor
+A = **A**dvisor (Assistente)
 
-E = **E**lephant
+E = **E**lephant (Elefante)
 
-H = **H**orse
+H = **H**orse (Cavalo)
 
-C = **C**annon
+C = **C**annon (Canhão)
 
-R = Cha**R**iot
+R = Cha**R**iot (Biga/Torre)
 
-P = **P**awn
+P = **P**awn (Peão)
 
 
 
-## Rules: Gameplay
+## Regras: Jogo
 
-Like chess, the goal is to checkmate the other king.
+Tal como o Xadrez, o objetivo principal é dar Xeque-mate ao outro Rei.
 
-Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
+Ao contrário da maior parte das variantes de Xadrez, podes passar numa jogada em Janggi. Implicando que, afogar o Rei é impossível. **Para passar no Pychess, use o control+clique em cima do seu Rei**
 
-Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not make a move to break bikjang (for example moving a king or moving a piece in between), then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
+Ao contrário do Xiangqi, os Reis podem ficar na mesma linha de fogo um do outro. Isto cria uma situação denominada de **bikjang** (tradução literal "Generais se rindo"). Se o jogador que irá jogar a seguir não quebrar o bikjang (por exemplo, movendo o Rei ou movendo uma peça entre estes), então o jogo termina em empate. Nos torneios não é permitido empate, o valor das peças é contado, e o jogador com o maior valor ganha.
 
-Piece | Value 
+Peça | Valor 
 ------------ | ------------- 
-Chariot | 13
-Cannon | 7
-Horse | 5
-Elephant | 3
-Advisor | 3
-Pawn | 2
+Biga | 13
+Canhão | 7
+Cavalo | 5
+Elefante | 3
+Assistente | 3
+Peão | 2
 
-Because blue (Cho) starts the game, they start with an advantage and thus red (Han) also receives 1.5 points (*deom*) as a compensation. The .5 is added to avoid ties.
+Pelo facto dos azuis (Cho) começarem o jogo, estes começam com vantagem e por isto os vermelhos (Han) recebem 1.5 pontos (*deom*) como compensação. O Valor 0.5 é adicionado de modo a evitar empates.
 
-Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang occurs.
+Presentemente o Pychess usa as regras de torneio e não permite empates. Daí os jogos serem decididos por pontos quando o bikjang acontece.
 
-Additionally, it's possible to cause bikjang and check at the same time. In this case, bikjang takes priority.
+Adicionalmente, é possível provocar bikjang e xeque ao mesmo tempo. Neste caso, o bikjang tem prioridade.
 
-Repetition is illegal; however, the way this is handled is variable. Repetition is not handled in Pychess, so in the event of repetition, the players should adjudicate the outcome between themselves.
+A repetição é ilegal; no entanto, a forma disto ser tratado varia de sitio para sitio. A repetição não é tratada aqui no Pychess, portanto aquando acontece repetição, os jogadores terão de adjudicar o resultado entre estes.
 
-## Differences from Xiangqi
+## Diferenças com o Xiangqi
 
-Aside from the rules above...
+Além das regras acima descritas...
 
-* There is no river in Janggi. Consequently, pawns and elephants move differently. Pawns can move sideways from the start. The Elephant moves completely differently.
-* Visually, pieces are on octagons rather than circles. Piece sizes also vary based on value. Kings (generals) are named after the two sides rather than being called "general." Boards use x's instead of crosses for starting pieces.
-* The Kings start in the middle of the palace instead of the back of the palace.
-* Cannons are different in that they both move and capture the same way (by jumping over a piece first). They also have additional restrictions.
-* The Palace affects all piece movement except the Horse and Elephant. Kings and advisors moves along the lines instead of only orthogonally or diagonally. Chariots, cannons, and pawns can move along the diagonals.
+* Não existe rio em Janggi. Consequentemente os Peões e os Elefantes movem-se de maneira diferente. Os Peões podem-se mover para o lado desde o inicio. Os Elefantes movem-se de maneira completamente diferente.
+* Visualmente, as peças são representadas em octógonos em vez de circulos. Os tamanhos das peças também são variáveis e são baseadas no seu valor. Os Reis(Generais) são denominados referentemente a cada um dos lados ao invés de serem chamados "Generais". Os tabuleiros usam X em vez de cruzes para as peças iniciais.
+* Ambos os Reis começam no meio do Palácio em vez de começarem atrás.
+* Os Canhões são diferentes da forma como se movem e capturam (pulando por cima de uma peça primeiro). Também apresentam mais restrições.
+* O Palácio afeta todos os movimentos de todas as peças com exceção do Cavalo e do Elefante. Os Reis e os Assistentes movem-se através das linhas em vez de apenas na ortogonal ou diagonal. Bigas, Canhões e Peões também se podem mover na diagonal.
 
 
+## Estratégia
 
-## Strategy
+[Estes vídeos de Amphibian Hoplite](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM) são um excelente começo em Inglês. Todos os contéudos disponibilizados em Inglês são poucos.
 
-[These videos by Amphibian Hoplite](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM) are an excellent start for English players. Available resources in English are otherwise fairly limited.
+[Aqui](https://www.youtube.com/watch?v=pX_ZDjeqlJs) está outro vídeo de Kolo (Galdian) que também explica principios na abertura.
 
-[Here](https://www.youtube.com/watch?v=pX_ZDjeqlJs) is another video by Kolo (AKA Galdian) that also goes over opening principles.
+### Conceitos Gerais
 
-### General Concepts
-
-* Pawn structure is very important. Because pawns can move sideways, they're strongest when protecting each other in pairs. A line of three pawns is a poor formation (because they're stretched out thin). Also because of this, it's not advised to advance pawns if possible.
+* A estrutura dos Peões é muito importante. Porque os peões conseguem se mover para os lados, estes são os melhores a proteger outros em pares. A linha de três peões é uma formação fraca (porque estes ficam restringidos). Por cause disto não é aconselhável avançar peões se possível.
 
 ![Bad Pawn Formations](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/BadPawns.png)
 
-* Regarding the choice of horse-elephant positioning in setup, one way to think about it is how your elephants are positioned, and this has significant implications for the opening. An elephant on the outer position is able to move into towards the center between two pawns. However, an elephant in the inner position is blocked by the pawns (although it does protect them).
-* Continuing from this, the positioning of your elephant determines which **edge file to open up**. For example, when playhing a setup where the left elephant can advance (and the opponent's opposite elephant is also on the outside), you want to move your left edge pawn to the side, opening up the chariot's file. The reason for this is that now the opponent's edge pawn cannot move, so if you attack the cannon file pawn with your elephant, if his edge pawn defends, he would lose his chariot. Note that if the opponent instead had two inner elephants, then you would instead open up the opposite edge.
+* Relativamente à escolha da posição dos Cavalos e Elefantes, uma forma de pensar será como os seus Elefantes estão posicionados, e isto tem grande impacto na abertura. Um elefante próximo da beira é capaz de se mover para o centro entre dois Peões. No entanto, um elefanto próximo do centro é bloqueado por peões (no entanto é capaz de os proteger).
+* Após isto, a posição do teu elefante determina qual a **beira a ser aberta**. Por exemplo, quando se joga uma posição onde o elefante da esquerda pode avançar (e o elefante do adversário também está na beira), irás querer avançar o teu peão da esquerda para o lado, abrindo assim a coluna da Biga/Torre, porque se o Peão adversário defender, este irá perder a sua Biga/Torre. De notar que se o adversário tivesse dois elefantes próximos do centro, então irás querer abrir a beira do outro lado. 
 
 ![Activating the elephant and chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ActiveElephant.png)
