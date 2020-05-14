@@ -1,17 +1,17 @@
 # ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
 
-Capablanca 960 is a custom variant combining the rules of Capablanca chess with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca chess rules in its separate guide. 960 rules are as below for a reminder.
+O Capablanca 960 é uma variante personalizada que segue as regras do Capablanca Chess com a disposição aleatória do Chess960(Xadrez de Fischer). São aplicadas as regras de ambos os jogos. Por esta ser considerada uma variante de Capablanca Chess, por favor deia uma leitura nas regras do Capablanca Chess disponibilizadas num guia em separado. As regras do Chess960 São disponibilizadas abaixo como um memorando.
 
-Note that unlike standard chess, there are more than 960 random positions. The 960 is more of a label than a technical number for this game.
+De notar que ao contrário do Xadrez normal, existem mais do que 960 posições aleatórias. O número 960 é considerado apenas uma etiqueta do que um detalhe técnico para esta variante. 
 
-This variant can be played by checking the "Chess960" option when creating a Capablanca chess game.
+Esta variante pode ser jogada através da seleção da opção "Chess960" ao criar uma partida de Capablanca Chess.
 
-## 960 Rules
+## Regras do Chess960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+As peças na primeira linha são dispostas aleatoriamente, mas duas regras devem ser obedecidas:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+Os Bispos são posicionados em casas com cores diferentes.
+O Rei é posicionado entre duas Torres.
+O Roque é considerado uma regra notável aqui. Basicamente, independentemente da posição das Torres, Se for possível efetuar o Roque, a posição final irá ser igual ao do Roque no Xadrez Normal.
 
-All other rules are as in Capablanca chess.
+Todas as outras regras são as mesmas do Capablanca Chess.
