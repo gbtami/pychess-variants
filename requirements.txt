@@ -7,6 +7,6 @@ dnspython==1.16.0
 htmlmin==0.1.12
 jinja2==2.11.2
 motor==2.1.0
-pyffish==0.0.48
+pyffish==0.0.49
 sortedcollections==1.1.2
 python-gettext==4.0
