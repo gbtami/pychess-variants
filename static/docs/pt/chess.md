@@ -2,8 +2,8 @@
 
 ![Chess board](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-If you are familiar with chess, then you probably didn't come here to learn the rules of chess. Please try some variants!
+Se conheces as regras do Xadrez, então provavelmente não vieste aqui para aprender as regras deste. Desfruta das variantes!
 
-If you are not familiar with chess, then the rules are widely available on the internet, such as on Wikipedia or premier chess sites like lichess.org and chess.com.
+Se não conheces o Xadrez, as regras deste estão disponíveis em grande quantidade na Internet, como o Wikipedia ou sites gigantes de Xadrez como o lichess.org e o chess.com.
 
-As with other variants, you can play chess on Pychess Variants against other people or the AI. You can also set custom positions by adjusting the [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) and play games with those using standard chess rules.
+Assim como todas as variantes, podes jogar Xadrez no Pychess Variants contra outros jogadores ou contra o Computador. Também podes personalizar posições ajustando o  [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) e jogar partidas a partir destas usando as regras normais de Xadrez.
