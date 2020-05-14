@@ -84,7 +84,7 @@ Si vous voulez vous familiariser avec des pièces et règles d'une variante avan
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
-**Makruk (échecs thaïlandais)** - Le jeu d'échecs traditionnel au Thaïlande. Il ressemble beaucoup au chaturanga, ancestre des échecs occidentaux.
+**Makruk (échecs thaïlandais)** - Le jeu d'échecs traditionnel en Thaïlande. Il ressemble beaucoup au chaturanga, ancestre des échecs occidentaux.
 
 **Cambodian Chess / Ok / Ouk Chatrang (échecs cambodgiens)** - Le jeu d'échecs traditionnel au Cambodge. Il est presque identique au makruk, hormis quelques pouvoirs spéciaux (appelés des *sutras*) dans la phase d'ouverture.
 
