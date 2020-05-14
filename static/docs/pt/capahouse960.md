@@ -1,27 +1,27 @@
 # ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Capahouse960.svg) Capahouse 960
 
-Capahouse 960 is a custom variant combining the rules of Capablanca chess, Crazyhouse, and Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse and 960 rules are as below for a reminder.
+O Capahouse 960 é uma variante personalizada que segue as regras do Capablanca Chess, Crazyhouse e Chess960(Xadrez de Fischer). São aplicadas as regras dos três jogos. Por esta ser considerada uma variante de Capablanca Chess, por favor deia uma leitura nas regras do Capablanca Chess disponibilizadas num guia em separado. As regras do Chess960 e Crazy são disponibilizadas abaixo como um memorando.
 
-This variant can be played by checking the "Chess960" option when creating a Capahouse game.
+Esta variante pode ser jogada através da seleção da opção "Chess960" ao criar uma partida de Capahouse Chess.
 
-## Crazyhouse Rules
+## Regras de Crazyhouse
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+A colocação de peças pode ser efetuada com as peças capturadas, que é considerada como se fosse uma jogada efetuada no tabuleiro. A notação das colocações é feita com o símbolo @. Por exemplo, T@e4 significa que a Torre irá ser colocada na casa e4. Existem algumas regras relativas à colocação de peças: 
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* Colocações de peças que resultem em Xeque-Mate imediato são permitidas. Ao contrário do Shogi, isto inclui a colocação de Peões.
+* Os Peões não podem ser colocados na primeira e última linha.
+* Os Peões que são promovidas e capturados irão ser considerados Peões para colocação.
+* Os Peões que são colocados na 2ª e 7ª fila, poderão mover-se duas casas na sua primeira jogada após a colocação.
+* Uma Torre colocada não pode efetuar Roque.
 
-## 960 Rules
+## Regras do Chess960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+ As peças na primeira linha são dispostas aleatoriamente, mas duas regras devem ser obedecidas:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+Os Bispos são posicionados em casas com cores diferentes.
+O Rei é posicionado entre duas Torres.
+O Roque é considerado uma regra notável aqui. Basicamente, independentemente da posição das Torres, Se for possível efetuar o Roque, a posição final irá ser igual ao do Roque no Xadrez Normal.
 
-## Clarifications
+## Esclarecimentos
 
-A king may not castle with a dropped rook.
+O Rei não pode efetuar Roque com uma Torre colocada.
