@@ -1,22 +1,24 @@
 # ![Crazyhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse.svg) Crazyhouse
 
-Crazyhouse is a popular chess variant where captured chess pieces can be dropped back on the board as your own piece (as in Shogi). This leads to a much different game than standard chess. A competitive scene also exists for crazyhouse.
+O Crazyhouse é uma variante de Xadrez muito popular onde as peças capturadas podem ser colocadas de volta no tabuleiro como suas (tal como no Shogi). Isto leva a que este seja um jogo diferente do Xadrez normal. O lado competitivo também existe no Crazyhouse.
 
-## Rules
+## Regras
 
-As above, drops can be performed with captured pieces. This would be in lieu of moving a piece on the board. These are noted with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+Como já foi descrito em cima, a colocação de peças pode ser efetuada com as peças capturadas, que é considerada como se fosse uma jogada efetuada no tabuleiro. A notação das colocações é feita com o símbolo @. Por exemplo, T@e4 significa que a Torre irá ser colocada na casa e4. Existem algumas regras relativas à colocação de peças: 
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* Colocações de peças que resultem em Xeque-Mate imediato são permitidas. Ao contrário do Shogi, isto inclui a colocação de Peões.
+* Os Peões não podem ser colocados na primeira e última linha.
+* Os Peões que são promovidas e capturados irão ser considerados Peões para colocação.
+* Os Peões que são colocados na 2ª e 7ª fila, poderão mover-se duas casas na sua primeira jogada após a colocação.
+* Uma Torre colocada não pode efetuar Roque.
 
-## Strategy
 
-Strategy [as on Lichess](https://lichess.org/variant/crazyhouse)
 
-* Pawns and knights increase in relative importance in Crazyhouse, while rooks, queens, and bishops decrease in relative importance. If a king is put in check by any of the latter three pieces, from two or more squares away, dropping a pawn next to the king becomes defensively useful. A knight, on the other hand, cannot be blocked by anything and its offensive value is more manifest. That piece can be used effectively to maintain a strategic influence over a region.
-* After an early exchange of queens, it is usually unwise to reintroduce the queen too soon, particularly if she can be harassed by dropped minor pieces. Careful preparation is needed in order to reintroduce the queen to maximum effect
-* Pawns could be dropped deep in the enemy position where, for example, they can fork pieces or give an uncomfortable check.
-* Initiative is paramount.
+## Estratégia
+
+Estratégia [as on Lichess](https://lichess.org/variant/crazyhouse)
+
+* Os Peões e os Cavalos têm uma maior importância em Crazyhouse, ao contário das Torres, das Damas e dos Bispos que têm menor importância aqui. Se um Rei é colocado em Xeque pelas últimas três peças referidas, com a distância de duas ou mais casa, a colocação de um Peão próximo do Rei é considerada uma jogada útil em termos de defesa. Um Cavalo, no entanto não pode ser bloqueado por nada, e o seu valor ofensivo é notado desta forma. Esta peça pode ser usada com eficiência de modo a manter uma estratégia sólida.
+* Após uma troca inicial de Damas, é geralmente uma má ideia re-colocar a Dama prematuramente, principalmente se esta poder ser atacada por uma peça menor que possa ser colocada. É necessária uma preparação deliberada antes da re-colocação de uma Dama a fim de ter obter proveito máximo.
+* Os Peões podem ser colocados em território inimigo onde, podem efetuar a táctica do Garfo ou dar Xeques incomodativos.
+* A iniciativa é extremamente importante.
