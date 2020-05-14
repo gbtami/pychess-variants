@@ -1,19 +1,19 @@
 # ![Crazyhouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse960.svg) Crazyhouse 960
 
-Crazyhouse 960 is a custom variant combining the rules of Crazyhouse with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Crazyhouse, please check the Crazyhouse rules in its separate guide. 960 rules are as below for a reminder.
+O Crazyhouse 960 é uma variante personalizada que segue as regras do Crazyhouse com a disposição aleatória do Chess960(Xadrez de Fischer). São aplicadas as regras de ambos os jogos. Por esta ser considerada uma variante de Crazyhouse, por favor dê uma leitura nas regras do Crazyhouse disponibilizadas num guia em separado. As regras do Chess960 São disponibilizadas abaixo como um memorando.
 
-This variant can be played by checking the "Chess960" option when creating a Crazyhouse game.
+Esta variante pode ser jogada através da seleção da opção "Chess960" ao criar uma partida de Crazyhouse.
 
-## 960 Rules
+## Regras de Chess960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+As peças na primeira linha são dispostas aleatoriamente, mas duas regras devem ser obedecidas:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+Os Bispos são posicionados em casas com cores diferentes.
+O Rei é posicionado entre duas Torres.
+O Roque é considerado uma regra notável aqui. Basicamente, independentemente da posição das Torres, Se for possível efetuar o Roque, a posição final irá ser igual ao do Roque no Xadrez Normal. Por exemplo, o Grande Roque (do lado da Dama) fará com que o Rei termine na coluna C e a Torre na coluna D (Notação: 0-0-0).
 
-All other rules are as in Crazyhouse.
+Todas as outras regras do Crazyhouse são aplicadas nesta variante.
 
-## Clarifications
+## Esclarecimentos
 
-A king may not castle with a dropped rook.
+O Rei não pode efetuar Roque com uma Torre colocada.
