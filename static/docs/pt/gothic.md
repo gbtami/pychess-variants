@@ -2,48 +2,51 @@
 
 ![Gothic setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Gothic.png)
 
-Gothic chess was created by Ed Trice in 2000. In 2019, the name was changed to Trice's Chess. The game uses the same pieces and 10 x 8 board as Capablanca chess, but has a different starting arrangement. 
+O Gothic Chess foi criado por Ed Trice em 2000. Em 2019, foi mudado o nome para Trice's Chess (Xadrez de Trice). Esta variante usa um tabuleiro de 10x8 e as mesmas peças do Capablanca Chess, mas em posições iniciais diferentes.
 
-## Rules
+## Regras
 
-The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
+A Variante é jogada num tabuleiro de 10x8, com filas adicionais para as novas peças denomidadas por Arcebispo (Cavalo/Bispo) e o Chanceler (Cavalo/Torre) localizadas entre o Bispo e o Cavalo. O Arcebispo está no lado da Dama, e o Chanceler no lado do Rei. A fim de efetuar Roque, o Rei irá mover-se três casa ao invés de duas. Os Peões por sua vez também podem ser promovidos a Arcebispo e a Chanceler. 
 
-## New Pieces
 
-### Archbishop
+## Novas Peças
+
+### Arcebispo
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seiwaran Chess)
+Várias representações do Arcebispo. (De notar que o para o Seirawan Chess é usado o Falcão)
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The archbishop (A) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+O Arcebispo (A) é uma peça composta pela combinação dos movimentos do **Bispo** e do **Cavalo**. Em termos de peças heterodoxas de xadrez, esta é geralmente reconhecida como a Princesa, mas também tem é denominada de várias maneiras em variantes diferentes.
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, in the case of Gothic chess, Ed Trice often uses the 3rd symbol depicted above.
+A simbolização desta peça é feita pela combinação entre o Cavalo e o Bispo; na maioria das variantes, não é especificado como é feita a representação em termos de grafismo das peças (por esta razão temos disponíveis várias representações para escolha). No entanto no caso do Gothic Chess, o autor Ed Trice utiliza a terceira representação acima referida.
 
-The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+O Arcebispo é uma peça unica pelo facto de ser a única a capaz de dar xeque-mate por si mesma, razão pela qual esta deve ser vista, se observares os seus padrões de movimento e ataque.
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
 
-### Chancellor
+O Arcebispo é considerado um pouco mais valioso do que uma Torre, mas menos do que o Chanceler e a Dama.
+
+### Chanceler
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seiwaran Chess)
+Várias representações do Chanceler. (De notar que o para o Seirawan Chess é usado o Elefante
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The chancellor (C) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+O Chanceler (C) é uma peça composta pela combinação dos movimentos da **Torre** e do **Cavalo**. Em termos de peças heterodoxas de xadrez, esta é geralmente reconhecida como a Imperatriz, mas também tem é denominada de várias maneiras em variantes diferentes. 
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, in the case of Gothic chess, Ed Trice often uses the 1st symbol depicted above.
+A simbolização desta peça é feita pela combinação entre o Cavalo e a Torre; na maioria das variantes, não é especificado como é feita a representação em termos de grafismo das peças (por esta razão temos disponíveis várias representações para escolha). No entanto no caso do Gothic Chess, o autor Ed Trice utiliza a primeira representação acima referida.
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
 
-### Strategy
+O Chanceler é considerado melhor do que o Arcebispo, mas equivalente ou um bocado inferior à Dama.
 
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
+### Estratégia
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+De todas as variantes disponíveis neste site existem poucas estratégias. Apela-se à criatividade e atenção ao detalhe do próprio jogador. Daí o conselho que iremos dar é apenas puramente provisório.
 
-Continue to play more and if you discover new strategies or advice, let us know!
+Tente não fazer jogadas "rotinadas" vindas do Xadrez normal. De vez em quando é melhor perder mais tempo com a reorganização de algumas peças a fim de optimizá-las correctamente ao invés de tentar posicioná-las de forma minimazada e no menor tempo possível. Até mesmo as variantes que se assemelham ao Xadrez normal não podem ser jogadas com estratégias "rotinadas" deste por muito tempo.
+
+Jogue muitas partidas e se descobrir novas estratégias ou conselhos, não hesite em mandar-nos!
