@@ -3,56 +3,59 @@
 
 ![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
 
-Grand Chess was created by Christian Freeling in 1984 and is one of the highest regarded chess variants according to the Chess Variants site.  
+O Grand Chess foi criado por Christian Freeling em 1984 e esta é uma das variantes mais prestigiadas de acordo com o website Chess Variants.
 
-## Rules
+## Regras
 
-The game is played on a 10 x 10 board, with additional files for the new Marshal (Knight/Rook)  and Cardinal (Knight/Bishop), which are both placed on the king side. Because of the larger board size, most of the starting pieces are moved up one rank, with the exception of the rooks which remain in the last ranks.
+A Variante é jogada num tabuleiro de 10x10, com filas adicionais para as novas peças denomidadas por Marechal (Cavalo/Torre) e o Cardeal (Cavalo/Torre) e estão ambos posicionados no lado do Rei. Pelo facto do tabuleiro ser maior do que o normal, a maioria das peças estão posicionadas na linha acima do habitual, com a exceção das Torres que estão na primeira e última linha.
 
-In addition to the pieces and setup, there are three other significant differences:
 
-* Pawns can promote when reaching the eighth or ninth rank. Promotion must happen upon reaching the 10th rank. If not possible (see next point), then the pawn can’t move.
-* Pawns can only promote to pieces of the same color that have been lost.
-* There is no castling.
+Além da posição inicial e das novas peças existem três diferenças de grande relevo:
 
-(Please note that despite the names of Marshal and Cardinal, the notation used here uses A and C for both of those, respectively (as in Capablanca chess), so that the PGN is compatible with other chess variant software.)
+* Os Peões podem ser promovidos quando atingem a oitava ou nona linha. A Promoção tem obrigatória de acontecer na décima linha. Caso não seja possível (ler a próxima regra), entao o Peão está impossibilidade de se movimentar.
+* Os Peões só podem ser promovidos a peças da mesma cor que tenham sido capturadas.
+* Não existe Roque.
 
-## New Pieces
+(De notar que mesmo pelo facto dos nomes Marechal e Cardeal, a notação usada no site corresponde a A e C dos mesmos,
+(como no Capablanca Chess), a fim de facilitar a compatibilidade com outro Software de variantes de Xadrez.)
 
-### Cardinal
+## Novas Peças
+
+### Cardeal
 
 ![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess)
+Várias representações do Cardeal. (De notar que o para o Seirawan Chess é usado o Falcão)
 
 ![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The cardinal (A in Pychess, for archbishop) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+O Cardeal (A no Pychess, para Arcebispo) é uma peça composta pela combinação dos movimentos do **Bispo** e do **Cavalo**. Em termos de peças heterodoxas de xadrez, esta é geralmente reconhecida como a Princesa, mas também tem é denominada de várias maneiras em variantes diferentes.
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+A simbolização desta peça é feita pela combinação entre o Cavalo e o Bispo; na maioria das variantes, não é especificado como é feita a representação em termos de grafismo das peças (por esta razão temos disponíveis várias representações para escolha).
 
-The cardinal is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+O Cardeal é uma peça unica pelo facto de ser a unica a capaz de dar cheque-mate por si mesma, razão pela qual esta deve ser vista, se observares os seus padrões de movimento e ataque.
 
-The value of a cardinal is considered slightly better than a rook, but less than the elephant and queen.
 
-### Marshal
+O Cardeal é considerado um pouco mais valioso do que uma Torre, mas menos do que o Marechal e a Dama.
+
+### Marechal
 
 ![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess)
+Várias representações do Marechal. (De notar que o para o Seirawan Chess é usado o Elefante)
 
 ![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The marshal (C in Pychess, for chancellor) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+O Marechal (C no Pychess, para Chancelor) é uma peça composta pela combinação dos movimentos da **Torre** e do **Cavalo**. Em termos de peças heterodoxas de xadrez, esta é geralmente reconhecida como a Imperatriz, mas também tem é denominada de várias maneiras em variantes diferentes.
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+A simbolização desta peça é feita pela combinação entre o Cavalo e a Torre; na maioria das variantes, não é especificado como é feita a representação em termos de grafismo das peças (por esta razão temos disponíveis várias representações para escolha).
 
-The value of a marshal is considered better than a cardinal, but equivalent or slightly less than a queen.
+O Marechal é considerado melhor do que o Cardeal, mas equivalente ou um bocado inferior à Dama.
 
-## Strategy
+## Estratégia
 
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
+De todas as variantes disponíveis neste site existem poucas estratégias. Apela-se à criatividade e atenção ao detalhe do próprio jogador. Daí o conselho que iremos dar é apenas puramente provisório.
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+Tente não fazer jogadas "rotinadas" vindas do Xadrez normal. De vez em quando é melhor perder mais tempo com a reorganização de algumas peças a fim de optimizá-las correctamente ao invés de tentar posicioná-las de forma minimazada e no menor tempo possível. Até mesmo as variantes que se assemelham ao Xadrez normal não podem ser jogadas com estratégias "rotinadas" deste por muito tempo.
 
-Continue to play more and if you discover new strategies or advice, let us know!
+Jogue muitas partidas e se descobrir novas estratégias ou conselhos, não hesite em mandar-nos!
