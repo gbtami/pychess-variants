@@ -2,14 +2,14 @@
 
 ![Makpong Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-Makpong is a variant of Makruk (Thai chess) designed to reduce draws. It is played in Makruk single elimination tournaments in Thailand to decide a winner after a certain number of Makruk games have been drawn.
+O Makpong é uma variante do Makruk (Xadrez Tailandês) que tem como intuito reduzir o número de empates. Este é jogado em torneios de Makruk de eliminações únicas na Tailandia a fim de decidir o vencedor após um certo número de empates em partidas de Makruk.
 
-If you are not familiar with the rules of Makruk, please see that first.
+Se não está por dentro das regras de Makruk, por favor leia-as primeiro.
 
-## Rules
+## Regras
 
-The only difference from Makruk is as follows:
+A única diferença entre esta variante e o Makruk é a seguinte:
 
-* The king may not move away from check
+* O Rei não se pode mover após estar em xeque
 
-There were generally three ways to answer a check: move the king away, block with another piece, or capture the attacker. In Makpong, you are not allowed to move away from check, so you can only answer it by blocking the check or capturing the attacker. You are allowed to capture the attacker with the king, provided that it is legal to do so.
+À partida existem três formas de responder a um xeque: mover o rei fora da linha de xeque, bloquear com uma outra peça ou capturar o atacante. Em Makpong, não é possível mover o Rei fora de xeque, por isso as únicas respostas são: bloquear o xeque ou capturar o atacante. É possível capturar o atacante com o Rei, caso for legal o fazer.
