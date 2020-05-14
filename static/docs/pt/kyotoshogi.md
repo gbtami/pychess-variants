@@ -2,27 +2,27 @@
 
 ![Kyoto Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Kyoto.png)
 
-Kyoto shogi is a shogi variant on a 5x5 board, but is quite different than standard shogi. It was invented by Tamiya Katsuya c. 1976. The main distinction is that each piece flips sides to a completely different piece with each move. Many of the piece combinations are puns relating to Kyoto. For example, the lance (kyo) is paired with the tokin (to), which makes "Kyoto."
+O Kyoto shogi é uma variante de Shogi num tabuleiro de 5x5, mas é um bocado diferente do Shogi normal. Foi criado por Tamiya Katsuya em 1976. A grande diferença é que a cada jogada, as peças mudam-se para outras completamente diferentes. A maior parte das combinações entre as peças são piadas relativamente a Kyoto. Por exemplo, o lance (kyo) é adicionado a tokin (to), o que forma a palavra "Kyoto."
 
-## Rules
+## Regras
 
-As this game is based off shogi, please see the corresponding guide for the piece movement rules first if you are not familiar with them.
+Como este jogo é baseado em Shogi, por favor vejas as regras correspondentes ao movimento das peças primeiro se não estiver familiarizado com estas.
 
-The starting setup is as above. Unlike in shogi, each piece (except the King) must flip to the other side fater moving. All pieces represent a pair of pieces. Every piece in standard shogi is used except the dragon king and dragon horse.
+A posição inicial é descrita acima. Ao contrário de Shogi, cada peça (com exceção do Rei) tem de ser mudada a cada lance. Todas as peças representam um par de peças. Todas as peças de Shogi são usadas com a exceção do Dragão-Rei e do Dragão-Cavalo.
 
-Original piece | Other side
+Peça original | Outro lado
 --- | ---
-Tokin | Lance
-Silver | Bishop
-Gold | Knight
-Pawn | Rook
+Tokin | Lança
+Prateado | Bispo
+Ouro | Cavalo
+Peão | Torre
 
-Additional rules:
+Regras adicionais:
 
-- When dropping a piece, you may choose *either* side to drop.
-- You *can* move a piece such that it can't move until it's captured (this is illegal in standard shogi).
-- Reptition: Repeating the same position results in a draw.
+- Quando se coloca uma peça, poderás escolher *qualquer* do lado que irá ser colocado.
+- *Podes* mover uma peça de tal maneira que será impossível movê-la até ser capturada (isto é ilegal em shogi).
+- Repetição: Repetir a mesma posição dará empate.
 
-## Strategy
+## Estratégia
 
-Still being worked out -- please feel free to offer advice as you find it!
+Em construção -- esteja à vontade de partilhar connosco.
