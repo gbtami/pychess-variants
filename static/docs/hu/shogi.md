@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-A sógi ((将棋), avagy a japán sakk egy klasszikus táblajáték, mely Japánban őshonos és a [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk. Modern formájában körülbelül a 16. századtól van jelen. A játék nagyon népszerű Japánban, ahol többen játszák, mint a nyugati sakkot, és a professzionális sógi is virágzó. A játék maga egyszerre hasonló és nagyon más is, mint a nyugati sakk, aztáltal, hogy a leültött bábukat vissza lehet helyezni a táblára.
+A sógi (将棋), avagy a japán sakk egy klasszikus táblajáték, mely Japánban őshonos és a [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk. Modern formájában körülbelül a 16. századtól van jelen. A játék nagyon népszerű Japánban, ahol többen játszák, mint a nyugati sakkot, és a professzionális sógi is virágzó. A játék maga egyszerre hasonló és nagyon más is, mint a nyugati sakk, aztáltal, hogy a leültött bábukat vissza lehet helyezni a táblára.
 
 ## Miért érdemes megtanulni sógizni?
 
