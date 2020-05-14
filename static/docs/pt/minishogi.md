@@ -3,14 +3,14 @@
 
 ![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Minishogi.png)
 
-Minishogi is essentially shogi on a 5x5 board. The game was invented (or rediscovered) around 1970 by Shigenobu Kusumoto of Osaka, Japan.
+O Minishogi é na realidade Shogi num tabuleiro 5x5. O jogo foi inventado (ou re-descoberto) por volta de 1970 por Shigenobu Kusumoto proveniente de Osaka, Japão.
 
-## Rules
+## Regras
 
-As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
+Dado este jogo ser baseado em Shogi, por favor veja as regras básicas de Shogi se não as conhece.
 
-The starting setup is as above. Unlike standard shogi, there is no knight or lance. There is only one pawn, a bishhop and rook, and one of each general. Promotion is only done in the last rank. 
+A posição inicial está descrita acima. Ao contrário do Shogi original, não existem Cavalos ou Lanças. Existe apenas um peão, um bispo e uma torre, e cada um dos Generais. As promoções só podem ser feitas na última linha.
 
-## Strategy
+## Estratégia
 
-Due to the smaller board size, the rook and bishop are not as dominant as standard shogi. However, their promotions are still very much threatening.
+Devido ao facto do tamanho do tabuleiro ser reduzido, a Torre e o Bispo não dominam tanto como no Shogi original. No entanto, as suas promoções são extremamente perigosas.
