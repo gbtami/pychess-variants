@@ -2,114 +2,113 @@
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-*Makruk*, or Thai Chess, is a classic board game native to Thailand and is closely descended from Chaturanga, the same ancestor as Chess. The game is played in Thailand and Cambodia, where it is known as *Ouk Chatrang* (with slightly different rules). Markuk offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
+*Makruk*, ou Xadrez Tailandês, é um jogo de tabuleiro classico proveniente da Tailandia e é um descendente chegado do Chaturanga, o mesmo antepassado do Xadrez. É jogado na Tailandia e na Cambodia, onde é conhecido como *Ouk Chatrang* (com algumas regras diferentes). O Makruk desmonstra caracteristicas semelhantes ao Xadrez antigo na sua forma original antes de serem introduzidas regras modernas que aceleraram o seu ritmo. O jogo é muito divertido no seu estilo, com o seu próprio dinamismo. O seu ritmo mais lento demonstra ser capaz de construir a paciência e o poder estratégico de pensamento.
 
-Kramnik has tried his hand at Makruk, and had this insight to offer, "Makruk Thai is more strategic than International Chess. You have to plan your operations with total care since Makruk Thai can be compared to an anticipated endgame of International Chess."
+O antigo campeão de Xadrez Vladimir Kramnik já experimentou Makruk e deu a sua opinião, "O Xadrez Makruk é mais estratégico do que o Xadrez Internacional. Tens de planear todas as tuas jogadas com extremo cuidado devido ao facto do Makruk ser comparado a um fim-de-jogo antecipado de Xadrez Internacional."
  
-From a Chess player's standpoint, that is fairly accurate. In fact, one obvious approach would be to trade off the unfamiliar Bishop (Khon) and Queen (Met), and enter a (hopefully) favorable endgame. But this approach will be dull and drawish. It is much more fun to embrace the different dynamics instead, and try to play with the new piece types.
+Da perspectiva de um jogador de Xadrez, isto corresponde à realidade. Pelo facto de, uma aproximação óbvia seria trocar as peças não familiares: o Bispo (Khon) e a Dama (Met), e entrar (possivelmente) num fim-de-jogo favorável. Mas esta aproximação é de certa maneira maçante e convida ao empate. É muito mais divertido levar avante os diferentes dinamismos em vez disto, e tentar jogar com o novo tipo de peças.
 
-## Rules
+## Regras
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The objective is the same: checkmating your opponent's king. The major difference is some pieces having different moves and the starting positions: the pawns start on the third rank, and the king is always on the left side of the player regardless of color. Stalemates are draws, as in chess.
+As regras gerais são extremamente semelhantes ao Xadrez, dai que este guia se irá focar nas pequenas diferenças. O objetivo é o mesmo: dar Xeque-Mate ao Rei adversário. A maior diferença reside em algumas peças terem diferentes tipos de movimento e diferentes posições iniciais: Peões na terceira linha e o Rei está no lado esquerdo do jogador independentemente da cor. Rei afogado dará empate, como no Xadrez.
 
-## The Pieces
+## As Peças
 
-Thai piece names are in parentheses.
+O nome das peças em Tailandês está entre parêntesis. 
 
-### King (*Khun*)
+### Rei (*Khun*)
 
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/King.png?raw=true) 
 
-The king moves one square orthogonally or diagonally. There is no castling as in chess.
+O Rei movimenta-se uma casa na ortogonal e na diagonal. Não existe roque como no Xadrez.
 
-### Queen (*Met*)
+### Dama (*Met*)
 
 ![Queen](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Queen.png?raw=true)
 
-Unlike the queen in chess, the queen is a relatively weak piece that only moves one square diagonally.
+Ao contrário da Dama no Xadrez, esta é relativamente fraca sendo a única que se move apenas uma casa na diagonal.
 
-The queen is worth about 1.5 to 2 pawns in general. The queen is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
+A Dama vale desde 1.5 até 2 Peões no geral. A Dama é uma excelente peça para liderar os ataques, útil para incomodar peças adversárias mais valiosas. Ocasionalmente, estas podem ser sacrificadas por Peões adversários que estejam bem posicionadas, a fim de criar caminho para invasões.
 
-### Bishop (*Khon*)
+### Bispo (*Khon*)
 
 ![Bishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Bishop.png?raw=true)
 
-The bishop moves one square diagonally or one square forward, just like the silver general in shogi.
+O Bispo movimenta-se uma casa na diagonal ou uma casa para a frente, como o General Prateado em Shogi.
 
-The bishop is a powerful piece for controlling squares immediately in front of it, and for shouldering off enemy forces. It is also a good defender around its King.
+O Bispo é uma peça poderosa para controlar casas em frente, e para contrair forças adversárias. Também é um excelente defesa à volta do seu Rei.
  
-The bishop is worth more than the queen, but generally not as much as a knight. The justification may be that isolated knights have little trouble escaping from an enemy king, while isolated bishops can fall.
+O Bispo é mais valioso do que a Dama, mas geralmente não tanto como o Cavalo. Isto pelo facto de que Cavalos isolados não têm problemas em se escapar do Rei inimigo, enquanto que Bispos isolados têm mais facilidade em ser capturados.
  
-Bishops can sometimes prove slow/awkward to maneuver or retreat. It is therefore advisable to have some friendly pieces nearby to support and rescue them. In the endgame, it's usually safer to get a lone king behind the enemy bishop, compared to staying in its front.
+Os Bispos podem porventura ser lentos/desastrados em questões de manobra ou retirar. Daí ser aconselhado ter sempre peças por perto deste a fim de os acolher. No fim-de-jogo, é mais seguro ter um Rei só atrás de um Bispo adversário ao invés de ficar em frente a este.
 
-### Knight (*Ma*)
+### Cavalo (*Ma*)
 
  ![Knight](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Knight.png?raw=true)
 
-The knight moves exactly the same as in chess.
+O cavalo move-se exatamente como no Xadrez.
 
-The knights are not "minor pieces" in Makruk. They are major forces. Centralize and utilize them.
+Os Cavalos não são "peças menores" em Makruk. Eles são peças relevantes. Centraliza-as e utiliza-as.
 
-### Rook (*Ruea*)
+### Torre (*Ruea*)
 
  ![Rook](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Rook.png?raw=true)
 
-The rook moves exactly the same as in chess.
+A Torre move-se exatamente como no Xadrez.
 
-In the absence of mighty chess queens, the rooks dominate the board. Lateral rook checks can be especially annoying. Aim for the seventh rank or even the sixth rank.
+Considerando que não existem peças como a Dama do Xadrez, as Torres têm dominio no tabuleiro. Xeques laterais da Torre podem ser irritantes. Faça com que a sua Torre atinja a sétima linha ou mesmo a sexta.
 
-### Pawn (*Bia*)
+### Peão (*Bia*)
 
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true) ![ProPawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/ProPawn.png?raw=true)
 
-The pawn moves and attacks the same as in chess. However, there is no double-step first move. Pawns promote and move like queens when they reach the sixth rank.
+O Peão movimenta-se e ataca exatamente como no Xadrez. No entanto, não existem jogadas de duas casas no inicio. Os peões são promovidos e movimentam-se como a Dama quando atinjem a sexta linha.
 
-Since it is rare for one side to be up by two pieces, the promoted pawn is commonly present in most endgames, assisting the stronger side in delivering checkmate.
+Como é raro um dos lados ter vantagem de duas peças, o Peão promovido está constantemente presente em grande parte dos finais de jogo, e este assiste o lado com vantagem a dar Xeque-Mate.
  
-For the disadvantaged side, a promoted pawn is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the king for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules (see below).
+Para o lado em desvantagem, o peão promovido é um bom isco porque deve ser rodeado e capturado antes de que se possa dar Xeque-Mate ao Rei. Este pode ficar junto ao Rei, para proteção adicional, ou falhando isto, afugenta peças adversárias. Espalhando assim as peças adversárias pode custar tempo valioso na reorganização, dando maior manobra defensiva ao lado em desvantagem e uma maior chance de empatar o jogo sob regras de contagem (Ver abaixo).
 
-## Counting Rules
+## Regras de Contagem
 
 When neither side has any unpromoted pawns, the game must be completed within a certain number of moves or it is declared a draw. In real games, the disadvantaged player verbally counts his moves according to these rules.
 
-### Board's Honor Counting
+### Contagem de Honra do Tabuleiro
 
-When there are no unpromoted pawns left on the board, the disadvantaged player may start the board's honor counting. The count starts from 1, and mate must be achieved in 64 moves (that is, before the count goes to 65) or the game is a draw. The player may choose to stop counting at any time, but if either player wants to start counting again, the count will restart from 1. If the disadvantaged player checkmates the advantaged side and did not stop counting, the game is declared a draw.
+Quando não existem Peões não promovidos no tablureiro, o jogador em desvantagem pode começar a contagem de honra no tabuleiro. A contagem começa em 1, e o Xeque-Mate tem de ser dado em 64 lances (isto é, antes da contagem chegar a 65) ou o jogo terminará em empate. O jogador pode escolher parar de contar a qualquer altura, mas se qualquer jogador pretender contar outra vez, A contagem irá reeniciar para 1. Se o jogador em desvantagem dar Xeque-Mate ao jogador em vantagem e não parou a contagem, o resultado terminará em empate.
 
-### Piece's Honor Counting
+### Contagem de Honra das Peças
 
-When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honor counting will start. This overrides the board's honor counting. The count starts from the number of pieces left on the board, including both kings, plus one. The limit of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
-* If there are two rooks: 8
-* If there is one rook: 16
-* If there are two bishops: 22
-* If there are two knights: 32
-* If there is one bishop: 44
-* If there is one knight: 64
-* If there are only (any number of) queen and promoted pawns: 64
+Quando não existirem peões não promovidos no tabuleiro e a última peça (que não seja o Rei) do jogador em desvantagem for captura, a contagem de honra de peças irá ser iniciada. Isto sobrepõe-se à contagem de honra do tabuleiro. A contagem começa com o número de peças que ainda existim no tabuleiro, incluindo ambos os Reis mais um. O limite de contagem é baseado no número de peças do jogador em vantagem, determinado pelos números abaixo indicados:
+* Se houverem duas torres: 8
+* Se houver uma torre: 16
+* Se houverem dois bispos: 22
+* Se houverem dois cavalos: 32
+* Se houver um bispo: 44
+* Se houver um cavalo: 64
+* Se houverem apenas (qualquer número) damas e peões promovidos: 64
 
-The winning player has to checkmate his opponent's king before the count exceeds the limit. Otherwise, the game is declared a draw. Once the piece's honor counting is started, the limit is set in stone, and it will not change in any case, even if the pieces on the board get captured.
-For example, if White has two rooks against a lone black king, the piece's honor counting will go from 5 to 8. If Black captures one of the white rooks, the count does not restart, nor is the limit recalculated. The game is still drawn after Black counts to 9.
+O jogador em vantagem tem de dar Xeque-Mate ao Rei adversário antes que a contagem exceda o limite. Caso contrário, o jogo terminará em empate. Quando a contagem de honra das peças começa, o limite é atribuido numa pedra, e este não irá ser alterado, mesmo que as peças sejam capturadas no tabuleiro.
+Por exemplo, se as Brancas tiverem duas Torres contra um Rei sozinho, a contagem de honra de peças irá de 5 a 8. Se as pretas capturarem uma das torres brancas, a contagem não irá ser reeniciada, nem limite irá ser recalculado. O jogo terminará em empate após as pretas contarem até 9.
 
 ## Makruk vs Sittuyin
  
-Sittuyin is a game very similar to Makruk, but played in Myanmar. In a sense, Sittuyin can be thought of as a kind of accelerated Makruk, potentially skipping ahead about a dozen opening moves. Half of the Sittuyin pawns start on the fourth rank, as opposed to all Makruk pawns starting from the third rank.
- 
-Makruk players must negotiate their way towards getting a good opening setup from scratch, a vital skill for Makruk. Sittuyin players get to just set up their dream positions. Experience in either variant would be useful/beneficial in the other.
- 
-Makruk allows promoting pawns to multiple queens, which can quickly become dangerous. This makes Makruk pawns more valuable than Sittuyin pawns.
+O Sittuyin é um jogo muito semelhante ao Makruk, mas é jogado em Myanmar. De uma certa forma, o Sittuyin pode ser considerado um tipo de Makruk acelerado, que pode porventura saltar imensos lances na abertura. Metade dos Peões de Sittuyin começam na terceira linha, ao contrário de Makruk onde começam todos na terceira linha.
 
-## Strategy
- 
-The pace is rather slow, with most pieces stepping only one square at a time. It's a good idea to organize and group together the pieces. Move them in formation as a group to provide mutual support. Do not try to open up the game on too many fronts. Coordination is key.
+Os jogadores de Makruk têm de negociar desde cedo uma boa configuração de abertura, uma abilidade fulcral no Makruk. Os jogadores de Sittuyin apenas têm de posicionar as peças do seu agrado. Alguma experiência em qualquer uma das variantes beneficia o jogo na outra.  
 
-## Tactics
- 
-**Rooks are the only pieces that can pin or skewer pieces. The rest of the tactics mostly consist of forks.**
+Em Makruk é permitida a promoção de peões para várias Damas, o que se pode tornar perigoso rapidamente. Isto torna os Peões de Makruk mais valiosos do que os peões em Sittuyin.
 
-Most Sittuyin and Makruk games will actually reach the bitter (near) end.
-When one side has only a bare King remaining, there are certain "counting rules" (see above) which come into effect and put pressure on the stronger side. Such requirements offer the weaker side an incentive to play out the whole game. Therefore it is crucial to master all the basic checkmates against a lone King. There just isn't much point in playing these games if one can't finish off the bare King at the end.
+## Estratégia
  
-Because there is no promotion to heavy pieces, it becomes harder to force a checkmate after the existing pieces have left the board. Plan accordingly and leave yourself with enough fire power.
+O ritmo de jogo é lento, pelo facto da maioria das peças se moverem apenas uma casa de cada vez. É uma boa ideia organizar um grupo de peças em conjunto. Movê-las em grupo a fim de dar suporte mútuo. Não tente abrir o jogo em vários sítios. A chave do Makruk é a coordenação.
+
+## Tácticas
  
-Please allow yourself enough time on the clock, as many of those mates require precision.
+**As Torres são as únicas peças que podem pregar ou espetar outras peças. O resto das tácticas consistem em garfos.**
+
+A maioria dos jogos de Sittuyin e de Makruk chega ao fim com um sabor amargo.
+Quando um dos lados chega ao fim com apenas um Rei, existem certas regras de contagem (ver acima) que aparecem e induzem imensa pressão no jogador com vantagem. Tais regras, incentivam o lado em desvantagem a jogar até ao fim. Daí ser crucial masterizar todas os xeque-mates básicos contra um Rei sozinho. Não há grande interesse em jogar estes jogos se um dos lados não consegue terminar um Rei sozinho no fim. 
  
+Como não existem promoções a peças de grande relevo, torna-se extremamente dificil dar xeque-mate após as peças terem sido capturados do tabuleiro. Planeia com cuidado e tenta ficar com algumas armas letais.
+ 
+Por favor dê a si próprio tempo suficiente no relógio, pelo facto da maior parte dos Xeque-mates necessitarem de precisão.
