@@ -2,90 +2,90 @@
 
 # Pychess Variants
 
-Many chess variants are available to play here. Available games range from traditional versions of chess played around the world to modern inventions derived from western chess. Each game has something to offer, so please don't hesitate to give each game a try! You can click the links on the left to learn even more about each variant.
+Existem várias variantes de Xadrez disponíveis neste site. Variantes estas que vão desde versões diferentes do Xadrez normal jogados no mundo inteiro até invenções modernas derivadas do Xadrez Ocidental. Cada jogo tem algo diferente a oferecer, não hesite em experimentar cada variante! Pode usar os links disponibilizados à esquerda a fim de aprender mais sobre cada variante.
 
-## Tips
+## Conselhos
 
-Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.
+Dentro da página do jogo, pode encontrar links referentes a esta variante, clicando na caixa do nome desta no canto superior esquerdo.
 
 ![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
 
-Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.
+Cada variante também tem a sua secção de grafismos relativamente a peças e tabuleiros à sua escolha! Especialmente para variantes Asiáticas que usam caracteres chineses, podes encontrar peças internacionalizadas para estas variantes. Para mudar as configurações clique no botão de Definições dentro da caixa do Jogo (onde estão localizadas as jogadas) no canto direito. Também podes modificar o tamanho do tabuleiro usando o slider.
 
 ![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
 
-If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
+Se necessitares de praticar o movimento das peças e as regras antes de entrar numa Partida a sério, pode iniciar um jogo contra o *Random Mover* bot (Computador que fará jogadas aleatórias).
 
-## Chess variants using standard pieces
+## Variantes de Xadrez que usam peças normais
 
 ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-**Chess (Western/International Chess)** - Chess, unmodified, as it's played by FIDE standards
+**Chess (Western/International Chess)** - Xadrez normal não modificado usando as regras FIDE
 
-**Chess 960** - Starting positions in the back row are randomized
+**Chess 960** - Posições iniciais aleatórias
 
-**Crazyhouse** - Take captured pieces and drop them back on to the board as your own
+**Crazyhouse** - Capture as peças do adversário e coloque-as no tabuleiro como suas
 
-**Placement Chess** - Choose where your pieces start
+**Placement Chess** - Escolha a posição inicial das suas peças
 
-**Crazyhouse 960** - Combines Crazyhouse and Chess 960
+**Crazyhouse 960** - Combinação de Crazyhouse e Chess960
 
-## Chess variants using fairy pieces
+## Variantes de Xadrez que usam Peças Heterodoxas
 
 ![Capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png?raw=true)
 
-**Capablanca Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board
+**Capablanca Chess** - Jogue com peças Híbridas, Arcebispo (C+B) e o Chanceler (C+T) num tabuleiro 10x8
 
-**Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
+**Gothic Chess / Trice's Chess** - O mesmo que Capablanca Chess mas posições iniciais diferentes
 
-**S-Chess / Seirawan Chess / SHARPER Chess** - Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece
+**S-Chess / Seirawan Chess / SHARPER Chess** - Peças Híbridas, o Falcão (C+B) e o Elefante (C+T) que podem ser colocados no tabuleiro após mover qualquer peça da primeira linha
 
-**Grand Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board
+**Grand Chess** - Jogue com peças Híbridas, o Cardeal(C+B) e o Marechal(C+T) num *grande* tabuleiro 10x10
 
-**Shako** - Introduces the cannon and elephant from Xiangqi into a 10x10 chess board
+**Shako** - Introduz o Canhão e o Elefante do Xiangqi num tabuleiro 10x10
 
-**Shogun Chess** - Pieces promote and can be dropped, similar to Shogi
+**Shogun Chess** - As Peças são promovidas e podem ser colocadas, semelhante a Shogi
 
-**Orda Chess** - Asymmetric variant where one army has pieces that move like knights but capture differently
+**Orda Chess** - Variante Assimétrica onde um batalhão é composto por peças que se movem como um Cavalo mas capturam de maneira diferente
 
-**Capablanca 960** - Capablanca with Chess 960 rules
+**Capablanca 960** - Capablanca Chess com Regras de Chess960
 
-**Capahouse** - Capablanca with Crazyhouse drop rules
+**Capahouse** - Capablanca Chess com regras de Crazyhouse
 
-**Capahouse 960** - Capablanca with Crazyhouse and 960 rules
+**Capahouse 960** - Capablanca com regras de Crazyhouse e Chess960
 
-**S-House** - S-Chess with Crazyhouse drop rules
+**S-House** - Seirawan Chess com regras de Crazyhouse
 
-**Grandhouse** - Grand Chess with Crazyhouse drop rules
+**Grandhouse** - Grand Chess com regras de Crazyhouse
 
-## Shogi variants
+## Variantes Shogi
 
 ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
 
-**Shogi (Japanese Chess)** - Pieces promote and can be dropped
+**Shogi (Japanese Chess)** - Peças podem ser promovidas e colocadas
 
-**Minishogi** - Shogi on a 5x5 board
+**Minishogi** - Shogi num tabuleiro 5x5
 
-**Kyoto Shogi** - 5x5 Shogi where pieces flip to a different piece each move
+**Kyoto Shogi** - Tabuleiro de Shogi 5x5 onde as peças mudam a cada jogada
 
-## Xiangqi variants
+## Variantes de Xiangqi
 
 ![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Xiangqi.png?raw=true)
 
-**Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
+**Xiangqi (Chinese Chess)** - Ataque o seu adversário com este jogo histórico super agressivo
 
-**Janggi (Korean Chess)** - Similar to Xiangqi, but plays very differently. Tournament rules are used.
+**Janggi (Korean Chess)** - Semelhante ao Xiangqi, mas tipo de jogo bem diferente. Regras de Torneio são usadas
 
-**Minixiangqi** - Xiangqi on a 7x7 board
+**Minixiangqi** - Xiangqi num tabuleiro 7x7
 
-## Southeast Asian variants
+## Variantes do Sudoeste Asiático
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
 
-**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga
+**Makruk (Thai Chess)** - Um jogo que se assemelha ao Chaturanga original
 
-**Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
+**Cambodian Chess / Ok / Ouk Chatrang** - Makruk com características adicionais na abertura
 
-**Sittuyin (Burmese Chess)** - Similar to Makruk, but pieces are placed at the start of the match
+**Sittuyin (Burmese Chess)** - Semelhante ao Makruk, mas as peças são colocadas no inicio
 
-**Makpong** - Makruk variant where kings cannot move to escape out of check
+**Makpong** - Variante de Makruk onde os Reis não se podem mover após Xeque
