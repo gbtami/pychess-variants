@@ -4,96 +4,95 @@
 
 ![Legend](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/OrdaLegend.png)
 
-Orda Chess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a true asymmetric chess with two different armies. Ralph Betza’s Chess with Different Armies was an inspiration, but the goal was to be a little more streamlined with the theme here. In this case, the theme of the new army is knight-based movement, where most pieces have an element of knight movement. Given the knight (or horse) theme, this was modeled after the Mongol army and named the Horde. In fact, an orda was a military structure for the people of the Steppes, which also gave rise to the English word “horde.” The original chess army is named the Kingdom for contrast. The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Horde.
+A Orda Chess é uma variante de Xadrez criada em 2020 por Couch Tomato. A ideia desta variante foi a criação de um verdadeiro jogo de Xadrez assimétrico com dois exércitos diferentes. O Xadrez de Ralph Betza com diferentes exércitos serviu de inspiração para tal, mas o objetivo aqui foi de simplificar com o Xadrez. Nesta variante, a ideia usada foi de ter um exército baseado nos movimentos do Cavalo, onde a maior parte das peças têm a caracteristica de se moverem como tal. Dada a ideia do Cavalo, a variante foi modelada com base no exército Mongol tendo o obtido o nome de "Horde" (do inglês, multidão, horda). De notar que a Orda foi uma estrutura militar da população dos Estepes (wiki), que deu o nome à palavra inglesa "Horde"(multidão). O exército original do Xadrez tem como nome o Reino (Kingdom) ao contrário deste. Esta variante, de acordo com a inteligência artificial é muito equilibrada (ainda mais do que o Xadrez normal), com um recorde perto de 50-50 de vitória tanto para o Kingdom(Reino) como para a Horde(Multidão).
  
-## General Rules
-1.	Setup is as above. Despite new pieces, the placement of the Horde pieces mirror their chess counterparts.
-2.	The only pieces that the sides have in common are the pawns and the kings (the Horde king is called a khan).
-3.	The Kingdom (AKA White) *always moves first*.
-4.	The Horde (AKA Gold) cannot castle.
-5.	As the Horde’s pawns start on the third rank, they do not have the option to move two spaces or be captured by en passant. Kingdom pawns retain the ability to move two spaces initially and to be captured via en passant.
-6.	Pawns *on either side* can only promote to a queen or kheshig.
-7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without being check.
-8.	Other rules, including stalemate and repetition are as in chess.
+## Regras Gerais
+1.	A posição inicial está acima. Apesar de haverem novas peças, as posições iniciais da Horde(Multidão) está simétrica ao exército do Xadrez normal.
+2.	As únicas peças que são iguais em ambos os lados são os Peões e os Reis (o Rei da Horde é chamado de Khan).
+3.	O Kingdom(reino, brancas) *começa sempre em primeiro lugar*.
+4.	A Horde(multidão, dourados) não podem efetuar Roque.
+5.	Como os Peões da Horde(multidão) começam na terceira linha, estes não têm a opção de se moverem duas casas para a frente. Os Peões do Kingdom(reino) mantém a sua habilidade de se moverem duas casas e de serem capturados por en passant.
+6.	Os Peões *de ambos os lados* só podem ser promovidos a Dama ou Kheshig.
+7.	Um outro método de vencer o jogo é chamado de **mate de linha**. O Mate de Linha acontece quando o Rei da Horde(multidão) atinge a linha final sem estar em Xeque.
+8.	Outras regras presentes são o do Rei Afogado e a Repetição como acontece no Xadrez.
 
-## Horde Pieces
-There are four new units unique* to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Yurt (* exception being that the Kingdom can still obtain a Kheshig by promotion). The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece unlike the Queen. 
-The Horde’s king is called the Khan and has a different symbol, but is essentially the same as the Kingdom’s King, also using the same abbreviation (K) – the change is purely aesthetic and thematic. 
-The Horde's Lancer and Horse Archer are unique in that they capture differently than movement. Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. Similarly, the Yurt also captures the same way it moves; it moves as the silver general in Shogi.
+## Peças da Horde(multidão)
+Existem quatro novas peças únicas* para a Horde: 2 Lanças, 2 Cavalo-Arqueiros, 2 Kheshigs e 1 Yurt (* exceção pelo facto do Kingdom(reino) poder obter um Kheshig com uma promoção). Os Kheshigs são as peças mais poderosas (movimenta-se como Cavalo+Rei) e lidera cada flanco, enquanto o Yurt é uma peça fraca comparada à Dama.
+O Rei da Horde(multidão) é chamado de Khan e é representado de forma diferente, no entanto é igual ao Rei do Kingdom(reino), e também usa a mesma abreviatura (K) - a mudança é puramente a nível de desenho e representação temática.
+As Lanças e os Cavalo-Arqueiros são peças únicas pelo facto de capturarem de forma diferente do seu movimento. De relembrar que a Horde(multidão) é baseada no movimento do Cavalo, portanto as Lanças e os Cavalo-Arqueiros se movem como um Cavalo. Estas peças capturam como uma Torre e um Bispo, respetivamente. O Kheshig é uma peça mais tradicional porque captura da mesma forma que se movimenta; esta peça combina o movimento do Cavalo e do Rei. Semelhante a este temos o Yurt, que captura da mesma maneira que se movimenta; este tem movimentos iguais ao do General Prateado do Shogi.
 
-**Horde** piece	| **Kingdom** “counterpart”	| Movement | Capture/Check
+**Horde** peça	| **Kingdom** “equivalente”	| Movimento | Captura/Xeque
 -- | -- | -- | --
-Yurt | Queen | “Silver” | “Silver”
-Horse | Archer | Bishop | Knight | Bishop
-Kheshig | Knight | Knight+King | Knight+King
-Lancer | Rook | Knight | Rook
+Yurt | Dama | “Prateado” | “Prateado”
+Cavalo | Arqueiro | Bispo | Cavalo | Bispo
+Kheshig | Cavalo | Cavalo+Rei | Cavalo+Rei
+Lança | Torre | Cavalo | Torre
 
-Details and diagrams of each piece are below. Green dots represent movement, red dots represent capture, and yellow represents both.
+Alguns detalhes e diagramas de cada peça estão representados abaixo. Os pontos a verde representam o movimento, os pontos a vermelho a captura, e os pontos a amarelo representam ambos.
  
 ### Yurt (Y)
 
 ![Yurt](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Yurt.png)
  
-The Yurt moves and captures one space diagonally or one space forward. This is the same as a silver general from Shogi or the bishop/khon from Makruk. There is only one yurt, starting in the queen’s spot, but unlike the queen, it is very much a minor piece, the weakest piece in the game aside from a pawn. It should not be underestimated though, because it is one of the few Horde pieces that can move and capture the same way. The other two are the Khan and Kheshig, which are the two most valuable pieces. Therefore, the yurt has the unique role of reliably supporting pawns and other pieces without fear of retaliation.
-A yurt is a mobile home for Mongol and Turkic peoples in the steppes of Asia. Their limited mobility but importance for supporting the army is reflected in this piece.
+O Yurt move-se e captura uma casa na diagonal ou uma casa em frente. Este é o mesmo que um General Prateado em Shogi ou o Bispo/Khon em Makruk. Só existe um Yurt, que começa na casa da Dama, mas ao contrário da Dama, esta é uma peça bem menor, a mais fraca em termos de valor excluindo o Peão. No entanto não se deve desprezá-la, pois esta é uma das poucas peças da Horde que capturam e se movimentam da mesma maneira. As outras duas peças assim são o Khan(Rei) e o Kheshig, sendo ambas as peças mais valiosas. Dai, o Yurt tem um objetivo unico de dar suporte aos Peões ou outras peças sem medo de ser ameaçada. Um Yurt é uma casa ambulante dos Mongóis e dos Turcos provenientes dos Estepes da Ásia. O seu movimento limitado mas importante para o suporte ao exército é refletido nesta peça.
+
 
 ### Kheshig (H)
 
 ![Kheshig](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Kheshig.png)
- 
-The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troop on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid game because of their extreme importance to the Horde in the endgame.
-The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately, it is incredibly difficult for the Kingdom to checkmate the khan without at least eliminating one of his kheshigs first.
 
-### Horse Archer (A)
+O Kheshig é uma peça híbrida que se move e captura como um Rei e um Cavalo. Este tipo de peça é geralmente denominada de Centauro. Os Kheshigs começam nas casas dos Cavalos, mas ao contrário do Cavalo, esta é a peça mais poderosa da Horde. Pode ser considerada um general que lidera o seu próprio exército nos flancos. É aconselhado a manter os Kheshigs seguros atrás do exército antes do meio-jogo por causa da sua elevada importância no exército da Horde no fim-de-jogo.
+Os Kheshigs forma guardas imperiais do exército real da Mongólia. É extremamente dificil para o Kingdom(reino) dar Xeque-Mate ao Khan(Rei) sem eliminar um dos Kheshigs em primeiro lugar, o que é apropriado ao seu papel.  
+
+### Cavalo-Arqueiro (A)
 
 ![Horse Archer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archer.png)
  
-The Horse Archer, or simply abbreviated Archer, is a unique “semihybrid” piece that moves and attacks differently. The archer moves as a knight but captures as a bishop. Because the archer is not colorbound, its value is greater than its bishop counterpart.
-Horse Archers were one of the two core components of the Mongol cavalry, functioning as the light cavalry. Their speed and prowess as mounted archers made them a unique threat. Their ability to quickly position themselves for a deadly skewer or fork make them a dangerous threat for the Kingdom.
+O Cavalo-Arqueiro, ou simplesmente chamado de Arqueiro, é uma peça única "semi-híbrida" que se movimenta e ataca de maneira diferente. O Arqueiro movimenta-se como um Cavalo mas captura como um Bispo. Pelo facto do Arqueiro não estar preso à cor da sua casa, este é mais valioso do que o Bispo.
+Os Arqueiros são uma das duas componentes principais da cavalaria Mongol, e funcionam como uma cavalaria rápida. A sua velocidade e proeza como arqueiros a cavalo fizeram destes uma ameaça única. A sua capacidade de se posicionarem rapidamente para um ataque de raio-X ou de tácticas de Garfo faz com que eles sejam uma grande ameaça para o Kingdom(reino).
  
-### Lancer (L)
+### Lança (L)
 
 ![Lancer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Lancer.png)
  
-The Lancer is a unique “semihybrid” piece that moves and attacks differently. The lancer moves as a knight but captures as a rook. Because the lancer is not as mobile as the rook, its value is generally weaker than the rook, and this becomes more pronounced in the endgame, as it cannot move across the board as quickly as a rook can. Its value is still comparable to the horse archer.
-Lancers were one of the two core components of the Mongol cavalry, functioning as the heavy cavalry. Despite being weaker than the rook, their ability to come into play much earlier in the game is an advantage that the Horde player should utilize.
-
+A Lança é uma peça única "semi-híbrida" que se movimenta e ataca de maneira diferente. A Lança movimenta-se como um Cavalo mas captura como uma Torre. Pelo facto da Lança não ser tão móvil como a Torre, esta é considerada inferior à Torre. E isto se torna mais visível no fim-de-jogo, pelo facto de não se poder mover ao longo do tabuleiro rapidamente como a Torre. O seu valor é comparável ao do Cavalo-Arqueiro.
+As Lanças são uma das duas componentes principais da cavalria Mongol, sendo estas parte da cavalaria pesada. Mesmo sendo mais fracas do que a Torre, a sua habilidade de entrar em jogo mais rapidamente cria uma vantagem ao lado da Horde(multidão) que o jogador deve usufruir.
  
-## Piece valuation
+## Avaliação das Peças
 
-Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to Orda chess.
+São desconhecidos valores certos para as peças. No entanto, estes são os valores usados pelo Fairy-Stockfish, de notar que são valores genéricos, não especificos para a Orda Chess.
 
-Kingdom piece	| Value (Early / Late) | Horde piece | Value (Early / Late)
+Peça do Reino	| Valor (Inicio / Fim) | Peça da Horde | Valor (Inicio / Fim)
 -- | -- | -- | --
-Pawn | 120 / 213	| Pawn | 120 / 213
-Queen | 2538 / 2682	| Yurt | 630 / 630
-Bishop | 825 / 915	| Horse Archer	| 1100 / 1200
-Knight | 781 / 854	| Kheshig | 1800 / 1900
-Rook | 1276 / 1380	| Lancer | 1050 / 1250
+Peão | 120 / 213	| Peão | 120 / 213
+Dama | 2538 / 2682	| Yurt | 630 / 630
+Bispo | 825 / 915	| Cavalo-Arqueiro	| 1100 / 1200
+Cavalo | 781 / 854	| Kheshig | 1800 / 1900
+Torre | 1276 / 1380	| Lança | 1050 / 1250
 
-For those who want a more simplified approach, this table may be an approximation.
+Para aqueles que pretendem uma tabela simplificada, damos aqui uma aproximação.
 
-Kingdom piece	| Value | Horde piece	| Value
+Peça do Reino	| Valor | Peça da Horde	| Valor
 -- | -- | -- | --
-Pawn | 1	| Pawn | 1
-Queen	| 9	| Yurt | 2
-Bishop | 3 | Horse Archer | 4
-Knight | 3 | Kheshig | 7
-Rook | 5 | Lancer | 4
+Peão | 1	| Peão | 1
+Dama	| 9	| Yurt | 2
+Bispo | 3 | Cavalo-Arqueiro | 4
+Cavalo | 3 | Kheshig | 7
+Torre | 5 | Lança | 4
 
-## Strategy
-The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
+## Estratégia
+Pelo facto de ainda ser uma variante recente, a estratégia ainda está em desenvolvimente! A maior parte das ideias são baseadas na inteligência artificial.
 
-The Horde cannot castle. However, a very fundamental component of a majority Horde openings is to move the Khan to g7. Reaching this spot in within the first four moves is ideal – in fact, Fairy Stockfish opened up with Kf7 in 56% of its games. The rest is variable. 
-For the Kingdom, d4, g3, and b3 are the most common openings in that order.
+A Horde não pode efetuar o Roque. No entanto, um conceito fundamental na maioria das aberturas da Horde é mover o seu Khan(Rei) para a casa g7. Chegando a esta casa nos primeiros quatro lances seria o ideal - de notar, que o Fairy-Stockfish começa com Kf7 em 56% das suas partidas. O resto varia.
+Para o Reino, d4, g3 e b3 são as aberturas mais comuns (por esta ordem).
 
-A major Horde weakness is that the lancers and horse archers cannot sustain a threat on a piece. If you attack a lancer/archer, if they must retreat, they lose their attack. It's important for the Kingdom to take advantage of this.
+Uma grande fraqueza da Horde é o facto das Lanças e dos Cavalos-Arqueiros não aguentarem muito bem com uma ameaça. Se uma Lança ou um Arqueiro for atacado, ambos têm de recuar, perdendo assim o seu ataque. É importante que o Reino obtenha vantagem com isto.
 
-### Openings
+### Aberturas
 
-The following is based off an analysis of the first few moves played by Fairy-Stockfish against itself
+A tabela seguinte é baseada na análise feita pelos primeiros lances jogados pelo Fairy-Stockfish contra si próprio
 
-White first move	| Percent of games (number) | White Win % | Gold Win % | Gold response
+Brancas Primeiro Lance	| Percentagem de jogos (número) | Brancas Vencem % | Dourados Vencem % | Resposta Dourados
 -- | -- | -- | -- | --
 d4 | 38%	(47) | 45% | 38% | Kf7 ~= c5 >> Hb7
 g3	| 24% (30)	| 33% | 43% | Kf7 >> d5
@@ -104,28 +103,28 @@ Nf3 | 3% (4) | 25% | 50% | e5 always
 e4 | 2% (3) | 33% | 67% | d5
 c4 | 1% (1) | 100% | 0% | Kf7
 
-Some particular lines have been also played for multiple games. Here are the four most common. We'll use the name "castle" for any variation where the Horde tucks away the khan to Kf7 as soon as possible. The last moves in parentheses are where variations start to significantly happen.
+Algumas aberturas em particular são usadas em várias partidas. Aqui estão quatro aberturas mais comuns. Aqui daremos o nome de "Fortaleza" para qualquer variante em que a Horde põe o seu Khan(Rei) na casa f7 o mais cedo possível. Os últimos lances entre parêntesis são onde estas jogadas começam a acontecer.
 
-**Benko's Castle - Double Corner Opening** - Most common opening
+**Fortaleza de Benko - Abertura de Canto Dupla** - Abertura mais comum
 1. g3 Kf7
 2. e4 Kg7
-3. (Bd3 or Nf3) ...
+3. (Bd3 ou Nf3) ...
 
 ![Benko's Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/BenkoCastle.png)
 
-*Benko's Castle after 2... Kg7*
+*Fortaleza de Benko após 2... Kg7*
 
-**Stockfish Defense - Closed Variation**
+**Defesa Stockfish - Variante Fechada**
 1. d4 c5
 2. dxc5 *bxc5*
 3. c4 Kf7
 4. (Nc3) ...
 
-**Stockfish Defense - Open Variation**
+**Defesa Stockfish - Variante Aberta**
 1. d4 c5
 2. dxc5 *dxc5*
 
-**Stockfish Defense - Queenside Push**
+**Defesa Stockfish - Pressão no lado da Dama**
 1. d4 c5
 2. *e3* cxd4
 3. exd4 b5
@@ -134,4 +133,4 @@ Some particular lines have been also played for multiple games. Here are the fou
 
 ![Stockfish Defense Queenside Push](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/QueensidePush.png)
 
-*Stockfish Defense- Queenside Push after 5. c4*
+*Defesa Stockfish- Pressão no lado da Dama após 5. c4*
