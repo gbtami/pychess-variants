@@ -2,24 +2,25 @@
 
 ![Shako](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shako.png)
 
-Shako is a chess variant created by Jean-Louis Cazaux. The game is played on a 10x10 board and introduces two new pieces, the cannon and elephant, which are both derived from Xiangqi (Chinese chess). In his own words:
+O Shako é uma variante de Xadrez criada por Jean-Louis Cazaux. Esta variante é jogada num tabuleiro 10x10 e tem duas novas peças, o Canhão e o Elefante, ambas provenientes do Xiangqi (Xadrez Chinês). Palavras do próprio autor:
 
-"The name Shako means Chess in Esperanto, another kind of non-conformism and utopia. The idea is to make a new game without directly disposing the large heritage of the classical game. All rules of orthodox chess are kept, and the way the pieces are placed in the opening setup allows players to follow practically all the openings used for usual chess. One new pieces are taken from Xiangqi (Chinese Chess), with the intention to bring back together the two branches of the game that went of from India either east to the Orient, and west to the Arabs. The second new piece is taken from Shatranj and mediaeval Chess in order to bridge with a prestigious past.
+"O nome Shako vem de Xadrez em Esperanto, um outro tipo de utopia e inconformismo. A ideia é ter um novo jogo sem deixar de lado grande parte de um jogo de Xadrez clássico. Todas as regras do Xadrez são mantidas, e a forma como as peças são dispostas inicialmente faz com que os jogadores possam seguir praticamente todas as aberturas do Xadrez normal. Uma das novas peças é a mesma de Xiangqi (Xadrez Chinês), e tem como intuito misturar os dois tipos de jogos que vieram da India para o Oriente, Este e para os Árabes. A segunda nova peça foi baseada em Shatranj e Xadrez Medieval de modo a criar uma ligação a um passado importante.  
 
-I finished to design this game in 1990. Shako has an entry in D.B.Pritchard's "The Classified Encyclopedia of Chess Variants" (2007)."
+Eu acabei de criar esta variante em 1990. O Shako existe na Base de Dados de Pritchards "The Classified Encyclopedia of Chess Variants"(2007)." (Inglês)
 
-## Rules
+## Regras
 
-The rules are essentially the same as chess, but with two new pieces, the elephant and cannon. Because of the 10x10 board, pawns promote at the 10th rank, and they may also promote to an elephant or cannon if desired.
+As regras são as mesmas do Xadrez normal, mas com duas novas peças, o Elefante e o Canhão. Por causa do tabuleiro ser 10x10, os Peões são promovidas na 10ª linha e também podem ser promovidos a Elefante ou Canhão caso for pretendido.
 
-### Elephant
+### Elefante
 
 ![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShakoElephant.png)
 
-The elephant is similar to the one in xiangqi. However, there is a significant difference. While the xiangqi elephant can only move exactly two spaces diagonally, the Shako elephant can move one or two spaces diagonally. In addition, it can leap over the first diagonal spot like a knight can leap over pieces. While there is less range than a bishop, the ability to leap gives it a little more flexibility.
+O elefante é semelhante ao que é usado em Xiangqi. No entanto existe uma ligeira diferença. Enquanto no Xiangqi o Elefante só se move exatamente duas casas na diagonal, o Elefante em Shako pode-se mover uma ou duas casas na diagonal. Adicionalmente, este também pode saltar a primeira diagonal (como um Cavalo). Pelo facto deste ter um menor alcance do que o Bispo, a habilidade de saltar outras peças dá a este uma ligeira flexibilidade.
 
-### Cannon
+### Canhão
 
 ![Cannon](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Cannon.png)
 
-The cannon functions exactly like it does in Xiangqi. When moving, it moves exaclty like a rook. However, when attacking, it needs to jump over a piece (a "screen") to attack the next piece beyond. In Shako, the cannon is one of the weakest pieces. However, it can be a very tricky piece that can be used in a variety situations. Because of its need to use other pieces to attack, the cannon is very weak in the endgame.
+O Canhão funciona exatamente como no Xiangqi. Movimenta-se exatamente como uma Torre. No entanto, para atacar é necessário outra peça à sua frente para saltar (uma "mira"). Em Shako, o Canhão é uma das peças mais fracas.
+No entanto pode ser uma peça complexa em variadas situações. Pelo facto de precisar de outras peças à sua frente, o Canhão é muito fraco em fim-de-jogo.
