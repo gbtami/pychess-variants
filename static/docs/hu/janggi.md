@@ -1,168 +1,183 @@
-# ![Janggi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Janggi.svg) Janggi
+# ![Janggi ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Janggi.svg) Janggi (Koreai sakk)
 
-![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
+![Janggi tábla](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
 
-*Janggi* (장기, pronounced like “*jahng-ghee*”), or Korean Chess, is a classic board game native to Korea. The game is derived from Xiangqi and is very similar to it.
+A janggi (장기), avagy a koreai sakk egy klasszikus táblajáték, mely Koreában őshonos. A játék a kínai sakkból (xiangqi) eredeztethető és nagyon hasonló ahhoz.
 
-## Rules: Board and Setup
+## Tábla és kezdő pozíciók
 
-There are two sides, one is colored red (called Han), and the other blue (called Cho). The blue side can also be colored green. These two sides represent the two sides in the Chu-Han Contention from Chinese history. Red pieces are written using Chinese characters (hanja), while blue pieces are written in cursive-style hanja.
+Az egyik oldal itt piros színű (melynek neve *Han*), a másik pedig kék (melynek neve *Cho*). A kék helyett zöld szín is használatos. Ez a két oldal a kínai történelemből ismert Chu-Han belviszályt reprezentálja. A bábukra a nevek kínai írásjegyekkel (handzsa) vannak felfestve, de a kék bábukon a folyóírásos (kézírásos) változatuk szerepel, ezért a piros és a kék bábuk nem ugyanúgy néznek ki.
 
-Setup for all pieces except for the horse and elephant are as in the picture above. Like xiangqi, janggi is placed on a 9 x 10 board, where pieces are placed on intersections rather than squares. The 3x3 square with the X on each side is called the *Palace*. Unlike in most other chess variants, in janggi, players can choose the starting positions of the horses and elephants. There are four types to choose from:
+A kezdőállás a fenti képeken látható (azonban a ló és az elefánt felcserélhető, lásd lentebb). A játékot a kínai sakkhoz hasonlóan 9x10-es táblán játsszák, a bábuk pedig a mezők metszéspontjain állnak/mozognak, nem pedig a mezőkön belül. A 3x3-as terület a tábla alján a *palota*. A király és a testőrei csak a palotán belül tudnak mozogni.
 
-1. Both horses are closer to the edge (*won ang ma*)
-2. Both horses are closer to the general (*yang gwee ma*)
-3. Left inner horse, right outer horse (*gwee ma*)
-4. Left outer horse, right inner horse (*mat sang jang gi*)
+A játszma megkezdése előtt mindkét játékos megválaszthatja a lovak és az elefántok kezdőpozícióját. Négy opció közül lehet választani:
 
-Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
+1. *Külső lovak*: mindkét ló a tábla széléhez van közelebb (*won ang ma*)
+2. *Belső lovak*: mindkét ló a királyhoz van közelebb (*yang gwee ma*)
+3. *Bal belső, jobb külső ló*: a bal oldali ló a királyhoz, a jobb oldali pedig a tábla széléhez van közelebb (*gwee ma*)
+4. *Bal külső, jobb belső ló*: a bal oldali ló a tábla széléhez, a jobb oldali pedig a királyhoz van közelebb (*mat sang jang gi*)
 
-## The Pieces
+A fenti pozíciókból a piros játékos (Han) választ először, viszont a kék játékos (Cho) lép elsőnek.
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters (hanja), and many sites, including Wikipedia, already explain the rules as such.
+## Bábuk
 
-Several pieces have special moves utilizing the diagonals in either palace, which will be discussed below. In the diagrams, a lighter shade of green is used.
+A tradicionális készletek a kínai írásjegyeket használják, de a könnyebb érthetőség végett ez az útmutató a nemzetközi bábukészleten alapul (melyen a figurák ábrái láthatók).
+
+Több bábunak is van speciális lépéslehetősége a palotákon belül (erről később lesz szó részletesen). Az ábrákon ezek világosabb árnyalatú zölddel vannak jelölve.
 
 ### King
 
-![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
+![Király bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
 
-The **King** (also known by its Chinese name, the **general**) is restricted to the palace and can move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
+A *király* (vagy a kínai neve alapján: *tábornok*) csak a palotán belül tud mozogni (egyszerre egy mezőt), ami azt jelenti, hogy ha a közepén áll, akkor maximum 8 lehetséges lépése van. Ha bármely más helyen áll, akkor maximum 3 lehetséges lépése marad.
 
-*Special rule:* When a King faces the other King, this causes *bikjang*. The next player must then move his king out of the way or else the game is ended. See rules below regarding bikjang.
+*Speciális szabály:* amikor a két király szemben áll egymással (egy vonalban), úgy, hogy nincs köztük bábu, akkor a soron következő játékosnak el kell lépnie a királyával vagy a két király közé kell léptetnie egy bábut, különben döntetlennel véget ér a játszma. Ezt a szabályt **bikjang**-nak nevezik.
 
-![King and advisor](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Palace.png)
+### Testőr
 
-### Advisor
+![Testőr bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Advisors.png) 
 
-![Advisors](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Advisors.png) 
+A *testőr* is ugyanúgy mozoghat, mint a király: egy lépést, kizárólag a palotán belül.
 
-The **Advisor** (also known by its Western name, the **guard**) moves exactly like the King, which is one space along lines within the palace. Like the King, the Advisor is confined to the palace.
+![Király és a testőrei ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Palace.png)
 
-### Horse
+### Ló
 
- ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Horses.png)
+ ![Ló bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Horses.png)
  
- ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/HorseDiagram.png)
+ ![Ló ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/HorseDiagram.png)
 
-The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+A *ló* hasonlóan mozog, mint a sakkban a huszár. Azonban az L-alakzattól eltérően inkább úgy tekintsünk a mozgására, hogy egyet lép vízszintesen vagy függőlegesen, majd átlóban egyet valamelyik irányba, egy Y-alakzatra emlékeztetve. Ennek az az oka, hogy a ló blokkolható, ha egy bábu mellette áll.
 
-### Elephant
+### Elefánt
 
- ![Elephants](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Elephants.png)
+ ![Elefánt bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Elephants.png)
  
- ![Elephant movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ElephantDiagram.png)
+ ![Elefánt ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ElephantDiagram.png)
 
-The **Elephant** is much different than its xiangqi counterpart. Movement is similar to the horse in that it moves in a Y-shaped pattern. While the horse moves one step orthogonally and then one step further diagonally, the elephant moves one step orthogonally and then *two* steps diagonally. The elephant, like the horse, can be blocked on any intervening point along this path.
+Az *elefánt* nagyon más, mint ami a kínai sakkban megtalálható. Hasonló a lóhoz, de az elefánt két mezőt lép átlóban, ezért a mozgása inkább egy nyújtott Y-alakzatot ír le. A lóhoz hasonlóan az elefánt is blokkolható a köztes mezőkön álló bábukkal.
 
-### Chariot
+### Szekér (Bástya)
 
- ![Chariots](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Chariots.png)
+ ![Szekér bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Chariots.png)
  
- ![Chariot movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ChariotDiagram.png)
+ ![Szekér ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ChariotDiagram.png)
 
-The **Chariot** (also called by its Western name, the **rook**) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
+A *szekér* (vagy más néven: *bástya*) ugyanúgy mozog, mint a sakkban a bástya: akárhány mezőt vízszintesen vagy függőlegesen. A királyt leszámítva ez a legértékesebb bábu.
 
-*Palace move*: When in the palace, the chariot can also move along the diagonal lines.
+*Mozgás a palotán belül*: a palotán belül az átlók mentén is tud mozogni.
 
-### Cannon
+### Ágyú
 
-![Cannons](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Cannons.png)
+![Ágyú bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Cannons.png)
 
-![Cannon movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/CannonDiagram.png)
+![Ágyú ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/CannonDiagram_HU.png)
 
-The **Cannon** is slightly different than its xiangqi counterpart. It moves orthogonally like the chariot, but it needs an intervening piece (called a "screen") to hop over first. It can then capture the next piece along the same line. Unlike xiangqi, the Cannon cannot move without a screen.
+Az ágyú hasonlóan mozog és üt, mint a szekér: akárhány mezőt vízszintesen vagy függőlegesen, de a mozgáshoz és az ütéshez is egy köztes bábura van szüksége, amit "átugrik", és csak az azt követő bábut tudja leütni, vagy csak az azt követő üres mezők valamelyikére tud lépni. Tehát az ágyú a hozzá legközelebbi bábut nem tudja leütni. Ha az ágyú vonalában nincs bábu, akkor az lépni sem tud.
 
-*EXCEPTION*: The cannon cannot use another cannon as a screen. Additionally, it can't capture the opponent's cannons.
+*Fontos szabály*: Az ágyú egy másik ágyút nem tud sem átugrani, sem leütni.
 
-*Palace move*: When in the palace, the cannon can also move along the diagonal line. Practically speaking, the cannon must be on one corner, where it can move or attack the opposite corner if a non-cannon piece is in the center (as in the diagram).
+*Mozgás a palotán belül*: a palotán belül az átlók mentén is tud mozogni, ha valamelyik sarokban áll és a palota közepén van egy bábu, amit átugorhat.
 
-### Pawn
+### Gyalog
 
-![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Pawns.png)
+![Gyalog bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Pawns.png)
 
-![Pawn movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/PawnDiagram.png)
+![Gyalog ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/PawnDiagram.png)
 
-The **Pawn** (also called by its Chinese name, the **soldier**) moves and captures by moving forward or sideways one square. This is different than the xiangqi pawn, which needed to cross the river first to move sideways.
+A *gyalog* előre vagy oldalirányba egyet tud lépni és így is tud ütni.
 
-*Palace move*: When in the palace, the pawn can also move forwards along the diagonal lines.
+*Mozgás a palotán belül*: a palotán belül az átlók mentén mentén is mozoghatnak egy mezőt, de csak előrefelé.
 
-## Notation
+## Játszmajegyzés
 
-Janggi notation works much differently than other variants. First of all, coordinate numbering. From blue's perspective, ranks are numbered from 1 to 10 going down from top to botttom. However, the 10th rank is called 0. Files are numbered 1 to 9 from left to right. Describing a piece location is the opposite of chess. A location is described by *rank* then *file* (in all other variants, it's file, then rank). So for example, the blue chariot in the bottom left corner is at **01**. The intersection above it is **91**. The blue king is located at **95**.
+A koordinátákat csak számokkal jelölik. A kék játékos nézőpontjából a sorok fentről lefelé 1-10-ig vannak számozva, de a 10. sor *0*-val jelölve. Az oszlopok balról jobbra 1-9-es számokkal vannak jelölve. Egy bábu helyét (a legtöbb sakkváltozattal ellentétben) először a *sor* majd az *oszlop* számával határozzuk meg. Például, ha a kék szekér a bal alsó sarokban áll, akkor a **01**-gyel írjuk le a helyét. A felette lévő mező a **91**-es. A kék király kezdőpozíciója a **95**-ös.
 
-Describing moves does not have a standardized international version. We use a modified version of the Korean way. In Korean, the syntax is (starting location)(piece name in Korean)(ending location). Here on Pychess, we use (English piece abbreviation)(starting location)-(ending location). Like in chess, captures are denoted with x instead of -, check has a + at the end, and checkmate is #.
+A jegyzésnek nincs egy standardizált nemzetközi változata. Az eredeti, koreai jegyzésmódszer a következő: 
 
-For example, the left chariot moving three spaces up is denoted by R01-71. "R" refers to the chariot. For piece abbreviations, see below.
+**(mező)(a bábu neve koreaiul)(célmező)**
 
-### Abbreviations
+Ezen az oldalon a következő jegyzésmódszer van használatban: 
 
-K = **K**ing
+**(a bábu angol nevének rövidítése)(mező)-(célmező)**
 
-A = **A**dvisor
+A további jelzések itt is a sakkban már megszokottak:
 
-E = **E**lephant
+ütés: **x**
 
-H = **H**orse
+sakk: **+**
 
-C = **C**annon
+matt: **#**
 
-R = Cha**R**iot
+Példa: ha a bal oldali szekér három mezőt lép előre a kezdőhelyéről, akkor azt így jelöljük: **R01-71**. Az "R" a bástya (szekér) angol nevének rövidítése.
 
-P = **P**awn
+### Rövidítések
 
+K = Király
 
+A = Testőr
 
-## Rules: Gameplay
+E = Elefánt
 
-Like chess, the goal is to checkmate the other king.
+H = Ló
 
-Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
+C = Ágyú
 
-Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not make a move to break bikjang (for example moving a king or moving a piece in between), then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
+R = Szekér (Bástya)
 
-Piece | Value 
+P = Gyalog
+
+## Szabályok: játékmenet
+
+Akárcsak a sakkban, a cél itt is mattot adni a királynak. Más sakkváltozatokkal ellentétben azonban a janggiban passzolni is lehet, így patthelyzet nem alakulhat ki. **Ezen az oldalon úgy lehet passzolni egy játszma közben, hogy a Ctrl gombot lenyomva tartva kattintunk a királyra**.
+
+Amikor a két király szemben áll egymással (egy vonalban), úgy, hogy nincs köztük bábu, akkor a soron következő játékosnak el kell lépnie a királyával vagy a két király közé kell léptetnie egy bábut, különben döntetlennel véget ér a játszma. Ezt a szabályt **bikjang**-nak nevezik. Azokon a versenyeken, ahol a döntetlen nem megengedett, a táblán maradt bábuk értékét összeszámolják és a magasabb értékkel rendelkező játékos nyer.
+
+Jelenleg az oldalon a versenyszabályok vannak érvényben, amik nem engedik meg a döntetlent. Ebből adódóan *bikjang* esetén pontszámításra kerül sor.
+
+Bábu | Érték 
 ------------ | ------------- 
-Chariot | 13
-Cannon | 7
-Horse | 5
-Elephant | 3
-Advisor | 3
-Pawn | 2
+Szekér | 13
+Ágyú | 7
+Ló | 5
+Elefánt | 3
+Testőr | 3
+Gyalog | 2
 
-Because blue (Cho) starts the game, they start with an advantage and thus red (Han) also receives 1.5 points (*deom*) as a compensation. The .5 is added to avoid ties.
+A kék játékos (Cho) kezdi a játszmát, ezért kompenzációként a piros (Han) 1,5 többletpontot kap a játszma elején. Ezt a szabályt úgy nevezik, hogy **deom**. A fél pont a döntetlenek elkerülése végett adódik hozzá a pontszámhoz.
 
-Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang occurs.
+Lehetséges egyszerre sakkot adni és bikjangot előidézni. Ebben az esetben a bikjang élvez prioritást.
 
-Additionally, it's possible to cause bikjang and check at the same time. In this case, bikjang takes priority.
+A lépésismétlés nem megengedett, azonban változó, hogy ezt milyen módon kezelik. Ezen az oldalon a lépésismétlés nincs szabályozva, ezért ilyen esetekben a játékosoknak egymás közt kell eldönteniük, hogy hogyan oldják fel a helyzetet.
 
-Repetition is illegal; however, the way this is handled is variable. Repetition is not handled in Pychess, so in the event of repetition, the players should adjudicate the outcome between themselves.
+## Különbségek a kínai sakkhoz (xiangqi) képest
 
-## Differences from Xiangqi
+A fenti szabályokon kívül még:
 
-Aside from the rules above...
+* A janggiban nincs folyó (ami elválasztja a két oldalt a tábla közepén). Ebből következik, hogy a gyalogok már a kezdettől fogva tudnak oldalra is lépni és nem léptethetők elő. Az elefántok teljesen másképp mozognak és itt nincsenek a saját térfelükre korlátozva.
+* A bábuk nyolcszög formájúak, nem pedig kör alakúak. Továbbá a nagyságuk attól is függ, mennyire értékesek (pl. a király a legnagyobb, mert az a legértékesebb),
+* A táblán a kezdőpozíciók megjelölésére **x**-et használnak, nem pedig keresztet.
+* A király a palota közepén kezd, nem a hátuljában.
+* Az ágyúnak a lépéshez és az ütéshez is kell egy bábu, amit átugrik (a xiangqiban tud lépni átugrás nélkül is). Az ágyú nem üthet le másik ágyút (a xiangqiban igen).
+* A palotán belül a szekér, az agyú és a gyalog is tud az átlók mentén mozogni. 
+* A király és a testőrök minden irányban tudnak mozogni (a xiangqiban a testőrök csak átlóban, a király pedig vagy vízszintesen vagy függőlegesen tud lépni).
 
-* There is no river in Janggi. Consequently, pawns and elephants move differently. Pawns can move sideways from the start. The Elephant moves completely differently.
-* Visually, pieces are on octagons rather than circles. Piece sizes also vary based on value. Kings (generals) are named after the two sides rather than being called "general." Boards use x's instead of crosses for starting pieces.
-* The Kings start in the middle of the palace instead of the back of the palace.
-* Cannons are different in that they both move and capture the same way (by jumping over a piece first). They also have additional restrictions.
-* The Palace affects all piece movement except the Horse and Elephant. Kings and advisors moves along the lines instead of only orthogonally or diagonally. Chariots, cannons, and pawns can move along the diagonals.
+## Stratégia
 
+[Amphibian Hoplite youtube csatornája (angol nyelvű)](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM) nagyon hasznos lehet a kezdőknek.
 
+[Egy másik angol nyelvű videó](https://www.youtube.com/watch?v=pX_ZDjeqlJs), ami az alapvető megnyitásokat mutatja be.
 
-## Strategy
+(Megjegyzés: magyar nyelvű tartalomról jelenleg nincs tudomásunk.)
 
-[These videos by Amphibian Hoplite](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM) are an excellent start for English players. Available resources in English are otherwise fairly limited.
+### Általános koncepciók
 
-[Here](https://www.youtube.com/watch?v=pX_ZDjeqlJs) is another video by Kolo (AKA Galdian) that also goes over opening principles.
+* A gyalogok struktúrája nagyon fontos. Mivel képesek oldalirányba is lépni, akkor a legerősebbek, ha párban vannak és védik egymást. A hármas csoportba szervezett gyalogok nem előnyösek. Továbbá a gyalogokat itt nem ajánlott előrefelé vinni, ha nem muszáj.
 
-### General Concepts
+![Rossz gyalogformáció](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/BadPawns.png)
 
-* Pawn structure is very important. Because pawns can move sideways, they're strongest when protecting each other in pairs. A line of three pawns is a poor formation (because they're stretched out thin). Also because of this, it's not advised to advance pawns if possible.
+* A játszma kezdetén megválasztott elefánt-ló pozíciók nagyban befolyásolják a megnyitásokat. A külső elefánt képes a tábla közepe felé lépni a két gyalog közé. A belső elefánt számára nincs szabad mező, mert ott állnak a gyalogok (viszont így védi azokat).
 
-![Bad Pawn Formations](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/BadPawns.png)
+* A fentiből következik, hogy az elefánt pozíciója meghatározza azt, hogy **melyik oldalt nyitjuk meg**. Például, ha bal oldalon külső elefánttal játszunk (és az ellenfél szemben lévő elefántja is a külső oldalon van), akkor ajánlott a bal szélső gyalogot oldalra léptetni ezzel megnyitva az utat a szekérnek. Ez azért előnyös, mert az ellenfél szélső gyalogja nem léphet el onnan (hiszen akkor leüthetnénk a szekerét). Ha a másik gyalogját az ágyúja elé lépteti (ezzel is védve a szélső gyalogot), akkor az elefánttal megtámadhatjuk ezt az ágyú előtti gyalogot, hiszen ha a szélső gyaloggal ütné az elefántunkat, akkor megnyílna az út a bal szélen és a szekerünkkel leüthetnénk az ellenfél szekerét.
 
-* Regarding the choice of horse-elephant positioning in setup, one way to think about it is how your elephants are positioned, and this has significant implications for the opening. An elephant on the outer position is able to move into towards the center between two pawns. However, an elephant in the inner position is blocked by the pawns (although it does protect them).
-* Continuing from this, the positioning of your elephant determines which **edge file to open up**. For example, when playhing a setup where the left elephant can advance (and the opponent's opposite elephant is also on the outside), you want to move your left edge pawn to the side, opening up the chariot's file. The reason for this is that now the opponent's edge pawn cannot move, so if you attack the cannon file pawn with your elephant, if his edge pawn defends, he would lose his chariot. Note that if the opponent instead had two inner elephants, then you would instead open up the opposite edge.
-
-![Activating the elephant and chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ActiveElephant.png)
+![Támadó elefánt ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ActiveElephant2.png)
