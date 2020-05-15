@@ -3,16 +3,16 @@
 
 ![Minixiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Minixiangqi.png)
 
-Minixiangqi is essentially xiangqi on a 7x7 board. The game was invented in 1973 by Shigenobu Kusumoto of Osaka, Japan.
+O Minixiangqi é basicamente Xiangqi num tabuleiro de 7x7. Esta variante foi inventada em 1973 por Shigenobu Kusumoto proveniente de Osaka, Japão.
 
-As this game is based off xiangqi, please see the corresponding guide for basic xiangqi rules first if you are not familiar with them.
+Como este jogo é baseado em Xiangqi, por favor leia as regras básicas do Xiangqi se não as conhece.
 
-## Rules
+## Regras
 
-The starting setup is as above. Unlike standard xiangqi, there is no river, advisors, or elephants. 
+A posição inicial está indicada acima. Ao contrário do Xiangqi normal, não existe rio, assistentes ou elefantes. 
 
-Additionally, **pawns start with the ability to move sideways.** 
+Além disso, **os peões começam com a habilidade de se moverem de lado.**
 
-## Strategy
+## Estratégia
 
-The king starts completely immobile and trapped by pieces. This makes the cannon able to checkmate very early if you are not careful. Early moves should try to give the king some breathing room.
+O Rei começa completamente imóvel e rodeado de peças. Isto faz com que os canhões possam dar xeque-mate desde cedo se não são tomadas as devidas precauções. A cada movimento deverá tentar dar margem de manobra ao Rei.
