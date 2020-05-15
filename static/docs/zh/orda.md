@@ -24,7 +24,7 @@ The Horde's Lancer and Horse Archer are unique in that they capture differently 
 **Horde** piece	| **Kingdom** “counterpart”	| Movement | Capture/Check
 -- | -- | -- | --
 Yurt | Queen | “Silver” | “Silver”
-Horse | Archer | Bishop | Knight | Bishop
+Horse Archer | Bishop | Knight | Bishop
 Kheshig | Knight | Knight+King | Knight+King
 Lancer | Rook | Knight | Rook
 
