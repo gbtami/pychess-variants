@@ -24,7 +24,7 @@ As Lanças e os Cavalo-Arqueiros são peças únicas pelo facto de capturarem de
 **Horde** peça	| **Kingdom** “equivalente”	| Movimento | Captura/Xeque
 -- | -- | -- | --
 Yurt | Dama | “Prateado” | “Prateado”
-Cavalo | Arqueiro | Bispo | Cavalo | Bispo
+Cavalo-Arqueiro | Bispo | Cavalo | Bispo
 Kheshig | Cavalo | Cavalo+Rei | Cavalo+Rei
 Lança | Torre | Cavalo | Torre
 
