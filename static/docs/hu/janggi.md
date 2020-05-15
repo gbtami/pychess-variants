@@ -25,7 +25,7 @@ A tradicionális készletek a kínai írásjegyeket használják, de a könnyebb
 
 Több bábunak is van speciális lépéslehetősége a palotákon belül (erről később lesz szó részletesen). Az ábrákon ezek világosabb árnyalatú zölddel vannak jelölve.
 
-### King
+### Király
 
 ![Király bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
 
