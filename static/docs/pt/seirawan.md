@@ -1,37 +1,37 @@
 # ![Seirawan](https://github.com/gbtami/pychess-variants/blob/master/static/icons/schess.svg) S-chess (Seirawan Chess, SHARPER Chess)
 
-S-chess was created by Yasser Seirawan and Bruce Harper in 2007. The game is played on an 8x8 board but adds a twist by adding two new hybrid pieces through the process of gating (introducing the pieces on to the board by replacing vacancies in the back rank). 
+O S-Chess foi criado por Yasser Seirawan e Bruce Harper em 2007. Esta variante é feita num tabuleiro 8x8 mas tem a particularidade de ter duas novas peças híbridas a partir de colocação (as peças são colocadas no tabuleiro substituindo casas que ficam vazias na primeira linha após um lance)
 
-## Rules
+## Regras
 
-Unlike the above variants, this is played on a standard 8 x 8 board. The **elephant** is the rook/knight hybrid, while the **hawk** is the bishop/knight hybrid. Both of these pieces instead start off the board, although they are not to be dropped as in Crazyhouse. Instead, when a piece in a player’s first rank moves for the first time, these pieces may optionally come into the square evacuated by that piece. If all first rank pieces have moved or been captured, then any remaining elephant or hawk cannot be entered into play. For castling, the extra pieces can enter either of the original king or rook squares.
+Ao contrário das outras variantes, esta é jogada num tabuleiro normal de 8x8. O **Elefante** é um híbrido de Torre/Cavalo enquanto o **Falcão** é um Bispo/Cavalo. Ambas as peças começam fora do tabuleiro, no entanto não podem ser colocadas como em Crazyhouse. Ao invés disto, quando uma peça na primeira linha for movida pela primeira vez, estas peças podem opcionalmente ser colocadas na casa que ficou vazia. Se todas as peças da primeira linha tiverem sido movidas ou capturadas, então o Elefante e o Falcão estão impossibilitados de entrar em jogo. Após o Roque, a peça adicional pode ser colocada na antiga casa do Rei ou da Torre. 
 
-Pawns can also promote to elephants and hawks.
+Os Peões podem ser promovidos a Elefantes e Falcões.
 
-## New Pieces
+## Novas Peças
 
-### Hawk
+### Falcão
 
 ![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
 
-The hawk (H) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+O Falcão (H) é uma peça composta pela combinação dos movimentos do **Bispo** e do **Cavalo**. Em termos de peças heterodoxas de xadrez, esta é geralmente reconhecida como a Princesa, mas também tem é denominada de várias maneiras em variantes diferentes.
 
-The hawk is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+O Falcão é uma peça unica pelo facto de ser a unica a capaz de dar xeque-mate por si mesma, razão pela qual esta deve ser vista, se observares os seus padrões de movimento e ataque.
 
-The value of a hawk is considered slightly better than a rook, but less than the elephant and queen.
+O Falcão é considerado um pouco mais valioso do que uma Torre, mas menos do que o Elefante e a Dama.
 
 ### Elephant
 
 ![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ElephantSeirawan.png)
 
-The elephant (E) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+O Elefante (E)  uma peça composta pela combinação dos movimentos da **Torre** e do **Cavalo**. Em termos de peças heterodoxas de xadrez, esta é geralmente reconhecida como a Imperatriz, mas também tem é denominada de várias maneiras em variantes diferentes.
 
-The value of an elephant is considered better than a hawk, but equivalent or slightly less than a queen.
+O Elefante é considerado melhor do que o Falcão, mas equivalente ou um bocado inferior à Dama.
 
-## Strategy
+## Estratégia
 
-Per Yasser Seirawan, protecting the king is even more important in this game because a ranged attack by a back rank piece such as the queen, bishop, or rook, can immediately be supported by an incoming hawk or elephant, in some cases leading to checkmate!
+Para Yasser Seirawan, proteger o Rei é muito mais importante nesta variante pelo facto de que um ataque de longa distância por uma peça na linha final tal como a Dama, o Bispo ou a Torre, poder ser imediatamente suportada por um Falcão ou um Elefante colocados, em alguns casos isto leva a Xeque-Mate!
 
-You can also see a stream of Yasser Seirawan playing against JannLee [here](https://www.youtube.com/watch?v=ujWzsxm18aQ).
+Também pode dar uma vista de olhos neste stream de Yasser Seirawan jogando contra JannLee (inglês) [aqui](https://www.youtube.com/watch?v=ujWzsxm18aQ).
 
-More strategy pending.
+Estratégias ainda em construção!
