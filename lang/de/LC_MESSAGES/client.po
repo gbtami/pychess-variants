@@ -72,6 +72,8 @@ msgid ""
 "pychess is a free, open-source chess server designed to play several chess "
 "variant."
 msgstr ""
+"pychess ist ein kostenloser, open-source Schach Server, entworfen um "
+"unterschiedliche Schachvarianten zu spielen."
 
 #: ../client/about.ts:24
 msgid "Currently supported games are "
@@ -82,18 +84,23 @@ msgid ""
 "Additionally you can check Chess960 option in for Standard, Crazyhouse, "
 "Capablanca and Capahouse to start games from random positions with "
 msgstr ""
+"Weiters kannst du die Chess960 Einstellung für Standard, Crazyhouse, "
+"Capablanca und Capahouse wählen um Partien mit einer zufälligen "
+"Anfangsposition zu starten"
 
 #: ../client/about.ts:72
 msgid "Chess960 castling rules."
-msgstr "Schach960 Rochade Regeln"
+msgstr "Chess960 Rochade Regeln"
 
 #: ../client/about.ts:75
 msgid "For move generation, validation, analysis and engine play it uses "
 msgstr ""
+"Die Zuggeneration, Validierung, Analyse und das Spielen mit dem Computer "
+"basiert auf "
 
 #: ../client/about.ts:83
 msgid "On client side it is based on "
-msgstr ""
+msgstr "Auf der Benutzerseite basiert es auf"
 
 #: ../client/about.ts:87
 msgid "Source code of server is available at "
@@ -104,6 +111,8 @@ msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
 " here."
 msgstr ""
+"Bezüglich der Privatsphäre und den Nutzungsbedingungen, gelten die "
+"Richtlinien von lichess.org."
 
 #: ../client/analysis.ts:32 ../client/lobby.ts:384 ../client/lobby.ts:532
 #: ../client/profile.ts:112 ../client/round.ts:31
@@ -202,19 +211,20 @@ msgstr "Server"
 
 #: ../client/chess.ts:41
 msgid "A game closely resembling the original Chaturanga"
-msgstr ""
+msgstr "Ein Spiel das dem ursprünglichen Chaturanga sehr ähnlich ist"
 
 #: ../client/chess.ts:42
 msgid "Makruk variant where kings cannot move to escape out of check"
-msgstr ""
+msgstr "Makruk Variante wo Könige sich nicht aus dem Schach bewegen können"
 
 #: ../client/chess.ts:43
 msgid "Makruk with a few additional opening abilities"
-msgstr ""
+msgstr "Makruk mit etwas mehr Eröffnungsmöglichkeiten "
 
 #: ../client/chess.ts:44
 msgid "Similar to Makruk, but pieces are placed at the start of the match"
 msgstr ""
+"Ähnlich zu Makruk aber die Figuren werden am Anfang der Partie gesetzt"
 
 #: ../client/chess.ts:45
 msgid "Choose where your pieces start"
@@ -223,6 +233,7 @@ msgstr "Wähle wo deine Figuren starten"
 #: ../client/chess.ts:46
 msgid "Take captured pieces and drop them back on to the board as your own"
 msgstr ""
+"Nimm geschlagene Figuren und setze sie wieder als deine eigenen Figuren ein"
 
 #: ../client/chess.ts:47
 msgid "Chess, unmodified, as it's played by FIDE standards"
@@ -245,10 +256,14 @@ msgstr ""
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
 msgstr ""
+"Ähnlich wie Xiangqi, spielt sich aber anders. Turnier Regeln werden "
+"verwendet"
 
 #: ../client/chess.ts:52
 msgid "Open fire on your opponent in this highly aggressive ancient game"
 msgstr ""
+"Lass Feuer auf deinen Gegner regnen in diesem hoch aggressiven, antiken "
+"Spiel"
 
 #: ../client/chess.ts:53
 msgid "Xiangqi on a 7x7 board"
@@ -259,12 +274,16 @@ msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board"
 msgstr ""
+"Spiele mit Hybridfiguren, dem Erzbischof (L+S) und dem Kanzler (T+S), auf "
+"einem  10x8 Brett "
 
 #: ../client/chess.ts:55
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
 msgstr ""
+"Hybridfiguren, der Adler (L+S) und der Elefant (T+S), können eingesetzt "
+"werden wenn man Figuren von der Grundreihe bewegt"
 
 #: ../client/chess.ts:56
 msgid "Capablanca with Crazyhouse drop rules"
@@ -279,19 +298,23 @@ msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
 msgstr ""
+"Spiele mit Hybridfiguren, dem Erzbischof (L+S) und dem Kanzler (T+S), auf "
+"einem großem 10x10 Brett "
 
 #: ../client/chess.ts:59
 msgid "Grand Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "Grand Chess mit Crazyhouse Einsetzregeln"
 
 #: ../client/chess.ts:60
 msgid "Like Capablanca Chess but with a different starting setup"
-msgstr ""
+msgstr "Wie Capablanca aber mit einer anderen Startposition"
 
 #: ../client/chess.ts:61
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
 msgstr ""
+"Führt die Kanone und den Elefanten von Xiangqi auf einem 10x10 Schachbrett "
+"ein"
 
 #: ../client/chess.ts:62
 msgid "Pieces promote and can be dropped, similar to Shogi"
@@ -302,6 +325,8 @@ msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
 msgstr ""
+"Asymmetrische Variante wo eine Seite Figuren hat die sich wie Springer "
+"bewegen, aber anders schlagen."
 
 #: ../client/chess.ts:132 ../client/chess.ts:155 ../client/lobby.ts:415
 msgid "Black"
@@ -379,7 +404,7 @@ msgstr "SPIELE MIT DEM COMPUTER"
 
 #: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:343
 msgid " (must be signed in)"
-msgstr ""
+msgstr "(muss angemeldet sein)"
 
 #: ../client/editor.ts:107
 msgid "EXPORT TO PNG"
@@ -645,7 +670,7 @@ msgstr "ANALYSEBRETT"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop counting"
-msgstr ""
+msgstr "Aufhören zu zählen"
 
 #: ../client/roundCtrl.ts:853
 msgid "Stop"
@@ -653,7 +678,7 @@ msgstr "Stopp"
 
 #: ../client/roundCtrl.ts:855 ../client/roundCtrl.ts:857
 msgid "Start counting"
-msgstr ""
+msgstr "Anfangen zu zählen"
 
 #: ../client/settings.ts:348
 msgid "[-] Zoom [+]"
@@ -665,7 +690,7 @@ msgstr "Zielfelder markieren"
 
 #: ../client/settings.ts:360
 msgid "Two click drop moves"
-msgstr ""
+msgstr "Zweimal klicken zum Einsetzen"
 
 #: ../client/settings.ts:376
 msgid "Promote to Queen automatically"
@@ -673,4 +698,4 @@ msgstr "Automatische Umwandlung zur Dame"
 
 #: ../client/settings.ts:383
 msgid "Best move arrow"
-msgstr "Bester Zug Pfeil"
+msgstr "Besten Zug anzeigen"
