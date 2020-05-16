@@ -4,7 +4,7 @@
 
 A janggi (장기), avagy a koreai sakk egy klasszikus táblajáték, mely Koreában őshonos. A játék a kínai sakkból (xiangqi) eredeztethető és nagyon hasonló ahhoz.
 
-## Tábla és kezdő pozíciók
+## Tábla és kezdőpozíciók
 
 Az egyik oldal itt piros színű (melynek neve *Han*), a másik pedig kék (melynek neve *Cho*). A kék helyett zöld szín is használatos. Ez a két oldal a kínai történelemből ismert Chu-Han belviszályt reprezentálja. A bábukra a nevek kínai írásjegyekkel (handzsa) vannak felfestve, de a kék bábukon a folyóírásos (kézírásos) változatuk szerepel, ezért a piros és a kék bábuk nem ugyanúgy néznek ki.
 
