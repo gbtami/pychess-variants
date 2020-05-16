@@ -1,18 +1,15 @@
+# ![Minixiangqi ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Minixiangqi.svg) Minixiangqi (7x7-es kínai sakk)
 
-# ![Minixiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Minixiangqi.svg) Minixiangqi
+![Minixiangqi ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Minixiangqi.png)
 
-![Minixiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Minixiangqi.png)
+A minixiangqi lényegében egy kisebb, 7x7-es táblán játszott változata a xiangqinak. A játékot 1973-ban alkotta meg a japán Shigenobu Kusumoto.
 
-Minixiangqi is essentially xiangqi on a 7x7 board. The game was invented in 1973 by Shigenobu Kusumoto of Osaka, Japan.
+Mivel a minixiangqi a standard xiangqin alapul, kérlek olvasd el a xiangqi útmutatót, ha még nem ismered az alapvető szabályokat.
 
-As this game is based off xiangqi, please see the corresponding guide for basic xiangqi rules first if you are not familiar with them.
+## Szabályok
 
-## Rules
+A kezdőállás a fenti képen látható. A standard xiangqival ellentétben itt nincs folyó, sem testőrök, sem elefántok, továbbá a gyalogok már kezdettől fogva képesek oldalirányba is mozogni.
 
-The starting setup is as above. Unlike standard xiangqi, there is no river, advisors, or elephants. 
+## Stratégia
 
-Additionally, **pawns start with the ability to move sideways.** 
-
-## Strategy
-
-The king starts completely immobile and trapped by pieces. This makes the cannon able to checkmate very early if you are not careful. Early moves should try to give the king some breathing room.
+A játszma elején a király teljesen körbe van zárva, nem képes mozogni, emiatt az ágyú nagyon gyorsan mattot adhat, ha nem vigyázunk. A kezdőlépések során érdemes arra törekedni, hogy a királynak legyen lehetősége ellépni.
