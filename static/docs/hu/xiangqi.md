@@ -1,194 +1,189 @@
-# ![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/xiangqi.svg) Xiangqi
+# ![Xiangqi ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/xiangqi.svg) Xiangqi (Kínai sakk)
 
-![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Boards.png)
+![Xiangqi tábla](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Boards.png)
 
-*Xiangqi* (象棋, pronounced like “*shyang-chee*”), or Chinese Chess is a classic board game native to China and is thought to be descended from Chatturanga, the same ancestor as Chess, although some have argued the opposite. The game is very popular in China and Vietnam, and it has been said that it is the most played board game in the world. The game itself is similar to chess, although it plays much differently. 
+A xiangqi (象棋), avagy a kínai sakk egy klasszikus táblajáték, mely Kínában őshonos és úgy tartják, hogy [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk, bár egyesek ezt vitatják, és úgy gondolják, hogy az ellenkezője történt. A játék nem csak Kínában, de Vietnámban is népszerű.
 
-## Why learn Xiangqi?
+## Miért érdemes megtanulni a kínai sakkot?
 
-If you enjoy Chess, Xiangqi is definitely worth trying. While slightly slower paced and longer than Chess, the game starts more open and is more geared towards fast-paced play leading to a quick endgame. Compared to Chess, Xiangqi is also far more tactical (as opposed to strategic). As with other chess variants, improving your skill in Xiangqi can also improve your skills in Chess (tactics, in particular) as well as open up new ways of thinking! [See here for more about that.](https://en.chessbase.com/post/why-you-need-to-learn-xiangqi-for-playing-better-chess)
+Ha élvezed a sakkot, akkor a xiangqit határozottan megéri kipróbálni. Miközben egy kicsit lassabb tempójú és hosszabbra nyúló játék, mint a sakk, a xiangqi nyitottabban indul és az idő előrehaladtával begyorsul, ami gyors végjátékhoz vezethet. A sakkal összevetve a xiangqi inkább taktikai játék (nem annyira a stratégiai). Ahogyan más sakkvariánsok esetében is, a xiangiban szerzett tapasztalat is segíthet fejleszteni a képességeidet a sakkban, és egyben új gondolkodásmódokat is megnyithat. [Erről bővebben itt olvashatsz angol nyelven.](https://en.chessbase.com/post/why-you-need-to-learn-xiangqi-for-playing-better-chess)
 
-## The Rules
+## Szabályok
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The most striking difference is that pieces are on intersections instead of squares, which is mainly an aesthetic difference. Players take turns moving pieces on a board to checkmate the enemy king. The red player traditionally moves first, followed by black, although the order is not crucial as the board is symmetric. The only other main difference from chess is that stalemates are considered losses for the player who got stalemated (i.e. can’t move any pieces).
+A szabályok hasonlóak a sakkéhoz, így ez az útmutató a különbségekre fókuszál. A két játékos színe itt piros és fekete, hagyományosan pedig az előbbi kezdi a játékot. A cél itt is az ellenfél királyának mattolása, azonban a patthelyzet itt nem döntetlen, hanem a patthelyzetben lévő játékos veszít.
 
-## The Board
+## Tábla
 
-The xiangqi board is a little different than other chess games. In addition to being played on the intersections, there are important sections of the board. First is the river, which splits the board in half. The river affects the movement of the elephant and pawn pieces. Second is the palaces, which are the 3 x 3 squares at each end of the board that has diagonal lines inside. The king and his advisors are confined to the palace.
+A játékot 9x10-es táblán játsszák, a bábuk pedig a mezők metszéspontjain állnak/mozognak, nem pedig a mezőkön belül. A 3x3-as terület a tábla alján a palota. A király és a testőrei csak a palotán belül tudnak mozogni. A táblát a folyó szeli ketté, ami hatással van a gyalogok és az elefánt mozgására is (ezekről részletesen később).
 
-## The Pieces
+## Bábuk
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters, and many sites, including Wikipedia, already explain the rules as such. As it is now, knowledge of the Chinese characters will be required if you want to utilize all English resources or play in a real life setting. Compared to shogi which is the other major game using Chinese characters, xiangqi has fewer characters to learn, and several characters are pictographic, which also makes them easier to learn.
+A tradicionális készletek a kínai írásjegyeket használják, de a könnyebb érthetőség végett ez az útmutató a nemzetközi bábukészleten alapul (melyen a figurák ábrái láthatók).
 
-Xiangqi pieces traditionally have had different names: their Chinese translation and a Western equivalent. In this guide, we will use the names and abbreviations chosen by the Asian Xiangqi Federation (AXF), which uses a mixture of the two. Unfortunately, both names are very common, so you should be familiar with both.
+### Király
 
-### King
+![Király bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Kings.png) 
 
-![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Kings.png) 
+A király (vagy a kínai neve alapján: tábornok) csak a palotán belül tud mozogni, egy mezőt vízszintesen vagy függőlegesen.
 
-The king (also known by its Chinese name, the **general**) can only move one step orthogonally. Additionally, it is confined to the palace.
+*Speciális szabály*: a két király nem állhat szemben egymással (egy vonalban) úgy, hogy nincs köztük bábu. Ezt a szabályt hasznos ismerni a végjátékban, mert segíthet a mattadásban.
 
-*Special rule:* Kings are not allowed to face each other with no piece in between (“General face-off rule”). Consider them as being able to attack each other as rooks (also called “flying generals”). This is useful for setting up checkmates in the endgame.
+### Testőr
 
-![King and advisor movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/KingAdvisorDiagram.png)
+![Testőr bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Advisors.png) 
 
-### Advisor
+A testőr csak a palotán belüli átlók mentén léphet egyet, így maximum 5 lehetséges pozíciója van egy testőrnek.
 
-![Advisors](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Advisors.png) 
+![Király és testőrök ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/KingAdvisorDiagram.png)
 
-The advisor (also known by its Western name, the **guard**... less commonly a **minister**)  can only move one step along the diagonals of the palace. There are only five positions an advisor can take.
+### Elefánt
 
-### Elephant
-
- ![Elephants](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Elephants.png)
+ ![Elefánt bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Elephants.png)
  
- ![Elephant movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/ElephantDiagram.png)
+ ![Elefánt ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/ElephantDiagram.png)
 
-The elephant (very rarely called by its Western name, the **bishop**) can move diagonally exactly two steps. There are two more restrictions: 1) The elephant can be blocked if there is a piece in between. 2) It cannot cross the river.
+Az elefánt csak átlósan tudod mozogni pontosan két mezőt. Az elefánt blokkolható, ha az útjában áll egy bábu, ilyenkor nem tud lépni. További megkötés, hogy az elefánt nem tud átkelni a folyón, ezért csak a saját térfelén képes mozogni.
 
-On a side note, the Chinese character for the red elephant means “minister,” but is still called an elephant in English.
+*Megjegyzés*: a piros játékos bábuja eredetileg nem elefánt, hanem "miniszter", de angol nyelven (és magyarul is) az egyszerűsítés miatt elefántként hivatkozunk rá.
 
-### Horse
+### Ló
 
- ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Horses.png)
+ ![Ló bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Horses.png)
  
- ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/HorseDiagram.png)
+ ![Ló ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/HorseDiagram.png)
 
-The horse (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+A ló hasonlóan mozog, mint a sakkban a huszár. Azonban az L-alakzattól eltérően inkább úgy tekintsünk a mozgására, hogy egyet lép vízszintesen vagy függőlegesen, majd átlóban egyet valamelyik irányba, egy Y-alakzatra emlékeztetve. Ennek az az oka, hogy a ló blokkolható, ha egy bábu mellette áll.
 
-### Chariot
+### Szekér (Bástya)
 
- ![Chariots](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Chariots.png)
+ ![Szekér bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Chariots.png)
  
- ![Chariot movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/ChariotDiagram.png)
+ ![Szekér ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/ChariotDiagram.png)
 
-The chariot (also called by its Western name, the **rook**, and more rarely by its literal modern translation, car) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
+A szekér (vagy más néven: bástya) ugyanúgy mozog, mint a sakkban a bástya: akárhány mezőt vízszintesen vagy függőlegesen. A királyt leszámítva ez a legértékesebb bábu.
 
-### Cannon
+### Ágyú
 
-![Cannons](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Cannons.png)
+![Ágyú bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Cannons.png)
 
-![Cannon movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonDiagram.png)
+![Ágyú ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonDiagram.png)
 
-The cannon is a unique piece in xiangqi. It can move exactly like the chariot. However, to capture, it needs a piece (friend or foe) in between, called a screen.
+Az ágyú hasonlóan mozog és üt, mint a szekér: akárhány mezőt vízszintesen vagy függőlegesen, de az ütéshez egy köztes bábura van szüksége, amit "átugrik", és csak az azt követő bábut tudja leütni.
 
-### Pawn
+### Gyalog
 
-![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Pawns.png)
+![Gyalog bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Pawns.png)
 
-![Pawn movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/PawnDiagram.png)
+![Gyalog ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/PawnDiagram.png)
 
-The pawn (also called by its Chinese name, the **soldier**) moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
+A gyalog csak előrefelé tud lépni/ütni egyet. Amikor átkel a folyón, akkor képes lesz oldalirányba is lépni/ütni.
 
-*Special rule:* After crossing the river, the pawn can move and capture sideways one space as well. The piece itself does not change to reflect this.
+## További szabályok: Örökös sakk és üldözés
 
-## Additional Rules - Perpetual checks and chases
+* Az örökös sakk nem megengedett. Az örökös sakkot adó játékos veszít, ha nem lép mást.
+* Az a játékos, amelyik egy védtelenül álló bábut örökösen kerget, veszít. A kivételek ez alól a gyalogok és a királyok, őket lehet üldözni.
+* Ha az egyik játékos örökösen sakkot ad, míg a másik örökösen üldöz egy bábut, akkor az örökösen sakkot adónak kell mást lépnie, különben veszít.
+* Ha egyik fél sem szegi meg ezeket a szabályokat, de nincs más, alternatív lépésük, akkor a játszma döntetlennel ér véget.
+* Ha mindkét fél egyidejűleg szegi meg ezeket a szabályokat, vagy nincs más lépési lehetőségük, akkor a játszma döntetlennel ér véget.
 
-* A player making perpetual checks with one piece or several pieces can be ruled to have lost unless he or she stops such checking.
-* The side that perpetually chases any one unprotected piece with one or more pieces, excluding generals and soldiers, will be ruled to have lost unless he or she stops such chasing.
-* If one side perpetually checks and the other side perpetually chases, the checking side has to stop or be ruled to have lost.
-* When neither side violates the rules and both persist in not making an alternate move, the game can be ruled as a draw.
-* When both sides violate the same rule at the same time and both persist in not making an alternate move, the game can be ruled as a draw.
+## Játszmajegyzés
 
-## Notation
+Többféle jegyzésmódszer van használatban, ez az oldal a sakkhoz hasonló, algebrai jegyzésmódszert használja.
 
-Pychess currently uses the same algebraic notation as in chess. A more commonly used notation system is not currently implemented in Pychess.
+### Rövidítések
 
-### Symbols
+K = Király
 
-K = **K**ing
+A = Testőr
 
-A = **A**dvisor
+E = Elefánt
 
-E = **E**lephant
+H = Ló
 
-H = **H**orse
+C = Ágyú
 
-C = **C**annon
+R = Szekér
 
-R = Cha**R**iot
+P = Gyalog
 
-P = **P**awn
+## Milyen forrásokból tanulhatok még a xiangqiról?
 
+Néhány angol nyelvű forrás (magyar nyelvűek jelenleg nem ismertek):
 
-## Where are resources where I can learn Xiangqi?
+[xqinenglish.com](http://www.xqinenglish.com/) ideális a kezdőknek. A weboldal tulajdonosa, Jim Png Hau Cheng több könyvet is írt a játékról (pl. a 'Xiangqi Primer' könyvsorozatot), ezek azoknak lehetnek hasznosak, akik magasabb szinten is szeretnének játszani.
 
-[Xiangqi in English] (http://www.xqinenglish.com/) is a good place for beginners. The website owner, Jim Png Hau Cheng, has also written several books, the  “Xiangqi Primer” series, which may be a worthwhile investment for serious learners.
+[Learning Chinese Chess](https://www.youtube.com/channel/UCXlJz54YEworgVbOFw3_bXg/playlists) youtube csatorna.
 
-[Club Xiangqi](https://www.clubxiangqi.com/) is a site where you can play against tough players, most of which are Vietnamese.
+A [Club Xiangqi](https://www.clubxiangqi.com/) egy olyan weboldal, ahol erős játékosok ellen lehet játszani (legtöbbjük vietnámi).
 
-## Strategy
+## Stratégia
 
-### Piece Values
+### A bábuk értéke
 
-Consensus piece values are as below
-
-Piece | Value 
+Bábu | Érték 
 ------------ | ------------- 
-K | Infinite
-R | 9
-H | 4
-C | 4.5
-P | 1 before river or at last rank, 2 after river
-A | 2
-E | 2.5
+Szekér | 9
+Ló | 4
+Ágyú | 4,5
+Testőr | 2
+Elefánt | 2
+Gyalog | 1, a folyó átlépése után 2
 
-### General Principles
+### Általános alapelvek
 
-* Similar to the knight and bishop in chess, the horse and cannon have opposing values based on the state of the board. 
-  * The horse is more defensive and less powerful in the early game because of too many pieces restricting its movement. It becomes much more powerful in the endgame when there are few pieces in its way (this is the opposite of the chess knight).  
-  * The cannon is more offensive and more potent in the early game because of the pieces it can use as screens. In the endgame, when the board is empty, its power decreases significantly. 
-* As above, use pieces to block the horse and elephants!
-* Do not think of an elephant as a bishop; they do not at all have similar roles despite their similar movement and starting position. It is strictly a defensive piece. Its offensive utility may be as a screen for a cannon.
-* *Discovery attacks* are far more prevalent in xiangqi than in chess or shogi because of the blockable pieces. Be ready to use them or defend against them.
-* *Double checks* are also more common, especially with the chariot and cannon in tandem.
+* Kezdetben a ló inkább védekező egység, mert túl sok bábu állja az útját. A végjáték felé haladva azonban erősebbé válik, mert akkor már nincs annyi akadály számára. (A sakk huszárjának ellenkezője ebből a szempontból.)
+* Az ágyú a játszma elején sokkal erősebb, mert akkor még több bábu van, amiket átugorva támadhat. A végjátékban, amikor már nincs annyi bábu a táblán, a haszna jelentősen csökken.
+* Az elefánt szigorúan védelmi egység, támadásban az ágyúnak segíthet (köztes egységként).
+* A fentebb elhangzottak értelmében, érdemes a bábukkal blokkolni a lovat és az elefántot.
+* A blokkolható bábuk miatt nagyon gyakoriak a felfedett támadások.
+* A dupla sakk elég gyakori, főleg a szekér és az ágyú párosításával.
 
-### Opening Principles
+### Megnyitási alapelvek
 
-The following information is courtesy of [this site](http://www.shakki.info/english/openings.html)
+Az alábbi információk [erről az oldalról származnak](http://www.shakki.info/english/openings.html).
 
-The most common opening move is the central cannon, which is a pretty obvious move because it opens aggression down the central file. About 70% of games start this way, so it's probably the best way to start learning the game.
+A leggyakoribb megnyitás a "központi ágyú", amikor a király vonalába visszük az ágyút, ezzel nyomás alá helyezve az ellenfelet. A játszmák kb. 70%-a így kezdődik.
 
-![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonOpening.png)
+![Ágy megnyitás ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonOpening.png)
 
-There are four very popular defenses, and a fifth will also be mentioned.
+**A leggyakoribb megnyitások:**
 
-**1. Screen horses / Two horse defense**
+**1. Két lovas védelem**
 
-![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen%20Horses.png)
+Ez a leggyakoribb védelem. A cél természetesen, hogy mindkét ló védelmezze a középső gyalogot. Többféle variáció is létezik erre.
 
-This is the most common defense. The goal of course is to have both horses protecting the center pawn. There are multiple variations.
+![Két lovas védelem ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen%20Horses.png)
 
-**2. Fan Gong Ma / "Sandwich Horses"**
+**2. Fan Gong Ma / "Szendvics lovak"**
 
-One horse is developed as normal, but before the other is developed, the cannon moves into a "palcorner cannon" position (cannon at the same side palace corner), then finally moves the second horse into place. Black will later connect the elephants to complete the defense. It's a relatively new opening.
+Az egyik lovat előrehozzuk, de a másik ló léptetése előtt az ágyút a palota közelebbi sarkába visszük, csak ezután következik a másik ló. Így az ágyú a két ló közé kerül. Ez egy viszonylag új megnyitás.
 
-![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan%20Gong%20Ma.png)
+![Fan Gong Ma ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan%20Gong%20Ma.png)
 
-**3. Same Direction Cannon**
+**3. Azonos oldali ágyúk**
 
-Black moves the cannon from the same side that red moved his. Red capturing the defenseless center pawn is considered a move by amateurs because it loses time and black gets the initiative.
+A piros játék középre mozgatja az ágyúját, a fekete játékos pedig az ugyanazon oldalon lévő ágyúját viszi középre.
 
-**4. Opposite Direction Cannon**
+![Azonos oldali ágyúk ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/SameDirectionCannon.png)
 
-Like the above, except the opposite cannon. The modern practice is to move the black cannon later though "Delayed Opposite Direction Cannon."
+**4. Ellentétes oldali ágyúk**
 
-**5. Three Step Tiger**
+Az előzőnek az ellentettje, amikor a fekete az ellentétes oldalon lévő ágyúját viszi középre.
 
-![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three%20Step%20Tiger.png)
+![Ellentétes oldali ágyúk ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/OppositeDirectionCannon.png)
 
-Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
+**5. "A tigris három lépése"**
 
-Any other defenses are considered rare.
+A fekete játékos gyorsan mozgásba hozza a szekerét azzal, hogy az ágyút a tábla szélére viszi. Ez általában 3 lépésből áll, ebben a sorrendben: a ló előrelép, az ágyú a tábla szélére mozog, aztán a szekér az ágyú kezdővonalába megy.
 
-Aside from the cannon opening, Red has other options as well. These are called "soft openings" because it doesn't open with an immediate threat.
+![A tigris 3 lépése ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three%20Step%20Tiger.png)
 
-**Pawn Opening** - Advancing the 2nd or 4th pawn. This is a flexible opening allowing Red to adjust to Black's move. Black usually does not answer with the central cannon because Red could then play any of the central cannon openings with colors reversed and the pawn move would be an extra advantage.
+Az ágyús megnyitásokon kívül a piros játékosnak más opciói is vannak. Ezeket "lágy megnyitásoknak" nevezzük, mert nem járnak azonnali fenyegetéssel.
 
-**Elephant Opening** - Advancing an elephant to the palace instead of a cannon. This is a solid defensive opening, where the king is protected.
+**Gyalogos megnyitás** - A 2. vagy a 4. gyalog előretolása. Ez egy rugalmas megnyitás, mely segít a piros játékosnak lereagálni a fekete játékos lépését. A fekete játékos általában nem központi ágyúval válaszol, mert utána a piros is a középső vonalra hozhatná az ágyúját, miközben egy előretolt gyaloggal előnyben lenne.
 
-**Horse Opening** - Advancing a horse towards the middle. From there, Red can play the Two horse defence, Fan Gong Ma or Three Step Tiger openings with the colors reversed.
+**Elefántos megnyitás** - Ez egy védekező megnyitás, ahol az elefánt kerül a középvonalra az ágyú helyett.
 
-Red can also play his cannon to the front corner of the palace ("Palcorner Cannon") or to the opposite corner ("Crosspalace Cannon"). These moves are also useful developing moves.  
+**Lovas megnyitás** - A ló előreléptetése a tábla közepe felé. Innen játszhatók a fentebb már ismertetett lovas védelmek vagy a "tigris három lépése".
 
-Other red opening moves are very rare.
+Egyéb megnyitások nagyon ritkának számítanak.
