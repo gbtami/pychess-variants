@@ -2,28 +2,28 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chatturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
+*Shogi* (将棋), ou Xadrez japonês é um jogo de tabuleiro classico proveniente do Japão e descendente do Chaturanga, o mesmo antepassado do Xadrez. A sua forma moderna já existe desde o século XVI. O jogo é muito popular no Japão, país este onde o Shogi é mais jogado do que o Xadrez e onde existe um lado profissional. O jogo em si é ao mesmo tempo semelhante e muito distinto do Xadrez, com a adição da colocação de peças que são capturadas de volta ao tabuleiro.
 
-## Why learn Shogi?
+## Porquê aprender Shogi?
 
-If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking! [See here for more about that.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
+Se és grande fã de Xadrez, vale mesmo apena experimentar Shogi. Enquanto o seu ritmo é mais lento e longo do que o Xadrez, este também é mais dinâmico e complexo, oferecendo uma experiência completamente diferente. O Shogi está entre o Xadrez e o GO em termos de complexidade, mas por causa disto não tenha receio de experimentá-lo. Tal como outras variantes do Xadrez, ao melhorar a sua habilidade no Shogi isto pode também levar ao melhoramento no Xadrez, abrindo novas portas a novas maneiras de pensar! [Veja aqui com mais detalhe(Inglês)](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
 
-## Rules
+## Regras
 
-The rules are similar to Chess, so this guide will focus on the differences. Shogi is played on a 9 x 9 board. Players take turns moving pieces on a board to checkmate the enemy king. The black player, or *sente* (先手 first player), moves first, followed by white or *gote* (後手 second player), which is the opposite of chess. These colors are just arbitrary and do not reflect the actual color of pieces. 
+As regras são muito semelhantes ao Xadrez, daí iremos focar-nos apenas nas suas diferenças. O Shogi é jogado num tabuleiro de 9x9 onde cada Jogador faz o seu lance a partir de turnos e o seu objetivo é dar Xeque-Mate ao Rei adversário. O jogador das Pretas, ou *sente* (先手 primeiro jogador), começa primeiro, de seguida o jogador das Brancas ou *gote* (後手 segundo jogador), o oposto do Xadrez. Estas cores são meramente arbitrárias e não refletem a cor original das peças. 
 
-A significant difference from Chess but similar to its Crazyhouse variant is that you can drop captured pieces onto the board as a move. There are a few restrictions to dropping notably with pawns, which are discussed later, but otherwise pieces can be generally dropped anywhere. Additionally, almost all pieces can be promoted. Pieces are promoted upon entering the promotion zone / enemy camp (last three ranks) or moving a piece already in the enemy camp. The piece will then flip over. Captured promoted pieces are returned to their unpromoted side when added to your hand.
+Uma diferença significativa com o Xadrez mas semelhante à variante Crazyhouse é de que as peças capturadas podem ser colocadas no tabuleiro como lance. Existem algumas restrições quanto à colocação de peões, que irão ser mostradas mais à frente, excluindo isto, todas as peças podem ser colocadas em qualquer casa. Além disso, quase todas as peças podem ser promovidas. As peças são promovidas quando entram na zona de promoção / território inimigo (últimas três linhas) ou movendo uma peça que já esteja em território inimigo. A peça irá ser então virada. Os peões promovidos que são capturados obtém a sua forma inicial quando ficam na mão do adversário.
 
-## Pieces
+## Peças
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters, *kanji*, and piece sets come in either a full 2-kanji form, a 1-kanji abbreviated form. As it is now, knowledge of the kanji will be required if you want to utilize all English resources. 
+Neste guia iremos usar a representação internacional das peças. Tradicionalmente são usados caracteres chineses, *kanji*, e as peças geralmente são representadas na forma de 2-kanji, e em 1-kanji (forma abreviada). Desta forma, algum conhecimento de kanji é necessário se pretende usar todos os recursos.
 
-In general, shogi pieces are much more restricted than chess pieces. Minor pieces (i.e. not the rook or bishop) often move forward and not so much backwards.
+Regra geral, as peças de Shogi estão muito mais restritas do que as peças de Xadrez. As peças menores (i.e. tudo menos a Torre e o Bispo) movimentam-se na maior parte das vezes para a frente e muito pouco para trás.
 
-Regarding promoted pieces, most sets, including the ones used on this site, distinguish them by being colored red. There are two basic rules that will make learning all the pieces **much** less intimidating. All *minor* pieces move like a gold general when promoted. The gold general, therefore, cannot promote. Secondly, the two *major* pieces (rook and bishop), both gain the moves of a king on top of their original moves. The king does not promote.
+Acerca das peças promovidas, na maioria das representações, incluindo as que são usadas neste site, são representadas com a cor vermelha. Existem duas regras que irão facilitar na aprendizagem de todas as peças. Todas as peças *menores* movimentam-se como um General Dourado quando são promovidas. O General Dourado, por sua vez não pode ser promovido. De seguida, as duas peças *maiores* (Torre e Bispo), ambas se podem movimentar como um Rei para além dos seus movimentos originals quando promovidas. O Rei não pode ser promovido.
 
 
-### King
+### Rei
 
 ![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png) 
 
@@ -31,88 +31,88 @@ Regarding promoted pieces, most sets, including the ones used on this site, dist
 
 ![KingDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/King.png)
 
-The king moves exactly like a chess king: one step in any direction. In kanji piece sets, the king with a dot, 玉將 gyokushō, is the black player, while the king without, 王將 ōshō, is the white player. 
+O rei movimenta-se exatamente como no Xadrez: uma casa em qualquer direção. Na representação em kanji, o rei com um ponto, 玉將 gyokushō é o rei das pretas, enquanto que o Rei sem ponto, 王將 ōshō é o rei das brancas.
 
-This is the only piece in the internationalized set to maintain its kanji form, 王. In these sets, the color black or white is also depicted in this piece. The wooden set uses a bar below the 王. 
+Esta é a única peça cuja representação internacional é mantida na sua forma original em kanji, 王. Nesta representação, ambas as cores pretas e brancas são representadas na peça em si. A representação em madeira tem uma barra abaixo do caracter 王. 
 
-### Rook
+### Torre
 
 ![Rooks](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rooks.png)
 
 ![RookDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rook.png)
 
-The rook moves exactly like a chess rook: any number of squares orthogonally. The international piece depicts a chariot, which refers to the Japanese name “flying chariot.” In English, the name rook is based off the Persian word for chariot. This is the most valuable unpromoted piece in the game, excluding the king.
 
-### Bishop
+A Torre movimenta-se exatamente como no xadrez: quaisquer número de casas na ortogonal. A representação internacional é um Carrinho, a que se refere ao nome japonês "Carrinho Voador". Em inglês o nome da Torre (Rook) é baseado na palavra persa para Carrinho. Esta é a peça não promovida mais valiosa, excluindo o Rei.
 
-The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The is the second most valuable unpromoted piece in the game, excluding the king.
+### Bispo
+
+O Bispo movimenta-se exatamente como no Xadrez: quaisquer número de casas na diagonal. A sua representação internacional tem um chapéu tradicional de um oficial Japonês. Esta é a segunda peça não promovida mais valiosa do jogo, excluindo o Rei.
 
 ![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
 
 ![BishopDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishop.png)
 
-### Dragon King (Dragon, Promoted Rook)
+### Dragão Rei (Dragão, Torre Promovida)
 
 ![Dragons](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragons.png)
 
 ![DragonDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragon.png)
 
-The dragon king is a promoted rook, which gains the king’s moves on top of a rook’s. This is the most valuable piece in the game, excluding the king.
+O Dragão-Rei é uma Torre promovida, que obtém os mesmos movimentos do Rei adicionando-os aos movimentos da Torre. Esta é a peça mais valiosa do jogo, excluindo o Rei.
 
-### Dragon Horse (Horse, Promoted Bishop)
+### Dragão-Cavalo (Cavalo, Bispo Promovido)
 
 ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horses.png)
 
 ![HorseDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horse.png)
 
-The dragon horse is a promoted bishop, which gains the king’s moves on top of a bishop’s. This is the second most valuable piece in the game, excluding the king.
+O Dragão-Cavalo é um bispo promovido, que tem os mesmos movimentos do Rei para além do Bispo. Esta é a segunda peça mais valiosa no jogo, excluindo o Rei.
 
-Note: While some beginner chess players sometimes call the knight a horse, you can't make that mistake in shogi because they are two completely different pieces!
+Nota: Não confundir esta peça com o cavalo do Xadrez.
 
-
-### Gold General (Gold)
+### General Dourado (Ouro)
 
 ![Golds](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Golds.png)
 
 ![GoldDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Gold.png)
 
-While the movement pattern of the gold general may seem confusing at first, the easiest way to remember it is that it moves **one step orthogonally in any direction**… or any of the three squares in front. In the internationalized set, the protrusions of the helmet (including the golden circle symbol) also point in all its directions.
+O movimento do General-Dourado pode parecer confuso à primeira, mas a maneira mais fácil de lembrar é pensando que este se **move uma casa na ortogonal em qualquer direção** ou para as três casas da frente. Na sua representação internacional, as saliências no seu capacete (incluindo o símbolo dourado circular) também apontam para todas as possíveis direções.
 
-**All promoted minor pieces move exactly like a gold.**
+**Todas as peças menores promovidas movimentam-se exatamente como o General Dourado.**
 
-### Silver General (Silver)
+### General Prateado (Prata)
 
 ![Silvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silvers.png)
 
 ![SilverDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silver.png)
 
-While the movement pattern of the silver general may seem confusing at first, the easiest way to remember it is that it moves **one step diagonally in any direction**… or any of the three square in front. In the internationalized set, the protrusions of the helmet also point in all its directions.
+O movimento do General-Prateado pode parecer confuso à primeira, mas a maneira mais fácil de lembrar é pensando que este se **move uma casa na diagonal em qualquer direção** ou para as três casas da frente. Na sua representação internacional, as saliências no seu capacete também apontam para todas as possíveis direções.
 
-### Knight
+### Cavalo
 
 ![Knights](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Knights.png)
 
 ![KnightDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Knight.png)
 
-Similar to a chess knight, but can only move to the two spaces in front, i.e. it can move forward two and sideways one. Like the chess knight, this piece can jump over pieces.
+Semelhante ao cavalo do Xadrez, mas este só se movimenta para as duas casas em frente, i.e. movimenta-se para a frente duas casas e uma para o lado. Tal como o Cavalo do Xadrez, esta pode saltar outras peças.
 
-### Lance
+### Lança
 
 ![Lances](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Lances.png)
 
 ![LanceeDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Lance.png)
 
-A lance can only move forward, but in any number of squares (similar to a rook).
+A Lança só se movimenta para a frente, mas em qualquer número de casas (semelhante à Torre).
 
-### Pawn
+### Peão
 
 ![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawns.png)
 
 ![PawnDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawn.png)
 
-The pawn moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
+O peão movimenta-se e captura uma casa em frente. Este é diferente do Peão do Xadrez. O seu chapéu potiagudo na representação internacional é um lembrete do seu movimento.
 
-### Promoted minor pieces
+### Peças menores promovidas
 
 ![PSilvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PSilvers.png)
 
@@ -122,76 +122,76 @@ The pawn moves and captures by moving forward one square. This is different than
 
 ![Tokins](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Tokins.png)
 
-Unlike the dragon king and dragon horse, these do not have special names. The exception is the pawn, which is sometimes called by its Japanese name, *tokin*. As above, they move just like the gold general. Note that the kanji versions are all different stylistic variants of the character for gold.
+Ao contrário do Dragão-Rei e do Dragão-Cavalo, estas não têm designações diferentes. À exceção do Peão, que por vezes é denominado de *tokin* o seu nome japonês. Como já foi explicado acima todas estas peças se movem como um General-Dourado. De notar que as versões em kanji têm representações diferentes para os caracteres do General-Dourado.
+
+## Outras Regras
+
+*Colocações* - As únicas exceções sáo relativas aos peões.
+1) Os peões não podem ser colocados na mesma coluna dos seus Peões não promovidos (Podem ser colocados com peões promovidos).
+2) Os Peões colocados não podem dar Xeque-Mate, mas podem dar Xeque.
+3) A última exceção é relativa às peças menores. Não podem ser colocadas peças que não se podem movimentar posteriormente, geralmente na última linha... ou nas últimas duas linhas no caso do Cavalo.
+
+*Xeque Perpétuo* - Repetições de Xeque que resultem na mesma posição quatro vezes seguidas dará derrota ao jogador que fez com que o Xeque perpétuo fosse possível. No Xadrez, isto é considerado empate. 
+
+*Repetição* - À semelhança da regra acima descrita, a repetição da mesma posição (incluindo as peças em mão) dará empate.
+
+*Relógio* - Em Shogi é usado um relógio de byo-yomi. Quando o relógio principal do jogador chega ao fim, este entra em byo-yomi. Se tiver definido a 30 segundos então este jogador terá 30 segundos para efetuar o seu lance e a partir dai terá os mesmos 30 segundos para os próximos lances, se estes expirarem então será declarada derrota por tempo.
 
 
-## Additional Rules
+## Notação
 
-*Drops* - The main exceptions to dropping a piece anywhere are with pawns. 
-1) Pawns cannot be dropped in the same file as another one of your unpromoted pawns (promoted are okay). 
-2) A pawn drop cannot checkmate, but checks are okay. 
-3) The final exception applies to all minor pieces. You cannot drop a piece so that it can’t move, which usually means the last rank… or the last two ranks in the case of a knight.
+Existem várias notações para Shogi, incluindo uma japonesa. Neste site usamos a notação ocidental (Notação de Hodge) semelhante ao Xadrez.
 
-*Perpetual check* - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
+### Coordenadas
 
-*Repetition* - Similar to the above, repeating the same position (including pieces in hand) results in a draw.
+Uma diferença notável dá-se ao facto das coordenadas do tabuleiro serem o oposto do Xadrez. As colunas são numeradas enquanto que as linhas têm alfabeto. A coordenada de origem do tabuleiro existe no canto inferior esquerdo do jogador das brancas. No entanto, como a maioria dos diagramas estão orientados para o jogador das Pretas (o primeiro a começar), estes irão parecer ter origem no canto superior direito. Por exemplo, o Rei Branco está na casa 5a. 
 
-*Timer* - Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
+Na notação de Hoskings, são usados apenas números. Em vez de 5e, este é denominado de 55 (5ª linha, 5ª coluna). Este é semelhante ao estilo japonês que também usa números.
 
-## Notation
+### Peças
 
-There are different notations used, including one in Japanese. We use a form of western notation (Hodges notation) similar to chess.
+K = king (Rei)
 
-### Coordinates
+G = gold general (General Dourado)
 
-One noticeable difference is that the board coordinates are switched from chess. Files are numbered, and ranks are alphabetized. The origin is the bottom left for the white player. However, since most diagrams are oriented for the black player (first player), these will seem to originate from the top right. As an example, the white king is on square 5a.
+S = silver general (General Prateado)
 
-In the Hoskings notation, only numbers are used. Instead of 5e, someone might say 55 (5th rank, 5th file). This is similar to the Japanese style, which also uses numbers. 
+N = knight (Cavalo)
 
-### Pieces
+L = lance (Lança)
 
-K = king
+R = rook (Torre)
 
-G = gold general
+B = bishop (Bispo)
 
-S = silver general
+P = pawn (Peão)
 
-N = knight
++R ou D = dragon king (Dragão-Rei)
 
-L = lance
++B ou H = dragon horse (Dragão-Cavalo)
 
-R = rook
++S, +N, +L, +P para todas as outras peças promovidas, respetivamente.
 
-B = bishop
+### Símbolos
 
-P = pawn
+* As colocações são indicadas com um \* (Hodges) ou ‘ (Hosking). Aqui usamos o \*, portanto um Peão colocado em 5e será P*5e.
+* Lances que resultem em promoção irão acabar com um +. Um Peão promovida em 1c será P1c+.
+* Caso optar por não promver uma peça, um = irá ser adicionado no fim.
+* Xeques e Xeque-Mates não têm notação.
 
-+R or D = dragon king
+## Recursos para aprendizagem de Shogi
 
-+B or H = dragon horse
+[Hidetchi’s YouTube channel](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) é um sitio excelente para um iniciante e um jogador intermédio. Este canal está em Inglês e demonstra vários aspetos do jogo. De notar que como todos os outros recursos, irás necessitar de conhecer as peças em kanji para perceber os vídeos (Ele também introduz as peças nos videos para iniciantes).
 
-+S, +N, +L, +P for the other promoted pieces, respectively.
+[81dojo.com](http://www.81dojo.com) é um site internacional onde podes desafiar grandes jogadores. No entanto este não suporta jogos por correspondência até ao momento.
 
-### Symbols
+## Estratégia
 
-* Drops are either indicated with a \* (Hodges) or ‘ (Hosking). Here we use \*, so a pawn drop on 5e would be P*5e.
-* Moves that end in promotion add a + at the end. A pawn promoting on 1c would be P1c+.
-* If you choose to not promote, instead an = goes at the end.
-* Checks and checkmates are not notated.
+### Valores das Peças
 
-## Resources for Learning Shogi
+Não existem valores por defeito dos valores das peças em Shogi ao contrário do Xadrez. No entanto é importante notar que os valores variam imenso, pelo facto da perca de peças não ser permanente e da posição ser muito mais importante. Dito isto, existe um sistema de valor básico para as peças, mas alguns jogadores profissionais também deram o seu valor para cada peça; Tanigawa e Satoh são mostrados em baixo.
 
-[Hidetchi’s YouTube channel](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) is an excellent place for beginner and intermediate players, alike. They are in English and very carefully break down the aspects of the game. Please note that like all other resources, you will need to be familiar with the kanji pieces in order to understand the videos (he also introduces the pieces in the beginner videos).
-
-[81dojo.com](http://www.81dojo.com) is a site where you can play internationally against tougher players. However, it does not support correspondence play at this time.
-
-## Strategy
-
-### Piece Values
-
-There is no standard piece value in shogi unlike chess. However, it's important to keep in mind that values are not worth as much, as losing pieces isn't permanent and position is far more important. That said, there is a basic piece value system, but professional players have also made more specific values; Tanigawa and Satoh's are shown below.
-
-Piece | Basic | Tanigawa | Satoh 
+Peça | Base | Tanigawa | Satoh 
 ------------ | ------------- | ------------- | -------------
 P | 1 | 1 | 1
 L | 3 | 5 | 6
@@ -207,25 +207,26 @@ R | 8 | 15 | 19
 *+N* |  | 10 | 
 *+S* |  | 9 | 
 
-### Opening Principles
+### Aberturas
 
-In general, there are two types of opening styles: *static rook* and *ranging rook*. In *static* rook, the rook does not move. Attacks, therefore, are directed on the right side of the board. In *ranging* rook, the rook moves to the left side (typically 2nd to 5th file), shifting the offense to that side of the board.
+De forma geral, existem dois tipos de aberturas: *Torre Estática* e *Torre Enfurecida*. Na *Torre Estática*, a Torre não se movimenta. Os ataques são direcionados para o lado direito do tabuleiro. Na *Torre Enfurecida*, a Torre movimenta-se para o lado esquerdo (tipicamente da 2ª à 5ª coluna), mudando o ataque para aquele lado do tabuleiro.
 
-This difference matters because opening moves (called *joseki*) are classified as one of these two and can drastically change what kind of game is played. Certain static rook openings are meant for enemy static rook openings, while others are directed against ranging rook players.
+Esta diferença é importante pelo facto dos lances na abertura (chamados *joseki*) serem classificados como um destes dois e podem mudar o tipo de jogo que está a ser feito. Algumas aberturas de Torres Estáticas são feitas contra Torres Estáticas adversárias, enquanto outras são direcionadas para jogadores que prefiram Torres Enfurecidas.
 
-### Castles
+### Roques
 
-Castles in shogi are defensive formations that take multiple steps to form. Knowledge of castles is essential because weak king defenses can be quickly exploited with drops in your own territory. It is also important to know each castle’s strengths and weaknesses.
+Os roques em Shogi são formações defensivas que levam algum tempo a se formar. Conhecer certos tipos de roque é essencial pelo facto de um Rei com uma defesa fragilizada poder ser facilmente explorado com peças colocadas no seu território. De notar que também é importante conhecer os prós e contras dos vários tipos de Roque.
 
-As above, castles depend on static / ranging rook matchup. In static rook openings, kings castle to the left. In ranging rook openings, kings castle to the right. There are many, many castles, many of which are covered in Hidetchi’s videos (see below). Here are three of the most important ones to know:
+Como já foi dito, os roques dependem das Torres Estáticas e Enfurecidas. Nas aberturas com Torres Estáticas, os Reis protegem-se para a esquerda. Nas aberturas com Torres Enfurecias, os reis protegem-se no lado direito. Existem várias formas de efetuar o roque, que são explicads nos videos de Hidetchi em Inglês (Veja abaixo).
+Aqui estão três tipos de roque mais importantes de se saber:
 
-**Yagura (AKA Fortress)**
+**Yagura (AKA Fortress) / Fortaleza**
 
 ![Yagura](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Yagura.png)
 
-The Yagura castle is one of the most powerful *static rook* castles, used against static rook. A mnemonic that may be useful for remembering the positions of the generals is “S G | G B,” or perhaps remembering that the king is guarded by the gold general, a strong defensive piece. Yagura is strong at its front, but weak on its edge and side.
+O Roque Yagura é um dos mais poderosos Roques de *Torre Estática*, usado contra Torre Estática adversária. Um lembrete que pode ser útil para se lembrar destas posições é lembrar-se das posições dos generais "S G | G B," ou talvez de se lembrar que o Rei é protegido por um General-Dourado, uma peça extremamente forte. O Yagura é forte na frente, mas fraco nos lados.
 
-For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows:
+A fim de efetuar o Yagura, lembre-se que os generals que se movimentam na diagonal são mais eficientes. Existem vários tipos de josekis para diferentes roques, mas lembre-se que até um certo ponto, as brancas poderão atacar e irás ter de reagir entre os teus lances de Yagura. Os 24 lances típicos de joseki são:
 
 1. ☗P-7f
 2. ☖P-8d
@@ -252,13 +253,13 @@ For development of the Yagura, remember that generals always move diagonally to 
 23. ☗P-3f
 24. ☖P-4d
 
-**Mino Castle**
+**Roque Mino**
 
 ![Mino Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Mino.png)
 
-The Mino castle is a classic *ranging rook* castle, used against static rook. The king moves to the rook’s starting spot, the left gold moves up+right, and then the right silver moves up to form a “G G S” V formation. This castle is strong to the left, but weak to the front and edge.
+O Roque Mino é um roque clássico de *Torre Enfurecida*, usado contra Torre Estática adversária. O Rei é posto na posição inicial da torre, o General Dourado da esquerda movimenta-se uma casa para a frente e uma para a direita, e após isto o General-Prateado é posto na forma de "G G S" formação V. Este Roque é forte na esquerda, mas fraco em frente e na beira. 
 
-Example opening for black using a 4th file rook:
+Exemplo de abertura para as pretas usando a 4ª coluna da torre:
 
 * P76
 * B77 (protects the 86/8f square) 
@@ -271,33 +272,33 @@ Example opening for black using a 4th file rook:
 * P16 (creates escape route for the king)
 * P46
 
-After this point, you are free to exchange bishops and as many pieces as you want, including rooks to generate an attack.
+Após estes lances, estará livre de trocar de Bispos e outras peças que desejar, incluindo Torres para começar um ataque.
 
 **Anaguma**
 
 ![Anaguma](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Anaguma.png)
 
-Anaguma (AKA “Bear in the hole”) is another *ranging rook* castle, and one of the most impenetrable in the game. However, it takes a long time to form.
+Anaguma (“Urso no buraco”) é um outro tipo de Roque com *Torre Enraivecida*, e um dos mais sólidos do jogo, no entanto este leva imenso tempo a ser formado.
 
-**Double Wing Attack**
+**Ataque duplo de Flancos**
 
-Not a castle per se, but a *static rook* opening. Both sides advance their rook pawns, leading to an exchange. Part of the joseki is that the silvers must defend the bishop pawns before the enemy pawn reaches its target. Of note, this is AlphaZero’s favorite opening, accounting for more than half of its openings as black.
+Não é um Roque, mas é uma abertura de *Torre Estática*. Ambos os lados avançam os seus Peões da Torre, causando uma troca. Grande parte do joseki é de que os Generais-Prateados devem defender os Peões dos Bispos antes que os Peões inimigos atingem o seu objetivo. De notar que isto é uma abertura favorita do AlphaZero, com mais de metade das suas aberturas usadas nas Pretas.
 
-## Handicaps
+## Desvantagens
 
-Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and the most common setups are described below.
+Ao contrário do Xadrez e com grande semelhança ao GO, os jogos com desvantagem têm um grande impacto no ensino e não devem ser considerados como um jogador a ter dó do outro. Estas desvantagens são uma grande maneira de aprender o jogo, e até existem estratégias para estes diferentes tipos. Em Shogi, jogos com desvantagem são comuns, e as configurações mais populares estão descritas abaixo.
 
-While normal games have black (*gote*) go first, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+Enquanto que numa partida normal as pretas (*gote*) começam primeiro, **As brancas começam primeiro num jogo com desvantagem**. As brancas têm o nome de *uwate* enquanto as pretas se denominam de *shitate*. Esta desvantagem pode ser recuperada pelo facto de se poder colocar peças capturadas. E pelo facto de não existirem muitas peças poderosas, As pretas/*shitate* são derrotadas muitas vezes quando as peças são capturadas.
 
-Name | pieces omitted
+Nome | peças omitidas
 -- | --
-Lance | left lance
-Bishop | bishop
-Rook | rook
-Rook–Lance | rook, left lance 
-2-Piece | rook, bishop
-4-Piece | rook, bishop, both lances
-6-Piece | rook, bishop, both lances, both knights
-8-Piece | rook, bishop, both lances, both knights, both silvers
-9-Piece | rook, bishop, both lances, both knights, both silvers, left gold
-10-Piece | rook, bishop, both lances, both knights, both silvers, both golds
+Lança | Lança da Esquerda
+Bispo | bispo
+Torre | Torre
+Torre–Lança | Torre, Lança da Esquerda 
+2-Peças | Torre, Bispo
+4-Peças | Torre, Bispo, Ambas as Lanças
+6-Peças | Torre, Bispo, Ambas as Lanças, Ambos os Cavalos
+8-Peças | Torre, Bispo, Ambas as Lanças, Ambos os Cavalos, Ambos Generais Prateados
+9-Peças | Torre, Bispo, Ambas as Lanças, Ambos os Cavalos, Ambos Generais Prateados, General-Dourado da Esquerda
+10-Peças | Torre, Bispo, Ambas as Lanças, Ambos os Cavalos, Ambos Generais Prateados, Ambos Generais Dourados
