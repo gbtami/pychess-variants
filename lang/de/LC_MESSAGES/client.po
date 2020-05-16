@@ -547,7 +547,7 @@ msgstr "Unbekannter Grund"
 
 #: ../client/profile.ts:67
 msgid "Campmate"
-msgstr ""
+msgstr "Eindrungsmatt"
 
 #: ../client/profile.ts:67
 msgid "Point counting"
