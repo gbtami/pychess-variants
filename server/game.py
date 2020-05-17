@@ -181,7 +181,7 @@ class Game:
             self.status = STARTED
             self.app["g_cnt"] += 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
-            await lobby_broadcast(self.app["websockets"], response)
+            await lobby_broadcast(self.app["lobbysockets"], response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
@@ -284,7 +284,7 @@ class Game:
         if self.board.ply > 0:
             self.app["g_cnt"] -= 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
-            await lobby_broadcast(self.app["websockets"], response)
+            await lobby_broadcast(self.app["lobbysockets"], response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board

@@ -2,9 +2,9 @@ import json
 
 
 async def lobby_broadcast(sockets, response):
-    for client_ws in sockets.values():
-        if client_ws is not None:
-            await client_ws.send_json(response)
+    for ws_set in sockets.values():
+        for ws in ws_set:
+            await ws.send_json(response)
 
 
 async def round_broadcast(game, users, response, full=False, channels=None):

@@ -18,10 +18,9 @@ class MissingRatingsException(Exception):
 
 
 class User:
-    def __init__(self, app, lobby_ws=None, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
+    def __init__(self, app, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
         self.app = app
         self.db = app["db"] if "db" in app else None
-        self.lobby_ws = lobby_ws
         self.notify_queue = None
         self.bot = bot
         self.anon = anon
@@ -34,6 +33,7 @@ class User:
         self.last_name = last_name
         self.country = country
         self.seeks = {}
+        self.lobby_sockets = set()
 
         if self.bot:
             self.event_queue = asyncio.Queue()
@@ -64,7 +64,7 @@ class User:
             if self.bot:
                 return self.bot_online
             else:
-                return len(self.game_sockets) > 0 or (self.lobby_ws is not None)
+                return len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0
         else:
             return username == self.username or self.online()
 
@@ -111,7 +111,6 @@ class User:
     async def quit_lobby(self, sockets, disconnect):
         # print(self.username, "quit_lobby()")
 
-        self.lobby_ws = None
         if self.username in sockets:
             del sockets[self.username]
 
@@ -144,7 +143,8 @@ class User:
 
     async def pinger(self, sockets, seeks, users, games):
         while True:
-            if self.ping_counter > 2:
+            # TODO: this needs per websocket pingers
+            if 0:  # self.ping_counter > 2:
                 log.info("%s went offline" % self.username)
                 await self.round_broadcast_disconnect(users, games)
                 await self.clear_seeks(sockets, seeks)
@@ -155,8 +155,8 @@ class User:
                 await self.event_queue.put("\n")
                 # heroku needs something at least in 50 sec not to close BOT connections (stream events) on server side
             else:
-                if self.lobby_ws is not None:
-                    await self.lobby_ws.send_json({"type": "ping", "timestamp": "%s" % time()})
+                for ws in self.lobby_sockets:
+                    await ws.send_json({"type": "ping", "timestamp": "%s" % time()})
             await asyncio.sleep(3)
             self.ping_counter += 1
 

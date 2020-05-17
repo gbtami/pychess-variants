@@ -99,7 +99,7 @@ async def create_bot_seek(request):
 
     users = request.app["users"]
     seeks = request.app["seeks"]
-    sockets = request.app["websockets"]
+    sockets = request.app["lobbysockets"]
 
     bot_player = users[username]
 
@@ -164,7 +164,7 @@ async def event_stream(request):
 
     users = request.app["users"]
     seeks = request.app["seeks"]
-    sockets = request.app["websockets"]
+    sockets = request.app["lobbysockets"]
     games = request.app["games"]
     db = request.app["db"]
 

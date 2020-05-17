@@ -6,6 +6,7 @@ import string
 
 import aiohttp
 from aiohttp import web
+from aiohttp.web import WebSocketResponse
 import aiohttp_session
 
 from broadcast import lobby_broadcast, round_broadcast
@@ -13,7 +14,7 @@ from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
-from utils import play_move, draw, new_game, load_game, MyWebSocketResponse, tv_game, tv_game_user
+from utils import play_move, draw, new_game, load_game, tv_game, tv_game_user
 
 log = logging.getLogger(__name__)
 
@@ -23,12 +24,12 @@ MORE_TIME = 15 * 1000
 async def round_socket_handler(request):
 
     users = request.app["users"]
-    sockets = request.app["websockets"]
+    sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
     games = request.app["games"]
     db = request.app["db"]
 
-    ws = MyWebSocketResponse()
+    ws = WebSocketResponse()
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:

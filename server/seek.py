@@ -4,7 +4,7 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, handicap="", target=""):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, handicap="", target="", ws=None):
         self.user = user
         self.variant = variant
         self.color = color
@@ -18,6 +18,7 @@ class Seek:
         self.chess960 = chess960
         self.handicap = handicap
         self.target = target
+        self.ws = ws
 
         Seek.gen_id += 1
         self.id = self.gen_id
@@ -39,7 +40,7 @@ class Seek:
         }
 
 
-def create_seek(seeks, user, data):
+def create_seek(seeks, user, data, ws=None):
     if len(user.seeks) >= MAX_USER_SEEKS:
         return None
 
@@ -53,7 +54,8 @@ def create_seek(seeks, user, data):
         rated=data.get("rated"),
         chess960=data.get("chess960"),
         handicap=data.get("handicap"),
-        target=data.get("target"))
+        target=data.get("target"),
+        ws=ws)
 
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek

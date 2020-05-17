@@ -69,7 +69,7 @@ async def init_state(app):
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
     app["users"]["Random-Mover"].bot_online = True
-    app["websockets"] = {}
+    app["lobbysockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
     app["chat"] = collections.deque([], 200)
@@ -195,12 +195,13 @@ async def cleanup(app):
     msg = "Server update started. Sorry for the inconvenience!"
     response = {"type": "shutdown", "message": msg}
     for user in app["users"].values():
-        if user.username in app["websockets"]:
-            ws = app["websockets"][user.username]
-            try:
-                await ws.send_json(response)
-            except Exception:
-                pass
+        if user.username in app["lobbysockets"]:
+            ws_set = app["lobbysockets"][user.username]
+            for ws in ws_set:
+                try:
+                    await ws.send_json(response)
+                except Exception:
+                    pass
         if user.bot:
             await user.event_queue.put('{"type": "terminated"}')
 
@@ -216,7 +217,7 @@ async def cleanup(app):
                     except Exception:
                         print("Failed to send game %s abort to %s" % (game.id, player.username))
 
-    # close websockets
+    # close lobbysockets
     for user in app["users"].values():
         if not user.bot:
             for ws in user.game_sockets.values():
@@ -225,8 +226,9 @@ async def cleanup(app):
                 except Exception:
                     pass
 
-    for ws in app['websockets'].values():
-        await ws.close()
+    for ws_set in app['lobbysockets'].values():
+        for ws in ws_set:
+            await ws.close()
 
     if "client" in app:
         app["client"].close()

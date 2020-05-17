@@ -4,25 +4,41 @@ import logging
 
 import aiohttp
 from aiohttp import web
+from aiohttp.web import WebSocketResponse
 import aiohttp_session
 
 from broadcast import lobby_broadcast
 from const import STARTED
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import new_game, MyWebSocketResponse, load_game
+from utils import new_game, load_game
 
 log = logging.getLogger(__name__)
+
+
+async def is_playing(request, user, ws):
+    # Prevent users to start new games if they have an unfinished one
+    if user.game_in_progress is not None:
+        game = await load_game(request.app, user.game_in_progress)
+        if (game is None) or game.status > STARTED:
+            user.game_in_progress = None
+            return False
+        else:
+            response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+            await ws.send_json(response)
+            return True
+    else:
+        return False
 
 
 async def lobby_socket_handler(request):
 
     users = request.app["users"]
-    sockets = request.app["websockets"]
+    sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
     games = request.app["games"]
 
-    ws = MyWebSocketResponse()
+    ws = WebSocketResponse()
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -57,15 +73,9 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "create_ai_challenge":
-                        # Prevent users to start new games if they have an unfinished one
-                        if user.game_in_progress is not None:
-                            game = await load_game(request.app, user.game_in_progress)
-                            if (game is None) or game.status > STARTED:
-                                user.game_in_progress = None
-                            else:
-                                response = {"type": "game_in_progress", "gameId": user.game_in_progress}
-                                await ws.send_json(response)
-                                continue
+                        no = await is_playing(request, user, ws)
+                        if no:
+                            continue
 
                         variant = data["variant"]
                         engine = users.get("Fairy-Stockfish")
@@ -97,8 +107,12 @@ async def lobby_socket_handler(request):
                             await engine.event_queue.put(challenge(seek, response))
 
                     elif data["type"] == "create_seek":
+                        no = await is_playing(request, user, ws)
+                        if no:
+                            continue
+
                         print("create_seek", data)
-                        create_seek(seeks, user, data)
+                        create_seek(seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                         if data.get("target"):
@@ -113,15 +127,9 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
-                        # Prevent users to start new games if they have an unfinished one
-                        if user.game_in_progress is not None:
-                            game = await load_game(request.app, user.game_in_progress)
-                            if (game is None) or game.status > STARTED:
-                                user.game_in_progress = None
-                            else:
-                                response = {"type": "game_in_progress", "gameId": user.game_in_progress}
-                                await ws.send_json(response)
-                                continue
+                        no = await is_playing(request, user, ws)
+                        if no:
+                            continue
 
                         if data["seekID"] not in seeks:
                             continue
@@ -131,13 +139,12 @@ async def lobby_socket_handler(request):
                         response = await new_game(request.app, user, data["seekID"])
                         await ws.send_json(response)
 
-                        if seek.user.lobby_ws is not None:
-                            await seek.user.lobby_ws.send_json(response)
-
                         if seek.user.bot:
                             gameId = response["gameId"]
                             seek.user.game_queues[gameId] = asyncio.Queue()
                             await seek.user.event_queue.put(challenge(seek, response))
+                        else:
+                            await seek.ws.send_json(response)
 
                         # Inform others, new_game() deleted accepted seek allready.
                         await lobby_broadcast(sockets, get_seeks(seeks))
@@ -174,8 +181,8 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, response)
 
                         # update websocket
-                        sockets[user.username] = ws
-                        user.lobby_ws = ws
+                        user.lobby_sockets.add(ws)
+                        sockets[user.username] = user.lobby_sockets
 
                         response = {"type": "lobby_user_connected", "username": user.username}
                         await ws.send_json(response)
@@ -225,7 +232,9 @@ async def lobby_socket_handler(request):
         lobby_ping_task.cancel()
         if user is not None:
             await user.clear_seeks(sockets, seeks)
+            user.lobby_sockets.remove(ws)
             # online user counter will be updated in quit_lobby also!
-            await user.quit_lobby(sockets, disconnect=False)
+            if len(user.lobby_sockets) == 0:
+                await user.quit_lobby(sockets, disconnect=False)
 
     return ws

@@ -76,7 +76,7 @@ async def login(request):
     prev_session_user = session.get("user_name")
     prev_user = users.get(prev_session_user)
     if prev_user is not None:
-        prev_user.lobby_ws = None  # make it offline
+        prev_user.lobby_sockets = set()  # make it offline
 
     session["user_name"] = user.username
     session["country"] = user.country

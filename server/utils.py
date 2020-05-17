@@ -2,7 +2,6 @@ import logging
 import random
 import string
 
-from aiohttp.web import WebSocketResponse
 from game import MAX_PLY
 
 try:
@@ -21,12 +20,6 @@ from user import User
 from settings import URI
 
 log = logging.getLogger(__name__)
-
-
-class MyWebSocketResponse(WebSocketResponse):
-    @property
-    def closed(self):
-        return self._closed or self._req is None or self._req.transport is None
 
 
 async def tv_game(db, app):
