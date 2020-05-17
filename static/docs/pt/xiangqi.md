@@ -2,193 +2,195 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Boards.png)
 
-*Xiangqi* (象棋, pronounced like “*shyang-chee*”), or Chinese Chess is a classic board game native to China and is thought to be descended from Chatturanga, the same ancestor as Chess, although some have argued the opposite. The game is very popular in China and Vietnam, and it has been said that it is the most played board game in the world. The game itself is similar to chess, although it plays much differently. 
+*Xiangqi* (象棋, soletrado como “*shyang-chee*”), ou Xadrez Chinês é um jogo clássico de tabuleiro proviente da China e julga-se ser descendente do Chatturanga, o mesmo antepassado do Xadrez, no entanto o mesmo se pode afirmar do oposto. Este jogo é muito popular na China e no Vietname, e já se afirmou que este é o jogo de tabuleiro mais popular no Mundo. O jogo em si é muito semelhante ao Xadrez, no entanto a sua jogabilidade é diferente.
 
-## Why learn Xiangqi?
+## Porquê aprender Xiangqi?
 
-If you enjoy Chess, Xiangqi is definitely worth trying. While slightly slower paced and longer than Chess, the game starts more open and is more geared towards fast-paced play leading to a quick endgame. Compared to Chess, Xiangqi is also far more tactical (as opposed to strategic). As with other chess variants, improving your skill in Xiangqi can also improve your skills in Chess (tactics, in particular) as well as open up new ways of thinking! [See here for more about that.](https://en.chessbase.com/post/why-you-need-to-learn-xiangqi-for-playing-better-chess)
+Se és grande fã de Xadrez, vale mesmo apena experimentar Xiangqi. Enquanto o seu ritmo é mais lento e longo do que o Xadrez, o jogo inicia-se com uma configuração mais aberta onde é mais rápido obter um fim-de-jogo. Em comparação ao Xadrez, o Xiangqi é um jogo mais tático (ao contrário de estratégico). Tal como outras variantes de Xadrez, ao melhorar a sua habilidade em Xiangqi esta pode implicar também melhoramentos nas habilidades em Xadrez (Principalmente a nível tático) e também de abrir novas portas 
+a uma nova maneira de pensar. [Veja aqui mais informações(Inglês)](https://en.chessbase.com/post/why-you-need-to-learn-xiangqi-for-playing-better-chess)
 
-## The Rules
+## Regras
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The most striking difference is that pieces are on intersections instead of squares, which is mainly an aesthetic difference. Players take turns moving pieces on a board to checkmate the enemy king. The red player traditionally moves first, followed by black, although the order is not crucial as the board is symmetric. The only other main difference from chess is that stalemates are considered losses for the player who got stalemated (i.e. can’t move any pieces).
+As regras são muito semelhantes ao Xadrez, daí iremos focar-nos apenas nas suas diferenças. A diferença mais significativa é de que as Peças estão posicionadas em interseções em vez de casas, isto é meramente uma diferença estética. Cada jogador faz o seu lance por turnos, movimentando as peças no tabuleiro a fim de dar Xeque-Mate ao Rei adversário. O jogador com as Vermelhas normalmente começa primeiro, sendo de seguida o das Pretas, no entanto a ordem de começar não é relevante pelo facto do tabuleiro ser simétrico. A única outra diferença com o Xadrez é de que o Rei Afogado é considerado uma derrota para quem ficou Afogado (i.e. não consegue movimentar peça alguma).
 
-## The Board
+## Tabuleiro
 
-The xiangqi board is a little different than other chess games. In addition to being played on the intersections, there are important sections of the board. First is the river, which splits the board in half. The river affects the movement of the elephant and pawn pieces. Second is the palaces, which are the 3 x 3 squares at each end of the board that has diagonal lines inside. The king and his advisors are confined to the palace.
+O tabuleiro de Xiangqi é um bocado diferente da maioria dos jogos de Xadrez. Para além de ser jogado nas interseções, existem várias seções importantes do tabuleiro. Em primeiro lugar temos o rio, que divide o tabuleiro a metade. O rio afeta o movimento do Elefante e dos Peões. De seguida temos os Palácios, que são um conjunto de casas 3x3 localizadas no fim do tabuleiro e tem linhas diagonais representadas neste. O Rei e os seus Assistentes estão restringidos ao Palácio.
 
-## The Pieces
+## Peças
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters, and many sites, including Wikipedia, already explain the rules as such. As it is now, knowledge of the Chinese characters will be required if you want to utilize all English resources or play in a real life setting. Compared to shogi which is the other major game using Chinese characters, xiangqi has fewer characters to learn, and several characters are pictographic, which also makes them easier to learn.
+Aqui iremos focar-nos na representação das peças internacionais. Tradicionalmente são usadas peças com caracteres Chineses, e na maioria dos sites, incluindo a wikipedia, já se explicam as regras com tal. De certa forma, é necessário conhecimento dos caracteres chineses se pretende usar todos os recursos ou jogar num tabuleiro ao vivo. Em comparação ao Shogi que é outro jogo que usa caracteres chineses, o Xiangqi tem menos caracteres a aprender e alguns destes são claros no seu movimento, isto faz com que seja mais fácil aprender.
 
-Xiangqi pieces traditionally have had different names: their Chinese translation and a Western equivalent. In this guide, we will use the names and abbreviations chosen by the Asian Xiangqi Federation (AXF), which uses a mixture of the two. Unfortunately, both names are very common, so you should be familiar with both.
+As peças Xiangqi tradicionalmente já tiveram nomes diferentes: a sua tradução Chinesa e o seu equivalente Ocidental. Neste guia, usaremos os seus nomes e abreviaturas escolhidas pela Federação Asiática de Xiangqi (Asian Xiangqi Federation - AXF), que mistura um pouco dos dois. Pelo facto de ambos os nomes serem comuns, poderá já estar familiarizado com estes. 
 
-### King
+### Rei
 
 ![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Kings.png) 
 
-The king (also known by its Chinese name, the **general**) can only move one step orthogonally. Additionally, it is confined to the palace.
+O Rei (também conhecido pelo seu nome chinês, **general**) só se pode movimentar uma interseção na ortogonal (vertical e horizontal nunca na diagonal). Além disto, está restringido a estar dentro do Palácio.
 
-*Special rule:* Kings are not allowed to face each other with no piece in between (“General face-off rule”). Consider them as being able to attack each other as rooks (also called “flying generals”). This is useful for setting up checkmates in the endgame.
+*Regra especial:* Ambos os reis não podem estar na mesma coluna sem peças entre estes ("Regra geral do cara-a-cara"). Pode considerar ambos aptos a atacar-se mutuamente como se fossem Torres (também chamado de "Generais Voadores"). Isto é útil a fim de preparar Xeque-Mate no fim-de-jogo.
 
 ![King and advisor movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/KingAdvisorDiagram.png)
 
-### Advisor
+### Assistente
 
 ![Advisors](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Advisors.png) 
 
-The advisor (also known by its Western name, the **guard**... less commonly a **minister**)  can only move one step along the diagonals of the palace. There are only five positions an advisor can take.
+O Assistente (também conhecido como **guarda** o seu nome Ocidental, e **ministro**) só se pode movimentar uma interseção dentro das diagonais do Palácio. Só existem cinco posições onde os Assistnetes podem estar.
 
-### Elephant
+### Elefante
 
  ![Elephants](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Elephants.png)
  
  ![Elephant movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/ElephantDiagram.png)
 
-The elephant (very rarely called by its Western name, the **bishop**) can move diagonally exactly two steps. There are two more restrictions: 1) The elephant can be blocked if there is a piece in between. 2) It cannot cross the river.
+O Elefante (raramente chamado de **bispo** o seu nome Ocidental) pode-se mover duas interseções na diagonal. Existem mais duas restrições: 1) O Elefante pode ser bloqueado se tiver uma peça entre este e o destino. 2) Não pode ir para além do Rio.
 
-On a side note, the Chinese character for the red elephant means “minister,” but is still called an elephant in English.
+Um pequeno detalhe, o caracter chinês do Elefante Vermelho significa “ministro”, mas mesmo assim tem o nome de Elefante.
 
-### Horse
+### Cavalo
 
  ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Horses.png)
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/HorseDiagram.png)
 
-The horse (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+O **Cavalo** move-se exatamente como o cavalo do Xadrez. No entanto em vez do pensamento normal "dois passos na ortogonal, e um para o lado", é melhor pensarmos como se fosse *um passo na ortogonal, diagonal para a frente em qualquer direção*, em forma de Y. Isto porque o Cavalo **pode ser bloqueado** se tiver uma peça adjacente a esta. Isto irá bloquear o caminho aos dois pontos finais deste Y. Caso este que pode levar a situações em que dois Cavalos se estão a atacar mutuamente, mas apenas um deles pode atacar enquanto o outro está bloqueado. Bons lances tomam partido do bloqueio do Cavalo e limitam o seu movimento. 
 
-### Chariot
+
+### Biga
 
  ![Chariots](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Chariots.png)
  
  ![Chariot movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/ChariotDiagram.png)
 
-The chariot (also called by its Western name, the **rook**, and more rarely by its literal modern translation, car) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
+A **Biga** (também conhecida como **Torre** o seu nome ocidental) move-se exatamente como a torre do Xadrez: qualquer número de linhas na ortogonal. Esta é a peça mais valiosa do jogo, excluindo o Rei.
 
-### Cannon
+### Canhão
 
 ![Cannons](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Cannons.png)
 
 ![Cannon movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonDiagram.png)
 
-The cannon is a unique piece in xiangqi. It can move exactly like the chariot. However, to capture, it needs a piece (friend or foe) in between, called a screen.
+O Canhão é uma peça única do Xiangqi. Pode-se movimentar exatamente como uma Biga. No entanto para capturar outra, é necessário ter uma peça(adversária ou do mesmo lado) entre esta e o destino, geralmente chamada de "Mira".
 
-### Pawn
+### Peão
 
 ![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Pawns.png)
 
 ![Pawn movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/PawnDiagram.png)
 
-The pawn (also called by its Chinese name, the **soldier**) moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
+O Peão (também conhecido por **soldado** o seu nome chinês) movimenta-se e captura uma iterseção em frente. Este é diferente do Peão do Xadrez. O chapéu pontiagudo na sua peça internacional torna-se um lembrete do seu movimento.
 
-*Special rule:* After crossing the river, the pawn can move and capture sideways one space as well. The piece itself does not change to reflect this.
+*Regra especial:* Após atravessar o rio, o Peão pode-se mover e capturar uma interseção para o lado também. A aparência da peça não muda para dar a informação de tal.
 
-## Additional Rules - Perpetual checks and chases
+## Regras adicionais - Xeque Perpétuo e perseguições
 
-* A player making perpetual checks with one piece or several pieces can be ruled to have lost unless he or she stops such checking.
-* The side that perpetually chases any one unprotected piece with one or more pieces, excluding generals and soldiers, will be ruled to have lost unless he or she stops such chasing.
-* If one side perpetually checks and the other side perpetually chases, the checking side has to stop or be ruled to have lost.
-* When neither side violates the rules and both persist in not making an alternate move, the game can be ruled as a draw.
-* When both sides violate the same rule at the same time and both persist in not making an alternate move, the game can be ruled as a draw.
+* Um jogador que esteja a dar Xeque perpétuo com uma ou mais peças pode ser considerado como derrotado se não parar com tal acto.
+* Um jogador que insista na perseguição de uma peça desprotegida com uma ou mais peças, excluindo o Rei e os Peões, pode ser considerado como derrotado se não parar com tal acto.
+* Se um dos jogadores estiver a dar Xeque perpétuo e o outro estiver a perseguir constantemente peças desprotegidas, o jogador que está a efetuar o Xeque perpétuo terá de parar com tal ou irá ser considerado como derrotado.
+* Quando nenhum dos lados quebrarem as regras e ambos persistirem em não efetuar lances alternados, o jogo irá ser adjudicado como empate.
+* Quando ambos os lados quebrarem as regras ao mesmo tempo e ambos persistirem em não efetuar lances alternados, o jogo irá ser adjudicado como empate.
 
-## Notation
+## Notação
 
-Pychess currently uses the same algebraic notation as in chess. A more commonly used notation system is not currently implemented in Pychess.
+O Pychess usa a mesma notação algebraica do Xadrez. A notação mais comum para o Xiangqi não está presentemente implementada. 
 
-### Symbols
+### Símbolos
 
-K = **K**ing
+K = **K**ing (Rei)
 
-A = **A**dvisor
+A = **A**dvisor (Assistente)
 
-E = **E**lephant
+E = **E**lephant (Elefante)
 
-H = **H**orse
+H = **H**orse (Cavalo)
 
-C = **C**annon
+C = **C**annon (Canhão)
 
-R = Cha**R**iot
+R = Cha**R**iot (Biga)
 
-P = **P**awn
+P = **P**awn (Peão)
 
 
-## Where are resources where I can learn Xiangqi?
+## Onde será que posso aprender Xiangqi?
 
-[Xiangqi in English] (http://www.xqinenglish.com/) is a good place for beginners. The website owner, Jim Png Hau Cheng, has also written several books, the  “Xiangqi Primer” series, which may be a worthwhile investment for serious learners.
+[Xiangqi in English] (http://www.xqinenglish.com/) é um site excelente em Inglês para iniciantes. O autor do website, Jim Png Hau Cheng, também é autor de vários livros, tais como a coleção "Xiangqi Primer", que pode valer apena o investimento para quem realmente pretenda aprender.
 
-[Club Xiangqi](https://www.clubxiangqi.com/) is a site where you can play against tough players, most of which are Vietnamese.
+[Club Xiangqi](https://www.clubxiangqi.com/) é um site onde pode ter partidas com jogadores fortes, a maior parte destes são do Vietname.
 
-## Strategy
+## Estratégia
 
-### Piece Values
+### Valores das Peças
 
-Consensus piece values are as below
+Abaixo estão indicados os valores das Peças
 
-Piece | Value 
+Peça | Valor 
 ------------ | ------------- 
-K | Infinite
+K | Infinito
 R | 9
 H | 4
 C | 4.5
-P | 1 before river or at last rank, 2 after river
+P | 1 antes de atravessar o rio, 2 após atravessar o rio
 A | 2
 E | 2.5
 
-### General Principles
+### Principios Gerais
 
-* Similar to the knight and bishop in chess, the horse and cannon have opposing values based on the state of the board. 
-  * The horse is more defensive and less powerful in the early game because of too many pieces restricting its movement. It becomes much more powerful in the endgame when there are few pieces in its way (this is the opposite of the chess knight).  
-  * The cannon is more offensive and more potent in the early game because of the pieces it can use as screens. In the endgame, when the board is empty, its power decreases significantly. 
-* As above, use pieces to block the horse and elephants!
-* Do not think of an elephant as a bishop; they do not at all have similar roles despite their similar movement and starting position. It is strictly a defensive piece. Its offensive utility may be as a screen for a cannon.
-* *Discovery attacks* are far more prevalent in xiangqi than in chess or shogi because of the blockable pieces. Be ready to use them or defend against them.
-* *Double checks* are also more common, especially with the chariot and cannon in tandem.
+* Semelhante ao Cavalo e o Bispo do Xadrez, o Cavalo e o Canhão têm valores diferentes com base na posição.
+  * O Cavalo é uma peça mais defensiva e menos poderosa no inicio de jogo pelo facto do seu movimento ser restringido por imensas peças. Esta torna-se mais poderosa no fim-de-jogo onde existem menos peças a bloquear o seu caminho (Isto é o oposto do Xadrez)
+  * O Canhão é uma peça mais ofensiva e mais potente no inicio de jogo pelo facto de usar outras peças como mira. No fim-de-jogo o seu valor é reduzido por haver menos peças no tabuleiro.
+* Como descrito acima, use as suas peças para bloquear os Cavalos e os Elefantes!
+* Não pense no Elefante como se fosse um Bispo, pelo facto destes não terem propósitos iguais, mesmo tendo movimentos e posições iniciais semelhantes. Esta peça é meramente defensiva. Pode ser usada ofensivamente como mira para os Canhões.
+* *Ataques de Descoberta* existem em maior quantidade no Xiangqi do que no Xadrez e no Shogi pelo facto de existirem peças que possam bloquear o caminho. Esteja pronto a usar esta tática ou de defender contra.
+* *Cheques duplos* também são muito comuns, especialmente com a combinação da Biga e do Canhão.
 
-### Opening Principles
+### Aberturas
 
-The following information is courtesy of [this site](http://www.shakki.info/english/openings.html)
+Estas informações foram obtidas [neste site](http://www.shakki.info/english/openings.html)
 
-The most common opening move is the central cannon, which is a pretty obvious move because it opens aggression down the central file. About 70% of games start this way, so it's probably the best way to start learning the game.
+O movimento mais comum na abertura é o de centralizar o Canhão, que é dos movimentos mais óbvios por abrir uma linha de ataque central. Aproximadamente 70% das partidas são iniciadas desta maneira, o que é considerada a melhor maneira de aprender o jogo.
 
 ![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonOpening.png)
 
-There are four very popular defenses, and a fifth will also be mentioned.
+Existem quatro defesas populares na abertura, e uma quinta que também irá ser mencionada.
 
-**1. Screen horses / Two horse defense**
+**1. Cavalos-Mira / Defesa dos dois Cavalos**
 
 ![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen%20Horses.png)
 
-This is the most common defense. The goal of course is to have both horses protecting the center pawn. There are multiple variations.
+Esta é a defesa mais comum. O objetivo é de ter ambos os cavalos a protegerem os Peões do centro. Existem várias variantes.
 
-**2. Fan Gong Ma / "Sandwich Horses"**
+**2. Fan Gong Ma / "Cavalos-Sanduíches"**
 
-One horse is developed as normal, but before the other is developed, the cannon moves into a "palcorner cannon" position (cannon at the same side palace corner), then finally moves the second horse into place. Black will later connect the elephants to complete the defense. It's a relatively new opening.
+Um dos Cavalos é desenvolvido normalmente, e antes que o outro entre em ação, o Canhão movimenta-se para uma posição de "Canhão de Canto" (Canhão no Canto do Palácio), e por fim movimenta-se o segundo cavalo para o seu sítio. As pretas mais tarde irão ligar os seus Elefantes para completar a defesa. Esta é uma abertura relativamente nova. 
 
 ![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan%20Gong%20Ma.png)
 
-**3. Same Direction Cannon**
+**3. Canhão na mesma linha de fogo**
 
-Black moves the cannon from the same side that red moved his. Red capturing the defenseless center pawn is considered a move by amateurs because it loses time and black gets the initiative.
+As Pretas movimentam o canhão para a mesma coluna onde o Canhão das Vermelhas foi. A captura de peões de centro é um lance feito por amadores porque este faz com que haja perca de tempo e as Pretas ganhem iniciativa.
 
-**4. Opposite Direction Cannon**
+**4. Canhões em Linhas de fogo opostas**
 
-Like the above, except the opposite cannon. The modern practice is to move the black cannon later though "Delayed Opposite Direction Cannon."
+Semelhante ao descrito acima, mas usando o canhão oposto. A ideia moderna é de movimentar o Canhão preto mais tarde através da tática de "Atraso no Canhão em Direção Oposta"
 
-**5. Three Step Tiger**
+**5. Tigre em três passos**
 
 ![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three%20Step%20Tiger.png)
 
-Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
+As Pretas desenvolvem a sua Biga rapidamente movimentando o seu Canhão para o canto do tabuleiro. Uma jogada típica é de avançar os Cavalos primeiro e após isto os Canhões para o canto, e finalmente as Bigas para as colunas do Canhão.
 
-Any other defenses are considered rare.
+Outras defesas para além destas raramente são usadas.
 
-Aside from the cannon opening, Red has other options as well. These are called "soft openings" because it doesn't open with an immediate threat.
+Para além da abertura do Canhão, as Vermelhas têm outras opções. Estas são denominadas de "aberturas suaves" por não construirem uma ameaça imediata.
 
-**Pawn Opening** - Advancing the 2nd or 4th pawn. This is a flexible opening allowing Red to adjust to Black's move. Black usually does not answer with the central cannon because Red could then play any of the central cannon openings with colors reversed and the pawn move would be an extra advantage.
+**Abertura de Peão** - Avanço do 2º ou 4º Peão. Esta é uma abertura flexivel que permite às Vermelhas se ajustarem aos lances das Pretas. As pretas geralmente não respondem com os Canhões para o centro porque as Vermelhas poderiam então jogar quaisquer um dos Canhões para o Centro com as cores invertidas e o avanço do Peão daria assim uma grande vantagem.
 
-**Elephant Opening** - Advancing an elephant to the palace instead of a cannon. This is a solid defensive opening, where the king is protected.
+**Abertura do Elefante** - Avanço do Elefante para o Palácio em vez do Canhão. Esta é uma abertura defensiva e sólida, onde o Rei é protegido.
 
-**Horse Opening** - Advancing a horse towards the middle. From there, Red can play the Two horse defence, Fan Gong Ma or Three Step Tiger openings with the colors reversed.
+**Abertura do Cavalo** - Avanço de um Cavalo para o centro. A partir daqui, as Vermelhas podem jogar a Abertura dos dois Cavalos, Fan Gong Ma ou Tigre em Três passos com as cores invertidas.
 
-Red can also play his cannon to the front corner of the palace ("Palcorner Cannon") or to the opposite corner ("Crosspalace Cannon"). These moves are also useful developing moves.  
+As Vermelhas também podem jogar o seu Canhão para a frente do Palácio ("Canhão de Canto") ou para o canto oposto ("Canhão de Palácio"). Estes movimentos também são úteis no desenvolvimento das peças.
 
-Other red opening moves are very rare.
+Outras aberturas para as Vermelhas são muito raras.
