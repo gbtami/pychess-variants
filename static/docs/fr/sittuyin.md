@@ -51,7 +51,7 @@ Elephants can sometimes prove slow/awkward to maneuver or retreat. It is therefo
 
 The horse moves exactly the same as a knight in chess.
 
-The horses are not "minor pieces" in Makruk. They are major forces. Centralize and utilize them.
+The horses are not "minor pieces" in Sittuyin. They are major forces. Centralize and utilize them.
 
 ### Chariot
 
