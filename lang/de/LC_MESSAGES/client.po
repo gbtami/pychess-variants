@@ -4,6 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
 # Translators:
+# ubdip <hsart.liam@gmail.com>, 2020
 # Jonathan Kubik <j.kubik97@gmail.com>, 2020
 # 
 #, fuzzy
@@ -77,7 +78,7 @@ msgstr ""
 
 #: ../client/about.ts:24
 msgid "Currently supported games are "
-msgstr "Derzeit unterstützte Spiele sind"
+msgstr "Derzeit unterstützte Spiele sind "
 
 #: ../client/about.ts:71
 msgid ""
@@ -86,7 +87,7 @@ msgid ""
 msgstr ""
 "Weiters kannst du die Chess960 Einstellung für Standard, Crazyhouse, "
 "Capablanca und Capahouse wählen um Partien mit einer zufälligen "
-"Anfangsposition zu starten"
+"Anfangsposition zu starten "
 
 #: ../client/about.ts:72
 msgid "Chess960 castling rules."
@@ -100,11 +101,11 @@ msgstr ""
 
 #: ../client/about.ts:83
 msgid "On client side it is based on "
-msgstr "Auf der Benutzerseite basiert es auf"
+msgstr "Auf der Benutzerseite basiert es auf "
 
 #: ../client/about.ts:87
 msgid "Source code of server is available at "
-msgstr "Der Quellcode des Servers ist verfügbar auf"
+msgstr "Der Quellcode des Servers ist verfügbar auf "
 
 #: ../client/about.ts:92
 msgid ""
@@ -126,12 +127,12 @@ msgstr "Ungewertet"
 
 #: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
 msgid "Playing right now"
-msgstr "Spielt gerade"
+msgstr "Partie läuft"
 
 #: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
 #: ../client/profile.ts:121 ../client/profile.ts:131
 msgid " level "
-msgstr "level"
+msgstr " level "
 
 #: ../client/analysisCtrl.ts:254
 msgid "You need an account to do that."
@@ -163,7 +164,7 @@ msgstr "PNG Bild"
 
 #: ../client/analysisCtrl.ts:289
 msgid "Request Computer Analysis"
-msgstr "Computer Analyse anfordern"
+msgstr "Computer-Analyse anfordern"
 
 #: ../client/analysisCtrl.ts:289
 msgid " Request Analysis"
@@ -282,7 +283,7 @@ msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
 msgstr ""
-"Hybridfiguren, der Adler (L+S) und der Elefant (T+S), können eingesetzt "
+"Hybridfiguren, der Falke (L+S) und der Elefant (T+S), können eingesetzt "
 "werden wenn man Figuren von der Grundreihe bewegt"
 
 #: ../client/chess.ts:56
@@ -412,7 +413,7 @@ msgstr "NACH PNG EXPORTIEREN"
 
 #: ../client/editor.ts:120 ../client/lobby.ts:267
 msgid "Invalid FEN"
-msgstr "Ungültiger FEN"
+msgstr "Ungültige FEN"
 
 #: ../client/editor.ts:213 ../client/lobby.ts:329 ../client/lobby.ts:470
 msgid "Variant"
@@ -476,7 +477,7 @@ msgstr "Farbe"
 
 #: ../client/lobby.ts:467
 msgid "Rating"
-msgstr "Wertung"
+msgstr "Wertungszahl"
 
 #: ../client/lobby.ts:468
 msgid "Time"
@@ -586,7 +587,7 @@ msgstr[1] "%1 Züge"
 
 #: ../client/profile.ts:148
 msgid "Computer analysis available"
-msgstr "Computer Analyse verfügbar"
+msgstr "Computer-Analyse verfügbar"
 
 #: ../client/profile.ts:227
 msgid "Lichess profile"
