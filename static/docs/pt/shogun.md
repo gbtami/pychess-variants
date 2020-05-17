@@ -2,71 +2,72 @@
 
 ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions3.png)
 
-Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in S-chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
+O Shogun é uma variante de Xadrez criada em 2019-2020 por Couch Tomato. Enquanto a variante em si é uma mistura de Xadrez e Shogi, a ideia principal do jogo foi a introdução de peças híbridas (normalmente denominadas de Arcebispo e Chancelor) de maneira diferente do habitual. Por exemplo, manter um tabuleiro 8x8 em vez de aumentar o seu tamanho a fim de não diminuir o valor das peças menores, ou introduzi-las num tabuleiro não muito congestionado como o Seirawan Chess. A ideia veio da introdução destas peças via promoção de peças menores e da Torre a partir da linha anterior à 8ª. Mais tarde, as colocações de peça também foram adicionadas a fim de reforçar a defesa contra as promoções. Promoções únicas de peões e cavalos e também a despromoção da Dama foram adicionadas à variante a fim de completar o tema e a simetria.
 
-The name was originally tentatively "General's Chess," based on what was then the name of the pawn's promotion, now currently the name of the knight's promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.
+O nome original estava para ser "General's Chess" (Xadrez de Generais), baseado no nome da promoção de peões, agora sendo o da promoção dos Cavalos. No entanto pelo facto das colocações e promoções de zona serem baseados baseados em shogi, a palavra Shogun pareceu ser mais apropriada. Pelo facto do Sho de Shogun ser o mesmo do Shogi prestando assim uma homenagem a este.
 
-## General Rules
 
-1. Setup is exactly the same as chess.
+## Regras Gerais
 
-2. New pieces are as defined in the image above, and their moves are described in detail below. Of note, promoted sides are colored differently. Also, the queen *starts* as a promoted piece despite having a new unpromoted form (the Duchess). See details about drops below. For the sake of terminology, a rook will now be considered a "minor piece," while the queen, mortar, archbishop, and general (but NOT the captain) are considered "major pieces." 
+1. A posição inicial é a mesma do Xadrez.
 
-3. The three farthest ranks are the promotion zone. Every starting (or dropped) piece except the king and queen may promote by moving into the promotion zone **or moving from within the promotion zone**. 
+2. As novas peças estão representadas na imagem acima, e os seus movimentos na descrição abaixo. De notar que as peças promovidas são representadas com cores diferentes. Também de notar que a Dama *começa* como sendo uma peça promovida havendo assim uma forma desta não promovida (a Duquesa). Veja mais detalhes sobre as colocações abaixo. Por uma questão de terminologia, a Torre irá ser considerada uma "peça menor", enquanto que a Dama, o Morteiro, o Arcebispo e o General(excluindo o Capitão) são consideradas "Peças Maiores".
 
-4. However, only one of *each* **major** piece (queen, mortar, archbishop, or general) can be out on each side at a time. For example, if a player has an archbishop in play, then a bishop cannot promote into an archbishop until the current one is captured.
+3. As três últimas linhas são consideradas zonas de promoção. Todas as peças iniciais (ou colocadas) excepto o Rei e a Dama podem ser promovidas quando chegarem a esta zona de promoção **ou quando são movidas dentro desta zona de promoção**.
 
-5. As in crazyhouse and shogi, captured pieces may be dropped back into the board as your own piece. Pieces can be dropped anywhere within the first 5 ranks (in other words, anywhere but the promotion zone). Note that unlike crazyhouse, **pawns can be dropped on the first rank**.
+4. No entanto, só pode haver uma de *cada* peça **Maior** (Dama, Morteiro, Arcebispo ou o General) por cada jogador. Por exemplo, se um jogador tem um Arcebispo em jogo, então um Bispo não pode ser promovido para Arcebispo enquanto este não for capturado.
 
-6. When promoted pieces are captured, they revert to their unpromoted side. This is the only way that a queen becomes a duchess.
+5. Como em Crazyhouse e em Shogi, as peças capturadas podem ser colocadas no tabuleiro como suas. As peças podem ser colocadas nas primeiras 5 linhas (por outras palavras, em qualquer casa exceto na zona de promoção). De notar que ao contrário de Crazyhouse, **Os peões podem ser colocados na primeira linha**.
 
-Additional minor rules for clarification:
-* Dropped rooks cannot castle, as in crazyhouse.
-* Pawns dropped on the first rank can still double step when reaching the second rank.
-* Pawns cannot promote if capturing by en passant. 
+6. Quando as peças promovidas são capturas, estas irão para a mão do adversário como peças despromovidas. Este é o único caso em que a Dama se transforma na Duquesa.
 
-(Note that images were designed for computer play. Over the board pieces are not available but would require shogi-like designs of two-sided directional pieces to be viable.)
+Regras adicionais para clarificação:
+* Torres colocadas não podem efetuar Roque, como em Crazyhouse.
+* Peões colocados na primeira linha podem avançar duas casas após atingirem a segunda linha.
+* Os Peões não podem ser promovidos quando capturarem em en passant.
 
-*Timer* - Shogun chess uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time. The reason for using byo-yomi instead of the Fischer increment is that the endgame takes longer than the beginning, so byo-yomi guarantees time for each move.
+(De notar que as imagens foram feitas para jogos entre computador. Não existem peças de tabuleiro disponiveis, implicando assim o uso de peças de Shogi bi-dimensionais a fim de efetuar este jogo.)
 
-## Pieces
+*Relógio* - O Shogun usa um relógio byo-yomi. Quando o relógio principal do jogador chega ao fim, este entra em byo-yomi. Se tiver definido a 30 segundos então este jogador terá 30 segundos para efetuar o seu lance e a partir dai terá os mesmos 30 segundos para os próximos lances, se estes expirarem então será declarada derrota por tempo. A razão pela qual se usa byo-yomi em vez do relógio de incremento de Fischer é de que o fim-de-jogo tem uma maior duração do que a abertura, então o byo-yomi garante que haja tempo suficiente para cada lance.
 
-### Archbishop
+## Peças
+
+### Arcebispo
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ArchbishopShogun.png)
 
-The archbishop is a hybrid piece seen in multiple other chess variants. In this game, it promotes from bishop and gains the move of a knight. Because of its unique moves, it is the only piece that can checkmate on its own.
+O Arcebispo é uma peça híbrida já muito usada noutras variantes. Nesta variante, esta é promovida a partir do Bispo e ganha os mesmos movimentos de um Cavalo. Por causa dos seus movimentos únicos, esta é a única capaz de dar Xeque-Mate por si mesma.
 
-### Mortar
+### Morteiro
 
 ![Mortar](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Mortar.png)
 
-The mortar is a hybrid piece seen in multiple other chess variants, often with other names such as the chancellor or marshall. In this game, it promotes from the rook and gains the move of a knight. 
+O Morteiro é uma peça híbrida já muito usadas noutras variantes, na maior parte das vezes denominada de Chanceler ou Marechal. Nesta variante, esta é promovida a partir da Torre e ganha os mesmos movimentos de um Cavalo.
 
 ### General
 
 ![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/General.png)
 
-The general is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.
+O General é uma peça híbrida, geralmente conhecida como Centauro. Neste jogo, é promovida a partir de um Cavalo e ganha os mesmos movimentos de um Rei.
 
-### Captain
+### Capitão
 
 ![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
 
-The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game. Also, unlike the rest of promoted pieces, there can be multiple captains, as it is not a major piece.
+O Capitão é a única promoção de um Peão e movimenta-se exatamente como um Rei. Sendo uma peça não-Real, capturando o Capitão não dará o jogo como concluido. De notar que ao contrário das outras peças, podem existir vários Capitães em jogo, pelo facto de não ser uma Peça Maior.
 
-### Duchess
+### Duquesa
 
 ![Duchess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duchess.png)
 
-The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz"). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in Shogun chess).
+A Duquesa é a única despromoção da Dama, e só chega a jogo após a captura da Dama, por se tornar numa Duquesa às mãos do adversário. A Duquesa movimenta-se apenas uma casa na diagonal (Mesmo movimento do chamado "ferz"). Como lembrete, a Duquesa não pode ser promovida caso o jogador já tenha uma Dama em jogo (A poligamia é ilegal em Shogun).
 
-## Strategy
+## Estratégia
 
-The game is still young, so strategy is still being developed! 
+Pelo facto de ainda ser uma variante recente, a estratégia ainda está em desenvolvimento! 
 
-With the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.
+Pelo facto da zona de promoção ser na 6ª linha, é necessário reforçar a defesa na sua 3ª linha. Isto é algo que qualquer iniciante pode facilmente observar.
 
-General strategy-wise, many players will be tempted to play this as crazyhouse. However, the game diverges quite quickly from crazyhouse due to the drop zone restriction. While players in crazyhouse will often take advantage of weaknesses in the opponents' camps to deliver devastating drops, the gameplay in shogun chess. In shogun chess, your army needs to maneuver itself in a way to breach the opponents' camp; even the slightest breach can result in a piece promotion. Therefore, strategy relies more on chess tactics than crazyhouse tactics for this purpose, as well as for the purposes of delivering checkmate.
+Estrategicamente falando, qualquer jogador poderá tentar jogar esta variante como se fosse Crazyhouse. No entanto, existem grandes diferentes comparativamente ao Crazyhouse, começando com a restrição nas colocações. Enquanto um jogador de Crazyhouse tomará partido das fraquezas em território inimigo, isto se torna impossivel em Shogun. Nesta variante, o seu exército precisa de se posicionar corretamente a fim de atingir o território inimigo; Isto porque à minima abertura, isto fará com que haja promoção de peças. Daí concluir que a estratégia usada aqui está mais próxima de táticas de Xadrez do que táticas de Crazyhouse, tanto como para promoções do que como para dar Xeque-Mate.
 
-The ability to drop pawns on the first rank (unlike in crazyhouse) allows a player to build a much stronger castle. To crack this, focus on gaining material and promoted pieces, then push at the weak point.
+De notar que sendo permitindo a colocação de Peões na primeira linha (ao contrário de Crazyhouse) isto permite ao jogador a construção de uma defesa ainda mais poderosa. Para quebrar esta defesa, concentre-se em ganhar material e promover peças, e após isto criar aberturas no adversário.
