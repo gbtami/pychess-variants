@@ -1,21 +1,21 @@
 # ![S-House](https://github.com/gbtami/pychess-variants/blob/master/static/icons/SHouse.svg) S-House
 
-S-House is a custom variant combining the rules of S chess (AKA Seirawan or SHARPER chess) with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of S chess, please check the rules in its separate guide. Crazyhouse rules are as below for a reminder.
+O S-House é uma variante personalizada que segue as regras do Seirawan Chess(Sharper-Chess) com a regra de colocação de peças do Crazyhouse. São aplicadas as regras de ambos os jogos. Por esta ser considerada uma variante de Seirawan Chess, por favor dê uma leitura nas regras do Crand Chess disponibilizadas num guia em separado. As regras do Crazyhouse estão disponibilizadas abaixo como um memorando.
 
-## Crazyhouse Rules
+## Regras de Crazyhouse
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+A colocação de peças pode ser efetuada com as peças capturadas, que é considerada como se fosse uma jogada efetuada no tabuleiro. A notação das colocações é feita com o símbolo @. Por exemplo, T@e4 significa que a Torre irá ser colocada na casa e4. Existem algumas regras relativas à colocação de peças: 
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* Colocações de peças que resultem em Xeque-Mate imediato são permitidas. Ao contrário do Shogi, isto inclui a colocação de Peões.
+* Os Peões não podem ser colocados na primeira e última linha.
+* Os Peões que são promovidas e capturados irão ser considerados Peões para colocação.
+* Os Peões que são colocados na 2ª e 7ª fila, poderão mover-se duas casas na sua primeira jogada após a colocação.
+* Uma Torre colocada não pode efetuar Roque.
 
-## Clarifications
+## Esclarecimentos
 
-The elephant and hawk are also counted as pieces in hand, so they are able to be dropped on the board starting from the beginning.
+O Elefante e o Falcão também são peças que contam na mão do jogador, daí poderem ser colocados a partir desde o inicio de jogo até ao fim.
 
-## Strategy
+## Estratégia
 
-As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
+Como o Crazyhouse normal, o valor das peças não corresponde ao do Xadrez normal, e também como o Crazyhouse normal, o sacrificio de peças para desenvolvimento rápido e eficaz, ataques ao Rei inimigo, ou puramente defensivos é geralmente recomendado. De vez em quando é melhor reforçar a defesa à volta do Rei em vez de tentar salvar as peças. Aqui nesta variante talvez será melhor consultar estratégias do Crazyhouse normal...
