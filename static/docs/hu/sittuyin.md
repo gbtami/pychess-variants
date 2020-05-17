@@ -11,7 +11,17 @@ The general rules are extremely similar to Chess, so this guide will focus on th
 * For starters, the feudal lords (pawns) start on staggered ranks (as you can see in the board above). 
 * To start the game, the players (starting with the red player) alternate back and forth placing the remainder of their pieces on their halves of the boards.
 * Pawn (feudal lord) promotion works much differently. See the movement section below. 
-* Creating stalemate is illegal. 
+
+Additional conditions for draws: 
+
+* The game is drawn when the player to move has no legal move and his king is not in check. The game is said to end in 'stalemate'. This immediately ends the game, provided that the move producing the stalemate position was legal.
+* The game is drawn when a position has arisen in which neither player can checkmate the opponent's king with any series of legal moves. The game is said to end in a ‘dead position’. This immediately ends the game, provided that the move producing the position was legal. 
+* The game is drawn upon agreement between the two players during the game. This immediately ends the game. 
+* The game may be drawn if each player has made at least the last 50 consecutive moves without the movement of any pawn and without any capture.
+* As soon as a player has only a king left on his side, the number of pieces belong to the opponent shall be observed. The game may be drawn if the player having only a king (lone king) left on his side can manage to escape in a number of fixed moves (move count shall be done starting from the very first move of lonely king) against the opponent of having particular pieces shown below:
+  * Lone King vs. King & A Rook	- 16 moves
+  * Lone King vs. King & An Elephant & A General	- 44 moves 
+  * Lone King vs. King & A Knight & A General	- 64 moves
 
 ## The Pieces
 
@@ -51,7 +61,7 @@ Elephants can sometimes prove slow/awkward to maneuver or retreat. It is therefo
 
 The horse moves exactly the same as a knight in chess.
 
-The horses are not "minor pieces" in Makruk. They are major forces. Centralize and utilize them.
+The horses are not "minor pieces" in Sittuyin. They are major forces. Centralize and utilize them.
 
 ### Chariot
 
