@@ -1,20 +1,18 @@
-# ![960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/960.svg) Chess960 (Fischer’s Random Chess)
+# ![960 ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/960.svg) Sakk960 (Chess960)
 
-Chess960 was created by Bobby Fischer to make the game more variable and remove a lot of the rote memorization for openings that standard chess forces you into. This is one of the most popular variants, and it will separate those who have truly mastered strategy and tactics from those who rely on memorizing opening lines.
+A Sakk960, vagy más néven *Fischer random sakk* egy sakkváltozat, amit Bobby Fischer hozott létre azért, hogy a játékot még inkább variálhatóvá tegye és hogy az ne függjön annyira a megnyitások memorizálásától. Ez a variáns igazán jól megkülönbözteti azokat a játékosokat, akik magas szintre fejlesztették a stratégiai és taktikai tudásukat, azoktól, akik leginkább a megnyitások memorizálására támaszkodnak. Összesen 960-féle megengedett alapállás létezik, ezért használják erre a sakkváltozatra a Sakk960 megnevezést.
 
-This can be played by checking the 960 box for a standard chess game.
+Ezt a játékot egy sakkjátszma indítása előtt a 960-as opciót bepipálva lehet játszani.
 
-## Rules
+## Szabályok
 
-The starting bottom ranks are randomized, but two rules must be followed:
+A hátsó sor bábui véletlenszerűen vannak összekeverve két szabály betartásával:
 
-* The bishops must be placed on opposite-color squares.
-* The king must be placed on a square between the rooks.
+* A két futó nem állhat azonos színű mezőn (tehát az egyik egy világos, a másik pedig egy sötét mezőn áll, mint a standard sakkban).
+* A királynak egy olyan mezőn kell állnia, ami a két bástya között van.
 
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+A sötét bábuk a megfelelő világos bábukkal szemben kezdenek.
 
-All other rules are the same.
+A sáncolás a standard sakk szabálya szerint működik, azaz mindegy, hogy a bástya melyik mezőn áll, a sáncolás során a király és a bástya ugyanarra a mezőre érkezik, mint a standard sakkban. Ha például a király a vezérszárnyra sáncol, akkor a c1 mezőre érkezik, a bástya pedig a d1 mezőre. 
 
-## Strategy
-
-Normal chess strategy and tactics apply, except for openings! Since the starting position is random, standard opening lines don’t apply.
+A további szabályok a standard sakkban megszokotottak.
