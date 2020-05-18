@@ -1,27 +1,31 @@
 # ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Capahouse960.svg) Capahouse 960
 
-Capahouse 960 is a custom variant combining the rules of Capablanca chess, Crazyhouse, and Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse and 960 rules are as below for a reminder.
+A Capahouse 960 egy sakkvariáns, ami a Capablanca-sakkot kombinálja a Crazyhouse behozási szabályaival és a Sakk960 (más néven Fischer random sakk) szabályaival.
 
-This variant can be played by checking the "Chess960" option when creating a Capahouse game.
+Mivel ez a játék a Capablanca-sakk egy változata, annak szabályai az arra vonatkozó leírásban megtalálhatók. 
 
-## Crazyhouse Rules
+Ezt a játékot egy Capahouse játszma indítása előtt a 960-as opciót bepipálva lehet játszani.
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+A 960 és a Crazyhouse szabályai emlékeztetőnek:
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+## Crazyhouse szabályok
 
-## 960 Rules
+A leütött bábuk saját bábuként visszahelyezhetők a táblára, ezt nevezzük behozási szabálynak. Egy bábu behozása lépésnek számít. A jegyzés során a behozást **@** karakterrel jelöljük, tehát pl. egy leütött bástya visszahelyezése az e4 mezőre: **R@e4**.
 
-The starting bottom ranks are randomized, but two rules must be followed:
+ Behozási (visszahelyezési) szabályok:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+* Bábut nem lehet úgy behozni, hogy az azonnal mattot adjon.
+* Gyalogot nem lehet az utolsó sorba behozni (mert utána nem lenne szabályos lépése).
+* Egy előléptetett gyalog (pl. vezér) leütés után visszaváltozik gyaloggá és csak úgy lehet újra játékba hozni.
+* A 2. sorba (fehér esetén) és a 7. sorba (fekete esetén) visszahelyezett gyalogok nem léphetnek kettőt első lépésként.
+* Behozott bástya nem sáncolhat.
 
-## Clarifications
+## A 960 szabályai
 
-A king may not castle with a dropped rook.
+A hátsó sor bábui véletlenszerűen vannak összekeverve két szabály betartásával:
+
+A két futó nem állhat azonos színű mezőn (tehát az egyik egy világos, a másik pedig egy sötét mezőn áll, mint a standard sakkban).
+A királynak egy olyan mezőn kell állnia, ami a két bástya között van.
+A sötét bábuk a megfelelő világos bábukkal szemben kezdenek.
+
+A sáncolás a standard sakk szabálya szerint működik, azaz mindegy, hogy a bástya melyik mezőn áll, a sáncolás során a király és a bástya ugyanarra a mezőre érkezik, mint a standard sakkban. Ha például a király a vezérszárnyra sáncol, akkor a c1 mezőre érkezik, a bástya pedig a d1 mezőre.
