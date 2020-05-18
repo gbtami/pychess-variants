@@ -18,15 +18,15 @@ On note bien que certaines pièces sont identiques mais s'appellent différemmen
 
 ## Classification
 
-Because fairy pieces introduce dozens of possible pieces, there is a classification system for pieces. There are also notations used to describe movements, but that is outside of the scope of this page. There are three types of simple pieces:
+Parce qu'il existe des centaines de pièces féeriques, il en existe aussi un système de classification. Des [systèmes de notations pour décrire leurs mouvements](https://en.wikipedia.org/wiki/Fairy_chess_piece#Notations) existent aussi, mais il n'est pas notre sujet ici. Abordons trois catégories de pièces « simples » :
 
-**Riders** (also called ranging pieces) are pieces that keep moving in a direction indefinitely until obstructed by another piece or the edge of the board. The rook and bishop in chess are classic examples.
+**Coureurs** peuvent se déplacer dans le même sens et direction indéfiniment, jusqu'à ce qu'ils atteignent une case occupée. La tour (coureur orthogonal) et le fou (coureur diagonal) des échecs occidentaux sont des exemples canoniques. Aux problèmes d'échecs féeriques, la noctambule (*Nightrider* en anglais) est un autre exemple très connu, un coureur dans le sens d'un cavalier.
 
-**Leapers** are pieces that have fixed movements and cannot be obstructed to reach their destination. The knight in chess is a classic example. The horse in xiangqi and janggi is a modified leaper because it can be blocked. Similar pieces have also been referred to as "lame leapers."
+**Bondisseurs** peuvent faire un bond entre leur case de départ et leur case d'arrivée, sans être empêchés par aucune pièce en route. L'exemple classique est le cavalier en échecs occidentaux. Le cheval du xiangqi et du janggi est un bondisseur qui par contre peut être bloqué en route, parfois appelé un *bondisseur décomposé* (parce que son bond peut être décomposé en deux parties, avec une case au milieu ou la pièce peut se faire bloquer). L'éléphant du janggi en est un autre exemple.
 
-**Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers.
+**Sauteurs** se déplacent comme des coureurs, mais doivent sauter par-dessus d'une pièce au long de son trajectoire. Le canon du janggi (sauteur orthogonal) est l'exemple canonique ; au monde de problèmes d'échecs occidentaux, il y a la Sauterelle (comme une Dame, pourtant elle n'est pas un coureur mais un sauteur).
 
-Finally, **compound pieces** are pieces that combine the moves of two simple pieces. The chess queen, which combines the rook and bishop, is a classic example. Many fairy pieces are compound pieces.
+En plus, des pièces **hybrides** combine à la fois deux mouvements simples. Par exemple, la dame en échecs occidentaux combine les mouvements d'une tour (coureur orthogonal) et d'un fou (coureur diagonal). Le canon du xiangqi se déplace (sans capture) comme une tour (coureur orthogonal), mais il ne capture qu'en sautant (sauteur orthogonal). Beaucoup de pièces féeriques sont des hybrides.
 
 # Time Control
 
