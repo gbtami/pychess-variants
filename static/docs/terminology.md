@@ -84,7 +84,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 ![Discovered attack example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
 
-In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. If the black queen and king were switched, the end result would the same (black losing a queen).
+In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. 
 
 **Sacrifice** - Losing material value in order to gain a better position.
 
