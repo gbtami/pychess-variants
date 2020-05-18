@@ -24,7 +24,7 @@ Because fairy pieces introduce dozens of possible pieces, there is a classificat
 
 **Leapers** are pieces that have fixed movements and cannot be obstructed to reach their destination. The knight in chess is a classic example. The horse in xiangqi and janggi is a modified leaper because it can be blocked. Similar pieces have also been referred to as "lame leapers."
 
-**Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers.
+**Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers. (Note that technically, the xiangqi cannon is technically a hybrid rider-hopper because of its rider movement and hopper capture, while the janggi cannon is a pure hopper) 
 
 Finally, **compound pieces** are pieces that combine the moves of two simple pieces. The chess queen, which combines the rook and bishop, is a classic example. Many fairy pieces are compound pieces.
 
@@ -36,7 +36,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 1. **(Fischer) Increment** - Every time a player ends his turn, he/she gains a fixed amount of time to their clock. A game in Pychess labeled as "10+15" means 10 *minutes* on the starting timer, and a 15 second increment. This is the standard used for most variants.
 
-2. **Byo-yomi** - (Japanese for countdown) Once a player's main clock expires, he has a fixed amount of time to take his/her turns from that point on (i.e. extra time). This system is used in Shogi and Janggi. Multiple byo-yomi periods can be used, typically in Janggi. For example, if there are 3 periods, then that player can drain the clock up to 3 times before losing. This can be useful in a critical move, where a single period of byo-yomi is not enough time to assess the situation carefully. A game in Pychess labeled as "10+3x30(b)" means 10 *minutes* on the starting timer, then 3 periods of 30 second byo-yomi.
+2. **Byo-yomi** - (Japanese for countdown) Once a player's main clock expires, he has a fixed amount of time to take his/her turns from that point on (i.e. extra time). This system is used in Shogi and Janggi. Multiple byo-yomi periods can be used, typically in Janggi. For example, if there are 3 periods, then that player can drain the clock up to 2 times before losing on the 3rd. This can be useful in a critical move, where a single period of byo-yomi is not enough time to assess the situation carefully. A game in Pychess labeled as "10+3x30(b)" means 10 *minutes* on the starting timer, then 3 periods of 30 second byo-yomi.
 
 3. **Sudden death** - No extra time is given. A game that uses increment or byo-yomi can be played with sudden death by setting the respective slider to 0 seconds.
 
@@ -84,7 +84,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 ![Discovered attack example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
 
-In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. If the black queen and king were switched, the end result would the same (black losing a queen).
+In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. 
 
 **Sacrifice** - Losing material value in order to gain a better position.
 

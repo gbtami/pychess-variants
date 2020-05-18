@@ -6,7 +6,7 @@ Gothic chess was created by Ed Trice in 2000. In 2019, the name was changed to T
 
 ## Rules
 
-The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
+The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces. The archbishop is to the left of the king, while the chancellor is on the queen's right, in between the king and queen. This difference from Capablanca allows all pawns to be protected at the start. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
 
 ## New Pieces
 
