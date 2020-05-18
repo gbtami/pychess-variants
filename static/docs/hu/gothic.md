@@ -1,49 +1,46 @@
-# ![gothic](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Gothic Chess
+# ![gothic ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Gothic sakk (Trice-sakk) 
 
-![Gothic setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Gothic.png)
+![Gothic ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Gothic.png)
 
-Gothic chess was created by Ed Trice in 2000. In 2019, the name was changed to Trice's Chess. The game uses the same pieces and 10 x 8 board as Capablanca chess, but has a different starting arrangement. 
+A Gothic egy 10x8-as táblán játszott sakkvariáns, melyet Ed Trice alkotott meg 2000-ben. A játék Capablanca-sakk egy módosított változata, melyben a két új bábu más kezdőpozícióban van, ezért **már a játszma kezdetén minden gyalogot legalább egy bábu védelmez** (ez a Capablanca-sakkban nem így van).
 
-## Rules
+A játék neve 2019-ben Trice-sakkra (Trice's chess) változott.
 
-The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
+## Szabályok
 
-## New Pieces
+* Sáncoláskor a király három mezőt lép az eltérő táblaméret miatt.
+* A gyalogok érsekké vagy kancellárrá is előléptethetők.
 
-### Archbishop
+A további szabályok a már standard sakkban megszokottak.
 
-![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
+## Új bábuk
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seiwaran Chess)
+A kancellár a vezér és a király között (e-oszlopban), az érsek a király és a futó között (g-oszlopban) helyezkedik el.
 
-![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
+### Érsek (Archbishop)
 
-The archbishop (A) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+![Érsek bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, in the case of Gothic chess, Ed Trice often uses the 3rd symbol depicted above.
+Többféle figurával is szokták ábrázolni (a sólyom csak egy másik variánsban, az S-sakkban van).
 
-The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+![Érsek ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
+Az érsek (angolul: *Archbishop*) a huszár és a futó kombinációja. Az érsek az egyedüli bábu, amely képes egymagában mattot adni.
 
-### Chancellor
+A bástyánál egy kicsit értékesebb bábu, de kevésbé értékes, mint a kancellár és a vezér.
 
-![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
+A játszmák során **A** betűvel jegyezzük, ami az angol Archbishop szó rövidítése.
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seiwaran Chess)
+### Kancellár 
 
-![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
+![Kancellár bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-The chancellor (C) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+Többféle figurával is szokták ábrázolni (az elefánt csak egy másik variánsban, az S-sakkban van).
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, in the case of Gothic chess, Ed Trice often uses the 1st symbol depicted above.
+![Kancellár ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
+A kancellár (angolul: *Chancellor*) a huszár és a bástya kombinációja.
 
-### Strategy
+Értékesebb bábu, mint az érsek, de értéke kisebb vagy egyenlő, mint a vezéré.
 
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
-
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
-
-Continue to play more and if you discover new strategies or advice, let us know!
+A játszmák során **C** betűvel jegyezzük, ami az angol Chancellor szó rövidítése.
