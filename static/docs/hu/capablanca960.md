@@ -1,17 +1,21 @@
-# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
+# ![Capablanca960 ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
 
-Capablanca 960 is a custom variant combining the rules of Capablanca chess with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca chess rules in its separate guide. 960 rules are as below for a reminder.
+Capablanca 960 egy sakkváltozat, ami Capablanca-sakkot kombinálja a Sakk960 (más néven Fischer random sakk) szabályaival (véletlenszerűen összekevert bábuk).
 
-Note that unlike standard chess, there are more than 960 random positions. The 960 is more of a label than a technical number for this game.
+Mivel ez a játék a Capablanca-sakk egy változata, annak szabályai az arra vonatkozó leírásban megtalálhatók. A 960 szabályai emlékeztetőnek:
 
-This variant can be played by checking the "Chess960" option when creating a Capablanca chess game.
+## A 960 szabályai
 
-## 960 Rules
+A hátsó sor bábui véletlenszerűen vannak összekeverve két szabály betartásával:
 
-The starting bottom ranks are randomized, but two rules must be followed:
+A két futó nem állhat azonos színű mezőn (tehát az egyik egy világos, a másik pedig egy sötét mezőn áll, mint a standard sakkban).
+A királynak egy olyan mezőn kell állnia, ami a két bástya között van.
+A sötét bábuk a megfelelő világos bábukkal szemben kezdenek.
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+A sáncolás a standard sakk szabálya szerint működik, azaz mindegy, hogy a bástya melyik mezőn áll, a sáncolás során a király és a bástya ugyanarra a mezőre érkezik, mint a standard sakkban. Ha például a király a vezérszárnyra sáncol, akkor a c1 mezőre érkezik, a bástya pedig a d1 mezőre.
 
-All other rules are as in Capablanca chess.
+Minden további Capablanca-sakk szabály itt is érvényes.
+
+Megjegyzés: a Sakk960-nal ellentétben itt több, mint 960 lehetséges pozíció van. A 960 elnevezés itt inkább a Sakk960 szabályaira utal, nem pedig lehetséges pozíciók számára.
+
+Ezt a játékot egy Capablanca játszma indítása előtt a 960-as opciót bepipálva lehet játszani.
