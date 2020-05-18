@@ -1,6 +1,6 @@
 # Terminologie
 
-Sur ce site, y compris dans les guides, on trouve partout des mots et expressions peut-être moins connus, tout faisant partie du lexique des variantes d'échecs que vous trouverez ici ou ailleurs. Certains termes sont d'usage global ; d'autres se voyent utilisés seulement dans le cadre de quelques jeux en particulier (ex. le *byoyomi* pour le shogi) ; encore d'autres s'appliquent aux plusieurs jeux, mais ont de sens différent selon le jeu (ex. le concept du *pat*). Tout terme qui est spécifique à une variante particulière sera discuté au page consacré à ladite variante. Ceci dit, ce page sera un référence pour démystifier tout le reste du lexique des variantes d'échecs.
+Sur ce site, y compris dans les guides, on trouve partout des mots et expressions peut-être moins connus, tout faisant partie du lexique des variantes d'échecs que vous trouverez ici ou ailleurs. Certains termes sont d'usage global ; d'autres se voyent utilisés seulement dans le cadre de quelques jeux en particulier (ex. le *byô-yomi* pour le shogi) ; encore d'autres s'appliquent aux plusieurs jeux, mais ont de sens différent selon le jeu (ex. le concept du *pat*). Tout terme qui est spécifique à une variante particulière sera discuté au page consacré à ladite variante. Ceci dit, ce page sera un référence pour démystifier tout le reste du lexique des variantes d'échecs.
 
 # "Variantes d'échecs"
 
@@ -12,7 +12,7 @@ Remarquons que ainsi, le mot « échecs » ne s'agit pas que du jeu d'échecs r�
 
 # Pièces
 
-**Pièce féerique** - Toute pièce qui n'est pas dans les échecs occidentaux, le mot « féerique » ayant le sens de « inventée, pas ordinaire ». Il n'est pas évident si des pièces appartenant aux échecs régionaux sont considérées « féeriques », mais nous préférons considérer qu'elles ne le sont pas dans le contexte de leur jeu d'origine. Pourtant, un canon du xiangqi apparaissant dans un variante des échecs occidentaux (voir le Shako) ou bien une dame dans une variante du shogi seront « féeriques », n'étant pas présentes dans le jeu de base.
+**Pièce féerique** -- Toute pièce qui n'est pas dans les échecs occidentaux, le mot « féerique » ayant le sens de « inventée, pas ordinaire ». Il n'est pas évident si des pièces appartenant aux échecs régionaux sont considérées « féeriques », mais nous préférons considérer qu'elles ne le sont pas dans le contexte de leur jeu d'origine. Pourtant, un canon du xiangqi apparaissant dans un variante des échecs occidentaux (voir le Shako) ou bien une dame dans une variante du shogi seront « féeriques », n'étant pas présentes dans le jeu de base.
 
 On note bien que certaines pièces sont identiques mais s'appellent différemment dans des variantes différentes. Par exemple, la tour des échecs occidentaux et le chariot du xiangqi sont les mêmes. Il sera mieux d'utiliser le nom d'une pièce propre à la variante dont il est question.
 
@@ -22,72 +22,74 @@ Parce qu'il existe des centaines de pièces féeriques, il en existe aussi un sy
 
 **Coureurs** peuvent se déplacer dans le même sens et direction indéfiniment, jusqu'à ce qu'ils atteignent une case occupée. La tour (coureur orthogonal) et le fou (coureur diagonal) des échecs occidentaux sont des exemples canoniques. Aux problèmes d'échecs féeriques, la noctambule (*Nightrider* en anglais) est un autre exemple très connu, un coureur dans le sens d'un cavalier.
 
-**Bondisseurs** peuvent faire un bond entre leur case de départ et leur case d'arrivée, sans être empêchés par aucune pièce en route. L'exemple classique est le cavalier en échecs occidentaux. Le cheval du xiangqi et du janggi est un bondisseur qui par contre peut être bloqué en route, parfois appelé un *bondisseur décomposé* (parce que son bond peut être décomposé en deux parties, avec une case au milieu ou la pièce peut se faire bloquer). L'éléphant du janggi en est un autre exemple.
+**Bondisseurs** peuvent faire un bond entre leur case de départ et leur case d'arrivée, sans être empêchés par aucune pièce en route. L'exemple classique est le cavalier aux échecs occidentaux. Le cheval du xiangqi et du janggi est un bondisseur qui par contre peut être bloqué en route, parfois appelé un *bondisseur décomposé* (parce que son bond peut être décomposé en deux parties, avec une case au milieu ou la pièce peut se faire bloquer). L'éléphant du janggi en est un autre exemple.
 
 **Sauteurs** se déplacent comme des coureurs, mais doivent sauter par-dessus d'une pièce au long de son trajectoire. Le canon du janggi (sauteur orthogonal) est l'exemple canonique ; au monde de problèmes d'échecs occidentaux, il y a la Sauterelle (comme une Dame, pourtant elle n'est pas un coureur mais un sauteur).
 
-En plus, des pièces **hybrides** combine à la fois deux mouvements simples. Par exemple, la dame en échecs occidentaux combine les mouvements d'une tour (coureur orthogonal) et d'un fou (coureur diagonal). Le canon du xiangqi se déplace (sans capture) comme une tour (coureur orthogonal), mais il ne capture qu'en sautant (sauteur orthogonal). Beaucoup de pièces féeriques sont des hybrides.
+En plus, des pièces **hybrides** combine à la fois deux mouvements simples. Par exemple, la dame aux échecs occidentaux combine les mouvements d'une tour (coureur orthogonal) et d'un fou (coureur diagonal). Le canon du xiangqi se déplace (sans capture) comme une tour (coureur orthogonal), mais il ne capture qu'en sautant (sauteur orthogonal). Beaucoup de pièces féeriques sont des hybrides.
 
-# Time Control
+# Cadence du jeu
 
-Time controls determine the time restrictions that govern ending the game due to one player taking too long to move. One type of game, called **correspondence** games, uses long time controls of at least several hours, typically counted in days. Players typically play their moves whenever they happen to have a break in their day. As of now, correspondence is not available on Pychess, where games are instead meant to be finished in one sitting.
+La cadence du jeu, aussi appelé le contrôle du temps, s'agit des limitations de temps de réflexion accordé aux joueurs ; si on le dépasse, on perd la partie. Il en existe plusieurs types.
 
-Games played in one sitting use a main timer set anywhere from 1 minute to 60 minutes typically, with each player having their own timer. A player may or may not have extra time throughout the game. There are three main timer types that dictate how extra time is given:
+Les parties **correspondance** fixent une durée maximale pour chaque coup joué, typiquement de l'ordre de quelque jours par coup. Elles ne sont pas offertes sur Pychess à ce moment, où les parties sont censées être jouées en une seule session.
 
-1. **(Fischer) Increment** - Every time a player ends his turn, he/she gains a fixed amount of time to their clock. A game in Pychess labeled as "10+15" means 10 *minutes* on the starting timer, and a 15 second increment. This is the standard used for most variants.
+Les parties jouées en une session précisent souvent une durée de temps principale pour achever la partie, typiquement entre 1 et 60 minutes. Chaque joueur a son propre horloge qui affiche le temps qu'il lui reste ; il ne décompte que pendant son tour. Selon le contrôle du temps, le joueur pourrait gagner plus de temps pendant la partie. Il y a trois types de cadence qui règlent si et comment ce temps en plus est donné :
 
-2. **Byo-yomi** - (Japanese for countdown) Once a player's main clock expires, he has a fixed amount of time to take his/her turns from that point on (i.e. extra time). This system is used in Shogi and Janggi. Multiple byo-yomi periods can be used, typically in Janggi. For example, if there are 3 periods, then that player can drain the clock up to 3 times before losing. This can be useful in a critical move, where a single period of byo-yomi is not enough time to assess the situation carefully. A game in Pychess labeled as "10+3x30(b)" means 10 *minutes* on the starting timer, then 3 periods of 30 second byo-yomi.
+1. **Incrément (cadence Fischer)** -- Quand un joueur termine son tour, il gagne une durée de temps fixe. Sur Pychess, une partie de « 10+15 » indique un temps principal de 10 minutes chacun au début, et un incrément de 15 secondes par coup joué. Le cadence Fischer et le standard pour la majorité des variantes.
 
-3. **Sudden death** - No extra time is given. A game that uses increment or byo-yomi can be played with sudden death by setting the respective slider to 0 seconds.
+2. **Le *byô-yomi*** -- Ce terme vient du japonais, littéralement « comptage de secondes ». Quand un joueur a dépensé tout son temps principal, commence la phase de byô-yomi. Le joueur aura une nouvelle limitation : un temps maximal par coup à ne pas dépasser. Ce système est utilisé pour le shogi et le janggi. Il existe aussi la possibilité d'avoir plusieurs périodes de byô-yomi, typiquement pour le janggi. Par exemple, s'il y a trois périodes de byô-yomi de 30 secondes chacune, chaque joueur a le droit de finit son temps principale, puis dépasser la limite de 30 secondes par coup deux fois. La troisième fois qu'il utilise plus que 30 secondes pour un coup, il perd. Les périodes se voyent commodes face à une position critique, où une seule période ne serait pas suffisante pour bien évaluer la situation. Sur Pychess, une partie de « 10+3x30(b) » indique un temps principal de 10 minutes, puis trois périodes de byô-yomi de 30 secondes.
 
-# General concepts
+3. **La morte subite** -- Il n'y a pas de temps en plus ; les joueurs n'auront que le temps principal pour achever la partie. Une peut se jouer en morte subite en choissisant un íncrément ou byô-yomi de 0 secondes.
 
-**Check** - Threatening the king with a piece that can capture it next turn if not addressed.
+# Concepts généraux
 
-**Checkmate** - The primary goal in chess, where the king cannot escape check. The player that is checkmated loses.
+**Échec** -- Une menace sur le roi adverse avec une pièce qui pourrait le prendre le tour suivant.
 
-**Stalemate** - When the king is not in check, but has no valid moves. In chess, this is a draw, but in many variants (such as xiangqi), it is a loss for the player that's stalemated.
+**Mat** -- Le but principal du jeu d'échecs, où le roi ne peut s'échapper d'un échec. Le joueur qui se fait mater, perd.
 
-**Repetition** - When the board state repeats itself, usually at least three times. This is often due to pieces chasing each other. Different variants handle repetition differently. Even within the same game, different federations have different rules for repetition.
+**Pat** -- Quand le roi n'est pas en échec, mais le joueur n'a aucun coup légal. Aux échecs occidentaux, le pat conduit à une partie nulle, mais pour certaines variantes (ex. le xiangqi), le joueur qui s'est mis en pat, perd.
 
-**Perpetual check** - Like repetition, but one player keeps checking the king and eventually repeating the same position. Rules for perpetual check similarly vary between variants and governing federations.
+**Répétition** -- Quand l'état du jeu apparaît plusieurs fois (souvent trois fois). L'état du jeu comprend les pièces, la position sur l'échiquier, le côté à jouer, et les droits au pouvoirs spéciaux (ex. le roque). Des jeux différents statuent différemment sur la répétition ; par exemple elle amène à partie nulle aux échecs occidentaux, mais elle est interdite au janggi (en parties officielles). Même pour le même jeu, des fédérations différentes peuvent statuer différement (ex. le xiangqi en Chine et le xiangqi en Asie de Sud-Est).
 
-**Rank** - A row on the board.
+**Échec perpetuel** -- Comme la répétition, mais où un côté donne des échecs sans cesse. Encore une fois, les règles concernant l'échec perpetuel diffèrent selon la variante et la fédération qui le gouverne.
 
-**File** - A column on the board.
+**Rangée** -- Une ligne de cases horizontale sur le plateau.
 
-**Notation** - System used in each game to refer to the positions on the board, abbreviations for pieces, as well as movements for each turn.
+**Colonne** -- Une ligne de cases verticale sur le plateau.
 
-**Standard Algebraic Notation (SAN)** - The notation used in chess. Each move is described by using the piece name (except for the pawn), followed by its destination. Additional letters are used for disambiguation.
+**Notation** -- Le (Les) système(s) pour noter la position sur l'échiquier, l'abbréviations des pièces (ex. D = Dame, C = Cavalier), ainsi que les coups joués.
 
-**Move** - A move in chess is a piece movement by both players. However, in shogi, a move is described as a single movement by each player. In chess, you can have "checkmate in 1," 2, 3, etc. But in shogi, you can only have checkmate in 1, 3, 5, 7, etc.
+**Notation algébrique (Standard Algebraic Notation, SAN)** -- Le système de notation utilisé pour les échecs occidentaux. Chaque coup est noté par la pièce qui est joué, suivi par sa case d'arrivée. Des caractères additionnels sont utilisés pour enlever des ambiguïtés, si nécessaire.
 
-**Drop** - A move made by taking a captured piece and dropping it onto the board as your own. This is a staple of Shogi and Crazyhouse, but cannot be done in chess. Variants that allow drops are called "drop variants," and there are several in Pychess (often with the suffix "house")
+**Coup** -- Un *coup complet* comprend deux *demi-coups* ou deux mouvements, un par chaque joueur. Cependant, au shogi, la définition de « coup » correspond à celle de « demi-coup », d'où la notion de « *tsume* en 1/3/5/7 coups » correspondant à « mat en 1/2/3/4 coups » aux échecs occidentaux. Une subtilité de langage.
 
-**Promotion Zone** - The area of the board in which pieces can promote. In chess, only pawns can promote on the furthest rank. However, in shogi, the promotion zone is the last three ranks, and most pieces can promote. Other variations can vary on how the promotion zone is defined.
+**Parachutage** -- Quand on replace une pièce adverse prise sur l'échiquier en tant que la sienne, cet acte constitue un coup de parachutage. Il est la mécanique centrale du shogi et du crazyhouse. Des variantes qui permettent le parachutage s'appellent des « drop variants » en anglais (variantes avec le parachutage), dont il y a plusieurs sur Pychess (celles avec le suffix « -house »).
 
-# Tactics
+**Zone de promotion** -- La région de l'échiquier où les pièces peuvent se promouvoir. Aux échecs occidentaux, seulement les pions ont droit de promotion, et seulement en atteignant la dernière rangée. Au shogi, la zone de promotion est les trois dernières rangées, et presque toutes les pièces peuvent se promouvoir en entrant, en sortant ou en se déplaçant dans la zone de promotion. D'autres variantes pourraient définir leurs propres zones de promotion.
 
-**Fork** - Attacking two pieces at the same time. Knights most commonly deliver forks in all variants. In drop variants, rooks and bishops are also a little more capable of delivering forks, especially bishops.
+# Tactiques
+
+**Fourchette** -- Une double attaque d'une pièce sur deux pièces. Dans beaucoup de variantes, le cavalier est par excellence la pièce qui donne des fourchettes. Dans des variantes avec le parachutage, les fous et les tours sont aussi doués.
 
 ![Fork example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fork.png)
 
-**Pin** - Attacking a piece such that it can't move, or else it would expose a much higher value piece behind it (often the king).
+**Clouage** -- L'attaque d'une pièce coueure sur une autre pièce, telle que la pièce attaquée ne peut s'échapper sans ouvrir la ligne d'attaque vers une pièce plus importante derrière (souvent le roi).
 
 ![Pin example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Pin.png)
 
-**Skewer** - Similar to a pin, but attacking two pieces in a line with the more valuable piece exposed in front. The more valuable piece is compelled to move, allowing the attacker to capture the exposed second piece.
+**Enfilade** -- Comme un clouage, mais c'est la pièce plus importante qui est devant.
 
 ![Skewer example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Skewer.png)
 
-**Discovered attack** - One of your pieces would normally threaten an opposing piece, but is blocked by one of your own pieces. By moving your blocking piece (and often threatening another piece at the same time), this opens up the piece behind it to attack, which is called a discovered attack. Discovered attacks are particularly prominent in Xiangqi. 
+**Attaque (à la) découverte** -- Une pièce coureure est empêchée d'attaquer une pièce adverse par une pièce alliée qui s'interpose. En déplaçant la pièce intervenant (qui elle-même pourrait menacer d'autres choses, par ailleurs), la ligne de la pièce coureure est ouverte et elle attaque la pièce adverse, d'où le nom (l'attaque était couverte ; on découvre l'attaque). Cette tactique arrive souvent au xiangqi.
 
 ![Discovered attack example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
 
-In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. If the black queen and king were switched, the end result would the same (black losing a queen).
+Dans cette situation, on bouge le cavalier afin de menacer la dame noire, en même temps découvrant un échec sur le roi noir par la tour. Comme les noirs doivent répondre à l'échec, les blancs gagnent ainsi une dame.
 
-**Sacrifice** - Losing material value in order to gain a better position.
+**Sacrifice** -- Une perte de matériel pour compensation d'une autre sorte, souvent une meilleure position.
 
 ![Sacrifice example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
 
-In this example, if the white queen takes the black knight, it can easily be retaken by a pawn. However, that would open the knight to deliver checkmate (red arrow). The queen was sacrificed for a much greater reward.
+Dans cet exemple, si la dame blanche prend le cavalier noir, elle se mettra en danger par le pion noir. Néanmoins, les blancs pourraient ensuite donner mat avec le cavalier (flèche rouge). La dame serait sacrifiée pour une compensation beaucoup plus grande.
