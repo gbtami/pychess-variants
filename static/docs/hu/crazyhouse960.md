@@ -1,19 +1,20 @@
-# ![Crazyhouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse960.svg) Crazyhouse 960
+# ![Crazyhouse960 ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse960.svg) Crazyhouse 960
 
-Crazyhouse 960 is a custom variant combining the rules of Crazyhouse with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Crazyhouse, please check the Crazyhouse rules in its separate guide. 960 rules are as below for a reminder.
+Crazyhouse 960 egy sakkváltozat, ami a Crazyhouse behozási szabályait kombinálja a Sakk960 ( más néven *Fischer random sakk*) szabályaival (véletlenszerűen összekevert bábuk).
 
-This variant can be played by checking the "Chess960" option when creating a Crazyhouse game.
+Mivel ez a játék a Crazyhouse egy változata, annak szabályai az arra vonatkozó leírásban megtalálhatók. A 960 szabályai emlékeztetőnek:
 
-## 960 Rules
+## A 960 szabályai
 
-The starting bottom ranks are randomized, but two rules must be followed:
+A hátsó sor bábui véletlenszerűen vannak összekeverve két szabály betartásával:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+* A két futó nem állhat azonos színű mezőn (tehát az egyik egy világos, a másik pedig egy sötét mezőn áll, mint a standard sakkban).
+* A királynak egy olyan mezőn kell állnia, ami a két bástya között van.
 
-All other rules are as in Crazyhouse.
+A sötét bábuk a megfelelő világos bábukkal szemben kezdenek.
 
-## Clarifications
+A sáncolás a standard sakk szabálya szerint működik, azaz mindegy, hogy a bástya melyik mezőn áll, a sáncolás során a király és a bástya ugyanarra a mezőre érkezik, mint a standard sakkban. Ha például a király a vezérszárnyra sáncol, akkor a c1 mezőre érkezik, a bástya pedig a d1 mezőre. 
 
-A king may not castle with a dropped rook.
+Minden további Crazyhouse szabály itt is érvényes.
+
+Ezt a játékot egy Crazyhouse játszma indítása előtt a 960-as opciót bepipálva lehet játszani.
