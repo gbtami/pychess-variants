@@ -1,37 +1,41 @@
-# ![Seirawan](https://github.com/gbtami/pychess-variants/blob/master/static/icons/schess.svg) S-chess (Seirawan Chess, SHARPER Chess)
+# ![Seirawan sakk ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/schess.svg) S-sakk (Seirawan sakk, SHARPER sakk) (S-chess)
 
-S-chess was created by Yasser Seirawan and Bruce Harper in 2007. The game is played on an 8x8 board but adds a twist by adding two new hybrid pieces through the process of gating (introducing the pieces on to the board by replacing vacancies in the back rank). 
+Az S-sakkot Yasser Seirawan és Bruce Harper alkotta meg 2007-ben. A standard sakkhoz hasonlóan ezt is 8x8-as táblán játsszák, de két új bábu is bekerült a játékba.
 
-## Rules
+## Új bábuk
 
-Unlike the above variants, this is played on a standard 8 x 8 board. The **elephant** is the rook/knight hybrid, while the **hawk** is the bishop/knight hybrid. Both of these pieces instead start off the board, although they are not to be dropped as in Crazyhouse. Instead, when a piece in a player’s first rank moves for the first time, these pieces may optionally come into the square evacuated by that piece. If all first rank pieces have moved or been captured, then any remaining elephant or hawk cannot be entered into play. For castling, the extra pieces can enter either of the original king or rook squares.
+### Sólyom
 
-Pawns can also promote to elephants and hawks.
+![Sólyom ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
 
-## New Pieces
+A sólyom két bábu kombinálásával jött létre: futó és huszár. Ennek a két bábunak a lépéslehetőségeivel rendelkezik.
 
-### Hawk
+A bástyánál egy kicsit értékesebb bábu, de kevésbé értékes, mint az elefánt és a vezér.
 
-![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
+A játszmák során **H** betűvel jegyezzük, ami az angol **Hawk** szó rövidítése.
 
-The hawk (H) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+### Elefánt
 
-The hawk is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+![Elefánt ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ElephantSeirawan.png)
 
-The value of a hawk is considered slightly better than a rook, but less than the elephant and queen.
+Az elefánt két bábu kombinálásával jött létre: bástya és huszár. Ennek a két bábunak a lépéslehetőségeivel rendelkezik.
 
-### Elephant
+Értékesebb bábu, mint a sólyom, de értéke kisebb vagy egyenlő, mint a vezéré.
 
-![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ElephantSeirawan.png)
+A játszmák során **E** betűvel jegyezzük ezt a bábut.
 
-The elephant (E) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+## Szabályok
 
-The value of an elephant is considered better than a hawk, but equivalent or slightly less than a queen.
+Mindkét új bábu a táblán kívül van a játszma kezdetén. A bábukat úgy lehet játékba hozni, hogy amikor egy hátsó sorban lévő bábuval lépünk (pl. huszárral), akkor **annak a helyére lehet elhelyezni egy új bábut**. A másikat ezután szintén egy alapbábú helyére lehet majd elhelyezni.
 
-## Strategy
+Fontos megjegyezni, hogy **új bábu csak egy alapbábú első lépése után tehető a táblára (az alapbábu kezdőhelyére, máshova nem)**. Ha mindegyik hátsó sorban lévő bábu lépett vagy leütésre került anélkül, hogy korábban a helyükre behoztuk volna az elefántot vagy a sólymot, akkor ezek az új bábuk már nem tehetők a táblára, nem vehetnek részt a játszmában. 
 
-Per Yasser Seirawan, protecting the king is even more important in this game because a ranged attack by a back rank piece such as the queen, bishop, or rook, can immediately be supported by an incoming hawk or elephant, in some cases leading to checkmate!
+Sáncoláskor választható, hogy az új bábu a király vagy a bástya kezdőhelyére kerüljön.
 
-You can also see a stream of Yasser Seirawan playing against JannLee [here](https://www.youtube.com/watch?v=ujWzsxm18aQ).
+A gyalogok előléptethetők elefánttá vagy sólyommá is.
 
-More strategy pending.
+## Stratégia
+
+Yasser Seirawan szerint a király védelmezése itt még fontosabb, mert a hátsó sorból kilépő bábu (mint pl. a vezér, a futó vagy a bástya) helyére érkezett új bábu azonnali támogatást nyújthat a támadáshoz, ami esetekben mattot is eredményezhet.
+
+[Egy youtube videó](https://www.youtube.com/watch?v=ujWzsxm18aQ), amiben Yasser Seirawan bemutatja a játékot JannLee-vel játszva.
