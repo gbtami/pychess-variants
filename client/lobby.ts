@@ -547,7 +547,7 @@ class LobbyController {
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        console.log("NEW FULL MESSAGES");
+        // console.log("NEW FULL MESSAGES");
         msg.lines.forEach((line) => {chatMessage(line.user, line.message, "lobbychat");});
     }
 
