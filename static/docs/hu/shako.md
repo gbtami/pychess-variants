@@ -16,10 +16,14 @@ A szabályok alapvetően ugyanazok, mint a standard sakkban. Mivel a játékot 1
 
 ![Elefánt ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShakoElephant.png)
 
-Az elefánt hasonló, mint a kínai sakkban, de van egy jelentős különbség: a shako elefántja egy vagy két mezőt is léphet átlósan (míg a kínai sakk elefántja csak kettőt). Továbbá az első átlós mezőt képes átugrani. A futónál ugyan kisebb távot képes mozogni, az ugrási képessége azonban hasznos lehet a játszma során.
+Az elefánt (angolul: Elephant) hasonló, mint a kínai sakkban, de van egy jelentős különbség: a shako elefántja egy vagy két mezőt is léphet átlósan (míg a kínai sakk elefántja csak kettőt). Továbbá az első átlós mezőt képes átugrani. A futónál ugyan kisebb távot képes mozogni, az ugrási képessége azonban hasznos lehet a játszma során.
+
+A játszmák során **E** betűvel jegyezzük.
 
 ### Ágyú
 
 ![Ágyú ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Cannon.png)
 
-Az ágyú ugyanúgy működik, mint a kínai sakkban: úgy mozog, mint a bástya (függőlegesen vagy vízszintesen akárhány mezőt), viszont ütni csak úgy tud, ha van egy köztes bábu, amit közben "átugrik". Mivel erre a köztes bábura minden ütéshez szüksége van, ezért az ágyú az egyik leggyengébb egység a Shakoban, főleg a végjátékban. Ugyanakkor nagyon trükkös helyzeteket lehet vele teremteni, amire érdemes odafigyelni.
+Az ágyú (angolul: Cannon) ugyanúgy működik, mint a kínai sakkban: úgy mozog, mint a bástya (függőlegesen vagy vízszintesen akárhány mezőt), viszont ütni csak úgy tud, ha van egy köztes bábu, amit közben "átugrik". Mivel erre a köztes bábura minden ütéshez szüksége van, ezért az ágyú az egyik leggyengébb egység a Shakoban, főleg a végjátékban. Ugyanakkor nagyon trükkös helyzeteket lehet vele teremteni, amire érdemes odafigyelni.
+
+A játszmák során **C** betűvel jegyezzük, ami az angol *Cannon* szó rövidítése.
