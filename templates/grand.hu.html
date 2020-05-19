@@ -1,32 +1,26 @@
-<h1 id="grandhttpsgithubcomgbtamipychess-variantsblobmasterstaticiconsgrandsvg-grand-chess"><img src="https://www.pychess.org/static/icons/grand.svg" alt="Grand" /> Grand Chess</h1>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Grand.png" alt="Grand Chess setup" /></p>
-<p>Grand Chess was created by Christian Freeling in 1984 and is one of the highest regarded chess variants according to the Chess Variants site.  </p>
-<h2 id="rules">Rules</h2>
-<p>The game is played on a 10 x 10 board, with additional files for the new Marshal (Knight/Rook)  and Cardinal (Knight/Bishop), which are both placed on the king side. Because of the larger board size, most of the starting pieces are moved up one rank, with the exception of the rooks which remain in the last ranks.</p>
-<p>In addition to the pieces and setup, there are three other significant differences:</p>
+<h1 id="grand-ikonhttpsgithubcomgbtamipychess-variantsblobmasterstaticiconsgrandsvg-grand-sakk-grand-chess"><img src="https://www.pychess.org/static/icons/grand.svg" alt="Grand ikon" /> Grand sakk (Grand Chess)</h1>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Grand.png" alt="Grand Chess ábra" /></p>
+<p>A Grand sakk (szó szerinti fordításban: "Nagy sakk") egy sakkváltozat, amit Christian Freeling játéktervezéssel is foglalkozó matematikus alkotott meg 1984-ben.</p>
+<h2 id="szabályok">Szabályok</h2>
+<p>A játékot 10x10-es táblán játsszák, és két új bábu is részt vesz a játékban, melyek a királyszárnyon helyezkednek el (a király és a futó között). A nagyobb táblaméret miatt a bábuk egy sorral előrébb kezdenek, kivéve a bástyák, azok az eredeti helyükre kerülnek.</p>
+<p>Jelentős különbségek a standard sakkhoz képest:</p>
 <ul>
-<li>Pawns can promote when reaching the eighth or ninth rank. Promotion must happen upon reaching the 10th rank. If not possible (see next point), then the pawn can’t move.</li>
-<li>Pawns can only promote to pieces of the same color that have been lost.</li>
-<li>There is no castling.</li>
+<li>Gyalog csak olyan bábuvá léptethető elő, amilyen bábunk már leütésre került. Például ha még van vezérünk, akkor vezérré nem léptethető elő. Ha minden tisztünk megvan még, akkor nem léptethető elő.</li>
+<li>A gyalogok a 8. vagy 9. sorban előléptethetők vagy maradhatnak gyalogok, viszont a 10. sort elérve mindenképpen elő kell léptetni őket. Ha ez nem lehetséges (mert még egy tisztünk sem került leütésre), akkor addig a gyalog nem tud a 10. sorba lépni.</li>
+<li>Nincs sáncolás.</li>
 </ul>
-<p>(Please note that despite the names of Marshal and Cardinal, the notation used here uses A and C for both of those, respectively (as in Capablanca chess), so that the PGN is compatible with other chess variant software.)</p>
-<h2 id="new-pieces">New Pieces</h2>
-<h3 id="cardinal">Cardinal</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Princesses.png" alt="Cardinal" /></p>
-<p>Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess)</p>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Archbishop.png" alt="Cardinal moves" /></p>
-<p>The cardinal (A in Pychess, for archbishop) is a compound piece combining the moves of the <strong>bishop</strong> and <strong>knight</strong>. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.</p>
-<p>The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).</p>
-<p>The cardinal is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.</p>
-<p>The value of a cardinal is considered slightly better than a rook, but less than the elephant and queen.</p>
-<h3 id="marshal">Marshal</h3>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Empresses.png" alt="Marshal" /></p>
-<p>Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess)</p>
-<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Chancellor.png" alt="Marshal moves" /></p>
-<p>The marshal (C in Pychess, for chancellor) is a compound piece combining the moves of the <strong>rook</strong> and the <strong>knight</strong>. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. </p>
-<p>The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).</p>
-<p>The value of a marshal is considered better than a cardinal, but equivalent or slightly less than a queen.</p>
-<h2 id="strategy">Strategy</h2>
-<p>Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. </p>
-<p>Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.</p>
-<p>Continue to play more and if you discover new strategies or advice, let us know!</p>
+<h2 id="új-bábuk">Új bábuk</h2>
+<h3 id="bíboros">Bíboros</h3>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Princesses.png" alt="Bíboros bábuk" /></p>
+<p>Többféle figurával is szokták ábrázolni (a sólyom csak egy másik variánsban, az S-sakkban van).</p>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Archbishop.png" alt="Bíboros ábra" /></p>
+<p>A bíboros (angolul: <em>Cardinal</em>) a huszár és a futó kombinációja. A bíboros az egyedüli bábu, amely képes egymagában mattot adni.</p>
+<p>A bástyánál egy kicsit értékesebb bábu, de kevésbé értékes, mint a marsall és a vezér.</p>
+<p>A játszmák során <strong>A</strong> betűvel jegyezzük, ami az angol Archbishop szó rövidítése (jelentése: <em>érsek</em>). Erre a figurára ezt a nevet is szokták használni.</p>
+<h3 id="marsall">Marsall</h3>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Empresses.png" alt="Marsall bábuk" /></p>
+<p>Többféle figurával is szokták ábrázolni (az elefánt csak egy másik variánsban, az S-sakkban van).</p>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Chancellor.png" alt="Marsall ábra" /></p>
+<p>A marsall (angolul: <em>Marshal</em>) a huszár és a bástya kombinációja.</p>
+<p>Értékesebb bábu, mint a bíboros, de értéke kisebb vagy egyenlő, mint a vezéré.</p>
+<p>A játszmák során <strong>C</strong> betűvel jegyezzük, ami az angol Chancellor szó rövidítése (jelentése: <em>kancellár</em>). Erre a figurára ezt a nevet is szokták használni.</p>
