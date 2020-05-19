@@ -1,22 +1,22 @@
 # ![Crazyhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse.svg) Crazyhouse
 
-Crazyhouse is a popular chess variant where captured chess pieces can be dropped back on the board as your own piece (as in Shogi). This leads to a much different game than standard chess. A competitive scene also exists for crazyhouse.
+Le crazyhouse est une variante d'échecs occidentaux très populaire, où les pièces adverses capturées peuvent être parachutées sur l'échiquier en tant que les vôtres (comme au shogi). Ceci amène à une jeu bien différent du jeu classique. Il y a aussi la compétition de haut niveau au crazyhouse.
 
-## Rules
+## Règles
 
-As above, drops can be performed with captured pieces. This would be in lieu of moving a piece on the board. These are noted with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+Comme dit ci-dessus, on peut parachuter des pièces adverses capturées au lieu de faire un coup normal. Cette action prendre un tour. Le parachutage est noter avec l'arobase (@). Par exemple, R@e4 indique une tour parachutée sur la case e4. Les règlent gouvernant le parachutage sont les suivantes :
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* Il est permis de donner échec et mat avec un parachutage, même avec un pion (contrairement au shogi).
+* Il est illégal de parachuter un pion sur la 1ère et la 8ème rangées.
+* Un pion promu et puis capturé se parachutera en tant qu'un pion.
+* Un pion blanc (resp. noir) parachuté sur la 2ème rangée (resp. 7ème rangée) est peut avancer de deux cases lors de son premier coup après être parachuté.
+* Il est illégal de roquer avec une tour parachutée.
 
-## Strategy
+## Stratégie
 
-Strategy [as on Lichess](https://lichess.org/variant/crazyhouse)
+Quelques conseils pour bien jouer au crazyhouse, tirés du [page de Lichess](https://lichess.org/variant/crazyhouse) :
 
-* Pawns and knights increase in relative importance in Crazyhouse, while rooks, queens, and bishops decrease in relative importance. If a king is put in check by any of the latter three pieces, from two or more squares away, dropping a pawn next to the king becomes defensively useful. A knight, on the other hand, cannot be blocked by anything and its offensive value is more manifest. That piece can be used effectively to maintain a strategic influence over a region.
-* After an early exchange of queens, it is usually unwise to reintroduce the queen too soon, particularly if she can be harassed by dropped minor pieces. Careful preparation is needed in order to reintroduce the queen to maximum effect
-* Pawns could be dropped deep in the enemy position where, for example, they can fork pieces or give an uncomfortable check.
-* Initiative is paramount.
+* Le pion et le cavalier ont une importance élevée au crazyhouse par rapport aux échecs occidentaux, alors que la tour, la dame et le fou deviennent moins importants. Si le roi s'est fait mettre en échec par une de ces trois dernières pièces, d'une distance d'au moins deux cases, il serait intéressant de parachuter un pion adjacent au roi pour renforcer la défense. Par contre, on ne peut parer l'attaque d'un cavalier en interposant une pièce défensive, et son valeur offensive et donc manifeste. Le cavalier s'avère donc efficace pour maintenir une influence stratégique sur une région.
+* Après un échange de dames près du début de la partie, souvent il vaut mieux de ne pas reparachuter la dame trop vite, d'autant plus si elle se ferait chasser par le parachutage des pièces mineures. Une préparation soigneuse précède un efficace parachutage d'une dame.
+* Pions peut être parachuter au fond du camp adverse où ils peuvent effectuer des fourchettes ou donner un échec dérangeant.
+* L'initiative est clé.
