@@ -1,6 +1,6 @@
 # Terminologie
 
-Sur ce site, y compris dans les guides, on trouve partout des mots et expressions peut-être moins connus, tout faisant partie du lexique des variantes d'échecs que vous trouverez ici ou ailleurs. Certains termes sont d'usage global ; d'autres se voyent utilisés seulement dans le cadre de quelques jeux en particulier (ex. le *byô-yomi* pour le shogi) ; encore d'autres s'appliquent aux plusieurs jeux, mais ont de sens différent selon le jeu (ex. le concept du *pat*). Tout terme qui est spécifique à une variante particulière sera discuté au page consacré à ladite variante. Ceci dit, ce page sera un référence pour démystifier tout le reste du lexique des variantes d'échecs.
+Sur ce site, y compris dans les guides, on trouve partout des mots et des expressions peut-être moins connus, tout faisant partie du lexique des variantes d'échecs que vous trouverez ici ou ailleurs. Certains termes sont d'usage global ; d'autres se voyent utilisés seulement dans le cadre de quelques jeux en particulier (ex. le *byô-yomi* pour le shogi) ; encore d'autres s'appliquent aux plusieurs jeux, mais ont de sens différent selon le jeu (ex. le concept du *pat*). Tout terme qui est spécifique à une variante particulière sera discuté au page consacré à ladite variante. Ceci dit, ce page sera un référence pour démystifier tout le reste du lexique des variantes d'échecs.
 
 # "Variantes d'échecs"
 
@@ -38,9 +38,9 @@ Les parties jouées en une session précisent souvent une durée de temps princi
 
 1. **Incrément (cadence Fischer)** -- Quand un joueur termine son tour, il gagne une durée de temps fixe. Sur Pychess, une partie de « 10+15 » indique un temps principal de 10 minutes chacun au début, et un incrément de 15 secondes par coup joué. Le cadence Fischer et le standard pour la majorité des variantes.
 
-2. **Le *byô-yomi*** -- Ce terme vient du japonais, littéralement « comptage de secondes ». Quand un joueur a dépensé tout son temps principal, commence la phase de byô-yomi. Le joueur aura une nouvelle limitation : un temps maximal par coup à ne pas dépasser. Ce système est utilisé pour le shogi et le janggi. Il existe aussi la possibilité d'avoir plusieurs périodes de byô-yomi, typiquement pour le janggi. Par exemple, s'il y a trois périodes de byô-yomi de 30 secondes chacune, chaque joueur a le droit de finit son temps principale, puis dépasser la limite de 30 secondes par coup deux fois. La troisième fois qu'il utilise plus que 30 secondes pour un coup, il perd. Les périodes se voyent commodes face à une position critique, où une seule période ne serait pas suffisante pour bien évaluer la situation. Sur Pychess, une partie de « 10+3x30(b) » indique un temps principal de 10 minutes, puis trois périodes de byô-yomi de 30 secondes.
+2. ***Byô-yomi*** -- Ce terme vient du japonais, littéralement « comptage de secondes ». Quand un joueur a dépensé tout son temps principal, commence la phase de byô-yomi. Le joueur aura une nouvelle limitation : un temps maximal par coup à ne pas dépasser. Ce système est utilisé pour le shogi et le janggi. Il existe aussi la possibilité d'avoir plusieurs périodes de byô-yomi, typiquement pour le janggi. Par exemple, s'il y a trois périodes de byô-yomi de 30 secondes chacune, chaque joueur a le droit de finit son temps principale, puis dépasser la limite de 30 secondes par coup deux fois. La troisième fois qu'il utilise plus que 30 secondes pour un coup, il perd. Les périodes se voyent commodes face à une position critique, où une seule période ne serait pas suffisante pour bien évaluer la situation. Sur Pychess, une partie de « 10+3x30(b) » indique un temps principal de 10 minutes, puis trois périodes de byô-yomi de 30 secondes.
 
-3. **La morte subite** -- Il n'y a pas de temps en plus ; les joueurs n'auront que le temps principal pour achever la partie. Une peut se jouer en morte subite en choissisant un íncrément ou byô-yomi de 0 secondes.
+3. **Mort subite** -- Il n'y a pas de temps en plus ; les joueurs n'auront que le temps principal pour achever la partie. Une peut se jouer en morte subite en choissisant un íncrément ou byô-yomi de 0 secondes.
 
 # Concepts généraux
 
@@ -92,4 +92,4 @@ Dans cette situation, on bouge le cavalier afin de menacer la dame noire, en mê
 
 ![Sacrifice example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
 
-Dans cet exemple, si la dame blanche prend le cavalier noir, elle se mettra en danger par le pion noir. Néanmoins, les blancs pourraient ensuite donner mat avec le cavalier (flèche rouge). La dame serait sacrifiée pour une compensation beaucoup plus grande.
+Dans cet exemple, si la dame blanche prend le cavalier noir, elle sera attaquée par le pion noir. Toutefois, les blancs pourraient ensuite donner mat avec le cavalier (flèche rouge). La dame se serait sacrifiée pour une compensation beaucoup plus grande.
