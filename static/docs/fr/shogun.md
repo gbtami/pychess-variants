@@ -31,35 +31,35 @@ Additional minor rules for clarification:
 
 ## Pieces
 
-### Archbishop
+### Archbishop (A)
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ArchbishopShogun.png)
 
 The archbishop is a hybrid piece seen in multiple other chess variants. In this game, it promotes from bishop and gains the move of a knight. Because of its unique moves, it is the only piece that can checkmate on its own.
 
-### Mortar
+### Mortar (M)
 
 ![Mortar](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Mortar.png)
 
 The mortar is a hybrid piece seen in multiple other chess variants, often with other names such as the chancellor or marshall. In this game, it promotes from the rook and gains the move of a knight. 
 
-### General
+### General (G)
 
 ![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/General.png)
 
 The general is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.
 
-### Captain
+### Captain (C)
 
 ![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
 
 The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game. Also, unlike the rest of promoted pieces, there can be multiple captains, as it is not a major piece.
 
-### Duchess
+### Duchess (F)
 
 ![Duchess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duchess.png)
 
-The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz"). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in Shogun chess).
+The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz," hence the abbreviation used). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in Shogun chess).
 
 ## Strategy
 
