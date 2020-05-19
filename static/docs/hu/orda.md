@@ -34,7 +34,7 @@ A részletes ábrák lentebb. A zöld pontok a lépést jelölik, a pirosak az �
 
 ![Jurta ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Yurt.png)
  
-A *jurta* egyet lép/üt átlóban vagy előre (ugyanúgy, mint az ezüsttábornok a sógiban). Ebből a bábuból csak egy van a táblán, a vezér vonalában, de a vezérrel ellentétben az a leggyengébb bábu a gyalogot leszámítva. Ugyanakkor nem kell alábecsülni, mert ugyanúgy tud lépni és ütni is, és hasznos lehet a gyalogok védelmezésére.
+A *jurta* (angolul: *yurt*) egyet lép/üt átlóban vagy előre (ugyanúgy, mint az ezüsttábornok a sógiban). Ebből a bábuból csak egy van a táblán, a vezér vonalában, de a vezérrel ellentétben az a leggyengébb bábu a gyalogot leszámítva. Ugyanakkor nem kell alábecsülni, mert ugyanúgy tud lépni és ütni is, és hasznos lehet a gyalogok védelmezésére.
 
 A jurta a mongolok mobilizálható otthona volt. A seregek támogatásában is fontos szerepe volt, ezt hivatott szimbolizálni ez a bábu.
 
@@ -42,7 +42,7 @@ A jurta a mongolok mobilizálható otthona volt. A seregek támogatásában is f
 
 ![Kesik ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Kheshig.png)
  
-A *kesik* egy hibrid bábu, amely a huszár és a király lépés- és ütéslehetőségeivel is rendelkezik. (Ez a bábu *kentaur* néven is ismert más, nem standard sakk készletekben). A huszárral egyvonalban kezd és a Horda legerősebb egysége. Kettő van belőlük és érdemes vigyázni rájuk, mert fontos szerepük van a közép- és végjátékban.
+A *kesik* (angolul: *khesig*) egy hibrid bábu, amely a huszár és a király lépés- és ütéslehetőségeivel is rendelkezik. (Ez a bábu *kentaur* néven is ismert más, nem standard sakk készletekben). A huszárral egyvonalban kezd és a Horda legerősebb egysége. Kettő van belőlük és érdemes vigyázni rájuk, mert fontos szerepük van a közép- és végjátékban.
 
 A *kesik*ek a mongol uralkodói családok elit testőrsége volt. Ennek megfelelően, a játékban *kán* mattolása rendkívül nehéz anélkül, hogy legalább az egyik kesik leütésre kerülne.
 
@@ -50,7 +50,7 @@ A *kesik*ek a mongol uralkodói családok elit testőrsége volt. Ennek megfelel
 
 ![Lovas íjász ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archer.png)
  
-A lovas íjász (vagy röviden csak *íjász*)  L-alakzatban lép (mint a huszár), de átlóban üt (mint a futó). Mivel az íjász mozgása nem kötődik mindig azonos színű mezőhöz, ezért értékesebb, mint a futó.
+A lovas íjász (vagy röviden csak *íjász*) (angolul: *archer*) L-alakzatban lép (mint a huszár), de átlóban üt (mint a futó). Mivel az íjász mozgása nem kötődik mindig azonos színű mezőhöz, ezért értékesebb, mint a futó.
 
 A lovas íjászok a mongol sereg egyik alapvető egységei voltak. A bátorságuk és a sebességük (mint lovasok) komoly fenyegetést jelentettek.
  
@@ -58,7 +58,7 @@ A lovas íjászok a mongol sereg egyik alapvető egységei voltak. A bátorságu
 
 ![Lándzsás ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Lancer.png)
  
-A lándzsás L-alakzatban lép (mint a huszár), de vízszintesen vagy függőlegesen üt (mint a bástya). A lándzsás általánosságban a bástyánál gyengébbnek tekinthető, ami a végjátékban hangsúlyos lehet, hiszen ütés hiányában kevesebb mezőt tud lépni, mint a bástya. A játszma elején azonban, amíg a bástya nem tud olyan gyorsan támadásba lendülni, a lándzsás a mozgása miatt előnyös lehet, amit érdemes kihasználni.
+A lándzsás (angolul: *lancer*) L-alakzatban lép (mint a huszár), de vízszintesen vagy függőlegesen üt (mint a bástya). A lándzsás általánosságban a bástyánál gyengébbnek tekinthető, ami a végjátékban hangsúlyos lehet, hiszen ütés hiányában kevesebb mezőt tud lépni, mint a bástya. A játszma elején azonban, amíg a bástya nem tud olyan gyorsan támadásba lendülni, a lándzsás a mozgása miatt előnyös lehet, amit érdemes kihasználni.
 
 A lándzsások a mongol sereg egyik alapvető egységei voltak az íjászok mellett.
  
