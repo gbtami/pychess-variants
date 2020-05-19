@@ -1,58 +1,45 @@
+# ![Grand ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/grand.svg) Grand sakk (Grand Chess)
 
-# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/grand.svg) Grand Chess
+![Grand Chess ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
 
-![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
+A Grand sakk (szó szerinti fordításban: "Nagy sakk") egy sakkváltozat, amit Christian Freeling játéktervezéssel is foglalkozó matematikus alkotott meg 1984-ben.
 
-Grand Chess was created by Christian Freeling in 1984 and is one of the highest regarded chess variants according to the Chess Variants site.  
+## Szabályok
 
-## Rules
+A játékot 10x10-es táblán játsszák, és két új bábu is részt vesz a játékban, melyek a királyszárnyon helyezkednek el (a király és a futó között). A nagyobb táblaméret miatt a bábuk egy sorral előrébb kezdenek, kivéve a bástyák, azok az eredeti helyükre kerülnek.
 
-The game is played on a 10 x 10 board, with additional files for the new Marshal (Knight/Rook)  and Cardinal (Knight/Bishop), which are both placed on the king side. Because of the larger board size, most of the starting pieces are moved up one rank, with the exception of the rooks which remain in the last ranks.
+Jelentős különbségek a standard sakkhoz képest:
 
-In addition to the pieces and setup, there are three other significant differences:
+* Gyalog csak olyan bábuvá léptethető elő, amilyen bábunk már leütésre került. Például ha még van vezérünk, akkor vezérré nem léptethető elő. Ha minden tisztünk megvan még, akkor nem léptethető elő.
+* A gyalogok a 8. vagy 9. sorban előléptethetők vagy maradhatnak gyalogok, viszont a 10. sort elérve mindenképpen elő kell léptetni őket. Ha ez nem lehetséges (mert még egy tisztünk sem került leütésre), akkor addig a gyalog nem tud a 10. sorba lépni.
+* Nincs sáncolás.
 
-* Pawns can promote when reaching the eighth or ninth rank. Promotion must happen upon reaching the 10th rank. If not possible (see next point), then the pawn can’t move.
-* Pawns can only promote to pieces of the same color that have been lost.
-* There is no castling.
+## Új bábuk
 
-(Please note that despite the names of Marshal and Cardinal, the notation used here uses A and C for both of those, respectively (as in Capablanca chess), so that the PGN is compatible with other chess variant software.)
+### Bíboros
 
-## New Pieces
+![Bíboros bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-### Cardinal
+Többféle figurával is szokták ábrázolni (a sólyom csak egy másik variánsban, az S-sakkban van).
 
-![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
+![Bíboros ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess)
+A bíboros (angolul: *Cardinal*) a huszár és a futó kombinációja. A bíboros az egyedüli bábu, amely képes egymagában mattot adni.
 
-![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
+A bástyánál egy kicsit értékesebb bábu, de kevésbé értékes, mint a marsall és a vezér.
 
-The cardinal (A in Pychess, for archbishop) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+A játszmák során **A** betűvel jegyezzük, ami az angol Archbishop szó rövidítése (jelentése: *érsek*). Erre a figurára ezt a nevet is szokták használni.
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+### Marsall
 
-The cardinal is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+![Marsall bábuk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-The value of a cardinal is considered slightly better than a rook, but less than the elephant and queen.
+Többféle figurával is szokták ábrázolni (az elefánt csak egy másik variánsban, az S-sakkban van).
 
-### Marshal
+![Marsall ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
+A marsall (angolul: *Marshal*) a huszár és a bástya kombinációja.
 
-Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess)
+Értékesebb bábu, mint a bíboros, de értéke kisebb vagy egyenlő, mint a vezéré.
 
-![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
-
-The marshal (C in Pychess, for chancellor) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
-
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
-
-The value of a marshal is considered better than a cardinal, but equivalent or slightly less than a queen.
-
-## Strategy
-
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
-
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
-
-Continue to play more and if you discover new strategies or advice, let us know!
+A játszmák során **C** betűvel jegyezzük, ami az angol Chancellor szó rövidítése (jelentése: *kancellár*). Erre a figurára ezt a nevet is szokták használni.

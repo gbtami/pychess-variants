@@ -1,7 +1,7 @@
-# ![Placement](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) Placement Chess (Bronstein chess, Pre-Chess, Shuffle-Chess)
+# ![Placement ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) Pre-Sakk (Bronstein-sakk) (Placement Chess)
 
-Pal Benko credited the idea of “Pre-Chess” or “Shuffle-Chess” to David Bronstein.
+A Pre-Sakk egy sakkvariáns, ami [Benkő Pál](https://hu.wikipedia.org/wiki/Benk%C5%91_P%C3%A1l) által vált ismerté, azonban az eredeti ötletet ő [David Bronstein](https://en.wikipedia.org/wiki/David_Bronstein)nek tulajdonította. ([forrás](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess))
 
-Different than the “Placement Chess” described on the Chess Variants site, this variant is simply a modification where players take turns placing their back rank pieces. Castling only works when the king and the corresponding rook are in their normal position.
+A standard sakktól annyiban tér el, hogy a hátsó sor bábuinak kezdőpozícióját a játékosok választhatják meg. Először a világos, aztán a sötét játékos helyez el egy bábut, és így tovább felváltva. A sáncolás csak akkor lehetséges, ha a király és a bástya az eredeti helyére kerül.
 
-[See here for more about history](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
+A játék ezen az oldalon **Placement Chess** néven elérhető, melynek jelentése "Elhelyezési sakk", ami a bábuk játékosok általi táblára helyezésére utal. Nem összekeverendő a chessvariants oldalán ismertetett [Placement](https://www.chessvariants.com/diffsetup.dir/placement.html)-tel.
