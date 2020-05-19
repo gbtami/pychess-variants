@@ -57,7 +57,7 @@ A kapitány (angolul: *captain*) a gyalog előléptetett formája. A király lé
 
 ![Hercegnő ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duchess.png)
 
-A hercegnő a királynő "lefokozott" formája és csak azután kerül a játékba, hogy a királynő leütésre került (amikor is az hercegnővé alakul át). A hercegnő csak átlóban tud lépni egyet. A hercegnő nem léptethető elő királynővé, ha az eredeti királynőnk még a táblán van.
+A hercegnő (angolul: *duchess*) a királynő "lefokozott" formája és csak azután kerül a játékba, hogy a királynő leütésre került (amikor is az hercegnővé alakul át). A hercegnő csak átlóban tud lépni egyet. A hercegnő nem léptethető elő királynővé, ha az eredeti királynőnk még a táblán van.
 
 ## Stratégia
 
