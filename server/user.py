@@ -2,7 +2,6 @@ import asyncio
 import logging
 import random
 import string
-from time import time
 from datetime import datetime
 
 from const import VARIANTS
@@ -140,25 +139,6 @@ class User:
                 await opp.game_sockets[gameId].send_json(response)
 
             await round_broadcast(game, users, response)
-
-    async def pinger(self, sockets, seeks, users, games):
-        while True:
-            # TODO: this needs per websocket pingers
-            if 0:  # self.ping_counter > 2:
-                log.info("%s went offline" % self.username)
-                await self.round_broadcast_disconnect(users, games)
-                await self.clear_seeks(sockets, seeks)
-                await self.quit_lobby(sockets, disconnect=True)
-                break
-
-            if self.bot:
-                await self.event_queue.put("\n")
-                # heroku needs something at least in 50 sec not to close BOT connections (stream events) on server side
-            else:
-                for ws in self.lobby_sockets:
-                    await ws.send_json({"type": "ping", "timestamp": "%s" % time()})
-            await asyncio.sleep(3)
-            self.ping_counter += 1
 
     def __str__(self):
         return self.username
