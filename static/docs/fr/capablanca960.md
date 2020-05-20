@@ -1,17 +1,18 @@
-# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
+# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca960
 
-Capablanca 960 is a custom variant combining the rules of Capablanca chess with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca chess rules in its separate guide. 960 rules are as below for a reminder.
+Capablanca960 est une variante d'échecs. Il s'agit d'échecs Capablanca, avec la randomisation de la position initiale dans l'esprit du Chess960. Les mêmes règles s'appliquent. Comme le Capablanca960 est une dérivée des échecs Capablanca, se reporter à son guide pour les règles. Les règles pertinentes provenant du Chess960 sont reproduites ci-dessous.
 
-Note that unlike standard chess, there are more than 960 random positions. The 960 is more of a label than a technical number for this game.
+Notons qu'il y a plus de 960 positions de départ possibles. Le « 960 » est un nom plutôt qu'un chiffre littéral.
 
-This variant can be played by checking the "Chess960" option when creating a Capablanca chess game.
+Cette variante peut être jouée en crochant l'option « Chess960 » pendant la création d'une partie d'échecs Capablanca.
 
-## 960 Rules
+## Règles du Chess960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+L'emplacement initial des pièces sur la première et la dernière rangées est tiré au hasard, de façon à ce que les deux camps ont la même disposition. Les contraintes suivantes sont respectées :
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+* Les deux fous doivent commencer sur des cases de couleurs différentes.
+* Le roi doivent se trouver entre les deux tours.
 
-All other rules are as in Capablanca chess.
+De plus, après le roque la position du roi et de la tour impliquée est la même qu'aux échecs Capablanca, à savoir : pour le roque du côté *a*, le roi blanc (noir) se trouve sur c1 (c8) et la tour sur d1 (d8), tandis que pour le roque du côté *j*, le roi blanc (noir) se trouve sur i1 (i8) et la tour sur h1 (h8).
+
+Toute autre règle est la même qu'aux échecs Capablanca.
