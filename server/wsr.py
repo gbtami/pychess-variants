@@ -354,7 +354,9 @@ async def round_socket_handler(request):
                         user.game_sockets[data["gameId"]] = ws
 
                         # remove user seeks
-                        await user.clear_seeks(sockets, seeks)
+                        if len(user.lobby_sockets) == 0 or (
+                                game.status <= STARTED and (user.username == game.wplayer.username or user.username == game.bplayer.username)):
+                            await user.clear_seeks(sockets, seeks)
 
                         if game is None:
                             log.debug("Requested game %s not found!")
