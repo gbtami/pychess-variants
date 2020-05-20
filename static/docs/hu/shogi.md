@@ -139,7 +139,7 @@ A sárkánykirályt és a sárkánylovat leszámítva csak az előléptetett gya
 
 *Lépésismétlés*: Hasonlóan az előzőhöz, ha négyszer megismétlődik ugyanaz az állás (beleértve a leütött, azaz kézben lévő bábukat is), akkor döntetlennel ér véget a játék.
 
-*Időmérés*: A sógiban úgynevezett bjójomi (byo-yomi) ("másodperc olvasás") is része az időmérésnek. Amikor egy játékos ideje letelik, akkor következik a bjójomi, azaz onnantól mindig egy fixen meghatározott ideje marad egy-egy lépésre (pl. 30 másodperc). Ha lép, akkor ez az idő újra rendelkezésre áll majd a következő lépésben, ha kifut az időből, akkor elveszíti a játszmát.
+*Időmérés*: A sógiban úgynevezett bjójomi (byo-yomi) (visszaszámlálás) is része az időmérésnek. Amikor egy játékos ideje letelik, akkor következik a bjójomi, azaz onnantól mindig egy fixen meghatározott ideje marad egy-egy lépésre (pl. 30 másodperc). Ha lép, akkor ez az idő újra rendelkezésre áll majd a következő lépésben, ha kifut az időből, akkor elveszíti a játszmát.
 
 ### Játszmajegyzés és koordináták
 
