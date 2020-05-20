@@ -1,51 +1,51 @@
-# ![capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Capablanca Chess
+# ![capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Les échecs Capablanca
 
 ![Capablanca setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png)
 
-Capablanca chess (or Capablanca's chess) was created by World Chess Champion José Raúl Capablanca in the 1920s. The game is played on a 10 x 8 board and adds two new hybrid pieces.
+Les échecs Capablanca ont été inventés par l'ancien champion du monde José Raúl Capablanca dans les années 20s. Ils se jouent sur un échiquier de taille 10 x 8, et introduisent deux nouvelles pièces hybrides.
 
-## Rules
+## Règles
 
-The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
+Les échecs Capablanca se jouent sur un échiquier de 10 x 8. Avec un tableau plus grand, viennent aussi deux nouvelles pièces hybrides, la princesse (fou + cavalier) et l'impératrice (tour + cavalier). La princesse commence entre le cavalier et le fou de l'aile dame, et l'impératrice commence entre le cavalier et le fou de l'aile roi. Quant au roque, le roi se déplace trois cases au lieu de deux. Les pions peuvent se promouvoir en princesse et en impératrice en plus des options normales.
 
-There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the  starting positions are swapped.
+Quelques d'autres variantes existe ayant les mêmes pièces mais avec une différente position initiale. Sur ce site, les échecs gothiques (*Gothic Chess* en anglais) en est une.
 
-## New Pieces
+## Nouvelles pièces
 
-### Archbishop
+### Princesse (Archevéque)
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seiwaran Chess)
+Des symboles utilisés pour la princesse. (Notons que le faucon est seulement pour le S-Chess.)
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The archbishop (A) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+La princesse (aussi appelée l'archevéque, *archbishop* en anglais) est une pièce hybride qui se déplace soit comme un fou, soit comme un cavalier. Elle est notée par la lettre *A* en notation algébrique.
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+Elle est souvent représentée par un fusion des symboles du fou et du cavalier. La plupart des variantes ne précise pas son apparence ; c'est pourquoi nous vous offrons plusieurs choix.
 
-The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+La princesse est l'unique pièce qui peut mater le roi toute seule, un fait qui se voit du diagramme ci-dessus.
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
+Elle vaut plus qu'une tour, mais moins qu'une impératrice ou une dame.
 
-### Chancellor
+### Impératrice (Chancelier)
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seiwaran Chess)
+Des symboles utilisés pour l'impératrice. (Notons que l'éléphant est seulement pour le S-Chess.)
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The chancellor (C) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+L'impératrice (aussi appelé le chancelier, *chancellor* en anglais) est une pièce hybride qui se déplace soit comme une tour, soit comme un cavalier. Elle est notée par la lettre *C* en notation algébrique.
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+Elle est souvent représentée par une fusion des symboles de la tour et du cavalier. La plupart des variantes ne précise pas son apparence ; c'est pourquoi nous vous offrons plusieurs choix.
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
+L'impératrice vaut plus d'une princesse, et égale à ou un peu moins qu'une dame.
 
-### Strategy
+### Stratégie
 
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
+Sachant que la théorie pour beaucoup de variantes sur ce site n'est guère développée, nous pouvons tentativement vous offrir le conseil suivant.
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+Ne sortez pas toujours des coups qui seraient « ordinaires » en échecs occidentaux, même dans des variantes qui y ressemblent. Par exemple, il est parfois approprié dans l'ouverture de développer seulement quelques pièces et les positionner de façon optimale, au lieu de les développer toutes mais sans direction.
 
-Continue to play more and if you discover new strategies or advice, let us know!
+Amusez-vous bien à jouer plus, et n'hésitez pas à nous contacter si vous devinez plus des conseils de stratégie ou des astuces !
