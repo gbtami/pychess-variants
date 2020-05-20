@@ -1,93 +1,87 @@
-# Terminology
+# Terminológia
 
-Throughout the site and in the guides, many different terms are used. Many of these terms are global and apply to all chess variants, some apply to several (byo-yomi), and some may have different implications depending the variant (e.g. stalemate). Any terms that apply to a single variant will be discussed there (e.g. many shogi terms). This page serves as a reference to hopefully clear up any confusion!
+Az oldalon és a leírásokban is számos szakkifejezés van használatban. Egy részük mindenféle variánsra kiterjed, míg mások csak bizonyos játékokban fordulnak elő. De az is előfordul, hogy egy-egy kifejezést máshogy értelmeznek a különféle sakkváltozatokban (ilyen pl. a patthelyzet). A játékspecifikus kifejezésekről (amelyek más játékokban nem fordulnak elő) az adott játék leírásában olvashatsz.
 
-# "Chess Variants"
+# "Sakkvariánsok"
 
-Probably the most important term to clarify first is what a "**chess variant**" is. There is no doubt that games like Bughouse and Crazyhouse are chess variants, becaus they're derived from chess. However, regional games such as Xiangqi, Shogi, Janggi, and Makruk are all also labeled "chess variants," and this may cause confusion.
+Valószínűleg a legfontosabb azt tisztázni, hogy mik is azok a sakkvariánsok. Az olyan játékok, mint a Sakk960 vagy a Crazyhouse, egyértelműek sakkvariánsok, hiszen a standard sakk változatai. Azonban az olyan regionális játékokat, mint a xiangqi, janggi vagy a makruk, szintén "sakkvariánsnak" hívunk és ez zavaró vagy megtévesztő lehet.
 
-The biggest library for chess variants, chessvariants.com has an entire article dedicated to the topic of ["What is a chess variant?"](https://www.chessvariants.com/what.html). At Pychess, we share the same sentiments. For the sake of brevity, "chess variant" means any turn-based strategy game, derived from Chatturanga, where pieces have distinct movements, and the goal is to capture or "checkmate" the opponent's king. Even though eastern variants are not derived from chess, they share a common ancestor, and their names for the game all mean "chess." In this manner, the "chess" in chess variant instead means a general concept of chess-like game, rather than the international FIDE chess. This is analagous to sports, where "football" has a different meaning in different regions.
+*"Mi a sakkvariáns?"* címmel jelent meg egy írás a chessvariants.com oldalán (angol nyelven): ["What is a chess variant?"](https://www.chessvariants.com/what.html). Eszerint sakkvariánsoknak azokat a stratégiai játékokat nevezzük, amelyek az ősi [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethetők, melyekben a játékosok felváltva lépnek, a figurák különbözően mozognak, és ahol a cél az ellenfél királyának mattolása. Habár a keleti (ázsiai) sakkjátékok nem a nyugati sakkból erednek, mégis egy közös őstől származnak és mindegyik játék neve "sakkot" jelent. Ilyen értelemben tehát a sakkvariáns elnevezésben a "sakk" inkább a "sakkszerű" játékot jelenti, mintsem a [Nemzetközi Sakkszövetség](https://hu.wikipedia.org/wiki/Nemzetk%C3%B6zi_Sakksz%C3%B6vets%C3%A9g) által is koordinált "standard" sakkot. 
 
-As chess variants can mean both variants directly based on international chess, as well as all forms of "chess" (the all-encompassing term), there is a little ambiguity here. Most of the time, we can figure out which type is being referred to based on context. Still, it is a downside of having this ambiguous term, and perhaps when discussing all kinds of chess, then a more general term "chess-like variants" could be used. Still, this is not the standard terminology used today.
+# Bábuk
 
-# Pieces
+**Tündér figurák** - Az olyan bábukat, melyek a hagyományos sakk készletben nem szerepelnek, *tündér* figuráknak nevezzük (angolul: fairy pieces). Ha például a kínai sakkból (xiangqi) átvett ágyút a hagyományos sakkban felhasználjuk (lásd pl. a *Shako* nevű variánst), akkor abban az ágyú egy tündér figurának számít, míg a kínai sakkban az a hagyományos készlet része. Érdemes azt is megjegyezni, hogy az ilyen figuráknak több nevük is lehet, mert másképp nevezik őket egy-egy variánsban. Jó példa erre pl. az érsek/bíboros (Archbishop/Cardinal) vagy pl. a kancellár/marsall (Chancellor/Marshall). A tündér figurákból több tucat létezik (illetve azok különféle neveit és variációt tekintve több száz)
 
-**Fairy piece** - A piece not used in conventional chess, with the word "fairy" connotating "invented." It's unclear if pieces native to regional variants are considered "fairy pieces," but we favor not using this term for established games. However, a xiangqi cannon appearing in a chess variant (as in Shako), or a bishop appearing in a xiangqi variant would count as "fairy pieces," because they don't exist in the native game.
+## A bábuk osztályozása
 
-It should be noted that several pieces have the same piece-type, but different names. For example, the "rook" and "chariot" both referring to the same piece. The name should reflect the name used in the game being played.
+A bábukat háromféle osztályba soroljuk:
 
-## Classification
+**Vonal bábuk (Riders)**: olyan bábuk, melyek akárhány mezőt tudnak lépni egy vonalban. Ilyenek pl. a bástya és a futó.
 
-Because fairy pieces introduce dozens of possible pieces, there is a classification system for pieces. There are also notations used to describe movements, but that is outside of the scope of this page. There are three types of simple pieces:
+**Ugró bábuk (Leapers)**: olyan bábuk, melyeket nem lehet blokkolni, mert az útjukban álló bábukat át tudják ugrani. Ilyen pl. a huszár.
 
-**Riders** (also called ranging pieces) are pieces that keep moving in a direction indefinitely until obstructed by another piece or the edge of the board. The rook and bishop in chess are classic examples.
+**Bakugró bábuk (Hoppers)**: olyan bábuk, melyek csak egy bábut átugorva tudnak lépni/ütni. Ilyen pl. a koreai sakkban (janggi) az ágyú.
 
-**Leapers** are pieces that have fixed movements and cannot be obstructed to reach their destination. The knight in chess is a classic example. The horse in xiangqi and janggi is a modified leaper because it can be blocked. Similar pieces have also been referred to as "lame leapers."
+A fenti típusokat kombinálva nagyon sokféle bábu létezik. Például a hagyományos sakkban a vezér a bástya és a futó kombinációja. A kínai sakk ágyúja egy vonal bábu és egy bakugró bábu kombinációja (lépni tud ugrás nélkül, de ütni csak átugrás után tud).
 
-**Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers. (Note that technically, the xiangqi cannon is technically a hybrid rider-hopper because of its rider movement and hopper capture, while the janggi cannon is a pure hopper) 
+# Játékidő
 
-Finally, **compound pieces** are pieces that combine the moves of two simple pieces. The chess queen, which combines the rook and bishop, is a classic example. Many fairy pieces are compound pieces.
+A játékidő meghatározása azt a cél szolgálja, hogy a játék ne nyúljon túl hosszúra azért, mert egy játékos túl sokáig gondolkozik egy-egy lépésen.
 
-# Time Control
+Általában háromféle időmérési módszer van használatban:
 
-Time controls determine the time restrictions that govern ending the game due to one player taking too long to move. One type of game, called **correspondence** games, uses long time controls of at least several hours, typically counted in days. Players typically play their moves whenever they happen to have a break in their day. As of now, correspondence is not available on Pychess, where games are instead meant to be finished in one sitting.
+1. **Többletidő (Increment)** - Minden lépés után az adott játékos idejéhez egy előre meghatározott többletidő (például 15 másodperc) adódik hozzá. A *10+15* például azt jelenti, hogy játékosonként 10 perc áll rendelkezésre, és mindkét játékos 15 másodperc többletidőt kap minden lépése után.
 
-Games played in one sitting use a main timer set anywhere from 1 minute to 60 minutes typically, with each player having their own timer. A player may or may not have extra time throughout the game. There are three main timer types that dictate how extra time is given:
+2. **bjójomi (byo-yomi)** - Amikor egy játékos ideje letelik, akkor következik a bjójomi (visszaszámlálás), azaz onnantól mindig egy fixen meghatározott ideje marad egy-egy lépésre (pl. 30 másodperc). Ha lép, akkor ez az idő újra rendelkezésre áll majd a következő lépésben, ha kifut az időből, akkor elveszíti a játszmát. Több periódus is lehet a bjójomi során (pl. a koreai sakkban). A *10+3x30(b)* jelzés azt jelenti, hogy egy játékosnak 10 perc áll rendelkezésére, ha ez az idő letelt, akkor az adott játékosnak mindhárom periódusban 30 másodperce marad a lépésre. 3 periódus esetén a játékos kétszer kifuthat a időből és csak akkor veszít, ha a harmadik (utolsó) periódusban is letelik az ideje.
 
-1. **(Fischer) Increment** - Every time a player ends his turn, he/she gains a fixed amount of time to their clock. A game in Pychess labeled as "10+15" means 10 *minutes* on the starting timer, and a 15 second increment. This is the standard used for most variants.
+3. **"Hirtelen halál"** - Nincs extra idő. Ha a normál játékidőből kifut egy játékos, azonnal veszít.
 
-2. **Byo-yomi** - (Japanese for countdown) Once a player's main clock expires, he has a fixed amount of time to take his/her turns from that point on (i.e. extra time). This system is used in Shogi and Janggi. Multiple byo-yomi periods can be used, typically in Janggi. For example, if there are 3 periods, then that player can drain the clock up to 2 times before losing on the 3rd. This can be useful in a critical move, where a single period of byo-yomi is not enough time to assess the situation carefully. A game in Pychess labeled as "10+3x30(b)" means 10 *minutes* on the starting timer, then 3 periods of 30 second byo-yomi.
+# Általános fogalmak
 
-3. **Sudden death** - No extra time is given. A game that uses increment or byo-yomi can be played with sudden death by setting the respective slider to 0 seconds.
+**Világos, Sötét** - A készletben lévő bábuk színe. Nem minden variánsban fehérek és feketék, illetve valamilyen világos és sötét árnyalatúak a bábuk. A koreai sakkban például piros és kék színűek, míg a kínai sakkban piros és fekete színűek.
 
-# General concepts
+**Sakk** - A király ütésben van, ezt a veszélyhelyzetet el kell hárítani (ellépéssel vagy egy másik bábu által történő blokkolással).
 
-**Check** - Threatening the king with a piece that can capture it next turn if not addressed.
+**Sakk-matt (Matt)** - A király ütésben van, ezt a veszélyhelyzetet nem lehet elhárítani semmilyen módon, a játszma ezzel véget ér.
 
-**Checkmate** - The primary goal in chess, where the king cannot escape check. The player that is checkmated loses.
+**Patt** - A király nincs ütésben, de nincs szabályos lépése (nem léphet, mert akkor sakkban lenne). A standard sakkban ez döntetlen, más esetekben (pl. a kínai sakkban) a patthelyzetben lévő játékos veszít.
 
-**Stalemate** - When the king is not in check, but has no valid moves. In chess, this is a draw, but in many variants (such as xiangqi), it is a loss for the player that's stalemated.
+**Lépésismétlés** - Amikor ugyanazok a lépések ismétlődnek többször egymás után (pl. egy bábu üldöz egy másikat). A különböző variánsokban erre különböző szabályok vonatkoznak, továbbá szövetségtől is függhet, hogy mik az erre vonatkozó szabályok.
 
-**Repetition** - When the board state repeats itself, usually at least three times. This is often due to pieces chasing each other. Different variants handle repetition differently. Even within the same game, different federations have different rules for repetition.
+**Örökös sakk** - A király sakkot kap, amiből ellép, majd megint sakkot kap, megint ellép, és így ismétlődik tovább. A szabályok erre vonatkozólag is eltérőek a különböző játékok illetve szövetségek esetében.
 
-**Perpetual check** - Like repetition, but one player keeps checking the king and eventually repeating the same position. Rules for perpetual check similarly vary between variants and governing federations.
+**Játszmajegyzés** - Egy rendszer, amivel a bábuk pozícióját a táblán, illetve a lépéseiket jegyzik fel. Többféle módszer létezik (egy variánson belül is).
 
-**Rank** - A row on the board.
+**Standard Algebrai Lejegyzés (SAN)** - A sakkban használatos jegyzésmódszer. Minden lépés a bábu nevének rövidítésével (kivéve a gyalogok esetében) és célmező koordinátájával van lejegyezve. 
 
-**File** - A column on the board.
+**Lépés** - A sakkban *egy* lépésnek számít, amikor mindkét játékos lépett egyet. Ezzel ellentétben pl. a japán sakkban (sógi) mindkét játékos lépése külön lépésnek számít.
 
-**Notation** - System used in each game to refer to the positions on the board, abbreviations for pieces, as well as movements for each turn.
+**Behozás / Visszahelyezés** - A leütött bábuk saját bábuként visszahelyezhetők a táblára. A visszahelyezés lépésnek számít. Behozási lehetőség például a Crazyhouse nevű sakkvariánsban van, ami a japán sakkból (sógi) vette át ezt a szabályt.
 
-**Standard Algebraic Notation (SAN)** - The notation used in chess. Each move is described by using the piece name (except for the pawn), followed by its destination. Additional letters are used for disambiguation.
+**Előléptetési zóna** - A tábla olyan területe, ahol a bábuk előléptethetővé válnak (átalakulnak más figurává). A sakkban ez az utolsó sor a gyalogok számára, a sógiban viszont ez az utolsó három sor (és a sógiban szinte az összes bábu előléptethető).
 
-**Move** - A move in chess is a piece movement by both players. However, in shogi, a move is described as a single movement by each player. In chess, you can have "checkmate in 1," 2, 3, etc. But in shogi, you can only have checkmate in 1, 3, 5, 7, etc.
+# Taktika
 
-**Drop** - A move made by taking a captured piece and dropping it onto the board as your own. This is a staple of Shogi and Crazyhouse, but cannot be done in chess. Variants that allow drops are called "drop variants," and there are several in Pychess (often with the suffix "house")
+**Villa (Fork)** - Más néven kettős támadás. Leginkább a huszár (ló) támad egyszerre két bábut, de a futó vagy bástya is képes rá.
 
-**Promotion Zone** - The area of the board in which pieces can promote. In chess, only pawns can promote on the furthest rank. However, in shogi, the promotion zone is the last three ranks, and most pieces can promote. Other variations can vary on how the promotion zone is defined.
+![Villa ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fork.png)
 
-# Tactics
+**Kötés (Pin)** - Amikor egy bábu ütésben van, de nem léphet el, mert azután üthetővé válna a mögötte lévő, értékesebb bábu. Gyakran a királyt védő bábuknál fordul elő. Csak a vonal bábuk (bástya, futó, vezér) képesek kötést előidézni.
 
-**Fork** - Attacking two pieces at the same time. Knights most commonly deliver forks in all variants. In drop variants, rooks and bishops are also a little more capable of delivering forks, especially bishops.
+![Kötés ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Pin.png)
 
-![Fork example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fork.png)
-
-**Pin** - Attacking a piece such that it can't move, or else it would expose a much higher value piece behind it (often the king).
-
-![Pin example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Pin.png)
-
-**Skewer** - Similar to a pin, but attacking two pieces in a line with the more valuable piece exposed in front. The more valuable piece is compelled to move, allowing the attacker to capture the exposed second piece.
+**Szakítás (Skewer)** - Hasonló a kötéshez, de itt az értékesebb bábu áll a kevésbé értékes bábu előtt, ezért a játékosnak el kell vele lépnie, így az addig védett (kevésbé értékes) bábu üthetővé válik.
 
 ![Skewer example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Skewer.png)
 
-**Discovered attack** - One of your pieces would normally threaten an opposing piece, but is blocked by one of your own pieces. By moving your blocking piece (and often threatening another piece at the same time), this opens up the piece behind it to attack, which is called a discovered attack. Discovered attacks are particularly prominent in Xiangqi. 
+**Felfedett támadás (Discovered Attack)** - Amikor egy bábu üthetne, de egy másik, saját bábu az útjában áll. Amikor ezzel a másik bábuval ellépünk, akkor a korábban ütni nem képes bábunak utat nyitunk. 
 
-![Discovered attack example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
+A képen látható példa: a huszárral ellépve a bástya számára szabaddá válik az út, a király pedig sakkban lesz (ez a *felfedett sakk*). A huszár pedig olyan mezőre érkezik, ahonnan a vezér ütésben van (és leütésre is kerül a következő lépésben).
 
-In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. 
+![Felfedett támadás ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
 
-**Sacrifice** - Losing material value in order to gain a better position.
+**Áldozat (Sacrifice)** - Anyagi veszteség (valamelyik bábu feláldozása) a jobb pozíció megszerzésének érdekében.
 
-![Sacrifice example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
+A képen látható példa: ha a vezér üti a sötét huszárját, akkor utána a gyalog könnyen leütheti a vezért. Viszont a világos huszár a vezér korábbi helyére tud majd lépni, amivel mattot ad a királynak. A világos játékos feláldozta a vezért egy jobb (nyerő) pozíció miatt.
 
-In this example, if the white queen takes the black knight, it can easily be retaken by a pawn. However, that would open the knight to deliver checkmate (red arrow). The queen was sacrificed for a much greater reward.
+![Áldozat ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
