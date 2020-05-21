@@ -165,17 +165,17 @@ B = futó
 
 P = gyalog
 
-+R vagy D = sárkánykirály (előléptetett bástya)
++R vagy D = sárkánykirály (átváltoztatott bástya)
 
-+B or H = sárkányló (előléptetett futó)
++B or H = sárkányló (átváltoztatott futó)
 
-+S, +N, +L, +P jelölések a fenti bábuk előléptetett formáját jelenti.
++S, +N, +L, +P jelölések a fenti bábuk átváltoztatott formáját jelenti.
 
 ### Szimbólumok
 
 * A behozások jelölése egy **\*** vagy egy **‘** karakterrel történik. Mi a **\*** karaktert használjuk (Hodges-jegyzés). Például egy gyalog behozásának jelölése **P\*5e** lenne.
-* Azok a lépések, melyek előléptetéssel végződnek egy **+** karakterrel vannak jelölve. Például ha egy gyalog az 1c mezőre érkezve előlép, akkor annak a jelölése **P1c+**.
-* Ha a bábut nem léptetjük elő, akkor azt egy **=** karakterrel jelöljük. Például ha az ezüsttábornok üti *5c*-t és nem léptetjük elő, akkor annak a jelölése **Sx5c=**
+* Azok a lépések, melyek átváltoztatással végződnek egy **+** karakterrel vannak jelölve. Például ha egy gyalog az 1c mezőre érkezve átváltozik, akkor annak a jelölése **P1c+**.
+* Ha a bábut nem változtatunk át, akkor azt egy **=** karakterrel jelöljük. Például ha az ezüsttábornok üti *5c*-t és nem változtatjuk át, akkor annak a jelölése **Sx5c=**
 * A sakk és a matt nincs jelölve.
 
 ## Források a sógi megtanulásához
