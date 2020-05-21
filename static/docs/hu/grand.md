@@ -10,7 +10,7 @@ A játékot 10x10-es táblán játsszák, és két új bábu is részt vesz a j�
 
 Jelentős különbségek a standard sakkhoz képest:
 
-* Gyalog csak olyan bábuvá átváltoztatható át, amilyen bábunk már leütésre került. Például ha még van vezérünk, akkor vezérré nem átváltoztatható át. Ha minden tisztünk megvan még, akkor nem átváltoztatható át.
+* Gyalog csak olyan bábuvá változtatható át, amilyen bábunk már leütésre került. Például ha még van vezérünk, akkor vezérré nem változtatható át. Ha minden tisztünk megvan még, akkor nem változtatható át.
 * A gyalogok a 8. vagy 9. sorban átváltoztathatók vagy maradhatnak gyalogok, viszont a 10. sort elérve mindenképpen át kell változtatni őket. Ha ez nem lehetséges (mert még egy tisztünk sem került leütésre), akkor addig a gyalog nem tud a 10. sorba lépni.
 * Nincs sáncolás.
 
