@@ -53,11 +53,11 @@ A bástya ugyanúgy mozog, mint a sakkban (akárhány mezőt vízszintesen vagy 
 
 ### Gyalog (*Bia*)
 
-![Gyalog ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true) ![Előléptett gyalog ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/ProPawn.png?raw=true)
+![Gyalog ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true) ![Átváltoztatott gyalog ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/ProPawn.png?raw=true)
 
-A gyalog ugyanúgy mozog, mint a sakkban (egyet előre), és úgy is üt (átlóban előre egyet). Nem léphet kettőt első lépésként. Amikor a gyalogok elérik a 6. sort (illetve a a másik oldalról a 3. sort), akkor előlépnek és úgy lépnek/ütnek, mint a vezér (átlóban egyet).
+A gyalog ugyanúgy mozog, mint a sakkban (egyet előre), és úgy is üt (átlóban előre egyet). Nem léphet kettőt első lépésként. Amikor a gyalogok elérik a 6. sort (illetve a a másik oldalról a 3. sort), akkor átváltoznak és úgy lépnek/ütnek, mint a vezér (átlóban egyet).
 
-Az előléptetett gyalog gyakori a végjátékokban, ahol a mattadásban nyújthat segítséget. Továbbá jó csali lehet, akit először el kell fogni ahhoz, hogy az általa védett király mattolható legyen. Szerepe lehet az ellenséges erők szétszakításában, ami után az újraszervezés értékes időt vehet el. Ez a vesztésre álló, védekező oldal számára esélyt adhat arra, hogy döntetlenre hozza ki a játszmát a lépésszámlálási szabály értelmében (lásd lentebb).
+Az átváltoztatott gyalog gyakori a végjátékokban, ahol a mattadásban nyújthat segítséget. Továbbá jó csali lehet, akit először el kell fogni ahhoz, hogy az általa védett király mattolható legyen. Szerepe lehet az ellenséges erők szétszakításában, ami után az újraszervezés értékes időt vehet el. Ez a vesztésre álló, védekező oldal számára esélyt adhat arra, hogy döntetlenre hozza ki a játszmát a lépésszámlálási szabály értelmében (lásd lentebb).
 
 ## Lépésszámlálási szabályok
 
