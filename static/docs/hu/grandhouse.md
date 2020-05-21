@@ -10,7 +10,7 @@ A leütött bábuk saját bábuként visszahelyezhetők a táblára, ezt nevezz�
 
 * Bábut nem lehet úgy behozni, hogy az azonnal mattot adjon.
 * Gyalogot nem lehet az **utolsó három sorba** behozni.
-* Egy előléptetett gyalog (pl. vezér) leütés után visszaváltozik gyaloggá és csak úgy lehet újra játékba hozni.
+* Egy átváltoztatott gyalog (pl. vezér) leütés után visszaváltozik gyaloggá és csak úgy lehet újra játékba hozni.
 * A 3. sorba és a 8. sorba visszahelyezett gyalogok nem léphetnek kettőt első lépésként.
 
 A Crazyhouse szabályaitól annyiban tér el, hogy **a gyalogok az utolsó három sorba nem hozhatók be**. (A standard Crazyhouse-ban csak az utolsó sorba nem lehet őket visszahelyezni).
