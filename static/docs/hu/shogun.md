@@ -2,25 +2,25 @@
 
 ![Shogun ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions_HU.png)
 
-A Sógun sakk egy sakkvariáns, amit [*Couch Tomato*](https://github.com/CouchTomato87) 2019-ben tervezett meg. A játék a standard sakk és a sógi (japán sakk) keveréke, az eredeti ötlet pedig az volt, hogy a hibrid bábukat másképp használja, mint más, korábbi sakkváltozatok. A cél a 8x8-as táblaméret megtartása volt, hogy a könnyűtisztek értéke ne csökkenjen, illetve hogy a tábla ne legyen túl zsúfolt az új bábuk miatt (mint pl. az S-sakkban). Az ötlet az volt, hogy az új bábukat a  alapbábuk előléptetésével lehessen játékba hozni. Később a sógiból vagy a crazyhouse variánsból már ismert behozási szabály is a játék részévé vált (a leütött bábuk saját bábuként a táblára visszahelyezhetőkké válnak).
+A Sógun sakk egy sakkvariáns, amit [*Couch Tomato*](https://github.com/CouchTomato87) 2019-ben tervezett meg. A játék a standard sakk és a sógi (japán sakk) keveréke, az eredeti ötlet pedig az volt, hogy a hibrid bábukat másképp használja, mint más, korábbi sakkváltozatok. A cél a 8x8-as táblaméret megtartása volt, hogy a könnyűtisztek értéke ne csökkenjen, illetve hogy a tábla ne legyen túl zsúfolt az új bábuk miatt (mint pl. az S-sakkban). Az ötlet az volt, hogy az új bábukat a  alapbábuk átváltoztatással lehessen játékba hozni. Később a sógiból vagy a crazyhouse variánsból már ismert behozási szabály is a játék részévé vált (a leütött bábuk saját bábuként a táblára visszahelyezhetőkké válnak).
 
-A játék neve eredetileg "Tábornok sakk" (General's Chess) lett volna, de azért lett végül Sógun sakk, mert a bábuk előléptetési és behozási lehetősége eredetileg a sógiból (japán sakk) származik, így megfelelőbb volt a *Sógun* elnevezés használata, ami japánul tábornokot jelent.
+A játék neve eredetileg "Tábornok sakk" (General's Chess) lett volna, de azért lett végül Sógun sakk, mert a bábuk átváltoztatási és behozási lehetősége eredetileg a sógiból (japán sakk) származik, így megfelelőbb volt a *Sógun* elnevezés használata, ami japánul tábornokot jelent.
 
 ## Szabályok
 
 * A kezdőállás ugyanaz, mint a standard sakkban.
 
-* Az utolsó három sor az előléptetési zóna. A királyt és a királynőt leszámítva minden alapbábu előléptethető erre a területre való belépéssel (vagy odahelyezett bábu esetén az onnan továbblépéssel).
+* Az utolsó három sor az átváltoztatási zóna. A királyt és a királynőt leszámítva minden alapbábu átváltoztatható erre a területre való belépéssel (vagy odahelyezett bábu esetén az onnan továbblépéssel).
 
 * A királynőből, a mozsárágyúból, az érsekből és a tábornokból csak egy-egy darabja lehet egy játékosnak. Ha például már van egy érsekünk a táblán, akkor a futó addig nem léptethető elő érsekké, amíg az előbbi leütésre nem kerül.
 
-* A bábukat visszahelyezni a táblára csak az első 5 sorba lehet, tehát az utolsó három sorba (előléptetési zónába) nem. A gyalogok az első sorba is behozhatók.
+* A bábukat visszahelyezni a táblára csak az első 5 sorba lehet, tehát az utolsó három sorba (átváltoztatási zónába) nem. A gyalogok az első sorba is behozhatók.
 
 * Az első sorba behozott gyalog léphet kettőt azután, hogy elérte a második sort (tehát második lépésben léphet kettőt).
 
 * Egy gyalog nem léptethető elő, ha *en passant* üti le az ellenfél gyalogját.
 
-* Amikor egy előléptetett bábu leütésre kerül, akkor visszaalakul az eredeti figurává és visszahelyezni is csak úgy lehet a táblára. A királynő már "előléptetett" formában kezd, a táblára visszahelyezhető formája a *hercegnő*.
+* Amikor egy átváltoztatott bábu leütésre kerül, akkor visszaalakul az eredeti figurává és visszahelyezni is csak úgy lehet a táblára. A királynő már "átváltoztatott" formában kezd, a táblára visszahelyezhető formája a *hercegnő*.
 
 * Behozott bástya nem sáncolhat.
 
