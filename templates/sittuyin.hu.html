@@ -2,11 +2,11 @@
 <p><img src="https://www.pychess.org/static/images/SittuyinGuide/Sittuyin.png?raw=true" alt="Sittuyin ábra" /></p>
 <p>A sittuyin (စစ်တုရင်), avagy a burmai sakk egy klasszikus táblajáték, mely Mianmarban őshonos, és habár az ország északnyugati területein még mindig sokan játsszák, mára a nyugati sakk beárnyékolta népszerűségét. A játék kissé lassabb tempójú, de jó lehetőséget ad arra, hogy türelmet gyakoroljunk és a stratégiai gondolkodásunkat fejlesszük.</p>
 <h2 id="szabályok">Szabályok</h2>
-<p>A szabályok általánosságban véve nagyon hasonlóak a sakkéhoz (a cél itt is mattolni az ellenfél királyát), ezért ez az útmutató inkább a különbségekre fókuszál. A tábla itt is 8x8-as, de két átlós vonal keresztezi, ami a gyalogok előléptetésével van kapcsolatban. A játékosok színe piros és fekete (ez utóbbi zöld is lehet), és a piros lép először. A bábuk pozíciója a sittuyinban a makrukhoz vagy a sakkhoz képest teljesen más. A főbb különbségek:</p>
+<p>A szabályok általánosságban véve nagyon hasonlóak a sakkéhoz (a cél itt is mattolni az ellenfél királyát), ezért ez az útmutató inkább a különbségekre fókuszál. A tábla itt is 8x8-as, de két átlós vonal keresztezi, ami a gyalogok átváltoztatásával van kapcsolatban. A játékosok színe piros és fekete (ez utóbbi zöld is lehet), és a piros lép először. A bábuk pozíciója a sittuyinban a makrukhoz vagy a sakkhoz képest teljesen más. A főbb különbségek:</p>
 <ul>
 <li>A gyalogok lépcsőzetes elrendezésben kezdenek (lásd a fenti képen).</li>
 <li>A játszma elején a játékosok a bábuikat felváltva helyezik a táblára (a saját térfelükön belül). A piros játékos először, aztán a fekete, és így tovább. A szekér csak a leghátsó sorba tehető.</li>
-<li>A gyalogok előléptetése másképp működik (erről bővebben később).</li>
+<li>A gyalogok átváltoztatása másképp működik (erről bővebben később).</li>
 </ul>
 <p>Döntetlenre vonatkozó szabályok:</p>
 <ul>
@@ -25,7 +25,7 @@
 <p>A király ugyanúgy lép és üt, mint a sakkban: egyet bármelyik irányba.</p>
 <h3 id="vezér">Vezér</h3>
 <p><img src="https://www.pychess.org/static/images/SittuyinGuide/General.png?raw=true" alt="Vezér ábra" /></p>
-<p>A vezér itt sokkal gyengébb bábu, mint a sakkban, mert csak egy mezőt tud lépni átlóban. Értéke nagyjából 1,5 - 2 gyalognak felel meg. A vezér megfelelő a támadások vezetésére és hasznos lehet az ellenfél fenyegetésére. Ha a vezér leütésre került, egy gyalog előléptetésével újabb vezér szerezhető.</p>
+<p>A vezér itt sokkal gyengébb bábu, mint a sakkban, mert csak egy mezőt tud lépni átlóban. Értéke nagyjából 1,5 - 2 gyalognak felel meg. A vezér megfelelő a támadások vezetésére és hasznos lehet az ellenfél fenyegetésére. Ha a vezér leütésre került, egy gyalog átváltoztatásával újabb vezér szerezhető.</p>
 <h3 id="elefánt">Elefánt</h3>
 <p><img src="https://www.pychess.org/static/images/SittuyinGuide/Elephant.png?raw=true" alt="Elefánt ábra" /></p>
 <p>Az elefánt egy mezőt léphet átlósan, vagy egy mezőt előre (mint a sógiban az ezüsttábornok). Erős bábu arra, hogy az ellőtte lévő mezőket kontrollálja, de a király védelmezésére is megfelelő lehet.</p>
@@ -39,13 +39,14 @@
 <h3 id="gyalog">Gyalog</h3>
 <p><img src="https://www.pychess.org/static/images/SittuyinGuide/Pawn.png?raw=true" alt="Gyalog ábra" /></p>
 <p>A gyalog (eredeti fordításban: hűbérúr) ugyanúgy lép, mint a sakkban (egyet előre), és úgy is üt (átlóban előre egyet), azonban első lépésben nem léphet kettőt.</p>
-<p><strong>Előléptetés</strong>: Miután a gyalog elér egy olyan mezőt az ellenfél térfelén, amin az átlós vonal áthalad, a következő lépésben előléptethető vezérré (átlóban lépéssel, ahelyett, hogy előre lépnénk). </p>
-<p>Megkötések az előléptetéssel kapcsolatban:</p>
+<p><strong>Átváltoztatás</strong>: Miután a gyalog elér egy olyan mezőt az ellenfél térfelén amin az átlós vonal áthalad, a következő lépésben átváltoztatható vezérré (helyben, vagy átlóban lépéssel, ahelyett, hogy előre lépnénk). </p>
+<p>Megkötések az átváltoztatással kapcsolatban:</p>
 <ul>
-<li>Gyalog csak csak akkor léptethető elő, ha előtte a vezérünk már leütésre került.</li>
-<li>Gyalog csak akkor léptethető elő, ha azzal nem támadja/üti az ellenfél bábuját. Átlóban ütéssel nem léptethető elő, csak átlóban lépéssel üres mezőre.</li>
-<li>Gyalog nem léptethető elő, ha ezzel közvetlen vagy felfedett sakkot ad.</li>
-<li>Egy gyalog, amely előléptethető vezérré, átlóban hátrafelé nem üthet, ezért például az ellenfél királya odaléphet.</li>
+<li>Gyalog csak csak akkor változtatható át, ha előtte a vezérünk már leütésre került.</li>
+<li>Gyalog csak akkor változtatható át, ha azzal nem támadja/üti az ellenfél bábuját. Átlóban ütéssel nem változtatható át, csak átlóban lépéssel üres mezőre.</li>
+<li>Gyalog nem változtatható át, ha ezzel közvetlen vagy felfedett sakkot ad.</li>
+<li>Amennyiben már csak egy gyalog maradt a táblán, az tetszőleges mezőn állva átváltoztatható.</li>
+<li>Az utolsó soron egyedül maradt gyalogot nem kötelező átvátoztatni ha nincs más szabályos lépés, azaz az állás patt.</li>
 </ul>
 <h2 id="stratégia">Stratégia</h2>
 <p>A játék tempója lassúnak mondható, a legtöbb bábu csak egy mezőt tud lépni valamilyen irányba. Érdemes a bábukat csoportokba szervezni és úgy mozgatni őket, hogy kölcsönös támogatást nyújtsanak egymásnak. Nem érdemes egy időben több frontot megnyitni. A kulcs a megfelelő koordináció.</p>
