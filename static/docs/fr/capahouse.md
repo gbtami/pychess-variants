@@ -1,19 +1,17 @@
 # ![Capahouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/CHouse.svg) Capahouse
 
-Capahouse is a custom variant combining the rules of Capablanca chess with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse rules are as below for a reminder.
+Le Capahouse est une variante des échecs Capablanca avec les règles de parachutage à la crazyhouse. Comme le Capahouse est considérée comme une dérivée des échecs Capablanca, veuillez consulter le guide des échecs Capablanca pour leurs règles. Les règles pertinentes du crazyhouse sont reproduites ci-dessous.
 
-## Crazyhouse Rules
+## Règles du crazyhouse
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+Pendant notre tour, on peut parachuter une pièce adverse capturée sur l'échiquier au lieu de faire un coup normal. En notation algébrique, le parachutage est noté par une arobase (@). Par exemple, R@e4 indique une tour parachutée sur la case e4. Les règles gouvernant le parachutage sont les suivantes :
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* Il est permis de donner échec et mat avec un parachutage, même avec un pion (contrairement au shogi).
+* Il est illégal de parachuter un pion sur la 1ère et la 8ème rangées.
+* Un pion promu et puis capturé se parachutera en tant qu'un pion.
+* Un pion blanc (resp. noir) parachuté sur la 2ème rangée (resp. 7ème rangée) est peut avancer de deux cases lors de son premier coup après être parachuté.
+* Il est illégal de roquer avec une tour parachutée.
 
-All other rules are as in Capablanca chess.
+## Conseils
 
-## Strategy
-
-As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
+Tout comme au crazyhouse « classique », les valeurs relatives des pièces ne sont pas les mêmes qu'aux échecs occidentaux classiques, et souvent il convient de sacrifier du matériel pour le développement rapide, une attaque contre le roi adverse, ou même tout simplement pour défendre. Il arrive souvent qu'il est mieux de renforcer les pièces défensives autour de son roi au lieu de les faire échapper d'une menace. Se reporter à des ressources dédiées à la stratégie du crazyhouse pour en savoir plus.
