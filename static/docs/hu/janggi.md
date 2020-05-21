@@ -154,7 +154,7 @@ A lépésismétlés nem megengedett, azonban változó, hogy ezt milyen módon k
 
 A fenti szabályokon kívül még:
 
-* A janggiban nincs folyó (ami elválasztja a két oldalt a tábla közepén). Ebből következik, hogy a gyalogok már a kezdettől fogva tudnak oldalra is lépni és nem léptethetők elő. Az elefántok teljesen másképp mozognak és itt nincsenek a saját térfelükre korlátozva.
+* A janggiban nincs folyó (ami elválasztja a két oldalt a tábla közepén). Ebből következik, hogy a gyalogok már a kezdettől fogva tudnak oldalra is lépni és nem átváltoztatható át. Az elefántok teljesen másképp mozognak és itt nincsenek a saját térfelükre korlátozva.
 * A bábuk nyolcszög formájúak, nem pedig kör alakúak. Továbbá a nagyságuk attól is függ, mennyire értékesek (pl. a király a legnagyobb, mert az a legértékesebb),
 * A táblán a kezdőpozíciók megjelölésére **x**-et használnak, nem pedig keresztet.
 * A király a palota közepén kezd, nem a hátuljában.
