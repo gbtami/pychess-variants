@@ -1,16 +1,16 @@
 
-# ![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/minishogi.svg) Minishogi
+# ![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/minishogi.svg) Mini-shogi
 
 ![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Minishogi.png)
 
-Minishogi is essentially shogi on a 5x5 board. The game was invented (or rediscovered) around 1970 by Shigenobu Kusumoto of Osaka, Japan.
+Le mini-shogi est le jeu de shogi adapté pour un shogiban de 5x5. Le jeu fut inventé (ou réinventé) vers 1970 par le japonais Kusumoto Shigenobu.
 
-## Rules
+## Règles
 
-As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
+Comme le mini-shogi est basé sur le shogi, veuillez consulter son guide à lui pour des règles de shogi si vous ne les connaissez pas.
 
-The starting setup is as above. Unlike standard shogi, there is no knight or lance. There is only one pawn, a bishhop and rook, and one of each general. Promotion is only done in the last rank. 
+La position initiale est comme dans l'image ci-dessus. Contrairement au shogi, il n'y a ni de cavalier, ni de lancier. Chaque côté commence avec une chacune des pièces suivantes : pion, fou, tour, général d'argent, général d'or et roi. La zone de promotion est la dernière rangée.
 
-## Strategy
+## Conseils
 
-Due to the smaller board size, the rook and bishop are not as dominant as standard shogi. However, their promotions are still very much threatening.
+Vu la taille reduite du shogiban, la tour et le fou ne sont pas aussi dominateurs qu'au shogi standard. En revanche, leurs formes promues sont toujours très puissantes.
