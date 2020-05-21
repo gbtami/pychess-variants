@@ -11,7 +11,7 @@ A játékot 10x10-es táblán játsszák, és két új bábu is részt vesz a j�
 Jelentős különbségek a standard sakkhoz képest:
 
 * Gyalog csak olyan bábuvá léptethető elő, amilyen bábunk már leütésre került. Például ha még van vezérünk, akkor vezérré nem léptethető elő. Ha minden tisztünk megvan még, akkor nem léptethető elő.
-* A gyalogok a 8. vagy 9. sorban előléptethetők vagy maradhatnak gyalogok, viszont a 10. sort elérve mindenképpen elő kell léptetni őket. Ha ez nem lehetséges (mert még egy tisztünk sem került leütésre), akkor addig a gyalog nem tud a 10. sorba lépni.
+* A gyalogok a 8. vagy 9. sorban átváltoztathatók vagy maradhatnak gyalogok, viszont a 10. sort elérve mindenképpen át kell változtatni őket. Ha ez nem lehetséges (mert még egy tisztünk sem került leütésre), akkor addig a gyalog nem tud a 10. sorba lépni.
 * Nincs sáncolás.
 
 ## Új bábuk
