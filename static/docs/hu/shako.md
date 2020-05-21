@@ -10,7 +10,7 @@ A játék megtervezése 1990-ben fejeződött be és 2007-ben a D.B. Pritchard �
 
 ## Szabályok
 
-A szabályok alapvetően ugyanazok, mint a standard sakkban. Mivel a játékot 10x10-es táblán játszák, ezért a gyalogot a 10. sorban lehet előléptetni (akár elefánttá vagy ágyúvá is).
+A szabályok alapvetően ugyanazok, mint a standard sakkban. Mivel a játékot 10x10-es táblán játszák, ezért a gyalogot a 10. sorban lehet átváltoztatni (akár elefánttá vagy ágyúvá is).
 
 ### Elefánt
 
