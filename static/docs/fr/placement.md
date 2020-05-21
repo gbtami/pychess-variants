@@ -1,7 +1,9 @@
-# ![Placement](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) Placement Chess (Bronstein chess, Pre-Chess, Shuffle-Chess)
+# ![Placement](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) Placement Chess (échecs Bronstein)
 
-Pal Benko credited the idea of “Pre-Chess” or “Shuffle-Chess” to David Bronstein.
+Le Placement Chess (ou les échecs Bronstein) est connu sous plusieurs noms, par exemple *Placement Chess*, *Bronstein chess*, *Pre-Chess* ou *Shuffle-Chess* en anglais.
 
-Different than the “Placement Chess” described on the Chess Variants site, this variant is simply a modification where players take turns placing their back rank pieces. Castling only works when the king and the corresponding rook are in their normal position.
+Le grand-maître Pal Benko attribuait l'idée de *Pre-Chess* ou *Shuffle-Chess* au grand-maître David Bronstein.
 
-[See here for more about history](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
+Différente de la version décrite sur le site chessvariants.com, cette variante sur Pychess est une simple modification des échecs occidentaux où les joueurs placent leurs pièces tour à tour sur leur dernière rangée avant de commencer la partie. Le roque n'est légal que si le roi est la tour impliquée sont placés sur leurs cases normales au début de la partie.
+
+Consulter cet article pour savoir [l'histoire de cette variante](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess).
