@@ -12,13 +12,13 @@ A játék neve eredetileg "Tábornok sakk" (General's Chess) lett volna, de azé
 
 * Az utolsó három sor az átváltoztatási zóna. A királyt és a királynőt leszámítva minden alapbábu átváltoztatható erre a területre való belépéssel (vagy odahelyezett bábu esetén az onnan továbblépéssel).
 
-* A királynőből, a mozsárágyúból, az érsekből és a tábornokból csak egy-egy darabja lehet egy játékosnak. Ha például már van egy érsekünk a táblán, akkor a futó addig nem léptethető elő érsekké, amíg az előbbi leütésre nem kerül.
+* A királynőből, a mozsárágyúból, az érsekből és a tábornokból csak egy-egy darabja lehet egy játékosnak. Ha például már van egy érsekünk a táblán, akkor a futó addig nem átváltoztatható át érsekké, amíg az előbbi leütésre nem kerül.
 
 * A bábukat visszahelyezni a táblára csak az első 5 sorba lehet, tehát az utolsó három sorba (átváltoztatási zónába) nem. A gyalogok az első sorba is behozhatók.
 
 * Az első sorba behozott gyalog léphet kettőt azután, hogy elérte a második sort (tehát második lépésben léphet kettőt).
 
-* Egy gyalog nem léptethető elő, ha *en passant* üti le az ellenfél gyalogját.
+* Egy gyalog nem átváltoztatható át, ha *en passant* üti le az ellenfél gyalogját.
 
 * Amikor egy átváltoztatott bábu leütésre kerül, akkor visszaalakul az eredeti figurává és visszahelyezni is csak úgy lehet a táblára. A királynő már "átváltoztatott" formában kezd, a táblára visszahelyezhető formája a *hercegnő*.
 
@@ -57,7 +57,7 @@ A kapitány (angolul: *captain*) a gyalog átváltoztatott formája. A király l
 
 ![Hercegnő ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duchess.png)
 
-A hercegnő (angolul: *duchess*) a királynő "lefokozott" formája és csak azután kerül a játékba, hogy a királynő leütésre került (amikor is az hercegnővé alakul át). A hercegnő csak átlóban tud lépni egyet. A hercegnő nem léptethető elő királynővé, ha az eredeti királynőnk még a táblán van.
+A hercegnő (angolul: *duchess*) a királynő "lefokozott" formája és csak azután kerül a játékba, hogy a királynő leütésre került (amikor is az hercegnővé alakul át). A hercegnő csak átlóban tud lépni egyet. A hercegnő nem átváltoztatható át királynővé, ha az eredeti királynőnk még a táblán van.
 
 ## Stratégia
 
