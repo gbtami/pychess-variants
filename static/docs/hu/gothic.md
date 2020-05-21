@@ -9,7 +9,7 @@ A játék neve 2019-ben Trice-sakkra (Trice's chess) változott.
 ## Szabályok
 
 * Sáncoláskor a király három mezőt lép az eltérő táblaméret miatt.
-* A gyalogok érsekké vagy kancellárrá is előléptethetők.
+* A gyalogok érsekké vagy kancellárrá is átváltoztathatók.
 
 A további szabályok a már standard sakkban megszokottak.
 
