@@ -32,7 +32,7 @@ Fontos megjegyezni, hogy **új bábu csak egy alapbábú első lépése után te
 
 Sáncoláskor választható, hogy az új bábu a király vagy a bástya kezdőhelyére kerüljön.
 
-A gyalogok előléptethetők elefánttá vagy sólyommá is.
+A gyalogok átváltoztathatók elefánttá vagy sólyommá is.
 
 ## Stratégia
 
