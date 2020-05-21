@@ -58,11 +58,11 @@ A játékidő meghatározása azt a cél szolgálja, hogy a játék ne nyúljon 
 
 **Behozás / Visszahelyezés** - A leütött bábuk saját bábuként visszahelyezhetők a táblára. A visszahelyezés lépésnek számít. Behozási lehetőség például a Crazyhouse nevű sakkvariánsban van, ami a japán sakkból (sógi) vette át ezt a szabályt.
 
-**Előléptetési zóna** - A tábla olyan területe, ahol a bábuk előléptethetővé válnak (átalakulnak más figurává). A sakkban ez az utolsó sor a gyalogok számára, a sógiban viszont ez az utolsó három sor (és a sógiban szinte az összes bábu előléptethető).
+**Átváltozási zóna** - A tábla olyan területe, ahol a bábuk átváltozhatnak (átalakulnak más figurává). A sakkban ez az utolsó sor a gyalogok számára, a sógiban viszont ez az utolsó három sor (és a sógiban szinte az összes bábu átváltoztatható).
 
 # Taktika
 
-**Villa (Fork)** - Más néven kettős támadás. Leginkább a huszár (ló) támad egyszerre két bábut, de a futó vagy bástya is képes rá.
+**Villa (Fork)** - Más néven kettős támadás. Leginkább a huszár (ló) támad egyszerre két bábut, de még a gyalog is képes lehet rá.
 
 ![Villa ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fork.png)
 
@@ -70,7 +70,7 @@ A játékidő meghatározása azt a cél szolgálja, hogy a játék ne nyúljon 
 
 ![Kötés ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Pin.png)
 
-**Szakítás (Skewer)** - Hasonló a kötéshez, de itt az értékesebb bábu áll a kevésbé értékes bábu előtt, ezért a játékosnak el kell vele lépnie, így az addig védett (kevésbé értékes) bábu üthetővé válik.
+**Áthatoló kettős támadás (Skewer)** - Hasonló a kötéshez, de itt az értékesebb bábu áll a kevésbé értékes bábu előtt, ezért a játékosnak el kell vele lépnie, így az addig védett (kevésbé értékes) bábu üthetővé válik.
 
 ![Skewer example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Skewer.png)
 
