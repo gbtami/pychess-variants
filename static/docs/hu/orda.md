@@ -14,7 +14,7 @@ A másik fél a standard sakkból ismert készlettel játszik, fehér színnel, 
 3. A Királyság (fehér) lép először.
 4. A Horda (arany) nem sáncolhat.
 5. Mivel a Horda gyalogjai a 3. sorban kezdenek, ezért nekik nincs lehetőségük kettőt lépni, illetve *en passant* sem lehet őket leütni. A Királyság gyalogjai a sakkból már ismert módon léphetnek kettőt kezdetben, illetve *en passant* is leüthetők.
-6. Mindkét sereg gyalogjai csak vezérré vagy kesikké léptethetők elő.
+6. Mindkét sereg gyalogjai csak vezérré vagy kesikké átváltoztatható át.
 7. Egy új módja is van a győzelem megszerzésének, melyet úgy nevezünk, hogy **tábormatt**. Ez akkor következik be, ha a saját királyunkat az utolsó sorba (az ellenfél táborába) bevisszük, anélkül, hogy ott sakkban lenne.
 8. A többi szabály, mint pl. a patt illetve a lépésismétlés ugyanúgy érvényben van itt is.
 
