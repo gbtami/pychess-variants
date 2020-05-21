@@ -55,7 +55,7 @@ export function view(el, model): VNode {
 
     switch (el.getAttribute("data-view")) {
     case 'about':
-        return h('div#placeholder.main-wrapper', aboutView(model));
+        return h('div#placeholder.main-wrapper', aboutView());
     case 'level8win':
     case 'profile':
         return h('main.profile', profileView(model));
