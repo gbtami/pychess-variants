@@ -6,11 +6,11 @@ A sittuyin (စစ်တုရင်), avagy a burmai sakk egy klasszikus tábla
 
 ## Szabályok
 
-A szabályok általánosságban véve nagyon hasonlóak a sakkéhoz (a cél itt is mattolni az ellenfél királyát), ezért ez az útmutató inkább a különbségekre fókuszál. A tábla itt is 8x8-as, de két átlós vonal keresztezi, ami a gyalogok előléptetésével van kapcsolatban. A játékosok színe piros és fekete (ez utóbbi zöld is lehet), és a piros lép először. A bábuk pozíciója a sittuyinban a makrukhoz vagy a sakkhoz képest teljesen más. A főbb különbségek:
+A szabályok általánosságban véve nagyon hasonlóak a sakkéhoz (a cél itt is mattolni az ellenfél királyát), ezért ez az útmutató inkább a különbségekre fókuszál. A tábla itt is 8x8-as, de két átlós vonal keresztezi, ami a gyalogok átváltoztatásával van kapcsolatban. A játékosok színe piros és fekete (ez utóbbi zöld is lehet), és a piros lép először. A bábuk pozíciója a sittuyinban a makrukhoz vagy a sakkhoz képest teljesen más. A főbb különbségek:
 
 * A gyalogok lépcsőzetes elrendezésben kezdenek (lásd a fenti képen).
 * A játszma elején a játékosok a bábuikat felváltva helyezik a táblára (a saját térfelükön belül). A piros játékos először, aztán a fekete, és így tovább. A szekér csak a leghátsó sorba tehető.
-* A gyalogok előléptetése másképp működik (erről bővebben később).
+* A gyalogok átváltoztatása másképp működik (erről bővebben később).
 
 Döntetlenre vonatkozó szabályok:
 
@@ -36,7 +36,7 @@ A király ugyanúgy lép és üt, mint a sakkban: egyet bármelyik irányba.
 
 ![Vezér ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/General.png?raw=true)
 
-A vezér itt sokkal gyengébb bábu, mint a sakkban, mert csak egy mezőt tud lépni átlóban. Értéke nagyjából 1,5 - 2 gyalognak felel meg. A vezér megfelelő a támadások vezetésére és hasznos lehet az ellenfél fenyegetésére. Ha a vezér leütésre került, egy gyalog előléptetésével újabb vezér szerezhető.
+A vezér itt sokkal gyengébb bábu, mint a sakkban, mert csak egy mezőt tud lépni átlóban. Értéke nagyjából 1,5 - 2 gyalognak felel meg. A vezér megfelelő a támadások vezetésére és hasznos lehet az ellenfél fenyegetésére. Ha a vezér leütésre került, egy gyalog átváltoztatásával újabb vezér szerezhető.
 
 ### Elefánt
 
@@ -64,14 +64,15 @@ A szekér ugyanúgy mozog, mint a sakkban a bástya (akárhány mezőt vízszint
 
 A gyalog (eredeti fordításban: hűbérúr) ugyanúgy lép, mint a sakkban (egyet előre), és úgy is üt (átlóban előre egyet), azonban első lépésben nem léphet kettőt.
 
-**Előléptetés**: Miután a gyalog elér egy olyan mezőt az ellenfél térfelén, amin az átlós vonal áthalad, a következő lépésben előléptethető vezérré (átlóban lépéssel, ahelyett, hogy előre lépnénk). 
+**Átváltoztatás**: Miután a gyalog elér egy olyan mezőt az ellenfél térfelén amin az átlós vonal áthalad, a következő lépésben átváltoztatható vezérré (helyben, vagy átlóban lépéssel, ahelyett, hogy előre lépnénk). 
 
-Megkötések az előléptetéssel kapcsolatban:
+Megkötések az átváltoztatással kapcsolatban:
 
-* Gyalog csak csak akkor léptethető elő, ha előtte a vezérünk már leütésre került.
-* Gyalog csak akkor léptethető elő, ha azzal nem támadja/üti az ellenfél bábuját. Átlóban ütéssel nem léptethető elő, csak átlóban lépéssel üres mezőre.
-* Gyalog nem léptethető elő, ha ezzel közvetlen vagy felfedett sakkot ad.
-* Egy gyalog, amely előléptethető vezérré, átlóban hátrafelé nem üthet, ezért például az ellenfél királya odaléphet.
+* Gyalog csak csak akkor változtatható át, ha előtte a vezérünk már leütésre került.
+* Gyalog csak akkor változtatható át, ha azzal nem támadja/üti az ellenfél bábuját. Átlóban ütéssel nem változtatható át, csak átlóban lépéssel üres mezőre.
+* Gyalog nem változtatható át, ha ezzel közvetlen vagy felfedett sakkot ad.
+* Amennyiben már csak egy gyalog maradt a táblán, az tetszőleges mezőn állva átváltoztatható.
+* Az utolsó soron egyedül maradt gyalogot nem kötelező átvátoztatni ha nincs más szabályos lépés, azaz az állás patt.
 
 ## Stratégia
  
