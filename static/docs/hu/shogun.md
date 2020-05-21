@@ -51,7 +51,7 @@ A tábornok (angolul: *general*) a huszár és a király kombinációja.
 
 ![Kapitány ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
 
-A kapitány (angolul: *captain*) a gyalog előléptetett formája. A király lépés- és ütéslehetőségeivel rendelkezik (egy mező bármely irányba). A többi új bábuval ellentétben a kapitányból lehet egyszerre több is a táblán.
+A kapitány (angolul: *captain*) a gyalog átváltoztatott formája. A király lépés- és ütéslehetőségeivel rendelkezik (egy mező bármely irányba). A többi új bábuval ellentétben a kapitányból lehet egyszerre több is a táblán.
 
 ### Hercegnő
 
@@ -61,8 +61,8 @@ A hercegnő (angolul: *duchess*) a királynő "lefokozott" formája és csak azu
 
 ## Stratégia
 
-Kezdő játékosnak oda kell figyelni arra, hogy az előléptetési zóna védve legyen, főleg a 3. és a 6. sor (oldaltól függően), amely a legközelebbi lehetőség az előléptetésre.
+Kezdő játékosnak oda kell figyelni arra, hogy az átváltoztatási zóna védve legyen, főleg a 3. és a 6. sor (oldaltól függően), amely a legközelebbi lehetőség az átváltoztatásra.
 
-A crazyhouse variánsban megszokott taktikák nem feltétlenül működnek itt is. Mivel itt az előléptetési zónába nem lehet visszahelyezni a bábukat, ezért azoknak be kell hatolniuk az ellenfél táborába, amivel aztán az előléptetés is elérhetővé válik.
+A crazyhouse variánsban megszokott taktikák nem feltétlenül működnek itt is. Mivel itt az átváltoztatási zónába nem lehet visszahelyezni a bábukat, ezért azoknak be kell hatolniuk az ellenfél táborába, amivel aztán az átváltoztatás is elérhetővé válik.
 
 Mivel a gyalogok az első sorba is visszahelyezhetők, ezért erősebb védelem alakítható ki a király számára.
