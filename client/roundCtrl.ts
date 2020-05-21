@@ -322,7 +322,9 @@ export default class RoundController {
         const byoyomiCallback = () => {
             if (this.turnColor === this.mycolor) {
                 // console.log("Byoyomi", this.clocks[1].byoyomiPeriod);
-                this.doSend({ type: "byoyomi", gameId: this.model["gameId"], period: this.clocks[1].byoyomiPeriod });
+                const oppclock = !this.flip ? 0 : 1;
+                const myclock = 1 - oppclock;
+                this.doSend({ type: "byoyomi", gameId: this.model["gameId"], color: this.mycolor, period: this.clocks[myclock].byoyomiPeriod });
             }
         }
 
@@ -636,6 +638,12 @@ export default class RoundController {
 
         const oppclock = !this.flip ? 0 : 1;
         const myclock = 1 - oppclock;
+
+        if (this.byoyomi) {
+            console.log("BYOYOMI:", msg.byo)
+            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor == 'white') ? 0 : 1];
+            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor == 'white') ? 0 : 1];
+        }
 
         if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
             this.updateCount(msg.fen);

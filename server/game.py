@@ -143,7 +143,7 @@ class Game:
         self.overtime = False
         self.byoyomi = byoyomi_period > 0
         self.byoyomi_period = byoyomi_period
-        self.cur_byoyomi_period = byoyomi_period
+        self.byoyomi_periods = [byoyomi_period, byoyomi_period]
 
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
@@ -214,10 +214,10 @@ class Game:
                     clocks[cur_color] = max(0, self.clocks[cur_color] - movetime + (self.inc * 1000))
 
                 if clocks[cur_color] == 0:
-                    if self.byoyomi and self.byoyomi_period > 0:
+                    if self.byoyomi and self.byoyomi_periods[cur_color] > 0:
                         self.overtime = True
                         clocks[cur_color] = self.inc * 1000
-                        self.byoyomi_period -= 1
+                        self.byoyomi_periods[cur_color] -= 1
                     else:
                         w, b = self.board.insufficient_material()
                         if (w and b) or (cur_color == "black" and w) or (cur_color == "white" and b):
@@ -717,6 +717,11 @@ class Game:
             steps = (self.steps[-1],)
             crosstable = self.crosstable if self.status > STARTED else ""
 
+        if self.byoyomi:
+            byoyomi_periods = self.byoyomi_periods
+        else:
+            byoyomi_periods = ""
+
         return {"type": "board",
                 "gameId": self.id,
                 "status": self.status,
@@ -729,6 +734,7 @@ class Game:
                 "check": self.check,
                 "ply": self.board.ply,
                 "clocks": {"black": clocks["black"], "white": clocks["white"]},
+                "byo": byoyomi_periods,
                 "pgn": self.pgn if self.status > STARTED else "",
                 "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else "",
                 "uci_usi": self.uci_usi if self.status > STARTED else "",
