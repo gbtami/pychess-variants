@@ -79,7 +79,7 @@ Megjegyzés: A sakkban a huszárt szokták lónak is nevezni, de a sógiban a l�
 
 Az aranytábornok lépései szokatlannak tűnhetnek elsőre. Talán a legkönnyebb úgy megjegyezni, hogy egyet léphet vízsintesen vagy függőlegesen, vagy átlósan előre egyet. A nemzetközi készletben a sisak hegyes részei (és az aranyszínű kör a sisak tetején) a lehetséges lépések irányait szimbolizálják.
 
-**Minden alapbábu (a bástya és a futó kivételével) aranytábornokká lép elő.**
+**Minden alapbábu (a bástya és a futó kivételével) aranytábornokká változtatható.**
 
 ### Ezüsttábornok (Ezüst)
 
@@ -113,7 +113,7 @@ A lándzsás tetszőleges számú mezőt léphet előre. Hasonló a bástyához,
 
 A gyalog csak előre léphet egyet, és csak így üthet. Ebben különbözik a sakk gyalogjától.
 
-### Előléptetett könnyűtisztek
+### Átváltoztatott könnyűtisztek
 
 ![PSilvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PSilvers.png)
 
@@ -123,15 +123,15 @@ A gyalog csak előre léphet egyet, és csak így üthet. Ebben különbözik a 
 
 ![Tokins](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Tokins.png)
 
-Az előléptetett bábuk (a sárkánykirályt és a sárkánylovat leszámítva) úgy lépnek, mint az aranytábornok.
+Az átváltoztatott bábuk (a sárkánykirályt és a sárkánylovat leszámítva) úgy lépnek, mint az aranytábornok.
 
-A sárkánykirályt és a sárkánylovat leszámítva csak az előléptetett gyalognak van más neve, ezt a bábut úgy nevezik, hogy **tokin**. 
+A sárkánykirályt és a sárkánylovat leszámítva csak az átváltoztatott gyalognak van más neve, ezt a bábut úgy nevezik, hogy **tokin**. 
 
 
 ## További szabályok
 
 *Visszahelyezés / Behozás*
-1) Gyalog nem helyezhető vissza a táblára egy olyan oszlopra, amelyen az adott játékosnak már van egy másik gyalogja. Tehát két saját gyalog nem lehet egy oszlopban (kivéve, ha a másik egy előléptett gyalog, azaz *tokin*).
+1) Gyalog nem helyezhető vissza a táblára egy olyan oszlopra, amelyen az adott játékosnak már van egy másik gyalogja. Tehát két saját gyalog nem lehet egy oszlopban (kivéve, ha a másik egy átváltoztatott gyalog, azaz *tokin*).
 2) Behozott gyaloggal nem lehet mattod adni, de sakk adható.
 3) Nem helyezhető vissza bábu olyan mezőre, ahonnan utána nem lenne szabályos lépése. Ez általában az utolsó sort jelenti, vagy az utolsó kettőt a lovas esetében.
 
