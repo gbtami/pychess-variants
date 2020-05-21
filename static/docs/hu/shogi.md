@@ -17,11 +17,11 @@ Jelentős különbség a sakkhoz képest, de hasonló a Crazyhouse variánshoz, 
 
 ## Bábuk
 
-Ez az útmutató a nemzetközi bábukészleten alapul. A tradicionális készletek a kínaiktól átvett írásjegyeket, azaz kandzsikat használnak, és a bábukészletek vagy 2 kandzsival, vagy rövidített formában 1 kandzsival vannak ellátva. Jelenleg a kandzsik ismerete szükséges ahhoz, hogy minden angol nyelvű forrást fel tudj használni a tanuláshoz. (Megjegyzés: ezek legtöbbje magyar nyelven nem is elérhető).
+Ez az útmutató a nemzetközi bábukészleten alapul. A tradicionális készletek a kínaiktól átvett írásjegyeket, azaz kandzsikat használnak, és a bábukészletek vagy 2 kandzsival, vagy rövidített formában 1 kandzsival vannak ellátva. Jelenleg a kandzsik ismerete szükséges ahhoz, hogy minden angol nyelvű forrást fel tudj használni a tanuláshoz. (Megjegyzés: ezek legtöbbje magyar nyelven nem is érhető el).
 
 Általánosságban elmondható, hogy a sógibábuk mozgása sokkal korlátozottabb, mint a sakkbábuké. A könnyűtisztek inkább előrefelé mozoghatnak, hátrafelé sokkal kevésbé.
 
-Az átváltoztatott bábukat a legtöbb készlet pirossal különbözteti meg (többek között az ezen az oldalon használtak is). Két alapvető szabály van ami segít abban, hogy a bábuk megtanulása sokkal könnyebb legyen. A gyalogok és a könnyűtisztek aranytábornokká lépnek elő. Ebből következik, hogy az aranytábornok már nem átváltoztathatók át. A nehéztisztek (a bástya és a futó) a király lépéslehetőségeit is megkapják átváltoztatás után (az eredeti lépéseiken felül). A király természetesen nem átváltoztatható át.
+Az átváltoztatott bábukat a legtöbb készlet pirossal különbözteti meg (többek között az ezen az oldalon használtak is). Két alapvető szabály van ami segít abban, hogy a bábuk megtanulása sokkal könnyebb legyen. A gyalogok és a könnyűtisztek aranytábornokká változtathatók át. Ebből következik, hogy az aranytábornok már nem átváltoztathatók át. A nehéztisztek (a bástya és a futó) a király lépéslehetőségeit is megkapják átváltoztatás után (az eredeti lépéseiken felül). A király természetesen nem változtatható át.
 
 
 ### Király
