@@ -16,7 +16,7 @@ A leütött bábuk saját bábuként visszahelyezhetők a táblára, ezt nevezz�
 
 * Bábut nem lehet úgy behozni, hogy az azonnal mattot adjon.
 * Gyalogot nem lehet az utolsó sorba behozni (mert utána nem lenne szabályos lépése).
-* Egy előléptetett gyalog (pl. vezér) leütés után visszaváltozik gyaloggá és csak úgy lehet újra játékba hozni.
+* Egy átváltoztatott gyalog (pl. vezér) leütés után visszaváltozik gyaloggá és csak úgy lehet újra játékba hozni.
 * A 2. sorba (fehér esetén) és a 7. sorba (fekete esetén) visszahelyezett gyalogok nem léphetnek kettőt első lépésként.
 * Behozott bástya nem sáncolhat.
 
