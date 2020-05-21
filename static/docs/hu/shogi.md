@@ -52,21 +52,21 @@ A bástya pontosan ugyanúgy mozog, mint a sakkban: tetszőleges számú mezőt 
 
 A futó pontosan ugyanúgy mozog, mint a sakkban: akárhány mezőt átlósan. A nemzetközi bábu egy egy tradicionálisan kalapot ábrázol, amit a japán tisztek hordtak. Ez a második legértékesebb alapbábu a királyt leszámítva.
 
-### Sárkánykirály (Sárkány, Előléptetett bástya)
+### Sárkánykirály (Sárkány, átváltoztatott bástya)
 
 ![Dragons](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragons.png)
 
 ![DragonDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragon.png)
 
-A sárkánykirály az előléptetett bástya, mely megkapja a király lépéslehetőségeit is a bástya lépésein felül. Ez a legértékesebb bábu a királyt leszámítva.
+A sárkánykirály az átváltoztatott bástya, mely megkapja a király lépéslehetőségeit is a bástya lépésein felül. Ez a legértékesebb bábu a királyt leszámítva.
 
-### Sárkányló (Ló, Előléptetett futó)
+### Sárkányló (Ló, átváltoztatott futó)
 
 ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horses.png)
 
 ![HorseDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horse.png)
 
-A sárkányló az előléptetett futó, mely megkapja a király lépéslehetőségeit is a futó lépésein felül. Ez a második legértékesebb bábu a királyt leszámítva.
+A sárkányló az átváltoztatott futó, mely megkapja a király lépéslehetőségeit is a futó lépésein felül. Ez a második legértékesebb bábu a királyt leszámítva.
 
 Megjegyzés: A sakkban a huszárt szokták lónak is nevezni, de a sógiban a ló a sárkányló rövidített elnevezése. Nem összekeverendő az L-alakzatban mozgó lovassal.
 
