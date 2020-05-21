@@ -13,7 +13,7 @@ Ha élvezed a sakkot, akkor a sógit határozottan megéri kipróbálni. Miközb
 
 A szabályok hasonlóak a sakkhoz, így ez az útmutató a különbségekre fókuszál. A sógit egy 9x9-es táblán játszák. A játékosok felváltva lépnek, a cél itt is az ellenfél királyának mattolása. A sakkal ellentétben a "sötét" játékos (melynek neve *sente* (ejtsd: szente) 先手 , első játékos) lép először, aztán a "világos" játékos (melynek neve *gote* 後手 , második játékos). A színek itt csak jelzésértékűek, nem a bábuk valódi színét tűkrözik.
 
-Jelentős különbség a sakkhoz képest, de hasonló a Crazyhouse variánshoz, hogy a leütött bábukat vissza lehet helyezni a táblára egy-egy lépés helyett. Vannak behozási szabályok (különösen a gyalogok esetében, amiről később lesz szó), de általánosságban elmondható, hogy bárhova el lehet helyezni a bábukat. Továbbá, szinte minden bábut elő lehet léptetni. A bábuk akkor léptethetők elő, amikor elérik az előléptetési zónát (az utolsó három sort), vagy már ebben a zónában/zónából lépnek. A bábu ekkor átfordul (az előléptetett felét mutatva). A leütött bábuk az eredeti (nem előléptetett) formájukban kerülnek a játékoshoz, illetve így is helyezhetők vissza a táblára.
+Jelentős különbség a sakkhoz képest, de hasonló a Crazyhouse variánshoz, hogy a leütött bábukat vissza lehet helyezni a táblára egy-egy lépés helyett. Vannak behozási szabályok (különösen a gyalogok esetében, amiről később lesz szó), de általánosságban elmondható, hogy bárhova el lehet helyezni a bábukat. Továbbá, szinte minden bábut elő lehet léptetni. A bábuk akkor léptethetők elő, amikor elérik az átváltoztatási zónát (az utolsó három sort), vagy már ebben a zónában/zónából lépnek. A bábu ekkor átfordul (az átváltoztatott felét mutatva). A leütött bábuk az eredeti (nem átváltoztatott) formájukban kerülnek a játékoshoz, illetve így is helyezhetők vissza a táblára.
 
 ## Bábuk
 
@@ -21,7 +21,7 @@ Ez az útmutató a nemzetközi bábukészleten alapul. A tradicionális készlet
 
 Általánosságban elmondható, hogy a sógibábuk mozgása sokkal korlátozottabb, mint a sakkbábuké. A könnyűtisztek inkább előrefelé mozoghatnak, hátrafelé sokkal kevésbé.
 
-Az előléptetett bábukat a legtöbb készlet pirossal különbözteti meg (többek között az ezen az oldalon használtak is). Két alapvető szabály van, ami segít abban, hogy a bábuk megtanulása sokkal könnyebb legyen. A gyalogok és a könnyűtisztek aranytábornokká lépnek elő. Ebből következik, hogy az aranytábornok már nem léptethető elő. A nehéztisztek (a bástya és a futó) a király lépéslehetőségeit is megkapják előléptetés után (az eredeti lépéseinken felül). A király természetesen nem léptethető elő.
+Az átváltoztatott bábukat a legtöbb készlet pirossal különbözteti meg (többek között az ezen az oldalon használtak is). Két alapvető szabály van, ami segít abban, hogy a bábuk megtanulása sokkal könnyebb legyen. A gyalogok és a könnyűtisztek aranytábornokká lépnek elő. Ebből következik, hogy az aranytábornok már nem léptethető elő. A nehéztisztek (a bástya és a futó) a király lépéslehetőségeit is megkapják átváltoztatás után (az eredeti lépéseinken felül). A király természetesen nem léptethető elő.
 
 
 ### Király
