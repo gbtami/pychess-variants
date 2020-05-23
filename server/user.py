@@ -5,7 +5,7 @@ import string
 from datetime import datetime
 
 from const import VARIANTS
-from broadcast import lobby_broadcast, round_broadcast
+from broadcast import lobby_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF
 from seek import get_seeks
 
@@ -122,23 +122,6 @@ class User:
         text = "disconnected" if disconnect else "left the lobby"
         response = {"type": "lobbychat", "user": "", "message": "%s %s" % (self.username, text)}
         await lobby_broadcast(sockets, response)
-
-    async def round_broadcast_disconnect(self, users, games):
-        games_involved = self.game_queues.keys() if self.bot else self.game_sockets.keys()
-
-        for gameId in games_involved:
-            if gameId not in games:
-                continue
-            game = games[gameId]
-            if self.username != game.wplayer.username and self.username != game.bplayer.username:
-                continue
-
-            response = {"type": "user_disconnected", "username": self.username, "gameId": gameId}
-            opp = game.bplayer if game.wplayer.username == self.username else game.wplayer
-            if (not opp.bot) and gameId in opp.game_sockets:
-                await opp.game_sockets[gameId].send_json(response)
-
-            await round_broadcast(game, users, response)
 
     def __str__(self):
         return self.username

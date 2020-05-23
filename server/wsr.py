@@ -82,29 +82,11 @@ async def round_socket_handler(request):
                             response = {"type": "gameStart", "gameId": data["gameId"]}
                             await ws.send_json(response)
                         else:
-                            opp_ok = data["gameId"] in users[opp_name].game_sockets
-                            # waiting for opp to be ready also
-                            if not opp_ok:
-                                loop = asyncio.get_event_loop()
-                                end_time = loop.time() + 20.0
-                                while True:
-                                    if (loop.time() + 1.0) >= end_time:
-                                        log.debug("Game %s aborted because user %s is not ready." % (data["gameId"], opp_name))
-                                        response = await game.abort()
-                                        await ws.send_json(response)
-                                        break
-                                    await asyncio.sleep(1)
-                                    opp_ok = data["gameId"] in users[opp_name].game_sockets
-                                    if opp_ok:
-                                        break
-                            if opp_ok:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                response = {"type": "gameStart", "gameId": data["gameId"]}
-                                await opp_ws.send_json(response)
-                                await ws.send_json(response)
+                            response = {"type": "gameStart", "gameId": data["gameId"]}
+                            await ws.send_json(response)
 
-                                response = {"type": "user_present", "username": opp_name}
-                                await ws.send_json(response)
+                            response = {"type": "user_present", "username": user.username}
+                            await round_broadcast(game, users, game.spectator_list, full=True)
 
                     elif data["type"] == "board":
                         game = await load_game(request.app, data["gameId"])
@@ -314,8 +296,9 @@ async def round_socket_handler(request):
                         if opp_player.bot:
                             await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            await opp_ws.send_json(response)
+                            if data["gameId"] in users[opp_name].game_sockets:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                await opp_ws.send_json(response)
 
                         await round_broadcast(game, users, response)
 
@@ -380,6 +363,9 @@ async def round_socket_handler(request):
                         response = {"type": "fullchat", "lines": list(game.messages)}
                         await ws.send_json(response)
 
+                        response = {"type": "user_present", "username": user.username}
+                        await round_broadcast(game, users, response, full=True)
+
                         loop = asyncio.get_event_loop()
                         game_ping_task = loop.create_task(game_pinger())
 
@@ -392,6 +378,7 @@ async def round_socket_handler(request):
                     elif data["type"] == "is_user_present":
                         player_name = data["username"]
                         player = users.get(player_name)
+                        await asyncio.sleep(1)
                         if player is not None and data["gameId"] in (player.game_queues if player.bot else player.game_sockets):
                             response = {"type": "user_present", "username": player_name}
                         else:
@@ -502,10 +489,9 @@ async def round_socket_handler(request):
 
     log.info("--- Round Websocket %s closed" % id(ws))
 
-    if game is not None and opp_ws is not None:
+    if game is not None:
         response = {"type": "user_disconnected", "username": user.username}
-        await opp_ws.send_json(response)
-        await round_broadcast(game, users, response)
+        await round_broadcast(game, users, response, full=True)
 
     if game is not None and not user.bot:
         if game.id in user.game_sockets:

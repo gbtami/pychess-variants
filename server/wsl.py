@@ -37,7 +37,6 @@ async def lobby_socket_handler(request):
     users = request.app["users"]
     sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
-    games = request.app["games"]
 
     ws = WebSocketResponse()
 
@@ -66,7 +65,6 @@ async def lobby_socket_handler(request):
                 # online user counter will be updated in quit_lobby also!
                 if len(user.lobby_sockets) == 0:
                     # log.info("%s went offline (PINGER)" % user.username)
-                    await user.round_broadcast_disconnect(users, games)
                     await user.clear_seeks(sockets, seeks)
                     await user.quit_lobby(sockets, disconnect=True)
                     break
@@ -262,7 +260,6 @@ async def lobby_socket_handler(request):
 
         # online user counter will be updated in quit_lobby also!
         if len(user.lobby_sockets) == 0:
-            await user.round_broadcast_disconnect(users, games)
             await user.clear_seeks(sockets, seeks)
             await user.quit_lobby(sockets, disconnect=False)
 
