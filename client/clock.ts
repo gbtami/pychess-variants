@@ -90,6 +90,7 @@ export class Clock {
                     that.overtime = true;
                     that.byoyomiPeriod -= 1;
                     that.ticks = [false, false, false, false, false, false, false, false, false, false];
+                    if (that.granularity === 100 && that.increment > HURRY) that.granularity = 500;
                     that.duration = that.increment;
                     that.startTime = Date.now();
                     if (that.byoyomiCallback !== null) {

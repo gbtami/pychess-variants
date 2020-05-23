@@ -296,8 +296,9 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "byoyomi":
                         game = await load_game(request.app, data["gameId"])
+                        game.byo_correction += game.inc * 1000
                         game.byoyomi_periods[0 if data["color"] == "white" else 1] = data["period"]
-                        print("BYOYOMI:", data)
+                        # print("BYOYOMI:", data)
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         game = await load_game(request.app, data["gameId"])

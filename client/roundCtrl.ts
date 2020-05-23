@@ -636,16 +636,6 @@ export default class RoundController {
             sound.check();
         }
 
-        const oppclock = !this.flip ? 0 : 1;
-        const myclock = 1 - oppclock;
-
-        if (this.byoyomi) {
-            console.log("BYOYOMI:", msg.byo)
-            //TODO: this needs more love yet
-            //this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor == 'white') ? 0 : 1];
-            //this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor == 'white') ? 0 : 1];
-        }
-
         if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
             this.updateCount(msg.fen);
         }
@@ -654,7 +644,26 @@ export default class RoundController {
             this.updatePoint(msg.fen);
         }
 
+        const oppclock = !this.flip ? 0 : 1;
+        const myclock = 1 - oppclock;
+
+        this.clocks[0].pause(false);
+        this.clocks[1].pause(false);
+        if (this.byoyomi) {
+            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor == 'white') ? 0 : 1];
+            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor == 'white') ? 0 : 1];
+        }
+        this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
+        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+
         if (this.spectator) {
+            if (!this.abortable && msg.status < 0) {
+                if (this.turnColor === this.mycolor) {
+                    this.clocks[myclock].start();
+                } else {
+                    this.clocks[oppclock].start();
+                }
+            }
             if (latestPly) {
                 this.chessground.set({
                     fen: parts[0],
@@ -664,19 +673,12 @@ export default class RoundController {
                 });
                 if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
             }
-            this.clocks[0].pause(false);
-            this.clocks[1].pause(false);
-            this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-            this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
-            if (!this.abortable && msg.status < 0) {
-                if (this.turnColor === this.mycolor) {
-                    this.clocks[myclock].start();
-                } else {
-                    this.clocks[oppclock].start();
-                }
-            }
         } else {
             if (this.turnColor === this.mycolor) {
+                if (!this.abortable && msg.status < 0) {
+                    this.clocks[myclock].start();
+                    // console.log('MY CLOCK STARTED');
+                }
                 this.chessground.set({
                     fen: parts[0],
                     turnColor: this.turnColor,
@@ -689,19 +691,16 @@ export default class RoundController {
                     lastMove: lastMove,
                 });
                 if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
-                this.clocks[oppclock].pause(false);
-                this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-                this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
-                if (!this.abortable && msg.status < 0) {
-                    this.clocks[myclock].start(this.clocktimes[this.mycolor]);
-                    // console.log('MY CLOCK STARTED');
-                }
 
                 // console.log("trying to play premove....");
                 if (this.premove) this.performPremove();
                 if (this.predrop) this.performPredrop();
 
             } else {
+                if (!this.abortable && msg.status < 0) {
+                    this.clocks[oppclock].start();
+                    // console.log('OPP CLOCK  STARTED');
+                }
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
                     fen: parts[0],
@@ -711,13 +710,6 @@ export default class RoundController {
                     },
                     check: msg.check,
                 });
-                this.clocks[myclock].pause(false);
-                this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
-                this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-                if (!this.abortable && msg.status < 0) {
-                    this.clocks[oppclock].start(this.clocktimes[this.oppcolor]);
-                    // console.log('OPP CLOCK  STARTED');
-                }
             };
         };
     }

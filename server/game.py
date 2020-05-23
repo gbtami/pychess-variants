@@ -143,7 +143,13 @@ class Game:
         self.overtime = False
         self.byoyomi = byoyomi_period > 0
         self.byoyomi_period = byoyomi_period
+
+        # Remaining byoyomi periods by players
         self.byoyomi_periods = [byoyomi_period, byoyomi_period]
+
+        # On page refresh we have to add extra byoyomi times gained by current player to report correct clock time
+        # We adjust this in "byoyomi" messages in wsr.py
+        self.byo_correction = 0
 
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
@@ -174,6 +180,7 @@ class Game:
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
+        self.byo_correction = 0
 
         if self.status > STARTED:
             return
@@ -710,7 +717,7 @@ class Game:
                 elapsed = int(round((cur_time - self.last_server_clock) * 1000))
 
                 cur_color = "black" if self.board.color == BLACK else "white"
-                clocks[cur_color] = max(0, clocks[cur_color] - elapsed)
+                clocks[cur_color] = max(0, clocks[cur_color] + self.byo_correction - elapsed)
             crosstable = self.crosstable
         else:
             clocks = self.clocks
