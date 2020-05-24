@@ -66,6 +66,9 @@ export function result(variant, status, result) {
     case 12:
         text = (variant === 'orda') ? _('Campmate') : _('Point counting');
         break;
+    case 13:
+        text = (variant === 'janggi') ? _('Point counting') : _('Repetition');
+        break;
     default:
         text = '*';
         break

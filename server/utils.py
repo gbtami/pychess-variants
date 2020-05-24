@@ -11,7 +11,7 @@ except ImportError:
     print("No pyffish module installed!")
 
 from broadcast import round_broadcast
-from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, VARIANTEND
+from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, zero2grand
 from fairy import BLACK, STANDARD_FEN
@@ -201,13 +201,8 @@ async def draw(games, data, agreement=False):
     """ Draw or offer """
     game = games[data["gameId"]]
     if game.is_claimable_draw or agreement:
-        if game.variant == 'janggi':
-            w, b = game.board.get_janggi_points()
-            result = "1-0" if w > b else "0-1"
-            game.update_status(VARIANTEND, result)
-        else:
-            result = "1/2-1/2"
-            game.update_status(DRAW, result)
+        result = "1/2-1/2"
+        game.update_status(DRAW, result)
         await game.save_game()
         return {
             "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
