@@ -608,8 +608,8 @@ vs-swords.lobby.opp {
 .highscore {
    display: grid;
    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-   grid-gap: 10px;
-   padding-left: 15px;
+   grid-gap: 6px;
+   padding-left: 2px;
 }
 
 .card {
@@ -620,10 +620,10 @@ vs-swords.lobby.opp {
 .card div.info0 {
   color: WhiteSmoke;
   background-color: var(--leaderboard);
-  padding:0.4em;
+  padding:0.2em;
 }
 .card .player-data {
-  padding:.7rem 1.2rem .7rem .5rem;
+  padding:.4rem .5rem .4rem .5rem;
 }
 .player-data.odd {
   background-color: var(--bg-color1);
