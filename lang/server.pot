@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-09 14:10+0200\n"
+"POT-Creation-Date: 2020-05-24 14:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,51 +65,51 @@ msgid_plural "%(count)s games"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../templates/template.html:69
+#: ../templates/template.html:72
 msgid "Tv"
 msgstr ""
 
-#: ../templates/template.html:70
+#: ../templates/template.html:73
 msgid "Current games"
 msgstr ""
 
-#: ../templates/template.html:71
+#: ../templates/template.html:74
 msgid "Players"
 msgstr ""
 
-#: ../templates/template.html:72
+#: ../templates/template.html:75
 msgid "Editor"
 msgstr ""
 
-#: ../templates/template.html:73
+#: ../templates/template.html:76
 msgid "Learn"
 msgstr ""
 
-#: ../templates/template.html:74
+#: ../templates/template.html:77
 msgid "About"
 msgstr ""
 
-#: ../templates/template.html:75
+#: ../templates/template.html:78
 msgid "Original PyChess site"
 msgstr ""
 
-#: ../templates/template.html:78
-msgid "Login with Lichess"
+#: ../templates/template.html:83
+msgid "Toggle dark mode"
 msgstr ""
 
-#: ../templates/template.html:78
-msgid "Log in"
-msgstr ""
-
-#: ../templates/template.html:80
-msgid "Log out"
-msgstr ""
-
-#: ../templates/template.html:91
+#: ../templates/template.html:84
 msgid "Toggle sound"
 msgstr ""
 
-#: ../templates/template.html:92
-msgid "Toggle dark mode"
+#: ../templates/template.html:95
+msgid "Login with Lichess"
+msgstr ""
+
+#: ../templates/template.html:95
+msgid "Log in"
+msgstr ""
+
+#: ../templates/template.html:97
+msgid "Log out"
 msgstr ""
 
