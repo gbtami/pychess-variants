@@ -263,7 +263,6 @@ ul.guide li {
     flex-direction: column;
   }
   .topnav a {
-    position: fixed;
     display: none;
   }
   .navbar-toggle {
