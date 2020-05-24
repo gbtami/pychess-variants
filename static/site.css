@@ -3,9 +3,11 @@
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
     --dark-mode: 0;
     --font-color: #4d4d4d;
+    --link-color: #5e5e5e;
+    --link-hover: #1b78d0;
     --text-shadow: #fff;
     --bg-body: #edebe9 linear-gradient(to bottom, #dbd7d1, #edebe9 116px) no-repeat;
-    --bg-color0: #dbd7d1;
+    --bg-color0: #fff;
     --bg-color1: White;
     --bg-color2: WhiteSmoke;
     --bg-seek: rgba(255,255,255,0.8);
@@ -25,12 +27,28 @@
     --blue-point: RoyalBlue;
     --red-point: Crimson;
     --gold-point: GoldenRod;
+    --modal-bg: #fff;
+    --box-header: #f5f5f5;
+    --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
+    --button-new-game-hover: linear-gradient(to bottom, #fafafa 0%, #f2f2f2 100%);
+    --button-text: #787878;
+    --button-text-hover: #787878;
+    --input-border: #ccc;
+    --leaderboard: #BF811D;
+    --leaderboard-even: #302e2c;
+    --btn-controls: #fff;
+    --rematch: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
+    --rematch-hover: #5FA1DE;
+    --analysis-links: #1b78d0;
+    --janggi-setup: #ccc;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
     --font-color: #bababa;
+    --link-color: #999;
+    --link-hover: #3692e7;
     --text-shadow: none;
-    --bg-body: #262421;
+    --bg-body: #161512 linear-gradient(to bottom, #2e2a24, #161512 116px) no-repeat;
     --bg-color0: #262421;
     --bg-color1: #2e2a24;
     --bg-color2: #333333;
@@ -39,13 +57,27 @@
     --green-hover: #537c23;
     --blue-active: #293a49;
     --blue-hover: #3692e7;
-    --gold: DarkGoldenRod;
-    --rusty: rgba(214,79,0,0.5);
+    --gold: #bf811d;
+    --rusty: rgba(126,57,16,0.9);
     --ct-current: #a1420a;
     --clock-hurry-bg: #502826;
     --clock-overtime-bg: #474722;
     --clock-running-bg: #384722;
     --clock-running-color: #e3e3e3;
+    --modal-bg: rgb(38, 36, 33);
+    --box-header: linear-gradient(to bottom, #3c3934, #33312e 100%);
+    --button-new-game: linear-gradient(to bottom, #3c3934, #33312e 100%);
+    --button-new-game-hover: linear-gradient(rgb(68, 65, 59), rgb(59, 57, 53) 100%);
+    --button-text: #999;
+    --button-text-hover: #ccc;
+    --input-border: #444;
+    --leaderboard: #BF811D;
+    --leaderboard-even: #302e2c;
+    --btn-controls: rgb(48, 46, 44);
+    --rematch: linear-gradient(to bottom, #3c3934, #33312e 100%);
+    --rematch-hover: #3171AC;
+    --analysis-links: #3692e7;
+    --janggi-setup: #5d5d5d;
 }
 
 html {
@@ -149,8 +181,9 @@ div.about, div.guide, div.patron, div.closed {
   margin: 0 auto;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  font-size:1.1em;
   box-shadow: var(--base-shadow);
-  background-color: var(--bg-color1);
+  background-color: var(--bg-color0);
   padding: 24px;
 }
 div.patron {
@@ -167,11 +200,12 @@ ul.guide {
   margin-right: 24px;
 }
 ul.guide li {
+  font-size:1.1em;
   margin-bottom: 24px;
 }
 
 .nav-link:link, .nav-link:visited {
-  color: var(--font-color);
+  color: var(--link-color);
   text-align: center;
   text-decoration: none;
   text-shadow: 0 1px 0 var(--text-shadow);
@@ -188,6 +222,13 @@ ul.guide li {
     float: right;
 }
 
+.nav-link.active.home {
+  color: var(--font-color);
+}
+
+.nav-link.active.home:hover {
+  color: var(--blue-hover);
+}
 
 .topnav {
   overflow: hidden;
@@ -229,8 +270,11 @@ a, .user-link:link, .user-link:visited {
     color: var(--font-color);
     text-decoration: none;
 }
-a, .user-link:hover, .user-link:active {
-    color: RoyalBlue;
+a, .user-link, .user-link:active {
+    color: var(--link-color);
+}
+a:hover, .user-link:hover  {
+    color: var(--link-hover);
 }
 div a {
   cursor: pointer;
@@ -248,16 +292,18 @@ div a {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  background: var(--bg-color1);
+  background: var(--bg-color0);
   box-shadow: var(--base-shadow);
 }
 
 div#result {
   display: block;
   padding: 12px 0;
-  font-size: 18px;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-style: italic;
   text-align: center;
-  border-top: 1px solid LightGray;
+  border-top: 1px solid var(--bg-color2);
 }
 
 .lobby-button, .donate-button, button#request-analysis {
@@ -304,12 +350,13 @@ button#request-analysis {
 button.rematch {
   border: none;
   color: var(--font-color);
-  background-color: var(--bg-color0);
-  padding: 12px 0;
+  background: var(--rematch);
+  padding: 18px 0;
   cursor: pointer;
 }
 button.rematch:hover {
-  background-color: var(--green-hover) ;
+  color: #fff;
+  background: var(--rematch-hover) ;
 }
 
 button.newopp, button.analysis {
@@ -320,6 +367,7 @@ button.newopp, button.analysis {
   cursor: pointer;
 }
 button.newopp:hover,  button.analysis:hover {
+  color: #fff;
   background-color: var(--green-hover);
 }
 
@@ -327,7 +375,7 @@ button.newopp:hover,  button.analysis:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: var(--bg-color1);
+  background: var(--bg-color0);
   box-shadow: var(--base-shadow);
   margin-bottom: 16px;
   padding: 12px;
@@ -335,7 +383,7 @@ button.newopp:hover,  button.analysis:hover {
 }
 
 div.info1.icon, div.info0.icon::before {
-  opacity: 0.7;
+  opacity: 0.9;
 }
 div.info0, div.info1 {
   display: flex;
@@ -413,9 +461,12 @@ round-player {
 }
 player-title {
   color:var(--gold);
+  font-weight:bold;
 }
 .variant {
   font-size: 18px;
+  margin-top:0.5em;
+  margin-left:0.5em;
 }
 i-side.icon-white::before, i-side.icon-black::before {
   vertical-align: -2;
@@ -519,13 +570,17 @@ vs-swords.lobby.opp {
 }
 
 .card {
-  border: 1px solid #d3d3d3;
+  border: 1px solid var(--leaderboard);
   border-radius: .25rem;
   background-color: var(--bg-color1);
 }
 .card div.info0 {
   color: WhiteSmoke;
-  background-color: var(--gold);
+  background-color: var(--leaderboard);
+  padding:0.4em;
+}
+.card .player-data {
+  padding:.7rem 1.2rem .7rem .5rem;
 }
 .player-data.odd {
   background-color: var(--bg-color1);
@@ -564,6 +619,8 @@ table#seeks {
 
 #seeks thead tr{
   display:block;
+  border:none;
+  cursor: default;
 }
 
 #seeks tbody {
@@ -582,9 +639,18 @@ table#seeks {
 }
 
 #seeks tr {
-  border: 1px solid var(--bg-color2);
+  cursor: pointer;
+  border-bottom: 1px solid var(--bg-color2);
 }
 
+#seekbuttons > button {
+    color: var(--button-text);
+    background: var(--button-new-game);
+}
+#seekbuttons > button:hover {
+    color: var(--button-text-hover);
+    background: var(--button-new-game-hover);
+}
 /*Adjust lobby game table/headers*/
 
 #seeks > thead > tr > th:nth-child(6) {
@@ -610,11 +676,11 @@ i-side.icon.icon-adjust {
 
 #seeks th {
   text-align: left;
-  background-color: var(--bg-color2);
 }
 
-#players {
-  background-color: var(--bg-color1);
+div.players-wrapper > .players, div.players-wrapper > aside.sidebar-first {
+    background: var(--bg-color0);
+    padding:1em;
 }
 
 /* profile games */
@@ -630,7 +696,7 @@ player-head {
 .i-pgn {
   float: left;
   padding: 10px;
-  color: RoyalBlue;
+  color: var(--analysis-links);
 }
 a.i-at:link, a.i-tv:link, a.i-dl:link, a.i-ch:link, a.i-pgn:link {
     display: inline-block;
@@ -649,7 +715,7 @@ table#games, table#players {
   border-spacing: 0px;
   border-radius: 3px;
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-  box-shadow: var(--base-shadow);
+  /*box-shadow: var(--base-shadow);*/
 }
 
 td.player-data {
@@ -704,10 +770,10 @@ select, input {
   padding: 12px 20px;
   margin: 8px 0;
   display: inline;
-  border: 1px solid #aaa;
+  border: 1px solid var(--input-border);
   box-sizing: border-box;
   color: var(--font-color);
-  background: var(--bg-color1);
+  background: var(--bg-color0);
 }
 
 /* Center the image and position the close button */
@@ -765,10 +831,11 @@ select, input {
 
 /* Modal Content/Box */
 .modal-content {
-  background-color: var(--bg-color1);
+  background-color: var(--modal-bg);
   margin: 10 auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
   border-radius: 3px;
   width: 30%; /* Could be more or less, depending on screen size */
+  border: 1px solid var(--bg-color2);
 }
 
 /* The Close Button (x) */
@@ -779,8 +846,8 @@ select, input {
   position: absolute;
   right: -16px;
   top: -16px;
-  color: DimGray;
-  background: #fff;
+  color: #999;
+  background: var(--bg-color1);
   width: 32px;
   height: 32px;
   font-size: 18px;
@@ -789,13 +856,24 @@ select, input {
 
 .close:hover, .close:focus {
   cursor: pointer;
+  color:#fff;
   background: var(--bad);
+}
+
+#color-button-group {
+    margin-top: 1.2em;
 }
 
 div.btn-controls {
   display: flex;
   justify-content: space-between;
-  box-shadow: var(--btn-shadow);
+}
+#btn-controls-top button {
+  font-size: 14px;
+  background: var(--bg-color2);
+}
+#btn-controls-top button:hover {
+  background: var(--green-hover);
 }
 
 .btn-controls button {
@@ -803,7 +881,7 @@ div.btn-controls {
   height: 40px;
   border: none;
   color: var(--font-color);
-  background-color: var(--bg-color2);
+  background-color: var(--bg-color0);
   cursor: pointer;
 }
 
@@ -812,6 +890,7 @@ button:disabled {
 }
 
 .btn-controls button:hover {
+  color: #fff;
   background-color: var(--green-hover);
 }
 
@@ -824,6 +903,20 @@ button:disabled {
 }
 .btn-controls button::-moz-focus-inner {
   border:0;
+}
+
+.btn-controls i {
+  font-size:1.5em;
+}
+
+#btn-controls-top i {
+  font-size:1em;
+}
+
+
+.icon-hand-paper-o {
+      display: inline-block;
+      transform: scaleY(-1) rotate(-90deg);
 }
 
 /* Clock */
@@ -842,13 +935,14 @@ button:disabled {
 }
 button.icon.icon-plus-square {
   border: none;
-  color: LightBlue;
+  opacity:0.4;
+  color: var(--analysis-links);
   background-color: var(--bg-body);
-  font-size: 36px;
+  font-size: 32px;
   cursor: pointer;
 }
 button.icon.icon-plus-square:hover {
-  color: LightSkyBlue;
+    opacity: 1;
 }
 button.icon:focus {
   outline:none;
@@ -865,7 +959,7 @@ button.icon::-moz-focus-inner {
   box-shadow: var(--btn-shadow);
 }
 .clock.time, .clock.sep {
-  background-color: var(--bg-color1);
+  background-color: var(--bg-color0);
 }
 .clock.time.min {
   padding-left: 12px;
@@ -958,7 +1052,7 @@ label {
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  background: var(--bg-color1);
+  background: var(--bg-color0);
   box-shadow: var(--base-shadow);
 }
 
@@ -967,7 +1061,7 @@ user {
   font-weight: bold;
 }
 div.chatroom {
-  background: var(--bg-color1);
+  border-bottom: 1px solid var(--bg-color2);
   padding: 6px;
 }
 
@@ -1014,7 +1108,7 @@ li.message.server {
   padding: 3px;
   margin-top: auto;
   color: var(--font-color);
-  background: var(--bg-color1);
+  background: var(--bg-color0);
 }
 #spectators {
   overflow-wrap: break-word
@@ -1047,6 +1141,9 @@ li.move {
   padding-left: 6px;
   box-sizing: border-box;
   justify-content: center;
+}
+li.move.active {
+    font-weight:bold;
 }
 eval {
   font-size: .8em;
@@ -1218,9 +1315,10 @@ grid-container{
   overflow-x:hidden;
 }
 minigame {
-  border: 1px solid var(--bg-color2);
+  /*border: 1px solid var(--bg-color2);*/
+  margin:0.3em;
   padding: 6px;
-  background-color: var(--bg-color2);
+  background-color: var(--bg-color0);
 }
 minigame:hover {
   background-color: var(--game-hover);
@@ -1386,11 +1484,22 @@ boardeditor {
   justify-content: center;
 }
 #janggi-setup-buttons button {
+  border-radius:3px;
+  border: 1px solid var(--janggi-setup);
   height: 40px;
   color: var(--font-color);
-  background-color: var(--bg-color2);
+  background: var(--bg-color2);
   cursor: pointer;
 }
+
+#janggi-setup-buttons > button:nth-child(2):hover {
+  color:#fff;
+  background: var(--green-hover);
+}
+#janggi-setup-buttons > #flipLeft:hover, #janggi-setup-buttons > #flipRight:hover {
+  background: var(--rusty);
+}
+
 
 .allplayers {
   display: grid;
@@ -1416,4 +1525,9 @@ boardeditor {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+}
+
+.cg-wrap coords {
+  font-size: 0.85em;
+  font-weight:bold;
 }
