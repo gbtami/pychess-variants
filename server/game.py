@@ -10,7 +10,7 @@ from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG,\
-    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND
+    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, CLAIM
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
@@ -456,6 +456,14 @@ class Game:
         await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     def update_status(self, status=None, result=None):
+        def result_string_from_value(color, game_result_value):
+            if game_result_value < 0:
+                return "1-0" if color == BLACK else "0-1"
+            elif game_result_value > 0:
+                return "0-1" if color == BLACK else "1-0"
+            else:
+                return "1/2-1/2"
+
         if status is not None:
             self.status = status
             if result is not None:
@@ -478,57 +486,28 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
 
-        # check 50 move rule and repetition
-        if self.board.is_claimable_draw() and (self.wplayer.bot or self.bplayer.bot):
-            if self.variant == 'janggi':
-                w, b = self.board.get_janggi_points()
-                self.status = VARIANTEND
-                self.result = "1-0" if w > b else "0-1"
-            else:
-                print("1/2 by board.is_claimable_draw()")
-                self.status = DRAW
-                self.result = "1/2-1/2"
-
         if not self.dests:
             game_result_value = self.board.game_result()
+            self.result = result_string_from_value(self.board.color, game_result_value)
 
-            if game_result_value < 0:
-                self.result = "1-0" if self.board.color == BLACK else "0-1"
-            elif game_result_value > 0:
-                self.result = "0-1" if self.board.color == BLACK else "1-0"
-            else:
-                self.result = "1/2-1/2"
-
-            if self.check:
+            if self.board.is_immediate_game_end()[0]:
+                self.status = VARIANTEND
+                print(self.result, "variant end")
+            elif self.check:
                 self.status = MATE
                 # Draw if the checkmating player is the one counting
                 if self.board.count_started > 0:
                     counting_side = 'b' if self.board.count_started % 2 == 0 else 'w'
-                    if counting_side == 'w':
-                        if self.result == "1-0":
-                            self.status = DRAW
-                            self.result = "1/2-1/2"
-                    else:
-                        if self.result == "0-1":
-                            self.status = DRAW
-                            self.result = "1/2-1/2"
+                    if self.result == ("1-0" if counting_side == 'w' else "0-1"):
+                        self.status = DRAW
+                        self.result = "1/2-1/2"
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 self.status = STALEMATE
                 print(self.result, "stalemate")
 
-        if self.variant == "janggi" or self.variant == "orda":
-            immediate_end, game_result_value = self.board.is_immediate_game_end()
-            if immediate_end:
-                self.status = VARIANTEND
-                if game_result_value < 0:
-                    self.result = "1-0" if self.board.color == BLACK else "0-1"
-                else:
-                    self.result = "0-1" if self.board.color == BLACK else "1-0"
-                print(self.result, "variant end")
-
-        if self.variant == 'makruk' or self.variant == 'makpong' or self.variant == 'cambodian' or self.variant == 'sittuyin':
+        elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin'):
             parts = self.board.fen.split()
             if parts[3].isdigit():
                 counting_limit = int(parts[3])
@@ -537,6 +516,15 @@ class Game:
                     self.status = DRAW
                     self.result = "1/2-1/2"
                     print(self.result, "counting limit reached")
+
+        else:
+            # end the game by 50 move rule and repetition automatically
+            # for non-draw results and bot games
+            is_game_end, game_result_value = self.board.is_optional_game_end()
+            if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
+                self.result = result_string_from_value(self.board.color, game_result_value)
+                self.status = CLAIM if game_result_value != 0 else DRAW
+                print(self.result, "claim")
 
         if self.board.ply > MAX_PLY:
             self.status = DRAW

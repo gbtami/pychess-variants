@@ -8,7 +8,7 @@ from aiohttp import web
 import aiohttp_session
 from aiohttp_sse import sse_response
 
-from const import STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND
+from const import STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from compress import C2V, V2C, C2R
 from utils import pgn
 
@@ -40,7 +40,7 @@ async def get_user_games(request):
                 {"$or": [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]},
                 {"x": int(level)},
                 {"$or": [{"if": None}, {"v": "j"}]},  # Janggi games always have initial FEN!
-                {"$or": [{"s": MATE}, {"s": VARIANTEND}, {"s": INVALIDMOVE}]},
+                {"$or": [{"s": MATE}, {"s": VARIANTEND}, {"s": INVALIDMOVE}, {"s": CLAIM}]},
             ]
         else:
             filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
