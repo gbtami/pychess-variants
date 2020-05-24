@@ -227,7 +227,8 @@ cg-board piece.fading {
   display: flex;
   pointer-events: none;
   opacity: 0.8;
-  font-size: 9px;
+  font-size: 0.85em;
+  font-weight: bold;
 }
 .cg-wrap coords.ranks {
   right: var(--ranks-right);

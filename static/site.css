@@ -1,4 +1,5 @@
 :root {
+    --site-header-height: 40px;
     --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
     --dark-mode: 0;
@@ -101,8 +102,12 @@ div#preload {
     display: none;
 }
 
-header{
-  height: 32px;
+header {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  height: var(--site-header-height);
+  z-index: 106;
 }
 
 iframe {
@@ -209,7 +214,6 @@ ul.guide li {
   text-align: center;
   text-decoration: none;
   text-shadow: 0 1px 0 var(--text-shadow);
-  display: inline-block;
   padding-right: 8px;
 }
 .nav-link:hover, .nav-link:active {
@@ -217,9 +221,6 @@ ul.guide li {
 }
 .nav-link.home {
   font-size: 25px;
-}
-.nav-link.login {
-    float: right;
 }
 
 .nav-link.active.home {
@@ -230,38 +231,81 @@ ul.guide li {
   color: var(--blue-hover);
 }
 
+.site-title-nav {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .topnav {
-  overflow: hidden;
+  display: flex;
   margin: 0;
   padding: 0;
-  height: 40px;
-  line-height: 40px;
+  height: var(--site-header-height);
+  line-height: var(--site-header-height);
   color: var(--font-color);
   text-align: center;
 }
 
 .topnav a {
   float: left;
-  display: block;
-  height: 40px;
+  height: var(--site-header-height);
   padding: 0px 4px 0px 4px;
   text-decoration: none;
   font-size: 17px;
 }
 
-.topnav .tool-container button, .topnav .tool-container .langs {
-  float: right;
+.navbar-toggle {
+  display: none;
+}
+
+@media only screen and (max-width: 999px) {
+  .topnav {
+    flex-direction: column;
+  }
+  .topnav a {
+    position: fixed;
+    display: none;
+  }
+  .navbar-toggle {
+    align-self: flex-start;
+    display: block;
+    font-size: 40px;
+    cursor: pointer;
+  }
+  .topnav a.navbar-show {
+    display: flex;
+    color: var(--font-color);
+    background-color: var(--bg-color0);
+  }
+  .site-buttons {
+    margin-left: 0;
+  }
+}
+
+.site-buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+#username, .login {
+  line-height: var(--site-header-height);
+  font-size: 17px;
+}
+
+.site-buttons button, .site-buttons .langs {
   color: var(--font-color);
   background-color: inherit;
-  width: 40px;
-  height: 40px;
-  padding: 0px 4px 0px 4px;
   font-size: 17px;
+  height: var(--site-header-height);
+  line-height : var(--site-header-height);
   border: none;
   cursor: pointer;
 }
 
-.topnav .tool-container button:hover {
+.site-buttons button:hover {
   color: var(--blue-hover);
 }
 
@@ -597,11 +641,6 @@ ul.header {
 
 li.header {
     float: right;
-}
-
-#username {
-  padding: 0px 4px 0px 4px;
-  float: right;
 }
 
 table#seeks {
@@ -1525,9 +1564,4 @@ boardeditor {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-}
-
-.cg-wrap coords {
-  font-size: 0.85em;
-  font-weight:bold;
 }

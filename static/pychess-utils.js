@@ -1,3 +1,12 @@
+function classToggle() {
+  const navs = document.querySelectorAll('.topnav a')
+  
+  navs.forEach(nav => nav.classList.toggle('navbar-show'));
+}
+
+document.querySelector('.navbar-toggle')
+  .addEventListener('click', classToggle);
+
 var audio = 'true';
 function toggleAudio() {
     audio = (audio === 'false') ? 'true': 'false' ;
