@@ -61,10 +61,8 @@ class FairyBoard:
         return sf.get_san(self.variant, self.fen, move, self.chess960, sf.NOTATION_JANGGI if self.variant == "janggi" else sf.NOTATION_DEFAULT)
 
     def legal_moves(self):
-        # print("FEN, vaiant, self.move_stack:", self.variant, self.initial_fen, self.move_stack)
-        legals = sf.legal_moves(self.variant, self.fen, [], self.chess960)
-        # print("       legal_moves:", legals)
-        return legals
+        # move legality can depend on history, e.g., passing and bikjang
+        return sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def is_checked(self):
         return sf.gives_check(self.variant, self.fen, [], self.chess960)
