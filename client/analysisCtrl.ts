@@ -567,14 +567,16 @@ export default class AnalysisController {
     }
 
     private onMsgChat = (msg) => {
-        if (msg.user !== this.model["username"]) {
-            if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-                chatMessage(msg.user, msg.message, "roundchat");
-            }
+        if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
+            chatMessage(msg.user, msg.message, "roundchat");
         }
     }
 
     private onMsgFullChat = (msg) => {
+        // To prevent multiplication of messages we have to remove old messages div first
+        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
+        // then create a new one
+        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         msg.lines.forEach((line) => {
             if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
                 chatMessage(line.user, line.message, "roundchat");
