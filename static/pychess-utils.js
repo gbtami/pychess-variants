@@ -1,6 +1,5 @@
 function classToggle() {
   const navs = document.querySelectorAll('.topnav a')
-  
   navs.forEach(nav => nav.classList.toggle('navbar-show'));
 }
 
