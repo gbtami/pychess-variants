@@ -29,7 +29,7 @@ async def round_socket_handler(request):
     games = request.app["games"]
     db = request.app["db"]
 
-    ws = WebSocketResponse()
+    ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -54,9 +54,9 @@ async def round_socket_handler(request):
 
     log.debug("-------------------------- NEW round WEBSOCKET by %s" % user)
 
-    async for msg in ws:
-        if msg.type == aiohttp.WSMsgType.TEXT:
-            if type(msg.data) == str:
+    try:
+        async for msg in ws:
+            if msg.type == aiohttp.WSMsgType.TEXT:
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")
                     break
@@ -366,8 +366,8 @@ async def round_socket_handler(request):
                         response = {"type": "user_present", "username": user.username}
                         await round_broadcast(game, users, response, full=True)
 
-                        loop = asyncio.get_event_loop()
-                        game_ping_task = loop.create_task(game_pinger())
+                        # loop = asyncio.get_event_loop()
+                        # game_ping_task = loop.create_task(game_pinger())
 
                         # not connected to lobby socket but connected to game socket
                         if len(user.game_sockets) == 1 and user.username not in sockets:
@@ -480,18 +480,23 @@ async def round_socket_handler(request):
                             response = {"type": "count", "message": "You can only start/stop board's honor counting on your own turn!", "room": "player", "user": ""}
                             await ws.send_json(response)
 
+            elif msg.type == aiohttp.WSMsgType.CLOSED:
+                logging.debug("--- Round websocket %s msg.type == aiohttp.WSMsgType.CLOSED" % id(ws))
+                break
+
+            elif msg.type == aiohttp.WSMsgType.ERROR:
+                log.debug("--- Round ws %s msg.type == aiohttp.WSMsgType.ERROR" % id(ws))
+                break
+
             else:
-                log.debug("type(msg.data) != str %s" % msg)
-        elif msg.type == aiohttp.WSMsgType.ERROR:
-            log.debug("!!! Round ws connection closed with exception %s" % ws.exception())
-        else:
-            log.debug("other msg.type %s %s" % (msg.type, msg))
+                log.debug("--- Round ws other msg.type %s %s" % (msg.type, msg))
 
-    log.info("--- Round Websocket %s closed" % id(ws))
+    except Exception:
+        print("!!! Round ws exception occured: %s" % ws.exception())
 
-    if game is not None:
-        response = {"type": "user_disconnected", "username": user.username}
-        await round_broadcast(game, users, response, full=True)
+    finally:
+        log.debug("---fianlly: await ws.close()")
+        await ws.close()
 
     if game is not None and not user.bot:
         if game.id in user.game_sockets:
@@ -506,6 +511,10 @@ async def round_socket_handler(request):
             request.app["u_cnt"] -= 1
             response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
             await lobby_broadcast(sockets, response)
+
+    if game is not None:
+        response = {"type": "user_disconnected", "username": user.username}
+        await round_broadcast(game, users, response, full=True)
 
     if game_ping_task is not None:
         game_ping_task.cancel()

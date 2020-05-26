@@ -38,7 +38,7 @@ async def lobby_socket_handler(request):
     sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
 
-    ws = WebSocketResponse()
+    ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -79,9 +79,9 @@ async def lobby_socket_handler(request):
 
     log.debug("-------------------------- NEW lobby WEBSOCKET by %s" % user)
 
-    async for msg in ws:
-        if msg.type == aiohttp.WSMsgType.TEXT:
-            if type(msg.data) == str:
+    try:
+        async for msg in ws:
+            if msg.type == aiohttp.WSMsgType.TEXT:
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")
                     break
@@ -215,8 +215,8 @@ async def lobby_socket_handler(request):
                         response = {"type": "fullchat", "lines": list(request.app["chat"])}
                         await ws.send_json(response)
 
-                        loop = asyncio.get_event_loop()
-                        lobby_ping_task = loop.create_task(lobby_pinger(ping_counter))
+                        # loop = asyncio.get_event_loop()
+                        # lobby_ping_task = loop.create_task(lobby_pinger(ping_counter))
 
                         # send game count
                         response = {"type": "g_cnt", "cnt": request.app["g_cnt"]}
@@ -245,14 +245,23 @@ async def lobby_socket_handler(request):
                         # Used only to test socket disconnection...
                         await ws.close(code=1009)
 
-            else:
-                log.debug("type(msg.data) != str %s" % msg)
-        elif msg.type == aiohttp.WSMsgType.ERROR:
-            log.debug("!!! Lobby ws connection closed with exception %s" % ws.exception())
-        else:
-            log.debug("other msg.type %s %s" % (msg.type, msg))
+            elif msg.type == aiohttp.WSMsgType.CLOSED:
+                logging.debug("--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED" % id(ws))
+                break
 
-    log.info("--- Lobby Websocket %s closed" % id(ws))
+            elif msg.type == aiohttp.WSMsgType.ERROR:
+                log.debug("--- Lobby ws %s msg.type == aiohttp.WSMsgType.ERROR" % id(ws))
+                break
+
+            else:
+                log.debug("--- Lobby ws other msg.type %s %s" % (msg.type, msg))
+
+    except Exception:
+        print("!!! Lobby ws exception occured: %s" % ws.exception())
+
+    finally:
+        log.debug("---fianlly: await ws.close()")
+        await ws.close()
 
     if user is not None:
         if ws in user.lobby_sockets:
