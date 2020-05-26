@@ -246,18 +246,18 @@ async def lobby_socket_handler(request):
                         await ws.close(code=1009)
 
             elif msg.type == aiohttp.WSMsgType.CLOSED:
-                logging.debug("--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED" % id(ws))
+                log.debug("--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED" % id(ws))
                 break
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.debug("--- Lobby ws %s msg.type == aiohttp.WSMsgType.ERROR" % id(ws))
+                log.error("--- Lobby ws %s msg.type == aiohttp.WSMsgType.ERROR" % id(ws))
                 break
 
             else:
                 log.debug("--- Lobby ws other msg.type %s %s" % (msg.type, msg))
 
-    except Exception:
-        print("!!! Lobby ws exception occured: %s" % ws.exception())
+    except Exception as e:
+        log.error("!!! Lobby ws exception occured: %s" % type(e))
 
     finally:
         log.debug("---fianlly: await ws.close()")

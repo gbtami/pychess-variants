@@ -481,18 +481,18 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
 
             elif msg.type == aiohttp.WSMsgType.CLOSED:
-                logging.debug("--- Round websocket %s msg.type == aiohttp.WSMsgType.CLOSED" % id(ws))
+                log.debug("--- Round websocket %s msg.type == aiohttp.WSMsgType.CLOSED" % id(ws))
                 break
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.debug("--- Round ws %s msg.type == aiohttp.WSMsgType.ERROR" % id(ws))
+                log.error("--- Round ws %s msg.type == aiohttp.WSMsgType.ERROR" % id(ws))
                 break
 
             else:
                 log.debug("--- Round ws other msg.type %s %s" % (msg.type, msg))
 
-    except Exception:
-        print("!!! Round ws exception occured: %s" % ws.exception())
+    except Exception as e:
+        log.error("!!! Round ws exception occured: %s" % type(e))
 
     finally:
         log.debug("---fianlly: await ws.close()")
