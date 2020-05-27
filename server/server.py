@@ -5,6 +5,7 @@ import collections
 import logging
 import os
 from operator import neg
+from urllib.parse import urlparse
 
 import jinja2
 from aiohttp import web
@@ -22,7 +23,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS
+from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI
 from seek import Seek
 from user import User
 
@@ -31,7 +32,8 @@ log = logging.getLogger(__name__)
 
 def make_app(with_db=True):
     app = web.Application()
-    setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE))
+    parts = urlparse(URI)
+    setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"))
 
     if with_db:
         app.on_startup.append(init_db)
