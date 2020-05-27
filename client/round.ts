@@ -28,7 +28,7 @@ export function roundView(model): VNode[] {
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
                         h('div.info2', [
                             h('div.tc', [
-                                model["base"] + "+" + model["inc"] + " • " + ((model["rated"] === 'True') ? _("Rated") : _("Casual")) + " • ",
+                                model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "") + " • " + ((model["rated"] === 'True') ? _("Rated") : _("Casual")) + " • ",
                                 h('a.user-link', {attrs: {
                                     target: '_blank',
                                     href: '/variant/' + model["variant"] + ((model["chess960"]==='True') ? '960': ''),

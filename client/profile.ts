@@ -111,7 +111,7 @@ function renderGames(model, games) {
             h('div.info0.games', {attrs: {"data-icon": variantIcon(game["v"], game["z"])}, class: {"icon": true}}, [
                 // h('div.info1', {attrs: {"data-icon": (game["z"] === 1) ? "V" : ""}, class: {"icon": true}}),
                 h('div.info2', [
-                    h('div.tc', game["b"] + "+" + game["i"] + " • " + ((game["y"] === 1) ? _("Rated") : _("Casual")) + " • " + variantName(game["v"], game["z"])),
+                    h('div.tc', game["b"] + "+" + (game["bp"] > 1 ? game["bp"] + "x" : "") + game["i"] + (game["bp"] > 0 ? "(b)" : "") + " • " + ((game["y"] === 1) ? _("Rated") : _("Casual")) + " • " + variantName(game["v"], game["z"])),
                     h('info-date', {attrs: {timestamp: game["d"]}}),
                 ]),
             ]),

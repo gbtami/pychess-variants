@@ -480,7 +480,6 @@ class LobbyController {
         // console.log("VARIANTS", VARIANTS);
         var rows = seeks.map((seek) => {
             const variant = seek.variant;
-            const byoyomi = isByoyomiVariant(variant);
             let tooltiptext;
             if (seek["fen"]) {
                 // tooltiptext = seek["fen"];
@@ -499,7 +498,7 @@ class LobbyController {
             [h('td', [challengeIcon(seek), title(seek), user(seek)]),
              h('td', [colorIcon(seek["color"])]),
              h('td', seek["rating"]),
-             h('td', seek["tc"],
+             h('td', seek["tc"]),
              h('td', {attrs: {"data-icon": variantIcon(seek.variant, seek.chess960)}, class: {"icon": true}} ),
              // h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
              h('td', variantName(seek.variant, seek.chess960)),
