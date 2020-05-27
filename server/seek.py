@@ -36,7 +36,7 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "rating": self.rating,
-            "tc": "%s+%s%s" % (self.base, ("%sx" % (self.byoyomi_period)) if self.byoyomi_period > 1 else "", self.inc)
+            "tc": "%s+%s%s%s" % (self.base, ("%sx" % (self.byoyomi_period)) if self.byoyomi_period > 1 else "", self.inc, "(b)" if self.byoyomi_period > 0 else "")
         }
 
 
