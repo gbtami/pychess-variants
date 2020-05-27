@@ -69,7 +69,7 @@ class LobbyController {
         // challenge!
         if (model["profileid"] !== '') {
             this.challengeAI = model["profileid"] === 'Fairy-Stockfish';
-            if (this.model["anon"] !== 'True') {
+            if (this.model["anon"] !== 'True' && !this.challengeAI) {
                 document.getElementById('game-mode')!.style.display='inline-flex';
             } else {
                 document.getElementById('game-mode')!.style.display='none';
