@@ -1,7 +1,6 @@
 import asyncio
 import json
 import logging
-from time import time
 
 import aiohttp
 from aiohttp import web
@@ -50,33 +49,6 @@ async def lobby_socket_handler(request):
     session_user = session.get("user_name")
     user = users[session_user] if session_user is not None and session_user in users else None
 
-    lobby_ping_task = None
-    ping_counter = [0]
-
-    async def lobby_pinger(ping_counter):
-        """ Prevent Heroku to close inactive ws """
-        while not ws.closed:
-            if ping_counter[0] > 2:
-                await ws.close(code=1009)
-
-                if ws in user.lobby_sockets:
-                    user.lobby_sockets.remove(ws)
-
-                # online user counter will be updated in quit_lobby also!
-                if len(user.lobby_sockets) == 0:
-                    # log.info("%s went offline (PINGER)" % user.username)
-                    await user.clear_seeks(sockets, seeks)
-                    await user.quit_lobby(sockets, disconnect=True)
-                    break
-
-            if user.bot:
-                await user.event_queue.put("\n")
-                # heroku needs something at least in 50 sec not to close BOT connections (stream events) on server side
-            else:
-                await ws.send_json({"type": "ping", "timestamp": "%s" % time()})
-            await asyncio.sleep(3)
-            ping_counter[0] += 1
-
     log.debug("-------------------------- NEW lobby WEBSOCKET by %s" % user)
 
     try:
@@ -90,10 +62,7 @@ async def lobby_socket_handler(request):
                     if not data["type"] == "pong":
                         log.debug("Websocket (%s) message: %s" % (id(ws), msg))
 
-                    if data["type"] == "pong":
-                        ping_counter[0] -= 1
-
-                    elif data["type"] == "get_seeks":
+                    if data["type"] == "get_seeks":
                         response = get_seeks(seeks)
                         await ws.send_json(response)
 
@@ -202,7 +171,6 @@ async def lobby_socket_handler(request):
                                 users[user.username] = user
                             response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
 
-                        ping_counter[0] = 0
                         await lobby_broadcast(sockets, response)
 
                         # update websocket
@@ -214,9 +182,6 @@ async def lobby_socket_handler(request):
 
                         response = {"type": "fullchat", "lines": list(request.app["chat"])}
                         await ws.send_json(response)
-
-                        # loop = asyncio.get_event_loop()
-                        # lobby_ping_task = loop.create_task(lobby_pinger(ping_counter))
 
                         # send game count
                         response = {"type": "g_cnt", "cnt": request.app["g_cnt"]}
@@ -269,10 +234,18 @@ async def lobby_socket_handler(request):
 
         # online user counter will be updated in quit_lobby also!
         if len(user.lobby_sockets) == 0:
-            await user.clear_seeks(sockets, seeks)
-            await user.quit_lobby(sockets, disconnect=False)
+            if user.username in sockets:
+                del sockets[user.username]
 
-    if lobby_ping_task is not None:
-        lobby_ping_task.cancel()
+            # not connected to lobby socket and not connected to game socket
+            if len(user.game_sockets) == 0:
+                request.app["u_cnt"] -= 1
+                response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+                await lobby_broadcast(sockets, response)
+
+            response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
+            await lobby_broadcast(sockets, response)
+
+            await user.clear_seeks(sockets, seeks)
 
     return ws

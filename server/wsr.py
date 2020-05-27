@@ -41,16 +41,8 @@ async def round_socket_handler(request):
     session_user = session.get("user_name")
     user = users[session_user] if session_user is not None and session_user in users else None
 
-    game_ping_task = None
     game = None
     opp_ws = None
-
-    async def game_pinger():
-        """ Prevent Heroku to close inactive ws """
-        # TODO: use this to detect disconnected games?
-        while not ws.closed:
-            await ws.send_json({})
-            await asyncio.sleep(5)
 
     log.debug("-------------------------- NEW round WEBSOCKET by %s" % user)
 
@@ -366,9 +358,6 @@ async def round_socket_handler(request):
                         response = {"type": "user_present", "username": user.username}
                         await round_broadcast(game, users, response, full=True)
 
-                        # loop = asyncio.get_event_loop()
-                        # game_ping_task = loop.create_task(game_pinger())
-
                         # not connected to lobby socket but connected to game socket
                         if len(user.game_sockets) == 1 and user.username not in sockets:
                             request.app["u_cnt"] += 1
@@ -515,8 +504,5 @@ async def round_socket_handler(request):
     if game is not None:
         response = {"type": "user_disconnected", "username": user.username}
         await round_broadcast(game, users, response, full=True)
-
-    if game_ping_task is not None:
-        game_ping_task.cancel()
 
     return ws

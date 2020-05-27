@@ -107,21 +107,5 @@ class User:
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 
-    async def quit_lobby(self, sockets, disconnect):
-        # print(self.username, "quit_lobby()")
-
-        if self.username in sockets:
-            del sockets[self.username]
-
-        # not connected to lobby socket and not connected to game socket
-        if len(self.game_sockets) == 0:
-            self.app["u_cnt"] -= 1
-            response = {"type": "u_cnt", "cnt": self.app["u_cnt"]}
-            await lobby_broadcast(sockets, response)
-
-        text = "disconnected" if disconnect else "left the lobby"
-        response = {"type": "lobbychat", "user": "", "message": "%s %s" % (self.username, text)}
-        await lobby_broadcast(sockets, response)
-
     def __str__(self):
         return self.username
