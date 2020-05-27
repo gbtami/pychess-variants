@@ -260,8 +260,8 @@ async def index(request):
 
     # log.debug("Response: %s" % text)
     response = web.Response(text=html_minify(text), content_type="text/html")
-    hostname = urlparse(URI).hostname
-    response.set_cookie("user", session["user_name"], domain=hostname, secure="." not in hostname, max_age=None if user.anon else MAX_AGE)
+    parts = urlparse(URI)
+    response.set_cookie("user", session["user_name"], domain=parts.hostname, secure=parts.scheme == "https", max_age=None if user.anon else MAX_AGE)
     return response
 
 
