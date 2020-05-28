@@ -172,7 +172,7 @@ class LobbyController {
 
         e = document.getElementById('byo') as HTMLInputElement;
         const byoyomi = isByoyomiVariant(variant);
-        const byoyomiPeriod = (byoyomi) ? parseInt(e.value) : 0;
+        const byoyomiPeriod = (byoyomi && increment > 0) ? parseInt(e.value) : 0;
         localStorage.setItem("seek_byo", e.value);
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
