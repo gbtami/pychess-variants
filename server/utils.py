@@ -390,10 +390,10 @@ def pgn(doc):
     fen = initial_fen if initial_fen is not None else sf.start_fen(variant)
     # print(variant, fen, mlist)
     try:
-        mlist = sf.get_san_moves(variant, fen, mlist, chess960)
+        mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
     except Exception:
         try:
-            mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960)
+            mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
             log.error("Movelist contains invalid move %s" % mlist)
             mlist = mlist[0]

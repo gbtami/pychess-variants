@@ -6,6 +6,12 @@ from datetime import datetime
 from itertools import chain
 from time import monotonic
 
+try:
+    import pyffish as sf
+    sf.set_option("VariantPath", "variants.ini")
+except ImportError:
+    print("No pyffish module installed!")
+
 from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
@@ -573,7 +579,8 @@ class Game:
 
     @property
     def pgn(self):
-        moves = " ".join((step["san"] if ind % 2 == 0 else "%s. %s" % ((ind + 1) // 2, step["san"]) for ind, step in enumerate(self.steps) if ind > 0))
+        mlist = sf.get_san_moves(self.variant, self.initial_fen, self.board.move_stack, self.chess960, sf.NOTATION_SAN)
+        moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
