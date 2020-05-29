@@ -17,11 +17,6 @@ A játszma megkezdése előtt mindkét játékos megválaszthatja a lovak és az
 3. *Bal belső, jobb külső ló*: a bal oldali ló a királyhoz, a jobb oldali pedig a tábla széléhez van közelebb (*gwee ma*)
 4. *Bal külső, jobb belső ló*: a bal oldali ló a tábla széléhez, a jobb oldali pedig a királyhoz van közelebb (*mat sang jang gi*)
 
-For repetitions and other game-end scenarios:
-* Perpetual check is a loss for the player checking after the third repetition
-* Repetitions that are not perpetual are adjucated by material counting after the third repetitions
-* WHen the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
-
 ## Bábuk
 
 A tradicionális készletek a kínai írásjegyeket használják, de a könnyebb érthetőség végett ez az útmutató a nemzetközi bábukészleten alapul (melyen a figurák ábrái láthatók).
@@ -151,7 +146,10 @@ A kék játékos (Cho) kezdi a játszmát, ezért kompenzációként a piros (Ha
 
 Lehetséges egyszerre sakkot adni és bikjangot előidézni. Ebben az esetben a bikjang élvez prioritást.
 
-A lépésismétlés nem megengedett, azonban változó, hogy ezt milyen módon kezelik. Ezen az oldalon a lépésismétlés nincs szabályozva, ezért ilyen esetekben a játékosoknak egymás közt kell eldönteniük, hogy hogyan oldják fel a helyzetet.
+A lépésismétlésre és a játszma végére vonatkozó szabályok:
+* Az örökös sakkadás nem megengedett, az a játékos, aki folyamatosan sakkot ad, a harmadik ismétlés után veszít.
+* A harmadik lépésismétlés után pontszámítással ér véget a játszma.
+* Ha 50 lépés alatt egyetlen bábu sem kerül leütésre, akkor pontszámítással dől el a játszma.
 
 ## Különbségek a kínai sakkhoz (xiangqi) képest
 
