@@ -12,7 +12,7 @@ a uma nova maneira de pensar. [Veja aqui mais informações(Inglês)](https://en
 ## Regras
 
 As regras são muito semelhantes ao Xadrez, daí iremos focar-nos apenas nas suas diferenças. A diferença mais significativa é de que as Peças estão posicionadas em interseções em vez de casas, isto é meramente uma diferença estética. Cada jogador faz o seu lance por turnos, movimentando as peças no tabuleiro a fim de dar Xeque-Mate ao Rei adversário. O jogador com as Vermelhas normalmente começa primeiro, sendo de seguida o das Pretas, no entanto a ordem de começar não é relevante pelo facto do tabuleiro ser simétrico. A única outra diferença com o Xadrez é de que o Rei Afogado é considerado uma derrota para quem ficou Afogado (i.e. não consegue movimentar peça alguma).
-Regarding perpertual checks, the player that perpetually checks loses after three repetitions.
+Em relação aos xeques perpétuos, é atribuida a derrota ao jogador que os efetua após três repetições. 
 
 ## Tabuleiro
 
