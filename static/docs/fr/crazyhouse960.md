@@ -1,19 +1,16 @@
 # ![Crazyhouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse960.svg) Crazyhouse 960
 
-Crazyhouse 960 is a custom variant combining the rules of Crazyhouse with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Crazyhouse, please check the Crazyhouse rules in its separate guide. 960 rules are as below for a reminder.
+Crazyhouse960 est une variante combinant les règles Crazyhouse avec l'initialisation aléatoire de Chess960. Les règles des deux jeux s'appliquent. Comme cela est considéré comme un dérivé de Crazyhouse, veuillez lire les règles de Crazyhouse dans son guide séparé. Les règles 960 sont indiquées ci-dessous pour rappel.
 
-This variant can be played by checking the "Chess960" option when creating a Crazyhouse game.
+Cette variante peut être jouée en cochant l'option "960" lors de la création d'une partie Crazyhouse.
 
-## 960 Rules
+## Règles 960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+Les rangées initiales sont composées aléatoirement, en respectant les contraintes suivantes :
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+* Les fous doivent être placés sur des cases de couleurs différentes.
+* Le roi doit être placé entre les tours.
 
-All other rules are as in Crazyhouse.
+Le roque est l'autre règle majeure à prendre en compte. Fondamentalement, peu importe où se trouvent les tours, si vous roquez la position finale sera la même que si les tours étaient en position standard. Par exemple, un grand roque avec initialement une tour en b1 et un roi en c1 sera déclenché en "capturant la tour" avec le roi, et résultera en un unique déplacement de tour puisque le roi est déjà à sa place.
 
-## Clarifications
-
-A king may not castle with a dropped rook.
+Toutes les autres règles de la variante Crazyhouse sont inchangées.

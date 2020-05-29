@@ -1,27 +1,24 @@
 # ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Capahouse960.svg) Capahouse 960
 
-Capahouse 960 is a custom variant combining the rules of Capablanca chess, Crazyhouse, and Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse and 960 rules are as below for a reminder.
+Capahouse960 est une variante combinant les règles des échecs Capablanca, Crazyhouse et Chess960, dont toutes les règles s'appliquent. Comme cela est considéré comme un dérivé des échecs Capablanca, veuillez lire les règles de cette variante dans son guide séparé. Les règles de Crazyhouse et Chess960 sont les suivantes pour rappel.
 
-This variant can be played by checking the "Chess960" option when creating a Capahouse game.
+Cette variante peut être jouée en cochant l'option "960" lors de la création d'une partie Capahouse.
 
-## Crazyhouse Rules
+## Règles du Crazyhouse
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+Au lieu d'effectuer un coup normal, on peut parachuter une pièce adverse capturée sur l'échiquier. En notation algébrique, le parachutage est noté par une arobase (@). Par exemple, R@e4 indique une tour parachutée sur la case e4. Les règles gouvernant le parachutage sont les suivantes :
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* Il est permis de donner échec et mat avec un parachutage, même avec un pion (contrairement au shogi).
+* Il est illégal de parachuter un pion sur la 1ère ou la 8ème rangée.
+* Un pion promu puis capturé se parachutera en tant que pion.
+* Un pion blanc (resp. noir) parachuté sur la 2ème rangée (resp. 7ème rangée) peut avancer de deux cases lors de son premier coup après être parachuté.
+* Il est illégal de roquer avec une tour parachutée.
 
-## 960 Rules
+## Règles 960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+Les rangées initiales sont composées aléatoirement, en respectant les contraintes suivantes :
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+* Les fous et évêques doivent être placés sur des cases de couleurs différentes.
+* Le roi doit être placé entre les tours.
 
-## Clarifications
-
-A king may not castle with a dropped rook.
+Le roque est l'autre règle majeure à prendre en compte. Fondamentalement, peu importe où se trouvent les tours, si vous roquez la position finale sera la même que si les tours étaient en position standard.

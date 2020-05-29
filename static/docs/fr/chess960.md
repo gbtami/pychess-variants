@@ -1,20 +1,20 @@
 # ![960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/960.svg) Chess960 (Fischer’s Random Chess)
 
-Chess960 was created by Bobby Fischer to make the game more variable and remove a lot of the rote memorization for openings that standard chess forces you into. This is one of the most popular variants, and it will separate those who have truly mastered strategy and tactics from those who rely on memorizing opening lines.
+Chess960 a été créé par Bobby Fischer pour rendre le jeu plus variable et supprimer une grande partie de la mémorisation par cœur des ouvertures à laquelle les échecs standard vous obligent. C'est l'une des variantes les plus populaires, et elle séparera ceux qui maîtrisent vraiment la stratégie et les tactiques de ceux qui comptent sur la mémorisation des lignes d'ouverture.
 
-This can be played by checking the 960 box for a standard chess game.
+Cette variante peut être jouée en cochant l'option "960" lors de la création d'une partie d'échecs standard.
 
-## Rules
+## Règles
 
-The starting bottom ranks are randomized, but two rules must be followed:
+Les rangées initiales sont composées aléatoirement, en respectant les contraintes suivantes :
 
-* The bishops must be placed on opposite-color squares.
-* The king must be placed on a square between the rooks.
+* Les fous doivent être placés sur des cases de couleurs différentes.
+* Le roi doit être placé entre les tours.
 
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+Le roque est l'autre règle majeure à prendre en compte. Fondamentalement, peu importe où se trouvent les tours, si vous roquez la position finale sera la même que si les tours étaient en position standard. Par exemple, un grand roque avec initialement une tour en b1 et un roi en c1 sera déclenché en "capturant la tour" avec le roi, et résultera en un unique déplacement de tour puisque le roi est déjà à sa place.
 
-All other rules are the same.
+Toutes les autres règles sont inchangées.
 
-## Strategy
+## Stratégie
 
-Normal chess strategy and tactics apply, except for openings! Since the starting position is random, standard opening lines don’t apply.
+Les tactiques et strétégies usuelles s'appliquent, sauf dans l'ouverture ! Puisque la position initiale est aléatoire, les débuts habituels n'existent pas.
