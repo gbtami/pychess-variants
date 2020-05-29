@@ -10,8 +10,7 @@ Ha élvezed a sakkot, akkor a xiangqit határozottan megéri kipróbálni. Mikö
 
 ## Szabályok
 
-A szabályok hasonlóak a sakkéhoz, így ez az útmutató a különbségekre fókuszál. A két játékos színe itt piros és fekete, hagyományosan pedig az előbbi kezdi a játékot. A cél itt is az ellenfél királyának mattolása, azonban a patthelyzet itt nem döntetlen, hanem a patthelyzetben lévő játékos veszít.
-Regarding perpertual checks, the player that perpetually checks loses after three repetitions.
+A szabályok hasonlóak a sakkéhoz, így ez az útmutató a különbségekre fókuszál. A két játékos színe itt piros és fekete, hagyományosan pedig az előbbi kezdi a játékot. A cél itt is az ellenfél királyának mattolása, azonban a patthelyzet itt nem döntetlen, hanem a patthelyzetben lévő játékos veszít. Az örökös sakk nem megengedett, az a játékos, aki folyamatosan sakkot ad, a harmadik ismétlés után veszít.
 
 ## Tábla
 
