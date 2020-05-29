@@ -11,6 +11,8 @@ As this game is based off shogi, please see the corresponding guide for basic sh
 
 The starting setup is as above. Unlike standard shogi, there is no knight or lance. There is only one pawn, a bishhop and rook, and one of each general. Promotion is only done in the last rank. 
 
+Additionally, regarding repetitions: repetitions that are not perpetuals are adjucated as a win for *gote*/white after the fourth repetition.
+
 ## Strategy
 
 Due to the smaller board size, the rook and bishop are not as dominant as standard shogi. However, their promotions are still very much threatening.

@@ -17,6 +17,11 @@ Setup for all pieces except for the horse and elephant are as in the picture abo
 
 Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
 
+For repetitions and other game-end scenarios:
+* Perpetual check is a loss for the player checking after the third repetition
+* Repetitions that are not perpetual are adjucated by material counting after the third repetitions
+* WHen the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
+
 ## The Pieces
 
 This guide will be based on the internationalized set. Traditional sets use Chinese characters (hanja), and many sites, including Wikipedia, already explain the rules as such.

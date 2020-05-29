@@ -11,6 +11,6 @@ Dado este jogo ser baseado em Shogi, por favor veja as regras básicas de Shogi 
 
 A posição inicial está descrita acima. Ao contrário do Shogi original, não existem Cavalos ou Lanças. Existe apenas um peão, um bispo e uma torre, e cada um dos Generais. As promoções só podem ser feitas na última linha.
 
-## Estratégia
+Additionally, regarding repetitions: repetitions that are not perpetuals are adjucated as a win for *gote*/white after the fourth repetition.
 
 Devido ao facto do tamanho do tabuleiro ser reduzido, a Torre e o Bispo não dominam tanto como no Shogi original. No entanto, as suas promoções são extremamente perigosas.

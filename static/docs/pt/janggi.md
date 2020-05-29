@@ -17,7 +17,10 @@ A configuração de todas as peças com a exceção do cavalo e do elefante são
 
 O lado Vermelho (Han) escolhe a sua posição primeiro, após isto o lado Azul (Cho) faz a sua escolha. No entanto, o lado Azul é quem faz o primeiro lance.
 
-## As Peças
+For repetitions and other game-end scenarios:
+* Perpetual check is a loss for the player checking after the third repetition
+* Repetitions that are not perpetual are adjucated by material counting after the third repetitions
+* WHen the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
 
 Este guia tem como base os grafismos internacionais. Tradicionalmente as peças são representadas com caracteres chineses (hanja), e em vários sites, incluindo a Wikipedia, já são explicadas as regras.
 

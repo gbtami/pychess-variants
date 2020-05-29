@@ -10,7 +10,8 @@ If you enjoy Chess, Xiangqi is definitely worth trying. While slightly slower pa
 
 ## The Rules
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The most striking difference is that pieces are on intersections instead of squares, which is mainly an aesthetic difference. Players take turns moving pieces on a board to checkmate the enemy king. The red player traditionally moves first, followed by black, although the order is not crucial as the board is symmetric. The only other main difference from chess is that stalemates are considered losses for the player who got stalemated (i.e. can’t move any pieces). Regarding perpertual checks, the player that perpetually checks loses after three repetitions.
+The general rules are extremely similar to Chess, so this guide will focus on the few differences. The most striking difference is that pieces are on intersections instead of squares, which is mainly an aesthetic difference. Players take turns moving pieces on a board to checkmate the enemy king. The red player traditionally moves first, followed by black, although the order is not crucial as the board is symmetric. The only other main difference from chess is that stalemates are considered losses for the player who got stalemated (i.e. can’t move any pieces).
+Regarding perpertual checks, the player that perpetually checks loses after three repetitions.
 
 ## The Board
 

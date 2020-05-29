@@ -17,6 +17,11 @@ Setup for all pieces except for the horse and elephant are as in the picture abo
 
 Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
 
+For repetitions and other game-end scenarios:
+* Perpetual check is a loss for the player checking after the third repetition
+* Repetitions that are not perpetual are adjucated by material counting after the third repetitions
+* WHen the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
+
 ## The Pieces
 
 This guide will be based on the internationalized set. Traditional sets use Chinese characters (hanja), and many sites, including Wikipedia, already explain the rules as such.
@@ -45,7 +50,7 @@ The **Advisor** (also known by its Western name, the **guard**) moves exactly li
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/HorseDiagram.png)
 
-The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the horse **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
 
 ### Elephant
 

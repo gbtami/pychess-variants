@@ -17,7 +17,10 @@ A játszma megkezdése előtt mindkét játékos megválaszthatja a lovak és az
 3. *Bal belső, jobb külső ló*: a bal oldali ló a királyhoz, a jobb oldali pedig a tábla széléhez van közelebb (*gwee ma*)
 4. *Bal külső, jobb belső ló*: a bal oldali ló a tábla széléhez, a jobb oldali pedig a királyhoz van közelebb (*mat sang jang gi*)
 
-A fenti pozíciókból a piros játékos (Han) választ először, viszont a kék játékos (Cho) lép elsőnek.
+For repetitions and other game-end scenarios:
+* Perpetual check is a loss for the player checking after the third repetition
+* Repetitions that are not perpetual are adjucated by material counting after the third repetitions
+* WHen the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
 
 ## Bábuk
 
