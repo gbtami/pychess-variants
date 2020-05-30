@@ -599,7 +599,7 @@ msgstr "Contagem de Pontos"
 
 #: ../client/profile.ts:70
 msgid "Repetition"
-msgstr ""
+msgstr "Repetição"
 
 #: ../client/profile.ts:150
 msgid "%1 move"
