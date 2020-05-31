@@ -146,7 +146,7 @@ export function setZoom (ctrl, zoom: number) {
         const pxp = (ctrl.hasPockets) ? '148px;' : '0px;';
         // point counting values
         const pxc = (ctrl.variant === 'janggi') ? '48px;' : '0px;';
-        document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp + '; --PVheight: 0px;' + '; --countingHeight:' + pxc);
+        document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
 
         document.body.dispatchEvent(new Event('chessground.resize'));
         localStorage.setItem("zoom-" + ctrl.variant, String(zoom));
