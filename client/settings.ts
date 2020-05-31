@@ -143,8 +143,10 @@ export function setZoom (ctrl, zoom: number) {
         el.style.width = pxw;
         el.style.height = pxh;
         // 2 x (pocket height + pocket-wrapper additional 10px gap)
-        var pxp = (ctrl.hasPockets) ? '148px;' : '0px;';
-        document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp + '; --PVheight: 0px;');
+        const pxp = (ctrl.hasPockets) ? '148px;' : '0px;';
+        // point counting values
+        const pxc = (ctrl.variant === 'janggi') ? '48px;' : '0px;';
+        document.body.setAttribute('style', '--cgwrapwidth:' + pxw + ';--cgwrapheight:' + pxh + ';--pocketheight:' + pxp + '; --PVheight: 0px;' + '; --countingHeight:' + pxc);
 
         document.body.dispatchEvent(new Event('chessground.resize'));
         localStorage.setItem("zoom-" + ctrl.variant, String(zoom));

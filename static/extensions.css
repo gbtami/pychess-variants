@@ -6,12 +6,14 @@
   --ranks-top-shogi: -25px;
   --files: 8;
   --pieces: 6;
+  --movelist-max-height: 116px;
 }
 [data-view="analysis"] {
   --ranks-right: var(--cgwrapwidth);
   --ranks-top: 0px;
   --files-bottom: -16px;
   --files-left: 0px;
+  --movelist-max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - var(--countingHeight) - 86px);
 }
 #extension_choice {
   position: absolute;
