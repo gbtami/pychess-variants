@@ -470,9 +470,9 @@ export default class RoundController {
     private gameOver = (rdiffs) => {
         var container = document.getElementById('movelist') as HTMLElement;
         var movesTail: VNode[] = [];
-        if (this.turnColor === 'black') movesTail.push(h('li.move.hidden', 'X'));
+        if (this.turnColor === 'black') movesTail.push(h('move.hidden', 'X'));
         movesTail.push(h('div#result', result(this.variant, this.status, this.result)));
-        patch(container, h('ol.movelist#movelist', movesTail));
+        patch(container, h('div.movelist#movelist', movesTail));
 
         container = document.getElementById('wrdiff') as HTMLElement;
         patch(container, renderRdiff(rdiffs["wrdiff"]));

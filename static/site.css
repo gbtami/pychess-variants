@@ -1152,26 +1152,20 @@ li.message.server {
   overflow-wrap: break-word
 }
 
-#movelist-block {
+#movelist {
+  display: flex;
+  height: var(--movelist-max-height);
+  max-height: var(--movelist-max-height);
   overflow-y: auto;
-  max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - 110px);
-}
-/* movelist border: 1px solid #ddd; */
-div#moves {
-  display: inline;
-  background: var(--bg-color1);
-  height: 100px;
-  max-height: 100px;
-}
-div.anal#moves {
-  display: inline;
+  flex-flow: row wrap;
+  position: relative;
+  line-height: 1.7;
+  font-size:1.1em;
+  align-items: center;
+  align-content:flex-start;
   background: var(--bg-color1);
 }
-
-ol.movelist {
-  display: inline;
-}
-li.move {
+move {
   line-height: 1.9em;
   display: inline;
   float: left;
@@ -1180,7 +1174,7 @@ li.move {
   box-sizing: border-box;
   justify-content: center;
 }
-li.move.active {
+move.active {
     font-weight:bold;
 }
 eval {
@@ -1190,21 +1184,21 @@ eval {
   float: right;
 }
 
-li.move.counter {
+move.counter {
   color: Gray;
   width: 16%;
   background-color: var(--bg-color2);
   text-align: center;
 }
 
-li.move:hover {
+move:hover {
   color: var(font-color);
   background-color: var(--blue-hover);
 }
-li.move.active {
+move.active {
   background-color: var(--blue-active);
 }
-li.move.hidden {
+move.hidden {
   visibility: hidden;
 }
 

@@ -12,7 +12,6 @@ import { VNode } from 'snabbdom/vnode';
 import { Color } from 'chessgroundx/types';
 
 import { gearButton, toggleOrientation } from './settings';
-import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 
 
@@ -51,10 +50,10 @@ export function povChances(color: Color, ev: Eval) {
 }
 
 export function selectMove (ctrl, ply) {
-    const active = document.querySelector('li.move.active');
+    const active = document.querySelector('move.active');
     if (active) active.classList.remove('active');
 
-    const elPly = document.querySelector(`li.move[ply="${ply}"]`);
+    const elPly = document.querySelector(`move[ply="${ply}"]`);
     if (elPly) elPly.classList.add('active');
 
     const gaugeEl = document.getElementById('gauge') as HTMLElement;
@@ -86,27 +85,17 @@ export function selectMove (ctrl, ply) {
 
 function scrollToPly (ctrl) {
     if (ctrl.steps.length < 9) return;
-    const movesEl = document.getElementById('moves') as HTMLElement;
-    const plyEl = movesEl.querySelector('li.move.active') as HTMLElement | undefined;
+    const movelistEl = document.getElementById('movelist') as HTMLElement;
+    const plyEl = movelistEl.querySelector('move.active') as HTMLElement | undefined;
 
-    const movelistblockEl = document.getElementById('movelist-block') as HTMLElement;
     let st: number | undefined = undefined;
 
     if (ctrl.ply == 0) st = 0;
     else if (ctrl.ply == ctrl.steps.length - 1) st = 99999;
-    else if (plyEl) st = plyEl.offsetTop - movelistblockEl.offsetHeight + plyEl.offsetHeight;
+    else if (plyEl) st = plyEl.offsetTop - movelistEl.offsetHeight / 2 + plyEl.offsetHeight / 2;
 
     if (typeof st == 'number') {
-        if (plyEl && ctrl instanceof RoundController) {
-            var isSmoothScrollSupported = 'scrollBehavior' in document.documentElement.style;
-            if(isSmoothScrollSupported) {
-                plyEl.scrollIntoView({behavior: "smooth", block: "center"});
-            } else {
-                plyEl.scrollIntoView(false);
-            }
-        } else {
-            movelistblockEl.scrollTop = st;
-        }
+        movelistEl.scrollTop = st;
     }
 }
 
@@ -122,16 +111,12 @@ export function movelistView (ctrl) {
             ctrl.vgear,
         ])
     );
-    if (ctrl instanceof RoundController) {
-        return h('div#moves', [h('ol.movelist#movelist')]);
-    } else {
-        return h('div.anal#moves', [h('ol.movelist#movelist')]);
-    }
+    return h('div.movelist#movelist');
 }
 
 export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) {
     var container = document.getElementById('movelist') as HTMLElement;
-    const active = document.querySelector('li.move.active');
+    const active = document.querySelector('move.active');
     if (active && activate) active.classList.remove('active');
 
     var moves: VNode[] = [];
@@ -145,12 +130,12 @@ export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) 
         const scoreStr = (ctrl.steps[ply]['scoreStr'] === null) ? '' : ctrl.steps[ply]['scoreStr'];
         moveEl.push(h('eval#ply' + String(ply), scoreStr));
         const p = ply;
-        el = h('li.move', {class: {active: ((ply === plyTo - 1) && activate)}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, p) }}, moveEl);
+        el = h('move', {class: {active: ((ply === plyTo - 1) && activate)}, attrs: {ply: ply}, on: { click: () => selectMove(ctrl, p) }}, moveEl);
         if (ply % 2 !== 0) {
-            moves.push(h('li.move.counter', (ply + 1) / 2));
+            moves.push(h('move.counter', (ply + 1) / 2));
         }
         moves.push(el);
     }
-    patch(container, h('ol.movelist#movelist', moves));
+    patch(container, h('div.movelist#movelist', moves));
     if (activate) scrollToPly(ctrl);
 }
