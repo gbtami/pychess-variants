@@ -2,7 +2,7 @@
 
 ![ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Kyoto.png)
 
-A *Kiotó Sógi* egy sógi variáns, melyet Tamiya Katsuya talált fel 1976 körül. A játékot 5x5-ös táblán játszák és eléggé különbözik a standard sógitól vagy a minisógitól. A legfőbb különbség az, hogy minden bábu minden lépés után átfordul a másik oldalára, ezáltal egy másik bábuvá alakul. A következő lépés után megint átfordul, így újra az előző bábuvá alakul. Minden lépés során ez a két oldal váltakozik.
+A *Kiotó Sógi* egy sógi variáns, melyet Tamiya Katsuya talált fel 1976 körül. A játékot 5x5-ös táblán játsszák és eléggé különbözik a standard sógitól vagy a minisógitól. A legfőbb különbség az, hogy minden bábu minden lépés után átfordul a másik oldalára, ezáltal egy másik bábuvá alakul. A következő lépés után megint átfordul, így újra az előző bábuvá alakul. Minden lépés során ez a két oldal váltakozik.
 
 Például a lándzsás átváltoztatott gyaloggá (tokin) fordul át. Az előbbinek az eredeti japán neve rövidítve **kyo**, míg utóbbié **to**. A két szó összetételéből adódik a játék neve is: **kyoto**, ami egyben a japán nagyváros, *Kyoto* (Kiotó) neve is. A játék neve tehát egyfajta szóviccen alapul.
 

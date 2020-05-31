@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-A sógi (将棋), avagy a japán sakk egy klasszikus táblajáték, mely Japánban őshonos és a [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk. Modern formájában körülbelül a 16. századtól van jelen. A játék nagyon népszerű Japánban, ahol többen játszák, mint a nyugati sakkot, és a professzionális sógi is virágzó. A játék maga egyszerre hasonló és nagyon más is, mint a nyugati sakk, aztáltal, hogy a leültött bábukat vissza lehet helyezni a táblára.
+A sógi (将棋), avagy a japán sakk egy klasszikus táblajáték, mely Japánban őshonos és a [csaturangából](https://hu.wikipedia.org/wiki/Csaturanga) eredeztethető, akárcsak a sakk. Modern formájában körülbelül a 16. századtól van jelen. A játék nagyon népszerű Japánban, ahol többen játsszák mint a nyugati sakkot, és a professzionális sógi is virágzó. A játék maga egyszerre hasonló és nagyon más is, mint a nyugati sakk, aztáltal, hogy a leültött bábukat vissza lehet helyezni a táblára.
 
 ## Miért érdemes megtanulni sógizni?
 
@@ -11,7 +11,7 @@ Ha élvezed a sakkot, akkor a sógit határozottan megéri kipróbálni. Miközb
 
 ## Szabályok
 
-A szabályok hasonlóak a sakkhoz, így ez az útmutató a különbségekre fókuszál. A sógit egy 9x9-es táblán játszák. A játékosok felváltva lépnek, a cél itt is az ellenfél királyának mattolása. A sakkal ellentétben a "sötét" játékos (melynek neve *sente* (ejtsd: szente) 先手 , első játékos) lép először, aztán a "világos" játékos (melynek neve *gote* 後手 , második játékos). A színek itt csak jelzésértékűek, nem a bábuk valódi színét tűkrözik.
+A szabályok hasonlóak a sakkhoz, így ez az útmutató a különbségekre fókuszál. A sógit egy 9x9-es táblán játsszák. A játékosok felváltva lépnek, a cél itt is az ellenfél királyának mattolása. A sakkal ellentétben a "sötét" játékos (melynek neve *sente* (ejtsd: szente) 先手 , első játékos) lép először, aztán a "világos" játékos (melynek neve *gote* 後手 , második játékos). A színek itt csak jelzésértékűek, nem a bábuk valódi színét tűkrözik.
 
 Jelentős különbség a sakkhoz képest, de hasonló a Crazyhouse variánshoz, hogy a leütött bábukat vissza lehet helyezni a táblára egy-egy lépés helyett. Vannak behozási szabályok (különösen a gyalogok esetében, amiről később lesz szó), de általánosságban elmondható, hogy bárhova el lehet helyezni a bábukat. Továbbá, szinte minden bábut át lehet változtatni. A bábuk akkor változtathatók át, amikor elérik az átváltoztatási zónát (az utolsó három sort), vagy már ebben a zónában/zónából lépnek. A bábu ekkor átfordul (az átváltoztatott felét mutatva). A leütött bábuk az eredeti (nem átváltoztatott) formájukban kerülnek a játékoshoz, illetve így is helyezhetők vissza a táblára.
 
