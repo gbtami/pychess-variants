@@ -15,7 +15,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, i18n } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isByoyomiVariant} from './chess';
+import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
 
 
@@ -171,7 +171,7 @@ class LobbyController {
         localStorage.setItem("seek_inc", e.value);
 
         e = document.getElementById('byo') as HTMLInputElement;
-        const byoyomi = isByoyomiVariant(variant);
+        const byoyomi = isVariantClass(variant, 'byoyomi');
         const byoyomiPeriod = (byoyomi && increment > 0) ? parseInt(e.value) : 0;
         localStorage.setItem("seek_byo", e.value);
 
@@ -222,7 +222,7 @@ class LobbyController {
             const variant = e.options[e.selectedIndex].value;
             const hide960 = variants960.indexOf(variant) === -1;
             const hideHandicap = variant !== 'shogi';
-            const byoyomi = isByoyomiVariant(variant);
+            const byoyomi = isVariantClass(variant, 'byoyomi');
 
             document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
             document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';

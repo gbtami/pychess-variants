@@ -19,7 +19,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isByoyomiVariant } from './chess';
+import { variants, hasEp, needPockets, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -129,7 +129,7 @@ export default class RoundController {
         this.base = model["base"] as number;
         this.inc = model["inc"] as number;
         this.byoyomiPeriod = model["byo"] as number;
-        this.byoyomi = isByoyomiVariant(this.variant);
+        this.byoyomi = isVariantClass(this.variant, 'byoyomi');
         this.status = model["status"] as number;
         this.tv = model["tv"];
         this.steps = [];

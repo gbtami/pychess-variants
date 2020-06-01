@@ -100,7 +100,7 @@ export const VARIANTS = {
  ** manualCount: This variant lets player manually start counting moves to find draws
  ** materialPoint: This variant displays material points
 */
-export const variant_classes = {
+const variant_classes = {
     makruk: new Set(['endgameCount', 'manualCount']),
     makpong: new Set(['endgameCount', 'manualCount']),
     cambodian: new Set(['endgameCount']),
@@ -388,10 +388,9 @@ export function hasEp(variant: string) {
     return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako' || variant === 'orda';
 }
 
-export function isByoyomiVariant(variant: string) {
+export function isVariantClass(variant: string, variantClass: string) {
     // variant can be upper case when called from lobby!
-    const vari = variant.toLowerCase();
-    return vari === 'shogun' || vari === 'janggi' || vari.endsWith('shogi') ;
+    return variant_classes[variant.toLowerCase()].has(variantClass);
 }
 
 function diff(a: number, b:number):number {
