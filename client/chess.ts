@@ -96,24 +96,25 @@ export const VARIANTS = {
  * Variant classes
  * Use these classes to check for characteristics of variants
  ** byoyomi: This variant uses byoyomi time control
- ** endgameCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
+ ** showCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
  ** manualCount: This variant lets player manually start counting moves to find draws
- ** janggiMaterialPoint: This variant displays janggi-style material points
+ ** showMaterialPoint: This variant displays material points for each player
  ** pocket: This variant needs to display the pieces in hand in round, analysis, and editor screen
  ** enPassant: This variant has en passant capture
+ ** pass: This variant allows passing
 */
 const variant_classes = {
-    makruk: new Set(['endgameCount', 'manualCount']),
-    makpong: new Set(['endgameCount', 'manualCount']),
-    cambodian: new Set(['endgameCount']),
-    sittuyin: new Set(['endgameCount', 'pocket']),
+    makruk: new Set(['showCount', 'manualCount']),
+    makpong: new Set(['showCount', 'manualCount']),
+    cambodian: new Set(['showCount']),
+    sittuyin: new Set(['showCount', 'pocket']),
     placement: new Set(['pocket', 'enPassant']),
     crazyhouse: new Set(['pocket', 'enPassant']),
     chess: new Set(['enPassant']),
     shogi: new Set(['byoyomi', 'pocket']),
     minishogi: new Set(['byoyomi', 'pocket']),
     kyotoshogi: new Set(['byoyomi', 'pocket']),
-    janggi: new Set(['byoyomi', 'janggiMaterialPoint']),
+    janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass']),
     xiangqi: new Set([]),
     minixiangqi: new Set([]),
     capablanca: new Set(['enPassant']),

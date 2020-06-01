@@ -286,16 +286,10 @@ export default class RoundController {
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
 
-        // initialize janggi point indicator
-        if (this.variant === 'janggi') {
-            this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#janggi-point-cho')) : patch(misc0, h('div#janggi-point-cho'));
-            this.vmiscInfoB = this.mycolor === 'white' ? patch(misc0, h('div#janggi-point-han')) : patch(misc1, h('div#janggi-point-han'));
-        }
-
-        // initialize counting indicator
-        if (this.variant === 'makruk' || this.variant === 'makpong' || this.variant === 'cambodian' || this.variant === 'sittuyin') {
-            this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#count-white')) : patch(misc0, h('div#count-white'));
-            this.vmiscInfoB = this.mycolor === 'white' ? patch(misc0, h('div#count-black')) : patch(misc1, h('div#count-black'));
+        // initialize material point and counting indicator
+        if (isVariantClass(this.variant, 'showMaterialPoint') || isVariantClass(this.variant, 'showCount')) {
+            this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#misc-infow')) : patch(misc0, h('div#misc-infow'));
+            this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
         }
 
         if (!this.spectator) {
@@ -337,7 +331,7 @@ export default class RoundController {
 
         var container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
-            const pass = this.variant === 'janggi';
+            const pass = isVariantClass(this.variant, 'pass');
             this.gameControls = patch(container, h('div.btn-controls', [
                 h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
                 h('button#count', _('Count')),
@@ -345,7 +339,7 @@ export default class RoundController {
                 h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
             ]));
 
-            const manualCount = !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT') && (this.variant === 'makruk' || this.variant === 'makpong' || this.variant === 'cambodian');
+            const manualCount = isVariantClass(this.variant, 'manualCount') && !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
 

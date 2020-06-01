@@ -17,7 +17,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, needPockets, grand2zero, VARIANTS, sanToRole, getPockets } from './chess';
+import { variants, needPockets, grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -228,15 +228,20 @@ export default class AnalysisController {
 
         this.vpv = document.getElementById('pv') as HTMLElement;
 
-        if (this.variant === 'makruk' || this.variant === 'makpong' || this.variant === 'cambodian' || this.variant === 'sittuyin') {
-            (document.getElementById('count-white') as HTMLElement).style.textAlign = 'center';
-            (document.getElementById('count-black') as HTMLElement).style.textAlign = 'center';
+        if (isVariantClass(this.variant, 'showMaterialPoint')) {
+            const miscW = document.getElementById('misc-infow') as HTMLElement;
+            const miscB = document.getElementById('misc-infob') as HTMLElement;
+            miscW.style.textAlign = 'right';
+            miscB.style.textAlign = 'left';
+            miscW.style.width = '100px';
+            miscB.style.width = '100px';
+            patch(document.getElementById('misc-info-center') as HTMLElement, h('div#misc-info-center', '-'));
+            (document.getElementById('misc-info') as HTMLElement).style.justifyContent = 'space-around';
         }
 
-        if (this.variant === 'janggi') {
-            (document.getElementById('janggi-point-cho') as HTMLElement).style.textAlign = 'right';
-            (document.getElementById('janggi-point-han') as HTMLElement).style.textAlign = 'left';
-            patch(document.getElementById('janggi-point-dash') as HTMLElement, h('div#janggi-point-dash', '-'));
+        if (isVariantClass(this.variant, 'showCount')) {
+            (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
+            (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
     }
 
@@ -452,12 +457,12 @@ export default class AnalysisController {
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
 
-        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
-            updateCount(step.fen, document.getElementById('count-white'), document.getElementById('count-black'));
+        if (isVariantClass(this.variant, 'showCount')) {
+            updateCount(step.fen, document.getElementById('misc-infow'), document.getElementById('misc-infob'));
         }
 
-        if (this.variant === "janggi") {
-            updatePoint(step.fen, document.getElementById('janggi-point-cho') as HTMLElement, document.getElementById('janggi-point-han') as HTMLElement);
+        if (isVariantClass(this.variant, 'showMaterialPoint')) {
+            updatePoint(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
         if (ply === this.ply + 1) {

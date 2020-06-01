@@ -834,37 +834,30 @@ select, input {
   padding-bottom: 12px;
 }
 
-#count-white, #count-black {
+#misc-infow, #misc-infob {
   font-family: "Roboto Mono", "Roboto";
   font-size: 40px;
   text-align: right;
   padding-right: 10px;
 }
 
-#janggi-points {
-  font-family: "Roboto Mono", "Roboto";
-  font-size: 40px;
-  display: flex;
-  justify-content: space-around;
-}
-
-#janggi-point-cho {
-  font-family: "Roboto Mono", "Roboto";
-  font-size: 40px;
-  text-align: right;
-  padding-right: 10px;
-  color: var(--blue-point);
-  width: 100px;
-}
-
-#janggi-point-han {
+#misc-info-center {
   font-family: "Roboto Mono", "Roboto";
   font-size: 40px;
   text-align: center;
-  text-align: right;
-  padding-right: 10px;
+}
+
+#misc-info {
+  display: flex;
+  justify-content: center;
+}
+
+.text-color-blue {
+  color: var(--blue-point);
+}
+
+.text-color-red {
   color: var(--red-point);
-  width: 100px;
 }
 
 /* Modal Content/Box */
