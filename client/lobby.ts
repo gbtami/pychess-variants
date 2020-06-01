@@ -124,14 +124,14 @@ class LobbyController {
     }
 
     isNewSeek (variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated) {
-        // console.log("isNewSeek()?", variant, color, fen, minutes, increment, chess960, rated);
+        // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek => {
             return seek.user === this.model["username"] && 
                                     seek.variant === variant &&
                                     seek.fen === fen &&
                                     seek.color === color &&
-                                    seek.tc === minutes + "+" + ((byoyomiPeriod > 1) ? (byoyomiPeriod + "x") : "") + increment &&
+                                    seek.tc === minutes + "+" + ((byoyomiPeriod > 1) ? (byoyomiPeriod + "x") : "") + increment + ((byoyomiPeriod > 0) ? "(b)" : "") &&
                                     seek.chess960 === chess960 &&
                                     seek.rated === rated;
         })
@@ -198,7 +198,7 @@ class LobbyController {
             // console.log(level, e.value, localStorage.getItem("seek_level"));
             this.createBotChallengeMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, level, chess960, rated===1, handicap);
         } else {
-            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, (rated===1) ? 'Rated' : 'Casual')) {
+            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1)) {
                 this.createSeekMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1, handicap);
             }
         }
