@@ -19,7 +19,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, hasEp, needPockets, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isVariantClass } from './chess';
+import { variants, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -146,7 +146,7 @@ export default class RoundController {
         this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
-        this.hasPockets = needPockets(this.variant);
+        this.hasPockets = isVariantClass(this.variant, 'pocket');
         this.handicap = (this.variant === 'shogi') ? Object.keys(SHOGI_HANDICAP_FEN).some(e => SHOGI_HANDICAP_FEN[e] === this.fullfen) : false;
 
         // orientation = this.mycolor
@@ -600,7 +600,7 @@ export default class RoundController {
 
         var lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') {
+            if (isVariantClass(this.variant, 'tenRanks')) {
                 lastMove = grand2zero(lastMove);
             }
             // drop lastMove causing scrollbar flicker,
@@ -613,7 +613,7 @@ export default class RoundController {
         const capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
         // console.log("CAPTURE ?", capture, lastMove, step);
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (this.variant.endsWith('shogi')) {
+            if (isVariantClass(this.variant, 'shogiSound')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -630,11 +630,11 @@ export default class RoundController {
             sound.check();
         }
 
-        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
+        if (isVariantClass(this.variant, 'showCount')) {
             this.updateCount(msg.fen);
         }
 
-        if (this.variant === "janggi") {
+        if (isVariantClass(this.variant, 'showMaterialPoint')) {
             this.updatePoint(msg.fen);
         }
 
@@ -713,7 +713,7 @@ export default class RoundController {
         var move = step['move'];
         var capture = false;
         if (move !== undefined) {
-            if (this.variant == 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') move = grand2zero(move);
+            if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
@@ -733,16 +733,16 @@ export default class RoundController {
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
 
-        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian" || this.variant === "sittuyin") {
+        if (isVariantClass(this.variant, 'showCount')) {
             this.updateCount(step.fen);
         }
 
-        if (this.variant === "janggi") {
+        if (isVariantClass(this.variant, 'showMaterialPoint')) {
             this.updatePoint(step.fen);
         }
 
         if (ply === this.ply + 1) {
-            if (this.variant.endsWith('shogi')) {
+            if (isVariantClass(this.variant, 'shogiSound')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -769,7 +769,7 @@ export default class RoundController {
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
         const uci_move = orig + dest + promo;
-        const move = (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') ? zero2grand(uci_move) : uci_move;
+        const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;
@@ -823,7 +823,7 @@ export default class RoundController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (this.variant.endsWith('shogi')) {
+            if (isVariantClass(this.variant, 'shogiSound')) {
                 sound.shogimove();
             } else {
                 if (capturedPiece) {
@@ -839,7 +839,7 @@ export default class RoundController {
         return (piece, dest) => {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
-                if (this.variant.endsWith('shogi')) {
+                if (isVariantClass(this.variant, 'shogiSound')) {
                     sound.shogimove();
                 } else {
                     sound.move();
@@ -895,7 +895,7 @@ export default class RoundController {
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && hasEp(this.variant)) {
+        if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && isVariantClass(this.variant, 'enPassant')) {
             const pos = key2pos(dest, firstRankIs0),
             pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
             const diff: PiecesDiff = {};
@@ -904,7 +904,7 @@ export default class RoundController {
             meta.captured = {role: "pawn"};
         };
         // increase pocket count
-        if ((this.variant.endsWith('house') || this.variant.endsWith('shogi') || this.variant === 'shogun') && meta.captured) {
+        if (isVariantClass(this.variant, 'drop') && meta.captured) {
             var role = meta.captured.role
             if (meta.captured.promoted) role = (this.variant.endsWith('shogi')|| this.variant === 'shogun') ? meta.captured.role.slice(1) as Role : "pawn";
 
@@ -918,7 +918,7 @@ export default class RoundController {
         };
 
         //  gating elephant/hawk
-        if (this.variant === "seirawan" || this.variant === "shouse") {
+        if (isVariantClass(this.variant, 'gate')) {
             if (!this.promotion.start(moved.role, orig, dest, meta) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
             if (!this.promotion.start(moved.role, orig, dest, meta)) this.sendMove(orig, dest, '');
@@ -992,7 +992,7 @@ export default class RoundController {
                     };
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
-                } else if (this.variant === 'janggi' && piece!.role === 'king') {
+                } else if (isVariantClass(this.variant, 'pass') && piece!.role === 'king') {
                     this.pass();
                 }
             };

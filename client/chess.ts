@@ -99,9 +99,13 @@ export const VARIANTS = {
  ** showCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
  ** manualCount: This variant lets player manually start counting moves to find draws
  ** showMaterialPoint: This variant displays material points for each player
+ ** drop: This variant allows dropping captured pieces back to the board
+ ** gate: This variant allows S-Chess style gating
  ** pocket: This variant needs to display the pieces in hand in round, analysis, and editor screen
  ** enPassant: This variant has en passant capture
  ** pass: This variant allows passing
+ ** shogiSound: This variant uses shogi piece move sound
+ ** tenRanks: This variant has ten ranks and need to use the grand2zero function to fix its notation
 */
 const variant_classes = {
     makruk: new Set(['showCount', 'manualCount']),
@@ -109,23 +113,23 @@ const variant_classes = {
     cambodian: new Set(['showCount']),
     sittuyin: new Set(['showCount', 'pocket']),
     placement: new Set(['pocket', 'enPassant']),
-    crazyhouse: new Set(['pocket', 'enPassant']),
+    crazyhouse: new Set(['drop', 'pocket', 'enPassant']),
     chess: new Set(['enPassant']),
-    shogi: new Set(['byoyomi', 'pocket']),
-    minishogi: new Set(['byoyomi', 'pocket']),
-    kyotoshogi: new Set(['byoyomi', 'pocket']),
-    janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass']),
-    xiangqi: new Set([]),
+    shogi: new Set(['byoyomi', 'drop', 'pocket', 'shogiSound']),
+    minishogi: new Set(['byoyomi', 'drop', 'pocket', 'shogiSound']),
+    kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'shogiSound']),
+    janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
+    xiangqi: new Set(['tenRanks']),
     minixiangqi: new Set([]),
     capablanca: new Set(['enPassant']),
-    seirawan: new Set(['pocket', 'enPassant']),
-    capahouse: new Set(['pocket', 'enPassant']),
-    shouse: new Set(['pocket', 'enPassant']),
-    grand: new Set(['enPassant']),
-    grandhouse: new Set(['pocket', 'enPassant']),
+    seirawan: new Set(['gate', 'pocket', 'enPassant']),
+    capahouse: new Set(['drop', 'pocket', 'enPassant']),
+    shouse: new Set(['gate', 'drop', 'pocket', 'enPassant']),
+    grand: new Set(['enPassant', 'tenRanks']),
+    grandhouse: new Set(['drop', 'pocket', 'enPassant', 'tenRanks']),
     gothic: new Set(['enPassant']),
-    shako: new Set(['enPassant']),
-    shogun: new Set(['byoyomi', 'pocket', 'enPassant']),
+    shako: new Set(['enPassant', 'tenRanks']),
+    shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
     orda: new Set(['enPassant']),
 }
 
