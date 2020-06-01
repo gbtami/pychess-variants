@@ -92,6 +92,40 @@ export const VARIANTS = {
     orda: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "orda", PieceCSS: ["orda0"], icon: "R" , baseURL: ["orda"]}
 }
 
+/**
+ * Variant classes
+ * Use these classes to check for characteristics of variants
+ ** byoyomi: This variant uses byoyomi time control
+ ** endgameCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
+ ** manualCount: This variant lets player manually start counting moves to find draws
+ ** materialPoint: This variant displays material points
+*/
+export const variant_classes = {
+    makruk: new Set(['endgameCount', 'manualCount']),
+    makpong: new Set(['endgameCount', 'manualCount']),
+    cambodian: new Set(['endgameCount']),
+    sittuyin: new Set(['endgameCount']),
+    placement: new Set([]),
+    crazyhouse: new Set([]),
+    chess: new Set([]),
+    shogi: new Set(['byoyomi']),
+    minishogi: new Set(['byoyomi']),
+    kyotoshogi: new Set(['byoyomi']),
+    janggi: new Set(['byoyomi', 'materialPoint']),
+    xiangqi: new Set([]),
+    minixiangqi: new Set([]),
+    capablanca: new Set([]),
+    seirawan: new Set([]),
+    capahouse: new Set([]),
+    shouse: new Set([]),
+    grand: new Set([]),
+    grandhouse: new Set([]),
+    gothic: new Set([]),
+    shako: new Set([]),
+    shogun: new Set(['byoyomi']),
+    orda: new Set([]),
+}
+
 export function variantIcon(variant, chess960) {
     if (chess960 === "True" || chess960 === 1 || chess960 === true) {
         switch (variant) {
