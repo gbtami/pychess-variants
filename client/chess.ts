@@ -98,32 +98,34 @@ export const VARIANTS = {
  ** byoyomi: This variant uses byoyomi time control
  ** endgameCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
  ** manualCount: This variant lets player manually start counting moves to find draws
- ** materialPoint: This variant displays material points
+ ** janggiMaterialPoint: This variant displays janggi-style material points
+ ** pocket: This variant needs to display the pieces in hand in round, analysis, and editor screen
+ ** enPassant: This variant has en passant capture
 */
 const variant_classes = {
     makruk: new Set(['endgameCount', 'manualCount']),
     makpong: new Set(['endgameCount', 'manualCount']),
     cambodian: new Set(['endgameCount']),
-    sittuyin: new Set(['endgameCount']),
-    placement: new Set([]),
-    crazyhouse: new Set([]),
-    chess: new Set([]),
-    shogi: new Set(['byoyomi']),
-    minishogi: new Set(['byoyomi']),
-    kyotoshogi: new Set(['byoyomi']),
-    janggi: new Set(['byoyomi', 'materialPoint']),
+    sittuyin: new Set(['endgameCount', 'pocket']),
+    placement: new Set(['pocket', 'enPassant']),
+    crazyhouse: new Set(['pocket', 'enPassant']),
+    chess: new Set(['enPassant']),
+    shogi: new Set(['byoyomi', 'pocket']),
+    minishogi: new Set(['byoyomi', 'pocket']),
+    kyotoshogi: new Set(['byoyomi', 'pocket']),
+    janggi: new Set(['byoyomi', 'janggiMaterialPoint']),
     xiangqi: new Set([]),
     minixiangqi: new Set([]),
-    capablanca: new Set([]),
-    seirawan: new Set([]),
-    capahouse: new Set([]),
-    shouse: new Set([]),
-    grand: new Set([]),
-    grandhouse: new Set([]),
-    gothic: new Set([]),
-    shako: new Set([]),
-    shogun: new Set(['byoyomi']),
-    orda: new Set([]),
+    capablanca: new Set(['enPassant']),
+    seirawan: new Set(['pocket', 'enPassant']),
+    capahouse: new Set(['pocket', 'enPassant']),
+    shouse: new Set(['pocket', 'enPassant']),
+    grand: new Set(['enPassant']),
+    grandhouse: new Set(['pocket', 'enPassant']),
+    gothic: new Set(['enPassant']),
+    shako: new Set(['enPassant']),
+    shogun: new Set(['byoyomi', 'pocket', 'enPassant']),
+    orda: new Set(['enPassant']),
 }
 
 export function variantIcon(variant, chess960) {
@@ -380,17 +382,19 @@ export function mandatoryPromotion(variant, role: Role, orig: Key, dest: Key, co
     }
 }
 
-export function needPockets(variant: string) {
-    return variant === 'shogun' || variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant.endsWith('shogi') || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
-}
-
-export function hasEp(variant: string) {
-    return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako' || variant === 'orda';
-}
-
 export function isVariantClass(variant: string, variantClass: string) {
     // variant can be upper case when called from lobby!
     return variant_classes[variant.toLowerCase()].has(variantClass);
+}
+
+export function needPockets(variant: string) {
+    // return variant === 'shogun' || variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant.endsWith('shogi') || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
+    return isVariantClass(variant, 'pocket');
+}
+
+export function hasEp(variant: string) {
+    //return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako' || variant === 'orda';
+    return isVariantClass(variant, 'enPassant');
 }
 
 function diff(a: number, b:number):number {
