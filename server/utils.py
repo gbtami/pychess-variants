@@ -395,7 +395,7 @@ def pgn(doc):
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
-            log.error("Movelist contains invalid move %s" % mlist)
+            log.error("%s %s %s movelist contains invalid move" % (doc["_id"], variant, doc["d"]))
             mlist = mlist[0]
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))

@@ -130,6 +130,8 @@ async def export(request):
     session_user = session.get("user_name")
 
     game_list = []
+    game_counter = 0
+    failed = 0
     if profileId is not None:
         if profileId == "all_games" and session_user in request.app["fishnet_versions"]:
             cursor = db.game.find()
@@ -138,13 +140,16 @@ async def export(request):
 
         async for doc in cursor:
             try:
+                # print(game_counter)
                 # log.info("%s %s %s" % (doc["d"].strftime("%Y.%m.%d"), doc["_id"], C2V[doc["v"]]))
                 pgn_text = pgn(doc)
                 if pgn_text is not None:
                     game_list.append(pgn_text)
+                game_counter += 1
             except Exception:
+                failed += 1
                 log.error("Failed to load game %s %s %s (early games may contain invalid moves)" % (doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d")))
                 continue
-
+        print('failed/all:', failed, game_counter)
     pgn_text = "\n".join(game_list)
     return web.Response(text=pgn_text, content_type="text/pgn")
