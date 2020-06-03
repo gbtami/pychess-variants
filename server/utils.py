@@ -14,7 +14,7 @@ from broadcast import round_broadcast
 from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, zero2grand
-from fairy import BLACK, STANDARD_FEN
+from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game
 from user import User
 from settings import URI
@@ -486,8 +486,15 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Number of kings
     invalid5 = init[0].count("k") != 1 or init[0].count("K") != 1
 
-    if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5:
-        print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5)
+    # Opp king already in check
+    curr_color = init[1]
+    opp_color = "w" if curr_color == "b" else "b"
+    init[1] = init[1].replace(curr_color, opp_color)
+    board = FairyBoard(variant, " ".join(init), chess960)
+    invalid6 = board.is_checked()
+
+    if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5 or invalid6:
+        print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5, invalid6)
         sanitized_fen = start_fen
         return False, start_fen
     else:
