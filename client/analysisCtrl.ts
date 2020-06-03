@@ -17,7 +17,7 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, needPockets, grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
+import { variants, grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { settingsView } from './settings';
@@ -133,7 +133,7 @@ export default class AnalysisController {
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
-        this.hasPockets = needPockets(this.variant);
+        this.hasPockets = isVariantClass(this.variant, 'pocket');
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -351,7 +351,7 @@ export default class AnalysisController {
 
         var lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') {
+            if (isVariantClass(this.variant, 'tenRanks')) {
                 lastMove = grand2zero(lastMove);
             }
             // drop lastMove causing scrollbar flicker,
@@ -364,7 +364,7 @@ export default class AnalysisController {
         const capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (this.variant.endsWith('shogi')) {
+            if (isVariantClass(this.variant, 'shogiSound')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -394,7 +394,7 @@ export default class AnalysisController {
         var move = step.move;
         var capture = false;
         if (move !== undefined) {
-            if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') move = grand2zero(move);
+            if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
@@ -466,7 +466,7 @@ export default class AnalysisController {
         }
 
         if (ply === this.ply + 1) {
-            if (this.variant.endsWith('shogi')) {
+            if (isVariantClass(this.variant, 'shogiSound')) {
                 sound.shogimove();
             } else {
                 if (capture) {
@@ -488,7 +488,7 @@ export default class AnalysisController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (this.variant.endsWith('shogi')) {
+            if (isVariantClass(this.variant, 'shogiSound')) {
                 sound.shogimove();
             } else {
                 if (capturedPiece) {
@@ -504,7 +504,7 @@ export default class AnalysisController {
         return (piece, dest) => {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
-                if (this.variant.endsWith('shogi')) {
+                if (isVariantClass(this.variant, 'shogiSound')) {
                     sound.shogimove();
                 } else {
                     sound.move();
