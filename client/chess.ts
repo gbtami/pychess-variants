@@ -601,7 +601,7 @@ export function validFen(variant, fen) {
     // Castling rights (piece virginity)
     good = (variant === 'seirawan' || variant === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
     const wrong = (element) => {good.indexOf(element) === -1;};
-    if (parts.length > 2)
+    if (parts.length > 2) {
         if (parts[2].split('').some(wrong)) return false;
 
         // Castling right need rooks and king placed in starting square
@@ -609,6 +609,7 @@ export function validFen(variant, fen) {
         if (parts[2].indexOf('k') !== -1 && rows[0].charAt(rows[0].length-1) !== 'r') return false;
         if (parts[2].indexOf('Q') !== -1 && rows[rows.length-1].charAt(0) !== 'R') return false;
         if (parts[2].indexOf('K') !== -1 && rows[rows.length-1].charAt(rows[rows.length-1].length-1) !== 'R') return false;
+    }
 
     // Number of kings
     if (lc(placement, 'k', false) !== 1 || lc(placement, 'k', true) !== 1) return false;
