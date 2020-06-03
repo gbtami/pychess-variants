@@ -481,7 +481,7 @@ def sanitize_fen(variant, initial_fen, chess960):
             ("k" in init[2] and backRankB[rookPosK] != 'r') or \
                 ("Q" in init[2] and backRankW[rookPosQ] != 'R') or \
                 ("K" in init[2] and backRankW[rookPosK] != 'R'):
-                invalid4 = True
+            invalid4 = True
 
     # Number of kings
     invalid5 = init[0].count("k") != 1 or init[0].count("K") != 1
