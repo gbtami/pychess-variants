@@ -605,10 +605,17 @@ export function validFen(variant, fen) {
         if (parts[2].split('').some(wrong)) return false;
 
         // Castling right need rooks and king placed in starting square
-        if (parts[2].indexOf('q') !== -1 && rows[0].charAt(0) !== 'r') return false;
-        if (parts[2].indexOf('k') !== -1 && rows[0].charAt(rows[0].length-1) !== 'r') return false;
-        if (parts[2].indexOf('Q') !== -1 && rows[rows.length-1].charAt(0) !== 'R') return false;
-        if (parts[2].indexOf('K') !== -1 && rows[rows.length-1].charAt(rows[rows.length-1].length-1) !== 'R') return false;
+        // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
+        // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
+        const backRankB = (variant === 'shako') ? rows[1] : rows[0];
+        const backRankW = (variant === 'shako') ? rows[rows.length-2] : rows[rows.length-1];
+        const rookPosQ = (variant === 'shako') ? 1 : 0;
+        const rookPosKB = (variant === 'shako') ? backRankB.length-2 : backRankB.length-1;
+        const rookPosKW = (variant === 'shako') ? backRankW.length-2 : backRankW.length-1;
+        if (parts[2].indexOf('q') !== -1 && backRankB.charAt(rookPosQ) !== 'r') return false;
+        if (parts[2].indexOf('k') !== -1 && backRankB.charAt(rookPosKB) !== 'r') return false;
+        if (parts[2].indexOf('Q') !== -1 && backRankW.charAt(rookPosQ) !== 'R') return false;
+        if (parts[2].indexOf('K') !== -1 && backRankW.charAt(rookPosKW) !== 'R') return false;
     }
 
     // Number of kings
