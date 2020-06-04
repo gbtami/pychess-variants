@@ -69,12 +69,12 @@
           <div class="navbar-toggle icon icon-bars"></div>
           <a class="nav-link active home" href="/">PyChess</a>
           <div class="topnav">
-              <a class="nav-link" href="/tv">{% trans %}Tv{% endtrans %}</a>
-              <a class="nav-link" href="/games">{% trans %}Current games{% endtrans %}</a>
-              <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
-              <a class="nav-link" href="/editor/chess">{% trans %}Editor{% endtrans %}</a>
-              <a class="nav-link" href="/variant">{% trans %}Learn{% endtrans %}</a>
-              <a class="nav-link" href="/about">{% trans %}About{% endtrans %}</a>
+              <a class="nav-link" href="{{ home }}/tv">{% trans %}Tv{% endtrans %}</a>
+              <a class="nav-link" href="{{ home }}/games">{% trans %}Current games{% endtrans %}</a>
+              <a class="nav-link" href="{{ home }}/players">{% trans %}Players{% endtrans %}</a>
+              <a class="nav-link" href="{{ home }}/editor/chess">{% trans %}Editor{% endtrans %}</a>
+              <a class="nav-link" href="{{ home }}/variant">{% trans %}Learn{% endtrans %}</a>
+              <a class="nav-link" href="{{ home }}/about">{% trans %}About{% endtrans %}</a>
               <a class="nav-link" href="https://pychess.github.io">{% trans %}Original PyChess site{% endtrans %}</a>
           </div>
         </div>
@@ -83,7 +83,7 @@
         <button id="btn-darkmode" onclick="toggleDarkmode();" title="{% trans %}Toggle dark mode{% endtrans %}"><div class="icon icon-light"></div></button>
         <button id="btn-sound" onclick="toggleAudio();" title="{% trans %}Toggle sound{% endtrans %}"><div class="icon icon-volume-up"></div></button>
         <div class="langs">
-            <form method="post" action="/translation/select">
+            <form method="post" action="{{ home }}/translation/select">
             <select name="lang" onchange="this.form.submit();">
                 {% for l in languages %}
                 <option value="{{ l }}" {% if lang.upper()==l.upper() %}selected{% endif %}>{{ l.upper() }}</option>
