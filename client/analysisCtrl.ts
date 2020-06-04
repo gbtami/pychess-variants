@@ -93,6 +93,7 @@ export default class AnalysisController {
     clickDropEnabled: boolean;
     showDests: boolean;
     analysisChart: any;
+    ctableContainer: any;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -216,6 +217,8 @@ export default class AnalysisController {
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
             updatePockets(this, pocket0, pocket1);
         }
+
+        this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
 
         var element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'none';
@@ -600,7 +603,8 @@ export default class AnalysisController {
 
     private onMsgCtable = (ct, gameId) => {
         if (ct !== "") {
-            patch(document.getElementById('ctable-container') as HTMLElement, crosstableView(ct, gameId));
+            this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+            this.ctableContainer = patch(this.ctableContainer, crosstableView(ct, gameId));
         }
     }
 
