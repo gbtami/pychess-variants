@@ -1,7 +1,7 @@
 import Sockette from 'sockette';
 
 import { init } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+//import { VNode } from 'snabbdom/vnode';
 import { h } from 'snabbdom/h';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -292,6 +292,9 @@ export default class RoundController {
             this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
         }
 
+        container = document.getElementById('result') as HTMLElement;
+        container.style.display = 'none';
+
         if (!this.spectator) {
             var container = document.getElementById('clock0') as HTMLElement;
             patch(container, h('div.clock-wrap#clock0', [
@@ -462,11 +465,16 @@ export default class RoundController {
     }
 
     private gameOver = (rdiffs) => {
+    /*
         var container = document.getElementById('movelist') as HTMLElement;
         var movesTail: VNode[] = [];
         if (this.turnColor === 'black') movesTail.push(h('move.hidden', 'X'));
         movesTail.push(h('div#result', result(this.variant, this.status, this.result)));
         patch(container, h('div.movelist#movelist', movesTail));
+    */
+        var container = document.getElementById('result') as HTMLElement;
+        patch(container, h('div#result', result(this.variant, this.status, this.result)));
+        container.style.display = 'block';
 
         container = document.getElementById('wrdiff') as HTMLElement;
         patch(container, renderRdiff(rdiffs["wrdiff"]));
