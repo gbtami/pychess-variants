@@ -547,7 +547,7 @@ msgstr "数分"
 
 #: ../client/profile.ts:70
 msgid "Repetition"
-msgstr ""
+msgstr "重复局面"
 
 #: ../client/profile.ts:150
 msgid "%1 move"
@@ -589,7 +589,7 @@ msgstr "中止本局"
 #: ../client/roundCtrl.ts:355 ../client/roundCtrl.ts:858
 #: ../client/roundCtrl.ts:860
 msgid "Count"
-msgstr ""
+msgstr "数"
 
 #: ../client/roundCtrl.ts:356
 msgid "Pass"
@@ -642,7 +642,7 @@ msgstr "停止数步"
 
 #: ../client/roundCtrl.ts:856
 msgid "Stop"
-msgstr ""
+msgstr "停"
 
 #: ../client/roundCtrl.ts:858 ../client/roundCtrl.ts:860
 msgid "Start counting"

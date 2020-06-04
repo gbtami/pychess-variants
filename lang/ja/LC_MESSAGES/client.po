@@ -224,36 +224,36 @@ msgstr ""
 
 #: ../client/chess.ts:46
 msgid "Take captured pieces and drop them back on to the board as your own"
-msgstr ""
+msgstr "チェスですが、将棋のように取った駒を盤上に打ち戻れます。二歩も打ち歩詰めも問題ありません。"
 
 #: ../client/chess.ts:47
 msgid "Chess, unmodified, as it's played by FIDE standards"
-msgstr ""
+msgstr "普通のチェスです。国際チェス連盟のルールを従います。"
 
 #: ../client/chess.ts:48
 msgid "Pieces promote and can be dropped"
-msgstr "将棋です。"
+msgstr "普通の将棋です。"
 
 #: ../client/chess.ts:49
 msgid "Shogi on a 5x5 board"
-msgstr ""
+msgstr "５五将棋、あるいはミニ将棋です。5ｘ5マスの将棋類です。"
 
 #: ../client/chess.ts:50
 msgid "5x5 Shogi where pieces flip to a different piece each move"
-msgstr ""
+msgstr "京都将棋です。一手ごとに駒を裏返すことになります。"
 
 #: ../client/chess.ts:51
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
-msgstr ""
+msgstr "チャンギです。ピッチャンの場合は、残っている駒の点数を数えて勝負を決めます。"
 
 #: ../client/chess.ts:52
 msgid "Open fire on your opponent in this highly aggressive ancient game"
-msgstr ""
+msgstr "シャンチー（象棋）です。中国からの将棋類です。"
 
 #: ../client/chess.ts:53
 msgid "Xiangqi on a 7x7 board"
-msgstr ""
+msgstr "７ｘ７マスのシャンチー類です。"
 
 #: ../client/chess.ts:54
 msgid ""
@@ -296,7 +296,7 @@ msgstr ""
 
 #: ../client/chess.ts:62
 msgid "Pieces promote and can be dropped, similar to Shogi"
-msgstr ""
+msgstr "チェスですが、駒は将棋のように打つことも成ることもできます。"
 
 #: ../client/chess.ts:63
 msgid ""
@@ -457,7 +457,7 @@ msgstr "モード"
 
 #: ../client/lobby.ts:527
 msgid "Custom"
-msgstr ""
+msgstr "カスタム"
 
 #: ../client/lobby.ts:551
 msgid ""
@@ -521,11 +521,11 @@ msgstr "%1 が退席しました"
 
 #: ../client/profile.ts:55
 msgid "Cheat detected"
-msgstr ""
+msgstr "チート検出"
 
 #: ../client/profile.ts:58
 msgid "Not started"
-msgstr ""
+msgstr "未開始"
 
 #: ../client/profile.ts:61
 msgid "Invalid move"
@@ -541,11 +541,11 @@ msgstr "キャンプメイト"
 
 #: ../client/profile.ts:67 ../client/profile.ts:70
 msgid "Point counting"
-msgstr ""
+msgstr "点数数え"
 
 #: ../client/profile.ts:70
 msgid "Repetition"
-msgstr ""
+msgstr "千日手"
 
 #: ../client/profile.ts:150
 msgid "%1 move"
@@ -612,11 +612,11 @@ msgstr "赤（漢）"
 #: ../client/roundCtrl.ts:424
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr ""
+msgstr "%1 番が馬と象の初期配置選び中．．．"
 
 #: ../client/roundCtrl.ts:458 ../client/roundCtrl.ts:460
 msgid "Switch pieces"
-msgstr ""
+msgstr "駒の場所を交換する"
 
 #: ../client/roundCtrl.ts:459
 msgid "Ready"
@@ -648,7 +648,7 @@ msgstr "手数を数え始める"
 
 #: ../client/settings.ts:348
 msgid "[-] Zoom [+]"
-msgstr ""
+msgstr "「－」ズーム「＋」"
 
 #: ../client/settings.ts:353
 msgid "Show piece destinations"

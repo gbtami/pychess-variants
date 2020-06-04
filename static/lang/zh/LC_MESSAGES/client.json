@@ -128,6 +128,7 @@
     "Unknown reason": "原因不明",
     "Campmate": "抢占",
     "Point counting": "数分",
+    "Repetition": "重复局面",
     "%1 move": [
         "%1 步"
     ],
@@ -139,6 +140,7 @@
     " +15 seconds": "+15秒",
     "Give 15 seconds": "添加15秒",
     "Abort": "中止本局",
+    "Count": "数",
     "Pass": "虚着",
     "Resign": "认输",
     "Are you sure you want to resign?": "您确定要认输吗？",
@@ -151,6 +153,7 @@
     "NEW OPPONENT": "新对手",
     "ANALYSIS BOARD": "拆棋",
     "Stop counting": "停止数步",
+    "Stop": "停",
     "Start counting": "开始数步",
     "[-] Zoom [+]": "[-] 放大 [+]",
     "Show piece destinations": "表示棋子走到位置",

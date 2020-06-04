@@ -1,4 +1,9 @@
 {
+    "\"To me, how we've got here today is owing to Stockfish in a BIG way. They rallied global volunteers to come together in the open-source spirit and create such a powerful engine for FREE. That's a lot of great minds and computing power they've managed to harness.": "\"À mon avis, nous devons beaucoup à Stockfish pour arriver où nous sommes aujourd'hui. L'équipe derrière Stockfish rassemblait des volontaires partout dans le monde sous le drapeau d'open source, afin de créer un tellement puissant logiciel gratis. Il réussit à mobiliser des grands esprits et de la puissance informatique formidable.",
+    "Then we've got Lichess to thank. Lichess was also born out of the same open-source spirit, and it too drew in great people as well. Once Lichess incorporated Stockfish as its brains, the rest is history.": "Nous devons aussi adresser nos remerciements à Lichess. Lichess naquit du même esprit d'open source, et lui également attira des grands esprits. Lichess intégra Stockfish à son site, et on connaît la suite.",
+    "Lichess enables the online, real-time, and competitive aspects of game-play. They also bring the enormous power of Stockfish to the masses, who can now benefit from it without configuring a local GUI. I believe this development turns out to be of great consequence and significance.": "Lichess réalise un jeu d'échecs compétitif en ligne et en temps réel. Il apporte aussi l'enorme puissance de Stockfish au grand public, qui peut désormais l'exploiter sans devoir configurer un environnement local. Je ne doute pas que ce développement est d'une grande importance.",
+    "Later on, developers close to the Lichess project eventually extended Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al. The father of Fairy-Stockfish, Fabian, is also one of those devs (still) working on that fork, and he later took several steps further in terms of variant support and extensibility. Thus Fairy-Stockfish was born, so powerful because it builds on the Stockfish project.": "Plus tard, des développeurs au sein du projet Lichess augmenta Stockfish afin de supporter des variantes comme le crazyhouse, d'où Multi-Variant Stockfish. Un des développeurs qui travaillent (toujours) sur ce fork, Fabian, améliora encore l'extensibilité de son code et le nombre de variantes supportées. Ainsi naquit Fairy-Stockfish, son puissance héritée de Stockfish.",
+    "Then comes our beloved pychess-variants, which again very smartly harnesses the underlying superpowers of the big projects. Same online, real-time, and competitive aspects. Same clean and familiar Lichess look and feel. Plus the power of Stockfish!\"": "Et au final vint notre petit site bien-aimé, pychess-variants, qui à son tour exploite les super-pouvoirs des projets sur lesquels il se repose. Le jeu compétitif, en ligne, en temps réel. L'apparence à la Lichess, nette et familière. Et la puissance de Stockfish!\"",
     "About pychess": "À propos de PyChess",
     "pychess is a free, open-source chess server designed to play several chess variant.": "pychess est un serveur libre, et open-source, conçu dans le but de jouer plusieurs variantes d'échecs.",
     "Currently supported games are ": "Les jeux supportés à ce moment sont",
@@ -111,6 +116,7 @@
     "Rating": "Classement",
     "Time": "Temps",
     "Mode": "Mode",
+    "Custom": "Custom",
     "You have an unfinished game!\nPress OK to continue.": "Vous avez une partie non-terminée !\nAppuyer sur \"OK\" pour continuer.",
     "%1 game in play": [
         "%1 partie en cours",
@@ -137,6 +143,7 @@
     "Unknown reason": "Raison inconnue",
     "Campmate": "Camp conquis",
     "Point counting": "Comptage de points",
+    "Repetition": "Répétition",
     "%1 move": [
         "%1 coup",
         "%1 coups"
@@ -149,6 +156,7 @@
     " +15 seconds": "+15 secondes",
     "Give 15 seconds": "Donner 15 secondes",
     "Abort": "Annuler",
+    "Count": "Compter",
     "Pass": "Passer le tour",
     "Resign": "Abandonner",
     "Are you sure you want to resign?": "Êtes-vous sûr de vouloir abandonner ?",
@@ -161,6 +169,7 @@
     "NEW OPPONENT": "NOUVEAU ADVERSAIRE",
     "ANALYSIS BOARD": "ECHIQUIER D'ANALYSE",
     "Stop counting": "Arrêter de compter",
+    "Stop": "Arrêter",
     "Start counting": "Commencer à compter les coups",
     "[-] Zoom [+]": "[-] Zoomer [+]",
     "Show piece destinations": "Mettre en évidence les cases de destination",
