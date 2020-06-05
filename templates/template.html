@@ -96,6 +96,7 @@
         {% else %}
             <a class="login nav-link" href="{{ home }}/logout" title="{% trans %}Log out{% endtrans %}" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
         {% endif %}
+        <button id="btn-gear" title="{% trans %}Settings{% endtrans %}"><div class="icon icon-cog"></div></button>
       </div>
     </header>
     {% block content %}{% endblock %}
