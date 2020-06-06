@@ -6,6 +6,11 @@ function classToggle() {
 document.querySelector('.navbar-toggle')
   .addEventListener('click', classToggle);
 
+function settingsToggle() {
+  const settings = document.querySelectorAll('.topnav.settings a');
+  settings.forEach(setting => setting.classList.toggle('settings-show'));
+}
+
 var audio = 'true';
 function toggleAudio() {
     audio = (audio === 'false') ? 'true': 'false' ;
