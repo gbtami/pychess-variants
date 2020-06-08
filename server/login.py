@@ -114,10 +114,11 @@ async def logout(request):
     user = users.get(session_user)
 
     # close lobby socket
-    if session_user in request.app["websockets"]:
-        ws = request.app["websockets"][session_user]
+    if session_user in request.app["lobbysockets"]:
+        ws_set = request.app["lobbysockets"][session_user]
         response = {"type": "logout"}
-        await ws.send_json(response)
+        for ws in ws_set:
+            await ws.send_json(response)
 
     # lose and close game sockets
     # TODO: this can't end game if logout came from an ongoing game
