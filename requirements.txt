@@ -8,6 +8,5 @@ htmlmin==0.1.12
 jinja2==2.11.2
 motor==2.1.0
 pyffish==0.0.50
-sortedcontainers==2.1.0
-sortedcollections==1.1.2
+sortedcollections==1.2.1
 python-gettext==4.0
