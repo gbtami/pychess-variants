@@ -283,4 +283,3 @@ if __name__ == '__main__':
         board.print_pos()
         print(board.fen)
         print(board.legal_moves())
-    
