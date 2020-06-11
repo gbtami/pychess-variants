@@ -304,6 +304,10 @@ ul.guide li {
   cursor: pointer;
 }
 
+.site-buttons .langs {
+    margin: 3px 3px 0 3px;
+}
+
 .site-buttons button:hover {
   color: var(--blue-hover);
 }
