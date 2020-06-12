@@ -108,7 +108,11 @@ async def index(request):
         view = "editor"
 
     profileId = request.match_info.get("profileId")
+
     variant = request.match_info.get("variant")
+    if (variant is not None) and ((variant.lower() not in VARIANTS) or variant.endswith("960")):
+        return web.Response(status=404)
+
     fen = request.rel_url.query.get("fen")
 
     if (fen is not None) and "//" in fen:
