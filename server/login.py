@@ -10,6 +10,8 @@ from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_
 
 log = logging.getLogger(__name__)
 
+RESERVED_BOT_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay")
+
 
 async def oauth(request):
     """ Get lichess.org oauth token. """
@@ -68,6 +70,10 @@ async def login(request):
     except Exception:
         log.error("Failed to get user info from lichess.org")
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
+        raise web.HTTPFound("/")
+
+    if user.username in RESERVED_BOT_USERS:
+        log.error("User %s tried to log in." % user.username)
         raise web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
