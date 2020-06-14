@@ -1,105 +1,110 @@
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#dbd7d1"><title>{{ title }} • PyChess</title>
-    <link rel="stylesheet" href="/static/chessground.css">
-    <link rel="stylesheet" href="/static/standard.css">
-    <link rel="stylesheet" href="/static/seir0.css">
-    <link rel="stylesheet" href="/static/makruk.css">
-    <link rel="stylesheet" href="/static/sittuyinm.css">
-    <link rel="stylesheet" href="/static/shogi0k.css">
-    <link rel="stylesheet" href="/static/kyoto0k.css">
-    <link rel="stylesheet" href="/static/xiangqi.css">
-    <link rel="stylesheet" href="/static/capa0.css">
-    <link rel="stylesheet" href="/static/shako0.css">
-    <link rel="stylesheet" href="/static/shogunb.css">
-    <link rel="stylesheet" href="/static/janggihb.css">
-    <link rel="stylesheet" href="/static/orda0.css">
-    <link rel="stylesheet" href="/static/boards.css">
-    <link rel="stylesheet" href="/static/extensions.css">
-    <link rel="stylesheet" href="/static/styles.css">
-    <link rel="stylesheet" href="/static/preview.css">
-    <link rel="stylesheet" href="/static/site.css">
-    <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon" />
-  </head>
-  <div id="preload">
-    <img src="/static/images/board/makruk.svg"/>
-    <img src="/static/images/board/sittuyin.svg"/>
-    <img src="/static/images/board/8x8brown.svg"/>
-    <img src="/static/images/board/10x8brown.svg"/>
-    <img src="/static/images/board/10x10brown.svg"/>
-    <img src="/static/images/board/xiangqi.svg"/>
-    <img src="/static/images/board/Janggi.svg"/>
-    <img src="/static/images/board/minixiangqi.svg"/>
-    <img src="/static/images/board/shogi.svg"/>
-    <img src="/static/images/board/minishogi.svg"/>
-  </div>
-  <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --pocketheight: 0px; --PVheight: 0px; --countingHeight: 0px;"
-        data-view="{{ view }}"
-        data-lang="{{ lang }}"
-        data-home="{{ home }}"
-        data-user="{{ username }}"
-        data-anon="{{ anon }}"
-        data-country="{{ country }}"
-        data-gameid="{{ gameid }}"
-        data-date="{{ date }}"
-        data-result="{{ result }}"
-        data-status="{{ status }}"
-        data-profile="{{ profile }}"
-        data-title="{{ profile_title }}"
-        data-variant="{{ variant }}"
-        data-chess960="{{ chess960 }}"
-        data-rated="{{ rated }}"
-        data-level="{{ level }}"
-        data-wplayer="{{ wplayer }}"
-        data-wtitle="{{ wtitle }}"
-        data-wrating="{{ wrating }}"
-        data-wrdiff="{{ wrdiff }}"
-        data-bplayer="{{ bplayer }}"
-        data-btitle="{{ btitle }}"
-        data-brating="{{ brating }}"
-        data-brdiff="{{ brdiff }}"
-        data-fen="{{ fen }}"
-        data-base="{{ base }}"
-        data-inc="{{ inc }}"
-        data-byo="{{ byo }}">
-    <header>
-        <div class="site-title-nav">
-          <div class="navbar-toggle icon icon-bars"></div>
-          <a class="nav-link active home" href="/">PyChess</a>
-          <div class="topnav">
-              <a class="nav-link" href="{{ home }}/tv">{% trans %}Tv{% endtrans %}</a>
-              <a class="nav-link" href="{{ home }}/games">{% trans %}Current games{% endtrans %}</a>
-              <a class="nav-link" href="{{ home }}/players">{% trans %}Players{% endtrans %}</a>
-              <a class="nav-link" href="{{ home }}/editor/chess">{% trans %}Editor{% endtrans %}</a>
-              <a class="nav-link" href="{{ home }}/variant">{% trans %}Learn{% endtrans %}</a>
-              <a class="nav-link" href="{{ home }}/about">{% trans %}About{% endtrans %}</a>
-              <a class="nav-link" href="https://pychess.github.io">{% trans %}Original PyChess site{% endtrans %}</a>
-          </div>
-        </div>
-      <div class="site-buttons">
-        <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
-        <button id="btn-darkmode" onclick="toggleDarkmode();" title="{% trans %}Toggle dark mode{% endtrans %}"><div class="icon icon-light"></div></button>
-        <button id="btn-sound" onclick="toggleAudio();" title="{% trans %}Toggle sound{% endtrans %}"><div class="icon icon-volume-up"></div></button>
-        <div class="langs">
-            <form method="post" action="{{ home }}/translation/select">
-            <select name="lang" onchange="this.form.submit();">
-                {% for l in languages %}
-                <option value="{{ l }}" {% if lang.upper()==l.upper() %}selected{% endif %}>{{ l.upper() }}</option>
-                {% endfor %}
-            </select>
-            </form>
-        </div>
-        <button id="btn-cog" onclick="toggleSettings();"  title="{% trans %}Settings{% endtrans %}"><div class="icon icon-cog"></div></button>
-        {% if guest %}
-            <a class="login nav-link" href="{{ home }}/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
-        {% else %}
-            <a class="login nav-link" href="{{ home }}/logout" title="{% trans %}Log out{% endtrans %}" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
-        {% endif %}
-      </div>
-    </header>
-    {% block content %}{% endblock %}
-  </body>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#dbd7d1"><title>{{ title }} • PyChess</title>
+        <link rel="stylesheet" href="/static/chessground.css">
+        <link rel="stylesheet" href="/static/standard.css">
+        <link rel="stylesheet" href="/static/seir0.css">
+        <link rel="stylesheet" href="/static/makruk.css">
+        <link rel="stylesheet" href="/static/sittuyinm.css">
+        <link rel="stylesheet" href="/static/shogi0k.css">
+        <link rel="stylesheet" href="/static/kyoto0k.css">
+        <link rel="stylesheet" href="/static/xiangqi.css">
+        <link rel="stylesheet" href="/static/capa0.css">
+        <link rel="stylesheet" href="/static/shako0.css">
+        <link rel="stylesheet" href="/static/shogunb.css">
+        <link rel="stylesheet" href="/static/janggihb.css">
+        <link rel="stylesheet" href="/static/orda0.css">
+        <link rel="stylesheet" href="/static/boards.css">
+        <link rel="stylesheet" href="/static/extensions.css">
+        <link rel="stylesheet" href="/static/styles.css">
+        <link rel="stylesheet" href="/static/preview.css">
+        <link rel="stylesheet" href="/static/site.css">
+        <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon" />
+    </head>
+    <div id="preload">
+        <img src="/static/images/board/makruk.svg"/>
+        <img src="/static/images/board/sittuyin.svg"/>
+        <img src="/static/images/board/8x8brown.svg"/>
+        <img src="/static/images/board/10x8brown.svg"/>
+        <img src="/static/images/board/10x10brown.svg"/>
+        <img src="/static/images/board/xiangqi.svg"/>
+        <img src="/static/images/board/Janggi.svg"/>
+        <img src="/static/images/board/minixiangqi.svg"/>
+        <img src="/static/images/board/shogi.svg"/>
+        <img src="/static/images/board/minishogi.svg"/>
+    </div>
+    <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --pocketheight: 0px; --PVheight: 0px; --countingHeight: 0px;"
+                                data-view="{{ view }}"
+                                data-lang="{{ lang }}"
+                                data-home="{{ home }}"
+                                data-user="{{ username }}"
+                                data-anon="{{ anon }}"
+                                data-country="{{ country }}"
+                                data-gameid="{{ gameid }}"
+                                data-date="{{ date }}"
+                                data-result="{{ result }}"
+                                data-status="{{ status }}"
+                                data-profile="{{ profile }}"
+                                data-title="{{ profile_title }}"
+                                data-variant="{{ variant }}"
+                                data-chess960="{{ chess960 }}"
+                                data-rated="{{ rated }}"
+                                data-level="{{ level }}"
+                                data-wplayer="{{ wplayer }}"
+                                data-wtitle="{{ wtitle }}"
+                                data-wrating="{{ wrating }}"
+                                data-wrdiff="{{ wrdiff }}"
+                                data-bplayer="{{ bplayer }}"
+                                data-btitle="{{ btitle }}"
+                                data-brating="{{ brating }}"
+                                data-brdiff="{{ brdiff }}"
+                                data-fen="{{ fen }}"
+                                data-base="{{ base }}"
+                                data-inc="{{ inc }}"
+                                data-byo="{{ byo }}">
+        <header>
+            <div class="site-title-nav">
+                <div class="navbar-toggle icon icon-bars"></div>
+                <a class="nav-link active home" href="/">PyChess</a>
+                <div class="topnav">
+                    <a class="nav-link" href="{{ home }}/tv">{% trans %}Tv{% endtrans %}</a>
+                    <a class="nav-link" href="{{ home }}/games">{% trans %}Current games{% endtrans %}</a>
+                    <a class="nav-link" href="{{ home }}/players">{% trans %}Players{% endtrans %}</a>
+                    <a class="nav-link" href="{{ home }}/editor/chess">{% trans %}Editor{% endtrans %}</a>
+                    <a class="nav-link" href="{{ home }}/variant">{% trans %}Learn{% endtrans %}</a>
+                    <a class="nav-link" href="{{ home }}/about">{% trans %}About{% endtrans %}</a>
+                    <a class="nav-link" href="https://pychess.github.io">{% trans %}Original PyChess site{% endtrans %}</a>
+                </div>
+            </div>
+            <div class="site-buttons">
+                <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
+                <div id="topnav-settings">
+                    <button id="btn-settings" onclick="toggleSettings();"  title="{% trans %}Settings{% endtrans %}"><div class="icon icon-cog"></div></button>
+                    <div id="settings">
+                        {% if not guest %}
+                        <a class="login nav-link" href="{{ home }}/logout" title="{% trans %}Log out{% endtrans %}" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
+                        {% endif %}
+                        <button id="btn-darkmode" onclick="toggleDarkmode();" title="{% trans %}Toggle dark mode{% endtrans %}"><div class="icon icon-light"></div></button>
+                        <button id="btn-sound" onclick="toggleAudio();" title="{% trans %}Toggle sound{% endtrans %}"><div class="icon icon-volume-up"></div></button>
+                        <div class="langs">
+                            <form method="post" action="{{ home }}/translation/select">
+                                <select name="lang" onchange="this.form.submit();">
+                                    {% for l in languages %}
+                                    <option value="{{ l }}" {% if lang.upper()==l.upper() %}selected{% endif %}>{{ l.upper() }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% if guest %}
+                <a class="login nav-link" href="{{ home }}/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
+                {% endif %}
+            </div>
+        </header>
+        {% block content %}{% endblock %}
+    </body>
 </html>
 {% block js %}{% endblock %}

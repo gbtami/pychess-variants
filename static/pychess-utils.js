@@ -6,9 +6,14 @@ function classToggle() {
 document.querySelector('.navbar-toggle')
   .addEventListener('click', classToggle);
 
-function settingsToggle() {
-  const settings = document.querySelectorAll('.topnav.settings a');
-  settings.forEach(setting => setting.classList.toggle('settings-show'));
+function toggleSettings() {
+    const button = document.getElementById('btn-settings');
+    const settings = document.getElementById('settings');
+    button.classList.toggle('active');
+    if (settings.style.display === 'none')
+        settings.style.display = 'flex';
+    else
+        settings.style.display = 'none';
 }
 
 var audio = 'true';
