@@ -274,7 +274,7 @@ class Game:
                 self.stopwatch.restart()
 
             except Exception:
-                log.exception("ERROR: Exception in game.play_move()!")
+                log.exception("ERROR: Exception in game %s play_move() %s" % (self.id, move))
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
@@ -579,7 +579,11 @@ class Game:
 
     @property
     def pgn(self):
-        mlist = sf.get_san_moves(self.variant, self.initial_fen, self.board.move_stack, self.chess960, sf.NOTATION_SAN)
+        try:
+            mlist = sf.get_san_moves(self.variant, self.initial_fen, self.board.move_stack, self.chess960, sf.NOTATION_SAN)
+        except Exception:
+            log.exception("ERROR: Exception in game %s pgn()" % self.id)
+            mlist = self.board.move_stack
         moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import

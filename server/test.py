@@ -10,9 +10,11 @@ from sortedcollections import ValueSortedDict
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
 from const import CREATED, STARTED, VARIANTS
+from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from game import Game
 from user import User
+from utils import sanitize_fen
 from server import make_app
 
 import game
@@ -80,6 +82,50 @@ PERFS["weakplayer"]["crazyhouse960"] = {
     "la": datetime.utcnow(),
     "nb": 0
 }
+
+
+class SanitizeFenTestCase(unittest.TestCase):
+
+    def test_fen_default(self):
+        for variant in VARIANTS:
+            chess960 = variant.endswith("960")
+            variant_name = variant[:-3] if chess960 else variant
+            board = FairyBoard(variant_name, chess960=chess960)
+            fen = board.initial_fen
+
+            valid, sanitized = sanitize_fen(variant_name, fen, chess960)
+            self.assertTrue(valid)
+
+    def test_fen_lichess_zh_pockets(self):
+        chess960 = False
+        lichess_fen = "r7/5pkp/b1pPpNpn/p2pP3/N7/BP6/KP3PPP/r3q~3/RQNRPQBb w - - 2 51"
+        pychess_fen = "r7/5pkp/b1pPpNpn/p2pP3/N7/BP6/KP3PPP/r3q~3[RQNRPQBb] w - - 2 51"
+        valid, sanitized = sanitize_fen("crazyhouse", lichess_fen, chess960)
+        self.assertEqual(sanitized, pychess_fen)
+
+    def test_fen_slashes(self):
+        chess960 = False
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1"
+        valid, sanitized = sanitize_fen("chess", fen, chess960)
+        self.assertFalse(valid)
+
+    def test_fen_castling_rights(self):
+        chess960 = False
+        # missing h1 rook
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w KQkq - 0 1"
+        valid, sanitized = sanitize_fen("chess", fen, chess960)
+        self.assertFalse(valid)
+
+        # https://www.pychess.org/xYbsTWKM
+        fen = "rnbqk1nr/1ppp1ppp/1pb1p3/7e/1b2P3/2NP1N2/PPPQBPPP/R2EK2R[HH] w KQAEHkqabcdegh - 4 9"
+        valid, sanitized = sanitize_fen("shouse", fen, chess960)
+        self.assertTrue(valid)
+
+    def test_fen_opp_king_in_check(self):
+        chess960 = False
+        fen = "5k3/4a4/3CN4/9/1PP5p/9/8P/4C4/4A4/2B1K4 w - - 0 46"
+        valid, sanitized = sanitize_fen("janggi", fen, chess960)
+        self.assertFalse(valid)
 
 
 class RequestLobbyTestCase(AioHTTPTestCase):

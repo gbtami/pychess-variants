@@ -10,6 +10,8 @@ from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_
 
 log = logging.getLogger(__name__)
 
+RESERVED_BOT_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay")
+
 
 async def oauth(request):
     """ Get lichess.org oauth token. """
@@ -70,6 +72,10 @@ async def login(request):
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
         raise web.HTTPFound("/")
 
+    if user.username in RESERVED_BOT_USERS:
+        log.error("User %s tried to log in." % user.username)
+        raise web.HTTPFound("/")
+
     log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
     users = request.app["users"]
 
@@ -114,10 +120,11 @@ async def logout(request):
     user = users.get(session_user)
 
     # close lobby socket
-    if session_user in request.app["websockets"]:
-        ws = request.app["websockets"][session_user]
+    if session_user in request.app["lobbysockets"]:
+        ws_set = request.app["lobbysockets"][session_user]
         response = {"type": "logout"}
-        await ws.send_json(response)
+        for ws in ws_set:
+            await ws.send_json(response)
 
     # lose and close game sockets
     # TODO: this can't end game if logout came from an ongoing game

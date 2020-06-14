@@ -1,4 +1,5 @@
 import asyncio
+import concurrent
 import json
 import logging
 
@@ -221,6 +222,9 @@ async def lobby_socket_handler(request):
             else:
                 log.debug("--- Lobby ws other msg.type %s %s" % (msg.type, msg))
 
+    except concurrent.futures._base.CancelledError:
+        # client disconnected
+        pass
     except Exception as e:
         log.error("!!! Lobby ws exception occured: %s" % type(e))
 

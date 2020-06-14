@@ -183,7 +183,7 @@ export default class RoundController {
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.steps.push({
-            'fen': fen_placement,
+            'fen': this.fullfen,
             'move': undefined,
             'check': false,
             'turnColor': this.turnColor,
@@ -560,7 +560,23 @@ export default class RoundController {
         if (latestPly) this.ply = msg.ply
 
         this.fullfen = msg.fen;
+
+        if (isVariantClass(this.variant, 'gate')) {
+            // When castling with gating is possible 
+            // e1g1, e1g1h, e1g1e, h1e1h, h1e1e all will be offered by moving our king two squares
+            // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
+            for (var orig of Object.keys(msg.dests)) {
+                const movingPiece = this.chessground.state.pieces[orig];
+                if (movingPiece !== undefined && movingPiece.role === "rook") {
+                    msg.dests[orig] = msg.dests[orig].filter(x => {
+                        const destPiece = this.chessground.state.pieces[x];
+                        return destPiece === undefined || destPiece.role !== 'king';
+                    });
+                }
+            }
+        }
         this.dests = msg.dests;
+
         // list of legal promotion moves
         this.promotions = msg.promo;
         this.clocktimes = msg.clocks;
@@ -679,7 +695,7 @@ export default class RoundController {
                     movable: {
                         free: false,
                         color: this.mycolor,
-                        dests: msg.dests,
+                        dests: this.dests,
                     },
                     check: msg.check,
                     lastMove: lastMove,
@@ -699,9 +715,6 @@ export default class RoundController {
                     // giving fen here will place castling rooks to their destination in chess960 variants
                     fen: parts[0],
                     turnColor: this.turnColor,
-                    premovable: {
-                        dests: msg.dests,
-                    },
                     check: msg.check,
                 });
             };

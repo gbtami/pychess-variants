@@ -166,7 +166,7 @@ export default class AnalysisController {
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.steps.push({
-            'fen': fen_placement,
+            'fen': this.fullfen,
             'move': undefined,
             'check': false,
             'turnColor': this.turnColor,

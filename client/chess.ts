@@ -574,29 +574,64 @@ export function validFen(variant, fen) {
 
     // Allowed characters in placement part
     const placement = parts[0];
-    var good = start[0] + ((variant === "orda") ? "Hq" : "") + "~+0123456789[]";
+    const startPlacement = start[0];
+    var good = startPlacement + ((variant === "orda") ? "Hq" : "") + "~+0123456789[]";
     const alien = (element) => {return good.indexOf(element) === -1;}
-    if (parts[0].split('').some(alien)) return false;
+    if (placement.split('').some(alien)) return false;
 
-    // Number of rows
-    if (lc(start[0], '/', false) !== lc(parts[0], '/', false)) return false;
+    // Brackets paired
+    if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
+
+    // Split board part and pocket part
+    const leftBracketPos = placement.indexOf('[');
+    const board = (leftBracketPos === -1) ? placement : placement.slice(0, leftBracketPos);
+    //const pocket = placement.slice(leftBracketPos);
+    //const startLeftBracketPos = start.indexOf('[');
+    //const startBoard = startPlacement.slice(0, startLeftBracketPos);
+    //const startPocket = startPlacement.slice(startLeftBracketPos);
+
+    console.log(board);
+
+    // Convert FEN board to board array
+    const toBoardArray = (board) => {
+        const toRowArray = (row) => {
+            const stuffedRow = row.replace('10', '_'.repeat(10)).replace(/\d/g, x => '_'.repeat(parseInt(x)) );
+            var rowArray : string[] = [];
+            var promoted = false;
+            for (const c of stuffedRow) {
+                switch (c) {
+                    case '+':
+                        promoted = true;
+                        break;
+                    case '~':
+                        rowArray[rowArray.length - 1] = rowArray[rowArray.length - 1] + '~';
+                    default:
+                        if (promoted) {
+                            rowArray.push('+' + c);
+                            promoted = false;
+                        }
+                        else
+                            rowArray.push(c);
+                }
+            }
+            return rowArray;
+        };
+        return board.split('/').map(toRowArray);
+    };
+
+    const boardArray = toBoardArray(board);
+    console.log(boardArray);
+    //const startBoardArray = toBoardArray(startBoard);
+
+    // Correct board size
+    const boardHeight = dimensions[VARIANTS[variant].geom].height;
+    const boardWidth = dimensions[VARIANTS[variant].geom].width;
+
+    if (boardArray.length !== boardHeight) return false;
+    if (boardArray.some(row => row.length !== boardWidth)) return false;
 
     // Starting colors
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
-
-    // Rows filled with empty sqares correctly
-    var rows = parts[0].split('/');
-    const leftBracketPos = rows[rows.length-1].indexOf('[');
-    if (leftBracketPos !== -1) rows[rows.length-1] = rows[rows.length-1].slice(0, leftBracketPos);
-
-    const boardWidth = dimensions[VARIANTS[variant].geom].width;
-    const notFilled = (row) => {
-        var stuffedRow = row.replace('10', '_'.repeat(10));
-        stuffedRow = stuffedRow.replace(/[+~]/g, '');
-        stuffedRow = stuffedRow.replace(/\d/g, function stuff (x) {return '_'.repeat(parseInt(x));});
-        return stuffedRow.length !== boardWidth;
-    };
-    if (rows.some(notFilled)) return false;
 
     // Castling rights (piece virginity)
     good = (variant === 'seirawan' || variant === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
@@ -607,15 +642,30 @@ export function validFen(variant, fen) {
         // Castling right need rooks and king placed in starting square
         // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
-        const backRankB = (variant === 'shako') ? rows[1] : rows[0];
-        const backRankW = (variant === 'shako') ? rows[rows.length-2] : rows[rows.length-1];
-        const rookPosQ = (variant === 'shako') ? 1 : 0;
-        const rookPosKB = (variant === 'shako') ? backRankB.length-2 : backRankB.length-1;
-        const rookPosKW = (variant === 'shako') ? backRankW.length-2 : backRankW.length-1;
-        if (parts[2].indexOf('q') !== -1 && backRankB.charAt(rookPosQ) !== 'r') return false;
-        if (parts[2].indexOf('k') !== -1 && backRankB.charAt(rookPosKB) !== 'r') return false;
-        if (parts[2].indexOf('Q') !== -1 && backRankW.charAt(rookPosQ) !== 'R') return false;
-        if (parts[2].indexOf('K') !== -1 && backRankW.charAt(rookPosKW) !== 'R') return false;
+        const rookPos = {
+            K: (variant === 'shako') ? boardArray[boardHeight - 2][boardWidth - 2] : boardArray[boardHeight - 1][boardWidth - 1],
+            Q: (variant === 'shako') ? boardArray[boardHeight - 2][1] : boardArray[boardHeight - 1][0],
+            k: (variant === 'shako') ? boardArray[1][boardWidth - 2] : boardArray[0][boardWidth - 1],
+            q: (variant === 'shako') ? boardArray[1][1] : boardArray[0][0],
+        };
+
+        console.log(rookPos);
+
+        for (const c of parts[2]) {
+            switch (c) {
+                case 'K':
+                case 'Q':
+                    if (rookPos[c] !== 'R') return false;
+                    // TODO check king position
+                    break;
+                case 'k':
+                case 'q':
+                    if (rookPos[c] !== 'r') return false;
+                    // TODO check king position
+                    break;
+                // TODO Column-based right
+            }
+        }
     }
 
     // Number of kings
@@ -624,9 +674,6 @@ export function validFen(variant, fen) {
     // Touching kings
     const pieces = read(parts[0], VARIANTS[variant].geom);
     if (touchingKings(pieces)) return false;
-
-    // Brackets paired
-    if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
 
     return true;
 }

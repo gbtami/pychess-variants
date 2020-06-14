@@ -273,3 +273,13 @@ if __name__ == '__main__':
         board.print_pos()
         print(board.fen)
         print(board.legal_moves())
+
+    board = FairyBoard("shouse")
+    for move in ("e2e4", "E@d4", "g1f3", "e7e6", "b1c3", "H@b6", "d2d3", "f8b4", "c1e3", "d4b5", "e3b6", "a7b6", "d1d2e", "B@c6", "f1e2", "b5h5"):
+        print("push move", move, board.get_san(move))
+        if board.move_stack:
+            print("is_checked(), insuff material, draw?", board.is_checked(), board.insufficient_material(), board.is_claimable_draw())
+        board.push(move)
+        board.print_pos()
+        print(board.fen)
+        print(board.legal_moves())

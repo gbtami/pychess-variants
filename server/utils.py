@@ -471,10 +471,14 @@ def sanitize_fen(variant, initial_fen, chess960):
         invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
     # Castling right need rooks and king placed in starting square
-    if not invalid4:
+    if (not invalid2) and (not invalid4):
         rows = init[0].split("/")
         backRankB = rows[1] if (variant == 'shako') else rows[0]
         backRankW = rows[-2] if (variant == 'shako') else rows[-1]
+        # cut off pockets
+        k = backRankW.rfind("[")
+        if k > 0:
+            backRankW = backRankW[:k]
         rookPosQ = 1 if (variant == 'shako') else 0
         rookPosK = -2 if (variant == 'shako') else -1
         if ("q" in init[2] and backRankB[rookPosQ] != 'r') or \
