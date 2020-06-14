@@ -6,23 +6,34 @@ function classToggle() {
 document.querySelector('.navbar-toggle')
   .addEventListener('click', classToggle);
 
+function hideElement(e) {
+    e.style.display = 'none';
+}
+
 function toggleSettings() {
-    const button = document.getElementById('btn-settings');
     const settings = document.getElementById('settings');
-    button.classList.toggle('active');
-    if (settings.style.display === 'none')
+    if (settings.style.display === 'none') {
         settings.style.display = 'flex';
+        for (const s of settings.children)
+            s.style.display = (s.id === 'settings-main' ? 'flex' : 'none');
+    }
     else
         settings.style.display = 'none';
+}
+
+function showLanguage() {
+    const main = document.getElementById('settings-main');
+    const language = document.getElementById('settings-lang');
+    hideElement(main);
+    language.style.display = 'flex';
 }
 
 var audio = 'true';
 function toggleAudio() {
     audio = (audio === 'false') ? 'true': 'false' ;
     var snd_btn = document.getElementById("btn-sound");
-    var allaudio = document.getElementsByTagName('audio');
-    if (audio === 'false') snd_btn.innerHTML = '<div class="icon icon-volume-off"></div>';
-    else snd_btn.innerHTML = '<div class="icon icon-volume-up"></div>';
+    if (audio === 'false') snd_btn.innerHTML = 'No Sound';
+    else snd_btn.innerHTML = 'Sound';
     localStorage.setItem('audio', audio);
 }
 
@@ -32,11 +43,11 @@ function toggleDarkmode() {
     darkmode = !darkmode;
     var darkmode_btn = document.getElementById("btn-darkmode");
     if (darkmode) {
-        darkmode_btn.innerHTML = '<div class="icon icon-dark"></div>';
+        darkmode_btn.innerHTML = 'Dark';
         document.documentElement.setAttribute('data-theme', 'dark');
         localStorage.setItem('theme', 'dark');
     } else {
-        darkmode_btn.innerHTML = '<div class="icon icon-light"></div>';
+        darkmode_btn.innerHTML = 'Light';
         document.documentElement.setAttribute('data-theme', 'light');
         localStorage.setItem('theme', 'light'); 
     }

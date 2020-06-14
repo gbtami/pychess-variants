@@ -80,23 +80,22 @@
             </div>
             <div class="site-buttons">
                 <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
-                <div id="topnav-settings">
-                    <button id="btn-settings" onclick="toggleSettings();"  title="{% trans %}Settings{% endtrans %}"><div class="icon icon-cog"></div></button>
-                    <div id="settings">
+                <button id="btn-settings" onclick="toggleSettings();" ><div class="icon icon-cog"></div></button>
+                <div id="settings">
+                    <div id="settings-main">
                         {% if not guest %}
                         <a class="login nav-link" href="{{ home }}/logout" title="{% trans %}Log out{% endtrans %}" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
                         {% endif %}
-                        <button id="btn-darkmode" onclick="toggleDarkmode();" title="{% trans %}Toggle dark mode{% endtrans %}"><div class="icon icon-light"></div></button>
-                        <button id="btn-sound" onclick="toggleAudio();" title="{% trans %}Toggle sound{% endtrans %}"><div class="icon icon-volume-up"></div></button>
-                        <div class="langs">
-                            <form method="post" action="{{ home }}/translation/select">
-                                <select name="lang" onchange="this.form.submit();">
-                                    {% for l in languages %}
-                                    <option value="{{ l }}" {% if lang.upper()==l.upper() %}selected{% endif %}>{{ l.upper() }}</option>
-                                    {% endfor %}
-                                </select>
-                            </form>
-                        </div>
+                        <button id="btn-language" onclick="showLanguage();">Language</button>
+                        <button id="btn-sound" onclick="toggleAudio();" title="{% trans %}Toggle sound{% endtrans %}">{% trans %}Sound{% endtrans %}</button>
+                        <button id="btn-darkmode" onclick="toggleDarkmode();" title="{% trans %}Toggle dark mode{% endtrans %}">{% trans %}Background{% endtrans %}</button>
+                    </div>
+                    <div id="settings-lang">
+                        <form method="post" action="{{ home }}/translation/select">
+                            {% for l in languages %}
+                            <button name="lang" value="{{ l }}">{{ l.upper() }}</button>
+                            {% endfor %}
+                        </form>
                     </div>
                 </div>
                 {% if guest %}
