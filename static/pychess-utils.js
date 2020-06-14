@@ -21,11 +21,11 @@ function toggleSettings() {
         settings.style.display = 'none';
 }
 
-function showLanguage() {
+function showSettings(e) {
     const main = document.getElementById('settings-main');
-    const language = document.getElementById('settings-lang');
+    const settings = document.getElementById('settings' + e.id.slice(3));
     hideElement(main);
-    language.style.display = 'flex';
+    settings.style.display = 'flex';
 }
 
 var audio = 'true';
