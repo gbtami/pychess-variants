@@ -37,33 +37,25 @@ function toggleAudio() {
     localStorage.setItem('audio', audio);
 }
 
-
-var darkmode = false;
-function toggleDarkmode() {
-    darkmode = !darkmode;
-    var darkmode_btn = document.getElementById("btn-darkmode");
-    if (darkmode) {
-        darkmode_btn.innerHTML = 'Dark';
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-    } else {
-        darkmode_btn.innerHTML = 'Light';
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light'); 
-    }
-    var alliside = document.getElementsByTagName('i-side');
-    for (var j = 0; j < alliside.length; j++) {
-        // take care of random color seek icons
-        if (!alliside[j].classList.contains('icon-adjust')) {
-            alliside[j].classList.toggle("icon-white");
-            alliside[j].classList.toggle("icon-black");
+function setTheme(theme) {
+    const oldTheme = document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    if (oldTheme != theme) {
+        var alliside = document.getElementsByTagName('i-side');
+        for (var j = 0; j < alliside.length; j++) {
+            // take care of random color seek icons
+            if (!alliside[j].classList.contains('icon-adjust')) {
+                alliside[j].classList.toggle("icon-white");
+                alliside[j].classList.toggle("icon-black");
+            }
         }
     }
 }
+
 const currentTheme = localStorage.getItem('theme');
 if (currentTheme !== undefined) {
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    if (currentTheme === 'dark') toggleDarkmode();
+    setTheme(currentTheme);
 }
 
 const currentAudio = localStorage.getItem('audio');
