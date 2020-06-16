@@ -22,7 +22,7 @@ There are five additional rules that new players must be especially aware of! (A
 2.	**Reinforcement Soldiers** – Black starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.
 3.	**Campmate** – A king that reaches the final rank (without moving into check) wins the game.
 4.	**Stalemate** – As in Xiangqi, stalemates are a loss (in Chess, they are a draw).
-5.	**Perpetual checks and chases** – As in Xiangqi, perpetual checks and chases (repeating the same moves 3 times attacking the same piece) are a loss (in Chess, they are a draw).
+5.	**Perpetual check** – As in Xiangqi, perpetual checks (repeating the position three times, and all moves in between were checks) are a loss (in Chess, they are a draw).
 
 ## Dynasty Pieces
 There are four new units unique to the Horde: 6 Soldiers (2 start in hand), 2 Cannons, 2 Elephants, and 1 Advisor. 
