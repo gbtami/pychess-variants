@@ -88,13 +88,13 @@
                         {% endif %}
                         <button id="btn-lang" onclick="showSettings(this);">Language</button>
                         <button id="btn-sound" onclick="toggleAudio();">{% trans %}Sound{% endtrans %}</button>
-                        <button id="btn-background" onclick="toggleDarkmode();">{% trans %}Background{% endtrans %}</button>
+                        <button id="btn-background" onclick="showSettings(this);">{% trans %}Background{% endtrans %}</button>
                         <button id="btn-game" onclick="showSettings(this);">{% trans %}Game Settings{% endtrans %}</button>
                     </div>
                     <div id="settings-lang">
                         <form method="post" action="{{ home }}/translation/select">
                             {% for l in languages %}
-                            <input id="lang-{{ l }}" type="radio" name="lang" value="{{ l }}" onchange="this.form.submit();" {% if lang.upper() == l.upper() %}selected{% endif %}/>
+                            <input id="lang-{{ l }}" type="radio" name="lang" value="{{ l }}" onchange="this.form.submit();" {% if lang.upper() == l.upper() %}checked{% endif %}/>
                             <label for="lang-{{ l }}">{{ l.upper() }}</label>
                             {% endfor %}
                         </form>
@@ -103,10 +103,19 @@
                         Sound
                     </div>
                     <div id="settings-background">
-                        Background
+                        {% for t in ['light', 'dark'] %}
+                        <input id="background-{{ t }}" name="theme" type="radio" onchange="setTheme('{{ t }}')"/>
+                        <label for="background-{{ t }}">{{ t }}</label>
+                        {% endfor %}
                     </div>
                     <div id="settings-game">
-                        Game
+                        <label for="game-variant">Variant</label>
+                        <select id="game-variant">
+                            <option value=""/>
+                            {% for v in variants %}
+                            <option value={{ v }} {% if variant == v %}selected{% endif %}>{{ v.upper() }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
                 {% if guest %}
