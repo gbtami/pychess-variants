@@ -297,13 +297,21 @@ ul.guide li {
 }
 
 #settings div {
-    display: none;
+    display: flex;
     flex-direction: column;
 }
 
-#settings-lang form {
+#settings > div {
+    display: none;
+}
+
+#settings-lang > form {
     display: flex;
     flex-direction: column;
+}
+
+#settings-sound {
+    flex-direction: row !important;
 }
 
 #username, .login {
@@ -1271,6 +1279,10 @@ cg-resize {
   opacity: 0.7;
 /*  -webkit-transition: .2s;*/
   /*transition: opacity .2s;*/
+}
+
+.slider.vertical {
+    transform: rotate(270deg);
 }
 
 .slider:hover {

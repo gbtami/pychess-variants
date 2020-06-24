@@ -80,44 +80,50 @@
             </div>
             <div class="site-buttons">
                 <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
-                <button id="btn-settings" onclick="toggleSettings();" ><div class="icon icon-cog"></div></button>
-                <div id="settings">
-                    <div id="settings-main">
-                        {% if not guest %}
-                        <a class="login nav-link" href="{{ home }}/logout" title="{% trans %}Log out{% endtrans %}" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
-                        {% endif %}
-                        <button id="btn-lang" onclick="showSettings(this);">Language</button>
-                        <button id="btn-sound" onclick="showSettings(this)">{% trans %}Sound{% endtrans %}</button>
-                        <button id="btn-background" onclick="showSettings(this);">{% trans %}Background{% endtrans %}</button>
-                        <button id="btn-game" onclick="showSettings(this);">{% trans %}Game Settings{% endtrans %}</button>
-                    </div>
-                    <div id="settings-lang">
-                        <form method="post" class="radio-list" action="{{ home }}/translation/select">
-                            {% for l in languages %}
-                            <input id="lang-{{ l }}" type="radio" name="lang" value="{{ l }}" onchange="this.form.submit();" {% if lang.upper() == l.upper() %}checked{% endif %}/>
-                            <label for="lang-{{ l }}">{{ l.upper() }}</label>
-                            {% endfor %}
-                        </form>
-                    </div>
-                    <div id="settings-sound">
-                        <input id="sound-volume" class="slider" name="volume" type="range" min=0 max=100 />
-                        <div id="sound-theme" class="radio-list">
+                <div>
+                    <button id="btn-settings" onclick="toggleSettings();" ><div class="icon icon-cog"></div></button>
+                    <div id="settings">
+                        <div id="settings-main">
+                            {% if not guest %}
+                            <a class="login nav-link" href="{{ home }}/logout" title="{% trans %}Log out{% endtrans %}" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
+                            {% endif %}
+                            <button id="btn-lang" onclick="showSettings(this);">Language</button>
+                            <button id="btn-sound" onclick="showSettings(this)">{% trans %}Sound{% endtrans %}</button>
+                            <button id="btn-background" onclick="showSettings(this);">{% trans %}Background{% endtrans %}</button>
+                            <button id="btn-game" onclick="showSettings(this);">{% trans %}Game Settings{% endtrans %}</button>
                         </div>
-                    </div>
-                    <div id="settings-background" class="radio-list">
-                        {% for t in ['light', 'dark'] %}
-                        <input id="background-{{ t }}" name="theme" type="radio" onchange="setTheme('{{ t }}')"/>
-                        <label for="background-{{ t }}">{{ t }}</label>
-                        {% endfor %}
-                    </div>
-                    <div id="settings-game">
-                        <label for="game-variant">Variant</label>
-                        <select id="game-variant">
-                            <option value=""/>
-                            {% for v in variants %}
-                            <option value={{ v }} {% if variant == v %}selected{% endif %}>{{ v.upper() }}</option>
+                        <div id="settings-lang">
+                            <form method="post" class="radio-list" action="{{ home }}/translation/select">
+                                {% for l in languages %}
+                                <input id="lang-{{ l }}" type="radio" name="lang" value="{{ l }}" onchange="this.form.submit();" {% if lang.upper() == l.upper() %}checked{% endif %}/>
+                                <label for="lang-{{ l }}">{{ l.upper() }}</label>
+                                {% endfor %}
+                            </form>
+                        </div>
+                        <div id="settings-sound">
+                            <input id="sound-volume" class="slider vertical" name="volume" type="range" min=0 max=100 oninput="setVolume(this.value)"/>
+                            <div id="sound-theme" class="radio-list">
+                                {% for s in ['Silent', 'Standard', 'Robot'] %}
+                                <input id="sound-{{ s.lower() }}" name="sound-theme" type="radio" onchange="setSoundTheme('{{ s.lower() }}')" />
+                                <label for="sound-{{ s.lower() }}">{{ s }}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div id="settings-background" class="radio-list">
+                            {% for t in ['Light', 'Dark'] %}
+                            <input id="background-{{ t.lower() }}" name="theme" type="radio" onchange="setTheme('{{ t.lower() }}')"/>
+                            <label for="background-{{ t.lower() }}">{{ t }}</label>
                             {% endfor %}
-                        </select>
+                        </div>
+                        <div id="settings-game">
+                            <label for="game-variant">Variant</label>
+                            <select id="game-variant">
+                                <option value=""/>
+                                {% for v in variants %}
+                                <option value={{ v }} {% if variant == v %}selected{% endif %}>{{ v.upper() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
                 {% if guest %}

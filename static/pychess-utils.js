@@ -14,8 +14,8 @@ function toggleSettings() {
     const settings = document.getElementById('settings');
     if (settings.style.display === 'none') {
         settings.style.display = 'flex';
-        for (const s of settings.children)
-            s.style.display = (s.id === 'settings-main' ? 'flex' : 'none');
+        for (const e of settings.children)
+            e.style.display = (e.id === 'settings-main' ? 'flex' : 'none');
     }
     else
         settings.style.display = 'none';
@@ -28,14 +28,30 @@ function showSettings(e) {
     settings.style.display = 'flex';
 }
 
-var audio = 'true';
-function toggleAudio() {
-    audio = (audio === 'false') ? 'true': 'false' ;
-    var snd_btn = document.getElementById("btn-sound");
-    if (audio === 'false') snd_btn.innerHTML = 'No Sound';
-    else snd_btn.innerHTML = 'Sound';
-    localStorage.setItem('audio', audio);
+function setVolume(volume) {
+    localStorage.setItem('volume', volume);
 }
+
+const currentVolume = localStorage.getItem('volume');
+const volumeSlider = document.getElementById("sound-volume");
+if (currentVolume !== undefined) {
+    setVolume(currentVolume);
+    volumeSlider.value = currentVolume;
+}
+else {
+    setVolume(100);
+    volumeSlider.value = 100;
+}
+
+function setSoundTheme(soundTheme) {
+    localStorage.setItem('soundTheme', soundTheme);
+}
+
+const currentSoundTheme = localStorage.getItem('soundTheme');
+if (currentSoundTheme !== undefined)
+    setSoundTheme(currentSoundTheme);
+else
+    setSoundTheme('standard');
 
 function setTheme(theme) {
     const oldTheme = document.documentElement.getAttribute('data-theme');
@@ -54,11 +70,7 @@ function setTheme(theme) {
 }
 
 const currentTheme = localStorage.getItem('theme');
-if (currentTheme !== undefined) {
+if (currentTheme !== undefined)
     setTheme(currentTheme);
-}
-
-const currentAudio = localStorage.getItem('audio');
-if (currentAudio !== undefined) {
-    if (currentAudio === 'false') toggleAudio();
-}
+else
+    setTheme('light');
