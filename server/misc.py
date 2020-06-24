@@ -3,6 +3,18 @@ import pstats
 from timeit import default_timer
 
 
+class OnDemand:
+    """ Helper class to conditionally logging expensive tasks
+        if get_object_counts() is expensive to calculate
+        instead of doing: logging.debug("total number: %r", get_object_counts())
+        you can do: logging.debug("total number: %r", OnDemand(get_object_counts))"""
+    def __init__(self, callable):
+        self.callable = callable
+
+    def __repr__(self):
+        return repr(self.callable())
+
+
 def profile_me(fn):
     def profiled_fn(*args, **kwargs):
         prof = cProfile.Profile()

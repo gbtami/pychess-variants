@@ -124,7 +124,7 @@
 .kyoto .pocket piece {
   flex: 0 0 25%;
 }
-.shogi.minishogi .pocket piece {
+.minishogi .pocket piece {
   flex: 0 0 20%;
 }
 .pocket .editor piece {

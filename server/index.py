@@ -110,7 +110,7 @@ async def index(request):
     profileId = request.match_info.get("profileId")
 
     variant = request.match_info.get("variant")
-    if (variant is not None) and ((variant.lower() not in VARIANTS) or variant.endswith("960")):
+    if (variant is not None) and ((variant not in VARIANTS) or variant.endswith("960")):
         return web.Response(status=404)
 
     fen = request.rel_url.query.get("fen")
