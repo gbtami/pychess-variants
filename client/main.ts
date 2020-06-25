@@ -10,6 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
+import { setVolume, setSoundTheme } from './config';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
@@ -157,5 +158,5 @@ if (el instanceof Element) {
       });
 }
 
-this.setVolume = sound.setVolume;
-this.setSoundTheme = sound.setSoundTheme;
+this.setVolume = setVolume;
+this.setSoundTheme = setSoundTheme;

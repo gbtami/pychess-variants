@@ -38,15 +38,14 @@ class sounds {
         return sound;
     }
 
-    public setVolume = (volume : number) => {
-        localStorage.setItem('volume', volume.toString());
+    updateVolume = () => {
+        const volume = parseFloat(localStorage.getItem('volume') || '1');
         Object.keys(this.tracks).forEach(key => {
             this.tracks[key].volume(volume);
         });
     }
 
-    public setSoundTheme = (soundTheme : string) => {
-        localStorage.setItem('soundTheme', soundTheme);
+    updateSoundTheme = () => {
         Object.keys(this.tracks).forEach(key => {
             this.tracks[key] = this.buildSound(key);
         });
