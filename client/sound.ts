@@ -25,7 +25,7 @@ class sounds {
     }
 
     private buildSound = (file) => {
-        var soundTheme = localStorage.soundTheme === undefined ? 'standard' : localStorage.soundTheme;
+        var soundTheme = localStorage.soundTheme || 'standard';
         var sound = new Howl({
           src: ['/static/sound/' + soundTheme + '/' + file + '.ogg', '/static/sound/' + soundTheme + '/' + file + '.mp3'],
           onplayerror: function() {
@@ -33,13 +33,13 @@ class sounds {
               sound.play();
             });
           },
-          volume: parseFloat(localStorage.getItem('volume') || '1')
+          volume: localStorage.volume || 1
         });
         return sound;
     }
 
     updateVolume = () => {
-        const volume = parseFloat(localStorage.getItem('volume') || '1');
+        const volume = localStorage.volume || 1;
         Object.keys(this.tracks).forEach(key => {
             this.tracks[key].volume(volume);
         });
@@ -51,7 +51,7 @@ class sounds {
         });
     }
 
-    private audio = () => localStorage.getItem('soundTheme') !== 'silent';
+    private audio = () => localStorage.soundTheme !== 'silent';
 
     genericNotify() { if ((this.audio())) {this.tracks.GenericNotify.play();} };
     socialNotify() { if ((this.audio())) {this.tracks.SocialNotify.play();} };

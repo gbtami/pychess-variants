@@ -10,7 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
-import { setVolume, setSoundTheme } from './config';
+import { toggleSettings, showSettings, setVolume, setSoundTheme, setTheme } from './config';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
@@ -158,5 +158,22 @@ if (el instanceof Element) {
       });
 }
 
+this.toggleSettings = toggleSettings;
+this.showSettings = showSettings;
 this.setVolume = setVolume;
 this.setSoundTheme = setSoundTheme;
+this.setTheme = setTheme;
+
+(document.querySelector('.navbar-toggle') as HTMLElement)
+  .addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
+
+const currentVolume = localStorage.volume || '1';
+const volumeSlider = document.getElementById("sound-volume") as HTMLInputElement;
+setVolume(currentVolume);
+volumeSlider.value = currentVolume;
+
+const currentSoundTheme = localStorage.soundTheme || 'standard';
+setSoundTheme(currentSoundTheme);
+
+const currentTheme = localStorage.theme || 'light';
+setTheme(currentTheme);

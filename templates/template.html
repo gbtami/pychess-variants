@@ -81,16 +81,16 @@
             <div class="site-buttons">
                 <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
                 <div>
-                    <button id="btn-settings" onclick="toggleSettings();" ><div class="icon icon-cog"></div></button>
+                    <button id="btn-settings" onclick="PychessVariants.toggleSettings();" ><div class="icon icon-cog"></div></button>
                     <div id="settings">
                         <div id="settings-main">
                             {% if not guest %}
-                            <a class="login nav-link" href="{{ home }}/logout" title="{% trans %}Log out{% endtrans %}" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
+                            <a class="login nav-link" href="{{ home }}/logout" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
                             {% endif %}
-                            <button id="btn-lang" onclick="showSettings(this);">Language</button>
-                            <button id="btn-sound" onclick="showSettings(this)">{% trans %}Sound{% endtrans %}</button>
-                            <button id="btn-background" onclick="showSettings(this);">{% trans %}Background{% endtrans %}</button>
-                            <button id="btn-game" onclick="showSettings(this);">{% trans %}Game Settings{% endtrans %}</button>
+                            <button id="btn-lang" onclick="PychessVariants.showSettings('lang');">Language</button>
+                            <button id="btn-sound" onclick="PychessVariants.showSettings('sound')">{% trans %}Sound{% endtrans %}</button>
+                            <button id="btn-background" onclick="PychessVariants.showSettings('background');">{% trans %}Background{% endtrans %}</button>
+                            <button id="btn-game" onclick="PychessVariants.showSettings('game');">{% trans %}Game Settings{% endtrans %}</button>
                         </div>
                         <div id="settings-lang">
                             <form method="post" class="radio-list" action="{{ home }}/translation/select">
@@ -111,7 +111,7 @@
                         </div>
                         <div id="settings-background" class="radio-list">
                             {% for t in ['Light', 'Dark'] %}
-                            <input id="background-{{ t.lower() }}" name="theme" type="radio" onchange="setTheme('{{ t.lower() }}');"/>
+                            <input id="background-{{ t.lower() }}" name="theme" type="radio" onchange="PychessVariants.setTheme('{{ t.lower() }}');"/>
                             <label for="background-{{ t.lower() }}">{{ t }}</label>
                             {% endfor %}
                         </div>
