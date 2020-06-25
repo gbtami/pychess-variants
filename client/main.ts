@@ -156,3 +156,6 @@ if (el instanceof Element) {
         start();
       });
 }
+
+this.setVolume = sound.setVolume;
+this.setSoundTheme = sound.setSoundTheme;

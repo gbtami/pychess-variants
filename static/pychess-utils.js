@@ -1,15 +1,3 @@
-function classToggle() {
-  const navs = document.querySelectorAll('.topnav a')
-  navs.forEach(nav => nav.classList.toggle('navbar-show'));
-}
-
-document.querySelector('.navbar-toggle')
-  .addEventListener('click', classToggle);
-
-function hideElement(e) {
-    e.style.display = 'none';
-}
-
 function toggleSettings() {
     const settings = document.getElementById('settings');
     if (settings.style.display === 'none') {
@@ -21,10 +9,10 @@ function toggleSettings() {
         settings.style.display = 'none';
 }
 
-function showSettings(e) {
+function showSettings(button) {
     const main = document.getElementById('settings-main');
-    const settings = document.getElementById('settings' + e.id.slice(3));
-    hideElement(main);
+    const settings = document.getElementById('settings' + button.id.slice(3));
+    main.style.display = 'none';
     settings.style.display = 'flex';
 }
 
@@ -32,26 +20,9 @@ function setVolume(volume) {
     localStorage.setItem('volume', volume);
 }
 
-const currentVolume = localStorage.getItem('volume');
-const volumeSlider = document.getElementById("sound-volume");
-if (currentVolume !== undefined) {
-    setVolume(currentVolume);
-    volumeSlider.value = currentVolume;
-}
-else {
-    setVolume(100);
-    volumeSlider.value = 100;
-}
-
 function setSoundTheme(soundTheme) {
     localStorage.setItem('soundTheme', soundTheme);
 }
-
-const currentSoundTheme = localStorage.getItem('soundTheme');
-if (currentSoundTheme !== undefined)
-    setSoundTheme(currentSoundTheme);
-else
-    setSoundTheme('standard');
 
 function setTheme(theme) {
     const oldTheme = document.documentElement.getAttribute('data-theme');
@@ -68,6 +39,26 @@ function setTheme(theme) {
         }
     }
 }
+
+document.querySelector('.navbar-toggle')
+  .addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
+
+const currentVolume = localStorage.getItem('volume');
+const volumeSlider = document.getElementById("sound-volume");
+if (currentVolume !== undefined) {
+    setVolume(currentVolume);
+    volumeSlider.value = currentVolume;
+}
+else {
+    setVolume(1);
+    volumeSlider.value = 1;
+}
+
+const currentSoundTheme = localStorage.getItem('soundTheme');
+if (currentSoundTheme !== undefined)
+    setSoundTheme(currentSoundTheme);
+else
+    setSoundTheme('standard');
 
 const currentTheme = localStorage.getItem('theme');
 if (currentTheme !== undefined)

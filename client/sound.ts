@@ -1,6 +1,5 @@
 import { Howl } from 'howler';
 
-
 class sounds {
     tracks;
     constructor() {
@@ -33,12 +32,27 @@ class sounds {
             sound.once('unlock', function() {
               sound.play();
             });
-          }
+          },
+          volume: parseFloat(localStorage.getItem('volume') || '1')
         });
         return sound;
     }
 
-    private audio = () => { return (localStorage.getItem('audio') === undefined ? true : localStorage.getItem('audio') === 'true') };
+    public setVolume = (volume : number) => {
+        localStorage.setItem('volume', volume.toString());
+        Object.keys(this.tracks).forEach(key => {
+            this.tracks[key].volume(volume);
+        });
+    }
+
+    public setSoundTheme = (soundTheme : string) => {
+        localStorage.setItem('soundTheme', soundTheme);
+        Object.keys(this.tracks).forEach(key => {
+            this.tracks[key] = this.buildSound(key);
+        });
+    }
+
+    private audio = () => localStorage.getItem('soundTheme') !== 'silent';
 
     genericNotify() { if ((this.audio())) {this.tracks.GenericNotify.play();} };
     socialNotify() { if ((this.audio())) {this.tracks.SocialNotify.play();} };

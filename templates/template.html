@@ -101,17 +101,17 @@
                             </form>
                         </div>
                         <div id="settings-sound">
-                            <input id="sound-volume" class="slider vertical" name="volume" type="range" min=0 max=100 oninput="setVolume(this.value)"/>
+                            <input id="sound-volume" class="slider vertical" name="volume" type="range" min=0 max=1 step=0.01 onchange="PychessVariants.setVolume(this.value);"/>
                             <div id="sound-theme" class="radio-list">
                                 {% for s in ['Silent', 'Standard', 'Robot'] %}
-                                <input id="sound-{{ s.lower() }}" name="sound-theme" type="radio" onchange="setSoundTheme('{{ s.lower() }}')" />
+                                <input id="sound-{{ s.lower() }}" name="sound-theme" type="radio" onchange="PychessVariants.setSoundTheme('{{ s.lower() }}');" />
                                 <label for="sound-{{ s.lower() }}">{{ s }}</label>
                                 {% endfor %}
                             </div>
                         </div>
                         <div id="settings-background" class="radio-list">
                             {% for t in ['Light', 'Dark'] %}
-                            <input id="background-{{ t.lower() }}" name="theme" type="radio" onchange="setTheme('{{ t.lower() }}')"/>
+                            <input id="background-{{ t.lower() }}" name="theme" type="radio" onchange="setTheme('{{ t.lower() }}');"/>
                             <label for="background-{{ t.lower() }}">{{ t }}</label>
                             {% endfor %}
                         </div>
