@@ -116,13 +116,14 @@
                             {% endfor %}
                         </div>
                         <div id="settings-game">
-                            <label for="game-variant">Variant</label>
-                            <select id="game-variant">
+                            <label for="settings-variant">Variant</label>
+                            <select id="settings-variant" onchange="">
                                 <option value=""/>
                                 {% for v in variants %}
                                 <option value={{ v }} {% if variant == v %}selected{% endif %}>{{ v.upper() }}</option>
                                 {% endfor %}
                             </select>
+                            <div id="board-settings"/>
                         </div>
                     </div>
                 </div>
