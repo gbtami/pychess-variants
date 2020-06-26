@@ -117,7 +117,7 @@
                         </div>
                         <div id="settings-game">
                             <label for="settings-variant">Variant</label>
-                            <select id="settings-variant" onchange="">
+                            <select id="settings-variant" onchange="PychessVariants.showGameSettings(this.value)">
                                 <option value=""/>
                                 {% for v in variants %}
                                 <option value={{ v }} {% if variant == v %}selected{% endif %}>{{ v.upper() }}</option>

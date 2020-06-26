@@ -1,3 +1,14 @@
+import { init } from "snabbdom";
+import klass from 'snabbdom/modules/class';
+import attributes from 'snabbdom/modules/attributes';
+import properties from 'snabbdom/modules/props';
+import listeners from 'snabbdom/modules/eventlisteners';
+
+const patch = init([klass, attributes, properties, listeners]);
+
+import { toVNode } from 'snabbdom/tovnode';
+
+import { boardSettings } from './board';
 import { sound } from './sound';
 
 export function toggleSettings() {
@@ -42,4 +53,38 @@ export function setTheme(theme) {
             }
         }
     }
+}
+
+export function showGameSettings(variant) {
+    const settings = document.getElementById('board-settings') as HTMLElement;
+    patch(toVNode(settings), boardSettings.view(variant));
+}
+
+export function changeCSS(cssFile) {
+    // css file index in template.html
+    let cssLinkIndex = 1;
+    if (cssFile.includes("seir")) {
+        cssLinkIndex = 2;
+    } else if (cssFile.includes("makruk")) {
+        cssLinkIndex = 3;
+    } else if (cssFile.includes("sittuyin")) {
+        cssLinkIndex = 4;
+    } else if (cssFile.includes("shogi")) {
+        cssLinkIndex = 5;
+    } else if (cssFile.includes("kyoto")) {
+        cssLinkIndex = 6;
+    } else if (cssFile.includes("xiangqi")) {
+        cssLinkIndex = 7;
+    } else if (cssFile.includes("capa")) {
+        cssLinkIndex = 8;
+    } else if (cssFile.includes("shako")) {
+        cssLinkIndex = 9;
+    } else if (cssFile.includes("shogun")) {
+        cssLinkIndex = 10;
+    } else if (cssFile.includes("janggi")) {
+        cssLinkIndex = 11;
+    } else if (cssFile.includes("orda")) {
+        cssLinkIndex = 12;
+    }
+    document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

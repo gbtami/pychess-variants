@@ -10,7 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
-import { toggleSettings, showSettings, setVolume, setSoundTheme, setTheme } from './config';
+import { toggleSettings, showSettings, setVolume, setSoundTheme, setTheme, showGameSettings } from './config';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
@@ -163,6 +163,7 @@ this.showSettings = showSettings;
 this.setVolume = setVolume;
 this.setSoundTheme = setSoundTheme;
 this.setTheme = setTheme;
+this.showGameSettings = showGameSettings;
 
 (document.querySelector('.navbar-toggle') as HTMLElement)
   .addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
