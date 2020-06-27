@@ -101,7 +101,7 @@ function langSettingsView() {
             attrs: { checked: currentLang === key },
             on: { change: e => (e.target as HTMLInputElement).form!.submit() },
         }));
-        langList.push(h('label', { props: { for: "lang-" + key } }, LANGUAGES[key]));
+        langList.push(h('label', { attrs: { for: "lang-" + key } }, LANGUAGES[key]));
     });
     return h('div#settings-sub', [
         h('div#settings-lang', [
@@ -121,7 +121,7 @@ function soundSettingsView() {
             attrs: { checked: currentSoundTheme === theme.toLowerCase() },
             on: { change: () => setSoundTheme(theme) }
         }));
-        soundThemeList.push(h('label', { props: { for: "sound-" + theme.toLowerCase() } }, theme));
+        soundThemeList.push(h('label', { attrs: { for: "sound-" + theme.toLowerCase() } }, theme));
     });
     return h('div#settings-sub', [
         h('div#settings-sound', [
@@ -144,7 +144,7 @@ function backgroundSettingsView() {
             attrs: { checked: currentBackground === theme.toLowerCase() },
             on: { change: () => setBackground(theme) }
         }));
-        backgroundList.push(h('label', { props: { for: "background-" + theme.toLowerCase() } }, theme));
+        backgroundList.push(h('label', { attrs: { for: "background-" + theme.toLowerCase() } }, theme));
     });
     return h('div#settings-sub', [
         h('div#settings-background', backgroundList),
