@@ -80,53 +80,7 @@
             </div>
             <div class="site-buttons">
                 <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
-                <div>
-                    <button id="btn-settings" onclick="PychessVariants.toggleSettings();" ><div class="icon icon-cog"></div></button>
-                    <div id="settings">
-                        <div id="settings-main">
-                            {% if not guest %}
-                            <a class="login nav-link" href="{{ home }}/logout" onclick="if (confirm('Are You sure you want to logout?')) window.location.href='{{ home }}/logout';return false">{% trans %}Log out{% endtrans %}</a>
-                            {% endif %}
-                            <button id="btn-lang" onclick="PychessVariants.showSettings('lang');">Language</button>
-                            <button id="btn-sound" onclick="PychessVariants.showSettings('sound')">{% trans %}Sound{% endtrans %}</button>
-                            <button id="btn-background" onclick="PychessVariants.showSettings('background');">{% trans %}Background{% endtrans %}</button>
-                            <button id="btn-game" onclick="PychessVariants.showSettings('game');">{% trans %}Game Settings{% endtrans %}</button>
-                        </div>
-                        <div id="settings-lang">
-                            <form method="post" class="radio-list" action="{{ home }}/translation/select">
-                                {% for l in languages %}
-                                <input id="lang-{{ l }}" type="radio" name="lang" value="{{ l }}" onchange="this.form.submit();" {% if lang.upper() == l.upper() %}checked{% endif %}/>
-                                <label for="lang-{{ l }}">{{ l.upper() }}</label>
-                                {% endfor %}
-                            </form>
-                        </div>
-                        <div id="settings-sound">
-                            <input id="sound-volume" class="slider vertical" name="volume" type="range" min=0 max=1 step=0.01 onchange="PychessVariants.setVolume(this.value);"/>
-                            <div id="sound-theme" class="radio-list">
-                                {% for s in ['Silent', 'Standard', 'Robot'] %}
-                                <input id="sound-{{ s.lower() }}" name="sound-theme" type="radio" onchange="PychessVariants.setSoundTheme('{{ s.lower() }}');" />
-                                <label for="sound-{{ s.lower() }}">{{ s }}</label>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div id="settings-background" class="radio-list">
-                            {% for t in ['Light', 'Dark'] %}
-                            <input id="background-{{ t.lower() }}" name="theme" type="radio" onchange="PychessVariants.setTheme('{{ t.lower() }}');"/>
-                            <label for="background-{{ t.lower() }}">{{ t }}</label>
-                            {% endfor %}
-                        </div>
-                        <div id="settings-game">
-                            <label for="settings-variant">Variant</label>
-                            <select id="settings-variant" onchange="PychessVariants.showGameSettings(this.value)">
-                                <option value=""/>
-                                {% for v in variants %}
-                                <option value={{ v }} {% if variant == v %}selected{% endif %}>{{ v.upper() }}</option>
-                                {% endfor %}
-                            </select>
-                            <div id="board-settings"/>
-                        </div>
-                    </div>
-                </div>
+                <div id="settings-panel"/>
                 {% if guest %}
                 <a class="login nav-link" href="{{ home }}/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
                 {% endif %}
