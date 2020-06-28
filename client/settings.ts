@@ -1,26 +1,214 @@
-import { _ } from './i18n';
+import { init } from "snabbdom";
+import { VNode } from "snabbdom/vnode";
+import klass from 'snabbdom/modules/class';
+import attributes from 'snabbdom/modules/attributes';
+import properties from 'snabbdom/modules/props';
+import listeners from 'snabbdom/modules/eventlisteners';
 
-export function getCookie(name) {
-    var cookies = document.cookie.split(';');
-    for(var i=0 ; i < cookies.length ; ++i) {
-        var pair = cookies[i].trim().split('=');
-        if(pair[0] == name)
-            return pair[1];
-    }
-    return "";
+const patch = init([klass, attributes, properties, listeners]);
+
+import { h } from 'snabbdom/h';
+import { toVNode } from 'snabbdom/tovnode';
+
+import { boardSettings } from './board';
+import { variants } from './chess';
+import { _, LANGUAGES } from './i18n';
+import { sound } from './sound';
+
+function settingsButton() {
+    return h('button#btn-settings', { on: { click: toggleSettings } }, [
+        h('div.icon.icon-cog') //, { class: { icon: true, "icon-cog": true } })
+    ]);
 }
 
-export function setCookie(cname, cvalue, exdays) {
-  var d = new Date();
-  d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  var expires = "expires="+ d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+function userMenu() {
+    return h('div#user-buttons', [
+        h('a.login.nav-link', { on: { click: logoutDialog } }, _("Log out")),
+    ]);
+}
+
+function logoutDialog() {
+    if (confirm(_("Are you sure you want to log out?")))
+        window.location.href = "/logout";
+}
+
+function settingsMenu() {
+    return h('div#settings-buttons', [
+        h('button#btn-lang', { on: { click: () => showSettings('lang') } }, 'Language'),
+        h('button#btn-sound', { on: { click: () => showSettings('sound') } }, _('Sound')),
+        h('button#btn-background', { on: { click: () => showSettings('background') } }, _('Background')),
+        h('button#btn-board', { on: { click: () => showSettings('board') } }, _('Board Settings')),
+    ]);
+}
+
+export function settingsView() {
+    const anon = document.getElementById('pychess-variants')!.getAttribute("data-anon");
+    console.log(anon);
+    const menu = (anon === 'True') ? [ settingsMenu() ] : [ userMenu(), settingsMenu() ];
+    return h('div#settings-panel', [
+        settingsButton(),
+        h('div#settings', [
+            h('div#settings-main', menu),
+            h('div#settings-sub'),
+        ])
+    ]);
+}
+
+export function toggleSettings() {
+    const settings = document.getElementById('settings') as HTMLElement;
+    if (settings.style.display === 'flex') {
+        settings.style.display = 'none';
+    }
+    else {
+        settings.style.display = 'flex';
+        (document.getElementById('settings-main') as HTMLElement).style.display = 'flex';
+        (document.getElementById('settings-sub') as HTMLElement).style.display = 'none';
+    }
+}
+
+function showSettings(settingsName) {
+    const mainSettings = document.getElementById('settings-main') as HTMLElement;
+    const subSettings = document.getElementById('settings-sub') as HTMLElement;
+
+    switch (settingsName) {
+        case "lang":
+            patch(toVNode(subSettings), langSettingsView());
+            break;
+        case "sound":
+            patch(toVNode(subSettings), soundSettingsView());
+            break;
+        case "background":
+            patch(toVNode(subSettings), backgroundSettingsView());
+            break;
+        case "board":
+            patch(toVNode(subSettings), boardSettingsView());
+            showVariantBoardSettings((document.getElementById('board-variant') as HTMLInputElement).value);
+            break;
+    }
+
+
+    mainSettings.style.display = 'none';
+    subSettings.style.display = 'flex';
+}
+
+function langSettingsView() {
+    const currentLang = document.getElementById('pychess-variants')!.getAttribute("data-lang");
+    console.log(currentLang);
+    let langList: VNode[] = [];
+    Object.keys(LANGUAGES).forEach(key => {
+        langList.push(h('input#lang-' + key, {
+            props: { type: "radio", name: "lang", value: key },
+            attrs: { checked: currentLang === key },
+            on: { change: e => (e.target as HTMLInputElement).form!.submit() },
+        }));
+        langList.push(h('label', { attrs: { for: "lang-" + key } }, LANGUAGES[key]));
+    });
+    return h('div#settings-sub', [
+        h('div#settings-lang', [
+            h('form.radio-list', { props: { method: "post", action: "/translation/select" } }, langList),
+        ]),
+    ]);
+}
+
+const soundThemes = [ 'Silent', 'Standard', 'Robot' ];
+function soundSettingsView() {
+    const currentVolume = parseFloat(localStorage.volume ?? '1');
+    const currentSoundTheme = localStorage.soundTheme ?? 'standard';
+    let soundThemeList: VNode[] = [];
+    soundThemes.forEach(theme => {
+        soundThemeList.push(h('input#sound-' + theme.toLowerCase(), {
+            props: { name: "sound-theme", type: "radio"},
+            attrs: { checked: currentSoundTheme === theme.toLowerCase() },
+            on: { change: () => setSoundTheme(theme) }
+        }));
+        soundThemeList.push(h('label', { attrs: { for: "sound-" + theme.toLowerCase() } }, theme));
+    });
+    return h('div#settings-sub', [
+        h('div#settings-sound', [
+            h('input#sound-volume.slider.vertical', {
+                props: { name: "volume", type: "range", min: 0, max: 1, step: 0.01, value: currentVolume },
+                on: { change: e => setVolume((e.target as HTMLInputElement).value) },
+            }),
+            h('div#sound-theme.radio-list', soundThemeList),
+        ])
+    ]);
+}
+
+const backgrounds = [ 'Light', 'Dark' ];
+function backgroundSettingsView() {
+    const currentBackground = localStorage.theme ?? 'light';
+    let backgroundList: VNode[] = [];
+    backgrounds.forEach(theme => {
+        backgroundList.push(h('input#background-' + theme.toLowerCase(), {
+            props: { name: "background", type: "radio"},
+            attrs: { checked: currentBackground === theme.toLowerCase() },
+            on: { change: () => setBackground(theme) }
+        }));
+        backgroundList.push(h('label', { attrs: { for: "background-" + theme.toLowerCase() } }, theme));
+    });
+    return h('div#settings-sub', [
+        h('div#settings-background', backgroundList),
+    ]);
+}
+
+function boardSettingsView() {
+    const variant = document.getElementById("pychess-variants")!.getAttribute("data-variant");
+    let variantList: VNode[] = [];
+    variantList.push(h('option', { props: { value: "" } }, ""));
+    variants.forEach(v => {
+        variantList.push(h('option', {
+            props: { value: v },
+            attrs: { selected: variant === v }
+        }, v.toUpperCase()));
+    });
+    return h('div#settings-sub', [
+        h('div#settings-board', [
+            h('label', { props: { for: "board-variant" } }, _("Variant")),
+            h('select#board-variant', { on: { change: e => showVariantBoardSettings((e.target as HTMLInputElement).value) } }, variantList),
+            h('div#board-settings'),
+        ]),
+    ]);
+}
+
+function showVariantBoardSettings(variant) {
+    const settings = document.getElementById('board-settings') as HTMLElement;
+    patch(toVNode(settings), boardSettings.view(variant));
+}
+
+function setVolume(volume) {
+    localStorage.volume = volume;
+    sound.updateVolume();
+}
+
+function setSoundTheme(soundTheme) {
+    localStorage.soundTheme = soundTheme.toLowerCase();
+    sound.updateSoundTheme();
+}
+
+function setBackground(theme) {
+    const oldTheme = document.documentElement.getAttribute('data-theme');
+    localStorage.theme = theme.toLowerCase();
+    updateBackground();
+    if (oldTheme !== theme.toLowerCase()) {
+        var alliside = document.getElementsByTagName('i-side');
+        for (var j = 0; j < alliside.length; j++) {
+            // take care of random color seek icons
+            if (!alliside[j].classList.contains('icon-adjust')) {
+                alliside[j].classList.toggle("icon-white");
+                alliside[j].classList.toggle("icon-black");
+            }
+        }
+    }
+}
+
+export function updateBackground() {
+    const theme = localStorage.theme ?? 'light';
+    document.documentElement.setAttribute('data-theme', theme);
 }
 
 export function changeCSS(cssFile) {
     // css file index in template.html
-    console.log("changeCSS()", cssFile);
-    var cssLinkIndex = 1;
+    let cssLinkIndex = 1;
     if (cssFile.includes("seir")) {
         cssLinkIndex = 2;
     } else if (cssFile.includes("makruk")) {
@@ -45,50 +233,4 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 12;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
-}
-
-
-
-// flip
-export function toggleOrientation (ctrl) {
-    /*
-    ctrl.flip = !ctrl.flip;
-    ctrl.chessground.toggleOrientation();
-
-    if (ctrl.variant.endsWith('shogi')) {
-        const color = ctrl.chessground.state.orientation === "white" ? "white" : "black";
-        setPieces(ctrl, color, true);
-    };
-
-    console.log("FLIP");
-    if (ctrl.hasPockets) {
-        const tmp_pocket = ctrl.pockets[0];
-        ctrl.pockets[0] = ctrl.pockets[1];
-        ctrl.pockets[1] = tmp_pocket;
-        ctrl.vpocket0 = patch(ctrl.vpocket0, pocketView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
-        ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
-    }
-
-    // TODO: moretime button
-    if (ctrl instanceof RoundController) {
-        const new_running_clck = (ctrl.clocks[0].running) ? ctrl.clocks[1] : ctrl.clocks[0];
-        ctrl.clocks[0].pause(false);
-        ctrl.clocks[1].pause(false);
-
-        const tmp_clock = ctrl.clocks[0];
-        const tmp_clock_time = tmp_clock.duration;
-        ctrl.clocks[0].setTime(ctrl.clocks[1].duration);
-        ctrl.clocks[1].setTime(tmp_clock_time);
-        if (ctrl.status < 0) new_running_clck.start();
-
-        ctrl.vplayer0 = patch(ctrl.vplayer0, player('player0', ctrl.titles[ctrl.flip ? 1 : 0], ctrl.players[ctrl.flip ? 1 : 0], ctrl.ratings[ctrl.flip ? 1 : 0], ctrl.model["level"]));
-        ctrl.vplayer1 = patch(ctrl.vplayer1, player('player1', ctrl.titles[ctrl.flip ? 0 : 1], ctrl.players[ctrl.flip ? 0 : 1], ctrl.ratings[ctrl.flip ? 0 : 1], ctrl.model["level"]));
-
-        if (ctrl.variant === 'makruk' || ctrl.variant === 'makpong' || ctrl.variant === 'cambodian' || ctrl.variant === 'sittuyin')
-            [ctrl.vmiscInfoW, ctrl.vmiscInfoB] = updateCount(ctrl.fullfen, ctrl.vmiscInfoB, ctrl.vmiscInfoW);
-
-        if (ctrl.variant === 'janggi')
-            [ctrl.vmiscInfoW, ctrl.vmiscInfoB] = updatePoint(ctrl.fullfen, ctrl.vmiscInfoB, ctrl.vmiscInfoW);
-    }
-    */
 }
