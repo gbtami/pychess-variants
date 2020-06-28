@@ -104,20 +104,21 @@ export const VARIANTS = {
  ** pocket: This variant needs to display the pieces in hand in round, analysis, and editor screen
  ** enPassant: This variant has en passant capture
  ** pass: This variant allows passing
+ ** pieceDir: This variant uses piece direction, rather than color, to denote piece side
  ** shogiSound: This variant uses shogi piece move sound
  ** tenRanks: This variant has ten ranks and need to use the grand2zero function to fix its notation
 */
 const variant_classes = {
     makruk: new Set(['showCount', 'manualCount']),
     makpong: new Set(['showCount', 'manualCount']),
-    cambodian: new Set(['showCount']),
+    cambodian: new Set(['showCount', 'manualCount']),
     sittuyin: new Set(['showCount', 'pocket']),
     placement: new Set(['pocket', 'enPassant']),
     crazyhouse: new Set(['drop', 'pocket', 'enPassant']),
     chess: new Set(['enPassant']),
-    shogi: new Set(['byoyomi', 'drop', 'pocket', 'shogiSound']),
-    minishogi: new Set(['byoyomi', 'drop', 'pocket', 'shogiSound']),
-    kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'shogiSound']),
+    shogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
+    minishogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
+    kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
     xiangqi: new Set(['tenRanks']),
     minixiangqi: new Set([]),
