@@ -417,7 +417,7 @@ export default class AnalysisController {
                     const d = pv_move.slice(atPos + 1, atPos + 3);
                     var color = step.turnColor;
                     if (this.variant.endsWith("shogi"))
-                        if (Boolean(this.flip) != Boolean(this.mycolor === "black"))
+                        if (this.flip !== (this.mycolor === "black"))
                             color = (color === 'white') ? 'black' : 'white';
                     shapes0 = [{
                         orig: d,

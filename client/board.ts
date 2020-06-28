@@ -49,9 +49,9 @@ class BoardSettings {
             });
 
             let css = VARIANTS[variant].PieceCSS[idx];
-            if (variant.endsWith('shogi')) {
+            if (variant.endsWith('shogi') && variant === this.ctrl?.variant) {
                 // change shogi piece colors according to board orientation
-                if (Boolean(this.ctrl?.flip) !== Boolean(this.ctrl?.mycolor === "black"))
+                if (this.ctrl.flip !== (this.ctrl.mycolor === "black"))
                     css = css.replace('0', '1');
             }
             changeCSS('/static/' + css + '.css');
