@@ -5,13 +5,27 @@ import h from 'snabbdom/h';
 import { dimensions } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { VARIANTS } from './chess';
+import { variants, VARIANTS, isVariantClass } from './chess';
 import { changeCSS } from './config';
 import AnalysisController from './analysisCtrl';
 import { analysisChart } from './chart';
 
 class BoardSettings {
     ctrl;
+
+    updateBoardAndPieceStyles() {
+        Object.keys(VARIANTS).forEach(variant => {
+            this.updateBoardStyle(variant);
+            this.updatePieceStyle(variant);
+        });
+    }
+
+    private updateBoardStyle(variant) {
+        const idx = parseInt(localStorage[variant + "_board"] ?? '0');
+        const board = VARIANTS[variant].BoardCSS[idx];
+        const root = document.documentElement;
+        root.style.setProperty('--' + variant + '-board', "url('images/board/" + board + "')");
+    }
 
     private boardStyleSettingsView(variant) {
         const vboard = localStorage[variant + "_board"] ?? '0';
@@ -20,9 +34,7 @@ class BoardSettings {
         const setBoardStyle = (e) => {
             const idx = e.target.value;
             localStorage[variant + "_board"] = idx;
-            const board = VARIANTS[variant].BoardCSS[idx];
-            const root = document.documentElement;
-            root.style.setProperty('--' + variant + '-board', "url('images/board/" + board + "')");
+            this.updateBoardStyle(variant);
         }
 
         for (let i = 0; i < VARIANTS[variant].BoardCSS.length; i++) {
@@ -35,29 +47,18 @@ class BoardSettings {
         return boards;
     }
 
-    private pieceStyleSettingsView(variant) {
-        var vpiece = localStorage[variant + "_piece"] ?? '0';
-        const pieces : VNode[] = [];
-
-        const setPieceStyle = (e) => {
-            const idx = e.target.value;
-
-            const family = VARIANTS[variant].pieces;
-            Object.keys(VARIANTS).forEach((key) => {
-                if (VARIANTS[key].pieces === family)
-                    localStorage[key + "_pieces"] = idx;
-            });
-
-            let css = VARIANTS[variant].PieceCSS[idx];
-            if (variant.endsWith('shogi') && variant === this.ctrl?.variant) {
-                // change shogi piece colors according to board orientation
-                if (this.ctrl.flip !== (this.ctrl.mycolor === "black"))
+    private updatePieceStyle(variant) {
+        const idx = parseInt(localStorage[variant + "_pieces"] ?? '0');
+        let css = VARIANTS[variant].PieceCSS[idx];
+        if (variant === this.ctrl?.variant) {
+            if (isVariantClass(variant, "pieceDir")) {
+                // change piece orientation according to board orientation
+                if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
                     css = css.replace('0', '1');
             }
-            changeCSS('/static/' + css + '.css');
 
             // Redraw the piece being suggested for dropping in the new piece style
-            if (this.ctrl?.hasPockets) {
+            if (this.ctrl.hasPockets) {
                 const chessground = this.ctrl.chessground;
                 const baseurl = VARIANTS[variant].baseURL[idx] + '/';
                 chessground.set({
@@ -67,6 +68,24 @@ class BoardSettings {
                 });
                 chessground.redrawAll();
             }
+        }
+        changeCSS('/static/' + css + '.css');
+    }
+
+    private pieceStyleSettingsView(variant) {
+        var vpiece = localStorage[variant + "_piece"] ?? '0';
+        const pieces : VNode[] = [];
+
+        const setPieceStyle = e => {
+            const idx = e.target.value;
+
+            const family = VARIANTS[variant].pieces;
+            Object.keys(VARIANTS).forEach((key) => {
+                if (VARIANTS[key].pieces === family)
+                    localStorage[key + "_pieces"] = idx;
+            });
+
+            this.updatePieceStyle(variant);
         }
 
         for (let i = 0; i < VARIANTS[variant].PieceCSS.length; i++) {
