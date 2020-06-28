@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Color } from 'chessgroundx/types';
 
-import { gearButton, toggleOrientation } from './settings';
+import { toggleOrientation } from './settings';
 import AnalysisController from './analysisCtrl';
 
 
@@ -100,7 +100,6 @@ function scrollToPly (ctrl) {
 }
 
 export function movelistView (ctrl) {
-    ctrl.vgear = gearButton(ctrl);
     var container = document.getElementById('move-controls') as HTMLElement;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
             h('button#flip', { on: { click: () => toggleOrientation(ctrl) } }, [h('i', {props: {title: 'Flip board'}, class: {"icon": true, "icon-refresh": true} } ), ]),
@@ -108,7 +107,6 @@ export function movelistView (ctrl) {
             h('button', { on: { click: () => selectMove(ctrl, Math.max(ctrl.ply - 1, 0)) } }, [h('i', {class: {"icon": true, "icon-step-backward": true} } ), ]),
             h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [h('i', {class: {"icon": true, "icon-step-forward": true} } ), ]),
             h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [h('i', {class: {"icon": true, "icon-fast-forward": true} } ), ]),
-            ctrl.vgear,
         ])
     );
     return h('div.movelist#movelist');
@@ -136,6 +134,6 @@ export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) 
         }
         moves.push(el);
     }
-    patch(container, h('div.movelist#movelist', moves));
+    patch(container, h('div#movelist.movelist', moves));
     if (activate) scrollToPly(ctrl);
 }
