@@ -225,8 +225,6 @@ export default class AnalysisController {
         var element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'none';
 
-        patch(document.getElementById('board-settings') as HTMLElement, settingsView(this));
-
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));

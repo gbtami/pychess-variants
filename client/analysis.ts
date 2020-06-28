@@ -100,7 +100,6 @@ export function analysisView(model): VNode[] {
                     ]),
                 ]),
                 h('div.round-data', [
-                    h('div#board-settings'),
                     h('div#pv'),
                     h('div#movelist-block', [
                         h('div#movelist'),

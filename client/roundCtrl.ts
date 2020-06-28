@@ -351,8 +351,6 @@ export default class RoundController {
             this.gameControls = patch(container, h('div'));
         }
 
-        patch(document.getElementById('board-settings') as HTMLElement, settingsView(this));
-
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));

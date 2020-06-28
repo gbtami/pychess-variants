@@ -96,7 +96,6 @@ export function roundView(model): VNode[] {
                 h('div.round-data', [
                     h('round-player#rplayer0'),
                     h('div#move-controls'),
-                    h('div#board-settings'),
                     h('div#movelist-block', [
                         h('div#movelist'),
                     ]),
