@@ -10,7 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
-import { settingsView, updateBackground } from './config';
+import { settingsView, updateBackground } from './settings';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
@@ -18,7 +18,7 @@ import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
 import { sound } from './sound';
-import { getCookie } from './settings';
+import { getCookie } from './document';
 
 const model = {};
 

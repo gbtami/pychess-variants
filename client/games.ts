@@ -12,7 +12,7 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { VARIANTS, grand2zero } from './chess';
-import { setBoardAndPieceStyles } from './settings';
+import { boardSettings } from './board';
 
 function renderGame(model, games, game, fen, lastMove) {
     return h('minigame#' + game.gameId + '.' + game.variant + '-board.' + VARIANTS[game.variant].pieces,
@@ -37,7 +37,7 @@ function renderGame(model, games, game, fen, lastMove) {
 
 
 export function gamesView(model): VNode[] {
-    setBoardAndPieceStyles();
+    boardSettings.updateBoardAndPieceStyles();
 
     var xmlhttp = new XMLHttpRequest();
     var url = model["home"] + "/api/games";

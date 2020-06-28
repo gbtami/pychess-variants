@@ -14,7 +14,7 @@ import { Chessground } from 'chessgroundx';
 import { _, i18n } from './i18n';
 import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
 import { renderTimeago } from './clock';
-import { setBoardAndPieceStyles } from './settings';
+import { boardSettings } from './board';
 
 
 export function result(variant, status, result) {
@@ -211,7 +211,7 @@ function observeSentinel(vnode: VNode, model) {
 
 export function profileView(model) {
     console.log(model);
-    setBoardAndPieceStyles();
+    boardSettings.updateBoardAndPieceStyles();
     const anon = model["anon"] === 'True';
     return [
                 h('player-head', [

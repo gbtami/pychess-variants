@@ -1,14 +1,25 @@
+import { init } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
+import klass from 'snabbdom/modules/class';
+import attributes from 'snabbdom/modules/attributes';
+import properties from 'snabbdom/modules/props';
+import listeners from 'snabbdom/modules/eventlisteners';
+
+const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
 import { dimensions } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { variants, VARIANTS, isVariantClass } from './chess';
-import { changeCSS } from './config';
+import { VARIANTS, isVariantClass } from './chess';
+import { changeCSS } from './document';
 import AnalysisController from './analysisCtrl';
+import RoundController from './roundCtrl';
 import { analysisChart } from './chart';
+import { updateCount, updatePoint } from './info';
+import { pocketView } from './pocket';
+import { player } from './player';
 
 class BoardSettings {
     ctrl;
@@ -20,7 +31,7 @@ class BoardSettings {
         });
     }
 
-    private updateBoardStyle(variant) {
+    updateBoardStyle(variant) {
         const idx = parseInt(localStorage[variant + "_board"] ?? '0');
         const board = VARIANTS[variant].BoardCSS[idx];
         const root = document.documentElement;
@@ -47,7 +58,7 @@ class BoardSettings {
         return boards;
     }
 
-    private updatePieceStyle(variant) {
+    updatePieceStyle(variant) {
         const idx = parseInt(localStorage[variant + "_pieces"] ?? '0');
         let css = VARIANTS[variant].PieceCSS[idx];
         if (variant === this.ctrl?.variant) {
@@ -98,7 +109,8 @@ class BoardSettings {
         return pieces;
     }
 
-    private setZoom(zoom: number) {
+    updateZoom() {
+        const zoom = localStorage["zoom-" + this.ctrl.variant];
         const el = document.querySelector('.cg-wrap') as HTMLElement;
         if (el) {
             const baseWidth = dimensions[VARIANTS[this.ctrl.variant].geom].width * (this.ctrl.variant.endsWith('shogi') ? 52 : 64);
@@ -110,16 +122,19 @@ class BoardSettings {
             // 2 x (pocket height + pocket-wrapper additional 10px gap)
             const pxp = (this.ctrl.hasPockets) ? '148px;' : '0px;';
             // point counting values
-            const pxc = (this.ctrl.variant === 'janggi') ? '48px;' : '0px;';
+            const pxc = (isVariantClass(this.ctrl.variant, "showMaterialPoint")) ? '48px;' : '0px;';
             document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
-
             document.body.dispatchEvent(new Event('chessground.resize'));
-            localStorage.setItem("zoom-" + this.ctrl.variant, String(zoom));
 
             if (this.ctrl instanceof AnalysisController) {
                 analysisChart(this.ctrl);
             }
         }
+    }
+
+    private setZoom(zoom: number) {
+        localStorage["zoom-" + this.ctrl.variant] = zoom;
+        this.updateZoom();
     }
 
     public view(variant) {
@@ -212,6 +227,47 @@ class BoardSettings {
         ]));
 
         return h('div#board-settings', settings);
+    }
+
+    // flip
+    toggleOrientation() {
+        this.ctrl.flip = !this.ctrl.flip;
+        this.ctrl.chessground.toggleOrientation();
+
+        if (isVariantClass(this.ctrl.variant, "pieceDir")) {
+            this.updatePieceStyle(this.ctrl.variant);
+        }
+
+        console.log("FLIP");
+        if (this.ctrl.hasPockets) {
+            const tmp_pocket = this.ctrl.pockets[0];
+            this.ctrl.pockets[0] = this.ctrl.pockets[1];
+            this.ctrl.pockets[1] = tmp_pocket;
+            this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
+            this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
+        }
+
+        // TODO: moretime button
+        if (this.ctrl instanceof RoundController) {
+            const new_running_clck = (this.ctrl.clocks[0].running) ? this.ctrl.clocks[1] : this.ctrl.clocks[0];
+            this.ctrl.clocks[0].pause(false);
+            this.ctrl.clocks[1].pause(false);
+
+            const tmp_clock = this.ctrl.clocks[0];
+            const tmp_clock_time = tmp_clock.duration;
+            this.ctrl.clocks[0].setTime(this.ctrl.clocks[1].duration);
+            this.ctrl.clocks[1].setTime(tmp_clock_time);
+            if (this.ctrl.status < 0) new_running_clck.start();
+
+            this.ctrl.vplayer0 = patch(this.ctrl.vplayer0, player('player0', this.ctrl.titles[this.ctrl.flip ? 1 : 0], this.ctrl.players[this.ctrl.flip ? 1 : 0], this.ctrl.ratings[this.ctrl.flip ? 1 : 0], this.ctrl.model["level"]));
+            this.ctrl.vplayer1 = patch(this.ctrl.vplayer1, player('player1', this.ctrl.titles[this.ctrl.flip ? 0 : 1], this.ctrl.players[this.ctrl.flip ? 0 : 1], this.ctrl.ratings[this.ctrl.flip ? 0 : 1], this.ctrl.model["level"]));
+
+            if (isVariantClass(this.ctrl.variant, "showCount"))
+                [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updateCount(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+
+            if (isVariantClass(this.ctrl.variant, "showMaterialPoint"))
+                [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+        }
     }
 
 }

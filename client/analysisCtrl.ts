@@ -17,10 +17,9 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
+import { grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 //import { result } from './profile';
@@ -88,8 +87,6 @@ export default class AnalysisController {
     players: string[];
     titles: string[];
     ratings: string[];
-    CSSindexesB: number[];
-    CSSindexesP: number[];
     clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
     showDests: boolean;
@@ -100,6 +97,9 @@ export default class AnalysisController {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
             boardSettings.ctrl = this;
+            boardSettings.updateBoardStyle(this.variant);
+            boardSettings.updatePieceStyle(this.variant);
+            boardSettings.updateZoom();
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 
@@ -130,8 +130,6 @@ export default class AnalysisController {
 
         this.flip = false;
         this.settings = true;
-        this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
-        this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
         this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
