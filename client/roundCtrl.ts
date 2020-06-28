@@ -13,6 +13,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
 import { _, i18n } from './i18n';
+import { boardSettings } from './board';
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
 import makePromotion from './promotion';
@@ -95,6 +96,7 @@ export default class RoundController {
     constructor(el, model) {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
+            boardSettings.ctrl = this;
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });

@@ -28,6 +28,7 @@ import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
 import { updateCount, updatePoint } from './info';
+import { boardSettings } from './board';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -98,6 +99,7 @@ export default class AnalysisController {
     constructor(el, model) {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
+            boardSettings.ctrl = this;
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 
@@ -406,41 +408,42 @@ export default class AnalysisController {
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
-        if (ceval !== undefined) {
-            if (ceval.p !== undefined) {
-                var pv_move = ceval["m"].split(" ")[0];
-                if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') pv_move = grand2zero(pv_move);
-                // console.log(pv_move, ceval["m"]);
-                if (arrow === 'true') {
-                    const atPos = pv_move.indexOf('@');
-                    if (atPos > -1) {
-                        const d = pv_move.slice(atPos + 1, atPos + 3);
-                        var color = step.turnColor;
-                        if (this.flip) color = (color === 'white') ? 'black' : 'white';
-                        // console.log(color, pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
-                        shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
+        if (ceval?.p !== undefined) {
+            var pv_move = ceval["m"].split(" ")[0];
+            if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
+            if (arrow === 'true') {
+                const atPos = pv_move.indexOf('@');
+                if (atPos > -1) {
+                    const d = pv_move.slice(atPos + 1, atPos + 3);
+                    var color = step.turnColor;
+                    if (this.variant.endsWith("shogi"))
+                        if (Boolean(this.flip) != Boolean(this.mycolor === "black"))
+                            color = (color === 'white') ? 'black' : 'white';
+                    shapes0 = [{
+                        orig: d,
+                        brush: 'paleGreen',
+                        piece: {
                             color: color,
                             role: sanToRole[pv_move.slice(0, atPos)]
-                            }},
-                            { orig: d, brush: 'paleGreen'}
-                        ];
-                    } else {
-                        const o = pv_move.slice(0, 2);
-                        const d = pv_move.slice(2, 4);
-                        shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
-                    }
-                };
-                this.vpv = patch(this.vpv, h('div#pv', [
-                    h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, ' + _('Depth') + ' ' + String(ceval.d)]),
-                    h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
-                ]));
-                const stl = document.body.getAttribute('style');
-                document.body.setAttribute('style', stl + '--PVheight:64px;');
-            } else {
-                this.vpv = patch(this.vpv, h('div#pv'));
-                const stl = document.body.getAttribute('style');
-                document.body.setAttribute('style', stl + '--PVheight:0px;');
-            }
+                        }},
+                        { orig: d, brush: 'paleGreen'}
+                    ];
+                } else {
+                    const o = pv_move.slice(0, 2);
+                    const d = pv_move.slice(2, 4);
+                    shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+                }
+            };
+            this.vpv = patch(this.vpv, h('div#pv', [
+                h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, ' + _('Depth') + ' ' + String(ceval.d)]),
+                h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
+            ]));
+            const stl = document.body.getAttribute('style');
+            document.body.setAttribute('style', stl + '--PVheight:64px;');
+        } else {
+            this.vpv = patch(this.vpv, h('div#pv'));
+            const stl = document.body.getAttribute('style');
+            document.body.setAttribute('style', stl + '--PVheight:0px;');
         }
 
         // console.log(shapes0);
