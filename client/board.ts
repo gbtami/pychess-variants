@@ -185,50 +185,43 @@ class BoardSettings {
         settings.push(h('div.settings-boards', this.boardStyleSettingsView(variant)));
         settings.push(h('div.settings-pieces', this.pieceStyleSettingsView(variant)));
 
-        if (variant === this.ctrl?.variant) {
-            settings.push(h('div', [
-                h('label.zoom', { attrs: {for: "zoom"} }, _("Board size")),
-                h('input#zoom.slider', {
-                    attrs: { name: 'zoom', width: '280px', type: 'range', value: Number(zoom), min: 50, max: 150, step: (this.ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
-                    on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } }
-                }),
-            ]));
-        }
+        settings.push(h('div', { class: { hide: variant !== this.ctrl?.variant } }, [
+            h('input#zoom.slider', {
+                attrs: { name: 'zoom', width: '280px', type: 'range', title: _("[-] Zoom [+]"), value: Number(zoom), min: 50, max: 150, step: (this.ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
+                on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } }
+            }),
+        ]));
 
         settings.push(h('div', [
-            h('label', { attrs: {for: "showdests"} }, _("Show piece destinations")),
             h('input#showdests', {
                 props: {name: "showdests", type: "checkbox", checked: vShowDests === "true" ? "checked" : ""},
                 on: { click: () => setShowDests() }
             }),
+            h('label', { attrs: {for: "showdests"} }, _("Show piece destinations")),
         ]));
 
-        if (isVariantClass(variant, "pocket")) {
-            settings.push(h('div', [
-                h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
-                h('input#click2xdrop', {
-                    props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
-                    on: { click: () => setClick2xdrop() }
-                }),
-            ]));
-        }
+        settings.push(h('div', { class: { hide: !isVariantClass(variant, "pocket") } }, [
+            h('input#click2xdrop', {
+                props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
+                on: { click: () => setClick2xdrop() }
+            }),
+            h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
+        ]));
 
-        if (isVariantClass(variant, "autoQueen")) {
-            settings.push(h('div', [
-                h('label', { attrs: {for: "autoqueen"} }, _("Promote to Queen automatically")),
-                h('input#autoqueen', {
-                    props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
-                    on: { click: () => setAutoQueen() }
-                }),
-            ]));
-        }
+        settings.push(h('div', { class: { hide: !isVariantClass(variant, "autoQueen") } }, [
+            h('input#autoqueen', {
+                props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
+                on: { click: () => setAutoQueen() }
+            }),
+            h('label', { attrs: {for: "autoqueen"} }, _("Promote to Queen automatically")),
+        ]));
 
         settings.push(h('div', [
-            h('label', { attrs: {for: "arrow"} }, _("Best move arrow in analysis board")),
             h('input#arrow', {
                 props: {name: "arrow", type: "checkbox", checked: vArrow === "true" ? "checked" : ""},
                 on: { click: () => setArrow() }
             }),
+            h('label', { attrs: {for: "arrow"} }, _("Best move arrow in analysis board")),
         ]));
 
         return h('div#board-settings', settings);
