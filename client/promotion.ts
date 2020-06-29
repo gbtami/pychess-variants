@@ -7,7 +7,7 @@ import toVNode from 'snabbdom/tovnode';
 import { key2pos } from 'chessgroundx/util';
 import { Key, Role } from 'chessgroundx/types';
 
-import { autoqueenable, isPromotion, mandatoryPromotion, promotionRoles, roleToSan, kyotoPromotion } from './chess';
+import { isVariantClass, isPromotion, mandatoryPromotion, promotionRoles, roleToSan, kyotoPromotion } from './chess';
 
 const patch = init([klass, attributes, listeners]);
 
@@ -24,7 +24,7 @@ export default function(ctrl) {
         if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta, ctrl.promotions)) {
             const color = ctrl.mycolor;
             const orientation = ground.state.orientation;
-            if (ctrl.autoqueen && autoqueenable.indexOf(ctrl.variant) !== -1 ) {
+            if (ctrl.autoqueen && isVariantClass(ctrl.variant, "autoQueen")) {
                 roles = ['queen'];
             } else {
                 roles = promotionRoles(ctrl.variant, movingRole, orig, dest, ctrl.promotions);

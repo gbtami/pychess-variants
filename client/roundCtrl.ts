@@ -13,15 +13,15 @@ import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
 import { _, i18n } from './i18n';
+import { boardSettings } from './board';
 import { Clock, renderTime } from './clock';
 import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isVariantClass } from './chess';
+import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 import { renderRdiff, result } from './profile'
@@ -82,8 +82,6 @@ export default class RoundController {
     players: string[];
     titles: string[];
     ratings: string[];
-    CSSindexesB: number[];
-    CSSindexesP: number[];
     clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
     showDests: boolean;
@@ -95,6 +93,10 @@ export default class RoundController {
     constructor(el, model) {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
+            boardSettings.ctrl = this;
+            boardSettings.updateBoardStyle(this.variant);
+            boardSettings.updatePieceStyle(this.variant);
+            boardSettings.updateZoom();
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
@@ -137,8 +139,6 @@ export default class RoundController {
 
         this.flip = false;
         this.settings = true;
-        this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
-        this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
         this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
@@ -348,8 +348,6 @@ export default class RoundController {
         } else {
             this.gameControls = patch(container, h('div'));
         }
-
-        patch(document.getElementById('board-settings') as HTMLElement, settingsView(this));
 
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 

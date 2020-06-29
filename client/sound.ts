@@ -1,6 +1,5 @@
 import { Howl } from 'howler';
 
-
 class sounds {
     tracks;
     constructor() {
@@ -26,19 +25,33 @@ class sounds {
     }
 
     private buildSound = (file) => {
-        var soundTheme = localStorage.soundTheme === undefined ? 'standard' : localStorage.soundTheme;
+        var soundTheme = localStorage.soundTheme || 'standard';
         var sound = new Howl({
           src: ['/static/sound/' + soundTheme + '/' + file + '.ogg', '/static/sound/' + soundTheme + '/' + file + '.mp3'],
           onplayerror: function() {
             sound.once('unlock', function() {
               sound.play();
             });
-          }
+          },
+          volume: localStorage.volume || 1
         });
         return sound;
     }
 
-    private audio = () => { return (localStorage.getItem('audio') === undefined ? true : localStorage.getItem('audio') === 'true') };
+    updateVolume = () => {
+        const volume = localStorage.volume || 1;
+        Object.keys(this.tracks).forEach(key => {
+            this.tracks[key].volume(volume);
+        });
+    }
+
+    updateSoundTheme = () => {
+        Object.keys(this.tracks).forEach(key => {
+            this.tracks[key] = this.buildSound(key);
+        });
+    }
+
+    private audio = () => localStorage.soundTheme !== 'silent';
 
     genericNotify() { if ((this.audio())) {this.tracks.GenericNotify.play();} };
     socialNotify() { if ((this.audio())) {this.tracks.SocialNotify.play();} };

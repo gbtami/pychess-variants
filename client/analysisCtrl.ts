@@ -17,10 +17,9 @@ import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
-import { variants, grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
+import { grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { settingsView } from './settings';
 import { movelistView, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 //import { result } from './profile';
@@ -28,6 +27,7 @@ import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
 import { updateCount, updatePoint } from './info';
+import { boardSettings } from './board';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -87,8 +87,6 @@ export default class AnalysisController {
     players: string[];
     titles: string[];
     ratings: string[];
-    CSSindexesB: number[];
-    CSSindexesP: number[];
     clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
     showDests: boolean;
@@ -98,6 +96,10 @@ export default class AnalysisController {
     constructor(el, model) {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
+            boardSettings.ctrl = this;
+            boardSettings.updateBoardStyle(this.variant);
+            boardSettings.updatePieceStyle(this.variant);
+            boardSettings.updateZoom();
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 
@@ -128,8 +130,6 @@ export default class AnalysisController {
 
         this.flip = false;
         this.settings = true;
-        this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
-        this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
         this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
@@ -222,8 +222,6 @@ export default class AnalysisController {
 
         var element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'none';
-
-        patch(document.getElementById('board-settings') as HTMLElement, settingsView(this));
 
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
@@ -406,41 +404,42 @@ export default class AnalysisController {
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
-        if (ceval !== undefined) {
-            if (ceval.p !== undefined) {
-                var pv_move = ceval["m"].split(" ")[0];
-                if (this.variant === 'xiangqi' || this.variant.startsWith('grand') || this.variant === 'shako' || this.variant === 'janggi') pv_move = grand2zero(pv_move);
-                // console.log(pv_move, ceval["m"]);
-                if (arrow === 'true') {
-                    const atPos = pv_move.indexOf('@');
-                    if (atPos > -1) {
-                        const d = pv_move.slice(atPos + 1, atPos + 3);
-                        var color = step.turnColor;
-                        if (this.flip) color = (color === 'white') ? 'black' : 'white';
-                        // console.log(color, pv_move.slice(0, atPos), sanToRole[pv_move.slice(0, atPos)], d);
-                        shapes0 = [{ orig: d, brush: 'paleGreen', piece: {
+        if (ceval?.p !== undefined) {
+            var pv_move = ceval["m"].split(" ")[0];
+            if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
+            if (arrow === 'true') {
+                const atPos = pv_move.indexOf('@');
+                if (atPos > -1) {
+                    const d = pv_move.slice(atPos + 1, atPos + 3);
+                    var color = step.turnColor;
+                    if (this.variant.endsWith("shogi"))
+                        if (this.flip !== (this.mycolor === "black"))
+                            color = (color === 'white') ? 'black' : 'white';
+                    shapes0 = [{
+                        orig: d,
+                        brush: 'paleGreen',
+                        piece: {
                             color: color,
                             role: sanToRole[pv_move.slice(0, atPos)]
-                            }},
-                            { orig: d, brush: 'paleGreen'}
-                        ];
-                    } else {
-                        const o = pv_move.slice(0, 2);
-                        const d = pv_move.slice(2, 4);
-                        shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
-                    }
-                };
-                this.vpv = patch(this.vpv, h('div#pv', [
-                    h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, ' + _('Depth') + ' ' + String(ceval.d)]),
-                    h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
-                ]));
-                const stl = document.body.getAttribute('style');
-                document.body.setAttribute('style', stl + '--PVheight:64px;');
-            } else {
-                this.vpv = patch(this.vpv, h('div#pv'));
-                const stl = document.body.getAttribute('style');
-                document.body.setAttribute('style', stl + '--PVheight:0px;');
-            }
+                        }},
+                        { orig: d, brush: 'paleGreen'}
+                    ];
+                } else {
+                    const o = pv_move.slice(0, 2);
+                    const d = pv_move.slice(2, 4);
+                    shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+                }
+            };
+            this.vpv = patch(this.vpv, h('div#pv', [
+                h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, ' + _('Depth') + ' ' + String(ceval.d)]),
+                h('pv', ceval.p !== undefined ? ceval.p : ceval.m)
+            ]));
+            const stl = document.body.getAttribute('style');
+            document.body.setAttribute('style', stl + '--PVheight:64px;');
+        } else {
+            this.vpv = patch(this.vpv, h('div#pv'));
+            const stl = document.body.getAttribute('style');
+            document.body.setAttribute('style', stl + '--PVheight:0px;');
         }
 
         // console.log(shapes0);

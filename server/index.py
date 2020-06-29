@@ -178,6 +178,7 @@ async def index(request):
         "profile": profileId if profileId is not None else "",
         "variant": variant if variant is not None else "",
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
+        "variants": VARIANTS,
     }
     if view == "profile" or view == "level8win":
         if view == "level8win":

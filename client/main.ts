@@ -10,6 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
+import { settingsView, updateBackground } from './settings';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
@@ -17,7 +18,7 @@ import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
 import { sound } from './sound';
-import { getCookie } from './settings';
+import { getCookie } from './document';
 
 const model = {};
 
@@ -136,6 +137,21 @@ function setupEventSource() {
 
 function start() {
     patch(document.getElementById('placeholder') as HTMLElement, view(el, model));
+
+    (document.querySelector('.navbar-toggle') as HTMLElement).addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
+
+    var settingsPanel : any = document.getElementById('settings-panel') as HTMLElement;
+    settingsPanel = patch(settingsPanel, settingsView()).elm;
+    const settings = document.getElementById('settings') as HTMLElement;
+    document.addEventListener("click", ev => {
+        if (!settingsPanel.contains(ev.target as HTMLElement))
+            settings.style.display = 'none';
+    });
+
+    sound.updateVolume();
+    sound.updateSoundTheme();
+    updateBackground();
+
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
 }
  

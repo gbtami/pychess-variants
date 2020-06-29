@@ -17,7 +17,7 @@ import { _, i18n } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
-import { setBoardAndPieceStyles } from './settings';
+import { boardSettings } from './board';
 
 
 class LobbyController {
@@ -641,7 +641,7 @@ export function lobbyView(model): VNode[] {
             modal.style.display = "none";
         }
     }
-    setBoardAndPieceStyles();
+    boardSettings.updateBoardAndPieceStyles();
 
     return [h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
             h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model) } }) ]),

@@ -14,8 +14,8 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { enabled_variants, getPockets, needPockets, validFen, variantName, variantTooltip, variants, VARIANTS } from './chess';
-import { setBoard, setPieces, setZoom } from './settings';
+import { enabled_variants, getPockets, needPockets, validFen, variantName, variantTooltip, VARIANTS } from './chess';
+import { boardSettings } from './board';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png'; 
 
@@ -34,8 +34,6 @@ export default class EditorController {
     pieces: any;
     vpocket0: any;
     vpocket1: any;
-    CSSindexesB: number[];
-    CSSindexesP: number[];
     vfen: any;
     vChallenge: any;
     anon: boolean;
@@ -53,9 +51,6 @@ export default class EditorController {
 
         this.mycolor = 'white';
         this.oppcolor = 'black';
-
-        this.CSSindexesB = variants.map((variant) => localStorage[variant + "_board"] === undefined ? 0 : Number(localStorage[variant + "_board"]));
-        this.CSSindexesP = variants.map((variant) => localStorage[variant + "_pieces"] === undefined ? 0 : Number(localStorage[variant + "_pieces"]));
 
         this.chessground = Chessground(el, {
             fen: this.parts[0],
@@ -182,9 +177,10 @@ function runEditor(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new EditorController(el, model);
 
-    setBoard(ctrl.CSSindexesB, ctrl.variant, ctrl.mycolor);
-    setPieces(ctrl, ctrl.mycolor);
-    setZoom(ctrl, 100);
+    boardSettings.ctrl = ctrl;
+    boardSettings.updateBoardStyle(ctrl.variant);
+    boardSettings.updatePieceStyle(ctrl.variant);
+    boardSettings.updateZoom();
 
     const cg = ctrl.chessground;
     window['cg'] = cg;
