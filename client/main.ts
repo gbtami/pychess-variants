@@ -136,10 +136,6 @@ function setupEventSource() {
 }
 
 function start() {
-    updateBackground();
-    sound.updateSoundTheme();
-    sound.updateVolume();
-
     const placeholder = document.getElementById('placeholder');
     if (placeholder)
         patch(placeholder, view(el, model));
@@ -157,6 +153,9 @@ function start() {
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
 }
  
+updateBackground();
+sound.updateSoundTheme();
+sound.updateVolume();
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
     const lang = el.getAttribute("data-lang");
