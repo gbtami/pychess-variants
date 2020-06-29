@@ -1,6 +1,23 @@
 import { Howl } from 'howler';
 
 class sounds {
+
+    private static trackName = {
+        GenericNotify: 'GenericNotify',
+        SocialNotify: 'SocialNotify',
+        Move: 'Move',
+        Capture: 'Capture',
+        Check: 'Check',
+        Draw: 'Draw',
+        Victory: 'Victory',
+        Defeat: 'Defeat',
+        ShogiMove: 'komaoto5',
+        Chat: 'chat',
+        Setup: 'dinding',
+        LowTime: 'LowTime',
+        Tick: 'Tick',
+    };
+
     tracks;
     constructor() {
         this.tracks = {
@@ -20,7 +37,7 @@ class sounds {
         }
 
         Object.keys(this.tracks).forEach(key => {
-            this.tracks[key] = this.buildSound(this.tracks[key]);
+            this.tracks[key] = this.buildSound(sounds.trackName[key]);
         });
     }
 
@@ -47,7 +64,7 @@ class sounds {
 
     updateSoundTheme = () => {
         Object.keys(this.tracks).forEach(key => {
-            this.tracks[key] = this.buildSound(key);
+            this.tracks[key] = this.buildSound(sounds.trackName[key]);
         });
     }
 
