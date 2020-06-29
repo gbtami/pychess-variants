@@ -136,6 +136,10 @@ function setupEventSource() {
 }
 
 function start() {
+    updateBackground();
+    sound.updateSoundTheme();
+    sound.updateVolume();
+
     const placeholder = document.getElementById('placeholder');
     if (placeholder)
         patch(placeholder, view(el, model));
@@ -149,10 +153,6 @@ function start() {
         if (!settingsPanel.contains(ev.target as HTMLElement))
             settings.style.display = 'none';
     });
-
-    sound.updateSoundTheme();
-    sound.updateVolume();
-    updateBackground();
 
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
 }
