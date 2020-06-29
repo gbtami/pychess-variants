@@ -290,3 +290,12 @@
 .icon-globe:before {
   content: "\40";
 }
+.icon-left:before {
+  content: "\5b";
+}
+.icon-right:before {
+  content: "\5d";
+}
+.icon-heart:before {
+  content: "\5e";
+}
