@@ -150,7 +150,6 @@ class BoardSettings {
         const setShowDests = () => {
             const e = document.getElementById('showdests') as HTMLInputElement;
             localStorage.showDests = e.checked;
-            console.log(variant, this.ctrl?.variant);
             if (this.ctrl) {
                 this.ctrl.showDests = e.checked;
                 this.ctrl.chessground.set({movable: {showDests: this.ctrl.showDests}});
@@ -187,7 +186,7 @@ class BoardSettings {
 
         settings.push(h('div', { class: { hide: variant !== this.ctrl?.variant } }, [
             h('input#zoom.slider', {
-                attrs: { name: 'zoom', width: '280px', type: 'range', title: _("[-] Zoom [+]"), value: Number(zoom), min: 50, max: 150, step: (this.ctrl.variant.endsWith('shogi')) ? 1 : 1.5625 },
+                attrs: { name: 'zoom', width: '280px', type: 'range', title: _("[-] Zoom [+]"), value: Number(zoom), min: 50, max: 150, step: (variant.endsWith('shogi')) ? 1 : 1.5625 },
                 on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } }
             }),
         ]));

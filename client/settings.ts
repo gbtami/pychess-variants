@@ -125,7 +125,7 @@ function soundSettingsView() {
     });
     return h('div#settings-sub', [
         h('div#settings-sound', [
-            h('input#sound-volume.slider.vertical', {
+            h('input#sound-volume.slider', {
                 props: { name: "volume", type: "range", min: 0, max: 1, step: 0.01, value: currentVolume },
                 on: { change: e => setVolume((e.target as HTMLInputElement).value) },
             }),
