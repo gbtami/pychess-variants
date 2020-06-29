@@ -8,11 +8,11 @@ export const LANGUAGES = {
     de: "Deutsch",
     es: "Español",
     fr: "Français",
-    hu: "Hungarian", // TODO use native name
+    hu: "Magyar",
     it: "Italiano",
     ja: "日本語",
-    ko: "Korean", // TODO use native name
-    pt: "Portuguese", // TODO use native name
+    ko: "한국어",
+    pt: "Português",
     th: "ไทย",
-    zh: "Traditional Chinese", // TODO use native name
+    zh: "繁體中文",
 };
