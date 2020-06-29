@@ -136,7 +136,9 @@ function setupEventSource() {
 }
 
 function start() {
-    patch(document.getElementById('placeholder') as HTMLElement, view(el, model));
+    const placeholder = document.getElementById('placeholder');
+    if (placeholder)
+        patch(placeholder, view(el, model));
 
     (document.querySelector('.navbar-toggle') as HTMLElement).addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
 
