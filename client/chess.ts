@@ -107,29 +107,30 @@ export const VARIANTS = {
  ** pieceDir: This variant uses piece direction, rather than color, to denote piece side
  ** shogiSound: This variant uses shogi piece move sound
  ** tenRanks: This variant has ten ranks and need to use the grand2zero function to fix its notation
+ ** autoQueen: This variant utilises "Promote to queen automatically"
 */
 const variant_classes = {
     makruk: new Set(['showCount', 'manualCount']),
     makpong: new Set(['showCount', 'manualCount']),
     cambodian: new Set(['showCount', 'manualCount']),
     sittuyin: new Set(['showCount', 'pocket']),
-    placement: new Set(['pocket', 'enPassant']),
-    crazyhouse: new Set(['drop', 'pocket', 'enPassant']),
-    chess: new Set(['enPassant']),
+    placement: new Set(['pocket', 'enPassant', 'autoQueen']),
+    crazyhouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
+    chess: new Set(['enPassant', 'autoQueen']),
     shogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     minishogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
     xiangqi: new Set(['tenRanks']),
     minixiangqi: new Set([]),
-    capablanca: new Set(['enPassant']),
-    seirawan: new Set(['gate', 'pocket', 'enPassant']),
-    capahouse: new Set(['drop', 'pocket', 'enPassant']),
-    shouse: new Set(['gate', 'drop', 'pocket', 'enPassant']),
-    grand: new Set(['enPassant', 'tenRanks']),
-    grandhouse: new Set(['drop', 'pocket', 'enPassant', 'tenRanks']),
-    gothic: new Set(['enPassant']),
-    shako: new Set(['enPassant', 'tenRanks']),
+    capablanca: new Set(['enPassant', 'autoQueen']),
+    seirawan: new Set(['gate', 'pocket', 'enPassant', 'autoQueen']),
+    capahouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
+    shouse: new Set(['gate', 'drop', 'pocket', 'enPassant', 'autoQueen']),
+    grand: new Set(['enPassant', 'tenRanks', 'autoQueen']),
+    grandhouse: new Set(['drop', 'pocket', 'enPassant', 'tenRanks', 'autoQueen']),
+    gothic: new Set(['enPassant', 'autoQueen']),
+    shako: new Set(['enPassant', 'tenRanks', 'autoQueen']),
     shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
     orda: new Set(['enPassant']),
 }
@@ -299,8 +300,6 @@ function promotionZone(variant: string, color: string) {
     }
 }
 
-export const autoqueenable = ["placement", "crazyhouse", "chess", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako"];
-
 export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key, promotions) {
     switch (variant) {
     case "gothic":
@@ -394,12 +393,10 @@ export function isVariantClass(variant: string, variantClass: string) {
 }
 
 export function needPockets(variant: string) {
-    // return variant === 'shogun' || variant === 'placement' || variant === 'crazyhouse' || variant === 'sittuyin' || variant.endsWith('shogi') || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grandhouse' || variant === "gothhouse";
     return isVariantClass(variant, 'pocket');
 }
 
 export function hasEp(variant: string) {
-    //return variant === 'shogun' || variant === 'chess' || variant === 'placement' || variant === 'crazyhouse' || variant === 'capablanca' || variant === 'seirawan' || variant === 'capahouse' || variant === 'shouse' || variant === 'grand' || variant === 'grandhouse' || variant === "gothic" || variant === "gothhouse" || variant === 'shako' || variant === 'orda';
     return isVariantClass(variant, 'enPassant');
 }
 
@@ -414,7 +411,6 @@ function diagonalMove(pos1, pos2) {
 }
 
 export function canGate(fen, piece, orig) {
-    // console.log("   isGating()", fen, piece, orig);
     const no_gate = [false, false, false, false, false, false]
     if ((piece.color === "white" && orig.slice(1) !== "1") ||
         (piece.color === "black" && orig.slice(1) !== "8") ||
