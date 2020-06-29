@@ -69,21 +69,21 @@
                 <div class="navbar-toggle icon icon-bars"></div>
                 <a class="nav-link active home" href="/">PyChess</a>
                 <div class="topnav">
-                    <a class="nav-link" href="{{ home }}/tv">{% trans %}Tv{% endtrans %}</a>
-                    <a class="nav-link" href="{{ home }}/games">{% trans %}Current games{% endtrans %}</a>
-                    <a class="nav-link" href="{{ home }}/players">{% trans %}Players{% endtrans %}</a>
-                    <a class="nav-link" href="{{ home }}/editor/chess">{% trans %}Editor{% endtrans %}</a>
-                    <a class="nav-link" href="{{ home }}/variant">{% trans %}Learn{% endtrans %}</a>
-                    <a class="nav-link" href="{{ home }}/about">{% trans %}About{% endtrans %}</a>
+                    <a class="nav-link" href="/tv">{% trans %}Tv{% endtrans %}</a>
+                    <a class="nav-link" href="/games">{% trans %}Current games{% endtrans %}</a>
+                    <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
+                    <a class="nav-link" href="/editor/chess">{% trans %}Editor{% endtrans %}</a>
+                    <a class="nav-link" href="/variant">{% trans %}Learn{% endtrans %}</a>
+                    <a class="nav-link" href="/about">{% trans %}About{% endtrans %}</a>
                     <a class="nav-link" href="https://pychess.github.io">{% trans %}Original PyChess site{% endtrans %}</a>
                 </div>
             </div>
             <div class="site-buttons">
-                <div id="username"><a class="user-link" href="{{ home }}/@/{{ username }}">{{ username }}</a></div>
-                <div id="settings-panel"/>
+                <div id="username"><a class="user-link" href="/@/{{ username }}">{{ username }}</a></div>
                 {% if guest %}
-                <a class="login nav-link" href="{{ home }}/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
+                <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
                 {% endif %}
+                <div id="settings-panel"/>
             </div>
         </header>
         {% block content %}{% endblock %}
