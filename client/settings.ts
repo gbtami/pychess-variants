@@ -163,8 +163,10 @@ function boardSettingsView() {
     });
     return h('div#settings-sub', [
         h('div#settings-board', [
-            h('label', { props: { for: "board-variant" } }, _("Variant")),
-            h('select#board-variant', { on: { change: e => showVariantBoardSettings((e.target as HTMLInputElement).value) } }, variantList),
+            h('div', [
+                h('label', { props: { for: "board-variant" } }, _("Variant")),
+                h('select#board-variant', { on: { change: e => showVariantBoardSettings((e.target as HTMLInputElement).value) } }, variantList),
+            ]),
             h('div#board-settings'),
         ]),
     ]);

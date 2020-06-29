@@ -81,6 +81,10 @@
     --janggi-setup: #5d5d5d;
 }
 
+.hide {
+    display: none;
+}
+
 html {
   font-size: 14px ;
   min-height: 100%;
@@ -289,6 +293,10 @@ ul.guide li {
   padding: 0;
 }
 
+#btn-settings {
+    padding-right: 8px;
+}
+
 #settings {
     display: none;
     flex-direction: column;
@@ -304,10 +312,6 @@ ul.guide li {
     flex-direction: column;
 }
 
-#settings > div {
-    display: none;
-}
-
 #settings-lang > form {
     display: flex;
     flex-direction: column;
@@ -315,6 +319,10 @@ ul.guide li {
 
 #settings-sound {
     flex-direction: row !important;
+}
+
+#board-settings > div {
+    flex-direction: row;
 }
 
 #username, .login {
@@ -334,6 +342,10 @@ ul.guide li {
 
 .site-buttons button:hover {
   color: var(--blue-hover);
+}
+
+.user-link {
+    padding-right: 8px;
 }
 
 a, .user-link:link, .user-link:visited {
