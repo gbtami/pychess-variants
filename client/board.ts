@@ -202,24 +202,29 @@ class BoardSettings {
                 on: { click: () => setShowDests() }
             }),
         ]));
-        settings.push(h('div', [
-            h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
-            h('input#click2xdrop', {
-                props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
-                on: { click: () => setClick2xdrop() }
-            }),
-        ]));
+
+        if (isVariantClass(variant, "pocket")) {
+            settings.push(h('div', [
+                h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
+                h('input#click2xdrop', {
+                    props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
+                    on: { click: () => setClick2xdrop() }
+                }),
+            ]));
+        }
+
+        if (isVariantClass(variant, "autoQueen")) {
+            settings.push(h('div', [
+                h('label', { attrs: {for: "autoqueen"} }, _("Promote to Queen automatically")),
+                h('input#autoqueen', {
+                    props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
+                    on: { click: () => setAutoQueen() }
+                }),
+            ]));
+        }
 
         settings.push(h('div', [
-            h('label', { attrs: {for: "autoqueen"} }, _("Promote to Queen automatically")),
-            h('input#autoqueen', {
-                props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
-                on: { click: () => setAutoQueen() }
-            }),
-        ]));
-
-        settings.push(h('div', [
-            h('label', { attrs: {for: "arrow"} }, _("Best move arrow")),
+            h('label', { attrs: {for: "arrow"} }, _("Best move arrow in analysis board")),
             h('input#arrow', {
                 props: {name: "arrow", type: "checkbox", checked: vArrow === "true" ? "checked" : ""},
                 on: { click: () => setArrow() }
