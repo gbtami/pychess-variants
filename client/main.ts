@@ -138,8 +138,15 @@ function setupEventSource() {
 function start() {
     patch(document.getElementById('placeholder') as HTMLElement, view(el, model));
 
-    patch(document.getElementById('settings-panel') as HTMLElement, settingsView());
     (document.querySelector('.navbar-toggle') as HTMLElement).addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
+
+    var settingsPanel : any = document.getElementById('settings-panel') as HTMLElement;
+    settingsPanel = patch(settingsPanel, settingsView()).elm;
+    const settings = document.getElementById('settings') as HTMLElement;
+    document.addEventListener("click", ev => {
+        if (!settingsPanel.contains(ev.target as HTMLElement))
+            settings.style.display = 'none';
+    });
 
     sound.updateVolume();
     sound.updateSoundTheme();
