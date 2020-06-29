@@ -43,7 +43,6 @@ function settingsMenu() {
 
 export function settingsView() {
     const anon = document.getElementById('pychess-variants')!.getAttribute("data-anon");
-    console.log(anon);
     const menu = (anon === 'True') ? [ settingsMenu() ] : [ userMenu(), settingsMenu() ];
     return h('div#settings-panel', [
         settingsButton(),
@@ -98,7 +97,6 @@ function showSubsettings(settingsName) {
 
 function langSettingsView() {
     const currentLang = document.getElementById('pychess-variants')!.getAttribute("data-lang");
-    console.log(currentLang);
     let langList: VNode[] = [];
     Object.keys(LANGUAGES).forEach(key => {
         langList.push(h('input#lang-' + key, {

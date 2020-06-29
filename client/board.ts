@@ -51,7 +51,8 @@ class BoardSettings {
         for (let i = 0; i < VARIANTS[variant].BoardCSS.length; i++) {
             boards.push(h('input#board' + String(i), {
                 on: { change: setBoardStyle },
-                props: { type: "radio", name: "board", value: String(i), checked: vboard === String(i) ? "checked" : ""}
+                props: { type: "radio", name: "board", value: String(i)},
+                attrs: { checked: vboard === String(i) },
             }));
             boards.push(h('label.board.board' + String(i) + '.' + variant, { attrs: {for: "board" + String(i)} }, ""));
         }
@@ -84,7 +85,7 @@ class BoardSettings {
     }
 
     private pieceStyleSettingsView(variant) {
-        var vpiece = localStorage[variant + "_piece"] ?? '0';
+        var vpiece = localStorage[variant + "_pieces"] ?? '0';
         const pieces : VNode[] = [];
 
         const setPieceStyle = e => {
@@ -102,7 +103,8 @@ class BoardSettings {
         for (let i = 0; i < VARIANTS[variant].PieceCSS.length; i++) {
             pieces.push(h('input#piece' + String(i), {
                 on: { change: setPieceStyle },
-                props: { type: "radio", name: "piece", value: String(i), checked: vpiece === String(i) ? "checked" : ""}
+                props: { type: "radio", name: "piece", value: String(i)},
+                attrs: { checked: vpiece === String(i) },
             }));
             pieces.push(h('label.piece.piece' + String(i) + '.' + variant, { attrs: {for: "piece" + String(i)} }, ""));
         }
