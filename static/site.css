@@ -312,6 +312,10 @@ ul.guide li {
     flex-direction: column;
 }
 
+#settings input[type="radio"]:checked+label {
+    background-color: var(--green-hover);
+}
+
 #settings-lang > form {
     display: flex;
     flex-direction: column;
