@@ -34,10 +34,10 @@ function logoutDialog() {
 
 function settingsMenu() {
     return h('div#settings-buttons', [
-        h('button#btn-lang', { on: { click: () => showSettings('lang') } }, 'Language'),
-        h('button#btn-sound', { on: { click: () => showSettings('sound') } }, _('Sound')),
-        h('button#btn-background', { on: { click: () => showSettings('background') } }, _('Background')),
-        h('button#btn-board', { on: { click: () => showSettings('board') } }, _('Board Settings')),
+        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, 'Language'),
+        h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
+        h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
+        h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
     ]);
 }
 
@@ -54,19 +54,24 @@ export function settingsView() {
     ]);
 }
 
-export function toggleSettings() {
-    const settings = document.getElementById('settings') as HTMLElement;
-    if (settings.style.display === 'flex') {
-        settings.style.display = 'none';
-    }
-    else {
-        settings.style.display = 'flex';
-        (document.getElementById('settings-main') as HTMLElement).style.display = 'flex';
-        (document.getElementById('settings-sub') as HTMLElement).style.display = 'none';
-    }
+export function hideSettings() {
+    (document.getElementById('settings') as HTMLElement).style.display = 'none';
 }
 
-function showSettings(settingsName) {
+export function showMainSettings() {
+    (document.getElementById('settings') as HTMLElement).style.display = 'flex';
+    (document.getElementById('settings-main') as HTMLElement).style.display = 'flex';
+    (document.getElementById('settings-sub') as HTMLElement).style.display = 'none';
+}
+
+export function toggleSettings() {
+    if ((document.getElementById('settings') as HTMLElement).style.display === 'flex')
+        hideSettings();
+    else
+        showMainSettings();
+}
+
+function showSubsettings(settingsName) {
     const mainSettings = document.getElementById('settings-main') as HTMLElement;
     const subSettings = document.getElementById('settings-sub') as HTMLElement;
 
@@ -104,6 +109,10 @@ function langSettingsView() {
         langList.push(h('label', { attrs: { for: "lang-" + key } }, LANGUAGES[key]));
     });
     return h('div#settings-sub', [
+        h('button.back', { on: { click: showMainSettings } }, [
+            h('div', "<"),
+            h('div', "Language"),
+        ]),
         h('div#settings-lang', [
             h('form.radio-list', { props: { method: "post", action: "/translation/select" } }, langList),
         ]),
@@ -124,6 +133,10 @@ function soundSettingsView() {
         soundThemeList.push(h('label', { attrs: { for: "sound-" + theme.toLowerCase() } }, theme));
     });
     return h('div#settings-sub', [
+        h('button.back', { on: { click: showMainSettings } }, [
+            h('div', "<"),
+            h('div', _("Sound")),
+        ]),
         h('div#settings-sound', [
             h('input#sound-volume.slider', {
                 props: { name: "volume", type: "range", min: 0, max: 1, step: 0.01, value: currentVolume },
@@ -147,6 +160,10 @@ function backgroundSettingsView() {
         backgroundList.push(h('label', { attrs: { for: "background-" + theme.toLowerCase() } }, theme));
     });
     return h('div#settings-sub', [
+        h('button.back', { on: { click: showMainSettings } }, [
+            h('div', "<"),
+            h('div', _("Background")),
+        ]),
         h('div#settings-background', backgroundList),
     ]);
 }
@@ -162,6 +179,10 @@ function boardSettingsView() {
         }, v.toUpperCase()));
     });
     return h('div#settings-sub', [
+        h('button.back', { on: { click: showMainSettings } }, [
+            h('div', "<"),
+            h('div', _("Board Settings")),
+        ]),
         h('div#settings-board', [
             h('div', [
                 h('label', { props: { for: "board-variant" } }, _("Variant")),

@@ -310,6 +310,7 @@ ul.guide li {
 #settings div {
     display: flex;
     flex-direction: column;
+    margin: 5px;
 }
 
 #settings input[type="radio"]:checked+label {
@@ -327,6 +328,10 @@ ul.guide li {
 
 #board-settings > div {
     flex-direction: row;
+}
+
+button.back {
+    display: flex;
 }
 
 #username, .login {
