@@ -1,6 +1,6 @@
 import { Howl } from 'howler';
 
-class sounds {
+class Sounds {
 
     private static trackName = {
         GenericNotify: 'GenericNotify',
@@ -35,10 +35,6 @@ class sounds {
             LowTime: 'LowTime',
             Tick: 'Tick',
         }
-
-        Object.keys(this.tracks).forEach(key => {
-            this.tracks[key] = this.buildSound(sounds.trackName[key]);
-        });
     }
 
     private buildSound = (file) => {
@@ -55,16 +51,16 @@ class sounds {
         return sound;
     }
 
-    updateVolume = () => {
+    updateVolume() {
         const volume = localStorage.volume || 1;
         Object.keys(this.tracks).forEach(key => {
             this.tracks[key].volume(volume);
         });
     }
 
-    updateSoundTheme = () => {
+    updateSoundTheme() {
         Object.keys(this.tracks).forEach(key => {
-            this.tracks[key] = this.buildSound(sounds.trackName[key]);
+            this.tracks[key] = this.buildSound(Sounds.trackName[key]);
         });
     }
 
@@ -85,4 +81,4 @@ class sounds {
     tick() { if ((this.audio())) {this.tracks.Tick.play();} };
 }
 
-export const sound = new(sounds);
+export const sound = new(Sounds);

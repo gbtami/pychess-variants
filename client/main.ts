@@ -148,8 +148,8 @@ function start() {
             settings.style.display = 'none';
     });
 
-    sound.updateVolume();
     sound.updateSoundTheme();
+    sound.updateVolume();
     updateBackground();
 
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
