@@ -605,6 +605,7 @@ export function validFen(variant, fen) {
                         break;
                     case '~':
                         rowArray[rowArray.length - 1] = rowArray[rowArray.length - 1] + '~';
+                        break;
                     default:
                         if (promoted) {
                             rowArray.push('+' + c);
