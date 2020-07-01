@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-24 14:02+0200\n"
+"POT-Creation-Date: 2020-07-01 15:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,23 +93,11 @@ msgstr ""
 msgid "Original PyChess site"
 msgstr ""
 
-#: ../templates/template.html:83
-msgid "Toggle dark mode"
-msgstr ""
-
 #: ../templates/template.html:84
-msgid "Toggle sound"
-msgstr ""
-
-#: ../templates/template.html:95
 msgid "Login with Lichess"
 msgstr ""
 
-#: ../templates/template.html:95
+#: ../templates/template.html:84
 msgid "Log in"
-msgstr ""
-
-#: ../templates/template.html:97
-msgid "Log out"
 msgstr ""
 

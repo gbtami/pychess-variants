@@ -34,7 +34,7 @@ function logoutDialog() {
 
 function settingsMenu() {
     return h('div#settings-buttons', [
-        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, 'Language'),
+        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, _('Language')),
         h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
         h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
         h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
