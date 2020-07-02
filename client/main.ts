@@ -17,6 +17,7 @@ import { gamesView } from './games';
 import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
+import { statsView } from './stats';
 import { sound } from './sound';
 import { getCookie } from './document';
 
@@ -71,6 +72,8 @@ export function view(el, model): VNode {
         return h('div#placeholder', gamesView(model));
     case 'thanks':
         return h('div#placeholder.main-wrapper', h('h2', _('Thank you for your support!')));
+    case 'stats':
+        return h('div#stats', statsView(model));
     default:
         return h('div#placeholder.main-wrapper', lobbyView(model));
     }

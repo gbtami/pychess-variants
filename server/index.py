@@ -87,6 +87,8 @@ async def index(request):
 
     if request.path == "/about":
         view = "about"
+    elif request.path == "/stats":
+        view = "stats"
     elif request.path.startswith("/variant"):
         view = "variant"
     elif request.path == "/players":

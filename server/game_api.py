@@ -17,6 +17,54 @@ log = logging.getLogger(__name__)
 GAME_PAGE_SIZE = 12
 
 
+async def get_variant_stats(request):
+    db = request.app["db"]
+
+    pipeline = [
+        {"$group": {
+            "_id": {
+                "date": {"$dateToString": {
+                    "format": "%Y-%m",
+                    "date": "$d"}},
+                "v": "$v",
+                "960": "$z",
+            },
+            "count": {"$sum": 1}
+        }
+        },
+        {"$sort": {"_id": 1}}
+    ]
+    cursor = db.game.aggregate(pipeline)
+
+    variant_counts = {variant: [] for variant in VARIANTS}
+
+    month = ""
+    cur_month = datetime.now().isoformat()[:7]
+    async for doc in cursor:
+        # print(doc)
+        if doc["_id"]["date"] != month:
+            month = doc["_id"]["date"]
+            # skip current month
+            if month == cur_month:
+                break
+
+            for variant in VARIANTS:
+                variant_counts[variant].append(0)
+
+        is_960 = doc["_id"].get("960", False)
+        variant = C2V[doc["_id"]["v"]] + ("960" if is_960 else "")
+        cnt = doc["count"]
+        try:
+            variant_counts[variant][-1] = cnt
+        except KeyError:
+            # support of variant discontinued
+            pass
+
+    series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
+
+    return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
+
+
 async def get_user_games(request):
     users = request.app["users"]
     db = request.app["db"]

@@ -4,7 +4,7 @@ from bot_api import account, playing, event_stream, game_stream, bot_abort,\
 from fishnet import fishnet_monitor, fishnet_key, fishnet_acquire,\
     fishnet_abort, fishnet_analysis, fishnet_move
 from game_api import export, get_games, get_user_games, subscribe_games,\
-    subscribe_notify
+    subscribe_notify, get_variant_stats
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
@@ -17,6 +17,7 @@ get_routes = (
     ("/logout", logout),
     ("/", index),
     ("/about", index),
+    ("/stats", index),
     ("/players", index),
     ("/allplayers", index),
     ("/games", index),
@@ -44,6 +45,7 @@ get_routes = (
     ("/api/{profileId}/win", get_user_games),
     ("/api/{profileId}/loss", get_user_games),
     ("/api/{profileId}/{variant}", get_user_games),
+    ("/api/stats", get_variant_stats),
     ("/api/games", get_games),
     ("/api/ongoing", subscribe_games),
     ("/api/notify", subscribe_notify),

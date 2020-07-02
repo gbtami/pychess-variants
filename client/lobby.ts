@@ -651,6 +651,7 @@ export function lobbyView(model): VNode[] {
                 h('a.reflist', {attrs: {href: 'https://github.com/gbtami/pychess-variants'}}, 'Github'),
                 //h('a.reflist', {attrs: {href: '/patron'}}, t`Donate`),
                 h('a.reflist', {attrs: {href: '/patron'}}, _("Donate")),
+                h('a.reflist', {attrs: {href: '/stats'}}, _("Stats")),
             ]),
             h('under-lobby'),
             h('under-right', [
