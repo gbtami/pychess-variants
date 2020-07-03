@@ -1417,6 +1417,13 @@ minigame:hover {
 .highcharts-background {
     fill: var(--bg-color0);
 }
+.highcharts-legend-item text {
+  fill: var(--link-color) !important;
+  transition: fill 250ms;
+}
+.highcharts-legend-item:hover text {
+  fill: var(--link-hover) !important;
+}
 
 /* loader */
 #loader-wrapper {
