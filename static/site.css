@@ -247,7 +247,6 @@ ul.guide li {
   height: var(--site-header-height);
   line-height: var(--site-header-height);
   color: var(--font-color);
-  text-align: center;
 }
 
 .topnav a {
@@ -288,7 +287,6 @@ ul.guide li {
 .site-buttons {
   display: flex;
   flex-flow: row nowrap;
-  text-align: center;
   margin: 0;
   padding: 0;
 }
@@ -302,6 +300,7 @@ ul.guide li {
     flex-direction: column;
     color: var(--font-color);
     background-color: var(--bg-color0);
+    box-shadow: var(--base-shadow);
     position: absolute;
     top: var(--site-header-height);
     right: 0;
@@ -313,8 +312,17 @@ ul.guide li {
     margin: 5px;
 }
 
+#settings-buttons button {
+  text-align: left;
+}
+
 #settings input[type="radio"]:checked+label {
     background-color: var(--green-hover);
+}
+
+#settings input[type="radio"]:hover+label {
+    background-color: var(--green-hover);
+    opacity: 0.7;
 }
 
 #settings-lang > form {
@@ -547,7 +555,6 @@ round-player {
 }
 .player-data {
   display: block;
-  flex-direction: row;
   justify-content: center;
   padding: 2px 6px;
 }
@@ -584,6 +591,11 @@ i-side.icon-white::before, i-side.icon-black::before {
 .icon-offline::before {
   color: LightGray;
   vertical-align: -2;
+  margin-right: .4em;
+}
+.icon-left:before {
+  color: var(--green-hover);
+  vertical-align: -4;
   margin-right: .4em;
 }
 rating {
@@ -1107,7 +1119,7 @@ input[type=radio] {
 label {
   display: inline-block;
   cursor: pointer;
-  padding: 5px 12px;
+  padding: 8px 12px;
 }
 
 .radio-group input[type=radio]:checked + label {

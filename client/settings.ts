@@ -22,8 +22,8 @@ function settingsButton() {
 }
 
 function userMenu() {
-    return h('div#user-buttons', [
-        h('a.login.nav-link', { on: { click: logoutDialog } }, _("Log out")),
+    return h('div#settings-buttons', [
+        h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
     ]);
 }
 
@@ -108,8 +108,7 @@ function langSettingsView() {
     });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('div', "<"),
-            h('div', "Language"),
+            h('back', {class: { icon: true, "icon-left": true } }, _("Language")),
         ]),
         h('div#settings-lang', [
             h('form.radio-list', { props: { method: "post", action: "/translation/select" } }, langList),
@@ -132,8 +131,7 @@ function soundSettingsView() {
     });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('div', "<"),
-            h('div', _("Sound")),
+            h('back', {class: { icon: true, "icon-left": true } }, _("Sound")),
         ]),
         h('div#settings-sound', [
             h('input#sound-volume.slider', {
@@ -159,8 +157,7 @@ function backgroundSettingsView() {
     });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('div', "<"),
-            h('div', _("Background")),
+            h('back', {class: { icon: true, "icon-left": true } }, _("Background")),
         ]),
         h('div#settings-background', backgroundList),
     ]);
@@ -178,8 +175,7 @@ function boardSettingsView() {
     });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('div', "<"),
-            h('div', _("Board Settings")),
+            h('back', {class: { icon: true, "icon-left": true } }, _("Board Settings")),
         ]),
         h('div#settings-board', [
             h('div', [
