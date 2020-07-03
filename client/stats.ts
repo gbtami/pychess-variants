@@ -6,6 +6,22 @@ import { VNode } from 'snabbdom/vnode';
 import { _ } from './i18n';
 
 
+function createPeriods() {
+    var periodList: string[] = [];
+    var date = new Date(2019, 6, 1, 0, 0, 0);
+    const endDate = new Date();
+    const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+
+    while (date <= endDate) {
+        const year = date.getFullYear().toString();
+        const month = months[date.getMonth()];
+        periodList.push(year + '-' + month);
+        date.setMonth(date.getMonth() + 1);
+    }
+    return periodList;
+}
+
+
 function buildChart(model) {
 
     var xmlhttp = new XMLHttpRequest();
@@ -35,9 +51,7 @@ function buildChart(model) {
                 verticalAlign: 'top',
             },
             xAxis: {
-                categories: [
-                    '2019-07', '2019-08', '2019-09', '2019-10', '2019-11', '2019-12', 
-                    '2020-01', '2020-02', '2020-03', '2020-04', '2020-05', '2020-06', '2020-07',],  
+                categories: createPeriods(),  
             },
             yAxis: {
                 type: 'logarithmic',
