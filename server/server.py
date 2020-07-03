@@ -78,6 +78,7 @@ async def init_state(app):
     app["channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
     app["crosstable"] = {}
+    app["stats"] = {}
 
     # counters for games and users
     app["g_cnt"] = 0
