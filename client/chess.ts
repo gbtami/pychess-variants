@@ -62,7 +62,7 @@ export function variantTooltip(variant) {
     shako: _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
     shogun: _("Pieces promote and can be dropped, similar to Shogi"),
     orda: _("Asymmetric variant where one army has pieces that move like knights but capture differently"),
-    synochess: _("Asymmetric variant where one army has pieces from Xiangqi/Janggi"),
+    synochess: _("Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army"),
     }
     return tooltip[variant];
 }
