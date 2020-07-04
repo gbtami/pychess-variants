@@ -29,6 +29,10 @@
     "Depth": "Profondità",
     "Spectators: ": "Spettatori:",
     "Requested game %1 not found!": "Partita richiesta %1 non trovata!",
+    "[-] Zoom [+]": "[-] Zoom [+]",
+    "Show piece destinations": "Mostra le mosse",
+    "Two click drop moves": "Doppio click per il paracadutaggio",
+    "Promote to Queen automatically": "Promuovi a Donna automaticamente",
     "Initial position": "Posizione iniziale",
     "Advantage": "Vantaggio",
     "Spectator room": "Sala spettatori",
@@ -170,11 +174,6 @@
     "Stop counting": "Ferma il conteggio",
     "Stop": "Stop",
     "Start counting": "Comincia il conteggio",
-    "[-] Zoom [+]": "[-] Zoom [+]",
-    "Show piece destinations": "Mostra le mosse",
-    "Two click drop moves": "Doppio click per il paracadutaggio",
-    "Promote to Queen automatically": "Promuovi a Donna automaticamente",
-    "Best move arrow": "Mostra la freccia con la mossa migliore",
     "": {
         "language": "it",
         "plural-forms": "nplurals=2; plural=(n != 1);"

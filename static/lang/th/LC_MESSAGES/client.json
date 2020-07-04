@@ -16,6 +16,10 @@
     "Depth": "ความลึก",
     "Spectators: ": "ผู้ชม: ",
     "Requested game %1 not found!": "หาเกม %1 ไม่พบ!",
+    "[-] Zoom [+]": "[-] ขยายกระดาน [+]",
+    "Show piece destinations": "แสดงตาที่สามารถเดินได้",
+    "Two click drop moves": "วางตัวหมากจากมือด้วยการคลิก",
+    "Promote to Queen automatically": "เลื่อนยศเป็นควีนอัตโนมัติ",
     "Initial position": "ตำแหน่งเริ่มต้น",
     "Advantage": "ความได้เปรียบ",
     "Spectator room": "ห้องผู้ชม",
@@ -124,11 +128,6 @@
     "Stop counting": "หยุดนับ",
     "Stop": "หยุด",
     "Start counting": "เริ่มนับ",
-    "[-] Zoom [+]": "[-] ขยายกระดาน [+]",
-    "Show piece destinations": "แสดงตาที่สามารถเดินได้",
-    "Two click drop moves": "วางตัวหมากจากมือด้วยการคลิก",
-    "Promote to Queen automatically": "เลื่อนยศเป็นควีนอัตโนมัติ",
-    "Best move arrow": "ลูกศรแนะนำตาเดิน",
     "": {
         "language": "th",
         "plural-forms": "nplurals=1; plural=0;"

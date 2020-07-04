@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-09 14:10+0200\n"
+"POT-Creation-Date: 2020-07-01 15:45+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Leo Ha <yeoha123@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
@@ -68,50 +68,38 @@ msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s 개의 게임"
 
-#: ../templates/template.html:69
+#: ../templates/template.html:72
 msgid "Tv"
 msgstr "생중계"
 
-#: ../templates/template.html:70
+#: ../templates/template.html:73
 msgid "Current games"
 msgstr "현재 진행중인 게임"
 
-#: ../templates/template.html:71
+#: ../templates/template.html:74
 msgid "Players"
 msgstr "대국자"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:75
 msgid "Editor"
 msgstr "판 편집"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:76
 msgid "Learn"
 msgstr "학습"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:77
 msgid "About"
 msgstr "사이트 정보"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:78
 msgid "Original PyChess site"
 msgstr "원조 Pychess 사이트"
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Login with Lichess"
 msgstr "Lichess 로 로그인 하기"
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Log in"
 msgstr "로그인"
-
-#: ../templates/template.html:80
-msgid "Log out"
-msgstr "로그아웃"
-
-#: ../templates/template.html:91
-msgid "Toggle sound"
-msgstr "소리 켬/끔"
-
-#: ../templates/template.html:92
-msgid "Toggle dark mode"
-msgstr "야간 모드 켬/끔"

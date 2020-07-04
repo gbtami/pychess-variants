@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-09 14:10+0200\n"
+"POT-Creation-Date: 2020-07-01 15:45+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ignacio Poggi <ignaciop.3@gmail.com>, 2020\n"
 "Language-Team: Spanish (https://www.transifex.com/gbtami/teams/14790/es/)\n"
@@ -72,50 +72,38 @@ msgid_plural "%(count)s games"
 msgstr[0] "%(count)spartida"
 msgstr[1] "%(count)spartidas"
 
-#: ../templates/template.html:69
+#: ../templates/template.html:72
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:70
+#: ../templates/template.html:73
 msgid "Current games"
 msgstr "Partidas actuales"
 
-#: ../templates/template.html:71
+#: ../templates/template.html:74
 msgid "Players"
 msgstr "Jugadores"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:75
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:76
 msgid "Learn"
 msgstr "Aprender"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:77
 msgid "About"
 msgstr "Acerca de"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:78
 msgid "Original PyChess site"
 msgstr "Sitio original de PyChess"
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Login with Lichess"
 msgstr "Iniciar sesión con Lichess"
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Log in"
 msgstr "Iniciar sesión"
-
-#: ../templates/template.html:80
-msgid "Log out"
-msgstr "Cerrar sesión"
-
-#: ../templates/template.html:91
-msgid "Toggle sound"
-msgstr "Habilitar sonido"
-
-#: ../templates/template.html:92
-msgid "Toggle dark mode"
-msgstr "Habilitar modo oscuro"

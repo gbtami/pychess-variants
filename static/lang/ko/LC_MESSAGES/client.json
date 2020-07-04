@@ -18,6 +18,10 @@
     "Depth": "깊이",
     "Spectators: ": "관전자:",
     "Requested game %1 not found!": "요청하신 %1 게임을 찾을 수 없습니다!",
+    "[-] Zoom [+]": "[-] 돋보기 [+]",
+    "Show piece destinations": "기물 행마법 보이기",
+    "Two click drop moves": "두번 클릭으로 기물 옮기기",
+    "Promote to Queen automatically": "퀸 자동 프로모션",
     "Initial position": "초반 배치",
     "Advantage": "유불리",
     "Spectator room": "관전방",
@@ -128,11 +132,6 @@
     "Stop counting": "계산 중단하기",
     "Stop": "중단하기",
     "Start counting": "계산 시작하기",
-    "[-] Zoom [+]": "[-] 돋보기 [+]",
-    "Show piece destinations": "기물 행마법 보이기",
-    "Two click drop moves": "두번 클릭으로 기물 옮기기",
-    "Promote to Queen automatically": "퀸 자동 프로모션",
-    "Best move arrow": "최적수 화살표",
     "": {
         "language": "ko",
         "plural-forms": "nplurals=1; plural=0;"

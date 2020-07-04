@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 00:48+0200\n"
+"POT-Creation-Date: 2020-07-01 15:45+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
@@ -73,50 +73,38 @@ msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partie"
 msgstr[1] "%(count)s parties"
 
-#: ../templates/template.html:69
+#: ../templates/template.html:72
 msgid "Tv"
 msgstr "TV"
 
-#: ../templates/template.html:70
+#: ../templates/template.html:73
 msgid "Current games"
 msgstr "Parties en cours"
 
-#: ../templates/template.html:71
+#: ../templates/template.html:74
 msgid "Players"
 msgstr "Joueurs"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:75
 msgid "Editor"
 msgstr "Editeur de position"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:76
 msgid "Learn"
 msgstr "Apprendre"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:77
 msgid "About"
 msgstr "À propos de nous"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:78
 msgid "Original PyChess site"
 msgstr "Site original de PyChess"
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Login with Lichess"
 msgstr "Se connecter avec Lichess"
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Log in"
 msgstr "Se connecter"
-
-#: ../templates/template.html:80
-msgid "Log out"
-msgstr "Se déconnecter"
-
-#: ../templates/template.html:91
-msgid "Toggle sound"
-msgstr "Basculer le son"
-
-#: ../templates/template.html:92
-msgid "Toggle dark mode"
-msgstr "Basculer entre mode sombre/clair"

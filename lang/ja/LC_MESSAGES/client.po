@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-24 14:01+0200\n"
+"POT-Creation-Date: 2020-07-01 15:45+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
@@ -107,12 +107,12 @@ msgid ""
 " here."
 msgstr ""
 
-#: ../client/analysis.ts:32 ../client/lobby.ts:379 ../client/lobby.ts:527
+#: ../client/analysis.ts:32 ../client/lobby.ts:380 ../client/lobby.ts:527
 #: ../client/profile.ts:115 ../client/round.ts:31
 msgid "Rated"
 msgstr "レート戦"
 
-#: ../client/analysis.ts:32 ../client/lobby.ts:377 ../client/lobby.ts:527
+#: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:527
 #: ../client/profile.ts:115 ../client/round.ts:31
 msgid "Casual"
 msgstr "非レート戦"
@@ -126,52 +126,72 @@ msgstr "対局中"
 msgid " level "
 msgstr "レベル"
 
-#: ../client/analysisCtrl.ts:254
+#: ../client/analysisCtrl.ts:260
 msgid "You need an account to do that."
 msgstr "アカウントが必要です"
 
-#: ../client/analysisCtrl.ts:281
+#: ../client/analysisCtrl.ts:287
 msgid "Download game to PGN file"
 msgstr "ダウンロード（PGN形式）"
 
-#: ../client/analysisCtrl.ts:281
+#: ../client/analysisCtrl.ts:287
 msgid " Download PGN"
 msgstr "ダウンロード（PGN形式）"
 
-#: ../client/analysisCtrl.ts:283
+#: ../client/analysisCtrl.ts:289
 msgid "Copy USI/UCI to clipboard"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:283
+#: ../client/analysisCtrl.ts:289
 msgid " Copy UCI/USI"
 msgstr "UCI/USIをコピーする"
 
-#: ../client/analysisCtrl.ts:285
+#: ../client/analysisCtrl.ts:291
 msgid "Download position to PNG image file"
 msgstr "局面をPNG画像でダウンロードする"
 
-#: ../client/analysisCtrl.ts:285
+#: ../client/analysisCtrl.ts:291
 msgid " PNG image"
 msgstr "PNG画像"
 
-#: ../client/analysisCtrl.ts:289
+#: ../client/analysisCtrl.ts:295
 msgid "Request Computer Analysis"
 msgstr "コンピューターより解析をリクエストする"
 
-#: ../client/analysisCtrl.ts:289
+#: ../client/analysisCtrl.ts:295
 msgid " Request Analysis"
 msgstr "解析をリクエストする"
 
-#: ../client/analysisCtrl.ts:440
+#: ../client/analysisCtrl.ts:446
 msgid "Depth"
 msgstr "深度"
 
-#: ../client/analysisCtrl.ts:584 ../client/roundCtrl.ts:1097
+#: ../client/analysisCtrl.ts:589 ../client/roundCtrl.ts:1104
 msgid "Spectators: "
 msgstr "観覧者："
 
-#: ../client/analysisCtrl.ts:604 ../client/roundCtrl.ts:1162
+#: ../client/analysisCtrl.ts:613 ../client/roundCtrl.ts:1169
 msgid "Requested game %1 not found!"
+msgstr ""
+
+#: ../client/board.ts:191
+msgid "[-] Zoom [+]"
+msgstr "「－」ズーム「＋」"
+
+#: ../client/board.ts:201
+msgid "Show piece destinations"
+msgstr "駒の行き先を表示する"
+
+#: ../client/board.ts:209
+msgid "Two click drop moves"
+msgstr ""
+
+#: ../client/board.ts:217
+msgid "Promote to Queen automatically"
+msgstr "自動的にクイーンに昇格する"
+
+#: ../client/board.ts:225
+msgid "Best move arrow in analysis board"
 msgstr ""
 
 #: ../client/chart.ts:19
@@ -304,23 +324,23 @@ msgid ""
 "capture differently"
 msgstr ""
 
-#: ../client/chess.ts:132 ../client/chess.ts:155 ../client/lobby.ts:410
+#: ../client/chess.ts:175 ../client/chess.ts:198 ../client/lobby.ts:411
 msgid "Black"
 msgstr "黒"
 
-#: ../client/chess.ts:136 ../client/chess.ts:151
+#: ../client/chess.ts:179 ../client/chess.ts:194
 msgid "Red"
 msgstr "赤"
 
-#: ../client/chess.ts:138
+#: ../client/chess.ts:181
 msgid "Blue"
 msgstr "緑"
 
-#: ../client/chess.ts:140 ../client/chess.ts:149 ../client/lobby.ts:412
+#: ../client/chess.ts:183 ../client/chess.ts:192 ../client/lobby.ts:413
 msgid "White"
 msgstr "白"
 
-#: ../client/chess.ts:153
+#: ../client/chess.ts:196
 msgid "Gold"
 msgstr "黄金"
 
@@ -359,99 +379,100 @@ msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
 msgstr[0] "%1 秒前"
 
-#: ../client/editor.ts:97
+#: ../client/editor.ts:92
 msgid "CLEAR BOARD"
 msgstr "盤面をクリアする"
 
-#: ../client/editor.ts:100
+#: ../client/editor.ts:95
 msgid "STARTING POSITION"
 msgstr "開始局面"
 
-#: ../client/editor.ts:103 ../client/editor.ts:117
+#: ../client/editor.ts:98 ../client/editor.ts:112
 msgid "PLAY WITH MACHINE"
 msgstr "マシンと対戦"
 
-#: ../client/editor.ts:103 ../client/editor.ts:117 ../client/lobby.ts:338
+#: ../client/editor.ts:98 ../client/editor.ts:112 ../client/lobby.ts:339
 msgid " (must be signed in)"
 msgstr "（ログインが必要）"
 
-#: ../client/editor.ts:107
+#: ../client/editor.ts:102
 msgid "EXPORT TO PNG"
 msgstr "PNG画像にエクスポートする"
 
-#: ../client/editor.ts:120 ../client/lobby.ts:262
+#: ../client/editor.ts:115 ../client/lobby.ts:263
 msgid "Invalid FEN"
 msgstr "無効な FEN"
 
-#: ../client/editor.ts:213 ../client/lobby.ts:324 ../client/lobby.ts:465
+#: ../client/editor.ts:209 ../client/lobby.ts:325 ../client/lobby.ts:466
+#: ../client/settings.ts:186
 msgid "Variant"
 msgstr "将棋類"
 
-#: ../client/lobby.ts:243
+#: ../client/lobby.ts:244
 msgid "Byoyomi in seconds:"
 msgstr "秒読み："
 
-#: ../client/lobby.ts:243
+#: ../client/lobby.ts:244
 msgid "Increment in seconds:"
 msgstr "１手ごとに増える秒数："
 
-#: ../client/lobby.ts:317
+#: ../client/lobby.ts:318
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: ../client/lobby.ts:321
+#: ../client/lobby.ts:322
 msgid "Challenge %1 to a game"
 msgstr "%1 を対戦に申し込む"
 
-#: ../client/lobby.ts:338
+#: ../client/lobby.ts:339
 msgid "Paste the FEN text here"
 msgstr "ここにFEN形式の局面をペースト"
 
-#: ../client/lobby.ts:342
+#: ../client/lobby.ts:343
 msgid "Handicap"
 msgstr "手合い割"
 
-#: ../client/lobby.ts:353
+#: ../client/lobby.ts:354
 msgid "Minutes per side:"
 msgstr "持ち時間（分）"
 
-#: ../client/lobby.ts:368
+#: ../client/lobby.ts:369
 msgid "Periods"
 msgstr "秒読み回数"
 
-#: ../client/lobby.ts:387
+#: ../client/lobby.ts:388
 msgid "A.I. Level"
 msgstr "A.I. レベル"
 
-#: ../client/lobby.ts:411
+#: ../client/lobby.ts:412
 msgid "Random"
 msgstr "ランダムカラー"
 
-#: ../client/lobby.ts:429
+#: ../client/lobby.ts:430
 msgid "Create a game"
 msgstr "対局を作成する"
 
-#: ../client/lobby.ts:442
+#: ../client/lobby.ts:443
 msgid "Play with AI (Fairy-Stockfish)"
 msgstr "A.I. と対局する（Fairy-Stockfish）"
 
-#: ../client/lobby.ts:460
+#: ../client/lobby.ts:461
 msgid "Player"
 msgstr "プレイヤー"
 
-#: ../client/lobby.ts:461
+#: ../client/lobby.ts:462
 msgid "Color"
 msgstr "カラー"
 
-#: ../client/lobby.ts:462
+#: ../client/lobby.ts:463
 msgid "Rating"
 msgstr "レーティング"
 
-#: ../client/lobby.ts:463
+#: ../client/lobby.ts:464
 msgid "Time"
 msgstr "時間"
 
-#: ../client/lobby.ts:466
+#: ../client/lobby.ts:467
 msgid "Mode"
 msgstr "モード"
 
@@ -475,19 +496,19 @@ msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "現在 %1 人接続中"
 
-#: ../client/lobby.ts:682
+#: ../client/lobby.ts:683
 msgid "Donate"
 msgstr "寄付"
 
-#: ../client/lobby.ts:686
+#: ../client/lobby.ts:687
 msgid "0 players"
 msgstr "現在0人接続中"
 
-#: ../client/lobby.ts:687
+#: ../client/lobby.ts:688
 msgid "0 games in play"
 msgstr "0局プレイ中"
 
-#: ../client/main.ts:72
+#: ../client/main.ts:73
 msgid "Thank you for your support!"
 msgstr ""
 
@@ -511,7 +532,7 @@ msgstr "ステイルメイト"
 msgid "Time out"
 msgstr "時間切れ"
 
-#: ../client/profile.ts:46 ../client/roundCtrl.ts:356
+#: ../client/profile.ts:46 ../client/roundCtrl.ts:351
 msgid "Draw"
 msgstr "引き分け"
 
@@ -572,96 +593,100 @@ msgstr "観戦する"
 msgid "Challenge to a game"
 msgstr "対戦を申し込む"
 
-#: ../client/roundCtrl.ts:291 ../client/roundCtrl.ts:1145
+#: ../client/roundCtrl.ts:290 ../client/roundCtrl.ts:1152
 msgid " +15 seconds"
 msgstr "+15 秒"
 
-#: ../client/roundCtrl.ts:316
+#: ../client/roundCtrl.ts:311
 msgid "Give 15 seconds"
 msgstr "15秒を与える"
 
-#: ../client/roundCtrl.ts:354
+#: ../client/roundCtrl.ts:349
 msgid "Abort"
 msgstr "中止"
 
-#: ../client/roundCtrl.ts:355 ../client/roundCtrl.ts:858
-#: ../client/roundCtrl.ts:860
+#: ../client/roundCtrl.ts:350 ../client/roundCtrl.ts:865
+#: ../client/roundCtrl.ts:867
 msgid "Count"
 msgstr ""
 
-#: ../client/roundCtrl.ts:356
+#: ../client/roundCtrl.ts:351
 msgid "Pass"
 msgstr "パス"
 
-#: ../client/roundCtrl.ts:357
+#: ../client/roundCtrl.ts:352
 msgid "Resign"
 msgstr "投了"
 
-#: ../client/roundCtrl.ts:393
+#: ../client/roundCtrl.ts:386
 msgid "Are you sure you want to resign?"
 msgstr "本当に投了したいですか？"
 
-#: ../client/roundCtrl.ts:423
+#: ../client/roundCtrl.ts:416
 msgid "Blue (Cho)"
 msgstr "緑（楚）"
 
-#: ../client/roundCtrl.ts:423
+#: ../client/roundCtrl.ts:416
 msgid "Red (Han)"
 msgstr "赤（漢）"
 
-#: ../client/roundCtrl.ts:424
+#: ../client/roundCtrl.ts:417
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr "%1 番が馬と象の初期配置選び中．．．"
 
-#: ../client/roundCtrl.ts:458 ../client/roundCtrl.ts:460
+#: ../client/roundCtrl.ts:451 ../client/roundCtrl.ts:453
 msgid "Switch pieces"
 msgstr "駒の場所を交換する"
 
-#: ../client/roundCtrl.ts:459
+#: ../client/roundCtrl.ts:452
 msgid "Ready"
 msgstr "準備"
 
-#: ../client/roundCtrl.ts:506
+#: ../client/roundCtrl.ts:497
 msgid "REMATCH"
 msgstr "再戦"
 
-#: ../client/roundCtrl.ts:507
+#: ../client/roundCtrl.ts:498
 msgid "NEW OPPONENT"
 msgstr "新しい相手"
 
-#: ../client/roundCtrl.ts:508
+#: ../client/roundCtrl.ts:499
 msgid "ANALYSIS BOARD"
 msgstr "棋譜解析"
 
-#: ../client/roundCtrl.ts:856
+#: ../client/roundCtrl.ts:863
 msgid "Stop counting"
 msgstr "手数を数え止める"
 
-#: ../client/roundCtrl.ts:856
+#: ../client/roundCtrl.ts:863
 msgid "Stop"
 msgstr ""
 
-#: ../client/roundCtrl.ts:858 ../client/roundCtrl.ts:860
+#: ../client/roundCtrl.ts:865 ../client/roundCtrl.ts:867
 msgid "Start counting"
 msgstr "手数を数え始める"
 
-#: ../client/settings.ts:348
-msgid "[-] Zoom [+]"
-msgstr "「－」ズーム「＋」"
+#: ../client/settings.ts:26
+msgid "Log out"
+msgstr "ログアウト"
 
-#: ../client/settings.ts:353
-msgid "Show piece destinations"
-msgstr "駒の行き先を表示する"
+#: ../client/settings.ts:31
+msgid "Are you sure you want to log out?"
+msgstr "本当にログアウトしますか？"
 
-#: ../client/settings.ts:360
-msgid "Two click drop moves"
-msgstr ""
+#: ../client/settings.ts:37
+msgid "Language"
+msgstr "言語"
 
-#: ../client/settings.ts:376
-msgid "Promote to Queen automatically"
-msgstr "自動的にクイーンに昇格する"
+#: ../client/settings.ts:38 ../client/settings.ts:136
+msgid "Sound"
+msgstr "音声"
 
-#: ../client/settings.ts:383
-msgid "Best move arrow"
-msgstr "最善手を表示"
+#: ../client/settings.ts:39 ../client/settings.ts:163
+msgid "Background"
+msgstr "背景"
+
+#: ../client/settings.ts:40 ../client/settings.ts:182
+msgid "Board Settings"
+msgstr "ボード設定"

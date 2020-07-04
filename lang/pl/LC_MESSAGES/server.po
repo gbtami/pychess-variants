@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-05 00:48+0200\n"
+"POT-Creation-Date: 2020-07-01 15:45+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -65,50 +65,38 @@ msgstr[1] ""
 msgstr[2] ""
 msgstr[3] ""
 
-#: ../templates/template.html:69
+#: ../templates/template.html:72
 msgid "Tv"
 msgstr ""
 
-#: ../templates/template.html:70
+#: ../templates/template.html:73
 msgid "Current games"
 msgstr ""
 
-#: ../templates/template.html:71
+#: ../templates/template.html:74
 msgid "Players"
 msgstr ""
 
-#: ../templates/template.html:72
+#: ../templates/template.html:75
 msgid "Editor"
 msgstr ""
 
-#: ../templates/template.html:73
+#: ../templates/template.html:76
 msgid "Learn"
 msgstr ""
 
-#: ../templates/template.html:74
+#: ../templates/template.html:77
 msgid "About"
 msgstr ""
 
-#: ../templates/template.html:75
+#: ../templates/template.html:78
 msgid "Original PyChess site"
 msgstr ""
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Login with Lichess"
 msgstr ""
 
-#: ../templates/template.html:78
+#: ../templates/template.html:84
 msgid "Log in"
-msgstr ""
-
-#: ../templates/template.html:80
-msgid "Log out"
-msgstr ""
-
-#: ../templates/template.html:91
-msgid "Toggle sound"
-msgstr ""
-
-#: ../templates/template.html:92
-msgid "Toggle dark mode"
 msgstr ""

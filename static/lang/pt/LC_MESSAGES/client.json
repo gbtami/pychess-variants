@@ -29,6 +29,10 @@
     "Depth": "Profundidade",
     "Spectators: ": "Espetadores:",
     "Requested game %1 not found!": "Partida solicitada %1 não encontrada!",
+    "[-] Zoom [+]": "[-] Lupa [+]",
+    "Show piece destinations": "Mostrar destinos da peça",
+    "Two click drop moves": "Jogada a dois cliques",
+    "Promote to Queen automatically": "Promover a Rainha automaticamente",
     "Initial position": "Posição Inicial",
     "Advantage": "Vantagem",
     "Spectator room": "Sala de Espetador",
@@ -171,11 +175,6 @@
     "Stop counting": "Parar contagem",
     "Stop": "Parar",
     "Start counting": "Começar contagem",
-    "[-] Zoom [+]": "[-] Lupa [+]",
-    "Show piece destinations": "Mostrar destinos da peça",
-    "Two click drop moves": "Jogada a dois cliques",
-    "Promote to Queen automatically": "Promover a Rainha automaticamente",
-    "Best move arrow": "Seta com melhor jogada",
     "": {
         "language": "pt",
         "plural-forms": "nplurals=2; plural=(n != 1);"
