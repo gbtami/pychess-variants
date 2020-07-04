@@ -12,11 +12,11 @@ The name Synochess is based off an earlier name, Sinochess, but it was changed a
 4.	The Dynasty (black) cannot castle.
 5.	Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop).
 
-\******
+\*\*\*\*\*\*
 
 There are five additional rules that new players must be especially aware of! (Aside from learning the new pieces)
 
-\******
+\*\*\*\*\*\\*
 
 1.	**King Faceoff** – As in Xiangqi, **Kings may not face each other (on a file OR rank) without intervening pieces**, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king.
 2.	**Reinforcement Soldiers** – Black starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.
@@ -25,7 +25,7 @@ There are five additional rules that new players must be especially aware of! (A
 5.	**Perpetual check** – As in Xiangqi, perpetual checks (repeating the position three times, and all moves in between were checks) are a loss (in Chess, they are a draw).
 
 ## Dynasty Pieces
-There are four new units unique to the Horde: 6 Soldiers (2 start in hand), 2 Cannons, 2 Elephants, and 1 Advisor. 
+There are four new units unique to the Dynasty: 6 Soldiers (2 start in hand), 2 Cannons, 2 Elephants, and 1 Advisor. 
 The Chariots are equal to the Rooks and use the same abbreviation (R) – the difference is purely cosmetic. Similarly, the Kings are the same, but just appear different. Despite the Horse being different in Xiangqi and Janggi, the Dynasty’s version is also called a Knight and can leap the same way as the Kingdom’s. 
 The Dynasty does not have a piece as strong as the Queen; instead it has more minor pieces than the Kingdom.
 Details and diagrams of each piece are below.  
