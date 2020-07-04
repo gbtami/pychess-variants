@@ -118,16 +118,13 @@
   position: relative!important;
   background-position: center;
 }
-.shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece, .synochess .pocket piece {
+.shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece {
   flex: 0 0 14.29%;
 }
 .kyoto .pocket piece {
   flex: 0 0 25%;
 }
 .minishogi .pocket piece {
-  flex: 0 0 20%;
-}
-.synochess .pocket piece {
   flex: 0 0 20%;
 }
 .pocket .editor piece {

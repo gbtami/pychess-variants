@@ -251,7 +251,7 @@ export function pieceRoles(variant: string, color: Color) {
     case "orda":
         return (color === 'black') ? ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"] : ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"];
     case "synochess":
-        return (color === 'black') ? ["king", "archbishop", "cancellor", "rook", "bishop", "knight", "pawn"] : ["king", "queen", "rook", "bishop", "knight", "pawn"];
+        return (color === 'black') ? ["king", "archbishop", "cancellor", "rook", "elephant", "knight", "silver"] : ["king", "queen", "rook", "bishop", "knight", "pawn"];
     default:
         return ["king", "queen", "rook", "bishop", "knight", "pawn"];
     }
