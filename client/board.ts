@@ -112,7 +112,7 @@ class BoardSettings {
     }
 
     updateZoom() {
-        const zoom = localStorage["zoom-" + this.ctrl.variant];
+        const zoom = localStorage["zoom-" + this.ctrl.variant] ?? 100;
         const el = document.querySelector('.cg-wrap') as HTMLElement;
         if (el) {
             const baseWidth = dimensions[VARIANTS[this.ctrl.variant].geom].width * (this.ctrl.variant.endsWith('shogi') ? 52 : 64);
