@@ -33,6 +33,7 @@ V2C = {
     "janggi": "j",
     "makpong": "l",
     "orda": "f",
+    "synochess": "v",
 }
 C2V = {v: k for k, v in V2C.items()}
 

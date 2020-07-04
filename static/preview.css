@@ -321,19 +321,19 @@ label.piece.piece4.sittuyin  {
   background-image: url('images/pieces/makruk/intl/bK.svg');
 }
 
-label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.chess, label.board.board0.seirawan, label.board.board0.shouse, label.board.board0.orda {
+label.board.board0.placement, label.board.board0.crazyhouse, label.board.board0.chess, label.board.board0.seirawan, label.board.board0.shouse, label.board.board0.orda, label.board.board0.synochess {
   background-image: url('images/board/8x8brown.svg');
 }
-label.board.board1.placement, label.board.board1.crazyhouse, label.board.board1.chess, label.board.board1.seirawan, label.board.board1.shouse, label.board.board1.orda {
+label.board.board1.placement, label.board.board1.crazyhouse, label.board.board1.chess, label.board.board1.seirawan, label.board.board1.shouse, label.board.board1.orda, label.board.board1.synochess {
   background-image: url('images/board/8x8blue.svg');
 }
-label.board.board2.placement, label.board.board2.crazyhouse, label.board.board2.chess, label.board.board2.seirawan, label.board.board2.shouse, label.board.board2.orda {
+label.board.board2.placement, label.board.board2.crazyhouse, label.board.board2.chess, label.board.board2.seirawan, label.board.board2.shouse, label.board.board2.orda, label.board.board2.synochess {
   background-image: url('images/board/8x8green.svg');
 }
-label.board.board3.placement, label.board.board3.crazyhouse, label.board.board3.chess, label.board.board3.seirawan, label.board.board3.shouse, label.board.board3.orda {
+label.board.board3.placement, label.board.board3.crazyhouse, label.board.board3.chess, label.board.board3.seirawan, label.board.board3.shouse, label.board.board3.orda, label.board.board3.synochess {
   background-image: url('images/board/8x8maple.jpg');
 }
-label.board.board4.placement, label.board.board4.crazyhouse, label.board.board4.chess, label.board.board4.seirawan, label.board.board4.shouse, label.board.board4.orda {
+label.board.board4.placement, label.board.board4.crazyhouse, label.board.board4.chess, label.board.board4.seirawan, label.board.board4.shouse, label.board.board4.orda, label.board.board4.synochess {
   background-image: url('images/board/8x8olive.jpg');
 }
 label.piece.piece0.placement, label.piece.piece0.crazyhouse, label.piece.piece0.chess {
@@ -350,4 +350,7 @@ label.piece.piece3.placement, label.piece.piece3.crazyhouse, label.piece.piece3.
 }
 label.piece.piece0.orda {
   background-image: url('images/pieces/orda/bH.svg');
+}
+label.piece.piece0.synochess {
+  background-image: url('images/pieces/synochess/bS.svg');
 }

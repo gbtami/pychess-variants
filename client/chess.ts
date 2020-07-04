@@ -5,10 +5,10 @@ import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
-export const variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun", "orda"];
+export const variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun", "orda", "synochess"];
 export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
 
-export const enabled_variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun", "orda"];
+export const enabled_variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun", "orda", "synochess"];
 
 export const start_fen = {
     makruk: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
@@ -33,7 +33,8 @@ export const start_fen = {
     gothic: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
     shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
     shogun: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
-    orda: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
+    orda: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+    synochess: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1"
 }
 
 export function variantTooltip(variant) {
@@ -60,7 +61,8 @@ export function variantTooltip(variant) {
     gothic: _("Like Capablanca Chess but with a different starting setup"),
     shako: _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
     shogun: _("Pieces promote and can be dropped, similar to Shogi"),
-    orda: _("Asymmetric variant where one army has pieces that move like knights but capture differently")
+    orda: _("Asymmetric variant where one army has pieces that move like knights but capture differently"),
+    synochess: _("Asymmetric variant where one army has pieces from Xiangqi/Janggi"),
     }
     return tooltip[variant];
 }
@@ -89,7 +91,8 @@ export const VARIANTS = {
     chess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha", "chess_kaneo"], icon: "M" },
     shako: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"], pieces: "shako", PieceCSS: ["shako0", "shako1"], icon: "9" },
     shogun: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"], pieces: "shogun", PieceCSS: ["shogunb", "shogunr", "shogunw"], icon: "-" , baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
-    orda: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "orda", PieceCSS: ["orda0"], icon: "R" , baseURL: ["orda"]}
+    orda: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "orda", PieceCSS: ["orda0"], icon: "R" , baseURL: ["orda"]},
+    synochess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "synochess", PieceCSS: ["synochess0"], icon: "_" , baseURL: ["synochess"]},
 }
 
 /**
@@ -133,6 +136,7 @@ const variant_classes = {
     shako: new Set(['enPassant', 'tenRanks', 'autoQueen']),
     shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
     orda: new Set(['enPassant']),
+    synochess: new Set(['drop', 'pocket', 'enPassant']),
 }
 
 export function variantIcon(variant, chess960) {
@@ -246,6 +250,8 @@ export function pieceRoles(variant: string, color: Color) {
         return ["king", "ferz", "silver", "knight", "rook", "pawn"];
     case "orda":
         return (color === 'black') ? ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"] : ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"];
+    case "synochess":
+        return (color === 'black') ? ["king", "archbishop", "cancellor", "rook", "bishop", "knight", "pawn"] : ["king", "queen", "rook", "bishop", "knight", "pawn"];
     default:
         return ["king", "queen", "rook", "bishop", "knight", "pawn"];
     }
@@ -274,6 +280,8 @@ export function pocketRoles(variant: string) {
         return ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"];
     case "seirawan":
         return ["hawk", "elephant"];
+    case "synochess":
+        return ["silver"];
     default:
         return ["knight", "bishop", "rook", "queen", "king"];
     }

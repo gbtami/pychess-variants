@@ -1,0 +1,165 @@
+<h1 id="synochesshttpsgithubcomgbtamipychess-variantsblobmasterstaticiconssynochesssvg-synochess"><img src="https://www.pychess.org/static/icons/synochess.svg" alt="Synochess" /> Synochess</h1>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Synochess.png" alt="Synochess" /></p>
+<p>Synochess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a variant where the western chess army can fight against the xiangqi or Chinese chess army in a fair manner. Given that the circumstances in xiangqi are much different (larger board, overall weaker pieces), this was difficult to achieve without significant boosts to the Chinese-style army. However, this was able to be achieved, without overall losing the feel of xiangqi when playing as the Chinese army. In this game, the white army represents the western chess side and is called the Kingdom, while the black army represents an amalgamation of xiangqi and janggi (Korean chess) and is called the Dynasty. All pieces on the Dynasty side resemble their counterpart in either xiangqi or janggi and should be familiar to those who have played those games.<br />
+The name Synochess is based off an earlier name, Sinochess, but it was changed as the Dynasty became less “Sino” (as in Chinese) and more a mixture of Chinese and Korean. Instead, the prefix syn- means together, and the game represents two different historic branches of chess coming together into one.<br />
+ </p>
+<h2 id="general-rules">General Rules</h2>
+<ol>
+<li>Setup is as above. </li>
+<li>The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side)</li>
+<li>The Kingdom (white) always moves first.</li>
+<li>The Dynasty (black) cannot castle.</li>
+<li>Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop).</li>
+</ol>
+<p>*<strong>*</strong></p>
+<p>There are five additional rules that new players must be especially aware of! (Aside from learning the new pieces)</p>
+<p>*<strong>*</strong></p>
+<ol>
+<li><strong>King Faceoff</strong> – As in Xiangqi, <strong>Kings may not face each other (on a file OR rank) without intervening pieces</strong>, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king.</li>
+<li><strong>Reinforcement Soldiers</strong> – Black starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.</li>
+<li><strong>Campmate</strong> – A king that reaches the final rank (without moving into check) wins the game.</li>
+<li><strong>Stalemate</strong> – As in Xiangqi, stalemates are a loss (in Chess, they are a draw).</li>
+<li><strong>Perpetual check</strong> – As in Xiangqi, perpetual checks (repeating the position three times, and all moves in between were checks) are a loss (in Chess, they are a draw).</li>
+</ol>
+<h2 id="dynasty-pieces">Dynasty Pieces</h2>
+<p>There are four new units unique to the Horde: 6 Soldiers (2 start in hand), 2 Cannons, 2 Elephants, and 1 Advisor. <br />
+The Chariots are equal to the Rooks and use the same abbreviation (R) – the difference is purely cosmetic. Similarly, the Kings are the same, but just appear different. Despite the Horse being different in Xiangqi and Janggi, the Dynasty’s version is also called a Knight and can leap the same way as the Kingdom’s. <br />
+The Dynasty does not have a piece as strong as the Queen; instead it has more minor pieces than the Kingdom.<br />
+Details and diagrams of each piece are below.  </p>
+<h3 id="soldier-s">Soldier (S)</h3>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Soldier.png" alt="Soldier" /><br />
+The Soldier can move either one space forward or one space sideways. It is the exact same a Xiangqi soldier that has crossed the river and the exact same as a Janggi soldier from the start. The soldier, unlike the pawn, cannot promote.<br />
+Because the soldier cannot move backwards, it can only move sideways in the final rank. Avoid putting them in this situation unless it will lead to checkmate or campmate. Soldiers are strongest when paired side to side so that they can protect each other.</p>
+<h3 id="elephant-e">Elephant (E)</h3>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/ElephantDynasty.png" alt="Elephant" /></p>
+<p>The Elephant is a leaping piece that moves diagonally one or two spaces. Because it is a leaper, it can jump over an intervening piece to move or capture on the second space. The piece is essentially a powered-up version of the Xiangqi elephant; it is the exact same as the elephant in another variant, Shako.</p>
+<h3 id="cannon-c">Cannon (C)</h3>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/CannonDynasty.png" alt="Cannon" /></p>
+<p>The Cannon is a hopping piece. It is essentially a rook that requires an intervening piece (often called a “screen”) to hop over before it can move or capture along that line. <strong><em><strong>A cannon cannot hop over another cannon.</em></strong></strong> This version of the cannon is the exact same as the one in Janggi. Because it requires another piece to move or capture, the cannon loses value in the endgame.<br />
+ </p>
+<h3 id="advisor">Advisor</h3>
+<p><img src="https://www.pychess.org/static/images/CVariantsGuide/Advisor.png" alt="Advisor" /></p>
+<p>The Advisor moves and captures exactly like a king. Unlike the king, it can be captured. While there is no equivalent piece in Xiangqi or Janggi, there is no palace in Synochess. As such, the Advisor needed to be stronger in order to protect its king, and one might think of its movements as combining the strength of two Xiangqi advisors to cover all 8 squares.</p>
+<h2 id="piece-valuation">Piece valuation</h2>
+<p>Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to Synochess.</p>
+<table>
+<thead>
+<tr>
+<th id="kingdom_piece">Kingdom piece</th>
+<th id="value_(early_/_late)">Value (Early / Late)</th>
+<th id="dynasty_piece">Dynasty piece</th>
+<th id="value_(early_/_late)">Value (Early / Late)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pawn</td>
+<td>120 / 213</td>
+<td>Soldier</td>
+<td>200 / 270</td>
+</tr>
+<tr>
+<td>Queen</td>
+<td>2538 / 2682</td>
+<td>Advisor</td>
+<td>700 / 900</td>
+</tr>
+<tr>
+<td>Bishop</td>
+<td>825 / 915</td>
+<td>Elephant</td>
+<td>700 / 650</td>
+</tr>
+<tr>
+<td>Knight</td>
+<td>781 / 854</td>
+<td>Cannon</td>
+<td>700 / 650</td>
+</tr>
+<tr>
+<td>Rook</td>
+<td>1276 / 1380</td>
+<td>Knight</td>
+<td>781 / 854</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Chariot</td>
+<td>1276 / 1380</td>
+</tr>
+</tbody>
+</table>
+<p>For those who want a more simplified approach, this table may be an approximation.</p>
+<table>
+<thead>
+<tr>
+<th id="kingdom_piece">Kingdom piece</th>
+<th id="value">Value</th>
+<th id="dynasty_piece">Dynasty piece</th>
+<th id="value">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pawn</td>
+<td>1</td>
+<td>Soldier</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Queen</td>
+<td>9</td>
+<td>Elephant</td>
+<td>2.75</td>
+</tr>
+<tr>
+<td>Bishop</td>
+<td>3</td>
+<td>Advisor</td>
+<td>2.75</td>
+</tr>
+<tr>
+<td>Knight</td>
+<td>3</td>
+<td>Cannon</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Rook</td>
+<td>5</td>
+<td>Knight</td>
+<td>3</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Chariot</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="strategy">Strategy</h2>
+<p>The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.<br />
+Like Xiangqi, the first few moves of the opening are very limited before the game branches out. In a vast majority (~90%) of games, Stockfish opens up with 1. e3. If white does not start with e3, then b3 is the next most common. Other moves include g3, f3, and c3, but are extremely rare. All other openings for the first move are suboptimal. b3 is the most common second move for white. c3 is also played occasionally. For the third white move, there is much more variation, although Bb2 is by far the most common.<br />
+As for the Dynasty, the most common starting move is Nc3 (70%), or to a lesser extent, Nf3 (30%). No other moves are even attempted by Stockfish. The second move either involves advancing the other knight or moving a cannon to a center position (Ce6+ &gt; Cd6) or advancing the other knight. From that point on, the moves branch significantly.</p>
+<p>Therefore, the “standard Nc3 opening” is as follows:</p>
+<ol>
+<li>e3 Nc6</li>
+<li>b3 …Nf6/Ce6+/Cd6</li>
+</ol>
+<p>The most common line developing the standard Nc3 opening is the following:</p>
+<ol>
+<li>e3 Nc6</li>
+<li>b3 Nf6</li>
+<li>Bb2 Ee7</li>
+</ol>
+<p>For players who may prefer Nf6, the most common line for that is:</p>
+<ol>
+<li>e3 Nf6</li>
+<li>b3 Ce6+</li>
+<li>Be2 Nc6</li>
+</ol>
+<p>As in Xiangqi, discovered attacks are very frequent. Make sure to keep an eye out for them!<br />
+Also like Xiangqi and perhaps even more so, using kings offensively is important. It is very easy to pin a piece in between the kings. For example, a single pawn in between cannot attack because it is pinned along that file.<br />
+The Dynasty played needs to play aggressively. It starts with an advanced position, but overall weaker pieces. It needs to seek trades that are in its favor. Soldiers are worth more than pawns, so the Dynasty should make the Kingdom work hard to remove a soldier.  </p>

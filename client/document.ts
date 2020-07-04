@@ -43,6 +43,8 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 11;
     } else if (cssFile.includes("orda")) {
         cssLinkIndex = 12;
+    } else if (cssFile.includes("syno")) {
+        cssLinkIndex = 13;
     }
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }

@@ -23,6 +23,7 @@
   --shako-board: url('images/board/10x10brown.svg');
   --shogun-board: url('images/board/ShogunPlain.svg');
   --orda-board: url('images/board/8x8brown.svg');
+  --synochess-board: url('images/board/8x8brown.svg');
 }
 .makruk-board .cg-wrap {
   background-image: var(--makruk-board);
@@ -95,4 +96,7 @@
 }
 .orda-board .cg-wrap {
   background-image: var(--orda-board);
+}
+.synochess-board .cg-wrap {
+  background-image: var(--synochess-board);
 }

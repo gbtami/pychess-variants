@@ -1,0 +1,39 @@
+.synochess .cg-wrap piece.pawn.white {
+  background-image: url('images/pieces/synochess/wP.svg');
+}
+.synochess .cg-wrap piece.bishop.white {
+  background-image: url('images/pieces/synochess/wB.svg');
+}
+.synochess .cg-wrap piece.knight.white {
+  background-image: url('images/pieces/synochess/wN.svg');
+}
+.synochess .cg-wrap piece.rook.white {
+  background-image: url('images/pieces/synochess/wR.svg');
+}
+.synochess .cg-wrap piece.queen.white {
+  background-image: url('images/pieces/synochess/wQ.svg');
+}
+.synochess .cg-wrap piece.king.white {
+  background-image: url('images/pieces/synochess/wK.svg');
+}
+.synochess .cg-wrap piece.silver.black {
+  background-image: url('images/pieces/synochess/bS.svg');
+}
+.synochess .cg-wrap piece.elephant.black {
+  background-image: url('images/pieces/synochess/bE.svg');
+}
+.synochess .cg-wrap piece.knight.black {
+  background-image: url('images/pieces/synochess/bN.svg');
+}
+.synochess .cg-wrap piece.rook.black {
+  background-image: url('images/pieces/synochess/bR.svg');
+}
+.synochess .cg-wrap piece.archbishop.black {
+  background-image: url('images/pieces/synochess/bA.svg');
+}
+.synochess .cg-wrap piece.cancellor.black {
+  background-image: url('images/pieces/synochess/bC.svg');
+}
+.synochess .cg-wrap piece.king.black {
+  background-image: url('images/pieces/synochess/bK.svg');
+}

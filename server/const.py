@@ -44,6 +44,7 @@ VARIANTS = (
     "minixiangqi",
     "shogun",
     "orda",
+    "synochess",
 )
 
 VARIANT_ICONS = {
@@ -76,6 +77,7 @@ VARIANT_ICONS = {
     "chess": "M",
     "shogun": "-",
     "orda": "R",
+    "synochess": "_",
 }
 
 VARIANT_960_TO_PGN = {
