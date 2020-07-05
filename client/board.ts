@@ -145,7 +145,7 @@ class BoardSettings {
         const zoom = localStorage["zoom-" + variant] ?? 100;
 
         const vShowDests = localStorage.showDests ?? "true";
-        const vClick2xdrop = localStorage.clickDropEnabled ?? "true";
+        const vClick2xdrop = localStorage.clickDropEnabled ?? "false";
         const vAutoQueen = localStorage.autoqueen ?? "false";
         const vArrow = localStorage.arrow ?? "true";
 
