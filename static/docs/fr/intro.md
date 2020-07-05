@@ -14,8 +14,6 @@ Sur la page de jeu, vous pouvez naviguer directement à la page d'information de
 
 Dans le même endroit, vous pouvez aussi changer la taille du plateau avec le curseur là-bas.
 
-![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
-
 Si vous voulez vous familiariser avec des pièces et règles d'une variante avant de vous lancer en partie classée, soyez libre de défier le bot *Random-Mover*, qui ne fait que des coups tirés au hasard.
 
 ## Variantes du jeu d'échecs avec les pièces standardes
@@ -50,7 +48,7 @@ Si vous voulez vous familiariser avec des pièces et règles d'une variante avan
 
 **Orda Chess** - Une variante asymétrique. Un côté joue avec l'armée classique, alors que l'autre dirige des pièces qui se déplacent comme des cavaliers mais qui prennent des pièces adversaires de différentes façons.
 
-**Capablanca 960** - Capablanca avec les règles du Chess960.
+**Synochess** - Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army
 
 **Capahouse** - Capablanca avec les règles du Crazyhouse.
 

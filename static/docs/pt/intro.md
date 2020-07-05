@@ -12,8 +12,6 @@ Dentro da página do jogo, pode encontrar links referentes a esta variante, clic
 
 Cada variante também tem a sua secção de grafismos relativamente a peças e tabuleiros à sua escolha! Especialmente para variantes Asiáticas que usam caracteres chineses, podes encontrar peças internacionalizadas para estas variantes. Para mudar as configurações clique no botão de Definições dentro da caixa do Jogo (onde estão localizadas as jogadas) no canto direito. Também podes modificar o tamanho do tabuleiro usando o slider.
 
-![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
-
 Se necessitares de praticar o movimento das peças e as regras antes de entrar numa Partida a sério, pode iniciar um jogo contra o *Random Mover* bot (Computador que fará jogadas aleatórias).
 
 ## Variantes de Xadrez que usam peças normais
@@ -48,7 +46,7 @@ Se necessitares de praticar o movimento das peças e as regras antes de entrar n
 
 **Orda Chess** - Variante Assimétrica onde um batalhão é composto por peças que se movem como um Cavalo mas capturam de maneira diferente
 
-**Capablanca 960** - Capablanca Chess com Regras de Chess960
+**Synochess** - Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army
 
 **Capahouse** - Capablanca Chess com regras de Crazyhouse
 

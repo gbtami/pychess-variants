@@ -6,13 +6,7 @@ Many chess variants are available to play here. Available games range from tradi
 
 ## Tips
 
-Within the game page, you can also find a link directly to that variant's page by clicking on the variant name itself in the top left box.
-
-![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
-
-Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the game replay box on the right. You can also scale the board size using the slider here.
-
-![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
+Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the top right of the screen (next to login or your username), choose "Board Settings," and then choose the variant you would like to configure.
 
 If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
 
@@ -47,6 +41,8 @@ If you need to practice with the piece moves and rules before diving into a real
 **Shogun Chess** - Pieces promote and can be dropped, similar to Shogi
 
 **Orda Chess** - Asymmetric variant where one army has pieces that move like knights but capture differently
+
+**Synochess** - Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army
 
 **Capablanca 960** - Capablanca with Chess 960 rules
 

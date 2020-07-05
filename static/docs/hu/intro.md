@@ -10,9 +10,7 @@ Minden játszma lapján elérhető az adott variáns részletes leírása a bal 
 
 ![Link](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Link.png?raw=true)
 
-Minden variánshoz saját tábla és figura-készlet választható. Az ázsiai variánsokhoz, amelyek írásjeleket használnak a figurákon (Xiangqi, Janggi, Shogi), grafikus jeleket használó figura-készletek is elérhetők. Ezek beállításához a jobb oldali ikonok közül a fogskerék használható. Ugyanott a tábla mérete is változtatható a csúszka elhúzásával.
-
-![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
+Minden variánshoz saját tábla és figura-készlet választható. Az ázsiai variánsokhoz, amelyek írásjeleket használnak a figurákon (Xiangqi, Janggi, Shogi), grafikus jeleket használó figura-készletek is elérhetők. A beállításások menü megnyitásához a jobb felső fogskerék icon használható. Ugyanott a tábla mérete is változtatható a csúszka elhúzásával.
 
 Mielőtt komolyabb játszmákba kezdenél, és szeretnéd a szabályokat és a lépéseket gyakorolni, választhatod a *Random mover* (véletlen lépéseket játszó) BOT-ot.
 
@@ -46,9 +44,9 @@ Mielőtt komolyabb játszmákba kezdenél, és szeretnéd a szabályokat és a l
 
 **Shogun** - A figurák átváltozhatnak és a leütött figurák visszarakhatók a Shogi-hoz hasonlóan.
 
-**Orda** - Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de másként ütnek!
+**Orda** - Aszimmetrikus variáns, amelyben az arany horda tisztjei lóként lépnek, de másként ütnek!
 
-**Capablanca 960** - Capablanca sakk Chess 960 szabályokkal.
+**Synochess** - Aszimmetrikus variáns, amelyben a nyugati sakk figurái harcolnak a xiangqi- és janggi-stílusó figurákkal
 
 **Capahouse** - Capablanca sakk Crazyhouse szabályokkal.
 

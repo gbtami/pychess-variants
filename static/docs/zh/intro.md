@@ -12,8 +12,6 @@
 
 每一个棋类也提供它各自的棋子和棋盘定制选项。尤其是亚洲国家的当地棋类，您可以选择使用各种传统或国际化的棋子设计。要切换棋子棋盘，请打击游戏页面右边棋谱框里的齿轮图标。您同时也能移动滑块调整棋盘的大小。
 
-![Settings](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Settings.png?raw=true)
-
 如果您在进行新棋类对局之前想熟悉棋规和棋子的走法，可以挑战 *Random Mover* bot (随机着法AI）夺得一些经验。
 
 ## 国际象棋的变种棋类简介
@@ -47,6 +45,8 @@
 **Shogun Chess** - Pieces promote and can be dropped, similar to Shogi
 
 **Orda Chess** - Asymmetric variant where one army has pieces that move like knights but capture differently
+
+**Synochess** - Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army
 
 **Capablanca 960** - Capablanca with Chess 960 rules
 
