@@ -503,3 +503,7 @@ def sanitize_fen(variant, initial_fen, chess960):
         return False, start_fen
     else:
         return True, sanitized_fen
+
+
+def online_count(users):
+    return sum((1 for name in users if users[name].online()))

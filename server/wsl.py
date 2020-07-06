@@ -12,7 +12,7 @@ from broadcast import lobby_broadcast
 from const import STARTED
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import new_game, load_game
+from utils import new_game, load_game, online_count
 
 log = logging.getLogger(__name__)
 
@@ -189,14 +189,10 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                         # send user count
+                        response = {"type": "u_cnt", "cnt": online_count(users)}
                         if len(user.game_sockets) == 0:
-                            # not connected to any game socket but connected to lobby socket
-                            if len(user.lobby_sockets) == 1:
-                                request.app["u_cnt"] += 1
-                            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
                             await lobby_broadcast(sockets, response)
                         else:
-                            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
                             await ws.send_json(response)
 
                     elif data["type"] == "lobbychat":
@@ -243,8 +239,7 @@ async def lobby_socket_handler(request):
 
             # not connected to lobby socket and not connected to game socket
             if len(user.game_sockets) == 0:
-                request.app["u_cnt"] -= 1
-                response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+                response = {"type": "u_cnt", "cnt": online_count(users)}
                 await lobby_broadcast(sockets, response)
 
             response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
