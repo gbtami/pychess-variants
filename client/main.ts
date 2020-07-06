@@ -145,6 +145,7 @@ function start() {
 
     (document.querySelector('.navbar-toggle') as HTMLElement).addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
 
+    // Clicking outside settings panel closes it
     var settingsPanel : any = document.getElementById('settings-panel') as HTMLElement;
     settingsPanel = patch(settingsPanel, settingsView()).elm;
     const settings = document.getElementById('settings') as HTMLElement;
