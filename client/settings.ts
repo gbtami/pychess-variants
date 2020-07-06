@@ -12,7 +12,7 @@ import { toVNode } from 'snabbdom/tovnode';
 
 import { boardSettings } from './board';
 import { variants } from './chess';
-import { _, LANGUAGES } from './i18n';
+import { _, LANGUAGES, translatedLanguage } from './i18n';
 import { sound } from './sound';
 
 function settingsButton() {
@@ -34,7 +34,7 @@ function logoutDialog() {
 
 function settingsMenu() {
     return h('div#settings-buttons', [
-        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, 'Language'), // Don't mark this for translation
+        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, translatedLanguage),
         h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
         h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
         h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),

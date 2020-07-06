@@ -155,7 +155,7 @@ function start() {
 
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
 }
- 
+
 updateBackground();
 sound.updateSoundTheme();
 sound.updateVolume();
