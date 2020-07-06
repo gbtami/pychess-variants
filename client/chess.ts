@@ -136,7 +136,7 @@ const variant_classes = {
     shako: new Set(['enPassant', 'tenRanks', 'autoQueen']),
     shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
     orda: new Set(['enPassant']),
-    synochess: new Set(['drop', 'pocket', 'enPassant']),
+    synochess: new Set(['pocket', 'enPassant']),
 }
 
 export function variantIcon(variant, chess960) {
