@@ -190,7 +190,7 @@ msgstr "เลื่อนยศเป็นควีนอัตโนมัต
 
 #: ../client/board.ts:225
 msgid "Best move arrow in analysis board"
-msgstr ""
+msgstr "แสดงลูกศรแนะนำตาเดินในกระดานวิเคราะห์"
 
 #: ../client/chart.ts:19
 msgid "Initial position"
@@ -566,7 +566,7 @@ msgstr "นับคะแนน"
 
 #: ../client/profile.ts:70
 msgid "Repetition"
-msgstr ""
+msgstr "ตำแหน่งหมากซ้ำ"
 
 #: ../client/profile.ts:150
 msgid "%1 move"
@@ -669,11 +669,11 @@ msgstr "เริ่มนับ"
 
 #: ../client/settings.ts:26
 msgid "Log out"
-msgstr ""
+msgstr "ออกจากระบบ"
 
 #: ../client/settings.ts:31
 msgid "Are you sure you want to log out?"
-msgstr ""
+msgstr "ต้องการออกจากระบบจริงหรือไม่?"
 
 #: ../client/settings.ts:37
 msgid "Language"
@@ -681,12 +681,12 @@ msgstr ""
 
 #: ../client/settings.ts:38 ../client/settings.ts:136
 msgid "Sound"
-msgstr ""
+msgstr "เสียง"
 
 #: ../client/settings.ts:39 ../client/settings.ts:163
 msgid "Background"
-msgstr ""
+msgstr "พื้นหลัง"
 
 #: ../client/settings.ts:40 ../client/settings.ts:182
 msgid "Board Settings"
-msgstr ""
+msgstr "ตั้งค่ากระดาน"

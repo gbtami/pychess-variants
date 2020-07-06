@@ -67,7 +67,7 @@ msgstr "ผู้เล่นทั้งหมด"
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] ""
+msgstr[0] "%(count)sเกมที่กำลังเล่น"
 
 #: ../templates/template.html:72
 msgid "Tv"
