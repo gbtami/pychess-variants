@@ -92,7 +92,7 @@ export const VARIANTS = {
     shako: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"], pieces: "shako", PieceCSS: ["shako0", "shako1"], icon: "9" },
     shogun: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"], pieces: "shogun", PieceCSS: ["shogunb", "shogunr", "shogunw"], icon: "-" , baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
     orda: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "orda", PieceCSS: ["orda0"], icon: "R" , baseURL: ["orda"]},
-    synochess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "synochess", PieceCSS: ["synochess0"], icon: "_" , baseURL: ["synochess"]},
+    synochess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "synochess", PieceCSS: ["synochess0", "synochess1"], icon: "_" , baseURL: ["synochess", "xqsyno"]},
 }
 
 /**
