@@ -55,6 +55,35 @@ class VolumeSettings extends Settings<number> {
     }
 }
 
+const soundThemes = [ 'silent', 'standard', 'robot' ];
+
+class SoundThemeSettings extends Settings<string> {
+    
+    constructor() {
+        super('soundTheme', 'standard');
+    }
+
+    update(): void {
+        sound.updateSoundTheme();
+    }
+
+    view(): VNode {
+        let soundThemeList: VNode[] = [];
+        soundThemes.forEach(theme => {
+            soundThemeList.push(h('input#sound-' + theme, {
+                props: { name: "sound-theme", type: "radio"},
+                attrs: { checked: this.value === theme },
+                on: { change: () => this.value = theme }
+            }));
+            soundThemeList.push(h('label', { attrs: { for: "sound-" + theme } }, theme));
+        });
+        return h('div#sound-theme.radio-list', soundThemeList);
+    }
+}
+
+export const volumeSettings = new VolumeSettings();
+export const soundThemeSettings = new SoundThemeSettings();
+
 function settingsMenu() {
     return h('div#settings-buttons', [
         h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, translatedLanguage),
@@ -63,8 +92,6 @@ function settingsMenu() {
         h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
     ]);
 }
-
-export const volumeSettings = new VolumeSettings();
 
 export function settingsView() {
     const anon = document.getElementById('pychess-variants')!.getAttribute("data-anon");
@@ -158,26 +185,15 @@ function langSettingsView() {
     ]);
 }
 
-const soundThemes = [ 'Silent', 'Standard', 'Robot' ];
 function soundSettingsView() {
-    const currentSoundTheme = localStorage.soundTheme ?? 'standard';
-    let soundThemeList: VNode[] = [];
-    soundThemes.forEach(theme => {
-        soundThemeList.push(h('input#sound-' + theme.toLowerCase(), {
-            props: { name: "sound-theme", type: "radio"},
-            attrs: { checked: currentSoundTheme === theme.toLowerCase() },
-            on: { change: () => setSoundTheme(theme) }
-        }));
-        soundThemeList.push(h('label', { attrs: { for: "sound-" + theme.toLowerCase() } }, theme));
-    });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
             h('back.icon.icon-left', _("Sound")),
         ]),
         h('div#settings-sound', [
             volumeSettings.view(),
-            h('div#sound-theme.radio-list', soundThemeList),
-        ])
+            soundThemeSettings.view(),
+        ]),
     ]);
 }
 
@@ -228,11 +244,6 @@ function boardSettingsView() {
 function showVariantBoardSettings(variant) {
     const settings = document.getElementById('board-settings') as HTMLElement;
     patch(toVNode(settings), boardSettings.view(variant));
-}
-
-function setSoundTheme(soundTheme) {
-    localStorage.soundTheme = soundTheme.toLowerCase();
-    sound.updateSoundTheme();
 }
 
 function setBackground(theme) {
