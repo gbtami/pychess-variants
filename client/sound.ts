@@ -1,5 +1,7 @@
 import { Howl } from 'howler';
 
+import { volumeSettings } from './settings';
+
 class Sounds {
 
     private static trackName = {
@@ -52,7 +54,7 @@ class Sounds {
     }
 
     updateVolume() {
-        const volume = localStorage.volume ?? 1;
+        const volume = volumeSettings.value;
         Object.keys(this.tracks).forEach(key => {
             this.tracks[key].volume(volume);
         });

@@ -15,9 +15,72 @@ import { variants } from './chess';
 import { _, LANGUAGES } from './i18n';
 import { sound } from './sound';
 
+export abstract class Settings<T> {
+    readonly name: string;
+    private _value: T;
+
+    constructor(name: string, defaultValue: T) {
+        this.name = name;
+        this._value = localStorage[name] ?? defaultValue;
+    }
+
+    get value(): T {
+        return this._value;
+    }
+    set value(value: T) {
+        localStorage[this.name] = value;
+        this._value = value;
+        this.update();
+    }
+
+    abstract update(): void;
+    abstract view(): VNode;
+}
+
+class VolumeSettings extends Settings<number> {
+
+    constructor() {
+        super('volume', 1);
+    }
+
+    update(): void {
+        sound.updateVolume();
+    }
+
+    view(): VNode {
+        return h('input#sound-volume.slider', {
+            props: { name: "volume", type: "range", min: 0, max: 1, step: 0.01, value: this.value },
+            on: { change: e => this.value = parseFloat((e.target as HTMLInputElement).value) },
+        });
+    }
+}
+
+export const volumeSettings = new VolumeSettings();
+
+export function settingsView() {
+    const anon = document.getElementById('pychess-variants')!.getAttribute("data-anon");
+    const menu = (anon === 'True') ? [ settingsMenu() ] : [ userMenu(), settingsMenu() ];
+    return h('div#settings-panel', [
+        settingsButton(),
+        h('div#settings', [
+            h('div#settings-main', menu),
+            h('div#settings-sub'),
+        ])
+    ]);
+}
+
+function settingsMenu() {
+    return h('div#settings-buttons', [
+        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, _('Language')),
+        h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
+        h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
+        h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
+    ]);
+}
+
 function settingsButton() {
     return h('button#btn-settings', { on: { click: toggleSettings } }, [
-        h('div.icon.icon-cog') //, { class: { icon: true, "icon-cog": true } })
+        h('div.icon.icon-cog'),
     ]);
 }
 
@@ -30,27 +93,6 @@ function userMenu() {
 function logoutDialog() {
     if (confirm(_("Are you sure you want to log out?")))
         window.location.href = "/logout";
-}
-
-function settingsMenu() {
-    return h('div#settings-buttons', [
-        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, _('Language')),
-        h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
-        h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
-        h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
-    ]);
-}
-
-export function settingsView() {
-    const anon = document.getElementById('pychess-variants')!.getAttribute("data-anon");
-    const menu = (anon === 'True') ? [ settingsMenu() ] : [ userMenu(), settingsMenu() ];
-    return h('div#settings-panel', [
-        settingsButton(),
-        h('div#settings', [
-            h('div#settings-main', menu),
-            h('div#settings-sub'),
-        ])
-    ]);
 }
 
 export function hideSettings() {
@@ -118,7 +160,6 @@ function langSettingsView() {
 
 const soundThemes = [ 'Silent', 'Standard', 'Robot' ];
 function soundSettingsView() {
-    const currentVolume = parseFloat(localStorage.volume ?? '1');
     const currentSoundTheme = localStorage.soundTheme ?? 'standard';
     let soundThemeList: VNode[] = [];
     soundThemes.forEach(theme => {
@@ -131,13 +172,10 @@ function soundSettingsView() {
     });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('back', {class: { icon: true, "icon-left": true } }, _("Sound")),
+            h('back.icon.icon-left', _("Sound")),
         ]),
         h('div#settings-sound', [
-            h('input#sound-volume.slider', {
-                props: { name: "volume", type: "range", min: 0, max: 1, step: 0.01, value: currentVolume },
-                on: { change: e => setVolume((e.target as HTMLInputElement).value) },
-            }),
+            volumeSettings.view(),
             h('div#sound-theme.radio-list', soundThemeList),
         ])
     ]);
@@ -190,11 +228,6 @@ function boardSettingsView() {
 function showVariantBoardSettings(variant) {
     const settings = document.getElementById('board-settings') as HTMLElement;
     patch(toVNode(settings), boardSettings.view(variant));
-}
-
-function setVolume(volume) {
-    localStorage.volume = volume;
-    sound.updateVolume();
 }
 
 function setSoundTheme(soundTheme) {
