@@ -450,13 +450,11 @@ class LobbyController {
              h('th', _('Variant')),
              h('th', _('Mode'))])]);
 
-        const darkMode = parseInt(getComputedStyle(document.body).getPropertyValue('--dark-mode')) === 1;
         const colorIcon = (color) => {
-            return h('i-side', {class: {
-                "icon": true,
+            return h('i-side.icon', {class: {
                 "icon-adjust": color === "r",
-                "icon-white": color === ((darkMode) ? "b": "w"),
-                "icon-black": color === ((darkMode) ? "w": "b")
+                "icon-white": color === "w",
+                "icon-black": color === "b",
                 }}
             )};
         const challengeIcon = (seek) => {

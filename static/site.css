@@ -25,9 +25,11 @@
     --clock-overtime-bg: #fffbad;
     --clock-running-bg: rgb(208, 224, 189);
     --clock-running-color: Black;
-    --blue-point: RoyalBlue;
-    --red-point: Crimson;
-    --gold-point: GoldenRod;
+    --white-text: #D0D0D0;
+    --black-text: #606060;
+    --blue-text: RoyalBlue;
+    --red-text: Crimson;
+    --gold-text: GoldenRod;
     --modal-bg: #fff;
     --box-header: #f5f5f5;
     --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
@@ -571,21 +573,21 @@ player-title {
   margin-top:0.5em;
   margin-left:0.5em;
 }
-i-side.icon-white::before, i-side.icon-black::before {
+i-side {
   vertical-align: -2;
   margin-right: .4em;
 }
 .icon-blue:before {
   content: "\62";
-  color: var(--blue-point);
+  color: var(--blue-text);
 }
 .icon-red:before {
   content: "\62";
-  color: var(--red-point);
+  color: var(--red-text);
 }
 .icon-gold:before {
   content: "\62";
-  color: var(--gold-point);
+  color: var(--gold-text);
 }
 .icon-online::before {
   color: var(--good);
@@ -918,11 +920,11 @@ select, input {
 }
 
 .text-color-blue {
-  color: var(--blue-point);
+  color: var(--blue-text);
 }
 
 .text-color-red {
-  color: var(--red-point);
+  color: var(--red-text);
 }
 
 /* Modal Content/Box */

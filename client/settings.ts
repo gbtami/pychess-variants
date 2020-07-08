@@ -85,6 +85,7 @@ class SoundThemeSettings extends Settings<string> {
 }
 
 const backgrounds = [ 'light', 'dark' ];
+
 class BackgroundSettings extends Settings<string> {
 
     constructor() {
@@ -93,17 +94,6 @@ class BackgroundSettings extends Settings<string> {
 
     update(): void {
         document.documentElement.setAttribute('data-theme', this.value);
-
-        // TODO this thing should be removed once icon-white and icon-black are consistent across themes
-        var alliside = document.getElementsByTagName('i-side');
-        for (var j = 0; j < alliside.length; j++) {
-            // take care of random color seek icons
-            if (!alliside[j].classList.contains('icon-adjust')) {
-                alliside[j].classList.toggle("icon-white");
-                alliside[j].classList.toggle("icon-black");
-            }
-        }
-
     }
 
     view(): VNode {
