@@ -16,3 +16,24 @@ export const LANGUAGES = {
     th: "ไทย",
     zh: "繁體中文",
 };
+
+const LANGUAGETEXT = {
+    en: "Language",
+    de: "Sprache",
+    es: "Idioma",
+    fr: "Langue",
+    hu: "Nyelv",
+    it: "Lingua",
+    ja: "言語",
+    ko: "언어",
+    pt: "Lingua",
+    th: "ภาษา",
+    zh: "語言",
+};
+
+export var translatedLanguage = 'Language';
+
+const preferredLang = window.navigator.language.slice(0, 2);
+if (LANGUAGES.hasOwnProperty(preferredLang)) {
+    translatedLanguage = LANGUAGETEXT[preferredLang]
+}

@@ -15,7 +15,7 @@ from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
-from utils import play_move, draw, new_game, load_game, tv_game, tv_game_user
+from utils import play_move, draw, new_game, load_game, tv_game, tv_game_user, online_count
 
 log = logging.getLogger(__name__)
 
@@ -361,8 +361,7 @@ async def round_socket_handler(request):
 
                         # not connected to lobby socket but connected to game socket
                         if len(user.game_sockets) == 1 and user.username not in sockets:
-                            request.app["u_cnt"] += 1
-                            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+                            response = {"type": "u_cnt", "cnt": online_count(users)}
                             await lobby_broadcast(sockets, response)
 
                     elif data["type"] == "is_user_present":
@@ -500,8 +499,7 @@ async def round_socket_handler(request):
 
         # not connected to lobby socket and not connected to game socket
         if len(user.game_sockets) == 0 and user.username not in sockets:
-            request.app["u_cnt"] -= 1
-            response = {"type": "u_cnt", "cnt": request.app["u_cnt"]}
+            response = {"type": "u_cnt", "cnt": online_count(users)}
             await lobby_broadcast(sockets, response)
 
     if game is not None:

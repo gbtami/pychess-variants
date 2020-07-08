@@ -82,9 +82,9 @@ Rook | 5 | Knight | 3
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play. As with most games, a lot can be learned by playing against a high level AI, losing, and seeing how you lost!
 
 Like Xiangqi, the first few moves of the opening are very limited before the game branches out. In a vast majority (~90%) of games, Stockfish opens up with 1. e3. If white does not start with e3, then b3 is the next most common. Other moves include g3, f3, and c3, but are extremely rare. All other openings for the first move are suboptimal. b3 is the most common second move for white. c3 is also played occasionally. For the third white move, there is much more variation, although Bb2 is by far the most common.
-As for the Dynasty, the most common starting move is Nc3 (70%), or to a lesser extent, Nf3 (30%). No other moves are even attempted by Stockfish. The second move either involves advancing the other knight or moving a cannon to a center position (Ce6+ > Cd6) or advancing the other knight. From that point on, the moves branch significantly.
+As for the Dynasty, the most common starting move is Nc6 (70%), or to a lesser extent, Nf6 (30%). No other moves are even attempted by Stockfish. The second move either involves advancing the other knight or moving a cannon to a center position (Ce6+ > Cd6) or advancing the other knight. From that point on, the moves branch significantly.
 
-Therefore, the “standard Nc3 opening” is as follows:
+Therefore, the “standard Nc6 opening” is as follows:
 1.	e3 Nc6
 2.	b3 …Nf6/Ce6+/Cd6
 

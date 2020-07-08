@@ -38,6 +38,7 @@ export function view(el, model): VNode {
     model["level"] = el.getAttribute("data-level");
     model["username"] = user !== "" ? user : el.getAttribute("data-user");
     model["gameId"] = el.getAttribute("data-gameid");
+    model["ply"] = el.getAttribute("data-ply");
     model["wplayer"] = el.getAttribute("data-wplayer");
     model["wtitle"] = el.getAttribute("data-wtitle");
     model["wrating"] = el.getAttribute("data-wrating");
@@ -156,7 +157,7 @@ function start() {
 
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
 }
- 
+
 updateBackground();
 sound.updateSoundTheme();
 sound.updateVolume();

@@ -20,6 +20,7 @@
     "Show piece destinations": "แสดงตาที่สามารถเดินได้",
     "Two click drop moves": "วางตัวหมากจากมือด้วยการคลิก",
     "Promote to Queen automatically": "เลื่อนยศเป็นควีนอัตโนมัติ",
+    "Best move arrow in analysis board": "แสดงลูกศรแนะนำตาเดินในกระดานวิเคราะห์",
     "Initial position": "ตำแหน่งเริ่มต้น",
     "Advantage": "ความได้เปรียบ",
     "Spectator room": "ห้องผู้ชม",
@@ -102,6 +103,7 @@
     "Unknown reason": "ไม่ทราบสาเหตุ",
     "Campmate": "ยึดฐาน",
     "Point counting": "นับคะแนน",
+    "Repetition": "ตำแหน่งหมากซ้ำ",
     "%1 move": [
         "%1 ตา"
     ],
@@ -128,6 +130,11 @@
     "Stop counting": "หยุดนับ",
     "Stop": "หยุด",
     "Start counting": "เริ่มนับ",
+    "Log out": "ออกจากระบบ",
+    "Are you sure you want to log out?": "ต้องการออกจากระบบจริงหรือไม่?",
+    "Sound": "เสียง",
+    "Background": "พื้นหลัง",
+    "Board Settings": "ตั้งค่ากระดาน",
     "": {
         "language": "th",
         "plural-forms": "nplurals=1; plural=0;"

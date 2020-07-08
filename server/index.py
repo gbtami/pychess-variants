@@ -84,6 +84,7 @@ async def index(request):
 
     view = "lobby"
     gameId = request.match_info.get("gameId")
+    ply = request.rel_url.query.get("ply")
 
     if request.path == "/about":
         view = "about"
@@ -234,6 +235,8 @@ async def index(request):
         render["status"] = game.status
         render["date"] = game.date.isoformat()
         render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
+        if ply is not None:
+            render["ply"] = ply
 
     if view == "level8win":
         render["level"] = 8

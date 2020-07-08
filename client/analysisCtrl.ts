@@ -388,6 +388,10 @@ export default class AnalysisController {
             });
             if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
         };
+        if (this.model["ply"]) {
+            this.ply = parseInt(this.model["ply"])
+            selectMove(this, this.ply);
+        }
     }
 
     goPly = (ply) => {
@@ -480,6 +484,7 @@ export default class AnalysisController {
         }
         this.ply = ply
         this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
+        window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.model["gameId"] + '?ply=' + ply.toString());
     }
 
     private doSend = (message) => {

@@ -12,7 +12,7 @@ import { toVNode } from 'snabbdom/tovnode';
 
 import { boardSettings } from './board';
 import { variants } from './chess';
-import { _, LANGUAGES } from './i18n';
+import { _, LANGUAGES, translatedLanguage } from './i18n';
 import { sound } from './sound';
 
 export abstract class Settings<T> {
@@ -55,6 +55,15 @@ class VolumeSettings extends Settings<number> {
     }
 }
 
+function settingsMenu() {
+    return h('div#settings-buttons', [
+        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, translatedLanguage),
+        h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
+        h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
+        h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
+    ]);
+}
+
 export const volumeSettings = new VolumeSettings();
 
 export function settingsView() {
@@ -66,15 +75,6 @@ export function settingsView() {
             h('div#settings-main', menu),
             h('div#settings-sub'),
         ])
-    ]);
-}
-
-function settingsMenu() {
-    return h('div#settings-buttons', [
-        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, _('Language')),
-        h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
-        h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
-        h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
     ]);
 }
 
