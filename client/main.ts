@@ -10,7 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
-import { settingsView, updateBackground } from './settings';
+import { settingsView, volumeSettings, soundThemeSettings, backgroundSettings } from './settings';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
@@ -158,9 +158,14 @@ function start() {
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
 }
 
-updateBackground();
-sound.updateSoundTheme();
-sound.updateVolume();
+backgroundSettings.update();
+
+// Always update sound theme before volume
+// Updating sound theme requires reloading sound files,
+// while updating volume does not
+soundThemeSettings.update();
+volumeSettings.update();
+
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
     const lang = el.getAttribute("data-lang");

@@ -334,7 +334,7 @@ ul.guide li {
     flex-direction: row;
 }
 
-#sound-theme label {
+#sound-theme label, #settings-background label {
     text-transform: capitalize;
 }
 

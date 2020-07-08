@@ -15,6 +15,9 @@ import { variants } from './chess';
 import { _, LANGUAGES, translatedLanguage } from './i18n';
 import { sound } from './sound';
 
+
+/************************* Class declarations *************************/
+
 export abstract class Settings<T> {
     readonly name: string;
     private _value: T;
@@ -81,8 +84,48 @@ class SoundThemeSettings extends Settings<string> {
     }
 }
 
+const backgrounds = [ 'light', 'dark' ];
+class BackgroundSettings extends Settings<string> {
+
+    constructor() {
+        super('theme', 'light');
+    }
+
+    update(): void {
+        document.documentElement.setAttribute('data-theme', this.value);
+
+        // TODO this thing should be removed once icon-white and icon-black are consistent across themes
+        var alliside = document.getElementsByTagName('i-side');
+        for (var j = 0; j < alliside.length; j++) {
+            // take care of random color seek icons
+            if (!alliside[j].classList.contains('icon-adjust')) {
+                alliside[j].classList.toggle("icon-white");
+                alliside[j].classList.toggle("icon-black");
+            }
+        }
+
+    }
+
+    view(): VNode {
+        let backgroundList: VNode[] = [];
+        backgrounds.forEach(theme => {
+            backgroundList.push(h('input#background-' + theme, {
+                props: { name: "background", type: "radio"},
+                attrs: { checked: this.value === theme },
+                on: { change: () => this.value = theme }
+            }));
+            backgroundList.push(h('label', { attrs: { for: "background-" + theme.toLowerCase() } }, theme));
+        });
+        return h('div#settings-background', backgroundList);
+    }
+
+}
+
+/*********************** End class declarations ***********************/
+
 export const volumeSettings = new VolumeSettings();
 export const soundThemeSettings = new SoundThemeSettings();
+export const backgroundSettings = new BackgroundSettings();
 
 function settingsMenu() {
     return h('div#settings-buttons', [
@@ -197,23 +240,12 @@ function soundSettingsView() {
     ]);
 }
 
-const backgrounds = [ 'Light', 'Dark' ];
 function backgroundSettingsView() {
-    const currentBackground = localStorage.theme ?? 'light';
-    let backgroundList: VNode[] = [];
-    backgrounds.forEach(theme => {
-        backgroundList.push(h('input#background-' + theme.toLowerCase(), {
-            props: { name: "background", type: "radio"},
-            attrs: { checked: currentBackground === theme.toLowerCase() },
-            on: { change: () => setBackground(theme) }
-        }));
-        backgroundList.push(h('label', { attrs: { for: "background-" + theme.toLowerCase() } }, theme));
-    });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
             h('back', {class: { icon: true, "icon-left": true } }, _("Background")),
         ]),
-        h('div#settings-background', backgroundList),
+        backgroundSettings.view(),
     ]);
 }
 
@@ -244,25 +276,4 @@ function boardSettingsView() {
 function showVariantBoardSettings(variant) {
     const settings = document.getElementById('board-settings') as HTMLElement;
     patch(toVNode(settings), boardSettings.view(variant));
-}
-
-function setBackground(theme) {
-    const oldTheme = document.documentElement.getAttribute('data-theme');
-    localStorage.theme = theme.toLowerCase();
-    updateBackground();
-    if (oldTheme !== theme.toLowerCase()) {
-        var alliside = document.getElementsByTagName('i-side');
-        for (var j = 0; j < alliside.length; j++) {
-            // take care of random color seek icons
-            if (!alliside[j].classList.contains('icon-adjust')) {
-                alliside[j].classList.toggle("icon-white");
-                alliside[j].classList.toggle("icon-black");
-            }
-        }
-    }
-}
-
-export function updateBackground() {
-    const theme = localStorage.theme ?? 'light';
-    document.documentElement.setAttribute('data-theme', theme);
 }
