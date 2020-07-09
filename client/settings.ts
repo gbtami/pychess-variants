@@ -22,7 +22,7 @@ import { sound } from './sound';
 
 export abstract class Settings<T> {
     readonly name: string;
-    private _value: T;
+    protected _value: T;
 
     constructor(name: string, defaultValue: T) {
         this.name = name;
@@ -42,18 +42,13 @@ export abstract class Settings<T> {
     abstract view(): VNode;
 }
 
-class LanguageSettings { // extends Settings<string> {
-    readonly name: string;
-    private _value: string;
+class LanguageSettings extends Settings<string> {
 
     constructor() {
-        this.name = 'lang';
+        super('lang', 'en');
         this._value = getDocumentData('lang') ?? 'en';
     }
 
-    get value(): string {
-        return this._value;
-    }
     set value(value: string) {
         this._value = value;
         this.update();
@@ -63,18 +58,15 @@ class LanguageSettings { // extends Settings<string> {
     }
 
     view(): VNode {
-        let langList: VNode[] = [];
-        Object.keys(LANGUAGES).forEach(key => {
-            langList.push(h('input#lang-' + key, {
-                props: { type: "radio", name: "lang", value: key },
-                attrs: { checked: this.value === key },
-                on: { change: e => {
-                    this.value = key;
-                    (e.target as HTMLInputElement).form!.submit();
-                }},
-            }));
-            langList.push(h('label', { attrs: { for: "lang-" + key } }, LANGUAGES[key]));
-        });
+        const langList = radioList(
+            this,
+            'lang',
+            LANGUAGES,
+            (evt, key) => {
+                this.value = key;
+                (evt.target as HTMLInputElement).form!.submit();
+            }
+        );
         return h('div#settings-lang', [
             h('form.radio-list', { props: { method: "post", action: "/translation/select" } }, langList),
         ]);
@@ -92,14 +84,15 @@ class VolumeSettings extends Settings<number> {
     }
 
     view(): VNode {
-        return h('input#sound-volume.slider', {
-            props: { name: "volume", type: "range", min: 0, max: 1, step: 0.01, value: this.value },
-            on: { change: e => this.value = parseFloat((e.target as HTMLInputElement).value) },
-        });
+        return slider(this, 'sound-volume', 0, 1, 0.01);
     }
 }
 
-const soundThemes = [ 'silent', 'standard', 'robot' ];
+const soundThemes = {
+    silent: "Silent",
+    standard: "Standard",
+    robot: "Robot",
+};
 
 class SoundThemeSettings extends Settings<string> {
     
@@ -112,20 +105,14 @@ class SoundThemeSettings extends Settings<string> {
     }
 
     view(): VNode {
-        let soundThemeList: VNode[] = [];
-        soundThemes.forEach(theme => {
-            soundThemeList.push(h('input#sound-' + theme, {
-                props: { name: "sound-theme", type: "radio"},
-                attrs: { checked: this.value === theme },
-                on: { change: () => this.value = theme }
-            }));
-            soundThemeList.push(h('label', { attrs: { for: "sound-" + theme } }, theme));
-        });
-        return h('div#sound-theme.radio-list', soundThemeList);
+        return h('div#sound-theme.radio-list', radioList(this, 'sound-theme', soundThemes, (_, key) => this.value = key));
     }
 }
 
-const backgrounds = [ 'light', 'dark' ];
+const backgrounds = {
+    light: _("Light"),
+    dark: _("Dark"),
+};
 
 class BackgroundSettings extends Settings<string> {
 
@@ -138,21 +125,43 @@ class BackgroundSettings extends Settings<string> {
     }
 
     view(): VNode {
-        let backgroundList: VNode[] = [];
-        backgrounds.forEach(theme => {
-            backgroundList.push(h('input#background-' + theme, {
-                props: { name: "background", type: "radio"},
-                attrs: { checked: this.value === theme },
-                on: { change: () => this.value = theme }
-            }));
-            backgroundList.push(h('label', { attrs: { for: "background-" + theme.toLowerCase() } }, theme));
-        });
-        return h('div#settings-background', backgroundList);
+        return h('div#settings-background', radioList(this, 'background', backgrounds, (_, key) => this.value = key));
     }
 
 }
 
 /*********************** End class declarations ***********************/
+
+/******************* General View-related functions *******************/
+
+function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt, key: string) => void): VNode[] {
+    let result: VNode[] = [];
+    Object.keys(options).forEach(key => {
+        const optionID = name + "-" + key;
+        result.push(h('input#' + optionID, {
+            props: { name: name, type: "radio", value: key },
+            attrs: { checked: settings.value === key },
+            on: { change: evt => onchange(evt, key) },
+        }));
+        result.push(h('label', { attrs: { for: optionID } }, options[key]));
+    });
+    return result;
+}
+
+function slider(settings: Settings<number>, name: string, min: number = 0, max: number = 100, step: number = 1) {
+    return h('input#' + name + '.slider', {
+        props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
+        on: { change: e => settings.value = parseFloat((e.target as HTMLInputElement).value) },
+    });
+}
+
+function backButton(text: string) {
+    return h('button.back', { on: { click: showMainSettings } }, [
+        h('back.icon.icon-left', text),
+    ]);
+}
+
+/***************** End General View-related functions *****************/
 
 export const languageSettings = new LanguageSettings();
 export const volumeSettings = new VolumeSettings();
@@ -239,18 +248,14 @@ function showSubsettings(evt) {
 
 function langSettingsView() {
     return h('div#settings-sub', [
-        h('button.back', { on: { click: showMainSettings } }, [
-            h('back.icon.icon-left', translatedLanguage),
-        ]),
+        backButton(translatedLanguage),
         languageSettings.view(),
     ]);
 }
 
 function soundSettingsView() {
     return h('div#settings-sub', [
-        h('button.back', { on: { click: showMainSettings } }, [
-            h('back.icon.icon-left', _("Sound")),
-        ]),
+        backButton(_("Sound")),
         h('div#settings-sound', [
             volumeSettings.view(),
             soundThemeSettings.view(),
@@ -260,9 +265,7 @@ function soundSettingsView() {
 
 function backgroundSettingsView() {
     return h('div#settings-sub', [
-        h('button.back', { on: { click: showMainSettings } }, [
-            h('back.icon.icon-left', _("Background")),
-        ]),
+        backButton(_("Background")),
         backgroundSettings.view(),
     ]);
 }
@@ -278,9 +281,7 @@ function boardSettingsView() {
         }, v.toUpperCase()));
     });
     return h('div#settings-sub', [
-        h('button.back', { on: { click: showMainSettings } }, [
-            h('back.icon.icon-left', _("Board Settings")),
-        ]),
+        backButton(_("Board Settings")),
         h('div#settings-board', [
             h('div', [
                 h('label', { props: { for: "board-variant" } }, _("Variant")),
