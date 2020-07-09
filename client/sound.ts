@@ -26,6 +26,19 @@ class Sounds {
         this.tracks = {};
     }
 
+    updateVolume() {
+        const volume = volumeSettings.value;
+        Object.keys(this.tracks).forEach(key => {
+            this.tracks[key].volume(volume);
+        });
+    }
+
+    updateSoundTheme() {
+        Object.keys(Sounds.trackNames).forEach(key => {
+            this.tracks[key] = this.buildSound(Sounds.trackNames[key]);
+        });
+    }
+
     private buildSound(trackName: string) {
         const soundTheme = soundThemeSettings.value;
         const sound = new Howl({
@@ -38,19 +51,6 @@ class Sounds {
           volume: volumeSettings.value,
         });
         return sound;
-    }
-
-    updateVolume() {
-        const volume = volumeSettings.value;
-        Object.keys(this.tracks).forEach(key => {
-            this.tracks[key].volume(volume);
-        });
-    }
-
-    updateSoundTheme() {
-        Object.keys(Sounds.trackNames).forEach(key => {
-            this.tracks[key] = this.buildSound(Sounds.trackNames[key]);
-        });
     }
 
     private audio() {
