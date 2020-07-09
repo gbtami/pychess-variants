@@ -1,4 +1,4 @@
-import trans from './gettext.cjs.min.js';
+import trans from 'gettext.js';
 
 export const i18n = trans();
 export function _(msgid) {return i18n.gettext(msgid)};
