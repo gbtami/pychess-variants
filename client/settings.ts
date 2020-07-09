@@ -12,9 +12,9 @@ import { toVNode } from 'snabbdom/tovnode';
 
 import { boardSettings } from './board';
 import { variants } from './chess';
+import { getDocumentData } from './document';
 import { _, LANGUAGES, translatedLanguage } from './i18n';
 import { sound } from './sound';
-
 
 /************************* Class declarations *************************/
 
@@ -38,6 +38,45 @@ export abstract class Settings<T> {
 
     abstract update(): void;
     abstract view(): VNode;
+}
+
+class LanguageSettings { // extends Settings<string> {
+    readonly name: string;
+    private _value: string;
+
+    constructor() {
+        this.name = 'lang';
+        this._value = getDocumentData('lang') ?? 'en';
+    }
+
+    get value(): string {
+        return this._value;
+    }
+    set value(value: string) {
+        this._value = value;
+        this.update();
+    }
+
+    update(): void {
+    }
+
+    view(): VNode {
+        let langList: VNode[] = [];
+        Object.keys(LANGUAGES).forEach(key => {
+            langList.push(h('input#lang-' + key, {
+                props: { type: "radio", name: "lang", value: key },
+                attrs: { checked: this.value === key },
+                on: { change: e => {
+                    this.value = key;
+                    (e.target as HTMLInputElement).form!.submit();
+                }},
+            }));
+            langList.push(h('label', { attrs: { for: "lang-" + key } }, LANGUAGES[key]));
+        });
+        return h('div#settings-lang', [
+            h('form.radio-list', { props: { method: "post", action: "/translation/select" } }, langList),
+        ]);
+    }
 }
 
 class VolumeSettings extends Settings<number> {
@@ -113,28 +152,20 @@ class BackgroundSettings extends Settings<string> {
 
 /*********************** End class declarations ***********************/
 
+export const languageSettings = new LanguageSettings();
 export const volumeSettings = new VolumeSettings();
 export const soundThemeSettings = new SoundThemeSettings();
 export const backgroundSettings = new BackgroundSettings();
 
-function settingsMenu() {
-    return h('div#settings-buttons', [
-        h('button#btn-lang', { on: { click: () => showSubsettings('lang') } }, translatedLanguage),
-        h('button#btn-sound', { on: { click: () => showSubsettings('sound') } }, _('Sound')),
-        h('button#btn-background', { on: { click: () => showSubsettings('background') } }, _('Background')),
-        h('button#btn-board', { on: { click: () => showSubsettings('board') } }, _('Board Settings')),
-    ]);
-}
-
 export function settingsView() {
-    const anon = document.getElementById('pychess-variants')!.getAttribute("data-anon");
+    const anon = getDocumentData('anon');
     const menu = (anon === 'True') ? [ settingsMenu() ] : [ userMenu(), settingsMenu() ];
     return h('div#settings-panel', [
         settingsButton(),
         h('div#settings', [
             h('div#settings-main', menu),
             h('div#settings-sub'),
-        ])
+        ]),
     ]);
 }
 
@@ -142,6 +173,23 @@ function settingsButton() {
     return h('button#btn-settings', { on: { click: toggleSettings } }, [
         h('div.icon.icon-cog'),
     ]);
+}
+
+function toggleSettings() {
+    if ((document.getElementById('settings') as HTMLElement).style.display === 'flex')
+        hideSettings();
+    else
+        showMainSettings();
+}
+
+function hideSettings() {
+    (document.getElementById('settings') as HTMLElement).style.display = 'none';
+}
+
+function showMainSettings() {
+    (document.getElementById('settings') as HTMLElement).style.display = 'flex';
+    (document.getElementById('settings-main') as HTMLElement).style.display = 'flex';
+    (document.getElementById('settings-sub') as HTMLElement).style.display = 'none';
 }
 
 function userMenu() {
@@ -155,27 +203,19 @@ function logoutDialog() {
         window.location.href = "/logout";
 }
 
-export function hideSettings() {
-    (document.getElementById('settings') as HTMLElement).style.display = 'none';
+function settingsMenu() {
+    return h('div#settings-buttons', [
+        h('button#btn-lang', { on: { click: showSubsettings } }, translatedLanguage),
+        h('button#btn-sound', { on: { click: showSubsettings } }, _('Sound')),
+        h('button#btn-background', { on: { click: showSubsettings } }, _('Background')),
+        h('button#btn-board', { on: { click: showSubsettings } }, _('Board Settings')),
+    ]);
 }
 
-export function showMainSettings() {
-    (document.getElementById('settings') as HTMLElement).style.display = 'flex';
-    (document.getElementById('settings-main') as HTMLElement).style.display = 'flex';
-    (document.getElementById('settings-sub') as HTMLElement).style.display = 'none';
-}
-
-export function toggleSettings() {
-    if ((document.getElementById('settings') as HTMLElement).style.display === 'flex')
-        hideSettings();
-    else
-        showMainSettings();
-}
-
-function showSubsettings(settingsName) {
+function showSubsettings(evt) {
     const mainSettings = document.getElementById('settings-main') as HTMLElement;
     const subSettings = document.getElementById('settings-sub') as HTMLElement;
-
+    const settingsName = evt.target.id.slice(4);
     switch (settingsName) {
         case "lang":
             patch(toVNode(subSettings), langSettingsView());
@@ -191,30 +231,16 @@ function showSubsettings(settingsName) {
             showVariantBoardSettings((document.getElementById('board-variant') as HTMLInputElement).value);
             break;
     }
-
-
     mainSettings.style.display = 'none';
     subSettings.style.display = 'flex';
 }
 
 function langSettingsView() {
-    const currentLang = document.getElementById('pychess-variants')!.getAttribute("data-lang");
-    let langList: VNode[] = [];
-    Object.keys(LANGUAGES).forEach(key => {
-        langList.push(h('input#lang-' + key, {
-            props: { type: "radio", name: "lang", value: key },
-            attrs: { checked: currentLang === key },
-            on: { change: e => (e.target as HTMLInputElement).form!.submit() },
-        }));
-        langList.push(h('label', { attrs: { for: "lang-" + key } }, LANGUAGES[key]));
-    });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('back', {class: { icon: true, "icon-left": true } }, _("Language")),
+            h('back.icon.icon-left', translatedLanguage),
         ]),
-        h('div#settings-lang', [
-            h('form.radio-list', { props: { method: "post", action: "/translation/select" } }, langList),
-        ]),
+        languageSettings.view(),
     ]);
 }
 
@@ -233,14 +259,14 @@ function soundSettingsView() {
 function backgroundSettingsView() {
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('back', {class: { icon: true, "icon-left": true } }, _("Background")),
+            h('back.icon.icon-left', _("Background")),
         ]),
         backgroundSettings.view(),
     ]);
 }
 
 function boardSettingsView() {
-    const variant = document.getElementById("pychess-variants")!.getAttribute("data-variant");
+    const variant = getDocumentData('variant');
     let variantList: VNode[] = [];
     variantList.push(h('option', { props: { value: "" } }, ""));
     variants.forEach(v => {
@@ -251,7 +277,7 @@ function boardSettingsView() {
     });
     return h('div#settings-sub', [
         h('button.back', { on: { click: showMainSettings } }, [
-            h('back', {class: { icon: true, "icon-left": true } }, _("Board Settings")),
+            h('back.icon.icon-left', _("Board Settings")),
         ]),
         h('div#settings-board', [
             h('div', [
