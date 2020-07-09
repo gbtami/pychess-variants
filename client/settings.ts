@@ -18,6 +18,8 @@ import { sound } from './sound';
 
 /************************* Class declarations *************************/
 
+// TODO Ideally all settings should be bound to account and fetched from server like the LanguageSettings
+
 export abstract class Settings<T> {
     readonly name: string;
     private _value: T;
