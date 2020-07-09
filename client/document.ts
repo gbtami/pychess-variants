@@ -1,5 +1,9 @@
 import { _ } from './i18n';
 
+export function getDocumentData(name: string) {
+    return document.getElementById('pychess-variants')!.getAttribute('data-' + name);
+}
+
 export function getCookie(name) {
     var cookies = document.cookie.split(';');
     for(var i=0 ; i < cookies.length ; ++i) {
