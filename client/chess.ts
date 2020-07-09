@@ -95,50 +95,6 @@ export const VARIANTS = {
     synochess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "synochess", PieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4"], icon: "_" , baseURL: ["synochess", "xqsyno", "xiangqi/playok", "xiangqi/hnz", "xiangqi/hnzw"]},
 }
 
-/**
- * Variant classes
- * Use these classes to check for characteristics of variants
- ** byoyomi: This variant uses byoyomi time control
- ** showCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
- ** manualCount: This variant lets player manually start counting moves to find draws
- ** showMaterialPoint: This variant displays material points for each player
- ** drop: This variant allows dropping captured pieces back to the board
- ** gate: This variant allows S-Chess style gating
- ** pocket: This variant needs to display the pieces in hand in round, analysis, and editor screen
- ** enPassant: This variant has en passant capture
- ** pass: This variant allows passing
- ** pieceDir: This variant uses piece direction, rather than color, to denote piece side
- ** shogiSound: This variant uses shogi piece move sound
- ** tenRanks: This variant has ten ranks and need to use the grand2zero function to fix its notation
- ** autoQueen: This variant utilises "Promote to queen automatically"
-*/
-const variant_classes = {
-    makruk: new Set(['showCount', 'manualCount']),
-    makpong: new Set(['showCount', 'manualCount']),
-    cambodian: new Set(['showCount', 'manualCount']),
-    sittuyin: new Set(['showCount', 'pocket']),
-    placement: new Set(['pocket', 'enPassant', 'autoQueen']),
-    crazyhouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
-    chess: new Set(['enPassant', 'autoQueen']),
-    shogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
-    minishogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
-    kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
-    janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
-    xiangqi: new Set(['tenRanks']),
-    minixiangqi: new Set([]),
-    capablanca: new Set(['enPassant', 'autoQueen']),
-    seirawan: new Set(['gate', 'pocket', 'enPassant', 'autoQueen']),
-    capahouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
-    shouse: new Set(['gate', 'drop', 'pocket', 'enPassant', 'autoQueen']),
-    grand: new Set(['enPassant', 'tenRanks', 'autoQueen']),
-    grandhouse: new Set(['drop', 'pocket', 'enPassant', 'tenRanks', 'autoQueen']),
-    gothic: new Set(['enPassant', 'autoQueen']),
-    shako: new Set(['enPassant', 'tenRanks', 'autoQueen']),
-    shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
-    orda: new Set(['enPassant']),
-    synochess: new Set(['pocket', 'enPassant']),
-}
-
 export function variantIcon(variant, chess960) {
     if (chess960 === "True" || chess960 === 1 || chess960 === true) {
         switch (variant) {
@@ -393,6 +349,50 @@ export function mandatoryPromotion(variant, role: Role, orig: Key, dest: Key, co
     default:
         return false;
     }
+}
+
+/**
+ * Variant classes
+ * Use these classes to check for characteristics of variants
+ ** byoyomi: This variant uses byoyomi time control
+ ** showCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
+ ** manualCount: This variant lets player manually start counting moves to find draws
+ ** showMaterialPoint: This variant displays material points for each player
+ ** drop: This variant allows dropping captured pieces back to the board
+ ** gate: This variant allows S-Chess style gating
+ ** pocket: This variant needs to display the pieces in hand in round, analysis, and editor screen
+ ** enPassant: This variant has en passant capture
+ ** pass: This variant allows passing
+ ** pieceDir: This variant uses piece direction, rather than color, to denote piece side
+ ** shogiSound: This variant uses shogi piece move sound
+ ** tenRanks: This variant has ten ranks and need to use the grand2zero function to fix its notation
+ ** autoQueen: This variant utilises "Promote to queen automatically"
+ **/
+const variant_classes = {
+    makruk: new Set(['showCount', 'manualCount']),
+    makpong: new Set(['showCount', 'manualCount']),
+    cambodian: new Set(['showCount', 'manualCount']),
+    sittuyin: new Set(['showCount', 'pocket']),
+    placement: new Set(['pocket', 'enPassant', 'autoQueen']),
+    crazyhouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
+    chess: new Set(['enPassant', 'autoQueen']),
+    shogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
+    minishogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
+    kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
+    janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
+    xiangqi: new Set(['tenRanks']),
+    minixiangqi: new Set([]),
+    capablanca: new Set(['enPassant', 'autoQueen']),
+    seirawan: new Set(['gate', 'pocket', 'enPassant', 'autoQueen']),
+    capahouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
+    shouse: new Set(['gate', 'drop', 'pocket', 'enPassant', 'autoQueen']),
+    grand: new Set(['enPassant', 'tenRanks', 'autoQueen']),
+    grandhouse: new Set(['drop', 'pocket', 'enPassant', 'tenRanks', 'autoQueen']),
+    gothic: new Set(['enPassant', 'autoQueen']),
+    shako: new Set(['enPassant', 'tenRanks', 'autoQueen']),
+    shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
+    orda: new Set(['enPassant']),
+    synochess: new Set(['pocket', 'enPassant']),
 }
 
 export function isVariantClass(variant: string, variantClass: string) {
@@ -851,4 +851,3 @@ export const WILD_SUB_FEN = {
 'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
 'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 };
-
