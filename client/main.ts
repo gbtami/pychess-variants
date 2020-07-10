@@ -23,7 +23,6 @@ import { getCookie } from './document';
 
 const model = {};
 
-
 export function view(el, model): VNode {
     const user = getCookie("user");
     if (user !== "") model["username"] = user;
@@ -85,19 +84,11 @@ function isFunction(functionToCheck) {
 }
 
 function debounce(func, wait) {
-    var timeout;
-    var waitFunc;
-
     return function() {
-        if (isFunction(wait)) {
-            waitFunc = wait;
-        }
-        else {
-            waitFunc = function() { return wait };
-        }
-
-        var context = this, args = arguments;
-        var later = function() {
+        let timeout;
+        const waitFunc = isFunction(wait) ? wait : () => wait;
+        const context = this, args = arguments;
+        const later = () => {
             timeout = null;
             func.apply(context, args);
         };
@@ -107,35 +98,38 @@ function debounce(func, wait) {
 }
 
 // reconnectFrequencySeconds doubles every retry
-var reconnectFrequencySeconds = 1;
-var evtSource;
+let reconnectFrequencySeconds = 1;
+let evtSource;
 
-var reconnectFunc = debounce(function() {
-    setupEventSource();
-    // Double every attempt to avoid overwhelming server
-    reconnectFrequencySeconds *= 2;
-    // Max out at ~1 minute as a compromise between user experience and server load
-    if (reconnectFrequencySeconds >= 64) {
-        reconnectFrequencySeconds = 64;
-    }
-}, function() { return reconnectFrequencySeconds * 1000 });
+const reconnectFunc = debounce(
+    () => {
+        setupEventSource();
+        // Double every attempt to avoid overwhelming server
+        reconnectFrequencySeconds *= 2;
+        // Max out at ~1 minute as a compromise between user experience and server load
+        if (reconnectFrequencySeconds >= 64) {
+            reconnectFrequencySeconds = 64;
+        }
+    },
+    () => reconnectFrequencySeconds * 1000
+);
 
 function setupEventSource() {
     evtSource = new EventSource(model["home"] + "/api/notify");
     console.log("new EventSource" + model["home"] + "/api/notify");
-    evtSource.onmessage = function(e) {
+    evtSource.onmessage = e => {
         const message = JSON.parse(e.data);
         console.log(message);
         sound.socialNotify();
     };
-    evtSource.onopen = function() {
-      // Reset reconnect frequency upon successful connection
-      reconnectFrequencySeconds = 1;
+    evtSource.onopen = () => {
+        // Reset reconnect frequency upon successful connection
+        reconnectFrequencySeconds = 1;
     };
-    evtSource.onerror = function() {
-      console.log("evtSource.onerror() retry", reconnectFrequencySeconds);
-      evtSource.close();
-      reconnectFunc();
+    evtSource.onerror = () => {
+        console.log("evtSource.onerror() retry", reconnectFrequencySeconds);
+        evtSource.close();
+        reconnectFunc();
     };
 }
 
@@ -147,8 +141,7 @@ function start() {
     (document.querySelector('.navbar-toggle') as HTMLElement).addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
 
     // Clicking outside settings panel closes it
-    var settingsPanel : any = document.getElementById('settings-panel') as HTMLElement;
-    settingsPanel = patch(settingsPanel, settingsView()).elm;
+    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
     const settings = document.getElementById('settings') as HTMLElement;
     document.addEventListener("click", ev => {
         if (!settingsPanel.contains(ev.target as HTMLElement))
