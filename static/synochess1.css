@@ -1,39 +1,39 @@
 .synochess .cg-wrap piece.pawn.white {
-  background-image: url('images/pieces/xqsyno/wP.svg');
+  background-image: url('images/pieces/synochess/xq/wP.svg');
 }
 .synochess .cg-wrap piece.bishop.white {
-  background-image: url('images/pieces/xqsyno/wB.svg');
+  background-image: url('images/pieces/synochess/xq/wB.svg');
 }
 .synochess .cg-wrap piece.knight.white {
-  background-image: url('images/pieces/xqsyno/wN.svg');
+  background-image: url('images/pieces/synochess/xq/wN.svg');
 }
 .synochess .cg-wrap piece.rook.white {
-  background-image: url('images/pieces/xqsyno/wR.svg');
+  background-image: url('images/pieces/synochess/xq/wR.svg');
 }
 .synochess .cg-wrap piece.queen.white {
-  background-image: url('images/pieces/xqsyno/wQ.svg');
+  background-image: url('images/pieces/synochess/xq/wQ.svg');
 }
 .synochess .cg-wrap piece.king.white {
-  background-image: url('images/pieces/xqsyno/wK.svg');
+  background-image: url('images/pieces/synochess/xq/wK.svg');
 }
 .synochess .cg-wrap piece.silver.black {
-  background-image: url('images/pieces/xqsyno/bS.svg');
+  background-image: url('images/pieces/synochess/xq/bS.svg');
 }
 .synochess .cg-wrap piece.elephant.black {
-  background-image: url('images/pieces/xqsyno/bE.svg');
+  background-image: url('images/pieces/synochess/xq/bE.svg');
 }
 .synochess .cg-wrap piece.knight.black {
-  background-image: url('images/pieces/xqsyno/bN.svg');
+  background-image: url('images/pieces/synochess/xq/bN.svg');
 }
 .synochess .cg-wrap piece.rook.black {
-  background-image: url('images/pieces/xqsyno/bR.svg');
+  background-image: url('images/pieces/synochess/xq/bR.svg');
 }
 .synochess .cg-wrap piece.archbishop.black {
-  background-image: url('images/pieces/xqsyno/bA.svg');
+  background-image: url('images/pieces/synochess/xq/bA.svg');
 }
 .synochess .cg-wrap piece.cancellor.black {
-  background-image: url('images/pieces/xqsyno/bC.svg');
+  background-image: url('images/pieces/synochess/xq/bC.svg');
 }
 .synochess .cg-wrap piece.king.black {
-  background-image: url('images/pieces/xqsyno/bK.svg');
+  background-image: url('images/pieces/synochess/xq/bK.svg');
 }

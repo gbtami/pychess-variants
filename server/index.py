@@ -65,7 +65,7 @@ async def index(request):
         else:
             if session_user.startswith("Anon-"):
                 session.invalidate()
-                raise web.HTTPFound("/")
+                raise web.HTTPFound(request.rel_url)
 
             log.debug("New lichess user %s joined." % session_user)
             title = session["title"] if "title" in session else ""

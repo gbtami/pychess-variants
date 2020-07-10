@@ -352,10 +352,10 @@ label.piece.piece0.orda {
   background-image: url('images/pieces/orda/bH.svg');
 }
 label.piece.piece0.synochess {
-  background-image: url('images/pieces/synochess/bR.svg');
+  background-image: url('images/pieces/synochess/intl/bR.svg');
 }
 label.piece.piece1.synochess {
-  background-image: url('images/pieces/xqsyno/bR.svg');
+  background-image: url('images/pieces/synochess/xq/bR.svg');
 }
 label.piece.piece2.synochess {
   background-image: url('images/pieces/xiangqi/playok/black_chariot.svg');
@@ -365,4 +365,7 @@ label.piece.piece3.synochess {
 }
 label.piece.piece4.synochess {
   background-image: url('images/pieces/xiangqi/hnzw/black_chariot.svg');
+}
+label.piece.piece5.synochess {
+  background-image: url('images/pieces/synochess/blackdisc/bR.svg');
 }
