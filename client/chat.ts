@@ -12,38 +12,40 @@ import { _ } from './i18n';
 
 export function chatView (ctrl, chatType) {
     function onKeyPress (e) {
-        const message = (e.target as HTMLInputElement).value
+        const message = (e.target as HTMLInputElement).value;
         if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
             ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "room": (ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
     }
     const anon = ctrl.model["anon"] === 'True';
-    return h(`div.${chatType}#${chatType}`, { class: {"chat": true} }, [
-                h('div.chatroom', ctrl.spectator ? _('Spectator room') : _('Chat room')),
-                // TODO: lock/unlock chat to spectators
-                // h('input#chatbox', {props: {name: "chatbox", type: "checkbox", checked: ""}}),
-                h(`ol#${chatType}-messages`, [ h("div#messages")]),
-                h('input#chat-entry', {
-                    props: {
-                        type: "text",
-                        name: "entry",
-                        autocomplete: "off",
-                        placeholder: (anon) ? _('Sign in to chat') : _('Please be nice in the chat!'),
-                        disabled: anon,
-                        maxlength: "140",
-                    },
-                    on: { keypress: (e) => onKeyPress(e) },
-                })
-            ])
-    }
+    return h(`div#${chatType}.${chatType}.chat`, [
+        h('div.chatroom', ctrl.spectator ? _('Spectator room') : _('Chat room')),
+        // TODO: lock/unlock chat to spectators
+        // h('input#chatbox', {props: {name: "chatbox", type: "checkbox", checked: ""}}),
+        h(`ol#${chatType}-messages`, [ h('div#messages') ]),
+        h('input#chat-entry', {
+            props: {
+                type: "text",
+                name: "entry",
+                autocomplete: "off",
+                placeholder: (anon) ? _('Sign in to chat') : _('Please be nice in the chat!'),
+                disabled: anon,
+            },
+            attrs: {
+                maxlength: 140,
+            },
+            on: { keypress: onKeyPress },
+        })
+    ]);
+}
 
 export function chatMessage (user, message, chatType) {
     const myDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
     const isScrolled = myDiv.scrollTop == myDiv.scrollHeight - myDiv.offsetHeight;
 
-    var container = document.getElementById('messages') as HTMLElement;
+    const container = document.getElementById('messages') as HTMLElement;
     if (user.length === 0) {
         patch(container, h('div#messages', [ h("li.message.offer", [h("t", message)]) ]));
     } else if (user === '_server') {
