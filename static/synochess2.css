@@ -1,20 +1,20 @@
 .synochess .cg-wrap piece.pawn.white {
-  background-image: url('images/pieces/xqsyno/wP.svg');
+  background-image: url('images/pieces/synochess/xq/wP.svg');
 }
 .synochess .cg-wrap piece.bishop.white {
-  background-image: url('images/pieces/xqsyno/wB.svg');
+  background-image: url('images/pieces/synochess/xq/wB.svg');
 }
 .synochess .cg-wrap piece.knight.white {
-  background-image: url('images/pieces/xqsyno/wN.svg');
+  background-image: url('images/pieces/synochess/xq/wN.svg');
 }
 .synochess .cg-wrap piece.rook.white {
-  background-image: url('images/pieces/xqsyno/wR.svg');
+  background-image: url('images/pieces/synochess/xq/wR.svg');
 }
 .synochess .cg-wrap piece.queen.white {
-  background-image: url('images/pieces/xqsyno/wQ.svg');
+  background-image: url('images/pieces/synochess/xq/wQ.svg');
 }
 .synochess .cg-wrap piece.king.white {
-  background-image: url('images/pieces/xqsyno/wK.svg');
+  background-image: url('images/pieces/synochess/xq/wK.svg');
 }
 .synochess .cg-wrap piece.silver.black {
   background-image: url('images/pieces/xiangqi/playok/black_pawn.svg');
