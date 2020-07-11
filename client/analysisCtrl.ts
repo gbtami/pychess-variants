@@ -464,7 +464,7 @@ export default class AnalysisController {
         updatePockets(this, this.vpocket0, this.vpocket1);
 
         if (isVariantClass(this.variant, 'showCount')) {
-            updateCount(step.fen, document.getElementById('misc-infow'), document.getElementById('misc-infob'));
+            updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
         if (isVariantClass(this.variant, 'showMaterialPoint')) {
