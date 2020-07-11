@@ -39,7 +39,6 @@ export function copyTextToClipboard(text) {
     // Avoid flash of white box if rendered for any reason.
     textArea.style.background = 'transparent';
 
-
     textArea.value = text;
 
     document.body.appendChild(textArea);
@@ -47,8 +46,8 @@ export function copyTextToClipboard(text) {
     textArea.select();
 
     try {
-        var successful = document.execCommand('copy');
-        var msg = successful ? 'successful' : 'unsuccessful';
+        const successful = document.execCommand('copy');
+        const msg = successful ? 'successful' : 'unsuccessful';
         console.log('Copying text command was ' + msg);
     } catch (err) {
         console.log('Oops, unable to copy');
