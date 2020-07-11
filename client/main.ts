@@ -73,7 +73,7 @@ export function view(el, model): VNode {
     case 'thanks':
         return h('div#placeholder.main-wrapper', h('h2', _('Thank you for your support!')));
     case 'stats':
-        return h('div#stats', statsView(model));
+        return h('div#stats', statsView());
     default:
         return h('div#placeholder.main-wrapper', lobbyView(model));
     }
