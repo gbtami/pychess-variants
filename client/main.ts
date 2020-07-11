@@ -69,7 +69,7 @@ export function view(el, model): VNode {
     case 'editor':
         return h('div#placeholder.main-wrapper', editorView(model));
     case 'games':
-        return h('div#placeholder', gamesView(model));
+        return h('div#placeholder', gamesView());
     case 'thanks':
         return h('div#placeholder.main-wrapper', h('h2', _('Thank you for your support!')));
     case 'stats':
@@ -163,8 +163,8 @@ const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
     const lang = el.getAttribute("data-lang");
     fetch('/static/lang/' + lang + '/LC_MESSAGES/client.json')
-      .then((res) => res.json())
-      .then((translation) => {
+      .then(res => res.json())
+      .then(translation => {
         i18n.loadJSON(translation, 'messages');
         i18n.setLocale(lang);
         console.log('Loaded translations for lang', lang);

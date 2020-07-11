@@ -14,7 +14,7 @@ import { Chessground } from 'chessgroundx';
 import { VARIANTS, grand2zero, isVariantClass } from './chess';
 import { boardSettings } from './board';
 
-function renderGame(_model, games, game, fen, lastMove) {
+function renderGame(games, game, fen, lastMove) {
     return h(`minigame#${game.gameId}.${game.variant}-board.${VARIANTS[game.variant].pieces}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
@@ -37,7 +37,7 @@ function renderGame(_model, games, game, fen, lastMove) {
     ]);
 }
 
-export function gamesView(_model): VNode[] {
+export function gamesView(): VNode[] {
     boardSettings.updateBoardAndPieceStyles();
 
     const xmlhttp = new XMLHttpRequest();
@@ -49,7 +49,7 @@ export function gamesView(_model): VNode[] {
             const oldVNode = document.getElementById('games');
             const games = {};
             if (oldVNode instanceof Element) {
-                patch(oldVNode as HTMLElement, h('grid-container#games', response.map(game => renderGame(_model, games, game, game.fen, game.lastMove))));
+                patch(oldVNode as HTMLElement, h('grid-container#games', response.map(game => renderGame(games, game, game.fen, game.lastMove))));
 
                 const evtSource = new EventSource("/api/ongoing");
                 evtSource.onmessage = function(event) {
