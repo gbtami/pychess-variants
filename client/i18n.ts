@@ -31,9 +31,5 @@ const LANGUAGETEXT = {
     zh: "語言",
 };
 
-export var translatedLanguage = 'Language';
-
 const preferredLang = window.navigator.language.slice(0, 2);
-if (LANGUAGES.hasOwnProperty(preferredLang)) {
-    translatedLanguage = LANGUAGETEXT[preferredLang]
-}
+export const translatedLanguage = LANGUAGETEXT[preferredLang] ?? 'Language';
