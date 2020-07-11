@@ -1,20 +1,22 @@
-import { h, init } from "snabbdom";
+import { init } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
-import {getCounting, getJanggiPoints} from './chess';
+
+import { h } from 'snabbdom/h';
+import { VNode } from 'snabbdom/vnode';
+
+import { getCounting, getJanggiPoints } from './chess';
 
 const patch = init([klass, attributes, properties, listeners]);
 
 // Counting for makruk, cambodian, sittuyin
-export function updateCount(fen, whiteContainer, blackContainer) {
+export function updateCount(fen: string, whiteContainer: VNode | Element, blackContainer: VNode | Element) {
     const [countingPly, countingLimit, countingSide, ] = getCounting(fen);
     let pxc = '0px';
     whiteContainer = patch(whiteContainer, h('div#misc-infow', ''));
     blackContainer = patch(blackContainer, h('div#misc-infob', ''));
-
-    console.log(whiteContainer.id, blackContainer.id);
 
     if (countingLimit !== 0 && countingPly !== 0) {
         pxc = '48px';
@@ -33,7 +35,7 @@ export function updateCount(fen, whiteContainer, blackContainer) {
 }
 
 // Point count for janggi
-export function updatePoint(fen, choContainer, hanContainer) {
+export function updatePoint(fen: string, choContainer: VNode | Element, hanContainer: VNode | Element) {
     const board = fen.split(" ")[0];
     const [choPoint, hanPoint] = getJanggiPoints(board);
     choContainer = patch(choContainer, h('div#misc-infow', { class: {'text-color-blue': true} }, choPoint));
