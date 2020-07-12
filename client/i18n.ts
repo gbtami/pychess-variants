@@ -2,7 +2,7 @@ import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 import trans from 'gettext.js';
 
-import { Settings } from './settings';
+import { StringSettings } from './settings';
 import { radioList } from './view';
 
 export const i18n = trans();
@@ -39,7 +39,7 @@ const LANGUAGETEXT = {
 const preferredLang = window.navigator.language.slice(0, 2);
 export const translatedLanguage = LANGUAGETEXT[preferredLang] ?? 'Language';
 
-class LanguageSettings extends Settings<string> {
+class LanguageSettings extends StringSettings {
     constructor() {
         super('lang', 'en');
     }

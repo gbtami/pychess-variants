@@ -2,15 +2,19 @@ import { VNode } from 'snabbdom/vnode';
 
 import { getDocumentData } from './document';
 
-// TODO Ideally all settings should be bound to account and fetched from server like the LanguageSettings
-// In the meantime, the default for settings is local storage
-export abstract class Settings<T> {
+export interface ISettings<T> {
+    readonly name: string;
+    value: T;
+    update(): void;
+    view(): VNode;
+}
+
+abstract class Settings<T> implements ISettings<T> {
     readonly name: string;
     protected _value: T;
 
-    constructor(name: string, defaultValue: T) {
+    constructor(name: string) {
         this.name = name;
-        this._value = getDocumentData(name) ?? (localStorage[name] ?? defaultValue);
     }
 
     get value(): T {
@@ -25,4 +29,30 @@ export abstract class Settings<T> {
 
     abstract update(): void;
     abstract view(): VNode;
+}
+
+export abstract class StringSettings extends Settings<string> {
+    constructor(name: string, defaultValue: string) {
+        super(name);
+        this._value = getDocumentData(name) ?? localStorage[name] ?? defaultValue;
+    }
+}
+
+export abstract class NumberSettings extends Settings<number> {
+    constructor(name: string, defaultValue: number) {
+        super(name);
+        this._value = Number(getDocumentData(name) ?? (localStorage[name] ?? defaultValue));
+    }
+}
+
+export abstract class BooleanSettings extends Settings<boolean> {
+    constructor(name: string, defaultValue: boolean) {
+        super(name);
+        if (getDocumentData(name))
+            this._value = getDocumentData(name) === 'True';
+        else if (localStorage[name])
+            this._value = localStorage[name] === 'true';
+        else
+            this._value = defaultValue;
+    }
 }

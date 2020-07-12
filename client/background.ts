@@ -2,7 +2,7 @@ import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
-import { Settings } from './settings';
+import { StringSettings } from './settings';
 import { radioList } from './view';
 
 const backgrounds = {
@@ -10,7 +10,7 @@ const backgrounds = {
     dark: _("Dark"),
 };
 
-class BackgroundSettings extends Settings<string> {
+class BackgroundSettings extends StringSettings {
 
     constructor() {
         super('theme', 'light');

@@ -2,7 +2,7 @@ import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 import { Howl } from 'howler';
 
-import { Settings } from './settings';
+import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
 
 class Sounds {
@@ -75,7 +75,7 @@ class Sounds {
     tick()          { if (this.audio()) this.tracks.Tick.play(); }
 }
 
-class VolumeSettings extends Settings<number> {
+class VolumeSettings extends NumberSettings {
 
     constructor() {
         super('volume', 1);
@@ -96,7 +96,7 @@ const soundThemes = {
     robot: "Robot",
 };
 
-class SoundThemeSettings extends Settings<string> {
+class SoundThemeSettings extends StringSettings {
     
     constructor() {
         super('soundTheme', 'standard');

@@ -20,7 +20,7 @@ import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
 import { player } from './player';
-import { Settings } from './settings';
+import { BooleanSettings } from './settings';
 import { checkbox } from './view';
 
 class BoardSettings {
@@ -263,15 +263,11 @@ class BoardSettings {
 
 }
 
-import { getDocumentData } from './document';
-
-class ShowDestsSettings extends Settings<boolean> {
+class ShowDestsSettings extends BooleanSettings {
     readonly boardSettings: BoardSettings;
 
     constructor(boardSettings: BoardSettings) {
         super('showDests', true);
-        console.log(getDocumentData('showDests'));
-        console.log(localStorage['showDests']);
         this.boardSettings = boardSettings;
     }
 

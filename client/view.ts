@@ -1,9 +1,9 @@
 import { VNode } from "snabbdom/vnode";
 import { h } from 'snabbdom/h';
 
-import { Settings } from './settings';
+import { ISettings } from './settings';
 
-export function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt, key: string) => void): VNode[] {
+export function radioList(settings: ISettings<string>, name: string, options: { [key: string]: string }, onchange: (evt, key: string) => void): VNode[] {
     let result: VNode[] = [];
     Object.keys(options).forEach(key => {
         const id = name + "-" + key;
@@ -17,19 +17,19 @@ export function radioList(settings: Settings<string>, name: string, options: { [
     return result;
 }
 
-export function slider(settings: Settings<number>, name: string, min: number = 0, max: number = 100, step: number = 1) {
+export function slider(settings: ISettings<number>, name: string, min: number = 0, max: number = 100, step: number = 1) {
     return h(`input#${name}.slider`, {
         props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
-        on: { change: e => settings.value = parseFloat((e.target as HTMLInputElement).value) },
+        on: { change: e => settings.value = Number((e.target as HTMLInputElement).value) },
     });
 }
 
-export function checkbox(settings: Settings<boolean>, name: string, text: string) {
+export function checkbox(settings: ISettings<boolean>, name: string, text: string) {
     const id = name;
     console.log(settings.value);
     return [
         h(`input#${id}`, {
-            props: { name: name, type: "checkbox"},
+            props: { name: name, type: "checkbox" },
             attrs: { checked: settings.value },
             on: { change: evt => settings.value = (evt.target as HTMLInputElement).checked },
         }),
