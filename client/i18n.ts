@@ -2,7 +2,6 @@ import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 import trans from 'gettext.js';
 
-import { getDocumentData } from './document';
 import { Settings } from './settings';
 import { radioList } from './view';
 
@@ -43,12 +42,6 @@ export const translatedLanguage = LANGUAGETEXT[preferredLang] ?? 'Language';
 class LanguageSettings extends Settings<string> {
     constructor() {
         super('lang', 'en');
-        this._value = getDocumentData('lang') ?? 'en';
-    }
-
-    set value(value: string) {
-        this._value = value;
-        this.update();
     }
 
     update(): void {
