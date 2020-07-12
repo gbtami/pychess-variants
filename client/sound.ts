@@ -1,10 +1,13 @@
+import { h } from 'snabbdom/h';
+import { VNode } from 'snabbdom/vnode';
 import { Howl } from 'howler';
 
-import { volumeSettings, soundThemeSettings } from './settings';
+import { Settings } from './settings';
+import { radioList, slider } from './view';
 
 class Sounds {
 
-    private static trackNames = {
+    private static readonly trackNames = {
         GenericNotify: 'GenericNotify',
         SocialNotify: 'SocialNotify',
         Move: 'Move',
@@ -72,4 +75,42 @@ class Sounds {
     tick()          { if (this.audio()) this.tracks.Tick.play(); }
 }
 
+class VolumeSettings extends Settings<number> {
+
+    constructor() {
+        super('volume', 1);
+    }
+
+    update(): void {
+        sound.updateVolume();
+    }
+
+    view(): VNode {
+        return slider(this, 'sound-volume', 0, 1, 0.01);
+    }
+}
+
+const soundThemes = {
+    silent: "Silent",
+    standard: "Standard",
+    robot: "Robot",
+};
+
+class SoundThemeSettings extends Settings<string> {
+    
+    constructor() {
+        super('soundTheme', 'standard');
+    }
+
+    update(): void {
+        sound.updateSoundTheme();
+    }
+
+    view(): VNode {
+        return h('div#sound-theme.radio-list', radioList(this, 'sound-theme', soundThemes, (_, key) => this.value = key));
+    }
+}
+
 export const sound = new(Sounds);
+export const volumeSettings = new VolumeSettings();
+export const soundThemeSettings = new SoundThemeSettings();

@@ -1,7 +1,13 @@
+import { h } from 'snabbdom/h';
+import { VNode } from 'snabbdom/vnode';
 import trans from 'gettext.js';
 
+import { getDocumentData } from './document';
+import { Settings } from './settings';
+import { radioList } from './view';
+
 export const i18n = trans();
-export function _(msgid) {return i18n.gettext(msgid)};
+export function _(msgid) { return i18n.gettext(msgid) };
 
 export const LANGUAGES = {
     en: "English",
@@ -33,3 +39,35 @@ const LANGUAGETEXT = {
 
 const preferredLang = window.navigator.language.slice(0, 2);
 export const translatedLanguage = LANGUAGETEXT[preferredLang] ?? 'Language';
+
+class LanguageSettings extends Settings<string> {
+    constructor() {
+        super('lang', 'en');
+        this._value = getDocumentData('lang') ?? 'en';
+    }
+
+    set value(value: string) {
+        this._value = value;
+        this.update();
+    }
+
+    update(): void {
+    }
+
+    view(): VNode {
+        const langList = radioList(
+            this,
+            'lang',
+            LANGUAGES,
+            (evt, key) => {
+                this.value = key;
+                (evt.target as HTMLInputElement).form!.submit();
+            }
+        );
+        return h('div#settings-lang', [
+            h('form.radio-list', { props: { method: "post", action: "/translation/select" } }, langList),
+        ]);
+    }
+}
+
+export const languageSettings = new LanguageSettings();
