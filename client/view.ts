@@ -18,15 +18,15 @@ export function radioList(settings: ISettings<string>, name: string, options: { 
 }
 
 export function slider(settings: ISettings<number>, name: string, min: number = 0, max: number = 100, step: number = 1) {
-    return h(`input#${name}.slider`, {
+    const id = name;
+    return h(`input#${id}.slider`, {
         props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
-        on: { change: e => settings.value = Number((e.target as HTMLInputElement).value) },
+        on: { input: e => settings.value = Number((e.target as HTMLInputElement).value) },
     });
 }
 
 export function checkbox(settings: ISettings<boolean>, name: string, text: string) {
     const id = name;
-    console.log(settings.value);
     return [
         h(`input#${id}`, {
             props: { name: name, type: "checkbox" },
