@@ -10,7 +10,7 @@ export abstract class Settings<T> {
 
     constructor(name: string, defaultValue: T) {
         this.name = name;
-        this._value = getDocumentData(name) ?? localStorage[name] ?? defaultValue;
+        this._value = getDocumentData(name) ?? (localStorage[name] ?? defaultValue);
     }
 
     get value(): T {

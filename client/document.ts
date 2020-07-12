@@ -1,7 +1,7 @@
 import { _ } from './i18n';
 
 export function getDocumentData(name: string) {
-    return document.getElementById('pychess-variants')!.getAttribute('data-' + name);
+    return document.getElementById('pychess-variants')!.getAttribute('data-' + name.toLowerCase());
 }
 
 export function getCookie(name) {

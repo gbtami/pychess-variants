@@ -20,9 +20,16 @@ import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
 import { player } from './player';
+import { Settings } from './settings';
+import { checkbox } from './view';
 
 class BoardSettings {
-    ctrl;
+    ctrl; // BoardController | undefined
+    readonly showDestsSettings: ShowDestsSettings;
+
+    constructor() {
+        this.showDestsSettings = new ShowDestsSettings(this);
+    }
 
     updateBoardAndPieceStyles() {
         Object.keys(VARIANTS).forEach(variant => {
@@ -139,24 +146,14 @@ class BoardSettings {
         this.updateZoom();
     }
 
-    public view(variant) {
+    view(variant) {
         if (!variant) return h("div#board-settings");
 
         const zoom = localStorage["zoom-" + variant] ?? 100;
 
-        const vShowDests = localStorage.showDests ?? "true";
         const vClick2xdrop = localStorage.clickDropEnabled ?? "false";
         const vAutoQueen = localStorage.autoqueen ?? "false";
         const vArrow = localStorage.arrow ?? "true";
-
-        const setShowDests = () => {
-            const e = document.getElementById('showdests') as HTMLInputElement;
-            localStorage.showDests = e.checked;
-            if (this.ctrl) {
-                this.ctrl.showDests = e.checked;
-                this.ctrl.chessground.set({movable: {showDests: this.ctrl.showDests}});
-            }
-        };
 
         const setClick2xdrop = () => {
             const e = document.getElementById('click2xdrop') as HTMLInputElement;
@@ -193,13 +190,7 @@ class BoardSettings {
             }),
         ]));
 
-        settings.push(h('div', [
-            h('input#showdests', {
-                props: {name: "showdests", type: "checkbox", checked: vShowDests === "true" ? "checked" : ""},
-                on: { click: () => setShowDests() }
-            }),
-            h('label', { attrs: {for: "showdests"} }, _("Show piece destinations")),
-        ]));
+        settings.push(this.showDestsSettings.view());
 
         settings.push(h('div', { class: { hide: !isVariantClass(variant, "pocket") } }, [
             h('input#click2xdrop', {
@@ -228,14 +219,15 @@ class BoardSettings {
         return h('div#board-settings', settings);
     }
 
-    // flip
+    // TODO This should be in the "BoardController" class,
+    // which is the common class between RoundController and AnalysisController
+    // (and maybe EditorController)
     toggleOrientation() {
         this.ctrl.flip = !this.ctrl.flip;
         this.ctrl.chessground.toggleOrientation();
 
-        if (isVariantClass(this.ctrl.variant, "pieceDir")) {
+        if (isVariantClass(this.ctrl.variant, "pieceDir"))
             this.updatePieceStyle(this.ctrl.variant);
-        }
 
         console.log("FLIP");
         if (this.ctrl.hasPockets) {
@@ -269,6 +261,27 @@ class BoardSettings {
         }
     }
 
+}
+
+import { getDocumentData } from './document';
+
+class ShowDestsSettings extends Settings<boolean> {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('showDests', true);
+        console.log(getDocumentData('showDests'));
+        console.log(localStorage['showDests']);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        this.boardSettings.ctrl?.chessground.set({ movable: { showDests: this.value } });
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, "showdests", _("Show piece destinations")));
+    }
 }
 
 export const boardSettings = new(BoardSettings);

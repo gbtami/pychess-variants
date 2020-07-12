@@ -23,3 +23,16 @@ export function slider(settings: Settings<number>, name: string, min: number = 0
         on: { change: e => settings.value = parseFloat((e.target as HTMLInputElement).value) },
     });
 }
+
+export function checkbox(settings: Settings<boolean>, name: string, text: string) {
+    const id = name;
+    console.log(settings.value);
+    return [
+        h(`input#${id}`, {
+            props: { name: name, type: "checkbox"},
+            attrs: { checked: settings.value },
+            on: { change: evt => settings.value = (evt.target as HTMLInputElement).checked },
+        }),
+        h('label', { attrs: { for: id } }, text),
+    ];
+}
