@@ -130,7 +130,7 @@ export default class AnalysisController {
 
         this.flip = false;
         this.settings = true;
-        this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
+        this.clickDropEnabled = true;
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;

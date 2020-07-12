@@ -144,20 +144,10 @@ class BoardSettings {
         }
     }
 
-    view(variant) {
+    view(variant: string) {
         if (!variant) return h("div#board-settings");
 
         this.settings["zoom"] = new ZoomSettings(this, variant);
-
-        const vClick2xdrop = localStorage.clickDropEnabled ?? "false";
-
-        const setClick2xdrop = () => {
-            const e = document.getElementById('click2xdrop') as HTMLInputElement;
-            localStorage.clickDropEnabled = e.checked;
-            if (this.ctrl) {
-                this.ctrl.clickDropEnabled = e.checked;
-            }
-        };
 
         const settings : VNode[] = [];
         settings.push(h('div.settings-boards', this.boardStyleSettingsView(variant)));
@@ -168,16 +158,6 @@ class BoardSettings {
 
         settings.push(this.settings.showDests.view());
 
-        // TODO This settings should be removed and set to true at all time
-        if (isVariantClass(variant, "pocket")) {
-            settings.push(h('div', [
-                h('input#click2xdrop', {
-                    props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
-                    on: { click: () => setClick2xdrop() }
-                }),
-                h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
-            ]));
-        }
         if (isVariantClass(variant, "autoQueen"))
             settings.push(this.settings.autoQueen.view());
 
@@ -240,31 +220,8 @@ class ZoomSettings extends NumberSettings {
     }
 
     update(): void {
-        if (this.variant === this.boardSettings.ctrl?.variant) {
+        if (this.variant === this.boardSettings.ctrl?.variant)
             this.boardSettings.updateZoom();
-            /*
-            const zoom = this.value;
-            const el = document.querySelector('.cg-wrap') as HTMLElement;
-            if (el) {
-                const baseWidth = dimensions[VARIANTS[this.variant].geom].width * (this.variant.endsWith('shogi') ? 52 : 64);
-                const baseHeight = dimensions[VARIANTS[this.variant].geom].height * (this.variant.endsWith('shogi') ? 60 : 64);
-                const pxw = `${zoom / 100 * baseWidth}px`;
-                const pxh = `${zoom / 100 * baseHeight}px`;
-                el.style.width = pxw;
-                el.style.height = pxh;
-                // 2 x (pocket height + pocket-wrapper additional 10px gap)
-                const pxp = (this.boardSettings.ctrl?.hasPockets) ? '148px;' : '0px;';
-                // material point values
-                const pxc = (isVariantClass(this.variant, "showMaterialPoint")) ? '48px;' : '0px;';
-                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
-                document.body.dispatchEvent(new Event('chessground.resize'));
-
-                if (this.boardSettings.ctrl instanceof AnalysisController) {
-                    analysisChart(this.boardSettings.ctrl);
-                }
-            }
-            */
-        }
     }
 
     view(): VNode {

@@ -139,7 +139,7 @@ export default class RoundController {
 
         this.flip = false;
         this.settings = true;
-        this.clickDropEnabled = localStorage.clickDropEnabled === undefined ? false : localStorage.clickDropEnabled === "true";
+        this.clickDropEnabled = true;
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
