@@ -20,15 +20,18 @@ import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
 import { player } from './player';
-import { BooleanSettings } from './settings';
-import { checkbox } from './view';
+import { NumberSettings, BooleanSettings } from './settings';
+import { slider, checkbox } from './view';
 
 class BoardSettings {
     ctrl; // BoardController | undefined
-    readonly showDestsSettings: ShowDestsSettings;
+    settings: { [ key: string]: NumberSettings | BooleanSettings };
 
     constructor() {
-        this.showDestsSettings = new ShowDestsSettings(this);
+        this.settings = {};
+        this.settings.showDests = new ShowDestsSettings(this);
+        this.settings.autoQueen = new AutoQueenSettings(this);
+        this.settings.arrow = new ArrowSettings(this);
     }
 
     updateBoardAndPieceStyles() {
@@ -141,19 +144,12 @@ class BoardSettings {
         }
     }
 
-    private setZoom(zoom: number) {
-        localStorage["zoom-" + this.ctrl.variant] = zoom;
-        this.updateZoom();
-    }
-
     view(variant) {
         if (!variant) return h("div#board-settings");
 
-        const zoom = localStorage["zoom-" + variant] ?? 100;
+        this.settings["zoom"] = new ZoomSettings(this, variant);
 
         const vClick2xdrop = localStorage.clickDropEnabled ?? "false";
-        const vAutoQueen = localStorage.autoqueen ?? "false";
-        const vArrow = localStorage.arrow ?? "true";
 
         const setClick2xdrop = () => {
             const e = document.getElementById('click2xdrop') as HTMLInputElement;
@@ -163,59 +159,30 @@ class BoardSettings {
             }
         };
 
-        const setAutoQueen = () => {
-            const e = document.getElementById('autoqueen') as HTMLInputElement;
-            localStorage.autoqueen = e.checked;
-            if (this.ctrl) {
-                this.ctrl.autoqueen = e.checked;
-            }
-        };
-
-        const setArrow = () => {
-            const e = document.getElementById('arrow') as HTMLInputElement;
-            localStorage.arrow = e.checked;
-            if (this.ctrl) {
-                this.ctrl.arrow = e.checked;
-            }
-        };
-
         const settings : VNode[] = [];
         settings.push(h('div.settings-boards', this.boardStyleSettingsView(variant)));
         settings.push(h('div.settings-pieces', this.pieceStyleSettingsView(variant)));
 
-        settings.push(h('div', { class: { hide: variant !== this.ctrl?.variant } }, [
-            h('input#zoom.slider', {
-                attrs: { name: 'zoom', width: '280px', type: 'range', title: _("[-] Zoom [+]"), value: Number(zoom), min: 50, max: 150, step: (variant.endsWith('shogi')) ? 1 : 1.5625 },
-                on: { input: (e) => { this.setZoom(parseFloat((e.target as HTMLInputElement).value)); } }
-            }),
-        ]));
+        if (variant === this.ctrl?.variant)
+            settings.push(this.settings.zoom.view());
 
-        settings.push(this.showDestsSettings.view());
+        settings.push(this.settings.showDests.view());
 
-        settings.push(h('div', { class: { hide: !isVariantClass(variant, "pocket") } }, [
-            h('input#click2xdrop', {
-                props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
-                on: { click: () => setClick2xdrop() }
-            }),
-            h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
-        ]));
+        // TODO This settings should be removed and set to true at all time
+        if (isVariantClass(variant, "pocket")) {
+            settings.push(h('div', [
+                h('input#click2xdrop', {
+                    props: {name: "click2xdrop", type: "checkbox", checked: vClick2xdrop === "true" ? "checked" : ""},
+                    on: { click: () => setClick2xdrop() }
+                }),
+                h('label', { attrs: {for: "click2xdrop"} }, _("Two click drop moves")),
+            ]));
+        }
+        if (isVariantClass(variant, "autoQueen"))
+            settings.push(this.settings.autoQueen.view());
 
-        settings.push(h('div', { class: { hide: !isVariantClass(variant, "autoQueen") } }, [
-            h('input#autoqueen', {
-                props: {name: "autoqueen", type: "checkbox", checked: vAutoQueen === "true" ? "checked" : ""},
-                on: { click: () => setAutoQueen() }
-            }),
-            h('label', { attrs: {for: "autoqueen"} }, _("Promote to Queen automatically")),
-        ]));
-
-        settings.push(h('div', [
-            h('input#arrow', {
-                props: {name: "arrow", type: "checkbox", checked: vArrow === "true" ? "checked" : ""},
-                on: { click: () => setArrow() }
-            }),
-            h('label', { attrs: {for: "arrow"} }, _("Best move arrow in analysis board")),
-        ]));
-
+        settings.push(this.settings.arrow.view());
+            
         return h('div#board-settings', settings);
     }
 
@@ -260,7 +227,49 @@ class BoardSettings {
                 [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
         }
     }
+}
 
+class ZoomSettings extends NumberSettings {
+    readonly boardSettings: BoardSettings;
+    private readonly variant: string;
+
+    constructor(boardSettings: BoardSettings, variant: string) {
+        super('zoom-' + variant, 100);
+        this.boardSettings = boardSettings;
+        this.variant = variant;
+    }
+
+    update(): void {
+        if (this.variant === this.boardSettings.ctrl?.variant) {
+            this.boardSettings.updateZoom();
+            /*
+            const zoom = this.value;
+            const el = document.querySelector('.cg-wrap') as HTMLElement;
+            if (el) {
+                const baseWidth = dimensions[VARIANTS[this.variant].geom].width * (this.variant.endsWith('shogi') ? 52 : 64);
+                const baseHeight = dimensions[VARIANTS[this.variant].geom].height * (this.variant.endsWith('shogi') ? 60 : 64);
+                const pxw = `${zoom / 100 * baseWidth}px`;
+                const pxh = `${zoom / 100 * baseHeight}px`;
+                el.style.width = pxw;
+                el.style.height = pxh;
+                // 2 x (pocket height + pocket-wrapper additional 10px gap)
+                const pxp = (this.boardSettings.ctrl?.hasPockets) ? '148px;' : '0px;';
+                // material point values
+                const pxc = (isVariantClass(this.variant, "showMaterialPoint")) ? '48px;' : '0px;';
+                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
+                document.body.dispatchEvent(new Event('chessground.resize'));
+
+                if (this.boardSettings.ctrl instanceof AnalysisController) {
+                    analysisChart(this.boardSettings.ctrl);
+                }
+            }
+            */
+        }
+    }
+
+    view(): VNode {
+        return slider(this, 'zoom', 50, 150, this.variant.endsWith("shogi") ? 1 : 1.15625);
+    }
 }
 
 class ShowDestsSettings extends BooleanSettings {
@@ -276,8 +285,44 @@ class ShowDestsSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h('div', checkbox(this, "showdests", _("Show piece destinations")));
+        return h('div', checkbox(this, 'showdests', _("Show piece destinations")));
     }
 }
 
-export const boardSettings = new(BoardSettings);
+class AutoQueenSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('autoqueen', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl)
+            this.boardSettings.ctrl.autoqueen = this.value;
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'autoqueen', _("Promote to Queen automatically")));
+    }
+}
+
+class ArrowSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('arrow', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl)
+            this.boardSettings.ctrl.arrow = this.value;
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'arrow', _("Best move arrow in analysis board")));
+    }
+}
+
+export const boardSettings = new BoardSettings();
