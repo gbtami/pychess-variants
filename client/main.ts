@@ -10,7 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
-import { settingsView, updateBackground } from './settings';
+import { settingsView } from './settingsView';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { gamesView } from './games';
@@ -18,11 +18,11 @@ import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
 import { statsView } from './stats';
-import { sound } from './sound';
+import { sound, volumeSettings, soundThemeSettings } from './sound';
 import { getCookie } from './document';
+import { backgroundSettings } from './background';
 
 const model = {};
-
 
 export function view(el, model): VNode {
     const user = getCookie("user");
@@ -70,11 +70,11 @@ export function view(el, model): VNode {
     case 'editor':
         return h('div#placeholder.main-wrapper', editorView(model));
     case 'games':
-        return h('div#placeholder', gamesView(model));
+        return h('div#placeholder', gamesView());
     case 'thanks':
         return h('div#placeholder.main-wrapper', h('h2', _('Thank you for your support!')));
     case 'stats':
-        return h('div#stats', statsView(model));
+        return h('div#stats', statsView());
     default:
         return h('div#placeholder.main-wrapper', lobbyView(model));
     }
@@ -85,19 +85,11 @@ function isFunction(functionToCheck) {
 }
 
 function debounce(func, wait) {
-    var timeout;
-    var waitFunc;
-
     return function() {
-        if (isFunction(wait)) {
-            waitFunc = wait;
-        }
-        else {
-            waitFunc = function() { return wait };
-        }
-
-        var context = this, args = arguments;
-        var later = function() {
+        let timeout;
+        const waitFunc = isFunction(wait) ? wait : () => wait;
+        const context = this, args = arguments;
+        const later = () => {
             timeout = null;
             func.apply(context, args);
         };
@@ -107,35 +99,38 @@ function debounce(func, wait) {
 }
 
 // reconnectFrequencySeconds doubles every retry
-var reconnectFrequencySeconds = 1;
-var evtSource;
+let reconnectFrequencySeconds = 1;
+let evtSource;
 
-var reconnectFunc = debounce(function() {
-    setupEventSource();
-    // Double every attempt to avoid overwhelming server
-    reconnectFrequencySeconds *= 2;
-    // Max out at ~1 minute as a compromise between user experience and server load
-    if (reconnectFrequencySeconds >= 64) {
-        reconnectFrequencySeconds = 64;
-    }
-}, function() { return reconnectFrequencySeconds * 1000 });
+const reconnectFunc = debounce(
+    () => {
+        setupEventSource();
+        // Double every attempt to avoid overwhelming server
+        reconnectFrequencySeconds *= 2;
+        // Max out at ~1 minute as a compromise between user experience and server load
+        if (reconnectFrequencySeconds >= 64) {
+            reconnectFrequencySeconds = 64;
+        }
+    },
+    () => reconnectFrequencySeconds * 1000
+);
 
 function setupEventSource() {
     evtSource = new EventSource(model["home"] + "/api/notify");
     console.log("new EventSource" + model["home"] + "/api/notify");
-    evtSource.onmessage = function(e) {
+    evtSource.onmessage = e => {
         const message = JSON.parse(e.data);
         console.log(message);
         sound.socialNotify();
     };
-    evtSource.onopen = function() {
-      // Reset reconnect frequency upon successful connection
-      reconnectFrequencySeconds = 1;
+    evtSource.onopen = () => {
+        // Reset reconnect frequency upon successful connection
+        reconnectFrequencySeconds = 1;
     };
-    evtSource.onerror = function() {
-      console.log("evtSource.onerror() retry", reconnectFrequencySeconds);
-      evtSource.close();
-      reconnectFunc();
+    evtSource.onerror = () => {
+        console.log("evtSource.onerror() retry", reconnectFrequencySeconds);
+        evtSource.close();
+        reconnectFunc();
     };
 }
 
@@ -146,8 +141,8 @@ function start() {
 
     (document.querySelector('.navbar-toggle') as HTMLElement).addEventListener('click', () => document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show')));
 
-    var settingsPanel : any = document.getElementById('settings-panel') as HTMLElement;
-    settingsPanel = patch(settingsPanel, settingsView()).elm;
+    // Clicking outside settings panel closes it
+    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
     const settings = document.getElementById('settings') as HTMLElement;
     document.addEventListener("click", ev => {
         if (!settingsPanel.contains(ev.target as HTMLElement))
@@ -157,15 +152,20 @@ function start() {
     if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
 }
 
-updateBackground();
-sound.updateSoundTheme();
-sound.updateVolume();
+backgroundSettings.update();
+
+// Always update sound theme before volume
+// Updating sound theme requires reloading sound files,
+// while updating volume does not
+soundThemeSettings.update();
+volumeSettings.update();
+
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
     const lang = el.getAttribute("data-lang");
     fetch('/static/lang/' + lang + '/LC_MESSAGES/client.json')
-      .then((res) => res.json())
-      .then((translation) => {
+      .then(res => res.json())
+      .then(translation => {
         i18n.loadJSON(translation, 'messages');
         i18n.setLocale(lang);
         console.log('Loaded translations for lang', lang);

@@ -3,7 +3,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
-import { VARIANTS, variantIcon, variantName, variantTooltip } from './chess';
+import { VARIANTS, variantIcon, variantName, variantTooltip, firstColor, secondColor } from './chess';
 import { timeago, renderTimeago } from './clock';
 import { renderRdiff, result } from './profile';
 
@@ -19,11 +19,9 @@ export function analysisView(model): VNode[] {
     console.log("analysisView model=", model);
     const dataIcon = variantIcon(model["variant"], model["chess960"]);
     renderTimeago();
-    const darkMode = parseInt(getComputedStyle(document.body).getPropertyValue('--dark-mode')) === 1;
-    const shogi =  model["variant"].endsWith('shogi');
-    const janggi = model["variant"] === 'janggi';
-    const redfirst = model["variant"].endsWith('xiangqi') || model["variant"] === 'sittuyin';
-    const orda = model["variant"] === 'orda';
+    const fc = firstColor(model["variant"]);
+    const sc = secondColor(model["variant"]);
+
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
                     h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
@@ -40,12 +38,11 @@ export function analysisView(model): VNode[] {
                         ]),
                     ]),
                     h('div.player-data', [
-                        h('i-side', {class: {
-                            "icon": true,
-                            "icon-red": redfirst,
-                            "icon-blue": janggi,
-                            "icon-white": (shogi) ? darkMode : !darkMode,
-                            "icon-black": (shogi) ? !darkMode : darkMode
+                        h('i-side.icon', {class: {
+                            "icon-red": fc === _("Red"),
+                            "icon-blue": fc === _("Blue"),
+                            "icon-white": fc === _("White"),
+                            "icon-black": fc === _("Black"),
                         }}),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model.wplayer}}, [
@@ -56,12 +53,11 @@ export function analysisView(model): VNode[] {
                         ]),
                     ]),
                     h('div.player-data', [
-                        h('i-side', {class: {
-                            "icon": true,
-                            "icon-red": janggi,
-                            "icon-gold": orda,
-                            "icon-black": (shogi) ? darkMode : !darkMode,
-                            "icon-white": (shogi) ? !darkMode : darkMode
+                        h('i-side.icon', {class: {
+                            "icon-red": sc === _("Red"),
+                            "icon-gold": sc === _("Gold"),
+                            "icon-black": sc === _("Black"),
+                            "icon-white": sc === _("White"),
                         }}),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model.bplayer}}, [

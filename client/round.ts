@@ -3,7 +3,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
 import RoundController from './roundCtrl';
-import { VARIANTS, variantIcon, variantName, variantTooltip } from './chess';
+import { VARIANTS, variantIcon, variantName, variantTooltip, firstColor, secondColor } from './chess';
 import { timeago, renderTimeago } from './clock';
 
 
@@ -18,14 +18,12 @@ export function roundView(model): VNode[] {
     console.log("roundView model=", model);
     const dataIcon = variantIcon(model["variant"], model["chess960"]);
     renderTimeago();
-    const darkMode = parseInt(getComputedStyle(document.body).getPropertyValue('--dark-mode')) === 1;
-    const shogi =  model["variant"].endsWith('shogi');
-    const janggi = model["variant"] === 'janggi';
-    const redfirst = model["variant"].endsWith('xiangqi') || model["variant"] === 'sittuyin';
-    const orda = model["variant"] === 'orda';
+    const fc = firstColor(model["variant"]);
+    const sc = secondColor(model["variant"]);
+
     return [h('aside.sidebar-first', [
                 h('div.game-info', [
-                    h('div.info0', {attrs: {"data-icon": dataIcon}, class: {"icon": true}}, [
+                    h('div.info0.icon', { attrs: {"data-icon": dataIcon} }, [
                         h('div.info2', [
                             h('div.tc', [
                                 model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "") + " • " + ((model["rated"] === 'True') ? _("Rated") : _("Casual")) + " • ",
@@ -39,13 +37,14 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                     h('div.player-data', [
-                        h('i-side', {class: {
-                            "icon": true,
-                            "icon-red": redfirst,
-                            "icon-blue": janggi,
-                            "icon-white": (shogi) ? darkMode : !darkMode,
-                            "icon-black": (shogi) ? !darkMode : darkMode
-                        }}),
+                        h('i-side.icon', {
+                            class: {
+                                "icon-red": fc === _("Red"),
+                                "icon-blue": fc === _("Blue"),
+                                "icon-white": fc === _("White"),
+                                "icon-black": fc === _("Black"),
+                            }
+                        }),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["wplayer"]}}, [
                                 h('player-title', " " + model["wtitle"] + " "),
@@ -55,13 +54,14 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                     h('div.player-data', [
-                        h('i-side', {class: {
-                            "icon": true,
-                            "icon-red": janggi,
-                            "icon-gold": orda,
-                            "icon-black": (shogi) ? darkMode : !darkMode,
-                            "icon-white": (shogi) ? !darkMode : darkMode
-                        }}),
+                        h('i-side.icon', {
+                            class: {
+                                "icon-red": sc === _("Red"),
+                                "icon-gold": sc === _("Gold"),
+                                "icon-black": sc === _("Black"),
+                                "icon-white": sc === _("White"),
+                            }
+                        }),
                         h('player', [
                             h('a.user-link', {attrs: {href: '/@/' + model["bplayer"]}}, [
                                 h('player-title', " " + model["btitle"] + " "),
