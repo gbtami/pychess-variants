@@ -492,7 +492,7 @@ class LobbyController {
     };
     private challengeIcon(seek) {
         const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
-        return (seek['target'] === '') ? h(swords, { attrs: {"data-icon": '"'} }) : null;
+        return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
     }
     private title(seek) {
         return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
