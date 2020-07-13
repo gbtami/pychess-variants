@@ -709,12 +709,18 @@ li.header {
     float: right;
 }
 
-table#seeks {
+table#seeks-header, table#seeks {
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
     border-radius: 3px;
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 1.5em;
+    table-layout: fixed;
+}
+
+#seek-table {
+    max-width: 800px;
     box-shadow: var(--base-shadow);
     background-size: cover;
     background-position: center;
@@ -723,30 +729,61 @@ table#seeks {
     background-blend-mode: overlay;
 }
 
-#seeks thead tr{
-    display:block;
-    border:none;
-    cursor: default;
-}
-
-#seeks tbody {
-    height: 100%;
+#seeks-wrapper {
     max-height: 550px;
-    display:block;
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
 }
 
-#seeks td, #seeks th {
+#seeks thead {
+    display: none;
+}
+
+#seeks-header th, #seeks td {
     padding: 8px;
-    width:100%;
     line-height: 28px;
     white-space: nowrap;
+    overflow-x: hidden;
+}
+
+#seeks-header th {
+    text-align: center;
+}
+
+#seeks-header > thead > tr {
+    border: none;
+    cursor: default;
 }
 
 #seeks tr {
     cursor: pointer;
     border-bottom: 1px solid var(--bg-color2);
+}
+
+#seeks tbody tr:hover {
+    background-color: var(--rusty);
+}
+
+#seeks-header tr > :nth-child(1), #seeks tr > :nth-child(1) {
+    width: 25%;
+}
+#seeks-header tr > :nth-child(2), #seeks tr > :nth-child(2) {
+    width: 8%;
+    text-align: center;
+}
+#seeks-header tr > :nth-child(3), #seeks tr > :nth-child(3) {
+    width: 10%;
+    text-align: center;
+}
+#seeks-header tr > :nth-child(4), #seeks tr > :nth-child(4) {
+    width: 14%;
+}
+#seeks-header tr > :nth-child(5), #seeks tr > :nth-child(5) {
+    width: 25%;
+}
+#seeks-header tr > :nth-child(6), #seeks tr > :nth-child(6) {
+    width: 18%;
+    text-align: center;
 }
 
 #seekbuttons > button {
@@ -756,33 +793,6 @@ table#seeks {
 #seekbuttons > button:hover {
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
-}
-
-/*Adjust lobby game table/headers*/
-
-#seeks > thead > tr > th:nth-child(5) {
-    padding-right:7.4em;
-}
-
-#seeks > thead > tr > th:nth-child(6) {
-    padding-right:2em;
-}
-
-#seeks > tbody > tr > td:nth-child(3) {
-    padding-right:1.4em;
-}
-
-i-side.icon.icon-adjust {
-    padding-right:1em;
-}
-
-#seeks tbody tr:hover {
-    width:100%;
-    background-color: var(--rusty);
-}
-
-#seeks th {
-    text-align: left;
 }
 
 div.players-wrapper > .players, div.players-wrapper > aside.sidebar-first {
