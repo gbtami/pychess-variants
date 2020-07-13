@@ -46,7 +46,7 @@ class LobbyController {
             this.doSend({ type: "get_seeks" });
         }
 
-        this._ws = {"readyState": -1};
+        this._ws = { "readyState": -1 };
         const opts = {
             maxAttempts: 20,
             onopen: e => onOpen(e),
@@ -55,7 +55,7 @@ class LobbyController {
             onmaximum: e => console.log('Stop Attempting!', e),
             onclose: e => {console.log('Closed!', e);},
             onerror: e => console.log('Error:', e),
-            };
+        };
 
         const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
         this.sock = new Sockette(ws + location.host + "/wsl", opts);
@@ -68,31 +68,28 @@ class LobbyController {
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         // challenge!
+        const anon = this.model["anon"] === 'True';
         if (model["profileid"] !== '') {
             this.challengeAI = model["profileid"] === 'Fairy-Stockfish';
-            if (this.model["anon"] !== 'True' && !this.challengeAI) {
-                document.getElementById('game-mode')!.style.display='inline-flex';
-            } else {
-                document.getElementById('game-mode')!.style.display='none';
-            }
-            document.getElementById('challenge-block')!.style.display='inline-flex';
-            document.getElementById('ailevel')!.style.display= ((this.challengeAI) ? 'block' : 'none');
-            document.getElementById('id01')!.style.display='block';
+            document.getElementById('game-mode')!.style.display = (anon || this.challengeAI) ? 'none' : 'inline-flex';
+            document.getElementById('challenge-block')!.style.display = 'inline-flex';
+            document.getElementById('ailevel')!.style.display = this.challengeAI ? 'block' : 'none';
+            document.getElementById('id01')!.style.display = 'block';
         }
 
-        var e = document.getElementById("fen") as HTMLInputElement;
-        if (this.model["fen"] !== "") {
+        const e = document.getElementById("fen") as HTMLInputElement;
+        if (this.model["fen"] !== "")
             e.value = this.model["fen"];
-        }
-        if (this.model["anon"] === 'True') e.disabled = true;
+        if (anon)
+            e.disabled = true;
     }
 
-    doSend (message) {
+    doSend(message) {
         // console.log("---> lobby doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg (variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated, handicap) {
+    createSeekMsg(variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated, handicap) {
         this.doSend({
             type: "create_seek",
             user: this.model["username"],
@@ -108,7 +105,7 @@ class LobbyController {
             color: color });
     }
 
-    createBotChallengeMsg (variant, color, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, handicap) {
+    createBotChallengeMsg(variant, color, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, handicap) {
         this.doSend({
             type: "create_ai_challenge",
             user: this.model["username"],
@@ -121,24 +118,25 @@ class LobbyController {
             handicap: handicap,
             level: level,
             chess960: chess960,
-            color: color });
+            color: color
+        });
     }
 
-    isNewSeek (variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated) {
+    isNewSeek(variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
-        return !this.seeks.some(seek => {
-            return seek.user === this.model["username"] && 
-                                    seek.variant === variant &&
-                                    seek.fen === fen &&
-                                    seek.color === color &&
-                                    seek.tc === minutes + "+" + ((byoyomiPeriod > 1) ? (byoyomiPeriod + "x") : "") + increment + ((byoyomiPeriod > 0) ? "(b)" : "") &&
-                                    seek.chess960 === chess960 &&
-                                    seek.rated === rated;
-        })
+        return !this.seeks.some(seek =>
+            seek.user === this.model["username"] && 
+            seek.variant === variant &&
+            seek.fen === fen &&
+            seek.color === color &&
+            seek.tc === minutes + "+" + ((byoyomiPeriod > 1) ? (byoyomiPeriod + "x") : "") + increment + ((byoyomiPeriod > 0) ? "(b)" : "") &&
+            seek.chess960 === chess960 &&
+            seek.rated === rated
+        );
     }
 
-    createSeek (color) {
+    createSeek(color) {
         document.getElementById('id01')!.style.display='none';
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
@@ -177,7 +175,7 @@ class LobbyController {
         localStorage.setItem("seek_byo", e.value);
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
-        var rated = 0;
+        let rated = 0;
         if (this.test_ratings) {
             rated = parseInt(e.value);
         } else {
@@ -208,229 +206,274 @@ class LobbyController {
         window.history.replaceState({}, this.model['title'], this.model["home"] + '/');
     }
 
-    renderSeekButtons () {
-        const setHandicap = () => {
-            let e;
-            e = document.getElementById('handicap') as HTMLSelectElement;
-            const handicap = e.options[e.selectedIndex].value;
-            e = document.getElementById('fen') as HTMLSelectElement;
-            e!.value = SHOGI_HANDICAP_FEN[handicap];
-        }
+    renderSeekButtons() {
+        let vIdx: number;
+        if (this.model["variant"])
+            vIdx = enabled_variants.sort().indexOf(this.model["variant"]);
+        else if (localStorage.seek_variant)
+            vIdx = enabled_variants.sort().indexOf(localStorage.seek_variant);
+        else
+            vIdx = 0;
 
-        const setVariant = () => {
-            let e;
-            e = document.getElementById('variant') as HTMLSelectElement;
-            const variant = e.options[e.selectedIndex].value;
-            const hide960 = variants960.indexOf(variant) === -1;
-            const hideHandicap = variant !== 'shogi';
-            const byoyomi = isVariantClass(variant, 'byoyomi');
+        const vMin = localStorage.seek_min ?? "5";
+        const vInc = localStorage.seek_inc ?? "3";
+        const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
+        const vRated = localStorage.seek_rated ?? "0";
+        const vLevel = Number(localStorage.seek_level ?? "1");
+        const vChess960 = localStorage.seek_chess960 ?? "false";
 
-            document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
-            document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
-            document.getElementById('byoyomi-period')!.style.display = (byoyomi) ? 'block' : 'none';
-
-            e = document.getElementById('incrementlabel') as HTMLSelectElement;
-            patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
-
-            setStartButtons();
-        }
-
-        const setMinutes = (minutes) => {
-            var el = document.getElementById("minutes") as HTMLElement;
-            if (el) el.innerHTML = minutes;
-            setStartButtons();
-        }
-
-        const setIncrement = (increment) => {
-            var el = document.getElementById("increment") as HTMLElement;
-            if (el) el.innerHTML = increment;
-            setStartButtons();
-        }
-
-        const setFen = () => {
-            const e = document.getElementById('fen') as HTMLInputElement;
-            e.setCustomValidity(validateFen() ? '' : _('Invalid FEN'));
-            setStartButtons();
-        }
-
-        const validateTimeControl = () => {
-            var min, inc = 0;
-            let e;
-            e = document.getElementById('min') as HTMLInputElement;
-            if (e) min = parseInt(e.value);
-
-            e = document.getElementById('inc') as HTMLInputElement;
-            if (e) inc = parseInt(e.value);
-
-            return min + inc > ((this.challengeAI) ? 4 : 0);
-        }
-
-        const validateFen = () => {
-            let e;
-            e = document.getElementById('variant') as HTMLSelectElement;
-            const variant = e.options[e.selectedIndex].value;
-            e = document.getElementById('fen') as HTMLInputElement;
-            return e.value === "" || validFen(variant, e.value);
-        }
-
-        const setStartButtons = () => {
-            const valid = validateTimeControl() && validateFen();
-            const e = document.getElementById('color-button-group') as HTMLElement;
-            if (valid)
-                e.classList.remove("disabled");
-            else
-                e.classList.add("disabled");
-        }
-
-        var vIdx = localStorage.seek_variant === undefined ? 0 : enabled_variants.sort().indexOf(localStorage.seek_variant);
-        if (this.model["variant"] !== "") vIdx = enabled_variants.sort().indexOf(this.model["variant"]);
-
-        const vMin = localStorage.seek_min === undefined ? "5" : localStorage.seek_min;
-        const vInc = localStorage.seek_inc === undefined ? "3" : localStorage.seek_inc;
-        const vByoIdx = localStorage.seek_byo === undefined ? 0 : localStorage.seek_byo - 1;
-        const vRated = localStorage.seek_rated === undefined ? "0" : localStorage.seek_rated;
-        const vLevel = localStorage.seek_level === undefined ? "1" : localStorage.seek_level;
-        const vChess960 = localStorage.seek_chess960 === undefined ? "false" : localStorage.seek_chess960;
+        const anon = this.model["anon"] === 'True';
 
         return [
-        h('div#id01', { class: {"modal": true} }, [
-          h('form.modal-content', [
-            h('div#closecontainer', [
-              h('span.close', { on: {
-                click: () => {
-                    document.getElementById('id01')!.style.display='none';
-                    // prevent to create challenges continuously
-                    this.model["profileid"] = '';
-                    window.history.replaceState({}, this.model['title'], this.model["home"] + '/');
+            h('div#id01', { class: {"modal": true} }, [
+                h('form.modal-content', [
+                    h('div#closecontainer', [
+                        h('span.close', {
+                            on: {
+                                click: () => {
+                                    document.getElementById('id01')!.style.display='none';
+                                    // prevent to create challenges continuously
+                                    this.model["profileid"] = '';
+                                    window.history.replaceState({}, this.model['title'], '/');
+                                }
+                            },
+                            attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
+                        }),
+                    ]),
+                    h('div.container', [
+                        h('div#challenge-block', [
+                            h('h3', i18n.gettext('Challenge %1 to a game', this.model["profileid"])),
+                        ]),
+                        h('div', [
+                            h('label', { attrs: {for: "variant"} }, _("Variant")),
+                            h('select#variant', {
+                                props: {name: "variant"},
+                                on: { input: () => this.setVariant() },
+                                hook: { insert: () => this.setVariant() },
+                            },
+                                enabled_variants.sort().map((variant, idx) =>
+                                    h('option', {
+                                        props: {
+                                            value: variant,
+                                            title: variantTooltip(variant),
+                                        },
+                                        attrs: {
+                                            selected: idx === vIdx
+                                        },
+                                    },
+                                        variantName(variant, 0)
+                                    )
+                                )
+                            ),
+                        ]),
+                        h('input#fen', {
+                            props: { name: 'fen', placeholder: _('Paste the FEN text here') + (anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
+                            on: { input: () => this.setFen() },
+                        }),
+                        h('div#handicap-block', [
+                            h('label', { attrs: { for: "handicap" } }, _("Handicap")),
+                            h('select#handicap', {
+                                props: { name: "handicap" },
+                                on: { input: () => this.setHandicap() },
+                                hook: { insert: () => this.setHandicap() },
+                            },
+                                SHOGI_HANDICAP_NAME.map(handicap => h('option', { props: { value: handicap } }, handicap))),
+                        ]),
+                        h('div#chess960-block', [
+                            h('label', { attrs: { for: "chess960" } }, "Chess960"),
+                            h('input#chess960', {
+                                props: {
+                                    name: "chess960",
+                                    type: "checkbox",
+                                },
+                                attrs: {
+                                    checked: vChess960 === "true"
+                                },
+                            }),
+                        ]),
+                        h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
+                        h('span#minutes'),
+                        h('input#min.slider', {
+                            props: { name: "min", type: "range", min: 0, max: 60, value: vMin },
+                            on: { input: e => this.setMinutes((e.target as HTMLInputElement).value) },
+                            hook: {insert: vnode => this.setMinutes((vnode.elm as HTMLInputElement).value) },
+                        }),
+                        h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
+                        h('span#increment'),
+                        h('input#inc.slider', {
+                            props: { name: "inc", type: "range", min: 0, max: 60, value: vInc },
+                            on: { input: e => this.setIncrement((e.target as HTMLInputElement).value) },
+                            hook: { insert: vnode => this.setIncrement((vnode.elm as HTMLInputElement).value) },
+                        }),
+                        h('div#byoyomi-period', [
+                            h('label#byoyomiLabel', { attrs: { for: "byo" } }, _('Periods')),
+                            h('select#byo', {
+                                props: { name: "byo" },
+                            },
+                                [ 1, 2, 3 ].map((n, idx) => h('option', { props: { value: n }, attrs: { selected: (idx === vByoIdx) } }, n))
+                            ),
+                        ]),
+                        h('form#game-mode', [
+                            h('div.radio-group', [
+                                h('input#casual', { props: { type: "radio", name: "mode", value: "0" }, attrs: { checked: vRated === "0" }, }),
+                                h('label', { attrs: {for: "casual"} }, _("Casual")),
+                                h('input#rated', { props: { type: "radio", name: "mode", value: "1" }, attrs: { checked: vRated === "1" }, }),
+                                h('label', { attrs: {for: "rated"} }, _("Rated")),
+                            ]),
+                        ]),
+                        // if play with the machine
+                        // A.I.Level (1-8 buttons)
+                        h('form#ailevel', [
+                            h('h4', _("A.I. Level")),
+                            h('div.radio-group',
+                                [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ].map(level => [
+                                    h('input#ai' + level, { props: { type: "radio", name: "level", value: level }, attrs: { checked: vLevel === level } }),
+                                    h('label.level-ai.ai' + level, { attrs: { for: "ai" + level } }, level),
+                                ]).reduce((arr, v) => (arr.push(...v), arr), []) // flatmap
+                            ),
+                        ]),
+                        h('div#color-button-group', [
+                            h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: () => this.createSeek('b') } }),
+                            h('button.icon.icon-adjust', { props: { type: "button", title: _("Random") }, on: { click: () => this.createSeek('r') } }),
+                            h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => this.createSeek('w') } }),
+                        ]),
+                    ]),
+                ]),
+            ]),
+            h('button.lobby-button', {
+                on: {
+                    click: () => {
+                        this.challengeAI = false;
+                        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+                        document.getElementById('challenge-block')!.style.display = 'none';
+                        document.getElementById('ailevel')!.style.display = 'none';
+                        document.getElementById('id01')!.style.display = 'block';
                     }
-                }, attrs: {'data-icon': 'j'}, props: {title: _("Cancel")} }),
-            ]),
-            h('div.container', [
-                h('div#challenge-block', [
-                    h('h3', i18n.gettext('Challenge %1 to a game', this.model["profileid"])),
-                ]),
-                h('div', [
-                    h('label', { attrs: {for: "variant"} }, _("Variant")),
-                    h('select#variant', {
-                        props: {name: "variant"},
-                        on: { input: () => setVariant() },
-                        hook: {insert: () => setVariant() },
-                        }, enabled_variants.sort().map((variant, idx) => h('option', {
-                            props: {
-                                value: variant,
-                                title: variantTooltip(variant),
-                                selected: (idx === vIdx) ? "selected" : ""
-                            }
-                        }, variantName(variant, 0)))),
-                ]),
-                h('input#fen', {
-                    props: {name: 'fen', placeholder: _('Paste the FEN text here') + ((this.model['anon'] === 'True') ? _(' (must be signed in)') : ''),  autocomplete: "off"},
-                    on: { input: () => setFen() },
-                }),
-                h('div#handicap-block', [
-                    h('label', { attrs: {for: "handicap"} }, _("Handicap")),
-                    h('select#handicap', {
-                        props: {name: "handicap"},
-                        on: { input: () => setHandicap() },
-                        hook: {insert: () => setHandicap() },
-                        }, SHOGI_HANDICAP_NAME.map((handicap) => h('option', { props: {value: handicap} }, handicap))),
-                ]),
-                h('div#chess960-block', [
-                    h('label', { attrs: {for: "chess960"} }, "Chess960"),
-                    h('input#chess960', {props: {name: "chess960", type: "checkbox", checked: vChess960 === "true" ? "checked" : ""}}),
-                ]),
-                h('label', { attrs: {for: "min"} }, _("Minutes per side:")),
-                h('span#minutes'),
-                h('input#min', { class: { "slider": true },
-                    props: {name: "min", type: "range", min: 0, max: 60, value: vMin},
-                    on: { input: (e) => setMinutes((e.target as HTMLInputElement).value) },
-                    hook: {insert: (vnode) => setMinutes((vnode.elm as HTMLInputElement).value) },
-                }),
-                h('label#incrementlabel', { attrs: {for: "inc"} }, ''),
-                h('span#increment'),
-                h('input#inc', { class: {"slider": true },
-                    props: {name: "inc", type: "range", min: 0, max: 60, value: vInc},
-                    on: { input: (e) => setIncrement((e.target as HTMLInputElement).value) },
-                    hook: {insert: (vnode) => setIncrement((vnode.elm as HTMLInputElement).value) },
-                }),
-                h('div#byoyomi-period', [
-                    h('label#byoyomiLabel', { attrs: {for: "byo"} }, _('Periods')),
-                    h('select#byo', {
-                        props: {name: "byo"},
-                        }, [1, 2, 3].map((n, idx) => h('option', { props: { value: n, selected: (idx === vByoIdx) } }, n))
-                     ),
-                ]),
-                h('form#game-mode', [
-                h('div.radio-group', [
-                    h('input#casual', {props: {type: "radio", name: "mode", value: "0", checked: vRated === "0" ? "checked" : ""}}),
-                    h('label', { attrs: {for: "casual"} }, _("Casual")),
-                    h('input#rated', {props: {type: "radio", name: "mode", value: "1", checked: vRated === "1" ? "checked" : ""}}),
-                    h('label', { attrs: {for: "rated"} }, _("Rated")),
-                ]),
-                ]),
-                // if play with the machine
-                // A.I.Level (1-8 buttons)
-                h('form#ailevel', [
-                h('h4', _("A.I. Level")),
-                h('div.radio-group', [
-                    h('input#ai0', { props: { type: "radio", name: "level", value: "0", checked: vLevel === "0" ? "checked" : ""} }),
-                    h('label.level-ai.ai0', { attrs: {for: "ai0"} }, "0"),
-                    h('input#ai1', { props: { type: "radio", name: "level", value: "1", checked: vLevel === "1" ? "checked" : ""} }),
-                    h('label.level-ai.ai1', { attrs: {for: "ai1"} }, "1"),
-                    h('input#ai2', { props: { type: "radio", name: "level", value: "2", checked: vLevel === "2" ? "checked" : ""} }),
-                    h('label.level-ai.ai2', { attrs: {for: "ai2"} }, "2"),
-                    h('input#ai3', { props: { type: "radio", name: "level", value: "3", checked: vLevel === "3" ? "checked" : ""} }),
-                    h('label.level-ai.ai3', { attrs: {for: "ai3"} }, "3"),
-                    h('input#ai4', { props: { type: "radio", name: "level", value: "4", checked: vLevel === "4" ? "checked" : ""} }),
-                    h('label.level-ai.ai4', { attrs: {for: "ai4"} }, "4"),
-                    h('input#ai5', { props: { type: "radio", name: "level", value: "5", checked: vLevel === "5" ? "checked" : ""} }),
-                    h('label.level-ai.ai5', { attrs: {for: "ai5"} }, "5"),
-                    h('input#ai6', { props: { type: "radio", name: "level", value: "6", checked: vLevel === "6" ? "checked" : ""} }),
-                    h('label.level-ai.ai6', { attrs: {for: "ai6"} }, "6"),
-                    h('input#ai7', { props: { type: "radio", name: "level", value: "7", checked: vLevel === "7" ? "checked" : ""} }),
-                    h('label.level-ai.ai7', { attrs: {for: "ai7"} }, "7"),
-                    h('input#ai8', { props: { type: "radio", name: "level", value: "8", checked: vLevel === "8" ? "checked" : ""} }),
-                    h('label.level-ai.ai8', { attrs: {for: "ai8"} }, "8"),
-                ]),
-                ]),
-                h('div#color-button-group', [
-                    h('button.icon.icon-black', { props: {type: "button", title: _("Black")}, on: {click: () => this.createSeek('b') } }),
-                    h('button.icon.icon-adjust', { props: {type: "button", title: _("Random")}, on: {click: () => this.createSeek('r')} }),
-                    h('button.icon.icon-white', { props: {type: "button", title: _("White")}, on: {click: () => this.createSeek('w')} }),
-                ]),
-            ]),
-          ]),
-        ]),
-        h('button', { class: {'lobby-button': true}, on: {
-            click: () => {
-                this.challengeAI = false;
-                if (this.model["anon"] !== 'True') {
-                    document.getElementById('game-mode')!.style.display='inline-flex';
-                } else {
-                    document.getElementById('game-mode')!.style.display='none';
                 }
-                document.getElementById('challenge-block')!.style.display='none';
-                document.getElementById('ailevel')!.style.display='none';
-                document.getElementById('id01')!.style.display='block';
+            },
+                _("Create a game")
+            ),
+            h('button.lobby-button', {
+                on: {
+                    click: () => {
+                        this.challengeAI = true;
+                        document.getElementById('game-mode')!.style.display = (!this.test_ratings || anon) ? 'none' : 'inline-flex';
+                        document.getElementById('challenge-block')!.style.display = 'none';
+                        document.getElementById('ailevel')!.style.display = 'inline-block';
+                        document.getElementById('id01')!.style.display = 'block';
+                    }
                 }
-            } }, _("Create a game")),
-        h('button', { class: {'lobby-button': true}, on: {
-            click: () => {
-                this.challengeAI = true;
-                if (this.test_ratings && this.model["anon"] !== 'True') {
-                    document.getElementById('game-mode')!.style.display='inline-flex';
-                } else {
-                    document.getElementById('game-mode')!.style.display='none';
-                }
-                document.getElementById('challenge-block')!.style.display='none';
-                document.getElementById('ailevel')!.style.display='inline-block';
-                document.getElementById('id01')!.style.display='block';
-                }
-            } }, _("Play with AI (Fairy-Stockfish)")),
+            }, _("Play with AI (Fairy-Stockfish)")),
         ];
     }
 
-    onClickSeek(seek) {
+    private setHandicap() {
+        let e;
+        e = document.getElementById('handicap') as HTMLSelectElement;
+        const handicap = e.options[e.selectedIndex].value;
+        e = document.getElementById('fen') as HTMLSelectElement;
+        e!.value = SHOGI_HANDICAP_FEN[handicap];
+    }
+    private setVariant() {
+        let e;
+        e = document.getElementById('variant') as HTMLSelectElement;
+        const variant = e.options[e.selectedIndex].value;
+        const hide960 = variants960.indexOf(variant) === -1;
+        const hideHandicap = variant !== 'shogi';
+        const byoyomi = isVariantClass(variant, 'byoyomi');
+        document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
+        document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
+        document.getElementById('byoyomi-period')!.style.display = (byoyomi) ? 'block' : 'none';
+        e = document.getElementById('incrementlabel') as HTMLSelectElement;
+        patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
+        this.setStartButtons();
+    }
+    private setMinutes(minutes) {
+        const el = document.getElementById("minutes") as HTMLElement;
+        if (el) el.innerHTML = minutes;
+        this.setStartButtons();
+    }
+    private setIncrement(increment) {
+        const el = document.getElementById("increment") as HTMLElement;
+        if (el) el.innerHTML = increment;
+        this.setStartButtons();
+    }
+    private setFen() {
+        const e = document.getElementById('fen') as HTMLInputElement;
+        e.setCustomValidity(this.validateFen() ? '' : _('Invalid FEN'));
+        this.setStartButtons();
+    }
+    private setStartButtons() {
+        const valid = this.validateTimeControl() && this.validateFen();
+        const e = document.getElementById('color-button-group') as HTMLElement;
+        if (valid)
+            e.classList.remove("disabled");
+        else
+            e.classList.add("disabled");
+    }
+    private validateTimeControl() {
+        let min = 0, inc = 0;
+        let e;
+        e = document.getElementById('min') as HTMLInputElement;
+        if (e) min = Number(e.value);
+        e = document.getElementById('inc') as HTMLInputElement;
+        if (e) inc = Number(e.value);
+        return min + inc > ((this.challengeAI) ? 4 : 0);
+    }
+    private validateFen() {
+        let e;
+        e = document.getElementById('variant') as HTMLSelectElement;
+        const variant = e.options[e.selectedIndex].value;
+        e = document.getElementById('fen') as HTMLInputElement;
+        return e.value === "" || validFen(variant, e.value);
+    }
+
+    renderSeeks(seeks) {
+        // TODO: fix header and data row colomns
+        // https://stackoverflow.com/questions/37272331/html-table-with-fixed-header-and-footer-and-scrollable-body-without-fixed-widths
+        const header = h('thead', [
+            h('tr', [
+                h('th', _('Player')),
+                h('th', _('Color')),
+                h('th', _('Rating')),
+                h('th', _('Time')),
+                h('th', _('Variant')),
+                h('th', _('Mode'))
+            ])
+        ]);
+        seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
+        const rows = seeks.map((seek) => {
+            const variant = seek.variant;
+            let tooltipImage;
+            if (seek["fen"]) {
+                tooltipImage = h('minigame.' + variant + '-board.' + VARIANTS[variant].pieces, [
+                    h('div.cg-wrap.' + VARIANTS[variant].cg + '.mini',
+                        { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {coordinates: false, fen: seek["fen"], geometry: VARIANTS[variant].geom }) } }
+                    ),
+                ]);
+            }
+            else {
+                tooltipImage = '';
+            }
+            const tooltip = h('span.tooltiptext', [ tooltipImage ]);
+            return this.hide(seek) ? "" : h('tr', {
+                on: { click: () => this.onClickSeek(seek) }
+            }, [
+                h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
+                h('td', [ this.colorIcon(seek["color"]) ]),
+                h('td', seek["rating"]),
+                h('td', seek["tc"]),
+                h('td.icon', { attrs: { "data-icon": variantIcon(seek.variant, seek.chess960) } }, " " + variantName(seek.variant, seek.chess960)),
+                h('td', { class: { "tooltip": seek["fen"] } }, [
+                    tooltip,
+                    (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? _('Custom') : (seek["rated"]) ? _('Rated') : _('Casual')
+                ]),
+            ]);
+        });
+        return [ header, h('tbody', rows) ];
+    }
+
+    private onClickSeek(seek) {
         if (seek["user"] === this.model["username"]) {
             this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.model["username"] });
         } else {
@@ -438,150 +481,36 @@ class LobbyController {
         }
     }
 
-    renderSeeks(seeks) {
-        // TODO: fix header and data row colomns
-        // https://stackoverflow.com/questions/37272331/html-table-with-fixed-header-and-footer-and-scrollable-body-without-fixed-widths
-        const header = h('thead', [h('tr',
-            [h('th', _('Player')),
-             h('th', _('Color')),
-             h('th', _('Rating')),
-             h('th', _('Time')),
-             h('th', '    '),
-             h('th', _('Variant')),
-             h('th', _('Mode'))])]);
-
-        const colorIcon = (color) => {
-            return h('i-side.icon', {class: {
+    private colorIcon(color) {
+        return h('i-side.icon', {
+            class: {
                 "icon-adjust": color === "r",
                 "icon-white": color === "w",
                 "icon-black": color === "b",
-                }}
-            )};
-        const challengeIcon = (seek) => {
-            const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby' : 'vs-swords.lobby.opp';
-            return (seek['target'] === '') ? null : h(swords, {attrs: {"data-icon": '"'}, class: {"icon": true}});
-        }
-
-        const title = (seek) => {
-            return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
-        }
-
-        const user = (seek) => {
-            return (seek['target'] === '') ? seek["user"] : ((seek['target'] === this.model['username']) ? seek['user'] : seek['target']);
-        }
-
-        const hide = (seek) => {
-            return ((this.model["anon"] === 'True' && seek["rated"]) ||
-                (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']));
-        }
-
-        seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
-        // console.log("VARIANTS", VARIANTS);
-        var rows = seeks.map((seek) => {
-            const variant = seek.variant;
-            let tooltiptext;
-            if (seek["fen"]) {
-                // tooltiptext = seek["fen"];
-                tooltiptext = h('minigame.' + variant + '-board.' + VARIANTS[variant].pieces, [
-                   h('div.cg-wrap.' + VARIANTS[variant].cg + '.mini',
-                        { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {coordinates: false, fen: seek["fen"], geometry: VARIANTS[variant].geom }) } }
-                    ),
-                ]);
-            } else {
-                tooltiptext = '';
             }
-            const tooltip = h('span.tooltiptext', [tooltiptext]);
-            return hide(seek) ? "" : h(
-            'tr',
-            { on: { click: () => this.onClickSeek(seek) } },
-            [h('td', [challengeIcon(seek), title(seek), user(seek)]),
-             h('td', [colorIcon(seek["color"])]),
-             h('td', seek["rating"]),
-             h('td', seek["tc"]),
-             h('td', {attrs: {"data-icon": variantIcon(seek.variant, seek.chess960)}, class: {"icon": true}} ),
-             // h('td', {attrs: {"data-icon": (seek.chess960) ? "V" : ""}, class: {"icon": true}} ),
-             h('td', variantName(seek.variant, seek.chess960)),
-             h('td', {class: {"tooltip": (seek["fen"])}}, [
-                tooltip,
-                (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? _('Custom') : (seek["rated"]) ? _('Rated') : _('Casual')])
-            ])
-            });
-        return [header, h('tbody', rows)];
+        });
+    };
+    private challengeIcon(seek) {
+        const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
+        return (seek['target'] === '') ? h(swords, { attrs: {"data-icon": '"'} }) : null;
+    }
+    private title(seek) {
+        return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
+    }
+    private user(seek) {
+        if (seek["target"] === '' || seek["target"] === this.model["username"])
+            return seek["user"];
+        else
+            return seek["target"];
+    }
+    private hide(seek) {
+        return (this.model["anon"] === 'True' && seek["rated"]) ||
+            (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']);
     }
 
-    private onMsgGetSeeks = (msg) => {
-        this.seeks = msg.seeks;
-        // console.log("!!!! got get_seeks msg:", msg);
-        const oldVNode = document.getElementById('seeks');
-        if (oldVNode instanceof Element) {
-            oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('table#seeks', this.renderSeeks(msg.seeks)));
-        }
-    }
-
-    private onMsgNewGame = (msg) => {
-        // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
-        window.location.assign(this.model["home"] + '/' + msg["gameId"]);
-    }
-
-    private onMsgGameInProgress = (msg) => {
-        var response = confirm(_("You have an unfinished game!\nPress OK to continue."));
-        if (response === true) {
-            window.location.assign(this.model["home"] + '/' + msg["gameId"]);
-        }
-    }
-
-    private onMsgUserConnected = (msg) => {
-        this.model["username"] = msg["username"];
-    }
-
-    private onMsgChat = (msg) => {
-        chatMessage(msg.user, msg.message, "lobbychat");
-        if (msg.user.length !== 0 && msg.user !== '_server') sound.chat();
-    }
-
-    private onMsgFullChat = (msg) => {
-        // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        // console.log("NEW FULL MESSAGES");
-        msg.lines.forEach((line) => {chatMessage(line.user, line.message, "lobbychat");});
-    }
-
-    private onMsgPing = (msg) => {
-        this.doSend({type: "pong", timestamp: msg.timestamp});
-    }
-
-    private onMsgError = (msg) => {
-        alert(msg.message);
-    }
-
-    private onMsgShutdown = (msg) => {
-        alert(msg.message);
-    }
-
-    private onMsgGameCounter = (msg) => {
-        console.log("Gcnt=", msg["cnt"]);
-        const oldVNode = document.getElementById('g_cnt');
-        if (oldVNode instanceof Element) {
-            // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#g_cnt', i18n.ngettext('%1 game in play', '%1 games in play', msg["cnt"])));
-        }
-    }
-
-    private onMsgUserCounter = (msg) => {
-        console.log("Ucnt=", msg["cnt"]);
-        const oldVNode = document.getElementById('u_cnt');
-        if (oldVNode instanceof Element) {
-            // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#u_cnt', i18n.ngettext('%1 player', '%1 players', msg["cnt"])));
-        }
-    }
-
-    onMessage (evt) {
+    onMessage(evt) {
         // console.log("<+++ lobby onMessage():", evt.data);
-        var msg = JSON.parse(evt.data);
+        const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "get_seeks":
                 this.onMsgGetSeeks(msg);
@@ -621,6 +550,67 @@ class LobbyController {
                 break;
         }
     }
+
+    private onMsgGetSeeks(msg) {
+        this.seeks = msg.seeks;
+        // console.log("!!!! got get_seeks msg:", msg);
+        const oldVNode = document.getElementById('seeks');
+        if (oldVNode instanceof Element) {
+            oldVNode.innerHTML = '';
+            patch(oldVNode, h('table#seeks', this.renderSeeks(msg.seeks)));
+        }
+    }
+    private onMsgNewGame(msg) {
+        // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
+        window.location.assign('/' + msg["gameId"]);
+    }
+    private onMsgGameInProgress(msg) {
+        const response = confirm(_("You have an unfinished game!\nPress OK to continue."));
+        if (response === true)
+            window.location.assign('/' + msg["gameId"]);
+    }
+    private onMsgUserConnected(msg) {
+        this.model["username"] = msg["username"];
+    }
+    private onMsgChat(msg) {
+        chatMessage(msg.user, msg.message, "lobbychat");
+        if (msg.user.length !== 0 && msg.user !== '_server')
+            sound.chat();
+    }
+    private onMsgFullChat(msg) {
+        // To prevent multiplication of messages we have to remove old messages div first
+        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
+        // then create a new one
+        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+        // console.log("NEW FULL MESSAGES");
+        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat"));
+    }
+    private onMsgPing(msg) {
+        this.doSend({ type: "pong", timestamp: msg.timestamp });
+    }
+    private onMsgError(msg) {
+        alert(msg.message);
+    }
+    private onMsgShutdown(msg) {
+        alert(msg.message);
+    }
+    private onMsgGameCounter(msg) {
+        console.log("Gcnt=", msg["cnt"]);
+        const oldVNode = document.getElementById('g_cnt');
+        if (oldVNode instanceof Element) {
+            // oldVNode.innerHTML = '';
+            patch(oldVNode as HTMLElement, h('counter#g_cnt', i18n.ngettext('%1 game in play', '%1 games in play', msg["cnt"])));
+        }
+    }
+    private onMsgUserCounter(msg) {
+        console.log("Ucnt=", msg["cnt"]);
+        const oldVNode = document.getElementById('u_cnt');
+        if (oldVNode instanceof Element) {
+            // oldVNode.innerHTML = '';
+            patch(oldVNode as HTMLElement, h('counter#u_cnt', i18n.ngettext('%1 player', '%1 players', msg["cnt"])));
+        }
+    }
+
 }
 
 function runSeeks(vnode: VNode, model) {
@@ -641,20 +631,20 @@ export function lobbyView(model): VNode[] {
     }
     boardSettings.updateBoardAndPieceStyles();
 
-    return [h('aside.sidebar-first', [ h('div.lobbychat#lobbychat') ]),
-            h('main.main', [ h('table#seeks', {hook: { insert: (vnode) => runSeeks(vnode, model) } }) ]),
-            h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
-            h('under-left', [
-                h('a.reflist', {attrs: {href: 'https://discord.gg/aPs8RKr'}}, 'Discord'),
-                h('a.reflist', {attrs: {href: 'https://github.com/gbtami/pychess-variants'}}, 'Github'),
-                //h('a.reflist', {attrs: {href: '/patron'}}, t`Donate`),
-                h('a.reflist', {attrs: {href: '/patron'}}, _("Donate")),
-                h('a.reflist', {attrs: {href: '/stats'}}, _("Stats")),
-            ]),
-            h('under-lobby'),
-            h('under-right', [
-                h('a', {attrs: {href: '/players'}}, [h('counter#u_cnt', _('0 players'))]),
-                h('a', {attrs: {href: '/games'}}, [h('counter#g_cnt', _('0 games in play'))]),
-            ]),
-        ];
+    return [
+        h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
+        h('main.main', [ h('table#seeks', { hook: { insert: (vnode) => runSeeks(vnode, model) } }) ]),
+        h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
+        h('under-left', [
+            h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),
+            h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants' } }, 'Github'),
+            h('a.reflist', { attrs: { href: '/patron' } }, _("Donate")),
+            h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
+        ]),
+        h('under-lobby'),
+        h('under-right', [
+            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt', _('0 players')) ]),
+            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt', _('0 games in play')) ]),
+        ]),
+    ];
 }
