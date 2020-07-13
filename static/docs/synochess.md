@@ -113,7 +113,7 @@ As the Dynasty, avoid moving the soldiers too much. Their initial formation is a
 ### Kingdom (white) tips
 
 * **Opening pawn moves – keep them single-step!** – This is more based on an analysis of Stockfish patterns, but your first moves should favor single step pawn moves rather than double steps. This is likely because it’s important to have a solid pawn backbone to take down the pesky Dynasty soldiers.
-* **AVOID exchanging for the cannon** – The cannon, while very menacing in the early game, depreciates rapidly throughout the game. In fact, killing the other pieces effectively kills the cannons (if there are no screens, it can’t move effectively), eventually leaving it open to be killed by another piece easily.
+* **AVOID initiating an exchange for the cannon** – The cannon, while very menacing in the early game, depreciates rapidly throughout the game. In fact, killing the other pieces effectively kills the cannons (if there are no screens, it can’t move effectively), eventually leaving it open to be killed by another piece easily. 
 * **Protect the queen!** – The queen is valued even more than in standard chess, because it is the one big trump card that the Kingdom has over the Dynasty. If it has to be exchanged, make sure that one of the enemy chariots go down with it.
 * **Trade, trade, trade** – This follows the last two tips. If you keep trading, while keeping your queen alive and also not making too many exchanges for cannons, you will be on top. The Dynasty has a complex piece coordination, and that can get broken down the fewer pieces they have. The Kingdom wants a simple, open game, while the Dynasty wants to take advantage of its early open files and soldier screens.
 
