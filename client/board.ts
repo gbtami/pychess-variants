@@ -219,7 +219,7 @@ class PieceStyleSettings extends NumberSettings {
     readonly variant: string;
 
     constructor(boardSettings: BoardSettings, variant: string) {
-        super(variant + '_piece', 0);
+        super(variant + '_pieces', 0);
         this.boardSettings = boardSettings;
         this.variant = variant;
     }
