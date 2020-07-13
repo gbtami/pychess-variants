@@ -8,7 +8,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-import h from 'snabbdom/h';
+import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
@@ -18,7 +18,6 @@ import { chatMessage, chatView } from './chat';
 import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './board';
-
 
 class LobbyController {
     test_ratings: boolean;
@@ -431,7 +430,13 @@ class LobbyController {
     renderSeeks(seeks) {
         // TODO: fix header and data row colomns
         // https://stackoverflow.com/questions/37272331/html-table-with-fixed-header-and-footer-and-scrollable-body-without-fixed-widths
-        const header = h('thead', [
+        seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
+        const rows = seeks.map(seek => this.seekView(seek));
+        return [ this.seekHeader(), h('tbody', rows) ];
+    }
+
+    private seekHeader() {
+        return h('thead', [
             h('tr', [
                 h('th', _('Player')),
                 h('th', _('Color')),
@@ -441,36 +446,35 @@ class LobbyController {
                 h('th', _('Mode'))
             ])
         ]);
-        seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
-        const rows = seeks.map((seek) => {
-            const variant = seek.variant;
-            let tooltipImage;
-            if (seek["fen"]) {
-                tooltipImage = h('minigame.' + variant + '-board.' + VARIANTS[variant].pieces, [
-                    h('div.cg-wrap.' + VARIANTS[variant].cg + '.mini',
-                        { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {coordinates: false, fen: seek["fen"], geometry: VARIANTS[variant].geom }) } }
-                    ),
-                ]);
-            }
-            else {
-                tooltipImage = '';
-            }
-            const tooltip = h('span.tooltiptext', [ tooltipImage ]);
-            return this.hide(seek) ? "" : h('tr', {
-                on: { click: () => this.onClickSeek(seek) }
-            }, [
-                h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
-                h('td', [ this.colorIcon(seek["color"]) ]),
-                h('td', seek["rating"]),
-                h('td', seek["tc"]),
-                h('td.icon', { attrs: { "data-icon": variantIcon(seek.variant, seek.chess960) } }, " " + variantName(seek.variant, seek.chess960)),
-                h('td', { class: { "tooltip": seek["fen"] } }, [
-                    tooltip,
-                    (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? _('Custom') : (seek["rated"]) ? _('Rated') : _('Casual')
-                ]),
+    }
+
+    private seekView(seek) {
+        const variant = seek.variant;
+        let tooltipImage;
+        if (seek["fen"]) {
+            tooltipImage = h('minigame.' + variant + '-board.' + VARIANTS[variant].pieces, [
+                h('div.cg-wrap.' + VARIANTS[variant].cg + '.mini',
+                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {coordinates: false, fen: seek["fen"], geometry: VARIANTS[variant].geom }) } }
+                ),
             ]);
-        });
-        return [ header, h('tbody', rows) ];
+        }
+        else {
+            tooltipImage = '';
+        }
+        const tooltip = h('span.tooltiptext', [ tooltipImage ]);
+        return this.hide(seek) ? "" : h('tr', {
+            on: { click: () => this.onClickSeek(seek) }
+        }, [
+            h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
+            h('td', [ this.colorIcon(seek["color"]) ]),
+            h('td', seek["rating"]),
+            h('td', seek["tc"]),
+            h('td.icon', { attrs: { "data-icon": variantIcon(seek.variant, seek.chess960) } }, " " + variantName(seek.variant, seek.chess960)),
+            h('td', { class: { "tooltip": seek["fen"] } }, [
+                tooltip,
+                (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? _('Custom') : (seek["rated"]) ? _('Rated') : _('Casual')
+            ]),
+        ]);
     }
 
     private onClickSeek(seek) {
@@ -554,11 +558,12 @@ class LobbyController {
     private onMsgGetSeeks(msg) {
         this.seeks = msg.seeks;
         // console.log("!!!! got get_seeks msg:", msg);
-        const oldVNode = document.getElementById('seeks');
-        if (oldVNode instanceof Element) {
-            oldVNode.innerHTML = '';
-            patch(oldVNode, h('table#seeks', this.renderSeeks(msg.seeks)));
-        }
+
+        const oldSeeks = document.getElementById('seeks') as Element;
+        oldSeeks.innerHTML = "";
+        patch(oldSeeks, h('table#seeks', this.renderSeeks(msg.seeks)));
+        const seekHead = document.getElementById('seeks-header') as HTMLElement;
+        seekHead.style.width = oldSeeks.clientWidth + 'px';
     }
     private onMsgNewGame(msg) {
         // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
@@ -633,7 +638,23 @@ export function lobbyView(model): VNode[] {
 
     return [
         h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
-        h('main.main', [ h('table#seeks', { hook: { insert: (vnode) => runSeeks(vnode, model) } }) ]),
+        h('main.main', [
+            h('div#seek-table', [
+                h('table#seeks-header', [
+                    h('thead', [
+                        h('tr', [
+                            h('th', _('Player')),
+                            h('th', _('Color')),
+                            h('th', _('Rating')),
+                            h('th', _('Time')),
+                            h('th', _('Variant')),
+                            h('th', _('Mode')),
+                        ]),
+                    ]),
+                ]),
+                h('div#seeks-wrapper', [ h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } }) ]),
+            ]),
+        ]),
         h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),
