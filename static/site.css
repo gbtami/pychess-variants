@@ -720,6 +720,7 @@ table#seeks-header, table#seeks {
 }
 
 #seek-table {
+    min-width: 400px;
     max-width: 800px;
     box-shadow: var(--base-shadow);
     background-size: cover;
