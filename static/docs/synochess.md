@@ -10,13 +10,13 @@ The name Synochess is based off an earlier name, Sinochess, but it was changed a
 2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side)
 3.	The Kingdom (white) always moves first.
 4.	The Dynasty (black) cannot castle.
-5.	Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop).
+5.	Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop). Dynasty soldiers do not promote.
 
-\*\*\*\*\*\*
+\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 
 There are five additional rules that new players must be especially aware of! (Aside from learning the new pieces)
 
-\*\*\*\*\*\*
+\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 
 1.	**King Faceoff** – As in Xiangqi, **Kings may not face each other (on a file OR rank) without intervening pieces**, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king.
 2.	**Reinforcement Soldiers** – Black starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.
@@ -81,6 +81,8 @@ Rook | 5 | Knight | 3
 ## Strategy
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play. As with most games, a lot can be learned by playing against a high level AI, losing, and seeing how you lost!
 
+### Openings
+
 Like Xiangqi, the first few moves of the opening are very limited before the game branches out. In a vast majority (~90%) of games, Stockfish opens up with 1. e3. If white does not start with e3, then b3 is the next most common. Other moves include g3, f3, and c3, but are extremely rare. All other openings for the first move are suboptimal. b3 is the most common second move for white. c3 is also played occasionally. For the third white move, there is much more variation, although Bb2 is by far the most common.
 As for the Dynasty, the most common starting move is Nc6 (70%), or to a lesser extent, Nf6 (30%). No other moves are even attempted by Stockfish. The second move either involves advancing the other knight or moving a cannon to a center position (Ce6+ > Cd6) or advancing the other knight. From that point on, the moves branch significantly.
 
@@ -108,3 +110,17 @@ The Dynasty player needs to play aggressively. It starts with an advanced positi
 
 As the Dynasty, avoid moving the soldiers too much. Their initial formation is already in an optimal "soldier structure" (a pair of soldiers side-by-side). Slide them to open up or create attacks for your cannons and chariots. Use the reinforcements to replace lost soldiers. If you drop them too early, you only block yoruselves in.
 
+### Kingdom (white) tips
+
+* **Opening pawn moves – keep them single-step!** – This is more based on an analysis of Stockfish patterns, but your first moves should favor single step pawn moves rather than double steps. This is likely because it’s important to have a solid pawn backbone to take down the pesky Dynasty soldiers.
+* **Do NOT exchange for the cannon** – The cannon, while very menacing in the early game, depreciates rapidly throughout the game. In fact, killing the other pieces effectively kills the cannons (if there are no screens, it can’t move effectively), eventually leaving it open to be killed by another piece easily.
+* **Protect the queen!** – The queen is valued even more than in standard chess, because it is the one big trump card that the Kingdom has over the Dynasty. If it has to be exchanged, make sure that one of the enemy chariots go down with it.
+* **Trade, trade, trade** – This follows the last two tips. If you keep trading, while keeping your queen alive and also not making too many exchanges for cannons, you will be on top. The Dynasty has a complex piece coordination, and that can get broken down the fewer pieces they have. The Kingdom wants a simple, open game, while the Dynasty wants to take advantage of its early open files and soldier screens.
+
+### Dynasty (black) tips
+
+* **Know the pieces' moves!** – This may seem obvious, but a lot of beginners forget that soldiers can move sideways. 
+* **Soldier structure – DO NOT MOVE YOUR SOLDIERS** – This may seem counterintuitive compared to regular chess pawns, but soldiers really shouldn’t be moving as part of your development OR for most attacks. The starting positions of your starting four soldiers are actually the strongest formation already. They each defend each other and prevent white from placing pieces anywhere on the 5th file. As such, each pair are probably even worth more than the average minor piece. Keep them there and use them as screens for your cannons to cramp and redirect white’s development as much as possible. Also, despite the words "DO NOT MOVE" in bold capital letters, if you have to, then you obviously have to.
+* **Reinforcement soldiers – Use sparingly** – As above, the original pawn structure is already optimal. Adding reinforcements without any need actually damages your structure and ruins your tempo. Use reinforcements when white is about to attack a soldier with a pawn supported by another piece. If instead there is a one-for-one soldier exchange, you can drop a reinforcement afterwards to repair your structure.
+* **Trade your cannons ASAP!** – As mentioned in the Kingdom tips above, cannons depreciate rapidly throughout the course of the game. Yes, they can be used for some devastating tactics, but the Dynasty player must acknowledge there is a small window for that (early to midgame). It’s recommended to trade off one of your cannons within the early game (first several moves). This allows the second cannon to move more freely.
+* **Activate your chariots** – This tip is similar to basic xiangqi strategy. The Dynasty starts with open chariot files – make sure to use them to get the chariots in the game. Once the enemy rooks come out, this advantage disappears quickly.
