@@ -34,6 +34,26 @@ class BoardSettings {
         this.settings.arrow = new ArrowSettings(this);
     }
 
+    getSettings(settingsType: string, variant: string) {
+        const fullName = variant + settingsType;
+        if (!this.settings[fullName]) {
+            switch (settingsType) {
+                case "BoardStyle":
+                    this.settings[fullName] = new BoardStyleSettings(this, variant);
+                    break;
+                case "PieceStyle":
+                    this.settings[fullName] = new PieceStyleSettings(this, variant);
+                    break;
+                case "Zoom":
+                    this.settings[fullName] = new ZoomSettings(this, variant);
+                    break;
+                default:
+                    throw "Unknown settings type " + settingsType;
+            }
+        }
+        return this.settings[fullName];
+    }
+
     updateBoardAndPieceStyles() {
         Object.keys(VARIANTS).forEach(variant => {
             this.updateBoardStyle(variant);
@@ -41,36 +61,16 @@ class BoardSettings {
         });
     }
 
-    updateBoardStyle(variant) {
-        const idx = parseInt(localStorage[variant + "_board"] ?? '0');
+    updateBoardStyle(variant: string) {
+        const idx = this.getSettings("BoardStyle", variant).value;
         const board = VARIANTS[variant].BoardCSS[idx];
         const root = document.documentElement;
         root.style.setProperty('--' + variant + '-board', "url('images/board/" + board + "')");
     }
 
-    private boardStyleSettingsView(variant) {
-        const vboard = localStorage[variant + "_board"] ?? '0';
-        const boards : VNode[] = [];
+    updatePieceStyle(variant: string) {
+        const idx = this.getSettings("PieceStyle", variant).value;
 
-        const setBoardStyle = (e) => {
-            const idx = e.target.value;
-            localStorage[variant + "_board"] = idx;
-            this.updateBoardStyle(variant);
-        }
-
-        for (let i = 0; i < VARIANTS[variant].BoardCSS.length; i++) {
-            boards.push(h('input#board' + String(i), {
-                on: { change: setBoardStyle },
-                props: { type: "radio", name: "board", value: String(i)},
-                attrs: { checked: vboard === String(i) },
-            }));
-            boards.push(h('label.board.board' + String(i) + '.' + variant, { attrs: {for: "board" + String(i)} }, ""));
-        }
-        return boards;
-    }
-
-    updatePieceStyle(variant) {
-        const idx = parseInt(localStorage[variant + "_pieces"] ?? '0');
         let css = VARIANTS[variant].PieceCSS[idx];
         if (variant === this.ctrl?.variant) {
             if (isVariantClass(variant, "pieceDir")) {
@@ -85,7 +85,7 @@ class BoardSettings {
                 const baseurl = VARIANTS[variant].baseURL[idx] + '/';
                 chessground.set({
                     drawable: {
-                        pieces: {baseUrl: this.ctrl.model['home'] + '/static/images/pieces/' + baseurl},
+                        pieces: { baseUrl: '/static/images/pieces/' + baseurl },
                     }
                 });
                 chessground.redrawAll();
@@ -94,52 +94,27 @@ class BoardSettings {
         changeCSS('/static/' + css + '.css');
     }
 
-    private pieceStyleSettingsView(variant) {
-        var vpiece = localStorage[variant + "_pieces"] ?? '0';
-        const pieces : VNode[] = [];
-
-        const setPieceStyle = e => {
-            const idx = e.target.value;
-
-            const family = VARIANTS[variant].pieces;
-            Object.keys(VARIANTS).forEach((key) => {
-                if (VARIANTS[key].pieces === family)
-                    localStorage[key + "_pieces"] = idx;
-            });
-
-            this.updatePieceStyle(variant);
-        }
-
-        for (let i = 0; i < VARIANTS[variant].PieceCSS.length; i++) {
-            pieces.push(h('input#piece' + String(i), {
-                on: { change: setPieceStyle },
-                props: { type: "radio", name: "piece", value: String(i)},
-                attrs: { checked: vpiece === String(i) },
-            }));
-            pieces.push(h('label.piece.piece' + String(i) + '.' + variant, { attrs: {for: "piece" + String(i)} }, ""));
-        }
-        return pieces;
-    }
-
     updateZoom() {
-        const zoom = localStorage["zoom-" + this.ctrl.variant] ?? 100;
-        const el = document.querySelector('.cg-wrap') as HTMLElement;
-        if (el) {
-            const baseWidth = dimensions[VARIANTS[this.ctrl.variant].geom].width * (this.ctrl.variant.endsWith('shogi') ? 52 : 64);
-            const baseHeight = dimensions[VARIANTS[this.ctrl.variant].geom].height * (this.ctrl.variant.endsWith('shogi') ? 60 : 64);
-            const pxw = `${zoom / 100 * baseWidth}px`;
-            const pxh = `${zoom / 100 * baseHeight}px`;
-            el.style.width = pxw;
-            el.style.height = pxh;
-            // 2 x (pocket height + pocket-wrapper additional 10px gap)
-            const pxp = (this.ctrl.hasPockets) ? '148px;' : '0px;';
-            // point counting values
-            const pxc = (isVariantClass(this.ctrl.variant, "showMaterialPoint")) ? '48px;' : '0px;';
-            document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
-            document.body.dispatchEvent(new Event('chessground.resize'));
+        if (this.ctrl) {
+            const zoom = this.getSettings("Zoom", this.ctrl.variant).value as number;
+            const el = document.querySelector('.cg-wrap') as HTMLElement;
+            if (el) {
+                const baseWidth = dimensions[VARIANTS[this.ctrl.variant].geom].width * (this.ctrl.variant.endsWith('shogi') ? 52 : 64);
+                const baseHeight = dimensions[VARIANTS[this.ctrl.variant].geom].height * (this.ctrl.variant.endsWith('shogi') ? 60 : 64);
+                const pxw = `${zoom / 100 * baseWidth}px`;
+                const pxh = `${zoom / 100 * baseHeight}px`;
+                el.style.width = pxw;
+                el.style.height = pxh;
+                // 2 x (pocket height + pocket-wrapper additional 10px gap)
+                const pxp = (this.ctrl.hasPockets) ? '148px;' : '0px;';
+                // point counting values
+                const pxc = (isVariantClass(this.ctrl.variant, "showMaterialPoint")) ? '48px;' : '0px;';
+                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
+                document.body.dispatchEvent(new Event('chessground.resize'));
 
-            if (this.ctrl instanceof AnalysisController) {
-                analysisChart(this.ctrl);
+                if (this.ctrl instanceof AnalysisController) {
+                    analysisChart(this.ctrl);
+                }
             }
         }
     }
@@ -147,23 +122,23 @@ class BoardSettings {
     view(variant: string) {
         if (!variant) return h("div#board-settings");
 
-        this.settings["zoom"] = new ZoomSettings(this, variant);
+        const settingsList : VNode[] = [];
 
-        const settings : VNode[] = [];
-        settings.push(h('div.settings-boards', this.boardStyleSettingsView(variant)));
-        settings.push(h('div.settings-pieces', this.pieceStyleSettingsView(variant)));
+        settingsList.push(this.getSettings("BoardStyle", variant).view());
+
+        settingsList.push(this.getSettings("PieceStyle", variant).view());
 
         if (variant === this.ctrl?.variant)
-            settings.push(this.settings.zoom.view());
+            settingsList.push(this.getSettings("Zoom", variant).view());
 
-        settings.push(this.settings.showDests.view());
+        settingsList.push(this.settings["showDests"].view());
 
         if (isVariantClass(variant, "autoQueen"))
-            settings.push(this.settings.autoQueen.view());
+            settingsList.push(this.settings["autoQueen"].view());
 
-        settings.push(this.settings.arrow.view());
+        settingsList.push(this.settings["arrow"].view());
             
-        return h('div#board-settings', settings);
+        return h('div#board-settings', settingsList);
     }
 
     // TODO This should be in the "BoardController" class,
@@ -209,9 +184,77 @@ class BoardSettings {
     }
 }
 
+class BoardStyleSettings extends NumberSettings {
+    readonly boardSettings: BoardSettings;
+    readonly variant: string;
+
+    constructor(boardSettings: BoardSettings, variant: string) {
+        super(variant + '_board', 0);
+        this.boardSettings = boardSettings;
+        this.variant = variant;
+    }
+
+    update(): void {
+        this.boardSettings.updateBoardStyle(this.variant);
+    }
+
+    view(): VNode {
+        const vboard = this.value;
+        const boards : VNode[] = [];
+
+        for (let i = 0; i < VARIANTS[this.variant].BoardCSS.length; i++) {
+            boards.push(h('input#board' + i, {
+                on: { change: evt => this.value = Number((evt.target as HTMLInputElement).value) },
+                props: { type: "radio", name: "board", value: i },
+                attrs: { checked: vboard === i },
+            }));
+            boards.push(h('label.board.board' + i + '.' + this.variant, { attrs: { for: "board" + i } }, ""));
+        }
+        return h('div.settings-board', boards);
+    }
+}
+
+class PieceStyleSettings extends NumberSettings {
+    readonly boardSettings: BoardSettings;
+    readonly variant: string;
+
+    constructor(boardSettings: BoardSettings, variant: string) {
+        super(variant + '_piece', 0);
+        this.boardSettings = boardSettings;
+        this.variant = variant;
+    }
+
+    update(): void {
+        this.boardSettings.updatePieceStyle(this.variant);
+    }
+
+    view(): VNode {
+        const vpiece = this.value;
+        const pieces : VNode[] = [];
+
+        const family = VARIANTS[this.variant].pieces;
+
+        for (let i = 0; i < VARIANTS[this.variant].PieceCSS.length; i++) {
+            pieces.push(h('input#piece' + i, {
+                on: { change: e => this.setPieceStyle(family, Number((e.target as HTMLInputElement).value)) },
+                props: { type: "radio", name: "piece", value: i },
+                attrs: { checked: vpiece === i },
+            }));
+            pieces.push(h('label.piece.piece' + i + '.' + this.variant, { attrs: { for: "piece" + i } }, ""));
+        }
+        return h('div.settings-pieces', pieces);
+    }
+
+    private setPieceStyle(family: string, idx: number) {
+        Object.keys(VARIANTS).filter(key => VARIANTS[key].pieces === family).forEach(key =>
+            this.boardSettings.getSettings("PieceStyle", key).value = idx
+        );
+    }
+}
+
 class ZoomSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
-    private readonly variant: string;
+    readonly variant: string;
 
     constructor(boardSettings: BoardSettings, variant: string) {
         super('zoom-' + variant, 100);
