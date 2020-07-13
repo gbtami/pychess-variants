@@ -124,3 +124,21 @@ As the Dynasty, avoid moving the soldiers too much. Their initial formation is a
 * **Reinforcement soldiers – Use sparingly** – As above, the original pawn structure is already optimal. Adding reinforcements without any need actually damages your structure and ruins your tempo. Use reinforcements when white is about to attack a soldier with a pawn supported by another piece. If instead there is a one-for-one soldier exchange, you can drop a reinforcement afterwards to repair your structure.
 * **Trade your cannons ASAP!** – As mentioned in the Kingdom tips above, cannons depreciate rapidly throughout the course of the game. Yes, they can be used for some devastating tactics, but the Dynasty player must acknowledge there is a small window for that (early to midgame). It’s recommended to trade off one of your cannons within the early game (first several moves). This allows the second cannon to move more freely.
 * **Activate your chariots** – This tip is similar to basic xiangqi strategy. The Dynasty starts with open chariot files – make sure to use them to get the chariots in the game. Once the enemy rooks come out, this advantage disappears quickly.
+
+### Tactics
+
+**Fool's Mate**
+
+If you are white, avoid this situation. Always eye the cannons.
+
+![Fool's Mate](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/FoolsMate.png)
+
+This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. Afterwards, if a cannon does attack, it can be blocked by a bishop or knight (preferably the knight), which will remain pinned for a while. 1. e4 is not recommended because it's actually an empty threat (the pawn is pinned from attacking because of facing kings).
+
+**Queenslayer**
+
+This is an extremely deadly tactic that may end in an inevitable loss for white if not caught. The situation is where a chariot has an open file (which it already starts with), and the cannon has an open path to the first rank square (b1 or g1). That square may or may or not contain a knight, but if it's empty, the knight cannot cover it for this to work.
+
+![Queenslayer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Queenslayer.png)
+
+Once this position happens, the chariot can take the pawn, forcing the rook to retake the chariot. This now exposes the b1/g1 square to the cannon, which will either threaten AND pin the queen if attacking queenside (b1), or skewer the queen by check on the kingside (g1). Either way, the queen is lost.
