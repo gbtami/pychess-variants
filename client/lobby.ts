@@ -9,7 +9,6 @@ import listeners from 'snabbdom/modules/eventlisteners';
 const patch = init([klass, attributes, properties, listeners]);
 
 import { h } from 'snabbdom/h';
-import { toVNode } from 'snabbdom/tovnode';
 import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
@@ -561,7 +560,8 @@ class LobbyController {
         // console.log("!!!! got get_seeks msg:", msg);
 
         const oldSeeks = document.getElementById('seeks') as Element;
-        patch(toVNode(oldSeeks), h('table#seeks', this.renderSeeks(msg.seeks)));
+        oldSeeks.innerHTML = "";
+        patch(oldSeeks, h('table#seeks', this.renderSeeks(msg.seeks)));
         const seekHead = document.getElementById('seeks-header') as HTMLElement;
         seekHead.style.width = oldSeeks.clientWidth + 'px';
     }
