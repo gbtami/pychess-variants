@@ -428,8 +428,6 @@ class LobbyController {
     }
 
     renderSeeks(seeks) {
-        // TODO: fix header and data row colomns
-        // https://stackoverflow.com/questions/37272331/html-table-with-fixed-header-and-footer-and-scrollable-body-without-fixed-widths
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
         const rows = seeks.map(seek => this.seekView(seek));
         return [ this.seekHeader(), h('tbody', rows) ];
