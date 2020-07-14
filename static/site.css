@@ -742,7 +742,6 @@ table#seeks-header, table#seeks {
 
 #seeks-header th, #seeks td {
     padding: 8px;
-    line-height: 28px;
     white-space: nowrap;
     overflow-x: hidden;
 }
