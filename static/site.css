@@ -975,6 +975,11 @@ select, input {
     margin-top: 1.2em;
 }
 
+#color-button-group > button {
+    color: var(--font-color);
+    background: var(--button-new-game);
+}
+
 div.btn-controls {
     display: flex;
     justify-content: space-between;
