@@ -224,7 +224,7 @@ class LobbyController {
         const anon = this.model["anon"] === 'True';
 
         return [
-            h('div#id01', { class: {"modal": true} }, [
+            h('div#id01.modal', [
                 h('form.modal-content', [
                     h('div#closecontainer', [
                         h('span.close', {
@@ -244,9 +244,9 @@ class LobbyController {
                             h('h3', i18n.gettext('Challenge %1 to a game', this.model["profileid"])),
                         ]),
                         h('div', [
-                            h('label', { attrs: {for: "variant"} }, _("Variant")),
+                            h('label', { attrs: { for: "variant" } }, _("Variant")),
                             h('select#variant', {
-                                props: {name: "variant"},
+                                props: { name: "variant" },
                                 on: { input: () => this.setVariant() },
                                 hook: { insert: () => this.setVariant() },
                             },
@@ -295,7 +295,7 @@ class LobbyController {
                         h('input#min.slider', {
                             props: { name: "min", type: "range", min: 0, max: 60, value: vMin },
                             on: { input: e => this.setMinutes((e.target as HTMLInputElement).value) },
-                            hook: {insert: vnode => this.setMinutes((vnode.elm as HTMLInputElement).value) },
+                            hook: { insert: vnode => this.setMinutes((vnode.elm as HTMLInputElement).value) },
                         }),
                         h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
                         h('span#increment'),
@@ -315,9 +315,9 @@ class LobbyController {
                         h('form#game-mode', [
                             h('div.radio-group', [
                                 h('input#casual', { props: { type: "radio", name: "mode", value: "0" }, attrs: { checked: vRated === "0" }, }),
-                                h('label', { attrs: {for: "casual"} }, _("Casual")),
+                                h('label', { attrs: { for: "casual"} }, _("Casual")),
                                 h('input#rated', { props: { type: "radio", name: "mode", value: "1" }, attrs: { checked: vRated === "1" }, }),
-                                h('label', { attrs: {for: "rated"} }, _("Rated")),
+                                h('label', { attrs: { for: "rated"} }, _("Rated")),
                             ]),
                         ]),
                         // if play with the machine
@@ -438,8 +438,8 @@ class LobbyController {
     private seekHeader() {
         return h('thead', [
             h('tr', [
+                h('th', ''),
                 h('th', _('Player')),
-                h('th', _('Color')),
                 h('th', _('Rating')),
                 h('th', _('Time')),
                 h('th', _('Variant')),
@@ -465,8 +465,8 @@ class LobbyController {
         return this.hide(seek) ? "" : h('tr', {
             on: { click: () => this.onClickSeek(seek) }
         }, [
-            h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
             h('td', [ this.colorIcon(seek["color"]) ]),
+            h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
             h('td', seek["rating"]),
             h('td', seek["tc"]),
             h('td.icon', { attrs: { "data-icon": variantIcon(seek.variant, seek.chess960) } }, " " + variantName(seek.variant, seek.chess960)),
@@ -639,12 +639,12 @@ export function lobbyView(model): VNode[] {
     return [
         h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
         h('main.main', [
-            h('div#seek-table', [
+            h('div#seeks-table', [
                 h('table#seeks-header', [
                     h('thead', [
                         h('tr', [
+                            h('th', ''),
                             h('th', _('Player')),
-                            h('th', _('Color')),
                             h('th', _('Rating')),
                             h('th', _('Time')),
                             h('th', _('Variant')),

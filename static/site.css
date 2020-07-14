@@ -719,7 +719,7 @@ table#seeks-header, table#seeks {
     table-layout: fixed;
 }
 
-#seek-table {
+#seeks-table {
     min-width: 400px;
     max-width: 650px;
     box-shadow: var(--base-shadow);
@@ -766,18 +766,18 @@ table#seeks-header, table#seeks {
 }
 
 #seeks-header tr > :nth-child(1), #seeks tr > :nth-child(1) {
-    width: 25%;
-}
-#seeks-header tr > :nth-child(2), #seeks tr > :nth-child(2) {
-    width: 8%;
+    width: 4%;
     text-align: center;
 }
+#seeks-header tr > :nth-child(2), #seeks tr > :nth-child(2) {
+    width: 25%;
+}
 #seeks-header tr > :nth-child(3), #seeks tr > :nth-child(3) {
-    width: 10%;
+    width: 14%;
     text-align: center;
 }
 #seeks-header tr > :nth-child(4), #seeks tr > :nth-child(4) {
-    width: 14%;
+    width: 15%;
 }
 #seeks-header tr > :nth-child(5), #seeks tr > :nth-child(5) {
     width: 25%;
