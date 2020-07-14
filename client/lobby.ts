@@ -178,7 +178,7 @@ class LobbyController {
         if (this.test_ratings) {
             rated = parseInt(e.value);
         } else {
-            rated = (this.challengeAI || this.model["anon"] === 'True' || fen !== '') ? 0 : parseInt(e.value);
+            rated = (this.challengeAI || this.model["anon"] === 'True' || this.model["title"] === 'BOT' || fen !== '') ? 0 : parseInt(e.value);
         }
         localStorage.setItem("seek_rated", e.value);
 
@@ -506,7 +506,7 @@ class LobbyController {
             return seek["target"];
     }
     private hide(seek) {
-        return (this.model["anon"] === 'True' && seek["rated"]) ||
+        return ((this.model["anon"] === 'True' || this.model["title"] === 'BOT') && seek["rated"]) ||
             (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']);
     }
 
