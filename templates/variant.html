@@ -1,7 +1,8 @@
 {% extends "template.html" %}
 {% block content %}
-<div class="profile-wrapper">
-<aside class="sidebar-first">
+<div id="main-wrap">
+<main class="page-menu">
+<aside>
     <ul class="guide">
     <li>
     <div class="icon" data-icon="">
@@ -18,9 +19,8 @@
     </ul>
 </aside>
 <div class="guide">{% include variant %}<div>
-<aside class="sidebar-second"></aside>
+</main>
 </div>
-
 {% endblock %}
 {% block js %}
     <script src="/static/pychess-variants.min.js"></script>

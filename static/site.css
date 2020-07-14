@@ -1,4 +1,7 @@
+@import "hamburger.css";
 :root {
+    --main-margin: 1.5vmin;
+    --main-max-width: 1400px;
     --site-header-height: 40px;
     --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
@@ -87,6 +90,13 @@
     display: none !important;
 }
 
+.hamburger-inner, .hamburger-inner::before, .hamburger-inner::after,
+  .hamburger.is-active .hamburger-inner,
+  .hamburger.is-active .hamburger-inner::before,
+  .hamburger.is-active .hamburger-inner::after {
+  background-color: var(--link-color);
+}
+
 html {
     font-size: 14px ;
     min-height: 100%;
@@ -125,50 +135,94 @@ iframe {
     margin: auto;
 }
 
-.profile-wrapper, .players-wrapper{
-    display: grid;
-    grid-template-columns: auto 70% auto;
-    justify-content: center;
+.flat-bg {
+    background-color: var(--bg-color0);
+    padding: 1em;
 }
 
-.main-wrapper{
+#main-wrap {
     display: grid;
-    grid-template-columns: 20% auto 20%;
-    grid-template-rows: minmax(0, 1fr) 40px;
-    grid-gap: 18px;
-    justify-content: center;
+    grid-template-columns: var(--main-margin) 1fr minmax(auto, var(--main-max-width)) 1fr var(--main-margin);
+    grid-template-areas: '. . main . .';
+    margin-top: 20px;
 }
 
-main {
-    margin-top:30px;
+.round {
+    grid-area: main;
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, fit-content(0));
+    grid-template-areas: 'side app table' 'links uboard .';
+    grid-gap: 2vmin;
 }
-main.profile, main.players {
-    display: inline;
+
+.lobby {
+    grid-area: main;
+    display: grid;
+    grid-template-areas: 'app' 'table' 'side' 'links' 'utable' '.';
+    grid-gap: 2vmin;
+}
+@media (min-width: 500px) {
+    .lobby {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, fit-content(0));
+        grid-template-areas: 'table table' 'app app' 'links utable' 'side side';
+    }
+}
+@media (min-width: 800px) {
+    .lobby {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: 12em repeat(2, fit-content(0));
+        grid-template-areas: 'table app app' 'side app app' 'links . utable';
+    }
+}
+@media (min-width: 1260px) {
+    .lobby {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, fit-content(0));
+        grid-template-areas: 'side app app table' 'links . . utable';
+    }
+}
+.seeks {
+    display: grid;
+    grid-area: app;
+}
+
+.page-menu {
+    grid-area: main;
+    display: grid;
+    grid-template-columns: max-content auto;
+    grid-template-rows: min-content;
+    grid-template-areas: 'side content';
+    grid-gap: 2vmin;
+}
+.page-menu.players {
+    grid-gap: 0;
 }
 
 .sidebar-first{
-    margin-top: 30px;
+    grid-area: side;
     display: flex;
     flex-flow: column nowrap;
     justify-content: right;
 }
 .sidebar-second{
-    margin-top: 30px;
+    grid-area: table;
     flex:1;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
 }
+.sidebar-second.analysis {
+    justify-content: none;
+}
 under-left {
-    grid-column: 1;
-    grid-row-start: 2;
+    grid-area: links;
 }
 under-board {
-    grid-column: 2;
-    width: calc(var(--cgwrapwidth));
+    grid-area: uboard;
 }
+
 textarea {
     width: calc(var(--cgwrapwidth));
     color: var(--font-color);
@@ -179,8 +233,7 @@ div.pgn {
     width: calc(var(--cgwrapwidth));
 }
 under-right {
-    grid-column: 3;
-    grid-row-start: 2;
+    grid-area: utable;
     flex:1;
     display: flex;
     flex-flow: column nowrap;
@@ -188,7 +241,7 @@ under-right {
 }
 
 div.about, div.guide, div.patron, div.closed {
-    width: 75%;
+    grid-area: main;
     margin: 0 auto;
     border-radius: 3px;
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -197,11 +250,14 @@ div.about, div.guide, div.patron, div.closed {
     background-color: var(--bg-color0);
     padding: 24px;
 }
+div.about {
+    width: 75%;
+}
 div.patron {
     width: 50%;
 }
 div.guide {
-    width: 100%;
+  grid-area: content;
 }
 div.closed {
     width: 610px;
@@ -259,7 +315,7 @@ ul.guide li {
     font-size: 17px;
 }
 
-.navbar-toggle {
+.hamburger {
     display: none;
 }
 
@@ -270,11 +326,8 @@ ul.guide li {
     .topnav a {
         display: none;
     }
-    .navbar-toggle {
-        align-self: flex-start;
+    .hamburger {
         display: block;
-        font-size: 40px;
-        cursor: pointer;
     }
     .topnav a.navbar-show {
         display: flex;
@@ -283,6 +336,9 @@ ul.guide li {
     }
     .site-buttons {
         margin-left: 0;
+    }
+    .variant-name {
+        display: none;
     }
 }
 
@@ -413,7 +469,6 @@ div#result {
 }
 
 .lobby-button, .donate-button, button#request-analysis {
-    width: 270px;
     background-color: var(--bg-color2);
     border: none;
     color: var(--font-color);
@@ -424,6 +479,9 @@ div#result {
     margin: 4px 2px;
     cursor: pointer;
     box-shadow: var(--base-shadow);
+}
+.lobby-button {
+    width: 100%;
 }
 button#request-analysis {
     width: 200px;
@@ -795,11 +853,6 @@ table#seeks-header, table#seeks {
     background: var(--button-new-game-hover);
 }
 
-div.players-wrapper > .players, div.players-wrapper > aside.sidebar-first {
-    background: var(--bg-color0);
-    padding:1em;
-}
-
 /* profile games */
 player-head {
     font-size: 24px;
@@ -827,6 +880,7 @@ a.i-at:hover, a.i-tv:hover, a.i-dl:hover, a.i-ch:hover {
 }
 
 table#games, table#players {
+    grid-area: content;
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0px;
@@ -907,7 +961,7 @@ select, input {
     padding: 24px;
 }
 
-.editor-container div{
+.editor-button-container div{
     text-align: left;
     padding-left: 24px;
     padding-bottom: 12px;
@@ -1196,7 +1250,7 @@ ol#lobbychat-messages {
 }
 
 ol#roundchat-messages {
-    max-height: calc(var(--cgwrapheight) - 188px);
+    max-height: calc(var(--cgwrapheight) - 204px);
 }
 
 li.message {
@@ -1363,6 +1417,10 @@ cg-resize {
 }
 
 /* analysis */
+div.analysis {
+    display: grid;
+    grid-template-columns: auto auto;
+}
 #gauge {
     height: 100%;  /* !!! */
     background-color: #fff;
@@ -1398,16 +1456,21 @@ cg-resize {
     margin-top: -3px;
 }
 
-div#pv {
+#pv {
     background-color: var(--bg-color2);
     box-shadow: var(--btn-shadow);
 }
 
-pv {
+div.pv {
     display: flex;
     margin: 6px;
-    white-space: nowrap;
+    width: 100%;
+}
+div.pvline {
+    text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
+    min-width: 0;
 }
 
 score {
@@ -1510,6 +1573,7 @@ input[type="checkbox"] {
 
 input#fen {
     width: 100%;
+    margin: 0;
 }
 
 /* crosstable */

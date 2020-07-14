@@ -70,7 +70,7 @@ export function analysisView(model): VNode[] {
                 ]),
                 h('div.roundchat#roundchat'),
             ]),
-            h('main.analysis', [
+            h('div.analysis', [
                 h('selection#board2png.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
                     h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runGround(vnode, model)},
@@ -87,7 +87,7 @@ export function analysisView(model): VNode[] {
                     h('div.tick', {props: {style: "height: 87.5%;"}}),
                 ]),
             ]),
-            h('aside.sidebar-second', [
+            h('aside.sidebar-second.analysis', [
                 h('div#pocket-wrapper0', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [

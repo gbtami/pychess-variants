@@ -213,7 +213,7 @@ export function editorView(model): VNode[] {
                     ]),
                 ])
             ]),
-            h('main.round', [h('boardeditor', [
+            h('boardeditor', [
                 h('div.pocket-wrapper', [
                     h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
@@ -233,9 +233,9 @@ export function editorView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-            ])]),
+            ]),
             h('aside.sidebar-second', [
-                h('div.editor-container', [
+                h('div.editor-button-container', [
                     h('div#clear'),
                     h('div#start'),
 //                    h('div', [h('a', {attrs: {href: '/editor/' + model["variant"]}}, 'CREATE A GAME')]),

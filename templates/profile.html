@@ -1,7 +1,8 @@
 {% extends "template.html" %}
 {% block content %}
-<div class="profile-wrapper">
-<aside class="sidebar-first">
+<div id="main-wrap">
+<main class="page-menu">
+<aside>
     {% for key in ratings %}
     <div class="sub-ratings">
     <a class="info0 icon {% if ratings[key][1] == 0 %} empty {% endif %} {% if variant == key %} active {% endif %}" data-icon="{{ icons[key] }}" href="{{ home }}/@/{{ profile }}/{{ key }}">
@@ -18,8 +19,8 @@
     </div>
     {% endfor %}
 </aside>
-<div id="placeholder"></div>
-<aside class="sidebar-second"></aside>
+<aside id="placeholder"></aside>
+</main>
 </div>
 {% endblock %}
 {% block js %}

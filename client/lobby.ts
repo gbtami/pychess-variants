@@ -63,7 +63,7 @@ class LobbyController {
         if (this._ws.readyState === 1) {
             this.doSend({ type: "get_seeks" });
         };
-        patch(document.getElementById('seekbuttons') as HTMLElement, h('ul#seekbuttons', this.renderSeekButtons()));
+        patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         // challenge!
@@ -636,7 +636,7 @@ export function lobbyView(model): VNode[] {
 
     return [
         h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
-        h('main.main', [
+        h('div.seeks', [
             h('div#seeks-table', [
                 h('table#seeks-header', [
                     h('thead', [
@@ -653,7 +653,7 @@ export function lobbyView(model): VNode[] {
                 h('div#seeks-wrapper', [ h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } }) ]),
             ]),
         ]),
-        h('aside.sidebar-second', [ h('ul#seekbuttons') ]),
+        h('aside.sidebar-second', [ h('div#seekbuttons') ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),
             h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants' } }, 'Github'),
