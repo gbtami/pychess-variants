@@ -54,7 +54,7 @@ export class Clock {
         this.hurry = false;
         this.ticks = [false, false, false, false, false, false, false, false, false, false];
 
-        renderTime(this, this.duration);
+        this.renderTime(this.duration);
     }
 
     start(duration: number) {
@@ -64,19 +64,17 @@ export class Clock {
         this.running = true;
         this.startTime = Date.now();
 
-        var that = this;
-        (function timer() {
-            const diff = that.duration - (Date.now() - that.startTime);
-            // console.log("timer()", that.duration, that.startTime, diff, that.hurry);
-            if (diff <= HURRY && !that.hurry && !that.byoyomi) {
-                that.hurry = true;
+        const timer = () => {
+            const diff = this.duration - (Date.now() - this.startTime);
+            if (diff <= HURRY && !this.hurry && !this.byoyomi) {
+                this.hurry = true;
                 sound.lowTime();
             }
 
-            if (that.byoyomi) {
+            if (this.byoyomi) {
                 for (let i = 0; i < 10; i++) {
-                    if (diff <= 1000 * (i + 1) && !that.ticks[i]) {
-                        that.ticks[i] = true;
+                    if (diff <= 1000 * (i + 1) && !this.ticks[i]) {
+                        this.ticks[i] = true;
                         sound.tick();
                         break;
                     }
@@ -84,28 +82,30 @@ export class Clock {
             }
 
             if (diff <= 0) {
-                if (that.byoyomi && that.byoyomiPeriod > 0) {
+                if (this.byoyomi && this.byoyomiPeriod > 0) {
                     sound.lowTime();
-                    that.overtime = true;
-                    that.byoyomiPeriod -= 1;
-                    that.ticks = [false, false, false, false, false, false, false, false, false, false];
-                    if (that.granularity === 100 && that.increment > HURRY) that.granularity = 500;
-                    that.duration = that.increment;
-                    that.startTime = Date.now();
-                    if (that.byoyomiCallback !== null)
-                        that.byoyomiCallback();
+                    this.overtime = true;
+                    this.byoyomiPeriod -= 1;
+                    this.ticks = [false, false, false, false, false, false, false, false, false, false];
+                    if (this.granularity === 100 && this.increment > HURRY) this.granularity = 500;
+                    this.duration = this.increment;
+                    this.startTime = Date.now();
+                    if (this.byoyomiCallback !== null)
+                        this.byoyomiCallback();
                 } else {
-                    if (that.flagCallback !== null)
-                        that.flagCallback();
-                    that.pause(false);
+                    if (this.flagCallback !== null)
+                        this.flagCallback();
+                    this.pause(false);
                     return;
                 }
             }
-            that.timeout = setTimeout(timer, that.granularity);
-            that.tickCallbacks.forEach(function(callback) {
-                callback.call(that, that, diff);
-            }, that);
-        }());
+            this.timeout = setTimeout(timer, this.granularity);
+            this.tickCallbacks.forEach(function(callback) {
+                callback.call(this, diff);
+            }, this);
+        };
+
+        timer();
     }
 
     onTick(callback) {
@@ -149,12 +149,12 @@ export class Clock {
                 this.hurry = (this.duration < HURRY);
             }
         }
-        renderTime(this, this.duration);
+        this.renderTime(this.duration);
     }
 
     setTime(millis: number) {
         this.duration = millis;
-        renderTime(this, this.duration);
+        this.renderTime(this.duration);
     }
 
     printTime(millis: number) {
@@ -199,11 +199,9 @@ export class Clock {
         ]);
     }
 
-}
+    renderTime(time: number) {
+        if (this.granularity > 100 && time < HURRY) this.granularity = 100;
+        this.el = patch(this.el, this.view(time));
+    }
 
-export function renderTime(clock: Clock, time: number) {
-    if (clock.granularity > 100 && time < HURRY) clock.granularity = 100;
-    // console.log("renderTime():", time, parsed);
-
-    clock.el = patch(clock.el, clock.view(time));
 }

@@ -14,7 +14,7 @@ import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } fr
 
 import { _, i18n } from './i18n';
 import { boardSettings } from './board';
-import { Clock, renderTime } from './clock';
+import { Clock } from './clock';
 import makeGating from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
@@ -268,8 +268,8 @@ export default class RoundController {
         const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
         const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
         this.clocks = [c0, c1];
-        this.clocks[0].onTick(renderTime);
-        this.clocks[1].onTick(renderTime);
+        this.clocks[0].onTick(this.clocks[0].renderTime);
+        this.clocks[1].onTick(this.clocks[1].renderTime);
 
         const onMoreTime = () => {
             // TODO: enable when this.flip is true
