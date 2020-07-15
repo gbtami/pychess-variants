@@ -18,6 +18,7 @@ import { chatMessage, chatView } from './chat';
 import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './board';
+import { debounce } from './document';
 
 class LobbyController {
     test_ratings: boolean;
@@ -43,6 +44,8 @@ class LobbyController {
             // console.log("---CONNECTED", evt);
             this.doSend({ type: "lobby_user_connected", username: this.model["username"]});
             this.doSend({ type: "get_seeks" });
+
+            window.addEventListener("resize", debounce(resizeSeeksHeader, 10));
         }
 
         this._ws = { "readyState": -1 };
@@ -560,8 +563,6 @@ class LobbyController {
         const oldSeeks = document.getElementById('seeks') as Element;
         oldSeeks.innerHTML = "";
         patch(oldSeeks, h('table#seeks', this.renderSeeks(msg.seeks)));
-        const seekHead = document.getElementById('seeks-header') as HTMLElement;
-        seekHead.style.width = oldSeeks.clientWidth + 'px';
     }
     private onMsgNewGame(msg) {
         // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
@@ -638,7 +639,9 @@ export function lobbyView(model): VNode[] {
         h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
         h('div.seeks', [
             h('div#seeks-table', [
-                h('table#seeks-header', [
+                h('table#seeks-header', {
+                    hook: { insert: _ => resizeSeeksHeader() },
+                }, [
                     h('thead', [
                         h('tr', [
                             h('th', ''),
@@ -666,4 +669,10 @@ export function lobbyView(model): VNode[] {
             h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt', _('0 games in play')) ]),
         ]),
     ];
+}
+
+function resizeSeeksHeader() {
+    const seeksHeader = document.getElementById('seeks-header') as HTMLElement;
+    const seeks = document.getElementById('seeks') as HTMLElement;
+    seeksHeader.style.width = seeks.clientWidth + 'px';
 }
