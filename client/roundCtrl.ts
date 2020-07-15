@@ -265,8 +265,8 @@ export default class RoundController {
 
         // initialize clocks
         this.clocktimes = {};
-        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0', this.byoyomiPeriod);
-        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1', this.byoyomiPeriod);
+        const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
+        const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
         this.clocks = [c0, c1];
         this.clocks[0].onTick(renderTime);
         this.clocks[1].onTick(renderTime);
@@ -296,7 +296,7 @@ export default class RoundController {
 
         if (!this.spectator) {
             var container = document.getElementById('clock0') as HTMLElement;
-            patch(container, h('div.clock-wrap#clock0', [
+            patch(container, h('div#clock0.clock-wrap', [
                 h('div.more-time', [
                     h('button.icon.icon-plus-square', {
                         props: {type: "button", title: _("Give 15 seconds")},
