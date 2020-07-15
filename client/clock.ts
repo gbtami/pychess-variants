@@ -36,7 +36,7 @@ export class Clock {
     ticks: boolean[];
 
     // game baseTime (min) and increment (sec)
-    constructor(baseTime: number, increment: number, byoyomiPeriod: number, el: HTMLElement, id: string) {
+    constructor(baseTime: number, increment: number, byoyomiPeriod: number, el: HTMLElement | VNode, id: string) {
         this.duration = baseTime * 1000 * 60;
         this.increment = increment * 1000;
         this.granularity = 500;
@@ -199,6 +199,7 @@ export class Clock {
             ]),
         ]);
     }
+
 }
 
 export function renderTime(clock: Clock, time: number) {

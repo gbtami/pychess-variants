@@ -1089,16 +1089,17 @@ button:disabled {
 }
 
 /* Clock */
-.clock-wrap {
+.info-wrap {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
-#clock0 {
+.clock-wrap {
     display: flex;
+    flex-direction: row;
 }
-.more-time {
+#more-time {
     float: right;
     font-size: 32px;
 }
