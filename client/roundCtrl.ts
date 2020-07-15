@@ -123,15 +123,15 @@ export default class RoundController {
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
         this.model = model;
-        this.variant = model["variant"] as string;
-        this.fullfen = model["fen"] as string;
-        this.wplayer = model["wplayer"] as string;
-        this.bplayer = model["bplayer"] as string;
-        this.base = model["base"] as number;
-        this.inc = model["inc"] as number;
-        this.byoyomiPeriod = model["byo"] as number;
+        this.variant = model["variant"];
+        this.fullfen = model["fen"];
+        this.wplayer = model["wplayer"];
+        this.bplayer = model["bplayer"];
+        this.base = Number(model["base"]);
+        this.inc = Number(model["inc"]);
+        this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = isVariantClass(this.variant, 'byoyomi');
-        this.status = model["status"] as number;
+        this.status = Number(model["status"]);
         this.tv = model["tv"];
         this.steps = [];
         this.pgn = "";

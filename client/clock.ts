@@ -71,7 +71,7 @@ export class Clock {
                 sound.lowTime();
             }
 
-            if (this.byoyomi) {
+            if (this.byoyomi && this.byoyomiPeriod === 0) {
                 for (let i = 0; i < 10; i++) {
                     if (diff <= 1000 * (i + 1) && !this.ticks[i]) {
                         this.ticks[i] = true;
@@ -167,7 +167,7 @@ export class Clock {
         }
         minutes = Math.max(0, minutes);
         seconds = Math.max(0, seconds);
-        if (millis < 10000)
+        if (millis < HURRY && this.byoyomiPeriod === 0)
             secs = seconds.toFixed(1);
         else
             secs = Math.floor(seconds).toString();
@@ -186,7 +186,7 @@ export class Clock {
             h('div.clock', {
                 class: {
                     running: this.running,
-                    hurry: time < HURRY,
+                    hurry: time < HURRY && this.byoyomiPeriod === 0,
                     connecting: this.connecting,
                     overtime: this.overtime,
                 },
@@ -200,7 +200,8 @@ export class Clock {
     }
 
     renderTime(time: number) {
-        if (this.granularity > 100 && time < HURRY) this.granularity = 100;
+        if (this.granularity > 100 && time < HURRY)
+            this.granularity = 100;
         this.el = patch(this.el, this.view(time));
     }
 
