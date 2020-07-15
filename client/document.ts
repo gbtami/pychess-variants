@@ -4,6 +4,19 @@ export function getDocumentData(name: string) {
     return document.getElementById('pychess-variants')!.getAttribute('data-' + name.toLowerCase());
 }
 
+export function debounce(func, wait: number) {
+    var timeout;
+    return function() {
+        const context = this, args = arguments;
+        const later = () => {
+            timeout = null;
+            func.apply(context, args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 export function getCookie(name) {
     const cookies = document.cookie.split(';');
     for(let i = 0; i < cookies.length; i++) {

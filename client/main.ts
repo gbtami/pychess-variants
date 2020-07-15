@@ -19,7 +19,7 @@ import { analysisView } from './analysis';
 import { profileView } from './profile';
 import { statsView } from './stats';
 import { sound, volumeSettings, soundThemeSettings } from './sound';
-import { getCookie } from './document';
+import { debounce, getCookie } from './document';
 import { backgroundSettings } from './background';
 
 const model = {};
@@ -80,24 +80,6 @@ export function view(el, model): VNode {
     }
 }
 
-function isFunction(functionToCheck) {
-  return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
-}
-
-function debounce(func, wait) {
-    return function() {
-        let timeout;
-        const waitFunc = isFunction(wait) ? wait : () => wait;
-        const context = this, args = arguments;
-        const later = () => {
-            timeout = null;
-            func.apply(context, args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, waitFunc());
-    };
-}
-
 // reconnectFrequencySeconds doubles every retry
 let reconnectFrequencySeconds = 1;
 let evtSource;
@@ -112,7 +94,7 @@ const reconnectFunc = debounce(
             reconnectFrequencySeconds = 64;
         }
     },
-    () => reconnectFrequencySeconds * 1000
+    reconnectFrequencySeconds * 1000
 );
 
 function setupEventSource() {
