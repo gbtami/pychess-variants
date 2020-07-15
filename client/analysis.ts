@@ -4,7 +4,7 @@ import { VNode } from 'snabbdom/vnode';
 import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
 import { VARIANTS, variantIcon, variantName, variantTooltip, firstColor, secondColor } from './chess';
-import { timeago, renderTimeago } from './clock';
+import { timeago, renderTimeago } from './datetime';
 import { renderRdiff, result } from './profile';
 
 
