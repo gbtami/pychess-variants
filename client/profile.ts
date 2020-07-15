@@ -13,7 +13,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, i18n } from './i18n';
 import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
-import { renderTimeago } from './clock';
+import { renderTimeago } from './datetime';
 import { boardSettings } from './board';
 
 export function result(variant, status, result) {

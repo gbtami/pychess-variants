@@ -1089,16 +1089,17 @@ button:disabled {
 }
 
 /* Clock */
-.clock-wrap {
+.info-wrap {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
-#clock0 {
+.clock-wrap {
     display: flex;
+    flex-direction: row;
 }
-.more-time {
+#more-time {
     float: right;
     font-size: 32px;
 }
@@ -1126,52 +1127,52 @@ button.icon::-moz-focus-inner {
     font-family: "Roboto Mono", "Roboto";
     font-size: 50px;
     box-shadow: var(--btn-shadow);
-}
-.clock.time, .clock.sep {
     background-color: var(--bg-color0);
 }
-.clock.time.min {
+
+.clock.running {
+    color: var(--clock-running-color);
+    background-color: var(--clock-running-bg);
+}
+
+.clock.hurry {
+    background-color: var(--clock-hurry-bg) !important;
+}
+
+.clock.connecting {
+    animation: clock-blink .5s cubic-bezier(.5,0,1,1) infinite alternate;
+}
+@keyframes clock-blink {
+    from { opacity: 1 }
+    to { opacity: 0 }
+}
+
+.clock.overtime {
+    background-color: var(--clock-overtime-bg);
+}
+
+.clock-time.min {
     padding-left: 12px;
     box-sizing: border-box;
 }
-.clock.time.sec {
+.clock-time.sec {
     padding-right: 12px;
     box-sizing: border-box;
 }
 
-.clock.time.running, .clock.sep.running {
-    color: var(--clock-running-color);
-    background-color: var(--clock-running-bg);
-}
-.clock.sep.running.low {
+.clock.running > .clock-sep.low {
     color: Gray;
 }
 
-.clock.time.overtime, .clock.sep.overtime {
-    background-color: var(--clock-overtime-bg);
-}
-
-.clock.time.hurry, .clock.sep.hurry {
-    background-color: var(--clock-hurry-bg);
-}
-
-.clock.time.byo.byoyomi {
+.clock-time.byo.byoyomi {
     display: block;
     padding-right: 12px;
     padding-top: 30px;
     font-size: 20px;
 }
 
-.clock.time.byo:not(.byoyomi) {
+.clock-time.byo:not(.byoyomi) {
     display: none;
-}
-
-.connecting.clock.time, .connecting.clock.sep {
-    animation: clock-blink .5s cubic-bezier(.5,0,1,1) infinite alternate;
-}
-@keyframes clock-blink {
-    from { opacity: 1 }
-    to { opacity: 0 }
 }
 
 /* Playing color */

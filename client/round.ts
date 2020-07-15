@@ -4,7 +4,7 @@ import { VNode } from 'snabbdom/vnode';
 import { _ } from './i18n';
 import RoundController from './roundCtrl';
 import { VARIANTS, variantIcon, variantName, variantTooltip, firstColor, secondColor } from './chess';
-import { timeago, renderTimeago } from './clock';
+import { timeago, renderTimeago } from './datetime';
 
 
 function runGround(vnode: VNode, model) {
@@ -89,8 +89,11 @@ export function roundView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div.clock-wrap', [
-                    h('div#clock0'),
+                h('div.info-wrap', [
+                    h('div.clock-wrap', [
+                        h('div#clock0'),
+                        h('div#more-time'),
+                    ]),
                     h('div#misc-info0'),
                 ]),
                 h('div.round-data', [
@@ -103,7 +106,7 @@ export function roundView(model): VNode[] {
                     h('div#game-controls'),
                     h('round-player#rplayer1'),
                 ]),
-                h('div.clock-wrap', [
+                h('div.info-wrap', [
                     h('div#clock1'),
                     h('div#misc-info1'),
                 ]),

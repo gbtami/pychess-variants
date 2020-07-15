@@ -265,14 +265,12 @@ export default class RoundController {
 
         // initialize clocks
         this.clocktimes = {};
-        const c0 = new Clock(this.base, this.inc, document.getElementById('clock0') as HTMLElement, 'clock0', this.byoyomiPeriod);
-        const c1 = new Clock(this.base, this.inc, document.getElementById('clock1') as HTMLElement, 'clock1', this.byoyomiPeriod);
+        const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
+        const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
         this.clocks = [c0, c1];
         this.clocks[0].onTick(renderTime);
         this.clocks[1].onTick(renderTime);
 
-        // initialize crosstable
-        this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
         const onMoreTime = () => {
             // TODO: enable when this.flip is true
             if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
@@ -281,6 +279,19 @@ export default class RoundController {
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
         }
+
+        if (!this.spectator) {
+            const container = document.getElementById('more-time') as HTMLElement;
+            patch(container, h('div#more-time', [
+                h('button.icon.icon-plus-square', {
+                    props: {type: "button", title: _("Give 15 seconds")},
+                    on: { click: () => onMoreTime() }
+                })
+            ]));
+        }
+
+        // initialize crosstable
+        this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
 
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
@@ -293,19 +304,6 @@ export default class RoundController {
 
         container = document.getElementById('result') as HTMLElement;
         container.style.display = 'none';
-
-        if (!this.spectator) {
-            var container = document.getElementById('clock0') as HTMLElement;
-            patch(container, h('div.clock-wrap#clock0', [
-                h('div.more-time', [
-                    h('button.icon.icon-plus-square', {
-                        props: {type: "button", title: _("Give 15 seconds")},
-                        on: {click: () => onMoreTime() }
-                    })
-                ])
-            ])
-            );
-        }
 
         const flagCallback = () => {
             if (this.turnColor === this.mycolor) {
