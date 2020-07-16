@@ -68,32 +68,71 @@ export function variantTooltip(variant) {
 }
 
 export const VARIANTS = {
-    makruk: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "Q"},
-    makpong: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "O"},
-    cambodian: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"], pieces: "makruk", PieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], icon: "!"},
-    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"], pieces: "sittuyin", PieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"], icon: ":", baseURL: ["sittuyin/original", "sittuyin/Ka_blackred", "sittuyin/Ka_greenred", "makruk/ada", "makruk/intl"] },
-    shogi: { geom: Geometry.dim9x9, cg: "cg-576", BoardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "doubutsu.svg"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0d"], icon: "K", baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/Ka"] },
-    minishogi: { geom: Geometry.dim5x5, cg: "cg-260", BoardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"], pieces: "shogi", PieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m"], icon: "6", baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm"] },
-    kyotoshogi: { geom: Geometry.dim5x5, cg: "cg-260", BoardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"], pieces: "kyoto", PieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], icon: ")", baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
-    janggi: { geom: Geometry.dim9x10, cg: "cg-576-640", BoardCSS: ["Janggi.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiBrown.svg"], pieces: "janggi", PieceCSS: ["janggihb", "janggihg", "janggiib", "janggiig"], icon: "=" },
-    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", BoardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], icon: "8" },
-    minixiangqi: { geom: Geometry.dim7x7, cg: "cg-448", BoardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"], pieces: "xiangqi", PieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], icon: "7" },
-    placement: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha", "chess_kaneo"], icon: "S", baseURL: ["merida", "green", "alpha", "kaneo"] },
-    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha", "chess_kaneo"], icon: "+", baseURL: ["merida", "green", "alpha", "kaneo"] },
-    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], icon: "P" },
-    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], icon: "&", baseURL: ["capa", "seir", "green", "musk", "kaneo"] },
-    gothic: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], icon: "P" },
-    gothhouse: { geom: Geometry.dim10x8, cg: "cg-640", BoardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], icon: "&", baseURL: ["capa", "seir", "green", "musk", "kaneo"] },
-    grand: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], icon: "(" },
-    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"], pieces: "capa", PieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], icon: "*", baseURL: ["capa", "seir", "green", "musk", "kaneo"] },
-    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"], icon: "L", baseURL: ["seir", "capa", "green", "musk", "kaneo"] },
-    shouse: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "seirawan", PieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"], icon: "$", baseURL: ["seir", "capa", "green", "musk", "kaneo"] },
-    chess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "standard", PieceCSS: ["standard", "green", "alpha", "chess_kaneo"], icon: "M" },
-    shako: { geom: Geometry.dim10x10, cg: "cg-640-640", BoardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"], pieces: "shako", PieceCSS: ["shako0", "shako1"], icon: "9" },
-    shogun: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"], pieces: "shogun", PieceCSS: ["shogunb", "shogunr", "shogunw"], icon: "-" , baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
-    orda: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "orda", PieceCSS: ["orda0"], icon: "R" , baseURL: ["orda"]},
-    synochess: { geom: Geometry.dim8x8, cg: "cg-512", BoardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"], pieces: "synochess", PieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], icon: "_" , baseURL: ["synochess/intl", "synochess/xq", "xiangqi/playok", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"]},
+    makruk: { geom: Geometry.dim8x8, cg: "cg-512", board: "makruk8x8", pieces: "makruk", icon: "Q" },
+    makpong: { geom: Geometry.dim8x8, cg: "cg-512", board: "makruk8x8", pieces: "makruk", icon: "O" },
+    cambodian: { geom: Geometry.dim8x8, cg: "cg-512", board: "makruk8x8", pieces: "makruk", icon: "!" },
+    sittuyin: { geom: Geometry.dim8x8, cg: "cg-512", board: "sittuyin8x8", pieces: "sittuyin", icon: ":" },
+    shogi: { geom: Geometry.dim9x9, cg: "cg-576", board: "shogi9x9", pieces: "shogi", icon: "K" },
+    minishogi: { geom: Geometry.dim5x5, cg: "cg-260", board: "shogi5x5", pieces: "shogi", icon: "6" },
+    kyotoshogi: { geom: Geometry.dim5x5, cg: "cg-260", board: "shogi5x5", pieces: "kyoto", icon: ")" },
+    janggi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "janggi9x10", pieces: "janggi", icon: "=" },
+    xiangqi: { geom: Geometry.dim9x10, cg: "cg-576-640", board: "xiangqi9x10", pieces: "xiangqi", icon: "8" },
+    minixiangqi: { geom: Geometry.dim7x7, cg: "cg-448", board: "xiangqi7x7", pieces: "xiangqi", icon: "7" },
+    placement: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "standard", icon: "S" },
+    crazyhouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "standard", icon: "+" },
+    capablanca: { geom: Geometry.dim10x8, cg: "cg-640", board: "standard10x8", pieces: "capa", icon: "P" },
+    capahouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "standard10x8", pieces: "capa", icon: "&" },
+    gothic: { geom: Geometry.dim10x8, cg: "cg-640", board: "standard10x8", pieces: "capa", icon: "P" },
+    gothhouse: { geom: Geometry.dim10x8, cg: "cg-640", board: "standard10x8", pieces: "capa", icon: "&" },
+    grand: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand10x10", pieces: "capa", icon: "(" },
+    grandhouse: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "grand10x10", pieces: "capa", icon: "*" },
+    seirawan: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "seirawan", icon: "L"  },
+    shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "seirawan", icon: "$" },
+    chess: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "standard", icon: "M" },
+    shako: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "standard10x10", pieces: "shako", icon: "9" },
+    shogun: { geom: Geometry.dim8x8, cg: "cg-512", board: "shogun", pieces: "shogun", icon: "-" },
+    orda: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "orda", icon: "R" },
+    synochess: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "synochess", icon: "_" },
 }
+
+export interface BoardFamily {
+    boardCSS: string[];
+}
+export interface PieceFamily {
+    pieceCSS: string[];
+    baseURL: string[];
+}
+
+export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
+    makruk8x8: { boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"] },
+    sittuyin8x8: { boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
+    shogi9x9: { boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "doubutsu.svg"] },
+    shigi5x5: { boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"] },
+    janggi9x10: { boardCSS: ["Janggi.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiBrown.svg"] },
+    xiangqi9x10: { boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg"] },
+    xiangqi7x7: { boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
+    standard8x8: { boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg"] },
+    standard10x8: { boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
+    standard10x10: { boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
+    grand10x10: { boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
+    shogun: { boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
+};
+
+export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
+    makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], baseURL: ["makruk/ada/wb", "makruk/ada/wr", "makruk/cambodian", "sittuyin/original", "makruk/intl"] },
+    sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"], baseURL: ["sittuyin/original", "sittuyin/Ka_blackred", "sittuyin/Ka_greenred", "makruk/ada", "makruk/intl"] },
+    shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0d"], baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/Ka"] },
+    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
+    janggi: { pieceCSS: ["janggihb", "janggihg", "janggiib", "janggiig"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlblue", "janggi/intlgreen"] },
+    xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], baseURL: ["xiangqi/playok", "xiangqi/ct3", "xiangqi/ct2", "xiangqi/hnz", "xiangqi/ct2w", "xiangqi/hnzw"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo"], baseURL: ["merida", "green", "alpha", "kaneo"] },
+    capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], baseURL: ["capa", "seir", "green", "musk", "kaneo"] },
+    seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"], baseURL: ["seir", "capa", "green", "musk", "kaneo"] },
+    shako: { pieceCSS: ["shako0", "shako1"], baseURL: ["shako", "kaneo"] },
+    shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
+    orda: { pieceCSS: ["orda0"], baseURL: ["orda"] },
+    synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "xiangqi/playok", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"] },
+};
 
 export function variantIcon(variant, chess960) {
     if (chess960 === "True" || chess960 === 1 || chess960 === true) {
