@@ -14,7 +14,7 @@
     "esModuleInterop": true,
     "allovsJs": true,
     "module": "commonjs",
-    "lib": ["DOM", "ES6"],
-    "target": "ES6"
+    "lib": ["DOM", "ES2016"],
+    "target": "ES2016"
   }
 }
