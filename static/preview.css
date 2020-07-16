@@ -297,10 +297,10 @@ label.board.board2.makruk, label.board.board2.makpong, label.board.board2.cambod
     background-image: url('images/board/makruk.jpg');
 }
 label.piece.piece0.makruk, label.piece.piece0.makpong, label.piece.piece0.cambodian {
-    background-image: url('images/pieces/makruk/ada/wB.svg');
+    background-image: url('images/pieces/makruk/ada/wb/wB.svg');
 }
 label.piece.piece1.makruk, label.piece.piece1.makpong, label.piece.piece1.cambodian {
-    background-image: url('images/pieces/makruk/ada/rB.svg');
+    background-image: url('images/pieces/makruk/ada/wr/bB.svg');
 }
 label.piece.piece2.makruk, label.piece.piece2.makpong, label.piece.piece2.cambodian {
     background-image: url('images/pieces/makruk/cambodian/wB.svg');
@@ -321,7 +321,7 @@ label.piece.piece2.sittuyin  {
     background-image: url('images/pieces/sittuyin/Ka_blackred/bK.svg');
 }
 label.piece.piece3.sittuyin  {
-    background-image: url('images/pieces/makruk/ada/bK.svg');
+    background-image: url('images/pieces/makruk/ada/rb/bK.svg');
 }
 label.piece.piece4.sittuyin  {
     background-image: url('images/pieces/makruk/intl/bK.svg');
