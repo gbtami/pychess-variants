@@ -20,7 +20,7 @@ Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue 
 For repetitions and other game-end scenarios:
 * Perpetual check is a loss for the player checking after the third repetition
 * Repetitions that are not perpetual are adjucated by material counting after the third repetitions
-* WHen the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
+* When the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
 
 ## The Pieces
 
