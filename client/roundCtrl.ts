@@ -13,7 +13,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { boardSettings } from './board';
+import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';

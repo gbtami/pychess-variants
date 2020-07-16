@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Color } from 'chessgroundx/types';
 
-import { boardSettings } from './board';
+import { boardSettings } from './boardSettings';
 import AnalysisController from './analysisCtrl';
 
 

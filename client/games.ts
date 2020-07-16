@@ -12,7 +12,7 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { VARIANTS, grand2zero, isVariantClass } from './chess';
-import { boardSettings } from './board';
+import { boardSettings } from './boardSettings';
 
 function renderGame(games, game, fen, lastMove) {
     return h(`minigame#${game.gameId}.${game.variant}-board.${VARIANTS[game.variant].pieces}`, {

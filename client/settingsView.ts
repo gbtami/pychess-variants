@@ -11,7 +11,7 @@ import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { backgroundSettings } from './background';
-import { boardSettings } from './board';
+import { boardSettings } from './boardSettings';
 import { variants } from './chess';
 import { getDocumentData } from './document';
 import { _, translatedLanguage, languageSettings } from './i18n';

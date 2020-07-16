@@ -14,7 +14,7 @@ import { Chessground } from 'chessgroundx';
 import { _, _n } from './i18n';
 import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
 import { renderTimeago } from './datetime';
-import { boardSettings } from './board';
+import { boardSettings } from './boardSettings';
 
 export function result(variant, status, result) {
     let text = '';

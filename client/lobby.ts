@@ -17,7 +17,7 @@ import { _, _n } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
-import { boardSettings } from './board';
+import { boardSettings } from './boardSettings';
 import { debounce } from './document';
 
 class LobbyController {

@@ -15,7 +15,7 @@ import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { enabled_variants, getPockets, needPockets, validFen, variantName, variantTooltip, VARIANTS } from './chess';
-import { boardSettings } from './board';
+import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png'; 
 
