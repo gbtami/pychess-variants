@@ -12,7 +12,7 @@ import h from 'snabbdom/h';
 import { dimensions } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { VARIANTS, isVariantClass } from './chess';
+import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES, isVariantClass } from './chess';
 import { changePieceCSS } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
@@ -62,16 +62,15 @@ class BoardSettings {
     }
 
     updateBoardStyle(variant: string) {
-        const idx = this.getSettings("BoardStyle", variant).value;
-        const board = VARIANTS[variant].BoardCSS[idx];
+        const idx = this.getSettings("BoardStyle", variant).value as number;
+        const board = BOARD_FAMILIES[ VARIANTS[variant].board ].boardCSS[idx];
         const root = document.documentElement;
         root.style.setProperty('--' + variant + '-board', "url('images/board/" + board + "')");
     }
 
     updatePieceStyle(variant: string) {
-        const idx = this.getSettings("PieceStyle", variant).value;
-
-        let css = VARIANTS[variant].PieceCSS[idx];
+        const idx = this.getSettings("PieceStyle", variant).value as number;
+        let css = PIECE_FAMILIES[ VARIANTS[variant].pieces ].pieceCSS[idx];
         if (variant === this.ctrl?.variant) {
             if (isVariantClass(variant, "pieceDir")) {
                 // change piece orientation according to board orientation
@@ -82,7 +81,7 @@ class BoardSettings {
             // Redraw the piece being suggested for dropping in the new piece style
             if (this.ctrl.hasPockets) {
                 const chessground = this.ctrl.chessground;
-                const baseurl = VARIANTS[variant].baseURL[idx] + '/';
+                const baseurl = PIECE_FAMILIES[ VARIANTS[variant].pieces ].baseURL[idx] + '/';
                 chessground.set({
                     drawable: {
                         pieces: { baseUrl: '/static/images/pieces/' + baseurl },
@@ -202,7 +201,9 @@ class BoardStyleSettings extends NumberSettings {
         const vboard = this.value;
         const boards : VNode[] = [];
 
-        for (let i = 0; i < VARIANTS[this.variant].BoardCSS.length; i++) {
+        const family = VARIANTS[this.variant].board;
+        const boardCSS = BOARD_FAMILIES[family].boardCSS;
+        for (let i = 0; i < boardCSS.length; i++) {
             boards.push(h('input#board' + i, {
                 on: { change: evt => this.value = Number((evt.target as HTMLInputElement).value) },
                 props: { type: "radio", name: "board", value: i },
@@ -233,8 +234,9 @@ class PieceStyleSettings extends NumberSettings {
         const pieces : VNode[] = [];
 
         const family = VARIANTS[this.variant].pieces;
+        const pieceCSS = PIECE_FAMILIES[family].pieceCSS;
 
-        for (let i = 0; i < VARIANTS[this.variant].PieceCSS.length; i++) {
+        for (let i = 0; i < pieceCSS.length; i++) {
             pieces.push(h('input#piece' + i, {
                 on: { change: e => this.setPieceStyle(family, Number((e.target as HTMLInputElement).value)) },
                 props: { type: "radio", name: "piece", value: i },
