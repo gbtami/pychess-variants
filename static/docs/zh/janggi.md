@@ -19,8 +19,8 @@ Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue 
 
 For repetitions and other game-end scenarios:
 * Perpetual check is a loss for the player checking after the third repetition
-* Repetitions that are not perpetual are adjucated by material counting after the third repetitions
-* WHen the 50-move rule is reached (100 half-moves without capture), game is adjucated by material counting
+* Repetitions that are not perpetual are adjudicated by material counting after the third repetitions
+* When the 50-move rule is reached (100 half-moves without capture), game is adjudicated by material counting
 
 ## The Pieces
 
@@ -50,7 +50,7 @@ The **Advisor** (also known by its Western name, the **guard**) moves exactly li
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/HorseDiagram.png)
 
-The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the horse **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
 
 ### Elephant
 
@@ -122,7 +122,7 @@ P = **P**awn
 
 Like chess, the goal is to checkmate the other king.
 
-Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King.**
+Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, ctrl+click on your King, or simply click the pass button on the right.**
 
 Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not make a move to break bikjang (for example moving a king or moving a piece in between), then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
 
