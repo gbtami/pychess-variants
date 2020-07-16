@@ -30,7 +30,11 @@ export function setCookie(cname, cvalue, exdays) {
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-export function changeCSS(cssFile) {
+function changeCSS(cssLinkIndex, cssFile) {
+    document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
+}
+
+export function changePieceCSS(cssFile) {
     // css file index in template.html
     console.log("changeCSS()", cssFile);
     let cssLinkIndex = 1;
@@ -58,5 +62,5 @@ export function changeCSS(cssFile) {
         cssLinkIndex = 12;
     else if (cssFile.includes("syno"))
         cssLinkIndex = 13;
-    document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
+    changeCSS(cssLinkIndex, cssFile);
 }

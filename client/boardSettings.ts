@@ -13,7 +13,7 @@ import { dimensions } from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { VARIANTS, isVariantClass } from './chess';
-import { changeCSS } from './document';
+import { changePieceCSS } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { analysisChart } from './chart';
@@ -91,7 +91,7 @@ class BoardSettings {
                 chessground.redrawAll();
             }
         }
-        changeCSS('/static/' + css + '.css');
+        changePieceCSS('/static/' + css + '.css');
     }
 
     updateZoom() {
