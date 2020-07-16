@@ -15,7 +15,7 @@ import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } fr
 import { _ } from './i18n';
 import { boardSettings } from './board';
 import { Clock } from './clock';
-import makeGating from './gating';
+import { Gating } from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
@@ -247,7 +247,7 @@ export default class RoundController {
             });
         };
 
-        this.gating = makeGating(this);
+        this.gating = new Gating(this);
         this.promotion = makePromotion(this);
 
         // initialize users

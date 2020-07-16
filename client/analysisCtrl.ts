@@ -13,7 +13,7 @@ import { Color, Dests, Key, Piece, Variant, Notation } from 'chessgroundx/types'
 import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from './i18n';
-import makeGating from './gating';
+import { Gating } from './gating';
 import makePromotion from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
@@ -208,7 +208,7 @@ export default class AnalysisController {
             });
         };
 
-        this.gating = makeGating(this);
+        this.gating = new Gating(this);
         this.promotion = makePromotion(this);
 
         // initialize pockets
