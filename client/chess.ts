@@ -90,7 +90,7 @@ export const VARIANTS = {
     shouse: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "seirawan", icon: "$" },
     chess: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "standard", icon: "M" },
     shako: { geom: Geometry.dim10x10, cg: "cg-640-640", board: "standard10x10", pieces: "shako", icon: "9" },
-    shogun: { geom: Geometry.dim8x8, cg: "cg-512", board: "shogun", pieces: "shogun", icon: "-" },
+    shogun: { geom: Geometry.dim8x8, cg: "cg-512", board: "shogun8x8", pieces: "shogun", icon: "-" },
     orda: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "orda", icon: "R" },
     synochess: { geom: Geometry.dim8x8, cg: "cg-512", board: "standard8x8", pieces: "synochess", icon: "_" },
 }
@@ -115,7 +115,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     standard10x8: { boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
     standard10x10: { boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
     grand10x10: { boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
-    shogun: { boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
+    shogun8x8: { boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
