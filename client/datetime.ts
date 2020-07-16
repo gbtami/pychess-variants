@@ -1,4 +1,4 @@
-import { i18n } from './i18n';
+import { _n } from './i18n';
 
 export function timeago(date) {
     const TZdate = new Date(date + 'Z');
@@ -10,19 +10,19 @@ export function timeago(date) {
             const result = Math.floor(val);
             switch (unit) {
                 case "year":
-                    return i18n.ngettext("%1 year ago", "%1 years ago", result);
+                    return _n("%1 year ago", "%1 years ago", result);
                 case "month":
-                    return i18n.ngettext("%1 month ago", "%1 months ago", result);
+                    return _n("%1 month ago", "%1 months ago", result);
                 case "week":
-                    return i18n.ngettext("%1 week ago", "%1 weeks ago", result);
+                    return _n("%1 week ago", "%1 weeks ago", result);
                 case "day":
-                    return i18n.ngettext("%1 day ago", "%1 days ago", result);
+                    return _n("%1 day ago", "%1 days ago", result);
                 case "hour":
-                    return i18n.ngettext("%1 hour ago", "%1 hours ago", result);
+                    return _n("%1 hour ago", "%1 hours ago", result);
                 case "minute":
-                    return i18n.ngettext("%1 minute ago", "%1 minutes ago", result);
+                    return _n("%1 minute ago", "%1 minutes ago", result);
                 case "second":
-                    return i18n.ngettext("%1 second ago", "%1 seconds ago", result);
+                    return _n("%1 second ago", "%1 seconds ago", result);
             }
         }
         val = val / maxLength[unit];

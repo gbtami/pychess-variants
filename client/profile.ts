@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { _, i18n } from './i18n';
+import { _, _n } from './i18n';
 import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './board';
@@ -33,7 +33,7 @@ export function result(variant, status, result) {
             text = _('Checkmate');
             break;
         case 2:
-            text = i18n.gettext('%1 resigned', (result === '1-0') ? second : first);
+            text = _('%1 resigned', (result === '1-0') ? second : first);
             break;
         case 3:
             text = _('Stalemate');
@@ -48,7 +48,7 @@ export function result(variant, status, result) {
             text = _('Time out');
             break;
         case 7:
-            text = i18n.gettext('%1 abandoned the game', (result === '1-0') ? second : first);
+            text = _('%1 abandoned the game', (result === '1-0') ? second : first);
             break;
         case 8:
             text = _('Cheat detected');
@@ -144,7 +144,7 @@ function renderGames(model, games) {
             ]),
             h('div.info0.games', [
                 h('div', [
-                    h('div.info0', game["m"] === undefined ? "" : i18n.ngettext("%1 move", "%1 moves", game["m"].length)),
+                    h('div.info0', game["m"] === undefined ? "" : _n("%1 move", "%1 moves", game["m"].length)),
                     h('div.info0', game["a"] === undefined ? "" : [ h('span.icon', { attrs: {"data-icon": "3"} }), _("Computer analysis available") ]),
                 ]),
             ]),

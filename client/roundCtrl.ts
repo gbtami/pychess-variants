@@ -12,7 +12,7 @@ import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
-import { _, i18n } from './i18n';
+import { _ } from './i18n';
 import { boardSettings } from './board';
 import { Clock } from './clock';
 import makeGating from './gating';
@@ -396,7 +396,7 @@ export default class RoundController {
         this.chessground.set({fen: this.setupFen});
 
         const side = (msg.color === 'white') ? _('Blue (Cho)') : _('Red (Han)');
-        const message = i18n.gettext('Waiting for %1 to choose starting positions of the horses and elephants...', side);
+        const message = _('Waiting for %1 to choose starting positions of the horses and elephants...', side);
 
         if (this.spectator || msg.color !== this.mycolor) {
             chatMessage('', message, "roundchat");
@@ -1094,7 +1094,7 @@ export default class RoundController {
     }
 
     private onMsgGameNotFound = (msg) => {
-        alert(i18n.gettext("Requested game %1 not found!", msg['gameId']));
+        alert(_("Requested game %1 not found!", msg['gameId']));
         window.location.assign(this.model["home"]);
     }
 

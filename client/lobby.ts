@@ -13,7 +13,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { _, i18n } from './i18n';
+import { _, _n } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
@@ -244,7 +244,7 @@ class LobbyController {
                     ]),
                     h('div.container', [
                         h('div#challenge-block', [
-                            h('h3', i18n.gettext('Challenge %1 to a game', this.model["profileid"])),
+                            h('h3', _('Challenge %1 to a game', this.model["profileid"])),
                         ]),
                         h('div', [
                             h('label', { attrs: { for: "variant" } }, _("Variant")),
@@ -603,7 +603,7 @@ class LobbyController {
         const oldVNode = document.getElementById('g_cnt');
         if (oldVNode instanceof Element) {
             // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#g_cnt', i18n.ngettext('%1 game in play', '%1 games in play', msg["cnt"])));
+            patch(oldVNode as HTMLElement, h('counter#g_cnt', _n('%1 game in play', '%1 games in play', msg["cnt"])));
         }
     }
     private onMsgUserCounter(msg) {
@@ -611,7 +611,7 @@ class LobbyController {
         const oldVNode = document.getElementById('u_cnt');
         if (oldVNode instanceof Element) {
             // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#u_cnt', i18n.ngettext('%1 player', '%1 players', msg["cnt"])));
+            patch(oldVNode as HTMLElement, h('counter#u_cnt', _n('%1 player', '%1 players', msg["cnt"])));
         }
     }
 
