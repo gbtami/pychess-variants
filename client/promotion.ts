@@ -1,112 +1,120 @@
-import { h, init } from "snabbdom";
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
+import { init } from 'snabbdom';
 import listeners from 'snabbdom/modules/eventlisteners';
-import toVNode from 'snabbdom/tovnode';
+import style from 'snabbdom/modules/style';
+
+import { h } from 'snabbdom/h';
+import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
 import { Key, Role } from 'chessgroundx/types';
 
 import { isVariantClass, isPromotion, mandatoryPromotion, promotionRoles, roleToSan, kyotoPromotion } from './chess';
 
-const patch = init([klass, attributes, listeners]);
+const patch = init([listeners, style]);
 
-export default function(ctrl) {
+export class Promotion {
+    ctrl;
+    promoting: any;
+    roles: string[];
 
-    let promoting: any = false;
-    let roles: string[] = [];
+    constructor(ctrl) {
+        this.ctrl = ctrl;
+        this.promoting = null;
+        this.roles = [];
+    }
 
-    function start(movingRole: Role, orig: Key, dest: Key, meta) {
-        const ground = ctrl.getGround();
+    start(movingRole: Role, orig: Key, dest: Key, meta) {
+        const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces[dest] === undefined) return false;
 
-        if (isPromotion(ctrl.variant, ground.state.pieces[dest], orig, dest, meta, ctrl.promotions)) {
-            const color = ctrl.mycolor;
+        if (isPromotion(this.ctrl.variant, ground.state.pieces[dest], orig, dest, meta, this.ctrl.promotions)) {
+            const color = this.ctrl.mycolor;
             const orientation = ground.state.orientation;
-            if (ctrl.autoqueen && isVariantClass(ctrl.variant, "autoQueen")) {
-                roles = ['queen'];
+            if (this.ctrl.autoqueen && isVariantClass(this.ctrl.variant, "autoQueen")) {
+                this.roles = ['queen'];
             } else {
-                roles = promotionRoles(ctrl.variant, movingRole, orig, dest, ctrl.promotions);
+                this.roles = promotionRoles(this.ctrl.variant, movingRole, orig, dest, this.ctrl.promotions);
             }
 
-            switch (ctrl.variant) {
-            case "shogun":
-                if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
-                    promote(ground, dest, 'ppawn');
-                    ctrl.sendMove(orig, dest, '+');
-                } else {
-                    draw_promo(dest, color, orientation);
-                    promoting = {
-                        orig: orig,
-                        dest: dest,
-                        callback: ctrl.sendMove,
+            const mandatory = mandatoryPromotion(this.ctrl.variant, movingRole, orig, dest, color);
+            switch (this.ctrl.variant) {
+                case "shogun":
+                    if (mandatory) {
+                        this.promote(ground, dest, 'ppawn');
+                        this.ctrl.sendMove(orig, dest, '+');
+                    } else {
+                        this.draw_promo(dest, color, orientation);
+                        this.promoting = {
+                            orig: orig,
+                            dest: dest,
+                            callback: this.ctrl.sendMove,
+                        };
                     };
-                };
-                break;
-            case "kyotoshogi":
-                if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
-                    const promoted = kyotoPromotion[movingRole];
-                    promote(ground, dest, promoted);
-                    ctrl.sendMove(orig, dest, (promoted === 'pawn' || promoted === 'silver' || promoted === 'lance' || promoted === 'knight') ? '-' : '+');
-                } else {
-                    draw_promo(dest, color, orientation);
-                    promoting = {
-                        orig: orig,
-                        dest: dest,
-                        callback: ctrl.sendMove,
+                    break;
+                case "kyotoshogi":
+                    if (mandatory) {
+                        const promoted = kyotoPromotion[movingRole];
+                        this.promote(ground, dest, promoted);
+                        this.ctrl.sendMove(orig, dest, (promoted === 'pawn' || promoted === 'silver' || promoted === 'lance' || promoted === 'knight') ? '-' : '+');
+                    } else {
+                        this.draw_promo(dest, color, orientation);
+                        this.promoting = {
+                            orig: orig,
+                            dest: dest,
+                            callback: this.ctrl.sendMove,
+                        };
                     };
-                };
-                break;
-            case "minishogi":
-            case "shogi":
-                if (mandatoryPromotion(ctrl.variant, movingRole, orig, dest, color)) {
-                    promote(ground, dest, 'p' + ground.state.pieces[dest].role);
-                    ctrl.sendMove(orig, dest, '+');
-                } else {
-                    draw_promo(dest, color, orientation);
-                    promoting = {
-                        orig: orig,
-                        dest: dest,
-                        callback: ctrl.sendMove,
+                    break;
+                case "minishogi":
+                case "shogi":
+                    if (mandatory) {
+                        this.promote(ground, dest, 'p' + ground.state.pieces[dest].role);
+                        this.ctrl.sendMove(orig, dest, '+');
+                    } else {
+                        this.draw_promo(dest, color, orientation);
+                        this.promoting = {
+                            orig: orig,
+                            dest: dest,
+                            callback: this.ctrl.sendMove,
+                        };
                     };
-                };
-                break;
-            case 'cambodian':
-            case 'makruk':
-            case 'makpong':
-                promote(ground, dest, 'met');
-                ctrl.sendMove(orig, dest, 'm');
-                break;
-            case 'sittuyin':
-                promote(ground, dest, 'ferz');
-                ctrl.sendMove(orig, dest, 'f');
-                break;
-            default:
-                // in grand chess promotion on back rank is mandatory
-                // and sometimes only one choice exists
-                if (roles.length === 1) {
-                    const role = roles[0];
-                    const promo = roleToSan[role].toLowerCase();
-                    promote(ground, dest, role);
-                    ctrl.sendMove(orig, dest, promo);
-                } else {
-                    draw_promo(dest, color, orientation);
-                    promoting = {
-                        orig: orig,
-                        dest: dest,
-                        callback: ctrl.sendMove,
+                    break;
+                case 'cambodian':
+                case 'makruk':
+                case 'makpong':
+                    this.promote(ground, dest, 'met');
+                    this.ctrl.sendMove(orig, dest, 'm');
+                    break;
+                case 'sittuyin':
+                    this.promote(ground, dest, 'ferz');
+                    this.ctrl.sendMove(orig, dest, 'f');
+                    break;
+                default:
+                    // in grand chess promotion on back rank is mandatory
+                    // and sometimes only one choice exists
+                    if (this.roles.length === 1) {
+                        const role = this.roles[0];
+                        const promo = roleToSan[role].toLowerCase();
+                        this.promote(ground, dest, role);
+                        this.ctrl.sendMove(orig, dest, promo);
+                    } else {
+                        this.draw_promo(dest, color, orientation);
+                        this.promoting = {
+                            orig: orig,
+                            dest: dest,
+                            callback: this.ctrl.sendMove,
+                        };
                     };
-                };
             };
             return true;
         }
         return false;
     };
 
-    function promote(g, key, role) {
-        var pieces = {};
-        var piece = g.state.pieces[key];
+    private promote(g, key, role) {
+        const pieces = {};
+        const piece = g.state.pieces[key];
         if (g.state.pieces[key].role === role) {
             return false;
         } else {
@@ -120,55 +128,55 @@ export default function(ctrl) {
         }
     }
 
-    function draw_promo(dest, color, orientation) {
-        var container = toVNode(document.querySelector('extension') as Node);
-        patch(container, renderPromotion(dest, color, orientation));
+    private draw_promo(dest, color, orientation) {
+        const container = toVNode(document.querySelector('extension') as Node);
+        patch(container, this.view(dest, color, orientation));
     }
 
-    function draw_no_promo() {
-        var container = document.getElementById('extension_choice') as HTMLElement;
+    private draw_no_promo() {
+        const container = document.getElementById('extension_choice') as HTMLElement;
         patch(container, h('extension'));
     }
 
-    function finish(role) {
-        if (promoting) {
-            draw_no_promo();
-            const promoted = promote(ctrl.getGround(), promoting.dest, role);
-            let promo;
+    private finish(role) {
+        if (this.promoting) {
+            this.draw_no_promo();
+            const promoted = this.promote(this.ctrl.getGround(), this.promoting.dest, role);
 
-            switch (ctrl.variant) {
-            case "kyotoshogi":
-                const dropPromoted = role.startsWith("p") && role !== 'pawn';
-                const promotedSign = dropPromoted ? "+" : "";
-                const droppedPiece = dropPromoted ? roleToSan[role.slice(1)] : roleToSan[role];
-                if (promoting.callback) promoting.callback(promotedSign + droppedPiece, "@", promoting.dest);
-                promoting = false;
-                return;
-            case "shogun":
-            case "minishogi":
-            case "shogi":
-                promo = promoted ? "+" : "";
-                break;
-            case "grandhouse":
-            case "grand":
-            case "shako":
-                promo = promoted ? roleToSan[role].toLowerCase() : "";
-                break;
-            default:
-                promo = roleToSan[role].toLowerCase();
+            let promo;
+            switch (this.ctrl.variant) {
+                case "kyotoshogi":
+                    const dropPromoted = role.startsWith("p") && role !== 'pawn';
+                    const promotedSign = dropPromoted ? "+" : "";
+                    const droppedPiece = dropPromoted ? roleToSan[role.slice(1)] : roleToSan[role];
+                    if (this.promoting.callback) this.promoting.callback(promotedSign + droppedPiece, "@", this.promoting.dest);
+                    this.promoting = false;
+                    return;
+                case "shogun":
+                case "minishogi":
+                case "shogi":
+                    promo = promoted ? "+" : "";
+                    break;
+                case "grandhouse":
+                case "grand":
+                case "shako":
+                    promo = promoted ? roleToSan[role].toLowerCase() : "";
+                    break;
+                default:
+                    promo = roleToSan[role].toLowerCase();
             };
-            if (promoting.callback) promoting.callback(promoting.orig, promoting.dest, promo);
-            promoting = false;
+            if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo);
+            this.promoting = false;
         }
     };
 
-    function cancel() {
-        draw_no_promo();
-        ctrl.goPly(ctrl.ply);
+    private cancel() {
+        this.draw_no_promo();
+        this.ctrl.goPly(this.ctrl.ply);
         return;
     }
 
-    function bind(eventName: string, f: (e: Event) => void, redraw) {
+    private bind(eventName: string, f: (e: Event) => void, redraw) {
         return {
             insert(vnode) {
                 vnode.elm.addEventListener(eventName, e => {
@@ -180,44 +188,37 @@ export default function(ctrl) {
         };
     }
 
-    function renderPromotion(dest, color, orientation) {
-        const dim = ctrl.getGround().state.dimensions
+    private view(dest, color, orientation) {
+        const dim = this.ctrl.getGround().state.dimensions
         const firstRankIs0 = dim.height === 10;
-        var left = (dim.width - key2pos(dest, firstRankIs0)[0]) * (100 / dim.width);
+        let left = (dim.width - key2pos(dest, firstRankIs0)[0]) * (100 / dim.width);
         if (orientation === "white") left = (100 / dim.width) * (dim.width - 1) - left;
-        var vertical = color === orientation ? "top" : "bottom";
-        return h(
-            "div#extension_choice." + vertical,
-            {
-                hook: {
-                    insert: vnode => {
-                        const el = vnode.elm as HTMLElement;
-                        el.addEventListener("click", () => cancel());
-                        el.addEventListener("contextmenu", e => {
-                            e.preventDefault();
-                            return false;
-                        });
-                    }
+        const vertical = color === orientation ? "top" : "bottom";
+        return h("div#extension_choice." + vertical, {
+            hook: {
+                insert: vnode => {
+                    const el = vnode.elm as HTMLElement;
+                    el.addEventListener("click", () => this.cancel());
+                    el.addEventListener("contextmenu", e => {
+                        e.preventDefault();
+                        return false;
+                    });
                 }
-            },
-            roles.map((serverRole, i) => {
-                var top = (color === orientation ? i : dim.height -1 - i) * (100 / dim.height);
-                return h(
-                    "square",
-                    {
-                        attrs: { style: "top: " + top + "%;left: " + left + "%" },
-                        hook: bind("click", e => {
-                            e.stopPropagation();
-                            finish(serverRole);
-                        }, false)
-                    },
-                    [h("piece." + serverRole + "." + color)]
+            }
+        },
+            this.roles.map((serverRole, i) => {
+                const top = (color === orientation ? i : dim.height -1 - i) * (100 / dim.height);
+                return h("square", {
+                    style: { top: top + "%", left: left + "%" },
+                    hook: this.bind("click", e => {
+                        e.stopPropagation();
+                        this.finish(serverRole);
+                    }, false)
+                },
+                    [ h("piece." + serverRole + "." + color) ]
                 );
             })
         );
     }
 
-    return {
-        start,
-    };
 }

@@ -16,7 +16,7 @@ import { _ } from './i18n';
 import { boardSettings } from './board';
 import { Clock } from './clock';
 import { Gating } from './gating';
-import makePromotion from './promotion';
+import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
 import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isVariantClass } from './chess';
@@ -248,7 +248,7 @@ export default class RoundController {
         };
 
         this.gating = new Gating(this);
-        this.promotion = makePromotion(this);
+        this.promotion = new Promotion(this);
 
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;

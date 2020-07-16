@@ -14,7 +14,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from './i18n';
 import { Gating } from './gating';
-import makePromotion from './promotion';
+import { Promotion } from './promotion';
 import { dropIsValid, updatePockets } from './pocket';
 import { sound } from './sound';
 import { grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
@@ -209,7 +209,7 @@ export default class AnalysisController {
         };
 
         this.gating = new Gating(this);
-        this.promotion = makePromotion(this);
+        this.promotion = new Promotion(this);
 
         // initialize pockets
         if (this.hasPockets) {
