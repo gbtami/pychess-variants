@@ -107,7 +107,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     makruk8x8: { boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"] },
     sittuyin8x8: { boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
     shogi9x9: { boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "doubutsu.svg"] },
-    shigi5x5: { boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"] },
+    shogi5x5: { boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"] },
     janggi9x10: { boardCSS: ["Janggi.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiBrown.svg"] },
     xiangqi9x10: { boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg"] },
     xiangqi7x7: { boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },

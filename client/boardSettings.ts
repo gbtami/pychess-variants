@@ -62,15 +62,17 @@ class BoardSettings {
     }
 
     updateBoardStyle(variant: string) {
+        const family = VARIANTS[variant].board;
         const idx = this.getSettings("BoardStyle", variant).value as number;
-        const board = BOARD_FAMILIES[ VARIANTS[variant].board ].boardCSS[idx];
+        const board = BOARD_FAMILIES[family].boardCSS[idx];
         const root = document.documentElement;
         root.style.setProperty('--' + variant + '-board', "url('images/board/" + board + "')");
     }
 
     updatePieceStyle(variant: string) {
+        const family = VARIANTS[variant].pieces;
         const idx = this.getSettings("PieceStyle", variant).value as number;
-        let css = PIECE_FAMILIES[ VARIANTS[variant].pieces ].pieceCSS[idx];
+        let css = PIECE_FAMILIES[family].pieceCSS[idx];
         if (variant === this.ctrl?.variant) {
             if (isVariantClass(variant, "pieceDir")) {
                 // change piece orientation according to board orientation
