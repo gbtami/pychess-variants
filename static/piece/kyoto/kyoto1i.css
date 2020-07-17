@@ -1,0 +1,54 @@
+.kyoto .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1FU.svg');
+}
+.kyoto .cg-wrap piece.ppawn.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1HI.svg');
+}
+.kyoto .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1KE.svg');
+}
+.kyoto .cg-wrap piece.pknight.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1KI.svg');
+}
+.kyoto .cg-wrap piece.lance.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1KY.svg');
+}
+.kyoto .cg-wrap piece.plance.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1TO.svg');
+}
+.kyoto .cg-wrap piece.silver.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1GI.svg');
+}
+.kyoto .cg-wrap piece.psilver.white {
+    background-image: url('../../images/pieces/kyoto/Intl/1KA.svg');
+}
+.kyoto .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/shogi/ctp/1GY.svg');
+}
+.kyoto .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0FU.svg');
+}
+.kyoto .cg-wrap piece.ppawn.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0HI.svg');
+}
+.kyoto .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0KE.svg');
+}
+.kyoto .cg-wrap piece.pknight.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0KI.svg');
+}
+.kyoto .cg-wrap piece.lance.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0KY.svg');
+}
+.kyoto .cg-wrap piece.plance.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0TO.svg');
+}
+.kyoto .cg-wrap piece.silver.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0GI.svg');
+}
+.kyoto .cg-wrap piece.psilver.black {
+    background-image: url('../../images/pieces/kyoto/Intl/0KA.svg');
+}
+.kyoto .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/shogi/ctp/0OU.svg');
+}

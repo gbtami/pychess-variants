@@ -1,0 +1,49 @@
+.capa .cg-wrap piece.archbishop.white {
+    background-image: url('../../images/pieces/merida/wA.svg');
+}
+.capa .cg-wrap piece.cancellor.white {
+    background-image: url('../../images/pieces/merida/wC.svg');
+}
+.capa .cg-wrap piece.archbishop.black {
+    background-image: url('../../images/pieces/merida/bA.svg');
+}
+.capa .cg-wrap piece.cancellor.black {
+    background-image: url('../../images/pieces/merida/bC.svg');
+}
+
+.capa .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/merida/wP.svg');
+}
+.capa .cg-wrap piece.bishop.white {
+    background-image: url('../../images/pieces/merida/wB.svg');
+}
+.capa .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/merida/wN.svg');
+}
+.capa .cg-wrap piece.rook.white {
+    background-image: url('../../images/pieces/merida/wR.svg');
+}
+.capa .cg-wrap piece.queen.white {
+    background-image: url('../../images/pieces/merida/wQ.svg');
+}
+.capa .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/merida/wK.svg');
+}
+.capa .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.capa .cg-wrap piece.bishop.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.capa .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.capa .cg-wrap piece.rook.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
+}
+.capa .cg-wrap piece.queen.black {
+    background-image: url('../../images/pieces/merida/bQ.svg');
+}
+.capa .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
+}

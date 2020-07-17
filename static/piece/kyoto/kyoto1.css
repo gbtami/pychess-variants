@@ -1,0 +1,63 @@
+.kyoto .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/shogi/ctk/1FUKyoto.svg');
+}
+/* rook */
+.kyoto .cg-wrap piece.ppawn.white {
+    background-image: url('../../images/pieces/shogi/ctk/1HI.svg');
+}
+.kyoto .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/shogi/ctk/1KE.svg');
+}
+/* gold */
+.kyoto .cg-wrap piece.pknight.white {
+    background-image: url('../../images/pieces/shogi/ctk/1KI.svg');
+}
+.kyoto .cg-wrap piece.lance.white {
+    background-image: url('../../images/pieces/shogi/ctk/1KY.svg');
+}
+/* tokin */
+.kyoto .cg-wrap piece.plance.white {
+    background-image: url('../../images/pieces/shogi/ctk/1TOKyoto.svg');
+}
+.kyoto .cg-wrap piece.silver.white {
+    background-image: url('../../images/pieces/shogi/ctk/1GI.svg');
+}
+/* bishop */
+.kyoto .cg-wrap piece.psilver.white {
+    background-image: url('../../images/pieces/shogi/ctk/1KA.svg');
+}
+.kyoto .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/shogi/ctk/1GY.svg');
+}
+
+.kyoto .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/shogi/ctk/0FUKyoto.svg');
+}
+/* rook */
+.kyoto .cg-wrap piece.ppawn.black {
+    background-image: url('../../images/pieces/shogi/ctk/0HI.svg');
+}
+.kyoto .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/shogi/ctk/0KE.svg');
+}
+/* gold */
+.kyoto .cg-wrap piece.pknight.black {
+    background-image: url('../../images/pieces/shogi/ctk/0KI.svg');
+}
+.kyoto .cg-wrap piece.lance.black {
+    background-image: url('../../images/pieces/shogi/ctk/0KY.svg');
+}
+/* tokin */
+.kyoto .cg-wrap piece.plance.black {
+    background-image: url('../../images/pieces/shogi/ctk/0TOKyoto.svg');
+}
+.kyoto .cg-wrap piece.silver.black {
+    background-image: url('../../images/pieces/shogi/ctk/0GI.svg');
+}
+/* bishop */
+.kyoto .cg-wrap piece.psilver.black {
+    background-image: url('../../images/pieces/shogi/ctk/0KA.svg');
+}
+.kyoto .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/shogi/ctk/0OU.svg');
+}

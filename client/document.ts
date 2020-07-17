@@ -76,5 +76,5 @@ export function changePieceCSS(family: string, cssFile: string) {
         case "synochess": cssLinkIndex += 12; break;
         default: throw "Unknown piece family " + family;
     }
-    changeCSS(cssLinkIndex, "/static/" + cssFile + ".css");
+    changeCSS(cssLinkIndex, "/static/piece/" + family + "/" + cssFile + ".css");
 }

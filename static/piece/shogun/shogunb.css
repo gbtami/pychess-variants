@@ -1,0 +1,67 @@
+.shogun .cg-wrap piece.ferz.white {
+    background-image: url('../../images/pieces/shogun/blue/wF.svg');
+}
+.shogun .cg-wrap piece.ferz.black {
+    background-image: url('../../images/pieces/shogun/blue/bF.svg');
+}
+.shogun .cg-wrap piece.pferz.white {
+    background-image: url('../../images/pieces/shogun/blue/wQ.svg');
+}
+.shogun .cg-wrap piece.pferz.black {
+    background-image: url('../../images/pieces/shogun/blue/bQ.svg');
+}
+.shogun .cg-wrap piece.pknight.white {
+    background-image: url('../../images/pieces/shogun/blue/wG.svg');
+}
+.shogun .cg-wrap piece.pknight.black {
+    background-image: url('../../images/pieces/shogun/blue/bG.svg');
+}
+.shogun .cg-wrap piece.prook.white {
+    background-image: url('../../images/pieces/shogun/blue/wM.svg');
+}
+.shogun .cg-wrap piece.prook.black {
+    background-image: url('../../images/pieces/shogun/blue/bM.svg');
+}
+.shogun .cg-wrap piece.pbishop.white {
+    background-image: url('../../images/pieces/shogun/blue/wA.svg');
+}
+.shogun .cg-wrap piece.pbishop.black {
+    background-image: url('../../images/pieces/shogun/blue/bA.svg');
+}
+.shogun .cg-wrap piece.ppawn.white {
+    background-image: url('../../images/pieces/shogun/blue/wC.svg');
+}
+.shogun .cg-wrap piece.ppawn.black {
+    background-image: url('../../images/pieces/shogun/blue/bC.svg');
+}
+
+.shogun .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/shogun/blue/wP.svg');
+}
+.shogun .cg-wrap piece.bishop.white {
+    background-image: url('../../images/pieces/shogun/blue/wB.svg');
+}
+.shogun .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/shogun/blue/wN.svg');
+}
+.shogun .cg-wrap piece.rook.white {
+    background-image: url('../../images/pieces/shogun/blue/wR.svg');
+}
+.shogun .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/shogun/blue/wK.svg');
+}
+.shogun .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/shogun/blue/bP.svg');
+}
+.shogun .cg-wrap piece.bishop.black {
+    background-image: url('../../images/pieces/shogun/blue/bB.svg');
+}
+.shogun .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/shogun/blue/bN.svg');
+}
+.shogun .cg-wrap piece.rook.black {
+    background-image: url('../../images/pieces/shogun/blue/bR.svg');
+}
+.shogun .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/shogun/blue/bK.svg');
+}

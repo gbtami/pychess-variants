@@ -1,0 +1,48 @@
+.capa .cg-wrap piece.archbishop.white {
+    background-image: url('../../images/pieces/kaneo/wA.svg');
+}
+.capa .cg-wrap piece.cancellor.white {
+    background-image: url('../../images/pieces/kaneo/wCh.svg');
+}
+.capa .cg-wrap piece.archbishop.black {
+    background-image: url('../../images/pieces/kaneo/bA.svg');
+}
+.capa .cg-wrap piece.cancellor.black {
+    background-image: url('../../images/pieces/kaneo/bCh.svg');
+}
+.capa .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/kaneo/wP.svg');
+}
+.capa .cg-wrap piece.bishop.white {
+    background-image: url('../../images/pieces/kaneo/wB.svg');
+}
+.capa .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/kaneo/wN.svg');
+}
+.capa .cg-wrap piece.rook.white {
+    background-image: url('../../images/pieces/kaneo/wR.svg');
+}
+.capa .cg-wrap piece.queen.white {
+    background-image: url('../../images/pieces/kaneo/wQ.svg');
+}
+.capa .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/kaneo/wK.svg');
+}
+.capa .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/kaneo/bP.svg');
+}
+.capa .cg-wrap piece.bishop.black {
+    background-image: url('../../images/pieces/kaneo/bB.svg');
+}
+.capa .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/kaneo/bN.svg');
+}
+.capa .cg-wrap piece.rook.black {
+    background-image: url('../../images/pieces/kaneo/bR.svg');
+}
+.capa .cg-wrap piece.queen.black {
+    background-image: url('../../images/pieces/kaneo/bQ.svg');
+}
+.capa .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/kaneo/bK.svg');
+}
