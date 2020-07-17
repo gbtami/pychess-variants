@@ -1,0 +1,43 @@
+.xiangqi .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/xiangqi/hnzw/red_pawn.svg');
+}
+.xiangqi .cg-wrap piece.bishop.white {
+    background-image: url('../../images/pieces/xiangqi/hnzw/red_elephant.svg');
+}
+.xiangqi .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/xiangqi/hnzw/red_horse.svg');
+}
+.xiangqi .cg-wrap piece.rook.white {
+    background-image: url('../../images/pieces/xiangqi/hnzw/red_chariot.svg');
+}
+.xiangqi .cg-wrap piece.advisor.white {
+    background-image: url('../../images/pieces/xiangqi/hnzw/red_advisor.svg');
+}
+.xiangqi .cg-wrap piece.cannon.white {
+    background-image: url('../../images/pieces/xiangqi/hnzw/red_cannon.svg');
+}
+.xiangqi .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/xiangqi/hnzw/red_king.svg');
+}
+
+.xiangqi .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/xiangqi/hnzw/black_pawn.svg');
+}
+.xiangqi .cg-wrap piece.bishop.black {
+    background-image: url('../../images/pieces/xiangqi/hnzw/black_elephant.svg');
+}
+.xiangqi .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/xiangqi/hnzw/black_horse.svg');
+}
+.xiangqi .cg-wrap piece.rook.black {
+    background-image: url('../../images/pieces/xiangqi/hnzw/black_chariot.svg');
+}
+.xiangqi .cg-wrap piece.advisor.black {
+    background-image: url('../../images/pieces/xiangqi/hnzw/black_advisor.svg');
+}
+.xiangqi .cg-wrap piece.cannon.black {
+    background-image: url('../../images/pieces/xiangqi/hnzw/black_cannon.svg');
+}
+.xiangqi .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/xiangqi/hnzw/black_king.svg');
+}

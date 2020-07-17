@@ -99,7 +99,7 @@ const soundThemes = {
 class SoundThemeSettings extends StringSettings {
     
     constructor() {
-        super('soundTheme', 'standard');
+        super('soundtheme', 'standard');
     }
 
     update(): void {
@@ -107,7 +107,7 @@ class SoundThemeSettings extends StringSettings {
     }
 
     view(): VNode {
-        return h('div#sound-theme.radio-list', radioList(this, 'sound-theme', soundThemes, (_, key) => this.value = key));
+        return h('div#soundtheme.radio-list', radioList(this, 'soundtheme', soundThemes, (_, key) => this.value = key));
     }
 }
 

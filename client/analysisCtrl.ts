@@ -97,9 +97,11 @@ export default class AnalysisController {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
             boardSettings.ctrl = this;
-            boardSettings.updateBoardStyle(this.variant);
-            boardSettings.updatePieceStyle(this.variant);
-            boardSettings.updateZoom();
+            const boardFamily = VARIANTS[this.variant].board;
+            const pieceFamily = VARIANTS[this.variant].pieces;
+            boardSettings.updateBoardStyle(boardFamily);
+            boardSettings.updatePieceStyle(pieceFamily);
+            boardSettings.updateZoom(boardFamily);
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 

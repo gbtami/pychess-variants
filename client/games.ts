@@ -15,7 +15,7 @@ import { VARIANTS, grand2zero, isVariantClass } from './chess';
 import { boardSettings } from './boardSettings';
 
 function renderGame(games, game, fen, lastMove) {
-    return h(`minigame#${game.gameId}.${game.variant}-board.${VARIANTS[game.variant].pieces}`, {
+    return h(`minigame#${game.gameId}.${VARIANTS[game.variant].board}.${VARIANTS[game.variant].pieces}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
         h('div', game.b),

@@ -30,33 +30,51 @@ export function setCookie(cname, cvalue, exdays) {
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-export function changeCSS(cssFile) {
-    // css file index in template.html
-    console.log("changeCSS()", cssFile);
-    let cssLinkIndex = 1;
-    if (cssFile.includes("seir"))
-        cssLinkIndex = 2;
-    else if (cssFile.includes("makruk"))
-        cssLinkIndex = 3;
-    else if (cssFile.includes("sittuyin"))
-        cssLinkIndex = 4;
-    else if (cssFile.includes("shogi"))
-        cssLinkIndex = 5;
-    else if (cssFile.includes("kyoto"))
-        cssLinkIndex = 6;
-    else if (cssFile.includes("xiangqi"))
-        cssLinkIndex = 7;
-    else if (cssFile.includes("capa"))
-        cssLinkIndex = 8;
-    else if (cssFile.includes("shako"))
-        cssLinkIndex = 9;
-    else if (cssFile.includes("shogun"))
-        cssLinkIndex = 10;
-    else if (cssFile.includes("janggi"))
-        cssLinkIndex = 11;
-    else if (cssFile.includes("orda"))
-        cssLinkIndex = 12;
-    else if (cssFile.includes("syno"))
-        cssLinkIndex = 13;
+function changeCSS(cssLinkIndex: number, cssFile: string) {
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
+}
+
+// css file index in template.html
+const BOARD_CSS_START = 1;
+const PIECE_CSS_START = 13;
+
+export function changeBoardCSS(family: string, cssFile: string) {
+    let cssLinkIndex = BOARD_CSS_START;
+    switch (family) {
+        case "makruk8x8": break;
+        case "sittuyin8x8": cssLinkIndex += 1; break;
+        case "shogi9x9": cssLinkIndex += 2; break;
+        case "shogi5x5": cssLinkIndex += 3; break;
+        case "janggi9x10": cssLinkIndex += 4; break;
+        case "xiangqi9x10": cssLinkIndex += 5; break;
+        case "xiangqi7x7": cssLinkIndex += 6; break;
+        case "standard8x8": cssLinkIndex += 7; break;
+        case "standard10x8": cssLinkIndex += 8; break;
+        case "standard10x10": cssLinkIndex += 9; break;
+        case "grand10x10": cssLinkIndex += 10; break;
+        case "shogun8x8": cssLinkIndex += 11; break;
+        default: throw "Unknown piece family " + family;
+    }
+    changeCSS(cssLinkIndex, "/static/board/" + family + "/" + cssFile + ".css");
+}
+
+export function changePieceCSS(family: string, cssFile: string) {
+    let cssLinkIndex = PIECE_CSS_START;
+    switch (family) {
+        case "standard": break;
+        case "seirawan": cssLinkIndex += 1; break;
+        case "makruk": cssLinkIndex += 2; break;
+        case "sittuyin": cssLinkIndex += 3; break;
+        case "shogi": cssLinkIndex += 4; break;
+        case "kyoto": cssLinkIndex += 5; break;
+        case "xiangqi": cssLinkIndex += 6; break;
+        case "capa": cssLinkIndex += 7; break;
+        case "shako": cssLinkIndex += 8; break;
+        case "shogun": cssLinkIndex += 9; break;
+        case "janggi": cssLinkIndex += 10; break;
+        case "orda": cssLinkIndex += 11; break;
+        case "synochess": cssLinkIndex += 12; break;
+        default: throw "Unknown piece family " + family;
+    }
+    changeCSS(cssLinkIndex, "/static/piece/" + family + "/" + cssFile + ".css");
 }
