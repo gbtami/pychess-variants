@@ -94,9 +94,11 @@ export default class RoundController {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
             boardSettings.ctrl = this;
-            boardSettings.updateBoardStyle(this.variant);
-            boardSettings.updatePieceStyle(this.variant);
-            boardSettings.updateZoom();
+            const boardFamily = VARIANTS[this.variant].board;
+            const pieceFamily = VARIANTS[this.variant].pieces;
+            boardSettings.updateBoardStyle(boardFamily);
+            boardSettings.updatePieceStyle(pieceFamily);
+            boardSettings.updateZoom(boardFamily);
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });

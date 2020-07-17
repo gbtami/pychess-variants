@@ -92,7 +92,7 @@ function renderGames(model, games) {
         on: { click: () => { window.location.assign('/' + game["_id"]); } },
     }, [
         h('td.board', [
-            h(`selection.${game["v"]}-board.${VARIANTS[game["v"]].pieces}`, [
+            h(`selection.${VARIANTS[game["v"]].board}.${VARIANTS[game["v"]].pieces}`, [
                 h(`div.cg-wrap.${VARIANTS[game["v"]].cg}.mini`, {
                     hook: {
                         insert: vnode => Chessground(vnode.elm as HTMLElement, {

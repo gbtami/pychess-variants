@@ -71,7 +71,7 @@ export function analysisView(model): VNode[] {
                 h('div.roundchat#roundchat'),
             ]),
             h('div.analysis', [
-                h('selection#board2png.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
+                h('selection#board2png.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].pieces, [
                     h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runGround(vnode, model)},
                     }),

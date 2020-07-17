@@ -178,9 +178,11 @@ function runEditor(vnode: VNode, model) {
     const ctrl = new EditorController(el, model);
 
     boardSettings.ctrl = ctrl;
-    boardSettings.updateBoardStyle(ctrl.variant);
-    boardSettings.updatePieceStyle(ctrl.variant);
-    boardSettings.updateZoom();
+    const boardFamily = VARIANTS[ctrl.variant].board;
+    const pieceFamily = VARIANTS[ctrl.variant].pieces;
+    boardSettings.updateBoardStyle(boardFamily);
+    boardSettings.updatePieceStyle(pieceFamily);
+    boardSettings.updateZoom(boardFamily);
 
     const cg = ctrl.chessground;
     window['cg'] = cg;
@@ -221,7 +223,7 @@ export function editorView(model): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('selection#board2png.' + model["variant"] + '-board.' + VARIANTS[model["variant"]].pieces, [
+                h('selection#board2png.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].pieces, [
                     h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runEditor(vnode, model)},
                     }),

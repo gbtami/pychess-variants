@@ -8,7 +8,6 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { VNode } from "snabbdom/vnode";
 import { h } from 'snabbdom/h';
-import { toVNode } from 'snabbdom/tovnode';
 
 import { backgroundSettings } from './background';
 import { boardSettings } from './boardSettings';
@@ -75,19 +74,21 @@ function settingsMenu() {
 function showSubsettings(evt) {
     const mainSettings = document.getElementById('settings-main') as HTMLElement;
     const subSettings = document.getElementById('settings-sub') as HTMLElement;
+
+    subSettings.innerHTML = "";
     const settingsName = evt.target.id.slice(4);
     switch (settingsName) {
         case "lang":
-            patch(toVNode(subSettings), langSettingsView());
+            patch(subSettings, langSettingsView());
             break;
         case "sound":
-            patch(toVNode(subSettings), soundSettingsView());
+            patch(subSettings, soundSettingsView());
             break;
         case "background":
-            patch(toVNode(subSettings), backgroundSettingsView());
+            patch(subSettings, backgroundSettingsView());
             break;
         case "board":
-            patch(toVNode(subSettings), boardSettingsView());
+            patch(subSettings, boardSettingsView());
             showVariantBoardSettings((document.getElementById('board-variant') as HTMLInputElement).value);
             break;
     }
@@ -149,5 +150,6 @@ function boardSettingsView() {
 
 function showVariantBoardSettings(variant) {
     const settings = document.getElementById('board-settings') as HTMLElement;
-    patch(toVNode(settings), boardSettings.view(variant));
+    settings.innerHTML = "";
+    patch(settings, boardSettings.view(variant));
 }

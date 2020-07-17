@@ -13,7 +13,7 @@ import { dimensions } from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES, isVariantClass } from './chess';
-import { changePieceCSS } from './document';
+import { changeBoardCSS, changePieceCSS } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { analysisChart } from './chart';
@@ -29,23 +29,23 @@ class BoardSettings {
 
     constructor() {
         this.settings = {};
-        this.settings.showDests = new ShowDestsSettings(this);
-        this.settings.autoQueen = new AutoQueenSettings(this);
-        this.settings.arrow = new ArrowSettings(this);
+        this.settings["showDests"] = new ShowDestsSettings(this);
+        this.settings["autoQueen"] = new AutoQueenSettings(this);
+        this.settings["arrow"] = new ArrowSettings(this);
     }
 
-    getSettings(settingsType: string, variant: string) {
-        const fullName = variant + settingsType;
+    getSettings(settingsType: string, family: string) {
+        const fullName = family + settingsType;
         if (!this.settings[fullName]) {
             switch (settingsType) {
                 case "BoardStyle":
-                    this.settings[fullName] = new BoardStyleSettings(this, variant);
+                    this.settings[fullName] = new BoardStyleSettings(this, family);
                     break;
                 case "PieceStyle":
-                    this.settings[fullName] = new PieceStyleSettings(this, variant);
+                    this.settings[fullName] = new PieceStyleSettings(this, family);
                     break;
                 case "Zoom":
-                    this.settings[fullName] = new ZoomSettings(this, variant);
+                    this.settings[fullName] = new ZoomSettings(this, family);
                     break;
                 default:
                     throw "Unknown settings type " + settingsType;
@@ -55,25 +55,21 @@ class BoardSettings {
     }
 
     updateBoardAndPieceStyles() {
-        Object.keys(VARIANTS).forEach(variant => {
-            this.updateBoardStyle(variant);
-            this.updatePieceStyle(variant);
-        });
+        Object.keys(BOARD_FAMILIES).forEach(family => this.updateBoardStyle(family));
+        Object.keys(PIECE_FAMILIES).forEach(family => this.updatePieceStyle(family));
     }
 
-    updateBoardStyle(variant: string) {
-        const family = VARIANTS[variant].board;
-        const idx = this.getSettings("BoardStyle", variant).value as number;
+    updateBoardStyle(family: string) {
+        const idx = this.getSettings("BoardStyle", family).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        const root = document.documentElement;
-        root.style.setProperty('--' + variant + '-board', "url('images/board/" + board + "')");
+        changeBoardCSS(family, board);
     }
 
-    updatePieceStyle(variant: string) {
-        const family = VARIANTS[variant].pieces;
-        const idx = this.getSettings("PieceStyle", variant).value as number;
+    updatePieceStyle(family: string) {
+        const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        if (variant === this.ctrl?.variant) {
+        const variant = this.ctrl?.variant;
+        if (variant && VARIANTS[variant].pieces === family) {
             if (isVariantClass(variant, "pieceDir")) {
                 // change piece orientation according to board orientation
                 if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
@@ -92,16 +88,18 @@ class BoardSettings {
                 chessground.redrawAll();
             }
         }
-        changePieceCSS('/static/' + css + '.css');
+        changePieceCSS(family, css);
     }
 
-    updateZoom() {
-        if (this.ctrl) {
-            const zoom = this.getSettings("Zoom", this.ctrl.variant).value as number;
+    updateZoom(family: string) {
+        const variant = this.ctrl?.variant;
+        if (variant && VARIANTS[variant].board === family) {
+            const zoomSettings = this.getSettings("Zoom", family) as ZoomSettings;
+            const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
-                const baseWidth = dimensions[VARIANTS[this.ctrl.variant].geom].width * (this.ctrl.variant.endsWith('shogi') ? 52 : 64);
-                const baseHeight = dimensions[VARIANTS[this.ctrl.variant].geom].height * (this.ctrl.variant.endsWith('shogi') ? 60 : 64);
+                const baseWidth = dimensions[VARIANTS[variant].geom].width * (family.includes("shogi") ? 52 : 64);
+                const baseHeight = dimensions[VARIANTS[variant].geom].height * (family.includes("shogi") ? 60 : 64);
                 const pxw = `${zoom / 100 * baseWidth}px`;
                 const pxh = `${zoom / 100 * baseHeight}px`;
                 el.style.width = pxw;
@@ -109,7 +107,7 @@ class BoardSettings {
                 // 2 x (pocket height + pocket-wrapper additional 10px gap)
                 const pxp = (this.ctrl.hasPockets) ? '148px;' : '0px;';
                 // point counting values
-                const pxc = (isVariantClass(this.ctrl.variant, "showMaterialPoint")) ? '48px;' : '0px;';
+                const pxc = (isVariantClass(variant, "showMaterialPoint")) ? '48px;' : '0px;';
                 document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
                 document.body.dispatchEvent(new Event('chessground.resize'));
 
@@ -125,12 +123,15 @@ class BoardSettings {
 
         const settingsList : VNode[] = [];
 
-        settingsList.push(this.getSettings("BoardStyle", variant).view());
+        const boardFamily = VARIANTS[variant].board;
+        const pieceFamily = VARIANTS[variant].pieces;
 
-        settingsList.push(this.getSettings("PieceStyle", variant).view());
+        settingsList.push(this.getSettings("BoardStyle", boardFamily).view());
+
+        settingsList.push(this.getSettings("PieceStyle", pieceFamily).view());
 
         if (variant === this.ctrl?.variant)
-            settingsList.push(this.getSettings("Zoom", variant).view());
+            settingsList.push(this.getSettings("Zoom", boardFamily).view());
 
         settingsList.push(this.settings["showDests"].view());
 
@@ -187,31 +188,30 @@ class BoardSettings {
 
 class BoardStyleSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
-    readonly variant: string;
+    readonly boardFamily: string;
 
-    constructor(boardSettings: BoardSettings, variant: string) {
-        super(variant + '_board', 0);
+    constructor(boardSettings: BoardSettings, boardFamily: string) {
+        super(boardFamily + '-board', 0);
         this.boardSettings = boardSettings;
-        this.variant = variant;
+        this.boardFamily = boardFamily;
     }
 
     update(): void {
-        this.boardSettings.updateBoardStyle(this.variant);
+        this.boardSettings.updateBoardStyle(this.boardFamily);
     }
 
     view(): VNode {
         const vboard = this.value;
         const boards : VNode[] = [];
 
-        const family = VARIANTS[this.variant].board;
-        const boardCSS = BOARD_FAMILIES[family].boardCSS;
+        const boardCSS = BOARD_FAMILIES[this.boardFamily].boardCSS;
         for (let i = 0; i < boardCSS.length; i++) {
             boards.push(h('input#board' + i, {
                 on: { change: evt => this.value = Number((evt.target as HTMLInputElement).value) },
                 props: { type: "radio", name: "board", value: i },
                 attrs: { checked: vboard === i },
             }));
-            boards.push(h('label.board.board' + i + '.' + this.variant, { attrs: { for: "board" + i } }, ""));
+            boards.push(h('label.board.board' + i + '.' + this.boardFamily, { attrs: { for: "board" + i } }, ""));
         }
         return h('div.settings-board', boards);
     }
@@ -219,60 +219,51 @@ class BoardStyleSettings extends NumberSettings {
 
 class PieceStyleSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
-    readonly variant: string;
+    readonly pieceFamily: string;
 
-    constructor(boardSettings: BoardSettings, variant: string) {
-        super(variant + '_pieces', 0);
+    constructor(boardSettings: BoardSettings, pieceFamily: string) {
+        super(pieceFamily + '-piece', 0);
         this.boardSettings = boardSettings;
-        this.variant = variant;
+        this.pieceFamily = pieceFamily;
     }
 
     update(): void {
-        this.boardSettings.updatePieceStyle(this.variant);
+        this.boardSettings.updatePieceStyle(this.pieceFamily);
     }
 
     view(): VNode {
         const vpiece = this.value;
         const pieces : VNode[] = [];
 
-        const family = VARIANTS[this.variant].pieces;
-        const pieceCSS = PIECE_FAMILIES[family].pieceCSS;
-
+        const pieceCSS = PIECE_FAMILIES[this.pieceFamily].pieceCSS;
         for (let i = 0; i < pieceCSS.length; i++) {
             pieces.push(h('input#piece' + i, {
-                on: { change: e => this.setPieceStyle(family, Number((e.target as HTMLInputElement).value)) },
+                on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
                 props: { type: "radio", name: "piece", value: i },
                 attrs: { checked: vpiece === i },
             }));
-            pieces.push(h('label.piece.piece' + i + '.' + this.variant, { attrs: { for: "piece" + i } }, ""));
+            pieces.push(h('label.piece.piece' + i + '.' + this.pieceFamily, { attrs: { for: "piece" + i } }, ""));
         }
         return h('div.settings-pieces', pieces);
-    }
-
-    private setPieceStyle(family: string, idx: number) {
-        Object.keys(VARIANTS).filter(key => VARIANTS[key].pieces === family).forEach(key =>
-            this.boardSettings.getSettings("PieceStyle", key).value = idx
-        );
     }
 }
 
 class ZoomSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
-    readonly variant: string;
+    readonly boardFamily: string;
 
-    constructor(boardSettings: BoardSettings, variant: string) {
-        super('zoom-' + variant, 100);
+    constructor(boardSettings: BoardSettings, boardFamily: string) {
+        super(boardFamily + '-zoom', 100);
         this.boardSettings = boardSettings;
-        this.variant = variant;
+        this.boardFamily = boardFamily;
     }
 
     update(): void {
-        if (this.variant === this.boardSettings.ctrl?.variant)
-            this.boardSettings.updateZoom();
+        this.boardSettings.updateZoom(this.boardFamily);
     }
 
     view(): VNode {
-        return slider(this, 'zoom', 50, 150, this.variant.endsWith("shogi") ? 1 : 1.15625);
+        return slider(this, 'zoom', 50, 150, this.boardFamily.includes("shogi") ? 1 : 1.15625);
     }
 }
 
@@ -280,7 +271,7 @@ class ShowDestsSettings extends BooleanSettings {
     readonly boardSettings: BoardSettings;
 
     constructor(boardSettings: BoardSettings) {
-        super('showDests', true);
+        super('showdests', true);
         this.boardSettings = boardSettings;
     }
 
