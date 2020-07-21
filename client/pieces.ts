@@ -10,7 +10,7 @@ import { dragNewPiece } from 'chessgroundx/drag';
 import { Color, dimensions } from 'chessgroundx/types';
 
 import EditorController from './editor';
-import { pieceRoles, VARIANTS } from './chess';
+import { VARIANTS } from './chess';
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
@@ -19,9 +19,9 @@ type Position = 'top' | 'bottom';
 const eventNames = ['mousedown', 'touchstart'];
 
 export function piecesView(ctrl: EditorController, color: Color, position: Position) {
-    const roles = pieceRoles(ctrl.variant, color);
+    const roles = VARIANTS[ctrl.variant].pieceRoles(color);
     return h('div.pocket.' + position + '.editor.usable', {
-        style: {'--pieces': String(roles.length), '--files': String(dimensions[VARIANTS[ctrl.variant].geom].width)},
+        style: { '--pieces': String(roles.length), '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width) },
         hook: {
             insert: vnode => {
                 eventNames.forEach(name => {

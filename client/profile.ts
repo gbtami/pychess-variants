@@ -12,15 +12,16 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { _, _n } from './i18n';
-import { VARIANTS, variantIcon, variantName, firstColor, secondColor } from './chess';
+import { VARIANTS } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 
-export function result(variant, status, result) {
+export function result(variantName, status, result) {
     let text = '';
-    console.log("result()", variant, status, result);
-    const first = firstColor(variant);
-    const second = secondColor(variant);
+    console.log("result()", variantName, status, result);
+    const variant = VARIANTS[variantName];
+    const first = _(variant.firstColor);
+    const second = _(variant.secondColor);
     switch (status) {
         case -2:
         case -1:
@@ -63,10 +64,10 @@ export function result(variant, status, result) {
             text = _('Unknown reason');
             break;
         case 12:
-            text = (variant === 'orda' || variant === 'synochess') ? _('Campmate') : _('Point counting');
+            text = (variantName === 'orda' || variantName === 'synochess') ? _('Campmate') : _('Point counting');
             break;
         case 13:
-            text = (variant === 'janggi') ? _('Point counting') : _('Repetition');
+            text = (variantName === 'janggi') ? _('Point counting') : _('Repetition');
             break;
         default:
             text = '*';
@@ -88,68 +89,72 @@ export function renderRdiff(rdiff) {
 }
 
 function renderGames(model, games) {
-    const rows = games.map(game => h('tr', {
-        on: { click: () => { window.location.assign('/' + game["_id"]); } },
-    }, [
-        h('td.board', [
-            h(`selection.${VARIANTS[game["v"]].board}.${VARIANTS[game["v"]].pieces}`, [
-                h(`div.cg-wrap.${VARIANTS[game["v"]].cg}.mini`, {
-                    hook: {
-                        insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                            coordinates: false,
-                            viewOnly: true,
-                            fen: game["f"],
-                            geometry: VARIANTS[game["v"]].geom
-                        })
-                    }
-                }),
-            ]),
-        ]),
-        h('td.games-info', [
-            h('div.info0.games.icon', { attrs: { "data-icon": variantIcon(game["v"], game["z"]) } }, [
-                // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
-                h('div.info2', [
-                    h('div.tc', game["b"] + "+" + (game["bp"] > 1 ? game["bp"] + "x" : "") + game["i"] + (game["bp"] > 0 ? "(b)" : "") + " • " + ((game["y"] === 1) ? _("Rated") : _("Casual")) + " • " + variantName(game["v"], game["z"])),
-                    h('info-date', { attrs: { timestamp: game["d"] } }),
+    const rows = games.map(game => {
+        const variant = VARIANTS[game.v];
+        const chess960 = game.z === 1;
+        return h('tr', {
+            on: { click: () => { window.location.assign('/' + game["_id"]); } },
+        }, [
+            h('td.board', [
+                h(`selection.${variant.board}.${variant.piece}`, [
+                    h(`div.cg-wrap.${variant.cg}.mini`, {
+                        hook: {
+                            insert: vnode => Chessground(vnode.elm as HTMLElement, {
+                                coordinates: false,
+                                viewOnly: true,
+                                fen: game["f"],
+                                geometry: variant.geometry,
+                            })
+                        }
+                    }),
                 ]),
             ]),
-            h('div.info-middle', [
-                h('div.versus', [
-                    h('player', [
-                        h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
-                            h('player-title', " " + game["wt"] + " "),
-                            game["us"][0] + ((game["wt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
-                            h('br'),
-                            (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
-                            (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
-                        ]),
-                    ]),
-                    h('vs-swords.icon', { attrs: { "data-icon": '"' } }),
-                    h('player', [
-                        h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
-                            h('player-title', " " + game["bt"] + " "),
-                            game["us"][1] + ((game["bt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
-                            h('br'),
-                            (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
-                            (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
-                        ]),
+            h('td.games-info', [
+                h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
+                    // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
+                    h('div.info2', [
+                        h('div.tc', game["b"] + "+" + (game["bp"] > 1 ? game["bp"] + "x" : "") + game["i"] + (game["bp"] > 0 ? "(b)" : "") + " • " + ((game["y"] === 1) ? _("Rated") : _("Casual")) + " • " + variant.displayName(chess960)),
+                        h('info-date', { attrs: { timestamp: game["d"] } }),
                     ]),
                 ]),
-                h('div.info-result', {
-                    class: {
-                        "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
-                        "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
-                    }}, result(game["v"], game["s"], game["r"])
-                ),
-            ]),
-            h('div.info0.games', [
-                h('div', [
-                    h('div.info0', game["m"] === undefined ? "" : _n("%1 move", "%1 moves", game["m"].length)),
-                    h('div.info0', game["a"] === undefined ? "" : [ h('span.icon', { attrs: {"data-icon": "3"} }), _("Computer analysis available") ]),
+                h('div.info-middle', [
+                    h('div.versus', [
+                        h('player', [
+                            h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
+                                h('player-title', " " + game["wt"] + " "),
+                                game["us"][0] + ((game["wt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
+                                h('br'),
+                                (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
+                                (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
+                            ]),
+                        ]),
+                        h('vs-swords.icon', { attrs: { "data-icon": '"' } }),
+                        h('player', [
+                            h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
+                                h('player-title', " " + game["bt"] + " "),
+                                game["us"][1] + ((game["bt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
+                                h('br'),
+                                (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
+                                (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
+                            ]),
+                        ]),
+                    ]),
+                    h('div.info-result', {
+                        class: {
+                            "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
+                            "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
+                        }}, result(game["v"], game["s"], game["r"])
+                    ),
                 ]),
-            ]),
+                h('div.info0.games', [
+                    h('div', [
+                        h('div.info0', game["m"] === undefined ? "" : _n("%1 move", "%1 moves", game["m"].length)),
+                        h('div.info0', game["a"] === undefined ? "" : [ h('span.icon', { attrs: {"data-icon": "3"} }), _("Computer analysis available") ]),
+                    ]),
+                ]),
+            ])
         ])
-    ]));
+    });
     return [h('tbody', rows)];
 }
 

@@ -98,7 +98,7 @@ export default class AnalysisController {
             console.log("ctrl.onOpen()", evt);
             boardSettings.ctrl = this;
             const boardFamily = VARIANTS[this.variant].board;
-            const pieceFamily = VARIANTS[this.variant].pieces;
+            const pieceFamily = VARIANTS[this.variant].piece;
             boardSettings.updateBoardStyle(boardFamily);
             boardSettings.updatePieceStyle(pieceFamily);
             boardSettings.updateZoom(boardFamily);
@@ -177,7 +177,7 @@ export default class AnalysisController {
         this.chessground = Chessground(el, {
             fen: fen_placement,
             variant: this.variant as Variant,
-            geometry: VARIANTS[this.variant].geom,
+            geometry: VARIANTS[this.variant].geometry,
             notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
             orientation: this.mycolor,
             turnColor: this.turnColor,

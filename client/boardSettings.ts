@@ -69,7 +69,7 @@ class BoardSettings {
         const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
         const variant = this.ctrl?.variant;
-        if (variant && VARIANTS[variant].pieces === family) {
+        if (variant && VARIANTS[variant].piece === family) {
             if (isVariantClass(variant, "pieceDir")) {
                 // change piece orientation according to board orientation
                 if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
@@ -79,7 +79,7 @@ class BoardSettings {
             // Redraw the piece being suggested for dropping in the new piece style
             if (this.ctrl.hasPockets) {
                 const chessground = this.ctrl.chessground;
-                const baseurl = PIECE_FAMILIES[ VARIANTS[variant].pieces ].baseURL[idx] + '/';
+                const baseurl = VARIANTS[variant].pieceBaseURL[idx] + '/';
                 chessground.set({
                     drawable: {
                         pieces: { baseUrl: '/static/images/pieces/' + baseurl },
@@ -98,8 +98,8 @@ class BoardSettings {
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
-                const baseWidth = dimensions[VARIANTS[variant].geom].width * (family.includes("shogi") ? 52 : 64);
-                const baseHeight = dimensions[VARIANTS[variant].geom].height * (family.includes("shogi") ? 60 : 64);
+                const baseWidth = dimensions[VARIANTS[variant].geometry].width * (family.includes("shogi") ? 52 : 64);
+                const baseHeight = dimensions[VARIANTS[variant].geometry].height * (family.includes("shogi") ? 60 : 64);
                 const pxw = `${zoom / 100 * baseWidth}px`;
                 const pxh = `${zoom / 100 * baseHeight}px`;
                 el.style.width = pxw;
@@ -124,7 +124,7 @@ class BoardSettings {
         const settingsList : VNode[] = [];
 
         const boardFamily = VARIANTS[variant].board;
-        const pieceFamily = VARIANTS[variant].pieces;
+        const pieceFamily = VARIANTS[variant].piece;
 
         settingsList.push(this.getSettings("BoardStyle", boardFamily).view());
 

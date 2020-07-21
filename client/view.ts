@@ -1,6 +1,7 @@
 import { VNode } from "snabbdom/vnode";
 import { h } from 'snabbdom/h';
 
+import { _ } from './i18n';
 import { ISettings } from './settings';
 
 export function radioList(settings: ISettings<string>, name: string, options: { [key: string]: string }, onchange: (evt, key: string) => void): VNode[] {

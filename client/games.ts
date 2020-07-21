@@ -15,7 +15,7 @@ import { VARIANTS, grand2zero, isVariantClass } from './chess';
 import { boardSettings } from './boardSettings';
 
 function renderGame(games, game, fen, lastMove) {
-    return h(`minigame#${game.gameId}.${VARIANTS[game.variant].board}.${VARIANTS[game.variant].pieces}`, {
+    return h(`minigame#${game.gameId}.${VARIANTS[game.variant].board}.${VARIANTS[game.variant].piece}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
         h('div', game.b),
@@ -25,7 +25,7 @@ function renderGame(games, game, fen, lastMove) {
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
-                        geometry: VARIANTS[game.variant].geom,
+                        geometry: VARIANTS[game.variant].geometry,
                         coordinates: false,
                         viewOnly: true
                     });

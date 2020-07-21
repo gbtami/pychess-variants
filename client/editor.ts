@@ -14,7 +14,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { enabled_variants, getPockets, needPockets, validFen, variantName, variantTooltip, VARIANTS } from './chess';
+import { enabled_variants, getPockets, needPockets, validFen, VARIANTS } from './chess';
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png'; 
@@ -56,7 +56,7 @@ export default class EditorController {
             fen: this.parts[0],
             autoCastle: false,
             variant: this.variant as Variant,
-            geometry: VARIANTS[this.variant].geom,
+            geometry: VARIANTS[this.variant].geometry,
             notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
             orientation: this.mycolor,
             movable: {
@@ -124,8 +124,8 @@ export default class EditorController {
     }
 
     private setEmptyFen = () => {
-        const w = dimensions[VARIANTS[this.variant].geom].width;
-        const h = dimensions[VARIANTS[this.variant].geom].height
+        const w = dimensions[VARIANTS[this.variant].geometry].width;
+        const h = dimensions[VARIANTS[this.variant].geometry].height
         const empty_fen = (String(w) + '/').repeat(h);
 
         this.chessground.set({fen: empty_fen});
@@ -179,7 +179,7 @@ function runEditor(vnode: VNode, model) {
 
     boardSettings.ctrl = ctrl;
     const boardFamily = VARIANTS[ctrl.variant].board;
-    const pieceFamily = VARIANTS[ctrl.variant].pieces;
+    const pieceFamily = VARIANTS[ctrl.variant].piece;
     boardSettings.updateBoardStyle(boardFamily);
     boardSettings.updatePieceStyle(pieceFamily);
     boardSettings.updateZoom(boardFamily);
@@ -210,26 +210,26 @@ export function editorView(model): VNode[] {
                             on: { input: () => setVariant(true) },
                             hook: {insert: () => setVariant(false) },
                             }, enabled_variants.sort().map((variant, idx) => h('option', {
-                                props: {value: variant, title: variantTooltip(variant), selected: (idx === vIdx) ? "selected" : ""}
-                                }, variantName(variant, 0)))),
+                                props: {value: variant, title: VARIANTS[variant].tooltip, selected: (idx === vIdx) ? "selected" : ""}
+                                }, VARIANTS[variant].displayName(false)))),
                     ]),
                 ])
             ]),
             h('boardeditor', [
                 h('div.pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
+                    h('div.' + VARIANTS[model["variant"]].piece + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket0'),
                         ]),
                     ]),
                 ]),
-                h('selection#board2png.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].pieces, [
+                h('selection#board2png.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].piece, [
                     h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
                         { hook: { insert: (vnode) => runEditor(vnode, model)},
                     }),
                 ]),
                 h('div.pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].pieces + '.' + model["variant"], [
+                    h('div.' + VARIANTS[model["variant"]].piece + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
                             h('div#pocket1'),
                         ]),

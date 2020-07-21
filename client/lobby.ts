@@ -15,7 +15,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, _n } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, validFen, variants960, variantIcon, variantName, variantTooltip, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
+import { enabled_variants, validFen, variants960, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { debounce } from './document';
@@ -257,13 +257,13 @@ class LobbyController {
                                     h('option', {
                                         props: {
                                             value: variant,
-                                            title: variantTooltip(variant),
+                                            title: VARIANTS[variant].tooltip,
                                         },
                                         attrs: {
                                             selected: idx === vIdx
                                         },
                                     },
-                                        variantName(variant, 0)
+                                        VARIANTS[variant].displayName(false),
                                     )
                                 )
                             ),
@@ -450,12 +450,13 @@ class LobbyController {
     }
 
     private seekView(seek) {
-        const variant = seek.variant;
+        const variant = VARIANTS[seek.variant];
+        const chess960 = seek.chess960;
         let tooltipImage;
         if (seek["fen"]) {
-            tooltipImage = h('minigame.' + variant + '-board.' + VARIANTS[variant].pieces, [
-                h('div.cg-wrap.' + VARIANTS[variant].cg + '.mini',
-                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {coordinates: false, fen: seek["fen"], geometry: VARIANTS[variant].geom }) } }
+            tooltipImage = h('minigame.' + variant + '-board.' + variant.piece, [
+                h('div.cg-wrap.' + variant.cg + '.mini',
+                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, { coordinates: false, fen: seek["fen"], geometry: variant.geometry }) } }
                 ),
             ]);
         }
@@ -470,7 +471,7 @@ class LobbyController {
             h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
             h('td', seek["rating"]),
             h('td', seek["tc"]),
-            h('td.icon', { attrs: { "data-icon": variantIcon(seek.variant, seek.chess960) } }, " " + variantName(seek.variant, seek.chess960)),
+            h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, " " + variant.displayName(chess960)),
             h('td', { class: { "tooltip": seek["fen"] } }, [
                 tooltip,
                 (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? _('Custom') : (seek["rated"]) ? _('Rated') : _('Casual')
@@ -490,8 +491,8 @@ class LobbyController {
         return h('i-side.icon', {
             class: {
                 "icon-adjust": color === "r",
-                "icon-white": color === "w",
-                "icon-black": color === "b",
+                "icon-white":  color === "w",
+                "icon-black":  color === "b",
             }
         });
     };
