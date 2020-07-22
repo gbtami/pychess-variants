@@ -72,6 +72,9 @@ export interface IVariant {
     readonly secondColor: string;
 
     readonly pieceRoles: (color: string) => string[];
+    readonly hasPocket: boolean;
+    readonly pocketRoles: (color: string) => string[] | null;
+    readonly promotionZone: (color: string) => string;
 
     readonly has960: boolean;
 
@@ -96,12 +99,17 @@ class Variant implements IVariant {
     get pieceCSS() { return this.pieceFamily.pieceCSS; }
     get pieceBaseURL() { return this.pieceFamily.baseURL; }
 
-    private readonly _colors: [string, string];
+    private readonly _colors: [ string, string ];
     get firstColor() { return this._colors[0]; }
     get secondColor() { return this._colors[1]; }
 
-    private readonly _pieceRoles: [ string[], string[] ];
-    pieceRoles(color: string) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; };
+    private readonly _pieceRoles: [ Role[], Role[] ];
+    pieceRoles(color: string) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
+    readonly hasPocket: boolean;
+    private readonly _pocketRoles: [ Role[] | null, Role[] | null ];
+    pocketRoles(color: string) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
+    private readonly _promotionZone: [ string, string ];
+    promotionZone(color: string) { return color === "white" ? this._promotionZone[0] : this._promotionZone[1]; }
 
     readonly has960: boolean;
 
@@ -113,13 +121,14 @@ class Variant implements IVariant {
         name: string, displayName: string | null, tooltip: string,
         startFen: string,
         board: string, piece: string,
-        firstColor: string, secondColor: string,
-        firstPlayerPieceRoles: string[], secondPlayerPieceRoles: string[] | null,
-        has960: boolean,
-        icon: string, icon960: string | null,
+        color1: string, color2: string,
+        pieceRoles1: Role[], pieceRoles2: Role[] | null,
+        hasPocket: boolean, pocketRoles1: Role[] | null, pocketRoles2: Role[] | null,
+        promotionZone1: string, promotionZone2: string,
+        has960: boolean, icon: string, icon960: string | null,
     ) {
         this.name = name;
-        this._displayName = (displayName ?? name).toUpperCase();
+        this._displayName = displayName ?? name;
         this.tooltip = tooltip;
         this.startFen = startFen;
 
@@ -129,8 +138,11 @@ class Variant implements IVariant {
         this.piece = piece;
         this.pieceFamily = PIECE_FAMILIES[piece];
 
-        this._colors = [ firstColor, secondColor ];
-        this._pieceRoles = [ firstPlayerPieceRoles, secondPlayerPieceRoles ?? firstPlayerPieceRoles ];
+        this._colors = [ color1, color2 ];
+        this._pieceRoles = [ pieceRoles1, pieceRoles2 ?? pieceRoles1 ];
+        this.hasPocket = hasPocket;
+        this._pocketRoles = [ pocketRoles1, pocketRoles2 ?? pocketRoles1 ];
+        this._promotionZone = [ promotionZone1, promotionZone2 ];
 
         this.has960 = has960;
 
@@ -147,8 +159,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard8x8", "standard",
         "White", "Black",
         ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
-        true,
-        "M", "V",
+        false, null, null,
+        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
+        true, "M", "V",
     ),
 
     placement: new Variant(
@@ -157,8 +170,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard8x8", "standard",
         "White", "Black",
         ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "S", null,
+        true, ["knight", "bishop", "rook", "queen", "king"], null,
+        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
+        false, "S", null,
     ),
 
     crazyhouse: new Variant(
@@ -167,8 +181,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard8x8", "standard",
         "White", "Black",
         ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
-        true,
-        "+", "%",
+        true, ["pawn", "knight", "bishop", "rook", "queen"], null,
+        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
+        true, "+", "%",
     ),
 
     capablanca: new Variant(
@@ -177,8 +192,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard10x8", "capa",
         "White", "Black",
         ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        true,
-        "P", ",",
+        false, null, null,
+        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
+        true, "P", ",",
     ),
 
     capahouse: new Variant(
@@ -187,8 +203,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard10x8", "capa",
         "White", "Black",
         ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        true,
-        "&", "'",
+        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
+        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
+        true, "&", "'",
     ),
 
     seirawan: new Variant(
@@ -197,8 +214,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard8x8", "seirawan",
         "White", "Black",
         ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "L", null,
+        true, ["hawk", "elephant"], null,
+        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
+        false, "L", null,
     ),
 
     shouse: new Variant(
@@ -207,8 +225,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard8x8", "seirawan",
         "White", "Black",
         ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "$", null,
+        true, ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"], null,
+        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
+        false, "$", null,
     ),
 
     grand: new Variant(
@@ -217,8 +236,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "grand10x10", "capa",
         "White", "Black",
         ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "(", null,
+        false, null, null,
+        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
+        false, "(", null,
     ),
 
     grandhouse: new Variant(
@@ -227,8 +247,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "grand10x10", "capa",
         "White", "Black",
         ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "(", null,
+        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
+        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
+        false, "(", null,
     ),
 
     gothic: new Variant(
@@ -237,8 +258,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard10x8", "capa",
         "White", "Black",
         ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "P", null,
+        false, null, null,
+        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
+        false, "P", null,
     ),
 
     makruk: new Variant(
@@ -247,8 +269,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "makruk8x8", "makruk",
         "White", "Black",
         ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
-        false,
-        "Q", null,
+        false, null, null,
+        'a6b6c6d6e6f6g6h6', 'a3b3c3d3e3f3g3h3',
+        false, "Q", null,
     ),
 
     makpong: new Variant(
@@ -257,8 +280,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "makruk8x8", "makruk",
         "White", "Black",
         ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
-        false,
-        "O", null,
+        false, null, null,
+        'a6b6c6d6e6f6g6h6', 'a3b3c3d3e3f3g3h3',
+        false, "O", null,
     ),
 
     cambodian: new Variant(
@@ -267,8 +291,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "makruk8x8", "makruk",
         "White", "Black",
         ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
-        false,
-        "!", null,
+        false, null, null,
+        'a6b6c6d6e6f6g6h6', 'a3b3c3d3e3f3g3h3',
+        false, "!", null,
     ),
 
     sittuyin: new Variant(
@@ -277,8 +302,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "sittuyin8x8", "sittuyin",
         "Red", "Black",
         ["king", "ferz", "silver", "knight", "rook", "pawn"], null,
-        false,
-        ":", null,
+        true, ["rook", "knight", "silver", "ferz", "king"], null,
+        'a8b7c6d5e5f6g7h8', 'a1b2c3d4e4f3g2h1',
+        false, ":", null,
     ),
 
     shogi: new Variant(
@@ -287,8 +313,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "shogi9x9", "shogi",
         "Black", "White",
         ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn"], null,
-        false,
-        "K", null,
+        true, ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"], null,
+        'a9b9c9d9e9f9g9h9i9a8b8c8d8e8f8g8h8i8a7b7c7d7e7f7g7h7i7', 'a1b1c1d1e1f1g1h1i1a2b2c2d2e2f2g2h2i2a3b3c3d3e3f3g3h3i3',
+        false, "K", null,
     ),
 
     minishogi: new Variant(
@@ -297,8 +324,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "shogi5x5", "shogi",
         "Black", "White",
         ["king", "rook", "bishop", "gold", "silver", "pawn"], null,
-        false,
-        "6", null,
+        true, ["pawn", "silver", "gold", "bishop", "rook"], null,
+        'a5b5c5d5e5', 'a1b1c1d1e1',
+        false, "6", null,
     ),
 
     kyotoshogi: new Variant(
@@ -307,8 +335,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "shogi5x5", "kyoto",
         "Black", "White",
         ["king", "pknight", "silver", "plance", "pawn"], null,
-        false,
-        ")", null,
+        true, ["pawn", "lance", "knight", "silver"], null,
+        '', '',
+        false, ")", null,
     ),
 
     xiangqi: new Variant(
@@ -317,8 +346,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "xiangqi9x10", "xiangqi",
         "Red", "Black",
         ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "8", null,
+        false, null, null,
+        '', '',
+        false, "8", null,
     ),
 
     minixiangqi: new Variant(
@@ -327,8 +357,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "xiangqi7x7", "xiangqi",
         "Red", "Black",
         ["king", "cannon", "rook", "knight", "pawn"], null,
-        false,
-        "7", null,
+        false, null, null,
+        '', '',
+        false, "7", null,
     ),
 
     janggi: new Variant(
@@ -337,8 +368,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "janggi9x10", "janggi",
         "Blue", "Red",
         ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "=", null,
+        false, null, null,
+        '', '',
+        false, "=", null,
     ),
 
     shako: new Variant(
@@ -347,8 +379,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard10x10", "shako",
         "White", "Black",
         ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "9", null,
+        false, null, null,
+        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
+        false, "9", null,
     ),
 
     shogun: new Variant(
@@ -357,8 +390,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "shogun8x8", "shogun",
         "White", "Black",
         ["king", "pferz", "rook", "bishop", "knight", "pawn"], null,
-        false,
-        "-", null,
+        true, ["pawn", "knight", "bishop", "rook", "ferz"], null,
+        'a6b6c6d6e6f6g6h6a7b7c7d7e7f7g7h7a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1a2b2c2d2e2f2g2h2a3b3c3d3e3f3g3h3',
+        false, "-", null,
     ),
 
     orda: new Variant(
@@ -367,8 +401,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard8x8", "orda",
         "White", "Gold",
         ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"], ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"],
-        false,
-        "R", null,
+        false, null, null,
+        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
+        false, "R", null,
     ),
 
     synochess: new Variant(
@@ -378,60 +413,11 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "standard8x8", "synochess",
         "White", "Black",
         ["king", "queen", "rook", "bishop", "knight", "pawn"], ["king", "archbishop", "cancellor", "rook", "elephant", "knight", "silver"],
-        false,
-        "_", null,
+        true, [], ["silver"],
+        'a8b8c8d8e8f8g8h8', '',
+        false, "_", null,
     ),
 };
-
-export function pocketRoles(variant: string) {
-    switch (variant) {
-    case "sittuyin":
-        return ["rook", "knight", "silver", "ferz", "king"];
-    case "shogun":
-        return ["pawn", "knight", "bishop", "rook", "ferz"];
-    case "crazyhouse":
-        return ["pawn", "knight", "bishop", "rook", "queen"];
-    case "grandhouse":
-    case "gothhouse":
-    case "capahouse":
-        return ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"];
-    case "shogi":
-        return ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"];
-    case "kyotoshogi":
-        return ["pawn", "lance", "knight", "silver"];
-    case "minishogi":
-        return ["pawn", "silver", "gold", "bishop", "rook"];
-    case "shouse":
-        return ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"];
-    case "seirawan":
-        return ["hawk", "elephant"];
-    case "synochess":
-        return ["silver"];
-    default:
-        return ["knight", "bishop", "rook", "queen", "king"];
-    }
-}
-
-function promotionZone(variant: string, color: string) {
-    switch (variant) {
-    case 'shogi':
-        return color === 'white' ? 'a9b9c9d9e9f9g9h9i9a8b8c8d8e8f8g8h8i8a7b7c7d7e7f7g7h7i7' : 'a1b1c1d1e1f1g1h1i1a2b2c2d2e2f2g2h2i2a3b3c3d3e3f3g3h3i3';
-    case 'kyotoshogi':
-        return '';
-    case 'minishogi':
-        return color === 'white' ? 'a5b5c5d5e5' : 'a1b1c1d1e1';
-    case 'shogun':
-        return color === 'white' ? 'a6b6c6d6e6f6g6h6a7b7c7d7e7f7g7h7a8b8c8d8e8f8g8h8' : 'a1b1c1d1e1f1g1h1a2b2c2d2e2f2g2h2a3b3c3d3e3f3g3h3';
-    case 'cambodian':
-    case 'makruk':
-    case 'makpong':
-        return color === 'white' ? 'a6b6c6d6e6f6g6h6' : 'a3b3c3d3e3f3g3h3';
-    case 'sittuyin':
-        return color === 'white' ? 'a8b7c6d5e5f6g7h8' : 'a1b2c3d4e4f3g2h1';
-    default:
-        return color === 'white' ? 'a8b8c8d8e8f8g8h8i8j8' : 'a1b1c1d1e1f1g1h1i1j1';
-    }
-}
 
 export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key, promotions) {
     switch (variant) {
@@ -679,7 +665,7 @@ export function canGate(fen, piece, orig) {
 
 export function isPromotion(variant, piece, orig, dest, meta, promotions) {
     if (variant === 'xiangqi' || variant === 'minixiangqi' || variant === 'janggi') return false;
-    const pz = promotionZone(variant, piece.color)
+    const pz = VARIANTS[variant].promotionZone(piece.color);
     switch (variant) {
     case 'shogi':
         return ['king', 'gold', 'ppawn', 'pknight', 'pbishop', 'prook', 'psilver', 'plance'].indexOf(piece.role) === -1

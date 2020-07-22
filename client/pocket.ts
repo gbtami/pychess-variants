@@ -9,7 +9,7 @@ import { dragNewPiece } from 'chessgroundx/drag';
 import { Color } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import { roleToSan, pocketRoles, lc } from './chess';
+import { VARIANTS, roleToSan, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 
@@ -103,13 +103,14 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
             pockets = fen_placement.slice(bracketPos);
         }
 
-        const c = ctrl.mycolor[0];
-        const o = ctrl.oppcolor[0];
-        const roles = pocketRoles(ctrl.variant);
-        var po = {};
+        const c = ctrl.mycolor;
+        const o = ctrl.oppcolor;
+        const rc = VARIANTS[ctrl.variant].pocketRoles(c) ?? [];
+        const ro = VARIANTS[ctrl.variant].pocketRoles(o) ?? [];
         var pc = {};
-        roles.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c===('w')));
-        roles.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o===('w')));
+        var po = {};
+        rc.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c==='white'));
+        ro.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o==='white'));
         if (ctrl.flip) {
             ctrl.pockets = [pc, po];
         } else {
