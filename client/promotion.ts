@@ -8,7 +8,7 @@ import { toVNode } from 'snabbdom/tovnode';
 import { key2pos } from 'chessgroundx/util';
 import { Key, Role } from 'chessgroundx/types';
 
-import { isVariantClass, isPromotion, mandatoryPromotion, promotionRoles, roleToSan, kyotoPromotion } from './chess';
+import { isVariantClass, mandatoryPromotion, promotionRoles, roleToSan, kyotoPromotion } from './chess';
 
 const patch = init([listeners, style]);
 
@@ -23,12 +23,12 @@ export class Promotion {
         this.roles = [];
     }
 
-    start(movingRole: Role, orig: Key, dest: Key, meta) {
+    start(movingRole: Role, orig: Key, dest: Key) {
         const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces[dest] === undefined) return false;
 
-        if (isPromotion(this.ctrl.variant, ground.state.pieces[dest], orig, dest, meta, this.ctrl.promotions)) {
+        if (this.isPromotion(orig, dest, this.ctrl.promotions)) {
             const color = this.ctrl.mycolor;
             const orientation = ground.state.orientation;
             if (this.ctrl.autoqueen && isVariantClass(this.ctrl.variant, "autoQueen")) {
@@ -110,7 +110,11 @@ export class Promotion {
             return true;
         }
         return false;
-    };
+    }
+
+    private isPromotion(orig, dest, promotions) {
+        return promotions.some(move => move.slice(0, -1) === orig + dest);
+    }
 
     private promote(g, key, role) {
         const pieces = {};

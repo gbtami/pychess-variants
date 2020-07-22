@@ -1,4 +1,3 @@
-import { key2pos } from 'chessgroundx/util';
 import { Color, dimensions, Geometry, Key, Role } from 'chessgroundx/types';
 
 import { read } from 'chessgroundx/fen';
@@ -74,7 +73,6 @@ export interface IVariant {
     readonly pieceRoles: (color: string) => string[];
     readonly hasPocket: boolean;
     readonly pocketRoles: (color: string) => string[] | null;
-    readonly promotionZone: (color: string) => string;
 
     readonly has960: boolean;
 
@@ -108,8 +106,6 @@ class Variant implements IVariant {
     readonly hasPocket: boolean;
     private readonly _pocketRoles: [ Role[] | null, Role[] | null ];
     pocketRoles(color: string) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
-    private readonly _promotionZone: [ string, string ];
-    promotionZone(color: string) { return color === "white" ? this._promotionZone[0] : this._promotionZone[1]; }
 
     readonly has960: boolean;
 
@@ -124,7 +120,6 @@ class Variant implements IVariant {
         color1: string, color2: string,
         pieceRoles1: Role[], pieceRoles2: Role[] | null,
         hasPocket: boolean, pocketRoles1: Role[] | null, pocketRoles2: Role[] | null,
-        promotionZone1: string, promotionZone2: string,
         has960: boolean, icon: string, icon960: string | null,
     ) {
         this.name = name;
@@ -142,7 +137,6 @@ class Variant implements IVariant {
         this._pieceRoles = [ pieceRoles1, pieceRoles2 ?? pieceRoles1 ];
         this.hasPocket = hasPocket;
         this._pocketRoles = [ pocketRoles1, pocketRoles2 ?? pocketRoles1 ];
-        this._promotionZone = [ promotionZone1, promotionZone2 ];
 
         this.has960 = has960;
 
@@ -160,19 +154,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Black",
         ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
         false, null, null,
-        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
         true, "M", "V",
-    ),
-
-    placement: new Variant(
-        "placement", null, _("Choose where your pieces start"),
-        "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
-        "standard8x8", "standard",
-        "White", "Black",
-        ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
-        true, ["knight", "bishop", "rook", "queen", "king"], null,
-        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
-        false, "S", null,
     ),
 
     crazyhouse: new Variant(
@@ -182,87 +164,20 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Black",
         ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
         true, ["pawn", "knight", "bishop", "rook", "queen"], null,
-        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
         true, "+", "%",
     ),
 
-    capablanca: new Variant(
-        "capablanca", null, _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
-        "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
-        "standard10x8", "capa",
+    placement: new Variant(
+        "placement", null, _("Choose where your pieces start"),
+        "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
+        "standard8x8", "standard",
         "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
-        true, "P", ",",
+        ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
+        true, ["knight", "bishop", "rook", "queen", "king"], null,
+        false, "S", null,
     ),
 
-    capahouse: new Variant(
-        "capahouse", null, _("Capablanca with Crazyhouse drop rules"),
-        "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
-        "standard10x8", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
-        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
-        true, "&", "'",
-    ),
-
-    seirawan: new Variant(
-        "seirawan", "s-chess", _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
-        "standard8x8", "seirawan",
-        "White", "Black",
-        ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
-        true, ["hawk", "elephant"], null,
-        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
-        false, "L", null,
-    ),
-
-    shouse: new Variant(
-        "shouse", "s-house", _("S-Chess with Crazyhouse drop rules"),
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
-        "standard8x8", "seirawan",
-        "White", "Black",
-        ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"], null,
-        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
-        false, "$", null,
-    ),
-
-    grand: new Variant(
-        "grand", null, _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
-        "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
-        "grand10x10", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
-        false, "(", null,
-    ),
-
-    grandhouse: new Variant(
-        "grandhouse", null, _("Grand Chess with Crazyhouse drop rules"),
-        "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
-        "grand10x10", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
-        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
-        false, "(", null,
-    ),
-
-    gothic: new Variant(
-        "gothic", null, _("Like Capablanca Chess but with a different starting setup"),
-        "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
-        "standard10x8", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
-        false, "P", null,
-    ),
-
+    
     makruk: new Variant(
         "makruk", null, _("A game closely resembling the original Chaturanga"),
         "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
@@ -270,7 +185,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Black",
         ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
         false, null, null,
-        'a6b6c6d6e6f6g6h6', 'a3b3c3d3e3f3g3h3',
         false, "Q", null,
     ),
 
@@ -281,18 +195,16 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Black",
         ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
         false, null, null,
-        'a6b6c6d6e6f6g6h6', 'a3b3c3d3e3f3g3h3',
         false, "O", null,
     ),
 
     cambodian: new Variant(
-        "cambodian", null, _("Makruk with a few additional opening abilities"),
+        "cambodian", "ouk chatrang", _("Makruk with a few additional opening abilities"),
         "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         "makruk8x8", "makruk",
         "White", "Black",
         ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
         false, null, null,
-        'a6b6c6d6e6f6g6h6', 'a3b3c3d3e3f3g3h3',
         false, "!", null,
     ),
 
@@ -303,7 +215,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "Red", "Black",
         ["king", "ferz", "silver", "knight", "rook", "pawn"], null,
         true, ["rook", "knight", "silver", "ferz", "king"], null,
-        'a8b7c6d5e5f6g7h8', 'a1b2c3d4e4f3g2h1',
         false, ":", null,
     ),
 
@@ -314,7 +225,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "Black", "White",
         ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn"], null,
         true, ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"], null,
-        'a9b9c9d9e9f9g9h9i9a8b8c8d8e8f8g8h8i8a7b7c7d7e7f7g7h7i7', 'a1b1c1d1e1f1g1h1i1a2b2c2d2e2f2g2h2i2a3b3c3d3e3f3g3h3i3',
         false, "K", null,
     ),
 
@@ -325,7 +235,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "Black", "White",
         ["king", "rook", "bishop", "gold", "silver", "pawn"], null,
         true, ["pawn", "silver", "gold", "bishop", "rook"], null,
-        'a5b5c5d5e5', 'a1b1c1d1e1',
         false, "6", null,
     ),
 
@@ -336,7 +245,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "Black", "White",
         ["king", "pknight", "silver", "plance", "pawn"], null,
         true, ["pawn", "lance", "knight", "silver"], null,
-        '', '',
         false, ")", null,
     ),
 
@@ -347,19 +255,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "Red", "Black",
         ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"], null,
         false, null, null,
-        '', '',
         false, "8", null,
-    ),
-
-    minixiangqi: new Variant(
-        "minixiangqi", null, _("Xiangqi on a 7x7 board"),
-        "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
-        "xiangqi7x7", "xiangqi",
-        "Red", "Black",
-        ["king", "cannon", "rook", "knight", "pawn"], null,
-        false, null, null,
-        '', '',
-        false, "7", null,
     ),
 
     janggi: new Variant(
@@ -369,8 +265,97 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "Blue", "Red",
         ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"], null,
         false, null, null,
-        '', '',
         false, "=", null,
+    ),
+
+    minixiangqi: new Variant(
+        "minixiangqi", null, _("Xiangqi on a 7x7 board"),
+        "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
+        "xiangqi7x7", "xiangqi",
+        "Red", "Black",
+        ["king", "cannon", "rook", "knight", "pawn"], null,
+        false, null, null,
+        false, "7", null,
+    ),
+
+    capablanca: new Variant(
+        "capablanca", null, _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
+        "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
+        "standard10x8", "capa",
+        "White", "Black",
+        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
+        false, null, null,
+        true, "P", ",",
+    ),
+
+    capahouse: new Variant(
+        "capahouse", null, _("Capablanca with Crazyhouse drop rules"),
+        "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
+        "standard10x8", "capa",
+        "White", "Black",
+        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
+        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
+        true, "&", "'",
+    ),
+
+    seirawan: new Variant(
+        "seirawan", "s-chess", _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
+        "standard8x8", "seirawan",
+        "White", "Black",
+        ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
+        true, ["hawk", "elephant"], null,
+        false, "L", null,
+    ),
+
+    shouse: new Variant(
+        "shouse", "s-house", _("S-Chess with Crazyhouse drop rules"),
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
+        "standard8x8", "seirawan",
+        "White", "Black",
+        ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
+        true, ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"], null,
+        false, "$", null,
+    ),
+
+    grand: new Variant(
+        "grand", null, _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
+        "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
+        "grand10x10", "capa",
+        "White", "Black",
+        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
+        false, null, null,
+        false, "(", null,
+    ),
+
+    grandhouse: new Variant(
+        "grandhouse", null, _("Grand Chess with Crazyhouse drop rules"),
+        "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
+        "grand10x10", "capa",
+        "White", "Black",
+        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
+        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
+        false, "(", null,
+    ),
+
+    gothic: new Variant(
+        "gothic", null, _("Like Capablanca Chess but with a different starting setup"),
+        "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
+        "standard10x8", "capa",
+        "White", "Black",
+        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
+        false, null, null,
+        false, "P", null,
+    ),
+
+    gothhouse: new Variant(
+        "gothhouse", null, _("Gothic with Crazyhouse drop rules"),
+        "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
+        "standard10x8", "capa",
+        "White", "Black",
+        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
+        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
+        false, "P", null,
     ),
 
     shako: new Variant(
@@ -380,7 +365,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Black",
         ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"], null,
         false, null, null,
-        'a8b8c8d8e8f8g8h8i8j8', 'a1b1c1d1e1f1g1h1i1j1',
         false, "9", null,
     ),
 
@@ -391,7 +375,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Black",
         ["king", "pferz", "rook", "bishop", "knight", "pawn"], null,
         true, ["pawn", "knight", "bishop", "rook", "ferz"], null,
-        'a6b6c6d6e6f6g6h6a7b7c7d7e7f7g7h7a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1a2b2c2d2e2f2g2h2a3b3c3d3e3f3g3h3',
         false, "-", null,
     ),
 
@@ -402,7 +385,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Gold",
         ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"], ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"],
         false, null, null,
-        'a8b8c8d8e8f8g8h8', 'a1b1c1d1e1f1g1h1',
         false, "R", null,
     ),
 
@@ -414,7 +396,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         "White", "Black",
         ["king", "queen", "rook", "bishop", "knight", "pawn"], ["king", "archbishop", "cancellor", "rook", "elephant", "knight", "silver"],
         true, [], ["silver"],
-        'a8b8c8d8e8f8g8h8', '',
         false, "_", null,
     ),
 };
@@ -567,12 +548,6 @@ function diff(a: number, b:number):number {
   return Math.abs(a - b);
 }
 
-function diagonalMove(pos1, pos2) {
-    const xd = diff(pos1[0], pos2[0]);
-    const yd = diff(pos1[1], pos2[1]);
-    return xd === yd && xd === 1;
-}
-
 export function canGate(fen, piece, orig) {
     const no_gate = [false, false, false, false, false, false]
     if ((piece.color === "white" && orig.slice(1) !== "1") ||
@@ -580,7 +555,7 @@ export function canGate(fen, piece, orig) {
         (piece.role === "hawk") ||
         (piece.role === "elephant")) return no_gate;
 
-    // In starting position king and(!) rook virginity is encoded in KQkq
+    // In starting position king AND rook virginity is encoded in KQkq
     // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
 
     // but after kings moved rook virginity is encoded in AHah
@@ -661,35 +636,6 @@ export function canGate(fen, piece, orig) {
     const pn = lc(pockets, "n", color==='w') !== 0;
 
     return [ph, pe, pq, pr, pb, pn];
-}
-
-export function isPromotion(variant, piece, orig, dest, meta, promotions) {
-    if (variant === 'xiangqi' || variant === 'minixiangqi' || variant === 'janggi') return false;
-    const pz = VARIANTS[variant].promotionZone(piece.color);
-    switch (variant) {
-    case 'shogi':
-        return ['king', 'gold', 'ppawn', 'pknight', 'pbishop', 'prook', 'psilver', 'plance'].indexOf(piece.role) === -1
-            && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1);
-    case 'kyotoshogi':
-        console.log('isPromotion()', variant, piece, orig, dest, meta, promotions);
-        return piece.role !== 'king' || orig === 'z0';
-    case 'minishogi':
-        return ['king', 'gold', 'ppawn', 'pbishop', 'prook', 'psilver'].indexOf(piece.role) === -1
-            && (pz.indexOf(orig) !== -1 || pz.indexOf(dest) !== -1);
-    case 'sittuyin':
-        // See https://vdocuments.net/how-to-play-myanmar-traditional-chess-eng-book-1.html
-        const firstRankIs0 = false;
-        const dm = diagonalMove(key2pos(orig, firstRankIs0), key2pos(dest, firstRankIs0));
-        return piece.role === "pawn" && ( orig === dest || (!meta.captured && dm));
-    case 'grandhouse':
-    case 'grand':
-    case 'shogun':
-    case 'shako':
-        // TODO: we can use this for other variants also
-        return promotions.map((move) => move.slice(0, -1)).indexOf(orig + dest) !== -1;
-    default:
-        return piece.role === "pawn" && pz.indexOf(dest) !== -1;
-    }
 }
 
 export function zero2grand(move) {
