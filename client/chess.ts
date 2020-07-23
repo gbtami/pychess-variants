@@ -57,6 +57,8 @@ export interface IVariant {
 
     readonly board: string;
     readonly geometry: Geometry;
+    readonly boardWidth: number;
+    readonly boardHeight: number;
     readonly cg: string;
     readonly boardCSS: string[];
 
@@ -68,12 +70,24 @@ export interface IVariant {
     readonly secondColor: string;
 
     readonly pieceRoles: (color: Color) => Role[];
-    readonly hasPocket: boolean;
+    readonly pocket: boolean;
     readonly pocketRoles: (color: Color) => Role[] | null;
+
+    readonly promotion: string;
+    readonly timeControl: string;
+    readonly counting?: string;
+    readonly materialPoint?: string;
+    readonly sideDetermination: string;
+    readonly enPassant: boolean;
+    readonly autoQueenable: boolean;
+    readonly drop: boolean;
+    readonly gate: boolean;
+    readonly pass: boolean;
 
     readonly chess960: boolean;
 
     readonly icon: (chess960: boolean) => string;
+    readonly pieceSound: string;
 }
 
 class Variant implements IVariant {
@@ -88,6 +102,8 @@ class Variant implements IVariant {
     readonly board: string;
     private readonly boardFamily: BoardFamily;
     get geometry() { return this.boardFamily.geometry; }
+    get boardWidth() { return dimensions[this.geometry].width; }
+    get boardHeight() { return dimensions[this.geometry].height; }
     get cg() { return this.boardFamily.cg; }
     get boardCSS() { return this.boardFamily.boardCSS; }
 
@@ -101,18 +117,29 @@ class Variant implements IVariant {
 
     private readonly _pieceRoles: [ Role[], Role[] ];
     pieceRoles(color: Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
-    readonly hasPocket: boolean;
+    readonly pocket: boolean;
     private readonly _pocketRoles: [ Role[] | null, Role[] | null ];
     pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
+    readonly promotion: string;
+    readonly timeControl: string;
+    readonly counting?: string;
+    readonly materialPoint?: string;
+    readonly sideDetermination: string;
+    readonly enPassant: boolean;
+    readonly autoQueenable: boolean;
+    readonly drop: boolean;
+    readonly gate: boolean;
+    readonly pass: boolean;
+
     readonly chess960: boolean;
+
     private readonly _icon: string;
     private readonly _icon960: string;
     icon(chess960: boolean = false) { return chess960 ? this._icon960 : this._icon; }
+    readonly pieceSound: string;
 
     constructor(data: any) {
-        this.data = data;
-
         this.name = data.name;
         this._displayName = data.displayName ?? data.name;
         this.tooltip = data.tooltip;
@@ -127,13 +154,25 @@ class Variant implements IVariant {
         this.firstColor = data.firstColor ?? "White";
         this.secondColor = data.secondColor ?? "Black";
         this._pieceRoles = [ data.pieceRoles, data.pieceRoles2 ?? data.pieceRoles ];
-        this.hasPocket = data.pocket;
+        this.pocket = data.pocket ?? false;
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
-        this.chess960 = data.chess960;
+        this.promotion = data.promotion ?? "regular";
+        this.timeControl = data.timeControl ?? "incremental";
+        this.counting = data.counting;
+        this.materialPoint = data.materialPoint;
+        this.sideDetermination = data.sideDetermination ?? "color";
+        this.enPassant = data.enPassant ?? false;
+        this.autoQueenable = data.autoQueenable ?? false;
+        this.drop = data.drop ?? false;
+        this.gate = data.gate ?? false;
+        this.pass = data.pass ?? false;
+
+        this.chess960 = data.chess960 ?? false;
 
         this._icon = data.icon;
         this._icon960 = data.icon960 ?? data.icon;
+        this.pieceSound = data.pieceSound ?? "regular";
     }
 
 }
@@ -144,7 +183,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pocket: false,
+        enPassant: true, autoQueenable: true,
         chess960: true, icon: "M", icon960: "V",
     }),
 
@@ -154,6 +193,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "queen"],
+        enPassant: true, autoQueenable: true, drop: true,
         chess960: true, icon: "+", icon960: "%",
     }),
 
@@ -163,7 +203,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["knight", "bishop", "rook", "queen", "king"],
-        chess960: false, icon: "S",
+        enPassant: true, autoQueenable: true,
+        icon: "S",
     }),
     
     makruk: new Variant({
@@ -171,8 +212,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
-        pocket: false,
-        chess960: false, icon: "Q",
+        counting: "manual",
+        icon: "Q",
     }),
 
     makpong: new Variant({
@@ -180,8 +221,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
-        pocket: false,
-        chess960: false, icon: "O",
+        counting: "manual",
+        icon: "O",
     }),
 
     cambodian: new Variant({
@@ -189,8 +230,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
-        pocket: false,
-        chess960: false, icon: "!",
+        counting: "manual",
+        icon: "!",
     }),
 
     sittuyin: new Variant({
@@ -200,7 +241,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["king", "ferz", "silver", "knight", "rook", "pawn"],
         pocket: true, pocketRoles: ["rook", "knight", "silver", "ferz", "king"],
-        chess960: false, icon: ":",
+        counting: "auto",
+        icon: ":",
     }),
 
     shogi: new Variant({
@@ -210,7 +252,12 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "Black", secondColor: "White",
         pieceRoles: ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn"],
         pocket: true, pocketRoles: ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"],
-        chess960: false, icon: "K",
+        promotion: "shogi",
+        timeControl: "byoyomi",
+        sideDetermination: "direction",
+        pieceSound: "shogi",
+        drop: true,
+        icon: "K",
     }),
 
     minishogi: new Variant({
@@ -220,7 +267,12 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "Black", secondColor: "White",
         pieceRoles: ["king", "rook", "bishop", "gold", "silver", "pawn"],
         pocket: true, pocketRoles: ["pawn", "silver", "gold", "bishop", "rook"],
-        chess960: false, icon: "6",
+        promotion: "shogi",
+        timeControl: "byoyomi",
+        sideDetermination: "direction",
+        pieceSound: "shogi",
+        drop: true,
+        icon: "6",
     }),
 
     kyotoshogi: new Variant({
@@ -230,7 +282,12 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "Black", secondColor: "White",
         pieceRoles: ["king", "pknight", "silver", "plance", "pawn"],
         pocket: true, pocketRoles: ["pawn", "lance", "knight", "silver"],
-        chess960: false, icon: ")",
+        promotion: "kyoto",
+        timeControl: "byoyomi",
+        sideDetermination: "direction",
+        pieceSound: "shogi",
+        drop: true,
+        icon: ")",
     }),
 
     xiangqi: new Variant({
@@ -239,8 +296,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
-        pocket: false,
-        chess960: false, icon: "8",
+        icon: "8",
     }),
 
     janggi: new Variant({
@@ -249,8 +305,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
         pieceRoles: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
-        pocket: false,
-        chess960: false, icon: "=",
+        timeControl: "byoyomi",
+        materialPoint: "janggi",
+        pass: true,
+        icon: "=",
     }),
 
     minixiangqi: new Variant({
@@ -259,8 +317,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "xiangqi7x7", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["king", "cannon", "rook", "knight", "pawn"],
-        pocket: false,
-        chess960: false, icon: "7",
+        icon: "7",
     }),
 
     capablanca: new Variant({
@@ -268,7 +325,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocket: false,
+        enPassant: true, autoQueenable: true,
         chess960: true, icon: "P", icon960: ",",
     }),
 
@@ -278,6 +335,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        enPassant: true, autoQueenable: true, drop: true,
         chess960: true, icon: "&", icon960: "'",
     }),
 
@@ -287,7 +345,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["hawk", "elephant"],
-        chess960: false, icon: "L",
+        enPassant: true, autoQueenable: true, gate: true,
+        icon: "L",
     }),
 
     shouse: new Variant({
@@ -296,7 +355,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"],
-        chess960: false, icon: "$",
+        enPassant: true, autoQueenable: true, drop: true, gate: true,
+        icon: "$",
     }),
 
     grand: new Variant({
@@ -304,8 +364,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         board: "grand10x10", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocket: false,
-        chess960: false, icon: "(",
+        enPassant: true, autoQueenable: true,
+        icon: "(",
     }),
 
     grandhouse: new Variant({
@@ -314,7 +374,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "grand10x10", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
-        chess960: false, icon: "(",
+        enPassant: true, autoQueenable: true, drop: true,
+        icon: "(",
     }),
 
     gothic: new Variant({
@@ -322,8 +383,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocket: false,
-        chess960: false, icon: "P",
+        enPassant: true, autoQueenable: true,
+        icon: "P",
     }),
 
     gothhouse: new Variant({
@@ -332,7 +393,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
-        chess960: false, icon: "P",
+        enPassant: true, autoQueenable: true, drop: true,
+        icon: "P",
     }),
 
     shako: new Variant({
@@ -340,8 +402,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
         board: "standard10x10", piece: "shako",
         pieceRoles: ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"],
-        pocket: false,
-        chess960: false, icon: "9",
+        enPassant: true, autoQueenable: true,
+        icon: "9",
     }),
 
     shogun: new Variant({
@@ -350,7 +412,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "shogun8x8", piece: "shogun",
         pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "ferz"],
-        chess960: false, icon: "-",
+        promotion: "shogi",
+        timeControl: "byoyomi",
+        enPassant: true, drop: true,
+        icon: "-",
     }),
 
     orda: new Variant({
@@ -360,8 +425,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "White", secondColor: "Gold",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"],
         pieceRoles2: ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"],
-        pocket: false,
-        chess960: false, icon: "R",
+        enPassant: true,
+        icon: "R",
     }),
 
     synochess: new Variant({
@@ -371,29 +436,18 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         pieceRoles2: ["king", "archbishop", "cancellor", "rook", "elephant", "knight", "silver"],
         pocket: true, pocketRoles: [], pocketRoles2: ["silver"],
-        chess960: false, icon: "_",
+        autoQueenable: true,
+        icon: "_",
     }),
 };
 
 export const variants = Object.keys(VARIANTS);
 export const enabledVariants = variants.filter(v => !["gothhouse"].includes(v));
 
-/**
+/** TODO DEPRECATED
  * Variant classes
  * Use these classes to check for characteristics of variants
- ** byoyomi: This variant uses byoyomi time control
- ** showCount: This variant displays the number of moves until the game is drawn to reflect verbally counting over the board
- ** manualCount: This variant lets player manually start counting moves to find draws
- ** showMaterialPoint: This variant displays material points for each player
- ** drop: This variant allows dropping captured pieces back to the board
- ** gate: This variant allows S-Chess style gating
- ** pocket: This variant needs to display the pieces in hand in round, analysis, and editor screen
- ** enPassant: This variant has en passant capture
- ** pass: This variant allows passing
- ** pieceDir: This variant uses piece direction, rather than color, to denote piece side
  ** shogiSound: This variant uses shogi piece move sound
- ** tenRanks: This variant has ten ranks and need to use the grand2zero function to fix its notation
- ** autoQueen: This variant utilises "Promote to queen automatically"
  **/
 const variant_classes = {
     makruk: new Set(['showCount', 'manualCount']),
