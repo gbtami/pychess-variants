@@ -15,7 +15,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, _n } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { enabled_variants, validFen, variants960, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
+import { enabledVariants, validFen, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { debounce } from './document';
@@ -186,7 +186,7 @@ class LobbyController {
         localStorage.setItem("seek_rated", e.value);
 
         e = document.getElementById('chess960') as HTMLInputElement;
-        const hide = variants960.indexOf(variant) === -1;
+        const hide = !VARIANTS[variant].chess960;
         const chess960 = (hide) ? false : e.checked;
         localStorage.setItem("seek_chess960", e.checked);
 
@@ -211,9 +211,9 @@ class LobbyController {
     renderSeekButtons() {
         let vIdx: number;
         if (this.model["variant"])
-            vIdx = enabled_variants.sort().indexOf(this.model["variant"]);
+            vIdx = enabledVariants.sort().indexOf(this.model["variant"]);
         else if (localStorage.seek_variant)
-            vIdx = enabled_variants.sort().indexOf(localStorage.seek_variant);
+            vIdx = enabledVariants.sort().indexOf(localStorage.seek_variant);
         else
             vIdx = 0;
 
@@ -253,7 +253,7 @@ class LobbyController {
                                 on: { input: () => this.setVariant() },
                                 hook: { insert: () => this.setVariant() },
                             },
-                                enabled_variants.sort().map((variant, idx) =>
+                                enabledVariants.sort().map((variant, idx) =>
                                     h('option', {
                                         props: {
                                             value: variant,
@@ -380,7 +380,7 @@ class LobbyController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
-        const hide960 = variants960.indexOf(variant) === -1;
+        const hide960 = !VARIANTS[variant].chess960;
         const hideHandicap = variant !== 'shogi';
         const byoyomi = isVariantClass(variant, 'byoyomi');
         document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';

@@ -4,11 +4,6 @@ import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
-export const variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "gothhouse", "shako", "shogun", "orda", "synochess"];
-export const variants960 = ["crazyhouse", "chess", "capablanca", "capahouse"];
-
-export const enabled_variants = ["makruk", "makpong", "cambodian", "sittuyin", "placement", "crazyhouse", "chess", "shogi", "minishogi", "kyotoshogi", "janggi", "xiangqi", "minixiangqi", "capablanca", "seirawan", "capahouse", "shouse", "grand", "grandhouse", "gothic", "shako", "shogun", "orda", "synochess"];
-
 export interface BoardFamily {
     geometry: Geometry;
     cg: string;
@@ -52,6 +47,8 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
 };
 
 export interface IVariant {
+    readonly data: any;
+
     readonly name: string;
     readonly displayName: (chess960: boolean) => string;
     readonly tooltip: string;
@@ -74,12 +71,14 @@ export interface IVariant {
     readonly hasPocket: boolean;
     readonly pocketRoles: (color: Color) => Role[] | null;
 
-    readonly has960: boolean;
+    readonly chess960: boolean;
 
     readonly icon: (chess960: boolean) => string;
 }
 
 class Variant implements IVariant {
+    readonly data: any;
+
     readonly name: string;
     private readonly _displayName: string;
     displayName(chess960: boolean = false) { return this._displayName + (chess960 ? "960" : ""); }
@@ -97,9 +96,8 @@ class Variant implements IVariant {
     get pieceCSS() { return this.pieceFamily.pieceCSS; }
     get pieceBaseURL() { return this.pieceFamily.baseURL; }
 
-    private readonly _colors: [ string, string ];
-    get firstColor() { return this._colors[0]; }
-    get secondColor() { return this._colors[1]; }
+    readonly firstColor: string;
+    readonly secondColor: string;
 
     private readonly _pieceRoles: [ Role[], Role[] ];
     pieceRoles(color: Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
@@ -107,297 +105,278 @@ class Variant implements IVariant {
     private readonly _pocketRoles: [ Role[] | null, Role[] | null ];
     pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
-    readonly has960: boolean;
+    readonly chess960: boolean;
     private readonly _icon: string;
     private readonly _icon960: string;
     icon(chess960: boolean = false) { return chess960 ? this._icon960 : this._icon; }
 
-    constructor(
-        name: string, displayName: string | null, tooltip: string,
-        startFen: string,
-        board: string, piece: string,
-        color1: string, color2: string,
-        pieceRoles1: Role[], pieceRoles2: Role[] | null,
-        hasPocket: boolean, pocketRoles1: Role[] | null, pocketRoles2: Role[] | null,
-        has960: boolean, icon: string, icon960: string | null,
-    ) {
-        this.name = name;
-        this._displayName = displayName ?? name;
-        this.tooltip = tooltip;
-        this.startFen = startFen;
+    constructor(data: any) {
+        this.data = data;
 
-        this.board = board;
-        this.boardFamily = BOARD_FAMILIES[board];
+        this.name = data.name;
+        this._displayName = data.displayName ?? data.name;
+        this.tooltip = data.tooltip;
+        this.startFen = data.startFen;
 
-        this.piece = piece;
-        this.pieceFamily = PIECE_FAMILIES[piece];
+        this.board = data.board;
+        this.boardFamily = BOARD_FAMILIES[data.board];
 
-        this._colors = [ color1, color2 ];
-        this._pieceRoles = [ pieceRoles1, pieceRoles2 ?? pieceRoles1 ];
-        this.hasPocket = hasPocket;
-        this._pocketRoles = [ pocketRoles1, pocketRoles2 ?? pocketRoles1 ];
+        this.piece = data.piece;
+        this.pieceFamily = PIECE_FAMILIES[data.piece];
 
-        this.has960 = has960;
+        this.firstColor = data.firstColor ?? "White";
+        this.secondColor = data.secondColor ?? "Black";
+        this._pieceRoles = [ data.pieceRoles, data.pieceRoles2 ?? data.pieceRoles ];
+        this.hasPocket = data.pocket;
+        this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
-        this._icon = icon;
-        this._icon960 = icon960 ?? icon;
+        this.chess960 = data.chess960;
+
+        this._icon = data.icon;
+        this._icon960 = data.icon960 ?? data.icon;
     }
 
 }
 
 export const VARIANTS: { [name: string]: IVariant } = {
-    chess: new Variant(
-        "chess", null, _("Chess, unmodified, as it's played by FIDE standards"),
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        "standard8x8", "standard",
-        "White", "Black",
-        ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        true, "M", "V",
-    ),
+    chess: new Variant({
+        name: "chess", tooltip: _("Chess, unmodified, as it's played by FIDE standards"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pocket: false,
+        chess960: true, icon: "M", icon960: "V",
+    }),
 
-    crazyhouse: new Variant(
-        "crazyhouse", null, _("Take captured pieces and drop them back on to the board as your own"),
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
-        "standard8x8", "standard",
-        "White", "Black",
-        ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "queen"], null,
-        true, "+", "%",
-    ),
+    crazyhouse: new Variant({
+        name: "crazyhouse", tooltip: _("Take captured pieces and drop them back on to the board as your own"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "queen"],
+        chess960: true, icon: "+", icon960: "%",
+    }),
 
-    placement: new Variant(
-        "placement", null, _("Choose where your pieces start"),
-        "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
-        "standard8x8", "standard",
-        "White", "Black",
-        ["king", "queen", "rook", "bishop", "knight", "pawn"], null,
-        true, ["knight", "bishop", "rook", "queen", "king"], null,
-        false, "S", null,
-    ),
-
+    placement: new Variant({
+        name: "placement", tooltip: _("Choose where your pieces start"),
+        startFen: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["knight", "bishop", "rook", "queen", "king"],
+        chess960: false, icon: "S",
+    }),
     
-    makruk: new Variant(
-        "makruk", null, _("A game closely resembling the original Chaturanga"),
-        "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
-        "makruk8x8", "makruk",
-        "White", "Black",
-        ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
-        false, null, null,
-        false, "Q", null,
-    ),
+    makruk: new Variant({
+        name: "makruk", tooltip: _("A game closely resembling the original Chaturanga"),
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
+        board: "makruk8x8", piece: "makruk",
+        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pocket: false,
+        chess960: false, icon: "Q",
+    }),
 
-    makpong: new Variant(
-        "makpong", null, _("Makruk variant where kings cannot move to escape out of check"),
-        "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
-        "makruk8x8", "makruk",
-        "White", "Black",
-        ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
-        false, null, null,
-        false, "O", null,
-    ),
+    makpong: new Variant({
+        name: "makpong", tooltip: _("Makruk variant where kings cannot move to escape out of check"),
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
+        board: "makruk8x8", piece: "makruk",
+        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pocket: false,
+        chess960: false, icon: "O",
+    }),
 
-    cambodian: new Variant(
-        "cambodian", "ouk chatrang", _("Makruk with a few additional opening abilities"),
-        "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
-        "makruk8x8", "makruk",
-        "White", "Black",
-        ["king", "silver", "met", "knight", "rook", "pawn", "ferz"], null,
-        false, null, null,
-        false, "!", null,
-    ),
+    cambodian: new Variant({
+        name: "cambodian", displayName: "ouk chatrang", tooltip: _("Makruk with a few additional opening abilities"),
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
+        board: "makruk8x8", piece: "makruk",
+        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pocket: false,
+        chess960: false, icon: "!",
+    }),
 
-    sittuyin: new Variant(
-        "sittuyin", null, _("Similar to Makruk, but pieces are placed at the start of the match"),
-        "8/8/4pppp/pppp4/4PPPP/PPPP4/8/8[KFRRSSNNkfrrssnn] w - - 0 1",
-        "sittuyin8x8", "sittuyin",
-        "Red", "Black",
-        ["king", "ferz", "silver", "knight", "rook", "pawn"], null,
-        true, ["rook", "knight", "silver", "ferz", "king"], null,
-        false, ":", null,
-    ),
+    sittuyin: new Variant({
+        name: "sittuyin", tooltip: _("Similar to Makruk, but pieces are placed at the start of the match"),
+        startFen: "8/8/4pppp/pppp4/4PPPP/PPPP4/8/8[KFRRSSNNkfrrssnn] w - - 0 1",
+        board: "sittuyin8x8", piece: "sittuyin",
+        firstColor: "Red", secondColor: "Black",
+        pieceRoles: ["king", "ferz", "silver", "knight", "rook", "pawn"],
+        pocket: true, pocketRoles: ["rook", "knight", "silver", "ferz", "king"],
+        chess960: false, icon: ":",
+    }),
 
-    shogi: new Variant(
-        "shogi", null, _("Pieces promote and can be dropped"),
-        "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
-        "shogi9x9", "shogi",
-        "Black", "White",
-        ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn"], null,
-        true, ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"], null,
-        false, "K", null,
-    ),
+    shogi: new Variant({
+        name: "shogi", tooltip: _("Pieces promote and can be dropped"),
+        startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
+        board: "shogi9x9", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"],
+        chess960: false, icon: "K",
+    }),
 
-    minishogi: new Variant(
-        "minishogi", null, _("Shogi on a 5x5 board"),
-        "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
-        "shogi5x5", "shogi",
-        "Black", "White",
-        ["king", "rook", "bishop", "gold", "silver", "pawn"], null,
-        true, ["pawn", "silver", "gold", "bishop", "rook"], null,
-        false, "6", null,
-    ),
+    minishogi: new Variant({
+        name: "minishogi", tooltip: _("Shogi on a 5x5 board"),
+        startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
+        board: "shogi5x5", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["king", "rook", "bishop", "gold", "silver", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "silver", "gold", "bishop", "rook"],
+        chess960: false, icon: "6",
+    }),
 
-    kyotoshogi: new Variant(
-        "kyotoshogi", null, _("5x5 Shogi where pieces flip to a different piece each move"),
-        "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
-        "shogi5x5", "kyoto",
-        "Black", "White",
-        ["king", "pknight", "silver", "plance", "pawn"], null,
-        true, ["pawn", "lance", "knight", "silver"], null,
-        false, ")", null,
-    ),
+    kyotoshogi: new Variant({
+        name: "kyotoshogi", tooltip: _("5x5 Shogi where pieces flip to a different piece each move"),
+        startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
+        board: "shogi5x5", piece: "kyoto",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["king", "pknight", "silver", "plance", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "lance", "knight", "silver"],
+        chess960: false, icon: ")",
+    }),
 
-    xiangqi: new Variant(
-        "xiangqi", null, _("Open fire on your opponent in this highly aggressive ancient game"),
-        "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
-        "xiangqi9x10", "xiangqi",
-        "Red", "Black",
-        ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        false, "8", null,
-    ),
+    xiangqi: new Variant({
+        name: "xiangqi", tooltip: _("Open fire on your opponent in this highly aggressive ancient game"),
+        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
+        board: "xiangqi9x10", piece: "xiangqi",
+        firstColor: "Red", secondColor: "Black",
+        pieceRoles: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
+        pocket: false,
+        chess960: false, icon: "8",
+    }),
 
-    janggi: new Variant(
-        "janggi", null, _("Similar to Xiangqi, but plays very differently. Tournament rules are used"),
-        "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
-        "janggi9x10", "janggi",
-        "Blue", "Red",
-        ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        false, "=", null,
-    ),
+    janggi: new Variant({
+        name: "janggi", tooltip: _("Similar to Xiangqi, but plays very differently. Tournament rules are used"),
+        startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
+        board: "janggi9x10", piece: "janggi",
+        firstColor: "Blue", secondColor: "Red",
+        pieceRoles: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
+        pocket: false,
+        chess960: false, icon: "=",
+    }),
 
-    minixiangqi: new Variant(
-        "minixiangqi", null, _("Xiangqi on a 7x7 board"),
-        "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
-        "xiangqi7x7", "xiangqi",
-        "Red", "Black",
-        ["king", "cannon", "rook", "knight", "pawn"], null,
-        false, null, null,
-        false, "7", null,
-    ),
+    minixiangqi: new Variant({
+        name: "minixiangqi", tooltip: _("Xiangqi on a 7x7 board"),
+        startFen: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
+        board: "xiangqi7x7", piece: "xiangqi",
+        firstColor: "Red", secondColor: "Black",
+        pieceRoles: ["king", "cannon", "rook", "knight", "pawn"],
+        pocket: false,
+        chess960: false, icon: "7",
+    }),
 
-    capablanca: new Variant(
-        "capablanca", null, _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
-        "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
-        "standard10x8", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        true, "P", ",",
-    ),
+    capablanca: new Variant({
+        name: "capablanca", tooltip: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
+        startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pocket: false,
+        chess960: true, icon: "P", icon960: ",",
+    }),
 
-    capahouse: new Variant(
-        "capahouse", null, _("Capablanca with Crazyhouse drop rules"),
-        "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
-        "standard10x8", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
-        true, "&", "'",
-    ),
+    capahouse: new Variant({
+        name: "capahouse", tooltip: _("Capablanca with Crazyhouse drop rules"),
+        startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        chess960: true, icon: "&", icon960: "'",
+    }),
 
-    seirawan: new Variant(
-        "seirawan", "s-chess", _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
-        "standard8x8", "seirawan",
-        "White", "Black",
-        ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
-        true, ["hawk", "elephant"], null,
-        false, "L", null,
-    ),
+    seirawan: new Variant({
+        name: "seirawan", displayName: "s-chess", tooltip: _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
+        board: "standard8x8", piece: "seirawan",
+        pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["hawk", "elephant"],
+        chess960: false, icon: "L",
+    }),
 
-    shouse: new Variant(
-        "shouse", "s-house", _("S-Chess with Crazyhouse drop rules"),
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
-        "standard8x8", "seirawan",
-        "White", "Black",
-        ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"], null,
-        false, "$", null,
-    ),
+    shouse: new Variant({
+        name: "shouse", displayName: "s-house", tooltip: _("S-Chess with Crazyhouse drop rules"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
+        board: "standard8x8", piece: "seirawan",
+        pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"],
+        chess960: false, icon: "$",
+    }),
 
-    grand: new Variant(
-        "grand", null, _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
-        "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
-        "grand10x10", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        false, "(", null,
-    ),
+    grand: new Variant({
+        name: "grand", tooltip: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
+        startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
+        board: "grand10x10", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pocket: false,
+        chess960: false, icon: "(",
+    }),
 
-    grandhouse: new Variant(
-        "grandhouse", null, _("Grand Chess with Crazyhouse drop rules"),
-        "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
-        "grand10x10", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
-        false, "(", null,
-    ),
+    grandhouse: new Variant({
+        name: "grandhouse", tooltip: _("Grand Chess with Crazyhouse drop rules"),
+        startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
+        board: "grand10x10", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        chess960: false, icon: "(",
+    }),
 
-    gothic: new Variant(
-        "gothic", null, _("Like Capablanca Chess but with a different starting setup"),
-        "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
-        "standard10x8", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        false, "P", null,
-    ),
+    gothic: new Variant({
+        name: "gothic", tooltip: _("Like Capablanca Chess but with a different starting setup"),
+        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pocket: false,
+        chess960: false, icon: "P",
+    }),
 
-    gothhouse: new Variant(
-        "gothhouse", null, _("Gothic with Crazyhouse drop rules"),
-        "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
-        "standard10x8", "capa",
-        "White", "Black",
-        ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"], null,
-        false, "P", null,
-    ),
+    gothhouse: new Variant({
+        name: "gothhouse", tooltip: _("Gothic with Crazyhouse drop rules"),
+        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        chess960: false, icon: "P",
+    }),
 
-    shako: new Variant(
-        "shako", null, _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
-        "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
-        "standard10x10", "shako",
-        "White", "Black",
-        ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"], null,
-        false, null, null,
-        false, "9", null,
-    ),
+    shako: new Variant({
+        name: "shako", tooltip: _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
+        startFen: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
+        board: "standard10x10", piece: "shako",
+        pieceRoles: ["king", "queen", "elephant", "cancellor", "rook", "bishop", "knight", "pawn"],
+        pocket: false,
+        chess960: false, icon: "9",
+    }),
 
-    shogun: new Variant(
-        "shogun", null, _("Pieces promote and can be dropped, similar to Shogi"),
-        "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
-        "shogun8x8", "shogun",
-        "White", "Black",
-        ["king", "pferz", "rook", "bishop", "knight", "pawn"], null,
-        true, ["pawn", "knight", "bishop", "rook", "ferz"], null,
-        false, "-", null,
-    ),
+    shogun: new Variant({
+        name: "shogun", tooltip: _("Pieces promote and can be dropped, similar to Shogi"),
+        startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
+        board: "shogun8x8", piece: "shogun",
+        pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn"],
+        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "ferz"],
+        chess960: false, icon: "-",
+    }),
 
-    orda: new Variant(
-        "orda", null, _("Asymmetric variant where one army has pieces that move like knights but capture differently"),
-        "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
-        "standard8x8", "orda",
-        "White", "Gold",
-        ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"], ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"],
-        false, null, null,
-        false, "R", null,
-    ),
+    orda: new Variant({
+        name: "orda", tooltip: _("Asymmetric variant where one army has pieces that move like knights but capture differently"),
+        startFen: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+        board: "standard8x8", piece: "orda",
+        firstColor: "White", secondColor: "Gold",
+        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"],
+        pieceRoles2: ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"],
+        pocket: false,
+        chess960: false, icon: "R",
+    }),
 
-    synochess: new Variant(
-        "synochess", null,
-        _("Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army"),
-        "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
-        "standard8x8", "synochess",
-        "White", "Black",
-        ["king", "queen", "rook", "bishop", "knight", "pawn"], ["king", "archbishop", "cancellor", "rook", "elephant", "knight", "silver"],
-        true, [], ["silver"],
-        false, "_", null,
-    ),
+    synochess: new Variant({
+        name: "synochess", tooltip: _("Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army"),
+        startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
+        board: "standard8x8", piece: "synochess",
+        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pieceRoles2: ["king", "archbishop", "cancellor", "rook", "elephant", "knight", "silver"],
+        pocket: true, pocketRoles: [], pocketRoles2: ["silver"],
+        chess960: false, icon: "_",
+    }),
 };
+
+export const variants = Object.keys(VARIANTS);
+export const enabledVariants = variants.filter(v => !["gothhouse"].includes(v));
 
 /**
  * Variant classes

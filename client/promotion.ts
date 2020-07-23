@@ -29,8 +29,6 @@ export class Promotion {
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces[dest] === undefined) return false;
 
-        console.log(this.ctrl.promotions);
-
         if (this.canPromote(movingRole, orig, dest)) {
             const color = this.ctrl.mycolor;
             const orientation = ground.state.orientation;

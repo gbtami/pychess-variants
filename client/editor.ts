@@ -14,7 +14,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { enabled_variants, getPockets, needPockets, validFen, VARIANTS } from './chess';
+import { enabledVariants, getPockets, needPockets, validFen, VARIANTS } from './chess';
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png'; 
@@ -198,7 +198,7 @@ export function editorView(model): VNode[] {
         if (isInput) window.location.assign(model["home"] + '/editor/' + variant);
     }
 
-    const vIdx = enabled_variants.sort().indexOf(model["variant"]);
+    const vIdx = enabledVariants.sort().indexOf(model["variant"]);
     console.log(model["variant"], model["fen"]);
 
     return [h('aside.sidebar-first', [
@@ -209,7 +209,7 @@ export function editorView(model): VNode[] {
                             props: {name: "variant"},
                             on: { input: () => setVariant(true) },
                             hook: {insert: () => setVariant(false) },
-                            }, enabled_variants.sort().map((variant, idx) => h('option', {
+                            }, enabledVariants.sort().map((variant, idx) => h('option', {
                                 props: {value: variant, title: VARIANTS[variant].tooltip, selected: (idx === vIdx) ? "selected" : ""}
                                 }, VARIANTS[variant].displayName(false)))),
                     ]),
