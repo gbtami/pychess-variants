@@ -456,96 +456,6 @@ export function hasEp(variant: string) {
     return isVariantClass(variant, 'enPassant');
 }
 
-export function canGate(fen, piece, orig) {
-    const no_gate = [false, false, false, false, false, false]
-    if ((piece.color === "white" && orig.slice(1) !== "1") ||
-        (piece.color === "black" && orig.slice(1) !== "8") ||
-        (piece.role === "hawk") ||
-        (piece.role === "elephant")) return no_gate;
-
-    // In starting position king AND rook virginity is encoded in KQkq
-    // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
-
-    // but after kings moved rook virginity is encoded in AHah
-    // rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR[HEhe] w ABCDFGHabcdfgh - 2 3
-
-    // king virginity is encoded in Ee after any Rook moved but King not
-
-    const parts = fen.split(" ");
-    const placement = parts[0];
-    const color = parts[1];
-    const castling = parts[2];
-    // console.log("isGating()", orig, placement, color, castl);
-    switch (orig) {
-        case "a1":
-            if (!castling.includes("A") && castling.indexOf("Q") === -1) return no_gate;
-            break;
-        case "b1":
-            if (castling.indexOf("B") === -1) return no_gate;
-            break;
-        case "c1":
-            if (castling.indexOf("C") === -1) return no_gate;
-            break;
-        case "d1":
-            if (castling.indexOf("D") === -1) return no_gate;
-            break;
-        case "e1":
-            if (piece.role !== "king") {
-                return no_gate;
-            } else if ((castling.indexOf("K") === -1) && (castling.indexOf("Q") === -1) && (castling.indexOf("E") === -1)) {
-                return no_gate;
-            };
-            break;
-        case "f1":
-            if (castling.indexOf("F") === -1) return no_gate;
-            break;
-        case "g1":
-            if (castling.indexOf("G") === -1) return no_gate;
-            break;
-        case "h1":
-            if (castling.indexOf("H") === -1 && castling.indexOf("K") === -1) return no_gate;
-            break;
-        case "a8":
-            if (castling.indexOf("a") === -1 && castling.indexOf("q") === -1) return no_gate;
-            break;
-        case "b8":
-            if (castling.indexOf("b") === -1) return no_gate;
-            break;
-        case "c8":
-            if (castling.indexOf("c") === -1) return no_gate;
-            break;
-        case "d8":
-            if (castling.indexOf("d") === -1) return no_gate;
-            break;
-        case "e8":
-            if (piece.role !== "king") {
-                return no_gate;
-            } else if ((castling.indexOf("k") === -1) && (castling.indexOf("q") === -1) && (castling.indexOf("e") === -1)) {
-                return no_gate;
-            };
-            break;
-        case "f8":
-            if (castling.indexOf("f") === -1) return no_gate;
-            break;
-        case "g8":
-            if (castling.indexOf("g") === -1) return no_gate;
-            break;
-        case "h8":
-            if (castling.indexOf("h") === -1 && castling.indexOf("k") === -1) return no_gate;
-            break;
-    };
-    const bracketPos = placement.indexOf("[");
-    const pockets = placement.slice(bracketPos);
-    const ph = lc(pockets, "h", color==='w') !== 0;
-    const pe = lc(pockets, "e", color==='w') !== 0;
-    const pq = lc(pockets, "q", color==='w') !== 0;
-    const pr = lc(pockets, "r", color==='w') !== 0;
-    const pb = lc(pockets, "b", color==='w') !== 0;
-    const pn = lc(pockets, "n", color==='w') !== 0;
-
-    return [ph, pe, pq, pr, pb, pn];
-}
-
 export function zero2grand(move) {
     const parts = move.split("");
     if (parts[1] !== "@")
@@ -712,7 +622,7 @@ export function getPockets(fen: string) {
     return pockets;
 }
 
-// Get counting information for makruk etc
+// Get counting information for makruk et al
 export function getCounting(fen: string): [number, number, string, string] {
     const parts = fen.split(" ");
 
@@ -746,6 +656,7 @@ export function getJanggiPoints(board: string) {
             case 'N': choPoint += 5; break;
             case 'C': choPoint += 7; break;
             case 'R': choPoint += 13; break;
+
             case 'p': hanPoint += 2; break;
             case 'a':
             case 'b': hanPoint += 3; break;
@@ -816,8 +727,11 @@ export const sanToRole = {
 };
 
 // Count given letter occurences in a string
-export function lc(str, letter, uppercase) {
-    if (uppercase) letter = letter.toUpperCase();
+export function lc(str: string, letter: string, uppercase: boolean) {
+    if (uppercase)
+        letter = letter.toUpperCase();
+    else
+        letter = letter.toLowerCase();
     let letterCount = 0;
     for (let position = 0; position < str.length; position++)
         if (str.charAt(position) === letter)

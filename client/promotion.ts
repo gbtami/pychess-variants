@@ -9,6 +9,7 @@ import { key2pos } from 'chessgroundx/util';
 import { Key, Role, Color, dimensions } from 'chessgroundx/types';
 
 import { VARIANTS, isVariantClass, sanToRole, roleToSan } from './chess';
+import { bind } from './document';
 
 const patch = init([listeners, style]);
 
@@ -27,6 +28,8 @@ export class Promotion {
         const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces[dest] === undefined) return false;
+
+        console.log(this.ctrl.promotions);
 
         if (this.canPromote(movingRole, orig, dest)) {
             const color = this.ctrl.mycolor;
@@ -128,7 +131,7 @@ export class Promotion {
     private promote(g, key, role) {
         const pieces = {};
         const piece = g.state.pieces[key];
-        if (role === "met") role = "ferz"; // Show the graphic of the flipped pawn instead of met for Makruk et al.
+        if (role === "met") role = "ferz"; // Show the graphic of the flipped pawn instead of met for Makruk et al
         if (g.state.pieces[key].role !== role) {
             pieces[key] = {
                 color: piece.color,
@@ -172,18 +175,6 @@ export class Promotion {
         return;
     }
 
-    private bind(eventName: string, f: (e: Event) => void, redraw) {
-        return {
-            insert(vnode) {
-                vnode.elm.addEventListener(eventName, e => {
-                    const res = f(e);
-                    if (redraw) redraw();
-                    return res;
-                });
-            }
-        };
-    }
-
     private view(dest, color, orientation) {
         const dim = this.ctrl.getGround().state.dimensions
         const firstRankIs0 = dim.height === 10;
@@ -213,7 +204,7 @@ export class Promotion {
                 const top = (color === orientation ? topRank + i : dim.height - 1 - topRank - i) * (100 / dim.height);
                 return h("square", {
                     style: { top: top + "%", left: left + "%" },
-                    hook: this.bind("click", e => {
+                    hook: bind("click", e => {
                         e.stopPropagation();
                         this.finish(serverRole);
                     }, false)

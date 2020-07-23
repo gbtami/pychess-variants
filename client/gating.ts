@@ -6,8 +6,10 @@ import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
+import { Key } from 'chessgroundx/types';
 
-import { canGate, roleToSan } from './chess';
+import { getPockets, roleToSan, lc } from './chess';
+import { bind } from './document';
 import { pocketView } from './pocket';
 
 const patch = init([event, style]);
@@ -15,44 +17,39 @@ const patch = init([event, style]);
 export class Gating {
     private ctrl;
     private gating: any;
-    private roles: string[];
+    private choices: string[];
 
     constructor(ctrl) {
         this.ctrl = ctrl;
         this.gating = null;
-        this.roles = [];
+        this.choices = [];
     }
 
     start(fen, orig, dest) {
-        const ground = this.ctrl.getGround();
-        const gatable = canGate(fen, ground.state.pieces[dest], orig)
-        this.roles = ["hawk", "elephant", "queen", "rook", "bishop", "knight", ""];
-
-        if (gatable.some(x => x)) {
+        if (this.canGate(fen, orig)) {
+            const pocket = getPockets(fen);
             const color = this.ctrl.mycolor;
+            this.choices = ["hawk", "elephant", "queen", "rook", "bishop", "knight"].filter(role => lc(pocket, roleToSan[role], color === "white") > 0);
+            this.choices.push("");
+
+            const ground = this.ctrl.getGround();
             const orientation = ground.state.orientation;
-            if (this.roles.indexOf("hawk") !== -1 && !gatable[0]) this.roles.splice(this.roles.indexOf("hawk"), 1);
-            if (this.roles.indexOf("elephant") !== -1 && !gatable[1]) this.roles.splice(this.roles.indexOf("elephant"), 1);
-            if (this.roles.indexOf("queen") !== -1 && !gatable[2]) this.roles.splice(this.roles.indexOf("queen"), 1);
-            if (this.roles.indexOf("rook") !== -1 && !gatable[3]) this.roles.splice(this.roles.indexOf("rook"), 1);
-            if (this.roles.indexOf("bishop") !== -1 && !gatable[4]) this.roles.splice(this.roles.indexOf("bishop"), 1);
-            if (this.roles.indexOf("knight") !== -1 && !gatable[5]) this.roles.splice(this.roles.indexOf("knight"), 1);
 
             const origs = [orig];
             const castling = ground.state.pieces[dest].role === "king" && orig[0] === "e" && dest[0] !== "d" && dest[0] !== "e" && dest[0] !== "f";
             let rookDest = "";
             if (castling) {
-                // O-O
                 if (dest[0] > "e") {
+                    // O-O
                     origs.push("h" + orig[1]);
-                    rookDest =  "e" + orig[1];
-                    // O-O-O
+                    rookDest = "e" + orig[1];
                 } else {
+                    // O-O-O
                     origs.push("a" + orig[1]);
-                    rookDest =  "e" + orig[1];
+                    rookDest = "e" + orig[1];
                 };
             };
-            this.draw_gating(origs, color, orientation);
+            this.drawGating(origs, color, orientation);
             this.gating = {
                 origs: origs,
                 dest: dest,
@@ -64,6 +61,41 @@ export class Gating {
         return false;
     };
 
+    private canGate(fen: string, orig: Key) {
+        const parts = fen.split(" ");
+        const castling = parts[2];
+
+        // At the starting position, the virginities of both king AND rooks are encoded in KQkq
+        // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
+
+        // but after the king moves, rook virginity is encoded in AHah
+        // rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR[HEhe] w ABCDFGHabcdfgh - 2 3
+
+        // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
+
+        switch (orig) {
+            case "a1": return castling.includes("A") || castling.includes("Q");
+            case "b1": return castling.includes("B");
+            case "c1": return castling.includes("C");
+            case "d1": return castling.includes("D");
+            case "e1": return castling.includes("E") || castling.includes("K") || castling.includes("Q");
+            case "f1": return castling.includes("F");
+            case "g1": return castling.includes("G");
+            case "h1": return castling.includes("H") || castling.includes("K");
+
+            case "a8": return castling.includes("a") || castling.includes("q");
+            case "b8": return castling.includes("b");
+            case "c8": return castling.includes("c");
+            case "d8": return castling.includes("d");
+            case "e8": return castling.includes("e") || castling.includes("k") || castling.includes("q");
+            case "f8": return castling.includes("f");
+            case "g8": return castling.includes("g");
+            case "h8": return castling.includes("h") || castling.includes("k");
+
+            default: return false;
+        }
+    }
+
     private gate(orig, dest, role) {
         const g = this.ctrl.getGround();
         const color = g.state.pieces[dest].color;
@@ -72,19 +104,19 @@ export class Gating {
         this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, color, "bottom"));
     }
 
-    private draw_gating(origs, color, orientation) {
+    private drawGating(origs, color, orientation) {
         const container = toVNode(document.querySelector('extension') as Node);
         patch(container, this.view(origs, color, orientation));
     }
 
-    private draw_no_gating() {
+    private drawNoGating() {
         const container = document.getElementById('extension_choice') as HTMLElement;
         patch(container, h('extension'));
     }
 
     private finish(role, index) {
         if (this.gating) {
-            this.draw_no_gating();
+            this.drawNoGating();
             if (role) this.gate(this.gating.origs[index], this.gating.dest, role);
             else index = 0;
             const gated = role ? roleToSan[role].toLowerCase() : "";
@@ -95,32 +127,20 @@ export class Gating {
     };
 
     private cancel() {
-        this.draw_no_gating();
+        this.drawNoGating();
         this.ctrl.goPly(this.ctrl.ply);
         return;
-    }
-
-    private bind(eventName: string, f: (e: Event) => void, redraw) {
-        return {
-            insert(vnode) {
-                vnode.elm.addEventListener(eventName, e => {
-                    const res = f(e);
-                    if (redraw) redraw();
-                    return res;
-                });
-            }
-        };
     }
 
     private squareView(orig, color, orientation, index) {
         const firstRankIs0 = false;
         let left = (8 - key2pos(orig, firstRankIs0)[0]) * 12.5;
         if (orientation === "white") left = 87.5 - left;
-        return this.roles.map((serverRole, i) => {
+        return this.choices.map((serverRole, i) => {
             const top = (color === orientation ? 7 - i : i) * 12.5;
             return h("square", {
                 style: { top: top + "%", left: left + "%" },
-                hook: this.bind("click", e => {
+                hook: bind("click", e => {
                     e.stopPropagation();
                     this.finish(serverRole, index);
                 }, false)
@@ -131,10 +151,10 @@ export class Gating {
     }
 
     private view(origs, color, orientation) {
-        const vertical = color === orientation ? "top" : "bottom";
+        const direction = color === orientation ? "top" : "bottom";
         let squares = this.squareView(origs[0], color, orientation, 0);
         if (origs.length > 1) squares = squares.concat(this.squareView(origs[1], color, orientation, 1));
-        return h("div#extension_choice." + vertical, {
+        return h("div#extension_choice." + direction, {
             hook: {
                 insert: vnode => {
                     const el = vnode.elm as HTMLElement;

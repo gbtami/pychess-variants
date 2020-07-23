@@ -563,7 +563,7 @@ class Game:
                 dests[source] = [dest]
 
             if not move[-1].isdigit():
-                if not (self.variant in ("seirawan", "shouse") and move[1] != '1' and move[1] != '8'):
+                if not (self.variant in ("seirawan", "shouse") and (move[1] == '1' or move[1] == '8')):
                     promotions.append(move)
 
             if self.variant == "kyotoshogi" and move[0] == "+":

@@ -78,3 +78,15 @@ export function changePieceCSS(family: string, cssFile: string) {
     }
     changeCSS(cssLinkIndex, "/static/piece/" + family + "/" + cssFile + ".css");
 }
+
+export function bind(eventName: string, f: (e: Event) => void, redraw) {
+    return {
+        insert(vnode) {
+            vnode.elm.addEventListener(eventName, e => {
+                const res = f(e);
+                if (redraw) redraw();
+                return res;
+            });
+        }
+    };
+}
