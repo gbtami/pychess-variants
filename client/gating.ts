@@ -1,4 +1,5 @@
 import { init } from 'snabbdom';
+import attributes from 'snabbdom/modules/attributes';
 import event from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
 
@@ -10,7 +11,7 @@ import { key2pos } from 'chessgroundx/util';
 import { canGate, roleToSan } from './chess';
 import { pocketView } from './pocket';
 
-const patch = init([event, style]);
+const patch = init([attributes, event, style]);
 
 export class Gating {
     private ctrl;
