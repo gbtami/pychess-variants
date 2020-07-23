@@ -51,7 +51,7 @@ export function roundView(model): VNode[] {
                         "icon-gold":  fc === "Gold",
                     }
                 }),
-                h('player', playerInfo(model.wplayer, model.wtitle, model.level, model.wrating, null)),
+                h('player', playerInfo(model, 'w', null)),
             ]),
             h('div.player-data', [
                 h('i-side.icon', {
@@ -63,7 +63,7 @@ export function roundView(model): VNode[] {
                         "icon-gold":  sc === "Gold",
                     }
                 }),
-                h('player', playerInfo(model.bplayer, model.btitle, model.level, model.brating, null)),
+                h('player', playerInfo(model, 'b', null)),
             ]),
         ]),
         h('div.roundchat#roundchat'),
@@ -123,10 +123,15 @@ export function roundView(model): VNode[] {
     ];
 }
 
-function playerInfo(username: string, title: string, level: number, rating: number, rdiff: number | null) {
+function playerInfo(model, color: string, rdiff: number | null) {
+    const username = model[color + "player"];
+    const title = model[color + "title"];
+    const level = model.level;
+    const rating = model[color + "rating"];
+
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
         username + ((title === "BOT" && level >= 0) ? _(' level ') + level: "") + " (" + rating + ") ",
-        rdiff === null ? h('rdiff') : renderRdiff(rdiff),
+        rdiff === null ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
     ]);
 }
