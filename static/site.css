@@ -2,6 +2,7 @@
 :root {
     --main-margin: 1.5vmin;
     --main-max-width: 1400px;
+    --gauge-width: 17px;
     --site-header-height: 40px;
     --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
@@ -150,10 +151,10 @@ iframe {
 .round {
     grid-area: main;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: minmax(350px, 1fr) 1fr minmax(350px, 1fr);
     grid-template-rows: repeat(2, fit-content(0));
     grid-template-areas: 'side app table' 'links uboard .';
-    grid-gap: 2vmin;
+    grid-gap: var(--gauge-width);
 }
 
 .lobby {
@@ -1420,12 +1421,12 @@ cg-resize {
 /* analysis */
 div.analysis {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto minmax(0px, 1fr);
 }
 #gauge {
     height: 100%;  /* !!! */
     background-color: #fff;
-    width: 17px;
+    width: var(--gauge-width);
     overflow: hidden;
     position: relative;
 }

@@ -133,7 +133,7 @@ If you are white, avoid this situation. Always eye the cannons.
 
 ![Fool's Mate](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/FoolsMate.png)
 
-This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. Afterwards, if a cannon does attack, it can be blocked by a bishop or knight (preferably the knight), which will remain pinned for a while. 1. e4 is not recommended because it's actually an empty threat (the pawn is pinned from attacking because of facing kings).
+This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. Afterwards, if a cannon does attack, it can be blocked by a bishop or knight, which will remain pinned for a while. 1. e4 is not recommended because it's actually an empty threat (the pawn is pinned from attacking because of facing kings).
 
 **Queenslayer**
 
