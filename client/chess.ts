@@ -1,4 +1,4 @@
-import { Color, dimensions, Geometry, Key, Role } from 'chessgroundx/types';
+import { Color, dimensions, Geometry, Role } from 'chessgroundx/types';
 
 import { read } from 'chessgroundx/fen';
 
@@ -70,9 +70,9 @@ export interface IVariant {
     readonly firstColor: string;
     readonly secondColor: string;
 
-    readonly pieceRoles: (color: string) => string[];
+    readonly pieceRoles: (color: Color) => Role[];
     readonly hasPocket: boolean;
-    readonly pocketRoles: (color: string) => string[] | null;
+    readonly pocketRoles: (color: Color) => Role[] | null;
 
     readonly has960: boolean;
 
@@ -102,13 +102,12 @@ class Variant implements IVariant {
     get secondColor() { return this._colors[1]; }
 
     private readonly _pieceRoles: [ Role[], Role[] ];
-    pieceRoles(color: string) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
+    pieceRoles(color: Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
     readonly hasPocket: boolean;
     private readonly _pocketRoles: [ Role[] | null, Role[] | null ];
-    pocketRoles(color: string) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
+    pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
     readonly has960: boolean;
-
     private readonly _icon: string;
     private readonly _icon960: string;
     icon(chess960: boolean = false) { return chess960 ? this._icon960 : this._icon; }
@@ -400,93 +399,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
     ),
 };
 
-export function promotionRoles(variant: string, role: Role, orig: Key, dest: Key, promotions) {
-    switch (variant) {
-    case "gothic":
-    case "gothhouse":
-    case "capahouse":
-    case "capablanca":
-        return ["queen", "knight", "rook", "bishop", "archbishop", "cancellor"];
-    case "shouse":
-    case "seirawan":
-        return ["queen", "knight", "rook", "bishop", "elephant", "hawk"];
-    case "kyotoshogi":
-    case "minishogi":
-    case "shogi":
-        return ["p" + role, role];
-    case "grandhouse":
-    case "grand":
-    case "shako":
-        var roles: Role[] = [];
-        const moves = promotions.map((move) => move.slice(0, -1));
-        promotions.forEach((move) => {
-            const prole = sanToRole[move.slice(-1)];
-            if (moves.indexOf(orig + dest) !== -1 && roles.indexOf(prole) === -1) {
-                roles.push(prole);
-            }
-        });
-        // promotion is optional except on back ranks
-        if ((dest[1] !== "9") && (dest[1] !== "0")) roles.push(role);
-        return roles;
-    case "shogun":
-        switch (role) {
-        case "pawn": return ["ppawn", "pawn"];
-        case "knight": return ["pknight", "knight"];
-        case "bishop": return ["pbishop", "bishop"];
-        case "rook": return ["prook", "rook"];
-        case "ferz": return ["pferz", "ferz"];
-        }
-    case "orda":
-        return ["queen", "hawk"];
-default:
-        return ["queen", "knight", "rook", "bishop"];
-    }
-}
-
-export function mandatoryPromotion(variant, role: Role, orig: Key, dest: Key, color: Color) {
-    // Promotion is mandatory in Kyoto Shogi for all pieces in every move.
-    // Except the King. King cannot promote.
-    if (variant === "kyotoshogi") return role !== "king" && orig !== 'z0';
-
-    if (variant === "minishogi" && role === "pawn") {
-        if (color === "white") {
-            return dest[1] === "5";
-        } else {
-            return dest[1] === "1";
-        }
-    }
-
-    if (variant === "shogun") {
-        if (role === "pawn") {
-            if (color === "white") {
-                return dest[1] === "8";
-            } else {
-                return dest[1] === "1";
-            }
-        } else {
-            return false;
-        }
-    }
-
-    switch (role) {
-    case "pawn":
-    case "lance":
-        if (color === "white") {
-            return dest[1] === "9";
-        } else {
-            return dest[1] === "1";
-        }
-    case "knight":
-        if (color === "white") {
-            return dest[1] === "9" || dest[1] === "8";
-        } else {
-            return dest[1] === "1" || dest[1] === "2";
-        }
-    default:
-        return false;
-    }
-}
-
 /**
  * Variant classes
  * Use these classes to check for characteristics of variants
@@ -544,10 +456,6 @@ export function hasEp(variant: string) {
     return isVariantClass(variant, 'enPassant');
 }
 
-function diff(a: number, b:number):number {
-  return Math.abs(a - b);
-}
-
 export function canGate(fen, piece, orig) {
     const no_gate = [false, false, false, false, false, false]
     if ((piece.color === "white" && orig.slice(1) !== "1") ||
@@ -566,65 +474,65 @@ export function canGate(fen, piece, orig) {
     const parts = fen.split(" ");
     const placement = parts[0];
     const color = parts[1];
-    const castl = parts[2];
+    const castling = parts[2];
     // console.log("isGating()", orig, placement, color, castl);
     switch (orig) {
-    case "a1":
-        if (castl.indexOf("A") === -1 && castl.indexOf("Q") === -1) return no_gate;
-        break;
-    case "b1":
-        if (castl.indexOf("B") === -1) return no_gate;
-        break;
-    case "c1":
-        if (castl.indexOf("C") === -1) return no_gate;
-        break;
-    case "d1":
-        if (castl.indexOf("D") === -1) return no_gate;
-        break;
-    case "e1":
-        if (piece.role !== "king") {
-            return no_gate;
-        } else if ((castl.indexOf("K") === -1) && (castl.indexOf("Q") === -1) && (castl.indexOf("E") === -1)) {
-            return no_gate;
-        };
-        break;
-    case "f1":
-        if (castl.indexOf("F") === -1) return no_gate;
-        break;
-    case "g1":
-        if (castl.indexOf("G") === -1) return no_gate;
-        break;
-    case "h1":
-        if (castl.indexOf("H") === -1 && castl.indexOf("K") === -1) return no_gate;
-        break;
-    case "a8":
-        if (castl.indexOf("a") === -1 && castl.indexOf("q") === -1) return no_gate;
-        break;
-    case "b8":
-        if (castl.indexOf("b") === -1) return no_gate;
-        break;
-    case "c8":
-        if (castl.indexOf("c") === -1) return no_gate;
-        break;
-    case "d8":
-        if (castl.indexOf("d") === -1) return no_gate;
-        break;
-    case "e8":
-        if (piece.role !== "king") {
-            return no_gate;
-        } else if ((castl.indexOf("k") === -1) && (castl.indexOf("q") === -1) && (castl.indexOf("e") === -1)) {
-            return no_gate;
-        };
-        break;
-    case "f8":
-        if (castl.indexOf("f") === -1) return no_gate;
-        break;
-    case "g8":
-        if (castl.indexOf("g") === -1) return no_gate;
-        break;
-    case "h8":
-        if (castl.indexOf("h") === -1 && castl.indexOf("k") === -1) return no_gate;
-        break;
+        case "a1":
+            if (!castling.includes("A") && castling.indexOf("Q") === -1) return no_gate;
+            break;
+        case "b1":
+            if (castling.indexOf("B") === -1) return no_gate;
+            break;
+        case "c1":
+            if (castling.indexOf("C") === -1) return no_gate;
+            break;
+        case "d1":
+            if (castling.indexOf("D") === -1) return no_gate;
+            break;
+        case "e1":
+            if (piece.role !== "king") {
+                return no_gate;
+            } else if ((castling.indexOf("K") === -1) && (castling.indexOf("Q") === -1) && (castling.indexOf("E") === -1)) {
+                return no_gate;
+            };
+            break;
+        case "f1":
+            if (castling.indexOf("F") === -1) return no_gate;
+            break;
+        case "g1":
+            if (castling.indexOf("G") === -1) return no_gate;
+            break;
+        case "h1":
+            if (castling.indexOf("H") === -1 && castling.indexOf("K") === -1) return no_gate;
+            break;
+        case "a8":
+            if (castling.indexOf("a") === -1 && castling.indexOf("q") === -1) return no_gate;
+            break;
+        case "b8":
+            if (castling.indexOf("b") === -1) return no_gate;
+            break;
+        case "c8":
+            if (castling.indexOf("c") === -1) return no_gate;
+            break;
+        case "d8":
+            if (castling.indexOf("d") === -1) return no_gate;
+            break;
+        case "e8":
+            if (piece.role !== "king") {
+                return no_gate;
+            } else if ((castling.indexOf("k") === -1) && (castling.indexOf("q") === -1) && (castling.indexOf("e") === -1)) {
+                return no_gate;
+            };
+            break;
+        case "f8":
+            if (castling.indexOf("f") === -1) return no_gate;
+            break;
+        case "g8":
+            if (castling.indexOf("g") === -1) return no_gate;
+            break;
+        case "h8":
+            if (castling.indexOf("h") === -1 && castling.indexOf("k") === -1) return no_gate;
+            break;
     };
     const bracketPos = placement.indexOf("[");
     const pockets = placement.slice(bracketPos);
@@ -649,22 +557,22 @@ export function zero2grand(move) {
 export function grand2zero(move) {
     // cut off promotion piece letter
     let promo = '';
-    if ('0123456789'.indexOf(move.slice(-1)) === -1) {
+    if (!'0123456789'.includes(move.slice(-1))) {
         promo = move.slice(-1);
         move = move.slice(0, -1);
     }
     const parts = move.split("");
 
     if (parts[1] === '@') {
-        return parts[0] + parts[1] + parts[2] + String(Number(move.slice(3)) - 1);
+        return parts[0] + parts[1] + parts[2] + (Number(move.slice(3)) - 1).toString();
     }
     if ('0123456789'.indexOf(parts[2]) !== -1) {
-        parts[1] = String(Number(parts[1] + parts[2]) -1);
-        parts[4] = String(Number(move.slice(4)) - 1);
+        parts[1] = (Number(parts[1] + parts[2]) -1).toString();
+        parts[4] = (Number(move.slice(4)) - 1).toString();
         return parts[0] + parts[1] + parts[3] + parts[4] + promo;
     } else {
-        parts[1] = String(Number(parts[1]) -1);
-        parts[3] = String(Number(move.slice(3)) - 1);
+        parts[1] = (Number(parts[1]) -1).toString();
+        parts[3] = (Number(move.slice(3)) - 1).toString();
         return parts[0] + parts[1] + parts[2] + parts[3] + promo;
     }
 }
@@ -780,24 +688,27 @@ export function validFen(variantName: string, fen: string) {
     return true;
 }
 
+function diff(a: number, b:number):number {
+    return Math.abs(a - b);
+}
+
 function touchingKings(pieces) {
     let wk = 'xx', bk = 'zz';
-    Object.keys(pieces).forEach(key => {
-        if (pieces[key].role === 'king' && pieces[key].color === 'white') wk = key;
-        if (pieces[key].role === 'king' && pieces[key].color === 'black') bk = key;
+    Object.keys(pieces).filter(key => pieces[key].role === "king").forEach(key => {
+        if (pieces[key].color === 'white') wk = key;
+        if (pieces[key].color === 'black') bk = key;
     });
-    const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) < 2 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) < 2;
+    const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) <= 1 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) <= 1;
     return touching;
 }
 
 // pocket part of the FEN (including brackets)
 export function getPockets(fen: string) {
-    const fen_placement = fen.split(" ")[0];
-    var pockets = "";
-    const bracketPos = fen_placement.indexOf("[");
-    if (bracketPos !== -1) {
-        pockets = fen_placement.slice(bracketPos);
-    }
+    const placement = fen.split(" ")[0];
+    let pockets = "";
+    const bracketPos = placement.indexOf("[");
+    if (bracketPos !== -1)
+        pockets = placement.slice(bracketPos);
     return pockets;
 }
 
@@ -912,17 +823,6 @@ export function lc(str, letter, uppercase) {
         if (str.charAt(position) === letter)
             letterCount += 1;
     return letterCount;
-}
-
-export const kyotoPromotion = {
-    'plance': 'lance',
-    'lance': 'plance',
-    'silver': 'psilver',
-    'psilver': 'silver',
-    'pknight': 'knight',
-    'knight': 'pknight',
-    'pawn': 'ppawn',
-    'ppawn': 'pawn'
 }
 
 export const SHOGI_HANDICAP_NAME = ['', 'Lance HC', 'Bishop HC', 'Rook HC', 'Rook+Lance HC', '2-Piece HC', '4-Piece HC', '6-Piece HC', '8-Piece HC', '9-Piece HC', '10-Piece HC'];

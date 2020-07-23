@@ -95,7 +95,7 @@ class Game:
         self.id = gameId
 
         # Makruk manual counting
-        use_manual_counting = self.variant == "makruk" or self.variant == "makpong" or self.variant == "cambodian"
+        use_manual_counting = self.variant in ("makruk", "makpong", "cambodian")
         self.manual_count = use_manual_counting and not self.bot_game
         self.manual_count_toggled = []
 
@@ -340,7 +340,7 @@ class Game:
                 "s": self.status,
                 "r": R2C[self.result],
                 'm': encode_moves(
-                    map(grand2zero, self.board.move_stack) if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako" or self.variant == "janggi"
+                    map(grand2zero, self.board.move_stack) if self.variant in ("xiangqi", "grand", "grandhouse", "shako", "janggi")
                     else self.board.move_stack, self.variant)}
 
             if self.rated and self.result != "*":
@@ -554,7 +554,7 @@ class Game:
             # print("RM: %s" % self.random_move)
 
         for move in moves:
-            if self.variant == "xiangqi" or self.variant == "grand" or self.variant == "grandhouse" or self.variant == "shako" or self.variant == "janggi":
+            if self.variant in ("xiangqi", "grand", "grandhouse", "shako", "janggi"):
                 move = grand2zero(move)
             source, dest = move[0:2], move[2:4]
             if source in dests:
@@ -563,6 +563,10 @@ class Game:
                 dests[source] = [dest]
 
             if not move[-1].isdigit():
+                if not (self.variant in ("seirawan", "shouse") and move[1] != '1' and move[1] != '8'):
+                    promotions.append(move)
+
+            if self.variant == "kyotoshogi" and move[0] == "+":
                 promotions.append(move)
 
         self.dests = dests
