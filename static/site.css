@@ -388,7 +388,7 @@ ul.guide li {
     flex-direction: column;
 }
 
-#settings-sound div {
+#settings-sound > div > div {
     flex-direction: row;
 }
 

@@ -11,7 +11,7 @@ import { h } from 'snabbdom/h';
 
 import { backgroundSettings } from './background';
 import { boardSettings } from './boardSettings';
-import { variants } from './chess';
+import { VARIANTS, variants } from './chess';
 import { getDocumentData } from './document';
 import { _, translatedLanguage, languageSettings } from './i18n';
 import { volumeSettings, soundThemeSettings } from './sound';
@@ -23,7 +23,12 @@ export function settingsView() {
         settingsButton(),
         h('div#settings', [
             h('div#settings-main', menu),
-            h('div#settings-sub'),
+            h('div#settings-sub', [
+                langSettingsView(),
+                soundSettingsView(),
+                backgroundSettingsView(),
+                boardSettingsView(),
+            ]),
         ]),
     ]);
 }
@@ -75,23 +80,15 @@ function showSubsettings(evt) {
     const mainSettings = document.getElementById('settings-main') as HTMLElement;
     const subSettings = document.getElementById('settings-sub') as HTMLElement;
 
-    subSettings.innerHTML = "";
+    Array.from(subSettings.children).forEach((sub: HTMLElement) => sub.style.display = 'none');
+
     const settingsName = evt.target.id.slice(4);
-    switch (settingsName) {
-        case "lang":
-            patch(subSettings, langSettingsView());
-            break;
-        case "sound":
-            patch(subSettings, soundSettingsView());
-            break;
-        case "background":
-            patch(subSettings, backgroundSettingsView());
-            break;
-        case "board":
-            patch(subSettings, boardSettingsView());
-            showVariantBoardSettings((document.getElementById('board-variant') as HTMLInputElement).value);
-            break;
-    }
+    const targetSettings = document.getElementById('settings-' + settingsName) as HTMLElement;
+    targetSettings.style.display = 'flex';
+
+    if (settingsName === "board")
+        showVariantBoardSettings((document.getElementById('board-variant') as HTMLInputElement).value);
+
     mainSettings.style.display = 'none';
     subSettings.style.display = 'flex';
 }
@@ -103,16 +100,16 @@ function backButton(text: string) {
 }
 
 function langSettingsView() {
-    return h('div#settings-sub', [
+    return h('div#settings-lang', [
         backButton(translatedLanguage),
         languageSettings.view(),
     ]);
 }
 
 function soundSettingsView() {
-    return h('div#settings-sub', [
+    return h('div#settings-sound', [
         backButton(_("Sound")),
-        h('div#settings-sound', [
+        h('div', [
             volumeSettings.view(),
             soundThemeSettings.view(),
         ]),
@@ -120,7 +117,7 @@ function soundSettingsView() {
 }
 
 function backgroundSettingsView() {
-    return h('div#settings-sub', [
+    return h('div#settings-background', [
         backButton(_("Background")),
         backgroundSettings.view(),
     ]);
@@ -134,11 +131,11 @@ function boardSettingsView() {
         variantList.push(h('option', {
             props: { value: v },
             attrs: { selected: variant === v }
-        }, v.toUpperCase()));
+        }, VARIANTS[v].displayName(false)));
     });
-    return h('div#settings-sub', [
+    return h('div#settings-board', [
         backButton(_("Board Settings")),
-        h('div#settings-board', [
+        h('div', [
             h('div', [
                 h('label', { props: { for: "board-variant" } }, _("Variant")),
                 h('select#board-variant', { on: { change: e => showVariantBoardSettings((e.target as HTMLInputElement).value) } }, variantList),
