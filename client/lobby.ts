@@ -5,8 +5,9 @@ import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
+import style from 'snabbdom/modules/style';
 
-const patch = init([klass, attributes, properties, listeners]);
+const patch = init([klass, attributes, properties, listeners, style]);
 
 import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
@@ -19,6 +20,7 @@ import { enabledVariants, validFen, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VA
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { debounce } from './document';
+import { timeControlStr } from './view';
 
 class LobbyController {
     test_ratings: boolean;
@@ -59,7 +61,7 @@ class LobbyController {
             onerror: e => console.log('Error:', e),
         };
 
-        const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
+        const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
         this.sock = new Sockette(ws + location.host + "/wsl", opts);
 
         // get seeks when we are coming back after a game
@@ -70,9 +72,9 @@ class LobbyController {
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         // challenge!
-        const anon = this.model["anon"] === 'True';
-        if (model["profileid"] !== '') {
-            this.challengeAI = model["profileid"] === 'Fairy-Stockfish';
+        const anon = this.model.anon === 'True';
+        if (model.profileid !== "") {
+            this.challengeAI = model.profileid === 'Fairy-Stockfish';
             document.getElementById('game-mode')!.style.display = (anon || this.challengeAI) ? 'none' : 'inline-flex';
             document.getElementById('challenge-block')!.style.display = 'inline-flex';
             document.getElementById('ailevel')!.style.display = this.challengeAI ? 'block' : 'none';
@@ -80,8 +82,8 @@ class LobbyController {
         }
 
         const e = document.getElementById("fen") as HTMLInputElement;
-        if (this.model["fen"] !== "")
-            e.value = this.model["fen"];
+        if (this.model.fen !== "")
+            e.value = this.model.fen;
         if (anon)
             e.disabled = true;
     }
@@ -94,8 +96,8 @@ class LobbyController {
     createSeekMsg(variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated, handicap) {
         this.doSend({
             type: "create_seek",
-            user: this.model["username"],
-            target: this.model["profileid"],
+            user: this.model.username,
+            target: this.model.profileid,
             variant: variant,
             fen: fen,
             minutes: minutes,
@@ -104,13 +106,14 @@ class LobbyController {
             rated: rated,
             handicap: handicap,
             chess960: chess960,
-            color: color });
+            color: color
+        });
     }
 
     createBotChallengeMsg(variant, color, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, handicap) {
         this.doSend({
             type: "create_ai_challenge",
-            user: this.model["username"],
+            user: this.model.username,
             variant: variant,
             fen: fen,
             minutes: minutes,
@@ -132,7 +135,7 @@ class LobbyController {
             seek.variant === variant &&
             seek.fen === fen &&
             seek.color === color &&
-            seek.tc === minutes + "+" + ((byoyomiPeriod > 1) ? (byoyomiPeriod + "x") : "") + increment + ((byoyomiPeriod > 0) ? "(b)" : "") &&
+            seek.tc === timeControlStr(minutes, increment, byoyomiPeriod) &&
             seek.chess960 === chess960 &&
             seek.rated === rated
         );
@@ -143,8 +146,9 @@ class LobbyController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
-        localStorage.setItem("seek_variant", variant);
+        localStorage.seek_variant = variant;
 
+        // TODO Standardize seek color
         let seekColor;
         if (variant.endsWith('shogi') && color !== 'r') {
             seekColor = (color === 'w') ? 'b' : 'w';
@@ -165,55 +169,53 @@ class LobbyController {
 
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = parseInt(e.value);
-        localStorage.setItem("seek_min", e.value);
+        localStorage.seek_min = e.value;
 
         e = document.getElementById('inc') as HTMLInputElement;
         const increment = parseInt(e.value);
-        localStorage.setItem("seek_inc", e.value);
+        localStorage.seek_inc = e.value;
 
         e = document.getElementById('byo') as HTMLInputElement;
         const byoyomi = isVariantClass(variant, 'byoyomi');
         const byoyomiPeriod = (byoyomi && increment > 0) ? parseInt(e.value) : 0;
-        localStorage.setItem("seek_byo", e.value);
+        localStorage.seek_byo = e.value;
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated = 0;
-        if (this.test_ratings) {
+        if (this.test_ratings)
             rated = parseInt(e.value);
-        } else {
+        else
             rated = (this.challengeAI || this.model["anon"] === 'True' || this.model["title"] === 'BOT' || fen !== '') ? 0 : parseInt(e.value);
-        }
-        localStorage.setItem("seek_rated", e.value);
+        localStorage.seek_rated = e.value;
 
         e = document.getElementById('chess960') as HTMLInputElement;
         const hide = !VARIANTS[variant].chess960;
         const chess960 = (hide) ? false : e.checked;
-        localStorage.setItem("seek_chess960", e.checked);
+        localStorage.seek_chess960 = e.checked;
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
 
         if (this.challengeAI) {
             e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
             const level = parseInt(e.value);
-            localStorage.setItem("seek_level", e.value);
+            localStorage.seek_level = e.value;
             // console.log(level, e.value, localStorage.getItem("seek_level"));
             this.createBotChallengeMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, level, chess960, rated===1, handicap);
         } else {
-            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1)) {
+            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1))
                 this.createSeekMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1, handicap);
-            }
         }
         // prevent to create challenges continuously
-        this.model["profileid"] = '';
-        window.history.replaceState({}, this.model['title'], this.model["home"] + '/');
+        this.model.profileid = '';
+        window.history.replaceState({}, this.model.title, '/');
     }
 
     renderSeekButtons() {
         let vIdx: number;
-        if (this.model["variant"])
-            vIdx = enabledVariants.sort().indexOf(this.model["variant"]);
+        if (this.model.variant)
+            vIdx = enabledVariants.indexOf(this.model.variant);
         else if (localStorage.seek_variant)
-            vIdx = enabledVariants.sort().indexOf(localStorage.seek_variant);
+            vIdx = enabledVariants.indexOf(localStorage.seek_variant);
         else
             vIdx = 0;
 
@@ -224,7 +226,7 @@ class LobbyController {
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
 
-        const anon = this.model["anon"] === 'True';
+        const anon = this.model.anon === 'True';
 
         return [
             h('div#id01.modal', [
@@ -233,10 +235,10 @@ class LobbyController {
                         h('span.close', {
                             on: {
                                 click: () => {
-                                    document.getElementById('id01')!.style.display='none';
-                                    // prevent to create challenges continuously
-                                    this.model["profileid"] = '';
-                                    window.history.replaceState({}, this.model['title'], '/');
+                                    document.getElementById('id01')!.style.display = 'none';
+                                    // prevent creating challenges continuously
+                                    this.model.profileid = '';
+                                    window.history.replaceState({}, this.model.title, '/');
                                 }
                             },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
@@ -244,7 +246,7 @@ class LobbyController {
                     ]),
                     h('div.container', [
                         h('div#challenge-block', [
-                            h('h3', _('Challenge %1 to a game', this.model["profileid"])),
+                            h('h3', _('Challenge %1 to a game', this.model.profileid)),
                         ]),
                         h('div', [
                             h('label', { attrs: { for: "variant" } }, _("Variant")),
@@ -253,19 +255,20 @@ class LobbyController {
                                 on: { input: () => this.setVariant() },
                                 hook: { insert: () => this.setVariant() },
                             },
-                                enabledVariants.sort().map((variant, idx) =>
-                                    h('option', {
+                                enabledVariants.map((variant, idx) => {
+                                    const v = VARIANTS[variant];
+                                    return h('option', {
                                         props: {
                                             value: variant,
-                                            title: VARIANTS[variant].tooltip,
+                                            title: v.tooltip,
                                         },
                                         attrs: {
                                             selected: idx === vIdx
                                         },
                                     },
-                                        VARIANTS[variant].displayName(false),
-                                    )
-                                )
+                                        v.displayName(false),
+                                    );
+                                })
                             ),
                         ]),
                         h('input#fen', {
@@ -379,25 +382,24 @@ class LobbyController {
     private setVariant() {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
-        const variant = e.options[e.selectedIndex].value;
-        const hide960 = !VARIANTS[variant].chess960;
-        const hideHandicap = variant !== 'shogi';
-        const byoyomi = isVariantClass(variant, 'byoyomi');
-        document.getElementById('chess960-block')!.style.display = (hide960) ? 'none' : 'block';
-        document.getElementById('handicap-block')!.style.display = (hideHandicap) ? 'none' : 'block';
-        document.getElementById('byoyomi-period')!.style.display = (byoyomi) ? 'block' : 'none';
+        const variant = VARIANTS[e.options[e.selectedIndex].value];
+        const chess960 = variant.chess960;
+        const handicap = variant.name === 'shogi';
+        const byoyomi = variant.timeControl === "byoyomi";
+        // TODO use class instead of setting style directly
+        document.getElementById('chess960-block')!.style.display = chess960 ? 'block' : 'none';
+        document.getElementById('handicap-block')!.style.display = handicap ? 'block' : 'none';
+        document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
         e = document.getElementById('incrementlabel') as HTMLSelectElement;
         patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
         this.setStartButtons();
     }
     private setMinutes(minutes) {
-        const el = document.getElementById("minutes") as HTMLElement;
-        if (el) el.innerHTML = minutes;
+        document.getElementById("minutes")!.innerHTML = minutes;
         this.setStartButtons();
     }
     private setIncrement(increment) {
-        const el = document.getElementById("increment") as HTMLElement;
-        if (el) el.innerHTML = increment;
+        document.getElementById("increment")!.innerHTML = increment;
         this.setStartButtons();
     }
     private setFen() {
@@ -408,26 +410,18 @@ class LobbyController {
     private setStartButtons() {
         const valid = this.validateTimeControl() && this.validateFen();
         const e = document.getElementById('color-button-group') as HTMLElement;
-        if (valid)
-            e.classList.remove("disabled");
-        else
-            e.classList.add("disabled");
+        e.classList.toggle("disabled", !valid);
     }
     private validateTimeControl() {
-        let min = 0, inc = 0;
-        let e;
-        e = document.getElementById('min') as HTMLInputElement;
-        if (e) min = Number(e.value);
-        e = document.getElementById('inc') as HTMLInputElement;
-        if (e) inc = Number(e.value);
+        const min = Number((document.getElementById('min') as HTMLInputElement).value);
+        const inc = Number((document.getElementById('inc') as HTMLInputElement).value);
         return min + inc > ((this.challengeAI) ? 4 : 0);
     }
     private validateFen() {
-        let e;
-        e = document.getElementById('variant') as HTMLSelectElement;
+        const e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
-        e = document.getElementById('fen') as HTMLInputElement;
-        return e.value === "" || validFen(variant, e.value);
+        const fen = (document.getElementById('fen') as HTMLInputElement).value;
+        return fen === "" || validFen(variant, fen);
     }
 
     renderSeeks(seeks) {
@@ -452,29 +446,16 @@ class LobbyController {
     private seekView(seek) {
         const variant = VARIANTS[seek.variant];
         const chess960 = seek.chess960;
-        let tooltipImage;
-        if (seek["fen"]) {
-            tooltipImage = h('minigame.' + variant + '-board.' + variant.piece, [
-                h('div.cg-wrap.' + variant.cg + '.mini',
-                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, { coordinates: false, fen: seek["fen"], geometry: variant.geometry }) } }
-                ),
-            ]);
-        }
-        else {
-            tooltipImage = '';
-        }
-        const tooltip = h('span.tooltiptext', [ tooltipImage ]);
-        return this.hide(seek) ? "" : h('tr', {
-            on: { click: () => this.onClickSeek(seek) }
-        }, [
-            h('td', [ this.colorIcon(seek["color"]) ]),
+
+        return this.hide(seek) ? "" : h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
+            h('td', [ this.colorIcon(seek.color) ]),
             h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
-            h('td', seek["rating"]),
-            h('td', seek["tc"]),
+            h('td', seek.rating),
+            h('td', seek.tc),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, " " + variant.displayName(chess960)),
-            h('td', { class: { "tooltip": seek["fen"] } }, [
-                tooltip,
-                (seek["handicap"]) ? seek["handicap"] : (seek["fen"]) ? _('Custom') : (seek["rated"]) ? _('Rated') : _('Casual')
+            h('td', { class: { tooltip: seek.fen } }, [
+                this.tooltip(seek, variant),
+                this.mode(seek),
             ]),
         ]);
     }
@@ -486,7 +467,6 @@ class LobbyController {
             this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.model["username"] });
         }
     }
-
     private colorIcon(color) {
         return h('i-side.icon', {
             class: {
@@ -512,6 +492,29 @@ class LobbyController {
     private hide(seek) {
         return ((this.model["anon"] === 'True' || this.model["title"] === 'BOT') && seek["rated"]) ||
             (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']);
+    }
+    private tooltip(seek, variant) {
+        let tooltipImage;
+        if (seek.fen) {
+            tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
+                h('div.cg-wrap.' + variant.cg + '.mini',
+                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, { coordinates: false, fen: seek.fen, geometry: variant.geometry }) } }
+                ),
+            ]);
+        } else {
+            tooltipImage = '';
+        }
+        return h('span.tooltiptext', [ tooltipImage ]);
+    }
+    private mode(seek) {
+        if (seek.handicap)
+            return seek.handicap;
+        else if (seek.fen)
+            return _("Custom");
+        else if (seek.rated)
+            return _("Rated");
+        else
+            return _("Casual");
     }
 
     onMessage(evt) {
@@ -567,15 +570,14 @@ class LobbyController {
     }
     private onMsgNewGame(msg) {
         // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
-        window.location.assign('/' + msg["gameId"]);
+        window.location.assign('/' + msg.gameId);
     }
     private onMsgGameInProgress(msg) {
         const response = confirm(_("You have an unfinished game!\nPress OK to continue."));
-        if (response === true)
-            window.location.assign('/' + msg["gameId"]);
+        if (response) window.location.assign('/' + msg.gameId);
     }
     private onMsgUserConnected(msg) {
-        this.model["username"] = msg["username"];
+        this.model.username = msg.username;
     }
     private onMsgChat(msg) {
         chatMessage(msg.user, msg.message, "lobbychat");
@@ -600,20 +602,14 @@ class LobbyController {
         alert(msg.message);
     }
     private onMsgGameCounter(msg) {
-        console.log("Gcnt=", msg["cnt"]);
-        const oldVNode = document.getElementById('g_cnt');
-        if (oldVNode instanceof Element) {
-            // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#g_cnt', _n('%1 game in play', '%1 games in play', msg["cnt"])));
-        }
+        console.log("Gcnt=", msg.cnt);
+        const gameCount = document.getElementById('g_cnt') as HTMLElement;
+        patch(gameCount, h('counter#g_cnt', _n('%1 game in play', '%1 games in play', msg.cnt)));
     }
     private onMsgUserCounter(msg) {
-        console.log("Ucnt=", msg["cnt"]);
-        const oldVNode = document.getElementById('u_cnt');
-        if (oldVNode instanceof Element) {
-            // oldVNode.innerHTML = '';
-            patch(oldVNode as HTMLElement, h('counter#u_cnt', _n('%1 player', '%1 players', msg["cnt"])));
-        }
+        console.log("Ucnt=", msg.cnt);
+        const userCount = document.getElementById('u_cnt') as HTMLElement;
+        patch(userCount as HTMLElement, h('counter#u_cnt', _n('%1 player', '%1 players', msg.cnt)));
     }
 
 }
@@ -625,15 +621,18 @@ function runSeeks(vnode: VNode, model) {
 }
 
 export function lobbyView(model): VNode[] {
+
+    /* TODO move this to appropriate place
     // Get the modal
     const modal = document.getElementById('id01')!;
 
     // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
+    document.addEventListener("click", function(event) {
+        if (!modal.contains(event.target as Node))
             modal.style.display = "none";
-        }
-    }
+    });
+    */
+
     boardSettings.updateBoardAndPieceStyles();
 
     return [

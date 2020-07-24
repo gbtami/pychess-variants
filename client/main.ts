@@ -130,8 +130,8 @@ function start() {
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
     const settings = document.getElementById('settings') as HTMLElement;
-    document.addEventListener("click", ev => {
-        if (!settingsPanel.contains(ev.target as HTMLElement))
+    document.addEventListener("click", function(event) {
+        if (!settingsPanel.contains(event.target as Node))
             settings.style.display = 'none';
     });
 

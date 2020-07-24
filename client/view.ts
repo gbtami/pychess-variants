@@ -37,3 +37,11 @@ export function checkbox(settings: ISettings<boolean>, name: string, text: strin
         h('label', { attrs: { for: id } }, text),
     ];
 }
+
+export function timeControlStr(minutes: number, increment: number = 0, byoyomiPeriod: number = 0) {
+    switch (byoyomiPeriod) {
+        case 0 : return `${minutes}+${increment}`;
+        case 1 : return `${minutes}+${increment}(b)`;
+        default: return `${minutes}+${byoyomiPeriod}x${increment}(b)`;
+    }
+}
