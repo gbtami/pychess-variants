@@ -184,7 +184,7 @@ export class Promotion {
         const direction = color === orientation ? "top" : "bottom";
 
         const choices = Object.keys(this.choices);
-        const topRank = Math.max(0, (color === "white") ? dim.height - pos[1] - choices.length : pos[1] - 1 - choices.length);
+        const topRank = Math.max(0, (color === "white") ? dim.height - pos[1] + 1 - choices.length : pos[1] - choices.length);
 
         return h("div#extension_choice." + direction, {
             hook: {
