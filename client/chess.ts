@@ -47,8 +47,6 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
 };
 
 export interface IVariant {
-    readonly data: any;
-
     readonly name: string;
     readonly displayName: (chess960: boolean) => string;
     readonly tooltip: string;
@@ -91,8 +89,6 @@ export interface IVariant {
 }
 
 class Variant implements IVariant {
-    readonly data: any;
-
     readonly name: string;
     private readonly _displayName: string;
     displayName(chess960: boolean = false) { return this._displayName + (chess960 ? "960" : ""); }
