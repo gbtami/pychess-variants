@@ -393,10 +393,6 @@ ul.guide li {
     flex-direction: row;
 }
 
-#sound-theme label, #settings-background label {
-    text-transform: capitalize;
-}
-
 #board-settings > div {
     flex-direction: row;
 }

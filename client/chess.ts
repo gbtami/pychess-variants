@@ -137,7 +137,7 @@ class Variant implements IVariant {
 
     constructor(data: any) {
         this.name = data.name;
-        this._displayName = data.displayName ?? data.name;
+        this._displayName = (data.displayName ?? data.name).toUpperCase();
         this.tooltip = data.tooltip;
         this.startFen = data.startFen;
 
