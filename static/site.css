@@ -789,7 +789,8 @@ table#seeks-header, table#seeks {
     background-blend-mode: overlay;
 }
 
-#seeks-wrapper {
+table#seeks {
+    display: block;
     max-height: 550px;
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
@@ -802,7 +803,6 @@ table#seeks-header, table#seeks {
 #seeks-header th, #seeks td {
     padding: 8px;
     white-space: nowrap;
-    overflow-x: hidden;
 }
 
 #seeks-header th {
@@ -1647,7 +1647,7 @@ div#ctable-container {
 .tooltip .tooltiptext {
     visibility: hidden;
     position: absolute;
-    top: -28px;
+    top: -20px;
     right: 105%;
     z-index: 1;
 }

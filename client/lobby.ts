@@ -427,20 +427,7 @@ class LobbyController {
     renderSeeks(seeks) {
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
         const rows = seeks.map(seek => this.seekView(seek));
-        return [ this.seekHeader(), h('tbody', rows) ];
-    }
-
-    private seekHeader() {
-        return h('thead', [
-            h('tr', [
-                h('th', ''),
-                h('th', _('Player')),
-                h('th', _('Rating')),
-                h('th', _('Time')),
-                h('th', _('Variant')),
-                h('th', _('Mode'))
-            ])
-        ]);
+        return [ seekHeader(), h('tbody', rows) ];
     }
 
     private seekView(seek) {
@@ -614,6 +601,19 @@ class LobbyController {
 
 }
 
+function seekHeader() {
+    return h('thead', [
+        h('tr', [
+            h('th', ''),
+            h('th', _('Player')),
+            h('th', _('Rating')),
+            h('th', _('Time')),
+            h('th', _('Variant')),
+            h('th', _('Mode'))
+        ])
+    ]);
+}
+
 function runSeeks(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new LobbyController(el, model);
@@ -639,21 +639,8 @@ export function lobbyView(model): VNode[] {
         h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
         h('div.seeks', [
             h('div#seeks-table', [
-                h('table#seeks-header', {
-                    hook: { insert: _ => resizeSeeksHeader() },
-                }, [
-                    h('thead', [
-                        h('tr', [
-                            h('th', ''),
-                            h('th', _('Player')),
-                            h('th', _('Rating')),
-                            h('th', _('Time')),
-                            h('th', _('Variant')),
-                            h('th', _('Mode')),
-                        ]),
-                    ]),
-                ]),
-                h('div#seeks-wrapper', [ h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } }) ]),
+                h('table#seeks-header', { hook: { insert: _ => resizeSeeksHeader() } }, seekHeader()),
+                h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } }),
             ]),
         ]),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),
