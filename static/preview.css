@@ -75,7 +75,7 @@ label.board.board2.shogi5x5 {
 }
 
 label.board.board0.janggi9x10 {
-    background-image: url('images/board/Janggi.svg');
+    background-image: url('images/board/JanggiBrown.svg');
 }
 label.board.board1.janggi9x10 {
     background-image: url('images/board/JanggiPaper.png');
@@ -87,7 +87,10 @@ label.board.board3.janggi9x10 {
     background-image: url('images/board/JanggiDark.svg');
 }
 label.board.board4.janggi9x10 {
-    background-image: url('images/board/JanggiBrown.svg');
+    background-image: url('images/board/JanggiWoodDark.svg');
+}
+label.board.board5.janggi9x10 {
+    background-image: url('images/board/JanggiStone.svg');
 }
 
 label.board.board0.xiangqi9x10 {
@@ -130,6 +133,12 @@ label.piece.piece2.janggi {
 }
 label.piece.piece3.janggi {
     background-image: url('images/pieces/janggi/intlgreen/blue_king.svg');
+}
+label.piece.piece4.janggi {
+    background-image: url('images/pieces/janggi/Ka_kakao/blue_king.svg');
+}
+label.piece.piece5.janggi {
+    background-image: url('images/pieces/janggi/Ka_wooden/blue_king.svg');
 }
 
 label.piece.piece0.xiangqi {

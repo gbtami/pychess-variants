@@ -1,0 +1,43 @@
+.janggi .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/blue_pawn.svg');
+}
+.janggi .cg-wrap piece.bishop.white {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/blue_elephant.svg');
+}
+.janggi .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/blue_horse.svg');
+}
+.janggi .cg-wrap piece.rook.white {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/blue_chariot.svg');
+}
+.janggi .cg-wrap piece.advisor.white {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/blue_advisor.svg');
+}
+.janggi .cg-wrap piece.cannon.white {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/blue_cannon.svg');
+}
+.janggi .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/blue_king.svg');
+}
+
+.janggi .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/red_pawn.svg');
+}
+.janggi .cg-wrap piece.bishop.black {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/red_elephant.svg');
+}
+.janggi .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/red_horse.svg');
+}
+.janggi .cg-wrap piece.rook.black {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/red_chariot.svg');
+}
+.janggi .cg-wrap piece.advisor.black {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/red_advisor.svg');
+}
+.janggi .cg-wrap piece.cannon.black {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/red_cannon.svg');
+}
+.janggi .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/janggi/Ka_wooden/red_king.svg');
+}
