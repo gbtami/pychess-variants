@@ -1,0 +1,42 @@
+.orda .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/orda/cburnett/wP.svg');
+}
+.orda .cg-wrap piece.bishop.white {
+    background-image: url('../../images/pieces/orda/cburnett/wB.svg');
+}
+.orda .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/orda/cburnett/wN.svg');
+}
+.orda .cg-wrap piece.rook.white {
+    background-image: url('../../images/pieces/orda/cburnett/wR.svg');
+}
+.orda .cg-wrap piece.queen.white {
+    background-image: url('../../images/pieces/orda/cburnett/wQ.svg');
+}
+.orda .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/orda/cburnett/wK.svg');
+}
+.orda .cg-wrap piece.hawk.white {
+    background-image: url('../../images/pieces/orda/cburnett/wH.svg');
+}
+.orda .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/orda/cburnett/bP.svg');
+}
+.orda .cg-wrap piece.archbishop.black {
+    background-image: url('../../images/pieces/orda/cburnett/bA.svg');
+}
+.orda .cg-wrap piece.hawk.black {
+    background-image: url('../../images/pieces/orda/cburnett/bH.svg');
+}
+.orda .cg-wrap piece.lancer.black {
+    background-image: url('../../images/pieces/orda/cburnett/bL.svg');
+}
+.orda .cg-wrap piece.yurt.black {
+    background-image: url('../../images/pieces/orda/cburnett/bY.svg');
+}
+.orda .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/orda/cburnett/bK.svg');
+}
+.orda .cg-wrap piece.queen.black {
+    background-image: url('../../images/pieces/orda/cburnett/bQ.svg');
+}

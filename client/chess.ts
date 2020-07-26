@@ -42,7 +42,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiib", "janggiig", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlblue", "janggi/intlgreen", "janggi/Ka_kako", "janggi/Ka_wooden"] },
     shako: { pieceCSS: ["shako0", "shako1"], baseURL: ["shako", "kaneo"] },
     shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
-    orda: { pieceCSS: ["orda0"], baseURL: ["orda"] },
+    orda: { pieceCSS: ["orda0", "orda1"], baseURL: ["orda/merida", "orda/cburnett"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "xiangqi/playok", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"] },
 };
 
