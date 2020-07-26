@@ -4,7 +4,7 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, handicap="", target="", ws=None):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", ws=None):
         self.user = user
         self.variant = variant
         self.color = color
@@ -16,7 +16,7 @@ class Seek:
         self.byoyomi_period = byoyomi_period
         self.level = 0 if user.username == "Random-Mover" else level
         self.chess960 = chess960
-        self.handicap = handicap
+        self.alternate_start = alternate_start
         self.target = target
         self.ws = ws
 
@@ -30,7 +30,7 @@ class Seek:
             "title": self.user.title,
             "variant": self.variant,
             "chess960": self.chess960,
-            "handicap": self.handicap,
+            "alternateStart": self.alternate_start,
             "target": self.target,
             "fen": self.fen,
             "color": self.color,
@@ -50,10 +50,10 @@ def create_seek(seeks, user, data, ws=None):
         color=data["color"],
         base=data["minutes"],
         inc=data["increment"],
-        byoyomi_period=data["byoyomi_period"],
+        byoyomi_period=data["byoyomiPeriod"],
         rated=data.get("rated"),
         chess960=data.get("chess960"),
-        handicap=data.get("handicap"),
+        alternate_start=data.get("alternate_start"),
         target=data.get("target"),
         ws=ws)
 

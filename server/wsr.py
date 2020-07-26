@@ -185,7 +185,7 @@ async def round_socket_handler(request):
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
-                        handicap = data["handicap"]
+                        alternate_start = data["alternateStart"]
                         fen = "" if game.variant == "janggi" else game.initial_fen
 
                         if opp_player.bot:
@@ -199,7 +199,7 @@ async def round_socket_handler(request):
                                 engine = users.get("Random-Mover")
 
                             color = "w" if game.wplayer.username == opp_name else "b"
-                            if handicap:
+                            if alternate_start:
                                 color = "w" if color == "b" else "b"
                             seek = Seek(
                                 user, game.variant,
@@ -223,7 +223,7 @@ async def round_socket_handler(request):
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             if opp_name in game.rematch_offers:
                                 color = "w" if game.wplayer.username == opp_name else "b"
-                                if handicap:
+                                if alternate_start:
                                     color = "w" if color == "b" else "b"
                                 seek = Seek(
                                     user, game.variant,

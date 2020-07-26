@@ -82,6 +82,8 @@ export interface IVariant {
     readonly gate: boolean;
     readonly pass: boolean;
 
+    readonly alternateStart?: { [ name: string ]: string };
+
     readonly chess960: boolean;
 
     readonly icon: (chess960: boolean) => string;
@@ -128,6 +130,8 @@ class Variant implements IVariant {
     readonly gate: boolean;
     readonly pass: boolean;
 
+    readonly alternateStart?: { [ name: string ]: string };
+
     readonly chess960: boolean;
 
     private readonly _icon: string;
@@ -164,6 +168,8 @@ class Variant implements IVariant {
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
 
+        this.alternateStart = data.alternateStart;
+
         this.chess960 = data.chess960 ?? false;
 
         this._icon = data.icon;
@@ -180,6 +186,14 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         enPassant: true, autoQueenable: true,
+        alternateStart: {
+            '': '',
+            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
+            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
+            'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
+            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
+            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
+        },
         chess960: true, icon: "M", icon960: "V",
     }),
 
@@ -190,6 +204,14 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
+        alternateStart: {
+            '': '',
+            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
+            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
+            'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
+            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
+            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
+        },
         chess960: true, icon: "+", icon960: "%",
     }),
 
@@ -253,6 +275,19 @@ export const VARIANTS: { [name: string]: IVariant } = {
         sideDetermination: "direction",
         pieceSound: "shogi",
         drop: true,
+        alternateStart: {
+            '': '',
+            'Lance HC': 'lnsgkgsn1/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            'Bishop HC': 'lnsgkgsnl/1r7/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            'Rook HC': 'lnsgkgsnl/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            'Rook+Lance HC': 'lnsgkgsn1/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '2-Piece HC': 'lnsgkgsnl/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '4-Piece HC': '1nsgkgsn1/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '6-Piece HC': '2sgkgs2/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '8-Piece HC': '3gkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '9-Piece HC': '3gk4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '10-Piece HC': '4k4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1'
+        },
         icon: "K",
     }),
 
@@ -322,6 +357,13 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
         enPassant: true, autoQueenable: true,
+        alternateStart: {
+            '': '',
+            'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
+            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR w KQkq - 0 1',
+            'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
+            'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1'
+        },
         chess960: true, icon: "P", icon960: ",",
     }),
 
@@ -332,6 +374,13 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
         pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
+        alternateStart: {
+            '': '',
+            'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
+            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR w KQkq - 0 1',
+            'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
+            'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1'
+        },
         chess960: true, icon: "&", icon960: "'",
     }),
 
@@ -781,23 +830,4 @@ export const SHOGI_HANDICAP_FEN = {
     '8-Piece HC': '3gkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
     '9-Piece HC': '3gk4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
     '10-Piece HC': '4k4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1'
-};
-
-export const CAPA_SUB_NAME = ['', 'Bird', 'Carrera', 'Gothic', 'Embassy'];
-export const CAPA_SUB_FEN = {
-    '': '',
-    'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
-    'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR w KQkq - 0 1',
-    'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
-    'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1'
-};
-
-export const WILD_SUB_NAME = ['', 'PawnsPushed', 'PawnsPassed', 'UpsideDown', 'Theban', 'No castle'];
-export const WILD_SUB_FEN = {
-    '': '',
-    'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
-    'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
-    'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
-    'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
-    'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 };

@@ -16,7 +16,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, _n } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { enabledVariants, validFen, SHOGI_HANDICAP_NAME, SHOGI_HANDICAP_FEN , VARIANTS, isVariantClass } from './chess';
+import { enabledVariants, validFen, VARIANTS, IVariant } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { debounce } from './document';
@@ -88,12 +88,12 @@ class LobbyController {
             e.disabled = true;
     }
 
-    doSend(message) {
+    doSend(message: any) {
         // console.log("---> lobby doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg(variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated, handicap) {
+    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_seek",
             user: this.model.username,
@@ -102,15 +102,15 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
-            byoyomi_period: byoyomiPeriod,
+            byoyomiPeriod: byoyomiPeriod,
             rated: rated,
-            handicap: handicap,
+            alternateStart: alternateStart,
             chess960: chess960,
             color: color
         });
     }
 
-    createBotChallengeMsg(variant, color, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, handicap) {
+    createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_ai_challenge",
             user: this.model.username,
@@ -118,16 +118,16 @@ class LobbyController {
             fen: fen,
             minutes: minutes,
             increment: increment,
-            byoyomi_period: byoyomiPeriod,
+            byoyomiPeriod: byoyomiPeriod,
             rated: rated,
-            handicap: handicap,
+            alternateStart: alternateStart,
             level: level,
             chess960: chess960,
             color: color
         });
     }
 
-    isNewSeek(variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated) {
+    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
@@ -145,65 +145,61 @@ class LobbyController {
         document.getElementById('id01')!.style.display='none';
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
-        const variant = e.options[e.selectedIndex].value;
+        const variant = VARIANTS[e.options[e.selectedIndex].value];
         localStorage.seek_variant = variant;
 
         // TODO Standardize seek color
         let seekColor;
-        if (variant.endsWith('shogi') && color !== 'r') {
+        if (variant.name.endsWith('shogi') && color !== 'r')
             seekColor = (color === 'w') ? 'b' : 'w';
-        } else {
+        else
             seekColor = color;
-        }
 
         e = document.getElementById('fen') as HTMLInputElement;
         const fen = e.value;
 
-        let handicap;
-        if (variant == 'shogi') {
+        let alternateStart = '';
+        if (variant.alternateStart) {
             e = document.getElementById('handicap') as HTMLSelectElement;
-            handicap = e.options[e.selectedIndex].value;
-        } else {
-            handicap = '';
+            alternateStart = e.options[e.selectedIndex].value;
         }
 
         e = document.getElementById('min') as HTMLInputElement;
-        const minutes = parseInt(e.value);
+        const minutes = Number(e.value);
         localStorage.seek_min = e.value;
 
         e = document.getElementById('inc') as HTMLInputElement;
-        const increment = parseInt(e.value);
+        const increment = Number(e.value);
         localStorage.seek_inc = e.value;
 
         e = document.getElementById('byo') as HTMLInputElement;
-        const byoyomi = isVariantClass(variant, 'byoyomi');
-        const byoyomiPeriod = (byoyomi && increment > 0) ? parseInt(e.value) : 0;
+        const byoyomi = variant.timeControl === "byoyomi";
+        const byoyomiPeriod = (byoyomi && increment > 0) ? Number(e.value) : 0;
         localStorage.seek_byo = e.value;
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
-        let rated = 0;
+        let rated = false;
         if (this.test_ratings)
-            rated = parseInt(e.value);
+            rated = Number(e.value) === 1;
         else
-            rated = (this.challengeAI || this.model["anon"] === 'True' || this.model["title"] === 'BOT' || fen !== '') ? 0 : parseInt(e.value);
+            rated = (this.challengeAI || this.model["anon"] === 'True' || this.model["title"] === 'BOT' || fen !== '') ? false : Number(e.value) === 1;
         localStorage.seek_rated = e.value;
 
         e = document.getElementById('chess960') as HTMLInputElement;
-        const hide = !VARIANTS[variant].chess960;
-        const chess960 = (hide) ? false : e.checked;
+        const chess960 = variant.chess960 ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
 
         if (this.challengeAI) {
             e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
-            const level = parseInt(e.value);
+            const level = Number(e.value);
             localStorage.seek_level = e.value;
             // console.log(level, e.value, localStorage.getItem("seek_level"));
-            this.createBotChallengeMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, level, chess960, rated===1, handicap);
+            this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, alternateStart);
         } else {
-            if (this.isNewSeek(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1))
-                this.createSeekMsg(variant, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated===1, handicap);
+            if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
+                this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
         }
         // prevent to create challenges continuously
         this.model.profileid = '';
@@ -275,15 +271,7 @@ class LobbyController {
                             props: { name: 'fen', placeholder: _('Paste the FEN text here') + (anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
                             on: { input: () => this.setFen() },
                         }),
-                        h('div#handicap-block', [
-                            h('label', { attrs: { for: "handicap" } }, _("Handicap")),
-                            h('select#handicap', {
-                                props: { name: "handicap" },
-                                on: { input: () => this.setHandicap() },
-                                hook: { insert: () => this.setHandicap() },
-                            },
-                                SHOGI_HANDICAP_NAME.map(handicap => h('option', { props: { value: handicap } }, handicap))),
-                        ]),
+                        h('div#handicap-block'),
                         h('div#chess960-block', [
                             h('label', { attrs: { for: "chess960" } }, "Chess960"),
                             h('input#chess960', {
@@ -372,27 +360,41 @@ class LobbyController {
         ];
     }
 
-    private setHandicap() {
-        let e;
-        e = document.getElementById('handicap') as HTMLSelectElement;
-        const handicap = e.options[e.selectedIndex].value;
-        e = document.getElementById('fen') as HTMLSelectElement;
-        e!.value = SHOGI_HANDICAP_FEN[handicap];
-    }
     private setVariant() {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
-        const chess960 = variant.chess960;
-        const handicap = variant.name === 'shogi';
         const byoyomi = variant.timeControl === "byoyomi";
-        // TODO use class instead of setting style directly
-        document.getElementById('chess960-block')!.style.display = chess960 ? 'block' : 'none';
-        document.getElementById('handicap-block')!.style.display = handicap ? 'block' : 'none';
+        // TODO use toggle class instead of setting style directly
+        document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
         e = document.getElementById('incrementlabel') as HTMLSelectElement;
-        patch(e, h('label#incrementlabel', { attrs: {for: "inc"} }, ((byoyomi) ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
+        patch(e, h('label#incrementlabel', { attrs: { for: "inc"} }, (byoyomi ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
+        e = document.getElementById('handicap-block') as HTMLElement;
+        e.innerHTML = "";
+        if (variant.alternateStart) {
+            patch(e, h('div#handicap-block', [
+                h('label', { attrs: { for: "handicap" } }, _("Handicap")),
+                h('select#handicap', {
+                    props: { name: "handicap" },
+                    on: { input: () => this.setAlternateStart(variant) },
+                    hook: { insert: () => this.setAlternateStart(variant) },
+                },
+                    Object.keys(variant.alternateStart).map(handicap =>
+                        h('option', { props: { value: handicap } }, handicap)
+                    )
+                ),
+            ]));
+        }
         this.setStartButtons();
+    }
+    private setAlternateStart(variant: IVariant) {
+        let e: HTMLSelectElement;
+        e = document.getElementById('handicap') as HTMLSelectElement;
+        const alt = e.options[e.selectedIndex].value;
+        e = document.getElementById('fen') as HTMLSelectElement;
+        e.value = variant.alternateStart![alt];
+        this.setFen();
     }
     private setMinutes(minutes) {
         document.getElementById("minutes")!.innerHTML = minutes;
