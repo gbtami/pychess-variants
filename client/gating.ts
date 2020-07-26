@@ -31,7 +31,7 @@ export class Gating {
             const pocket = getPockets(fen);
             const color = this.ctrl.mycolor;
             this.choices = ["hawk", "elephant", "queen", "rook", "bishop", "knight"].filter(role => lc(pocket, roleToSan[role], color === "white") > 0);
-            this.choices.push("");
+            this.choices.unshift("");
 
             const ground = this.ctrl.getGround();
             const orientation = ground.state.orientation;
