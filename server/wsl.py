@@ -89,7 +89,7 @@ async def lobby_socket_handler(request):
                             level=data["level"],
                             rated=data["rated"],
                             chess960=data["chess960"],
-                            handicap=data["handicap"])
+                            alternate_start=data["alternateStart"])
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 

@@ -19,7 +19,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, SHOGI_HANDICAP_FEN, getCounting, isVariantClass } from './chess';
+import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, getCounting, isVariantClass, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { movelistView, updateMovelist, selectMove } from './movelist';
@@ -148,7 +148,7 @@ export default class RoundController {
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = isVariantClass(this.variant, 'pocket');
-        this.handicap = (this.variant === 'shogi') ? Object.keys(SHOGI_HANDICAP_FEN).some(e => SHOGI_HANDICAP_FEN[e] === this.fullfen) : false;
+        this.handicap = VARIANTS[this.variant].alternateStart ? Object.keys(VARIANTS[this.variant].alternateStart!).some(alt => isHandicap(alt) && VARIANTS[this.variant].alternateStart![alt] === this.fullfen) : false;
 
         // orientation = this.mycolor
         if (this.spectator) {
