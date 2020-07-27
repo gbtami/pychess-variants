@@ -53,7 +53,7 @@ def create_seek(seeks, user, data, ws=None):
         byoyomi_period=data["byoyomiPeriod"],
         rated=data.get("rated"),
         chess960=data.get("chess960"),
-        alternate_start=data.get("alternate_start"),
+        alternate_start=data.get("alternateStart"),
         target=data.get("target"),
         ws=ws)
 

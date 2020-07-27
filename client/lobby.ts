@@ -158,9 +158,9 @@ class LobbyController {
         e = document.getElementById('fen') as HTMLInputElement;
         const fen = e.value;
 
-        let alternateStart = '';
+        let alternateStart = "";
         if (variant.alternateStart) {
-            e = document.getElementById('handicap') as HTMLSelectElement;
+            e = document.getElementById('alternate-start') as HTMLSelectElement;
             alternateStart = e.options[e.selectedIndex].value;
         }
 
@@ -178,11 +178,11 @@ class LobbyController {
         localStorage.seek_byo = e.value;
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
-        let rated = false;
-        if (this.test_ratings)
-            rated = Number(e.value) === 1;
+        let rated: boolean;
+        if (!this.test_ratings && (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
+            rated = false;
         else
-            rated = (this.challengeAI || this.model["anon"] === 'True' || this.model["title"] === 'BOT' || fen !== '') ? false : Number(e.value) === 1;
+            rated = e.value === "1";
         localStorage.seek_rated = e.value;
 
         e = document.getElementById('chess960') as HTMLInputElement;
@@ -271,7 +271,7 @@ class LobbyController {
                             props: { name: 'fen', placeholder: _('Paste the FEN text here') + (anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
                             on: { input: () => this.setFen() },
                         }),
-                        h('div#handicap-block'),
+                        h('div#alternate-start-block'),
                         h('div#chess960-block', [
                             h('label', { attrs: { for: "chess960" } }, "Chess960"),
                             h('input#chess960', {
@@ -370,18 +370,18 @@ class LobbyController {
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
         e = document.getElementById('incrementlabel') as HTMLSelectElement;
         patch(e, h('label#incrementlabel', { attrs: { for: "inc"} }, (byoyomi ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
-        e = document.getElementById('handicap-block') as HTMLElement;
+        e = document.getElementById('alternate-start-block') as HTMLElement;
         e.innerHTML = "";
         if (variant.alternateStart) {
-            patch(e, h('div#handicap-block', [
-                h('label', { attrs: { for: "handicap" } }, _("Handicap")),
-                h('select#handicap', {
-                    props: { name: "handicap" },
+            patch(e, h('div#alternate-start-block', [
+                h('label', { attrs: { for: "alternate-start" } }, _("Alternate Start")),
+                h('select#alternate-start', {
+                    props: { name: "alternate-start" },
                     on: { input: () => this.setAlternateStart(variant) },
                     hook: { insert: () => this.setAlternateStart(variant) },
                 },
-                    Object.keys(variant.alternateStart).map(handicap =>
-                        h('option', { props: { value: handicap } }, handicap)
+                    Object.keys(variant.alternateStart).map(alt =>
+                        h('option', { props: { value: alt } }, _(alt))
                     )
                 ),
             ]));
@@ -390,7 +390,7 @@ class LobbyController {
     }
     private setAlternateStart(variant: IVariant) {
         let e: HTMLSelectElement;
-        e = document.getElementById('handicap') as HTMLSelectElement;
+        e = document.getElementById('alternate-start') as HTMLSelectElement;
         const alt = e.options[e.selectedIndex].value;
         e = document.getElementById('fen') as HTMLSelectElement;
         e.value = variant.alternateStart![alt];
@@ -496,8 +496,8 @@ class LobbyController {
         return h('span.tooltiptext', [ tooltipImage ]);
     }
     private mode(seek) {
-        if (seek.handicap)
-            return seek.handicap;
+        if (seek.alternateStart)
+            return seek.alternateStart;
         else if (seek.fen)
             return _("Custom");
         else if (seek.rated)
