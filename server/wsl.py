@@ -85,7 +85,7 @@ async def lobby_socket_handler(request):
                             color=data["color"],
                             base=data["minutes"],
                             inc=data["increment"],
-                            byoyomi_period=data["byoyomi_period"],
+                            byoyomi_period=data["byoyomiPeriod"],
                             level=data["level"],
                             rated=data["rated"],
                             chess960=data["chess960"],
