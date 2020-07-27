@@ -19,6 +19,7 @@ function gameView(games, game, fen, lastMove) {
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
+        h('div.icon', { attrs: { "data-icon": variant.icon(game.chess960) } }),
         h('div', game.b),
         h(`div.cg-wrap.${VARIANTS[game.variant].cg}.mini`, {
             hook: {
