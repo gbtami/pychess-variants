@@ -186,7 +186,7 @@ class LobbyController {
         localStorage.seek_rated = e.value;
 
         e = document.getElementById('chess960') as HTMLInputElement;
-        const chess960 = (variant.chess960 && fen === "") ? e.checked : false;
+        const chess960 = (variant.chess960 && alternateStart === "") ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
@@ -396,6 +396,7 @@ class LobbyController {
         const alt = e.options[e.selectedIndex].value;
         e = document.getElementById('fen') as HTMLSelectElement;
         e.value = variant.alternateStart![alt];
+        (document.getElementById('chess960') as HTMLInputElement).disabled = alt !== "";
         this.setFen();
     }
     private setMinutes(minutes) {
@@ -409,7 +410,6 @@ class LobbyController {
     private setFen() {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(this.validateFen() ? '' : _('Invalid FEN'));
-        (document.getElementById('chess960') as HTMLInputElement).disabled = e.value !== "";
         this.setStartButtons();
     }
     private setStartButtons() {
