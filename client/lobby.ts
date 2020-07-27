@@ -642,7 +642,7 @@ export function lobbyView(model): VNode[] {
         h('div.seeks', [
             h('div#seeks-table', [
                 h('table#seeks-header', { hook: { insert: _ => resizeSeeksHeader() } }, seekHeader()),
-                h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } }),
+                h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),

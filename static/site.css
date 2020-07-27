@@ -785,8 +785,7 @@ table#seeks-header, table#seeks {
     background-blend-mode: overlay;
 }
 
-table#seeks {
-    display: block;
+#seeks-wrapper {
     max-height: 550px;
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
