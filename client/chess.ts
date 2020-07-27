@@ -384,6 +384,25 @@ export const VARIANTS: { [name: string]: IVariant } = {
         chess960: true, icon: "&", icon960: "'",
     }),
 
+    gothic: new Variant({
+        name: "gothic", tooltip: _("Like Capablanca Chess but with a different starting setup"),
+        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        enPassant: true, autoQueenable: true,
+        icon: "P",
+    }),
+
+    gothhouse: new Variant({
+        name: "gothhouse", tooltip: _("Gothic with Crazyhouse drop rules"),
+        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        enPassant: true, autoQueenable: true, drop: true,
+        icon: "P",
+    }),
+
     seirawan: new Variant({
         name: "seirawan", displayName: "s-chess", tooltip: _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
@@ -421,25 +440,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
         icon: "(",
-    }),
-
-    gothic: new Variant({
-        name: "gothic", tooltip: _("Like Capablanca Chess but with a different starting setup"),
-        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
-        board: "standard10x8", piece: "capa",
-        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        enPassant: true, autoQueenable: true,
-        icon: "P",
-    }),
-
-    gothhouse: new Variant({
-        name: "gothhouse", tooltip: _("Gothic with Crazyhouse drop rules"),
-        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
-        board: "standard10x8", piece: "capa",
-        pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
-        enPassant: true, autoQueenable: true, drop: true,
-        icon: "P",
     }),
 
     shako: new Variant({
@@ -487,7 +487,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
 };
 
 export const variants = Object.keys(VARIANTS);
-export const enabledVariants = variants.filter(v => !["gothhouse"].includes(v));
+export const enabledVariants = variants.filter(v => !["gothic", "gothhouse"].includes(v));
 
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
 export function isHandicap(name: string) {

@@ -39,7 +39,7 @@
         {% for key in highscore %}
         <div class="card">
             <div class="info0 icon" data-icon="{{ icons[key] }}">
-                <div class="variant">{{ "S-CHESS" if key=="seirawan" else "S-HOUSE" if key=="shouse" else key.upper() }}</div>
+                <div class="variant">{{ "S-CHESS" if key=="seirawan" else "S-HOUSE" if key=="shouse" else "OUK CHATRANG" if key=="cambodian" else key.upper() }}</div>
             </div>
             {% for user, score in highscore[key].items()[:10] %}
                 <div class="player-data {{ loop.cycle('odd', 'even') }}">
