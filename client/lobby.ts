@@ -146,7 +146,7 @@ class LobbyController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
-        localStorage.seek_variant = variant;
+        localStorage.seek_variant = variant.name;
 
         // TODO Standardize seek color
         let seekColor;
