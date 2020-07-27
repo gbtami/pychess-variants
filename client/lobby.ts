@@ -361,13 +361,15 @@ class LobbyController {
     }
 
     private setVariant() {
-        let e;
+        let e: any;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
         const byoyomi = variant.timeControl === "byoyomi";
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
+        e = document.getElementById('fen') as HTMLInputElement;
+        e.value = "";
         e = document.getElementById('incrementlabel') as HTMLSelectElement;
         patch(e, h('label#incrementlabel', { attrs: { for: "inc"} }, (byoyomi ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
         e = document.getElementById('alternate-start-block') as HTMLElement;
