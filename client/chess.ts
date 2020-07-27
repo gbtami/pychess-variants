@@ -154,7 +154,7 @@ class Variant implements IVariant {
         this.firstColor = data.firstColor ?? "White";
         this.secondColor = data.secondColor ?? "Black";
         this._pieceRoles = [ data.pieceRoles, data.pieceRoles2 ?? data.pieceRoles ];
-        this.pocket = data.pocket ?? false;
+        this.pocket = Boolean(data.pocketRoles || data.pocketRoles2);
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
         this.promotion = data.promotion ?? "regular";
@@ -202,7 +202,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "queen"],
+        pocketRoles: ["pawn", "knight", "bishop", "rook", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
         alternateStart: {
             '': '',
@@ -220,7 +220,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["knight", "bishop", "rook", "queen", "king"],
+        pocketRoles: ["knight", "bishop", "rook", "queen", "king"],
         enPassant: true, autoQueenable: true,
         icon: "S",
     }),
@@ -230,7 +230,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
-        counting: "manual",
+        counting: "makruk",
         icon: "Q",
     }),
 
@@ -239,7 +239,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
-        counting: "manual",
+        counting: "makruk",
         icon: "O",
     }),
 
@@ -248,7 +248,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
-        counting: "manual",
+        counting: "makruk",
         icon: "!",
     }),
 
@@ -258,8 +258,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "sittuyin8x8", piece: "sittuyin",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["king", "ferz", "silver", "knight", "rook", "pawn"],
-        pocket: true, pocketRoles: ["rook", "knight", "silver", "ferz", "king"],
-        counting: "auto",
+        pocketRoles: ["rook", "knight", "silver", "ferz", "king"],
+        counting: "asean",
         icon: ":",
     }),
 
@@ -269,7 +269,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "shogi9x9", piece: "shogi",
         firstColor: "Black", secondColor: "White",
         pieceRoles: ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"],
+        pocketRoles: ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"],
         promotion: "shogi",
         timeControl: "byoyomi",
         sideDetermination: "direction",
@@ -297,7 +297,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "shogi5x5", piece: "shogi",
         firstColor: "Black", secondColor: "White",
         pieceRoles: ["king", "rook", "bishop", "gold", "silver", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "silver", "gold", "bishop", "rook"],
+        pocketRoles: ["pawn", "silver", "gold", "bishop", "rook"],
         promotion: "shogi",
         timeControl: "byoyomi",
         sideDetermination: "direction",
@@ -312,7 +312,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "shogi5x5", piece: "kyoto",
         firstColor: "Black", secondColor: "White",
         pieceRoles: ["king", "pknight", "silver", "plance", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "lance", "knight", "silver"],
+        pocketRoles: ["pawn", "lance", "knight", "silver"],
         promotion: "kyoto",
         timeControl: "byoyomi",
         sideDetermination: "direction",
@@ -372,7 +372,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
         alternateStart: {
             '': '',
@@ -389,7 +389,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["hawk", "elephant"],
+        pocketRoles: ["hawk", "elephant"],
         enPassant: true, autoQueenable: true, gate: true,
         icon: "L",
     }),
@@ -399,7 +399,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"],
+        pocketRoles: ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"],
         enPassant: true, autoQueenable: true, drop: true, gate: true,
         icon: "$",
     }),
@@ -418,7 +418,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
         board: "grand10x10", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
         icon: "(",
     }),
@@ -437,7 +437,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
+        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
         icon: "P",
     }),
@@ -456,7 +456,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
         board: "shogun8x8", piece: "shogun",
         pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn"],
-        pocket: true, pocketRoles: ["pawn", "knight", "bishop", "rook", "ferz"],
+        pocketRoles: ["pawn", "knight", "bishop", "rook", "ferz"],
         promotion: "shogi",
         timeControl: "byoyomi",
         enPassant: true, drop: true,
@@ -480,7 +480,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "synochess",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         pieceRoles2: ["king", "archbishop", "cancellor", "rook", "elephant", "knight", "silver"],
-        pocket: true, pocketRoles: [], pocketRoles2: ["silver"],
+        pocketRoles: [], pocketRoles2: ["silver"],
         autoQueenable: true,
         icon: "_",
     }),
@@ -488,6 +488,11 @@ export const VARIANTS: { [name: string]: IVariant } = {
 
 export const variants = Object.keys(VARIANTS);
 export const enabledVariants = variants.filter(v => !["gothhouse"].includes(v));
+
+const handicapKeywords = [ "HC", "Handicap", "Odds" ];
+export function isHandicap(name: string) {
+    return handicapKeywords.some(keyword => name.endsWith(keyword));
+}
 
 /** TODO DEPRECATED
  * Variant classes
@@ -816,18 +821,3 @@ export function lc(str: string, letter: string, uppercase: boolean) {
             letterCount += 1;
     return letterCount;
 }
-
-export const SHOGI_HANDICAP_NAME = ['', 'Lance HC', 'Bishop HC', 'Rook HC', 'Rook+Lance HC', '2-Piece HC', '4-Piece HC', '6-Piece HC', '8-Piece HC', '9-Piece HC', '10-Piece HC'];
-export const SHOGI_HANDICAP_FEN = {
-    '': '',
-    'Lance HC': 'lnsgkgsn1/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    'Bishop HC': 'lnsgkgsnl/1r7/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    'Rook HC': 'lnsgkgsnl/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    'Rook+Lance HC': 'lnsgkgsn1/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    '2-Piece HC': 'lnsgkgsnl/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    '4-Piece HC': '1nsgkgsn1/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    '6-Piece HC': '2sgkgs2/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    '8-Piece HC': '3gkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    '9-Piece HC': '3gk4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
-    '10-Piece HC': '4k4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1'
-};
