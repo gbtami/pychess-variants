@@ -1496,6 +1496,9 @@ minigame:hover {
     background-color: var(--game-hover);
     cursor: pointer;
 }
+minigame > div {
+    margin: auto;
+}
 minigame .row {
     display: flex;
     flex-direction: row;
@@ -1503,15 +1506,18 @@ minigame .row {
     justify-content: space-between;
 }
 minigame .variant-info {
-    display: flex;
+    display: inline-flex;
     flex-direction: inherit;
     align-items: inherit;
 }
-minigame .name {
-    text-align: right;
-}
 minigame .icon {
     font-size: 2em;
+}
+minigame .tc {
+    margin-left: 3px;
+}
+minigame .name {
+    text-align: right;
 }
 
 /* analysis chart */

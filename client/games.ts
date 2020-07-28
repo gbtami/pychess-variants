@@ -18,11 +18,11 @@ function gameView(games, game, fen, lastMove) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
-    }, [
+    }, h('div', [
         h('div.row', [
             h('div.variant-info', [
                 h('div.icon', { attrs: { "data-icon": variant.icon(game.chess960) } }),
-                h('div', game.tc),
+                h('div.tc', game.tc),
             ]),
             h('div.name', game.b),
         ]),
@@ -41,7 +41,7 @@ function gameView(games, game, fen, lastMove) {
             }
         }),
         h('div.name', game.w),
-    ]);
+    ]));
 }
 
 export function renderGames(): VNode[] {
