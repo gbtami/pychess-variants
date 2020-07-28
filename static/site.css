@@ -1488,10 +1488,30 @@ minigame {
     margin:0.3em;
     padding: 6px;
     background-color: var(--bg-color0);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 minigame:hover {
     background-color: var(--game-hover);
     cursor: pointer;
+}
+minigame .row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+minigame .variant-info {
+    display: flex;
+    flex-direction: inherit;
+    align-items: inherit;
+}
+minigame .name {
+    text-align: right;
+}
+minigame .icon {
+    font-size: 2em;
 }
 
 /* analysis chart */

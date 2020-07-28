@@ -19,8 +19,13 @@ function gameView(games, game, fen, lastMove) {
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
-        h('div.icon', { attrs: { "data-icon": variant.icon(game.chess960) } }),
-        h('div', game.b),
+        h('div.row', [
+            h('div.variant-info', [
+                h('div.icon', { attrs: { "data-icon": variant.icon(game.chess960) } }),
+                h('div', game.tc),
+            ]),
+            h('div.name', game.b),
+        ]),
         h(`div.cg-wrap.${VARIANTS[game.variant].cg}.mini`, {
             hook: {
                 insert: vnode => {
@@ -35,7 +40,7 @@ function gameView(games, game, fen, lastMove) {
                 }
             }
         }),
-        h('div', game.w),
+        h('div.name', game.w),
     ]);
 }
 
