@@ -15,6 +15,9 @@ label.piece {
 label.board {
     background-size: auto 90%;
 }
+label.board.standard10x8 {
+    background-size: 90% auto;
+}
 
 label.board.board0.shogi9x9 {
     background-image: url('images/board/shogi.svg');
