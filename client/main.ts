@@ -13,7 +13,7 @@ import { aboutView } from './about';
 import { settingsView } from './settingsView';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
-import { gamesView } from './games';
+import { renderGames } from './games';
 import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
@@ -70,7 +70,7 @@ export function view(el, model): VNode {
     case 'editor':
         return h('div#main-wrap', [h('main.round', editorView(model))]);
     case 'games':
-        return h('div', gamesView());
+        return h('div', renderGames());
     case 'stats':
         return h('div#stats', statsView());
     case 'thanks':

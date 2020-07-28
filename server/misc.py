@@ -40,3 +40,11 @@ class Timer:
         self.elapsed_secs = end - self.start
         self.elapsed = self.elapsed_secs * 1000  # millisecs
         print('---- elapsed time: %f ms - %s' % (self.elapsed, self.text))
+
+def time_control_str(base, inc, byo):
+    if byo == 0:
+        return "%d+%d" % (base, inc)
+    elif byo == 1:
+        return "%d+%d(b)" % (base, inc)
+    else:
+        return "%d+%dx%d(b)" % (base, byo, inc)

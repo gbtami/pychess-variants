@@ -1,3 +1,5 @@
+from misc import time_control_str
+
 MAX_USER_SEEKS = 10
 
 
@@ -36,7 +38,7 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "rating": self.rating,
-            "tc": "%s+%s%s%s" % (self.base, ("%sx" % (self.byoyomi_period)) if self.byoyomi_period > 1 else "", self.inc, "(b)" if self.byoyomi_period > 0 else "")
+            "tc": time_control_str(self.base, self.inc, self.byoyomi_period)
         }
 
 
