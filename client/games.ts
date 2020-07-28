@@ -21,7 +21,7 @@ function gameView(games, game, fen, lastMove) {
     }, h('div', [
         h('div.row', [
             h('div.variant-info', [
-                h('div.icon', { attrs: { "data-icon": variant.icon(game.chess960) } }),
+                h('div.icon', { props: { title: variant.displayName(game.chess960) }, attrs: { "data-icon": variant.icon(game.chess960) } }),
                 h('div.tc', game.tc),
             ]),
             h('div.name', game.b),
