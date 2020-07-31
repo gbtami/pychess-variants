@@ -736,7 +736,7 @@ export default class RoundController {
             movable: {
                 free: false,
                 color: this.spectator ? undefined : step.turnColor,
-                dests: this.result === "" && ply === this.steps.length - 1 ? this.dests : undefined,
+                dests: (this.turnColor === this.mycolor && this.result === "" && ply === this.steps.length - 1) ? this.dests : undefined,
                 },
             check: step.check,
             lastMove: move,
