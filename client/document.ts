@@ -1,7 +1,12 @@
 import { _ } from './i18n';
 
 export function getDocumentData(name: string) {
-    return document.getElementById('pychess-variants')!.getAttribute('data-' + name.toLowerCase());
+    const elm = document.getElementById('pychess-variants');
+    if (elm) {
+        return elm.getAttribute('data-' + name.toLowerCase());
+    } else {
+        return "";
+    }
 }
 
 export function debounce(callback, wait) {
