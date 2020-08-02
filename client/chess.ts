@@ -439,7 +439,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "queen", "cancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
         pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "cancellor", "queen"],
         enPassant: true, autoQueenable: true, drop: true,
-        icon: "(",
+        icon: "*",
     }),
 
     shako: new Variant({
