@@ -198,7 +198,7 @@ export function editorView(model): VNode[] {
         if (isInput) window.location.assign(model["home"] + '/editor/' + variant);
     }
 
-    const vIdx = enabledVariants.sort().indexOf(model["variant"]);
+    const vIdx = enabledVariants.indexOf(model["variant"]);
     console.log(model["variant"], model["fen"]);
 
     return [h('aside.sidebar-first', [
@@ -209,7 +209,7 @@ export function editorView(model): VNode[] {
                             props: {name: "variant"},
                             on: { input: () => setVariant(true) },
                             hook: {insert: () => setVariant(false) },
-                            }, enabledVariants.sort().map((variant, idx) => h('option', {
+                            }, enabledVariants.map((variant, idx) => h('option', {
                                 props: {value: variant, title: VARIANTS[variant].tooltip, selected: (idx === vIdx) ? "selected" : ""}
                                 }, VARIANTS[variant].displayName(false)))),
                     ]),
