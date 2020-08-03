@@ -243,7 +243,6 @@ async def index(request):
         render["profile"] = "Fairy-Stockfish"
 
     elif view == "variant":
-        render["variants"] = sorted(VARIANTS)
         render["icons"] = VARIANT_ICONS
         # variant None indicates intro.md
         if lang == "hu" or lang == "pt" or lang == "fr":
