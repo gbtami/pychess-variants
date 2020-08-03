@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-08-03 10:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,58 +46,58 @@ msgid ""
 "patreon or paypal."
 msgstr ""
 
-#: ../templates/players.html:8
+#: ../templates/players.html:9
 msgid "Online"
 msgstr ""
 
-#: ../templates/players.html:27
+#: ../templates/players.html:28
 msgid "Anonymous"
 msgstr ""
 
-#: ../templates/players.html:34
+#: ../templates/players.html:35
 msgid "All players"
 msgstr ""
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../templates/template.html:72
+#: ../templates/template.html:89
 msgid "Tv"
 msgstr ""
 
-#: ../templates/template.html:73
+#: ../templates/template.html:90
 msgid "Current games"
 msgstr ""
 
-#: ../templates/template.html:74
+#: ../templates/template.html:91
 msgid "Players"
 msgstr ""
 
-#: ../templates/template.html:75
+#: ../templates/template.html:92
 msgid "Editor"
 msgstr ""
 
-#: ../templates/template.html:76
+#: ../templates/template.html:93
 msgid "Learn"
 msgstr ""
 
-#: ../templates/template.html:77
+#: ../templates/template.html:94
 msgid "About"
 msgstr ""
 
-#: ../templates/template.html:78
+#: ../templates/template.html:95
 msgid "Original PyChess site"
 msgstr ""
 
-#: ../templates/template.html:84
+#: ../templates/template.html:101
 msgid "Login with Lichess"
 msgstr ""
 
-#: ../templates/template.html:84
+#: ../templates/template.html:101
 msgid "Log in"
 msgstr ""
 
