@@ -16,7 +16,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _, _n } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { enabledVariants, validFen, VARIANTS, IVariant } from './chess';
+import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { debounce } from './document';
@@ -207,14 +207,7 @@ class LobbyController {
     }
 
     renderSeekButtons() {
-        let vIdx: number;
-        if (this.model.variant)
-            vIdx = enabledVariants.indexOf(this.model.variant);
-        else if (localStorage.seek_variant)
-            vIdx = enabledVariants.indexOf(localStorage.seek_variant);
-        else
-            vIdx = 0;
-
+        const vVariant = this.model.variant || localStorage.seek_variant || "chess";
         const vMin = localStorage.seek_min ?? "5";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
@@ -246,26 +239,7 @@ class LobbyController {
                         ]),
                         h('div', [
                             h('label', { attrs: { for: "variant" } }, _("Variant")),
-                            h('select#variant', {
-                                props: { name: "variant" },
-                                on: { input: () => this.setVariant() },
-                                hook: { insert: () => this.setVariant() },
-                            },
-                                enabledVariants.map((variant, idx) => {
-                                    const v = VARIANTS[variant];
-                                    return h('option', {
-                                        props: {
-                                            value: variant,
-                                            title: v.tooltip,
-                                        },
-                                        attrs: {
-                                            selected: idx === vIdx
-                                        },
-                                    },
-                                        v.displayName(false),
-                                    );
-                                })
-                            ),
+                            selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant()),
                         ]),
                         h('input#fen', {
                             props: { name: 'fen', placeholder: _('Paste the FEN text here') + (anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },

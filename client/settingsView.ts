@@ -6,12 +6,11 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-import { VNode } from "snabbdom/vnode";
 import { h } from 'snabbdom/h';
 
 import { backgroundSettings } from './background';
 import { boardSettings } from './boardSettings';
-import { VARIANTS, variants } from './chess';
+import { selectVariant } from './chess';
 import { getDocumentData } from './document';
 import { _, translatedLanguage, languageSettings } from './i18n';
 import { volumeSettings, soundThemeSettings } from './sound';
@@ -86,9 +85,6 @@ function showSubsettings(evt) {
     const targetSettings = document.getElementById('settings-' + settingsName) as HTMLElement;
     targetSettings.style.display = 'flex';
 
-    if (settingsName === "board")
-        showVariantBoardSettings((document.getElementById('board-variant') as HTMLInputElement).value);
-
     mainSettings.style.display = 'none';
     subSettings.style.display = 'flex';
 }
@@ -124,28 +120,27 @@ function backgroundSettingsView() {
 }
 
 function boardSettingsView() {
-    const variant = getDocumentData('variant');
-    let variantList: VNode[] = [];
-    variantList.push(h('option', { props: { value: "" } }, ""));
-    variants.forEach(v => {
-        variantList.push(h('option', {
-            props: { value: v },
-            attrs: { selected: variant === v }
-        }, VARIANTS[v].displayName(false)));
-    });
+    const variant = getDocumentData('variant') || "chess";
     return h('div#settings-board', [
         backButton(_("Board Settings")),
         h('div', [
             h('div', [
-                h('label', { props: { for: "board-variant" } }, _("Variant")),
-                h('select#board-variant', { on: { change: e => showVariantBoardSettings((e.target as HTMLInputElement).value) } }, variantList),
+                h('label', { props: { for: "settings-variant" } }, _("Variant")),
+                selectVariant(
+                    "settings-variant",
+                    variant,
+                    () => showVariantBoardSettings(),
+                    () => showVariantBoardSettings(),
+                ),
             ]),
             h('div#board-settings'),
         ]),
     ]);
 }
 
-function showVariantBoardSettings(variant) {
+function showVariantBoardSettings() {
+    const e = document.getElementById('settings-variant') as HTMLSelectElement;
+    const variant = e.options[e.selectedIndex].value;
     const settings = document.getElementById('board-settings') as HTMLElement;
     settings.innerHTML = "";
     patch(settings, boardSettings.view(variant));

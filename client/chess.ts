@@ -1,5 +1,6 @@
-import { Color, dimensions, Geometry, Role } from 'chessgroundx/types';
+import { h } from 'snabbdom/h';
 
+import { Color, dimensions, Geometry, Role } from 'chessgroundx/types';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
@@ -486,8 +487,34 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 };
 
+export const variantGroups: { [ key: string ]: { label: string, variants: string[] } } = {
+    chess:   { label: "Chess variants",           variants: [ "chess", "crazyhouse", "placement" ] },
+    sea:     { label: "Southeast Asian variants", variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
+    shogi:   { label: "Shogi variants",           variants: [ "shogi", "minishogi", "kyotoshogi" ] },
+    xiangqi: { label: "Xiangqi variants",         variants: [ "xiangqi", "janggi", "minixiangqi" ] },
+    fairy:   { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess" ] },
+};
 export const variants = Object.keys(VARIANTS);
 export const enabledVariants = variants.filter(v => !["gothic", "gothhouse"].includes(v));
+
+export function selectVariant(id, selected, onChange, hookInsert) {
+    return h('select#' + id, {
+        props: { name: id },
+        on: { change: onChange },
+        hook: { insert: hookInsert },
+    },
+        Object.keys(variantGroups).map(g => {
+            const group = variantGroups[g];
+            return h('optgroup', { props: { label: group.label } }, group.variants.map(v => {
+                const variant = VARIANTS[v];
+                return h('option', {
+                    props: { value: v, title: variant.tooltip },
+                    attrs: { selected: v === selected },
+                }, variant.displayName(false));
+            }));
+        }),
+    );
+}
 
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
 export function isHandicap(name: string) {
@@ -570,6 +597,7 @@ export function grand2zero(move) {
     }
 }
 
+// TODO Will be deprecated after WASM Fairy integration
 export function validFen(variantName: string, fen: string) {
     const variant = VARIANTS[variantName];
     const startfen = variant.startFen;

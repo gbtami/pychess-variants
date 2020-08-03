@@ -14,7 +14,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { enabledVariants, getPockets, needPockets, validFen, VARIANTS } from './chess';
+import { selectVariant, getPockets, needPockets, validFen, VARIANTS } from './chess';
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png'; 
@@ -195,23 +195,16 @@ export function editorView(model): VNode[] {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
-        if (isInput) window.location.assign(model["home"] + '/editor/' + variant);
+        if (isInput) window.location.assign('/editor/' + variant);
     }
 
-    const vIdx = enabledVariants.indexOf(model["variant"]);
-    console.log(model["variant"], model["fen"]);
+    const vVariant = model.variant || "chess";
 
     return [h('aside.sidebar-first', [
                 h('div.container', [
                     h('div', [
-                        h('label', { attrs: {for: "variant"} }, _("Variant")),
-                        h('select#variant', {
-                            props: {name: "variant"},
-                            on: { input: () => setVariant(true) },
-                            hook: {insert: () => setVariant(false) },
-                            }, enabledVariants.map((variant, idx) => h('option', {
-                                props: {value: variant, title: VARIANTS[variant].tooltip, selected: (idx === vIdx) ? "selected" : ""}
-                                }, VARIANTS[variant].displayName(false)))),
+                        h('label', { attrs: { for: "variant" } }, _("Variant")),
+                        selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false)),
                     ]),
                 ])
             ]),
