@@ -13,7 +13,6 @@
     " Request Analysis": "解析をリクエストする",
     "Depth": "深度",
     "Spectators: ": "観覧者：",
-    "[-] Zoom [+]": "「－」ズーム「＋」",
     "Show piece destinations": "駒の行き先を表示する",
     "Promote to Queen automatically": "自動的にクイーンに昇格する",
     "Initial position": "開始局面",
@@ -23,41 +22,15 @@
     "Sign in to chat": "（ログインが必要）",
     "Please be nice in the chat!": "チャットでは礼儀を忘れず",
     "Server": "サーバ",
-    "Take captured pieces and drop them back on to the board as your own": "チェスですが、将棋のように取った駒を盤上に打ち戻れます。二歩も打ち歩詰めも問題ありません。",
     "Chess, unmodified, as it's played by FIDE standards": "普通のチェスです。国際チェス連盟のルールを従います。",
+    "Take captured pieces and drop them back on to the board as your own": "チェスですが、将棋のように取った駒を盤上に打ち戻れます。二歩も打ち歩詰めも問題ありません。",
     "Pieces promote and can be dropped": "普通の将棋です。",
     "Shogi on a 5x5 board": "５五将棋、あるいはミニ将棋です。5ｘ5マスの将棋類です。",
     "5x5 Shogi where pieces flip to a different piece each move": "京都将棋です。一手ごとに駒を裏返すことになります。",
-    "Similar to Xiangqi, but plays very differently. Tournament rules are used": "チャンギです。ピッチャンの場合は、残っている駒の点数を数えて勝負を決めます。",
     "Open fire on your opponent in this highly aggressive ancient game": "シャンチー（象棋）です。中国からの将棋類です。",
+    "Similar to Xiangqi, but plays very differently. Tournament rules are used": "チャンギです。ピッチャンの場合は、残っている駒の点数を数えて勝負を決めます。",
     "Xiangqi on a 7x7 board": "７ｘ７マスのシャンチー類です。",
     "Pieces promote and can be dropped, similar to Shogi": "チェスですが、駒は将棋のように打つことも成ることもできます。",
-    "Black": "黒",
-    "Red": "赤",
-    "Blue": "緑",
-    "White": "白",
-    "Gold": "黄金",
-    "%1 year ago": [
-        "%1 年前"
-    ],
-    "%1 month ago": [
-        "%1 月前"
-    ],
-    "%1 week ago": [
-        "%1 週前"
-    ],
-    "%1 day ago": [
-        "%1 日前"
-    ],
-    "%1 hour ago": [
-        "%1 時間前"
-    ],
-    "%1 minute ago": [
-        "%1 分前"
-    ],
-    "%1 second ago": [
-        "%1 秒前"
-    ],
     "CLEAR BOARD": "盤面をクリアする",
     "STARTING POSITION": "開始局面",
     "PLAY WITH MACHINE": "マシンと対戦",
@@ -65,30 +38,24 @@
     "EXPORT TO PNG": "PNG画像にエクスポートする",
     "Invalid FEN": "無効な FEN",
     "Variant": "将棋類",
-    "Byoyomi in seconds:": "秒読み：",
-    "Increment in seconds:": "１手ごとに増える秒数：",
     "Cancel": "キャンセル",
     "Challenge %1 to a game": "%1 を対戦に申し込む",
     "Paste the FEN text here": "ここにFEN形式の局面をペースト",
-    "Handicap": "手合い割",
     "Minutes per side:": "持ち時間（分）",
     "Periods": "秒読み回数",
     "A.I. Level": "A.I. レベル",
+    "Black": "黒",
     "Random": "ランダムカラー",
+    "White": "白",
     "Create a game": "対局を作成する",
     "Play with AI (Fairy-Stockfish)": "A.I. と対局する（Fairy-Stockfish）",
+    "Byoyomi in seconds:": "秒読み：",
+    "Increment in seconds:": "１手ごとに増える秒数：",
+    "Custom": "カスタム",
     "Player": "プレイヤー",
-    "Color": "カラー",
     "Rating": "レーティング",
     "Time": "時間",
     "Mode": "モード",
-    "Custom": "カスタム",
-    "%1 game in play": [
-        "%1 局プレイ中"
-    ],
-    "%1 player": [
-        "現在 %1 人接続中"
-    ],
     "Donate": "寄付",
     "0 players": "現在0人接続中",
     "0 games in play": "0局プレイ中",
@@ -106,9 +73,6 @@
     "Campmate": "キャンプメイト",
     "Point counting": "点数数え",
     "Repetition": "千日手",
-    "%1 move": [
-        "%1 手"
-    ],
     "Computer analysis available": "コンピュータ解析がされています",
     "Lichess profile": "Lichess プロフィール",
     "Export games": "対局をエクスポートする",
@@ -132,7 +96,6 @@
     "Start counting": "手数を数え始める",
     "Log out": "ログアウト",
     "Are you sure you want to log out?": "本当にログアウトしますか？",
-    "Language": "言語",
     "Sound": "音声",
     "Background": "背景",
     "Board Settings": "ボード設定",

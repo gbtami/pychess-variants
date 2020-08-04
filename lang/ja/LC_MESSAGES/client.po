@@ -5,7 +5,6 @@
 # 
 # Translators:
 # Ada Joule <ada.fulmina@gmail.com>, 2020
-# gbtami <gbtami@gmail.com>, 2020
 # Marken Foo <marken.foo.yw@gmail.com>, 2020
 # 
 #, fuzzy
@@ -13,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-08-03 10:38+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
@@ -24,7 +23,7 @@ msgstr ""
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../client/about.ts:9
+#: ../client/about.ts:8
 msgid ""
 "\"To me, how we've got here today is owing to Stockfish in a BIG way. They "
 "rallied global volunteers to come together in the open-source spirit and "
@@ -32,14 +31,14 @@ msgid ""
 "computing power they've managed to harness."
 msgstr ""
 
-#: ../client/about.ts:10
+#: ../client/about.ts:9
 msgid ""
 "Then we've got Lichess to thank. Lichess was also born out of the same open-"
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
 
-#: ../client/about.ts:11
+#: ../client/about.ts:10
 msgid ""
 "Lichess enables the online, real-time, and competitive aspects of game-play."
 " They also bring the enormous power of Stockfish to the masses, who can now "
@@ -47,7 +46,7 @@ msgid ""
 "turns out to be of great consequence and significance."
 msgstr ""
 
-#: ../client/about.ts:12
+#: ../client/about.ts:11
 msgid ""
 "Later on, developers close to the Lichess project eventually extended "
 "Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al."
@@ -57,7 +56,7 @@ msgid ""
 "powerful because it builds on the Stockfish project."
 msgstr ""
 
-#: ../client/about.ts:13
+#: ../client/about.ts:12
 msgid ""
 "Then comes our beloved pychess-variants, which again very smartly harnesses "
 "the underlying superpowers of the big projects. Same online, real-time, and "
@@ -65,140 +64,140 @@ msgid ""
 " power of Stockfish!\""
 msgstr ""
 
-#: ../client/about.ts:19
+#: ../client/about.ts:17
 msgid "About pychess"
 msgstr ""
 
-#: ../client/about.ts:20
+#: ../client/about.ts:18
 msgid ""
-"pychess is a free, open-source chess server designed to play several chess "
-"variant."
+"Pychess is a free, open-source chess server designed to play several chess "
+"variants."
 msgstr ""
 
-#: ../client/about.ts:22
+#: ../client/about.ts:21
 msgid "Currently supported games are "
 msgstr ""
 
-#: ../client/about.ts:69
+#: ../client/about.ts:71
 msgid ""
-"Additionally you can check Chess960 option in for Standard, Crazyhouse, "
-"Capablanca and Capahouse to start games from random positions with "
+"Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
+"Capablanca, and Capahouse to start games from random positions with "
 msgstr ""
 
-#: ../client/about.ts:70
+#: ../client/about.ts:72
 msgid "Chess960 castling rules."
 msgstr ""
 
-#: ../client/about.ts:73
-msgid "For move generation, validation, analysis and engine play it uses "
+#: ../client/about.ts:75
+msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
 
-#: ../client/about.ts:81
-msgid "On client side it is based on "
+#: ../client/about.ts:83
+msgid "On client side, the user interface of the game board is based on "
 msgstr ""
 
-#: ../client/about.ts:85
-msgid "Source code of server is available at "
+#: ../client/about.ts:87
+msgid "The source code of the server is available on "
 msgstr ""
 
-#: ../client/about.ts:90
+#: ../client/about.ts:92
 msgid ""
-"Regarding Privacy and Terms of Service, the rules of lichess.org are applied"
-" here."
+"Regarding Privacy and Terms of Service, the rules of lichess.org are also "
+"applied here. "
 msgstr ""
 
-#: ../client/analysis.ts:32 ../client/lobby.ts:380 ../client/lobby.ts:527
-#: ../client/profile.ts:115 ../client/round.ts:31
+#: ../client/analysis.ts:38 ../client/lobby.ts:327 ../client/lobby.ts:524
+#: ../client/profile.ts:117 ../client/round.ts:32
 msgid "Rated"
 msgstr "レート戦"
 
-#: ../client/analysis.ts:32 ../client/lobby.ts:378 ../client/lobby.ts:527
-#: ../client/profile.ts:115 ../client/round.ts:31
+#: ../client/analysis.ts:38 ../client/lobby.ts:325 ../client/lobby.ts:526
+#: ../client/profile.ts:117 ../client/round.ts:32
 msgid "Casual"
 msgstr "非レート戦"
 
-#: ../client/analysis.ts:39 ../client/profile.ts:28 ../client/round.ts:38
+#: ../client/analysis.ts:48 ../client/profile.ts:28 ../client/round.ts:41
 msgid "Playing right now"
 msgstr "対局中"
 
-#: ../client/analysis.ts:53 ../client/analysis.ts:69 ../client/player.ts:12
-#: ../client/profile.ts:124 ../client/profile.ts:134
+#: ../client/analysis.ts:141 ../client/player.ts:12 ../client/profile.ts:126
+#: ../client/profile.ts:136 ../client/round.ts:134
 msgid " level "
 msgstr "レベル"
 
-#: ../client/analysisCtrl.ts:260
+#: ../client/analysisCtrl.ts:272
 msgid "You need an account to do that."
 msgstr "アカウントが必要です"
 
-#: ../client/analysisCtrl.ts:287
+#: ../client/analysisCtrl.ts:299
 msgid "Download game to PGN file"
 msgstr "ダウンロード（PGN形式）"
 
-#: ../client/analysisCtrl.ts:287
+#: ../client/analysisCtrl.ts:299
 msgid " Download PGN"
 msgstr "ダウンロード（PGN形式）"
 
-#: ../client/analysisCtrl.ts:289
+#: ../client/analysisCtrl.ts:301
 msgid "Copy USI/UCI to clipboard"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:289
+#: ../client/analysisCtrl.ts:301
 msgid " Copy UCI/USI"
 msgstr "UCI/USIをコピーする"
 
-#: ../client/analysisCtrl.ts:291
+#: ../client/analysisCtrl.ts:303
 msgid "Download position to PNG image file"
 msgstr "局面をPNG画像でダウンロードする"
 
-#: ../client/analysisCtrl.ts:291
+#: ../client/analysisCtrl.ts:303
 msgid " PNG image"
 msgstr "PNG画像"
 
-#: ../client/analysisCtrl.ts:295
+#: ../client/analysisCtrl.ts:307
 msgid "Request Computer Analysis"
 msgstr "コンピューターより解析をリクエストする"
 
-#: ../client/analysisCtrl.ts:295
+#: ../client/analysisCtrl.ts:307
 msgid " Request Analysis"
 msgstr "解析をリクエストする"
 
-#: ../client/analysisCtrl.ts:446
+#: ../client/analysisCtrl.ts:498
 msgid "Depth"
 msgstr "深度"
 
-#: ../client/analysisCtrl.ts:589 ../client/roundCtrl.ts:1104
+#: ../client/analysisCtrl.ts:680 ../client/roundCtrl.ts:1104
 msgid "Spectators: "
 msgstr "観覧者："
 
-#: ../client/analysisCtrl.ts:613 ../client/roundCtrl.ts:1169
+#: ../client/analysisCtrl.ts:704 ../client/roundCtrl.ts:1169
 msgid "Requested game %1 not found!"
 msgstr ""
 
-#: ../client/board.ts:191
-msgid "[-] Zoom [+]"
-msgstr "「－」ズーム「＋」"
+#: ../client/background.ts:9
+msgid "Light"
+msgstr ""
 
-#: ../client/board.ts:201
+#: ../client/background.ts:10
+msgid "Dark"
+msgstr ""
+
+#: ../client/boardSettings.ts:283
 msgid "Show piece destinations"
 msgstr "駒の行き先を表示する"
 
-#: ../client/board.ts:209
-msgid "Two click drop moves"
-msgstr ""
-
-#: ../client/board.ts:217
+#: ../client/boardSettings.ts:301
 msgid "Promote to Queen automatically"
 msgstr "自動的にクイーンに昇格する"
 
-#: ../client/board.ts:225
+#: ../client/boardSettings.ts:319
 msgid "Best move arrow in analysis board"
 msgstr ""
 
-#: ../client/chart.ts:19
+#: ../client/chart.ts:20
 msgid "Initial position"
 msgstr "開始局面"
 
-#: ../client/chart.ts:75
+#: ../client/chart.ts:83
 msgid "Advantage"
 msgstr "優勢"
 
@@ -218,166 +217,121 @@ msgstr "（ログインが必要）"
 msgid "Please be nice in the chat!"
 msgstr "チャットでは礼儀を忘れず"
 
-#: ../client/chat.ts:50
+#: ../client/chat.ts:52
 msgid "Server"
 msgstr "サーバ"
 
-#: ../client/chess.ts:41
-msgid "A game closely resembling the original Chaturanga"
-msgstr ""
-
-#: ../client/chess.ts:42
-msgid "Makruk variant where kings cannot move to escape out of check"
-msgstr ""
-
-#: ../client/chess.ts:43
-msgid "Makruk with a few additional opening abilities"
-msgstr ""
-
-#: ../client/chess.ts:44
-msgid "Similar to Makruk, but pieces are placed at the start of the match"
-msgstr ""
-
-#: ../client/chess.ts:45
-msgid "Choose where your pieces start"
-msgstr ""
-
-#: ../client/chess.ts:46
-msgid "Take captured pieces and drop them back on to the board as your own"
-msgstr "チェスですが、将棋のように取った駒を盤上に打ち戻れます。二歩も打ち歩詰めも問題ありません。"
-
-#: ../client/chess.ts:47
+#: ../client/chess.ts:184
 msgid "Chess, unmodified, as it's played by FIDE standards"
 msgstr "普通のチェスです。国際チェス連盟のルールを従います。"
 
-#: ../client/chess.ts:48
+#: ../client/chess.ts:201
+msgid "Take captured pieces and drop them back on to the board as your own"
+msgstr "チェスですが、将棋のように取った駒を盤上に打ち戻れます。二歩も打ち歩詰めも問題ありません。"
+
+#: ../client/chess.ts:219
+msgid "Choose where your pieces start"
+msgstr ""
+
+#: ../client/chess.ts:229
+msgid "A game closely resembling the original Chaturanga"
+msgstr ""
+
+#: ../client/chess.ts:238
+msgid "Makruk variant where kings cannot move to escape out of check"
+msgstr ""
+
+#: ../client/chess.ts:247
+msgid "Makruk with a few additional opening abilities"
+msgstr ""
+
+#: ../client/chess.ts:256
+msgid "Similar to Makruk, but pieces are placed at the start of the match"
+msgstr ""
+
+#: ../client/chess.ts:267
 msgid "Pieces promote and can be dropped"
 msgstr "普通の将棋です。"
 
-#: ../client/chess.ts:49
+#: ../client/chess.ts:295
 msgid "Shogi on a 5x5 board"
 msgstr "５五将棋、あるいはミニ将棋です。5ｘ5マスの将棋類です。"
 
-#: ../client/chess.ts:50
+#: ../client/chess.ts:310
 msgid "5x5 Shogi where pieces flip to a different piece each move"
 msgstr "京都将棋です。一手ごとに駒を裏返すことになります。"
 
-#: ../client/chess.ts:51
+#: ../client/chess.ts:325
+msgid "Open fire on your opponent in this highly aggressive ancient game"
+msgstr "シャンチー（象棋）です。中国からの将棋類です。"
+
+#: ../client/chess.ts:334
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
 msgstr "チャンギです。ピッチャンの場合は、残っている駒の点数を数えて勝負を決めます。"
 
-#: ../client/chess.ts:52
-msgid "Open fire on your opponent in this highly aggressive ancient game"
-msgstr "シャンチー（象棋）です。中国からの将棋類です。"
-
-#: ../client/chess.ts:53
+#: ../client/chess.ts:346
 msgid "Xiangqi on a 7x7 board"
 msgstr "７ｘ７マスのシャンチー類です。"
 
-#: ../client/chess.ts:54
+#: ../client/chess.ts:355
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board"
 msgstr ""
 
-#: ../client/chess.ts:55
+#: ../client/chess.ts:371
+msgid "Capablanca with Crazyhouse drop rules"
+msgstr ""
+
+#: ../client/chess.ts:388
+msgid "Like Capablanca Chess but with a different starting setup"
+msgstr ""
+
+#: ../client/chess.ts:397
+msgid "Gothic with Crazyhouse drop rules"
+msgstr ""
+
+#: ../client/chess.ts:407
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
 msgstr ""
 
-#: ../client/chess.ts:56
-msgid "Capablanca with Crazyhouse drop rules"
-msgstr ""
-
-#: ../client/chess.ts:57
+#: ../client/chess.ts:417
 msgid "S-Chess with Crazyhouse drop rules"
 msgstr ""
 
-#: ../client/chess.ts:58
+#: ../client/chess.ts:427
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
 msgstr ""
 
-#: ../client/chess.ts:59
+#: ../client/chess.ts:436
 msgid "Grand Chess with Crazyhouse drop rules"
 msgstr ""
 
-#: ../client/chess.ts:60
-msgid "Like Capablanca Chess but with a different starting setup"
-msgstr ""
-
-#: ../client/chess.ts:61
+#: ../client/chess.ts:446
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
 msgstr ""
 
-#: ../client/chess.ts:62
+#: ../client/chess.ts:455
 msgid "Pieces promote and can be dropped, similar to Shogi"
 msgstr "チェスですが、駒は将棋のように打つことも成ることもできます。"
 
-#: ../client/chess.ts:63
+#: ../client/chess.ts:467
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
 msgstr ""
 
-#: ../client/chess.ts:175 ../client/chess.ts:198 ../client/lobby.ts:411
-msgid "Black"
-msgstr "黒"
-
-#: ../client/chess.ts:179 ../client/chess.ts:194
-msgid "Red"
-msgstr "赤"
-
-#: ../client/chess.ts:181
-msgid "Blue"
-msgstr "緑"
-
-#: ../client/chess.ts:183 ../client/chess.ts:192 ../client/lobby.ts:413
-msgid "White"
-msgstr "白"
-
-#: ../client/chess.ts:196
-msgid "Gold"
-msgstr "黄金"
-
-#: ../client/clock.ts:216
-msgid "%1 year ago"
-msgid_plural "%1 years ago"
-msgstr[0] "%1 年前"
-
-#: ../client/clock.ts:218
-msgid "%1 month ago"
-msgid_plural "%1 months ago"
-msgstr[0] "%1 月前"
-
-#: ../client/clock.ts:220
-msgid "%1 week ago"
-msgid_plural "%1 weeks ago"
-msgstr[0] "%1 週前"
-
-#: ../client/clock.ts:222
-msgid "%1 day ago"
-msgid_plural "%1 days ago"
-msgstr[0] "%1 日前"
-
-#: ../client/clock.ts:224
-msgid "%1 hour ago"
-msgid_plural "%1 hours ago"
-msgstr[0] "%1 時間前"
-
-#: ../client/clock.ts:226
-msgid "%1 minute ago"
-msgid_plural "%1 minutes ago"
-msgstr[0] "%1 分前"
-
-#: ../client/clock.ts:228
-msgid "%1 second ago"
-msgid_plural "%1 seconds ago"
-msgstr[0] "%1 秒前"
+#: ../client/chess.ts:478
+msgid ""
+"Asymmetric East vs. West variant which pits the western chess army against a"
+" xiangqi and janggi-styled army"
+msgstr ""
 
 #: ../client/editor.ts:92
 msgid "CLEAR BOARD"
@@ -391,7 +345,7 @@ msgstr "開始局面"
 msgid "PLAY WITH MACHINE"
 msgstr "マシンと対戦"
 
-#: ../client/editor.ts:98 ../client/editor.ts:112 ../client/lobby.ts:339
+#: ../client/editor.ts:98 ../client/editor.ts:112 ../client/lobby.ts:284
 msgid " (must be signed in)"
 msgstr "（ログインが必要）"
 
@@ -399,116 +353,114 @@ msgstr "（ログインが必要）"
 msgid "EXPORT TO PNG"
 msgstr "PNG画像にエクスポートする"
 
-#: ../client/editor.ts:115 ../client/lobby.ts:263
+#: ../client/editor.ts:115 ../client/lobby.ts:429
 msgid "Invalid FEN"
 msgstr "無効な FEN"
 
-#: ../client/editor.ts:209 ../client/lobby.ts:325 ../client/lobby.ts:466
-#: ../client/settings.ts:186
+#: ../client/editor.ts:211 ../client/lobby.ts:261 ../client/lobby.ts:639
+#: ../client/settingsView.ts:140
 msgid "Variant"
 msgstr "将棋類"
 
-#: ../client/lobby.ts:244
-msgid "Byoyomi in seconds:"
-msgstr "秒読み："
-
-#: ../client/lobby.ts:244
-msgid "Increment in seconds:"
-msgstr "１手ごとに増える秒数："
-
-#: ../client/lobby.ts:318
+#: ../client/lobby.ts:253
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: ../client/lobby.ts:322
+#: ../client/lobby.ts:258
 msgid "Challenge %1 to a game"
 msgstr "%1 を対戦に申し込む"
 
-#: ../client/lobby.ts:339
+#: ../client/lobby.ts:284
 msgid "Paste the FEN text here"
 msgstr "ここにFEN形式の局面をペースト"
 
-#: ../client/lobby.ts:343
-msgid "Handicap"
-msgstr "手合い割"
-
-#: ../client/lobby.ts:354
+#: ../client/lobby.ts:300
 msgid "Minutes per side:"
 msgstr "持ち時間（分）"
 
-#: ../client/lobby.ts:369
+#: ../client/lobby.ts:315
 msgid "Periods"
 msgstr "秒読み回数"
 
-#: ../client/lobby.ts:388
+#: ../client/lobby.ts:335
 msgid "A.I. Level"
 msgstr "A.I. レベル"
 
-#: ../client/lobby.ts:412
+#: ../client/lobby.ts:345
+msgid "Black"
+msgstr "黒"
+
+#: ../client/lobby.ts:346
 msgid "Random"
 msgstr "ランダムカラー"
 
-#: ../client/lobby.ts:430
+#: ../client/lobby.ts:347
+msgid "White"
+msgstr "白"
+
+#: ../client/lobby.ts:363
 msgid "Create a game"
 msgstr "対局を作成する"
 
-#: ../client/lobby.ts:443
+#: ../client/lobby.ts:375
 msgid "Play with AI (Fairy-Stockfish)"
 msgstr "A.I. と対局する（Fairy-Stockfish）"
 
-#: ../client/lobby.ts:461
-msgid "Player"
-msgstr "プレイヤー"
+#: ../client/lobby.ts:391
+msgid "Byoyomi in seconds:"
+msgstr "秒読み："
 
-#: ../client/lobby.ts:462
-msgid "Color"
-msgstr "カラー"
+#: ../client/lobby.ts:391
+msgid "Increment in seconds:"
+msgstr "１手ごとに増える秒数："
 
-#: ../client/lobby.ts:463
-msgid "Rating"
-msgstr "レーティング"
+#: ../client/lobby.ts:396
+msgid "Alternate Start"
+msgstr ""
 
-#: ../client/lobby.ts:464
-msgid "Time"
-msgstr "時間"
-
-#: ../client/lobby.ts:467
-msgid "Mode"
-msgstr "モード"
-
-#: ../client/lobby.ts:527
+#: ../client/lobby.ts:522
 msgid "Custom"
 msgstr "カスタム"
 
-#: ../client/lobby.ts:551
+#: ../client/lobby.ts:588
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
 msgstr ""
 
-#: ../client/lobby.ts:596
-msgid "%1 game in play"
-msgid_plural "%1 games in play"
-msgstr[0] "%1 局プレイ中"
+#: ../client/lobby.ts:636
+msgid "Player"
+msgstr "プレイヤー"
 
-#: ../client/lobby.ts:606
-msgid "%1 player"
-msgid_plural "%1 players"
-msgstr[0] "現在 %1 人接続中"
+#: ../client/lobby.ts:637
+msgid "Rating"
+msgstr "レーティング"
 
-#: ../client/lobby.ts:683
+#: ../client/lobby.ts:638
+msgid "Time"
+msgstr "時間"
+
+#: ../client/lobby.ts:640
+msgid "Mode"
+msgstr "モード"
+
+#: ../client/lobby.ts:678
 msgid "Donate"
 msgstr "寄付"
 
-#: ../client/lobby.ts:687
+#: ../client/lobby.ts:679
+msgid "Stats"
+msgstr ""
+
+#: ../client/lobby.ts:683
 msgid "0 players"
 msgstr "現在0人接続中"
 
-#: ../client/lobby.ts:688
+#: ../client/lobby.ts:684
 msgid "0 games in play"
 msgstr "0局プレイ中"
 
-#: ../client/main.ts:73
+#: ../client/main.ts:77
 msgid "Thank you for your support!"
 msgstr ""
 
@@ -568,36 +520,31 @@ msgstr "点数数え"
 msgid "Repetition"
 msgstr "千日手"
 
-#: ../client/profile.ts:150
-msgid "%1 move"
-msgid_plural "%1 moves"
-msgstr[0] "%1 手"
-
-#: ../client/profile.ts:151
+#: ../client/profile.ts:153
 msgid "Computer analysis available"
 msgstr "コンピュータ解析がされています"
 
-#: ../client/profile.ts:230
+#: ../client/profile.ts:223
 msgid "Lichess profile"
 msgstr "Lichess プロフィール"
 
-#: ../client/profile.ts:233
+#: ../client/profile.ts:227
 msgid "Export games"
 msgstr "対局をエクスポートする"
 
-#: ../client/profile.ts:236
+#: ../client/profile.ts:231
 msgid "Watch games"
 msgstr "観戦する"
 
-#: ../client/profile.ts:239
+#: ../client/profile.ts:234
 msgid "Challenge to a game"
 msgstr "対戦を申し込む"
 
-#: ../client/roundCtrl.ts:290 ../client/roundCtrl.ts:1152
+#: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1152
 msgid " +15 seconds"
 msgstr "+15 秒"
 
-#: ../client/roundCtrl.ts:311
+#: ../client/roundCtrl.ts:296
 msgid "Give 15 seconds"
 msgstr "15秒を与える"
 
@@ -667,26 +614,22 @@ msgstr ""
 msgid "Start counting"
 msgstr "手数を数え始める"
 
-#: ../client/settings.ts:26
+#: ../client/settingsView.ts:61
 msgid "Log out"
 msgstr "ログアウト"
 
-#: ../client/settings.ts:31
+#: ../client/settingsView.ts:66
 msgid "Are you sure you want to log out?"
 msgstr "本当にログアウトしますか？"
 
-#: ../client/settings.ts:37
-msgid "Language"
-msgstr "言語"
-
-#: ../client/settings.ts:38 ../client/settings.ts:136
+#: ../client/settingsView.ts:73 ../client/settingsView.ts:111
 msgid "Sound"
 msgstr "音声"
 
-#: ../client/settings.ts:39 ../client/settings.ts:163
+#: ../client/settingsView.ts:74 ../client/settingsView.ts:121
 msgid "Background"
 msgstr "背景"
 
-#: ../client/settings.ts:40 ../client/settings.ts:182
+#: ../client/settingsView.ts:75 ../client/settingsView.ts:137
 msgid "Board Settings"
 msgstr "ボード設定"

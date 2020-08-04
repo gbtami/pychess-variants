@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-08-03 10:38+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -51,56 +51,56 @@ msgstr ""
 "เป็นที่ทราบกันดีว่า pychess-variants เป็นเซิร์ฟเวอร์ฟรี และจะฟรีตลอดไป แต่การดูแลรักษาและพัฒนาเซิร์ฟเวอร์ต้องใช้เวลาและทุนทรัพย์อย่างมาก\n"
 "หากท่านชอบผลงานของเรา ท่านสามารถสนับสนุนเราได้ด้วยการบริจาคผ่าน patreon หรือ paypal"
 
-#: ../templates/players.html:8
+#: ../templates/players.html:9
 msgid "Online"
 msgstr "ออนไลน์"
 
-#: ../templates/players.html:27
+#: ../templates/players.html:28
 msgid "Anonymous"
 msgstr "ไม่ระบุตัวตน"
 
-#: ../templates/players.html:34
+#: ../templates/players.html:35
 msgid "All players"
 msgstr "ผู้เล่นทั้งหมด"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)sเกมที่กำลังเล่น"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:89
 msgid "Tv"
 msgstr "ทีวี"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:90
 msgid "Current games"
 msgstr "เกมที่กำลังเล่น"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:91
 msgid "Players"
 msgstr "ผู้เล่น"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:92
 msgid "Editor"
 msgstr "ตั้งกระดาน"
 
-#: ../templates/template.html:76
+#: ../templates/template.html:93
 msgid "Learn"
 msgstr "เรียนรู้"
 
-#: ../templates/template.html:77
+#: ../templates/template.html:94
 msgid "About"
 msgstr "เกี่ยวกับ"
 
-#: ../templates/template.html:78
+#: ../templates/template.html:95
 msgid "Original PyChess site"
 msgstr "เว็บ PyChess เดิม"
 
-#: ../templates/template.html:84
+#: ../templates/template.html:101
 msgid "Login with Lichess"
 msgstr "เข้าสู่ระบบด้วย lichess"
 
-#: ../templates/template.html:84
+#: ../templates/template.html:101
 msgid "Log in"
 msgstr "เข้าสู่ระบบ"
