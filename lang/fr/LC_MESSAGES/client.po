@@ -106,6 +106,9 @@ msgid ""
 "Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
 "Capablanca, and Capahouse to start games from random positions with "
 msgstr ""
+"Vous pouvez accrocher l'option \"Chess960\" pour les jeux Standard, "
+"Crazyhouse, Capablanca et Capahouse pour jouer à partir de positions de "
+"départ aléatoires avec"
 
 #: ../client/about.ts:72
 msgid "Chess960 castling rules."
@@ -114,20 +117,24 @@ msgstr "les règles du roque de Chess960."
 #: ../client/about.ts:75
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
+"Pour la génération et validation des coups, l'analyse par ordinateur et le "
+"jeu contre l'ordinateur on utilise "
 
 #: ../client/about.ts:83
 msgid "On client side, the user interface of the game board is based on "
-msgstr ""
+msgstr "Au côté client, l'interface du jeu est basée sur"
 
 #: ../client/about.ts:87
 msgid "The source code of the server is available on "
-msgstr ""
+msgstr "Le code source du serveur est disponible à "
 
 #: ../client/about.ts:92
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
 msgstr ""
+"En ce qui concerne la confidentialité et les conditions d'utilisation, nous "
+"appliquons ici celles de lichess.org."
 
 #: ../client/analysis.ts:38 ../client/lobby.ts:327 ../client/lobby.ts:524
 #: ../client/profile.ts:117 ../client/round.ts:32
@@ -198,11 +205,11 @@ msgstr "Partie %1 introuvée !"
 
 #: ../client/background.ts:9
 msgid "Light"
-msgstr ""
+msgstr "Clair"
 
 #: ../client/background.ts:10
 msgid "Dark"
-msgstr ""
+msgstr "Sombre"
 
 #: ../client/boardSettings.ts:283
 msgid "Show piece destinations"
@@ -326,7 +333,7 @@ msgstr ""
 
 #: ../client/chess.ts:397
 msgid "Gothic with Crazyhouse drop rules"
-msgstr ""
+msgstr "Les échecs Gothiques avec la règle de parachute de Crazyhouse"
 
 #: ../client/chess.ts:407
 msgid ""
@@ -379,6 +386,8 @@ msgid ""
 "Asymmetric East vs. West variant which pits the western chess army against a"
 " xiangqi and janggi-styled army"
 msgstr ""
+"Une variante asymétrique l'Est contre l'Ouest, où l'armée des échecs "
+"occidentaux se battre contre une armée tirée du xiangqi et du janggi"
 
 #: ../client/editor.ts:92
 msgid "CLEAR BOARD"
@@ -463,7 +472,7 @@ msgstr "Incrément en secondes :"
 
 #: ../client/lobby.ts:396
 msgid "Alternate Start"
-msgstr ""
+msgstr "Départ nonstandard"
 
 #: ../client/lobby.ts:522
 msgid "Custom"
@@ -499,7 +508,7 @@ msgstr "Faire un don"
 
 #: ../client/lobby.ts:679
 msgid "Stats"
-msgstr ""
+msgstr "Statistiques"
 
 #: ../client/lobby.ts:683
 msgid "0 players"

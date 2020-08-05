@@ -71,7 +71,7 @@ msgstr "关于pychess"
 msgid ""
 "Pychess is a free, open-source chess server designed to play several chess "
 "variants."
-msgstr ""
+msgstr "Pychess是个免费开源象棋网站，支持下多种棋类。"
 
 #: ../client/about.ts:21
 msgid "Currently supported games are "
@@ -82,6 +82,8 @@ msgid ""
 "Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
 "Capablanca, and Capahouse to start games from random positions with "
 msgstr ""
+"您也可以在创建 "
+"Chess，Crazyhouse，Capablanca和Capahouse对局时选择“Chess960”选项，这将会随机产生大子的初始排列，并使用"
 
 #: ../client/about.ts:72
 msgid "Chess960 castling rules."
@@ -89,21 +91,21 @@ msgstr "Chess960的王车易位规则。"
 
 #: ../client/about.ts:75
 msgid "For move generation, validation, analysis, and engine play, we use "
-msgstr ""
+msgstr "生成，验证，分析棋步和电脑对局功能一律使用"
 
 #: ../client/about.ts:83
 msgid "On client side, the user interface of the game board is based on "
-msgstr ""
+msgstr "在客户端，棋盘的用户界面使用"
 
 #: ../client/about.ts:87
 msgid "The source code of the server is available on "
-msgstr ""
+msgstr "本服务器的源码投稿在"
 
 #: ../client/about.ts:92
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
-msgstr ""
+msgstr "关于隐私和服务条款，我们向lichess.org借之而行。"
 
 #: ../client/analysis.ts:38 ../client/lobby.ts:327 ../client/lobby.ts:524
 #: ../client/profile.ts:117 ../client/round.ts:32
@@ -174,11 +176,11 @@ msgstr "未找到要求的棋局 %1 ！"
 
 #: ../client/background.ts:9
 msgid "Light"
-msgstr ""
+msgstr "亮"
 
 #: ../client/background.ts:10
 msgid "Dark"
-msgstr ""
+msgstr "暗"
 
 #: ../client/boardSettings.ts:283
 msgid "Show piece destinations"
@@ -289,7 +291,7 @@ msgstr "相似Capablanca但起始局面不一致"
 
 #: ../client/chess.ts:397
 msgid "Gothic with Crazyhouse drop rules"
-msgstr ""
+msgstr " 在Gothic上添加Crazyhouse的打入规则"
 
 #: ../client/chess.ts:407
 msgid ""
@@ -451,7 +453,7 @@ msgstr "捐赠"
 
 #: ../client/lobby.ts:679
 msgid "Stats"
-msgstr ""
+msgstr "数据"
 
 #: ../client/lobby.ts:683
 msgid "0 players"
