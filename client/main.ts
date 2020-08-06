@@ -135,7 +135,7 @@ function start() {
             settings.style.display = 'none';
     });
 
-    if (model['anon'] === 'False') window.onload = () => { setupEventSource();};
+    if (model['anon'] === 'False') setupEventSource();
 }
 
 backgroundSettings.update();
