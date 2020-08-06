@@ -80,7 +80,7 @@ Random Mover is a bot that just chooses a random move from the list of available
 
 ## Social/Accounts
 
-*How do I login?*
+*How do I log in?*
 
 You need to have a Lichess account. If you don't already, please go to [Lichess](https://lichess.org/) to make an account.
 
