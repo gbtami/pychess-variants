@@ -46,7 +46,7 @@ Major regional variants have high precedence. For western chess variants, often 
 
 *Can you add Shatranj?*
 
-Shatranj is a dead variant, and there are similar games that are still alive (i.e. Makruk), so no. If you want to play Shatranj, there are other sites that offer it (i.e. [VChess](https://vchess.club/#/)]
+Shatranj is a dead variant, and there are similar games that are still alive (i.e. Makruk), so no. If you want to play Shatranj, there are other sites that offer it (i.e. [VChess](https://vchess.club/#/))
 
 *Can you add XXX?*
 
@@ -66,11 +66,11 @@ Same answer as above, and then click on "Board Settings." All Asian variants hav
 
 Use the right click. Clicking gives you a circle, and dragging gives you an arrow. These are green by default. You can make them red by holding Shift or Ctrl, and you can make them blue by holding Alt.
 
-*What does "5+3" mean for time?"
+*What does "5+3" mean for time?"*
 
 Those are the time controls for the game. By default we use an increment system. "5+3" means each player has 5 *minutes*, and after each move adds 3 *seconds* to the clock. You can set the time control to be whatever you want when creating the game. The 5+3 is just the default for random mover.
 
-*Okay, what about the (b) in "5+3(b)?"
+*Okay, what about the (b) in "5+3(b)?"*
 
 The b signifies byo-yomi time control, which is different from increment, and is only used in certain variants (i.e. Shogi and Janggi). Each player has a fixed time bank (5 minutes, in this example), and then after that, they only have the byo-yomi period for the rest of their moves before losing. In this example, that means only 3 seconds per move. Typically, byo-yomi is played with more than just 3 seconds... usually anywhere from 10 seconds to 30 seconds.
 
