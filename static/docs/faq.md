@@ -84,6 +84,10 @@ Random-Mover is a bot that just chooses a random move from the list of available
 
 You need to have a Lichess account. If you don't already, please go to [Lichess](https://lichess.org/) to make an account.
 
+*Would logging in with my Lichess account compromise my account/password?*
+
+No! That is done via OAuth and your password isn't revealed to Pychess, just like how you can log in to third-party websites with your Google or Facebook accounts.
+
 *What's the best way to contact the developers?*
 
 You can try the lobby chat, although the developers might not be on to answer. More reliably, we use [Discord](https://discord.gg/aPs8RKr).
