@@ -16,8 +16,8 @@ from sortedcollections import ValueSortedDict
 from pythongettext.msgfmt import Msgfmt
 from pythongettext.msgfmt import PoSyntaxError
 
-# from i18n import gettext, ngettext
 from ai import BOT_task
+from broadcast import lobby_broadcast, round_broadcast
 from const import VARIANTS, STARTED, LANGUAGES
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
@@ -40,7 +40,6 @@ def make_app(with_db=True):
 
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
-    app.on_cleanup.append(cleanup)
 
     # Setup routes.
     for route in get_routes:
@@ -191,19 +190,18 @@ async def init_state(app):
 async def shutdown(app):
     app["data"]["kill"] = True
 
-
-async def cleanup(app):
     # notify users
-    msg = "Server update started. Sorry for the inconvenience!"
-    response = {"type": "shutdown", "message": msg}
+    msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
+    response = {"type": "lobbychat", "user": "", "message": msg}
+    await lobby_broadcast(app["lobbysockets"], response)
+
+    response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
+    for game in app["games"].values():
+        await round_broadcast(game, app["users"], response, full=True)
+    print('......WAIT 25')
+    await asyncio.sleep(25)
+
     for user in app["users"].values():
-        if user.username in app["lobbysockets"]:
-            ws_set = app["lobbysockets"][user.username]
-            for ws in ws_set:
-                try:
-                    await ws.send_json(response)
-                except Exception:
-                    pass
         if user.bot:
             await user.event_queue.put('{"type": "terminated"}')
 

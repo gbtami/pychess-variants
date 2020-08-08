@@ -163,6 +163,8 @@ async def index(request):
         template = get_template("variant.html")
     elif view == "patron":
         template = get_template("patron.html")
+    elif view == "analysis":
+        template = get_template("analysis.html")
     else:
         template = get_template("index.html")
 
