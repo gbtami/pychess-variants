@@ -93,12 +93,6 @@ export default class RoundController {
     constructor(el, model) {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
-            boardSettings.ctrl = this;
-            const boardFamily = VARIANTS[this.variant].board;
-            const pieceFamily = VARIANTS[this.variant].piece;
-            boardSettings.updateBoardStyle(boardFamily);
-            boardSettings.updatePieceStyle(pieceFamily);
-            boardSettings.updateZoom(boardFamily);
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
@@ -352,6 +346,13 @@ export default class RoundController {
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+
+        boardSettings.ctrl = this;
+        const boardFamily = VARIANTS[this.variant].board;
+        const pieceFamily = VARIANTS[this.variant].piece;
+        boardSettings.updateBoardStyle(boardFamily);
+        boardSettings.updatePieceStyle(pieceFamily);
+        boardSettings.updateZoom(boardFamily);
     }
 
     getGround = () => this.chessground;

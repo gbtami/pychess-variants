@@ -96,12 +96,6 @@ export default class AnalysisController {
     constructor(el, model) {
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
-            boardSettings.ctrl = this;
-            const boardFamily = VARIANTS[this.variant].board;
-            const pieceFamily = VARIANTS[this.variant].piece;
-            boardSettings.updateBoardStyle(boardFamily);
-            boardSettings.updatePieceStyle(pieceFamily);
-            boardSettings.updateZoom(boardFamily);
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 
@@ -246,6 +240,13 @@ export default class AnalysisController {
             (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
+
+        boardSettings.ctrl = this;
+        const boardFamily = VARIANTS[this.variant].board;
+        const pieceFamily = VARIANTS[this.variant].piece;
+        boardSettings.updateBoardStyle(boardFamily);
+        boardSettings.updatePieceStyle(pieceFamily);
+        boardSettings.updateZoom(boardFamily);
     }
 
     getGround = () => this.chessground;
