@@ -3,17 +3,18 @@ import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
+import style from 'snabbdom/modules/style';
 
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
-import { Color } from 'chessgroundx/types';
+import { Color, dimensions } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
 import { VARIANTS, roleToSan, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 
-const patch = init([klass, attributes, properties, listeners]);
+const patch = init([klass, attributes, properties, style, listeners]);
 
 type Position = 'top' | 'bottom';
 
@@ -21,9 +22,14 @@ const eventNames = ['mousedown', 'touchstart'];
 
 export function pocketView(ctrl: RoundController | AnalysisController, color: Color, position: Position) {
   const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
-  const pieceRoles = Object.keys(pocket);
+  const roles = Object.keys(pocket);
   return h('div.pocket.' + position, {
     class: { usable: true },
+    style: {
+        '--pocketLength': String(roles!.length),
+        '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
+        '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
+    },
     hook: {
       insert: vnode => {
         eventNames.forEach(name => {
@@ -33,7 +39,7 @@ export function pocketView(ctrl: RoundController | AnalysisController, color: Co
         });
       }
     }
-  }, pieceRoles.map(role => {
+  }, roles.map(role => {
     let nb = pocket[role] || 0;
     return h('piece.' + role + '.' + color, {
       attrs: {

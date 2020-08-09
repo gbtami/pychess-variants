@@ -5,7 +5,9 @@
   --files-left: 0px;
   --ranks-top-shogi: -25px;
   --files: 8;
-  --pieces: 6;
+  --ranks: 8;
+  --editorLength: 6;
+  --pocketLength: 5;
   --movelist-max-height: 116px;
 }
 [data-view="analysis"] {
@@ -74,27 +76,13 @@
 }
 
 .pocket {
+  width: calc(var(--pocketLength) * (var(--cgwrapwidth) / var(--files)));
+  height: calc(var(--cgwrapheight) / var(--ranks));
   border-radius: 3px;
   box-shadow: 0 2px 3px rgba(0,0,0,0.3) inset;
-  width: 320px;
   background: #888;
   white-space: nowrap;
   display: flex;
-}
-.capahouse .pocket, .grandhouse .pocket, .gothhouse .pocket {
-  width: 380px;
-}
-.shouse .pocket {
-  width: 440px;
-}
-.shogi .pocket {
-  width: 380px;
-}
-.kyoto .pocket {
-  width: 256px;
-}
-.shogi.minishogi .pocket {
-  width: 320px;
 }
 .pocket.top {
   margin-bottom: 10px;
@@ -108,27 +96,18 @@
 .pocket.bottom.editor {
   margin-top: 18px;
 }
-.pocket .editor {
-  width: calc(var(--pieces) * (var(--cgwrapwidth) / var(--files)));
+.pocket .editor{
+  width: calc(var(--editorLength) * (var(--cgwrapwidth) / var(--files)));
 }
 .pocket piece {
-  flex: 0 0 20%;
-  height: 64px!important; /* 100% fails on older chrome */
+  flex: 0 0 calc(100% / var(--pocketLength));
+  height: auto!important; /* 100% fails on older chrome */
   width: auto!important;
   position: relative!important;
   background-position: center;
 }
-.shogi .pocket piece, .capahouse .pocket piece, .shouse .pocket piece, .grandhouse .pocket piece, .gothhouse .pocket piece {
-  flex: 0 0 14.29%;
-}
-.kyoto .pocket piece {
-  flex: 0 0 25%;
-}
-.minishogi .pocket piece {
-  flex: 0 0 20%;
-}
 .pocket .editor piece {
-  flex: 0 0 calc(100% / var(--pieces));
+  flex: 0 0 calc(100% / var(--editorLength));
 }
 .pocket.usable piece:first-child:hover {
   border-radius: 3px 0 0 3px;

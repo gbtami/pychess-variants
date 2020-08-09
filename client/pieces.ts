@@ -21,7 +21,11 @@ const eventNames = ['mousedown', 'touchstart'];
 export function piecesView(ctrl: EditorController, color: Color, position: Position) {
     const roles = VARIANTS[ctrl.variant].pieceRoles(color);
     return h('div.pocket.' + position + '.editor.usable', {
-        style: { '--pieces': String(roles.length), '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width) },
+        style: {
+            '--editorLength': String(roles.length),
+            '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
+            '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
+        },
         hook: {
             insert: vnode => {
                 eventNames.forEach(name => {
@@ -56,5 +60,4 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
 export function iniPieces(ctrl: EditorController, vpocket0, vpocket1): void {
     ctrl.vpocket0 = patch(vpocket0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
     ctrl.vpocket1 = patch(vpocket1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
-    console.log(vpocket1);
 }

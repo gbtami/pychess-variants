@@ -96,7 +96,7 @@ class BoardSettings {
         if (variant && VARIANTS[variant].board === family) {
             const zoomSettings = this.getSettings("Zoom", family) as ZoomSettings;
             const zoom = zoomSettings.value;
-            const el = document.querySelector('.cg-wrap') as HTMLElement;
+            const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
             if (el) {
                 const baseWidth = dimensions[VARIANTS[variant].geometry].width * (family.includes("shogi") ? 52 : 64);
                 const baseHeight = dimensions[VARIANTS[variant].geometry].height * (family.includes("shogi") ? 60 : 64);

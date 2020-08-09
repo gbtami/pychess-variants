@@ -73,6 +73,13 @@ export default class EditorController {
             },
         });
 
+        boardSettings.ctrl = this;
+        const boardFamily = VARIANTS[this.variant].board;
+        const pieceFamily = VARIANTS[this.variant].piece;
+        boardSettings.updateBoardStyle(boardFamily);
+        boardSettings.updatePieceStyle(pieceFamily);
+        boardSettings.updateZoom(boardFamily);
+
         // initialize pieces
         const pocket0 = document.getElementById('pocket0') as HTMLElement;
         const pocket1 = document.getElementById('pocket1') as HTMLElement;
@@ -176,14 +183,6 @@ export default class EditorController {
 function runEditor(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new EditorController(el, model);
-
-    boardSettings.ctrl = ctrl;
-    const boardFamily = VARIANTS[ctrl.variant].board;
-    const pieceFamily = VARIANTS[ctrl.variant].piece;
-    boardSettings.updateBoardStyle(boardFamily);
-    boardSettings.updatePieceStyle(pieceFamily);
-    boardSettings.updateZoom(boardFamily);
-
     const cg = ctrl.chessground;
     window['cg'] = cg;
 }
