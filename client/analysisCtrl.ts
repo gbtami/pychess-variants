@@ -31,6 +31,13 @@ import { boardSettings } from './boardSettings';
 
 const patch = init([klass, attributes, properties, listeners]);
 
+const EVAL_REGEX = new RegExp(''
+  + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
+  + /score (cp|mate) ([-\d]+) /.source
+  + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
+  + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
+  + /pv (.+)/.source);
+
 
 function download(filename, text) {
   var element = document.createElement('a');
@@ -92,6 +99,7 @@ export default class AnalysisController {
     showDests: boolean;
     analysisChart: any;
     ctableContainer: any;
+    localAnalysis: boolean;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -111,6 +119,8 @@ export default class AnalysisController {
 
         const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
+
+        this.localAnalysis = false;
 
         this.model = model;
         this.variant = model["variant"] as string;
@@ -397,16 +407,48 @@ export default class AnalysisController {
         }
     }
 
-    goPly = (ply) => {
-        const step = this.steps[ply];
-        var move = step.move;
-        var capture = false;
-        if (move !== undefined) {
-            if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
-            move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
-            // 960 king takes rook castling is not capture
-            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
+    onFSFline = (line) => {
+        console.log(line);
+        if (!this.localAnalysis) {
+            if (this.model.variant === 'chess' || (line.includes('UCI_Variant') && line.includes(this.model.variant))) {
+                this.localAnalysis = true;
+            }
         }
+
+        const matches = line.match(EVAL_REGEX);
+        if (!matches) return;
+
+        const depth = parseInt(matches[1]),
+            multiPv = parseInt(matches[2]),
+            isMate = matches[3] === 'mate',
+            povEv = parseInt(matches[4]),
+            evalType = matches[5],
+            nodes = parseInt(matches[6]),
+            elapsedMs: number = parseInt(matches[7]),
+            moves = matches[8];
+        console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
+
+        // Sometimes we get #0. Let's just skip it.
+        if (isMate && !povEv) return;
+
+        // For now, ignore most upperbound/lowerbound messages.
+        // The exception is for multiPV, sometimes non-primary PVs
+        // only have an upperbound.
+        // See: https://github.com/ddugovic/Stockfish/issues/228
+        if (evalType && multiPv === 1) return;
+
+        let score;
+        if (isMate) {
+            score = {mate: povEv};
+        } else {
+            score = {cp: povEv};
+        }
+        const msg = {type: 'analysis', ply: this.ply, color: this.turnColor, ceval: {d: depth, m: moves, p: moves, s: score}};
+        this.onMsgAnalysis(msg);
+    };
+
+    drawEval = (ply) => {
+        const step = this.steps[ply];
         var shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
@@ -446,10 +488,27 @@ export default class AnalysisController {
         } else {
             this.vpv = patch(this.vpv, h('div#pv'));
             const stl = document.body.getAttribute('style');
-            document.body.setAttribute('style', stl + '--PVheight:0px;');
+            document.body.setAttribute('style', stl + '--PVheight:64px;');
         }
 
         // console.log(shapes0);
+        this.chessground.set({
+            drawable: {autoShapes: shapes0},
+        });
+    }
+
+    goPly = (ply) => {
+        const step = this.steps[ply];
+
+        var move = step.move;
+        var capture = false;
+        if (move !== undefined) {
+            if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
+            move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
+            // 960 king takes rook castling is not capture
+            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
+        }
+
         this.chessground.set({
             fen: step.fen,
             turnColor: step.turnColor,
@@ -460,8 +519,9 @@ export default class AnalysisController {
                 },
             check: step.check,
             lastMove: move,
-            drawable: {autoShapes: shapes0},
         });
+
+        this.drawEval(ply);
 
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
@@ -486,6 +546,24 @@ export default class AnalysisController {
             }
         }
         this.ply = ply
+        this.turnColor = step.turnColor;
+
+        // TODO
+        // disable/enable checkbox
+        // "+" button (Go deeper)
+        // multi PV
+        if (this.localAnalysis) {
+            window.fsf.postMessage('stop');
+            if (this.model.chess960 === 'True') {
+                window.fsf.postMessage('setoption name UCI_Chess960 value true');
+            }
+            if (this.model.variant !== 'chess') {
+                window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
+            }
+            window.fsf.postMessage('position fen ' + step.fen);
+            window.fsf.postMessage('go movetime 90000 depth 16');
+        }
+
         this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
         window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.model["gameId"] + '?ply=' + ply.toString());
     }
@@ -543,7 +621,10 @@ export default class AnalysisController {
     }
 
     private onMsgAnalysis = (msg) => {
+        console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
+
+        if (msg.ply === this.ply) this.drawEval(msg.ply);
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
         if (msg.ply > 0) {

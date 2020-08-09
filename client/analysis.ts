@@ -7,11 +7,17 @@ import { VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
 import { renderRdiff, result } from './profile';
 
+declare global {
+    interface Window {
+        onFSFline: Function;
+        fsf: any;
+    }
+}
+
 function runGround(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new AnalysisController(el, model);
-    const cg = ctrl.chessground;
-    window['cg'] = cg;
+    window['onFSFline'] = ctrl.onFSFline;
 }
 
 export function analysisView(model): VNode[] {
