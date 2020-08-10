@@ -20,7 +20,7 @@ import { sound } from './sound';
 import { grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { movelistView, updateMovelist, selectMove } from './movelist';
+import { movelistView, updateMovelist, selectMove, povChances } from './movelist';
 import resizeHandle from './resize';
 //import { result } from './profile';
 import { copyTextToClipboard } from './clipboard';
@@ -443,7 +443,7 @@ export default class AnalysisController {
         } else {
             score = {cp: povEv};
         }
-        const msg = {type: 'analysis', ply: this.ply, color: this.turnColor, ceval: {d: depth, m: moves, p: moves, s: score}};
+        const msg = {type: 'analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score}};
         this.onMsgAnalysis(msg);
     };
 
@@ -453,6 +453,24 @@ export default class AnalysisController {
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
+
+        const gaugeEl = document.getElementById('gauge') as HTMLElement;
+        if (gaugeEl) {
+            const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
+            if (blackEl && ceval !== undefined) {
+                const score = ceval['s'];
+                const turnColor = step['turnColor'];
+                const color = (this.variant.endsWith('shogi')) ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                if (score !== undefined) {
+                    const ev = povChances(color, score);
+                    blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+                }
+                else {
+                    blackEl.style.height = '50%';
+                }
+            }
+        }
+
         if (ceval?.p !== undefined) {
             var pv_move = ceval["m"].split(" ")[0];
             if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
@@ -545,6 +563,7 @@ export default class AnalysisController {
                 }
             }
         }
+
         this.ply = ply
         this.turnColor = step.turnColor;
 
@@ -624,8 +643,6 @@ export default class AnalysisController {
         console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
 
-        if (msg.ply === this.ply) this.drawEval(msg.ply);
-
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
         if (msg.ply > 0) {
             var evalEl = document.getElementById('ply' + String(msg.ply)) as HTMLElement;
@@ -639,6 +656,8 @@ export default class AnalysisController {
             var element = document.getElementById('loader-wrapper') as HTMLElement;
             element.style.display = 'none';
         }
+
+        if (msg.ply === this.ply) this.drawEval(msg.ply);
     }
 
     private onMsgRequestAnalysis = () => {

@@ -56,22 +56,6 @@ export function selectMove (ctrl, ply) {
     const elPly = document.querySelector(`move[ply="${ply}"]`);
     if (elPly) elPly.classList.add('active');
 
-    const gaugeEl = document.getElementById('gauge') as HTMLElement;
-    if (gaugeEl) {
-        const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
-        if (blackEl && ctrl.steps[ply]['ceval'] !== undefined) {
-            const score = ctrl.steps[ply]['ceval']['s'];
-            const turnColor = ctrl.steps[ply]['turnColor'];
-            const color = (ctrl.variant.endsWith('shogi')) ? turnColor === 'black' ? 'white' : 'black' : turnColor;
-            if (score !== undefined) {
-                const ev = povChances(color, score);
-                blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
-            }
-            else {
-                blackEl.style.height = '50%';
-            }
-        }
-    }
     ctrl.goPly(ply)
     scrollToPly(ctrl);
 
