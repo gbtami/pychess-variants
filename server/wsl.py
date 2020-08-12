@@ -54,7 +54,7 @@ async def lobby_socket_handler(request):
         await ws.close()
         session.invalidate()
         raise web.HTTPFound("/")
-    
+
     log.debug("-------------------------- NEW lobby WEBSOCKET by %s" % user)
 
     try:
