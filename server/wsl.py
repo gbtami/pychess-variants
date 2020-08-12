@@ -50,6 +50,11 @@ async def lobby_socket_handler(request):
     session_user = session.get("user_name")
     user = users[session_user] if session_user is not None and session_user in users else None
 
+    if (user is not None) and (not user.enabled):
+        await ws.close()
+        session.invalidate()
+        raise web.HTTPFound("/")
+    
     log.debug("-------------------------- NEW lobby WEBSOCKET by %s" % user)
 
     try:
