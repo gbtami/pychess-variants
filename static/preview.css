@@ -233,11 +233,11 @@ label.board.board4.standard10x10 {
 label.piece.piece0.shako {
     background-image: url('images/pieces/shako/wC.svg');
 }
-label.piece.piece0.shako {
-    background-image: url('images/pieces/shako/wC.svg');
-}
 label.piece.piece1.shako {
     background-image: url('images/pieces/kaneo/wC.svg');
+}
+label.piece.piece2.shako {
+    background-image: url('images/pieces/green/synoshako/wC.svg');
 }
 
 label.piece.piece0.shogun {
@@ -383,7 +383,7 @@ label.piece.piece1.synochess {
     background-image: url('images/pieces/synochess/xq/bR.svg');
 }
 label.piece.piece2.synochess {
-    background-image: url('images/pieces/xiangqi/playok/black_chariot.svg');
+    background-image: url('images/pieces/green/synoshako/bR.svg');
 }
 label.piece.piece3.synochess {
     background-image: url('images/pieces/xiangqi/hnz/black_chariot.svg');

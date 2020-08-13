@@ -41,10 +41,10 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], baseURL: ["xiangqi/playok", "xiangqi/ct3", "xiangqi/ct2", "xiangqi/hnz", "xiangqi/ct2w", "xiangqi/hnzw"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiib", "janggiig", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlblue", "janggi/intlgreen", "janggi/Ka_kako", "janggi/Ka_wooden"] },
-    shako: { pieceCSS: ["shako0", "shako1"], baseURL: ["shako", "kaneo"] },
+    shako: { pieceCSS: ["shako0", "shako1", "shako2"], baseURL: ["shako", "kaneo", "green"] },
     shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
     orda: { pieceCSS: ["orda0", "orda1"], baseURL: ["orda/merida", "orda/cburnett"] },
-    synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "xiangqi/playok", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"] },
+    synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "green", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"] },
 };
 
 export interface IVariant {

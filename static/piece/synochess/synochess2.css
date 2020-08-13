@@ -1,39 +1,39 @@
 .synochess .cg-wrap piece.pawn.white {
-    background-image: url('../../images/pieces/synochess/xq/wP.svg');
+    background-image: url('../../images/pieces/green/wP.svg');
 }
 .synochess .cg-wrap piece.bishop.white {
-    background-image: url('../../images/pieces/synochess/xq/wB.svg');
+    background-image: url('../../images/pieces/green/wB.svg');
 }
 .synochess .cg-wrap piece.knight.white {
-    background-image: url('../../images/pieces/synochess/xq/wN.svg');
+    background-image: url('../../images/pieces/green/wN.svg');
 }
 .synochess .cg-wrap piece.rook.white {
-    background-image: url('../../images/pieces/synochess/xq/wR.svg');
+    background-image: url('../../images/pieces/green/wR.svg');
 }
 .synochess .cg-wrap piece.queen.white {
-    background-image: url('../../images/pieces/synochess/xq/wQ.svg');
+    background-image: url('../../images/pieces/green/wQ.svg');
 }
 .synochess .cg-wrap piece.king.white {
-    background-image: url('../../images/pieces/synochess/xq/wK.svg');
+    background-image: url('../../images/pieces/green/wK.svg');
 }
 .synochess .cg-wrap piece.silver.black {
-    background-image: url('../../images/pieces/xiangqi/playok/black_pawn.svg');
+    background-image: url('../../images/pieces/green/synoshako/bP.svg');
 }
 .synochess .cg-wrap piece.elephant.black {
-    background-image: url('../../images/pieces/xiangqi/playok/black_elephant.svg');
+    background-image: url('../../images/pieces/green/synoshako/bE.svg');
 }
 .synochess .cg-wrap piece.knight.black {
-    background-image: url('../../images/pieces/xiangqi/playok/black_horse.svg');
+    background-image: url('../../images/pieces/green/bN.svg');
 }
 .synochess .cg-wrap piece.rook.black {
-    background-image: url('../../images/pieces/xiangqi/playok/black_chariot.svg');
+    background-image: url('../../images/pieces/green/synoshako/bR.svg');
 }
 .synochess .cg-wrap piece.archbishop.black {
-    background-image: url('../../images/pieces/xiangqi/playok/black_advisor.svg');
+    background-image: url('../../images/pieces/green/synoshako/bA.svg');
 }
 .synochess .cg-wrap piece.cancellor.black {
-    background-image: url('../../images/pieces/xiangqi/playok/black_cannon.svg');
+    background-image: url('../../images/pieces/green/synoshako/bC.svg');
 }
 .synochess .cg-wrap piece.king.black {
-    background-image: url('../../images/pieces/xiangqi/playok/black_king.svg');
+    background-image: url('../../images/pieces/green/synoshako/bK.svg');
 }
