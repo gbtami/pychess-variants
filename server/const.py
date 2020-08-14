@@ -45,6 +45,7 @@ VARIANTS = (
     "shogun",
     "orda",
     "synochess",
+    "hoppelpoppel",
 )
 
 VARIANT_ICONS = {
@@ -78,6 +79,7 @@ VARIANT_ICONS = {
     "shogun": "-",
     "orda": "R",
     "synochess": "_",
+    "hoppelpoppel": "M",
 }
 
 VARIANT_960_TO_PGN = {
