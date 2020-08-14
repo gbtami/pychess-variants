@@ -485,6 +485,16 @@ export const VARIANTS: { [name: string]: IVariant } = {
         autoQueenable: true,
         icon: "_",
     }),
+
+    hoppelpoppel: new Variant({
+        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: _("Knights are capturing as bishops, bishops are capturing as knights"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        enPassant: true, autoQueenable: true,
+        icon: "M",
+    }),
+
 };
 
 export const variants = Object.keys(VARIANTS);
@@ -496,7 +506,7 @@ const variantGroups: { [ key: string ]: { label: string, variants: string[] } } 
     sea:      { label: "Southeast Asian variants", variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { label: "Shogi variants",           variants: [ "shogi", "minishogi", "kyotoshogi" ] },
     xiangqi:  { label: "Xiangqi variants",         variants: [ "xiangqi", "janggi", "minixiangqi" ] },
-    fairy:    { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess" ] },
+    fairy:    { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
 
 export function selectVariant(id, selected, onChange, hookInsert) {
@@ -553,6 +563,7 @@ const variant_classes = {
     shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
     orda: new Set(['enPassant']),
     synochess: new Set(['pocket', 'enPassant']),
+    hoppelpoppel: new Set(['enPassant', 'autoQueen']),
 }
 
 export function isVariantClass(variant: string, variantClass: string) {
