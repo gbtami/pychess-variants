@@ -74,6 +74,8 @@ export default class AnalysisController {
     vplayer0: any;
     vplayer1: any;
     vfen: any;
+    vscore: any;
+    vinfo: any;
     vpv: any;
     gameControls: any;
     moveControls: any;
@@ -99,6 +101,7 @@ export default class AnalysisController {
     showDests: boolean;
     analysisChart: any;
     ctableContainer: any;
+    localEngine: boolean;
     localAnalysis: boolean;
 
     constructor(el, model) {
@@ -120,6 +123,7 @@ export default class AnalysisController {
         const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
+        this.localEngine = false;
         this.localAnalysis = false;
 
         this.model = model;
@@ -233,6 +237,10 @@ export default class AnalysisController {
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
+        patch(document.getElementById('ceval') as HTMLElement, h('div#ceval', this.renderCeval()));
+
+        this.vscore = document.getElementById('score') as HTMLElement;
+        this.vinfo = document.getElementById('info') as HTMLElement;
         this.vpv = document.getElementById('pv') as HTMLElement;
 
         if (isVariantClass(this.variant, 'showMaterialPoint')) {
@@ -251,6 +259,7 @@ export default class AnalysisController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
+
         boardSettings.ctrl = this;
         const boardFamily = VARIANTS[this.variant].board;
         const pieceFamily = VARIANTS[this.variant].piece;
@@ -261,6 +270,35 @@ export default class AnalysisController {
 
     getGround = () => this.chessground;
     getDests = () => this.dests;
+
+    private renderCeval = () => {
+        return [
+            h('div.engine', [
+                h('score#score', ''),
+                h('div.info', ['Fairy-Stockfish 11+', h('br'), h('info#info', 'in local browser')]),
+                h('label.switch', [
+                    h('input#input', {
+                        props: {
+                            name: "engine",
+                            type: "checkbox",
+                        },
+                        attrs: {
+                            disabled: !this.localEngine,
+                        },
+                        on: {change: () => {
+                            this.localAnalysis = !this.localAnalysis;
+                            if (this.localAnalysis) {
+                                this.engineGo();
+                            } else {
+                                window.fsf.postMessage('stop');
+                            }
+                        }}
+                    }),
+                    h('span.sw-slider'),
+                ]),
+            ]),
+        ];
+    }
 
     private drawAnalysis = (withRequest) => {
         if (withRequest) {
@@ -408,15 +446,25 @@ export default class AnalysisController {
     }
 
     onFSFline = (line) => {
-        console.log(line);
-        if (!this.localAnalysis) {
+
+        // console.log(line);
+        if (!this.localEngine) {
             if (this.model.variant === 'chess' || (line.includes('UCI_Variant') && line.includes(this.model.variant))) {
-                this.localAnalysis = true;
+                this.localEngine = true;
+                patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
             }
         }
 
+        if (!this.localAnalysis) return;
+
         const matches = line.match(EVAL_REGEX);
-        if (!matches) return;
+        if (!matches) {
+            if (line.includes('mate 0')) {
+                const msg = {type: 'analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};
+                this.onMsgAnalysis(msg);
+            }
+            return;
+        }
 
         const depth = parseInt(matches[1]),
             multiPv = parseInt(matches[2]),
@@ -453,6 +501,7 @@ export default class AnalysisController {
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
+        const scoreStr = this.steps[ply]['scoreStr'];
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
         if (gaugeEl) {
@@ -497,22 +546,49 @@ export default class AnalysisController {
                     shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
                 }
             };
-            this.vpv = patch(this.vpv, h('div#pv', [
-                h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, ' + _('Depth') + ' ' + String(ceval.d)]),
-                h('div.pv', [h('div.pvline', ceval.p !== undefined ? ceval.p : ceval.m)]),
-            ]));
-            const stl = document.body.getAttribute('style');
-            document.body.setAttribute('style', stl + '--PVheight:64px;');
+            this.vscore = patch(this.vscore, h('score#score', scoreStr));
+            // TODO: add '/16' when local engine enabled only
+            this.vinfo = patch(this.vinfo, h('info#info', _('Depth') + ' ' + String(ceval.d) + '/16'));
+            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
+            document.documentElement.style.setProperty('--pvheight', '37px');
         } else {
+            this.vscore = patch(this.vscore, h('score#score', ''));
+            this.vinfo = patch(this.vinfo, h('info#info', 'in local browser'));
             this.vpv = patch(this.vpv, h('div#pv'));
-            const stl = document.body.getAttribute('style');
-            document.body.setAttribute('style', stl + '--PVheight:64px;');
+            document.documentElement.style.setProperty('--pvheight', '0px'); 
+        }
+
+
+
+        if (ply > 0) {
+            var evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
+            patch(evalEl, h('eval#ply' + String(ply), scoreStr));
+        }
+
+        analysisChart(this);
+        const hc = this.analysisChart;
+        if (hc !== undefined) {
+            const hcPt = hc.series[0].data[ply];
+            if (hcPt !== undefined) hcPt.select();
         }
 
         // console.log(shapes0);
         this.chessground.set({
             drawable: {autoShapes: shapes0},
         });
+    }
+
+    engineGo = () => {
+        const fen = this.steps[this.ply].fen
+        window.fsf.postMessage('stop');
+        if (this.model.chess960 === 'True') {
+            window.fsf.postMessage('setoption name UCI_Chess960 value true');
+        }
+        if (this.model.variant !== 'chess') {
+            window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
+        }
+        window.fsf.postMessage('position fen ' + fen);
+        window.fsf.postMessage('go movetime 90000 depth 16');
     }
 
     goPly = (ply) => {
@@ -568,20 +644,9 @@ export default class AnalysisController {
         this.turnColor = step.turnColor;
 
         // TODO
-        // disable/enable checkbox
         // "+" button (Go deeper)
         // multi PV
-        if (this.localAnalysis) {
-            window.fsf.postMessage('stop');
-            if (this.model.chess960 === 'True') {
-                window.fsf.postMessage('setoption name UCI_Chess960 value true');
-            }
-            if (this.model.variant !== 'chess') {
-                window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
-            }
-            window.fsf.postMessage('position fen ' + step.fen);
-            window.fsf.postMessage('go movetime 90000 depth 16');
-        }
+        if (this.localAnalysis) this.engineGo();
 
         this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
         window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.model["gameId"] + '?ply=' + ply.toString());
@@ -640,18 +705,14 @@ export default class AnalysisController {
     }
 
     private onMsgAnalysis = (msg) => {
-        console.log(msg);
+        // console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
-        if (msg.ply > 0) {
-            var evalEl = document.getElementById('ply' + String(msg.ply)) as HTMLElement;
-            patch(evalEl, h('eval#ply' + String(msg.ply), scoreStr));
-        }
+
         this.steps[msg.ply]['ceval'] = msg['ceval'];
         this.steps[msg.ply]['scoreStr'] = scoreStr;
 
-        analysisChart(this);
         if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
             var element = document.getElementById('loader-wrapper') as HTMLElement;
             element.style.display = 'none';

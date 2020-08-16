@@ -18,6 +18,7 @@
     --bg-seek: rgba(255,255,255,0.8);
     --game-hover: #d1e6fa;
     --green-hover: #89b25b;
+    --green-switch: #629924;
     --blue-active: #d1e4f6;
     --blue-hover: #1b78d0;
     --good: #629924;
@@ -674,7 +675,7 @@ bad {
 }
 vs-swords {
     font-size: 2em;
-    padding: 4 8 0 8;
+    padding: 4px 8px 0px 8px;
 }
 vs-swords.lobby {
     display:inline-block;
@@ -1453,27 +1454,97 @@ div.analysis {
     margin-top: -3px;
 }
 
-#pv {
+/* Engine info */
+div#ceval {
     background-color: var(--bg-color2);
     box-shadow: var(--btn-shadow);
 }
 
-div.pv {
+.engine {
     display: flex;
-    margin: 6px;
-    width: 100%;
+    padding: 6px;
 }
-div.pvline {
+
+div.info {
+    flex: 1 0 auto;
+    align-self: center;
+}
+div#pv {
+    display: flex;
+    flex: 1 1 auto;
+    border-bottom: 1px ridge #eee;
+}
+pvline {
+    flex: 1;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     min-width: 0;
+    padding: 8px;
 }
 
 score {
-    margin: 6px;
+    flex: 0 0 75px;
     font-weight: bold;
     font-size: 22px;
+    align-self: center;
+}
+
+/* Local Fairy toggle */
+label.switch {
+    flex: 0 0 40px;
+    position: relative;
+    display: inline-block;
+    height: 22px;
+    padding: 0;
+    align-self: center;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.sw-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: DarkGray;
+  border-radius: 22px;
+  -webkit-transition: .01s;
+  transition: .01s;
+}
+
+.sw-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 0px;
+  bottom: 0px;
+  background-color: WhiteSmoke;
+  border-radius: 50%;
+  -webkit-transition: .01s;
+  transition: .01s;
+}
+
+input:checked + .sw-slider {
+  background-color: var(--green-switch);
+  box-shadow: 0 0 2px Black;
+}
+
+input:focus + .sw-slider {
+  box-shadow: 0 0 2px gray;
+}
+
+input:checked + .sw-slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(18px);
 }
 
 /* games */
