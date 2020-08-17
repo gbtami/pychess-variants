@@ -17,6 +17,7 @@ get_routes = (
     ("/logout", logout),
     ("/", index),
     ("/about", index),
+    ("/faq", index),
     ("/stats", index),
     ("/players", index),
     ("/allplayers", index),

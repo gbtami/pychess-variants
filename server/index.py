@@ -88,6 +88,8 @@ async def index(request):
 
     if request.path == "/about":
         view = "about"
+    elif request.path == "/faq":
+        view = "faq"
     elif request.path == "/stats":
         view = "stats"
     elif request.path.startswith("/variant"):
@@ -163,6 +165,8 @@ async def index(request):
         template = get_template("variant.html")
     elif view == "patron":
         template = get_template("patron.html")
+    elif view == "faq":
+        template = get_template("FAQ.html")
     elif view == "analysis":
         template = get_template("analysis.html")
     else:
@@ -257,6 +261,10 @@ async def index(request):
             render["variant"] = "terminology%s.html" % locale
         else:
             render["variant"] = ("intro" if variant is None else variant) + "%s.html" % locale
+
+    elif view == "faq":
+        # TODO: make it translatable similar to above variant pages
+        render["faq"] = "faq.html"
 
     elif view == "editor":
         if fen is None:
