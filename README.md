@@ -25,6 +25,7 @@ Currently supported games are:
 - [Shogun](https://www.pychess.org/variant/shogun)
 - [Orda](https://www.pychess.org/variant/orda)
 - [Synochess](https://www.pychess.org/variant/synochess)
+- [Hoppel-Poppel](https://www.pychess.org/variant/hoppelpoppel)
 - [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variant/shouse)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variant/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variant/grandhouse)

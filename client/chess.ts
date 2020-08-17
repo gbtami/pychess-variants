@@ -45,6 +45,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
     orda: { pieceCSS: ["orda0", "orda1"], baseURL: ["orda/merida", "orda/cburnett"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "green", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"] },
+    hoppel: { pieceCSS: ["hoppel0", "hoppel1"], baseURL: ["merida", "hoppel"] },
 };
 
 export interface IVariant {
@@ -489,10 +490,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
     hoppelpoppel: new Variant({
         name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: _("Knights are capturing as bishops, bishops are capturing as knights"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        board: "standard8x8", piece: "standard",
+        board: "standard8x8", piece: "hoppel",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         enPassant: true, autoQueenable: true,
-        icon: "M",
+        icon: "`",
     }),
 
 };

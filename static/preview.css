@@ -394,3 +394,10 @@ label.piece.piece4.synochess {
 label.piece.piece5.synochess {
     background-image: url('images/pieces/synochess/blackdisc/bR.svg');
 }
+
+label.piece.piece0.hoppel {
+    background-image: url('images/pieces/merida/bN.svg');
+}
+label.piece.piece1.hoppel {
+    background-image: url('images/pieces/hoppel/bN.svg');
+}

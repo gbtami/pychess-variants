@@ -1,310 +1,307 @@
 @charset "UTF-8";
 
 @font-face {
-    font-family: "pychess";
-    src:url("fonts/pychess.eot");
-    src:url("fonts/pychess.eot?#iefix") format("embedded-opentype"),
+  font-family: "pychess";
+  src:url("fonts/pychess.eot");
+  src:url("fonts/pychess.eot?#iefix") format("embedded-opentype"),
     url("fonts/pychess.woff") format("woff"),
     url("fonts/pychess.ttf") format("truetype"),
     url("fonts/pychess.svg#pychess") format("svg");
-    font-weight: normal;
-    font-style: normal;
+  font-weight: normal;
+  font-style: normal;
 
 }
 
 [data-icon]:before {
-    font-family: "pychess" !important;
-    content: attr(data-icon);
-    font-style: normal !important;
-    font-weight: normal !important;
-    font-variant: normal !important;
-    text-transform: none !important;
-    speak: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: "pychess" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 [class^="icon-"]:before,
 [class*=" icon-"]:before {
-    font-family: "pychess" !important;
-    font-style: normal !important;
-    font-weight: normal !important;
-    font-variant: normal !important;
-    text-transform: none !important;
-    speak: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: "pychess" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .icon-adjust:before {
-    content: "\61";
+  content: "\61";
 }
 .icon-black:before {
-    content: "\62";
-}
-[data-theme="dark"] .icon-black:before {
-    content: "\63";
+  content: "\62";
 }
 .icon-white:before {
-    content: "\63";
-}
-[data-theme="dark"] .icon-white:before {
-    content: "\62";
+  content: "\63";
 }
 .icon-flag-o:before {
-    content: "\64";
+  content: "\64";
 }
 .icon-hand-paper-o:before {
-    content: "\65";
+  content: "\65";
 }
 .icon-music:before {
-    content: "\66";
+  content: "\66";
 }
 .icon-search:before {
-    content: "\67";
+  content: "\67";
 }
 .icon-sign-in:before {
-    content: "\68";
+  content: "\68";
 }
 .icon-sign-out:before {
-    content: "\69";
+  content: "\69";
 }
 .icon-abort:before {
-    content: "\6a";
+  content: "\6a";
 }
 .icon-volume-up:before {
-    content: "\6b";
+  content: "\6b";
 }
 .icon-fast-backward:before {
-    content: "\6c";
+  content: "\6c";
 }
 .icon-fast-forward:before {
-    content: "\6d";
+  content: "\6d";
 }
 .icon-step-backward:before {
-    content: "\6e";
+  content: "\6e";
 }
 .icon-step-forward:before {
-    content: "\6f";
+  content: "\6f";
 }
 .icon-refresh:before {
-    content: "\70";
+  content: "\70";
 }
 .icon-thumbs-o-up:before {
-    content: "\71";
+  content: "\71";
 }
 .icon-trash-o:before {
-    content: "\72";
+  content: "\72";
 }
 .icon-bars:before {
-    content: "\73";
+  content: "\73";
 }
 .icon-cog:before {
-    content: "\74";
+  content: "\74";
 }
 .icon-bolt:before {
-    content: "\75";
+  content: "\75";
 }
 .icon-comment-o:before {
-    content: "\76";
+  content: "\76";
 }
 .icon-bell-o:before {
-    content: "\77";
+  content: "\77";
 }
 .icon-trophy:before {
-    content: "\78";
+  content: "\78";
 }
 .icon-paper-plane:before {
-    content: "\79";
+  content: "\79";
 }
 .icon-list:before {
-    content: "\7a";
+  content: "\7a";
 }
 .icon-download:before {
-    content: "\41";
+  content: "\41";
 }
 .icon-ban:before {
-    content: "\42";
+  content: "\42";
 }
 .icon-volume-off:before {
-    content: "\43";
+  content: "\43";
 }
 .icon-droid:before {
-    content: "\44";
+  content: "\44";
 }
 .icon-bot:before {
-    content: "\45";
+  content: "\45";
 }
 .icon-dark:before {
-    content: "\46";
+  content: "\46";
 }
 .icon-light:before {
-    content: "\47";
+  content: "\47";
 }
 .icon-h-square:before {
-    content: "\48";
+  content: "\48";
 }
 .icon-online:before {
-    content: "\49";
+  content: "\49";
 }
 .icon-offline:before {
-    content: "\4a";
+  content: "\4a";
 }
 .icon-shogiking:before {
-    content: "\4b";
+  content: "\4b";
 }
 .icon-schess:before {
-    content: "\4c";
+  content: "\4c";
 }
 .icon-standardchess:before {
-    content: "\4d";
+  content: "\4d";
 }
 .icon-crazyhouse:before {
-    content: "\4e";
+  content: "\4e";
 }
 .icon-capablanca:before {
-    content: "\50";
+  content: "\50";
 }
 .icon-placement:before {
-    content: "\53";
+  content: "\53";
 }
 .icon-tv:before {
-    content: "\54";
+  content: "\54";
 }
 .icon-retweet:before {
-    content: "\55";
+  content: "\55";
 }
 .icon-dice:before {
-    content: "\56";
+  content: "\56";
 }
 .icon-plus-square:before {
-    content: "\57";
+  content: "\57";
 }
 .icon-reply:before {
-    content: "\58";
+  content: "\58";
 }
 .icon-microscope:before {
-    content: "\59";
+  content: "\59";
 }
 .icon-clipboard:before {
-    content: "\5a";
+  content: "\5a";
 }
 .icon-cloud-upload:before {
-    content: "\30";
+  content: "\30";
 }
 .icon-pencil:before {
-    content: "\31";
+  content: "\31";
 }
 .icon-ink-pen:before {
-    content: "\32";
+  content: "\32";
 }
 .icon-bar-chart:before {
-    content: "\33";
+  content: "\33";
 }
 .icon-microphone:before {
-    content: "\34";
+  content: "\34";
 }
 .icon-crown:before {
-    content: "\35";
+  content: "\35";
 }
 .icon-minixiangqi:before {
-    content: "\37";
+  content: "\37";
 }
 .icon-shako:before {
-    content: "\39";
+  content: "\39";
 }
 .icon-cambodian:before {
-    content: "\21";
+  content: "\21";
 }
 .icon-crossedswords:before {
-    content: "\22";
+  content: "\22";
 }
 .icon-at:before {
-    content: "\23";
+  content: "\23";
 }
 .icon-shouse:before {
-    content: "\24";
+  content: "\24";
 }
 .icon-crazyhouse960:before {
-    content: "\25";
+  content: "\25";
 }
 .icon-chouse:before {
-    content: "\26";
+  content: "\26";
 }
 .icon-capahouse960:before {
-    content: "\27";
+  content: "\27";
 }
 .icon-grand:before {
-    content: "\28";
+  content: "\28";
 }
 .icon-grandhouse:before {
-    content: "\2a";
+  content: "\2a";
 }
 .icon-zh:before {
-    content: "\2b";
+  content: "\2b";
 }
 .icon-caparandom:before {
-    content: "\2c";
+  content: "\2c";
 }
 .icon-shogun:before {
-    content: "\2d";
+  content: "\2d";
 }
 .icon-bullhorn:before {
-    content: "\2e";
+  content: "\2e";
 }
 .icon-phone:before {
-    content: "\2f";
+  content: "\2f";
 }
 .icon-unlock:before {
-    content: "\3b";
+  content: "\3b";
 }
 .icon-unlock-alt:before {
-    content: "\3c";
+  content: "\3c";
 }
 .icon-exchange:before {
-    content: "\3e";
+  content: "\3e";
 }
 .icon-check:before {
-    content: "\3f";
+  content: "\3f";
 }
 .icon-xiangqi2:before {
-    content: "\38";
+  content: "\38";
 }
 .icon-kyotoshogi:before {
-    content: "\29";
+  content: "\29";
 }
 .icon-janggi:before {
-    content: "\3d";
+  content: "\3d";
 }
 .icon-makruk:before {
-    content: "\51";
+  content: "\51";
 }
 .icon-minishogi:before {
-    content: "\36";
+  content: "\36";
 }
 .icon-sittuyin-1:before {
-    content: "\3a";
+  content: "\3a";
 }
 .icon-makpong:before {
-    content: "\4f";
+  content: "\4f";
 }
 .icon-orda:before {
-    content: "\52";
+  content: "\52";
 }
 .icon-globe:before {
-    content: "\40";
+  content: "\40";
 }
 .icon-left:before {
-    content: "\5b";
+  content: "\5b";
 }
 .icon-right:before {
-    content: "\5d";
+  content: "\5d";
 }
 .icon-heart:before {
-    content: "\5e";
+  content: "\5e";
 }
 .icon-synochess:before {
-    content: "\5f";
+  content: "\5f";
+}
+.icon-hoppelpoppel:before {
+  content: "\60";
 }

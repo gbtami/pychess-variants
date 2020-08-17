@@ -1,0 +1,36 @@
+.hoppel .cg-wrap piece.pawn.white {
+    background-image: url('../../images/pieces/hoppel/wP.svg');
+}
+.hoppel .cg-wrap piece.bishop.white {
+    background-image: url('../../images/pieces/hoppel/wB.svg');
+}
+.hoppel .cg-wrap piece.knight.white {
+    background-image: url('../../images/pieces/hoppel/wN.svg');
+}
+.hoppel .cg-wrap piece.rook.white {
+    background-image: url('../../images/pieces/hoppel/wR.svg');
+}
+.hoppel .cg-wrap piece.queen.white {
+    background-image: url('../../images/pieces/hoppel/wQ.svg');
+}
+.hoppel .cg-wrap piece.king.white {
+    background-image: url('../../images/pieces/hoppel/wK.svg');
+}
+.hoppel .cg-wrap piece.pawn.black {
+    background-image: url('../../images/pieces/hoppel/bP.svg');
+}
+.hoppel .cg-wrap piece.bishop.black {
+    background-image: url('../../images/pieces/hoppel/bB.svg');
+}
+.hoppel .cg-wrap piece.knight.black {
+    background-image: url('../../images/pieces/hoppel/bN.svg');
+}
+.hoppel .cg-wrap piece.rook.black {
+    background-image: url('../../images/pieces/hoppel/bR.svg');
+}
+.hoppel .cg-wrap piece.queen.black {
+    background-image: url('../../images/pieces/hoppel/bQ.svg');
+}
+.hoppel .cg-wrap piece.king.black {
+    background-image: url('../../images/pieces/hoppel/bK.svg');
+}
