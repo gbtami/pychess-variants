@@ -258,13 +258,13 @@ async def index(request):
         else:
             locale = ""
         if variant == "terminology":
-            render["variant"] = "terminology%s.html" % locale
+            render["variant"] = "docs/terminology%s.html" % locale
         else:
-            render["variant"] = ("intro" if variant is None else variant) + "%s.html" % locale
+            render["variant"] = "docs/" + ("intro" if variant is None else variant) + "%s.html" % locale
 
     elif view == "faq":
         # TODO: make it translatable similar to above variant pages
-        render["faq"] = "faq.html"
+        render["faq"] = "docs/faq.html"
 
     elif view == "editor":
         if fen is None:
