@@ -688,23 +688,24 @@ export default class RoundController {
                     this.clocks[myclock].start();
                     // console.log('MY CLOCK STARTED');
                 }
-                this.chessground.set({
-                    fen: parts[0],
-                    turnColor: this.turnColor,
-                    movable: {
-                        free: false,
-                        color: this.mycolor,
-                        dests: this.dests,
-                    },
-                    check: msg.check,
-                    lastMove: lastMove,
-                });
-                if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+                if (latestPly) {
+                    this.chessground.set({
+                        fen: parts[0],
+                        turnColor: this.turnColor,
+                        movable: {
+                            free: false,
+                            color: this.mycolor,
+                            dests: this.dests,
+                        },
+                        check: msg.check,
+                        lastMove: lastMove,
+                    });
+                    if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
 
-                // console.log("trying to play premove....");
-                if (this.premove) this.performPremove();
-                if (this.predrop) this.performPredrop();
-
+                    // console.log("trying to play premove....");
+                    if (this.premove) this.performPremove();
+                    if (this.predrop) this.performPredrop();
+                }
             } else {
                 if (!this.abortable && msg.status < 0) {
                     this.clocks[oppclock].start();
