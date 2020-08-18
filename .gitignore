@@ -5,11 +5,11 @@ static/pychess-variants.min.js
 package-lock.json
 game.json
 user.json
-crossstable.json
+crosstable.json
 highscore.json
 yarn.lock
-./*.py
-./*.sh
+/*.py
+/*.sh
 *.pgn
 *.txt
 *.mo
