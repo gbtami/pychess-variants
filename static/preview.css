@@ -399,5 +399,8 @@ label.piece.piece0.hoppel {
     background-image: url('images/pieces/merida/bN.svg');
 }
 label.piece.piece1.hoppel {
-    background-image: url('images/pieces/hoppel/bN.svg');
+    background-image: url('images/pieces/hoppel/grafted/bN.svg');
+}
+label.piece.piece2.hoppel {
+    background-image: url('images/pieces/hoppel/animal/bN.svg');
 }

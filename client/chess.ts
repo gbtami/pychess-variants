@@ -45,7 +45,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
     orda: { pieceCSS: ["orda0", "orda1"], baseURL: ["orda/merida", "orda/cburnett"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "green", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"] },
-    hoppel: { pieceCSS: ["hoppel0", "hoppel1"], baseURL: ["merida", "hoppel"] },
+    hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"], baseURL: ["merida", "hoppel/grafted", "hoppel/animal"] },
 };
 
 export interface IVariant {

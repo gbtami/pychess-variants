@@ -1,36 +1,36 @@
 .hoppel .cg-wrap piece.pawn.white {
-    background-image: url('../../images/pieces/hoppel/wP.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/wP.svg');
 }
 .hoppel .cg-wrap piece.bishop.white {
-    background-image: url('../../images/pieces/hoppel/wB.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/wB.svg');
 }
 .hoppel .cg-wrap piece.knight.white {
-    background-image: url('../../images/pieces/hoppel/wN.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/wN.svg');
 }
 .hoppel .cg-wrap piece.rook.white {
-    background-image: url('../../images/pieces/hoppel/wR.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/wR.svg');
 }
 .hoppel .cg-wrap piece.queen.white {
-    background-image: url('../../images/pieces/hoppel/wQ.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/wQ.svg');
 }
 .hoppel .cg-wrap piece.king.white {
-    background-image: url('../../images/pieces/hoppel/wK.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/wK.svg');
 }
 .hoppel .cg-wrap piece.pawn.black {
-    background-image: url('../../images/pieces/hoppel/bP.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/bP.svg');
 }
 .hoppel .cg-wrap piece.bishop.black {
-    background-image: url('../../images/pieces/hoppel/bB.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/bB.svg');
 }
 .hoppel .cg-wrap piece.knight.black {
-    background-image: url('../../images/pieces/hoppel/bN.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/bN.svg');
 }
 .hoppel .cg-wrap piece.rook.black {
-    background-image: url('../../images/pieces/hoppel/bR.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/bR.svg');
 }
 .hoppel .cg-wrap piece.queen.black {
-    background-image: url('../../images/pieces/hoppel/bQ.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/bQ.svg');
 }
 .hoppel .cg-wrap piece.king.black {
-    background-image: url('../../images/pieces/hoppel/bK.svg');
+    background-image: url('../../images/pieces/hoppel/grafted/bK.svg');
 }
