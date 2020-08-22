@@ -107,7 +107,7 @@ export default class RoundController {
                 this.clocks[1].connecting = true;
                 console.log('Reconnecting in round...', e);
 
-                var container = document.getElementById('player1') as HTMLElement;
+                const container = document.getElementById('player1') as HTMLElement;
                 patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
                 },
             onmaximum: e => console.log('Stop Attempting!', e),
@@ -298,8 +298,8 @@ export default class RoundController {
             this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
         }
 
-        container = document.getElementById('result') as HTMLElement;
-        container.style.display = 'none';
+        const resultEl = document.getElementById('result') as HTMLElement;
+        resultEl.style.display = 'none';
 
         const flagCallback = () => {
             if (this.turnColor === this.mycolor) {
@@ -325,7 +325,7 @@ export default class RoundController {
             this.clocks[1].onFlag(flagCallback);
         }
 
-        var container = document.getElementById('game-controls') as HTMLElement;
+        const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             const pass = isVariantClass(this.variant, 'pass');
             this.gameControls = patch(container, h('div.btn-controls', [
@@ -376,7 +376,7 @@ export default class RoundController {
     }
 
     private pass = () => {
-        var passKey = 'z0';
+        let passKey = 'z0';
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests;
         for (let key in pieces) {
@@ -413,8 +413,8 @@ export default class RoundController {
             const rank = (white) ? 9 : 0;
             const horse = (white) ? 'N' : 'n';
             const elephant = (white) ? 'B' : 'b';
-            var parts = this.setupFen.split(' ')[0].split('/');
-            var [left, right] = parts[rank].split('1')
+            const parts = this.setupFen.split(' ')[0].split('/');
+            let [left, right] = parts[rank].split('1')
             if (side === -1) {
                 left = left.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
             } else {
@@ -463,7 +463,7 @@ export default class RoundController {
     }
 
     private gameOver = (rdiffs) => {
-        var container = document.getElementById('result') as HTMLElement;
+        let container = document.getElementById('result') as HTMLElement;
         patch(container, h('div#result', result(this.variant, this.status, this.result)));
         container.style.display = 'block';
 
@@ -528,7 +528,7 @@ export default class RoundController {
             }
 
             // clean up gating/promotion widget left over the ground while game ended by time out
-            var container = document.getElementById('extension_choice') as HTMLElement;
+            const container = document.getElementById('extension_choice') as HTMLElement;
             if (container instanceof Element) patch(container, h('extension'));
 
             if (this.tv) {
@@ -564,7 +564,7 @@ export default class RoundController {
             // When castling with gating is possible 
             // e1g1, e1g1h, e1g1e, h1e1h, h1e1e all will be offered by moving our king two squares
             // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
-            for (var orig of Object.keys(msg.dests)) {
+            for (const orig of Object.keys(msg.dests)) {
                 const movingPiece = this.chessground.state.pieces[orig];
                 if (movingPiece !== undefined && movingPiece.role === "rook") {
                     msg.dests[orig] = msg.dests[orig].filter(x => {
@@ -585,7 +585,7 @@ export default class RoundController {
 
         if (msg.steps.length > 1) {
             this.steps = [];
-            var container = document.getElementById('movelist') as HTMLElement;
+            const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
             msg.steps.forEach((step) => { 
@@ -609,11 +609,11 @@ export default class RoundController {
 
         this.abortable = Number(msg.ply) <= 1;
         if (!this.spectator && !this.abortable && this.result === "") {
-            var container = document.getElementById('abort') as HTMLElement;
+            const container = document.getElementById('abort') as HTMLElement;
             patch(container, h('button#abort', { props: {disabled: true} }));
         }
 
-        var lastMove = msg.lastMove;
+        let lastMove = msg.lastMove;
         if (lastMove !== null) {
             if (isVariantClass(this.variant, 'tenRanks')) {
                 lastMove = grand2zero(lastMove);
@@ -723,8 +723,8 @@ export default class RoundController {
 
     goPly = (ply) => {
         const step = this.steps[ply];
-        var move = step['move'];
-        var capture = false;
+        let move = step['move'];
+        let capture = false;
         if (move !== undefined) {
             if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
@@ -815,7 +815,7 @@ export default class RoundController {
 
     private updateCount = (fen) => {
         [this.vmiscInfoW, this.vmiscInfoB] = updateCount(fen, this.vmiscInfoW, this.vmiscInfoB);
-        var countButton = document.getElementById('count') as HTMLElement;
+        const countButton = document.getElementById('count') as HTMLElement;
         if (countButton) {
             const [ , , countingSide, countingType ] = getCounting(fen);
             const myturn = this.mycolor === this.turnColor;
@@ -904,7 +904,7 @@ export default class RoundController {
         const pieces = this.chessground.state.pieces;
         const geom = this.chessground.state.geometry;
         // console.log("ground.onUserMove()", orig, dest, meta);
-        var moved = pieces[dest];
+        let moved = pieces[dest];
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
@@ -918,10 +918,10 @@ export default class RoundController {
         };
         // increase pocket count
         if (isVariantClass(this.variant, 'drop') && meta.captured) {
-            var role = meta.captured.role
+            let role = meta.captured.role
             if (meta.captured.promoted) role = (this.variant.endsWith('shogi')|| this.variant === 'shogun') ? meta.captured.role.slice(1) as Role : "pawn";
 
-            var position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
                 this.pockets[0][role]++;
@@ -946,7 +946,7 @@ export default class RoundController {
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
         if (dropIsValid(this.dests, role, dest)) {
-            var position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
                 this.pockets[0][role]--;
@@ -1001,7 +1001,7 @@ export default class RoundController {
                 const piece = this.chessground.state.pieces[key];
                 if (this.variant === 'sittuyin') {
                     // console.log("Ctrl in place promotion", key);
-                    var pieces = {};
+                    const pieces = {};
                     pieces[key] = {
                         color: piece!.color,
                         role: 'ferz',
@@ -1028,7 +1028,7 @@ export default class RoundController {
             const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
             this.doSend({ type: "is_user_present", username: opp_name, gameId: this.model["gameId"] });
 
-            var container = document.getElementById('player1') as HTMLElement;
+            const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
             // prevent sending gameStart message when user just reconecting
@@ -1040,17 +1040,17 @@ export default class RoundController {
     }
 
     private onMsgSpectators = (msg) => {
-        var container = document.getElementById('spectators') as HTMLElement;
+        const container = document.getElementById('spectators') as HTMLElement;
         patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
     }
 
     private onMsgUserPresent = (msg) => {
         // console.log(msg);
         if (msg.username === this.players[0]) {
-            var container = document.getElementById('player0') as HTMLElement;
+            const container = document.getElementById('player0') as HTMLElement;
             patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
         } else {
-            var container = document.getElementById('player1') as HTMLElement;
+            const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
         }
     }
@@ -1058,10 +1058,10 @@ export default class RoundController {
     private onMsgUserDisconnected = (msg) => {
         // console.log(msg);
         if (msg.username === this.players[0]) {
-            var container = document.getElementById('player0') as HTMLElement;
+            const container = document.getElementById('player0') as HTMLElement;
             patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         } else {
-            var container = document.getElementById('player1') as HTMLElement;
+            const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         }
     }
@@ -1135,7 +1135,7 @@ export default class RoundController {
 
     private onMessage = (evt) => {
         // console.log("<+++ onMessage():", evt.data);
-        var msg = JSON.parse(evt.data);
+        const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
                 this.onMsgBoard(msg);

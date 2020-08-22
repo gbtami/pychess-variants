@@ -101,7 +101,7 @@ export class Gating {
         const g = this.ctrl.getGround();
         const color = g.state.pieces[dest].color;
         g.newPiece({ "role": role, "color": color }, orig)
-        var position = (this.ctrl.turnColor === this.ctrl.mycolor) ? "bottom": "top";
+        let position = (this.ctrl.turnColor === this.ctrl.mycolor) ? "bottom": "top";
         if (this.ctrl.flip) position = (position === "top") ? "bottom" : "top";
         if (position === "bottom") {
             this.ctrl.pockets[1][role]--;

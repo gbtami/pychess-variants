@@ -42,7 +42,7 @@ const EVAL_REGEX = new RegExp(''
 
 
 function download(filename, text) {
-  var element = document.createElement('a');
+  const element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
   element.setAttribute('download', filename);
 
@@ -231,7 +231,7 @@ export default class AnalysisController {
 
         this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
 
-        var element = document.getElementById('chart') as HTMLElement;
+        const element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'none';
 
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
@@ -273,7 +273,7 @@ export default class AnalysisController {
     getDests = () => this.dests;
 
     private pass = () => {
-        var passKey = 'z0';
+        let passKey = 'z0';
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests;
         for (let key in pieces) {
@@ -325,15 +325,15 @@ export default class AnalysisController {
                 alert(_('You need an account to do that.'));
                 return;
             }
-            var element = document.getElementById('request-analysis') as HTMLElement;
+            const element = document.getElementById('request-analysis') as HTMLElement;
             if (element !== null) element.style.display = 'none';
 
             this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
-            element = document.getElementById('loader') as HTMLElement;
-            element.style.display = 'block';
+            const loaderEl = document.getElementById('loader') as HTMLElement;
+            loaderEl.style.display = 'block';
         }
-        element = document.getElementById('chart') as HTMLElement;
-        element.style.display = 'block';
+        const chartEl = document.getElementById('chart') as HTMLElement;
+        chartEl.style.display = 'block';
         this.analysisChart = analysisChart(this);
     }
 
@@ -346,8 +346,8 @@ export default class AnalysisController {
             this.pgn = msg.pgn;
             this.uci_usi = msg.uci_usi;
 
-            var container = document.getElementById('copyfen') as HTMLElement;
-            var buttons = [
+            let container = document.getElementById('copyfen') as HTMLElement;
+            const buttons = [
                 h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.model["gameId"], this.pgn) } }, [
                     h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
@@ -389,7 +389,7 @@ export default class AnalysisController {
 
         if (msg.steps.length > 1) {
             this.steps = [];
-            var container = document.getElementById('movelist') as HTMLElement;
+            const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
             msg.steps.forEach((step, ply) => {
@@ -420,7 +420,7 @@ export default class AnalysisController {
             }
         }
 
-        var lastMove = msg.lastMove;
+        let lastMove = msg.lastMove;
         if (lastMove !== null) {
             if (isVariantClass(this.variant, 'tenRanks')) {
                 lastMove = grand2zero(lastMove);
@@ -516,7 +516,7 @@ export default class AnalysisController {
 
     drawEval = (ply) => {
         const step = this.steps[ply];
-        var shapes0: DrawShape[] = [];
+        let shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
         const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
@@ -540,13 +540,13 @@ export default class AnalysisController {
         }
 
         if (ceval?.p !== undefined) {
-            var pv_move = ceval["m"].split(" ")[0];
+            let pv_move = ceval["m"].split(" ")[0];
             if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
             if (arrow === 'true') {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3);
-                    var color = step.turnColor;
+                    let color = step.turnColor;
                     if (this.variant.endsWith("shogi"))
                         if (this.flip !== (this.mycolor === "black"))
                             color = (color === 'white') ? 'black' : 'white';
@@ -580,7 +580,7 @@ export default class AnalysisController {
 
 
         if (ply > 0) {
-            var evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
+            const evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
         }
 
@@ -613,7 +613,7 @@ export default class AnalysisController {
     fakeDests = () => {
         // TODO: this is just a workaround to create dests from premoves
         // use ffish.js validMoves() when it will be available on NPM
-        var dests: Dests = {};
+        const dests: Dests = {};
         const state = this.chessground.state;
         const sources = Object.keys(state.pieces).filter((key: Key) => {
             const source = state.pieces[key];
@@ -653,8 +653,8 @@ export default class AnalysisController {
     goPly = (ply) => {
         const step = this.steps[ply];
 
-        var move = step.move;
-        var capture = false;
+        let move = step.move;
+        let capture = false;
         if (move !== undefined) {
             if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
@@ -770,7 +770,7 @@ export default class AnalysisController {
 
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
-        var lastMove = msg.lastMove;
+        let lastMove = msg.lastMove;
         if (lastMove !== null) {
             if (isVariantClass(this.variant, 'tenRanks')) {
                 lastMove = grand2zero(lastMove);
@@ -802,7 +802,7 @@ export default class AnalysisController {
         const pieces = this.chessground.state.pieces;
         const geom = this.chessground.state.geometry;
         // console.log("ground.onUserMove()", orig, dest, meta);
-        var moved = pieces[dest];
+        let moved = pieces[dest];
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
@@ -816,10 +816,10 @@ export default class AnalysisController {
         };
         // increase pocket count
         if (isVariantClass(this.variant, 'drop') && meta.captured) {
-            var role = meta.captured.role
+            let role = meta.captured.role
             if (meta.captured.promoted) role = (this.variant.endsWith('shogi')|| this.variant === 'shogun') ? meta.captured.role.slice(1) as Role : "pawn";
 
-            var position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
                 this.pockets[0][role]++;
@@ -844,7 +844,7 @@ export default class AnalysisController {
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
         if (dropIsValid(this.dests, role, dest)) {
-            var position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
                 this.pockets[0][role]--;
@@ -900,7 +900,7 @@ export default class AnalysisController {
                 const piece = this.chessground.state.pieces[key];
                 if (this.variant === 'sittuyin') {
                     // console.log("Ctrl in place promotion", key);
-                    var pieces = {};
+                    const pieces = {};
                     pieces[key] = {
                         color: piece!.color,
                         role: 'ferz',
@@ -917,15 +917,15 @@ export default class AnalysisController {
 
     private buildScoreStr = (color, analysis) => {
         const score = analysis['s'];
-        var scoreStr = '';
-        var ceval = '';
+        let scoreStr = '';
+        let ceval = '';
         if (score['mate'] !== undefined) {
             ceval = score['mate']
             const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
             scoreStr = '#' + sign + Math.abs(Number(ceval));
         } else {
             ceval = score['cp']
-            var nscore = Number(ceval) / 100.0;
+            let nscore = Number(ceval) / 100.0;
             if (color === 'b') nscore = -nscore;
             scoreStr = nscore.toFixed(1);
         }
@@ -942,7 +942,7 @@ export default class AnalysisController {
         this.steps[msg.ply]['scoreStr'] = scoreStr;
 
         if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
-            var element = document.getElementById('loader-wrapper') as HTMLElement;
+            const element = document.getElementById('loader-wrapper') as HTMLElement;
             element.style.display = 'none';
         }
 
@@ -966,7 +966,7 @@ export default class AnalysisController {
     }
 
     private onMsgSpectators = (msg) => {
-        var container = document.getElementById('spectators') as HTMLElement;
+        const container = document.getElementById('spectators') as HTMLElement;
         patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
     }
 
@@ -1006,7 +1006,7 @@ export default class AnalysisController {
 
     private onMessage = (evt) => {
         // console.log("<+++ onMessage():", evt.data);
-        var msg = JSON.parse(evt.data);
+        const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
                 this.onMsgBoard(msg);

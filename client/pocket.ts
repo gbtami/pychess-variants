@@ -103,7 +103,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
     if (ctrl.hasPockets) {
         const parts = ctrl.fullfen.split(" ");
         const fen_placement = parts[0];
-        var pockets = "";
+        let pockets = "";
         const bracketPos = fen_placement.indexOf("[");
         if (bracketPos !== -1) {
             pockets = fen_placement.slice(bracketPos);
@@ -113,8 +113,8 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
         const o = ctrl.oppcolor;
         const rc = VARIANTS[ctrl.variant].pocketRoles(c) ?? [];
         const ro = VARIANTS[ctrl.variant].pocketRoles(o) ?? [];
-        var pc = {};
-        var po = {};
+        let pc = {};
+        let po = {};
         rc.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c==='white'));
         ro.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o==='white'));
         if (ctrl.flip) {

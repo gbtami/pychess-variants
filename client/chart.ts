@@ -81,8 +81,8 @@ export function analysisChart(ctrl: AnalysisController) {
         tooltip: {
             pointFormatter: function(format: string) {
                 format = format.replace('{series.name}', _('Advantage'));
-                var self: Highcharts.Point = this;
-                var ceval = ctrl.steps[self.x].ceval.s;
+                const self: Highcharts.Point = this;
+                const ceval = ctrl.steps[self.x].ceval.s;
                 if (!ceval) return '';
                 else return format.replace('{point.y}', ctrl.steps[self.x].scoreStr);
             } as Highcharts.FormatterCallbackFunction<Highcharts.Point>
