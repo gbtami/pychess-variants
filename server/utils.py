@@ -346,6 +346,7 @@ async def analysis_move(app, user, game, move, fen, ply):
         check = board.is_checked()
     except Exception as e:
         invalid_move = True
+        log.error("!!! analysis_move() exception occured: %s" % type(e))
 
     if not invalid_move:
         board_response = {
