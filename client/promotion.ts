@@ -30,7 +30,7 @@ export class Promotion {
         if (ground.state.pieces[dest] === undefined) return false;
 
         if (this.canPromote(movingRole, orig, dest)) {
-            const color = this.ctrl.mycolor;
+            const color = this.ctrl.turnColor;
             const orientation = ground.state.orientation;
 
             if (this.ctrl.autoqueen && isVariantClass(this.ctrl.variant, "autoQueen"))

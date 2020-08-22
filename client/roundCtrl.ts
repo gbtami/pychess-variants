@@ -921,12 +921,14 @@ export default class RoundController {
             var role = meta.captured.role
             if (meta.captured.promoted) role = (this.variant.endsWith('shogi')|| this.variant === 'shogun') ? meta.captured.role.slice(1) as Role : "pawn";
 
-            if (this.flip) {
+            var position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            if (this.flip) position = (position === "top") ? "bottom" : "top";
+            if (position === "top") {
                 this.pockets[0][role]++;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.mycolor, "top"));
+                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
                 this.pockets[1][role]++;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.mycolor, "bottom"));
+                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
         };
 
@@ -944,12 +946,14 @@ export default class RoundController {
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
         if (dropIsValid(this.dests, role, dest)) {
-            if (this.flip) {
+            var position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            if (this.flip) position = (position === "top") ? "bottom" : "top";
+            if (position === "top") {
                 this.pockets[0][role]--;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.mycolor, "top"));
+                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
                 this.pockets[1][role]--;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.mycolor, "bottom"));
+                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant === "kyotoshogi") {
                 if (!this.promotion.start(role, 'z0', dest, undefined)) this.sendMove(roleToSan[role] + "@", dest, '');
