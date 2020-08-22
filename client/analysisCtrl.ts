@@ -635,14 +635,16 @@ export default class AnalysisController {
             });
         });
 
-        const pocket = this.pockets[(this.turnColor === this.mycolor && !this.flip) ? 1 : 0];
-        console.log('turn pocket', pocket);
-        const targets = allKeys[VARIANTS[this.variant].geometry].filter((key: Key) => {
-            return !sources.includes(key);
-        });
-        Object.keys(pocket).forEach((role: Role) => {
-            dests[roleToSan[role] + "@"] = targets;
-        });
+        if (this.hasPockets) {
+            const pocket = this.pockets[(this.turnColor === this.mycolor && !this.flip) ? 1 : 0];
+            console.log('turn pocket', pocket);
+            const targets = allKeys[VARIANTS[this.variant].geometry].filter((key: Key) => {
+                return !sources.includes(key);
+            });
+            Object.keys(pocket).forEach((role: Role) => {
+                dests[roleToSan[role] + "@"] = targets;
+            });
+        }
         console.log('fakeDests()', dests);
         this.chessground.set({ movable: { dests: dests }});
         return dests;
