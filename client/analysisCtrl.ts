@@ -946,7 +946,7 @@ export default class AnalysisController {
             element.style.display = 'none';
         }
 
-        if (msg.ply === this.ply) this.drawEval(msg.ply);
+        this.drawEval(msg.ply);
     }
 
     private onMsgRequestAnalysis = () => {
