@@ -399,6 +399,8 @@ async def round_socket_handler(request):
                     elif data["type"] == "roundchat":
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
+
+                        # Users running a fishnet worker can ask server side analysis with chat message: !analysis
                         if data["message"] == "!analysis" and user.username in request.app["fishnet_versions"]:
                             for step in game.steps:
                                 if "analysis" in step:

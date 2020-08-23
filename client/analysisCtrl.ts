@@ -319,7 +319,7 @@ export default class AnalysisController {
         ];
     }
 
-    private drawAnalysis = (withRequest) => {
+    private drawAnalysisChart = (withRequest: boolean) => {
         if (withRequest) {
             if (this.model["anon"] === 'True') {
                 alert(_('You need an account to do that.'));
@@ -334,7 +334,7 @@ export default class AnalysisController {
         }
         const chartEl = document.getElementById('chart') as HTMLElement;
         chartEl.style.display = 'block';
-        this.analysisChart = analysisChart(this);
+        analysisChart(this);
     }
 
     private checkStatus = (msg) => {
@@ -356,7 +356,7 @@ export default class AnalysisController {
                     h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
                 ]
             if (this.steps[0].analysis === undefined) {
-                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysis(true) } }, [
+                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
                     h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
                 );
             }
@@ -403,8 +403,7 @@ export default class AnalysisController {
             updateMovelist(this, 1, this.steps.length);
 
             if (this.steps[0].analysis !== undefined) {
-                this.drawAnalysis(false);
-                analysisChart(this);
+                this.drawAnalysisChart(false);
             };
         } else {
             if (msg.ply === this.steps.length) {
@@ -949,14 +948,14 @@ export default class AnalysisController {
         this.drawEval(msg.ply);
     }
 
+    // User running a fishnet worker asked new server side analysis with chat message: !analysis
     private onMsgRequestAnalysis = () => {
         this.steps.forEach((step) => {
             step.analysis = undefined;
             step.ceval = undefined;
             step.score = undefined;
         });
-        analysisChart(this);
-        this.drawAnalysis(true);
+        this.drawAnalysisChart(true);
     }
 
     private onMsgUserConnected = (msg) => {
