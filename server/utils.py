@@ -333,7 +333,6 @@ def get_dests(board):
 
 async def analysis_move(app, user, game, move, fen, ply):
     assert move
-    users = app["users"]
     invalid_move = False
 
     board = FairyBoard(game.variant, fen, game.chess960)
@@ -348,8 +347,10 @@ async def analysis_move(app, user, game, move, fen, ply):
         invalid_move = True
         log.error("!!! analysis_move() exception occured: %s" % type(e))
 
-    if not invalid_move:
-        board_response = {
+    if invalid_move:
+        analysis_board_response = game.get_board(full=True)
+    else:
+        analysis_board_response = {
             "type": "analysis_board",
             "gameId": game.id,
             "fen": board.fen,
@@ -359,7 +360,9 @@ async def analysis_move(app, user, game, move, fen, ply):
             "promo": promotions,
             "check": check,
         }
-        await round_broadcast(game, users, board_response, full=True)
+
+    ws = user.game_sockets[game.id]
+    await ws.send_json(analysis_board_response)
 
 
 async def play_move(app, user, game, move, clocks=None, ply=None):

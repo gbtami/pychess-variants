@@ -515,19 +515,15 @@ export default class AnalysisController {
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval, scoreStr, turnColor) => {
-        //const step = this.steps[ply];
         let shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
-        //const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
-        //const scoreStr = this.steps[ply]['scoreStr'];
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
         if (gaugeEl) {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
-                //const turnColor = step['turnColor'];
                 const color = (this.variant.endsWith('shogi')) ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
@@ -546,7 +542,6 @@ export default class AnalysisController {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3);
-                    //let color = step.turnColor;
                     let color = turnColor;
                     if (this.variant.endsWith("shogi"))
                         if (this.flip !== (this.mycolor === "black"))
@@ -647,7 +642,7 @@ export default class AnalysisController {
                 dests[roleToSan[role] + "@"] = targets;
             });
         }
-        console.log('fakeDests()', dests);
+        // console.log('fakeDests()', dests);
         this.chessground.set({ movable: { dests: dests }});
         return dests;
     }
