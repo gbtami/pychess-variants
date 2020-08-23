@@ -478,7 +478,7 @@ export default class AnalysisController {
         const matches = line.match(EVAL_REGEX);
         if (!matches) {
             if (line.includes('mate 0')) {
-                const msg = {type: 'analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};
+                const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};
                 this.onMsgAnalysis(msg);
             }
             return;
@@ -509,24 +509,25 @@ export default class AnalysisController {
         } else {
             score = {cp: povEv};
         }
-        const msg = {type: 'analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score}};
+        const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score}};
         this.onMsgAnalysis(msg);
     };
 
-    drawEval = (ply) => {
-        const step = this.steps[ply];
+    // Updates PV, score, gauge and the best move arrow
+    drawEval = (ceval, scoreStr, turnColor) => {
+        //const step = this.steps[ply];
         let shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
-        const ceval = step.ceval;
+        //const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
-        const scoreStr = this.steps[ply]['scoreStr'];
+        //const scoreStr = this.steps[ply]['scoreStr'];
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
         if (gaugeEl) {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
-                const turnColor = step['turnColor'];
+                //const turnColor = step['turnColor'];
                 const color = (this.variant.endsWith('shogi')) ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
@@ -545,7 +546,8 @@ export default class AnalysisController {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3);
-                    let color = step.turnColor;
+                    //let color = step.turnColor;
+                    let color = turnColor;
                     if (this.variant.endsWith("shogi"))
                         if (this.flip !== (this.mycolor === "black"))
                             color = (color === 'white') ? 'black' : 'white';
@@ -576,8 +578,14 @@ export default class AnalysisController {
             document.documentElement.style.setProperty('--pvheight', '0px'); 
         }
 
+        // console.log(shapes0);
+        this.chessground.set({
+            drawable: {autoShapes: shapes0},
+        });
+    }
 
-
+    // Updates chart and score in movelist
+    drawServerEval = (ply, scoreStr) => {
         if (ply > 0) {
             const evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
@@ -589,11 +597,6 @@ export default class AnalysisController {
             const hcPt = hc.series[0].data[ply];
             if (hcPt !== undefined) hcPt.select();
         }
-
-        // console.log(shapes0);
-        this.chessground.set({
-            drawable: {autoShapes: shapes0},
-        });
     }
 
     engineGo = () => {
@@ -672,7 +675,8 @@ export default class AnalysisController {
             lastMove: move,
         });
 
-        this.drawEval(ply);
+        this.drawEval(step.ceval, step.scoreStr, step.turnColor);
+        this.drawServerEval(ply, step.scoreStr);
 
         this.fullfen = step.fen;
 
@@ -937,15 +941,17 @@ export default class AnalysisController {
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
 
-        this.steps[msg.ply]['ceval'] = msg['ceval'];
-        this.steps[msg.ply]['scoreStr'] = scoreStr;
+        if (msg.type === 'analysis') {
+            this.steps[msg.ply]['ceval'] = msg.ceval;
+            this.steps[msg.ply]['scoreStr'] = scoreStr;
 
-        if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
-            const element = document.getElementById('loader-wrapper') as HTMLElement;
-            element.style.display = 'none';
+            if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
+                const element = document.getElementById('loader-wrapper') as HTMLElement;
+                element.style.display = 'none';
+            }
         }
-
-        this.drawEval(msg.ply);
+        const turnColor = msg.color === 'w' ? 'white' : 'black';
+        this.drawEval(msg.ceval, scoreStr, turnColor);
     }
 
     // User running a fishnet worker asked new server side analysis with chat message: !analysis
