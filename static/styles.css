@@ -44,14 +44,8 @@
 .icon-black:before {
   content: "\62";
 }
-[data-theme="dark"] .icon-black:before {
-  content: "\63";
-}
 .icon-white:before {
   content: "\63";
-}
-[data-theme="dark"] .icon-white:before {
-  content: "\62";
 }
 .icon-flag-o:before {
   content: "\64";
