@@ -29,7 +29,7 @@ export class Gating {
     start(fen, orig, dest) {
         if (this.canGate(fen, orig)) {
             const pocket = getPockets(fen);
-            const color = this.ctrl.mycolor;
+            const color = this.ctrl.turnColor;
             this.choices = ["hawk", "elephant", "queen", "rook", "bishop", "knight"].filter(role => lc(pocket, roleToSan[role], color === "white") > 0);
             this.choices.unshift("");
 
@@ -101,8 +101,15 @@ export class Gating {
         const g = this.ctrl.getGround();
         const color = g.state.pieces[dest].color;
         g.newPiece({ "role": role, "color": color }, orig)
-        this.ctrl.pockets[(this.ctrl.flip) ? 0 : 1][role]--;
-        this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, color, "bottom"));
+        let position = (this.ctrl.turnColor === this.ctrl.mycolor) ? "bottom": "top";
+        if (this.ctrl.flip) position = (position === "top") ? "bottom" : "top";
+        if (position === "bottom") {
+            this.ctrl.pockets[1][role]--;
+            this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, color, "bottom"));
+        } else {
+            this.ctrl.pockets[0][role]--;
+            this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, color, "top"));
+        }
     }
 
     private drawGating(origs, color, orientation) {

@@ -34,7 +34,7 @@ export function pocketView(ctrl: RoundController | AnalysisController, color: Co
       insert: vnode => {
         eventNames.forEach(name => {
           (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-            if (position === (ctrl.flip ? 'top' : 'bottom')) drag(ctrl, e);
+                drag(ctrl, e);
           })
         });
       }
@@ -53,7 +53,7 @@ export function pocketView(ctrl: RoundController | AnalysisController, color: Co
 
 export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
-    if (ctrl.spectator) return;
+    if (ctrl.spectator && ctrl instanceof RoundController) return;
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
     color = el.getAttribute('data-color') as cg.Color,
@@ -103,7 +103,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
     if (ctrl.hasPockets) {
         const parts = ctrl.fullfen.split(" ");
         const fen_placement = parts[0];
-        var pockets = "";
+        let pockets = "";
         const bracketPos = fen_placement.indexOf("[");
         if (bracketPos !== -1) {
             pockets = fen_placement.slice(bracketPos);
@@ -113,8 +113,8 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
         const o = ctrl.oppcolor;
         const rc = VARIANTS[ctrl.variant].pocketRoles(c) ?? [];
         const ro = VARIANTS[ctrl.variant].pocketRoles(o) ?? [];
-        var pc = {};
-        var po = {};
+        let pc = {};
+        let po = {};
         rc.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c==='white'));
         ro.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o==='white'));
         if (ctrl.flip) {

@@ -21,7 +21,6 @@ function runGround(vnode: VNode, model) {
 }
 
 export function analysisView(model): VNode[] {
-    console.log("analysisView model=", model);
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
@@ -99,6 +98,7 @@ export function analysisView(model): VNode[] {
                 ]),
             ]),
             h('div.round-data', [
+                h('div#ceval'),
                 h('div#pv'),
                 h('div#movelist-block', [
                     h('div#movelist'),

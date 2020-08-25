@@ -1,0 +1,12 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu">
+<aside></aside>
+<div class="guide">{% include faq %}<div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="/static/pychess-variants.min.js"></script>
+{% endblock %}

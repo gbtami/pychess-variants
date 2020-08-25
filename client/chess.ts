@@ -41,10 +41,11 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], baseURL: ["xiangqi/playok", "xiangqi/ct3", "xiangqi/ct2", "xiangqi/hnz", "xiangqi/ct2w", "xiangqi/hnzw"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiib", "janggiig", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlblue", "janggi/intlgreen", "janggi/Ka_kako", "janggi/Ka_wooden"] },
-    shako: { pieceCSS: ["shako0", "shako1"], baseURL: ["shako", "kaneo"] },
+    shako: { pieceCSS: ["shako0", "shako1", "shako2"], baseURL: ["shako", "kaneo", "green"] },
     shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
     orda: { pieceCSS: ["orda0", "orda1"], baseURL: ["orda/merida", "orda/cburnett"] },
-    synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "xiangqi/playok", "xiangqi/hnz", "xiangqi/hnzw", "synochess/blackdisc"] },
+    synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl", "synochess/xq", "green", "xiangqi/ct3", "xiangqi/hnzw", "synochess/blackdisc"] },
+    hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"], baseURL: ["merida", "hoppel/grafted", "hoppel/animal"] },
 };
 
 export interface IVariant {
@@ -485,6 +486,16 @@ export const VARIANTS: { [name: string]: IVariant } = {
         autoQueenable: true,
         icon: "_",
     }),
+
+    hoppelpoppel: new Variant({
+        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: _("Knights are capturing as bishops, bishops are capturing as knights"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "hoppel",
+        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        enPassant: true, autoQueenable: true,
+        icon: "`",
+    }),
+
 };
 
 export const variants = Object.keys(VARIANTS);
@@ -496,7 +507,7 @@ const variantGroups: { [ key: string ]: { label: string, variants: string[] } } 
     sea:      { label: "Southeast Asian variants", variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { label: "Shogi variants",           variants: [ "shogi", "minishogi", "kyotoshogi" ] },
     xiangqi:  { label: "Xiangqi variants",         variants: [ "xiangqi", "janggi", "minixiangqi" ] },
-    fairy:    { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess" ] },
+    fairy:    { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
 
 export function selectVariant(id, selected, onChange, hookInsert) {
@@ -553,6 +564,7 @@ const variant_classes = {
     shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
     orda: new Set(['enPassant']),
     synochess: new Set(['pocket', 'enPassant']),
+    hoppelpoppel: new Set(['enPassant', 'autoQueen']),
 }
 
 export function isVariantClass(variant: string, variantClass: string) {

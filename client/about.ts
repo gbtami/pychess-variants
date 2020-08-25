@@ -59,6 +59,8 @@ export function aboutView(): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variant/synochess' } }, 'Synochess'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variant/hoppelpoppel' } }, 'Hoppel-Poppel'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variant/shouse' } }, 'S-house (S-chess+Crazyhouse)'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variant/capahouse' } }, 'Capahouse (Capablanca+Crazyhouse)'),

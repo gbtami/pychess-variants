@@ -233,11 +233,11 @@ label.board.board4.standard10x10 {
 label.piece.piece0.shako {
     background-image: url('images/pieces/shako/wC.svg');
 }
-label.piece.piece0.shako {
-    background-image: url('images/pieces/shako/wC.svg');
-}
 label.piece.piece1.shako {
     background-image: url('images/pieces/kaneo/wC.svg');
+}
+label.piece.piece2.shako {
+    background-image: url('images/pieces/green/synoshako/wC.svg');
 }
 
 label.piece.piece0.shogun {
@@ -383,14 +383,24 @@ label.piece.piece1.synochess {
     background-image: url('images/pieces/synochess/xq/bR.svg');
 }
 label.piece.piece2.synochess {
-    background-image: url('images/pieces/xiangqi/playok/black_chariot.svg');
+    background-image: url('images/pieces/green/synoshako/bR.svg');
 }
 label.piece.piece3.synochess {
-    background-image: url('images/pieces/xiangqi/hnz/black_chariot.svg');
+    background-image: url('images/pieces/xiangqi/ct3/black_chariot.svg');
 }
 label.piece.piece4.synochess {
     background-image: url('images/pieces/xiangqi/hnzw/black_chariot.svg');
 }
 label.piece.piece5.synochess {
     background-image: url('images/pieces/synochess/blackdisc/bR.svg');
+}
+
+label.piece.piece0.hoppel {
+    background-image: url('images/pieces/merida/bN.svg');
+}
+label.piece.piece1.hoppel {
+    background-image: url('images/pieces/hoppel/grafted/bN.svg');
+}
+label.piece.piece2.hoppel {
+    background-image: url('images/pieces/hoppel/animal/bN.svg');
 }

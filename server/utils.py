@@ -13,7 +13,7 @@ except ImportError:
 from broadcast import round_broadcast
 from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE
 from compress import decode_moves, R2C, C2R, V2C, C2V
-from convert import mirror5, mirror9, usi2uci, zero2grand
+from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game
 from user import User
@@ -304,6 +304,65 @@ def remove_seek(seeks, seek):
         del seeks[seek.id]
         if seek.id in seek.user.seeks:
             del seek.user.seeks[seek.id]
+
+
+# This will be removed when we can use ffishjs
+def get_dests(board):
+    dests = {}
+    promotions = []
+    moves = board.legal_moves()
+
+    for move in moves:
+        if board.variant in ("xiangqi", "grand", "grandhouse", "shako", "janggi"):
+            move = grand2zero(move)
+        source, dest = move[0:2], move[2:4]
+        if source in dests:
+            dests[source].append(dest)
+        else:
+            dests[source] = [dest]
+
+        if not move[-1].isdigit():
+            if not (board.variant in ("seirawan", "shouse") and (move[1] == '1' or move[1] == '8')):
+                promotions.append(move)
+
+        if board.variant == "kyotoshogi" and move[0] == "+":
+            promotions.append(move)
+
+    return (dests, promotions)
+
+
+async def analysis_move(app, user, game, move, fen, ply):
+    assert move
+    invalid_move = False
+
+    board = FairyBoard(game.variant, fen, game.chess960)
+
+    try:
+        # san = board.get_san(move)
+        lastmove = move
+        board.push(move)
+        dests, promotions = get_dests(board)
+        check = board.is_checked()
+    except Exception as e:
+        invalid_move = True
+        log.error("!!! analysis_move() exception occured: %s" % type(e))
+
+    if invalid_move:
+        analysis_board_response = game.get_board(full=True)
+    else:
+        analysis_board_response = {
+            "type": "analysis_board",
+            "gameId": game.id,
+            "fen": board.fen,
+            "ply": ply,
+            "lastMove": lastmove,
+            "dests": dests,
+            "promo": promotions,
+            "check": check,
+        }
+
+    ws = user.game_sockets[game.id]
+    await ws.send_json(analysis_board_response)
 
 
 async def play_move(app, user, game, move, clocks=None, ply=None):

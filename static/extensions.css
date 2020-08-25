@@ -15,7 +15,7 @@
   --ranks-top: 0px;
   --files-bottom: -16px;
   --files-left: 0px;
-  --movelist-max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--PVheight) - var(--countingHeight) - 86px);
+  --movelist-max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--pvheight) - var(--countingHeight) - 150px);
 }
 #extension_choice {
   position: absolute;

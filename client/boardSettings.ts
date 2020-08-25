@@ -108,7 +108,7 @@ class BoardSettings {
                 const pxp = (this.ctrl.hasPockets) ? '148px;' : '0px;';
                 // point counting values
                 const pxc = (isVariantClass(variant, "showMaterialPoint")) ? '48px;' : '0px;';
-                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --PVheight: 0px' + '; --countingHeight:' + pxc);
+                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --countingHeight:' + pxc);
                 document.body.dispatchEvent(new Event('chessground.resize'));
 
                 if (this.ctrl instanceof AnalysisController) {
@@ -153,7 +153,7 @@ class BoardSettings {
         if (isVariantClass(this.ctrl.variant, "pieceDir"))
             this.updatePieceStyle(this.ctrl.variant);
 
-        console.log("FLIP");
+        // console.log("FLIP");
         if (this.ctrl.hasPockets) {
             const tmp_pocket = this.ctrl.pockets[0];
             this.ctrl.pockets[0] = this.ctrl.pockets[1];

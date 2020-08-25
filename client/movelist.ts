@@ -12,7 +12,6 @@ import { VNode } from 'snabbdom/vnode';
 import { Color } from 'chessgroundx/types';
 
 import { boardSettings } from './boardSettings';
-import AnalysisController from './analysisCtrl';
 
 
 interface Eval {
@@ -58,14 +57,6 @@ export function selectMove (ctrl, ply) {
 
     ctrl.goPly(ply)
     scrollToPly(ctrl);
-
-    if (ctrl instanceof AnalysisController) {
-        const hc = ctrl.analysisChart;
-        if (hc !== undefined) {
-            const hcPt = hc.series[0].data[ply];
-            if (hcPt !== undefined) hcPt.select();
-        }
-    }
 }
 
 function scrollToPly (ctrl) {

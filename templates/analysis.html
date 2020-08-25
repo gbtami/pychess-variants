@@ -4,7 +4,7 @@
 {% endblock %}
 {% block js %}
 <script src="/static/pychess-variants.min.js"></script>
-<script src="/static/vendor/stockfish.wasm/stockfish.js"></script>
+<script src="/static/stockfish.js"></script>
 <script>
     function wasmThreadsSupported() {
         // WebAssembly 1.0
@@ -46,6 +46,9 @@
             });
 
             window['fsf'] = fsf;
+            console.log('setoption name VariantPath value variants.ini');
+            window.fsf.postMessage('setoption name VariantPath value variants.ini');
+            console.log('uci');
             window.fsf.postMessage('uci');
         });
     } else {

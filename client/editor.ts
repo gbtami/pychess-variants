@@ -85,7 +85,7 @@ export default class EditorController {
         const pocket1 = document.getElementById('pocket1') as HTMLElement;
         iniPieces(this, pocket0, pocket1);
 
-        var e = document.getElementById('fen') as HTMLElement;
+        let e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
             h('input#fen', {
                 props: { name: 'fen', value: model["fen"] },
@@ -147,7 +147,7 @@ export default class EditorController {
     private setLinkFen = () => {
         //this.parts[0] = this.chessground.getFen() + this.pockets;
         //this.variantFenChange();
-        var fen = this.parts.join('_').replace(/\+/g, '.');
+        const fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 

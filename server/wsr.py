@@ -15,7 +15,7 @@ from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
-from utils import play_move, draw, new_game, load_game, tv_game, tv_game_user, online_count
+from utils import analysis_move, play_move, draw, new_game, load_game, tv_game, tv_game_user, online_count
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +62,10 @@ async def round_socket_handler(request):
                         game = await load_game(request.app, data["gameId"])
                         move = data["move"]
                         await play_move(request.app, user, game, move, data["clocks"], data["ply"])
+
+                    elif data["type"] == "analysis_move":
+                        game = await load_game(request.app, data["gameId"])
+                        await analysis_move(request.app, user, game, data["move"], data["fen"], data["ply"])
 
                     elif data["type"] == "ready":
                         game = await load_game(request.app, data["gameId"])
@@ -395,6 +399,8 @@ async def round_socket_handler(request):
                     elif data["type"] == "roundchat":
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
+
+                        # Users running a fishnet worker can ask server side analysis with chat message: !analysis
                         if data["message"] == "!analysis" and user.username in request.app["fishnet_versions"]:
                             for step in game.steps:
                                 if "analysis" in step:

@@ -9,15 +9,17 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, Key, Piece, Variant, Notation } from 'chessgroundx/types';
+import { allKeys, key2pos, pos2key } from 'chessgroundx/util';
+import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
+import premove from 'chessgroundx/premove'
 
 import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { dropIsValid, updatePockets } from './pocket';
+import { dropIsValid, pocketView, updatePockets } from './pocket';
 import { sound } from './sound';
-import { grand2zero, VARIANTS, sanToRole, getPockets, isVariantClass } from './chess';
+import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, isVariantClass, sanToRole } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { movelistView, updateMovelist, selectMove, povChances } from './movelist';
@@ -40,7 +42,7 @@ const EVAL_REGEX = new RegExp(''
 
 
 function download(filename, text) {
-  var element = document.createElement('a');
+  const element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
   element.setAttribute('download', filename);
 
@@ -74,6 +76,8 @@ export default class AnalysisController {
     vplayer0: any;
     vplayer1: any;
     vfen: any;
+    vscore: any;
+    vinfo: any;
     vpv: any;
     gameControls: any;
     moveControls: any;
@@ -82,6 +86,9 @@ export default class AnalysisController {
     dests: Dests;
     promotions: string[];
     lastmove: Key[];
+    premove: any;
+    predrop: any;
+    preaction: boolean;
     result: string;
     flip: boolean;
     spectator: boolean;
@@ -99,6 +106,7 @@ export default class AnalysisController {
     showDests: boolean;
     analysisChart: any;
     ctableContainer: any;
+    localEngine: boolean;
     localAnalysis: boolean;
 
     constructor(el, model) {
@@ -120,6 +128,7 @@ export default class AnalysisController {
         const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
+        this.localEngine = false;
         this.localAnalysis = false;
 
         this.model = model;
@@ -193,26 +202,22 @@ export default class AnalysisController {
             }
         });
 
-        if (this.spectator) {
-            this.chessground.set({
-                //viewOnly: false,
+        this.chessground.set({
+            movable: {
+                free: false,
+                color: this.mycolor,
+                showDests: this.showDests,
                 events: {
-                    move: this.onMove(),
+                    after: this.onUserMove,
+                    afterNewPiece: this.onUserDrop,
                 }
-            });
-        } else {
-            this.chessground.set({
-                movable: {
-                    free: false,
-                    color: this.mycolor,
-                    showDests: this.showDests,
-                },
-                events: {
-                    move: this.onMove(),
-                    dropNewPiece: this.onDrop(),
-                }
-            });
-        };
+            },
+            events: {
+                move: this.onMove(),
+                dropNewPiece: this.onDrop(),
+                select: this.onSelect(),
+            }
+        });
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
@@ -226,13 +231,17 @@ export default class AnalysisController {
 
         this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
 
-        var element = document.getElementById('chart') as HTMLElement;
+        const element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'none';
 
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
+        patch(document.getElementById('ceval') as HTMLElement, h('div#ceval', this.renderCeval()));
+
+        this.vscore = document.getElementById('score') as HTMLElement;
+        this.vinfo = document.getElementById('info') as HTMLElement;
         this.vpv = document.getElementById('pv') as HTMLElement;
 
         if (isVariantClass(this.variant, 'showMaterialPoint')) {
@@ -251,6 +260,7 @@ export default class AnalysisController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
+
         boardSettings.ctrl = this;
         const boardFamily = VARIANTS[this.variant].board;
         const pieceFamily = VARIANTS[this.variant].piece;
@@ -262,22 +272,69 @@ export default class AnalysisController {
     getGround = () => this.chessground;
     getDests = () => this.dests;
 
-    private drawAnalysis = (withRequest) => {
+    private pass = () => {
+        let passKey = 'z0';
+        const pieces = this.chessground.state.pieces;
+        const dests = this.chessground.state.movable.dests;
+        for (let key in pieces) {
+            if (pieces[key]!.role === 'king' && pieces[key]!.color === this.turnColor) {
+                if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
+            }
+        }
+        if (passKey !== 'z0') {
+            // prevent calling pass() again by selectSquare() -> onSelect()
+            this.chessground.state.movable.dests = undefined;
+            this.chessground.selectSquare(passKey as Key);
+            sound.move();
+            this.sendMove(passKey, passKey, '');
+        }
+    }
+
+    private renderCeval = () => {
+        return [
+            h('div.engine', [
+                h('score#score', ''),
+                h('div.info', ['Fairy-Stockfish 11+', h('br'), h('info#info', 'in local browser')]),
+                h('label.switch', [
+                    h('input#input', {
+                        props: {
+                            name: "engine",
+                            type: "checkbox",
+                        },
+                        attrs: {
+                            disabled: !this.localEngine,
+                        },
+                        on: {change: () => {
+                            this.localAnalysis = !this.localAnalysis;
+                            if (this.localAnalysis) {
+                                this.engineGo();
+                            } else {
+                                window.fsf.postMessage('stop');
+                            }
+                        }}
+                    }),
+                    h('span.sw-slider'),
+                ]),
+            ]),
+        ];
+    }
+
+    private drawAnalysisChart = (withRequest: boolean) => {
         if (withRequest) {
             if (this.model["anon"] === 'True') {
                 alert(_('You need an account to do that.'));
                 return;
             }
-            var element = document.getElementById('request-analysis') as HTMLElement;
+            const element = document.getElementById('request-analysis') as HTMLElement;
             if (element !== null) element.style.display = 'none';
 
             this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
-            element = document.getElementById('loader') as HTMLElement;
-            element.style.display = 'block';
+            const loaderEl = document.getElementById('loader') as HTMLElement;
+            loaderEl.style.display = 'block';
         }
-        element = document.getElementById('chart') as HTMLElement;
-        element.style.display = 'block';
-        this.analysisChart = analysisChart(this);
+        const chartEl = document.getElementById('chart') as HTMLElement;
+        chartEl.style.display = 'block';
+        analysisChart(this);
     }
 
     private checkStatus = (msg) => {
@@ -289,8 +346,8 @@ export default class AnalysisController {
             this.pgn = msg.pgn;
             this.uci_usi = msg.uci_usi;
 
-            var container = document.getElementById('copyfen') as HTMLElement;
-            var buttons = [
+            let container = document.getElementById('copyfen') as HTMLElement;
+            const buttons = [
                 h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.model["gameId"], this.pgn) } }, [
                     h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
@@ -299,7 +356,7 @@ export default class AnalysisController {
                     h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
                 ]
             if (this.steps[0].analysis === undefined) {
-                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysis(true) } }, [
+                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
                     h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
                 );
             }
@@ -332,7 +389,7 @@ export default class AnalysisController {
 
         if (msg.steps.length > 1) {
             this.steps = [];
-            var container = document.getElementById('movelist') as HTMLElement;
+            const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
             msg.steps.forEach((step, ply) => {
@@ -346,8 +403,7 @@ export default class AnalysisController {
             updateMovelist(this, 1, this.steps.length);
 
             if (this.steps[0].analysis !== undefined) {
-                this.drawAnalysis(false);
-                analysisChart(this);
+                this.drawAnalysisChart(false);
             };
         } else {
             if (msg.ply === this.steps.length) {
@@ -363,7 +419,7 @@ export default class AnalysisController {
             }
         }
 
-        var lastMove = msg.lastMove;
+        let lastMove = msg.lastMove;
         if (lastMove !== null) {
             if (isVariantClass(this.variant, 'tenRanks')) {
                 lastMove = grand2zero(lastMove);
@@ -408,15 +464,25 @@ export default class AnalysisController {
     }
 
     onFSFline = (line) => {
+
         console.log(line);
-        if (!this.localAnalysis) {
+        if (!this.localEngine) {
             if (this.model.variant === 'chess' || (line.includes('UCI_Variant') && line.includes(this.model.variant))) {
-                this.localAnalysis = true;
+                this.localEngine = true;
+                patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
             }
         }
 
+        if (!this.localAnalysis) return;
+
         const matches = line.match(EVAL_REGEX);
-        if (!matches) return;
+        if (!matches) {
+            if (line.includes('mate 0')) {
+                const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};
+                this.onMsgAnalysis(msg);
+            }
+            return;
+        }
 
         const depth = parseInt(matches[1]),
             multiPv = parseInt(matches[2]),
@@ -443,15 +509,14 @@ export default class AnalysisController {
         } else {
             score = {cp: povEv};
         }
-        const msg = {type: 'analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score}};
+        const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score}};
         this.onMsgAnalysis(msg);
     };
 
-    drawEval = (ply) => {
-        const step = this.steps[ply];
-        var shapes0: DrawShape[] = [];
+    // Updates PV, score, gauge and the best move arrow
+    drawEval = (ceval, scoreStr, turnColor) => {
+        let shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
-        const ceval = step.ceval;
         const arrow = localStorage.arrow === undefined ? "true" : localStorage.arrow;
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
@@ -459,7 +524,6 @@ export default class AnalysisController {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
-                const turnColor = step['turnColor'];
                 const color = (this.variant.endsWith('shogi')) ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
@@ -472,13 +536,13 @@ export default class AnalysisController {
         }
 
         if (ceval?.p !== undefined) {
-            var pv_move = ceval["m"].split(" ")[0];
+            let pv_move = ceval["m"].split(" ")[0];
             if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
             if (arrow === 'true') {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3);
-                    var color = step.turnColor;
+                    let color = turnColor;
                     if (this.variant.endsWith("shogi"))
                         if (this.flip !== (this.mycolor === "black"))
                             color = (color === 'white') ? 'black' : 'white';
@@ -497,16 +561,16 @@ export default class AnalysisController {
                     shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
                 }
             };
-            this.vpv = patch(this.vpv, h('div#pv', [
-                h('div', [h('score', this.steps[ply]['scoreStr']), 'Fairy-Stockfish, ' + _('Depth') + ' ' + String(ceval.d)]),
-                h('div.pv', [h('div.pvline', ceval.p !== undefined ? ceval.p : ceval.m)]),
-            ]));
-            const stl = document.body.getAttribute('style');
-            document.body.setAttribute('style', stl + '--PVheight:64px;');
+            this.vscore = patch(this.vscore, h('score#score', scoreStr));
+            // TODO: add '/16' when local engine enabled only
+            this.vinfo = patch(this.vinfo, h('info#info', _('Depth') + ' ' + String(ceval.d) + '/16'));
+            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
+            document.documentElement.style.setProperty('--pvheight', '37px');
         } else {
+            this.vscore = patch(this.vscore, h('score#score', ''));
+            this.vinfo = patch(this.vinfo, h('info#info', 'in local browser'));
             this.vpv = patch(this.vpv, h('div#pv'));
-            const stl = document.body.getAttribute('style');
-            document.body.setAttribute('style', stl + '--PVheight:64px;');
+            document.documentElement.style.setProperty('--pvheight', '0px'); 
         }
 
         // console.log(shapes0);
@@ -515,11 +579,79 @@ export default class AnalysisController {
         });
     }
 
+    // Updates chart and score in movelist
+    drawServerEval = (ply, scoreStr) => {
+        if (ply > 0) {
+            const evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
+            patch(evalEl, h('eval#ply' + String(ply), scoreStr));
+        }
+
+        analysisChart(this);
+        const hc = this.analysisChart;
+        if (hc !== undefined) {
+            const hcPt = hc.series[0].data[ply];
+            if (hcPt !== undefined) hcPt.select();
+        }
+    }
+
+    engineGo = () => {
+        window.fsf.postMessage('stop');
+        if (this.model.chess960 === 'True') {
+            window.fsf.postMessage('setoption name UCI_Chess960 value true');
+        }
+        if (this.model.variant !== 'chess') {
+            window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
+        }
+        console.log('position fen ', this.fullfen);
+        window.fsf.postMessage('position fen ' + this.fullfen);
+        window.fsf.postMessage('go movetime 90000 depth 16');
+    }
+
+    fakeDests = () => {
+        // TODO: this is just a workaround to create dests from premoves
+        // use ffish.js validMoves() when it will be available on NPM
+        const dests: Dests = {};
+        const state = this.chessground.state;
+        const sources = Object.keys(state.pieces).filter((key: Key) => {
+            const source = state.pieces[key];
+            if (source === undefined) {
+                return false;
+            } else {
+                return source.color === this.turnColor;
+            }
+        });
+        sources.forEach((source: Key) => {
+            const premoves = premove(state.pieces, source, state.premovable.castle, state.geometry, state.variant);
+            dests[source] = premoves.filter((key: Key) => {
+                const target = state.pieces[key];
+                if (target === undefined) {
+                    return true;
+                } else {
+                    return target.color !== this.turnColor;
+                }
+            });
+        });
+
+        if (this.hasPockets) {
+            const pocket = this.pockets[(this.turnColor === this.mycolor && !this.flip) ? 1 : 0];
+            console.log('turn pocket', pocket);
+            const targets = allKeys[VARIANTS[this.variant].geometry].filter((key: Key) => {
+                return !sources.includes(key);
+            });
+            Object.keys(pocket).forEach((role: Role) => {
+                dests[roleToSan[role] + "@"] = targets;
+            });
+        }
+        // console.log('fakeDests()', dests);
+        this.chessground.set({ movable: { dests: dests }});
+        return dests;
+    }
+
     goPly = (ply) => {
         const step = this.steps[ply];
 
-        var move = step.move;
-        var capture = false;
+        let move = step.move;
+        let capture = false;
         if (move !== undefined) {
             if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
@@ -531,17 +663,18 @@ export default class AnalysisController {
             fen: step.fen,
             turnColor: step.turnColor,
             movable: {
-                free: false,
-                color: this.spectator ? undefined : step.turnColor,
-                dests: this.result === "" && ply === this.steps.length - 1 ? this.dests : undefined,
+                color: step.turnColor,
+                dests: this.dests,
                 },
             check: step.check,
             lastMove: move,
         });
 
-        this.drawEval(ply);
+        this.drawEval(step.ceval, step.scoreStr, step.turnColor);
+        this.drawServerEval(ply, step.scoreStr);
 
         this.fullfen = step.fen;
+
         updatePockets(this, this.vpocket0, this.vpocket1);
 
         if (isVariantClass(this.variant, 'showCount')) {
@@ -566,22 +699,12 @@ export default class AnalysisController {
 
         this.ply = ply
         this.turnColor = step.turnColor;
+        this.dests = this.fakeDests();
 
         // TODO
-        // disable/enable checkbox
         // "+" button (Go deeper)
         // multi PV
-        if (this.localAnalysis) {
-            window.fsf.postMessage('stop');
-            if (this.model.chess960 === 'True') {
-                window.fsf.postMessage('setoption name UCI_Chess960 value true');
-            }
-            if (this.model.variant !== 'chess') {
-                window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
-            }
-            window.fsf.postMessage('position fen ' + step.fen);
-            window.fsf.postMessage('go movetime 90000 depth 16');
-        }
+        if (this.localAnalysis) this.engineGo();
 
         this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
         window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.model["gameId"] + '?ply=' + ply.toString());
@@ -622,17 +745,185 @@ export default class AnalysisController {
         }
     }
 
+    private sendMove = (orig, dest, promo) => {
+        // Instead of sending moves to the server we should get new FEN and dests from ffishjs
+
+        const uci_move = orig + dest + promo;
+        const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
+
+        this.doSend({ type: "analysis_move", gameId: this.model["gameId"], move: move, fen: this.fullfen, ply: this.ply + 1 });
+    }
+
+    private onMsgAnalysisBoard = (msg) => {
+        console.log("got analysis_board msg:", msg);
+        if (msg.gameId !== this.model["gameId"]) return;
+
+        const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
+
+        this.fullfen = msg.fen;
+        this.dests = msg.dests;
+        // list of legal promotion moves
+        this.promotions = msg.promo;
+        this.ply = msg.ply
+
+        const parts = msg.fen.split(" ");
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+        let lastMove = msg.lastMove;
+        if (lastMove !== null) {
+            if (isVariantClass(this.variant, 'tenRanks')) {
+                lastMove = grand2zero(lastMove);
+            }
+            // drop lastMove causing scrollbar flicker,
+            // so we remove from part to avoid that
+            lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
+        }
+
+        this.chessground.set({
+            fen: this.fullfen,
+            turnColor: this.turnColor,
+            lastMove: lastMove,
+            check: msg.check,
+            movable: {
+                color: this.turnColor,
+                dests: this.dests,
+            },
+        });
+
+        if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+
+        if (this.localAnalysis) this.engineGo();
+    }
+
+    private onUserMove = (orig, dest, meta) => {
+        this.preaction = meta.premove === true;
+        // chessground doesn't knows about ep, so we have to remove ep captured pawn
+        const pieces = this.chessground.state.pieces;
+        const geom = this.chessground.state.geometry;
+        // console.log("ground.onUserMove()", orig, dest, meta);
+        let moved = pieces[dest];
+        // Fix king to rook 960 castling case
+        if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
+        const firstRankIs0 = this.chessground.state.dimensions.height === 10;
+        if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && isVariantClass(this.variant, 'enPassant')) {
+            const pos = key2pos(dest, firstRankIs0),
+            pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
+            const diff: PiecesDiff = {};
+            diff[pos2key(pawnPos, geom)] = undefined;
+            this.chessground.setPieces(diff);
+            meta.captured = {role: "pawn"};
+        };
+        // increase pocket count
+        if (isVariantClass(this.variant, 'drop') && meta.captured) {
+            let role = meta.captured.role
+            if (meta.captured.promoted) role = (this.variant.endsWith('shogi')|| this.variant === 'shogun') ? meta.captured.role.slice(1) as Role : "pawn";
+
+            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            if (this.flip) position = (position === "top") ? "bottom" : "top";
+            if (position === "top") {
+                this.pockets[0][role]++;
+                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
+            } else {
+                this.pockets[1][role]++;
+                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
+            }
+        };
+
+        //  gating elephant/hawk
+        if (isVariantClass(this.variant, 'gate')) {
+            if (!this.promotion.start(moved.role, orig, dest) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+        } else {
+            if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
+        this.preaction = false;
+        };
+    }
+
+    private onUserDrop = (role, dest, meta) => {
+        this.preaction = meta.predrop === true;
+        // console.log("ground.onUserDrop()", role, dest, meta);
+        // decrease pocket count
+        if (dropIsValid(this.dests, role, dest)) {
+            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
+            if (this.flip) position = (position === "top") ? "bottom" : "top";
+            if (position === "top") {
+                this.pockets[0][role]--;
+                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
+            } else {
+                this.pockets[1][role]--;
+                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
+            }
+            if (this.variant === "kyotoshogi") {
+                if (!this.promotion.start(role, 'z0', dest, undefined)) this.sendMove(roleToSan[role] + "@", dest, '');
+            } else {
+                this.sendMove(roleToSan[role] + "@", dest, '')
+            }
+            // console.log("sent move", move);
+        } else {
+            // console.log("!!! invalid move !!!", role, dest);
+            // restore board
+            this.clickDrop = undefined;
+            this.chessground.set({
+                fen: this.fullfen,
+                lastMove: this.lastmove,
+                turnColor: this.mycolor,
+                movable: {
+                    dests: this.dests,
+                    showDests: this.showDests,
+                    },
+                }
+            );
+        }
+        this.preaction = false;
+    }
+
+    private onSelect = () => {
+        return (key) => {
+            console.log("ground.onSelect()", key, this.chessground.state);
+            console.log("dests", this.chessground.state.movable.dests);
+            // If drop selection was set dropDests we have to restore dests here
+            if (this.chessground.state.movable.dests === undefined) return;
+            if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
+                if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
+                    this.chessground.newPiece(this.clickDrop, key);
+                    this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
+                }
+                this.clickDrop = undefined;
+                //cancelDropMode(this.chessground.state);
+                this.chessground.set({ movable: { dests: this.dests }});
+            };
+            // Sittuyin in place promotion on Ctrl+click
+            if (this.chessground.state.stats.ctrlKey && 
+                (key in this.chessground.state.movable.dests) &&
+                (this.chessground.state.movable.dests[key].indexOf(key) >= 0)
+                ) {
+                const piece = this.chessground.state.pieces[key];
+                if (this.variant === 'sittuyin') {
+                    // console.log("Ctrl in place promotion", key);
+                    const pieces = {};
+                    pieces[key] = {
+                        color: piece!.color,
+                        role: 'ferz',
+                        promoted: true
+                    };
+                    this.chessground.setPieces(pieces);
+                    this.sendMove(key, key, 'f');
+                } else if (isVariantClass(this.variant, 'pass') && piece!.role === 'king') {
+                    this.pass();
+                }
+            };
+        }
+    }
+
     private buildScoreStr = (color, analysis) => {
         const score = analysis['s'];
-        var scoreStr = '';
-        var ceval = '';
+        let scoreStr = '';
+        let ceval = '';
         if (score['mate'] !== undefined) {
             ceval = score['mate']
             const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
             scoreStr = '#' + sign + Math.abs(Number(ceval));
         } else {
             ceval = score['cp']
-            var nscore = Number(ceval) / 100.0;
+            let nscore = Number(ceval) / 100.0;
             if (color === 'b') nscore = -nscore;
             scoreStr = nscore.toFixed(1);
         }
@@ -640,34 +931,32 @@ export default class AnalysisController {
     }
 
     private onMsgAnalysis = (msg) => {
-        console.log(msg);
+        // console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
-        if (msg.ply > 0) {
-            var evalEl = document.getElementById('ply' + String(msg.ply)) as HTMLElement;
-            patch(evalEl, h('eval#ply' + String(msg.ply), scoreStr));
-        }
-        this.steps[msg.ply]['ceval'] = msg['ceval'];
-        this.steps[msg.ply]['scoreStr'] = scoreStr;
 
-        analysisChart(this);
-        if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
-            var element = document.getElementById('loader-wrapper') as HTMLElement;
-            element.style.display = 'none';
-        }
+        if (msg.type === 'analysis') {
+            this.steps[msg.ply]['ceval'] = msg.ceval;
+            this.steps[msg.ply]['scoreStr'] = scoreStr;
 
-        if (msg.ply === this.ply) this.drawEval(msg.ply);
+            if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
+                const element = document.getElementById('loader-wrapper') as HTMLElement;
+                element.style.display = 'none';
+            }
+        }
+        const turnColor = msg.color === 'w' ? 'white' : 'black';
+        this.drawEval(msg.ceval, scoreStr, turnColor);
     }
 
+    // User running a fishnet worker asked new server side analysis with chat message: !analysis
     private onMsgRequestAnalysis = () => {
         this.steps.forEach((step) => {
             step.analysis = undefined;
             step.ceval = undefined;
             step.score = undefined;
         });
-        analysisChart(this);
-        this.drawAnalysis(true);
+        this.drawAnalysisChart(true);
     }
 
     private onMsgUserConnected = (msg) => {
@@ -677,7 +966,7 @@ export default class AnalysisController {
     }
 
     private onMsgSpectators = (msg) => {
-        var container = document.getElementById('spectators') as HTMLElement;
+        const container = document.getElementById('spectators') as HTMLElement;
         patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
     }
 
@@ -717,11 +1006,14 @@ export default class AnalysisController {
 
     private onMessage = (evt) => {
         // console.log("<+++ onMessage():", evt.data);
-        var msg = JSON.parse(evt.data);
+        const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
                 this.onMsgBoard(msg);
                 break;
+            case "analysis_board":
+                this.onMsgAnalysisBoard(msg);
+                break
             case "crosstable":
                 this.onMsgCtable(msg.ct, this.model["gameId"]);
                 break

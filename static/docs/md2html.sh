@@ -25,4 +25,4 @@ SRC='https://github.com/gbtami/pychess-variants/blob/master';
 DST='https://www.pychess.org';
 find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
 
-mv -t ../../templates *.html
+mv -t ../../templates/docs *.html
