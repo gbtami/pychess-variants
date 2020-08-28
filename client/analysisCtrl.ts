@@ -1,3 +1,4 @@
+import Module from '../static/ffish.js';
 import Sockette from 'sockette';
 
 import { init } from 'snabbdom';
@@ -9,10 +10,9 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { allKeys, key2pos, pos2key } from 'chessgroundx/util';
+import { key2pos, pos2key } from 'chessgroundx/util';
 import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
-import premove from 'chessgroundx/premove'
 
 import { _ } from './i18n';
 import { Gating } from './gating';
@@ -108,6 +108,8 @@ export default class AnalysisController {
     ctableContainer: any;
     localEngine: boolean;
     localAnalysis: boolean;
+    ffish: any;
+    ffishBoard: any;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -130,8 +132,11 @@ export default class AnalysisController {
 
         this.localEngine = false;
         this.localAnalysis = false;
+        this.ffish = null;
+        this.ffishBoard = null;
 
         this.model = model;
+        this.gameId = model["gameId"] as string;
         this.variant = model["variant"] as string;
         this.fullfen = model["fen"] as string;
         this.wplayer = model["wplayer"] as string;
@@ -267,10 +272,20 @@ export default class AnalysisController {
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
+
+
+        new (Module as any)().then(loadedModule => {
+            this.ffish = loadedModule;
+
+            if (this.ffish !== null) {
+                this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
+                this.dests = this.getDests();
+            }
+        });
+
     }
 
     getGround = () => this.chessground;
-    getDests = () => this.dests;
 
     private pass = () => {
         let passKey = 'z0';
@@ -328,7 +343,7 @@ export default class AnalysisController {
             const element = document.getElementById('request-analysis') as HTMLElement;
             if (element !== null) element.style.display = 'none';
 
-            this.doSend({ type: "analysis", username: this.model["username"], gameId: this.model["gameId"] });
+            this.doSend({ type: "analysis", username: this.model["username"], gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
         }
@@ -338,7 +353,7 @@ export default class AnalysisController {
     }
 
     private checkStatus = (msg) => {
-        if (msg.gameId !== this.model["gameId"]) return;
+        if (msg.gameId !== this.gameId) return;
         if (msg.status >= 0 && this.result === "") {
             this.result = msg.result;
             this.status = msg.status;
@@ -348,7 +363,7 @@ export default class AnalysisController {
 
             let container = document.getElementById('copyfen') as HTMLElement;
             const buttons = [
-                h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.model["gameId"], this.pgn) } }, [
+                h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, this.pgn) } }, [
                     h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
@@ -373,7 +388,7 @@ export default class AnalysisController {
     }
 
     private onMsgBoard = (msg) => {
-        if (msg.gameId !== this.model["gameId"]) return;
+        if (msg.gameId !== this.gameId) return;
 
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
@@ -607,42 +622,34 @@ export default class AnalysisController {
         window.fsf.postMessage('go movetime 90000 depth 16');
     }
 
-    fakeDests = () => {
-        // TODO: this is just a workaround to create dests from premoves
-        // use ffish.js validMoves() when it will be available on NPM
+    getDests = () => {
+        const legalMoves = this.ffishBoard.legalMoves().split(" ");
+        // console.log(legalMoves);
+        const bigBoard = isVariantClass(this.variant, 'tenRanks');
         const dests: Dests = {};
-        const state = this.chessground.state;
-        const sources = Object.keys(state.pieces).filter((key: Key) => {
-            const source = state.pieces[key];
-            if (source === undefined) {
-                return false;
+        legalMoves.forEach((move) => {
+            if (bigBoard) move = grand2zero(move);
+            const source = move.slice(0, 2);
+            const dest = move.slice(2, 4);
+            if (source in dests) {
+                dests[source].push(dest);
             } else {
-                return source.color === this.turnColor;
+                dests[source] = [dest];
+            }
+
+            this.promotions = [];
+            const tail = move.slice(-1);
+            if (tail > '9') {
+                if (!(this.variant in ["seirawan", "shouse"]) && (move.slice(1, 2) === '1' || move.slice(1, 2) === '8')) {
+                    this.promotions.push(move);
+                }
+            }
+            if (this.variant === "kyotoshogi" && move.slice(0, 1) === "+") {
+                this.promotions.push(move);
             }
         });
-        sources.forEach((source: Key) => {
-            const premoves = premove(state.pieces, source, state.premovable.castle, state.geometry, state.variant);
-            dests[source] = premoves.filter((key: Key) => {
-                const target = state.pieces[key];
-                if (target === undefined) {
-                    return true;
-                } else {
-                    return target.color !== this.turnColor;
-                }
-            });
-        });
 
-        if (this.hasPockets) {
-            const pocket = this.pockets[(this.turnColor === this.mycolor && !this.flip) ? 1 : 0];
-            console.log('turn pocket', pocket);
-            const targets = allKeys[VARIANTS[this.variant].geometry].filter((key: Key) => {
-                return !sources.includes(key);
-            });
-            Object.keys(pocket).forEach((role: Role) => {
-                dests[roleToSan[role] + "@"] = targets;
-            });
-        }
-        // console.log('fakeDests()', dests);
+        // console.log('getDests()', dests);
         this.chessground.set({ movable: { dests: dests }});
         return dests;
     }
@@ -699,7 +706,11 @@ export default class AnalysisController {
 
         this.ply = ply
         this.turnColor = step.turnColor;
-        this.dests = this.fakeDests();
+
+        if (this.ffishBoard !== null) {
+            this.ffishBoard.setFen(this.fullfen);
+            this.dests = this.getDests();
+        }
 
         // TODO
         // "+" button (Go deeper)
@@ -707,7 +718,7 @@ export default class AnalysisController {
         if (this.localAnalysis) this.engineGo();
 
         this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
-        window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.model["gameId"] + '?ply=' + ply.toString());
+        window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString());
     }
 
     private doSend = (message) => {
@@ -746,17 +757,31 @@ export default class AnalysisController {
     }
 
     private sendMove = (orig, dest, promo) => {
-        // Instead of sending moves to the server we should get new FEN and dests from ffishjs
-
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
+        // console.log('sendMove()', move);
 
-        this.doSend({ type: "analysis_move", gameId: this.model["gameId"], move: move, fen: this.fullfen, ply: this.ply + 1 });
+        // Instead of sending moves to the server we can get new FEN and dests from ffishjs
+        this.ffishBoard.push(move);
+        this.dests = this.getDests();
+        const msg = {
+            gameId: this.gameId,
+            fen: this.ffishBoard.fen(),
+            ply: this.ffishBoard.gamePly(),
+            lastMove: uci_move,
+            dests: this.dests,
+            promo: this.promotions,
+            check: false, // TODO: add isCheck() to ffishjs (and isBikjang() also)
+        }
+        this.onMsgAnalysisBoard(msg);
+
+        // TODO: But sending moves to the server will be useful to implement shared live analysis!
+        // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
 
     private onMsgAnalysisBoard = (msg) => {
-        console.log("got analysis_board msg:", msg);
-        if (msg.gameId !== this.model["gameId"]) return;
+        // console.log("got analysis_board msg:", msg);
+        if (msg.gameId !== this.gameId) return;
 
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
@@ -962,7 +987,7 @@ export default class AnalysisController {
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
         // we want to know lastMove and check status
-        this.doSend({ type: "board", gameId: this.model["gameId"] });
+        this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgSpectators = (msg) => {
@@ -1015,7 +1040,7 @@ export default class AnalysisController {
                 this.onMsgAnalysisBoard(msg);
                 break
             case "crosstable":
-                this.onMsgCtable(msg.ct, this.model["gameId"]);
+                this.onMsgCtable(msg.ct, this.gameId);
                 break
             case "analysis":
                 this.onMsgAnalysis(msg);

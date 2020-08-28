@@ -119,6 +119,7 @@ export default class RoundController {
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
         this.model = model;
+        this.gameId = model["gameId"] as string;
         this.variant = model["variant"];
         this.fullfen = model["fen"];
         this.wplayer = model["wplayer"];
@@ -271,7 +272,7 @@ export default class RoundController {
             // TODO: enable when this.flip is true
             if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
             this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
-            this.doSend({ type: "moretime", gameId: this.model["gameId"] });
+            this.doSend({ type: "moretime", gameId: this.gameId });
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
         }
@@ -305,7 +306,7 @@ export default class RoundController {
             if (this.turnColor === this.mycolor) {
                 this.chessground.stop();
                 // console.log("Flag");
-                this.doSend({ type: "flag", gameId: this.model["gameId"] });
+                this.doSend({ type: "flag", gameId: this.gameId });
             }
         }
 
@@ -314,7 +315,7 @@ export default class RoundController {
                 // console.log("Byoyomi", this.clocks[1].byoyomiPeriod);
                 const oppclock = !this.flip ? 0 : 1;
                 const myclock = 1 - oppclock;
-                this.doSend({ type: "byoyomi", gameId: this.model["gameId"], color: this.mycolor, period: this.clocks[myclock].byoyomiPeriod });
+                this.doSend({ type: "byoyomi", gameId: this.gameId, color: this.mycolor, period: this.clocks[myclock].byoyomiPeriod });
             }
         }
 
@@ -356,22 +357,21 @@ export default class RoundController {
     }
 
     getGround = () => this.chessground;
-    getDests = () => this.dests;
 
     private abort = () => {
         // console.log("Abort");
-        this.doSend({ type: "abort", gameId: this.model["gameId"] });
+        this.doSend({ type: "abort", gameId: this.gameId });
     }
 
     private draw = () => {
         // console.log("Draw");
-        this.doSend({ type: "draw", gameId: this.model["gameId"] });
+        this.doSend({ type: "draw", gameId: this.gameId });
     }
 
     private resign = () => {
         // console.log("Resign");
         if (confirm(_('Are you sure you want to resign?'))) {
-            this.doSend({ type: "resign", gameId: this.model["gameId"] });
+            this.doSend({ type: "resign", gameId: this.gameId });
         }
     }
 
@@ -427,7 +427,7 @@ export default class RoundController {
 
         const sendSetup = () => {
             patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#empty'));
-            this.doSend({ type: "setup", gameId: this.model["gameId"], color: this.mycolor, fen: this.setupFen });
+            this.doSend({ type: "setup", gameId: this.gameId, color: this.mycolor, fen: this.setupFen });
         }
 
         const leftSide = (this.mycolor === 'white') ? -1 : 1;
@@ -441,7 +441,7 @@ export default class RoundController {
 
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);
-        if (msg.gameId !== this.model["gameId"]) return;
+        if (msg.gameId !== this.gameId) return;
         if (!this.spectator) sound.genericNotify();
     }
 
@@ -450,16 +450,16 @@ export default class RoundController {
     }
 
     private rematch = () => {
-        this.doSend({ type: "rematch", gameId: this.model["gameId"], handicap: this.handicap });
+        this.doSend({ type: "rematch", gameId: this.gameId, handicap: this.handicap });
     }
 
     private newOpponent = (home) => {
-        this.doSend({"type": "leave", "gameId": this.model["gameId"]});
+        this.doSend({"type": "leave", "gameId": this.gameId});
         window.location.assign(home);
     }
 
     private analysis = (home) => {
-        window.location.assign(home + '/' + this.model["gameId"]);
+        window.location.assign(home + '/' + this.gameId);
     }
 
     private gameOver = (rdiffs) => {
@@ -485,7 +485,7 @@ export default class RoundController {
     }
 
     private checkStatus = (msg) => {
-        if (msg.gameId !== this.model["gameId"]) return;
+        if (msg.gameId !== this.gameId) return;
         if (msg.status >= 0 && this.result === "") {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
@@ -524,7 +524,7 @@ export default class RoundController {
 
             if (msg.ct !== "") {
                 this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
-                this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.model["gameId"]));
+                this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.gameId));
             }
 
             // clean up gating/promotion widget left over the ground while game ended by time out
@@ -532,13 +532,13 @@ export default class RoundController {
             if (container instanceof Element) patch(container, h('extension'));
 
             if (this.tv) {
-                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.model["gameId"], profileId: this.model["profileid"] });}, 2000);
+                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.gameId, profileId: this.model["profileid"] });}, 2000);
             }
         }
     }
 
     private onMsgUpdateTV = (msg) => {
-        if (msg.gameId !== this.model["gameId"]) {
+        if (msg.gameId !== this.gameId) {
             if (this.model["profileid"] !== "") {
                 window.location.assign(this.model["home"] + '/@/' + this.model["profileid"] + '/tv');
             } else {
@@ -550,7 +550,7 @@ export default class RoundController {
     }
 
     private onMsgBoard = (msg) => {
-        if (msg.gameId !== this.model["gameId"]) return;
+        if (msg.gameId !== this.gameId) return;
 
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
@@ -800,17 +800,17 @@ export default class RoundController {
 
         clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.doSend({ type: "move", gameId: this.model["gameId"], move: move, clocks: clocks, ply: this.ply + 1 });
+        this.doSend({ type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 });
 
         if (!this.abortable) this.clocks[oppclock].start();
     }
 
     private startCount = () => {
-        this.doSend({ type: "count", gameId: this.model["gameId"], mode: "start" });
+        this.doSend({ type: "count", gameId: this.gameId, mode: "start" });
     }
 
     private stopCount = () => {
-        this.doSend({ type: "count", gameId: this.model["gameId"], mode: "stop" });
+        this.doSend({ type: "count", gameId: this.gameId, mode: "stop" });
     }
 
     private updateCount = (fen) => {
@@ -1019,23 +1019,23 @@ export default class RoundController {
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
         if (this.spectator) {
-            this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.model["gameId"] });
-            this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.model["gameId"] });
+            this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
 
             // we want to know lastMove and check status
-            this.doSend({ type: "board", gameId: this.model["gameId"] });
+            this.doSend({ type: "board", gameId: this.gameId });
         } else {
             const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
-            this.doSend({ type: "is_user_present", username: opp_name, gameId: this.model["gameId"] });
+            this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
 
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
-                this.doSend({ type: "ready", gameId: this.model["gameId"] });
+                this.doSend({ type: "ready", gameId: this.gameId });
             }
-            this.doSend({ type: "board", gameId: this.model["gameId"] });
+            this.doSend({ type: "board", gameId: this.gameId });
         }
     }
 
@@ -1141,7 +1141,7 @@ export default class RoundController {
                 this.onMsgBoard(msg);
                 break;
             case "crosstable":
-                this.onMsgCtable(msg.ct, this.model["gameId"]);
+                this.onMsgCtable(msg.ct, this.gameId);
                 break
             case "gameEnd":
                 this.checkStatus(msg);
