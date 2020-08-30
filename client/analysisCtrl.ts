@@ -524,7 +524,8 @@ export default class AnalysisController {
         } else {
             score = {cp: povEv};
         }
-        const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score}};
+        const knps = nodes / elapsedMs;
+        const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
 
@@ -578,7 +579,7 @@ export default class AnalysisController {
             };
             this.vscore = patch(this.vscore, h('score#score', scoreStr));
             // TODO: add '/16' when local engine enabled only
-            this.vinfo = patch(this.vinfo, h('info#info', _('Depth') + ' ' + String(ceval.d) + '/16'));
+            this.vinfo = patch(this.vinfo, h('info#info', _('Depth') + ' ' + String(ceval.d) + '/16' + ', ' + Math.round(ceval.k) + ' knodes/s'));
             this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
             document.documentElement.style.setProperty('--pvheight', '37px');
         } else {
