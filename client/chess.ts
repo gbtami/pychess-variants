@@ -40,7 +40,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0d"], baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/Ka"] },
     kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw"], baseURL: ["xiangqi/playok", "xiangqi/ct3", "xiangqi/ct2", "xiangqi/hnz", "xiangqi/ct2w", "xiangqi/hnzw"] },
-    janggi: { pieceCSS: ["janggihb", "janggihg", "janggiib", "janggiig", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlblue", "janggi/intlgreen", "janggi/Ka_kako", "janggi/Ka_wooden"] },
+    janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlkakao", "janggi/intlwooden", "janggi/Ka_kako", "janggi/Ka_wooden"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2"], baseURL: ["shako", "kaneo", "green"] },
     shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
     orda: { pieceCSS: ["orda0", "orda1"], baseURL: ["orda/merida", "orda/cburnett"] },
