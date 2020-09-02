@@ -478,8 +478,11 @@ export default class AnalysisController {
         }
     }
 
-    onFSFline = (line) => {
+    moveIndex = (ply) => {
+      return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
+    }
 
+    onFSFline = (line) => {
         console.log(line);
         if (!this.localEngine) {
             if (this.model.variant === 'chess' || (line.includes('UCI_Variant') && line.includes(this.model.variant))) {
@@ -525,7 +528,21 @@ export default class AnalysisController {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-        const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: moves, s: score, k: knps}};
+
+        // TODO: this can be simplified with https://github.com/ianfab/Fairy-Stockfish/issues/177
+        const ply = this.ply;
+        let sanMoves = moves.split(' ');
+        this.ffishBoard.setFen(this.fullfen);
+        sanMoves.forEach((move, index) => {
+            let prefix = '';
+            if (index === 0 || (ply + index +1) % 2 === 1) prefix = this.moveIndex(ply + index + 1);
+            sanMoves[index] = prefix + ' ' + this.ffishBoard.sanMove(move);
+            this.ffishBoard.push(move);
+        });
+        this.ffishBoard.setFen(this.fullfen);
+        sanMoves = sanMoves.join(' ');
+
+        const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
 
@@ -650,7 +667,6 @@ export default class AnalysisController {
             }
         });
 
-        // console.log('getDests()', dests);
         this.chessground.set({ movable: { dests: dests }});
         return dests;
     }
@@ -760,7 +776,6 @@ export default class AnalysisController {
     private sendMove = (orig, dest, promo) => {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
-        // console.log('sendMove()', move);
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
