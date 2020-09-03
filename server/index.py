@@ -278,7 +278,12 @@ async def index(request):
         raise web.HTTPFound("/")
 
     # log.debug("Response: %s" % text)
-    response = web.Response(text=html_minify(text), content_type="text/html")
+    headers = {}
+    if view == "analysis":
+        headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+
+    response = web.Response(text=html_minify(text), content_type="text/html", headers=headers)
     parts = urlparse(URI)
     response.set_cookie("user", session["user_name"], domain=parts.hostname, secure=parts.scheme == "https", max_age=None if user.anon else MAX_AGE)
     return response
