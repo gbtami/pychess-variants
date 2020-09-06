@@ -272,17 +272,6 @@ export default class AnalysisController {
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
-
-
-        new (Module as any)().then(loadedModule => {
-            this.ffish = loadedModule;
-
-            if (this.ffish !== null) {
-                this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
-                this.dests = this.getDests();
-            }
-        });
-
     }
 
     getGround = () => this.chessground;
@@ -486,6 +475,16 @@ export default class AnalysisController {
         console.log(line);
         if (!this.localEngine) {
             if (this.model.variant === 'chess' || (line.includes('UCI_Variant') && line.includes(this.model.variant))) {
+
+                new (Module as any)().then(loadedModule => {
+                    this.ffish = loadedModule;
+
+                    if (this.ffish !== null) {
+                        this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
+                        this.dests = this.getDests();
+                    }
+                });
+
                 this.localEngine = true;
                 patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
             }
