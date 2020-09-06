@@ -30,6 +30,11 @@ from user import User
 log = logging.getLogger(__name__)
 
 
+async def on_prepare(request, response):
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+
+
 def make_app(with_db=True):
     app = web.Application()
     parts = urlparse(URI)
@@ -40,6 +45,7 @@ def make_app(with_db=True):
 
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
+    app.on_response_prepare.append(on_prepare)
 
     # Setup routes.
     for route in get_routes:
