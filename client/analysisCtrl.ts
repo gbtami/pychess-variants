@@ -594,8 +594,9 @@ export default class AnalysisController {
                 }
             };
             this.vscore = patch(this.vscore, h('score#score', scoreStr));
-            // TODO: add '/16' when local engine enabled only
-            this.vinfo = patch(this.vinfo, h('info#info', _('Depth') + ' ' + String(ceval.d) + '/16' + ', ' + Math.round(ceval.k) + ' knodes/s'));
+            let info = _('Depth') + ' ' + String(ceval.d);
+            if (ceval.k) info = info + '/16' + ', ' + Math.round(ceval.k) + ' knodes/s';
+            this.vinfo = patch(this.vinfo, h('info#info', info));
             this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
             document.documentElement.style.setProperty('--pvheight', '37px');
         } else {
