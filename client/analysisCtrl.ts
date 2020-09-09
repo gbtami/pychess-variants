@@ -1,3 +1,6 @@
+//import Module from 'ffish-es6';
+//TODO: importing from node-modules causes error while running gulp:
+//'import' and 'export' may appear only with 'sourceType: module'
 import Module from '../static/ffish.js';
 import Sockette from 'sockette';
 
@@ -528,19 +531,9 @@ export default class AnalysisController {
         }
         const knps = nodes / elapsedMs;
 
-        // TODO: this can be simplified with https://github.com/ianfab/Fairy-Stockfish/issues/177
-        const ply = this.ply;
-        let sanMoves = moves.split(' ');
+        const notation = (this.variant === 'janggi') ? this.ffish.Notation.JANGGI : this.ffish.Notation.DEFAULT;
         this.ffishBoard.setFen(this.fullfen);
-        sanMoves.forEach((move, index) => {
-            let prefix = '';
-            if (index === 0 || (ply + index +1) % 2 === 1) prefix = this.moveIndex(ply + index + 1);
-            sanMoves[index] = prefix + ' ' + this.ffishBoard.sanMove(move);
-            this.ffishBoard.push(move);
-        });
-        this.ffishBoard.setFen(this.fullfen);
-        sanMoves = sanMoves.join(' ');
-
+        const sanMoves = this.ffishBoard.variationSan(moves, notation);
         const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
@@ -787,7 +780,8 @@ export default class AnalysisController {
             lastMove: uci_move,
             dests: this.dests,
             promo: this.promotions,
-            check: false, // TODO: add isCheck() to ffishjs (and isBikjang() also)
+            bikjang: this.ffishBoard.isBikjang(),
+            check: this.ffishBoard.isCheck(),
         }
         this.onMsgAnalysisBoard(msg);
 
