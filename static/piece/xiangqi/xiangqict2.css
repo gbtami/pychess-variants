@@ -19,6 +19,9 @@
 .xiangqi .cg-wrap piece.king.white {
     background-image: url('../../images/pieces/xiangqi/ct2/red_king2.svg');
 }
+.xiangqi .cg-wrap piece.banner.white {
+    background-image: url('../../images/pieces/xiangqi/ct2/red_banner.svg');
+}
 
 .xiangqi .cg-wrap piece.pawn.black {
     background-image: url('../../images/pieces/xiangqi/ct2/black_pawn2.svg');

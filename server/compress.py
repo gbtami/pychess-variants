@@ -35,6 +35,7 @@ V2C = {
     "orda": "f",
     "synochess": "v",
     "hoppelpoppel": "w",
+    "manchu": "M",
 }
 C2V = {v: k for k, v in V2C.items()}
 

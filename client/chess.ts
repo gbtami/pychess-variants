@@ -332,6 +332,16 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "8",
     }),
 
+    manchu: new Variant({
+        name: "manchu", tooltip: _("The lone Red rook can also move as a cannon or a knight."),
+        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
+        board: "xiangqi9x10", piece: "xiangqi",
+        firstColor: "Red", secondColor: "Black",
+        pieceRoles: ["king", "advisor", "banner", "bishop", "pawn"],
+        pieceRoles2: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
+        icon: "8",
+    }),
+
     janggi: new Variant({
         name: "janggi", tooltip: _("Similar to Xiangqi, but plays very differently. Tournament rules are used"),
         startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
@@ -506,7 +516,7 @@ const variantGroups: { [ key: string ]: { label: string, variants: string[] } } 
     standard: { label: "Standard piece variants",  variants: [ "chess", "crazyhouse", "placement" ] },
     sea:      { label: "Southeast Asian variants", variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { label: "Shogi variants",           variants: [ "shogi", "minishogi", "kyotoshogi" ] },
-    xiangqi:  { label: "Xiangqi variants",         variants: [ "xiangqi", "janggi", "minixiangqi" ] },
+    xiangqi:  { label: "Xiangqi variants",         variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
 
@@ -552,6 +562,7 @@ const variant_classes = {
     kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
     xiangqi: new Set(['tenRanks']),
+    manchu: new Set(['tenRanks']),
     minixiangqi: new Set([]),
     capablanca: new Set(['enPassant', 'autoQueen']),
     seirawan: new Set(['gate', 'pocket', 'enPassant', 'autoQueen']),
@@ -809,6 +820,7 @@ export const roleToSan = {
     gold: 'G',
     silver: 'S',
     lance: 'L',
+    banner: 'M',
 };
 
 // Use cases

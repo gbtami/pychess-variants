@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="50"
+   height="50"
+   viewBox="0 0 13.229166 13.229167"
+   version="1.1"
+   id="svg1579"
+   sodipodi:docname="Xiangqi.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <defs
+     id="defs1573">
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="-15.691712,-45.362002"
+       end_point="-15.691712,4.437998"
+       center_point="-15.691712,-20.462002"
+       id="path-effect7365"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="true"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="275.14301,98.12006"
+       end_point="275.14301,350.07326"
+       center_point="275.14301,224.09666"
+       id="path-effect4547-0"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="true"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="274.67636,240.21573"
+       end_point="274.67636,418.88419"
+       center_point="274.67636,329.54996"
+       id="path-effect4551-7"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="false"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="273.50283,331.92091"
+       end_point="273.50283,477.30227"
+       center_point="273.50283,404.61159"
+       id="path-effect4557-0"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="false"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="315.71788,90.192596"
+       end_point="315.71788,96.192596"
+       center_point="315.71788,93.192596"
+       id="path-effect4669"
+       is_visible="true"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="false"
+       oposite_fuse="false" />
+    <inkscape:path-effect
+       oposite_fuse="false"
+       fuse_paths="false"
+       discard_orig_path="false"
+       mode="free"
+       is_visible="true"
+       id="path-effect4802"
+       center_point="316.91112,93.060013"
+       end_point="316.91112,96.060013"
+       start_point="316.91112,90.060013"
+       effect="mirror_symmetry" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="8.4866091"
+     inkscape:cy="26.457494"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     showguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata1576">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-283.77082)">
+    <g
+       aria-label="象"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15.54651833px;line-height:1.25;font-family:KaiTi;-inkscape-font-specification:KaiTi;letter-spacing:0px;word-spacing:0px;fill:#ff5555;fill-opacity:1;stroke:none;stroke-width:0.5829944"
+       id="text5186">
+      <path
+         d="m 9.3018232,289.69461 q 0.1670036,0.13664 0.3188251,0.68319 0,0.24292 -0.21255,0.37956 L 8.1327979,291.4861 7.93543,291.62274 v 0.0607 q 1.4726683,1.79149 2.186229,2.2925 0.713561,0.48583 2.034408,0.60729 0.04555,0.0152 0.197368,0.0152 0.197368,0.0911 0.197368,0.18219 -0.197368,0.18218 -0.531375,0.19736 l -1.19939,0.18219 h -0.136639 q -0.455465,0 -0.622468,-0.18219 l -2.0799545,-2.44432 -0.5313752,-0.54656 q -0.3340072,0.0911 -0.1973679,0.22773 0.2884608,0.97166 0.2884608,1.88259 0,0.72874 -0.2125501,1.33603 -0.1973679,0.5921 -0.4099179,0.8502 -0.2125501,0.27328 -0.3340072,0.27328 -0.1366394,0 -0.4251002,-0.22774 -0.2884607,-0.22773 -0.5313751,-0.47064 -0.2277322,-0.22773 -0.516193,-0.53138 -0.2884608,-0.31882 -0.3036429,-0.334 l 0.030364,-0.13664 q 0.1821857,0.0304 0.6831966,0.30364 0.5010108,0.2581 0.5921037,0.28846 0.728743,0 0.728743,-1.50303 0,-0.74393 -0.1821857,-1.24494 -1.3967575,1.07793 -3.2337973,1.94332 -1.8218576,0.8502 -2.74796855,0.8502 0.0151821,-0.0911 0.28846079,-0.21255 3.29452586,-1.39676 5.55666576,-3.29453 -0.1214572,-0.36437 -0.2732787,-0.5921 -2.5809649,1.85222 -4.660919,2.58096 l -0.2277322,-0.0304 q 0.075911,-0.19737 0.5769215,-0.45547 0.5010109,-0.27328 1.6396719,-0.97165 1.138661,-0.69838 2.383597,-1.7004 l -0.4402822,-0.40992 q -2.8846079,2.07995 -4.0384511,2.17104 0.015182,-0.15182 0.303643,-0.28846 1.867404,-0.98684 3.3704366,-2.42914 -0.6072859,0.0304 -1.3967576,0.167 l -0.075911,0.30365 -0.030364,0.0304 -0.1973679,-0.0304 -0.4554644,-0.54656 q -0.091093,-0.13664 -0.091093,-0.27328 0,-0.0607 0.091093,-0.47065 0.106275,-0.4251 0.106275,-0.62246 0,-0.39474 -0.2580965,-0.6832 l -0.835018,0.60729 q -0.4251001,0.24291 -0.7287431,0.24291 h -0.060729 q 0,-0.0759 0.091093,-0.18219 0.106275,-0.10627 0.2429144,-0.21255 0.1366393,-0.10627 0.1518214,-0.12145 1.8825862,-1.57895 2.6113293,-2.36842 0.3036429,-0.33401 0.5465573,-0.63765 0.2580965,-0.30364 0.3491893,-0.44028 0.1062751,-0.13664 0.1973679,-0.24291 0.091093,-0.10628 0.1366394,-0.13664 0.060729,-0.0304 0.1366393,-0.0304 l 0.1366393,0.2581 q 0.1821858,0.37955 0.1821858,0.62247 0,0.15182 -0.060729,0.21255 L 5.24819,285.91425 q 1.7914934,-0.24291 2.0192256,-0.28846 l 0.3643715,-0.28846 q 0.1214572,-0.0607 0.2732786,-0.0152 0.4251001,0.47064 0.4251001,0.68319 -0.9412931,0.62247 -1.3815753,1.33603 l 2.2165934,-0.22773 0.3188251,-0.4251 q 0.1973679,-0.15182 0.561739,0.0911 0.379554,0.22774 0.379554,0.48583 -0.318825,0.18219 -0.4402822,0.50101 -0.106275,0.30365 -0.1973679,1.00203 l 0.2277321,0.30364 q 0.03036,0.0911 0.03036,0.12146 l -0.1366389,0.0911 -3.7955367,0.47065 -0.1670036,0.27327 q 0.8198359,0.75911 1.0779324,1.47267 h 0.091093 q 0.6072859,-0.36437 1.0779324,-0.81983 0.4858287,-0.47065 0.7135609,-0.72875 0.2277322,-0.25809 0.3947358,-0.25809 z m -0.030364,-2.04959 -2.2469577,0.30364 q 0.060729,0.0759 0.060729,0.19737 0,0.21255 -0.1973679,0.47064 l -0.2125501,0.34919 -0.030364,0.15183 2.4898721,-0.31883 z m -2.2621398,-1.44231 -2.47469,0.33401 q -0.7135609,0.50101 -0.9716574,0.72874 0,0.18219 0.1214572,0.5162 l 2.3987792,-0.31883 q 0.1670036,-0.15182 0.516193,-0.66801 0.3643715,-0.53138 0.409918,-0.59211 z m -0.7591074,1.7915 -2.4898721,0.37955 v 1.03239 l 1.958497,-0.16701 q 0.3036429,-0.40992 0.5313751,-1.24493 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'cwTeX Q Fangsong';-inkscape-font-specification:'cwTeX Q Fangsong';stroke-width:0.5829944;fill:#ff5555"
+         id="path5188" />
+    </g>
+  </g>
+</svg>

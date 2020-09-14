@@ -15,6 +15,8 @@ LOSERS = {
     "flag": FLAG,
 }
 
+GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
+
 VARIANTS = (
     "chess",
     "chess960",
@@ -29,6 +31,7 @@ VARIANTS = (
     "minishogi",
     "kyotoshogi",
     "xiangqi",
+    "manchu",
     "janggi",
     "minixiangqi",
     "capablanca",
@@ -80,6 +83,7 @@ VARIANT_ICONS = {
     "orda": "R",
     "synochess": "_",
     "hoppelpoppel": "`",
+    "manchu": "8",
 }
 
 VARIANT_960_TO_PGN = {

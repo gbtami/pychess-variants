@@ -13,7 +13,7 @@ except ImportError:
     print("No pyffish module installed!")
 
 from broadcast import round_broadcast
-from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE
+from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
@@ -124,7 +124,7 @@ async def load_game(app, game_id):
         mirror = mirror5
         mlist = map(mirror, mlist)
 
-    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako" or variant == "janggi":
+    elif variant in GRANDS:
         mlist = map(zero2grand, mlist)
 
     if "a" in doc:
@@ -321,7 +321,7 @@ def get_dests(board):
     moves = board.legal_moves()
 
     for move in moves:
-        if board.variant in ("xiangqi", "grand", "grandhouse", "shako", "janggi"):
+        if board.variant in GRANDS:
             move = grand2zero(move)
         source, dest = move[0:2], move[2:4]
         if source in dests:
@@ -451,7 +451,7 @@ def pgn(doc):
         mirror = mirror5
         mlist = list(map(mirror, mlist))
 
-    elif variant == "xiangqi" or variant == "grand" or variant == "grandhouse" or variant == "shako" or variant == "janggi":
+    elif variant in GRANDS:
         mlist = list(map(zero2grand, mlist))
 
     fen = initial_fen if initial_fen is not None else sf.start_fen(variant)
