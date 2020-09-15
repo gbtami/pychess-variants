@@ -345,7 +345,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
-        icon: "8",
+        icon: "|",
     }),
 
     manchu: new Variant({
@@ -355,7 +355,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["king", "advisor", "banner", "bishop", "pawn"],
         pieceRoles2: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
-        icon: "8",
+        icon: "{",
     }),
 
     janggi: new Variant({

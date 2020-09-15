@@ -58,7 +58,7 @@ VARIANT_ICONS = {
     "sittuyin": ":",
     "shogi": "K",
     "janggi": "=",
-    "xiangqi": "8",
+    "xiangqi": "|",
     "chess": "M",
     "crazyhouse": "+",
     "placement": "S",
@@ -85,7 +85,7 @@ VARIANT_ICONS = {
     "orda": "R",
     "synochess": "_",
     "hoppelpoppel": "`",
-    "manchu": "8",
+    "manchu": "{",
 }
 
 VARIANT_960_TO_PGN = {

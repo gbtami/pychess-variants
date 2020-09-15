@@ -263,9 +263,6 @@
 .icon-check:before {
   content: "\3f";
 }
-.icon-xiangqi2:before {
-  content: "\38";
-}
 .icon-kyotoshogi:before {
   content: "\29";
 }
@@ -304,4 +301,10 @@
 }
 .icon-hoppelpoppel:before {
   content: "\60";
+}
+.icon-manchu:before {
+  content: "\7b";
+}
+.icon-xiangqi:before {
+  content: "\7c";
 }
