@@ -204,8 +204,11 @@ async def shutdown(app):
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in app["games"].values():
         await round_broadcast(game, app["users"], response, full=True)
-    print('......WAIT 25')
-    await asyncio.sleep(25)
+
+    # No need to wait in unit tests
+    if app["db"] is not None:
+        print('......WAIT 25')
+        await asyncio.sleep(25)
 
     for user in app["users"].values():
         if user.bot:

@@ -652,7 +652,7 @@ export function validFen(variantName: string, fen: string) {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
-    let good = startPlacement + ((variantName === "orda") ? "Hq" : "") + "~+0123456789[]";
+    let good = startPlacement + ((variantName === "orda") ? "Hq" : "") + ((variantName === "dobutsu") ? "Hh" : "") + "~+0123456789[]";
     const alien = element => !good.includes(element);
     if (placement.split('').some(alien)) return false;
 
@@ -711,7 +711,7 @@ export function validFen(variantName: string, fen: string) {
     // Castling rights (piece virginity)
     good = (variantName === 'seirawan' || variantName === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
     const wrong = (element) => {good.indexOf(element) === -1;};
-    if (parts.length > 2) {
+    if (parts.length > 2 && variantName !== 'dobutsu') {
         if (parts[2].split('').some(wrong)) return false;
 
         // Castling right need rooks and king placed in starting square
@@ -742,7 +742,8 @@ export function validFen(variantName: string, fen: string) {
     }
 
     // Number of kings
-    if (lc(placement, 'k', false) !== 1 || lc(placement, 'k', true) !== 1) return false;
+    const king = (variantName === "dobutsu") ? "l" : "k";
+    if (lc(placement, king, false) !== 1 || lc(placement, king, true) !== 1) return false;
 
     // Touching kings
     const pieces = read(parts[0], variant.geometry);

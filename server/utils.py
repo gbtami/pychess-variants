@@ -294,7 +294,7 @@ async def new_game(app, user, seek_id):
     if seek.fen or seek.chess960:
         document["if"] = new_game.initial_fen
 
-    if seek.variant.endswith("shogi"):
+    if seek.variant.endswith("shogi") or seek.variant == "dobutsu":
         document["uci"] = 1
 
     result = await db.game.insert_one(document)
@@ -505,8 +505,10 @@ def sanitize_fen(variant, initial_fen, chess960):
     invalid0 = len(init) < 2
 
     # Only piece types listed in variant start position can be used later
-    if variant == "makruk" or variant == "cambodian":
-        non_piece = "~+0123456789[]fF"
+    if variant == "dobutsu":
+        non_piece = "~+0123456789[]hH"
+    elif variant == "orda":
+        non_piece = "~+0123456789[]qH"
     else:
         non_piece = "~+0123456789[]"
     invalid1 = any((c not in start[0] + non_piece for c in init[0]))
@@ -534,7 +536,7 @@ def sanitize_fen(variant, initial_fen, chess960):
             chess960 = False
         else:
             invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
-    elif variant[-5:] != "shogi":
+    elif variant[-5:] != "shogi" and variant != "dobutsu":
         invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
     # Castling right need rooks and king placed in starting square
@@ -555,7 +557,9 @@ def sanitize_fen(variant, initial_fen, chess960):
             invalid4 = True
 
     # Number of kings
-    invalid5 = init[0].count("k") != 1 or init[0].count("K") != 1
+    bking = "l" if variant == "dobutsu" else "k"
+    wking = "L" if variant == "dobutsu" else "K"
+    invalid5 = init[0].count(bking) != 1 or init[0].count(wking) != 1
 
     # Opp king already in check
     curr_color = init[1]
