@@ -64,7 +64,7 @@ export function result(variantName, status, result) {
             text = _('Unknown reason');
             break;
         case 12:
-            text = (variantName === 'orda' || variantName === 'synochess') ? _('Campmate') : _('Point counting');
+            text = (variantName === 'orda' || variantName === 'synochess' || variantName === 'dobutsu') ? _('Campmate') : _('Point counting');
             break;
         case 13:
             text = (variantName === 'janggi') ? _('Point counting') : _('Repetition');
