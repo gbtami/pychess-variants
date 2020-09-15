@@ -45,6 +45,16 @@
   width: 260px;
   height: 300px;
 }
+/* 3x4 */
+.cg-wrap.cg-156 {
+  width: 156px;
+  height: 240px;
+}
+.cg-wrap.cg-156.mini {
+  width: 156px;
+  height: 240px;
+}
+
 /* 7x7 */
 .cg-wrap.cg-448 {
   width: 448px;
@@ -106,6 +116,10 @@ cg-board square {
 .cg-260 cg-board square{
   width: 20%;
   height: 20%;
+}
+.cg-156 cg-board square{
+  width: 33.33%;
+  height: 25%;
 }
 .cg-448 cg-board square{
   width: 14.28%;
@@ -177,6 +191,10 @@ cg-board square.current-premove {
 .cg-wrap.cg-260 piece {
   width: 20%;
   height: 20%;
+}
+.cg-wrap.cg-156 piece {
+  width: 33.33%;
+  height: 25%;
 }
 .cg-wrap.cg-448 piece {
   width: 14.28%;

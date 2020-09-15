@@ -25,6 +25,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     sittuyin8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
     shogi9x9: { geometry: Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", "doubutsu.svg"] },
     shogi5x5: { geometry: Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"] },
+    shogi3x4: { geometry: Geometry.dim3x4, cg: "cg-156", boardCSS: ["dobutsu3x4.svg"] },
     xiangqi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg"] },
     xiangqi7x7: { geometry: Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
     janggi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
@@ -323,6 +324,21 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: ")",
     }),
 
+    dobutsu: new Variant({
+        name: "dobutsu", tooltip: _("Shogi on a 3x4 board"),
+        startFen: "gle/1c1/1C1/ELG[-] w 0 1",
+        board: "shogi3x4", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["king", "rook", "bishop", "pawn", "gold"],
+        pocketRoles: ["rook", "bishop", "pawn"],
+        promotion: "shogi",
+        timeControl: "byoyomi",
+        sideDetermination: "direction",
+        pieceSound: "shogi",
+        drop: true,
+        icon: "6",
+    }),
+
     xiangqi: new Variant({
         name: "xiangqi", tooltip: _("Open fire on your opponent in this highly aggressive ancient game"),
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
@@ -515,7 +531,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 const variantGroups: { [ key: string ]: { label: string, variants: string[] } } = {
     standard: { label: "Standard piece variants",  variants: [ "chess", "crazyhouse", "placement" ] },
     sea:      { label: "Southeast Asian variants", variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
-    shogi:    { label: "Shogi variants",           variants: [ "shogi", "minishogi", "kyotoshogi" ] },
+    shogi:    { label: "Shogi variants",           variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
     xiangqi:  { label: "Xiangqi variants",         variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
@@ -560,6 +576,7 @@ const variant_classes = {
     shogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     minishogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
+    dobutsu: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
     xiangqi: new Set(['tenRanks']),
     manchu: new Set(['tenRanks']),

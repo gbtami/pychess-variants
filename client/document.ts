@@ -58,6 +58,7 @@ export function changeBoardCSS(family: string, cssFile: string) {
         case "standard10x10": cssLinkIndex += 9; break;
         case "grand10x10": cssLinkIndex += 10; break;
         case "shogun8x8": cssLinkIndex += 11; break;
+        case "shogi3x4": cssLinkIndex += 12; break;
         default: throw "Unknown piece family " + family;
     }
     changeCSS(cssLinkIndex, "/static/board/" + family + "/" + cssFile + ".css");

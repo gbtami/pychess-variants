@@ -11,6 +11,7 @@
   --shogi-board: url('images/board/shogi.svg');
   --minishogi-board: url('images/board/minishogi.svg');
   --kyotoshogi-board: url('images/board/minishogi.svg');
+  --dobutsu-board: url('images/board/dobutsu3x4.svg');
   --janggi-board: url('images/board/Janggi.svg');
   --xiangqi-board: url('images/board/xiangqi.svg');
   --minixiangqi-board: url('images/board/minixiangqi.svg');
@@ -60,6 +61,9 @@
 }
 .kyotoshogi-board .cg-wrap {
   background-image: var(--kyotoshogi-board);
+}
+.dobutsu-board .cg-wrap {
+  background-image: var(--dobutsu-board);
 }
 .janggi-board .cg-wrap {
   background-image: var(--janggi-board);

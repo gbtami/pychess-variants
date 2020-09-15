@@ -549,7 +549,7 @@ export default class AnalysisController {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
-                const color = (this.variant.endsWith('shogi')) ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                const color = (this.variant.endsWith('shogi')  || this.variant === 'dobutsu') ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
                     blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
@@ -850,7 +850,7 @@ export default class AnalysisController {
         // increase pocket count
         if (isVariantClass(this.variant, 'drop') && meta.captured) {
             let role = meta.captured.role
-            if (meta.captured.promoted) role = (this.variant.endsWith('shogi')|| this.variant === 'shogun') ? meta.captured.role.slice(1) as Role : "pawn";
+            if (meta.captured.promoted) role = (this.variant.endsWith('shogi') || this.variant === 'shogun' || this.variant === 'dobutsu') ? meta.captured.role.slice(1) as Role : "pawn";
 
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
