@@ -330,7 +330,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         board: "shogi3x4", piece: "dobutsu",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["lancer", "gold", "elephant", "chancellor", "hawk"],
+        pieceRoles: ["king", "gold", "elephant", "chancellor", "hawk"],
         pocketRoles: ["elephant", "gold", "chancellor"],
         promotion: "shogi",
         timeControl: "byoyomi",

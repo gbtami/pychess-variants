@@ -15,7 +15,7 @@
     background-image: url('../../images/pieces/shogi/Ka/1KA.svg');
 }
 /* lion */
-.dobutsu .cg-wrap piece.lancer.white {
+.dobutsu .cg-wrap piece.king.white {
     background-image: url('../../images/pieces/shogi/Ka/1GY.svg');
 }
 
@@ -36,6 +36,6 @@
     background-image: url('../../images/pieces/shogi/Ka/0KA.svg');
 }
 /* lion */
-.dobutsu .cg-wrap piece.lancer.black {
+.dobutsu .cg-wrap piece.king.black {
     background-image: url('../../images/pieces/shogi/Ka/0GY.svg');
 }
