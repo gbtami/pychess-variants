@@ -41,7 +41,7 @@ function changeCSS(cssLinkIndex: number, cssFile: string) {
 
 // css file index in template.html
 const BOARD_CSS_START = 1;
-const PIECE_CSS_START = 13;
+const PIECE_CSS_START = 14;
 
 export function changeBoardCSS(family: string, cssFile: string) {
     let cssLinkIndex = BOARD_CSS_START;
@@ -81,6 +81,7 @@ export function changePieceCSS(family: string, cssFile: string) {
         case "orda": cssLinkIndex += 11; break;
         case "synochess": cssLinkIndex += 12; break;
         case "hoppel": cssLinkIndex += 13; break;
+        case "dobutsu": cssLinkIndex += 14; break;
         default: throw "Unknown piece family " + family;
     }
     changeCSS(cssLinkIndex, "/static/piece/" + family + "/" + cssFile + ".css");

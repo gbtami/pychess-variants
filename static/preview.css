@@ -77,6 +77,9 @@ label.board.board2.shogi5x5 {
     background-image: url('images/board/MiniboardWood2.png');
 }
 
+label.piece.piece0.dobutsu {
+    background-image: url('images/pieces/shogi/Ka/0GY.svg');
+}
 label.board.board0.shogi3x4 {
     background-image: url('images/board/dobutsu3x4.svg');
 }

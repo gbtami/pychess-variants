@@ -105,7 +105,8 @@ class BoardSettings {
                 el.style.width = pxw;
                 el.style.height = pxh;
                 // 2 x (pocket height + pocket-wrapper additional 10px gap)
-                const pxp = (this.ctrl.hasPockets) ? '148px;' : '0px;';
+                const mini = (variant === 'minishogi' || variant === 'kyotoshogi' || variant === 'dobutsu') ? 0.5 : 1;
+                const pxp = (this.ctrl.hasPockets) ? `${2 * (((zoom / 100) * baseHeight * mini) / dimensions[VARIANTS[variant].geometry].height) + 10}px;` : '0px;';
                 // point counting values
                 const pxc = (isVariantClass(variant, "showMaterialPoint")) ? '48px;' : '0px;';
                 document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --countingHeight:' + pxc);

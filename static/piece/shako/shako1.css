@@ -1,7 +1,7 @@
 .shako .cg-wrap piece.elephant.white {
     background-image: url('../../images/pieces/kaneo/wE.svg');
 }
-.shako .cg-wrap piece.cancellor.white {
+.shako .cg-wrap piece.chancellor.white {
     background-image: url('../../images/pieces/kaneo/wC.svg');
 }
 .shako .cg-wrap piece.pawn.white {
@@ -43,6 +43,6 @@
 .shako .cg-wrap piece.elephant.black {
     background-image: url('../../images/pieces/kaneo/bE.svg');
 }
-.shako .cg-wrap piece.cancellor.black {
+.shako .cg-wrap piece.chancellor.black {
     background-image: url('../../images/pieces/kaneo/bC.svg');
 }
