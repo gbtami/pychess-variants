@@ -71,7 +71,7 @@ VARIANT_ICONS = {
     "gothic": "P",
     "gothhouse": "&",
     "minishogi": "6",
-    "dobutsu": "6",
+    "dobutsu": "8",
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",

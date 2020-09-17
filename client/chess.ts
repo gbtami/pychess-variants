@@ -337,7 +337,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         sideDetermination: "direction",
         pieceSound: "shogi",
         drop: true,
-        icon: "6",
+        icon: "8",
     }),
 
     xiangqi: new Variant({
