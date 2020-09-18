@@ -1,7 +1,8 @@
 import Highcharts from "highcharts";
 
 import { _ } from './i18n';
-import { povChances, selectMove } from './movelist';
+import { selectMove } from './movelist';
+import { povChances } from './winningChances';
 import AnalysisController from './analysisCtrl';
 
 export function analysisChart(ctrl: AnalysisController) {
