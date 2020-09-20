@@ -9,7 +9,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
-import { dimensions } from 'chessgroundx/types';
+import { dimensions, Geometry } from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES, isVariantClass } from './chess';
@@ -98,15 +98,16 @@ class BoardSettings {
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
             if (el) {
-                const baseWidth = dimensions[VARIANTS[variant].geometry].width * (family.includes("shogi") ? 52 : 64);
-                const baseHeight = dimensions[VARIANTS[variant].geometry].height * (family.includes("shogi") ? 60 : 64);
+                const geom = VARIANTS[variant].geometry;
+                const magnify = (geom === Geometry.dim3x4) ? 2 : (geom === Geometry.dim5x5) ? 1.5 : 1;
+                const baseWidth = dimensions[geom].width * (family.includes("shogi") ? 52 : 64) * magnify;
+                const baseHeight = dimensions[geom].height * (family.includes("shogi") ? 60 : 64) * magnify;
                 const pxw = `${zoom / 100 * baseWidth}px`;
                 const pxh = `${zoom / 100 * baseHeight}px`;
                 el.style.width = pxw;
                 el.style.height = pxh;
                 // 2 x (pocket height + pocket-wrapper additional 10px gap)
-                const mini = (variant === 'minishogi' || variant === 'kyotoshogi' || variant === 'dobutsu') ? 0.5 : 1;
-                const pxp = (this.ctrl.hasPockets) ? `${2 * (((zoom / 100) * baseHeight * mini) / dimensions[VARIANTS[variant].geometry].height) + 10}px;` : '0px;';
+                const pxp = (this.ctrl.hasPockets) ? `${2 * (((zoom / 100) * baseHeight) / dimensions[VARIANTS[variant].geometry].height) + 10}px;` : '0px;';
                 // point counting values
                 const pxc = (isVariantClass(variant, "showMaterialPoint")) ? '48px;' : '0px;';
                 document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --countingHeight:' + pxc);
