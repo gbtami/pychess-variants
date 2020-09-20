@@ -13,6 +13,6 @@ Like Shogi, pieces that are captured are sent to your own hand. In lieu of movin
 
 Unlike Shogi, only one piece can promote: The Chick (Pawn) promotes to a Hen (Tokin) when it reaches the final rank. The Hen can move one space orthogonally in any direction like the Giraffe. Additionally, it can move diagonally forward by one space.
 
-Also unlike SHogi, there are no Chick/Pawn restrictions. You may drop two Chicks in the same file. You may drop a Chick in the final rank (this is ill-advised though, as this Chick is then unable to move). And you may checkmate with a dropped Chick.
+Also unlike Shogi, there are no Chick/Pawn restrictions. You may drop two Chicks in the same file. You may drop a Chick in the final rank (this is ill-advised though, as this Chick is then unable to move). And you may checkmate with a dropped Chick.
 
 If the players play the same position three turns in a row, the game is a draw. Unlike in Shogi, perpetual check is also a draw.
