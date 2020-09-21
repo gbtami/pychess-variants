@@ -44,7 +44,8 @@ const EVAL_REGEX = new RegExp(''
   + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
   + /pv (.+)/.source);
 
-const maxDepth = 16;
+const maxDepth = 18;
+const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 function download(filename, text) {
   const element = document.createElement('a');
@@ -648,8 +649,12 @@ export default class AnalysisController {
         if (this.model.variant !== 'chess') {
             window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
         }
+        console.log('setoption name Threads value ' + maxThreads);
+        window.fsf.postMessage('setoption name Threads value ' + maxThreads);
+
         console.log('position fen ', this.fullfen);
         window.fsf.postMessage('position fen ' + this.fullfen);
+
         if (this.maxDepth >= 99) {
             window.fsf.postMessage('go depth 99');
         } else {
