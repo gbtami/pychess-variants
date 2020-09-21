@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd static/docs
+
 export PATH="../../node_modules/.bin/:$PATH"
 
 for f in *.md; do
@@ -25,4 +27,5 @@ SRC='https://github.com/gbtami/pychess-variants/blob/master';
 DST='https://www.pychess.org';
 find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
 
+mkdir ../../templates/docs
 mv -t ../../templates/docs *.html
