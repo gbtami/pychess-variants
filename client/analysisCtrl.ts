@@ -596,15 +596,17 @@ export default class AnalysisController {
                 }
             };
             this.vscore = patch(this.vscore, h('score#score', scoreStr));
-            let info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth + ', ' + Math.round(ceval.k) + ' knodes/s')];
+            let info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
             if (ceval.k) {
-                if (ceval.d === this.maxDepth) {
+                if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
                     info.push(
                         h('a.icon.icon-plus-square', {
                             props: {type: "button", title: _("Go deeper")},
                             on: { click: () => this.onMoreDepth() }
                         })
                     );
+                } else if (ceval.d !== 99) {
+                    info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
                 }
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
