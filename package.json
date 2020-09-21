@@ -40,7 +40,7 @@
   },
   "scripts": {
     "heroku-prebuild": "npm install",
-    "heroku-postbuild": "gulp prod",
+    "heroku-postbuild": "gulp prod && ./md2html.sh",
     "test": "mocha -r ts-node/register -r jsdom-global/register 'tests/**/*.test.ts'"
   }
 }
