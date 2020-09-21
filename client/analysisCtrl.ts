@@ -44,6 +44,7 @@ const EVAL_REGEX = new RegExp(''
   + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
   + /pv (.+)/.source);
 
+const maxDepth = 16;
 
 function download(filename, text) {
   const element = document.createElement('a');
@@ -114,6 +115,7 @@ export default class AnalysisController {
     localAnalysis: boolean;
     ffish: any;
     ffishBoard: any;
+    maxDepth: number;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -138,6 +140,7 @@ export default class AnalysisController {
         this.localAnalysis = false;
         this.ffish = null;
         this.ffishBoard = null;
+        this.maxDepth = maxDepth;
 
         this.model = model;
         this.gameId = model["gameId"] as string;
@@ -539,6 +542,11 @@ export default class AnalysisController {
         this.onMsgAnalysis(msg);
     };
 
+    onMoreDepth = () => {
+        this.maxDepth = 99;
+        this.engineGo();
+    }
+
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval, scoreStr, turnColor) => {
         let shapes0: DrawShape[] = [];
@@ -588,8 +596,17 @@ export default class AnalysisController {
                 }
             };
             this.vscore = patch(this.vscore, h('score#score', scoreStr));
-            let info = _('Depth') + ' ' + String(ceval.d);
-            if (ceval.k) info = info + '/16' + ', ' + Math.round(ceval.k) + ' knodes/s';
+            let info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth + ', ' + Math.round(ceval.k) + ' knodes/s')];
+            if (ceval.k) {
+                if (ceval.d === this.maxDepth) {
+                    info.push(
+                        h('a.icon.icon-plus-square', {
+                            props: {type: "button", title: _("Go deeper")},
+                            on: { click: () => this.onMoreDepth() }
+                        })
+                    );
+                }
+            }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
             document.documentElement.style.setProperty('--pvheight', '37px');
@@ -631,7 +648,11 @@ export default class AnalysisController {
         }
         console.log('position fen ', this.fullfen);
         window.fsf.postMessage('position fen ' + this.fullfen);
-        window.fsf.postMessage('go movetime 90000 depth 16');
+        if (this.maxDepth >= 99) {
+            window.fsf.postMessage('go depth 99');
+        } else {
+            window.fsf.postMessage('go movetime 90000 depth ' + this.maxDepth);
+        }
     }
 
     getDests = () => {
@@ -726,6 +747,7 @@ export default class AnalysisController {
         // TODO
         // "+" button (Go deeper)
         // multi PV
+        this.maxDepth = maxDepth;
         if (this.localAnalysis) this.engineGo();
 
         this.vfen = patch(this.vfen, h('div#fen', this.fullfen));

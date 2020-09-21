@@ -1466,15 +1466,23 @@ div#ceval {
     background-color: var(--bg-color2);
     box-shadow: var(--btn-shadow);
 }
-
 .engine {
     display: flex;
     padding: 6px;
 }
-
 div.info {
     flex: 1 0 auto;
     align-self: center;
+    line-height: 18px;
+}
+a.icon.icon-plus-square {
+    opacity:0.9;
+    color: var(--analysis-links);
+    background-color: var(--bg-body);
+    font-size: 16px;
+    margin-left: 4px;
+    cursor: pointer;
+    vertical-align: -2px;
 }
 div#pv {
     display: flex;
