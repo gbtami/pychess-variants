@@ -1,7 +1,11 @@
 __pycache__/
 node_modules/
+templates/docs/
 static/pychess-variants.js
 static/pychess-variants.min.js
+static/ffish.js
+static/ffish.wasm
+static/ffish.worker.js
 package-lock.json
 game.json
 user.json

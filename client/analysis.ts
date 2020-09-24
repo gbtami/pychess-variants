@@ -3,7 +3,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
-import { VARIANTS } from './chess';
+import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
 import { renderRdiff, result } from './profile';
 
@@ -20,16 +20,15 @@ function runGround(vnode: VNode, model) {
     window['onFSFline'] = ctrl.onFSFline;
 }
 
-export function analysisView(model): VNode[] {
+function leftSide(model) {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
     const fc = variant.firstColor;
     const sc = variant.secondColor;
 
-    renderTimeago();
-
-    return [h('aside.sidebar-first', [
+    if (model["gameId"] !== "") {
+        return [
         h('div.game-info', [
             h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
                 h('div.info2', [
@@ -73,7 +72,37 @@ export function analysisView(model): VNode[] {
             ]),
         ]),
         h('div.roundchat#roundchat'),
-    ]),
+        ];
+
+    } else {
+
+        const setVariant = (isInput) => {
+            let e;
+            e = document.getElementById('variant') as HTMLSelectElement;
+            const variant = e.options[e.selectedIndex].value;
+            if (isInput) window.location.assign('/analysis/' + variant);
+        }
+
+        const vVariant = model.variant || "chess";
+
+        return [
+            h('div.container', [
+                h('div', [
+                    h('label', { attrs: { for: "variant" } }, _("Variant")),
+                    selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false)),
+                ]),
+            ]),
+        ];
+    }
+}
+
+export function analysisView(model): VNode[] {
+    const variant = VARIANTS[model.variant];
+
+    renderTimeago();
+
+    return [
+        h('aside.sidebar-first', leftSide(model)),
         h('div.analysis', [
             h('selection#board2png.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
@@ -103,7 +132,7 @@ export function analysisView(model): VNode[] {
                 h('div#movelist-block', [
                     h('div#movelist'),
                 ]),
-                h('div#result', result(model.variant, model.status, model.result)),
+                (model["gameId"] !== "") ? h('div#result', result(model.variant, model.status, model.result)) : "",
                 h('div#misc-info', [
                     h('div#misc-infow'),
                     h('div#misc-info-center'),

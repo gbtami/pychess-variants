@@ -8,7 +8,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "chessgroundx": "^7.6.40",
-    "ffish-es6": "^0.2.0",
+    "ffish-es6": "^0.4.0",
     "gettext.js": "^1.0.0",
     "highcharts": "^7.2.1",
     "howler": "^2.1.3",
@@ -39,8 +39,7 @@
     "yarn": "^1.17.3"
   },
   "scripts": {
-    "heroku-prebuild": "npm install",
-    "heroku-postbuild": "gulp prod && ./md2html.sh",
+    "heroku-postbuild": "cp node_modules/ffish-es6/ffish.* static/ && gulp prod && ./md2html.sh",
     "test": "mocha -r ts-node/register -r jsdom-global/register 'tests/**/*.test.ts'"
   }
 }

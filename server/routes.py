@@ -23,6 +23,8 @@ get_routes = (
     ("/allplayers", index),
     ("/games", index),
     ("/tv", index),
+    ("/analysis/{variant}", index),
+    ("/analysis/{variant}/{fen}", index),
     ("/editor/{variant}", index),
     ("/editor/{variant}/{fen}", index),
     (r"/{gameId:\w{8}}", index),

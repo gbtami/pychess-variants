@@ -117,11 +117,16 @@ export default class AnalysisController {
     ffish: any;
     ffishBoard: any;
     maxDepth: number;
+    analysisBoard: boolean;
 
     constructor(el, model) {
+        this.analysisBoard = model["gameId"] === "";
+
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
-            this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
+            if (!this.analysisBoard) {
+                this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
+            }
         };
 
         const opts = {
@@ -249,7 +254,13 @@ export default class AnalysisController {
 
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
-        patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+        if (!this.analysisBoard) {
+            patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+            document.documentElement.style.setProperty('--toolsHeight', '136px');
+        } else {
+            document.documentElement.style.setProperty('--toolsHeight', '92px');
+        }
+        document.documentElement.style.setProperty('--pvheight', '0px');
 
         patch(document.getElementById('ceval') as HTMLElement, h('div#ceval', this.renderCeval()));
 
@@ -350,8 +361,8 @@ export default class AnalysisController {
     }
 
     private checkStatus = (msg) => {
-        if (msg.gameId !== this.gameId) return;
-        if (msg.status >= 0 && this.result === "") {
+        if (msg.gameId !== this.gameId && !this.analysisBoard) return;
+        if ((msg.status >= 0 && this.result === "") || this.analysisBoard) {
             this.result = msg.result;
             this.status = msg.status;
 
@@ -359,28 +370,30 @@ export default class AnalysisController {
             this.uci_usi = msg.uci_usi;
 
             let container = document.getElementById('copyfen') as HTMLElement;
-            const buttons = [
-                h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, this.pgn) } }, [
-                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
-                h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
-                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
-                h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
-                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
-                ]
-            if (this.steps[0].analysis === undefined) {
-                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
-                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
-                );
+            if (container !== null) {
+                const buttons = [
+                    h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, this.pgn) } }, [
+                        h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
+                    h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
+                        h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
+                    h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
+                        h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
+                    ]
+                if (this.steps[0].analysis === undefined && !this.analysisBoard) {
+                    buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
+                        h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
+                    );
+                }
+                patch(container, h('div', buttons));
             }
-            patch(container, h('div', buttons));
 
             container = document.getElementById('fen') as HTMLElement;
             this.vfen = patch(container, h('div#fen', this.fullfen));
 
             container = document.getElementById('pgntext') as HTMLElement;
-            patch(container, h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn));
+            patch(container, h('div#pgntext', [h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn)]));
 
-            selectMove(this, this.ply);
+            if (!this.analysisBoard) selectMove(this, this.ply);
         }
     }
 
@@ -799,6 +812,7 @@ export default class AnalysisController {
     private sendMove = (orig, dest, promo) => {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
+        const san = this.ffishBoard.sanMove(uci_move);
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
@@ -814,6 +828,20 @@ export default class AnalysisController {
             check: this.ffishBoard.isCheck(),
         }
         this.onMsgAnalysisBoard(msg);
+
+        if (this.analysisBoard && msg.ply === this.steps.length) {
+            const step = {
+                'fen': msg.fen,
+                'move': msg.lastMove,
+                'check': msg.check,
+                'turnColor': this.turnColor,
+                'san': san,
+                };
+            this.steps.push(step);
+            updateMovelist(this, this.steps.length - 1, this.steps.length);
+
+            this.checkStatus(msg);
+        }
 
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
