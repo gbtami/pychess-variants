@@ -1,41 +1,41 @@
 /* chick */
 .dobutsu .cg-wrap piece.chancellor.white {
-    background-image: url('../../images/pieces/shogi/Ka/1FU.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1FU.svg');
 }
 /* giraffe */
 .dobutsu .cg-wrap piece.gold.white {
-    background-image: url('../../images/pieces/shogi/Ka/1HI.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1HI.svg');
 }
 /* hen */
 .dobutsu .cg-wrap piece.pchancellor.white {
-    background-image: url('../../images/pieces/shogi/Ka/1TO.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1TO.svg');
 }
 /* elephant */
 .dobutsu .cg-wrap piece.elephant.white {
-    background-image: url('../../images/pieces/shogi/Ka/1KA.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1KA.svg');
 }
 /* lion */
 .dobutsu .cg-wrap piece.king.white {
-    background-image: url('../../images/pieces/shogi/Ka/1GY.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1GY.svg');
 }
 
 /* chick */
 .dobutsu .cg-wrap piece.chancellor.black {
-    background-image: url('../../images/pieces/shogi/Ka/0FU.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0FU.svg');
 }
 /* giraffe */
 .dobutsu .cg-wrap piece.gold.black {
-    background-image: url('../../images/pieces/shogi/Ka/0HI.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0HI.svg');
 }
 /* hen */
 .dobutsu .cg-wrap piece.pchancellor.black {
-    background-image: url('../../images/pieces/shogi/Ka/0TO.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0TO.svg');
 }
 /* elephant */
 .dobutsu .cg-wrap piece.elephant.black {
-    background-image: url('../../images/pieces/shogi/Ka/0KA.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0KA.svg');
 }
 /* lion */
 .dobutsu .cg-wrap piece.king.black {
-    background-image: url('../../images/pieces/shogi/Ka/0GY.svg');
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0GY.svg');
 }
