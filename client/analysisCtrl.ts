@@ -695,6 +695,7 @@ export default class AnalysisController {
         // console.log(legalMoves);
         const bigBoard = isVariantClass(this.variant, 'tenRanks');
         const dests: Dests = {};
+        this.promotions = [];
         legalMoves.forEach((move) => {
             if (bigBoard) move = grand2zero(move);
             const source = move.slice(0, 2);
@@ -705,10 +706,9 @@ export default class AnalysisController {
                 dests[source] = [dest];
             }
 
-            this.promotions = [];
             const tail = move.slice(-1);
-            if (tail > '9') {
-                if (!(this.variant in ["seirawan", "shouse"]) && (move.slice(1, 2) === '1' || move.slice(1, 2) === '8')) {
+            if (tail > '9' || tail === '+') {
+                if (!(isVariantClass(this.variant, 'gate') && (move.slice(1, 2) === '1' || move.slice(1, 2) === '8'))) {
                     this.promotions.push(move);
                 }
             }
@@ -716,7 +716,6 @@ export default class AnalysisController {
                 this.promotions.push(move);
             }
         });
-
         this.chessground.set({ movable: { dests: dests }});
         return dests;
     }
