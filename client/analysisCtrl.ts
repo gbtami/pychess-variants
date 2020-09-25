@@ -34,6 +34,7 @@ import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
+import { variantsIni } from './variantsIni';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -495,19 +496,33 @@ export default class AnalysisController {
     onFSFline = (line) => {
         console.log(line);
         if (!this.localEngine) {
-            if (this.model.variant === 'chess' || (line.includes('UCI_Variant') && line.includes(this.model.variant))) {
-
+            if (line.includes('UCI_Variant')) {
                 new (Module as any)().then(loadedModule => {
                     this.ffish = loadedModule;
 
                     if (this.ffish !== null) {
-                        this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
-                        this.dests = this.getDests();
+                        // TODO: dummy board creation needed by ffish.js before calling loadVariantConfig()
+                        const ffishBoard = new this.ffish.Board('chess');
+                        ffishBoard.delete();
+
+                        this.ffish.loadVariantConfig(variantsIni);
+                        const availableVariants = this.ffish.variants();
+                        console.log(availableVariants);
+
+                        if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
+                            this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
+                            this.dests = this.getDests();
+                        } else {
+                            alert(_("Selected variant %1 is not supported by ffish.js still.", this.model.variant));
+                        }
                     }
                 });
-
-                this.localEngine = true;
-                patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+                if (this.model.variant === 'chess' || line.includes(this.model.variant)) {
+                    this.localEngine = true;
+                    patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+                } else {
+                    alert(_("Selected variant %1 is not supported by stockfish.wasm still.", this.model.variant));
+                }
             }
         }
 
