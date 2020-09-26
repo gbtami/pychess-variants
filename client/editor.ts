@@ -35,6 +35,7 @@ export default class EditorController {
     vpocket0: any;
     vpocket1: any;
     vfen: any;
+    vAnalysis: any;
     vChallenge: any;
     anon: boolean;
 
@@ -100,9 +101,12 @@ export default class EditorController {
         e = document.getElementById('start') as HTMLElement;
         patch(e, h('div', [h('a', {on: {click: () => this.setStartFen()}}, _('STARTING POSITION'))]));
 
+        e = document.getElementById('analysis') as HTMLElement;
+        this.vAnalysis = patch(e, h('div', [h('a', {on: {click: () => this.setAnalysisFen()}}, _('ANALYSIS BOARD'))]));
+
         e = document.getElementById('challenge') as HTMLElement;
         const text = _('PLAY WITH MACHINE') + ((this.anon) ? _(' (must be signed in)') : '');
-        this.vChallenge = patch(e, h('div', [h('a', {class: {disabled: this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
+        this.vChallenge = patch(e, h('div', [h('a', {class: {disabled: this.anon}, on: {click: () => this.setChallengeFen()}}, text)]));
 
         e = document.getElementById('png') as HTMLElement;
         patch(e, h('div', [h('a', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}, _('EXPORT TO PNG'))]));
@@ -116,7 +120,8 @@ export default class EditorController {
 
     private setInvalid = (invalid) => {
         const text = _('PLAY WITH MACHINE') + ((this.anon) ? _(' (must be signed in)') : '');
-        this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid || this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
+        this.vAnalysis = patch(this.vAnalysis, h('div', [h('a', {class: {disabled: invalid}, on: {click: () => this.setAnalysisFen()}}, _('ANALYSIS BOARD'))]));
+        this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid || this.anon}, on: {click: () => this.setChallengeFen()}}, text)]));
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(invalid ? _('Invalid FEN') : '');
     }
@@ -144,7 +149,14 @@ export default class EditorController {
         this.setInvalid(true);
     }
 
-    private setLinkFen = () => {
+    private setAnalysisFen = () => {
+        //this.parts[0] = this.chessground.getFen() + this.pockets;
+        //this.variantFenChange();
+        const fen = this.parts.join('_').replace(/\+/g, '.');
+        window.location.assign(this.model["home"] + '/analysis/' + this.model["variant"] + '?fen=' + fen);
+    }
+
+    private setChallengeFen = () => {
         //this.parts[0] = this.chessground.getFen() + this.pockets;
         //this.variantFenChange();
         const fen = this.parts.join('_').replace(/\+/g, '.');
@@ -233,6 +245,7 @@ export function editorView(model): VNode[] {
                     h('div#clear'),
                     h('div#start'),
 //                    h('div', [h('a', {attrs: {href: '/editor/' + model["variant"]}}, 'CREATE A GAME')]),
+                    h('div#analysis'),
                     h('div#challenge'),
                     h('div#png'),
                 ])
