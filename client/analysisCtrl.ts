@@ -652,6 +652,7 @@ export default class AnalysisController {
     }
 
     engineGo = () => {
+        this.vinfo = patch(this.vinfo, h('info#info', ""));
         window.fsf.postMessage('stop');
         if (this.model.chess960 === 'True') {
             window.fsf.postMessage('setoption name UCI_Chess960 value true');
