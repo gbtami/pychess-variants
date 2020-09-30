@@ -263,7 +263,7 @@ export default class AnalysisController {
         }
         document.documentElement.style.setProperty('--pvheight', '0px');
 
-        patch(document.getElementById('ceval') as HTMLElement, h('div#ceval', this.renderCeval()));
+        patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
 
         this.vscore = document.getElementById('score') as HTMLElement;
         this.vinfo = document.getElementById('info') as HTMLElement;
@@ -314,33 +314,20 @@ export default class AnalysisController {
         }
     }
 
-    private renderCeval = () => {
-        return [
-            h('div.engine', [
-                h('score#score', ''),
-                h('div.info', ['Fairy-Stockfish 11+', h('br'), h('info#info', 'in local browser')]),
-                h('label.switch', [
-                    h('input#input', {
-                        props: {
-                            name: "engine",
-                            type: "checkbox",
-                        },
-                        attrs: {
-                            disabled: !this.localEngine,
-                        },
-                        on: {change: () => {
-                            this.localAnalysis = !this.localAnalysis;
-                            if (this.localAnalysis) {
-                                this.engineGo();
-                            } else {
-                                window.fsf.postMessage('stop');
-                            }
-                        }}
-                    }),
-                    h('span.sw-slider'),
-                ]),
-            ]),
-        ];
+    private renderInput = () => {
+        return {
+            attrs: {
+                disabled: !this.localEngine,
+            },
+            on: {change: () => {
+                this.localAnalysis = !this.localAnalysis;
+                if (this.localAnalysis) {
+                    this.engineGo();
+                } else {
+                    window.fsf.postMessage('stop');
+                }
+            }}
+        };
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
@@ -501,14 +488,9 @@ export default class AnalysisController {
                     this.ffish = loadedModule;
 
                     if (this.ffish !== null) {
-                        // TODO: dummy board creation needed by ffish.js before calling loadVariantConfig()
-                        const ffishBoard = new this.ffish.Board('chess');
-                        ffishBoard.delete();
-
                         this.ffish.loadVariantConfig(variantsIni);
                         const availableVariants = this.ffish.variants();
                         console.log(availableVariants);
-
                         if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
                             this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
                             this.dests = this.getDests();
@@ -826,7 +808,7 @@ export default class AnalysisController {
     private sendMove = (orig, dest, promo) => {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
-        const san = this.ffishBoard.sanMove(uci_move);
+        const san = this.ffishBoard.sanMove(move);
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
