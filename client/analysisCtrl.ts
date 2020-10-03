@@ -118,14 +118,15 @@ export default class AnalysisController {
     ffish: any;
     ffishBoard: any;
     maxDepth: number;
-    analysisBoard: boolean;
+    isAnalysisBoard: boolean;
+    isEngineReady: boolean;
 
     constructor(el, model) {
-        this.analysisBoard = model["gameId"] === "";
+        this.isAnalysisBoard = model["gameId"] === "";
 
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
-            if (!this.analysisBoard) {
+            if (!this.isAnalysisBoard) {
                 this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
             }
         };
@@ -143,8 +144,16 @@ export default class AnalysisController {
         const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
+        // is local stockfish.wasm engine supports current variant?
         this.localEngine = false;
+
+        // is local engine analysis enabled? (the switch)
         this.localAnalysis = false;
+
+        // UCI isready/readyok
+        this.isEngineReady = false;
+
+        // loaded Fairy-Stockfish ffish.js wasm module
         this.ffish = null;
         this.ffishBoard = null;
         this.maxDepth = maxDepth;
@@ -255,7 +264,7 @@ export default class AnalysisController {
 
         patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
 
-        if (!this.analysisBoard) {
+        if (!this.isAnalysisBoard) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
             document.documentElement.style.setProperty('--toolsHeight', '136px');
         } else {
@@ -322,9 +331,10 @@ export default class AnalysisController {
             on: {change: () => {
                 this.localAnalysis = !this.localAnalysis;
                 if (this.localAnalysis) {
+                    this.engineStop();
                     this.engineGo();
                 } else {
-                    window.fsf.postMessage('stop');
+                    this.engineStop();
                 }
             }}
         };
@@ -349,8 +359,8 @@ export default class AnalysisController {
     }
 
     private checkStatus = (msg) => {
-        if (msg.gameId !== this.gameId && !this.analysisBoard) return;
-        if ((msg.status >= 0 && this.result === "") || this.analysisBoard) {
+        if (msg.gameId !== this.gameId && !this.isAnalysisBoard) return;
+        if ((msg.status >= 0 && this.result === "") || this.isAnalysisBoard) {
             this.result = msg.result;
             this.status = msg.status;
 
@@ -367,7 +377,7 @@ export default class AnalysisController {
                     h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
                         h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
                     ]
-                if (this.steps[0].analysis === undefined && !this.analysisBoard) {
+                if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
                     buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
                         h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
                     );
@@ -381,7 +391,7 @@ export default class AnalysisController {
             container = document.getElementById('pgntext') as HTMLElement;
             patch(container, h('div#pgntext', [h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn)]));
 
-            if (!this.analysisBoard) selectMove(this, this.ply);
+            if (!this.isAnalysisBoard) selectMove(this, this.ply);
         }
     }
 
@@ -482,6 +492,9 @@ export default class AnalysisController {
 
     onFSFline = (line) => {
         console.log(line);
+
+        if (line.includes('readyok')) {console.log("READYOK"); this.isEngineReady = true;};
+
         if (!this.localEngine) {
             if (line.includes('UCI_Variant')) {
                 new (Module as any)().then(loadedModule => {
@@ -490,12 +503,12 @@ export default class AnalysisController {
                     if (this.ffish !== null) {
                         this.ffish.loadVariantConfig(variantsIni);
                         const availableVariants = this.ffish.variants();
-                        console.log(availableVariants);
+                        //console.log('Available variants:', availableVariants);
                         if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
                             this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
                             this.dests = this.getDests();
                         } else {
-                            alert(_("Selected variant %1 is not supported by ffish.js still.", this.model.variant));
+                            console.log("Selected variant is not supported by ffish.js");
                         }
                     }
                 });
@@ -503,12 +516,12 @@ export default class AnalysisController {
                     this.localEngine = true;
                     patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
                 } else {
-                    alert(_("Selected variant %1 is not supported by stockfish.wasm still.", this.model.variant));
+                    alert(_("Selected variant %1 is not supported by stockfish.wasm", this.model.variant));
                 }
             }
         }
 
-        if (!this.localAnalysis) return;
+        if (!this.localAnalysis || !this.isEngineReady) return;
 
         const matches = line.match(EVAL_REGEX);
         if (!matches) {
@@ -527,7 +540,7 @@ export default class AnalysisController {
             nodes = parseInt(matches[6]),
             elapsedMs: number = parseInt(matches[7]),
             moves = matches[8];
-        console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
+        //console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
 
         // Sometimes we get #0. Let's just skip it.
         if (isMate && !povEv) return;
@@ -547,7 +560,6 @@ export default class AnalysisController {
         const knps = nodes / elapsedMs;
 
         const notation = (this.variant === 'janggi') ? this.ffish.Notation.JANGGI : this.ffish.Notation.DEFAULT;
-        this.ffishBoard.setFen(this.fullfen);
         const sanMoves = this.ffishBoard.variationSan(moves, notation);
         const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
@@ -555,6 +567,7 @@ export default class AnalysisController {
 
     onMoreDepth = () => {
         this.maxDepth = 99;
+        this.engineStop();
         this.engineGo();
     }
 
@@ -651,19 +664,27 @@ export default class AnalysisController {
         }
     }
 
-    engineGo = () => {
-        this.vinfo = patch(this.vinfo, h('info#info', ""));
+    engineStop = () => {
+        console.log('STOP');
+        console.log('ISREADY');
+        this.isEngineReady = false;
         window.fsf.postMessage('stop');
+        window.fsf.postMessage('isready');
+    }
+
+    engineGo = () => {
+        console.log('engineGo()');
+        this.vinfo = patch(this.vinfo, h('info#info', ""));
         if (this.model.chess960 === 'True') {
             window.fsf.postMessage('setoption name UCI_Chess960 value true');
         }
         if (this.model.variant !== 'chess') {
             window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
         }
-        console.log('setoption name Threads value ' + maxThreads);
+        //console.log('setoption name Threads value ' + maxThreads);
         window.fsf.postMessage('setoption name Threads value ' + maxThreads);
 
-        console.log('position fen ', this.fullfen);
+        //console.log('position fen ', this.fullfen);
         window.fsf.postMessage('position fen ' + this.fullfen);
 
         if (this.maxDepth >= 99) {
@@ -704,8 +725,14 @@ export default class AnalysisController {
     }
 
     goPly = (ply) => {
-        const step = this.steps[ply];
+        console.log('goPly()', ply);
+        if (this.localAnalysis) {
+            this.engineStop();
+            const container = document.getElementById('vari') as HTMLElement;
+            patch(container, h('div#vari', ''));
+        }
 
+        const step = this.steps[ply];
         let move = step.move;
         let capture = false;
         if (move !== undefined) {
@@ -761,9 +788,7 @@ export default class AnalysisController {
             this.dests = this.getDests();
         }
 
-        // TODO
-        // "+" button (Go deeper)
-        // multi PV
+        // TODO: multi PV
         this.maxDepth = maxDepth;
         if (this.localAnalysis) this.engineGo();
 
@@ -810,7 +835,7 @@ export default class AnalysisController {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
         const san = this.ffishBoard.sanMove(move);
-
+        //console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
         this.dests = this.getDests();
@@ -826,7 +851,8 @@ export default class AnalysisController {
         }
         this.onMsgAnalysisBoard(msg);
 
-        if (this.analysisBoard && msg.ply === this.steps.length) {
+        // New main line move
+        if (this.isAnalysisBoard && msg.ply === this.steps.length) {
             const step = {
                 'fen': msg.fen,
                 'move': msg.lastMove,
@@ -838,6 +864,16 @@ export default class AnalysisController {
             updateMovelist(this, this.steps.length - 1, this.steps.length);
 
             this.checkStatus(msg);
+        // variation move
+        } else {
+            const notation = (this.variant === 'janggi') ? this.ffish.Notation.JANGGI : this.ffish.Notation.DEFAULT;
+            const moves = this.ffishBoard.moveStack();
+            moves.split(' ').forEach(_ => this.ffishBoard.pop());
+            const sanMoves = this.ffishBoard.variationSan(moves, notation);
+            this.ffishBoard.pushMoves(moves);
+
+            const container = document.getElementById('vari') as HTMLElement;
+            patch(container, h('div#vari', sanMoves));
         }
 
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
@@ -845,8 +881,9 @@ export default class AnalysisController {
     }
 
     private onMsgAnalysisBoard = (msg) => {
-        // console.log("got analysis_board msg:", msg);
+        console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
+        if (this.localAnalysis) this.engineStop();
 
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
@@ -967,8 +1004,8 @@ export default class AnalysisController {
 
     private onSelect = () => {
         return (key) => {
-            console.log("ground.onSelect()", key, this.chessground.state);
-            console.log("dests", this.chessground.state.movable.dests);
+            //console.log("ground.onSelect()", key, this.chessground.state);
+            //console.log("dests", this.chessground.state.movable.dests);
             // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests === undefined) return;
             if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {

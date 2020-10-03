@@ -146,6 +146,7 @@ export function analysisView(model): VNode[] {
                 h('div#movelist-block', [
                     h('div#movelist'),
                 ]),
+                h('div#vari'),
                 (model["gameId"] !== "") ? h('div#result', result(model.variant, model.status, model.result)) : "",
                 h('div#misc-info', [
                     h('div#misc-infow'),
