@@ -1490,14 +1490,13 @@ div#pv {
     border-bottom: 1px ridge #eee;
 }
 pvline {
-    flex: 1;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     min-width: 0;
-    padding: 8px;
+    height: 28px;
+    line-height: 28px;
 }
-
 score {
     flex: 0 0 75px;
     font-weight: bold;

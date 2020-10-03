@@ -334,6 +334,8 @@ export default class AnalysisController {
                     this.engineStop();
                     this.engineGo();
                 } else {
+                    document.documentElement.style.setProperty('--pvheight', '0px');
+                    this.vpv = patch(this.vpv, h('div#pv'));
                     this.engineStop();
                 }
             }}
@@ -592,7 +594,6 @@ export default class AnalysisController {
                 }
             }
         }
-
         if (ceval?.p !== undefined) {
             let pv_move = ceval["m"].split(" ")[0];
             if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
@@ -634,13 +635,15 @@ export default class AnalysisController {
                 }
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
+            document.documentElement.style.setProperty('--pvheight', '28px');
             this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
-            document.documentElement.style.setProperty('--pvheight', '37px');
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', 'in local browser'));
-            this.vpv = patch(this.vpv, h('div#pv'));
-            document.documentElement.style.setProperty('--pvheight', '0px'); 
+            if (this.localAnalysis) {
+                document.documentElement.style.setProperty('--pvheight', '28px');
+                this.vpv = patch(this.vpv, h('div#pv', [h('pvline', '-')]));
+            }
         }
 
         // console.log(shapes0);
@@ -673,8 +676,6 @@ export default class AnalysisController {
     }
 
     engineGo = () => {
-        console.log('engineGo()');
-        this.vinfo = patch(this.vinfo, h('info#info', ""));
         if (this.model.chess960 === 'True') {
             window.fsf.postMessage('setoption name UCI_Chess960 value true');
         }
