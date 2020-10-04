@@ -331,9 +331,11 @@ export default class AnalysisController {
             on: {change: () => {
                 this.localAnalysis = !this.localAnalysis;
                 if (this.localAnalysis) {
+                    this.vinfo = patch(this.vinfo, h('info#info', '-'));
                     this.engineStop();
                     this.engineGo();
                 } else {
+                    this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
                     document.documentElement.style.setProperty('--pvheight', '0px');
                     this.vpv = patch(this.vpv, h('div#pv'));
                     this.engineStop();
@@ -639,7 +641,7 @@ export default class AnalysisController {
             this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
-            this.vinfo = patch(this.vinfo, h('info#info', 'in local browser'));
+            this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             if (this.localAnalysis) {
                 document.documentElement.style.setProperty('--pvheight', '28px');
                 this.vpv = patch(this.vpv, h('div#pv', [h('pvline', '-')]));
