@@ -120,6 +120,7 @@ export default class AnalysisController {
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
+    notation: Notation;
 
     constructor(el, model) {
         this.isAnalysisBoard = model["gameId"] === "";
@@ -178,6 +179,15 @@ export default class AnalysisController {
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = isVariantClass(this.variant, 'pocket');
+        if (this.variant === 'janggi') {
+            this.notation = Notation.JANGGI;
+        } else {
+            if (this.variant.endsWith("shogi") || this.variant === 'dobutsu') {
+                this.notation = Notation.SHOGI_HODGES_NUMBER;
+            } else {
+                this.notation = Notation.SAN;
+            }
+        }
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -219,7 +229,7 @@ export default class AnalysisController {
             fen: fen_placement,
             variant: this.variant as Variant,
             geometry: VARIANTS[this.variant].geometry,
-            notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
+            notation: this.notation,
             orientation: this.mycolor,
             turnColor: this.turnColor,
             animation: {
@@ -494,6 +504,20 @@ export default class AnalysisController {
       return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
     }
 
+    notation2ffishjs = (n) => {
+        switch (n) {
+            case Notation.DEFAULT: return this.ffish.Notation.DEFAULT;
+            case Notation.SAN: return this.ffish.Notation.SAN;
+            case Notation.LAN: return this.ffish.Notation.LAN;
+            case Notation.SHOGI_HOSKING: return this.ffish.Notation.SHOGI_HOSKING;
+            case Notation.SHOGI_HODGES: return this.ffish.Notation.SHOGI_HODGES;
+            case Notation.SHOGI_HODGES_NUMBER: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
+            case Notation.JANGGI: return this.ffish.Notation.JANGGI;
+            case Notation.XIANGQI_WXF: return this.ffish.Notation.XIANGQI_WXF;
+            default: return this.ffish.Notation.DEFAULT;
+        }
+    }
+
     onFSFline = (line) => {
         console.log(line);
 
@@ -562,9 +586,7 @@ export default class AnalysisController {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-
-        const notation = (this.variant === 'janggi') ? this.ffish.Notation.JANGGI : this.ffish.Notation.DEFAULT;
-        const sanMoves = this.ffishBoard.variationSan(moves, notation);
+        const sanMoves = this.ffishBoard.variationSan(moves, this.notation2ffishjs(this.notation));
         const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
@@ -869,10 +891,9 @@ export default class AnalysisController {
             this.checkStatus(msg);
         // variation move
         } else {
-            const notation = (this.variant === 'janggi') ? this.ffish.Notation.JANGGI : this.ffish.Notation.DEFAULT;
             const moves = this.ffishBoard.moveStack();
             moves.split(' ').forEach(_ => this.ffishBoard.pop());
-            const sanMoves = this.ffishBoard.variationSan(moves, notation);
+            const sanMoves = this.ffishBoard.variationSan(moves, this.notation2ffishjs(this.notation));
             this.ffishBoard.pushMoves(moves);
 
             const container = document.getElementById('vari') as HTMLElement;
