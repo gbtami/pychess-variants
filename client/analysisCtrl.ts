@@ -121,6 +121,7 @@ export default class AnalysisController {
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
     notation: Notation;
+    notationAsObject: any;
 
     constructor(el, model) {
         this.isAnalysisBoard = model["gameId"] === "";
@@ -530,6 +531,7 @@ export default class AnalysisController {
 
                     if (this.ffish !== null) {
                         this.ffish.loadVariantConfig(variantsIni);
+                        this.notationAsObject = this.notation2ffishjs(this.notation);
                         const availableVariants = this.ffish.variants();
                         //console.log('Available variants:', availableVariants);
                         if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
@@ -586,7 +588,7 @@ export default class AnalysisController {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-        const sanMoves = this.ffishBoard.variationSan(moves, this.notation2ffishjs(this.notation));
+        const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
         const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
@@ -893,7 +895,7 @@ export default class AnalysisController {
         } else {
             const moves = this.ffishBoard.moveStack();
             moves.split(' ').forEach(_ => this.ffishBoard.pop());
-            const sanMoves = this.ffishBoard.variationSan(moves, this.notation2ffishjs(this.notation));
+            const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
             this.ffishBoard.pushMoves(moves);
 
             const container = document.getElementById('vari') as HTMLElement;
