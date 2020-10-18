@@ -25,7 +25,7 @@ import { sound } from './sound';
 import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, isVariantClass, sanToRole } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { movelistView, updateMovelist, selectMove } from './movelist';
+import { createMovelistButtons, updateMovelist, selectMove } from './movelist';
 import { povChances } from './winningChances';
 import resizeHandle from './resize';
 //import { result } from './profile';
@@ -86,6 +86,7 @@ export default class AnalysisController {
     vscore: any;
     vinfo: any;
     vpv: any;
+    vmovelist: any;
     gameControls: any;
     moveControls: any;
     gating: any;
@@ -105,6 +106,7 @@ export default class AnalysisController {
     pgn: string;
     uci_usi: string;
     ply: number;
+    plyVari: number;
     players: string[];
     titles: string[];
     ratings: string[];
@@ -159,6 +161,9 @@ export default class AnalysisController {
         this.ffish = null;
         this.ffishBoard = null;
         this.maxDepth = maxDepth;
+
+        // current interactive analysis variation ply
+        this.plyVari = 0;
 
         this.model = model;
         this.gameId = model["gameId"] as string;
@@ -273,7 +278,8 @@ export default class AnalysisController {
         const element = document.getElementById('chart') as HTMLElement;
         element.style.display = 'none';
 
-        patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
+        createMovelistButtons(this);
+        this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
         if (!this.isAnalysisBoard) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
@@ -427,8 +433,6 @@ export default class AnalysisController {
 
         if (msg.steps.length > 1) {
             this.steps = [];
-            const container = document.getElementById('movelist') as HTMLElement;
-            patch(container, h('div#movelist'));
 
             msg.steps.forEach((step, ply) => {
                 if (step.analysis !== undefined) {
@@ -438,7 +442,7 @@ export default class AnalysisController {
                 }
                 this.steps.push(step);
                 });
-            updateMovelist(this, 1, this.steps.length);
+            updateMovelist(this);
 
             if (this.steps[0].analysis !== undefined) {
                 this.drawAnalysisChart(false);
@@ -453,7 +457,8 @@ export default class AnalysisController {
                     'san': msg.steps[0].san,
                     };
                 this.steps.push(step);
-                updateMovelist(this, this.steps.length - 1, this.steps.length);
+                const full = false;
+                updateMovelist(this, full);
             }
         }
 
@@ -759,6 +764,15 @@ export default class AnalysisController {
             patch(container, h('div#vari', ''));
         }
 
+        if (this.plyVari > 0) {
+            this.steps[this.plyVari]['vari'] = undefined;
+            this.plyVari = 0;
+            const full = true;
+            const activate = false;
+            updateMovelist(this, full, activate);
+            selectMove(this, ply);
+        }
+
         const step = this.steps[ply];
         let move = step.move;
         let capture = false;
@@ -878,17 +892,20 @@ export default class AnalysisController {
         }
         this.onMsgAnalysisBoard(msg);
 
+        const step = {
+            'fen': msg.fen,
+            'move': msg.lastMove,
+            'check': msg.check,
+            'turnColor': this.turnColor,
+            'san': san,
+            };
+
         // New main line move
-        if (this.isAnalysisBoard && msg.ply === this.steps.length) {
-            const step = {
-                'fen': msg.fen,
-                'move': msg.lastMove,
-                'check': msg.check,
-                'turnColor': this.turnColor,
-                'san': san,
-                };
+        if (msg.ply === this.steps.length) {
             this.steps.push(step);
-            updateMovelist(this, this.steps.length - 1, this.steps.length);
+            this.ply = msg.ply
+            const full = false;
+            updateMovelist(this, full);
 
             this.checkStatus(msg);
         // variation move
@@ -898,8 +915,19 @@ export default class AnalysisController {
             const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
             this.ffishBoard.pushMoves(moves);
 
-            const container = document.getElementById('vari') as HTMLElement;
-            patch(container, h('div#vari', sanMoves));
+            // new variation starts
+            if (!moves.includes(' ')) {
+                if (msg.lastMove === this.steps[this.ply].move) {
+                    // existing main line played
+                    selectMove(this, this.ply);
+                    return;
+                }
+                this.plyVari = this.ply;
+            }
+            this.steps[this.plyVari]['vari'] = sanMoves;
+            const full = true;
+            const activate = false;
+            updateMovelist(this, full, activate);
         }
 
         // TODO: But sending moves to the server will be useful to implement shared live analysis!

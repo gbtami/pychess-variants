@@ -22,7 +22,7 @@ import { sound } from './sound';
 import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, getCounting, isVariantClass, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { movelistView, updateMovelist, selectMove } from './movelist';
+import { createMovelistButtons, updateMovelist, selectMove } from './movelist';
 import resizeHandle from './resize';
 import { renderRdiff, result } from './profile'
 import { player } from './player';
@@ -59,6 +59,7 @@ export default class RoundController {
     vmiscInfoW: any;
     vmiscInfoB: any;
     vpng: any;
+    vmovelist: any;
     gameControls: any;
     moveControls: any;
     ctableContainer: any;
@@ -344,7 +345,8 @@ export default class RoundController {
             this.gameControls = patch(container, h('div'));
         }
 
-        patch(document.getElementById('movelist') as HTMLElement, movelistView(this));
+        createMovelistButtons(this);
+        this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
@@ -591,7 +593,7 @@ export default class RoundController {
             msg.steps.forEach((step) => { 
                 this.steps.push(step);
                 });
-            updateMovelist(this, 1, this.steps.length);
+            updateMovelist(this);
         } else {
             if (msg.ply === this.steps.length) {
                 const step = {
@@ -602,8 +604,9 @@ export default class RoundController {
                     'san': msg.steps[0].san,
                     };
                 this.steps.push(step);
-                const activate = !this.spectator || latestPly
-                updateMovelist(this, this.steps.length - 1, this.steps.length, activate);
+                const full = false;
+                const activate = !this.spectator || latestPly;
+                updateMovelist(this, full, activate);
             }
         }
 

@@ -37,7 +37,7 @@ function scrollToPly (ctrl) {
         movelistEl.scrollTop = st;
 }
 
-export function movelistView (ctrl) {
+export function createMovelistButtons (ctrl) {
     const container = document.getElementById('move-controls') as HTMLElement;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
         h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh', { props: { title: 'Flip board' } } ) ]),
@@ -46,13 +46,15 @@ export function movelistView (ctrl) {
         h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ]));
-    return h('div.movelist#movelist');
 }
 
-export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) {
-    const container = document.getElementById('movelist') as HTMLElement;
+export function updateMovelist (ctrl, full: boolean = true, activate: boolean = true) {
+
     const active = document.querySelector('move.active');
     if (active && activate) active.classList.remove('active');
+
+    const plyFrom = (full) ? 1 : ctrl.steps.length -1
+    const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
     for (let ply = plyFrom; ply < plyTo; ply++) {
@@ -73,7 +75,29 @@ export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) 
         }, moveEl);
 
         moves.push(el);
+        
+        if (ctrl.steps[ply]['vari'] !== undefined) {
+            if (ply % 2 !== 0) moves.push(h('move', '...'));
+            const variMoves = ctrl.steps[ply]['vari'].split(' ');
+            moves.push(h('vari#vari' + ctrl.plyVari,
+                variMoves.map((x, idx) =>
+                    h('vari-move', {attrs: { ply: 1000*variMoves.length + ctrl.plyVari + idx }}, x)
+                )),
+            );
+            if (ply % 2 !== 0) {
+                moves.push(h('move.counter', (ply + 1) / 2));
+                moves.push(h('move', '...'));
+            }
+        }
     }
-    patch(container, h('div#movelist.movelist', moves));
+
+    if (full) {
+        ctrl.vmovelist = patch(ctrl.vmovelist, h('div#movelist'));
+        ctrl.vmovelist = patch(ctrl.vmovelist, h('div#movelist', moves));
+    } else {
+        const container = document.getElementById('movelist') as HTMLElement;
+        ctrl.vmovelist = patch(container, h('div#movelist', moves));
+    }
+
     if (activate) scrollToPly(ctrl);
 }
