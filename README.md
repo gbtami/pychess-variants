@@ -61,7 +61,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 ```
 pip3 install -r requirements.txt --user
 yarn install
-yarn heroku-postbuild
+yarn gulp prod
 ```
 
 ### Start server
