@@ -31,6 +31,10 @@ export class Gating {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
             this.choices = ["hawk", "elephant", "queen", "rook", "bishop", "knight"].filter(role => lc(pocket, roleToSan[role], color === "white") > 0);
+
+            // prevent empty only choices in s-house (when H and E dropped before any gating move)
+            if (choices.length === 0) return false;
+
             this.choices.unshift("");
 
             const ground = this.ctrl.getGround();
