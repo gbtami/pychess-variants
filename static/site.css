@@ -121,6 +121,19 @@ body.no-select {
     -moz-user-select: none;
     -webkit-user-select: none;
 }
+::-webkit-scrollbar-track {
+    background-color: var(--bg-color2);
+}
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #FFF;
+}
+::-webkit-scrollbar-thumb {
+    background-color: var(--button-text);
+}
+::-webkit-scrollbar-thumb:hover{
+    background-color: var(--button-text-hover);
+}
 
 div#preload {
     /* preload board .svg images */
@@ -798,7 +811,7 @@ table#seeks-header, table#seeks {
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
 }
-#seeks-wrapper::-webkit-scrollbar-track {
+/* #seeks-wrapper::-webkit-scrollbar-track {
     background-color: #FFF;
 }
 #seeks-wrapper::-webkit-scrollbar {
@@ -810,7 +823,7 @@ table#seeks-header, table#seeks {
 }
 #seeks-wrapper::-webkit-scrollbar-thumb:hover{
     background-color: #A8A8A8;
-}
+} */
 
 #seeks thead {
     display: none;
