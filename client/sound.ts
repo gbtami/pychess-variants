@@ -16,7 +16,8 @@ class Sounds {
         Draw: 'Draw',
         Victory: 'Victory',
         Defeat: 'Defeat',
-        ShogiMove: 'komaoto5',
+        ShogiMove: 'shogisnap',
+        ShogiCapture: 'shogislam',
         Chat: 'chat',
         Setup: 'dinding',
         LowTime: 'LowTime',
@@ -69,6 +70,7 @@ class Sounds {
     victory()       { if (this.audio()) this.tracks.Victory.play(); }
     defeat()        { if (this.audio()) this.tracks.Defeat.play(); }
     shogimove()     { if (this.audio()) this.tracks.ShogiMove.play(); }
+    shogicapture()  { if (this.audio()) this.tracks.ShogiCapture.play(); }
     chat()          { if (this.audio()) this.tracks.Chat.play(); }
     setup()         { if (this.audio()) this.tracks.Setup.play(); }
     lowTime()       { if (this.audio()) this.tracks.LowTime.play(); }

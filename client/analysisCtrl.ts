@@ -447,7 +447,11 @@ export default class AnalysisController {
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
             if (isVariantClass(this.variant, 'shogiSound')) {
-                sound.shogimove();
+                if (capture) {
+                    sound.shogicapture();
+                } else {
+                    sound.shogimove();
+                }
             } else {
                 if (capture) {
                     sound.capture();
@@ -733,7 +737,11 @@ export default class AnalysisController {
 
         if (ply === this.ply + 1) {
             if (isVariantClass(this.variant, 'shogiSound')) {
-                sound.shogimove();
+                if (capture) {
+                    sound.shogicapture();
+                } else {
+                    sound.shogimove();
+                }
             } else {
                 if (capture) {
                     sound.capture();
@@ -770,7 +778,11 @@ export default class AnalysisController {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
             if (isVariantClass(this.variant, 'shogiSound')) {
-                sound.shogimove();
+                if (capturedPiece) {
+                    sound.shogicapture();
+                } else {
+                    sound.shogimove();
+                }
             } else {
                 if (capturedPiece) {
                     sound.capture();
