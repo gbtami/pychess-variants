@@ -41,6 +41,8 @@
     --button-new-game-hover: linear-gradient(to bottom, #fafafa 0%, #f2f2f2 100%);
     --button-text: #787878;
     --button-text-hover: #787878;
+    --scrollbar-thumb: #dbdbdb;
+    --scrollbar-thumb-hover: #b3b3b3;
     --input-border: #ccc;
     --leaderboard: #BF811D;
     --leaderboard-even: #302e2c;
@@ -79,6 +81,8 @@
     --button-new-game-hover: linear-gradient(rgb(68, 65, 59), rgb(59, 57, 53) 100%);
     --button-text: #999;
     --button-text-hover: #ccc;
+    --scrollbar-thumb: #4d4d4d;
+    --scrollbar-thumb-hover: #6b6b6b;
     --input-border: #444;
     --leaderboard: #BF811D;
     --leaderboard-even: #302e2c;
@@ -122,6 +126,19 @@ body {
 body.no-select {
     -moz-user-select: none;
     -webkit-user-select: none;
+}
+::-webkit-scrollbar-track {
+    background-color: var(--bg-color2);
+}
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #FFF;
+}
+::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+}
+::-webkit-scrollbar-thumb:hover{
+    background-color: var(--scrollbar-thumb-hover);
 }
 
 div#preload {
