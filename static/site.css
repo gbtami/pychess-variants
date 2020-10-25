@@ -41,8 +41,8 @@
     --button-new-game-hover: linear-gradient(to bottom, #fafafa 0%, #f2f2f2 100%);
     --button-text: #787878;
     --button-text-hover: #787878;
-    --scrollbar-thumb: #787878;
-    --scrollbar-thumb-hover: #787878;
+    --scrollbar-thumb: #dbdbdb;
+    --scrollbar-thumb-hover: #b3b3b3;
     --input-border: #ccc;
     --leaderboard: #BF811D;
     --leaderboard-even: #302e2c;
@@ -80,8 +80,8 @@
     --button-new-game-hover: linear-gradient(rgb(68, 65, 59), rgb(59, 57, 53) 100%);
     --button-text: #999;
     --button-text-hover: #ccc;
-    --scrollbar-thumb: #999;
-    --scrollbar-thumb-hover: #ccc;
+    --scrollbar-thumb: #4d4d4d;
+    --scrollbar-thumb-hover: #6b6b6b;
     --input-border: #444;
     --leaderboard: #BF811D;
     --leaderboard-even: #302e2c;
