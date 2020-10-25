@@ -35,6 +35,9 @@ label.board.board4.shogi9x9 {
     background-image: url('images/board/ShogiMaple.png');
 }
 label.board.board5.shogi9x9 {
+    background-image: url('images/board/ShogiGrayTexture.png');
+}
+label.board.board6.shogi9x9 {
     background-image: url('images/board/doubutsu.svg');
 }
 
@@ -64,6 +67,9 @@ label.piece.piece4.shogi {
     background-image: url('images/pieces/shogi/ctm/0KA.svg');
 }
 label.piece.piece5.shogi {
+    background-image: url('images/pieces/shogi/ctp3d/0KA.svg');
+}
+label.piece.piece6.shogi {
     background-image: url('images/pieces/shogi/Ka/0KA.svg');
 }
 
