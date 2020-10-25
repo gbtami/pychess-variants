@@ -764,15 +764,6 @@ export default class AnalysisController {
             patch(container, h('div#vari', ''));
         }
 
-        if (this.plyVari > 0) {
-            this.steps[this.plyVari]['vari'] = undefined;
-            this.plyVari = 0;
-            const full = true;
-            const activate = false;
-            updateMovelist(this, full, activate);
-            selectMove(this, ply);
-        }
-
         const step = this.steps[ply];
         let move = step.move;
         let capture = false;
@@ -823,6 +814,12 @@ export default class AnalysisController {
 
         this.ply = ply
         this.turnColor = step.turnColor;
+
+        if (this.plyVari > 0) {
+            this.steps[this.plyVari]['vari'] = undefined;
+            this.plyVari = 0;
+            updateMovelist(this);
+        }
 
         if (this.ffishBoard !== null) {
             this.ffishBoard.setFen(this.fullfen);
@@ -901,7 +898,7 @@ export default class AnalysisController {
             };
 
         // New main line move
-        if (msg.ply === this.steps.length) {
+        if (msg.ply === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
             this.ply = msg.ply
             const full = false;

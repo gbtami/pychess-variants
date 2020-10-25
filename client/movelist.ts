@@ -12,14 +12,17 @@ import { VNode } from 'snabbdom/vnode';
 import { boardSettings } from './boardSettings';
 
 export function selectMove (ctrl, ply) {
+    ctrl.goPly(ply);
+    activatePly(ctrl);
+    scrollToPly(ctrl);
+}
+
+function activatePly (ctrl) {
     const active = document.querySelector('move.active');
     if (active) active.classList.remove('active');
 
-    const elPly = document.querySelector(`move[ply="${ply}"]`);
+    const elPly = document.querySelector(`move[ply="${ctrl.ply}"]`);
     if (elPly) elPly.classList.add('active');
-
-    ctrl.goPly(ply)
-    scrollToPly(ctrl);
 }
 
 function scrollToPly (ctrl) {
@@ -50,9 +53,6 @@ export function createMovelistButtons (ctrl) {
 
 export function updateMovelist (ctrl, full: boolean = true, activate: boolean = true) {
 
-    const active = document.querySelector('move.active');
-    if (active && activate) active.classList.remove('active');
-
     const plyFrom = (full) ? 1 : ctrl.steps.length -1
     const plyTo = ctrl.steps.length;
 
@@ -81,7 +81,7 @@ export function updateMovelist (ctrl, full: boolean = true, activate: boolean = 
             const variMoves = ctrl.steps[ply]['vari'].split(' ');
             moves.push(h('vari#vari' + ctrl.plyVari,
                 variMoves.map((x, idx) =>
-                    h('vari-move', {attrs: { ply: 1000*variMoves.length + ctrl.plyVari + idx }}, x)
+                    h('vari-move', {attrs: { ply: ctrl.plyVari + idx }}, x)
                 )),
             );
             if (ply % 2 !== 0) {
@@ -99,5 +99,7 @@ export function updateMovelist (ctrl, full: boolean = true, activate: boolean = 
         ctrl.vmovelist = patch(container, h('div#movelist', moves));
     }
 
-    if (activate) scrollToPly(ctrl);
+    if (activate)
+        activatePly(ctrl);
+        scrollToPly(ctrl);
 }
