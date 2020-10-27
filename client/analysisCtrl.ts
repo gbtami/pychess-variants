@@ -457,8 +457,7 @@ export default class AnalysisController {
                     'san': msg.steps[0].san,
                     };
                 this.steps.push(step);
-                const full = false;
-                updateMovelist(this, full);
+                updateMovelist(this);
             }
         }
 
@@ -913,8 +912,7 @@ export default class AnalysisController {
         if (msg.ply === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
             this.ply = msg.ply
-            const full = false;
-            updateMovelist(this, full);
+            updateMovelist(this);
 
             this.checkStatus(msg);
         // variation move
@@ -938,7 +936,6 @@ export default class AnalysisController {
             const activate = false;
             updateMovelist(this, full, activate);
         }
-
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
