@@ -285,6 +285,7 @@ export default class AnalysisController {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
             document.documentElement.style.setProperty('--toolsHeight', '136px');
         } else {
+            this.checkStatus({fen: this.fullfen});
             document.documentElement.style.setProperty('--toolsHeight', '92px');
         }
         document.documentElement.style.setProperty('--pvheight', '0px');
@@ -897,6 +898,7 @@ export default class AnalysisController {
             promo: this.promotions,
             bikjang: this.ffishBoard.isBikjang(),
             check: this.ffishBoard.isCheck(),
+            pgn: '', // TODO
         }
         this.onMsgAnalysisBoard(msg);
 
