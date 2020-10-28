@@ -4,7 +4,10 @@ import json
 async def lobby_broadcast(sockets, response):
     for ws_set in sockets.values():
         for ws in ws_set:
-            await ws.send_json(response)
+            try:
+                await ws.send_json(response)
+            except ConnectionResetError:
+                pass
 
 
 async def round_broadcast(game, users, response, full=False, channels=None):
