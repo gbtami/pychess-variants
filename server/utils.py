@@ -415,6 +415,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
                 await opp_ws.send_json(response)
         except KeyError:
             log.error("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, user.username, gameId))
+        except ConnectionResetError:
+            log.error("Move %s can't send to %s in game %s. User disconnected !!!" % (move, user.username, gameId))
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=app["channels"])
