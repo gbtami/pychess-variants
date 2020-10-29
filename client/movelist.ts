@@ -40,6 +40,19 @@ function scrollToPly (ctrl) {
         movelistEl.scrollTop = st;
 }
 
+function selectVariMove (ctrl, ply, plyVari) {
+    ctrl.goPly(ply, plyVari);
+    activatePlyVari(ply + plyVari);
+}
+
+function activatePlyVari (ply) {
+    const active = document.querySelector('vari-move.active');
+    if (active) active.classList.remove('active');
+
+    const elPly = document.querySelector(`vari-move[ply="${ply}"]`);
+    if (elPly) elPly.classList.add('active');
+}
+
 export function createMovelistButtons (ctrl) {
     const container = document.getElementById('move-controls') as HTMLElement;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
@@ -77,13 +90,22 @@ export function updateMovelist (ctrl, full: boolean = true, activate: boolean = 
         moves.push(el);
         
         if (ctrl.steps[ply]['vari'] !== undefined) {
+            const variMoves = ctrl.steps[ply]['vari'];
+
             if (ply % 2 !== 0) moves.push(h('move', '...'));
-            const variMoves = ctrl.steps[ply]['vari'].split(' ');
+
             moves.push(h('vari#vari' + ctrl.plyVari,
-                variMoves.map((x, idx) =>
-                    h('vari-move', {attrs: { ply: ctrl.plyVari + idx }}, x)
-                )),
-            );
+                variMoves.map((x, idx) => {
+                    const currPly = ctrl.plyVari + idx;
+                    const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
+                    return h('vari-move', {
+                        attrs: { ply: currPly },
+                        on: { click: () => selectVariMove(ctrl, idx, ctrl.plyVari) },
+                        }, [ h('san', moveCounter + x['san']) ]
+                    );
+                })
+            ));
+
             if (ply % 2 !== 0) {
                 moves.push(h('move.counter', (ply + 1) / 2));
                 moves.push(h('move', '...'));

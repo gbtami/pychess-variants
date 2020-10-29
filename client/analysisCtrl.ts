@@ -529,9 +529,9 @@ export default class AnalysisController {
     }
 
     onFSFline = (line) => {
-        console.log(line);
+        //console.log(line);
 
-        if (line.includes('readyok')) {console.log("READYOK"); this.isEngineReady = true;};
+        if (line.includes('readyok')) this.isEngineReady = true;
 
         if (!this.localEngine) {
             if (line.includes('UCI_Variant')) {
@@ -703,8 +703,6 @@ export default class AnalysisController {
     }
 
     engineStop = () => {
-        console.log('STOP');
-        console.log('ISREADY');
         this.isEngineReady = false;
         window.fsf.postMessage('stop');
         window.fsf.postMessage('isready');
@@ -760,15 +758,17 @@ export default class AnalysisController {
         return dests;
     }
 
-    goPly = (ply) => {
-        console.log('goPly()', ply);
+    goPly = (ply, plyVari:number = 0) => {
         if (this.localAnalysis) {
             this.engineStop();
-            const container = document.getElementById('vari') as HTMLElement;
-            patch(container, h('div#vari', ''));
+            // Go back to the main line
+            if (plyVari === 0) {
+                const container = document.getElementById('vari') as HTMLElement;
+                patch(container, h('div#vari', ''));
+            }
         }
 
-        const step = this.steps[ply];
+        const step = (plyVari > 0) ? this.steps[plyVari]['vari'][ply] : this.steps[ply];
         let move = step.move;
         let capture = false;
         if (move !== undefined) {
@@ -820,10 +820,13 @@ export default class AnalysisController {
             }
         }
 
-        this.ply = ply
+        // Go back to the main line
+        if (plyVari === 0) {
+            this.ply = ply
+        }
         this.turnColor = step.turnColor;
 
-        if (this.plyVari > 0) {
+        if (this.plyVari > 0 && plyVari === 0) {
             this.steps[this.plyVari]['vari'] = undefined;
             this.plyVari = 0;
             updateMovelist(this);
@@ -920,9 +923,6 @@ export default class AnalysisController {
         // variation move
         } else {
             const moves = this.ffishBoard.moveStack();
-            moves.split(' ').forEach(_ => this.ffishBoard.pop());
-            const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-            this.ffishBoard.pushMoves(moves);
 
             // new variation starts
             if (!moves.includes(' ')) {
@@ -932,8 +932,10 @@ export default class AnalysisController {
                     return;
                 }
                 this.plyVari = this.ply;
+                this.steps[this.plyVari]['vari'] = [];
             }
-            this.steps[this.plyVari]['vari'] = sanMoves;
+            this.steps[this.plyVari]['vari'].push(step);
+
             const full = true;
             const activate = false;
             updateMovelist(this, full, activate);
@@ -943,7 +945,7 @@ export default class AnalysisController {
     }
 
     private onMsgAnalysisBoard = (msg) => {
-        console.log("got analysis_board msg:", msg);
+        // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();
 
