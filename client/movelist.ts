@@ -12,14 +12,17 @@ import { VNode } from 'snabbdom/vnode';
 import { boardSettings } from './boardSettings';
 
 export function selectMove (ctrl, ply) {
+    ctrl.goPly(ply);
+    activatePly(ctrl);
+    scrollToPly(ctrl);
+}
+
+function activatePly (ctrl) {
     const active = document.querySelector('move.active');
     if (active) active.classList.remove('active');
 
-    const elPly = document.querySelector(`move[ply="${ply}"]`);
+    const elPly = document.querySelector(`move[ply="${ctrl.ply}"]`);
     if (elPly) elPly.classList.add('active');
-
-    ctrl.goPly(ply)
-    scrollToPly(ctrl);
 }
 
 function scrollToPly (ctrl) {
@@ -37,7 +40,20 @@ function scrollToPly (ctrl) {
         movelistEl.scrollTop = st;
 }
 
-export function movelistView (ctrl) {
+function selectVariMove (ctrl, ply, plyVari) {
+    ctrl.goPly(ply, plyVari);
+    activatePlyVari(ply + plyVari);
+}
+
+function activatePlyVari (ply) {
+    const active = document.querySelector('vari-move.active');
+    if (active) active.classList.remove('active');
+
+    const elPly = document.querySelector(`vari-move[ply="${ply}"]`);
+    if (elPly) elPly.classList.add('active');
+}
+
+export function createMovelistButtons (ctrl) {
     const container = document.getElementById('move-controls') as HTMLElement;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
         h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh', { props: { title: 'Flip board' } } ) ]),
@@ -46,13 +62,12 @@ export function movelistView (ctrl) {
         h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ]));
-    return h('div.movelist#movelist');
 }
 
-export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) {
-    const container = document.getElementById('movelist') as HTMLElement;
-    const active = document.querySelector('move.active');
-    if (active && activate) active.classList.remove('active');
+export function updateMovelist (ctrl, full: boolean = true, activate: boolean = true) {
+
+    const plyFrom = (full) ? 1 : ctrl.steps.length -1
+    const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
     for (let ply = plyFrom; ply < plyTo; ply++) {
@@ -73,7 +88,40 @@ export function updateMovelist (ctrl, plyFrom, plyTo, activate: boolean = true) 
         }, moveEl);
 
         moves.push(el);
+        
+        if (ctrl.steps[ply]['vari'] !== undefined) {
+            const variMoves = ctrl.steps[ply]['vari'];
+
+            if (ply % 2 !== 0) moves.push(h('move', '...'));
+
+            moves.push(h('vari#vari' + ctrl.plyVari,
+                variMoves.map((x, idx) => {
+                    const currPly = ctrl.plyVari + idx;
+                    const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
+                    return h('vari-move', {
+                        attrs: { ply: currPly },
+                        on: { click: () => selectVariMove(ctrl, idx, ctrl.plyVari) },
+                        }, [ h('san', moveCounter + x['san']) ]
+                    );
+                })
+            ));
+
+            if (ply % 2 !== 0) {
+                moves.push(h('move.counter', (ply + 1) / 2));
+                moves.push(h('move', '...'));
+            }
+        }
     }
-    patch(container, h('div#movelist.movelist', moves));
-    if (activate) scrollToPly(ctrl);
+
+    if (full) {
+        ctrl.vmovelist = patch(ctrl.vmovelist, h('div#movelist'));
+        ctrl.vmovelist = patch(ctrl.vmovelist, h('div#movelist', moves));
+    } else {
+        const container = document.getElementById('movelist') as HTMLElement;
+        ctrl.vmovelist = patch(container, h('div#movelist', moves));
+    }
+
+    if (activate)
+        activatePly(ctrl);
+        scrollToPly(ctrl);
 }

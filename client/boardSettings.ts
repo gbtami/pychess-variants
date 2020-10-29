@@ -106,8 +106,8 @@ class BoardSettings {
                 const pxh = `${zoom / 100 * baseHeight}px`;
                 el.style.width = pxw;
                 el.style.height = pxh;
-                // 2 x (pocket height + pocket-wrapper additional 10px gap)
-                const pxp = (this.ctrl.hasPockets) ? `${2 * (((zoom / 100) * baseHeight) / dimensions[VARIANTS[variant].geometry].height) + 10}px;` : '0px;';
+                // 2 x pocket height
+                const pxp = (this.ctrl.hasPockets) ? `${2 * (((zoom / 100) * baseHeight) / dimensions[VARIANTS[variant].geometry].height)}px;` : '0px;';
                 // point counting values
                 const pxc = (isVariantClass(variant, "showMaterialPoint")) ? '48px;' : '0px;';
                 document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --countingHeight:' + pxc);

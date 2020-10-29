@@ -111,6 +111,8 @@ async def index(request):
         gameId = await tv_game(db, request.app)
     elif request.path.startswith("/editor"):
         view = "editor"
+    elif request.path.startswith("/analysis"):
+        view = "analysis"
 
     profileId = request.match_info.get("profileId")
 
@@ -266,9 +268,11 @@ async def index(request):
         # TODO: make it translatable similar to above variant pages
         render["faq"] = "docs/faq.html"
 
-    elif view == "editor":
+    elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
             fen = FairyBoard(variant).start_fen(variant)
+        else:
+            fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant
         render["fen"] = fen
 

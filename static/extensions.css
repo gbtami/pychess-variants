@@ -8,6 +8,7 @@
   --ranks: 8;
   --editorLength: 6;
   --pocketLength: 5;
+  --pocketMargin: 10px;
   --movelist-max-height: 116px;
 }
 [data-view="analysis"] {
@@ -15,7 +16,8 @@
   --ranks-top: 0px;
   --files-bottom: -16px;
   --files-left: 0px;
-  --movelist-max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--pvheight) - var(--countingHeight) - 150px);
+  --pocketMargin: 0px;
+  --movelist-max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--pvheight) - var(--countingHeight) - var(--toolsHeight));
 }
 #extension_choice {
   position: absolute;
@@ -89,13 +91,13 @@
   display: flex;
 }
 .pocket.top {
-  margin-bottom: 10px;
+  margin-bottom: var(--pocketMargin);
 }
 .pocket.top.editor {
   margin-bottom: 18px;
 }
 .pocket.bottom {
-  margin-top: 10px;
+  margin-top: var(--pocketMargin);
 }
 .pocket.bottom.editor {
   margin-top: 18px;

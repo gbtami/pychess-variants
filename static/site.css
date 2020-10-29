@@ -51,6 +51,7 @@
     --rematch-hover: #5FA1DE;
     --analysis-links: #1b78d0;
     --janggi-setup: #ccc;
+    --border-color: #d9d9d9;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -90,6 +91,7 @@
     --rematch-hover: #3171AC;
     --analysis-links: #3692e7;
     --janggi-setup: #5d5d5d;
+    --border-color: #404040;
 }
 
 [data-theme="dark"] .icon-black:before {
@@ -1320,9 +1322,8 @@ li.message.server {
 }
 move {
     line-height: 1.9em;
-    display: inline;
     float: left;
-    width: 42%;
+    flex: 0 0 43.5%;
     padding-left: 6px;
     box-sizing: border-box;
     justify-content: center;
@@ -1339,22 +1340,31 @@ eval {
 
 move.counter {
     color: Gray;
-    width: 16%;
+    flex: 0 0 13%;
     background-color: var(--bg-color2);
     text-align: center;
 }
 
-move:hover {
+vari-move:hover, move:hover {
     color: var(font-color);
     background-color: var(--blue-hover);
 }
-move.active {
+vari-move.active, move.active {
     background-color: var(--blue-active);
 }
 move.hidden {
     visibility: hidden;
 }
-
+vari {
+    flex: 0 0 100%;
+    background-color: var(--bg-color2);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    max-width: 100%;
+}
+vari-move {
+    padding-left: 4px;
+}
 /* cg-resize */
 body.resizing {
     -webkit-user-select:none;
@@ -1504,22 +1514,23 @@ a.icon.icon-plus-square {
 div#pv {
     display: flex;
     flex: 1 1 auto;
-    border-bottom: 1px ridge #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 pvline {
-    flex: 1;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     min-width: 0;
-    padding: 8px;
+    height: 28px;
+    line-height: 28px;
+    padding-left: 6px;
 }
-
 score {
     flex: 0 0 75px;
     font-weight: bold;
     font-size: 22px;
     align-self: center;
+    padding-left: 8px;
 }
 
 /* Local Fairy toggle */

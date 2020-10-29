@@ -35,6 +35,7 @@ export default class EditorController {
     vpocket0: any;
     vpocket1: any;
     vfen: any;
+    vAnalysis: any;
     vChallenge: any;
     anon: boolean;
 
@@ -95,17 +96,19 @@ export default class EditorController {
         );
 
         e = document.getElementById('clear') as HTMLElement;
-        patch(e, h('div', [h('a', {on: {click: () => this.setEmptyFen()}}, _('CLEAR BOARD'))]));
+        patch(e, h('a#clear', {on: {click: () => this.setEmptyFen()}}));
 
         e = document.getElementById('start') as HTMLElement;
-        patch(e, h('div', [h('a', {on: {click: () => this.setStartFen()}}, _('STARTING POSITION'))]));
+        patch(e, h('a#start', {on: {click: () => this.setStartFen()}}));
 
-        e = document.getElementById('challenge') as HTMLElement;
-        const text = _('PLAY WITH MACHINE') + ((this.anon) ? _(' (must be signed in)') : '');
-        this.vChallenge = patch(e, h('div', [h('a', {class: {disabled: this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
+        e = document.getElementById('analysis') as HTMLElement;
+        this.vAnalysis = patch(e, h('a#analysis', {on: {click: () => this.setAnalysisFen()}}));
+
+        e = document.getElementById('challengeAI') as HTMLElement;
+        this.vChallenge = patch(e, h('a#challengeAI', {class: {disabled: this.anon}, on: {click: () => this.setChallengeFen()}}));
 
         e = document.getElementById('png') as HTMLElement;
-        patch(e, h('div', [h('a', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}, _('EXPORT TO PNG'))]));
+        patch(e, h('a#png', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}));
 
     }
 
@@ -115,8 +118,8 @@ export default class EditorController {
     }
 
     private setInvalid = (invalid) => {
-        const text = _('PLAY WITH MACHINE') + ((this.anon) ? _(' (must be signed in)') : '');
-        this.vChallenge = patch(this.vChallenge, h('div', [h('a', {class: {disabled: invalid || this.anon}, on: {click: () => this.setLinkFen()}}, text)]));
+        this.vAnalysis = patch(this.vAnalysis, h('a#analysis', {class: {disabled: invalid}, on: {click: () => this.setAnalysisFen()}}));
+        this.vChallenge = patch(this.vChallenge, h('a#challengeAI', {class: {disabled: invalid || this.anon}, on: {click: () => this.setChallengeFen()}}));
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(invalid ? _('Invalid FEN') : '');
     }
@@ -144,7 +147,14 @@ export default class EditorController {
         this.setInvalid(true);
     }
 
-    private setLinkFen = () => {
+    private setAnalysisFen = () => {
+        //this.parts[0] = this.chessground.getFen() + this.pockets;
+        //this.variantFenChange();
+        const fen = this.parts.join('_').replace(/\+/g, '.');
+        window.location.assign(this.model["home"] + '/analysis/' + this.model["variant"] + '?fen=' + fen);
+    }
+
+    private setChallengeFen = () => {
         //this.parts[0] = this.chessground.getFen() + this.pockets;
         //this.variantFenChange();
         const fen = this.parts.join('_').replace(/\+/g, '.');
@@ -230,11 +240,11 @@ export function editorView(model): VNode[] {
             ]),
             h('aside.sidebar-second', [
                 h('div.editor-button-container', [
-                    h('div#clear'),
-                    h('div#start'),
-//                    h('div', [h('a', {attrs: {href: '/editor/' + model["variant"]}}, 'CREATE A GAME')]),
-                    h('div#challenge'),
-                    h('div#png'),
+                    h('div', [h('a#clear', _('CLEAR BOARD'))]),
+                    h('div', [h('a#start', _('STARTING POSITION'))]),
+                    h('div', [h('a#analysis', _('ANALYSIS BOARD'))]),
+                    h('div', [h('a#challengeAI', _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))]),
+                    h('div', [h('a#png', _('EXPORT TO PNG'))]),
                 ])
             ]),
             h('under-board', [
