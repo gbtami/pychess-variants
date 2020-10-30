@@ -112,6 +112,7 @@ export default class AnalysisController {
     ratings: string[];
     clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
+    animation: boolean;
     showDests: boolean;
     analysisChart: any;
     ctableContainer: any;
@@ -181,6 +182,7 @@ export default class AnalysisController {
         this.flip = false;
         this.settings = true;
         this.clickDropEnabled = true;
+        this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
@@ -238,15 +240,14 @@ export default class AnalysisController {
             notation: this.notation,
             orientation: this.mycolor,
             turnColor: this.turnColor,
-            animation: {
-                enabled: true,
-            },
+            animation: { enabled: this.animation },
             events: {
                 insert(elements) {resizeHandle(elements);}
             }
         });
 
         this.chessground.set({
+            animation: { enabled: this.animation },
             movable: {
                 free: false,
                 color: this.mycolor,
@@ -1056,6 +1057,7 @@ export default class AnalysisController {
                 fen: this.fullfen,
                 lastMove: this.lastmove,
                 turnColor: this.mycolor,
+                animation: { enabled: this.animation },
                 movable: {
                     dests: this.dests,
                     showDests: this.showDests,

@@ -85,6 +85,7 @@ export default class RoundController {
     ratings: string[];
     clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
+    animation: boolean;
     showDests: boolean;
     blindfold: boolean;
     handicap: boolean;
@@ -138,6 +139,7 @@ export default class RoundController {
         this.flip = false;
         this.settings = true;
         this.clickDropEnabled = true;
+        this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
@@ -195,9 +197,7 @@ export default class RoundController {
             orientation: this.mycolor,
             turnColor: this.turnColor,
             autoCastle: this.variant !== 'cambodian',
-            animation: {
-                enabled: true,
-            },
+            animation: { enabled: this.animation },
             events: {
                 insert(elements) {resizeHandle(elements);}
             }
@@ -214,6 +214,7 @@ export default class RoundController {
             });
         } else {
             this.chessground.set({
+                animation: { enabled: this.animation },
                 movable: {
                     free: false,
                     color: this.mycolor,
@@ -985,6 +986,7 @@ export default class RoundController {
                 fen: this.fullfen,
                 lastMove: this.lastmove,
                 turnColor: this.mycolor,
+                animation: { enabled: this.animation },
                 movable: {
                     dests: this.dests,
                     showDests: this.showDests,

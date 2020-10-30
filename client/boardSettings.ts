@@ -29,6 +29,7 @@ class BoardSettings {
 
     constructor() {
         this.settings = {};
+        this.settings["animation"] = new AnimationSettings(this);
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoQueen"] = new AutoQueenSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
@@ -140,6 +141,8 @@ class BoardSettings {
         if (variant === this.ctrl?.variant)
             settingsList.push(this.getSettings("Zoom", boardFamily).view());
 
+        settingsList.push(this.settings["animation"].view());
+
         settingsList.push(this.settings["showDests"].view());
 
         if (isVariantClass(variant, "autoQueen"))
@@ -192,6 +195,23 @@ class BoardSettings {
             if (isVariantClass(this.ctrl.variant, "showMaterialPoint"))
                 [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
         }
+    }
+}
+
+class AnimationSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('animation', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        this.boardSettings.ctrl?.chessground.set({ animation: { enabled: this.value } });
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'animation', _("Piece animation")));
     }
 }
 
