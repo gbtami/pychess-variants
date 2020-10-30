@@ -131,10 +131,11 @@ async def logout(request):
     # because its ws was already closed and removed from game_sockets
     if user is not None:
         for gameId in user.game_sockets:
-            game = request.app["games"][gameId]
-            if game.status <= STARTED:
-                response = await game.game_ended(user, "abandone")
-                await round_broadcast(game, users, response, full=True)
+            if gameId in request.app["games"]:
+                game = request.app["games"][gameId]
+                if game.status <= STARTED:
+                    response = await game.game_ended(user, "abandone")
+                    await round_broadcast(game, users, response, full=True)
 
     session.invalidate()
 
