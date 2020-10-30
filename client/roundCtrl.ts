@@ -356,6 +356,7 @@ export default class RoundController {
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
+        boardSettings.updateBlindfold();
     }
 
     getGround = () => this.chessground;

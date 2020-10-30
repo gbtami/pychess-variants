@@ -32,6 +32,7 @@ class BoardSettings {
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoQueen"] = new AutoQueenSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
+        this.settings["blindfold"] = new BlindfoldSettings(this);
     }
 
     getSettings(settingsType: string, family: string) {
@@ -120,6 +121,10 @@ class BoardSettings {
         }
     }
 
+    updateBlindfold () {
+        this.settings["blindfold"].update();
+    }
+
     view(variant: string) {
         if (!variant) return h("div#board-settings");
 
@@ -141,6 +146,8 @@ class BoardSettings {
             settingsList.push(this.settings["autoQueen"].view());
 
         settingsList.push(this.settings["arrow"].view());
+
+        settingsList.push(this.settings["blindfold"].view());
             
         return h('div#board-settings', settingsList);
     }
@@ -319,6 +326,34 @@ class ArrowSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'arrow', _("Best move arrow in analysis board")));
+    }
+}
+
+class BlindfoldSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('blindfold', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl)
+            this.boardSettings.ctrl.blindfold = this.value;
+
+        const el = document.getElementById('mainboard') as HTMLInputElement;
+        if (el) {
+            if (this.value) {
+                el.classList.add('blindfold');
+            } else {
+                el.classList.remove('blindfold');
+            }
+        }
+
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'blindfold', _("Invisible pieces")));
     }
 }
 

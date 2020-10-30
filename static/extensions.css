@@ -132,9 +132,6 @@
 .pocket.usable piece.premove:hover {
   background-color: #666;
 }
-.blindfold .pocket:not(.usable) {
-  opacity: 0;
-}
 .pocket piece[data-nb='0'] {
   cursor: auto;
   opacity: 0.1;
