@@ -1782,7 +1782,6 @@ div#ctable-container {
 .tooltip .tooltiptext {
     visibility: hidden;
     position: absolute;
-    top: -20px;
     right: 105%;
     z-index: 1;
 }
