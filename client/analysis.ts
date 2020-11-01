@@ -173,7 +173,7 @@ export function analysisView(model): VNode[] {
                 ]),
                 h('div#fen'),
                 h('div#copyfen'),
-                h('div#pgntext'),
+                h('div', [h('textarea#pgntext')]),
             ])
         ])
     ];

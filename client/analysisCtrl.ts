@@ -25,7 +25,7 @@ import { sound } from './sound';
 import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, isVariantClass, sanToRole } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { createMovelistButtons, updateMovelist, selectMove } from './movelist';
+import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from './winningChances';
 import resizeHandle from './resize';
 //import { result } from './profile';
@@ -83,6 +83,7 @@ export default class AnalysisController {
     vplayer0: any;
     vplayer1: any;
     vfen: any;
+    vpgn: any;
     vscore: any;
     vinfo: any;
     vpv: any;
@@ -387,13 +388,17 @@ export default class AnalysisController {
             this.result = msg.result;
             this.status = msg.status;
 
-            this.pgn = msg.pgn;
+            // Save finished game full pgn sent by server
+            if (msg.pgn !== undefined) this.pgn = msg.pgn;
+            // but on analysis page we always present pgn move list leading to current shown position!
+            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+
             this.uci_usi = msg.uci_usi;
 
             let container = document.getElementById('copyfen') as HTMLElement;
             if (container !== null) {
                 const buttons = [
-                    h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, this.pgn) } }, [
+                    h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, pgn) } }, [
                         h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
                     h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                         h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
@@ -412,7 +417,7 @@ export default class AnalysisController {
             this.vfen = patch(container, h('div#fen', this.fullfen));
 
             container = document.getElementById('pgntext') as HTMLElement;
-            patch(container, h('div#pgntext', [h('textarea', { attrs: { rows: 13, readonly: true, spellcheck: false} }, msg.pgn)]));
+            this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
 
             if (!this.isAnalysisBoard) selectMove(this, this.ply);
         }
@@ -759,7 +764,9 @@ export default class AnalysisController {
         return dests;
     }
 
-    goPly = (ply, plyVari:number = 0) => {
+    // When we are moving inside a variation move list
+    // then plyVari > 0 and ply is the index inside vari movelist
+    goPly = (ply, plyVari: number = 0) => {
         if (this.localAnalysis) {
             this.engineStop();
             // Go back to the main line
@@ -843,6 +850,10 @@ export default class AnalysisController {
         if (this.localAnalysis) this.engineGo();
 
         this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
+        if (this.isAnalysisBoard) {
+            const idxInVari = (plyVari > 0) ? ply : 0;
+            this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
+        }
         window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString());
     }
 
@@ -885,6 +896,22 @@ export default class AnalysisController {
         }
     }
 
+    private getPgn = (idxInVari : number = 0) => {
+        let moves : string[] = [];
+        for (let ply = 1; ply <= this.ply; ply++) {
+            const moveCounter = (ply % 2 !== 0) ? (ply + 1) / 2 + '.' : '';
+            if (this.steps[ply]['vari'] !== undefined && this.plyVari > 0) {
+                const variMoves = this.steps[ply]['vari'];
+                for (let idx = 0; idx <= idxInVari; idx++) {
+                    moves.push(moveCounter + variMoves[idx]['san']);
+                }
+                break;
+            }
+            moves.push(moveCounter + this.steps[ply]['san']);
+        }
+        return moves.join(' ');
+    }
+
     private sendMove = (orig, dest, promo) => {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
@@ -902,7 +929,6 @@ export default class AnalysisController {
             promo: this.promotions,
             bikjang: this.ffishBoard.isBikjang(),
             check: this.ffishBoard.isCheck(),
-            pgn: '', // TODO
         }
         this.onMsgAnalysisBoard(msg);
 
@@ -940,6 +966,13 @@ export default class AnalysisController {
             const full = true;
             const activate = false;
             updateMovelist(this, full, activate);
+            activatePlyVari(this.plyVari + this.steps[this.plyVari]['vari'].length - 1);
+        }
+
+        this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
+        if (this.isAnalysisBoard) {
+            const idxInVari = (this.plyVari > 0) ? this.steps[this.plyVari]['vari'].length - 1 : 0;
+            this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
         }
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });

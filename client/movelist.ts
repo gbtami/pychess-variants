@@ -45,7 +45,8 @@ function selectVariMove (ctrl, ply, plyVari) {
     activatePlyVari(ply + plyVari);
 }
 
-function activatePlyVari (ply) {
+export function activatePlyVari (ply) {
+    console.log('activatePlyVari()', ply);
     const active = document.querySelector('vari-move.active');
     if (active) active.classList.remove('active');
 
