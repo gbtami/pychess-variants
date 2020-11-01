@@ -171,7 +171,10 @@ export function analysisView(model): VNode[] {
                     h('div#chart'),
                     h('div#loader-wrapper', [h('div#loader')])
                 ]),
-                h('div#fen'),
+                h('div#fentext', [
+                    h('strong', 'FEN'),
+                    h('input#fullfen', {attrs: {readonly: true, spellcheck: false}})
+                ]),
                 h('div#copyfen'),
                 h('div', [h('textarea#pgntext')]),
             ])

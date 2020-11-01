@@ -82,7 +82,6 @@ export default class AnalysisController {
     vpocket1: any;
     vplayer0: any;
     vplayer1: any;
-    vfen: any;
     vpgn: any;
     vscore: any;
     vinfo: any;
@@ -413,8 +412,8 @@ export default class AnalysisController {
                 patch(container, h('div', buttons));
             }
 
-            container = document.getElementById('fen') as HTMLElement;
-            this.vfen = patch(container, h('div#fen', this.fullfen));
+            const e = document.getElementById('fullfen') as HTMLInputElement;
+            e.value = this.fullfen;
 
             container = document.getElementById('pgntext') as HTMLElement;
             this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
@@ -849,7 +848,9 @@ export default class AnalysisController {
         this.maxDepth = maxDepth;
         if (this.localAnalysis) this.engineGo();
 
-        this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
+        const e = document.getElementById('fullfen') as HTMLInputElement;
+        e.value = this.fullfen;
+
         if (this.isAnalysisBoard) {
             const idxInVari = (plyVari > 0) ? ply : 0;
             this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
@@ -969,7 +970,9 @@ export default class AnalysisController {
             activatePlyVari(this.plyVari + this.steps[this.plyVari]['vari'].length - 1);
         }
 
-        this.vfen = patch(this.vfen, h('div#fen', this.fullfen));
+        const e = document.getElementById('fullfen') as HTMLInputElement;
+        e.value = this.fullfen;
+
         if (this.isAnalysisBoard) {
             const idxInVari = (this.plyVari > 0) ? this.steps[this.plyVari]['vari'].length - 1 : 0;
             this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));

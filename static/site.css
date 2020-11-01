@@ -250,7 +250,20 @@ under-left {
 under-board {
     grid-area: uboard;
 }
-
+div#fentext {
+    display: flex;
+    flex-flow: row;
+}
+div#fentext strong {
+    align-self: center;
+}
+input#fullfen {
+    width: 100%;
+    border: 0;
+    margin: 0;
+    padding: .3em;
+    background: none;
+}
 textarea {
     width: calc(var(--cgwrapwidth));
     color: var(--font-color);
