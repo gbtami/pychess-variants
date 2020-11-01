@@ -1162,6 +1162,7 @@ export default class AnalysisController {
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
 
+        // Server side analysis message
         if (msg.type === 'analysis') {
             this.steps[msg.ply]['ceval'] = msg.ceval;
             this.steps[msg.ply]['scoreStr'] = scoreStr;
@@ -1170,6 +1171,7 @@ export default class AnalysisController {
                 const element = document.getElementById('loader-wrapper') as HTMLElement;
                 element.style.display = 'none';
             }
+            this.drawServerEval(msg.ply, scoreStr);
         }
         const turnColor = msg.color === 'w' ? 'white' : 'black';
         this.drawEval(msg.ceval, scoreStr, turnColor);
