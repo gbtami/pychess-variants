@@ -1172,9 +1172,10 @@ export default class AnalysisController {
                 element.style.display = 'none';
             }
             this.drawServerEval(msg.ply, scoreStr);
+        } else {
+            const turnColor = msg.color === 'w' ? 'white' : 'black';
+            this.drawEval(msg.ceval, scoreStr, turnColor);
         }
-        const turnColor = msg.color === 'w' ? 'white' : 'black';
-        this.drawEval(msg.ceval, scoreStr, turnColor);
     }
 
     // User running a fishnet worker asked new server side analysis with chat message: !analysis
