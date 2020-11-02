@@ -52,7 +52,7 @@ def make_app(with_db=True):
         app.router.add_get(route[0], route[1])
     for route in post_routes:
         app.router.add_post(route[0], route[1])
-    app.router.add_static("/static", "static")
+    app.router.add_static("/static", "static", append_version=True)
 
     return app
 
