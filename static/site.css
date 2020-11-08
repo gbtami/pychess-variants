@@ -100,6 +100,12 @@
 [data-theme="dark"] .icon-white:before {
   content: "\62";
 }
+[data-icon]:before {
+    vertical-align: middle;
+}
+[class*=" icon-"]:before {
+    vertical-align: middle;
+}
 
 .hide {
     display: none !important;
@@ -273,6 +279,12 @@ textarea {
 div.pgn {
     width: calc(var(--cgwrapwidth));
 }
+#pgnpaste {
+    width: 90%;
+    height: 30vh;
+    background-color: var(--bg-color2);
+    border: 1px solid var(--input-border);
+}
 under-right {
     grid-area: utable;
     flex:1;
@@ -281,17 +293,16 @@ under-right {
     justify-content: center;
 }
 
-div.about, div.guide, div.patron, div.closed {
+div.about, div.guide, div.patron, div.closed, div.paste {
     grid-area: main;
     margin: 0 auto;
     border-radius: 3px;
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size:1.1em;
     box-shadow: var(--base-shadow);
     background-color: var(--bg-color0);
     padding: 24px;
 }
-div.about {
+div.about, div.paste {
     width: 75%;
 }
 div.patron {
@@ -505,7 +516,7 @@ div#result {
     border-top: 1px solid var(--bg-color2);
 }
 
-.lobby-button, .donate-button, button#request-analysis {
+.lobby-button, .donate-button, button#request-analysis, button#import {
     background-color: var(--bg-color2);
     border: none;
     color: var(--font-color);
@@ -520,13 +531,16 @@ div#result {
 .lobby-button {
     width: 100%;
 }
-button#request-analysis {
+button#request-analysis, button#import {
     width: 200px;
     padding: 4px;
     margin: 2px 2px;
     border-radius: 4px;
     color: White;
     background-color: var(--blue-hover);
+}
+div.import {
+    padding-top:1.5rem;
 }
 .lobby-button:hover {
     background-color: var(--bg-color1);
@@ -668,8 +682,7 @@ player-title {
     margin-top:0.5em;
     margin-left:0.5em;
 }
-i-side {
-    vertical-align: -2;
+i-side, .icon-cloud-upload:before {
     margin-right: .4em;
 }
 .icon-blue:before {
@@ -686,17 +699,14 @@ i-side {
 }
 .icon-online::before {
     color: var(--good);
-    vertical-align: -2;
     margin-right: .4em;
 }
 .icon-offline::before {
     color: LightGray;
-    vertical-align: -2;
     margin-right: .4em;
 }
 .icon-left:before {
     color: var(--green-hover);
-    vertical-align: -4;
     margin-right: .4em;
 }
 rating {
@@ -809,7 +819,6 @@ table#seeks-header, table#seeks {
     border-collapse: collapse;
     border-spacing: 0;
     border-radius: 3px;
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size: 1.2em;
     table-layout: fixed;
 }
@@ -921,7 +930,6 @@ table#games, table#players {
     border-collapse: collapse;
     border-spacing: 0px;
     border-radius: 3px;
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     /*box-shadow: var(--base-shadow);*/
 }
 
@@ -1522,7 +1530,6 @@ a.icon.icon-plus-square {
     font-size: 16px;
     margin-left: 4px;
     cursor: pointer;
-    vertical-align: -2px;
 }
 div#pv {
     display: flex;

@@ -4,6 +4,9 @@ LANGUAGES = ["de", "en", "es", "fr", "hu", "it", "ja", "ko", "pt", "th", "zh"]
 # fishnet work types
 MOVE, ANALYSIS = 0, 1
 
+# game types
+CASUAL, RATED, IMPORTED = 0, 1, 2
+
 # game status
 CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
     ABANDONE, CHEAT, NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND, CLAIM = range(-2, 14)

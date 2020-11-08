@@ -1,7 +1,9 @@
 import logging
 import random
 import string
+from datetime import datetime
 
+from aiohttp import web
 from aiohttp.web import WebSocketResponse
 
 from game import MAX_PLY
@@ -13,8 +15,9 @@ except ImportError:
     print("No pyffish module installed!")
 
 from broadcast import round_broadcast
-from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS
-from compress import decode_moves, R2C, C2R, V2C, C2V
+from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
+    UNKNOWNFINISH, CASUAL, RATED, IMPORTED
+from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game
@@ -107,7 +110,7 @@ async def load_game(app, game_id):
         inc=doc["i"],
         byoyomi_period=int(bool(doc.get("bp"))),
         level=doc.get("x"),
-        rated=bool(doc.get("y")),
+        rated=doc.get("y"),
         chess960=bool(doc.get("z")),
         create=False)
 
@@ -194,14 +197,18 @@ async def load_game(app, game_id):
 
     try:
         game.wrating = doc["p0"]["e"]
-        game.wrdiff = doc["p0"]["d"]
         game.brating = doc["p1"]["e"]
-        game.brdiff = doc["p1"]["d"]
     except KeyError:
         game.wrating = "1500?"
-        game.wrdiff = "0"
         game.brating = "1500?"
-        game.brdiff = "0"
+
+    try:
+        game.wrdiff = doc["p0"]["d"]
+        game.brdiff = doc["p1"]["d"]
+    except KeyError:
+        game.wrdiff = ""
+        game.brdiff = ""
+
     return game
 
 
@@ -214,11 +221,100 @@ async def draw(games, data, agreement=False):
         await game.save_game()
         return {
             "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
-            "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated else ""}
+            "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated == RATED else ""}
     else:
         response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
         game.messages.append(response)
         return response
+
+
+async def import_game(request):
+    data = await request.post()
+    app = request.app
+    db = app["db"]
+
+    print("---IMPORT GAME---")
+    print(data)
+    print("-----------------")
+
+    wplayer = User(app, username=data["White"], anon=True)
+    bplayer = User(app, username=data["Black"], anon=True)
+    variant = data.get("Variant", "chess").lower()
+    initial_fen = data.get("FEN", "")
+    final_fen = data.get("final_fen", "")
+    result = data.get("Result", "*")
+    try:
+        date = map(int, data.get("Date", "").split("."))
+        date = datetime(*date)
+    except Exception as e:
+        log.debug(e)
+        date = datetime.utcnow()
+
+    try:
+        tc = list(map(int, data.get("TimeControl", "").split("+")))
+        base = int(tc[0] / 60)
+        inc = tc[1]
+    except Exception as e:
+        log.debug(e)
+        base, inc = 0, 0
+
+    move_stack = data.get("moves", "").split(" ")
+    moves = encode_moves(
+        map(grand2zero, move_stack) if variant in GRANDS
+        else move_stack, variant)
+
+    new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
+    existing = await db.game.find_one({'_id': {'$eq': new_id}})
+    if existing:
+        message = "Failed to create game. Game ID %s allready in mongodb." % new_id
+        log.error(message)
+        return web.json_response({"error": message})
+
+    try:
+        new_game = Game(app, new_id, variant, initial_fen, wplayer, bplayer, create=False)
+        new_game.status = UNKNOWNFINISH
+        new_game.date = date
+    except Exception as e:
+        message = "Creating new game %s failed!" % new_id
+        log.error(e)
+        return web.json_response({"error": message})
+
+    document = {
+        "_id": new_id,
+        "us": [wplayer.username, bplayer.username],
+        "v": V2C[variant],
+        "b": base,
+        "i": inc,
+        "bp": new_game.byoyomi_period,
+        "m": moves,
+        "d": new_game.date,
+        "f": final_fen,
+        "s": new_game.status,
+        "r": R2C[result],
+        "x": new_game.level,
+        "y": IMPORTED,
+        "z": int(new_game.chess960),
+        "by": data["username"],
+    }
+
+    if initial_fen or new_game.chess960:
+        document["if"] = new_game.initial_fen
+
+    if variant.endswith("shogi") or variant == "dobutsu":
+        document["uci"] = 1
+
+    wrating = data.get("WhiteElo")
+    brating = data.get("BlackElo")
+    if wrating:
+        document["p0"] = {"e": wrating}
+    if brating:
+        document["p1"] = {"e": brating}
+
+    print(document)
+    result = await db.game.insert_one(document)
+    print("db insert IMPORTED game result %s" % repr(result.inserted_id))
+
+    return web.json_response({"gameId": new_id})
 
 
 async def new_game(app, user, seek_id):
@@ -261,7 +357,7 @@ async def new_game(app, user, seek_id):
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
             level=seek.level,
-            rated=seek.rated,
+            rated=RATED if seek.rated else CASUAL,
             chess960=seek.chess960,
             create=True)
     except Exception:
@@ -287,7 +383,7 @@ async def new_game(app, user, seek_id):
         "s": new_game.status,
         "r": R2C["*"],
         "x": seek.level,
-        "y": int(seek.rated),
+        "y": RATED if seek.rated else CASUAL,
         "z": int(seek.chess960),
     }
 

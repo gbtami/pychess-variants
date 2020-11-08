@@ -15,8 +15,8 @@ except ImportError:
 from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
-from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG,\
-    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, CLAIM, GRANDS
+from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
+    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
@@ -30,7 +30,7 @@ KEEP_TIME = 600  # keep game in app["games"] for KEEP_TIME secs
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=False, chess960=False, create=True):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=CASUAL, chess960=False, create=True):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.users = app["users"]
@@ -327,7 +327,7 @@ class Game:
             log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
         else:
             if self.result != "*":
-                if self.rated:
+                if self.rated == RATED:
                     await self.update_ratings()
                 if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
                     await self.save_crosstable()
@@ -343,7 +343,7 @@ class Game:
                     map(grand2zero, self.board.move_stack) if self.variant in GRANDS
                     else self.board.move_stack, self.variant)}
 
-            if self.rated and self.result != "*":
+            if self.rated == RATED and self.result != "*":
                 new_data["p0"] = self.p0
                 new_data["p1"] = self.p1
 
@@ -592,15 +592,15 @@ class Game:
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
-        return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
-            "PyChess " + ("rated" if self.rated else "casual") + " game",
+        tc = "-" if self.base + self.inc == 0 else "%s+%s" % (self.base * 60, self.ic)
+        return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
+            "PyChess " + ("rated" if self.rated == RATED else "casual" if self.rated == CASUAL else "imported") + " game",
             URI + "/" + self.id,
             self.date.strftime("%Y.%m.%d"),
             self.wplayer.username,
             self.bplayer.username,
             self.result,
-            self.base * 60,
-            self.inc,
+            tc,
             self.wrating,
             self.brating,
             self.variant.capitalize() if not self.chess960 else VARIANT_960_TO_PGN[self.variant],
@@ -685,7 +685,7 @@ class Game:
 
         return {
             "type": "gameEnd", "status": self.status, "result": self.result, "gameId": self.id, "pgn": self.pgn, "ct": self.crosstable,
-            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else ""}
+            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated == RATED else ""}
 
     def start_manual_count(self):
         if self.manual_count:
@@ -746,7 +746,7 @@ class Game:
                 "clocks": {"black": clocks["black"], "white": clocks["white"]},
                 "byo": byoyomi_periods,
                 "pgn": self.pgn if self.status > STARTED else "",
-                "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated else "",
+                "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated == RATED else "",
                 "uci_usi": self.uci_usi if self.status > STARTED else "",
                 "rm": self.random_move if self.status <= STARTED else "",
                 "ct": crosstable,

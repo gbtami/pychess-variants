@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
 import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
-import { renderRdiff, result } from './profile';
+import { gameType, renderRdiff, result } from './profile';
 
 declare global {
     interface Window {
@@ -28,12 +28,13 @@ function leftSide(model) {
     const sc = variant.secondColor;
 
     if (model["gameId"] !== "") {
+        const tc = (model["base"] == "0" && model["inc"] == "0") ? "" : model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "") + " • ";
         return [
         h('div.game-info', [
             h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
                 h('div.info2', [
                     h('div.tc', [
-                        model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "") + " • " + ((model["rated"] === 'True') ? _("Rated") : _("Casual")) + " • ",
+                        tc + gameType(model["rated"]) + " • ",
                         h('a.user-link', {
                             attrs: {
                                 target: '_blank',

@@ -113,6 +113,8 @@ async def index(request):
         view = "editor"
     elif request.path.startswith("/analysis"):
         view = "analysis"
+    elif request.path == "/paste":
+        view = "paste"
 
     profileId = request.match_info.get("profileId")
 

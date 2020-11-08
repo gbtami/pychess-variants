@@ -17,6 +17,7 @@ import { renderGames } from './games';
 import { editorView } from './editor';
 import { analysisView } from './analysis';
 import { profileView } from './profile';
+import { pasteView } from './paste';
 import { statsView } from './stats';
 import { sound, volumeSettings, soundThemeSettings } from './sound';
 import { debounce, getCookie } from './document';
@@ -71,6 +72,8 @@ export function view(el, model): VNode {
         return h('div#main-wrap', [h('main.round', editorView(model))]);
     case 'games':
         return h('div', renderGames());
+    case 'paste':
+        return h('div#main-wrap', pasteView(model));
     case 'stats':
         return h('div#stats', statsView());
     case 'thanks':

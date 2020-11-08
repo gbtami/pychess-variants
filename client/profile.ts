@@ -16,6 +16,19 @@ import { VARIANTS } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 
+export function gameType(rated) {
+    switch (rated) {
+    case "1":
+    case 1:
+        return _("Rated");
+    case "2":
+    case 2:
+        return _("IMPORT");
+    default:
+        return _("Casual");
+    }
+}
+
 export function result(variantName, status, result) {
     let text = '';
     console.log("result()", variantName, status, result);
@@ -83,8 +96,10 @@ export function renderRdiff(rdiff) {
         return h('span', '±0');
     } else if (rdiff < 0) {
         return h('bad', rdiff);
-    } else {
+    } else if (rdiff > 0) {
         return h('good', '+' + rdiff);
+    } else {
+        return h('span');
     }
 }
 
@@ -113,7 +128,7 @@ function renderGames(model, games) {
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
-                        h('div.tc', game["b"] + "+" + (game["bp"] > 1 ? game["bp"] + "x" : "") + game["i"] + (game["bp"] > 0 ? "(b)" : "") + " • " + ((game["y"] === 1) ? _("Rated") : _("Casual")) + " • " + variant.displayName(chess960)),
+                        h('div.tc', game["b"] + "+" + (game["bp"] > 1 ? game["bp"] + "x" : "") + game["i"] + (game["bp"] > 0 ? "(b)" : "") + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
                         h('info-date', { attrs: { timestamp: game["d"] } }),
                     ]),
                 ]),
@@ -218,6 +233,10 @@ export function profileView(model) {
             h('a.i-at.icon.icon-at', {
                 attrs: { href: 'https://lichess.org/@/' + model["profileid"], title: _('Lichess profile') },
                 class: { "disabled": anon },
+            }),
+            h('a.i-dl.icon.icon-cloud-upload', {
+                attrs: { href: '/paste', title: _('Import game') },
+                class: { "disabled": anon || model["title"] === 'BOT' },
             }),
             h('a.i-dl.icon.icon-download', {
                 attrs: { href: '/games/export/' + model["profileid"], download: model["profileid"] + '.pgn', title: _('Export games') },
