@@ -592,7 +592,7 @@ class Game:
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
-        tc = "-" if self.base + self.inc == 0 else "%s+%s" % (self.base * 60, self.ic)
+        tc = "-" if self.base + self.inc == 0 else "%s+%s" % (self.base * 60, self.inc)
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
             "PyChess " + ("rated" if self.rated == RATED else "casual" if self.rated == CASUAL else "imported") + " game",
             URI + "/" + self.id,
