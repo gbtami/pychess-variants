@@ -23,19 +23,27 @@ export function pasteView(model): VNode[] {
             const XHR = new XMLHttpRequest();
             const FD  = new FormData();
 
-            let variant, initialFen, board, mainlineMoves;
+            let variant, initialFen, board;
+            let mainlineMoves: string[] = [];
 
             try {
                 if (e.value.startsWith('#KIF version=2.0 encoding=UTF-8')) {
                     variant = 'shogi';
-                    const mainlineMoves = parseKif(e.value);
-                    console.log(mainlineMoves);
+                    const moves = parseKif(e.value);
 
                     board = new ffish.Board(variant);
+                    let move;
 
-                    for (let idx = 0; idx < mainlineMoves.length; ++idx) {
-                        //console.log(idx, mainlineMoves[idx]);
-                        board.push(mainlineMoves[idx]);
+                    for (let idx = 0; idx < moves.length; ++idx) {
+                        move = moves[idx];
+                        try {
+                            board.push(move);
+                            mainlineMoves.push(move);
+                        }
+                        catch (err) {
+                            alert('Illegal move ' + move);
+                            break;
+                        }
                     }
 
                     FD.append('Variant', variant);
