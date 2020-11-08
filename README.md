@@ -44,7 +44,7 @@ For move generation, validation, analysis and engine play it uses
 On client side it is based on
 [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/ornicar/chessground)
 
-## [![Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=29103205)
+##
 
 As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.
 
