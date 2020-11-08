@@ -246,16 +246,16 @@ async def import_game(request):
     try:
         date = map(int, data.get("Date", "").split("."))
         date = datetime(*date)
-    except Exception as e:
-        log.debug(e)
+    except Exception:
+        log.exception("Date tag parsing failed")
         date = datetime.utcnow()
 
     try:
         tc = list(map(int, data.get("TimeControl", "").split("+")))
         base = int(tc[0] / 60)
         inc = tc[1]
-    except Exception as e:
-        log.debug(e)
+    except Exception:
+        log.exception("TimeControl tag parsing failed")
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
@@ -267,16 +267,17 @@ async def import_game(request):
     existing = await db.game.find_one({'_id': {'$eq': new_id}})
     if existing:
         message = "Failed to create game. Game ID %s allready in mongodb." % new_id
-        log.error(message)
+        log.exception(message)
         return web.json_response({"error": message})
 
     try:
+        print(new_id, variant, initial_fen, wplayer, bplayer)
         new_game = Game(app, new_id, variant, initial_fen, wplayer, bplayer, create=False)
         new_game.status = UNKNOWNFINISH
         new_game.date = date
-    except Exception as e:
-        message = "Creating new game %s failed!" % new_id
-        log.error(e)
+    except Exception:
+        message = "Creating new Game %s failed!" % new_id
+        log.exception(message)
         return web.json_response({"error": message})
 
     document = {
@@ -361,7 +362,7 @@ async def new_game(app, user, seek_id):
             chess960=seek.chess960,
             create=True)
     except Exception:
-        log.error("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
+        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     games[new_game.id] = new_game
@@ -447,9 +448,9 @@ async def analysis_move(app, user, game, move, fen, ply):
         board.push(move)
         dests, promotions = get_dests(board)
         check = board.is_checked()
-    except Exception as e:
+    except Exception:
         invalid_move = True
-        log.error("!!! analysis_move() exception occured: %s" % type(e))
+        log.exception("!!! analysis_move() exception occured")
 
     if invalid_move:
         analysis_board_response = game.get_board(full=True)
@@ -481,7 +482,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             await game.play_move(move, clocks, ply)
         except SystemError:
             invalid_move = True
-            log.error("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, user.username))
+            log.exception("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, user.username))
             game.status = INVALIDMOVE
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
 
@@ -510,9 +511,9 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
                 response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id, "pgn": game.pgn}
                 await opp_ws.send_json(response)
         except KeyError:
-            log.error("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, user.username, gameId))
+            log.exception("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, user.username, gameId))
         except ConnectionResetError:
-            log.error("Move %s can't send to %s in game %s. User disconnected !!!" % (move, user.username, gameId))
+            log.exception("Move %s can't send to %s in game %s. User disconnected !!!" % (move, user.username, gameId))
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=app["channels"])
@@ -560,7 +561,7 @@ def pgn(doc):
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
-            log.error("%s %s %s movelist contains invalid move" % (doc["_id"], variant, doc["d"]))
+            log.exception("%s %s %s movelist contains invalid move" % (doc["_id"], variant, doc["d"]))
             mlist = mlist[0]
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))

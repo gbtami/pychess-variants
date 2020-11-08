@@ -6,6 +6,7 @@ import { VNode } from 'snabbdom/vnode';
 import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
 import { VARIANTS } from './chess';
+import { parseKif } from '../client/kif';
 
 export function pasteView(model): VNode[] {
     let ffish = null;
@@ -22,38 +23,64 @@ export function pasteView(model): VNode[] {
             const XHR = new XMLHttpRequest();
             const FD  = new FormData();
 
+            let variant, initialFen, board, mainlineMoves;
+
             try {
-                const game = ffish.readGamePGN(e.value);
+                if (e.value.startsWith('#KIF version=2.0 encoding=UTF-8')) {
+                    variant = 'shogi';
+                    const mainlineMoves = parseKif(e.value);
+                    console.log(mainlineMoves);
 
-                let variant = "chess";
-                const v = game.headers("Variant");
-                console.log("Variant:", v);
-                if (v) variant = v.toLowerCase();
+                    board = new ffish.Board(variant);
 
-                let initialFen = VARIANTS[variant].startFen;
-                const f = game.headers("FEN");
-                if (f) initialFen = f;
+                    for (let idx = 0; idx < mainlineMoves.length; ++idx) {
+                        //console.log(idx, mainlineMoves[idx]);
+                        board.push(mainlineMoves[idx]);
+                    }
 
-                // TODO: crazyhouse960 but without 960? (export to lichess hack)
-                const is960 = variant.includes("960") || variant.includes('random');
+                    FD.append('Variant', variant);
+                    FD.append('White', 'White');
+                    FD.append('Black', 'Black');
+                    FD.append('moves', mainlineMoves.join(' '));
+                    FD.append('final_fen', board.fen());
+                    FD.append('username', model["username"]);
 
-                const board = new ffish.Board(variant, initialFen, is960);
+                    board.delete();
 
-                const mainlineMoves = game.mainlineMoves().split(" ");
-                for (let idx = 0; idx < mainlineMoves.length; ++idx) {
-                    board.push(mainlineMoves[idx]);
+                } else {
+
+                    const game = ffish.readGamePGN(e.value);
+
+                    variant = "chess";
+                    const v = game.headers("Variant");
+                    console.log("Variant:", v);
+                    if (v) variant = v.toLowerCase();
+
+                    initialFen = VARIANTS[variant].startFen;
+                    const f = game.headers("FEN");
+                    if (f) initialFen = f;
+
+                    // TODO: crazyhouse960 but without 960? (export to lichess hack)
+                    const is960 = variant.includes("960") || variant.includes('random');
+
+                    board = new ffish.Board(variant, initialFen, is960);
+
+                    mainlineMoves = game.mainlineMoves().split(" ");
+                    for (let idx = 0; idx < mainlineMoves.length; ++idx) {
+                        board.push(mainlineMoves[idx]);
+                    }
+
+                    const tags = game.headerKeys().split(' ');
+                    tags.forEach((tag) => {
+                        FD.append( tag, game.headers(tag) );
+                    });
+                    FD.append('moves', game.mainlineMoves());
+                    FD.append('final_fen', board.fen());
+                    FD.append('username', model["username"]);
+
+                    board.delete();
+                    game.delete();
                 }
-
-                const tags = game.headerKeys().split(' ');
-                tags.forEach((tag) => {
-                    FD.append( tag, game.headers(tag) );
-                });
-                FD.append('moves', game.mainlineMoves());
-                FD.append('final_fen', board.fen());
-                FD.append('username', model["username"]);
-
-                board.delete();
-                game.delete();
             }
             catch(err) {
                 e.setCustomValidity(err.message ? _('Invalid PGN') : '');
