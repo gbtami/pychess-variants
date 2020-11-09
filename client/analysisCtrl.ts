@@ -551,6 +551,7 @@ export default class AnalysisController {
                         if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
                             this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
                             this.dests = this.getDests();
+                            this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
                         } else {
                             console.log("Selected variant is not supported by ffish.js");
                         }
@@ -917,14 +918,20 @@ export default class AnalysisController {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
         const san = this.ffishBoard.sanMove(move);
-        //console.log('sendMove()', move, san);
+        // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
         this.dests = this.getDests();
+
+        // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
+        // when new this.ffish.Board() initial FEN moving color was "b"
+        const moves = this.ffishBoard.moveStack().split(' ');
+        const newPly = moves.length;
+
         const msg = {
             gameId: this.gameId,
             fen: this.ffishBoard.fen(),
-            ply: this.ffishBoard.gamePly(),
+            ply: newPly,
             lastMove: uci_move,
             dests: this.dests,
             promo: this.promotions,
@@ -950,10 +957,8 @@ export default class AnalysisController {
             this.checkStatus(msg);
         // variation move
         } else {
-            const moves = this.ffishBoard.moveStack();
-
             // new variation starts
-            if (!moves.includes(' ')) {
+            if (newPly === 1) {
                 if (msg.lastMove === this.steps[this.ply].move) {
                     // existing main line played
                     selectMove(this, this.ply);
