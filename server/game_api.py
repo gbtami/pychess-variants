@@ -98,7 +98,12 @@ async def get_user_games(request):
             ]
         else:
             filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
-    elif variant in VARIANTS:
+    elif "/rated" in request.path:
+        filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
+    elif "/import" in request.path:
+        filter_cond["by"] = profileId
+        filter_cond["y"] = 2
+    elif "/perf" in request.path and variant in VARIANTS:
         if variant.endswith("960"):
             v = V2C[variant[:-3]]
             z = 1
@@ -128,6 +133,7 @@ async def get_user_games(request):
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
             game_doc_list.append(doc)
+
     # print("GAMES:", game_doc_list)
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 

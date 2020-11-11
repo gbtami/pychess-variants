@@ -188,6 +188,11 @@ async def init_state(app):
         async for doc in cursor:
             app["crosstable"][doc["_id"]] = doc
 
+        await app["db"].game.create_index("us")
+        await app["db"].game.create_index("v")
+        await app["db"].game.create_index("y")
+        await app["db"].game.create_index("by")
+
     except Exception:
         print("Maybe mongodb is not running...")
         raise

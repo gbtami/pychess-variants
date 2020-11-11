@@ -179,7 +179,11 @@ function loadGames(model, page) {
     if (model.level) {
         url = url + "/loss?x=8&p=";
     } else if (model.variant) {
-        url = url + "/" + model.variant + "?p=";
+        url = url + "/perf/" + model.variant + "?p=";
+    } else if (model.rated === "1") {
+        url = url + "/rated" + "?p=";
+    } else if (model.rated === "2") {
+        url = url + "/import" + "?p=";
     } else {
         url = url + "/all?p=";
     }

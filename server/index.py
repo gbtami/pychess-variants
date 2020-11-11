@@ -18,7 +18,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, STARTED, VARIANTS, VARIANT_ICONS
+from const import LANGUAGES, STARTED, VARIANTS, VARIANT_ICONS, RATED, IMPORTED
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -117,22 +117,28 @@ async def index(request):
         view = "paste"
 
     profileId = request.match_info.get("profileId")
-
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
+        log.debug("Invalid variant %s in request" % variant)
         return web.Response(status=404)
 
     fen = request.rel_url.query.get("fen")
 
     if (fen is not None) and "//" in fen:
+        log.debug("Invelid FEN %s in request" % fen)
         return web.Response(status=404)
 
     if profileId is not None:
         view = "profile"
+        rated = None
         if request.path[-3:] == "/tv":
             view = "tv"
             # TODO: tv for variants
             gameId = await tv_game_user(db, users, profileId)
+        elif request.path[-7:] == "/import":
+            rated = IMPORTED
+        elif request.path[-6:] == "/rated":
+            rated = RATED
         elif "/challenge" in request.path:
             view = "lobby"
             if user.anon:
@@ -207,6 +213,7 @@ async def index(request):
         if variant is not None:
             render["variant"] = variant
         render["profile_title"] = users[profileId].title if profileId in users else ""
+        render["rated"] = rated
 
     if view == "players":
         online_users = [u for u in users.values() if u.online(user.username) and not u.anon]
