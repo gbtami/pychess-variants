@@ -43,8 +43,8 @@ const kansuji = '一二三四五六七八九'.split('');
 const zen_map = dict(zensuji, [1,2,3,4,5,6,7,8,9]);
 const kan_map = dict(kansuji, alpha);
 
-const pieces = '歩香桂銀金角飛玉と馬龍';
-const piece_map = dict('歩香桂銀金角飛玉と馬龍'.split(''), 'PLNSGBRK'.split('').concat(['+P', '+B', '+R']));
+const pieces = '歩香桂銀金角飛玉と馬龍竜';
+const piece_map = dict('歩香桂銀金角飛玉と馬龍竜'.split(''), 'PLNSGBRK'.split('').concat(['+P', '+B', '+R', '+R']));
 
 const line_re = /(\d+) +([^ ]+)/u;
 
@@ -57,7 +57,8 @@ export function parseKif(text: string) {
     let piace_name, prev_position, next_position, rest;
 
     for (var i = 0; i < lines.length; i++) {
-        if (lines[i][0] == '#') continue;
+        const firstChar = lines[i][0];
+        if ( firstChar === '#' || firstChar === '*') continue;
 
         if (!tagsProcessed) {
             const symbols = [...lines[i]];
@@ -76,6 +77,7 @@ export function parseKif(text: string) {
                     break;
                 case '手合割':
                     handicap = tagPair[1];
+                    break;
                 case '先手':
                     sente = tagPair[1];
                     break;
@@ -88,6 +90,10 @@ export function parseKif(text: string) {
             }
         }
 
+        if (!tagsProcessed) {
+            continue;
+        }
+
         const res = lines[i].match(line_re);
 
         if (res) {
@@ -96,7 +102,7 @@ export function parseKif(text: string) {
             if (zensuji.includes(s[0])) {
                 next_position = zen_map[s[0]] + kan_map[s[1]];
             } else if (s[0] == '同') {
-                // pass
+                // used when the destination coordinate is the same as that of the immediately preceding move
             } else if (s[0] == '反' || s[0] == '切' || s[0] == '投') {
                 break;
             } else {

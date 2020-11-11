@@ -27,7 +27,10 @@ export function pasteView(model): VNode[] {
             let mainlineMoves: string[] = [];
 
             try {
-                if (e.value.startsWith('#KIF version=2.0 encoding=UTF-8')) {
+                const firstLine = e.value.slice(0, e.value.indexOf('\n'));
+
+                // Fullwidth Colon(!) is used to separate game tag key-value pairs in Shogi KIF files :
+                if (firstLine.includes('：') || firstLine.toUpperCase().includes('KIF')) {
                     const kif = parseKif(e.value);
                     const moves = kif['moves'];
 
