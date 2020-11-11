@@ -242,6 +242,7 @@ async def import_game(request):
     variant = data.get("Variant", "chess").lower()
     initial_fen = data.get("FEN", "")
     final_fen = data.get("final_fen", "")
+    status = int(data.get("Status", UNKNOWNFINISH))
     result = data.get("Result", "*")
     try:
         date = data.get("Date", "")[0:10]
@@ -257,7 +258,7 @@ async def import_game(request):
         if tc[0][-1] == "分":
             minute = True
             tc[0] = tc[0][:-1]
-        if tc[0][-1] == "秒":
+        if tc[1][-1] == "秒":
             tc[1] = tc[1][:-1]
         tc = list(map(int, tc))
         base = int((tc[0] / 60) if not minute else tc[0])
@@ -281,8 +282,6 @@ async def import_game(request):
     try:
         print(new_id, variant, initial_fen, wplayer, bplayer)
         new_game = Game(app, new_id, variant, initial_fen, wplayer, bplayer, create=False)
-        new_game.status = UNKNOWNFINISH
-        new_game.date = date
     except Exception:
         message = "Creating new Game %s failed!" % new_id
         log.exception(message)
@@ -296,9 +295,9 @@ async def import_game(request):
         "i": inc,
         "bp": new_game.byoyomi_period,
         "m": moves,
-        "d": new_game.date,
+        "d": date,
         "f": final_fen,
-        "s": new_game.status,
+        "s": status,
         "r": R2C[result],
         "x": new_game.level,
         "y": IMPORTED,

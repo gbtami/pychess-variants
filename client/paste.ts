@@ -6,7 +6,7 @@ import { VNode } from 'snabbdom/vnode';
 import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
 import { VARIANTS } from './chess';
-import { parseKif } from '../client/kif';
+import { parseKif, resultString } from '../client/kif';
 
 export function pasteView(model): VNode[] {
     let ffish = null;
@@ -32,9 +32,19 @@ export function pasteView(model): VNode[] {
                 // Fullwidth Colon(!) is used to separate game tag key-value pairs in Shogi KIF files :
                 if (firstLine.includes('：') || firstLine.toUpperCase().includes('KIF')) {
                     const kif = parseKif(e.value);
+                    const handicap = kif['handicap'];
                     const moves = kif['moves'];
+                    let status = kif['status'];
+                    let result = kif['result'];
 
-                    board = new ffish.Board('shogi');
+                    const as = VARIANTS['shogi'].alternateStart;
+                    const isHandicap = (handicap !== '' && as![handicap] !== undefined);
+                    if (isHandicap) {
+                        FD.append('FEN', as![handicap]);
+                    }
+
+                    const fen = (isHandicap) ? as![handicap] : VARIANTS['shogi'].startFen;
+                    board = new ffish.Board('shogi', fen);
                     let move;
 
                     for (let idx = 0; idx < moves.length; ++idx) {
@@ -45,6 +55,9 @@ export function pasteView(model): VNode[] {
                         }
                         catch (err) {
                             alert('Illegal move ' + move);
+                            status = 10;
+                            // LOSS for the moving player
+                            result = resultString(false, idx + 1, isHandicap);
                             break;
                         }
                     }
@@ -55,6 +68,8 @@ export function pasteView(model): VNode[] {
                     FD.append('Black', kif['gote']);
                     FD.append('TimeControl', kif['tc']);
                     FD.append('moves', mainlineMoves.join(' '));
+                    FD.append('Result', result);
+                    FD.append('Status', status);
                     FD.append('final_fen', board.fen());
                     FD.append('username', model['username']);
 

@@ -38,6 +38,10 @@ function mirror(p) {
 
 const dict = (keys, values) => keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
 
+const HC_TYPES = ["香落ち", "右香落ち", "角落ち", "飛車落ち", "飛香落ち", "二枚落ち", "三枚落ち", "四枚落ち", "五枚落ち", "左五枚落ち", "六枚落ち", "八枚落ち", "十枚落ち", "その他"];
+const HC_NAMES = ["Lance HC", "RLance HC", "Bishop HC", "Rook HC", "Rook+Lance HC", "2-Piece HC", "3-Piece HC", "4-Piece HC", "5-Piece HC", "LL 5-Piece HC", "6-Piece HC", "8-Piece HC", "10-Piece HC", "Other-HC"];
+const hc_map = dict(HC_TYPES, HC_NAMES);
+
 const alpha = 'abcdefghi'.split('');
 const zensuji = '１２３４５６７８９'.split('');
 const kansuji = '一二三四五六七八九'.split('');
@@ -50,13 +54,27 @@ const piece_map = dict('歩香桂銀金角飛玉と馬龍竜'.split(''), 'PLNSGB
 
 const line_re = /(\d+) +([^ ]+)/u;
 
+export function resultString(movingPlayerWin: boolean, ply: number, isHandicap: boolean) {
+    if (ply % 2 === ((movingPlayerWin) ? 1 : 0)) {
+        return (!isHandicap) ? '1-0' : '0-1';
+    } else{
+        return (!isHandicap) ? '0-1' : '1-0';
+    }
+}
+
 export function parseKif(text: string) {
-    let date, place, tc, handicap, sente, gote, result = '';
+    let date, place, tc, sente, gote, handicap = '';
+    let status = 11; // unknown
+    let result = '*'; // unknown
     let move_list: string[] = [];
     let tagsProcessed = false;
+    let isHandicap = false;
+    let movesStartLineNumber, ply;
 
     const lines = text.split(/\r?\n/u);
     let piace_name, prev_position, next_position, rest;
+    const WIN = true;
+    const LOSS = false;
 
     for (var i = 0; i < lines.length; i++) {
         const firstChar = lines[i][0];
@@ -79,6 +97,8 @@ export function parseKif(text: string) {
                     break;
                 case '手合割':
                     handicap = tagPair[1];
+                    isHandicap = HC_TYPES.includes(handicap);
+                    handicap = (isHandicap) ? hc_map[handicap] : '';
                     break;
                 case '先手':
                     sente = tagPair[1];
@@ -93,6 +113,7 @@ export function parseKif(text: string) {
         }
 
         if (!tagsProcessed) {
+            movesStartLineNumber = i;
             continue;
         }
 
@@ -100,12 +121,48 @@ export function parseKif(text: string) {
 
         if (res) {
             const s = res[2];
+            ply = i - movesStartLineNumber - 1;
 
             if (zensuji.includes(s[0])) {
                 next_position = zen_map[s[0]] + kan_map[s[1]];
             } else if (s[0] == '同') {
                 // used when the destination coordinate is the same as that of the immediately preceding move
-            } else if (s[0] == '反' || s[0] == '切' || s[0] == '投') {
+            } else if (s[0] == '反') {
+                status = 10; // illegal move
+                if ('反則勝ち') {
+                    // indicates that the immediately preceding move was illegal
+                    result = resultString(WIN, ply, isHandicap);
+                } else {
+                    // indicates that the player whose turn this was supposed to be somehow lost by illegality
+                    result = resultString(LOSS, ply, isHandicap);
+                }
+                break;
+            } else if (s[0] == '切') {
+                status = 6; // time out/flag drop
+                result = resultString(LOSS, ply, isHandicap);
+                break;
+            } else if (s[0] == '投') {
+                status = 2; // resignation
+                result = resultString(LOSS, ply, isHandicap);
+                break;
+            } else if (s[0] == '詰') {
+                status = 1; // checkmate
+                result = resultString(WIN, ply, isHandicap);
+                break;
+            } else if (s[0] == '入') {
+                status = 12; // entering king (campmate)
+                result = resultString(WIN, ply, isHandicap);
+                break;
+            } else if (s[0] == '千') {
+                status = 13; // repetition
+                result = '1/2-1/2';
+                break;
+            } else if (s[0] == '持') {
+                status = 5; // impasse
+                result = '1/2-1/2';
+                break;
+            } else if (s[0] == '中') {
+                status = 0; // aborted
                 break;
             } else {
                 console.log('Unknown Move', s[0], lines[i], res);
@@ -137,7 +194,7 @@ export function parseKif(text: string) {
             }
 
             //const num = parseInt(res[1]);
-            //console.log(num, piace_name, prev_position, next_position, promote);
+            //console.log(num, ply, piace_name, prev_position, next_position, promote);
             let move;
             if (prev_position == '@') {
                 move = piace_name + prev_position + mirror(next_position) + promote;
@@ -148,5 +205,5 @@ export function parseKif(text: string) {
             move_list.push(move);
         }
     }
-    return {'date': date, 'place': place, 'tc': tc, 'handicap': handicap, 'sente': sente, 'gote': gote, 'moves': move_list, 'result': result};
+    return {'date': date, 'place': place, 'tc': tc, 'handicap': handicap, 'sente': sente, 'gote': gote, 'moves': move_list, 'status': status, 'result': result};
 }
