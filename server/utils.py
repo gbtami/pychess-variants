@@ -233,9 +233,9 @@ async def import_game(request):
     app = request.app
     db = app["db"]
 
-    print("---IMPORT GAME---")
-    print(data)
-    print("-----------------")
+    # print("---IMPORT GAME---")
+    # print(data)
+    # print("-----------------")
 
     wplayer = User(app, username=data["White"], anon=True)
     bplayer = User(app, username=data["Black"], anon=True)
@@ -244,16 +244,24 @@ async def import_game(request):
     final_fen = data.get("final_fen", "")
     result = data.get("Result", "*")
     try:
-        date = map(int, data.get("Date", "").split("."))
+        date = data.get("Date", "")[0:10]
+        date = map(int, date.split("." if "." in date else "/"))
         date = datetime(*date)
     except Exception:
         log.exception("Date tag parsing failed")
         date = datetime.utcnow()
 
     try:
-        tc = list(map(int, data.get("TimeControl", "").split("+")))
-        base = int(tc[0] / 60)
-        inc = tc[1]
+        minute = False
+        tc = data.get("TimeControl", "").split("+")
+        if tc[0][-1] == "分":
+            minute = True
+            tc[0] = tc[0][:-1]
+        if tc[0][-1] == "秒":
+            tc[1] = tc[1][:-1]
+        tc = list(map(int, tc))
+        base = int((tc[0] / 60) if not minute else tc[0])
+        inc = int(tc[1])
     except Exception:
         log.exception("TimeControl tag parsing failed")
         base, inc = 0, 0

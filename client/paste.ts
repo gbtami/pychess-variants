@@ -28,10 +28,10 @@ export function pasteView(model): VNode[] {
 
             try {
                 if (e.value.startsWith('#KIF version=2.0 encoding=UTF-8')) {
-                    variant = 'shogi';
-                    const moves = parseKif(e.value);
+                    const kif = parseKif(e.value);
+                    const moves = kif['moves'];
 
-                    board = new ffish.Board(variant);
+                    board = new ffish.Board('shogi');
                     let move;
 
                     for (let idx = 0; idx < moves.length; ++idx) {
@@ -46,12 +46,14 @@ export function pasteView(model): VNode[] {
                         }
                     }
 
-                    FD.append('Variant', variant);
-                    FD.append('White', 'White');
-                    FD.append('Black', 'Black');
+                    FD.append('Variant', 'shogi');
+                    FD.append('Date', kif['date']);
+                    FD.append('White', kif['sente']);
+                    FD.append('Black', kif['gote']);
+                    FD.append('TimeControl', kif['tc']);
                     FD.append('moves', mainlineMoves.join(' '));
                     FD.append('final_fen', board.fen());
-                    FD.append('username', model["username"]);
+                    FD.append('username', model['username']);
 
                     board.delete();
 

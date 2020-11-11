@@ -49,12 +49,44 @@ const piece_map = dict('歩香桂銀金角飛玉と馬龍'.split(''), 'PLNSGBRK'
 const line_re = /(\d+) +([^ ]+)/u;
 
 export function parseKif(text: string) {
+    let date, place, tc, handicap, sente, gote, result = '';
     let move_list: string[] = [];
+    let tagsProcessed = false;
+
     const lines = text.split(/\r?\n/u);
     let piace_name, prev_position, next_position, rest;
 
     for (var i = 0; i < lines.length; i++) {
         if (lines[i][0] == '#') continue;
+
+        if (!tagsProcessed) {
+            const symbols = [...lines[i]];
+            const idx = symbols.indexOf('：'); // Fullwidth Colon!
+            if (idx > -1) {
+                const tagPair = [symbols.slice(0, idx).join(''), symbols.slice(idx + 1).join('')];
+                switch (tagPair[0]) {
+                case '開始日時':
+                    date = tagPair[1];
+                    break;
+                case '場所':
+                    place = tagPair[1];
+                    break;
+                case '持ち時間':
+                    tc = tagPair[1];
+                    break;
+                case '手合割':
+                    handicap = tagPair[1];
+                case '先手':
+                    sente = tagPair[1];
+                    break;
+                case '後手':
+                    gote = tagPair[1];
+                    break;
+                }
+            } else {
+                tagsProcessed = true;
+            }
+        }
 
         const res = lines[i].match(line_re);
 
@@ -68,7 +100,7 @@ export function parseKif(text: string) {
             } else if (s[0] == '反' || s[0] == '切' || s[0] == '投') {
                 break;
             } else {
-                console.log("Unknown Move", s[0], lines[i], res);
+                console.log('Unknown Move', s[0], lines[i], res);
                 return [];
             }
 
@@ -79,7 +111,7 @@ export function parseKif(text: string) {
                 piace_name = '+' + piece_map[s[3]];
                 rest = s.slice(4);
             } else {
-                console.log("Unknown Piece", s[2], lines[i], res);
+                console.log('Unknown Piece', s[2], lines[i], res);
                 return [];
             }
 
@@ -92,14 +124,14 @@ export function parseKif(text: string) {
             } else if (rest[0] == '(') {
                 prev_position = rest[1] + alpha[parseInt(rest[2])-1];
             } else {
-                console.log("Unknown ???", rest[0], lines[i], res);
+                console.log('Unknown ???', rest[0], lines[i], res);
                 return [];
             }
 
             //const num = parseInt(res[1]);
             //console.log(num, piace_name, prev_position, next_position, promote);
             let move;
-            if (prev_position == "@") {
+            if (prev_position == '@') {
                 move = piace_name + prev_position + mirror(next_position) + promote;
             } else {
                 move = mirror(prev_position) + mirror(next_position) + promote;
@@ -108,5 +140,5 @@ export function parseKif(text: string) {
             move_list.push(move);
         }
     }
-    return move_list;
+    return {'date': date, 'place': place, 'tc': tc, 'handicap': handicap, 'sente': sente, 'gote': gote, 'moves': move_list, 'result': result};
 }
