@@ -917,7 +917,7 @@ export default class AnalysisController {
     private sendMove = (orig, dest, promo) => {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
-        const san = this.ffishBoard.sanMove(move);
+        const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
