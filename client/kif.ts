@@ -1,3 +1,5 @@
+// Translated from Python code https://github.com/takaki/kif2pgn
+
 // mirror letters to digits
 function l2d(c) {
     switch (c) {

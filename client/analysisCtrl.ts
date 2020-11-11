@@ -905,11 +905,11 @@ export default class AnalysisController {
             if (this.steps[ply]['vari'] !== undefined && this.plyVari > 0) {
                 const variMoves = this.steps[ply]['vari'];
                 for (let idx = 0; idx <= idxInVari; idx++) {
-                    moves.push(moveCounter + variMoves[idx]['san']);
+                    moves.push(moveCounter + variMoves[idx]['sanSAN']);
                 }
                 break;
             }
-            moves.push(moveCounter + this.steps[ply]['san']);
+            moves.push(moveCounter + this.steps[ply]['sanSAN']);
         }
         return moves.join(' ');
     }
@@ -918,6 +918,7 @@ export default class AnalysisController {
         const uci_move = orig + dest + promo;
         const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
+        const sanSAN = this.ffishBoard.sanMove(move);
         // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
@@ -946,6 +947,7 @@ export default class AnalysisController {
             'check': msg.check,
             'turnColor': this.turnColor,
             'san': san,
+            'sanSAN': sanSAN,
             };
 
         // New main line move
