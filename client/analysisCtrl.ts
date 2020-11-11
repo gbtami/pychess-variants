@@ -932,7 +932,7 @@ export default class AnalysisController {
             gameId: this.gameId,
             fen: this.ffishBoard.fen(),
             ply: newPly,
-            lastMove: uci_move,
+            lastMove: move,
             dests: this.dests,
             promo: this.promotions,
             bikjang: this.ffishBoard.isBikjang(),
