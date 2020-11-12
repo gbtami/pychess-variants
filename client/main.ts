@@ -62,7 +62,7 @@ export function view(el, model): VNode {
         return h('div#main-wrap', aboutView());
     case 'level8win':
     case 'profile':
-        return h('div', profileView(model));
+        return h('div#profile', profileView(model));
     case 'tv':
     case 'round':
         return h('div#main-wrap', [h('main.round', roundView(model))]);

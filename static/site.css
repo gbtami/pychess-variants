@@ -899,6 +899,15 @@ table#seeks-header, table#seeks {
 }
 
 /* profile games */
+.filter-tabs {
+    display: flex;
+    padding-top: 10px;
+    background-color: var(--bg-color2);
+}
+div.filter-tabs div.sub-ratings {
+    flex: content;
+    font-size: 1.5em;
+}
 player-head {
     font-size: 24px;
 }
@@ -924,7 +933,7 @@ a.i-at:hover, a.i-tv:hover, a.i-dl:hover, a.i-ch:hover {
     color: #004f98;
 }
 
-table#games, table#players {
+div#profile, table#players {
     grid-area: content;
     width: 100%;
     border-collapse: collapse;
@@ -932,7 +941,9 @@ table#games, table#players {
     border-radius: 3px;
     /*box-shadow: var(--base-shadow);*/
 }
-
+table#games {
+    width: 100%;
+}
 td.player-data {
     padding: 8px;
 }
@@ -950,7 +961,6 @@ td.player-data {
     display: flex;
     width:100%;
     border: 1px solid var(--bg-color1);
-    padding: 3px;
     background-color: var(--bg-color2);
 }
 

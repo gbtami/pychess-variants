@@ -254,6 +254,11 @@ export function profileView(model) {
                 class: { "disabled": anon || model["username"] === model["profileid"] }
             }),
         ]),
+        h('div.filter-tabs', [
+            h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] }, class: {"active": model["rated"] === "None"} }, _('Games'))]),
+            h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/rated' }, class: {"active": model["rated"] === "1" } }, _('Rated'))]),
+            h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/import' }, class: {"active": model["rated"] === "2" } }, _('Imported'))]),
+        ]),
         h('table#games'),
         h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) } }),
     ];
