@@ -765,7 +765,7 @@ vs-swords.lobby.opp {
     opacity: 0.7;
 }
 .sub-ratings a:hover {
-    background: var(--bg-color1);
+    background: var(--game-hover);
 }
 .sub-ratings a:hover::before {
     color: LightSkyBlue;
@@ -906,7 +906,7 @@ table#seeks-header, table#seeks {
 }
 div.filter-tabs div.sub-ratings {
     flex: content;
-    font-size: 1.5em;
+    font-size: 1.2em;
 }
 player-head {
     font-size: 24px;
