@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import RoundController from './roundCtrl';
 import { VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
-import { renderRdiff } from './profile';
+import { gameType, renderRdiff } from './profile';
 
 function runGround(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
@@ -29,7 +29,7 @@ export function roundView(model): VNode[] {
             h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
                 h('div.info2', [
                     h('div.tc', [
-                        model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "") + " • " + ((model["rated"] === 1) ? _("Rated") : _("Casual")) + " • ",
+                        model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "") + " • " + gameType(model["rated"]) + " • ",
                         h('a.user-link', {
                             attrs: {
                                 target: '_blank',
