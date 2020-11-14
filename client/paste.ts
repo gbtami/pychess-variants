@@ -32,11 +32,11 @@ export function pasteView(model): VNode[] {
                 // Fullwidth Colon(!) is used to separate game tag key-value pairs in Shogi KIF files :
                 if (firstLine.includes('：') || firstLine.toUpperCase().includes('KIF')) {
                     const kif = parseKif(e.value);
+                    //console.log(kif['moves'].join(', '));
                     const handicap = kif['handicap'];
                     const moves = kif['moves'];
                     let status = kif['status'];
                     let result = kif['result'];
-
                     const as = VARIANTS['shogi'].alternateStart;
                     const isHandicap = (handicap !== '' && as![handicap] !== undefined);
                     if (isHandicap) {
@@ -81,7 +81,7 @@ export function pasteView(model): VNode[] {
 
                     variant = "chess";
                     const v = game.headers("Variant");
-                    console.log("Variant:", v);
+                    //console.log("Variant:", v);
                     if (v) variant = v.toLowerCase();
 
                     initialFen = VARIANTS[variant].startFen;

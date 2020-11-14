@@ -38,6 +38,9 @@ function mirror(p) {
 
 const dict = (keys, values) => keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
 
+// TODO: add missing handicap types to chess.ts
+// recognise more initial handicap positions
+// see https://en.wikipedia.org/wiki/Handicap_(shogi)#Types_of_handicap_games
 const HC_TYPES = ["香落ち", "右香落ち", "角落ち", "飛車落ち", "飛香落ち", "二枚落ち", "三枚落ち", "四枚落ち", "五枚落ち", "左五枚落ち", "六枚落ち", "八枚落ち", "十枚落ち", "その他"];
 const HC_NAMES = ["Lance HC", "RLance HC", "Bishop HC", "Rook HC", "Rook+Lance HC", "2-Piece HC", "3-Piece HC", "4-Piece HC", "5-Piece HC", "LL 5-Piece HC", "6-Piece HC", "8-Piece HC", "10-Piece HC", "Other-HC"];
 const hc_map = dict(HC_TYPES, HC_NAMES);
