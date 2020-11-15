@@ -2,6 +2,7 @@ import asyncio
 import collections
 import logging
 import random
+import traceback
 from datetime import datetime
 from itertools import chain
 from time import monotonic
@@ -16,7 +17,7 @@ from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
-    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED
+    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, IMPORTED
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
@@ -290,6 +291,10 @@ class Game:
 
     async def save_game(self, with_clocks=False):
         if self.saved:
+            return
+        if self.rated == IMPORTED:
+            log.error("Save IMPORTED game %s ???" % self.id)
+            traceback.print_stack()
             return
 
         self.stopwatch.kill()
