@@ -143,6 +143,7 @@ async def init_state(app):
             translation = gettext.NullTranslations()
 
         env = jinja2.Environment(
+            enable_async=True,
             extensions=['jinja2.ext.i18n'],
             loader=jinja2.FileSystemLoader("templates"),
             autoescape=jinja2.select_autoescape(["html"]))

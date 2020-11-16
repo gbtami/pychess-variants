@@ -41,7 +41,7 @@
             <div class="info0 icon" data-icon="{{ icons[key] }}">
                 <div class="variant">{{ "S-CHESS" if key=="seirawan" else "S-HOUSE" if key=="shouse" else "OUK CHATRANG" if key=="cambodian" else key.upper() }}</div>
             </div>
-            {% for user, score in highscore[key].items()[:10] %}
+            {% for user, score in highscore[key].items() %}
                 <div class="player-data {{ loop.cycle('odd', 'even') }}">
                     <player>
                         <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>

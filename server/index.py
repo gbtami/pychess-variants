@@ -152,8 +152,9 @@ async def index(request):
         if game is None:
             log.debug("Requested game %s not in app['games']" % gameId)
             template = get_template("404.html")
+            text = await template.render_async({"home": URI})
             return web.Response(
-                text=html_minify(template.render({"home": URI})), content_type="text/html")
+                text=html_minify(text), content_type="text/html")
         games[gameId] = game
 
         if game.status > STARTED:
@@ -286,7 +287,7 @@ async def index(request):
         render["fen"] = fen
 
     try:
-        text = template.render(render)
+        text = await template.render_async(render)
     except Exception:
         raise web.HTTPFound("/")
 
