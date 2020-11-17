@@ -10,7 +10,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
+import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { boardSettings } from './boardSettings';
@@ -91,6 +91,7 @@ export default class RoundController {
     handicap: boolean;
     autoqueen: boolean;
     setupFen: string;
+    prevPieces: Pieces;
 
     constructor(el, model) {
         const onOpen = (evt) => {
@@ -999,9 +1000,9 @@ export default class RoundController {
 
     private onSelect = () => {
         return (key) => {
-            // console.log("ground.onSelect()", key, this.chessground.state);
-            // If drop selection was set dropDests we have to restore dests here
             if (this.chessground.state.movable.dests === undefined) return;
+
+            // If drop selection was set dropDests we have to restore dests here
             if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
                 if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
                     this.chessground.newPiece(this.clickDrop, key);
@@ -1011,7 +1012,14 @@ export default class RoundController {
                 //cancelDropMode(this.chessground.state);
                 this.chessground.set({ movable: { dests: this.dests }});
             };
-            // Sittuyin in place promotion on Ctrl+click
+
+            // Save state.pieces to help recognise 960 castling (king takes rook) moves
+            // Shouldn't this be implemented in chessground instead?
+            if (this.model.chess960 === 'True' && isVariantClass(this.variant, 'gate')) {
+                this.prevPieces = Object.assign({}, this.chessground.state.pieces);
+            }
+
+            // Janggi pass and Sittuyin in place promotion on Ctrl+click
             if (this.chessground.state.stats.ctrlKey && 
                 (key in this.chessground.state.movable.dests) &&
                 (this.chessground.state.movable.dests[key].indexOf(key) >= 0)

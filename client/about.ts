@@ -74,7 +74,7 @@ export function aboutView(): VNode[] {
                 h('a', { attrs: { href: 'https://www.pychess.org/variant/chess' } }, 'Chess.'),
             ]),
             h('p', [
-                _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, Capablanca, and Capahouse to start games from random positions with '),
+                _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, S-chess, Capablanca, and Capahouse to start games from random positions with '),
                 h('a', { attrs: { href: 'https://en.wikipedia.org/wiki/Chess960#Castling_rules' } }, _('Chess960 castling rules.'))
             ]),
             h('p', [

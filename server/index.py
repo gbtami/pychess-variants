@@ -18,7 +18,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, STARTED, VARIANTS, VARIANT_ICONS, RATED, IMPORTED
+from const import LANGUAGES, STARTED, VARIANTS, VARIANT_ICONS, RATED, IMPORTED, variant_display_name
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -215,6 +215,7 @@ async def index(request):
             render["variant"] = variant
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
+        render["variant_display_name"] = variant_display_name
 
     if view == "players":
         online_users = [u for u in users.values() if u.online(user.username) and not u.anon]
@@ -227,6 +228,7 @@ async def index(request):
         render["anon_online"] = anon_online
         # render["offline_users"] = offline_users
         render["highscore"] = request.app["highscore"]
+        render["variant_display_name"] = variant_display_name
     elif view == "allplayers":
         allusers = [u for u in users.values() if not u.anon]
         render["allusers"] = allusers

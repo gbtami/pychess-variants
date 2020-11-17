@@ -646,7 +646,7 @@ def sanitize_fen(variant, initial_fen, chess960):
         invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
     # Castling right need rooks and king placed in starting square
-    if (not invalid2) and (not invalid4):
+    if (not invalid2) and (not invalid4) and not (chess960 and (variant == "seirawan" or variant == "shouse")):
         rows = init[0].split("/")
         backRankB = rows[1] if (variant == 'shako') else rows[0]
         backRankW = rows[-2] if (variant == 'shako') else rows[-1]

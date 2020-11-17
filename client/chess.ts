@@ -439,7 +439,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
         pocketRoles: ["hawk", "elephant"],
         enPassant: true, autoQueenable: true, gate: true,
-        icon: "L",
+        chess960: true, icon: "L", icon960: "L",
     }),
 
     shouse: new Variant({
@@ -715,29 +715,33 @@ export function validFen(variantName: string, fen: string) {
     if (parts.length > 2 && variantName !== 'dobutsu') {
         if (parts[2].split('').some(wrong)) return false;
 
-        // Castling right need rooks and king placed in starting square
-        // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
-        // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
-        const rookPos = {
-            K: (variantName === 'shako') ? boardArray[boardHeight - 2][boardWidth - 2] : boardArray[boardHeight - 1][boardWidth - 1],
-            Q: (variantName === 'shako') ? boardArray[boardHeight - 2][1] : boardArray[boardHeight - 1][0],
-            k: (variantName === 'shako') ? boardArray[1][boardWidth - 2] : boardArray[0][boardWidth - 1],
-            q: (variantName === 'shako') ? boardArray[1][1] : boardArray[0][0],
-        };
+        // TODO: Checking S-chess960 FEN is tricky
+        // Editor and Analysis board needs chess960 checkbox similar to new game dialog first
+        if (variantName !== 'seirawan' && variantName !== 'shouse') {
+            // Castling right need rooks and king placed in starting square
+            // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
+            // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
+            const rookPos = {
+                K: (variantName === 'shako') ? boardArray[boardHeight - 2][boardWidth - 2] : boardArray[boardHeight - 1][boardWidth - 1],
+                Q: (variantName === 'shako') ? boardArray[boardHeight - 2][1] : boardArray[boardHeight - 1][0],
+                k: (variantName === 'shako') ? boardArray[1][boardWidth - 2] : boardArray[0][boardWidth - 1],
+                q: (variantName === 'shako') ? boardArray[1][1] : boardArray[0][0],
+            };
 
-        for (const c of parts[2]) {
-            switch (c) {
-                case 'K':
-                case 'Q':
-                    if (rookPos[c] !== 'R') return false;
-                    // TODO check king position
-                    break;
-                case 'k':
-                case 'q':
-                    if (rookPos[c] !== 'r') return false;
-                    // TODO check king position
-                    break;
-                    // TODO Column-based right
+            for (const c of parts[2]) {
+                switch (c) {
+                    case 'K':
+                    case 'Q':
+                        if (rookPos[c] !== 'R') return false;
+                        // TODO check king position
+                        break;
+                    case 'k':
+                    case 'q':
+                        if (rookPos[c] !== 'r') return false;
+                        // TODO check king position
+                        break;
+                        // TODO Column-based right
+                }
             }
         }
     }

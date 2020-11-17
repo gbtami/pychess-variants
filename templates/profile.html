@@ -8,7 +8,7 @@
     <a class="info0 icon {% if ratings[key][1] == 0 %} empty {% endif %} {% if variant == key %} active {% endif %}" data-icon="{{ icons[key] }}" href="{{ home }}/@/{{ profile }}/perf/{{ key }}">
         <div class="info2">
             <span>
-                <h3>{{ "S-CHESS" if key=="seirawan" else "S-HOUSE" if key=="shouse" else key.upper() }}</h3>
+                <h3>{{ variant_display_name(key) }}</h3>
                 <rating>
                     <strong>{{ ratings[key][0] }}</strong>
                     <span>{% trans count=ratings[key][1] %}{{ count }} game{% pluralize %}{{ count }} games{% endtrans %}</span>

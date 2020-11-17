@@ -45,6 +45,7 @@ VARIANTS = (
     # "gothic",
     # "gothhouse",
     "seirawan",
+    "seirawan960",
     "shouse",
     "grand",
     "grandhouse",
@@ -68,6 +69,7 @@ VARIANT_ICONS = {
     "capablanca": "P",
     "capahouse": "&",
     "seirawan": "L",
+    "seirawan960": "L",
     "shouse": "$",
     "grand": "(",
     "grandhouse": "*",
@@ -104,3 +106,16 @@ VARIANT_960_TO_PGN = {
     "placement": "Placement",
     "grand": "Grand",
 }
+
+
+def variant_display_name(variant):
+    if variant == "seirawan":
+        return "S-CHESS"
+    elif variant == "seirawan960":
+        return "S-CHESS960"
+    elif variant == "shouse":
+        return "S-HOUSE"
+    elif variant == "cambodian":
+        return "OUK CHATRANG"
+    else:
+        return variant.upper()

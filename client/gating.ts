@@ -4,6 +4,7 @@ import event from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
 
 import { h } from 'snabbdom/h';
+import { VNode } from 'snabbdom/vnode';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
@@ -27,7 +28,8 @@ export class Gating {
     }
 
     start(fen, orig, dest) {
-        if (this.canGate(fen, orig)) {
+        const ground = this.ctrl.getGround();
+        if (this.canGate(ground, fen, orig, dest)) {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
             this.choices = ["hawk", "elephant", "queen", "rook", "bishop", "knight"].filter(role => lc(pocket, roleToSan[role], color === "white") > 0);
@@ -35,30 +37,52 @@ export class Gating {
             // prevent empty only choices in s-house (when H and E dropped before any gating move)
             if (this.choices.length === 0) return false;
 
+            // add (first) empty gating choice
             this.choices.unshift("");
 
-            const ground = this.ctrl.getGround();
             const orientation = ground.state.orientation;
 
-            const origs = [orig];
-            const castling = ground.state.pieces[dest].role === "king" && orig[0] === "e" && dest[0] !== "d" && dest[0] !== "e" && dest[0] !== "f";
-            let rookDest = "";
+            let moves = {"normal": [orig, dest]};
+            let castling = false;
+            let rookOrig: string = "";
+            const moveLength = dest[0].charCodeAt() - orig[0].charCodeAt();
+
+            if (ground.state.pieces[dest].role === "king") {
+                // King long move is always castling move
+                if (Math.abs(moveLength) > 1 ) {
+                    castling = true;
+                    rookOrig = ((moveLength > 1) ? "h" : "a") + orig[1];
+                }
+                // King takes own Rook is always castling move in 960 games
+                if (this.ctrl.model.chess960 === 'True' && this.ctrl.prevPieces[dest] !== undefined) {
+                    if (this.ctrl.prevPieces[dest].role === "rook" && this.ctrl.prevPieces[dest].color === color) {
+                        castling = true;
+                        rookOrig = dest;
+                        // remove gating possibility if king move orig is in castling destination squares 
+                        if (this.inCastlingTargets(orig, color, moveLength)) {
+                            delete moves["normal"];
+                        }
+                    }
+                }
+            }
+
             if (castling) {
-                if (dest[0] > "e") {
-                    // O-O
-                    origs.push("h" + orig[1]);
-                    rookDest = "e" + orig[1];
-                } else {
-                    // O-O-O
-                    origs.push("a" + orig[1]);
-                    rookDest = "e" + orig[1];
-                };
+                // UCI move castling + gating to rook vacant square is rook takes king!
+                if (!this.inCastlingTargets(rookOrig, color, moveLength)) {
+                    moves["special"] = [rookOrig, orig];
+                }
+                const pieces = {};
+                pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'rook'};
+                pieces[((moveLength > 0) ? "g" : "c") + orig[1]] = {color: color, role: 'king'};
+                ground.setPieces(pieces);
             };
-            this.drawGating(origs, color, orientation);
+
+            // It is possible in 960 that we have no valid gating square finally
+            if (Object.keys(moves).length === 0) return false;
+
+            this.drawGating(moves, color, orientation);
             this.gating = {
-                origs: origs,
-                dest: dest,
-                rookDest: rookDest,
+                moves: moves,
                 callback: this.ctrl.sendMove,
             };
             return true;
@@ -66,10 +90,28 @@ export class Gating {
         return false;
     };
 
-    private canGate(fen: string, orig: Key) {
+    private inCastlingTargets(key, color, moveLength) {
+        if (color === "white") {
+            if (moveLength > 0) {
+                // O-O
+                return (key === 'f1') || (key === 'g1');
+            } else {
+                // O-O-O
+                return (key === 'c1') || (key === 'd1');
+            }
+        } else {
+            if (moveLength > 0) {
+                return (key === 'f8') || (key === 'g8');
+            } else {
+                return (key === 'c8') || (key === 'd8');
+            }
+        }
+    }
+
+    private canGate(ground, fen: string, orig: Key, dest: Key) {
         const parts = fen.split(" ");
         const castling = parts[2];
-
+        const color = parts[1];
         // At the starting position, the virginities of both king AND rooks are encoded in KQkq
         // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
 
@@ -78,32 +120,42 @@ export class Gating {
 
         // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
 
-        switch (orig) {
-            case "a1": return castling.includes("A") || castling.includes("Q");
+        const moveType = ground.state.pieces[dest].role;
+        if (moveType === 'king' || moveType === 'rook') {
+            if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
+                (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
+                return true;
+            }
+        }
+        if (color === 'w') {
+            switch (orig) {
+            case "a1": return castling.includes("A");
             case "b1": return castling.includes("B");
             case "c1": return castling.includes("C");
             case "d1": return castling.includes("D");
-            case "e1": return castling.includes("E") || castling.includes("K") || castling.includes("Q");
+            case "e1": return castling.includes("E");
             case "f1": return castling.includes("F");
             case "g1": return castling.includes("G");
-            case "h1": return castling.includes("H") || castling.includes("K");
-
-            case "a8": return castling.includes("a") || castling.includes("q");
+            case "h1": return castling.includes("H");
+            default: return false;
+            }
+        } else {
+            switch (orig) {
+            case "a8": return castling.includes("a");
             case "b8": return castling.includes("b");
             case "c8": return castling.includes("c");
             case "d8": return castling.includes("d");
-            case "e8": return castling.includes("e") || castling.includes("k") || castling.includes("q");
+            case "e8": return castling.includes("e");
             case "f8": return castling.includes("f");
             case "g8": return castling.includes("g");
-            case "h8": return castling.includes("h") || castling.includes("k");
-
+            case "h8": return castling.includes("h");
             default: return false;
+            }
         }
     }
 
-    private gate(orig, dest, role) {
+    private gate(orig, color, role) {
         const g = this.ctrl.getGround();
-        const color = g.state.pieces[dest].color;
         g.newPiece({ "role": role, "color": color }, orig)
         let position = (this.ctrl.turnColor === this.ctrl.mycolor) ? "bottom": "top";
         if (this.ctrl.flip) position = (position === "top") ? "bottom" : "top";
@@ -116,9 +168,9 @@ export class Gating {
         }
     }
 
-    private drawGating(origs, color, orientation) {
+    private drawGating(moves, color, orientation) {
         const container = toVNode(document.querySelector('extension') as Node);
-        patch(container, this.view(origs, color, orientation));
+        patch(container, this.view(moves, color, orientation));
     }
 
     private drawNoGating() {
@@ -126,14 +178,22 @@ export class Gating {
         patch(container, h('extension'));
     }
 
-    private finish(role, index) {
+    private finish(gatedPieceRole, moveType, color) {
         if (this.gating) {
             this.drawNoGating();
-            if (role) this.gate(this.gating.origs[index], this.gating.dest, role);
-            else index = 0;
-            const gated = role ? roleToSan[role].toLowerCase() : "";
-            if (this.gating.callback)
-                this.gating.callback(this.gating.origs[index], index === 0 ? this.gating.dest : this.gating.rookDest, gated);
+
+            const move = this.gating.moves[moveType];
+            if (gatedPieceRole) this.gate(move[0], color, gatedPieceRole);
+
+            const gatedPieceLetter = gatedPieceRole ? roleToSan[gatedPieceRole].toLowerCase() : "";
+            if (this.gating.callback) {
+                if (moveType === "special" && gatedPieceLetter === "") {
+                    // empty gating was chosen on vacant rook square
+                    this.gating.callback(move[1], move[0], gatedPieceLetter);
+                } else {
+                    this.gating.callback(move[0], move[1], gatedPieceLetter);
+                }
+            }
             this.gating = null;
         }
     };
@@ -144,28 +204,29 @@ export class Gating {
         return;
     }
 
-    private squareView(orig, color, orientation, index) {
+    private squareView(orig, color, orientation, moveType) {
         const firstRankIs0 = false;
         let left = (8 - key2pos(orig, firstRankIs0)[0]) * 12.5;
         if (orientation === "white") left = 87.5 - left;
-        return this.choices.map((serverRole, i) => {
+        return this.choices.map((gatedPieceRole, i) => {
             const top = (color === orientation ? 7 - i : i) * 12.5;
             return h("square", {
                 style: { top: top + "%", left: left + "%" },
                 hook: bind("click", e => {
                     e.stopPropagation();
-                    this.finish(serverRole, index);
+                    this.finish(gatedPieceRole, moveType, color);
                 }, false)
             }, [
-                h("piece." + serverRole + "." + color)
+                h("piece." + gatedPieceRole + "." + color)
             ]);
         })
     }
 
-    private view(origs, color, orientation) {
+    private view(moves, color, orientation) {
         const direction = color === orientation ? "top" : "bottom";
-        let squares = this.squareView(origs[0], color, orientation, 0);
-        if (origs.length > 1) squares = squares.concat(this.squareView(origs[1], color, orientation, 1));
+        let squares: VNode[] = [];
+        if ("normal" in moves) squares = this.squareView(moves["normal"][0], color, orientation, "normal");
+        if ("special" in moves) squares = squares.concat(this.squareView(moves["special"][0], color, orientation, "special"));
         return h("div#extension_choice." + direction, {
             hook: {
                 insert: vnode => {

@@ -120,6 +120,7 @@ class FairyBoard:
 
         castl = ""
         capa = self.variant == "capablanca" or self.variant == "capahouse"
+        seirawan = self.variant == "seirawan" or self.variant == "shouse"
 
         # https://www.chessvariants.com/contests/10/crc.html
         # we don't skip spositions that have unprotected pawns
@@ -153,11 +154,15 @@ class FairyBoard:
         piece_pos = random.choice(bright)
         board[piece_pos] = 'b'
         positions.remove(piece_pos)
+        if seirawan:
+            castl += FILES[piece_pos]
 
         # 5. one bishop has to be placed upon a dark square
         piece_pos = random.choice(dark)
         board[piece_pos] = 'b'
         positions.remove(piece_pos)
+        if seirawan:
+            castl += FILES[piece_pos]
 
         if capa:
             # 6. one chancellor has to be placed upon a free square
@@ -168,16 +173,22 @@ class FairyBoard:
             piece_pos = random.choice(positions)
             board[piece_pos] = 'q'
             positions.remove(piece_pos)
+            if seirawan:
+                castl += FILES[piece_pos]
 
         # 7. one knight has to be placed upon a free square
         piece_pos = random.choice(positions)
         board[piece_pos] = 'n'
         positions.remove(piece_pos)
+        if seirawan:
+            castl += FILES[piece_pos]
 
         # 8. one knight has to be placed upon a free square
         piece_pos = random.choice(positions)
         board[piece_pos] = 'n'
         positions.remove(piece_pos)
+        if seirawan:
+            castl += FILES[piece_pos]
 
         # 9. set the king upon the center of three free squares left
         piece_pos = positions[1]
@@ -186,18 +197,25 @@ class FairyBoard:
         # 10. set the rooks upon the both last free squares left
         piece_pos = positions[0]
         board[piece_pos] = 'r'
-        castl += FILES[piece_pos]
+        castl += "q" if seirawan else FILES[piece_pos]
 
         piece_pos = positions[2]
         board[piece_pos] = 'r'
-        castl += FILES[piece_pos]
+        castl += "k" if seirawan else FILES[piece_pos]
 
         fen = ''.join(board)
         if capa:
             body = '/pppppppppp/10/10/10/10/PPPPPPPPPP/'
         else:
             body = '/pppppppp/8/8/8/8/PPPPPPPP/'
-        holdings = "[]" if self.variant == "crazyhouse" or self.variant == "capahouse" else ""
+
+        if self.variant == "crazyhouse" or self.variant == "capahouse":
+            holdings = "[]"
+        elif seirawan:
+            holdings = "[HEhe]"
+        else:
+            holdings = ""
+
         fen = fen + body + fen.upper() + holdings + ' w ' + castl.upper() + castl + ' - 0 1'
         return fen
 
