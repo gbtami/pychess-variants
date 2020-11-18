@@ -209,21 +209,19 @@ function loadGames(model, page) {
 function observeSentinel(vnode: VNode, model) {
     const sentinel = vnode.elm as HTMLElement;
     let page = 0;
+    const options = {root: null, rootMargin: '44px', threshold: 1.0};
 
     const intersectionObserver = new IntersectionObserver(entries => {
-        // If intersectionRatio is 0, the sentinel is out of view
-        // and we don't need to do anything. Exit the function
-        if (entries[0].intersectionRatio <= 0) return;
-
-        loadGames(model, page);
-        page += 1;
-    });
+        if (entries.some(entry => entry.intersectionRatio > 0)) {
+            loadGames(model, page);
+            page += 1;
+        }
+    }, options);
 
     intersectionObserver.observe(sentinel);
 }
 
 export function profileView(model) {
-    console.log(model);
     boardSettings.updateBoardAndPieceStyles();
     const anon = model["anon"] === 'True';
     return [
