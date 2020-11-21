@@ -1,12 +1,12 @@
 import logging
 import random
-import string
 from datetime import datetime
+import json
 
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
 
-from game import MAX_PLY
+from game import new_game_id, MAX_PLY
 
 try:
     import pyffish as sf
@@ -59,7 +59,7 @@ async def tv_game_user(db, users, profileId):
         return game_id
 
 
-async def load_game(app, game_id):
+async def load_game(app, game_id, user=None):
     """ Return Game object from app cache or from database """
     db = app["db"]
     games = app["games"]
@@ -70,7 +70,21 @@ async def load_game(app, game_id):
     doc = await db.game.find_one({"_id": game_id})
 
     if doc is None:
-        return None
+        invites = app["invites"]
+        if game_id in invites:
+            seek_id = invites[game_id].id
+            seek = app["seeks"][seek_id]
+            response = await new_game(app, user, seek_id, game_id)
+            await seek.ws.send_json(response)
+
+            # Put response data to sse subscribers queue
+            channels = app["invite_channels"]
+            for queue in channels:
+                await queue.put(json.dumps({"gameId": game_id}))
+
+            return games[game_id]
+        else:
+            return None
 
     wp, bp = doc["us"]
     if wp in users:
@@ -272,7 +286,7 @@ async def import_game(request):
         map(grand2zero, move_stack) if variant in GRANDS
         else move_stack, variant)
 
-    new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
+    new_id = await new_game_id(db)
     existing = await db.game.find_one({'_id': {'$eq': new_id}})
     if existing:
         message = "Failed to create game. Game ID %s allready in mongodb." % new_id
@@ -325,7 +339,7 @@ async def import_game(request):
     return web.json_response({"gameId": new_id})
 
 
-async def new_game(app, user, seek_id):
+async def new_game(app, user, seek_id, new_id=None):
     db = app["db"]
     games = app["games"]
     seeks = app["seeks"]
@@ -350,13 +364,12 @@ async def new_game(app, user, seek_id):
         wplayer = seek.user if seek.color == "w" else user
         bplayer = seek.user if seek.color == "b" else user
 
-    new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
-    existing = await db.game.find_one({'_id': {'$eq': new_id}})
-    if existing:
-        message = "Failed to create game. Game ID %s allready in mongodb." % new_id
-        log.debug(message)
-        remove_seek(seeks, seek)
-        return {"type": "error", "message": message}
+    if new_id is not None:
+        # game invitation
+        del app["invites"][new_id]
+    else:
+        new_id = await new_game_id(db)
+
     # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
         new_game = Game(
@@ -372,7 +385,7 @@ async def new_game(app, user, seek_id):
         log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
-    games[new_game.id] = new_game
+    games[new_id] = new_game
 
     remove_seek(seeks, seek)
 
@@ -523,7 +536,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             log.exception("Move %s can't send to %s in game %s. User disconnected !!!" % (move, user.username, gameId))
 
     if not invalid_move:
-        await round_broadcast(game, users, board_response, channels=app["channels"])
+        await round_broadcast(game, users, board_response, channels=app["game_channels"])
 
 
 def pgn(doc):

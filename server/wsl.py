@@ -36,6 +36,8 @@ async def lobby_socket_handler(request):
     users = request.app["users"]
     sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
+    db = request.app["db"]
+    invites = request.app["invites"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -111,7 +113,7 @@ async def lobby_socket_handler(request):
                             continue
 
                         print("create_seek", data)
-                        create_seek(seeks, user, data, ws)
+                        await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                         if data.get("target"):
@@ -119,10 +121,31 @@ async def lobby_socket_handler(request):
                             if queue is not None:
                                 await queue.put(json.dumps({"notify": "new_challenge"}))
 
-                    elif data["type"] == "delete_seek":
-                        del seeks[data["seekID"]]
-                        del user.seeks[data["seekID"]]
+                    elif data["type"] == "create_invite":
+                        no = await is_playing(request, user, ws)
+                        if no:
+                            continue
 
+                        print("create_invite", data)
+                        seek = await create_seek(db, invites, seeks, user, data, ws)
+
+                        response = get_seeks(seeks)
+                        await ws.send_json(response)
+
+                        response = {"type": "invite_created", "gameId": seek.game_id}
+                        await ws.send_json(response)
+
+                    elif data["type"] == "delete_seek":
+                        try:
+                            seek = seeks[data["seekID"]]
+                            if seek.game_id is not None:
+                                # delete game invite
+                                del invites[seek.game_id]
+                            del seeks[data["seekID"]]
+                            del user.seeks[data["seekID"]]
+                        except KeyError:
+                            # Seek was already deleted
+                            pass
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":

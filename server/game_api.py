@@ -138,11 +138,11 @@ async def get_user_games(request):
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
-async def subscribe_games(request):
+async def subscribe_invites(request):
     async with sse_response(request) as response:
         app = request.app
         queue = asyncio.Queue()
-        app['channels'].add(queue)
+        app['invite_channels'].add(queue)
         try:
             while not response.task.done():
                 payload = await queue.get()
@@ -151,7 +151,24 @@ async def subscribe_games(request):
         except ConnectionResetError:
             pass
         finally:
-            app['channels'].remove(queue)
+            app['invite_channels'].remove(queue)
+    return response
+
+
+async def subscribe_games(request):
+    async with sse_response(request) as response:
+        app = request.app
+        queue = asyncio.Queue()
+        app['game_channels'].add(queue)
+        try:
+            while not response.task.done():
+                payload = await queue.get()
+                await response.send(payload)
+                queue.task_done()
+        except ConnectionResetError:
+            pass
+        finally:
+            app['game_channels'].remove(queue)
     return response
 
 

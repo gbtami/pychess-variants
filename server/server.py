@@ -79,8 +79,10 @@ async def init_state(app):
     app["lobbysockets"] = {}
     app["seeks"] = {}
     app["games"] = {}
+    app["invites"] = {}
     app["chat"] = collections.deque([], 200)
-    app["channels"] = set()
+    app["game_channels"] = set()
+    app["invite_channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
     app["crosstable"] = {}
     app["stats"] = {}

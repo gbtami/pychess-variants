@@ -148,20 +148,29 @@ async def index(request):
     if gameId is not None:
         if view != "tv":
             view = "round"
-        game = await load_game(request.app, gameId)
-        if game is None:
-            log.debug("Requested game %s not in app['games']" % gameId)
-            template = get_template("404.html")
-            text = await template.render_async({"home": URI})
-            return web.Response(
-                text=html_minify(text), content_type="text/html")
-        games[gameId] = game
 
-        if game.status > STARTED:
-            view = "analysis"
+        invites = request.app["invites"]
+        if (gameId not in games) and (gameId in invites):
+            seek_id = invites[gameId].id
+            seek = request.app["seeks"][seek_id]
+            if seek.user.username == user.username:
+                view = "invite"
 
-        if user.username != game.wplayer.username and user.username != game.bplayer.username:
-            game.spectators.add(user)
+        if view != "invite":
+            game = await load_game(request.app, gameId, user)
+            if game is None:
+                log.debug("Requested game %s not in app['games']" % gameId)
+                template = get_template("404.html")
+                text = await template.render_async({"home": URI})
+                return web.Response(
+                    text=html_minify(text), content_type="text/html")
+            games[gameId] = game
+
+            if game.status > STARTED:
+                view = "analysis"
+
+            if user.username != game.wplayer.username and user.username != game.bplayer.username:
+                game.spectators.add(user)
 
     if view == "profile" or view == "level8win":
         if (profileId in users) and not users[profileId].enabled:
@@ -234,29 +243,38 @@ async def index(request):
         render["allusers"] = allusers
 
     if gameId is not None:
-        render["gameid"] = gameId
-        render["variant"] = game.variant
-        render["wplayer"] = game.wplayer.username
-        render["wtitle"] = game.wplayer.title
-        render["wrating"] = game.wrating
-        render["wrdiff"] = game.wrdiff
-        render["chess960"] = game.chess960
-        render["rated"] = game.rated
-        render["level"] = game.level
-        render["bplayer"] = game.bplayer.username
-        render["btitle"] = game.bplayer.title
-        render["brating"] = game.brating
-        render["brdiff"] = game.brdiff
-        render["fen"] = game.board.fen
-        render["base"] = game.base
-        render["inc"] = game.inc
-        render["byo"] = game.byoyomi_period
-        render["result"] = game.result
-        render["status"] = game.status
-        render["date"] = game.date.isoformat()
-        render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
-        if ply is not None:
-            render["ply"] = ply
+        if view == "invite":
+            render["gameid"] = gameId
+            render["variant"] = seek.variant
+            render["chess960"] = seek.chess960
+            render["rated"] = seek.rated
+            render["base"] = seek.base
+            render["inc"] = seek.inc
+            render["byo"] = seek.byoyomi_period
+        else:
+            render["gameid"] = gameId
+            render["variant"] = game.variant
+            render["wplayer"] = game.wplayer.username
+            render["wtitle"] = game.wplayer.title
+            render["wrating"] = game.wrating
+            render["wrdiff"] = game.wrdiff
+            render["chess960"] = game.chess960
+            render["rated"] = game.rated
+            render["level"] = game.level
+            render["bplayer"] = game.bplayer.username
+            render["btitle"] = game.bplayer.title
+            render["brating"] = game.brating
+            render["brdiff"] = game.brdiff
+            render["fen"] = game.board.fen
+            render["base"] = game.base
+            render["inc"] = game.inc
+            render["byo"] = game.byoyomi_period
+            render["result"] = game.result
+            render["status"] = game.status
+            render["date"] = game.date.isoformat()
+            render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
+            if ply is not None:
+                render["ply"] = ply
 
     if view == "level8win":
         render["level"] = 8

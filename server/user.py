@@ -102,7 +102,10 @@ class User:
         has_seek = len(self.seeks) > 0
         if has_seek:
             for seek in self.seeks:
-                del seeks[seek]
+                game_id = self.seeks[seek].game_id
+                # preserve invites (seek with game_id)!
+                if game_id is None:
+                    del seeks[seek]
             self.seeks.clear()
 
             await lobby_broadcast(sockets, get_seeks(seeks))

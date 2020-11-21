@@ -1,4 +1,5 @@
 from misc import time_control_str
+from game import new_game_id
 
 MAX_USER_SEEKS = 10
 
@@ -6,7 +7,7 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", ws=None):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", ws=None, game_id=None):
         self.user = user
         self.variant = variant
         self.color = color
@@ -24,6 +25,7 @@ class Seek:
 
         Seek.gen_id += 1
         self.id = self.gen_id
+        self.game_id = game_id
 
         self.as_json = {
             "seekID": self.id,
@@ -38,13 +40,20 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "rating": self.rating,
-            "tc": time_control_str(self.base, self.inc, self.byoyomi_period)
+            "tc": time_control_str(self.base, self.inc, self.byoyomi_period),
+            "gameId": self.game_id if self.game_id is not None else "",
         }
 
 
-def create_seek(seeks, user, data, ws=None):
+async def create_seek(db, invites, seeks, user, data, ws=None):
     if len(user.seeks) >= MAX_USER_SEEKS:
-        return None
+        return
+
+    target = data.get("target")
+    if target == "Invite-friend":
+        game_id = await new_game_id(db)
+    else:
+        game_id = None
 
     seek = Seek(
         user, data["variant"],
@@ -56,11 +65,17 @@ def create_seek(seeks, user, data, ws=None):
         rated=data.get("rated"),
         chess960=data.get("chess960"),
         alternate_start=data.get("alternateStart"),
-        target=data.get("target"),
-        ws=ws)
+        target=target,
+        ws=ws,
+        game_id=game_id)
 
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
+
+    if target == "Invite-friend":
+        invites[game_id] = seek
+
+    return seek
 
 
 def get_seeks(seeks):

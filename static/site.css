@@ -4,8 +4,8 @@
     --main-max-width: 1400px;
     --gauge-width: 17px;
     --site-header-height: 40px;
-    --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.19);
-    --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+    --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.1), 0 2px 4px 0 rgba(0,0,0,0.1);
+    --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.1);
     --dark-mode: 0;
     --font-color: #4d4d4d;
     --link-color: #5e5e5e;
@@ -21,6 +21,7 @@
     --green-switch: #629924;
     --blue-active: #d1e4f6;
     --blue-hover: #1b78d0;
+    --invite-game: #eff5e9;
     --good: #629924;
     --bad: #c33;
     --gold: GoldenRod;
@@ -68,6 +69,7 @@
     --green-hover: #537c23;
     --blue-active: #293a49;
     --blue-hover: #3692e7;
+    --invite-game: #2c3021;
     --gold: #bf811d;
     --rusty: rgba(126,57,16,0.9);
     --ct-current: #a1420a;
@@ -293,7 +295,7 @@ under-right {
     justify-content: center;
 }
 
-div.about, div.guide, div.patron, div.closed, div.paste {
+div.about, div.guide, div.patron, div.closed, div.paste, div.invite {
     grid-area: main;
     margin: 0 auto;
     border-radius: 3px;
@@ -305,7 +307,7 @@ div.about, div.guide, div.patron, div.closed, div.paste {
 div.about, div.paste {
     width: 75%;
 }
-div.patron {
+div.patron, div.invite {
     width: 50%;
 }
 div.guide {
@@ -516,7 +518,7 @@ div#result {
     border-top: 1px solid var(--bg-color2);
 }
 
-.lobby-button, .donate-button, button#request-analysis, button#import {
+.lobby-button, .donate-button, button#request-analysis, button#import, button#paste-url {
     background-color: var(--bg-color2);
     border: none;
     color: var(--font-color);
@@ -530,9 +532,17 @@ div#result {
 }
 .lobby-button {
     width: 100%;
+    margin: 20px 2px;
 }
 button#request-analysis, button#import {
     width: 200px;
+    padding: 4px;
+    margin: 2px 2px;
+    border-radius: 4px;
+    color: White;
+    background-color: var(--blue-hover);
+}
+button#paste-url {
     padding: 4px;
     margin: 2px 2px;
     border-radius: 4px;
@@ -1855,7 +1865,6 @@ boardeditor {
     background: var(--rusty);
 }
 
-
 .allplayers {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -1880,4 +1889,35 @@ boardeditor {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+/* Invite to a game */
+div.invitegame {
+    border: 1px solid green;
+    border-radius: 99px;
+    background-color: var(--invite-game);
+    padding: .5em 1.1em;
+}
+div.invitegame div.info0 {
+    padding: 14px;
+    align-items: center;
+}
+div.invitegame div.info0::before {
+    font-size: 64px;
+    color: var(--green-switch);
+}
+div.invitegame div.info2 {
+    font-size: 24px;
+    padding-bottom: 0;
+}
+div.rated {
+    margin-left: auto;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--green-switch);
+}
+div.inviteinfo {
+    background-color: var(--bg-color2);
+    padding: 30px;
+    margin: 20px;
 }

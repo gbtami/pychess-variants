@@ -29,6 +29,7 @@ class LobbyController {
     player;
     logged_in;
     challengeAI: boolean;
+    inviteFriend: boolean;
     _ws;
     seeks;
 
@@ -40,6 +41,7 @@ class LobbyController {
 
         this.model = model;
         this.challengeAI = false;
+        this.inviteFriend = false;
 
         const onOpen = (evt) => {
             this._ws = evt.target;
@@ -75,6 +77,7 @@ class LobbyController {
         const anon = this.model.anon === 'True';
         if (model.profileid !== "") {
             this.challengeAI = model.profileid === 'Fairy-Stockfish';
+            this.inviteFriend = model.profileid === 'Invite-friend';
             document.getElementById('game-mode')!.style.display = (anon || this.challengeAI) ? 'none' : 'inline-flex';
             document.getElementById('challenge-block')!.style.display = 'inline-flex';
             document.getElementById('ailevel')!.style.display = this.challengeAI ? 'block' : 'none';
@@ -98,6 +101,23 @@ class LobbyController {
             type: "create_seek",
             user: this.model.username,
             target: this.model.profileid,
+            variant: variant,
+            fen: fen,
+            minutes: minutes,
+            increment: increment,
+            byoyomiPeriod: byoyomiPeriod,
+            rated: rated,
+            alternateStart: alternateStart,
+            chess960: chess960,
+            color: color
+        });
+    }
+
+    createInviteFriendMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
+        this.doSend({
+            type: "create_invite",
+            user: this.model.username,
+            target: 'Invite-friend',
             variant: variant,
             fen: fen,
             minutes: minutes,
@@ -179,7 +199,7 @@ class LobbyController {
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
-        if (!this.test_ratings && (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
+        if (!this.test_ratings && (this.challengeAI || this.inviteFriend || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
             rated = false;
         else
             rated = e.value === "1";
@@ -197,6 +217,8 @@ class LobbyController {
             localStorage.seek_level = e.value;
             // console.log(level, e.value, localStorage.getItem("seek_level"));
             this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, alternateStart);
+        } else if (this.inviteFriend) {
+            this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
         } else {
             if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
                 this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
@@ -311,6 +333,7 @@ class LobbyController {
                 on: {
                     click: () => {
                         this.challengeAI = false;
+                        this.inviteFriend = false;
                         document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
                         document.getElementById('challenge-block')!.style.display = 'none';
                         document.getElementById('ailevel')!.style.display = 'none';
@@ -323,7 +346,22 @@ class LobbyController {
             h('button.lobby-button', {
                 on: {
                     click: () => {
+                        this.challengeAI = false;
+                        this.inviteFriend = true;
+                        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+                        document.getElementById('challenge-block')!.style.display = 'none';
+                        document.getElementById('ailevel')!.style.display = 'none';
+                        document.getElementById('id01')!.style.display = 'block';
+                    }
+                }
+            },
+                _("Play with a friend")
+            ),
+            h('button.lobby-button', {
+                on: {
+                    click: () => {
                         this.challengeAI = true;
+                        this.inviteFriend = false;
                         document.getElementById('game-mode')!.style.display = (!this.test_ratings || anon) ? 'none' : 'inline-flex';
                         document.getElementById('challenge-block')!.style.display = 'none';
                         document.getElementById('ailevel')!.style.display = 'inline-block';
@@ -514,6 +552,9 @@ class LobbyController {
             case "u_cnt":
                 this.onMsgUserCounter(msg);
                 break;
+            case "invite_created":
+                this.onMsgInviteCreated(msg);
+                break;
             case "shutdown":
                 this.onMsgShutdown(msg);
                 break;
@@ -524,6 +565,10 @@ class LobbyController {
                 this.doSend({type: "logout"});
                 break;
         }
+    }
+
+    private onMsgInviteCreated(msg) {
+        window.location.assign('/' + msg.gameId);
     }
 
     private onMsgGetSeeks(msg) {

@@ -10,7 +10,7 @@ from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_
 
 log = logging.getLogger(__name__)
 
-RESERVED_BOT_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay")
+RESERVED_BOT_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-friend")
 
 
 async def oauth(request):
