@@ -1,3 +1,12 @@
+import { init } from 'snabbdom';
+import klass from 'snabbdom/modules/class';
+import attributes from 'snabbdom/modules/attributes';
+import properties from 'snabbdom/modules/props';
+import listeners from 'snabbdom/modules/eventlisteners';
+import style from 'snabbdom/modules/style';
+
+const patch = init([klass, attributes, properties, listeners, style]);
+
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
@@ -35,8 +44,12 @@ export function inviteView(model): VNode[] {
             h('div.inviteinfo', [
                 h('div', _('To invite someone to play, give this URL:')),
                 h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: gameURL}}),
-                h('button#paste-url', { on: { click: () => copyTextToClipboard(gameURL) } }, [
-                    h('i', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-clipboard": true} })]),
+                h('button#paste-url', { on: { click: () => {
+                    copyTextToClipboard(gameURL);
+                    patch(document.getElementById('paste-icon') as HTMLElement,
+                        h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
+                    } } }, [
+                    h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-clipboard": true} })]),
                 h('div', _('The first person to come to this URL will play with you.')),
 
             ]),
