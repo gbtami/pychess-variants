@@ -439,6 +439,8 @@ class Game:
 
     async def set_highscore(self, variant, chess960, value):
         self.highscore[variant + ("960" if chess960 else "")].update(value)
+        # We have to preserve previous top 10!
+        # See test_win_and_in_then_lost_and_out() in test.py
         # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 

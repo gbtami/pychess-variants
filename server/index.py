@@ -237,7 +237,8 @@ async def index(request):
         render["online_users"] = online_users
         render["anon_online"] = anon_online
         # render["offline_users"] = offline_users
-        render["highscore"] = request.app["highscore"]
+        hs = request.app["highscore"]
+        render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
         render["variant_display_name"] = variant_display_name
     elif view == "allplayers":
         allusers = [u for u in users.values() if not u.anon]
