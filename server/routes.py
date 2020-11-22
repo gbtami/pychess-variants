@@ -4,7 +4,7 @@ from bot_api import account, playing, event_stream, game_stream, bot_abort,\
 from fishnet import fishnet_monitor, fishnet_key, fishnet_acquire,\
     fishnet_abort, fishnet_analysis, fishnet_move
 from game_api import export, get_games, get_user_games, subscribe_games,\
-    subscribe_notify, subscribe_invites, get_variant_stats
+    subscribe_notify, subscribe_invites, get_variant_stats, cancel_invite
 from utils import import_game
 from login import login, logout, oauth
 from index import index, robots, select_lang
@@ -73,6 +73,8 @@ post_routes = (
     ("/api/bot/game/{gameId}/chat", bot_chat),
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),
+    (r"/invite/accept/{gameId:\w{8}}", index),
+    (r"/invite/cancel/{gameId:\w{8}}", cancel_invite),
     ("/api/challenge/{challengeId}/accept", challenge_accept),
     ("/api/challenge/{challengeId}/decline", challenge_decline),
     ("/api/seek", create_bot_seek),

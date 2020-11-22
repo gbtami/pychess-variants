@@ -151,10 +151,11 @@ async def index(request):
 
         invites = request.app["invites"]
         if (gameId not in games) and (gameId in invites):
-            seek_id = invites[gameId].id
-            seek = request.app["seeks"][seek_id]
-            if seek.user.username == user.username:
+            if not request.path.startswith("/invite/accept/"):
+                seek_id = invites[gameId].id
+                seek = request.app["seeks"][seek_id]
                 view = "invite"
+                inviter = seek.user.username if user.username != seek.user.username else ""
 
         if view != "invite":
             game = await load_game(request.app, gameId, user)
@@ -251,6 +252,7 @@ async def index(request):
             render["base"] = seek.base
             render["inc"] = seek.inc
             render["byo"] = seek.byoyomi_period
+            render["inviter"] = inviter
         else:
             render["gameid"] = gameId
             render["variant"] = game.variant

@@ -21,6 +21,20 @@ export function inviteView(model): VNode[] {
     const chess960 = model.chess960 === 'True';
     const gameURL = model["home"] + '/' + gameId;
 
+    let title, formAction, buttonClass, buttonText;
+
+    if (model["inviter"] === "") {
+        title = _('Challenge to a game');
+        formAction = model["home"] + '/invite/cancel/' + gameId;
+        buttonClass = {red: true};
+        buttonText = _('CANCEL');
+    } else {
+        title = model["inviter"];
+        formAction = model["home"] + '/invite/accept/' + gameId;
+        buttonClass = {join: true};
+        buttonText = _('JOIN THE GAME');
+    }
+
     const evtSource = new EventSource("/api/invites");
     evtSource.onmessage = function(event) {
         const message = JSON.parse(event.data);
@@ -31,7 +45,7 @@ export function inviteView(model): VNode[] {
 
     return [
         h('div.invite', [
-            h('h1', { attrs: { align: 'center' } }, _('Challenge to a game')),
+            h('h1', { attrs: { align: 'center' } }, title),
             h('div.invitegame', [
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
                     h('div.info2', [
@@ -41,6 +55,7 @@ export function inviteView(model): VNode[] {
                     h('div.rated', gameType(model["rated"])),
                 ]),
             ]),
+            (model["inviter"] == "") ?
             h('div.inviteinfo', [
                 h('div', _('To invite someone to play, give this URL:')),
                 h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: gameURL}}),
@@ -52,6 +67,9 @@ export function inviteView(model): VNode[] {
                     h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-clipboard": true} })]),
                 h('div', _('The first person to come to this URL will play with you.')),
 
+            ]) : h('div'),
+            h('form', {props: {method: "post", action: formAction}, class: {invite: true}}, [
+                h('button', {class: buttonClass}, buttonText),
             ]),
         ]),
     ];

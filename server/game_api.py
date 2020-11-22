@@ -138,6 +138,26 @@ async def get_user_games(request):
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
+async def cancel_invite(request):
+    gameId = request.match_info.get("gameId")
+    seeks = request.app["seeks"]
+    invites = request.app["invites"]
+
+    if gameId in invites:
+        seek_id = invites[gameId].id
+        seek = request.app["seeks"][seek_id]
+        user = seek.user
+        try:
+            del invites[gameId]
+            del seeks[seek_id]
+            del user.seeks[seek_id]
+        except KeyError:
+            # Seek was already deleted
+            pass
+
+    raise web.HTTPFound("/")
+
+
 async def subscribe_invites(request):
     async with sse_response(request) as response:
         app = request.app

@@ -540,7 +540,7 @@ div#result {
     width: 100%;
     margin: 20px 2px;
 }
-button#request-analysis, button#import {
+button#request-analysis, button#import, button.join {
     width: 200px;
     padding: 4px;
     margin: 2px 2px;
@@ -1918,4 +1918,30 @@ div.inviteinfo {
     background-color: var(--bg-color2);
     padding: 30px;
     margin: 20px;
+}
+form.invite {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+}
+button.red {
+    cursor: pointer;
+    font-size: 16px;
+    background: #c33;
+    color: white;
+    padding: 10px;
+    margin: 2px 2px;
+    border: none;
+    border-radius: 4px;
+}
+button.join {
+    cursor: pointer;
+    font-size: 16px;
+    background: var(--blue-hover);
+    width: 100%;
+    color: white;
+    padding: 18px;
+    margin: 2px 2px;
+    border: none;
+    border-radius: 4px;
 }
