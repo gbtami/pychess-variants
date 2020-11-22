@@ -104,9 +104,13 @@
 }
 [data-icon]:before {
     vertical-align: middle;
+    opacity: 0.7;
+    font-size: 20px;
 }
 [class*=" icon-"]:before {
     vertical-align: middle;
+    opacity: 0.7;
+    font-size: 18px;
 }
 
 .hide {
@@ -829,10 +833,10 @@ table#seeks-header, table#seeks {
     border-collapse: collapse;
     border-spacing: 0;
     border-radius: 3px;
-    font-size: 1.2em;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
     table-layout: fixed;
 }
-
 #seeks-table {
     min-width: 400px;
     max-width: 650px;
@@ -843,40 +847,33 @@ table#seeks-header, table#seeks {
     background-color: var(--bg-seek);
     background-blend-mode: overlay;
 }
-
 #seeks-wrapper {
-    max-height: 550px;
+    height: 550px;
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
 }
-
 #seeks thead {
     display: none;
 }
-
 #seeks-header th, #seeks td {
-    padding: 8px;
+    padding: 10 0 10 6;
     white-space: nowrap;
+    font-weight: inherit;
 }
-
 #seeks-header th {
     text-align: center;
 }
-
 #seeks-header > thead > tr {
     border: none;
     cursor: default;
 }
-
 #seeks tr {
     cursor: pointer;
     border-bottom: 1px solid var(--bg-color2);
 }
-
 #seeks tbody tr:hover {
     background-color: var(--rusty);
 }
-
 #seeks-header tr > :nth-child(1), #seeks tr > :nth-child(1) {
     width: 4%;
     text-align: center;
@@ -898,7 +895,6 @@ table#seeks-header, table#seeks {
     width: 18%;
     text-align: center;
 }
-
 #seekbuttons > button {
     color: var(--button-text);
     background: var(--button-new-game);
