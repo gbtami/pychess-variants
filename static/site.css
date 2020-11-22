@@ -354,6 +354,8 @@ ul.guide li {
 .site-title-nav {
     display: flex;
     justify-content: flex-start;
+    padding-left: 14;
+    padding-top: 6;
 }
 
 .topnav {
