@@ -123,6 +123,7 @@ async def index(request):
         return web.Response(status=404)
 
     fen = request.rel_url.query.get("fen")
+    rated = None
 
     if (fen is not None) and "//" in fen:
         log.debug("Invelid FEN %s in request" % fen)
@@ -130,7 +131,6 @@ async def index(request):
 
     if profileId is not None:
         view = "profile"
-        rated = None
         if request.path[-3:] == "/tv":
             view = "tv"
             # TODO: tv for variants
