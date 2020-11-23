@@ -105,12 +105,10 @@
 [data-icon]:before {
     vertical-align: middle;
     opacity: 0.7;
-    font-size: 20px;
 }
 [class*=" icon-"]:before {
     vertical-align: middle;
     opacity: 0.7;
-    font-size: 18px;
 }
 
 .hide {
@@ -226,6 +224,12 @@ iframe {
 .seeks {
     display: grid;
     grid-area: app;
+}
+.seeks  [data-icon]:before {
+    font-size: 20px;
+}
+.seeks [class*=" icon-"]:before {
+    font-size: 18px;
 }
 
 .page-menu {
