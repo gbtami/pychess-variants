@@ -177,8 +177,62 @@ For comments before the first move of the game, attach them as comments after th
 Lines beginning with an ampersand `&` insert a bookmark for the position after all moves played up to that point. The name of the bookmark follows the ampersand.
 
 
+## Tsumeshogi sample headers ##
+
+The following is the header part of a tsumeshogi problem from http://park6.wakwak.com/~k-oohasi/shougi/kifu/seimyou/seimyou001.kif
+
+~~~
+作者：二代伊藤宗印
+出典：将棋精妙
+作品番号：１
+手数：３３
+完全性：余詰
+後手の持駒：金四　銀二　香三　歩十三　
+  ９ ８ ７ ６ ５ ４ ３ ２ １
++---------------------------+
+| ・ ・ ・v桂 ・ ・ ・ ・ ・|一
+|v玉 角v歩 馬 ・ ・ ・ ・ ・|二
+| ・ ・ ・ ・ ・ ・ ・ ・ ・|三
+| 桂 ・ ・v歩 ・ ・ ・ ・ ・|四
+|vとv桂 ・ ・v歩 ・ ・ ・ ・|五
+| ・ ・ 飛 ・v全 ・ ・ ・ ・|六
+|v歩 桂 ・ ・ ・ ・ ・ ・ ・|七
+| ・ 香 ・ ・ ・ ・ ・ ・ ・|八
+| ・v銀 ・ ・ 龍 ・ ・ ・ ・|九
++---------------------------+
+先手の持駒：なし
+~~~
+
+Translated, this reads:
+
+~~~
+Composer: Itou Souin II
+Source (seeing it in context now, maybe "Collection" is a better translation): Shogi Seimyo
+Problem number: 1 (first problem in the collection)
+Length (number of halfmoves): 33
+Status: Yo-dzume (i.e. duals present)
+
+Gote pieces in hand: Gold 4  Silver 2  Lance 3  Pawn 13
+  ９ ８ ７ ６ ５ ４ ３ ２ １
++---------------------------+
+| ・ ・ ・v桂 ・ ・ ・ ・ ・|一
+|v玉 角v歩 馬 ・ ・ ・ ・ ・|二
+| ・ ・ ・ ・ ・ ・ ・ ・ ・|三
+| 桂 ・ ・v歩 ・ ・ ・ ・ ・|四
+|vとv桂 ・ ・v歩 ・ ・ ・ ・|五
+| ・ ・ 飛 ・v全 ・ ・ ・ ・|六
+|v歩 桂 ・ ・ ・ ・ ・ ・ ・|七
+| ・ 香 ・ ・ ・ ・ ・ ・ ・|八
+| ・v銀 ・ ・ 龍 ・ ・ ・ ・|九
++---------------------------+
+Sente pieces in hand: None
+
+[Translation notes: the board position is given by the pieces in hand, and the very visual diagram. In the diagram, the "v" before a kanji indicates it is gote's piece. Without the "v" it is sente's piece.)
+~~~
+
 ## Revision history ##
 
 - 2018/6/27 this document made public
 - 2018/9/21 added explanation of "loss by time"
 - 2019/5/09 added explanation of "entering king win"
+- 2020/11/25 (Illion) add translated tsumeshogi sample headers
