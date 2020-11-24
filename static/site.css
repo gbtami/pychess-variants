@@ -1842,6 +1842,18 @@ boardeditor {
     justify-content: center;
     display: flex;
 }
+.pocket-wrapper .editor {
+    width: var(--cgwrapwidth);
+    height: calc(var(--piecerows) * var(--cgwrapheight) / var(--ranks));
+    display: flex;
+    flex-wrap: wrap;
+}
+.pocket-wrapper .editor piece {
+    flex: 0 0 calc(100% / var(--files));
+}
+div.editorhint {
+    margin-bottom: 12px;
+}
 
 /* Janggi setup buttons */
 #janggi-setup-buttons {

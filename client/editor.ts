@@ -16,7 +16,7 @@ import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 import { _ } from './i18n';
 import { selectVariant, getPockets, needPockets, validFen, VARIANTS } from './chess';
 import { boardSettings } from './boardSettings';
-import { iniPieces } from './pieces';
+import { iniPieces, iniPockets } from './pieces';
 import { copyBoardToPNG } from './png'; 
 
 
@@ -31,7 +31,10 @@ export default class EditorController {
     castling: string;
     pockets: string;
     variant: string;
+    hasPockets: boolean;
     pieces: any;
+    vpieces0: any;
+    vpieces1: any;
     vpocket0: any;
     vpocket1: any;
     vfen: any;
@@ -82,9 +85,17 @@ export default class EditorController {
         boardSettings.updateZoom(boardFamily);
 
         // initialize pieces
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        iniPieces(this, pocket0, pocket1);
+        const pieces0 = document.getElementById('pieces0') as HTMLElement;
+        const pieces1 = document.getElementById('pieces1') as HTMLElement;
+        iniPieces(this, pieces0, pieces1);
+
+        // initialize pockets
+        if (needPockets(this.variant)) {
+            console.log('iniPockets()', iniPockets);
+            //const pocket0 = document.getElementById('pocket0') as HTMLElement;
+            //const pocket1 = document.getElementById('pocket1') as HTMLElement;
+            //iniPockets(this, pocket0, pocket1);
+        }
 
         let e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
@@ -208,6 +219,7 @@ export function editorView(model): VNode[] {
     }
 
     const vVariant = model.variant || "chess";
+    const variant = VARIANTS[vVariant];
 
     return [h('aside.sidebar-first', [
                 h('div.container', [
@@ -219,33 +231,44 @@ export function editorView(model): VNode[] {
             ]),
             h('boardeditor', [
                 h('div.pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].piece + '.' + model["variant"], [
+                    h('div.' + variant.piece + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
-                            h('div#pocket0'),
+                            h('div#pieces0'),
                         ]),
                     ]),
                 ]),
-                h('selection#board2png.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].piece, [
-                    h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
+                h('selection#board2png.' + variant.board + '.' + variant.piece, [
+                    h('div.cg-wrap.' + variant.cg,
                         { hook: { insert: (vnode) => runEditor(vnode, model)},
                     }),
                 ]),
                 h('div.pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].piece + '.' + model["variant"], [
+                    h('div.' + variant.piece + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
-                            h('div#pocket1'),
+                            h('div#pieces1'),
                         ]),
                     ]),
                 ]),
             ]),
             h('aside.sidebar-second', [
+                // h('div.editorhint', (needPockets(model['variant'])) ? _('Click/Ctrl+click to increase/decrease number of pieces') : ''),
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pocket0'),
+                    ]),
+                ]),
                 h('div.editor-button-container', [
                     h('div', [h('a#clear', _('CLEAR BOARD'))]),
                     h('div', [h('a#start', _('STARTING POSITION'))]),
                     h('div', [h('a#analysis', _('ANALYSIS BOARD'))]),
                     h('div', [h('a#challengeAI', _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))]),
                     h('div', [h('a#png', _('EXPORT TO PNG'))]),
-                ])
+                ]),
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pocket1'),
+                    ]),
+                ]),
             ]),
             h('under-board', [
                 h('input#fen'),

@@ -19,12 +19,15 @@ type Position = 'top' | 'bottom';
 const eventNames = ['mousedown', 'touchstart'];
 
 export function piecesView(ctrl: EditorController, color: Color, position: Position) {
+    const width = dimensions[VARIANTS[ctrl.variant].geometry].width;
+    const height = dimensions[VARIANTS[ctrl.variant].geometry].height;
     const roles = VARIANTS[ctrl.variant].pieceRoles(color);
     return h('div.pocket.' + position + '.editor.usable', {
         style: {
             '--editorLength': String(roles.length),
-            '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
-            '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
+            '--piecerows': String((roles.length > width) ? 2 : 1),
+            '--files': String(width),
+            '--ranks': String(height),
         },
         hook: {
             insert: vnode => {
@@ -57,7 +60,38 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     dragNewPiece(ctrl.chessground.state, { color, role }, e);
 }
 
-export function iniPieces(ctrl: EditorController, vpocket0, vpocket1): void {
-    ctrl.vpocket0 = patch(vpocket0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
-    ctrl.vpocket1 = patch(vpocket1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+export function iniPieces(ctrl: EditorController, vpieces0, vpieces1): void {
+    ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
+    ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+}
+
+export function pocketsView(ctrl: EditorController, color: Color, position: Position) {
+    const roles = VARIANTS[ctrl.variant].pocketRoles(color)!;
+    return h('div.pocket.' + position + '.editor.usable', {
+        style: {
+            '--editorLength': String(roles.length),
+            '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
+            '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
+        },
+    }, roles.map(role => {
+        return h('piece.' + role + '.' + color, {
+            attrs: {
+                'data-role': role,
+                'data-color': color,
+                'data-nb': 0,
+            },
+            on: {click: (event) => {
+                let newValue: number;
+                newValue = parseInt((event.target as HTMLElement).getAttribute("data-nb")!) + ((event.ctrlKey) ? -1 : 1);
+                newValue = Math.min(Math.max(newValue, 0), dimensions[VARIANTS[ctrl.variant].geometry].width);
+                patch(event.target as HTMLElement, h('piece.' + role + '.' + color, {attrs: {'data-nb': newValue}}));
+                }
+            }
+        });
+    }));
+}
+
+export function iniPockets(ctrl: EditorController, vpocket0, vpocket1): void {
+    ctrl.vpocket0 = patch(vpocket0, pocketsView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
+    ctrl.vpocket1 = patch(vpocket1, pocketsView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
 }

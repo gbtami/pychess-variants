@@ -120,7 +120,7 @@ export function analysisView(model): VNode[] {
             ]),
         ]),
         h('aside.sidebar-second.analysis', [
-            h('div#pocket-wrapper0', [
+            h('div', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
@@ -156,7 +156,7 @@ export function analysisView(model): VNode[] {
                 ]),
                 h('div#move-controls'),
             ]),
-            h('div#pocket-wrapper1', [
+            h('div', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
