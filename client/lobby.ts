@@ -675,7 +675,6 @@ export function lobbyView(model): VNode[] {
             h('a.reflist', { attrs: { href: '/faq' } }, _("FAQ")),
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
-            h('a.reflist', { attrs: { href: 'https://pychess.github.io' } }, _("Original PyChess site")),
         ]),
         h('under-lobby'),
         h('under-right', [
