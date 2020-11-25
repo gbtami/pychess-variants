@@ -149,6 +149,11 @@ export default class EditorController {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.startfen;
         this.setInvalid(false);
+
+        this.fullfen = e.value;
+        if (needPockets(this.variant)) {
+            updatePockets(this, this.vpocket0, this.vpocket1);
+        }
     }
 
     private setEmptyFen = () => {
@@ -163,6 +168,11 @@ export default class EditorController {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(true);
+
+        this.fullfen = e.value;
+        if (needPockets(this.variant)) {
+            updatePockets(this, this.vpocket0, this.vpocket1);
+        }
     }
 
     private setAnalysisFen = () => {
