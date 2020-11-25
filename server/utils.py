@@ -457,7 +457,6 @@ def get_dests(board):
 
 
 async def analysis_move(app, user, game, move, fen, ply):
-    assert move
     invalid_move = False
 
     board = FairyBoard(game.variant, fen, game.chess960)
@@ -491,7 +490,6 @@ async def analysis_move(app, user, game, move, fen, ply):
 
 
 async def play_move(app, user, game, move, clocks=None, ply=None):
-    assert move
     gameId = game.id
     users = app["users"]
     invalid_move = False

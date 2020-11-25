@@ -44,7 +44,6 @@ async def generate_crosstable(db):
 
     for i, item in enumerate(sorted(ct.values(), key=lambda x: x["_id"])):
         # print(i, item)
-        assert item["s1"] + item["s2"] == len(item["r"]) * 10
         ct[item["_id"]]["r"] = ct[item["_id"]]["r"][-20:]
         # print(i, item)
 
