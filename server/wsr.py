@@ -1,5 +1,4 @@
 import asyncio
-import concurrent
 import json
 import logging
 import random
@@ -484,9 +483,6 @@ async def round_socket_handler(request):
 
             else:
                 log.debug("--- Round ws other msg.type %s %s" % (msg.type, msg))
-    except concurrent.futures._base.CancelledError:
-        # client disconnected
-        pass
     except Exception as e:
         log.error("!!! Round ws exception occured: %s" % type(e))
 
