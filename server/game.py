@@ -191,7 +191,8 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
-    def create_board(self, variant, initial_fen, chess960, count_started):
+    @staticmethod
+    def create_board(variant, initial_fen, chess960, count_started):
         return FairyBoard(variant, initial_fen, chess960, count_started)
 
     async def play_move(self, move, clocks=None, ply=None):
