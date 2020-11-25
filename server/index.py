@@ -173,7 +173,7 @@ async def index(request):
             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                 game.spectators.add(user)
 
-    if view == "profile" or view == "level8win":
+    if view in ("profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
             template = get_template("closed.html")
         else:
@@ -210,7 +210,7 @@ async def index(request):
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
         "variants": VARIANTS,
     }
-    if view == "profile" or view == "level8win":
+    if view in ("profile", "level8win"):
         if view == "level8win":
             profileId = "Fairy-Stockfish"
         render["title"] = "Profile • " + profileId
@@ -286,7 +286,7 @@ async def index(request):
     elif view == "variant":
         render["icons"] = VARIANT_ICONS
         # variant None indicates intro.md
-        if lang == "hu" or lang == "pt" or lang == "fr":
+        if lang in ("hu", "pt", "fr"):
             locale = ".%s" % lang
         elif lang == "zh":
             locale = ".%s" % lang if variant in (None,) else ""

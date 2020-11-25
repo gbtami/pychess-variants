@@ -137,7 +137,7 @@ async def load_game(app, game_id, user=None):
         mirror = mirror9
         mlist = map(mirror, mlist)
 
-    elif usi_format and (variant == "minishogi" or variant == "kyotoshogi"):
+    elif usi_format and (variant in ("minishogi", "kyotoshogi")):
         mirror = mirror5
         mlist = map(mirror, mlist)
 
@@ -564,7 +564,7 @@ def pgn(doc):
         mirror = mirror9
         mlist = list(map(mirror, mlist))
 
-    elif usi_format and (variant == "minishogi" or variant == "kyotoshogi"):
+    elif usi_format and (variant in ("minishogi", "kyotoshogi")):
         mirror = mirror5
         mlist = list(map(mirror, mlist))
 
@@ -646,7 +646,7 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     # Castling rights (and piece virginity) check
     invalid4 = False
-    if variant == "seirawan" or variant == "shouse":
+    if variant in ("seirawan", "shouse"):
         invalid4 = len(init) > 2 and any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
     elif chess960:
         if all((c in "KQkq-" for c in init[2])):
@@ -657,7 +657,7 @@ def sanitize_fen(variant, initial_fen, chess960):
         invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
     # Castling right need rooks and king placed in starting square
-    if (not invalid2) and (not invalid4) and not (chess960 and (variant == "seirawan" or variant == "shouse")):
+    if (not invalid2) and (not invalid4) and not (chess960 and (variant in ("seirawan", "shouse"))):
         rows = init[0].split("/")
         backRankB = rows[1] if (variant == 'shako') else rows[0]
         backRankW = rows[-2] if (variant == 'shako') else rows[-1]
