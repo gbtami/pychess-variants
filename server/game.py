@@ -444,7 +444,7 @@ class Game:
         # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
-        new_data = {"scores": {key: value for key, value in self.highscore[variant + ("960" if chess960 else "")].items()[:10]}}
+        new_data = {"scores": dict(self.highscore[variant + ("960" if chess960 else "")].items()[:10])}
         try:
             await self.db.highscore.find_one_and_update({"_id": variant + ("960" if chess960 else "")}, {"$set": new_data}, upsert=True)
         except Exception:
