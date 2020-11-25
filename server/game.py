@@ -285,7 +285,7 @@ class Game:
                 self.stopwatch.restart()
 
             except Exception:
-                log.exception("ERROR: Exception in game %s play_move() %s" % (self.id, move))
+                log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
@@ -303,7 +303,7 @@ class Game:
         if self.saved:
             return
         if self.rated == IMPORTED:
-            log.error("Save IMPORTED game %s ???" % self.id)
+            log.error("Save IMPORTED game %s ???", self.id)
             traceback.print_stack()
             return
 
@@ -322,7 +322,7 @@ class Game:
             try:
                 del self.games[self.id]
             except KeyError:
-                log.error("Failed to del %s from games" % self.id)
+                log.error("Failed to del %s from games", self.id)
 
             if self.bot_game:
                 try:
@@ -331,7 +331,7 @@ class Game:
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
-                    log.error("Failed to del %s from game_queues" % self.id)
+                    log.error("Failed to del %s from game_queues", self.id)
 
         self.saved = True
         loop = asyncio.get_event_loop()
@@ -339,7 +339,7 @@ class Game:
 
         if self.board.ply < 3 and (self.db is not None):
             result = await self.db.game.delete_one({"_id": self.id})
-            log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
+            log.debug("Removed too short game %s from db. Deleted %s game.", self.id, result.deleted_count)
         else:
             if self.result != "*":
                 if self.rated == RATED:
@@ -603,7 +603,7 @@ class Game:
         try:
             mlist = sf.get_san_moves(self.variant, self.initial_fen, self.board.move_stack, self.chess960, sf.NOTATION_SAN)
         except Exception:
-            log.exception("ERROR: Exception in game %s pgn()" % self.id)
+            log.exception("ERROR: Exception in game %s pgn()", self.id)
             mlist = self.board.move_stack
         moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960

@@ -17,7 +17,7 @@ async def BOT_task(bot, app):
             try:
                 line = await bot.game_queues[game.id].get()
             except KeyError:
-                log.error("Break in BOT_task() game_task(). %s not in ai.game_queues" % game.id)
+                log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id)
                 if game.status <= STARTED:
                     await game.abort()
                 break
