@@ -61,8 +61,6 @@ async def get_work(request, data):
                 fm[worker].append("%s %s %s %s for level %s" % (datetime.utcnow(), work_id, "request", "move AGAIN", work["work"]["level"]))
                 return web.json_response(work, status=202)
         return web.Response(status=204)
-    except Exception:
-        raise
 
 
 async def fishnet_acquire(request):
