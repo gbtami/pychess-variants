@@ -7,9 +7,9 @@ export type MouchEvent = MouseEvent & TouchEvent;
 
 //export default function resizeHandle(els: cg.Elements, pref: number, ply: number) {
 export default function resizeHandle(els: cg.Elements) {
-
+// TODO
 //  if (!pref) return;
-  if (true) return;
+  return;
 
   const el = document.createElement('cg-resize');
   els.container.appendChild(el);
