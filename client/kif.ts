@@ -79,7 +79,7 @@ export function parseKif(text: string) {
     const WIN = true;
     const LOSS = false;
 
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
         const firstChar = lines[i][0];
         if ( firstChar === '#' || firstChar === '*') continue;
 

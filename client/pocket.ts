@@ -174,7 +174,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
 
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
-    for (var role in pocket) {
+    for (const role in pocket) {
         letters.push(roleToSan[role].repeat(pocket[role]));
     }
     return letters.join('');
