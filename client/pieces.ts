@@ -64,34 +64,3 @@ export function iniPieces(ctrl: EditorController, vpieces0, vpieces1): void {
     ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
     ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
 }
-
-export function pocketsView(ctrl: EditorController, color: Color, position: Position) {
-    const roles = VARIANTS[ctrl.variant].pocketRoles(color)!;
-    return h('div.pocket.' + position + '.editor.usable', {
-        style: {
-            '--editorLength': String(roles.length),
-            '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
-            '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
-        },
-    }, roles.map(role => {
-        return h('piece.' + role + '.' + color, {
-            attrs: {
-                'data-role': role,
-                'data-color': color,
-                'data-nb': 0,
-            },
-            on: {click: (event) => {
-                let newValue: number;
-                newValue = parseInt((event.target as HTMLElement).getAttribute("data-nb")!) + ((event.ctrlKey) ? -1 : 1);
-                newValue = Math.min(Math.max(newValue, 0), dimensions[VARIANTS[ctrl.variant].geometry].width);
-                patch(event.target as HTMLElement, h('piece.' + role + '.' + color, {attrs: {'data-nb': newValue}}));
-                }
-            }
-        });
-    }));
-}
-
-export function iniPockets(ctrl: EditorController, vpocket0, vpocket1): void {
-    ctrl.vpocket0 = patch(vpocket0, pocketsView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
-    ctrl.vpocket1 = patch(vpocket1, pocketsView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
-}

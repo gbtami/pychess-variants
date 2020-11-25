@@ -17,7 +17,7 @@ import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { dropIsValid, pocketView, updatePockets } from './pocket';
+import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
 import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, getCounting, isVariantClass, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
@@ -51,7 +51,7 @@ export default class RoundController {
     gameId: string;
     variant: string;
     hasPockets: boolean;
-    pockets: any;
+    pockets: Pockets;
     vpocket0: any;
     vpocket1: any;
     vplayer0: any;

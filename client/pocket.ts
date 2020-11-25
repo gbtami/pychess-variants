@@ -7,22 +7,42 @@ import style from 'snabbdom/modules/style';
 
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
-import { Color, dimensions } from 'chessgroundx/types';
+import { Color, dimensions, Role } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
 import { VARIANTS, roleToSan, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
+import EditorController from './editor';
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
 type Position = 'top' | 'bottom';
 
+type Pocket = Partial<Record<Role, number>>;
+export type Pockets = [Pocket, Pocket];
+
 const eventNames = ['mousedown', 'touchstart'];
 
-export function pocketView(ctrl: RoundController | AnalysisController, color: Color, position: Position) {
-  const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
-  const roles = Object.keys(pocket);
+export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: Color, position: Position) {
+    const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
+    const roles = Object.keys(pocket);
+
+    let insertHook;
+    if (ctrl instanceof EditorController) {
+        insertHook = {};
+    } else {
+        insertHook = {
+            insert: vnode => {
+                eventNames.forEach(name => {
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                    drag((ctrl as RoundController | AnalysisController), e);
+                    })
+                });
+            }
+        }
+    }
+
   return h('div.pocket.' + position, {
     class: { usable: true },
     style: {
@@ -30,23 +50,47 @@ export function pocketView(ctrl: RoundController | AnalysisController, color: Co
         '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
         '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
     },
-    hook: {
-      insert: vnode => {
-        eventNames.forEach(name => {
-          (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                drag(ctrl, e);
-          })
-        });
-      }
-    }
+    hook: insertHook
   }, roles.map(role => {
     let nb = pocket[role] || 0;
+    let onEventHandler;
+    if (ctrl instanceof EditorController) {
+        onEventHandler = {
+            click: (event) => {
+                let newValue: number;
+                const oldValue = parseInt((event.target as HTMLElement).getAttribute("data-nb")!);
+                newValue = oldValue + ((event.ctrlKey) ? -1 : 1);
+                newValue = Math.min(Math.max(newValue, 0), dimensions[VARIANTS[ctrl.variant].geometry].width);
+                if (oldValue !== newValue) {
+                    // patch(event.target as HTMLElement, h('piece.' + role + '.' + color, {attrs: {'data-nb': newValue}}));
+                    if (event.ctrlKey) {
+                        pocket[role]--;
+                    } else {
+                        pocket[role]++;
+                    }
+
+                    if (position === "top") {
+                        ctrl.vpocket0 = patch(ctrl.vpocket0, pocketView(ctrl, color, "top"));
+                    } else {
+                        ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, color, "bottom"));
+                    }
+
+                    ctrl.pocketsPart = pockets2str(ctrl);
+                    ctrl.onChange();
+                }
+            }
+        }
+    } else {
+        onEventHandler = {};
+    };
+
     return h('piece.' + role + '.' + color, {
       attrs: {
         'data-role': role,
         'data-color': color,
         'data-nb': nb,
-      }
+      },
+      on: onEventHandler
     });
   }));
 }
@@ -98,7 +142,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
 }
 
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
-export function updatePockets(ctrl: RoundController | AnalysisController, vpocket0, vpocket1): void {
+export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0, vpocket1): void {
     // update pockets from FEN
     if (ctrl.hasPockets) {
         const parts = ctrl.fullfen.split(" ");
@@ -113,8 +157,8 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
         const o = ctrl.oppcolor;
         const rc = VARIANTS[ctrl.variant].pocketRoles(c) ?? [];
         const ro = VARIANTS[ctrl.variant].pocketRoles(o) ?? [];
-        let pc = {};
-        let po = {};
+        let pc:Pocket = {};
+        let po:Pocket = {};
         rc.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c==='white'));
         ro.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o==='white'));
         if (ctrl.flip) {
@@ -126,4 +170,16 @@ export function updatePockets(ctrl: RoundController | AnalysisController, vpocke
         ctrl.vpocket0 = patch(vpocket0, pocketView(ctrl, (ctrl.flip) ? ctrl.mycolor : ctrl.oppcolor, "top"));
         ctrl.vpocket1 = patch(vpocket1, pocketView(ctrl, (ctrl.flip) ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
     }
+}
+
+function pocket2str(pocket: Pocket) {
+    const letters: string[] = [];
+    for (var role in pocket) {
+        letters.push(roleToSan[role].repeat(pocket[role]));
+    }
+    return letters.join('');
+}
+
+export function pockets2str(ctrl) {
+    return '[' + pocket2str(ctrl.pockets[1]) + pocket2str(ctrl.pockets[0]).toLowerCase() + ']';
 }

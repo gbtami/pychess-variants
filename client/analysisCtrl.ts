@@ -20,7 +20,7 @@ import { DrawShape } from 'chessgroundx/draw';
 import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { dropIsValid, pocketView, updatePockets } from './pocket';
+import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
 import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, isVariantClass, sanToRole } from './chess';
 import { crosstableView } from './crosstable';
@@ -77,7 +77,7 @@ export default class AnalysisController {
     gameId: string;
     variant: string;
     hasPockets: boolean;
-    pockets: any;
+    pockets: Pockets;
     vpocket0: any;
     vpocket1: any;
     vplayer0: any;
