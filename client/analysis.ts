@@ -9,7 +9,7 @@ import { gameType, renderRdiff, result } from './profile';
 
 declare global {
     interface Window {
-        onFSFline: Function;
+        onFSFline: (string) => void;
         fsf: any;
     }
 }
