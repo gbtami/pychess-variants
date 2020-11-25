@@ -23,7 +23,6 @@ import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, getCounting, i
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove } from './movelist';
-import resizeHandle from './resize';
 import { renderRdiff, result } from './profile'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
@@ -199,9 +198,6 @@ export default class RoundController {
             turnColor: this.turnColor,
             autoCastle: this.variant !== 'cambodian',
             animation: { enabled: this.animation },
-            events: {
-                insert(elements) {resizeHandle(elements);}
-            }
         });
 
         if (this.spectator) {

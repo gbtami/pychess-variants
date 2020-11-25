@@ -27,8 +27,6 @@ import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from './winningChances';
-import resizeHandle from './resize';
-//import { result } from './profile';
 import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
@@ -242,9 +240,6 @@ export default class AnalysisController {
             orientation: this.mycolor,
             turnColor: this.turnColor,
             animation: { enabled: this.animation },
-            events: {
-                insert(elements) {resizeHandle(elements);}
-            }
         });
 
         this.chessground.set({
