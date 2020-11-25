@@ -3,8 +3,6 @@ import Highcharts from "highcharts";
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
-import { _ } from './i18n';
-
 function createPeriods() {
     const periodList: string[] = [];
     const date = new Date(2019, 6, 1, 0, 0, 0);
