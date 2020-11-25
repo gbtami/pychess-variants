@@ -85,7 +85,6 @@ VARIANT_ICONS = {
     "capahouse960": "'",
     "crazyhouse960": "%",
     "kyotoshogi": ")",
-    "chess": "M",
     "shogun": "-",
     "orda": "R",
     "synochess": "_",
