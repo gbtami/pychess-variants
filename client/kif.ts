@@ -132,7 +132,7 @@ export function parseKif(text: string) {
                 // used when the destination coordinate is the same as that of the immediately preceding move
             } else if (s[0] == '反') {
                 status = 10; // illegal move
-                if ('反則勝ち') {
+                if (s == '反則勝ち') {
                     // indicates that the immediately preceding move was illegal
                     result = resultString(WIN, ply, isHandicap);
                 } else {
