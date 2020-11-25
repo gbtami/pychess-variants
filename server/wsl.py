@@ -55,7 +55,7 @@ async def lobby_socket_handler(request):
         session.invalidate()
         raise web.HTTPFound("/")
 
-    log.debug("-------------------------- NEW lobby WEBSOCKET by %s" % user)
+    log.debug("-------------------------- NEW lobby WEBSOCKET by %s", user)
 
     try:
         async for msg in ws:
@@ -66,7 +66,7 @@ async def lobby_socket_handler(request):
                 else:
                     data = json.loads(msg.data)
                     if not data["type"] == "pong":
-                        log.debug("Websocket (%s) message: %s" % (id(ws), msg))
+                        log.debug("Websocket (%s) message: %s", id(ws), msg)
 
                     if data["type"] == "get_seeks":
                         response = get_seeks(seeks)
@@ -173,7 +173,7 @@ async def lobby_socket_handler(request):
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
-                                log.info("+++ Existing lobby_user %s socket connected as %s." % (session_user, data["username"]))
+                                log.info("+++ Existing lobby_user %s socket connected as %s.", session_user, data["username"])
                                 session_user = data["username"]
                                 if session_user in users:
                                     user = users[session_user]
@@ -189,7 +189,7 @@ async def lobby_socket_handler(request):
                                     users[user.username] = user
                                 response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                         else:
-                            log.info("+++ Existing lobby_user %s socket reconnected." % data["username"])
+                            log.info("+++ Existing lobby_user %s socket reconnected.", data["username"])
                             session_user = data["username"]
                             if session_user in users:
                                 user = users[session_user]
@@ -234,18 +234,18 @@ async def lobby_socket_handler(request):
                         await ws.close(code=1009)
 
             elif msg.type == aiohttp.WSMsgType.CLOSED:
-                log.debug("--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED" % id(ws))
+                log.debug("--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED", id(ws))
                 break
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.error("--- Lobby ws %s msg.type == aiohttp.WSMsgType.ERROR" % id(ws))
+                log.error("--- Lobby ws %s msg.type == aiohttp.WSMsgType.ERROR", id(ws))
                 break
 
             else:
-                log.debug("--- Lobby ws other msg.type %s %s" % (msg.type, msg))
+                log.debug("--- Lobby ws other msg.type %s %s", msg.type, msg)
 
     except Exception as e:
-        log.error("!!! Lobby ws exception occured: %s" % type(e))
+        log.error("!!! Lobby ws exception occured: %s", type(e))
 
     finally:
         log.debug("---fianlly: await ws.close()")

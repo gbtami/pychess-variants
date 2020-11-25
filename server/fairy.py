@@ -54,7 +54,7 @@ class FairyBoard:
             self.move_stack.pop()
             self.ply -= 1
             self.color = not self.color
-            log.error("ERROR: sf.get_fen() failed on %s %s %s" % (self.initial_fen, ",".join(self.move_stack), self.chess960))
+            log.error("ERROR: sf.get_fen() failed on %s %s %s", self.initial_fen, ",".join(self.move_stack), self.chess960)
             raise
 
     def get_san(self, move):

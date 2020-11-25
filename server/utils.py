@@ -196,7 +196,7 @@ async def load_game(app, game_id, user=None):
                     print("IndexError", ply, move, san)
 
         except Exception:
-            log.exception("ERROR: Exception in load_game() %s %s %s %s %s" % (game_id, variant, doc.get("if"), move, list(mlist)))
+            log.exception("ERROR: Exception in load_game() %s %s %s %s %s", game_id, variant, doc.get("if"), move, list(mlist))
             break
 
     if len(game.steps) > 1:
@@ -344,7 +344,7 @@ async def new_game(app, user, seek_id, new_id=None):
     games = app["games"]
     seeks = app["seeks"]
     seek = seeks[seek_id]
-    log.info("+++ Seek %s accepted by %s FEN:%s 960:%s" % (seek_id, user.username, seek.fen, seek.chess960))
+    log.info("+++ Seek %s accepted by %s FEN:%s 960:%s", seek_id, user.username, seek.fen, seek.chess960)
 
     fen_valid = True
     if seek.fen:
@@ -382,7 +382,7 @@ async def new_game(app, user, seek_id, new_id=None):
             chess960=seek.chess960,
             create=True)
     except Exception:
-        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
+        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s", new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer)
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     games[new_id] = new_game
@@ -500,7 +500,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             await game.play_move(move, clocks, ply)
         except SystemError:
             invalid_move = True
-            log.exception("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, user.username))
+            log.exception("Game %s aborted because invalid move %s by %s !!!", gameId, move, user.username)
             game.status = INVALIDMOVE
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
 
@@ -529,9 +529,9 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
                 response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id, "pgn": game.pgn}
                 await opp_ws.send_json(response)
         except KeyError:
-            log.exception("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, user.username, gameId))
+            log.exception("Move %s can't send to %s. Game %s was removed from game_sockets !!!", move, user.username, gameId)
         except ConnectionResetError:
-            log.exception("Move %s can't send to %s in game %s. User disconnected !!!" % (move, user.username, gameId))
+            log.exception("Move %s can't send to %s in game %s. User disconnected !!!", move, user.username, gameId)
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=app["game_channels"])
@@ -579,7 +579,7 @@ def pgn(doc):
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
-            log.exception("%s %s %s movelist contains invalid move" % (doc["_id"], variant, doc["d"]))
+            log.exception("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
             mlist = mlist[0]
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
