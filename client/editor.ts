@@ -113,21 +113,28 @@ export default class EditorController {
             }),
         );
 
-        e = document.getElementById('clear') as HTMLElement;
-        patch(e, h('a#clear', {on: {click: () => this.setEmptyFen()}}));
-
-        e = document.getElementById('start') as HTMLElement;
-        patch(e, h('a#start', {on: {click: () => this.setStartFen()}}));
-
-        e = document.getElementById('analysis') as HTMLElement;
-        this.vAnalysis = patch(e, h('a#analysis', {on: {click: () => this.setAnalysisFen()}}));
-
-        e = document.getElementById('challengeAI') as HTMLElement;
-        this.vChallenge = patch(e, h('a#challengeAI', {class: {disabled: this.anon}, on: {click: () => this.setChallengeFen()}}));
-
-        e = document.getElementById('png') as HTMLElement;
-        patch(e, h('a#png', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}));
-
+        const dataIcon = VARIANTS[this.variant].icon(false);
+        let container = document.getElementById('editor-button-container') as HTMLElement;
+        if (container !== null) {
+            const buttons = [
+                h('a.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
+                    h('i', {class: {"icon": true, "icon-trash-o": true} }, _('CLEAR BOARD'))
+                ]),
+                h('a.i-pgn', { on: { click: () => this.setStartFen() } }, [
+                    h('i', {attrs: {"data-icon": dataIcon} }, _('STARTING POSITION'))
+                ]),
+                h('a.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
+                    h('i', {class: {"icon": true, "icon-microscope": true} }, _('ANALYSIS BOARD'))
+                ]),
+                h('a.i-pgn', { class: {disabled: this.anon}, on: { click: () => this.setChallengeFen() } }, [
+                    h('i', {class: {"icon": true, "icon-bot": true} }, _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
+                ]),
+                h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
+                    h('i', {class: {"icon": true, "icon-download": true} }, _('EXPORT TO PNG'))
+                ])
+            ];
+            patch(container, h('div.editor-button-container', buttons));
+        }
     }
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
@@ -287,13 +294,7 @@ export function editorView(model): VNode[] {
                         h('div#pocket0'),
                     ]),
                 ]),
-                h('div.editor-button-container', [
-                    h('div', [h('a#clear', _('CLEAR BOARD'))]),
-                    h('div', [h('a#start', _('STARTING POSITION'))]),
-                    h('div', [h('a#analysis', _('ANALYSIS BOARD'))]),
-                    h('div', [h('a#challengeAI', _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))]),
-                    h('div', [h('a#png', _('EXPORT TO PNG'))]),
-                ]),
+                h('div#editor-button-container'),
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
