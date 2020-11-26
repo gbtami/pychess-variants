@@ -108,7 +108,7 @@ export default class EditorController {
         this.vfen = patch(e,
             h('input#fen', {
                 props: { name: 'fen', value: model["fen"] },
-                on: { input: () => this.setFen(true) },
+                on: { input: () => this.setFen(true), paste: (e) => this.onPasteFen(e) },
                 hook: {insert: () => this.setFen(false) },
             }),
         );
@@ -128,6 +128,14 @@ export default class EditorController {
         e = document.getElementById('png') as HTMLElement;
         patch(e, h('a#png', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}));
 
+    }
+
+    // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
+    private onPasteFen = (e) => {
+        const data = e.clipboardData.getData('text');
+        e.target.value = data.trim();
+        e.preventDefault();
+        this.setFen(true);
     }
 
     private validFen = () => {
