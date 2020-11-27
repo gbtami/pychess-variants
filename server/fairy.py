@@ -37,8 +37,7 @@ class FairyBoard:
     def start_fen(self, variant, chess960=False):
         if chess960:
             return self.shuffle_start()
-        else:
-            return sf.start_fen(variant)
+        return sf.start_fen(variant)
 
     @property
     def initial_sfen(self):

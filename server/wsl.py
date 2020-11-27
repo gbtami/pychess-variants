@@ -22,10 +22,9 @@ async def is_playing(request, user, ws):
         if (game is None) or game.status > STARTED:
             user.game_in_progress = None
             return False
-        else:
-            response = {"type": "game_in_progress", "gameId": user.game_in_progress}
-            await ws.send_json(response)
-            return True
+        response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+        await ws.send_json(response)
+        return True
     else:
         return False
 

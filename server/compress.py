@@ -68,8 +68,7 @@ def encode_moves(moves, variant):
             if move[0] == "+" else
             chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
             for move in moves]
-    else:
-        return [chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "") for move in moves]
+    return [chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "") for move in moves]
 
 
 def decode_moves(moves, variant):
@@ -79,5 +78,4 @@ def decode_moves(moves, variant):
             if move[-1] == "@" else
             C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
             for move in moves]
-    else:
-        return [C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "") for move in moves]
+    return [C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "") for move in moves]

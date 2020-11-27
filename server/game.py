@@ -201,7 +201,7 @@ class Game:
 
         if self.status > STARTED:
             return
-        elif self.status == CREATED:
+        if self.status == CREATED:
             self.status = STARTED
             self.app["g_cnt"] += 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
@@ -435,8 +435,7 @@ class Game:
         len_hs = len(self.highscore[variant + ("960" if chess960 else "")])
         if len_hs > 0:
             return (self.highscore[variant + ("960" if chess960 else "")].peekitem()[1], len_hs)
-        else:
-            return (0, 0)
+        return (0, 0)
 
     async def set_highscore(self, variant, chess960, value):
         self.highscore[variant + ("960" if chess960 else "")].update(value)
@@ -482,10 +481,9 @@ class Game:
         def result_string_from_value(color, game_result_value):
             if game_result_value < 0:
                 return "1-0" if color == BLACK else "0-1"
-            elif game_result_value > 0:
+            if game_result_value > 0:
                 return "0-1" if color == BLACK else "1-0"
-            else:
-                return "1/2-1/2"
+            return "1/2-1/2"
 
         if status is not None:
             self.status = status
@@ -631,8 +629,7 @@ class Game:
         if self.variant[-5:] == "shogi":
             mirror = mirror9 if self.variant == "shogi" else mirror5
             return "position sfen %s moves %s" % (self.board.initial_sfen, " ".join(map(uci2usi, map(mirror, self.board.move_stack))))
-        else:
-            return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
+        return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
 
     @property
     def clocks(self):
