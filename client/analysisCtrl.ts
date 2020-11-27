@@ -324,7 +324,7 @@ export default class AnalysisController {
         let passKey = 'z0';
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests;
-        for (let key in pieces) {
+        for (const key in pieces) {
             if (pieces[key]!.role === 'king' && pieces[key]!.color === this.turnColor) {
                 if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
             }
@@ -658,7 +658,7 @@ export default class AnalysisController {
                 }
             }
             this.vscore = patch(this.vscore, h('score#score', scoreStr));
-            let info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
+            const info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
             if (ceval.k) {
                 if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
                     info.push(
@@ -895,7 +895,7 @@ export default class AnalysisController {
     }
 
     private getPgn = (idxInVari  = 0) => {
-        let moves : string[] = [];
+        const moves : string[] = [];
         for (let ply = 1; ply <= this.ply; ply++) {
             const moveCounter = (ply % 2 !== 0) ? (ply + 1) / 2 + '.' : '';
             if (this.steps[ply]['vari'] !== undefined && this.plyVari > 0) {

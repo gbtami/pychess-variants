@@ -4,7 +4,7 @@ import { h } from 'snabbdom/h';
 import { ISettings } from "./settings";
 
 export function radioList(settings: ISettings<string>, name: string, options: { [key: string]: string }, onchange: (evt, key: string) => void): VNode[] {
-    let result: VNode[] = [];
+    const result: VNode[] = [];
     Object.keys(options).forEach(key => {
         const id = name + "-" + key;
         result.push(h(`input#${id}`, {

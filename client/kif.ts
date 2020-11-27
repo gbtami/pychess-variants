@@ -69,7 +69,7 @@ export function parseKif(text: string) {
     let date, place, tc, sente, gote, handicap = '';
     let status = 11; // unknown
     let result = '*'; // unknown
-    let move_list: string[] = [];
+    const move_list: string[] = [];
     let tagsProcessed = false;
     let isHandicap = false;
     let movesStartLineNumber, ply;

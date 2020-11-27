@@ -42,7 +42,7 @@ export class Gating {
 
             const orientation = ground.state.orientation;
 
-            let moves = {"normal": [orig, dest]};
+            const moves = {"normal": [orig, dest]};
             let castling = false;
             let rookOrig = "";
             const moveLength = dest[0].charCodeAt() - orig[0].charCodeAt();
