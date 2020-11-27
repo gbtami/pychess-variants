@@ -380,7 +380,7 @@ export default class RoundController {
         let passKey = 'z0';
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests;
-        for (let key in pieces) {
+        for (const key in pieces) {
             if (pieces[key]!.role === 'king' && pieces[key]!.color === this.turnColor) {
                 if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
             }

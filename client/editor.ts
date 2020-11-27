@@ -104,7 +104,7 @@ export default class EditorController {
             updatePockets(this, pocket0, pocket1);
         }
 
-        let e = document.getElementById('fen') as HTMLElement;
+        const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
             h('input#fen', {
                 props: { name: 'fen', value: model["fen"] },
@@ -114,7 +114,7 @@ export default class EditorController {
         );
 
         const dataIcon = VARIANTS[this.variant].icon(false);
-        let container = document.getElementById('editor-button-container') as HTMLElement;
+        const container = document.getElementById('editor-button-container') as HTMLElement;
         if (container !== null) {
             const buttons = [
                 h('a.i-pgn', { on: { click: () => this.setEmptyFen() } }, [

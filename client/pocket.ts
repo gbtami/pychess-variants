@@ -52,7 +52,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     },
     hook: insertHook
   }, roles.map(role => {
-    let nb = pocket[role] || 0;
+    const nb = pocket[role] || 0;
     let onEventHandler;
     if (ctrl instanceof EditorController) {
         onEventHandler = {
@@ -157,8 +157,8 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
         const o = ctrl.oppcolor;
         const rc = VARIANTS[ctrl.variant].pocketRoles(c) ?? [];
         const ro = VARIANTS[ctrl.variant].pocketRoles(o) ?? [];
-        let pc:Pocket = {};
-        let po:Pocket = {};
+        const pc:Pocket = {};
+        const po:Pocket = {};
         rc.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c==='white'));
         ro.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o==='white'));
         if (ctrl.flip) {
