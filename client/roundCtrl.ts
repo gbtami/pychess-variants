@@ -241,7 +241,7 @@ export default class RoundController {
                     select: this.onSelect(),
                 }
             });
-        };
+        }
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
@@ -723,7 +723,7 @@ export default class RoundController {
                     turnColor: this.turnColor,
                     check: msg.check,
                 });
-            };
+            }
         };
     }
 
@@ -929,7 +929,7 @@ export default class RoundController {
             diff[pos2key(pawnPos, geom)] = undefined;
             this.chessground.setPieces(diff);
             meta.captured = {role: "pawn"};
-        };
+        }
         // increase pocket count
         if (isVariantClass(this.variant, 'drop') && meta.captured) {
             let role = meta.captured.role
@@ -944,7 +944,7 @@ export default class RoundController {
                 this.pockets[1][role]++;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
-        };
+        }
 
         //  gating elephant/hawk
         if (isVariantClass(this.variant, 'gate')) {
@@ -952,7 +952,7 @@ export default class RoundController {
         } else {
             if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
         this.preaction = false;
-        };
+        }
     }
 
     private onUserDrop = (role, dest, meta) => {
@@ -1007,7 +1007,7 @@ export default class RoundController {
                 this.clickDrop = undefined;
                 //cancelDropMode(this.chessground.state);
                 this.chessground.set({ movable: { dests: this.dests }});
-            };
+            }
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
@@ -1034,7 +1034,7 @@ export default class RoundController {
                 } else if (isVariantClass(this.variant, 'pass') && piece!.role === 'king') {
                     this.pass();
                 }
-            };
+            }
         }
     }
 
@@ -1113,10 +1113,10 @@ export default class RoundController {
                 this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
             } else {
                 this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
-            };
+            }
         } else {
             this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
-        };
+        }
     }
 
     private onMsgOffer = (msg) => {

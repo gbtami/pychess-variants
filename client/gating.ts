@@ -75,7 +75,7 @@ export class Gating {
                 pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'rook'};
                 pieces[((moveLength > 0) ? "g" : "c") + orig[1]] = {color: color, role: 'king'};
                 ground.setPieces(pieces);
-            };
+            }
 
             // It is possible in 960 that we have no valid gating square finally
             if (Object.keys(moves).length === 0) return false;
@@ -88,7 +88,7 @@ export class Gating {
             return true;
         }
         return false;
-    };
+    }
 
     private inCastlingTargets(key, color, moveLength) {
         if (color === "white") {
@@ -196,7 +196,7 @@ export class Gating {
             }
             this.gating = null;
         }
-    };
+    }
 
     private cancel() {
         this.drawNoGating();

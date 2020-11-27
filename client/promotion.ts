@@ -50,7 +50,7 @@ export class Promotion {
                     dest: dest,
                     callback: this.ctrl.sendMove,
                 };
-            };
+            }
 
             return true;
         }
@@ -167,7 +167,7 @@ export class Promotion {
 
             this.promoting = null;
         }
-    };
+    }
 
     private cancel() {
         this.drawNoPromo();

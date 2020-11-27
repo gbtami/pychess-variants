@@ -82,7 +82,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         }
     } else {
         onEventHandler = {};
-    };
+    }
 
     return h('piece.' + role + '.' + color, {
       attrs: {
@@ -110,7 +110,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
         return;
     } else {
         //setDropMode(ctrl.chessground.state, number !== '0' ? { color, role } : undefined);
-    };
+    }
 
     // Show possible drop dests on my turn only not to mess up predrop
     if (ctrl.clickDropEnabled && ctrl.turnColor === ctrl.mycolor) {

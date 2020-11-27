@@ -448,7 +448,7 @@ export default class AnalysisController {
 
             if (this.steps[0].analysis !== undefined) {
                 this.drawAnalysisChart(false);
-            };
+            }
         } else {
             if (msg.ply === this.steps.length) {
                 const step = {
@@ -504,7 +504,7 @@ export default class AnalysisController {
                 lastMove: lastMove,
             });
             if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
-        };
+        }
         if (this.model["ply"]) {
             this.ply = parseInt(this.model["ply"])
             selectMove(this, this.ply);
@@ -656,7 +656,7 @@ export default class AnalysisController {
                     const d = pv_move.slice(2, 4);
                     shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
                 }
-            };
+            }
             this.vscore = patch(this.vscore, h('score#score', scoreStr));
             let info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
             if (ceval.k) {
@@ -1042,7 +1042,7 @@ export default class AnalysisController {
             diff[pos2key(pawnPos, geom)] = undefined;
             this.chessground.setPieces(diff);
             meta.captured = {role: "pawn"};
-        };
+        }
         // increase pocket count
         if (isVariantClass(this.variant, 'drop') && meta.captured) {
             let role = meta.captured.role
@@ -1057,7 +1057,7 @@ export default class AnalysisController {
                 this.pockets[1][role]++;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
-        };
+        }
 
         //  gating elephant/hawk
         if (isVariantClass(this.variant, 'gate')) {
@@ -1065,7 +1065,7 @@ export default class AnalysisController {
         } else {
             if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
         this.preaction = false;
-        };
+        }
     }
 
     private onUserDrop = (role, dest, meta) => {
@@ -1120,7 +1120,7 @@ export default class AnalysisController {
                 this.clickDrop = undefined;
                 //cancelDropMode(this.chessground.state);
                 this.chessground.set({ movable: { dests: this.dests }});
-            };
+            }
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
@@ -1147,7 +1147,7 @@ export default class AnalysisController {
                 } else if (isVariantClass(this.variant, 'pass') && piece!.role === 'king') {
                     this.pass();
                 }
-            };
+            }
         }
     }
 

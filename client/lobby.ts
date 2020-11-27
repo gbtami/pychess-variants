@@ -69,7 +69,7 @@ class LobbyController {
         // get seeks when we are coming back after a game
         if (this._ws.readyState === 1) {
             this.doSend({ type: "get_seeks" });
-        };
+        }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
@@ -479,7 +479,7 @@ class LobbyController {
                 "icon-black":  color === "b",
             }
         });
-    };
+    }
     private challengeIcon(seek) {
         const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
