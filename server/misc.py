@@ -45,7 +45,6 @@ class Timer:
 def time_control_str(base, inc, byo):
     if byo == 0:
         return "%d+%d" % (base, inc)
-    elif byo == 1:
+    if byo == 1:
         return "%d+%d(b)" % (base, inc)
-    else:
-        return "%d+%dx%d(b)" % (base, byo, inc)
+    return "%d+%dx%d(b)" % (base, byo, inc)

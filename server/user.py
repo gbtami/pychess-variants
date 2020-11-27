@@ -62,8 +62,7 @@ class User:
         if username is None:
             if self.bot:
                 return self.bot_online
-            else:
-                return len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0
+            return len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0
         else:
             return username == self.username or self.online()
 
@@ -72,10 +71,9 @@ class User:
             gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.perfs[variant + ("960" if chess960 else "")]["la"]
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
-        else:
-            rating = gl2.create_rating()
-            self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
-            return rating
+        rating = gl2.create_rating()
+        self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
+        return rating
 
     async def set_rating(self, variant, chess960, rating):
         if self.anon:

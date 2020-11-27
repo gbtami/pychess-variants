@@ -37,26 +37,24 @@ async def tv_game(db, app):
     """ Get latest played game id """
     if app["tv"] is not None:
         return app["tv"]
-    else:
-        game_id = None
-        doc = await db.game.find_one({}, sort=[('$natural', -1)])
-        if doc is not None:
-            game_id = doc["_id"]
-            app["tv"] = game_id
-        return game_id
+    game_id = None
+    doc = await db.game.find_one({}, sort=[('$natural', -1)])
+    if doc is not None:
+        game_id = doc["_id"]
+        app["tv"] = game_id
+    return game_id
 
 
 async def tv_game_user(db, users, profileId):
     """ Get latest played game id by a given user name"""
     if users[profileId].tv is not None:
         return users[profileId].tv
-    else:
-        game_id = None
-        doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
-        if doc is not None:
-            game_id = doc["_id"]
-            users[profileId].tv = game_id
-        return game_id
+    game_id = None
+    doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
+    if doc is not None:
+        game_id = doc["_id"]
+        users[profileId].tv = game_id
+    return game_id
 
 
 async def load_game(app, game_id, user=None):
@@ -83,8 +81,7 @@ async def load_game(app, game_id, user=None):
                 await queue.put(json.dumps({"gameId": game_id}))
 
             return games[game_id]
-        else:
-            return None
+        return None
 
     wp, bp = doc["us"]
     if wp in users:
@@ -236,10 +233,9 @@ async def draw(games, data, agreement=False):
         return {
             "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated == RATED else ""}
-    else:
-        response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
-        game.messages.append(response)
-        return response
+    response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
+    game.messages.append(response)
+    return response
 
 
 async def import_game(request):
@@ -689,8 +685,7 @@ def sanitize_fen(variant, initial_fen, chess960):
         print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5, invalid6)
         sanitized_fen = start_fen
         return False, start_fen
-    else:
-        return True, sanitized_fen
+    return True, sanitized_fen
 
 
 def online_count(users):
