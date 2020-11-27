@@ -762,7 +762,7 @@ export default class AnalysisController {
 
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
-    goPly = (ply, plyVari: number = 0) => {
+    goPly = (ply, plyVari = 0) => {
         if (this.localAnalysis) {
             this.engineStop();
             // Go back to the main line
@@ -894,7 +894,7 @@ export default class AnalysisController {
         }
     }
 
-    private getPgn = (idxInVari : number = 0) => {
+    private getPgn = (idxInVari  = 0) => {
         let moves : string[] = [];
         for (let ply = 1; ply <= this.ply; ply++) {
             const moveCounter = (ply % 2 !== 0) ? (ply + 1) / 2 + '.' : '';
