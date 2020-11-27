@@ -97,7 +97,7 @@ export interface IVariant {
 class Variant implements IVariant {
     readonly name: string;
     private readonly _displayName: string;
-    displayName(chess960: boolean = false) { return this._displayName + (chess960 ? "960" : ""); }
+    displayName(chess960 = false) { return this._displayName + (chess960 ? "960" : ""); }
     readonly tooltip: string;
     readonly startFen: string;
 
@@ -140,7 +140,7 @@ class Variant implements IVariant {
 
     private readonly _icon: string;
     private readonly _icon960: string;
-    icon(chess960: boolean = false) { return chess960 ? this._icon960 : this._icon; }
+    icon(chess960 = false) { return chess960 ? this._icon960 : this._icon; }
     readonly pieceSound: string;
 
     constructor(data: any) {

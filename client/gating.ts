@@ -44,7 +44,7 @@ export class Gating {
 
             let moves = {"normal": [orig, dest]};
             let castling = false;
-            let rookOrig: string = "";
+            let rookOrig = "";
             const moveLength = dest[0].charCodeAt() - orig[0].charCodeAt();
 
             if (ground.state.pieces[dest].role === "king") {
