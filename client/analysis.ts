@@ -10,7 +10,7 @@ import { gameType, renderRdiff, result } from './profile';
 declare global {
     interface Window {
         onFSFline: (string) => void;
-        fsf: any;
+        fsf;
     }
 }
 

@@ -34,14 +34,13 @@ export default class EditorController {
     pockets: Pockets;
     variant: string;
     hasPockets: boolean;
-    pieces: any;
-    vpieces0: any;
-    vpieces1: any;
-    vpocket0: any;
-    vpocket1: any;
-    vfen: any;
-    vAnalysis: any;
-    vChallenge: any;
+    vpieces0: VNode;
+    vpieces1: VNode;
+    vpocket0: VNode;
+    vpocket1: VNode;
+    vfen: VNode;
+    vAnalysis: VNode;
+    vChallenge: VNode;
     anon: boolean;
     flip: boolean;
 

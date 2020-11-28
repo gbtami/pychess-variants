@@ -21,11 +21,11 @@ export class Clock {
     granularity: number;
     running: boolean;
     connecting: boolean;
-    timeout: any;
-    startTime: any;
-    tickCallbacks: any[];
-    flagCallback: any;
-    byoyomiCallback: any;
+    timeout: number | null;
+    startTime: number;
+    tickCallbacks: (() => void)[];
+    flagCallback: (() => void) | null;
+    byoyomiCallback: (() => void) | null;
     el: HTMLElement | VNode;
     id: string;
     overtime: boolean;
@@ -42,7 +42,7 @@ export class Clock {
         this.running = false;
         this.connecting = false;
         this.timeout = null;
-        this.startTime = null;
+        this.startTime = 0;
         this.tickCallbacks = [];
         this.flagCallback = null;
         this.byoyomiCallback = null;
@@ -57,9 +57,9 @@ export class Clock {
         this.renderTime(this.duration);
     }
 
-    start(duration: number) {
+    start(duration = 0) {
         if (this.running) return;
-        if (typeof duration !== "undefined") this.duration = duration;
+        if (duration !== 0) this.duration = duration;
 
         this.running = true;
         this.startTime = Date.now();

@@ -15,7 +15,7 @@ const patch = init([listeners, style]);
 
 export class Promotion {
     ctrl;
-    promoting: any;
+    promoting: {orig: Key, dest: Key, callback: (orig: string, dest: string, promo: string) => void} | null;
     choices: { [ role: string ]: string };
 
     constructor(ctrl) {

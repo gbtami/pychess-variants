@@ -1,4 +1,5 @@
 import { h, init } from "snabbdom";
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -142,7 +143,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
 }
 
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
-export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0, vpocket1): void {
+export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0: VNode | HTMLElement, vpocket1: VNode | HTMLElement): void {
     // update pockets from FEN
     if (ctrl.hasPockets) {
         const parts = ctrl.fullfen.split(" ");

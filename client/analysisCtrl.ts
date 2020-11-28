@@ -6,6 +6,7 @@ import Sockette from 'sockette';
 
 import { init } from 'snabbdom';
 import { h } from 'snabbdom/h';
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -14,9 +15,10 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { key2pos, pos2key } from 'chessgroundx/util';
-import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
+import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation, SetPremoveMetadata } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
+import { JSONObject } from './types';
 import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
@@ -76,24 +78,24 @@ export default class AnalysisController {
     variant: string;
     hasPockets: boolean;
     pockets: Pockets;
-    vpocket0: any;
-    vpocket1: any;
-    vplayer0: any;
-    vplayer1: any;
-    vpgn: any;
-    vscore: any;
-    vinfo: any;
-    vpv: any;
-    vmovelist: any;
-    gameControls: any;
-    moveControls: any;
-    gating: any;
-    promotion: any;
+    vpocket0: VNode;
+    vpocket1: VNode;
+    vplayer0: VNode;
+    vplayer1: VNode;
+    vpgn: VNode;
+    vscore: VNode | HTMLElement;
+    vinfo: VNode | HTMLElement;
+    vpv: VNode | HTMLElement;
+    vmovelist: VNode | HTMLElement;
+    gameControls: VNode;
+    moveControls: VNode;
+    gating: Gating;
+    promotion: Promotion;
     dests: Dests;
     promotions: string[];
     lastmove: Key[];
-    premove: any;
-    predrop: any;
+    premove: {orig: Key, dest: Key, metadata?: SetPremoveMetadata} | null;
+    predrop: {role: Role, key: Key} | null;
     preaction: boolean;
     result: string;
     flip: boolean;
@@ -112,17 +114,17 @@ export default class AnalysisController {
     clickDropEnabled: boolean;
     animation: boolean;
     showDests: boolean;
-    analysisChart: any;
-    ctableContainer: any;
+    analysisChart;
+    ctableContainer: VNode | HTMLElement;
     localEngine: boolean;
     localAnalysis: boolean;
-    ffish: any;
-    ffishBoard: any;
+    ffish;
+    ffishBoard;
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
     notation: Notation;
-    notationAsObject: any;
+    notationAsObject;
     prevPieces: Pieces;
 
     constructor(el, model) {
@@ -855,7 +857,7 @@ export default class AnalysisController {
         window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString());
     }
 
-    private doSend = (message) => {
+    private doSend = (message: JSONObject) => {
         // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
@@ -1083,7 +1085,7 @@ export default class AnalysisController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant === "kyotoshogi") {
-                if (!this.promotion.start(role, 'z0', dest, undefined)) this.sendMove(roleToSan[role] + "@", dest, '');
+                if (!this.promotion.start(role, 'z0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
             } else {
                 this.sendMove(roleToSan[role] + "@", dest, '')
             }

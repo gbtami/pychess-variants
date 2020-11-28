@@ -2,6 +2,7 @@ import Sockette from 'sockette';
 
 import { init } from 'snabbdom';
 import { h } from 'snabbdom/h';
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -10,8 +11,9 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation } from 'chessgroundx/types';
+import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation, SetPremoveMetadata } from 'chessgroundx/types';
 
+import { JSONObject } from './types';
 import { _ } from './i18n';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
@@ -44,31 +46,31 @@ export default class RoundController {
     mycolor: Color;
     oppcolor: Color;
     turnColor: Color;
-    clocks: any;
-    clocktimes: any;
+    clocks: [Clock, Clock];
+    clocktimes;
     abortable: boolean;
     gameId: string;
     variant: string;
     hasPockets: boolean;
     pockets: Pockets;
-    vpocket0: any;
-    vpocket1: any;
-    vplayer0: any;
-    vplayer1: any;
-    vmiscInfoW: any;
-    vmiscInfoB: any;
-    vpng: any;
-    vmovelist: any;
-    gameControls: any;
-    moveControls: any;
-    ctableContainer: any;
-    gating: any;
-    promotion: any;
+    vpocket0: VNode;
+    vpocket1: VNode;
+    vplayer0: VNode;
+    vplayer1: VNode;
+    vmiscInfoW: VNode;
+    vmiscInfoB: VNode;
+    vpng: VNode;
+    vmovelist: VNode | HTMLElement;
+    gameControls: VNode;
+    moveControls: VNode;
+    ctableContainer: VNode | HTMLElement;
+    gating: Gating;
+    promotion: Promotion;
     dests: Dests;
     promotions: string[];
     lastmove: Key[];
-    premove: any;
-    predrop: any;
+    premove: {orig: Key, dest: Key, metadata?: SetPremoveMetadata} | null;
+    predrop: {role: Role, key: Key} | null;
     preaction: boolean;
     result: string;
     flip: boolean;
@@ -778,7 +780,7 @@ export default class RoundController {
         this.ply = ply
     }
 
-    private doSend = (message) => {
+    private doSend = (message: JSONObject) => {
         // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
@@ -877,8 +879,8 @@ export default class RoundController {
         }
     }
 
-    private setPremove = (orig, dest, meta) => {
-        this.premove = { orig, dest, meta };
+    private setPremove = (orig: Key, dest: Key, metadata?: SetPremoveMetadata) => {
+        this.premove = { orig, dest, metadata };
         // console.log("setPremove() to:", orig, dest, meta);
     }
 
@@ -887,7 +889,7 @@ export default class RoundController {
         this.preaction = false;
     }
 
-    private setPredrop = (role, key) => {
+    private setPredrop = (role: Role, key: Key) => {
         this.predrop = { role, key };
         // console.log("setPredrop() to:", role, key);
     }
@@ -970,7 +972,7 @@ export default class RoundController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant === "kyotoshogi") {
-                if (!this.promotion.start(role, 'z0', dest, undefined)) this.sendMove(roleToSan[role] + "@", dest, '');
+                if (!this.promotion.start(role, 'z0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
             } else {
                 this.sendMove(roleToSan[role] + "@", dest, '')
             }

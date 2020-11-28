@@ -14,6 +14,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
+import { JSONObject } from './types';
 import { _, _n } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
@@ -91,7 +92,7 @@ class LobbyController {
             e.disabled = true;
     }
 
-    doSend(message: any) {
+    doSend(message: JSONObject) {
         // console.log("---> lobby doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
@@ -373,7 +374,7 @@ class LobbyController {
     }
 
     private setVariant() {
-        let e: any;
+        let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
         const byoyomi = variant.timeControl === "byoyomi";

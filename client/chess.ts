@@ -143,7 +143,7 @@ class Variant implements IVariant {
     icon(chess960 = false) { return chess960 ? this._icon960 : this._icon; }
     readonly pieceSound: string;
 
-    constructor(data: any) {
+    constructor(data) {
         this.name = data.name;
         this._displayName = (data.displayName ?? data.name).toUpperCase();
         this.tooltip = data.tooltip;

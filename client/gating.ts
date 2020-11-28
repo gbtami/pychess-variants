@@ -18,7 +18,7 @@ const patch = init([attributes, event, style]);
 
 export class Gating {
     private ctrl;
-    private gating: any;
+    private gating;
     private choices: string[];
 
     constructor(ctrl) {

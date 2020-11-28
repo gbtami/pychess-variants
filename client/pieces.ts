@@ -1,4 +1,5 @@
 import { h, init } from "snabbdom";
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -60,7 +61,7 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     dragNewPiece(ctrl.chessground.state, { color, role }, e);
 }
 
-export function iniPieces(ctrl: EditorController, vpieces0, vpieces1): void {
+export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
     ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
     ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
 }
