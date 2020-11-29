@@ -112,7 +112,8 @@ export default class EditorController {
             }),
         );
 
-        const dataIcon = VARIANTS[this.variant].icon(false);
+        //const dataIcon = VARIANTS[this.variant].icon(false);
+        const dataIcon = 'icon-' + this.variant;
         const container = document.getElementById('editor-button-container') as HTMLElement;
         if (container !== null) {
             const buttons = [
@@ -159,19 +160,19 @@ export default class EditorController {
                 ]),
 
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
-                    h('i', {class: {"icon": true, "icon-trash-o": true} }, _('CLEAR BOARD'))
+                    h('div', {class: {"icon": true, "icon-trash-o": true} }, _('CLEAR BOARD'))
                 ]),
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
-                    h('i', {attrs: {"data-icon": dataIcon} }, _('STARTING POSITION'))
+                    h('div', {class: {"icon": true, [dataIcon]: true} }, _('STARTING POSITION'))
                 ]),
                 h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
-                    h('i', {class: {"icon": true, "icon-microscope": true} }, _('ANALYSIS BOARD'))
+                    h('div', {class: {"icon": true, "icon-microscope": true} }, _('ANALYSIS BOARD'))
                 ]),
                 h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
-                    h('i', {class: {"icon": true, "icon-bot": true} }, _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
+                    h('div', {class: {"icon": true, "icon-bot": true} }, _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
-                    h('i', {class: {"icon": true, "icon-download": true} }, _('EXPORT TO PNG'))
+                    h('div', {class: {"icon": true, "icon-download": true} }, _('EXPORT TO PNG'))
                 ])
             ];
             patch(container, h('div.editor-button-container', buttons));

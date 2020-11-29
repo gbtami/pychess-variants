@@ -934,7 +934,7 @@ player-head {
     padding: 10px;
     color: var(--analysis-links);
 }
-.editor-button-container .i-pgn i:before {
+.editor-button-container .i-pgn div:before {
     padding-right: 6px;
 }
 a.i-at:link, a.i-tv:link, a.i-dl:link, a.i-ch:link, a.i-pgn:link {
@@ -1033,9 +1033,10 @@ select, input {
 .editor-button-container {
     display: flex;
     flex-flow: column;
-    font-size: 16px;
 }
-
+.editor-button-container .icon:before{
+    font-size: 18px;
+}
 #misc-infow, #misc-infob {
     font-family: "Roboto Mono", "Roboto";
     font-size: 40px;
