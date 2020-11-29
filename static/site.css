@@ -1857,6 +1857,21 @@ boardeditor {
 div.editorhint {
     margin-bottom: 12px;
 }
+#turn-block {
+    display: flex;
+    flex-flow: column;
+    background: var(--bg-color1);
+    padding: 10px;
+    box-shadow: var(--base-shadow);
+    width: max-content;
+}
+/* castling labels */
+.OO {
+    padding-left: 0;
+}
+.OOO {
+    padding-left: 28px;
+}
 
 /* Janggi setup buttons */
 #janggi-setup-buttons {

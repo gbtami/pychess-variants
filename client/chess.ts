@@ -609,6 +609,16 @@ export function hasEp(variant: string) {
     return isVariantClass(variant, 'enPassant');
 }
 
+export function hasCastling(variant: string, color: Color) {
+    if (variant === 'placement') return true;
+    const castl = VARIANTS[variant].startFen.split(' ')[2];
+    if (color === 'white') {
+        return castl.includes('KQ');
+    } else {
+        return castl.includes('kq');
+    }
+}
+
 export function zero2grand(move) {
     const parts = move.split("");
     if (parts[1] !== "@")
