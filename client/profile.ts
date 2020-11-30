@@ -16,6 +16,14 @@ import { VARIANTS } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 
+export const colorNames = {
+    "White": _("White"),
+    "Black": _("Black"),
+    "Red": _("Red"),
+    "Blue": _("Blue"),
+    "Gold": _("Gold"),
+}
+
 export function gameType(rated) {
     switch (rated) {
     case "1":
@@ -33,8 +41,8 @@ export function result(variantName, status, result) {
     let text = '';
     console.log("result()", variantName, status, result);
     const variant = VARIANTS[variantName];
-    const first = _(variant.firstColor);
-    const second = _(variant.secondColor);
+    const first = colorNames[variant.firstColor];
+    const second = colorNames[variant.secondColor];
     switch (status) {
         case -2:
         case -1:

@@ -19,6 +19,7 @@ import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { updatePockets, Pockets } from './pocket';
 import { copyBoardToPNG } from './png'; 
+import { colorNames } from './profile';
 
 
 export default class EditorController {
@@ -122,14 +123,14 @@ export default class EditorController {
                         props: { name: "turn" },
                         on: { change: (e) => this.onChangeTurn(e) },
                     }, [
-                        h('option', { props: { value: 'white' } }, _('White to play')),
-                        h('option', { props: { value: 'black' } }, _('Black to play')),
+                        h('option', { props: { value: 'white' } }, _('%1 to play', colorNames[VARIANTS[this.variant].firstColor])),
+                        h('option', { props: { value: 'black' } }, _('%1 to play', colorNames[VARIANTS[this.variant].secondColor])),
                     ]),
                     (!hasCastling(this.variant, 'white')) ? '' :
                     h('strong', _("Castling")),
                     (!hasCastling(this.variant, 'white')) ? '' :
                     h('div.castling', [
-                        h('label.OO', { attrs: { for: "wOO" } }, "White O-O"),
+                        h('label.OO', { attrs: { for: "wOO" } }, _("White") + " O-O"),
                         h('input#wOO', {
                             props: {name: "wOO", type: "checkbox"},
                             attrs: {checked: this.parts[2].includes('K')},
@@ -144,7 +145,7 @@ export default class EditorController {
                     ]),
                     (!hasCastling(this.variant, 'black')) ? '' :
                     h('div.castling', [
-                        h('label.OO', { attrs: { for: "bOO" } }, "Black O-O"),
+                        h('label.OO', { attrs: { for: "bOO" } }, _("Black") +  " O-O"),
                         h('input#bOO', {
                             props: {name: "bOO", type: "checkbox"},
                             attrs: {checked: this.parts[2].includes('k')},
