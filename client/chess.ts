@@ -530,11 +530,11 @@ const disabledVariants = [ "gothic", "gothhouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { label: string, variants: string[] } } = {
-    standard: { label: "Standard piece variants",  variants: [ "chess", "crazyhouse", "placement" ] },
-    sea:      { label: "Southeast Asian variants", variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
-    shogi:    { label: "Shogi variants",           variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
-    xiangqi:  { label: "Xiangqi variants",         variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { label: "Fairy piece variants",     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
+    standard: { label: _("Standard piece variants"),  variants: [ "chess", "crazyhouse", "placement" ] },
+    sea:      { label: _("Southeast Asian variants"), variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
+    shogi:    { label: _("Shogi variants"),           variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
+    xiangqi:  { label: _("Xiangqi variants"),         variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
+    fairy:    { label: _("Fairy piece variants"),     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
 
 export function selectVariant(id, selected, onChange, hookInsert) {

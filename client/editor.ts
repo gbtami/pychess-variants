@@ -116,6 +116,8 @@ export default class EditorController {
         //const dataIcon = VARIANTS[this.variant].icon(false);
         const dataIcon = 'icon-' + this.variant;
         const container = document.getElementById('editor-button-container') as HTMLElement;
+        const firstColor = colorNames(VARIANTS[this.variant].firstColor);
+        const secondColor = colorNames(VARIANTS[this.variant].secondColor);
         if (container !== null) {
             const buttons = [
                 h('div#turn-block', [
@@ -123,8 +125,8 @@ export default class EditorController {
                         props: { name: "turn" },
                         on: { change: (e) => this.onChangeTurn(e) },
                     }, [
-                        h('option', { props: { value: 'white' } }, _('%1 to play', colorNames[VARIANTS[this.variant].firstColor])),
-                        h('option', { props: { value: 'black' } }, _('%1 to play', colorNames[VARIANTS[this.variant].secondColor])),
+                        h('option', { props: { value: 'white' } }, _('%1 to play', firstColor)),
+                        h('option', { props: { value: 'black' } }, _('%1 to play', secondColor)),
                     ]),
                     (!hasCastling(this.variant, 'white')) ? '' :
                     h('strong', _("Castling")),
