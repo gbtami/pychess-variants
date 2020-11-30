@@ -15,7 +15,6 @@
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "A személyes adatok védelme és a felhasználási feltételek tekintetében itt is a lichess.org szabályai érvényesek.",
     "Playing right now": "Folyamatban lévő játszma",
     "Variant": "Variáns",
-    " level ": " szint ",
     "in local browser": "a böngészőben",
     "You need an account to do that.": "Csak regisztrált felhasználók számára elérhető.",
     "Download game to PGN file": "Játszma leöltése PGN fájlba.",
@@ -73,6 +72,39 @@
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de másként ütnek! ",
     "Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army": "Aszimmetrikus variáns, kínai és koreai figurákkal a nyugati sakk ellen",
     "Knights are capturing as bishops, bishops are capturing as knights": "A huszárok futóként ütnek, a futók meg huszárként.",
+    "Standard piece variants": "Standard sakkfigura variánsok",
+    "Southeast Asian variants": "Délkelet-ázsiai variánsok",
+    "Shogi variants": "Sógi variánsok",
+    "Xiangqi variants": "Xiangqi variánsok",
+    "Fairy piece variants": "Tündér sakkfigura variánsok",
+    "%1 year ago": [
+        "%1 éve",
+        "%1 éve"
+    ],
+    "%1 month ago": [
+        "%1 hónapja",
+        "%1 hónapja"
+    ],
+    "%1 week ago": [
+        "%1 hete",
+        "%1 hete"
+    ],
+    "%1 day ago": [
+        "%1 napja",
+        "%1 napja"
+    ],
+    "%1 hour ago": [
+        "%1 órája",
+        "%1 órája"
+    ],
+    "%1 minute ago": [
+        "%1 perce",
+        "%1 perce"
+    ],
+    "%1 second ago": [
+        "%1 másodperce",
+        "%1 másodperce"
+    ],
     "%1 to play": "%1 lép",
     "Castling": "Sáncolás",
     "White": "Világos",
@@ -108,6 +140,14 @@
     "Alternate Start": "Kezdőállás",
     "Custom": "Egyéni",
     "You have an unfinished game!\nPress OK to continue.": "Van egy befejezetlen játszmád!\nOK a folytatáshoz",
+    "%1 game in play": [
+        "%1 játszma",
+        "%1 játszma"
+    ],
+    "%1 player": [
+        "%1 játékos",
+        "%1 játékos"
+    ],
     "Player": "Játékos",
     "Rating": "Értékszám",
     "Time": "Játékidő",
@@ -116,8 +156,6 @@
     "FAQ": "GYIK",
     "Stats": "Statisztika",
     "About": "Névjegy",
-    "0 players": "0 játékos",
-    "0 games in play": "0 játszma",
     "Thank you for your support!": "Köszönet a támogatásért!",
     "Invalid PGN": "Érvénytelen PGN",
     "Paste the PGN text here": "Másold a PGN szöveget ide",
@@ -126,6 +164,7 @@
     "Blue": "Kék",
     "Gold": "Arany",
     "IMPORT": "IMPORTÁLÁS",
+    "level %1": "szint %1",
     "Game aborted": "Játszma megszakítva",
     "Checkmate": "Matt",
     "%1 resigned": "%1 feladta",
@@ -140,6 +179,10 @@
     "Campmate": "Tábormatt",
     "Point counting": "Pontszámítás",
     "Repetition": "Lépésismétlés",
+    "%1 move": [
+        "%1 lépés",
+        "%1 lépés"
+    ],
     "Computer analysis available": "Számítógépes elemzés elérhető",
     "Lichess profile": "Lichess profil",
     "Import game": "Játszma importálása",

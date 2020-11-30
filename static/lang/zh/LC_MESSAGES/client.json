@@ -9,7 +9,6 @@
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "关于隐私和服务条款，我们向lichess.org借之而行。",
     "Playing right now": "正在进行",
     "Variant": "棋类",
-    " level ": "级别",
     "You need an account to do that.": "请登录以完成该操作。",
     "Download game to PGN file": "下载本局到PGN文件",
     " Download PGN": "下载PGN",
@@ -58,6 +57,27 @@
     "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board": "来自象棋的“炮”和“象”进入10x10路棋盘上的国际象棋大战",
     "Pieces promote and can be dropped, similar to Shogi": "棋子既可升变，又能打入，如同日本将棋",
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "非对称棋类，一方指挥走法如马但吃法不一致的棋子",
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
     "White": "白方",
     "Black": "黑方",
     "CLEAR BOARD": "清空棋盘",
@@ -82,14 +102,18 @@
     "Byoyomi in seconds:": "读秒：",
     "Increment in seconds:": "每步加时（秒）：",
     "You have an unfinished game!\nPress OK to continue.": "您正在下一局未结束的棋！\n请按确定以继续。",
+    "%1 game in play": [
+        ""
+    ],
+    "%1 player": [
+        ""
+    ],
     "Player": "棋手",
     "Rating": "积分",
     "Time": "时限",
     "Mode": "模式",
     "Donate": "捐赠",
     "Stats": "数据",
-    "0 players": "无棋手",
-    "0 games in play": "无对局进行中",
     "Thank you for your support!": "感谢您的支持！",
     "Game aborted": "棋局中止",
     "Checkmate": "将死",
@@ -105,6 +129,9 @@
     "Campmate": "抢占",
     "Point counting": "数分",
     "Repetition": "重复局面",
+    "%1 move": [
+        ""
+    ],
     "Computer analysis available": "提供电脑分析",
     "Lichess profile": "Lichess个人资料",
     "Export games": "导出棋局",

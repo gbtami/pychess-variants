@@ -14,7 +14,6 @@
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "เกี่ยวกับความเป็นส่วนตัว และข้อกำหนดในการให้บริการนั้น  lichess.org ได้แจ้งกฎไว้ที่นี่ ",
     "Playing right now": "กำลังเล่นอยู่",
     "Variant": "ชนิดเกม",
-    " level ": " ระดับ ",
     "You need an account to do that.": "จำเป็นต้องเข้าสู่ระบบ",
     "Download game to PGN file": "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN",
     " Download PGN": "ดาวน์โหลด PGN",
@@ -64,6 +63,27 @@
     "Pieces promote and can be dropped, similar to Shogi": "มีการเลื่อนยศหมาก และสามารถเติมหมากได้ คล้ายกับหมากรุกญี่ปุ่น",
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "ภาคีแบบอสมมาตร ที่ฝ่ายหนึ่งมีหมากที่เดินคล้ายม้า แต่กินต่างจากม้า",
     "Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army": "ภาคีอสมมาตรระหว่างตะวันออกและตะวันตก ที่จัดให้ หมากรุกตะวันตก ต่อสู้กับ หมากรุกจีน และหมากรุกเกาหลี",
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
     "White": "ขาว",
     "Black": "ดำ",
     "CLEAR BOARD": "ล้างกระดาน",
@@ -90,14 +110,18 @@
     "Alternate Start": "ตำแหน่งเริ่มต้นอื่น",
     "Custom": "กำหนดเอง",
     "You have an unfinished game!\nPress OK to continue.": "คุณมีเกมที่ยังเล่นไม่จบอยู่!\nกด OK เพื่อไปต่อ",
+    "%1 game in play": [
+        ""
+    ],
+    "%1 player": [
+        ""
+    ],
     "Player": "ผู้เล่น",
     "Rating": "คะแนน",
     "Time": "เวลา",
     "Mode": "รูปแบบการเล่น",
     "Donate": "บริจาค",
     "Stats": "สถิติ",
-    "0 players": "0 คนออนไลน์",
-    "0 games in play": "0 เกมกำลังเล่นอยู่",
     "Thank you for your support!": "ขอบคุณสำหรับการสนับสนุน!",
     "Game aborted": "เกมถูกยกเลิก",
     "Checkmate": "รุกจน",
@@ -113,6 +137,9 @@
     "Campmate": "ยึดฐาน",
     "Point counting": "นับคะแนน",
     "Repetition": "ตำแหน่งหมากซ้ำ",
+    "%1 move": [
+        ""
+    ],
     "Computer analysis available": "มีการวิเคราะห์โดยคอมพิวเตอร์",
     "Lichess profile": "หน้าบัญชี lichess",
     "Export games": "บันทึกไฟล์เกม",

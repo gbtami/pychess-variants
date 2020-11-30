@@ -3,7 +3,6 @@
     "Currently supported games are ": "현재 지원되는 게임",
     "Playing right now": "지금 대국하기",
     "Variant": "게임 종류",
-    " level ": "레벨",
     "You need an account to do that.": "계정이 필요합니다.",
     "Download game to PGN file": "PGN 파일로 기보 저장하기",
     " Download PGN": "PGN 파일로 저장",
@@ -27,6 +26,27 @@
     "Server": "서버",
     "Shogi on a 5x5 board": "쇼기 5x5 판",
     "Xiangqi on a 7x7 board": "중국상기 7x7 판",
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
     "White": "백",
     "Black": "흑",
     "CLEAR BOARD": "판 삭제",
@@ -52,13 +72,17 @@
     "Increment in seconds:": "초 증가",
     "Custom": "임의 지정",
     "You have an unfinished game!\nPress OK to continue.": "아직 끝나지 않은 게임이 있습니다!\nOK 를 눌러 계속합니다.",
+    "%1 game in play": [
+        ""
+    ],
+    "%1 player": [
+        ""
+    ],
     "Player": "대국자",
     "Rating": "레이팅",
     "Time": "시간",
     "Mode": "모드 선택",
     "Donate": "기부하기",
-    "0 players": "0 명의 대국자",
-    "0 games in play": "0 개의 게임이 진행중",
     "Thank you for your support!": "지원해 주셔서 감사합니다!",
     "Game aborted": "게임 중단",
     "Checkmate": "외통수",
@@ -73,6 +97,9 @@
     "Unknown reason": "알 수 없는 오류",
     "Campmate": "캠프메이트",
     "Point counting": "점수 승",
+    "%1 move": [
+        ""
+    ],
     "Computer analysis available": "컴퓨터 분석 이용가능",
     "Lichess profile": "Lichess 프로필",
     "Export games": "게임 저장하기",

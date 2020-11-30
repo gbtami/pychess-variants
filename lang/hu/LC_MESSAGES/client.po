@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-30 12:03+0100\n"
+"POT-Creation-Date: 2020-11-30 20:10+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -134,21 +134,17 @@ msgstr ""
 "A személyes adatok védelme és a felhasználási feltételek tekintetében itt is"
 " a lichess.org szabályai érvényesek."
 
-#: ../client/analysis.ts:47 ../client/profile.ts:49 ../client/round.ts:41
+#: ../client/analysis.ts:47 ../client/profile.ts:56 ../client/round.ts:41
 msgid "Playing right now"
 msgstr "Folyamatban lévő játszma"
 
-#: ../client/analysis.ts:92 ../client/editor.ts:355 ../client/lobby.ts:277
+#: ../client/analysis.ts:92 ../client/editor.ts:357 ../client/lobby.ts:277
 #: ../client/lobby.ts:659 ../client/settingsView.ts:128
 msgid "Variant"
 msgstr "Variáns"
 
-#: ../client/analysis.ts:189 ../client/player.ts:12 ../client/profile.ts:149
-#: ../client/profile.ts:159 ../client/round.ts:134
-msgid " level "
-msgstr " szint "
-
-#: ../client/analysisCtrl.ts:367 ../client/analysisCtrl.ts:710
+#: ../client/analysis.ts:134 ../client/analysisCtrl.ts:367
+#: ../client/analysisCtrl.ts:710
 msgid "in local browser"
 msgstr "a böngészőben"
 
@@ -403,55 +399,117 @@ msgstr ""
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
 msgstr "A huszárok futóként ütnek, a futók meg huszárként."
 
-#: ../client/editor.ts:130 ../client/editor.ts:131
+#: ../client/chess.ts:534
+msgid "Standard piece variants"
+msgstr "Standard sakkfigura variánsok"
+
+#: ../client/chess.ts:535
+msgid "Southeast Asian variants"
+msgstr "Délkelet-ázsiai variánsok"
+
+#: ../client/chess.ts:536
+msgid "Shogi variants"
+msgstr "Sógi variánsok"
+
+#: ../client/chess.ts:537
+msgid "Xiangqi variants"
+msgstr "Xiangqi variánsok"
+
+#: ../client/chess.ts:538
+msgid "Fairy piece variants"
+msgstr "Tündér sakkfigura variánsok"
+
+#: ../client/datetime.ts:13
+msgid "%1 year ago"
+msgid_plural "%1 years ago"
+msgstr[0] "%1 éve"
+msgstr[1] "%1 éve"
+
+#: ../client/datetime.ts:15
+msgid "%1 month ago"
+msgid_plural "%1 months ago"
+msgstr[0] "%1 hónapja"
+msgstr[1] "%1 hónapja"
+
+#: ../client/datetime.ts:17
+msgid "%1 week ago"
+msgid_plural "%1 weeks ago"
+msgstr[0] "%1 hete"
+msgstr[1] "%1 hete"
+
+#: ../client/datetime.ts:19
+msgid "%1 day ago"
+msgid_plural "%1 days ago"
+msgstr[0] "%1 napja"
+msgstr[1] "%1 napja"
+
+#: ../client/datetime.ts:21
+msgid "%1 hour ago"
+msgid_plural "%1 hours ago"
+msgstr[0] "%1 órája"
+msgstr[1] "%1 órája"
+
+#: ../client/datetime.ts:23
+msgid "%1 minute ago"
+msgid_plural "%1 minutes ago"
+msgstr[0] "%1 perce"
+msgstr[1] "%1 perce"
+
+#: ../client/datetime.ts:25
+msgid "%1 second ago"
+msgid_plural "%1 seconds ago"
+msgstr[0] "%1 másodperce"
+msgstr[1] "%1 másodperce"
+
+#: ../client/editor.ts:132 ../client/editor.ts:133
 msgid "%1 to play"
 msgstr "%1 lép"
 
-#: ../client/editor.ts:134
+#: ../client/editor.ts:136
 msgid "Castling"
 msgstr "Sáncolás"
 
-#: ../client/editor.ts:137 ../client/lobby.ts:344 ../client/profile.ts:20
+#: ../client/editor.ts:139 ../client/lobby.ts:344 ../client/profile.ts:21
 msgid "White"
 msgstr "Világos"
 
-#: ../client/editor.ts:152 ../client/lobby.ts:342 ../client/profile.ts:21
+#: ../client/editor.ts:154 ../client/lobby.ts:342 ../client/profile.ts:22
 msgid "Black"
 msgstr "Sötét"
 
-#: ../client/editor.ts:168
+#: ../client/editor.ts:170
 msgid "CLEAR BOARD"
 msgstr "ÜRES TÁBLA"
 
-#: ../client/editor.ts:171
+#: ../client/editor.ts:173
 msgid "STARTING POSITION"
 msgstr "KEZDŐÁLLÁS"
 
-#: ../client/editor.ts:174 ../client/roundCtrl.ts:503
+#: ../client/editor.ts:176 ../client/roundCtrl.ts:503
 msgid "ANALYSIS BOARD"
 msgstr "ELEMZÉS"
 
-#: ../client/editor.ts:177
+#: ../client/editor.ts:179
 msgid "PLAY WITH MACHINE"
 msgstr "JÁTÉK A GÉP ELLEN"
 
-#: ../client/editor.ts:177 ../client/lobby.ts:281
+#: ../client/editor.ts:179 ../client/lobby.ts:281
 msgid " (must be signed in)"
 msgstr " (jelentkezz be ehhez)"
 
-#: ../client/editor.ts:180
+#: ../client/editor.ts:182
 msgid "EXPORT TO PNG"
 msgstr "EXPORTÁLÁS PNG KÉPKÉNT"
 
-#: ../client/editor.ts:242 ../client/lobby.ts:442
+#: ../client/editor.ts:244 ../client/lobby.ts:442
 msgid "Invalid FEN"
 msgstr "Érvénytelen FEN"
 
-#: ../client/editor.ts:382
+#: ../client/editor.ts:384
 msgid "Click/Ctrl+click to increase/decrease number of pieces"
 msgstr "A figurák számának növelése: kattintás, csökkentése Ctrl+kattintás"
 
-#: ../client/invite.ts:27 ../client/profile.ts:261
+#: ../client/invite.ts:27 ../client/profile.ts:268
 msgid "Challenge to a game"
 msgstr "Kihívás"
 
@@ -495,12 +553,12 @@ msgstr "Perc játékosonként"
 msgid "Periods"
 msgstr "Periódus"
 
-#: ../client/lobby.ts:322 ../client/lobby.ts:539 ../client/profile.ts:36
+#: ../client/lobby.ts:322 ../client/lobby.ts:539 ../client/profile.ts:39
 msgid "Casual"
 msgstr "Nem értékelt"
 
-#: ../client/lobby.ts:324 ../client/lobby.ts:537 ../client/profile.ts:31
-#: ../client/profile.ts:267
+#: ../client/lobby.ts:324 ../client/lobby.ts:537 ../client/profile.ts:34
+#: ../client/profile.ts:274
 msgid "Rated"
 msgstr "Értékelt"
 
@@ -548,6 +606,18 @@ msgstr ""
 "Van egy befejezetlen játszmád!\n"
 "OK a folytatáshoz"
 
+#: ../client/lobby.ts:642
+msgid "%1 game in play"
+msgid_plural "%1 games in play"
+msgstr[0] "%1 játszma"
+msgstr[1] "%1 játszma"
+
+#: ../client/lobby.ts:647
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] "%1 játékos"
+msgstr[1] "%1 játékos"
+
 #: ../client/lobby.ts:656
 msgid "Player"
 msgstr "Játékos"
@@ -580,14 +650,6 @@ msgstr "Statisztika"
 msgid "About"
 msgstr "Névjegy"
 
-#: ../client/lobby.ts:705
-msgid "0 players"
-msgstr "0 játékos"
-
-#: ../client/lobby.ts:706
-msgid "0 games in play"
-msgstr "0 játszma"
-
 #: ../client/main.ts:90
 msgid "Thank you for your support!"
 msgstr "Köszönet a támogatásért!"
@@ -604,103 +666,113 @@ msgstr "Másold a PGN szöveget ide"
 msgid "IMPORT GAME"
 msgstr "JÁTSZMA IMPORTÁLÁSA"
 
-#: ../client/profile.ts:22
+#: ../client/profile.ts:23
 msgid "Red"
 msgstr "Vörös"
 
-#: ../client/profile.ts:23
+#: ../client/profile.ts:24
 msgid "Blue"
 msgstr "Kék"
 
-#: ../client/profile.ts:24
+#: ../client/profile.ts:25
 msgid "Gold"
 msgstr "Arany"
 
-#: ../client/profile.ts:34
+#: ../client/profile.ts:37
 msgid "IMPORT"
 msgstr "IMPORTÁLÁS"
 
-#: ../client/profile.ts:52
+#: ../client/profile.ts:44
+msgid "level %1"
+msgstr "szint %1"
+
+#: ../client/profile.ts:59
 msgid "Game aborted"
 msgstr "Játszma megszakítva"
 
-#: ../client/profile.ts:55
+#: ../client/profile.ts:62
 msgid "Checkmate"
 msgstr "Matt"
 
-#: ../client/profile.ts:58
+#: ../client/profile.ts:65
 msgid "%1 resigned"
 msgstr "%1 feladta"
 
-#: ../client/profile.ts:61
+#: ../client/profile.ts:68
 msgid "Stalemate"
 msgstr "Patt"
 
-#: ../client/profile.ts:64 ../client/profile.ts:70
+#: ../client/profile.ts:71 ../client/profile.ts:77
 msgid "Time out"
 msgstr "Letelt az idő"
 
-#: ../client/profile.ts:67 ../client/roundCtrl.ts:347
+#: ../client/profile.ts:74 ../client/roundCtrl.ts:347
 msgid "Draw"
 msgstr "Döntetlen"
 
-#: ../client/profile.ts:73
+#: ../client/profile.ts:80
 msgid "%1 abandoned the game"
 msgstr "%1 elhagyta a játszmát"
 
-#: ../client/profile.ts:76
+#: ../client/profile.ts:83
 msgid "Cheat detected"
 msgstr "Csalás"
 
-#: ../client/profile.ts:79
+#: ../client/profile.ts:86
 msgid "Not started"
 msgstr "Nem kezdték el"
 
-#: ../client/profile.ts:82
+#: ../client/profile.ts:89
 msgid "Invalid move"
 msgstr "Érvénytelen FEN"
 
-#: ../client/profile.ts:85
+#: ../client/profile.ts:92
 msgid "Unknown reason"
 msgstr "Ismeretlen ok"
 
-#: ../client/profile.ts:88
+#: ../client/profile.ts:95
 msgid "Campmate"
 msgstr "Tábormatt"
 
-#: ../client/profile.ts:88 ../client/profile.ts:91
+#: ../client/profile.ts:95 ../client/profile.ts:98
 msgid "Point counting"
 msgstr "Pontszámítás"
 
-#: ../client/profile.ts:91
+#: ../client/profile.ts:98
 msgid "Repetition"
 msgstr "Lépésismétlés"
 
-#: ../client/profile.ts:176
+#: ../client/profile.ts:182
+msgid "%1 move"
+msgid_plural "%1 moves"
+msgstr[0] "%1 lépés"
+msgstr[1] "%1 lépés"
+
+#: ../client/profile.ts:183
 msgid "Computer analysis available"
 msgstr "Számítógépes elemzés elérhető"
 
-#: ../client/profile.ts:246
+#: ../client/profile.ts:253
 msgid "Lichess profile"
 msgstr "Lichess profil"
 
-#: ../client/profile.ts:250
+#: ../client/profile.ts:257
 msgid "Import game"
 msgstr "Játszma importálása"
 
-#: ../client/profile.ts:254
+#: ../client/profile.ts:261
 msgid "Export games"
 msgstr "Játszmák exportálása"
 
-#: ../client/profile.ts:258
+#: ../client/profile.ts:265
 msgid "Watch games"
 msgstr "Játszmák figyelése"
 
-#: ../client/profile.ts:266
+#: ../client/profile.ts:273
 msgid "Games"
 msgstr "Játszmák"
 
-#: ../client/profile.ts:268
+#: ../client/profile.ts:275
 msgid "Imported"
 msgstr "Importált"
 
