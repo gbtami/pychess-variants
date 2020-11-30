@@ -1,6 +1,7 @@
 import h from 'snabbdom/h';
 
 import { _ } from './i18n';
+import { aiLevel } from './profile';
 
 export function player(id, title, name, rating, level) {
     return h('round-player', [
@@ -9,7 +10,7 @@ export function player(id, title, name, rating, level) {
             h('player', [
                 h('a.user-link', { attrs: {href: '/@/' + name} }, [
                     h('player-title', " " + title + " "),
-                    name + ((title === "BOT" && level >= 0) ? _(' level ') + level: ''),
+                    name + aiLevel(title, level),
                 ]),
                 h('rating', rating),
             ]),

@@ -7,7 +7,7 @@ import { radioList } from './view';
 
 export const i18n = trans();
 export function _(msgid, ...vars) { return i18n.gettext(msgid, vars); }
-export function _n(msgid, plural, ...vars) { return i18n.ngettext(msgid, plural, vars); }
+export function ngettext(msgid, plural, ...vars) { return i18n.ngettext(msgid, plural, vars); }
 
 export const LANGUAGES = {
     en: "English",

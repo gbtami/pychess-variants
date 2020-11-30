@@ -15,7 +15,7 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { JSONObject } from './types';
-import { _, _n } from './i18n';
+import { _, ngettext } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
 import { sound } from './sound';
@@ -616,12 +616,12 @@ class LobbyController {
     private onMsgGameCounter(msg) {
         console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
-        patch(gameCount, h('counter#g_cnt', _n('%1 game in play', '%1 games in play', msg.cnt)));
+        patch(gameCount, h('counter#g_cnt', ngettext('%1 game in play', '%1 games in play', msg.cnt)));
     }
     private onMsgUserCounter(msg) {
         console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
-        patch(userCount as HTMLElement, h('counter#u_cnt', _n('%1 player', '%1 players', msg.cnt)));
+        patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
     }
 
 }

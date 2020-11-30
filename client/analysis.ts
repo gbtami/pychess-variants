@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
 import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
-import { gameType, renderRdiff, result } from './profile';
+import { aiLevel, gameType, renderRdiff, result } from './profile';
 
 declare global {
     interface Window {
@@ -186,7 +186,7 @@ export function analysisView(model): VNode[] {
 function playerInfo(username: string, title: string, level: number, rating: number, rdiff: number | null) {
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
-        username + ((title === "BOT" && level >= 0) ? _(' level ') + level: "") + " (" + rating + ") ",
+        username + aiLevel(title, level) + " (" + rating + ") ",
         rdiff === null ? h('rdiff') : renderRdiff(rdiff),
     ]);
 }
