@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-11-30 12:03+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Leo Ha <yeoha123@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
@@ -50,56 +50,52 @@ msgstr ""
 "pychess-variants 는 무료 서버이며 앞으로도 계속 무료로 운영됩니다. 하지만 서버 관리 및 향상을 위해서는 돈과 시간이 들어갑니다. \n"
 "만약 저희가 하는 일이 만족스럽고 서버가 상당히 유용하셨다면, patreon 또는 paypal 을 통해 기부 해주셨으면 합니다."
 
-#: ../templates/players.html:8
+#: ../templates/players.html:9
 msgid "Online"
 msgstr "온라인"
 
-#: ../templates/players.html:27
+#: ../templates/players.html:28
 msgid "Anonymous"
 msgstr "익명 사용자"
 
-#: ../templates/players.html:34
+#: ../templates/players.html:35
 msgid "All players"
 msgstr "모든 대국자"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s 개의 게임"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:96
 msgid "Tv"
 msgstr "생중계"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:97
 msgid "Current games"
 msgstr "현재 진행중인 게임"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:98
 msgid "Players"
 msgstr "대국자"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:99
 msgid "Editor"
 msgstr "판 편집"
 
-#: ../templates/template.html:76
+#: ../templates/template.html:100
+msgid "Analysis"
+msgstr ""
+
+#: ../templates/template.html:101
 msgid "Learn"
 msgstr "학습"
 
-#: ../templates/template.html:77
-msgid "About"
-msgstr "사이트 정보"
-
-#: ../templates/template.html:78
-msgid "Original PyChess site"
-msgstr "원조 Pychess 사이트"
-
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Login with Lichess"
 msgstr "Lichess 로 로그인 하기"
 
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Log in"
 msgstr "로그인"

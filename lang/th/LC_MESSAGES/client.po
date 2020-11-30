@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-08-03 10:38+0200\n"
+"POT-Creation-Date: 2020-11-30 12:03+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Boonhome Bamroongpakdee <boonhome.b@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -104,33 +104,32 @@ msgstr ""
 msgid "Currently supported games are "
 msgstr "เกมที่รองรับในปัจจุบัน คือ"
 
-#: ../client/about.ts:71
+#: ../client/about.ts:77
 msgid ""
 "Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
-"Capablanca, and Capahouse to start games from random positions with "
+"S-chess, Capablanca, and Capahouse to start games from random positions with"
+" "
 msgstr ""
-"เพิ่มเติม คุณสามารถเช็คออปชั่น Chess960 ให้กับ Chess, Crazyhouse, "
-"Capablanca, และ Capahouse ในการเริ่มเกมจากตำแหน่งแบบสุ่ม"
 
-#: ../client/about.ts:72
+#: ../client/about.ts:78
 msgid "Chess960 castling rules."
 msgstr "กฎการเข้าป้อมแบบ Chess960"
 
-#: ../client/about.ts:75
+#: ../client/about.ts:81
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
 "สำหรับการสร้างตาเดิน การสอบทาน การวิเคราะห์ และการเดินหมากของคอมพิวเตอร์นั้น"
 " พวกเราใช้"
 
-#: ../client/about.ts:83
+#: ../client/about.ts:89
 msgid "On client side, the user interface of the game board is based on "
 msgstr "ในฝั่งผู้ใช้งานนั้น กราฟิกหน้าต่างของกระดาน มีพื้นฐานมาจาก"
 
-#: ../client/about.ts:87
+#: ../client/about.ts:93
 msgid "The source code of the server is available on "
 msgstr "รหัสต้นแบบของของเซอร์เวอร์อยู่ที่"
 
-#: ../client/about.ts:92
+#: ../client/about.ts:98
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
@@ -138,70 +137,77 @@ msgstr ""
 "เกี่ยวกับความเป็นส่วนตัว และข้อกำหนดในการให้บริการนั้น  lichess.org "
 "ได้แจ้งกฎไว้ที่นี่ "
 
-#: ../client/analysis.ts:38 ../client/lobby.ts:327 ../client/lobby.ts:524
-#: ../client/profile.ts:117 ../client/round.ts:32
-msgid "Rated"
-msgstr "คิดคะแนน"
-
-#: ../client/analysis.ts:38 ../client/lobby.ts:325 ../client/lobby.ts:526
-#: ../client/profile.ts:117 ../client/round.ts:32
-msgid "Casual"
-msgstr "ไม่คิดคะแนน"
-
-#: ../client/analysis.ts:48 ../client/profile.ts:28 ../client/round.ts:41
+#: ../client/analysis.ts:47 ../client/profile.ts:49 ../client/round.ts:41
 msgid "Playing right now"
 msgstr "กำลังเล่นอยู่"
 
-#: ../client/analysis.ts:141 ../client/player.ts:12 ../client/profile.ts:126
-#: ../client/profile.ts:136 ../client/round.ts:134
+#: ../client/analysis.ts:92 ../client/editor.ts:355 ../client/lobby.ts:277
+#: ../client/lobby.ts:659 ../client/settingsView.ts:128
+msgid "Variant"
+msgstr "ชนิดเกม"
+
+#: ../client/analysis.ts:189 ../client/player.ts:12 ../client/profile.ts:149
+#: ../client/profile.ts:159 ../client/round.ts:134
 msgid " level "
 msgstr " ระดับ "
 
-#: ../client/analysisCtrl.ts:272
+#: ../client/analysisCtrl.ts:367 ../client/analysisCtrl.ts:710
+msgid "in local browser"
+msgstr ""
+
+#: ../client/analysisCtrl.ts:379
 msgid "You need an account to do that."
 msgstr "จำเป็นต้องเข้าสู่ระบบ"
 
-#: ../client/analysisCtrl.ts:299
+#: ../client/analysisCtrl.ts:413
 msgid "Download game to PGN file"
 msgstr "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN"
 
-#: ../client/analysisCtrl.ts:299
+#: ../client/analysisCtrl.ts:413
 msgid " Download PGN"
 msgstr "ดาวน์โหลด PGN"
 
-#: ../client/analysisCtrl.ts:301
+#: ../client/analysisCtrl.ts:415
 msgid "Copy USI/UCI to clipboard"
 msgstr "คัดลอก USI/UCI ไปยังคลิปบอร์ด"
 
-#: ../client/analysisCtrl.ts:301
+#: ../client/analysisCtrl.ts:415
 msgid " Copy UCI/USI"
 msgstr "คัดลอก UCI/USI"
 
-#: ../client/analysisCtrl.ts:303
+#: ../client/analysisCtrl.ts:417
 msgid "Download position to PNG image file"
 msgstr "ดาวน์โหลดตำแหน่งหมากเป็นไฟล์ภาพ PNG"
 
-#: ../client/analysisCtrl.ts:303
+#: ../client/analysisCtrl.ts:417
 msgid " PNG image"
 msgstr "ภาพ PNG"
 
-#: ../client/analysisCtrl.ts:307
+#: ../client/analysisCtrl.ts:421
 msgid "Request Computer Analysis"
 msgstr "ขอการวิเคราะห์จากคอมพิวเตอร์"
 
-#: ../client/analysisCtrl.ts:307
+#: ../client/analysisCtrl.ts:421
 msgid " Request Analysis"
 msgstr "ขอการวิเคราะห์"
 
-#: ../client/analysisCtrl.ts:498
+#: ../client/analysisCtrl.ts:584
+msgid "Selected variant %1 is not supported by stockfish.wasm"
+msgstr ""
+
+#: ../client/analysisCtrl.ts:692
 msgid "Depth"
 msgstr "ความลึก"
 
-#: ../client/analysisCtrl.ts:680 ../client/roundCtrl.ts:1104
+#: ../client/analysisCtrl.ts:697
+msgid "Go deeper"
+msgstr ""
+
+#: ../client/analysisCtrl.ts:1289 ../client/roundCtrl.ts:1135
 msgid "Spectators: "
 msgstr "ผู้ชม: "
 
-#: ../client/analysisCtrl.ts:704 ../client/roundCtrl.ts:1169
+#: ../client/analysisCtrl.ts:1313 ../client/roundCtrl.ts:1200
 msgid "Requested game %1 not found!"
 msgstr "หาเกม %1 ไม่พบ!"
 
@@ -213,23 +219,31 @@ msgstr "สว่าง"
 msgid "Dark"
 msgstr "มืด"
 
-#: ../client/boardSettings.ts:283
+#: ../client/boardSettings.ts:214
+msgid "Piece animation"
+msgstr ""
+
+#: ../client/boardSettings.ts:312
 msgid "Show piece destinations"
 msgstr "แสดงตาที่สามารถเดินได้"
 
-#: ../client/boardSettings.ts:301
+#: ../client/boardSettings.ts:330
 msgid "Promote to Queen automatically"
 msgstr "เลื่อนยศเป็นควีนอัตโนมัติ"
 
-#: ../client/boardSettings.ts:319
+#: ../client/boardSettings.ts:348
 msgid "Best move arrow in analysis board"
 msgstr "แสดงลูกศรแนะนำตาเดินในกระดานวิเคราะห์"
 
-#: ../client/chart.ts:20
+#: ../client/boardSettings.ts:376
+msgid "Invisible pieces"
+msgstr ""
+
+#: ../client/chart.ts:21
 msgid "Initial position"
 msgstr "ตำแหน่งเริ่มต้น"
 
-#: ../client/chart.ts:83
+#: ../client/chart.ts:84
 msgid "Advantage"
 msgstr "ความได้เปรียบ"
 
@@ -253,80 +267,88 @@ msgstr "กรุณาสนทนาอย่างสุภาพ"
 msgid "Server"
 msgstr "เซิร์ฟเวอร์"
 
-#: ../client/chess.ts:184
+#: ../client/chess.ts:188
 msgid "Chess, unmodified, as it's played by FIDE standards"
 msgstr "หมากรุกสากล เล่นตามมาตรฐานของ FIDE"
 
-#: ../client/chess.ts:201
+#: ../client/chess.ts:205
 msgid "Take captured pieces and drop them back on to the board as your own"
 msgstr "ยึดหมากที่ตาย และนำหมากที่ตายแล้วใส่ลงในกระดานเพื่อเป็นหมากของคุณ"
 
-#: ../client/chess.ts:219
+#: ../client/chess.ts:223
 msgid "Choose where your pieces start"
 msgstr "เลือกสถานที่เริ่มต้นของตัวหมากของคุณ"
 
-#: ../client/chess.ts:229
+#: ../client/chess.ts:233
 msgid "A game closely resembling the original Chaturanga"
 msgstr "เกมแบบหนึ่ง ที่คล้ายคลึงมากกับจตุรงค์ดั้งเดิม"
 
-#: ../client/chess.ts:238
+#: ../client/chess.ts:242
 msgid "Makruk variant where kings cannot move to escape out of check"
 msgstr "รูปแบบหนึ่งของหมากรุก ที่ห้ามขยับขุนออกจากตำแหน่งเดิมเมื่อโดนรุก"
 
-#: ../client/chess.ts:247
+#: ../client/chess.ts:251
 msgid "Makruk with a few additional opening abilities"
 msgstr "รูปแบบหนึ่งของหมากรุก ที่สามารถเปิดหมากในรูปแบบพิเศษได้"
 
-#: ../client/chess.ts:256
+#: ../client/chess.ts:260
 msgid "Similar to Makruk, but pieces are placed at the start of the match"
 msgstr "คล้ายกับหมากรุก แต่วางหมากเมื่อเริ่มเกม"
 
-#: ../client/chess.ts:267
+#: ../client/chess.ts:271
 msgid "Pieces promote and can be dropped"
 msgstr "มีการเลื่อนยศหมาก และสามารถเติมหมากได้"
 
-#: ../client/chess.ts:295
+#: ../client/chess.ts:299
 msgid "Shogi on a 5x5 board"
 msgstr "หมากรุกญี่ปุ่น บนกระดาน 5x5"
 
-#: ../client/chess.ts:310
+#: ../client/chess.ts:314
 msgid "5x5 Shogi where pieces flip to a different piece each move"
 msgstr "หมากรุกญี่ปุ่น บนกระดาน 5x5 ที่ต้องพลิกหมากเป็นตัวอื่นทุกตาเดิน"
 
-#: ../client/chess.ts:325
+#: ../client/chess.ts:329
+msgid "Shogi on a 3x4 board"
+msgstr ""
+
+#: ../client/chess.ts:344
 msgid "Open fire on your opponent in this highly aggressive ancient game"
 msgstr "โจมตีคู่แข่งของคุณ ในเกมโบราณที่ดุดัน"
 
-#: ../client/chess.ts:334
+#: ../client/chess.ts:353
+msgid "The lone Red rook can also move as a cannon or a knight."
+msgstr ""
+
+#: ../client/chess.ts:363
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
 msgstr ""
 "คล้ายหมากรุกจีน แต่เล่นในรูปแบบที่ต่างออกไป ใช้กฎการแข่งแบบทัวร์นาเม้นต์"
 
-#: ../client/chess.ts:346
+#: ../client/chess.ts:375
 msgid "Xiangqi on a 7x7 board"
 msgstr "หมากรุกจีน บนกระดาน 7x7"
 
-#: ../client/chess.ts:355
+#: ../client/chess.ts:384
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board"
 msgstr ""
 "เล่นด้วยตัวหมากไฮบริด อาร์คบิชอบ (B+N) และชานซเลอร์ (R+N) บนกระดาน 10x8"
 
-#: ../client/chess.ts:371
+#: ../client/chess.ts:400
 msgid "Capablanca with Crazyhouse drop rules"
 msgstr "Capablanca ที่ใช้กฎการเติมหมากแบบ Crazyhouse "
 
-#: ../client/chess.ts:388
+#: ../client/chess.ts:417
 msgid "Like Capablanca Chess but with a different starting setup"
 msgstr "คล้าย Capablanca แต่ตำแหน่งเริ่มต้นต่างกัน"
 
-#: ../client/chess.ts:397
+#: ../client/chess.ts:426
 msgid "Gothic with Crazyhouse drop rules"
 msgstr "Gothic ที่ใช้กฎการเติมหมากแบบ Crazyhouse"
 
-#: ../client/chess.ts:407
+#: ../client/chess.ts:436
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
@@ -334,11 +356,11 @@ msgstr ""
 "หมากไฮบริด ฮอว์ค (B+N) และ เอลิแฟ้นต์ (R+N) "
 "สามารถเข้าสู่บอร์ดภายหลังการเดินของหมากแถวหลัง"
 
-#: ../client/chess.ts:417
+#: ../client/chess.ts:447
 msgid "S-Chess with Crazyhouse drop rules"
 msgstr "S-Chess ที่ใช้กฎการเติมหมากแบบ Crazyhouse"
 
-#: ../client/chess.ts:427
+#: ../client/chess.ts:457
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
@@ -346,26 +368,26 @@ msgstr ""
 "เล่นด้วยตัวหมากไฮบริด อาร์คบิชอป (B+N) และชานซเลอร์ (R+N) บนกระดานใหญ่ ขนาด "
 "10x10"
 
-#: ../client/chess.ts:436
+#: ../client/chess.ts:466
 msgid "Grand Chess with Crazyhouse drop rules"
 msgstr "Grand Chess ที่ใช้กฎการเติมหมากแบบ Crazyhouse"
 
-#: ../client/chess.ts:446
+#: ../client/chess.ts:476
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
 msgstr "นำ เผ่า และ เฉีย จากหมากรุกจีน มาเล่นในกระดานขนาด 10x10"
 
-#: ../client/chess.ts:455
+#: ../client/chess.ts:485
 msgid "Pieces promote and can be dropped, similar to Shogi"
 msgstr "มีการเลื่อนยศหมาก และสามารถเติมหมากได้ คล้ายกับหมากรุกญี่ปุ่น"
 
-#: ../client/chess.ts:467
+#: ../client/chess.ts:497
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
 msgstr "ภาคีแบบอสมมาตร ที่ฝ่ายหนึ่งมีหมากที่เดินคล้ายม้า แต่กินต่างจากม้า"
 
-#: ../client/chess.ts:478
+#: ../client/chess.ts:508
 msgid ""
 "Asymmetric East vs. West variant which pits the western chess army against a"
 " xiangqi and janggi-styled army"
@@ -373,96 +395,148 @@ msgstr ""
 "ภาคีอสมมาตรระหว่างตะวันออกและตะวันตก ที่จัดให้ หมากรุกตะวันตก ต่อสู้กับ "
 "หมากรุกจีน และหมากรุกเกาหลี"
 
-#: ../client/editor.ts:92
-msgid "CLEAR BOARD"
-msgstr "ล้างกระดาน"
+#: ../client/chess.ts:519
+msgid "Knights are capturing as bishops, bishops are capturing as knights"
+msgstr ""
 
-#: ../client/editor.ts:95
-msgid "STARTING POSITION"
-msgstr "ตำแหน่งเริ่มต้น"
+#: ../client/editor.ts:130 ../client/editor.ts:131
+msgid "%1 to play"
+msgstr ""
 
-#: ../client/editor.ts:98 ../client/editor.ts:112
-msgid "PLAY WITH MACHINE"
-msgstr "เล่นกับคอมพิวเตอร์"
+#: ../client/editor.ts:134
+msgid "Castling"
+msgstr ""
 
-#: ../client/editor.ts:98 ../client/editor.ts:112 ../client/lobby.ts:284
-msgid " (must be signed in)"
-msgstr "(ต้องเข้าสู่ระบบก่อน)"
-
-#: ../client/editor.ts:102
-msgid "EXPORT TO PNG"
-msgstr "บันทึกเป็น PNG"
-
-#: ../client/editor.ts:115 ../client/lobby.ts:429
-msgid "Invalid FEN"
-msgstr "FEN ไม่ถูกต้อง"
-
-#: ../client/editor.ts:211 ../client/lobby.ts:261 ../client/lobby.ts:639
-#: ../client/settingsView.ts:140
-msgid "Variant"
-msgstr "ชนิดเกม"
-
-#: ../client/lobby.ts:253
-msgid "Cancel"
-msgstr "ยกเลิก"
-
-#: ../client/lobby.ts:258
-msgid "Challenge %1 to a game"
-msgstr "ท้า %1 เล่นเกม"
-
-#: ../client/lobby.ts:284
-msgid "Paste the FEN text here"
-msgstr "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่"
-
-#: ../client/lobby.ts:300
-msgid "Minutes per side:"
-msgstr "เวลาทั้งหมด (นาที):"
-
-#: ../client/lobby.ts:315
-msgid "Periods"
-msgstr "จำนวนรอบ"
-
-#: ../client/lobby.ts:335
-msgid "A.I. Level"
-msgstr "ระดับ AI"
-
-#: ../client/lobby.ts:345
-msgid "Black"
-msgstr "ดำ"
-
-#: ../client/lobby.ts:346
-msgid "Random"
-msgstr "สุ่ม"
-
-#: ../client/lobby.ts:347
+#: ../client/editor.ts:137 ../client/lobby.ts:344 ../client/profile.ts:20
 msgid "White"
 msgstr "ขาว"
 
-#: ../client/lobby.ts:363
+#: ../client/editor.ts:152 ../client/lobby.ts:342 ../client/profile.ts:21
+msgid "Black"
+msgstr "ดำ"
+
+#: ../client/editor.ts:168
+msgid "CLEAR BOARD"
+msgstr "ล้างกระดาน"
+
+#: ../client/editor.ts:171
+msgid "STARTING POSITION"
+msgstr "ตำแหน่งเริ่มต้น"
+
+#: ../client/editor.ts:174 ../client/roundCtrl.ts:503
+msgid "ANALYSIS BOARD"
+msgstr "วิเคราะห์เกม"
+
+#: ../client/editor.ts:177
+msgid "PLAY WITH MACHINE"
+msgstr "เล่นกับคอมพิวเตอร์"
+
+#: ../client/editor.ts:177 ../client/lobby.ts:281
+msgid " (must be signed in)"
+msgstr "(ต้องเข้าสู่ระบบก่อน)"
+
+#: ../client/editor.ts:180
+msgid "EXPORT TO PNG"
+msgstr "บันทึกเป็น PNG"
+
+#: ../client/editor.ts:242 ../client/lobby.ts:442
+msgid "Invalid FEN"
+msgstr "FEN ไม่ถูกต้อง"
+
+#: ../client/editor.ts:382
+msgid "Click/Ctrl+click to increase/decrease number of pieces"
+msgstr ""
+
+#: ../client/invite.ts:27 ../client/profile.ts:261
+msgid "Challenge to a game"
+msgstr "ท้าเล่นเกม"
+
+#: ../client/invite.ts:30
+msgid "CANCEL"
+msgstr ""
+
+#: ../client/invite.ts:35
+msgid "JOIN THE GAME"
+msgstr ""
+
+#: ../client/invite.ts:60
+msgid "To invite someone to play, give this URL:"
+msgstr ""
+
+#: ../client/invite.ts:65 ../client/invite.ts:67
+msgid "Copy URL"
+msgstr ""
+
+#: ../client/invite.ts:68
+msgid "The first person to come to this URL will play with you."
+msgstr ""
+
+#: ../client/lobby.ts:269
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+#: ../client/lobby.ts:274
+msgid "Challenge %1 to a game"
+msgstr "ท้า %1 เล่นเกม"
+
+#: ../client/lobby.ts:281
+msgid "Paste the FEN text here"
+msgstr "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่"
+
+#: ../client/lobby.ts:297
+msgid "Minutes per side:"
+msgstr "เวลาทั้งหมด (นาที):"
+
+#: ../client/lobby.ts:312
+msgid "Periods"
+msgstr "จำนวนรอบ"
+
+#: ../client/lobby.ts:322 ../client/lobby.ts:539 ../client/profile.ts:36
+msgid "Casual"
+msgstr "ไม่คิดคะแนน"
+
+#: ../client/lobby.ts:324 ../client/lobby.ts:537 ../client/profile.ts:31
+#: ../client/profile.ts:267
+msgid "Rated"
+msgstr "คิดคะแนน"
+
+#: ../client/lobby.ts:332
+msgid "A.I. Level"
+msgstr "ระดับ AI"
+
+#: ../client/lobby.ts:343
+msgid "Random"
+msgstr "สุ่ม"
+
+#: ../client/lobby.ts:361
 msgid "Create a game"
 msgstr "สร้างห้อง"
 
 #: ../client/lobby.ts:375
+msgid "Play with a friend"
+msgstr ""
+
+#: ../client/lobby.ts:388
 msgid "Play with AI (Fairy-Stockfish)"
 msgstr "เล่นกับ AI (Fairy-Stockfish)"
 
-#: ../client/lobby.ts:391
+#: ../client/lobby.ts:404
 msgid "Byoyomi in seconds:"
 msgstr "เบียวโยมิ (วินาที):"
 
-#: ../client/lobby.ts:391
+#: ../client/lobby.ts:404
 msgid "Increment in seconds:"
 msgstr "ทดเวลาต่อตาเดิน (วินาที):"
 
-#: ../client/lobby.ts:396
+#: ../client/lobby.ts:409
 msgid "Alternate Start"
 msgstr "ตำแหน่งเริ่มต้นอื่น"
 
-#: ../client/lobby.ts:522
+#: ../client/lobby.ts:535
 msgid "Custom"
 msgstr "กำหนดเอง"
 
-#: ../client/lobby.ts:588
+#: ../client/lobby.ts:608
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -470,208 +544,248 @@ msgstr ""
 "คุณมีเกมที่ยังเล่นไม่จบอยู่!\n"
 "กด OK เพื่อไปต่อ"
 
-#: ../client/lobby.ts:636
+#: ../client/lobby.ts:656
 msgid "Player"
 msgstr "ผู้เล่น"
 
-#: ../client/lobby.ts:637
+#: ../client/lobby.ts:657
 msgid "Rating"
 msgstr "คะแนน"
 
-#: ../client/lobby.ts:638
+#: ../client/lobby.ts:658
 msgid "Time"
 msgstr "เวลา"
 
-#: ../client/lobby.ts:640
+#: ../client/lobby.ts:660
 msgid "Mode"
 msgstr "รูปแบบการเล่น"
 
-#: ../client/lobby.ts:678
+#: ../client/lobby.ts:698
 msgid "Donate"
 msgstr "บริจาค"
 
-#: ../client/lobby.ts:679
+#: ../client/lobby.ts:699
+msgid "FAQ"
+msgstr ""
+
+#: ../client/lobby.ts:700
 msgid "Stats"
 msgstr "สถิติ"
 
-#: ../client/lobby.ts:683
+#: ../client/lobby.ts:701
+msgid "About"
+msgstr ""
+
+#: ../client/lobby.ts:705
 msgid "0 players"
 msgstr "0 คนออนไลน์"
 
-#: ../client/lobby.ts:684
+#: ../client/lobby.ts:706
 msgid "0 games in play"
 msgstr "0 เกมกำลังเล่นอยู่"
 
-#: ../client/main.ts:77
+#: ../client/main.ts:90
 msgid "Thank you for your support!"
 msgstr "ขอบคุณสำหรับการสนับสนุน!"
 
-#: ../client/profile.ts:31
+#: ../client/paste.ts:114
+msgid "Invalid PGN"
+msgstr ""
+
+#: ../client/paste.ts:138
+msgid "Paste the PGN text here"
+msgstr ""
+
+#: ../client/paste.ts:142
+msgid "IMPORT GAME"
+msgstr ""
+
+#: ../client/profile.ts:22
+msgid "Red"
+msgstr ""
+
+#: ../client/profile.ts:23
+msgid "Blue"
+msgstr ""
+
+#: ../client/profile.ts:24
+msgid "Gold"
+msgstr ""
+
+#: ../client/profile.ts:34
+msgid "IMPORT"
+msgstr ""
+
+#: ../client/profile.ts:52
 msgid "Game aborted"
 msgstr "เกมถูกยกเลิก"
 
-#: ../client/profile.ts:34
+#: ../client/profile.ts:55
 msgid "Checkmate"
 msgstr "รุกจน"
 
-#: ../client/profile.ts:37
+#: ../client/profile.ts:58
 msgid "%1 resigned"
 msgstr "%1ยอมแพ้"
 
-#: ../client/profile.ts:40
+#: ../client/profile.ts:61
 msgid "Stalemate"
 msgstr "อับ"
 
-#: ../client/profile.ts:43 ../client/profile.ts:49
+#: ../client/profile.ts:64 ../client/profile.ts:70
 msgid "Time out"
 msgstr "หมดเวลา"
 
-#: ../client/profile.ts:46 ../client/roundCtrl.ts:351
+#: ../client/profile.ts:67 ../client/roundCtrl.ts:347
 msgid "Draw"
 msgstr "เสมอ"
 
-#: ../client/profile.ts:52
+#: ../client/profile.ts:73
 msgid "%1 abandoned the game"
 msgstr "%1ละทิ้งเกม"
 
-#: ../client/profile.ts:55
+#: ../client/profile.ts:76
 msgid "Cheat detected"
 msgstr "ตรวจพบการโกง"
 
-#: ../client/profile.ts:58
+#: ../client/profile.ts:79
 msgid "Not started"
 msgstr "เกมไม่เริ่ม"
 
-#: ../client/profile.ts:61
+#: ../client/profile.ts:82
 msgid "Invalid move"
 msgstr "เดินผิดกติกา"
 
-#: ../client/profile.ts:64
+#: ../client/profile.ts:85
 msgid "Unknown reason"
 msgstr "ไม่ทราบสาเหตุ"
 
-#: ../client/profile.ts:67
+#: ../client/profile.ts:88
 msgid "Campmate"
 msgstr "ยึดฐาน"
 
-#: ../client/profile.ts:67 ../client/profile.ts:70
+#: ../client/profile.ts:88 ../client/profile.ts:91
 msgid "Point counting"
 msgstr "นับคะแนน"
 
-#: ../client/profile.ts:70
+#: ../client/profile.ts:91
 msgid "Repetition"
 msgstr "ตำแหน่งหมากซ้ำ"
 
-#: ../client/profile.ts:153
+#: ../client/profile.ts:176
 msgid "Computer analysis available"
 msgstr "มีการวิเคราะห์โดยคอมพิวเตอร์"
 
-#: ../client/profile.ts:223
+#: ../client/profile.ts:246
 msgid "Lichess profile"
 msgstr "หน้าบัญชี lichess"
 
-#: ../client/profile.ts:227
+#: ../client/profile.ts:250
+msgid "Import game"
+msgstr ""
+
+#: ../client/profile.ts:254
 msgid "Export games"
 msgstr "บันทึกไฟล์เกม"
 
-#: ../client/profile.ts:231
+#: ../client/profile.ts:258
 msgid "Watch games"
 msgstr "ดูเกม"
 
-#: ../client/profile.ts:234
-msgid "Challenge to a game"
-msgstr "ท้าเล่นเกม"
+#: ../client/profile.ts:266
+msgid "Games"
+msgstr ""
 
-#: ../client/roundCtrl.ts:289 ../client/roundCtrl.ts:1152
+#: ../client/profile.ts:268
+msgid "Imported"
+msgstr ""
+
+#: ../client/roundCtrl.ts:285 ../client/roundCtrl.ts:1183
 msgid " +15 seconds"
 msgstr "+15 วินาที"
 
-#: ../client/roundCtrl.ts:296
+#: ../client/roundCtrl.ts:292
 msgid "Give 15 seconds"
 msgstr "เพิ่มให้ 15 วินาที"
 
-#: ../client/roundCtrl.ts:349
+#: ../client/roundCtrl.ts:345
 msgid "Abort"
 msgstr "ยกเลิก"
 
-#: ../client/roundCtrl.ts:350 ../client/roundCtrl.ts:865
-#: ../client/roundCtrl.ts:867
+#: ../client/roundCtrl.ts:346 ../client/roundCtrl.ts:879
+#: ../client/roundCtrl.ts:881
 msgid "Count"
 msgstr "นับ"
 
-#: ../client/roundCtrl.ts:351
+#: ../client/roundCtrl.ts:347
 msgid "Pass"
 msgstr "ผ่าน"
 
-#: ../client/roundCtrl.ts:352
+#: ../client/roundCtrl.ts:348
 msgid "Resign"
 msgstr "ยอมแพ้"
 
-#: ../client/roundCtrl.ts:386
+#: ../client/roundCtrl.ts:390
 msgid "Are you sure you want to resign?"
 msgstr "ต้องการยอมแพ้จริงหรือไม่?"
 
-#: ../client/roundCtrl.ts:416
+#: ../client/roundCtrl.ts:420
 msgid "Blue (Cho)"
 msgstr "น้ำเงิน (โช) "
 
-#: ../client/roundCtrl.ts:416
+#: ../client/roundCtrl.ts:420
 msgid "Red (Han)"
 msgstr "แดง (ฮัน) "
 
-#: ../client/roundCtrl.ts:417
+#: ../client/roundCtrl.ts:421
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr "กำลังรอให้ฝ่าย%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง..."
 
-#: ../client/roundCtrl.ts:451 ../client/roundCtrl.ts:453
+#: ../client/roundCtrl.ts:455 ../client/roundCtrl.ts:457
 msgid "Switch pieces"
 msgstr "สลับตัวหมาก"
 
-#: ../client/roundCtrl.ts:452
+#: ../client/roundCtrl.ts:456
 msgid "Ready"
 msgstr "พร้อม"
 
-#: ../client/roundCtrl.ts:497
+#: ../client/roundCtrl.ts:501
 msgid "REMATCH"
 msgstr "ขอเล่นอีกครั้ง"
 
-#: ../client/roundCtrl.ts:498
+#: ../client/roundCtrl.ts:502
 msgid "NEW OPPONENT"
 msgstr "หาคู่ต่อสู้ใหม่"
 
-#: ../client/roundCtrl.ts:499
-msgid "ANALYSIS BOARD"
-msgstr "วิเคราะห์เกม"
-
-#: ../client/roundCtrl.ts:863
+#: ../client/roundCtrl.ts:877
 msgid "Stop counting"
 msgstr "หยุดนับ"
 
-#: ../client/roundCtrl.ts:863
+#: ../client/roundCtrl.ts:877
 msgid "Stop"
 msgstr "หยุด"
 
-#: ../client/roundCtrl.ts:865 ../client/roundCtrl.ts:867
+#: ../client/roundCtrl.ts:879 ../client/roundCtrl.ts:881
 msgid "Start counting"
 msgstr "เริ่มนับ"
 
-#: ../client/settingsView.ts:61
+#: ../client/settingsView.ts:60
 msgid "Log out"
 msgstr "ออกจากระบบ"
 
-#: ../client/settingsView.ts:66
+#: ../client/settingsView.ts:65
 msgid "Are you sure you want to log out?"
 msgstr "ต้องการออกจากระบบจริงหรือไม่?"
 
-#: ../client/settingsView.ts:73 ../client/settingsView.ts:111
+#: ../client/settingsView.ts:72 ../client/settingsView.ts:107
 msgid "Sound"
 msgstr "เสียง"
 
-#: ../client/settingsView.ts:74 ../client/settingsView.ts:121
+#: ../client/settingsView.ts:73 ../client/settingsView.ts:117
 msgid "Background"
 msgstr "พื้นหลัง"
 
-#: ../client/settingsView.ts:75 ../client/settingsView.ts:137
+#: ../client/settingsView.ts:74 ../client/settingsView.ts:125
 msgid "Board Settings"
 msgstr "ตั้งค่ากระดาน"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-11-30 12:03+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ignacio Poggi <ignaciop.3@gmail.com>, 2020\n"
 "Language-Team: Spanish (https://www.transifex.com/gbtami/teams/14790/es/)\n"
@@ -29,8 +29,8 @@ msgstr "404 PARTIDA NO ENCONTRADA"
 #: ../templates/404.html:21
 msgid "Sorry, but not all games saved on PyChess-Variants server."
 msgstr ""
-"Lo siento, pero no todas las partidas están guardadas en el servidor "
-"PyChess-Variants."
+"Lo siento, pero no todas las partidas están guardadas en el servidor de "
+"variantes de PyChess."
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
@@ -53,57 +53,53 @@ msgstr ""
 "Como sabe, pychess-variants es un servidor gratuito y permanecerá así por siempre. Sin embargo, el mantenimiento y las mejoras del servidor cuestan tiempo y dinero.\n"
 "Si está satisfecho con nuestro trabajo y considera que nuestro servidor es útil, puede hacer una donación a través de Patreon o PayPal."
 
-#: ../templates/players.html:8
+#: ../templates/players.html:9
 msgid "Online"
 msgstr "En línea"
 
-#: ../templates/players.html:27
+#: ../templates/players.html:28
 msgid "Anonymous"
 msgstr "Anónimo"
 
-#: ../templates/players.html:34
+#: ../templates/players.html:35
 msgid "All players"
 msgstr "Todos los jugadores"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)spartida"
 msgstr[1] "%(count)spartidas"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:96
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:97
 msgid "Current games"
 msgstr "Partidas actuales"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:98
 msgid "Players"
 msgstr "Jugadores"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:99
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:76
+#: ../templates/template.html:100
+msgid "Analysis"
+msgstr ""
+
+#: ../templates/template.html:101
 msgid "Learn"
 msgstr "Aprender"
 
-#: ../templates/template.html:77
-msgid "About"
-msgstr "Acerca de"
-
-#: ../templates/template.html:78
-msgid "Original PyChess site"
-msgstr "Sitio original de PyChess"
-
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Login with Lichess"
 msgstr "Iniciar sesión con Lichess"
 
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Log in"
 msgstr "Iniciar sesión"
