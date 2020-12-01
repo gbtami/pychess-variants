@@ -139,7 +139,7 @@ export function analysisView(model): VNode[] {
                                     type: "checkbox",
                                 },
                             }),
-                            h('span.sw-slider'),
+                            h('span#slider.sw-slider'),
                         ]),
                     ]),
                 ]),

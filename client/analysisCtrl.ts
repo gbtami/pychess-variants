@@ -559,7 +559,8 @@ export default class AnalysisController {
                     this.localEngine = true;
                     patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
                 } else {
-                    alert(_("Selected variant %1 is not supported by stockfish.wasm", this.model.variant));
+                    const title = _("Selected variant %1 is not supported by stockfish.wasm", this.model.variant);
+                    patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
                 }
             }
         }
