@@ -1,6 +1,5 @@
 import h from 'snabbdom/h';
 
-import { _ } from './i18n';
 import { aiLevel } from './profile';
 
 export function player(id, title, name, rating, level) {
