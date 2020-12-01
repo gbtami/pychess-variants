@@ -449,6 +449,7 @@ export default class AnalysisController {
             updateMovelist(this);
 
             if (this.steps[0].analysis !== undefined) {
+                this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
         } else {
