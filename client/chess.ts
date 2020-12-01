@@ -529,13 +529,24 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
-const variantGroups: { [ key: string ]: { label: string, variants: string[] } } = {
-    standard: { label: _("Standard piece variants"),  variants: [ "chess", "crazyhouse", "placement" ] },
-    sea:      { label: _("Southeast Asian variants"), variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
-    shogi:    { label: _("Shogi variants"),           variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
-    xiangqi:  { label: _("Xiangqi variants"),         variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { label: _("Fairy piece variants"),     variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
+const variantGroups: { [ key: string ]: { variants: string[] } } = {
+    standard: { variants: [ "chess", "crazyhouse", "placement" ] },
+    sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
+    xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
+
+function variantGroupLabel(group) {
+    const groups = {
+        standard: _("Standard piece variants"),
+        sea: _("Southeast Asian variants"),
+        shogi: _("Shogi variants"),
+        xiangqi: _("Xiangqi variants"),
+        fairy: _("Fairy piece variants"),
+    }
+    return groups[group];
+}
 
 export function selectVariant(id, selected, onChange, hookInsert) {
     return h('select#' + id, {
@@ -545,7 +556,7 @@ export function selectVariant(id, selected, onChange, hookInsert) {
     },
         Object.keys(variantGroups).map(g => {
             const group = variantGroups[g];
-            return h('optgroup', { props: { label: group.label } }, group.variants.map(v => {
+            return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.map(v => {
                 const variant = VARIANTS[v];
                 return h('option', {
                     props: { value: v, title: variant.tooltip },
