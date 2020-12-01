@@ -118,7 +118,7 @@ msgstr "棋类"
 #: ../client/analysis.ts:134 ../client/analysisCtrl.ts:367
 #: ../client/analysisCtrl.ts:710
 msgid "in local browser"
-msgstr ""
+msgstr "在本地浏览器"
 
 #: ../client/analysisCtrl.ts:379
 msgid "You need an account to do that."
@@ -158,7 +158,7 @@ msgstr "要求分析"
 
 #: ../client/analysisCtrl.ts:584
 msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr ""
+msgstr "stockfish.wasm 不支持变体 %1 "
 
 #: ../client/analysisCtrl.ts:692
 msgid "Depth"
@@ -166,7 +166,7 @@ msgstr "深度"
 
 #: ../client/analysisCtrl.ts:697
 msgid "Go deeper"
-msgstr ""
+msgstr "深入分析"
 
 #: ../client/analysisCtrl.ts:1289 ../client/roundCtrl.ts:1135
 msgid "Spectators: "
@@ -186,7 +186,7 @@ msgstr "暗"
 
 #: ../client/boardSettings.ts:214
 msgid "Piece animation"
-msgstr ""
+msgstr "棋子动画"
 
 #: ../client/boardSettings.ts:312
 msgid "Show piece destinations"
@@ -202,7 +202,7 @@ msgstr "箭头指示最佳着"
 
 #: ../client/boardSettings.ts:376
 msgid "Invisible pieces"
-msgstr ""
+msgstr "隐形棋子"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -282,7 +282,7 @@ msgstr "正统中国象棋"
 
 #: ../client/chess.ts:353
 msgid "The lone Red rook can also move as a cannon or a knight."
-msgstr ""
+msgstr "单独红车能行如车，炮或马"
 
 #: ../client/chess.ts:363
 msgid ""
@@ -358,66 +358,66 @@ msgstr ""
 
 #: ../client/chess.ts:534
 msgid "Standard piece variants"
-msgstr ""
+msgstr "国际象棋变体（运用正常棋子）"
 
 #: ../client/chess.ts:535
 msgid "Southeast Asian variants"
-msgstr ""
+msgstr "东南亚棋类"
 
 #: ../client/chess.ts:536
 msgid "Shogi variants"
-msgstr ""
+msgstr "将棋变体"
 
 #: ../client/chess.ts:537
 msgid "Xiangqi variants"
-msgstr ""
+msgstr "象棋变体"
 
 #: ../client/chess.ts:538
 msgid "Fairy piece variants"
-msgstr ""
+msgstr "国际象棋变体（运用变种棋子）"
 
 #: ../client/datetime.ts:13
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
+msgstr[0] "%1 年前"
 
 #: ../client/datetime.ts:15
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
+msgstr[0] "%1 月前"
 
 #: ../client/datetime.ts:17
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
+msgstr[0] "%1 周前"
 
 #: ../client/datetime.ts:19
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
+msgstr[0] "%1 天前"
 
 #: ../client/datetime.ts:21
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
+msgstr[0] "%1 小时前"
 
 #: ../client/datetime.ts:23
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
+msgstr[0] "%1 分钟前"
 
 #: ../client/datetime.ts:25
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
+msgstr[0] "%1 秒前"
 
 #: ../client/editor.ts:132 ../client/editor.ts:133
 msgid "%1 to play"
-msgstr ""
+msgstr "%1 走棋"
 
 #: ../client/editor.ts:136
 msgid "Castling"
-msgstr ""
+msgstr "王车易位权"
 
 #: ../client/editor.ts:139 ../client/lobby.ts:344 ../client/profile.ts:21
 msgid "White"
@@ -465,11 +465,11 @@ msgstr "挑战"
 
 #: ../client/invite.ts:30
 msgid "CANCEL"
-msgstr ""
+msgstr "取消"
 
 #: ../client/invite.ts:35
 msgid "JOIN THE GAME"
-msgstr ""
+msgstr "参入棋局"
 
 #: ../client/invite.ts:60
 msgid "To invite someone to play, give this URL:"
@@ -526,7 +526,7 @@ msgstr "创建对局"
 
 #: ../client/lobby.ts:375
 msgid "Play with a friend"
-msgstr ""
+msgstr "和朋友下棋"
 
 #: ../client/lobby.ts:388
 msgid "Play with AI (Fairy-Stockfish)"
@@ -559,12 +559,12 @@ msgstr ""
 #: ../client/lobby.ts:642
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
+msgstr[0] "%1 对局进行中"
 
 #: ../client/lobby.ts:647
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
+msgstr[0] "%1 在线棋手"
 
 #: ../client/lobby.ts:656
 msgid "Player"
@@ -596,7 +596,7 @@ msgstr "数据"
 
 #: ../client/lobby.ts:701
 msgid "About"
-msgstr ""
+msgstr "关于我们"
 
 #: ../client/main.ts:90
 msgid "Thank you for your support!"
@@ -604,15 +604,15 @@ msgstr "感谢您的支持！"
 
 #: ../client/paste.ts:114
 msgid "Invalid PGN"
-msgstr ""
+msgstr "无法识别PGN"
 
 #: ../client/paste.ts:138
 msgid "Paste the PGN text here"
-msgstr ""
+msgstr "在此处粘贴PGN字串"
 
 #: ../client/paste.ts:142
 msgid "IMPORT GAME"
-msgstr ""
+msgstr "导入棋局"
 
 #: ../client/profile.ts:23
 msgid "Red"
@@ -628,7 +628,7 @@ msgstr ""
 
 #: ../client/profile.ts:37
 msgid "IMPORT"
-msgstr ""
+msgstr "导入棋局"
 
 #: ../client/profile.ts:44
 msgid "level %1"
@@ -693,7 +693,7 @@ msgstr "重复局面"
 #: ../client/profile.ts:182
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
+msgstr[0] "%1 步"
 
 #: ../client/profile.ts:183
 msgid "Computer analysis available"
@@ -705,7 +705,7 @@ msgstr "Lichess个人资料"
 
 #: ../client/profile.ts:257
 msgid "Import game"
-msgstr ""
+msgstr "导入棋局"
 
 #: ../client/profile.ts:261
 msgid "Export games"
@@ -717,11 +717,11 @@ msgstr "观看棋局"
 
 #: ../client/profile.ts:273
 msgid "Games"
-msgstr ""
+msgstr "对局"
 
 #: ../client/profile.ts:275
 msgid "Imported"
-msgstr ""
+msgstr "导入的棋局"
 
 #: ../client/roundCtrl.ts:285 ../client/roundCtrl.ts:1183
 msgid " +15 seconds"

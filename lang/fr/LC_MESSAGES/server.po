@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-30 12:03+0100\n"
+"POT-Creation-Date: 2020-11-30 20:10+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
@@ -91,7 +91,7 @@ msgstr "Editeur de position"
 
 #: ../templates/template.html:100
 msgid "Analysis"
-msgstr ""
+msgstr "Analyse"
 
 #: ../templates/template.html:101
 msgid "Learn"

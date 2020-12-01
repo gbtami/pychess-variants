@@ -9,6 +9,7 @@
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "关于隐私和服务条款，我们向lichess.org借之而行。",
     "Playing right now": "正在进行",
     "Variant": "棋类",
+    "in local browser": "在本地浏览器",
     "You need an account to do that.": "请登录以完成该操作。",
     "Download game to PGN file": "下载本局到PGN文件",
     " Download PGN": "下载PGN",
@@ -18,14 +19,18 @@
     " PNG image": "PNG图像",
     "Request Computer Analysis": "要求电脑分析",
     " Request Analysis": "要求分析",
+    "Selected variant %1 is not supported by stockfish.wasm": "stockfish.wasm 不支持变体 %1 ",
     "Depth": "深度",
+    "Go deeper": "深入分析",
     "Spectators: ": "观众：",
     "Requested game %1 not found!": "未找到要求的棋局 %1 ！",
     "Light": "亮",
     "Dark": "暗",
+    "Piece animation": "棋子动画",
     "Show piece destinations": "表示棋子走到位置",
     "Promote to Queen automatically": "兵自动升变为皇后",
     "Best move arrow in analysis board": "箭头指示最佳着",
+    "Invisible pieces": "隐形棋子",
     "Initial position": "初始局面",
     "Advantage": "优势",
     "Spectator room": "观众室",
@@ -44,6 +49,7 @@
     "Shogi on a 5x5 board": "在5x5棋盘上的日本将棋",
     "5x5 Shogi where pieces flip to a different piece each move": "5x5的日本将棋，但棋子每走一步会翻转成为别种棋子",
     "Open fire on your opponent in this highly aggressive ancient game": "正统中国象棋",
+    "The lone Red rook can also move as a cannon or a knight.": "单独红车能行如车，炮或马",
     "Similar to Xiangqi, but plays very differently. Tournament rules are used": "朝鲜将棋。相似象棋，但玩法异同。本网站使用大赛规则。",
     "Xiangqi on a 7x7 board": "在7x7棋盘上的象棋",
     "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board": "在10x8路的棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）",
@@ -57,27 +63,34 @@
     "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board": "来自象棋的“炮”和“象”进入10x10路棋盘上的国际象棋大战",
     "Pieces promote and can be dropped, similar to Shogi": "棋子既可升变，又能打入，如同日本将棋",
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "非对称棋类，一方指挥走法如马但吃法不一致的棋子",
+    "Standard piece variants": "国际象棋变体（运用正常棋子）",
+    "Southeast Asian variants": "东南亚棋类",
+    "Shogi variants": "将棋变体",
+    "Xiangqi variants": "象棋变体",
+    "Fairy piece variants": "国际象棋变体（运用变种棋子）",
     "%1 year ago": [
-        ""
+        "%1 年前"
     ],
     "%1 month ago": [
-        ""
+        "%1 月前"
     ],
     "%1 week ago": [
-        ""
+        "%1 周前"
     ],
     "%1 day ago": [
-        ""
+        "%1 天前"
     ],
     "%1 hour ago": [
-        ""
+        "%1 小时前"
     ],
     "%1 minute ago": [
-        ""
+        "%1 分钟前"
     ],
     "%1 second ago": [
-        ""
+        "%1 秒前"
     ],
+    "%1 to play": "%1 走棋",
+    "Castling": "王车易位权",
     "White": "白方",
     "Black": "黑方",
     "CLEAR BOARD": "清空棋盘",
@@ -88,6 +101,8 @@
     "EXPORT TO PNG": "导出PNG",
     "Invalid FEN": "无法识别FEN",
     "Challenge to a game": "挑战",
+    "CANCEL": "取消",
+    "JOIN THE GAME": "参入棋局",
     "Cancel": "取消",
     "Challenge %1 to a game": "挑战 %1 下棋",
     "Paste the FEN text here": "在此处粘贴FEN字串",
@@ -98,15 +113,16 @@
     "A.I. Level": "A.I.级别",
     "Random": "随机",
     "Create a game": "创建对局",
+    "Play with a friend": "和朋友下棋",
     "Play with AI (Fairy-Stockfish)": "和电脑下棋（Fairy-Stockfish）",
     "Byoyomi in seconds:": "读秒：",
     "Increment in seconds:": "每步加时（秒）：",
     "You have an unfinished game!\nPress OK to continue.": "您正在下一局未结束的棋！\n请按确定以继续。",
     "%1 game in play": [
-        ""
+        "%1 对局进行中"
     ],
     "%1 player": [
-        ""
+        "%1 在线棋手"
     ],
     "Player": "棋手",
     "Rating": "积分",
@@ -114,7 +130,12 @@
     "Mode": "模式",
     "Donate": "捐赠",
     "Stats": "数据",
+    "About": "关于我们",
     "Thank you for your support!": "感谢您的支持！",
+    "Invalid PGN": "无法识别PGN",
+    "Paste the PGN text here": "在此处粘贴PGN字串",
+    "IMPORT GAME": "导入棋局",
+    "IMPORT": "导入棋局",
     "Game aborted": "棋局中止",
     "Checkmate": "将死",
     "%1 resigned": "%1 投降",
@@ -130,12 +151,15 @@
     "Point counting": "数分",
     "Repetition": "重复局面",
     "%1 move": [
-        ""
+        "%1 步"
     ],
     "Computer analysis available": "提供电脑分析",
     "Lichess profile": "Lichess个人资料",
+    "Import game": "导入棋局",
     "Export games": "导出棋局",
     "Watch games": "观看棋局",
+    "Games": "对局",
+    "Imported": "导入的棋局",
     " +15 seconds": "+15秒",
     "Give 15 seconds": "添加15秒",
     "Abort": "中止本局",
