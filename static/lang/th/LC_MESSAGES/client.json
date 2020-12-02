@@ -5,15 +5,17 @@
     "Later on, developers close to the Lichess project eventually extended Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al. The father of Fairy-Stockfish, Fabian, is also one of those devs (still) working on that fork, and he later took several steps further in terms of variant support and extensibility. Thus Fairy-Stockfish was born, so powerful because it builds on the Stockfish project.": "ซึ่งต่อมา นักพัฒนาโปรแกรมที่ใกล้ชิดกับโครงการลิเชสได้ขยายความสามารถสต็อกฟิชไปสู่สต็อกฟิชพหุภาคี เพื่อรองรับภาคีนอกแบบ เช่น เครซีเฮ้าส์ และอื่น ๆ ซึ่ง ฟาเบียน ผู้ได้รับฉายาว่า \"พ่อแห่งแฟรี่สต็อกฟิช\" (ยังคง) เป็นหนึ่งในนักพัฒนาโปแกรมที่กำลังทำหน้าที่ในฟอร์คและต่อมาได้ก้าวไปอีกขั้นในแง่ของการรองรับพหุภาคีและการต่อเติมได้ แฟรี่สต็อกฟิชจึงถือกำเนิดขึ้นอย่างมีพละกำลัง อันเป็นผลจากการต่อยอดโครงการสต็อกฟิช",
     "Then comes our beloved pychess-variants, which again very smartly harnesses the underlying superpowers of the big projects. Same online, real-time, and competitive aspects. Same clean and familiar Lichess look and feel. Plus the power of Stockfish!\"": "จากนั้น ก็เป็นการก้าวเข้ามาของ ภาคีไพเชส หรือ pychess-variants อันเป็นที่รักยิ่งของพวกเรา ซึ่งได้รับการกำกับการใช้อย่างชาญฉลาดและต่อยอดพลังมหาศาลจากโครงการใหญ่เช่นกัน การแข่งขันหมากรุกออนไลน์แบบเวลาจริงเช่นกัน ด้วยรูปลักษณ์อย่างลิเชสที่สะอาดตาและให้อารมณ์ที่คุ้นชินเช่นกัน รวมทั้งครองพลังแห่งสต็อกฟิช !\" ",
     "About pychess": "เกี่ยวกับ pychess",
-    "Pychess is a free, open-source chess server designed to play several chess variants.": "ไพเชส เป็นเซอร์เวอร์หมากรุก ที่ฟรีและโอเพ่นซอร์ส ถูกออกแบบให้สามารถเล่นหมากรุกได้หลากหลายรูปแบบ",
+    "Pychess is a free, open-source chess server designed to play several chess variants.": "Pychess เป็นเซอร์เวอร์หมากรุกฟรีและโอเพนซอร์สที่ถูกออกแบบให้สามารถเล่นหมากรุกได้หลากหลายรูปแบบ",
     "Currently supported games are ": "เกมที่รองรับในปัจจุบัน คือ",
+    "Additionally, you can check the Chess960 option for Chess, Crazyhouse, S-chess, Capablanca, and Capahouse to start games from random positions with ": "นอกจากนั้น คุณสามารถเช็กตัวเลือก Chess960 สำหรับ Chess, Crazyhouse, S-chess, Capablanca, และ Capahouse เพื่อเริ่มเล่นจากตำแหน่งเริ่มต้นแบบสุ่ม",
     "Chess960 castling rules.": "กฎการเข้าป้อมแบบ Chess960",
-    "For move generation, validation, analysis, and engine play, we use ": "สำหรับการสร้างตาเดิน การสอบทาน การวิเคราะห์ และการเดินหมากของคอมพิวเตอร์นั้น พวกเราใช้",
+    "For move generation, validation, analysis, and engine play, we use ": "สำหรับการสร้างตาเดิน การสอบทาน การวิเคราะห์ และการเดินหมากของคอมพิวเตอร์นั้น เราใช้",
     "On client side, the user interface of the game board is based on ": "ในฝั่งผู้ใช้งานนั้น กราฟิกหน้าต่างของกระดาน มีพื้นฐานมาจาก",
     "The source code of the server is available on ": "รหัสต้นแบบของของเซอร์เวอร์อยู่ที่",
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "เกี่ยวกับความเป็นส่วนตัว และข้อกำหนดในการให้บริการนั้น  lichess.org ได้แจ้งกฎไว้ที่นี่ ",
     "Playing right now": "กำลังเล่นอยู่",
     "Variant": "ชนิดเกม",
+    "in local browser": "ในเบราเซอร์ภายในเครื่อง",
     "You need an account to do that.": "จำเป็นต้องเข้าสู่ระบบ",
     "Download game to PGN file": "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN",
     " Download PGN": "ดาวน์โหลด PGN",
@@ -23,14 +25,18 @@
     " PNG image": "ภาพ PNG",
     "Request Computer Analysis": "ขอการวิเคราะห์จากคอมพิวเตอร์",
     " Request Analysis": "ขอการวิเคราะห์",
+    "Selected variant %1 is not supported by stockfish.wasm": "เกม %1 ยังไม่มีการรองรับใน stockfish.wasm",
     "Depth": "ความลึก",
+    "Go deeper": "ลึกกว่านี้",
     "Spectators: ": "ผู้ชม: ",
     "Requested game %1 not found!": "หาเกม %1 ไม่พบ!",
     "Light": "สว่าง",
     "Dark": "มืด",
+    "Piece animation": "การเคลื่อนไหวตัวหมาก",
     "Show piece destinations": "แสดงตาที่สามารถเดินได้",
     "Promote to Queen automatically": "เลื่อนยศเป็นควีนอัตโนมัติ",
     "Best move arrow in analysis board": "แสดงลูกศรแนะนำตาเดินในกระดานวิเคราะห์",
+    "Invisible pieces": "ตัวหมากล่องหน",
     "Initial position": "ตำแหน่งเริ่มต้น",
     "Advantage": "ความได้เปรียบ",
     "Spectator room": "ห้องผู้ชม",
@@ -64,26 +70,28 @@
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "ภาคีแบบอสมมาตร ที่ฝ่ายหนึ่งมีหมากที่เดินคล้ายม้า แต่กินต่างจากม้า",
     "Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army": "ภาคีอสมมาตรระหว่างตะวันออกและตะวันตก ที่จัดให้ หมากรุกตะวันตก ต่อสู้กับ หมากรุกจีน และหมากรุกเกาหลี",
     "%1 year ago": [
-        ""
+        "%1 ปีที่แล้ว"
     ],
     "%1 month ago": [
-        ""
+        "%1 เดือนที่แล้ว"
     ],
     "%1 week ago": [
-        ""
+        "%1 สัปดาห์ที่แล้ว"
     ],
     "%1 day ago": [
-        ""
+        "%1 วันที่แล้ว"
     ],
     "%1 hour ago": [
-        ""
+        "%1 ชั่วโมงที่แล้ว"
     ],
     "%1 minute ago": [
-        ""
+        "%1 นาทีที่แล้ว"
     ],
     "%1 second ago": [
-        ""
+        "%1 วินาทีที่แล้ว"
     ],
+    "%1 to play": "ตา%1เดิน",
+    "Castling": "การเข้าป้อม",
     "White": "ขาว",
     "Black": "ดำ",
     "CLEAR BOARD": "ล้างกระดาน",
@@ -93,7 +101,13 @@
     " (must be signed in)": "(ต้องเข้าสู่ระบบก่อน)",
     "EXPORT TO PNG": "บันทึกเป็น PNG",
     "Invalid FEN": "FEN ไม่ถูกต้อง",
+    "Click/Ctrl+click to increase/decrease number of pieces": "คลิก/Ctrl+คลิก เพื่อเพิ่ม/ลดจำนวนตัวหมาก",
     "Challenge to a game": "ท้าเล่นเกม",
+    "CANCEL": "ยกเลิก",
+    "JOIN THE GAME": "เข้าร่วมเกม",
+    "To invite someone to play, give this URL:": "เชิญคนเข้ามาเล่นด้วยการส่ง URL นี้ให้:",
+    "Copy URL": "คัดลอก URL",
+    "The first person to come to this URL will play with you.": "คนแรกที่เข้ามาที่ URL นี้จะได้เล่นกับคุณ",
     "Cancel": "ยกเลิก",
     "Challenge %1 to a game": "ท้า %1 เล่นเกม",
     "Paste the FEN text here": "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่",
@@ -104,6 +118,7 @@
     "A.I. Level": "ระดับ AI",
     "Random": "สุ่ม",
     "Create a game": "สร้างห้อง",
+    "Play with a friend": "เล่นกับเพื่อน",
     "Play with AI (Fairy-Stockfish)": "เล่นกับ AI (Fairy-Stockfish)",
     "Byoyomi in seconds:": "เบียวโยมิ (วินาที):",
     "Increment in seconds:": "ทดเวลาต่อตาเดิน (วินาที):",
@@ -111,18 +126,28 @@
     "Custom": "กำหนดเอง",
     "You have an unfinished game!\nPress OK to continue.": "คุณมีเกมที่ยังเล่นไม่จบอยู่!\nกด OK เพื่อไปต่อ",
     "%1 game in play": [
-        ""
+        "%1 เกมที่กำลังเล่น"
     ],
     "%1 player": [
-        ""
+        "%1 คนออนไลน์"
     ],
     "Player": "ผู้เล่น",
     "Rating": "คะแนน",
     "Time": "เวลา",
     "Mode": "รูปแบบการเล่น",
     "Donate": "บริจาค",
+    "FAQ": "คำถามที่พบบ่อย",
     "Stats": "สถิติ",
+    "About": "เกี่ยวกับ",
     "Thank you for your support!": "ขอบคุณสำหรับการสนับสนุน!",
+    "Invalid PGN": "PGN ไม่ถูกต้อง",
+    "Paste the PGN text here": "วาง PGN ที่นี่",
+    "IMPORT GAME": "นำเข้าเกม",
+    "Red": "แดง",
+    "Blue": "น้ำเงิน",
+    "Gold": "ทอง",
+    "IMPORT": "นำเข้า",
+    "level %1": "ระดับ %1",
     "Game aborted": "เกมถูกยกเลิก",
     "Checkmate": "รุกจน",
     "%1 resigned": "%1ยอมแพ้",
@@ -138,12 +163,15 @@
     "Point counting": "นับคะแนน",
     "Repetition": "ตำแหน่งหมากซ้ำ",
     "%1 move": [
-        ""
+        "%1 ตา"
     ],
     "Computer analysis available": "มีการวิเคราะห์โดยคอมพิวเตอร์",
     "Lichess profile": "หน้าบัญชี lichess",
+    "Import game": "นำเข้าเกม",
     "Export games": "บันทึกไฟล์เกม",
     "Watch games": "ดูเกม",
+    "Games": "เกมทั้งหมด",
+    "Imported": "นำเข้ามา",
     " +15 seconds": "+15 วินาที",
     "Give 15 seconds": "เพิ่มให้ 15 วินาที",
     "Abort": "ยกเลิก",
