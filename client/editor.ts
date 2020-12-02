@@ -1,3 +1,4 @@
+import Module from '../static/ffish.js';
 import { init } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -20,6 +21,7 @@ import { iniPieces } from './pieces';
 import { updatePockets, Pockets } from './pocket';
 import { copyBoardToPNG } from './png'; 
 import { colorNames } from './profile';
+import { variantsIni } from './variantsIni';
 
 
 export default class EditorController {
@@ -44,6 +46,8 @@ export default class EditorController {
     vChallenge: VNode;
     anon: boolean;
     flip: boolean;
+    ffish;
+    ffishBoard;
 
     constructor(el, model) {
         this.model = model;
@@ -179,6 +183,15 @@ export default class EditorController {
                 ])
             ];
             patch(container, h('div.editor-button-container', buttons));
+
+            new (Module as any)().then(loadedModule => {
+                this.ffish = loadedModule;
+
+                if (this.ffish !== null) {
+                    this.ffish.loadVariantConfig(variantsIni);
+                    this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
+                }
+            });
         }
     }
 
@@ -223,8 +236,28 @@ export default class EditorController {
     }
 
     private validFen = () => {
-        const e = document.getElementById('fen') as HTMLInputElement;
-        return validFen(this.variant, e.value);
+        let valid = false;
+        const fen = (document.getElementById('fen') as HTMLInputElement).value;
+        valid = validFen(this.variant, fen);
+        if (valid) {
+            // try to catch more invalid stuff using ffish.js
+            try {
+                if (this.ffish.validateFen(fen, this.variant) !== 1) return false;
+
+                this.ffishBoard.setFen(fen);
+                const fenPlacement = fen.split(' ')[0].split('[')[0];
+                const ffishPlacement = this.ffishBoard.fen().split(' ')[0].split('[')[0];
+
+                if (fenPlacement !== ffishPlacement) {
+                    valid = false;
+                    console.log('fenPlacement !== ffishPlacement', fenPlacement, ffishPlacement);
+                }
+            } catch (error) {
+                console.log("validFen() failed on FEN:", fen);
+                valid = false;
+            }
+        }
+        return valid;
     }
 
     private setInvalid = (invalid) => {
