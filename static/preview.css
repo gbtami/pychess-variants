@@ -130,6 +130,9 @@ label.board.board4.xiangqi9x10 {
 label.board.board5.xiangqi9x10 {
     background-image: url('images/board/xiangqiDark.svg');
 }
+label.board.board6.xiangqi9x10 {
+    background-image: url('images/board/xiangqiWikimedia.svg');
+}
 
 label.board.board0.xiangqi7x7 {
     background-image: url('images/board/minixiangqi.svg');
@@ -177,6 +180,9 @@ label.piece.piece4.xiangqi {
 }
 label.piece.piece5.xiangqi {
     background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+}
+label.piece.piece6.xiangqi {
+    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
 }
 
 label.piece.piece0.seirawan {
