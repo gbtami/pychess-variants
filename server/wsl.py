@@ -179,14 +179,14 @@ async def lobby_socket_handler(request):
                                 else:
                                     user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                     users[user.username] = user
-                                response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
+                                # response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
                                     user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                     users[user.username] = user
-                                response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
+                                # response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected.", data["username"])
                             session_user = data["username"]
@@ -195,9 +195,9 @@ async def lobby_socket_handler(request):
                             else:
                                 user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                 users[user.username] = user
-                            response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
+                            # response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
 
-                        await lobby_broadcast(sockets, response)
+                        # await lobby_broadcast(sockets, response)
 
                         # update websocket
                         user.lobby_sockets.add(ws)
@@ -264,8 +264,8 @@ async def lobby_socket_handler(request):
                 response = {"type": "u_cnt", "cnt": online_count(users)}
                 await lobby_broadcast(sockets, response)
 
-            response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
-            await lobby_broadcast(sockets, response)
+            # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
+            # await lobby_broadcast(sockets, response)
 
             await user.clear_seeks(sockets, seeks)
 
