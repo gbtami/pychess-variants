@@ -15,7 +15,7 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { selectVariant, getPockets, needPockets, validFen, VARIANTS, hasCastling } from './chess';
+import { selectVariant, getPockets, needPockets, validFen, VARIANTS, hasCastling, isVariantClass } from './chess';
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { updatePockets, Pockets } from './pocket';
@@ -242,7 +242,8 @@ export default class EditorController {
         if (valid) {
             // try to catch more invalid stuff using ffish.js
             try {
-                if (this.ffish.validateFen(fen, this.variant) !== 1) return false;
+                const ffValid = this.ffish.validateFen(fen, this.variant);
+                if (ffValid !== 1 && !(isVariantClass(this.variant, 'gate') && ffValid == -5)) return false;
 
                 this.ffishBoard.setFen(fen);
                 const fenPlacement = fen.split(' ')[0].split('[')[0];
