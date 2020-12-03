@@ -556,11 +556,15 @@ export default class AnalysisController {
                         }
                     }
                 });
-                if (this.model.variant === 'chess' || line.includes(this.model.variant)) {
+
+                // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
+                if ((this.model.variant === 'chess' || line.includes(this.model.variant)) &&
+                    !(this.model.variant === 'seirawan' && this.model.chess960 === 'True')) {
                     this.localEngine = true;
                     patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
                 } else {
-                    const title = _("Selected variant %1 is not supported by stockfish.wasm", this.model.variant);
+                    const v = this.model.variant + ((this.model.chess960 === 'True') ? '960' : '');
+                    const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
                     patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
                 }
             }
