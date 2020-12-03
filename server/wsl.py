@@ -8,6 +8,7 @@ import aiohttp_session
 
 from broadcast import lobby_broadcast
 from const import STARTED
+from settings import ADMINS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
 from utils import new_game, load_game, online_count, MyWebSocketResponse
@@ -221,9 +222,21 @@ async def lobby_socket_handler(request):
                             await ws.send_json(response)
 
                     elif data["type"] == "lobbychat":
-                        response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
-                        await lobby_broadcast(sockets, response)
-                        request.app["chat"].append(response)
+                        message = data["message"]
+                        response = None
+
+                        if message.startswith("/silence") and user.username in ADMINS:
+                            spammer = data["message"].split()[-1]
+                            if spammer in users:
+                                users[spammer].set_silence()
+                                response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
+                        else:
+                            if user.silence == 0:
+                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+
+                        if response is not None:
+                            await lobby_broadcast(sockets, response)
+                            request.app["chat"].append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()

@@ -11,6 +11,8 @@ from seek import get_seeks
 
 log = logging.getLogger(__name__)
 
+SILENCE = 10 * 60
+
 
 class MissingRatingsException(Exception):
     pass
@@ -58,6 +60,9 @@ class User:
         # last game played
         self.tv = None
 
+        # lobby chat spammer time out (10 min)
+        self.silence = 0
+
     def online(self, username=None):
         if username is None:
             if self.bot:
@@ -74,6 +79,16 @@ class User:
         rating = gl2.create_rating()
         self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
         return rating
+
+    def set_silence(self):
+        self.silence += SILENCE
+
+        async def silencio():
+            await asyncio.sleep(SILENCE)
+            self.silence -= SILENCE
+
+        loop = asyncio.get_event_loop()
+        loop.create_task(silencio())
 
     async def set_rating(self, variant, chess960, rating):
         if self.anon:
