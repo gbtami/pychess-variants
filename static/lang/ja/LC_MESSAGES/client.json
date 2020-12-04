@@ -1,8 +1,6 @@
 {
-    "Rated": "レート戦",
-    "Casual": "非レート戦",
     "Playing right now": "対局中",
-    " level ": "レベル",
+    "Variant": "将棋類",
     "You need an account to do that.": "アカウントが必要です",
     "Download game to PGN file": "ダウンロード（PGN形式）",
     " Download PGN": "ダウンロード（PGN形式）",
@@ -31,34 +29,62 @@
     "Similar to Xiangqi, but plays very differently. Tournament rules are used": "チャンギです。ピッチャンの場合は、残っている駒の点数を数えて勝負を決めます。",
     "Xiangqi on a 7x7 board": "７ｘ７マスのシャンチー類です。",
     "Pieces promote and can be dropped, similar to Shogi": "チェスですが、駒は将棋のように打つことも成ることもできます。",
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
+    "White": "白",
+    "Black": "黒",
     "CLEAR BOARD": "盤面をクリアする",
     "STARTING POSITION": "開始局面",
+    "ANALYSIS BOARD": "棋譜解析",
     "PLAY WITH MACHINE": "マシンと対戦",
     " (must be signed in)": "（ログインが必要）",
     "EXPORT TO PNG": "PNG画像にエクスポートする",
     "Invalid FEN": "無効な FEN",
-    "Variant": "将棋類",
+    "Challenge to a game": "対戦を申し込む",
     "Cancel": "キャンセル",
     "Challenge %1 to a game": "%1 を対戦に申し込む",
     "Paste the FEN text here": "ここにFEN形式の局面をペースト",
     "Minutes per side:": "持ち時間（分）",
     "Periods": "秒読み回数",
+    "Casual": "非レート戦",
+    "Rated": "レート戦",
     "A.I. Level": "A.I. レベル",
-    "Black": "黒",
     "Random": "ランダムカラー",
-    "White": "白",
     "Create a game": "対局を作成する",
     "Play with AI (Fairy-Stockfish)": "A.I. と対局する（Fairy-Stockfish）",
     "Byoyomi in seconds:": "秒読み：",
     "Increment in seconds:": "１手ごとに増える秒数：",
     "Custom": "カスタム",
+    "%1 game in play": [
+        ""
+    ],
+    "%1 player": [
+        ""
+    ],
     "Player": "プレイヤー",
     "Rating": "レーティング",
     "Time": "時間",
     "Mode": "モード",
     "Donate": "寄付",
-    "0 players": "現在0人接続中",
-    "0 games in play": "0局プレイ中",
     "Game aborted": "対局中止",
     "Checkmate": "詰み",
     "%1 resigned": "%1 が投了しました",
@@ -73,11 +99,13 @@
     "Campmate": "キャンプメイト",
     "Point counting": "点数数え",
     "Repetition": "千日手",
+    "%1 move": [
+        ""
+    ],
     "Computer analysis available": "コンピュータ解析がされています",
     "Lichess profile": "Lichess プロフィール",
     "Export games": "対局をエクスポートする",
     "Watch games": "観戦する",
-    "Challenge to a game": "対戦を申し込む",
     " +15 seconds": "+15 秒",
     "Give 15 seconds": "15秒を与える",
     "Abort": "中止",
@@ -91,7 +119,6 @@
     "Ready": "準備",
     "REMATCH": "再戦",
     "NEW OPPONENT": "新しい相手",
-    "ANALYSIS BOARD": "棋譜解析",
     "Stop counting": "手数を数え止める",
     "Start counting": "手数を数え始める",
     "Log out": "ログアウト",

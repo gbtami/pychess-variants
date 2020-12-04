@@ -1,10 +1,8 @@
 {
     "About pychess": "pychess 정보",
     "Currently supported games are ": "현재 지원되는 게임",
-    "Rated": "승강전",
-    "Casual": "친선전",
     "Playing right now": "지금 대국하기",
-    " level ": "레벨",
+    "Variant": "게임 종류",
     "You need an account to do that.": "계정이 필요합니다.",
     "Download game to PGN file": "PGN 파일로 기보 저장하기",
     " Download PGN": "PGN 파일로 저장",
@@ -28,35 +26,63 @@
     "Server": "서버",
     "Shogi on a 5x5 board": "쇼기 5x5 판",
     "Xiangqi on a 7x7 board": "중국상기 7x7 판",
+    "%1 year ago": [
+        ""
+    ],
+    "%1 month ago": [
+        ""
+    ],
+    "%1 week ago": [
+        ""
+    ],
+    "%1 day ago": [
+        ""
+    ],
+    "%1 hour ago": [
+        ""
+    ],
+    "%1 minute ago": [
+        ""
+    ],
+    "%1 second ago": [
+        ""
+    ],
+    "White": "백",
+    "Black": "흑",
     "CLEAR BOARD": "판 삭제",
     "STARTING POSITION": "초기 배치",
+    "ANALYSIS BOARD": "분석판",
     "PLAY WITH MACHINE": "컴퓨터와 대국하기",
     " (must be signed in)": "(로그인 하셔야 합니다)",
     "EXPORT TO PNG": "PNG 파일로 내보내기",
     "Invalid FEN": "잘못 된 FEN 입니다",
-    "Variant": "게임 종류",
+    "Challenge to a game": "대국 신청하기",
     "Cancel": "취소",
     "Challenge %1 to a game": "%1 님에게 대국 신청하기",
     "Paste the FEN text here": "FEN 텍스트를 여기에 붙여 넣으세요",
     "Minutes per side:": "대국자 자유시간 (분):",
     "Periods": "횟수",
+    "Casual": "친선전",
+    "Rated": "승강전",
     "A.I. Level": "AI 레벨",
-    "Black": "흑",
     "Random": "랜덤",
-    "White": "백",
     "Create a game": "대국방 생성하기",
     "Play with AI (Fairy-Stockfish)": "페어리 스톡피쉬 AI와 대국하기",
     "Byoyomi in seconds:": "초읽기",
     "Increment in seconds:": "초 증가",
     "Custom": "임의 지정",
     "You have an unfinished game!\nPress OK to continue.": "아직 끝나지 않은 게임이 있습니다!\nOK 를 눌러 계속합니다.",
+    "%1 game in play": [
+        ""
+    ],
+    "%1 player": [
+        ""
+    ],
     "Player": "대국자",
     "Rating": "레이팅",
     "Time": "시간",
     "Mode": "모드 선택",
     "Donate": "기부하기",
-    "0 players": "0 명의 대국자",
-    "0 games in play": "0 개의 게임이 진행중",
     "Thank you for your support!": "지원해 주셔서 감사합니다!",
     "Game aborted": "게임 중단",
     "Checkmate": "외통수",
@@ -71,11 +97,13 @@
     "Unknown reason": "알 수 없는 오류",
     "Campmate": "캠프메이트",
     "Point counting": "점수 승",
+    "%1 move": [
+        ""
+    ],
     "Computer analysis available": "컴퓨터 분석 이용가능",
     "Lichess profile": "Lichess 프로필",
     "Export games": "게임 저장하기",
     "Watch games": "관전하기",
-    "Challenge to a game": "대국 신청하기",
     " +15 seconds": "+15 초",
     "Give 15 seconds": "15 초 부여하기",
     "Abort": "중단하기",
@@ -90,7 +118,6 @@
     "Ready": "준비",
     "REMATCH": "재대국",
     "NEW OPPONENT": "새로운 상대",
-    "ANALYSIS BOARD": "분석판",
     "Stop counting": "계산 중단하기",
     "Stop": "중단하기",
     "Start counting": "계산 시작하기",

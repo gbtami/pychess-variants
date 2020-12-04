@@ -250,7 +250,7 @@ async def export(request):
                 game_counter += 1
             except Exception:
                 failed += 1
-                log.error("Failed to load game %s %s %s (early games may contain invalid moves)" % (doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d")))
+                log.error("Failed to load game %s %s %s (early games may contain invalid moves)", doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d"))
                 continue
         print('failed/all:', failed, game_counter)
     pgn_text = "\n".join(game_list)

@@ -5,12 +5,12 @@ import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
 import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
-import { gameType, renderRdiff, result } from './profile';
+import { aiLevel, gameType, renderRdiff, result } from './profile';
 
 declare global {
     interface Window {
-        onFSFline: Function;
-        fsf: any;
+        onFSFline: (string) => void;
+        fsf;
     }
 }
 
@@ -120,7 +120,7 @@ export function analysisView(model): VNode[] {
             ]),
         ]),
         h('aside.sidebar-second.analysis', [
-            h('div#pocket-wrapper0', [
+            h('div', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
@@ -131,7 +131,7 @@ export function analysisView(model): VNode[] {
                 h('div#ceval', [
                     h('div.engine', [
                         h('score#score', ''),
-                        h('div.info', ['Fairy-Stockfish 11+', h('br'), h('info#info', 'in local browser')]),
+                        h('div.info', ['Fairy-Stockfish 11+', h('br'), h('info#info', _('in local browser'))]),
                         h('label.switch', [
                             h('input#input', {
                                 props: {
@@ -139,7 +139,7 @@ export function analysisView(model): VNode[] {
                                     type: "checkbox",
                                 },
                             }),
-                            h('span.sw-slider'),
+                            h('span#slider.sw-slider'),
                         ]),
                     ]),
                 ]),
@@ -156,7 +156,7 @@ export function analysisView(model): VNode[] {
                 ]),
                 h('div#move-controls'),
             ]),
-            h('div#pocket-wrapper1', [
+            h('div', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
@@ -186,7 +186,7 @@ export function analysisView(model): VNode[] {
 function playerInfo(username: string, title: string, level: number, rating: number, rdiff: number | null) {
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
-        username + ((title === "BOT" && level >= 0) ? _(' level ') + level: "") + " (" + rating + ") ",
+        username + aiLevel(title, level) + " (" + rating + ") ",
         rdiff === null ? h('rdiff') : renderRdiff(rdiff),
     ]);
 }

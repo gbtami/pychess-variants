@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-11-30 12:03+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: ubdip <hsart.liam@gmail.com>, 2020\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
@@ -55,57 +55,53 @@ msgstr ""
 "Servers Zeit und Geld. Wenn dir unsere Arbeit gefällt und du unseren Server "
 "nützlich findest, spende bitte über unser Patreon oder PayPal. "
 
-#: ../templates/players.html:8
+#: ../templates/players.html:9
 msgid "Online"
 msgstr "Online"
 
-#: ../templates/players.html:27
+#: ../templates/players.html:28
 msgid "Anonymous"
 msgstr "Anonymous"
 
-#: ../templates/players.html:34
+#: ../templates/players.html:35
 msgid "All players"
 msgstr "Alle Spieler"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)sSpiel"
 msgstr[1] "%(count)s Spiele"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:96
 msgid "Tv"
 msgstr "TV"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:97
 msgid "Current games"
 msgstr "Laufende Partien"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:98
 msgid "Players"
 msgstr "Spieler"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:99
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:76
+#: ../templates/template.html:100
+msgid "Analysis"
+msgstr ""
+
+#: ../templates/template.html:101
 msgid "Learn"
 msgstr "Lernen"
 
-#: ../templates/template.html:77
-msgid "About"
-msgstr "Über"
-
-#: ../templates/template.html:78
-msgid "Original PyChess site"
-msgstr "Ursprüngliche PyChess Seite"
-
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Login with Lichess"
 msgstr "Mit Lichess einloggen"
 
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Log in"
 msgstr "Anmelden"

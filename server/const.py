@@ -85,7 +85,6 @@ VARIANT_ICONS = {
     "capahouse960": "'",
     "crazyhouse960": "%",
     "kyotoshogi": ")",
-    "chess": "M",
     "shogun": "-",
     "orda": "R",
     "synochess": "_",
@@ -111,11 +110,10 @@ VARIANT_960_TO_PGN = {
 def variant_display_name(variant):
     if variant == "seirawan":
         return "S-CHESS"
-    elif variant == "seirawan960":
+    if variant == "seirawan960":
         return "S-CHESS960"
-    elif variant == "shouse":
+    if variant == "shouse":
         return "S-HOUSE"
-    elif variant == "cambodian":
+    if variant == "cambodian":
         return "OUK CHATRANG"
-    else:
-        return variant.upper()
+    return variant.upper()

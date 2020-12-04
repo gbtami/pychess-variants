@@ -24,6 +24,11 @@ import { sound, volumeSettings, soundThemeSettings } from './sound';
 import { debounce, getCookie } from './document';
 import { backgroundSettings } from './background';
 
+// redirect to correct URL
+if (window.location.href.includes('heroku')) {
+    window.location.assign('https://www.pychess.org/');
+}
+
 const model = {};
 
 export function view(el, model): VNode {

@@ -1,3 +1,4 @@
+import Module from '../static/ffish.js';
 import { init } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -14,30 +15,39 @@ import { Api } from 'chessgroundx/api';
 import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { selectVariant, getPockets, needPockets, validFen, VARIANTS } from './chess';
+import { selectVariant, getPockets, needPockets, validFen, VARIANTS, hasCastling, isVariantClass } from './chess';
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
+import { updatePockets, Pockets } from './pocket';
 import { copyBoardToPNG } from './png'; 
+import { colorNames } from './profile';
+import { variantsIni } from './variantsIni';
 
 
 export default class EditorController {
     model;
-    flip;
     chessground: Api;
+    fullfen: string;
     startfen: string;
     mycolor: Color;
     oppcolor: Color;
     parts: string[];
     castling: string;
-    pockets: string;
+    pocketsPart: string;
+    pockets: Pockets;
     variant: string;
-    pieces: any;
-    vpocket0: any;
-    vpocket1: any;
-    vfen: any;
-    vAnalysis: any;
-    vChallenge: any;
+    hasPockets: boolean;
+    vpieces0: VNode;
+    vpieces1: VNode;
+    vpocket0: VNode;
+    vpocket1: VNode;
+    vfen: VNode;
+    vAnalysis: VNode;
+    vChallenge: VNode;
     anon: boolean;
+    flip: boolean;
+    ffish;
+    ffishBoard;
 
     constructor(el, model) {
         this.model = model;
@@ -48,7 +58,12 @@ export default class EditorController {
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
-        this.pockets = needPockets(this.variant) ? getPockets(this.startfen) : '';
+        this.fullfen = this.startfen;
+
+        this.hasPockets = needPockets(this.variant);
+
+        // pocket part of the FEN (including brackets)
+        this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
 
         this.mycolor = 'white';
         this.oppcolor = 'black';
@@ -82,55 +97,185 @@ export default class EditorController {
         boardSettings.updateZoom(boardFamily);
 
         // initialize pieces
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        iniPieces(this, pocket0, pocket1);
+        const pieces0 = document.getElementById('pieces0') as HTMLElement;
+        const pieces1 = document.getElementById('pieces1') as HTMLElement;
+        iniPieces(this, pieces0, pieces1);
 
-        let e = document.getElementById('fen') as HTMLElement;
+        // initialize pockets
+        if (needPockets(this.variant)) {
+            const pocket0 = document.getElementById('pocket0') as HTMLElement;
+            const pocket1 = document.getElementById('pocket1') as HTMLElement;
+            updatePockets(this, pocket0, pocket1);
+        }
+
+        const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
             h('input#fen', {
                 props: { name: 'fen', value: model["fen"] },
-                on: { input: () => this.setFen(true) },
+                on: { input: () => this.setFen(true), paste: (e) => this.onPasteFen(e) },
                 hook: {insert: () => this.setFen(false) },
             }),
         );
 
-        e = document.getElementById('clear') as HTMLElement;
-        patch(e, h('a#clear', {on: {click: () => this.setEmptyFen()}}));
+        //const dataIcon = VARIANTS[this.variant].icon(false);
+        const dataIcon = 'icon-' + this.variant;
+        const container = document.getElementById('editor-button-container') as HTMLElement;
+        const firstColor = colorNames(VARIANTS[this.variant].firstColor);
+        const secondColor = colorNames(VARIANTS[this.variant].secondColor);
+        if (container !== null) {
+            const buttons = [
+                h('div#turn-block', [
+                    h('select#turn', {
+                        props: { name: "turn" },
+                        on: { change: (e) => this.onChangeTurn(e) },
+                    }, [
+                        h('option', { props: { value: 'white' } }, _('%1 to play', firstColor)),
+                        h('option', { props: { value: 'black' } }, _('%1 to play', secondColor)),
+                    ]),
+                    (!hasCastling(this.variant, 'white')) ? '' :
+                    h('strong', _("Castling")),
+                    (!hasCastling(this.variant, 'white')) ? '' :
+                    h('div.castling', [
+                        h('label.OO', { attrs: { for: "wOO" } }, _("White") + " O-O"),
+                        h('input#wOO', {
+                            props: {name: "wOO", type: "checkbox"},
+                            attrs: {checked: this.parts[2].includes('K')},
+                            on: { change: () => this.onChangeCastl() },
+                        }),
+                        h('label.OOO', { attrs: { for: "wOOO" } }, "O-O-O"),
+                        h('input#wOOO', {
+                            props: {name: "wOOO", type: "checkbox"},
+                            attrs: {checked: this.parts[2].includes('Q')},
+                            on: { change: () => this.onChangeCastl() },
+                        }),
+                    ]),
+                    (!hasCastling(this.variant, 'black')) ? '' :
+                    h('div.castling', [
+                        h('label.OO', { attrs: { for: "bOO" } }, _("Black") +  " O-O"),
+                        h('input#bOO', {
+                            props: {name: "bOO", type: "checkbox"},
+                            attrs: {checked: this.parts[2].includes('k')},
+                            on: { change: () => this.onChangeCastl() },
+                        }),
+                        h('label.OOO', { attrs: { for: "bOOO" } }, "O-O-O"),
+                        h('input#bOOO', {
+                            props: {name: "bOOO", type: "checkbox"},
+                            attrs: {checked: this.parts[2].includes('q')},
+                            on: { change: () => this.onChangeCastl() },
+                        }),
+                    ]),
+                ]),
 
-        e = document.getElementById('start') as HTMLElement;
-        patch(e, h('a#start', {on: {click: () => this.setStartFen()}}));
+                h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
+                    h('div', {class: {"icon": true, "icon-trash-o": true} }, _('CLEAR BOARD'))
+                ]),
+                h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
+                    h('div', {class: {"icon": true, [dataIcon]: true} }, _('STARTING POSITION'))
+                ]),
+                h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
+                    h('div', {class: {"icon": true, "icon-microscope": true} }, _('ANALYSIS BOARD'))
+                ]),
+                h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
+                    h('div', {class: {"icon": true, "icon-bot": true} }, _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
+                ]),
+                h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
+                    h('div', {class: {"icon": true, "icon-download": true} }, _('EXPORT TO PNG'))
+                ])
+            ];
+            patch(container, h('div.editor-button-container', buttons));
 
-        e = document.getElementById('analysis') as HTMLElement;
-        this.vAnalysis = patch(e, h('a#analysis', {on: {click: () => this.setAnalysisFen()}}));
+            new (Module as any)().then(loadedModule => {
+                this.ffish = loadedModule;
 
-        e = document.getElementById('challengeAI') as HTMLElement;
-        this.vChallenge = patch(e, h('a#challengeAI', {class: {disabled: this.anon}, on: {click: () => this.setChallengeFen()}}));
+                if (this.ffish !== null) {
+                    this.ffish.loadVariantConfig(variantsIni);
+                    this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
+                }
+            });
+        }
+    }
 
-        e = document.getElementById('png') as HTMLElement;
-        patch(e, h('a#png', {on: {click: () => copyBoardToPNG(this.parts.join(' '))}}));
+    private onChangeTurn = (e) => {
+        this.parts[1] = (e.target.value === 'white') ? 'w' : 'b';
+        this.onChange();
+    }
 
+    private onChangeCastl = () => {
+        const castlings = {
+            'wOO': 'K',
+            'wOOO': 'Q',
+            'bOO': 'k',
+            'bOOO': 'q',
+        }
+        const castl: string[] = [];
+        for (const key in castlings) {
+            const el = document.getElementById(key) as HTMLInputElement;
+            // There are no black castlings in asymmetric variants!
+            if (el !== null && el.checked) {
+                castl.push(castlings[key]);
+            }
+        }
+
+        let gatings = '';
+        if (this.parts.length > 2) {
+            const gatingLetters = this.parts[2].match(/[A-H,a-h]/g);
+            if (gatingLetters !== null) gatings = gatingLetters.join('');
+        }
+
+        this.parts[2] = castl.join('') + gatings;
+        if (this.parts[2].length === 0) this.parts[2] = '-';
+        this.onChange();
+    }
+
+    // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
+    private onPasteFen = (e) => {
+        const data = e.clipboardData.getData('text');
+        e.target.value = data.trim();
+        e.preventDefault();
+        this.setFen(true);
     }
 
     private validFen = () => {
-        const e = document.getElementById('fen') as HTMLInputElement;
-        return validFen(this.variant, e.value);
+        let valid = false;
+        const fen = (document.getElementById('fen') as HTMLInputElement).value;
+        valid = validFen(this.variant, fen);
+        if (valid) {
+            // try to catch more invalid stuff using ffish.js
+            try {
+                const ffValid = this.ffish.validateFen(fen, this.variant);
+                if (ffValid !== 1 && !(isVariantClass(this.variant, 'gate') && ffValid == -5)) return false;
+
+                this.ffishBoard.setFen(fen);
+                const fenPlacement = fen.split(' ')[0].split('[')[0];
+                const ffishPlacement = this.ffishBoard.fen().split(' ')[0].split('[')[0];
+
+                if (fenPlacement !== ffishPlacement) {
+                    valid = false;
+                    console.log('fenPlacement !== ffishPlacement', fenPlacement, ffishPlacement);
+                }
+            } catch (error) {
+                console.log("validFen() failed on FEN:", fen);
+                valid = false;
+            }
+        }
+        return valid;
     }
 
     private setInvalid = (invalid) => {
-        this.vAnalysis = patch(this.vAnalysis, h('a#analysis', {class: {disabled: invalid}, on: {click: () => this.setAnalysisFen()}}));
-        this.vChallenge = patch(this.vChallenge, h('a#challengeAI', {class: {disabled: invalid || this.anon}, on: {click: () => this.setChallengeFen()}}));
+        const analysis = document.getElementById('analysis') as HTMLElement;
+        analysis.classList.toggle('disabled', invalid);
+
+        const challenge = document.getElementById('challengeAI') as HTMLElement;
+        challenge.classList.toggle('disabled', invalid || this.anon);
+
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(invalid ? _('Invalid FEN') : '');
     }
 
     private setStartFen = () => {
-        this.parts = this.startfen.split(" ");
-        this.pockets = needPockets(this.variant) ? getPockets(this.startfen) : '';
-        this.chessground.set({fen: this.parts[0]});
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.startfen;
-        this.setInvalid(false);
+        this.setFen(true);
     }
 
     private setEmptyFen = () => {
@@ -138,45 +283,67 @@ export default class EditorController {
         const h = dimensions[VARIANTS[this.variant].geometry].height
         const empty_fen = (String(w) + '/').repeat(h);
 
-        this.chessground.set({fen: empty_fen});
-        this.pockets = needPockets(this.variant) ? '[]' : '';
-        this.parts[0] = this.chessground.getFen() + this.pockets;
+        this.pocketsPart = needPockets(this.variant) ? '[]' : '';
+        this.parts[0] = empty_fen + this.pocketsPart;
+        this.parts[1] = 'w'
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
-        this.setInvalid(true);
+        this.setFen(true);
     }
 
     private setAnalysisFen = () => {
-        //this.parts[0] = this.chessground.getFen() + this.pockets;
-        //this.variantFenChange();
         const fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/analysis/' + this.model["variant"] + '?fen=' + fen);
     }
 
     private setChallengeFen = () => {
-        //this.parts[0] = this.chessground.getFen() + this.pockets;
-        //this.variantFenChange();
         const fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
     private setFen = (isInput) => {
-        const e = document.getElementById('fen') as HTMLInputElement;
+        const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
-            this.parts = e.value.split(' ');
-            this.pockets = (needPockets(this.variant) ? getPockets(e.value) : '');
-            this.chessground.set({ fen: e.value });
+            this.parts = fen.value.split(' ');
+            this.pocketsPart = (needPockets(this.variant) ? getPockets(fen.value) : '');
+            this.chessground.set({ fen: fen.value });
             this.setInvalid(!this.validFen());
+
+            if (this.parts.length > 1) {
+                const turn = document.getElementById('turn') as HTMLInputElement;
+                turn.value = (this.parts[1] === 'w') ? 'white' : 'black';
+            }
+
+            this.fullfen = fen.value;
+            if (needPockets(this.variant)) {
+                updatePockets(this, this.vpocket0, this.vpocket1);
+            }
+
+            if (hasCastling(this.variant, 'white')) {
+                if (this.parts.length >= 3) {
+                    const castlings = {
+                        'K': 'wOO',
+                        'Q': 'wOOO',
+                        'k': 'bOO',
+                        'q': 'bOOO',
+                    }
+                    for (const key in castlings) {
+                        const el = document.getElementById(castlings[key]) as HTMLInputElement;
+                        // There are no black castlings in asymmetric variants!
+                        if (el !== null) el.checked = this.parts[2].includes(key);
+                    }
+                }
+            }
         } else {
-            e.value = this.startfen;
+            fen.value = this.startfen;
         }
     }
 
-    private onChange = () => {
+    onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
-        this.parts[0] = this.chessground.getFen() + this.pockets;
+        this.parts[0] = this.chessground.getFen() + this.pocketsPart;
         this.variantFenChange();
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
@@ -208,6 +375,7 @@ export function editorView(model): VNode[] {
     }
 
     const vVariant = model.variant || "chess";
+    const variant = VARIANTS[vVariant];
 
     return [h('aside.sidebar-first', [
                 h('div.container', [
@@ -219,33 +387,38 @@ export function editorView(model): VNode[] {
             ]),
             h('boardeditor', [
                 h('div.pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].piece + '.' + model["variant"], [
+                    h('div.' + variant.piece + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
-                            h('div#pocket0'),
+                            h('div#pieces0'),
                         ]),
                     ]),
                 ]),
-                h('selection#board2png.' + VARIANTS[model["variant"]].board + '.' + VARIANTS[model["variant"]].piece, [
-                    h('div.cg-wrap.' + VARIANTS[model["variant"]].cg,
+                h('selection#board2png.' + variant.board + '.' + variant.piece, [
+                    h('div.cg-wrap.' + variant.cg,
                         { hook: { insert: (vnode) => runEditor(vnode, model)},
                     }),
                 ]),
                 h('div.pocket-wrapper', [
-                    h('div.' + VARIANTS[model["variant"]].piece + '.' + model["variant"], [
+                    h('div.' + variant.piece + '.' + model["variant"], [
                         h('div.cg-wrap.pocket', [
-                            h('div#pocket1'),
+                            h('div#pieces1'),
                         ]),
                     ]),
                 ]),
             ]),
             h('aside.sidebar-second', [
-                h('div.editor-button-container', [
-                    h('div', [h('a#clear', _('CLEAR BOARD'))]),
-                    h('div', [h('a#start', _('STARTING POSITION'))]),
-                    h('div', [h('a#analysis', _('ANALYSIS BOARD'))]),
-                    h('div', [h('a#challengeAI', _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))]),
-                    h('div', [h('a#png', _('EXPORT TO PNG'))]),
-                ])
+                h('div.editorhint', (needPockets(model['variant'])) ? _('Click/Ctrl+click to increase/decrease number of pieces') : ''),
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pocket0'),
+                    ]),
+                ]),
+                h('div#editor-button-container'),
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pocket1'),
+                    ]),
+                ]),
             ]),
             h('under-board', [
                 h('input#fen'),

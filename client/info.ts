@@ -26,7 +26,7 @@ export function updateCount(fen: string, whiteContainer: VNode | Element, blackC
             blackContainer = patch(blackContainer, h('div#misc-infob', `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
     }
 
-    const curStyle = document.body.getAttribute('style') as String;
+    const curStyle = document.body.getAttribute('style') as string;
     const startIdx = curStyle.indexOf('countingHeight') + 15;
     const endIdx = startIdx + curStyle.substring(startIdx).indexOf(';');
     document.body.setAttribute('style', curStyle.substring(0, startIdx) + pxc + curStyle.substring(endIdx));

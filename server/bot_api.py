@@ -21,11 +21,11 @@ async def account(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     resp = {"username": BOT_TOKENS[token], "title": "BOT"}
-    log.info("ACCOUNT for token %s for %s is OK" % (token, BOT_TOKENS[token]))
+    log.info("ACCOUNT for token %s for %s is OK", token, BOT_TOKENS[token])
     return web.json_response(resp)
 
 
@@ -36,7 +36,7 @@ async def playing(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     resp = {"nowPlaying": []}
@@ -50,7 +50,7 @@ async def challenge_create(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     return web.json_response({"ok": True})
@@ -63,7 +63,7 @@ async def challenge_accept(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     return web.json_response({"ok": True})
@@ -76,7 +76,7 @@ async def challenge_decline(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     return web.json_response({"ok": True})
@@ -89,7 +89,7 @@ async def create_bot_seek(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -103,7 +103,7 @@ async def create_bot_seek(request):
 
     bot_player = users[username]
 
-    log.info("+++ %s created %s seek" % (bot_player.username, data["variant"]))
+    log.info("+++ %s created %s seek", bot_player.username, data["variant"])
 
     # Try to create BOT vs BOT game to test TV
     test_TV = True
@@ -111,7 +111,7 @@ async def create_bot_seek(request):
     if test_TV:
         for seek in seeks.values():
             if seek.variant == data["variant"] and seek.user.bot and seek.user.online() and seek.user.username != username and seek.level > 0:
-                log.debug("MATCHING BOT SEEK %s FOUND!" % seek.id)
+                log.debug("MATCHING BOT SEEK %s FOUND!", seek.id)
                 matching_seek = seek
                 break
 
@@ -156,7 +156,7 @@ async def event_stream(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -197,7 +197,7 @@ async def event_stream(request):
 
     bot_player.bot_online = True
 
-    log.info("+++ BOT %s connected" % bot_player.username)
+    log.info("+++ BOT %s connected", bot_player.username)
 
     loop = asyncio.get_event_loop()
     pinger_task = loop.create_task(bot_player.pinger(sockets, seeks, users, games))
@@ -211,13 +211,13 @@ async def event_stream(request):
         answer = await bot_player.event_queue.get()
         try:
             if request.protocol.transport.is_closing():
-                log.error("BOT %s request.protocol.transport.is_closing() == True ..." % username)
+                log.error("BOT %s request.protocol.transport.is_closing() == True ...", username)
                 break
             else:
                 await resp.write(answer.encode("utf-8"))
                 await resp.drain()
         except Exception:
-            log.error("BOT %s event_stream is broken..." % username)
+            log.error("BOT %s event_stream is broken...", username)
             break
 
     pinger_task.cancel()
@@ -232,7 +232,7 @@ async def game_stream(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -251,7 +251,7 @@ async def game_stream(request):
 
     bot_player = users[username]
 
-    log.info("+++ %s connected to %s game stream" % (bot_player.username, gameId))
+    log.info("+++ %s connected to %s game stream", bot_player.username, gameId)
 
     await bot_player.game_queues[gameId].put(game.game_full)
 
@@ -273,7 +273,7 @@ async def game_stream(request):
             await resp.write(answer.encode("utf-8"))
             await resp.drain()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!" % answer)
+            log.error("Writing %s to BOT game_stream failed!", answer)
             break
 
     try:
@@ -292,7 +292,7 @@ async def bot_move(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -315,7 +315,7 @@ async def bot_abort(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -351,7 +351,7 @@ async def bot_resign(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -372,7 +372,7 @@ async def bot_analysis(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -412,7 +412,7 @@ async def bot_chat(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
@@ -444,7 +444,7 @@ async def bot_pong(request):
 
     token = auth[auth.find("Bearer") + 7:]
     if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed" % token)
+        log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")

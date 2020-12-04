@@ -15,7 +15,7 @@ const patch = init([listeners, style]);
 
 export class Promotion {
     ctrl;
-    promoting: any;
+    promoting: {orig: Key, dest: Key, callback: (orig: string, dest: string, promo: string) => void} | null;
     choices: { [ role: string ]: string };
 
     constructor(ctrl) {
@@ -50,7 +50,7 @@ export class Promotion {
                     dest: dest,
                     callback: this.ctrl.sendMove,
                 };
-            };
+            }
 
             return true;
         }
@@ -167,7 +167,7 @@ export class Promotion {
 
             this.promoting = null;
         }
-    };
+    }
 
     private cancel() {
         this.drawNoPromo();

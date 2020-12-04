@@ -191,7 +191,8 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
-    def create_board(self, variant, initial_fen, chess960, count_started):
+    @staticmethod
+    def create_board(variant, initial_fen, chess960, count_started):
         return FairyBoard(variant, initial_fen, chess960, count_started)
 
     async def play_move(self, move, clocks=None, ply=None):
@@ -200,7 +201,7 @@ class Game:
 
         if self.status > STARTED:
             return
-        elif self.status == CREATED:
+        if self.status == CREATED:
             self.status = STARTED
             self.app["g_cnt"] += 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
@@ -284,7 +285,7 @@ class Game:
                 self.stopwatch.restart()
 
             except Exception:
-                log.exception("ERROR: Exception in game %s play_move() %s" % (self.id, move))
+                log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
@@ -302,7 +303,7 @@ class Game:
         if self.saved:
             return
         if self.rated == IMPORTED:
-            log.error("Save IMPORTED game %s ???" % self.id)
+            log.error("Save IMPORTED game %s ???", self.id)
             traceback.print_stack()
             return
 
@@ -321,7 +322,7 @@ class Game:
             try:
                 del self.games[self.id]
             except KeyError:
-                log.error("Failed to del %s from games" % self.id)
+                log.error("Failed to del %s from games", self.id)
 
             if self.bot_game:
                 try:
@@ -330,7 +331,7 @@ class Game:
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
-                    log.error("Failed to del %s from game_queues" % self.id)
+                    log.error("Failed to del %s from game_queues", self.id)
 
         self.saved = True
         loop = asyncio.get_event_loop()
@@ -338,7 +339,7 @@ class Game:
 
         if self.board.ply < 3 and (self.db is not None):
             result = await self.db.game.delete_one({"_id": self.id})
-            log.debug("Removed too short game %s from db. Deleted %s game." % (self.id, result.deleted_count))
+            log.debug("Removed too short game %s from db. Deleted %s game.", self.id, result.deleted_count)
         else:
             if self.result != "*":
                 if self.rated == RATED:
@@ -434,8 +435,7 @@ class Game:
         len_hs = len(self.highscore[variant + ("960" if chess960 else "")])
         if len_hs > 0:
             return (self.highscore[variant + ("960" if chess960 else "")].peekitem()[1], len_hs)
-        else:
-            return (0, 0)
+        return (0, 0)
 
     async def set_highscore(self, variant, chess960, value):
         self.highscore[variant + ("960" if chess960 else "")].update(value)
@@ -444,7 +444,7 @@ class Game:
         # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
-        new_data = {"scores": {key: value for key, value in self.highscore[variant + ("960" if chess960 else "")].items()[:10]}}
+        new_data = {"scores": dict(self.highscore[variant + ("960" if chess960 else "")].items()[:10])}
         try:
             await self.db.highscore.find_one_and_update({"_id": variant + ("960" if chess960 else "")}, {"$set": new_data}, upsert=True)
         except Exception:
@@ -481,10 +481,9 @@ class Game:
         def result_string_from_value(color, game_result_value):
             if game_result_value < 0:
                 return "1-0" if color == BLACK else "0-1"
-            elif game_result_value > 0:
+            if game_result_value > 0:
                 return "0-1" if color == BLACK else "1-0"
-            else:
-                return "1/2-1/2"
+            return "1/2-1/2"
 
         if status is not None:
             self.status = status
@@ -602,7 +601,7 @@ class Game:
         try:
             mlist = sf.get_san_moves(self.variant, self.initial_fen, self.board.move_stack, self.chess960, sf.NOTATION_SAN)
         except Exception:
-            log.exception("ERROR: Exception in game %s pgn()" % self.id)
+            log.exception("ERROR: Exception in game %s pgn()", self.id)
             mlist = self.board.move_stack
         moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
         no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
@@ -630,8 +629,7 @@ class Game:
         if self.variant[-5:] == "shogi":
             mirror = mirror9 if self.variant == "shogi" else mirror5
             return "position sfen %s moves %s" % (self.board.initial_sfen, " ".join(map(uci2usi, map(mirror, self.board.move_stack))))
-        else:
-            return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
+        return "position fen %s moves %s" % (self.board.initial_fen, " ".join(self.board.move_stack))
 
     @property
     def clocks(self):

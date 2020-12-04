@@ -11,10 +11,21 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { _, _n } from './i18n';
+import { _, ngettext } from './i18n';
 import { VARIANTS } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
+
+export function colorNames(color) {
+    const colors = {
+    "White": _("White"),
+    "Black": _("Black"),
+    "Red": _("Red"),
+    "Blue": _("Blue"),
+    "Gold": _("Gold"),
+    }
+    return colors[color];
+}
 
 export function gameType(rated) {
     switch (rated) {
@@ -29,12 +40,16 @@ export function gameType(rated) {
     }
 }
 
+export function aiLevel(title, level) {
+    return (title === 'BOT' && level >= 0) ? ' ' + _('level %1', level): '';
+}
+
 export function result(variantName, status, result) {
     let text = '';
     console.log("result()", variantName, status, result);
     const variant = VARIANTS[variantName];
-    const first = _(variant.firstColor);
-    const second = _(variant.secondColor);
+    const first = colorNames(variant.firstColor);
+    const second = colorNames(variant.secondColor);
     switch (status) {
         case -2:
         case -1:
@@ -137,7 +152,7 @@ function renderGames(model, games) {
                         h('player', [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
                                 h('player-title', " " + game["wt"] + " "),
-                                game["us"][0] + ((game["wt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
+                                game["us"][0] + aiLevel(game["wt"], game['x']),
                                 h('br'),
                                 (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
                                 (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
@@ -147,7 +162,7 @@ function renderGames(model, games) {
                         h('player', [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
                                 h('player-title', " " + game["bt"] + " "),
-                                game["us"][1] + ((game["bt"] === 'BOT' && game['x'] >= 0) ? _(' level ') + game['x']: ''),
+                                game["us"][1] + aiLevel(game["bt"], game['x']),
                                 h('br'),
                                 (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
                                 (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
@@ -163,7 +178,7 @@ function renderGames(model, games) {
                 ]),
                 h('div.info0.games', [
                     h('div', [
-                        h('div.info0', game["m"] === undefined ? "" : _n("%1 move", "%1 moves", game["m"].length)),
+                        h('div.info0', game["m"] === undefined ? "" : ngettext("%1 move", "%1 moves", game["m"].length)),
                         h('div.info0', game["a"] === undefined ? "" : [ h('span.icon', { attrs: {"data-icon": "3"} }), _("Computer analysis available") ]),
                     ]),
                 ]),

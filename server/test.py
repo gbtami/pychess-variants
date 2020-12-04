@@ -195,7 +195,8 @@ class HighscoreTestCase(AioHTTPTestCase):
         app.on_startup.append(self.startup)
         return app
 
-    def print_game_highscore(self, game):
+    @staticmethod
+    def print_game_highscore(game):
         # return
         print("----")
         print(game.wplayer.perfs["crazyhouse960"])

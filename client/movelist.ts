@@ -65,7 +65,7 @@ export function createMovelistButtons (ctrl) {
     ]));
 }
 
-export function updateMovelist (ctrl, full: boolean = true, activate: boolean = true) {
+export function updateMovelist (ctrl, full = true, activate = true) {
 
     const plyFrom = (full) ? 1 : ctrl.steps.length -1
     const plyTo = ctrl.steps.length;

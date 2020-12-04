@@ -1,4 +1,5 @@
 import { h, init } from "snabbdom";
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -19,12 +20,15 @@ type Position = 'top' | 'bottom';
 const eventNames = ['mousedown', 'touchstart'];
 
 export function piecesView(ctrl: EditorController, color: Color, position: Position) {
+    const width = dimensions[VARIANTS[ctrl.variant].geometry].width;
+    const height = dimensions[VARIANTS[ctrl.variant].geometry].height;
     const roles = VARIANTS[ctrl.variant].pieceRoles(color);
     return h('div.pocket.' + position + '.editor.usable', {
         style: {
             '--editorLength': String(roles.length),
-            '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
-            '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
+            '--piecerows': String((roles.length > width) ? 2 : 1),
+            '--files': String(width),
+            '--ranks': String(height),
         },
         hook: {
             insert: vnode => {
@@ -57,7 +61,7 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     dragNewPiece(ctrl.chessground.state, { color, role }, e);
 }
 
-export function iniPieces(ctrl: EditorController, vpocket0, vpocket1): void {
-    ctrl.vpocket0 = patch(vpocket0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
-    ctrl.vpocket1 = patch(vpocket1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
+    ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
+    ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
 }

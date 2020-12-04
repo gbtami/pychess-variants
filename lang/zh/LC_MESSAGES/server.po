@@ -4,17 +4,17 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
 # Translators:
-# Marken Foo <marken.foo.yw@gmail.com>, 2020
 # gbtami <gbtami@gmail.com>, 2020
+# Marken Foo <marken.foo.yw@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-11-30 20:10+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -51,56 +51,52 @@ msgstr ""
 "如您所知，pychess-"
 "variants是免费为您提供的，而永远会是免费的。然而，维持与更新我们的服务器导致时间与金钱的消费。如果您想支持我们的工作，请通过我们的Patreon或PayPal捐赠。"
 
-#: ../templates/players.html:8
+#: ../templates/players.html:9
 msgid "Online"
 msgstr "在线"
 
-#: ../templates/players.html:27
+#: ../templates/players.html:28
 msgid "Anonymous"
 msgstr "匿名"
 
-#: ../templates/players.html:34
+#: ../templates/players.html:35
 msgid "All players"
 msgstr "棋手一览"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s 对局"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:96
 msgid "Tv"
 msgstr "TV"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:97
 msgid "Current games"
 msgstr "当前对局"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:98
 msgid "Players"
 msgstr "棋手"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:99
 msgid "Editor"
 msgstr "棋盘编辑器"
 
-#: ../templates/template.html:76
+#: ../templates/template.html:100
+msgid "Analysis"
+msgstr "分析面板"
+
+#: ../templates/template.html:101
 msgid "Learn"
 msgstr "棋类介绍"
 
-#: ../templates/template.html:77
-msgid "About"
-msgstr "关于我们"
-
-#: ../templates/template.html:78
-msgid "Original PyChess site"
-msgstr "原本PyChess网站"
-
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Login with Lichess"
 msgstr "Lichess登录"
 
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Log in"
 msgstr "登录"

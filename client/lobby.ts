@@ -14,7 +14,8 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { _, _n } from './i18n';
+import { JSONObject } from './types';
+import { _, ngettext } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
 import { sound } from './sound';
@@ -69,7 +70,7 @@ class LobbyController {
         // get seeks when we are coming back after a game
         if (this._ws.readyState === 1) {
             this.doSend({ type: "get_seeks" });
-        };
+        }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
@@ -91,7 +92,7 @@ class LobbyController {
             e.disabled = true;
     }
 
-    doSend(message: any) {
+    doSend(message: JSONObject) {
         // console.log("---> lobby doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
@@ -373,7 +374,7 @@ class LobbyController {
     }
 
     private setVariant() {
-        let e: any;
+        let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
         const byoyomi = variant.timeControl === "byoyomi";
@@ -479,7 +480,7 @@ class LobbyController {
                 "icon-black":  color === "b",
             }
         });
-    };
+    }
     private challengeIcon(seek) {
         const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
@@ -615,12 +616,12 @@ class LobbyController {
     private onMsgGameCounter(msg) {
         console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
-        patch(gameCount, h('counter#g_cnt', _n('%1 game in play', '%1 games in play', msg.cnt)));
+        patch(gameCount, h('counter#g_cnt', ngettext('%1 game in play', '%1 games in play', msg.cnt)));
     }
     private onMsgUserCounter(msg) {
         console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
-        patch(userCount as HTMLElement, h('counter#u_cnt', _n('%1 player', '%1 players', msg.cnt)));
+        patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
     }
 
 }
@@ -663,7 +664,7 @@ export function lobbyView(model): VNode[] {
         h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
         h('div.seeks', [
             h('div#seeks-table', [
-                h('table#seeks-header', { hook: { insert: _ => resizeSeeksHeader() } }, seekHeader()),
+                h('table#seeks-header', { hook: { insert: () => resizeSeeksHeader() } }, seekHeader()),
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
@@ -675,12 +676,11 @@ export function lobbyView(model): VNode[] {
             h('a.reflist', { attrs: { href: '/faq' } }, _("FAQ")),
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
-            h('a.reflist', { attrs: { href: 'https://pychess.github.io' } }, _("Original PyChess site")),
         ]),
         h('under-lobby'),
         h('under-right', [
-            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt', _('0 players')) ]),
-            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt', _('0 games in play')) ]),
+            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
+            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
     ];
 }

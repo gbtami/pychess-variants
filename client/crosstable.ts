@@ -23,7 +23,7 @@ export function crosstableView (ctable, gameId) {
             default:
                 r1 = h('a.info-result.draw', { attrs: {href: '/' + ref} }, '½');
                 r2 = h('a.info-result.draw', { attrs: {href: '/' + ref} }, '½');
-        };
+        }
         return h('povs', { class: { current: gameId === ref } }, [r1, r2]);
     }));
 

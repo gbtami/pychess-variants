@@ -135,13 +135,13 @@ async def init_state(app):
                 with open(moname, 'wb') as mo_file:
                     mo_file.write(mo)
         except PoSyntaxError:
-            log.error("PoSyntaxError in %s" % poname)
+            log.error("PoSyntaxError in %s", poname)
 
         # Create translation class
         try:
             translation = gettext.translation("server", localedir="lang", languages=[lang])
         except FileNotFoundError:
-            log.warning("Missing translations file for lang %s" % lang)
+            log.warning("Missing translations file for lang %s", lang)
             translation = gettext.NullTranslations()
 
         env = jinja2.Environment(

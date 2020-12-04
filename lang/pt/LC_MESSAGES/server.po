@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-01 15:45+0200\n"
+"POT-Creation-Date: 2020-11-30 12:03+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
 "Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
@@ -53,57 +53,53 @@ msgstr ""
 "Como sabes, o pychess-variants é um servidor grátis e irá continuar a sê-lo eternamente. No entanto, para fins de manutenção e melhoramento do servidor existem custos de tempo e dinheiro.\n"
 "Se gosta do nosso trabalho e acha o servidor útil, por favor faça um donativo a partir do Patreon ou do Paypal.  "
 
-#: ../templates/players.html:8
+#: ../templates/players.html:9
 msgid "Online"
 msgstr "Online"
 
-#: ../templates/players.html:27
+#: ../templates/players.html:28
 msgid "Anonymous"
 msgstr "Anónimo"
 
-#: ../templates/players.html:34
+#: ../templates/players.html:35
 msgid "All players"
 msgstr "Todos os Jogadores"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partida"
 msgstr[1] "%(count)s partidas"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:96
 msgid "Tv"
 msgstr "TV"
 
-#: ../templates/template.html:73
+#: ../templates/template.html:97
 msgid "Current games"
 msgstr "Partidas a decorrer"
 
-#: ../templates/template.html:74
+#: ../templates/template.html:98
 msgid "Players"
 msgstr "Jogadores"
 
-#: ../templates/template.html:75
+#: ../templates/template.html:99
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:76
+#: ../templates/template.html:100
+msgid "Analysis"
+msgstr ""
+
+#: ../templates/template.html:101
 msgid "Learn"
 msgstr "Aprende"
 
-#: ../templates/template.html:77
-msgid "About"
-msgstr "Acerca"
-
-#: ../templates/template.html:78
-msgid "Original PyChess site"
-msgstr "Página Original do PyChess"
-
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Login with Lichess"
 msgstr "Inicie Sessão com o Lichess"
 
-#: ../templates/template.html:84
+#: ../templates/template.html:107
 msgid "Log in"
 msgstr "Iniciar Sessão"

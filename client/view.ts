@@ -4,7 +4,7 @@ import { h } from 'snabbdom/h';
 import { ISettings } from "./settings";
 
 export function radioList(settings: ISettings<string>, name: string, options: { [key: string]: string }, onchange: (evt, key: string) => void): VNode[] {
-    let result: VNode[] = [];
+    const result: VNode[] = [];
     Object.keys(options).forEach(key => {
         const id = name + "-" + key;
         result.push(h(`input#${id}`, {
@@ -17,7 +17,7 @@ export function radioList(settings: ISettings<string>, name: string, options: { 
     return result;
 }
 
-export function slider(settings: ISettings<number>, name: string, min: number = 0, max: number = 100, step: number = 1) {
+export function slider(settings: ISettings<number>, name: string, min = 0, max = 100, step = 1) {
     const id = name;
     return h(`input#${id}.slider`, {
         props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
@@ -37,7 +37,7 @@ export function checkbox(settings: ISettings<boolean>, name: string, text: strin
     ];
 }
 
-export function timeControlStr(minutes: number, increment: number = 0, byoyomiPeriod: number = 0) {
+export function timeControlStr(minutes: number, increment = 0, byoyomiPeriod = 0) {
     switch (byoyomiPeriod) {
         case 0 : return `${minutes}+${increment}`;
         case 1 : return `${minutes}+${increment}(b)`;

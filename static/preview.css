@@ -38,6 +38,9 @@ label.board.board5.shogi9x9 {
     background-image: url('images/board/ShogiGrayTexture.png');
 }
 label.board.board6.shogi9x9 {
+    background-image: url('images/board/ShogiSpace1.png');
+}
+label.board.board7.shogi9x9 {
     background-image: url('images/board/doubutsu.svg');
 }
 
@@ -70,6 +73,9 @@ label.piece.piece5.shogi {
     background-image: url('images/pieces/shogi/ctp3d/0KA.svg');
 }
 label.piece.piece6.shogi {
+    background-image: url('images/pieces/shogi/ctkw3d/0KA.svg');
+}
+label.piece.piece7.shogi {
     background-image: url('images/pieces/shogi/Ka/0KA.svg');
 }
 
@@ -130,6 +136,9 @@ label.board.board4.xiangqi9x10 {
 label.board.board5.xiangqi9x10 {
     background-image: url('images/board/xiangqiDark.svg');
 }
+label.board.board6.xiangqi9x10 {
+    background-image: url('images/board/xiangqiWikimedia.svg');
+}
 
 label.board.board0.xiangqi7x7 {
     background-image: url('images/board/minixiangqi.svg');
@@ -177,6 +186,9 @@ label.piece.piece4.xiangqi {
 }
 label.piece.piece5.xiangqi {
     background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+}
+label.piece.piece6.xiangqi {
+    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
 }
 
 label.piece.piece0.seirawan {

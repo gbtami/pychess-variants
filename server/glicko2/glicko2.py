@@ -93,13 +93,15 @@ class Glicko2:
         phi = rating.phi * ratio
         return self.create_rating(max(mu, MIN_MU), max(phi, MIN_PHI), min(rating.sigma, MAX_SIGMA), rating.ltime)
 
-    def reduce_impact(self, rating):
+    @staticmethod
+    def reduce_impact(rating):
         """The original form is `g(RD)`. This function reduces the impact of
         games as a function of an opponent's RD.
         """
         return 1 / math.sqrt(1 + (3 * rating.phi ** 2) / (math.pi ** 2))
 
-    def expect_score(self, rating, other_rating, impact):
+    @staticmethod
+    def expect_score(rating, other_rating, impact):
         return 1. / (1 + math.exp(-impact * (rating.mu - other_rating.mu)))
 
     def determine_sigma(self, rating, difference, variance):

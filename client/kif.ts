@@ -69,7 +69,7 @@ export function parseKif(text: string) {
     let date, place, tc, sente, gote, handicap = '';
     let status = 11; // unknown
     let result = '*'; // unknown
-    let move_list: string[] = [];
+    const move_list: string[] = [];
     let tagsProcessed = false;
     let isHandicap = false;
     let movesStartLineNumber, ply;
@@ -79,7 +79,7 @@ export function parseKif(text: string) {
     const WIN = true;
     const LOSS = false;
 
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
         const firstChar = lines[i][0];
         if ( firstChar === '#' || firstChar === '*') continue;
 
@@ -132,7 +132,7 @@ export function parseKif(text: string) {
                 // used when the destination coordinate is the same as that of the immediately preceding move
             } else if (s[0] == '反') {
                 status = 10; // illegal move
-                if ('反則勝ち') {
+                if (s == '反則勝ち') {
                     // indicates that the immediately preceding move was illegal
                     result = resultString(WIN, ply, isHandicap);
                 } else {

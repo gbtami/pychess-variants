@@ -73,10 +73,10 @@ async def login(request):
         raise web.HTTPFound("/")
 
     if user.username in RESERVED_BOT_USERS:
-        log.error("User %s tried to log in." % user.username)
+        log.error("User %s tried to log in.", user.username)
         raise web.HTTPFound("/")
 
-    log.info("+++ Lichess authenticated user: %s %s %s" % (user.id, user.username, user.country))
+    log.info("+++ Lichess authenticated user: %s %s %s", user.id, user.username, user.country)
     users = request.app["users"]
 
     prev_session_user = session.get("user_name")
@@ -104,7 +104,7 @@ async def login(request):
             })
             print("db insert user result %s" % repr(result.inserted_id))
         elif not doc.get("enabled", True):
-            log.info("Closed account %s tried to log in." % user.username)
+            log.info("Closed account %s tried to log in.", user.username)
             session["user_name"] = prev_session_user
 
         del session["token"]

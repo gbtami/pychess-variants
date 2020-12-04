@@ -934,6 +934,9 @@ player-head {
     padding: 10px;
     color: var(--analysis-links);
 }
+.editor-button-container .i-pgn div:before {
+    padding-right: 6px;
+}
 a.i-at:link, a.i-tv:link, a.i-dl:link, a.i-ch:link, a.i-pgn:link {
     display: inline-block;
     text-decoration: none;
@@ -1027,12 +1030,13 @@ select, input {
     padding: 24px;
 }
 
-.editor-button-container div{
-    text-align: left;
-    padding-left: 24px;
-    padding-bottom: 12px;
+.editor-button-container {
+    display: flex;
+    flex-flow: column;
 }
-
+.editor-button-container .icon:before{
+    font-size: 18px;
+}
 #misc-infow, #misc-infob {
     font-family: "Roboto Mono", "Roboto";
     font-size: 40px;
@@ -1841,6 +1845,33 @@ boardeditor {
 .pocket-wrapper {
     justify-content: center;
     display: flex;
+}
+.pocket-wrapper .editor {
+    width: var(--cgwrapwidth);
+    height: calc(var(--piecerows) * var(--cgwrapheight) / var(--ranks));
+    display: flex;
+    flex-wrap: wrap;
+}
+.pocket-wrapper .editor piece {
+    flex: 0 0 calc(100% / var(--files));
+}
+div.editorhint {
+    margin-bottom: 12px;
+}
+#turn-block {
+    display: flex;
+    flex-flow: column;
+    background: var(--bg-color1);
+    padding: 10px;
+    box-shadow: var(--base-shadow);
+    width: max-content;
+}
+/* castling labels */
+.OO {
+    padding-left: 0;
+}
+.OOO {
+    padding-left: 28px;
 }
 
 /* Janggi setup buttons */

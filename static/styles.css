@@ -146,13 +146,13 @@
 .icon-offline:before {
   content: "\4a";
 }
-.icon-shogiking:before {
+.icon-shogi:before {
   content: "\4b";
 }
-.icon-schess:before {
+.icon-seirawan:before {
   content: "\4c";
 }
-.icon-standardchess:before {
+.icon-chess:before {
   content: "\4d";
 }
 .icon-crazyhouse:before {
@@ -224,7 +224,7 @@
 .icon-crazyhouse960:before {
   content: "\25";
 }
-.icon-chouse:before {
+.icon-capahouse:before {
   content: "\26";
 }
 .icon-capahouse960:before {
@@ -275,7 +275,7 @@
 .icon-minishogi:before {
   content: "\36";
 }
-.icon-sittuyin-1:before {
+.icon-sittuyin:before {
   content: "\3a";
 }
 .icon-makpong:before {

@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import RoundController from './roundCtrl';
 import { VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
-import { gameType, renderRdiff } from './profile';
+import { aiLevel, gameType, renderRdiff } from './profile';
 
 function runGround(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
@@ -79,7 +79,7 @@ export function roundView(model): VNode[] {
         ]),
         h('aside.sidebar-second', [
             h('div#counting'),
-            h('div#pocket-wrapper0', [
+            h('div', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
@@ -107,7 +107,7 @@ export function roundView(model): VNode[] {
                 h('div#clock1'),
                 h('div#misc-info1'),
             ]),
-            h('div#pocket-wrapper1', [
+            h('div', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
@@ -131,7 +131,7 @@ function playerInfo(model, color: string, rdiff: number | null) {
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
-        username + ((title === "BOT" && level >= 0) ? _(' level ') + level: "") + " (" + rating + ") ",
+        username + aiLevel(title, level) + " (" + rating + ") ",
         rdiff === null ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
     ]);
 }

@@ -46,17 +46,17 @@ async def index(request):
     session["last_visit"] = datetime.now().isoformat()
     session["guest"] = True
     if session_user is not None:
-        log.info("+++ Existing user %s connected." % session_user)
+        log.info("+++ Existing user %s connected.", session_user)
         doc = None
         try:
             doc = await db.user.find_one({"_id": session_user})
         except Exception:
-            log.error("Failed to get user %s from mongodb!" % session_user)
+            log.error("Failed to get user %s from mongodb!", session_user)
         if doc is not None:
             session["guest"] = False
 
             if not doc.get("enabled", True):
-                log.info("Closed account %s tried to connect." % session_user)
+                log.info("Closed account %s tried to connect.", session_user)
                 session.invalidate()
                 raise web.HTTPFound("/")
 
@@ -67,7 +67,7 @@ async def index(request):
                 session.invalidate()
                 raise web.HTTPFound(request.rel_url)
 
-            log.debug("New lichess user %s joined." % session_user)
+            log.debug("New lichess user %s joined.", session_user)
             title = session["title"] if "title" in session else ""
             perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
             user = User(request.app, username=session_user, anon=session["guest"], title=title, perfs=perfs)
@@ -75,7 +75,7 @@ async def index(request):
         user.ping_counter = 0
     else:
         user = User(request.app, anon=True)
-        log.info("+++ New guest user %s connected." % user.username)
+        log.info("+++ New guest user %s connected.", user.username)
         users[user.username] = user
         session["user_name"] = user.username
 
@@ -119,14 +119,14 @@ async def index(request):
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
-        log.debug("Invalid variant %s in request" % variant)
+        log.debug("Invalid variant %s in request", variant)
         return web.Response(status=404)
 
     fen = request.rel_url.query.get("fen")
     rated = None
 
     if (fen is not None) and "//" in fen:
-        log.debug("Invelid FEN %s in request" % fen)
+        log.debug("Invelid FEN %s in request", fen)
         return web.Response(status=404)
 
     if profileId is not None:
@@ -160,7 +160,7 @@ async def index(request):
         if view != "invite":
             game = await load_game(request.app, gameId, user)
             if game is None:
-                log.debug("Requested game %s not in app['games']" % gameId)
+                log.debug("Requested game %s not in app['games']", gameId)
                 template = get_template("404.html")
                 text = await template.render_async({"home": URI})
                 return web.Response(
@@ -173,7 +173,7 @@ async def index(request):
             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                 game.spectators.add(user)
 
-    if view == "profile" or view == "level8win":
+    if view in ("profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
             template = get_template("closed.html")
         else:
@@ -210,7 +210,7 @@ async def index(request):
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
         "variants": VARIANTS,
     }
-    if view == "profile" or view == "level8win":
+    if view in ("profile", "level8win"):
         if view == "level8win":
             profileId = "Fairy-Stockfish"
         render["title"] = "Profile • " + profileId
@@ -286,7 +286,7 @@ async def index(request):
     elif view == "variant":
         render["icons"] = VARIANT_ICONS
         # variant None indicates intro.md
-        if lang == "hu" or lang == "pt" or lang == "fr":
+        if lang in ("hu", "pt", "fr"):
             locale = ".%s" % lang
         elif lang == "zh":
             locale = ".%s" % lang if variant in (None,) else ""

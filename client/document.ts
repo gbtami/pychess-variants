@@ -1,5 +1,3 @@
-import { _ } from './i18n';
-
 export function getDocumentData(name: string) {
     const elm = document.getElementById('pychess-variants');
     if (elm) {

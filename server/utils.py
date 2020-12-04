@@ -37,26 +37,24 @@ async def tv_game(db, app):
     """ Get latest played game id """
     if app["tv"] is not None:
         return app["tv"]
-    else:
-        game_id = None
-        doc = await db.game.find_one({}, sort=[('$natural', -1)])
-        if doc is not None:
-            game_id = doc["_id"]
-            app["tv"] = game_id
-        return game_id
+    game_id = None
+    doc = await db.game.find_one({}, sort=[('$natural', -1)])
+    if doc is not None:
+        game_id = doc["_id"]
+        app["tv"] = game_id
+    return game_id
 
 
 async def tv_game_user(db, users, profileId):
     """ Get latest played game id by a given user name"""
     if users[profileId].tv is not None:
         return users[profileId].tv
-    else:
-        game_id = None
-        doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
-        if doc is not None:
-            game_id = doc["_id"]
-            users[profileId].tv = game_id
-        return game_id
+    game_id = None
+    doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
+    if doc is not None:
+        game_id = doc["_id"]
+        users[profileId].tv = game_id
+    return game_id
 
 
 async def load_game(app, game_id, user=None):
@@ -83,8 +81,7 @@ async def load_game(app, game_id, user=None):
                 await queue.put(json.dumps({"gameId": game_id}))
 
             return games[game_id]
-        else:
-            return None
+        return None
 
     wp, bp = doc["us"]
     if wp in users:
@@ -137,7 +134,7 @@ async def load_game(app, game_id, user=None):
         mirror = mirror9
         mlist = map(mirror, mlist)
 
-    elif usi_format and (variant == "minishogi" or variant == "kyotoshogi"):
+    elif usi_format and (variant in ("minishogi", "kyotoshogi")):
         mirror = mirror5
         mlist = map(mirror, mlist)
 
@@ -196,7 +193,7 @@ async def load_game(app, game_id, user=None):
                     print("IndexError", ply, move, san)
 
         except Exception:
-            log.exception("ERROR: Exception in load_game() %s %s %s %s %s" % (game_id, variant, doc.get("if"), move, list(mlist)))
+            log.exception("ERROR: Exception in load_game() %s %s %s %s %s", game_id, variant, doc.get("if"), move, list(mlist))
             break
 
     if len(game.steps) > 1:
@@ -236,10 +233,9 @@ async def draw(games, data, agreement=False):
         return {
             "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated == RATED else ""}
-    else:
-        response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
-        game.messages.append(response)
-        return response
+    response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
+    game.messages.append(response)
+    return response
 
 
 async def import_game(request):
@@ -344,7 +340,7 @@ async def new_game(app, user, seek_id, new_id=None):
     games = app["games"]
     seeks = app["seeks"]
     seek = seeks[seek_id]
-    log.info("+++ Seek %s accepted by %s FEN:%s 960:%s" % (seek_id, user.username, seek.fen, seek.chess960))
+    log.info("+++ Seek %s accepted by %s FEN:%s 960:%s", seek_id, user.username, seek.fen, seek.chess960)
 
     fen_valid = True
     if seek.fen:
@@ -382,7 +378,7 @@ async def new_game(app, user, seek_id, new_id=None):
             chess960=seek.chess960,
             create=True)
     except Exception:
-        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s" % (new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer))
+        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s", new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer)
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     games[new_id] = new_game
@@ -457,7 +453,6 @@ def get_dests(board):
 
 
 async def analysis_move(app, user, game, move, fen, ply):
-    assert move
     invalid_move = False
 
     board = FairyBoard(game.variant, fen, game.chess960)
@@ -491,7 +486,6 @@ async def analysis_move(app, user, game, move, fen, ply):
 
 
 async def play_move(app, user, game, move, clocks=None, ply=None):
-    assert move
     gameId = game.id
     users = app["users"]
     invalid_move = False
@@ -502,7 +496,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             await game.play_move(move, clocks, ply)
         except SystemError:
             invalid_move = True
-            log.exception("Game %s aborted because invalid move %s by %s !!!" % (gameId, move, user.username))
+            log.exception("Game %s aborted because invalid move %s by %s !!!", gameId, move, user.username)
             game.status = INVALIDMOVE
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
 
@@ -531,9 +525,9 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
                 response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id, "pgn": game.pgn}
                 await opp_ws.send_json(response)
         except KeyError:
-            log.exception("Move %s can't send to %s. Game %s was removed from game_sockets !!!" % (move, user.username, gameId))
+            log.exception("Move %s can't send to %s. Game %s was removed from game_sockets !!!", move, user.username, gameId)
         except ConnectionResetError:
-            log.exception("Move %s can't send to %s in game %s. User disconnected !!!" % (move, user.username, gameId))
+            log.exception("Move %s can't send to %s in game %s. User disconnected !!!", move, user.username, gameId)
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=app["game_channels"])
@@ -566,7 +560,7 @@ def pgn(doc):
         mirror = mirror9
         mlist = list(map(mirror, mlist))
 
-    elif usi_format and (variant == "minishogi" or variant == "kyotoshogi"):
+    elif usi_format and (variant in ("minishogi", "kyotoshogi")):
         mirror = mirror5
         mlist = list(map(mirror, mlist))
 
@@ -581,7 +575,7 @@ def pgn(doc):
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
-            log.exception("%s %s %s movelist contains invalid move" % (doc["_id"], variant, doc["d"]))
+            log.exception("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
             mlist = mlist[0]
 
     moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
@@ -648,7 +642,7 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     # Castling rights (and piece virginity) check
     invalid4 = False
-    if variant == "seirawan" or variant == "shouse":
+    if variant in ("seirawan", "shouse"):
         invalid4 = len(init) > 2 and any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
     elif chess960:
         if all((c in "KQkq-" for c in init[2])):
@@ -659,7 +653,7 @@ def sanitize_fen(variant, initial_fen, chess960):
         invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
 
     # Castling right need rooks and king placed in starting square
-    if (not invalid2) and (not invalid4) and not (chess960 and (variant == "seirawan" or variant == "shouse")):
+    if (not invalid2) and (not invalid4) and not (chess960 and (variant in ("seirawan", "shouse"))):
         rows = init[0].split("/")
         backRankB = rows[1] if (variant == 'shako') else rows[0]
         backRankW = rows[-2] if (variant == 'shako') else rows[-1]
@@ -691,8 +685,7 @@ def sanitize_fen(variant, initial_fen, chess960):
         print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5, invalid6)
         sanitized_fen = start_fen
         return False, start_fen
-    else:
-        return True, sanitized_fen
+    return True, sanitized_fen
 
 
 def online_count(users):
