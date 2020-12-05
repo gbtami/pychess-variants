@@ -45,7 +45,7 @@ VARIANTS = (
     # "gothic",
     # "gothhouse",
     "seirawan",
-    # "seirawan960",
+    "seirawan960",
     "shouse",
     "grand",
     "grandhouse",
