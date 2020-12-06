@@ -158,7 +158,7 @@ Existem quatro defesas populares na abertura, e uma quinta que também irá ser 
 
 **1. Cavalos-Mira / Defesa dos dois Cavalos**
 
-![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen%20Horses.png)
+![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen_Horses.png)
 
 Esta é a defesa mais comum. O objetivo é de ter ambos os cavalos a protegerem os Peões do centro. Existem várias variantes.
 
@@ -166,7 +166,7 @@ Esta é a defesa mais comum. O objetivo é de ter ambos os cavalos a protegerem 
 
 Um dos Cavalos é desenvolvido normalmente, e antes que o outro entre em ação, o Canhão movimenta-se para uma posição de "Canhão de Canto" (Canhão no Canto do Palácio), e por fim movimenta-se o segundo cavalo para o seu sítio. As pretas mais tarde irão ligar os seus Elefantes para completar a defesa. Esta é uma abertura relativamente nova. 
 
-![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan%20Gong%20Ma.png)
+![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan_Gong_Ma.png)
 
 **3. Canhão na mesma linha de fogo**
 
@@ -178,7 +178,7 @@ Semelhante ao descrito acima, mas usando o canhão oposto. A ideia moderna é de
 
 **5. Tigre em três passos**
 
-![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three%20Step%20Tiger.png)
+![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
 As Pretas desenvolvem a sua Biga rapidamente movimentando o seu Canhão para o canto do tabuleiro. Uma jogada típica é de avançar os Cavalos primeiro e após isto os Canhões para o canto, e finalmente as Bigas para as colunas do Canhão.
 

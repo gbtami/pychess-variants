@@ -156,7 +156,7 @@ There are four very popular defenses, and a fifth will also be mentioned.
 
 **1. Screen horses / Two horse defense**
 
-![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen%20Horses.png)
+![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen_Horses.png)
 
 This is the most common defense. The goal of course is to have both horses protecting the center pawn. There are multiple variations.
 
@@ -164,7 +164,7 @@ This is the most common defense. The goal of course is to have both horses prote
 
 One horse is developed as normal, but before the other is developed, the cannon moves into a "palcorner cannon" position (cannon at the same side palace corner), then finally moves the second horse into place. Black will later connect the elephants to complete the defense. It's a relatively new opening.
 
-![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan%20Gong%20Ma.png)
+![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan_Gong_Ma.png)
 
 **3. Same Direction Cannon**
 
@@ -176,7 +176,7 @@ Like the above, except the opposite cannon. The modern practice is to move the b
 
 **5. Three Step Tiger**
 
-![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three%20Step%20Tiger.png)
+![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
 Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
 
