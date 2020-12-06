@@ -439,7 +439,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
         pocketRoles: ["hawk", "elephant"],
         enPassant: true, autoQueenable: true, gate: true,
-        icon: "L",  chess960: true, icon960: "L",
+        icon: "L",  chess960: true, icon960: "}",
     }),
 
     shouse: new Variant({

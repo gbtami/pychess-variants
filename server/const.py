@@ -69,7 +69,7 @@ VARIANT_ICONS = {
     "capablanca": "P",
     "capahouse": "&",
     "seirawan": "L",
-    "seirawan960": "L",
+    "seirawan960": "}",
     "shouse": "$",
     "grand": "(",
     "grandhouse": "*",
