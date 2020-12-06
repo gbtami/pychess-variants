@@ -69,7 +69,7 @@ export class Gating {
             if (castling) {
                 // UCI move castling + gating to rook vacant square is rook takes king!
                 if (!this.inCastlingTargets(rookOrig, color, moveLength)) {
-                    moves["special"] = [rookOrig, orig];
+                    moves["special"] = [rookOrig, orig, dest];
                 }
                 const pieces = {};
                 pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'rook'};
@@ -187,9 +187,14 @@ export class Gating {
 
             const gatedPieceLetter = gatedPieceRole ? roleToSan[gatedPieceRole].toLowerCase() : "";
             if (this.gating.callback) {
-                if (moveType === "special" && gatedPieceLetter === "") {
-                    // empty gating was chosen on vacant rook square
-                    this.gating.callback(move[1], move[0], gatedPieceLetter);
+                if (moveType === "special") {
+                    if (gatedPieceLetter === "") {
+                        // empty gating was chosen on vacant rook square (simple castling)
+                        this.gating.callback(move[1], move[2], gatedPieceLetter);
+                    } else {
+                        // gating to rook square while castling need special UCI move (rook takes king)
+                        this.gating.callback(move[0], move[1], gatedPieceLetter);
+                    }
                 } else {
                     this.gating.callback(move[0], move[1], gatedPieceLetter);
                 }
