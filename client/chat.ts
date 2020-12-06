@@ -28,9 +28,11 @@ export function chatView (ctrl, chatType) {
     }
     const anon = ctrl.model["anon"] === 'True';
     return h(`div#${chatType}.${chatType}.chat`, [
-        h('div.chatroom', ctrl.spectator ? _('Spectator room') : _('Chat room')),
+        h('div.chatroom', [
+            ctrl.spectator ? _('Spectator room') : _('Chat room'),
+            h('input#chatbox', { props: { name: "chatbox", type: "checkbox", checked: "true" }, style: { float: "right", margin: "revert" }, on: { click: onClick } })
+        ]),
         // TODO: lock/unlock chat to spectators
-        h('label', [h('input#chatbox', { props: { name: "chatbox", type: "checkbox", checked: "true" }, on: { click: onClick } }), _('Activate chat')]),
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
         h('input#chat-entry', {
             props: {
