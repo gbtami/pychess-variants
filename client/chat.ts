@@ -21,10 +21,9 @@ export function chatView (ctrl, chatType) {
         }
     }
     function onClick () {
-        const chatEntry = document.getElementById('chat-entry') as HTMLInputElement;
         const activated = (<HTMLInputElement>document.getElementById('checkbox')).checked;
-        chatEntry.disabled = !activated;
-        chatEntry.placeholder = (anon) ? _('Sign in to chat') : (activated ? _('Please be nice in the chat!') : '');
+        (<HTMLElement>document.getElementById("messages")).style.display = activated ? "block" : "none";
+        (<HTMLElement>document.getElementById('chat-entry')).style.display = activated ? "flex" : "none";
     }
     const anon = ctrl.model["anon"] === 'True';
     return h(`div#${chatType}.${chatType}.chat`, [
