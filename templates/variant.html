@@ -12,7 +12,7 @@
     {% for key in variants %}
     <li>
     <div class="icon" data-icon="{{ icons[key] }}">
-        <a href="{{ home }}/variant/{{ key }}">{{ "S-Chess" if key == "seirawan" else "S-House" if key == "shouse" else "Ouk Chatrang" if key == "cambodian" else key.capitalize() }}</a>
+        <a href="{{ home }}/variant/{{ key }}">{{ variant_display_name(key).title() }}</a>
     </div>
     </li>
     {% endfor %}

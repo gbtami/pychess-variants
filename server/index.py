@@ -296,6 +296,7 @@ async def index(request):
             render["variant"] = "docs/terminology%s.html" % locale
         else:
             render["variant"] = "docs/" + ("intro" if variant is None else variant) + "%s.html" % locale
+        render["variant_display_name"] = variant_display_name
 
     elif view == "faq":
         # TODO: make it translatable similar to above variant pages
