@@ -1220,7 +1220,8 @@ export default class AnalysisController {
     }
 
     private onMsgChat = (msg) => {
-        if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
+        if ((<HTMLInputElement>document.getElementById('chatbox')).checked &&
+            ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0)) {
             chatMessage(msg.user, msg.message, "roundchat");
         }
     }
@@ -1231,7 +1232,8 @@ export default class AnalysisController {
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         msg.lines.forEach((line) => {
-            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
+            if ((<HTMLInputElement>document.getElementById('chatbox')).checked && 
+                ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0)) {
                 chatMessage(line.user, line.message, "roundchat");
             }
         });

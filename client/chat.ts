@@ -12,17 +12,25 @@ import { _ } from './i18n';
 
 export function chatView (ctrl, chatType) {
     function onKeyPress (e) {
+        if (!(<HTMLInputElement>document.getElementById('chatbox')).checked)
+            return;
         const message = (e.target as HTMLInputElement).value;
         if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
             ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "room": (ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
     }
+    function onClick () {
+        const chatEntry = document.getElementById('chat-entry') as HTMLInputElement;
+        const activated = (<HTMLInputElement>document.getElementById('chatbox')).checked;
+        chatEntry.disabled = !activated;
+        chatEntry.placeholder = (anon) ? _('Sign in to chat') : (activated ? _('Please be nice in the chat!') : _('Click on the button to activate the chat'));
+    }
     const anon = ctrl.model["anon"] === 'True';
     return h(`div#${chatType}.${chatType}.chat`, [
         h('div.chatroom', ctrl.spectator ? _('Spectator room') : _('Chat room')),
         // TODO: lock/unlock chat to spectators
-        // h('input#chatbox', {props: {name: "chatbox", type: "checkbox", checked: ""}}),
+        h('label', [h('input#chatbox', { props: { name: "chatbox", type: "checkbox", checked: "true" }, on: { click: onClick } }), _('Activate chat')]),
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
         h('input#chat-entry', {
             props: {
