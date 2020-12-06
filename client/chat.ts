@@ -22,8 +22,10 @@ export function chatView (ctrl, chatType) {
     }
     function onClick () {
         const activated = (<HTMLInputElement>document.getElementById('checkbox')).checked;
+        const chatEntry = (<HTMLInputElement>document.getElementById('chat-entry'));
         (<HTMLElement>document.getElementById("messages")).style.display = activated ? "block" : "none";
-        (<HTMLElement>document.getElementById('chat-entry')).style.display = activated ? "flex" : "none";
+        chatEntry.disabled = !activated;
+        chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
     const anon = ctrl.model["anon"] === 'True';
     return h(`div#${chatType}.${chatType}.chat`, [
