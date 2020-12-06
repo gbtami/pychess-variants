@@ -72,7 +72,7 @@ function leftSide(model) {
                 h('player', playerInfo(model.bplayer, model.btitle, model.level, model.brating, model.brdiff)),
             ]),
         ]),
-        h('div.roundchat#roundchat'),
+        h('div#roundchat'),
         ];
 
     } else {

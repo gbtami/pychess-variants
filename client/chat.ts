@@ -24,13 +24,13 @@ export function chatView (ctrl, chatType) {
         const chatEntry = document.getElementById('chat-entry') as HTMLInputElement;
         const activated = (<HTMLInputElement>document.getElementById('chatbox')).checked;
         chatEntry.disabled = !activated;
-        chatEntry.placeholder = (anon) ? _('Sign in to chat') : (activated ? _('Please be nice in the chat!') : _('Click on the button to activate the chat'));
+        chatEntry.placeholder = (anon) ? _('Sign in to chat') : (activated ? _('Please be nice in the chat!') : '');
     }
     const anon = ctrl.model["anon"] === 'True';
     return h(`div#${chatType}.${chatType}.chat`, [
         h('div.chatroom', [
             ctrl.spectator ? _('Spectator room') : _('Chat room'),
-            h('input#chatbox', { props: { name: "chatbox", type: "checkbox", checked: "true" }, style: { float: "right", margin: "revert" }, on: { click: onClick } })
+            h('input#checkbox', { props: { title: _("Toggle the chat"), name: "chatbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
         ]),
         // TODO: lock/unlock chat to spectators
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),

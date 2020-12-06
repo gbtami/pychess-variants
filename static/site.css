@@ -53,6 +53,9 @@
     --analysis-links: #1b78d0;
     --janggi-setup: #ccc;
     --border-color: #d9d9d9;
+    --checkbox-bg: #a1c27c;
+    --checkbox-border: #e3e3e3;
+    --checkbox-checked: #7daa49;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -94,6 +97,8 @@
     --analysis-links: #3692e7;
     --janggi-setup: #5d5d5d;
     --border-color: #404040;
+    --checkbox-bg: #3b5c16;
+    --checkbox-border: #4f7a1d;
 }
 
 [data-theme="dark"] .icon-black:before {
@@ -1302,7 +1307,26 @@ user {
 }
 div.chatroom {
     border-bottom: 1px solid var(--bg-color2);
-    padding: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .2em 10px;
+}
+
+#checkbox {
+    -webkit-appearance: none;
+    display: block;
+    background: var(--bg-color2);
+    xfloat: right;
+    xmargin: revert;
+    padding: 0.6em;
+    border-radius: 3px;
+    border: 1px solid var(--checkbox-border);
+    cursor: pointer;
+}
+#checkbox:checked {
+    background: var(--checkbox-bg);
+    border-color: var(--checkbox-checked);
 }
 
 /* hack: max-height = seek table th+tr height */

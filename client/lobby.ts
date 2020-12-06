@@ -661,7 +661,7 @@ export function lobbyView(model): VNode[] {
     boardSettings.updateBoardAndPieceStyles();
 
     return [
-        h('aside.sidebar-first', [ h('div#lobbychat.lobbychat') ]),
+        h('aside.sidebar-first', [ h('div#lobbychat') ]),
         h('div.seeks', [
             h('div#seeks-table', [
                 h('table#seeks-header', { hook: { insert: () => resizeSeeksHeader() } }, seekHeader()),

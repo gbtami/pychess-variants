@@ -66,7 +66,7 @@ export function roundView(model): VNode[] {
                 h('player', playerInfo(model, 'b', null)),
             ]),
         ]),
-        h('div.roundchat#roundchat'),
+        h('div#roundchat'),
     ]),
         h('div', [
             h('selection#mainboard.' + variant.board + '.' + variant.piece, [
