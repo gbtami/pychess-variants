@@ -1,6 +1,8 @@
+import asyncio
+import uvloop
+
 import argparse
 import gettext
-import asyncio
 import collections
 import logging
 import os
@@ -28,6 +30,8 @@ from seek import Seek
 from user import User
 
 log = logging.getLogger(__name__)
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 async def on_prepare(request, response):
