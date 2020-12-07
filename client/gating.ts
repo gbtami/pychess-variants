@@ -47,7 +47,9 @@ export class Gating {
             let rookOrig = "";
             const moveLength = dest[0].charCodeAt() - orig[0].charCodeAt();
 
-            if (ground.state.pieces[dest].role === "king") {
+            const pieceMoved = ground.state.pieces[dest];
+            const pieceMovedRole = (pieceMoved === undefined) ? 'king' : pieceMoved.role;
+            if (pieceMovedRole === "king") {
                 // King long move is always castling move
                 if (Math.abs(moveLength) > 1 ) {
                     castling = true;
@@ -120,8 +122,9 @@ export class Gating {
 
         // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
 
-        const moveType = ground.state.pieces[dest].role;
-        if (moveType === 'king' || moveType === 'rook') {
+        const pieceMoved = ground.state.pieces[dest];
+        const pieceMovedRole = (pieceMoved === undefined) ? 'king' : pieceMoved.role;
+        if (pieceMovedRole === 'king' || pieceMovedRole === 'rook') {
             if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
                 (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
                 return true;
