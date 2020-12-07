@@ -43,11 +43,11 @@ class Timer:
 
 
 def time_control_str(base, inc, byo):
-    if base == 1/4:
+    if base == 1 / 4:
         base = "¼"
-    elif base == 1/2:
+    elif base == 1 / 2:
         base = "½"
-    elif base == 3/4:
+    elif base == 3 / 4:
         base = "¾"
     else:
         base = str(base)
