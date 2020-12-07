@@ -1341,7 +1341,7 @@ ol#lobbychat-messages, ol#roundchat-messages {
 }
 
 ol#lobbychat-messages {
-    max-height: 536px;
+    max-height: var(--cgwrapheight);
 }
 
 ol#roundchat-messages {
