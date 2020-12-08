@@ -55,6 +55,6 @@ export function timeControlStr(minutes, increment = 0, byoyomiPeriod = 0) {
     switch (byoyomiPeriod) {
         case 0 : return `${minutes}+${increment}`;
         case 1 : return `${minutes}+${increment}(b)`;
-        default: return `${minutes}+${byoyomiPeriod}x${increment}(b)`;
+        default: return `${minutes}+${byoyomiPeriod}×${increment}(b)`;
     }
 }
