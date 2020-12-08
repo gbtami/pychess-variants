@@ -43,8 +43,18 @@ class Timer:
 
 
 def time_control_str(base, inc, byo):
+    if base == 1 / 4:
+        base = "¼"
+    elif base == 1 / 2:
+        base = "½"
+    elif base == 3 / 4:
+        base = "¾"
+    else:
+        base = str(base)
     if byo == 0:
-        return "%d+%d" % (base, inc)
-    if byo == 1:
-        return "%d+%d(b)" % (base, inc)
-    return "%d+%dx%d(b)" % (base, byo, inc)
+        inc_str = f"{inc}"
+    elif byo == 1:
+        inc_str = f"{inc}(b)"
+    else:
+        inc_str = f"{byo}x{inc}(b)"
+    return base + "+" + inc_str

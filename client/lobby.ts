@@ -33,6 +33,15 @@ class LobbyController {
     inviteFriend: boolean;
     _ws;
     seeks;
+    minutesValues = [
+        0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180
+    ];
+    incrementValues = [ 
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        25, 30, 35, 40, 45, 60, 90, 120, 150, 180
+    ];
+    minutesStrings = ["0", "¼", "½", "¾"];
 
     constructor(el, model) {
         console.log("LobbyController constructor", el, model);
@@ -186,11 +195,11 @@ class LobbyController {
         }
 
         e = document.getElementById('min') as HTMLInputElement;
-        const minutes = Number(e.value);
+        const minutes = this.minutesValues[Number(e.value)];
         localStorage.seek_min = e.value;
 
         e = document.getElementById('inc') as HTMLInputElement;
-        const increment = Number(e.value);
+        const increment = this.incrementValues[Number(e.value)];
         localStorage.seek_inc = e.value;
 
         e = document.getElementById('byo') as HTMLInputElement;
@@ -239,7 +248,7 @@ class LobbyController {
         const vChess960 = localStorage.seek_chess960 ?? "false";
 
         const anon = this.model.anon === 'True';
-
+        
         return [
             h('div#id01.modal', [
                 h('form.modal-content', [
@@ -284,16 +293,16 @@ class LobbyController {
                         h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
                         h('span#minutes'),
                         h('input#min.slider', {
-                            props: { name: "min", type: "range", min: 0, max: 60, value: vMin },
+                            props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
                             on: { input: e => this.setMinutes((e.target as HTMLInputElement).value) },
                             hook: { insert: vnode => this.setMinutes((vnode.elm as HTMLInputElement).value) },
                         }),
                         h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
                         h('span#increment'),
                         h('input#inc.slider', {
-                            props: { name: "inc", type: "range", min: 0, max: 60, value: vInc },
-                            on: { input: e => this.setIncrement((e.target as HTMLInputElement).value) },
-                            hook: { insert: vnode => this.setIncrement((vnode.elm as HTMLInputElement).value) },
+                            props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: vInc },
+                            on: { input: e => this.setIncrement(this.incrementValues[(e.target as HTMLInputElement).value]) },
+                            hook: { insert: vnode => this.setIncrement(this.incrementValues[(vnode.elm as HTMLInputElement).value]) },
                         }),
                         h('div#byoyomi-period', [
                             h('label#byoyomiLabel', { attrs: { for: "byo" } }, _('Periods')),
@@ -412,7 +421,8 @@ class LobbyController {
         (document.getElementById('chess960') as HTMLInputElement).disabled = alt !== "";
         this.setFen();
     }
-    private setMinutes(minutes) {
+    private setMinutes(val) {
+        const minutes = val < this.minutesStrings.length ? this.minutesStrings[val] : String(this.minutesValues[val]);
         document.getElementById("minutes")!.innerHTML = minutes;
         this.setStartButtons();
     }

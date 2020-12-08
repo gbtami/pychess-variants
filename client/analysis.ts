@@ -6,6 +6,7 @@ import AnalysisController from './analysisCtrl';
 import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
 import { aiLevel, gameType, renderRdiff, result } from './profile';
+import { timeControlStr } from './view'
 
 declare global {
     interface Window {
@@ -28,7 +29,7 @@ function leftSide(model) {
     const sc = variant.secondColor;
 
     if (model["gameId"] !== "") {
-        const tc = (model["base"] == "0" && model["inc"] == "0") ? "" : model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "") + " • ";
+        const tc = (model["base"] == "0" && model["inc"] == "0") ? "" : timeControlStr(model["base"], model["inc"], model["byo"]) + " • ";
         return [
         h('div.game-info', [
             h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [

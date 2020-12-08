@@ -14,6 +14,7 @@ import { _ } from './i18n';
 import { VARIANTS } from './chess';
 import { gameType } from './profile';
 import { copyTextToClipboard } from './clipboard';
+import { timeControlStr } from './view';
 
 export function inviteView(model): VNode[] {
     const gameId = model["gameId"];
@@ -50,7 +51,7 @@ export function inviteView(model): VNode[] {
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
                     h('div.info2', [
                         h('div', variant.displayName(chess960)),
-                        h('div.tc', model["base"] + "+" + (model["byo"] > 1 ? model["byo"] + "x" : "") + model["inc"] + (model["byo"] > 0 ? "(b)" : "")),
+                        h('div.tc', timeControlStr(model["base"], model["inc"], model["byo"])),
                     ]),
                     h('div.rated', gameType(model["rated"])),
                 ]),
