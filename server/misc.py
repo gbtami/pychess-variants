@@ -52,9 +52,8 @@ def time_control_str(base, inc, byo):
     else:
         base = str(base)
     if byo == 0:
-        byo = ""
+        return f"{base}+{inc}"
     elif byo == 1:
-        byo = "(b)"
+        return f"{base}+{inc}(b)"
     else:
-        byo = f"x{byo}(b)"
-    return f"{base}+{inc}{byo}"
+        return f"{base}+{byo}x{inc}(b)"
