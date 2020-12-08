@@ -41,6 +41,7 @@ class LobbyController {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         25, 30, 35, 40, 45, 60, 90, 120, 150, 180
     ];
+    minutesStrings = ["0", "¼", "½", "¾"];
 
     constructor(el, model) {
         console.log("LobbyController constructor", el, model);
@@ -293,8 +294,8 @@ class LobbyController {
                         h('span#minutes'),
                         h('input#min.slider', {
                             props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
-                            on: { input: e => this.setMinutes(this.minutesValues[(e.target as HTMLInputElement).value]) },
-                            hook: { insert: vnode => this.setMinutes(this.minutesValues[(vnode.elm as HTMLInputElement).value]) },
+                            on: { input: e => this.setMinutes((e.target as HTMLInputElement).value) },
+                            hook: { insert: vnode => this.setMinutes((vnode.elm as HTMLInputElement).value) },
                         }),
                         h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
                         h('span#increment'),
@@ -420,7 +421,8 @@ class LobbyController {
         (document.getElementById('chess960') as HTMLInputElement).disabled = alt !== "";
         this.setFen();
     }
-    private setMinutes(minutes) {
+    private setMinutes(val) {
+        const minutes = val < this.minutesStrings.length ? this.minutesStrings[val] : String(this.minutesValues[val]);
         document.getElementById("minutes")!.innerHTML = minutes;
         this.setStartButtons();
     }

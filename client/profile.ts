@@ -15,6 +15,7 @@ import { _, ngettext } from './i18n';
 import { VARIANTS } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
+import { timeControlStr } from './view';
 
 export function colorNames(color) {
     const colors = {
@@ -143,7 +144,7 @@ function renderGames(model, games) {
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
-                        h('div.tc', game["b"] + "+" + (game["bp"] > 1 ? game["bp"] + "x" : "") + game["i"] + (game["bp"] > 0 ? "(b)" : "") + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
+                        h('div.tc', timeControlStr(game["b"], game["i"], game["bp"]) + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
                         h('info-date', { attrs: { timestamp: game["d"] } }),
                     ]),
                 ]),
