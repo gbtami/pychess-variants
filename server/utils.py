@@ -590,7 +590,7 @@ def pgn(doc):
         doc["us"][0],
         doc["us"][1],
         C2R[doc["r"]],
-        doc["b"] * 60,
+        int(doc["b"] * 60),
         doc["i"],
         doc["p0"]["e"] if "p0" in doc else "?",
         doc["p1"]["e"] if "p1" in doc else "?",
