@@ -66,7 +66,7 @@ class User:
         self.silence = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec
-        if anon and not self.bot:
+        if self.anon and not self.bot:
             loop = asyncio.get_event_loop()
             loop.create_task(self.remove())
 
@@ -74,11 +74,14 @@ class User:
         while True:
             await asyncio.sleep(ANON_TIMEOUT)
             if not self.online():
-                try:
-                    del self.app["users"][self.username]
-                except KeyError:
-                    log.error("Failed to del %s from users", self.username)
-                break
+                # give them a second chance
+                await asyncio.sleep(3)
+                if not self.online():
+                    try:
+                        del self.app["users"][self.username]
+                    except KeyError:
+                        log.error("Failed to del %s from users", self.username)
+                    break
 
     def online(self, username=None):
         if username is None:
