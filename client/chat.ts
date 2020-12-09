@@ -62,7 +62,7 @@ export function chatMessage (user, message, chatType) {
     } else if (user === '_server') {
         patch(container, h('div#messages', [ h("li.message.server", [h("user", _('Server')), h("t", message)]) ]));
     } else {
-        patch(container, h('div#messages', [ h("li.message", [h("user", user), h("t", message)]) ]));
+        patch(container, h('div#messages', [ h("li.message", [h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
 
     if (isScrolled) myDiv.scrollTop = myDiv.scrollHeight;
