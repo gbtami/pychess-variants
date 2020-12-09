@@ -922,7 +922,7 @@ table#seeks-header, table#seeks {
     background-color: var(--bg-color2);
 }
 div.filter-tabs div.sub-ratings {
-    flex: content;
+    flex: auto;
     font-size: 1.2em;
 }
 player-head {
