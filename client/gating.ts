@@ -111,6 +111,13 @@ export class Gating {
     }
 
     private canGate(ground, fen: string, orig: Key, dest: Key) {
+        // A move can be gating in two cases: 1. normal move of one virgin piece 2. castling
+        // Determine that a move made was castling may be tricky in S-Chess960
+        // because we use autocastle on in chessground and after castling
+        // chessground pieces on dest square can be empty, rook or king.
+        // But when castling with gating possible, inverse move (rook takes king) also have to be in dests.
+        // So we will use this info to figure out wether castling+gating is possible or not.
+
         const parts = fen.split(" ");
         const castling = parts[2];
         const color = parts[1];
@@ -127,7 +134,8 @@ export class Gating {
         if (pieceMovedRole === 'king' || pieceMovedRole === 'rook') {
             if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
                 (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
-                return true;
+                const inverseDests = this.ctrl.dests[dest];
+                if (inverseDests !== undefined && inverseDests.includes(orig)) return true;
             }
         }
         if (color === 'w') {
