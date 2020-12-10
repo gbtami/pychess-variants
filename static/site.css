@@ -845,7 +845,6 @@ table#seeks-header, table#seeks {
     border-spacing: 0;
     border-radius: 3px;
     font-size: 14px;
-    font-family: 'Roboto', sans-serif;
     table-layout: fixed;
 }
 #seeks-table {
