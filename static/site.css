@@ -529,6 +529,7 @@ div#result {
     font-family: Roboto, sans-serif;
     font-size: 16px;
     font-style: italic;
+    font-weight: bold;
     text-align: center;
     border-top: 1px solid var(--bg-color2);
 }
@@ -774,8 +775,7 @@ vs-swords.lobby.opp {
 }
 .sub-ratings h3{
     font-size: 12px;
-    font-weight:normal;
-    font-family: 'Roboto';
+    font-weight: normal;
     letter-spacing: 1.1px;
     margin: 0;
 }
@@ -1044,6 +1044,7 @@ select, input {
 #misc-infow, #misc-infob {
     font-family: "Roboto Mono", "Roboto";
     font-size: 40px;
+    font-weight: bold;
     text-align: right;
     padding-right: 10px;
 }
@@ -1051,6 +1052,7 @@ select, input {
 #misc-info-center {
     font-family: "Roboto Mono", "Roboto";
     font-size: 40px;
+    font-weight: bold;
     text-align: center;
 }
 
@@ -1200,6 +1202,7 @@ button.icon::-moz-focus-inner {
     text-align: center;
     font-family: "Roboto Mono", "Roboto";
     font-size: 50px;
+    font-weight: bold;
     box-shadow: var(--btn-shadow);
     background-color: var(--bg-color0);
 }
