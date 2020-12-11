@@ -230,6 +230,8 @@ async def lobby_socket_handler(request):
                             if spammer in users:
                                 users[spammer].set_silence()
                                 response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
+                        elif user.anon:
+                            pass
                         else:
                             if user.silence == 0:
                                 response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
