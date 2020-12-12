@@ -955,9 +955,9 @@ export default class AnalysisController {
             };
 
         // New main line move
-        if (msg.ply === this.steps.length && this.plyVari === 0) {
+        if (this.ffishBoard.gamePly() === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
-            this.ply = msg.ply
+            this.ply = this.ffishBoard.gamePly()
             updateMovelist(this);
 
             this.checkStatus(msg);
