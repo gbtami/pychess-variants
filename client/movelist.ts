@@ -13,7 +13,7 @@ import { boardSettings } from './boardSettings';
 import AnalysisController from "./analysisCtrl";
 import RoundController from "./roundCtrl";
 
-export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari: number = 0) {
+export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
     ctrl.goPly(ply, plyVari);
     if (plyVari == 0) {
         activatePly(ctrl);
