@@ -1,6 +1,8 @@
+import asyncio
+import uvloop
+
 import argparse
 import gettext
-import asyncio
 import collections
 import logging
 import os
@@ -28,6 +30,8 @@ from seek import Seek
 from user import User
 
 log = logging.getLogger(__name__)
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 async def on_prepare(request, response):
@@ -80,7 +84,7 @@ async def init_state(app):
     app["seeks"] = {}
     app["games"] = {}
     app["invites"] = {}
-    app["chat"] = collections.deque([], 200)
+    app["chat"] = collections.deque([], 100)
     app["game_channels"] = set()
     app["invite_channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}

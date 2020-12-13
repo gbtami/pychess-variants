@@ -76,6 +76,11 @@ async def login(request):
         log.error("User %s tried to log in.", user.username)
         raise web.HTTPFound("/")
 
+    title = user.gender if user.gender is not None else ""
+    if title == "BOT":
+        log.error("BOT user %s tried to log in.", user.username)
+        raise web.HTTPFound("/")
+
     log.info("+++ Lichess authenticated user: %s %s %s", user.id, user.username, user.country)
     users = request.app["users"]
 
@@ -88,7 +93,7 @@ async def login(request):
     session["country"] = user.country
     session["first_name"] = user.first_name
     session["last_name"] = user.last_name
-    session["title"] = user.gender if user.gender is not None else ""
+    session["title"] = title
 
     if user.username:
         db = request.app["db"]

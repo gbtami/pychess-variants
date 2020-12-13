@@ -11,3 +11,4 @@ motor==2.3.0
 pyffish==0.0.52
 sortedcollections==1.2.1
 python-gettext==4.0
+uvloop==0.14.0

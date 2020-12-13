@@ -6,15 +6,16 @@
 # Translators:
 # ... ... <armandogagliardi0@gmail.com>, 2020
 # gbtami <gbtami@gmail.com>, 2020
+# renyhp r <renyhp@disroot.org>, 2020
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-30 12:03+0100\n"
+"POT-Creation-Date: 2020-11-30 20:10+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
+"Last-Translator: renyhp r <renyhp@disroot.org>, 2020\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -76,7 +77,7 @@ msgstr "Tv"
 
 #: ../templates/template.html:97
 msgid "Current games"
-msgstr "Partite correnti"
+msgstr "Partite in corso"
 
 #: ../templates/template.html:98
 msgid "Players"
@@ -88,7 +89,7 @@ msgstr "Editor"
 
 #: ../templates/template.html:100
 msgid "Analysis"
-msgstr ""
+msgstr "Analisi"
 
 #: ../templates/template.html:101
 msgid "Learn"

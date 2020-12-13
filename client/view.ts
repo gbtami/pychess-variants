@@ -37,10 +37,25 @@ export function checkbox(settings: ISettings<boolean>, name: string, text: strin
     ];
 }
 
-export function timeControlStr(minutes: number, increment = 0, byoyomiPeriod = 0) {
+export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0): string {
+    minutes = Number(minutes);
+    byoyomiPeriod = Number(byoyomiPeriod)
+    switch (minutes) {
+        case 1 / 4:
+            minutes = "¼";
+            break;
+        case 1 / 2:
+            minutes = "½";
+            break;
+        case 3 / 4:
+            minutes = "¾"
+            break;
+        default:
+            minutes = String(minutes);
+    }
     switch (byoyomiPeriod) {
         case 0 : return `${minutes}+${increment}`;
         case 1 : return `${minutes}+${increment}(b)`;
-        default: return `${minutes}+${byoyomiPeriod}x${increment}(b)`;
+        default: return `${minutes}+${byoyomiPeriod}×${increment}(b)`;
     }
 }

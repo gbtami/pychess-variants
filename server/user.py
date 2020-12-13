@@ -13,6 +13,8 @@ log = logging.getLogger(__name__)
 
 SILENCE = 10 * 60
 
+ANON_TIMEOUT = 10 * 60
+
 
 class MissingRatingsException(Exception):
     pass
@@ -62,6 +64,24 @@ class User:
 
         # lobby chat spammer time out (10 min)
         self.silence = 0
+
+        # purge inactive anon users after ANON_TIMEOUT sec
+        if self.anon and not self.bot:
+            loop = asyncio.get_event_loop()
+            loop.create_task(self.remove())
+
+    async def remove(self):
+        while True:
+            await asyncio.sleep(ANON_TIMEOUT)
+            if not self.online():
+                # give them a second chance
+                await asyncio.sleep(3)
+                if not self.online():
+                    try:
+                        del self.app["users"][self.username]
+                    except KeyError:
+                        log.error("Failed to del %s from users", self.username)
+                    break
 
     def online(self, username=None):
         if username is None:

@@ -47,7 +47,9 @@ export class Gating {
             let rookOrig = "";
             const moveLength = dest[0].charCodeAt() - orig[0].charCodeAt();
 
-            if (ground.state.pieces[dest].role === "king") {
+            const pieceMoved = ground.state.pieces[dest];
+            const pieceMovedRole = (pieceMoved === undefined) ? 'king' : pieceMoved.role;
+            if (pieceMovedRole === "king") {
                 // King long move is always castling move
                 if (Math.abs(moveLength) > 1 ) {
                     castling = true;
@@ -69,7 +71,7 @@ export class Gating {
             if (castling) {
                 // UCI move castling + gating to rook vacant square is rook takes king!
                 if (!this.inCastlingTargets(rookOrig, color, moveLength)) {
-                    moves["special"] = [rookOrig, orig];
+                    moves["special"] = [rookOrig, orig, dest];
                 }
                 const pieces = {};
                 pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'rook'};
@@ -109,6 +111,13 @@ export class Gating {
     }
 
     private canGate(ground, fen: string, orig: Key, dest: Key) {
+        // A move can be gating in two cases: 1. normal move of one virgin piece 2. castling
+        // Determine that a move made was castling may be tricky in S-Chess960
+        // because we use autocastle on in chessground and after castling
+        // chessground pieces on dest square can be empty, rook or king.
+        // But when castling with gating possible, inverse move (rook takes king) also have to be in dests.
+        // So we will use this info to figure out wether castling+gating is possible or not.
+
         const parts = fen.split(" ");
         const castling = parts[2];
         const color = parts[1];
@@ -120,11 +129,13 @@ export class Gating {
 
         // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
 
-        const moveType = ground.state.pieces[dest].role;
-        if (moveType === 'king' || moveType === 'rook') {
+        const pieceMoved = ground.state.pieces[dest];
+        const pieceMovedRole = (pieceMoved === undefined) ? 'king' : pieceMoved.role;
+        if (pieceMovedRole === 'king' || pieceMovedRole === 'rook') {
             if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
                 (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
-                return true;
+                const inverseDests = this.ctrl.dests[dest];
+                if (inverseDests !== undefined && inverseDests.includes(orig)) return true;
             }
         }
         if (color === 'w') {
@@ -187,9 +198,14 @@ export class Gating {
 
             const gatedPieceLetter = gatedPieceRole ? roleToSan[gatedPieceRole].toLowerCase() : "";
             if (this.gating.callback) {
-                if (moveType === "special" && gatedPieceLetter === "") {
-                    // empty gating was chosen on vacant rook square
-                    this.gating.callback(move[1], move[0], gatedPieceLetter);
+                if (moveType === "special") {
+                    if (gatedPieceLetter === "") {
+                        // empty gating was chosen on vacant rook square (simple castling)
+                        this.gating.callback(move[1], move[2], gatedPieceLetter);
+                    } else {
+                        // gating to rook square while castling need special UCI move (rook takes king)
+                        this.gating.callback(move[0], move[1], gatedPieceLetter);
+                    }
                 } else {
                     this.gating.callback(move[0], move[1], gatedPieceLetter);
                 }

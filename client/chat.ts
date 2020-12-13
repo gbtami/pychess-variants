@@ -12,17 +12,28 @@ import { _ } from './i18n';
 
 export function chatView (ctrl, chatType) {
     function onKeyPress (e) {
+        if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
+            return;
         const message = (e.target as HTMLInputElement).value;
         if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
             ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "room": (ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
     }
+    function onClick () {
+        const activated = (<HTMLInputElement>document.getElementById('checkbox')).checked;
+        const chatEntry = (<HTMLInputElement>document.getElementById('chat-entry'));
+        (<HTMLElement>document.getElementById(chatType + "-messages")).style.display = activated ? "block" : "none";
+        chatEntry.disabled = !activated;
+        chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
+    }
     const anon = ctrl.model["anon"] === 'True';
     return h(`div#${chatType}.${chatType}.chat`, [
-        h('div.chatroom', ctrl.spectator ? _('Spectator room') : _('Chat room')),
+        h('div.chatroom', [
+            ctrl.spectator ? _('Spectator room') : _('Chat room'),
+            h('input#checkbox', { props: { title: _("Toggle the chat"), name: "checkbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
+        ]),
         // TODO: lock/unlock chat to spectators
-        // h('input#chatbox', {props: {name: "chatbox", type: "checkbox", checked: ""}}),
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
         h('input#chat-entry', {
             props: {
@@ -51,7 +62,7 @@ export function chatMessage (user, message, chatType) {
     } else if (user === '_server') {
         patch(container, h('div#messages', [ h("li.message.server", [h("user", _('Server')), h("t", message)]) ]));
     } else {
-        patch(container, h('div#messages', [ h("li.message", [h("user", user), h("t", message)]) ]));
+        patch(container, h('div#messages', [ h("li.message", [h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
 
     if (isScrolled) myDiv.scrollTop = myDiv.scrollHeight;

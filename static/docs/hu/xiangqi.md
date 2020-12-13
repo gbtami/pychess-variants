@@ -152,13 +152,13 @@ A leggyakoribb megnyitás a "központi ágyú", amikor a király vonalába vissz
 
 Ez a leggyakoribb védelem. A cél természetesen, hogy mindkét ló védelmezze a középső gyalogot. Többféle variáció is létezik erre.
 
-![Két lovas védelem ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen%20Horses.png)
+![Két lovas védelem ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen_Horses.png)
 
 **2. Fan Gong Ma / "Szendvics lovak"**
 
 Az egyik lovat előrehozzuk, de a másik ló léptetése előtt az ágyút a palota közelebbi sarkába visszük, csak ezután következik a másik ló. Így az ágyú a két ló közé kerül. Ez egy viszonylag új megnyitás.
 
-![Fan Gong Ma ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan%20Gong%20Ma.png)
+![Fan Gong Ma ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan_Gong_Ma.png)
 
 **3. Azonos oldali ágyúk**
 
@@ -176,7 +176,7 @@ Az előzőnek az ellentettje, amikor a fekete az ellentétes oldalon lévő ágy
 
 A fekete játékos gyorsan mozgásba hozza a szekerét azzal, hogy az ágyút a tábla szélére viszi. Ez általában 3 lépésből áll, ebben a sorrendben: a ló előrelép, az ágyú a tábla szélére mozog, aztán a szekér az ágyú kezdővonalába megy.
 
-![A tigris 3 lépése ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three%20Step%20Tiger.png)
+![A tigris 3 lépése ábra](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
 Az ágyús megnyitásokon kívül a piros játékosnak más opciói is vannak. Ezeket "lágy megnyitásoknak" nevezzük, mert nem járnak azonnali fenyegetéssel.
 

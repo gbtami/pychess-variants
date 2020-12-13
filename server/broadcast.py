@@ -13,8 +13,13 @@ async def lobby_broadcast(sockets, response):
 async def round_broadcast(game, users, response, full=False, channels=None):
     if game.spectators:
         for spectator in game.spectators:
-            if game.id in users[spectator.username].game_sockets:
-                await users[spectator.username].game_sockets[game.id].send_json(response)
+            try:
+                if game.id in users[spectator.username].game_sockets:
+                    await users[spectator.username].game_sockets[game.id].send_json(response)
+            except KeyError:
+                # spectator was removed from users
+                pass
+
     if full:
         if not game.wplayer.bot:
             try:

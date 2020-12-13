@@ -80,7 +80,7 @@ class TestUser:
                                 })
 
                         elif data["type"] == "new_game":
-                            # self.spectators = await spectators(data["gameId"])
+                            self.spectators = await spectators(data["gameId"])
 
                             loop = asyncio.get_event_loop()
                             loop.create_task(self.go_to_round(session, wsl, data["gameId"], data["wplayer"], data["bplayer"]))
@@ -126,7 +126,7 @@ class TestUser:
                                 await wsl.send_json({"type": "logout"})
                                 break
 
-                            await asyncio.sleep(random.random())
+                            await asyncio.sleep(random.uniform(0, 0.1))
                             parts = data["fen"].split(" ")
                             turn_color = parts[1]
                             if data["rm"] and turn_color == mycolor:
@@ -172,7 +172,7 @@ async def main(users):
 
 
 if __name__ == '__main__':
-    users = (TestUser() for i in range(100))
+    users = (TestUser() for i in range(10))
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main(users))

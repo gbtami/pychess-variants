@@ -45,8 +45,9 @@ class Sounds {
 
     private buildSound(trackName: string) {
         const soundTheme = soundThemeSettings.value;
+        const soundTrack = (soundTheme === 'silent') ? 'Silence' : trackName;
         const sound = new Howl({
-          src: ['/static/sound/' + soundTheme + '/' + trackName + '.ogg', '/static/sound/' + soundTheme + '/' + trackName + '.mp3'],
+          src: ['/static/sound/' + soundTheme + '/' + soundTrack + '.ogg', '/static/sound/' + soundTheme + '/' + soundTrack + '.mp3'],
           onplayerror: function() {
             sound.once('unlock', function() {
               sound.play();
