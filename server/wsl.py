@@ -236,6 +236,8 @@ async def lobby_socket_handler(request):
                                 server_growth()
                             elif message == "/state":
                                 server_state(request.app)
+                            else:
+                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
                         elif user.anon and user.username != "Discord-Relay":
                             pass
                         else:
