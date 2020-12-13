@@ -1,8 +1,10 @@
 {
     "About pychess": "pychess 정보",
     "Currently supported games are ": "현재 지원되는 게임",
+    "Chess960 castling rules.": "캐슬링 규칙이 있는 체스960",
     "Playing right now": "지금 대국하기",
     "Variant": "게임 종류",
+    "in local browser": "로컬 브라우저에서",
     "You need an account to do that.": "계정이 필요합니다.",
     "Download game to PGN file": "PGN 파일로 기보 저장하기",
     " Download PGN": "PGN 파일로 저장",
@@ -15,8 +17,12 @@
     "Depth": "깊이",
     "Spectators: ": "관전자:",
     "Requested game %1 not found!": "요청하신 %1 게임을 찾을 수 없습니다!",
+    "Light": "밝음",
+    "Dark": "어두움",
     "Show piece destinations": "기물 행마법 보이기",
     "Promote to Queen automatically": "퀸 자동 프로모션",
+    "Best move arrow in analysis board": "분석판의 최적 움직임 화살표",
+    "Invisible pieces": "투명 피스",
     "Initial position": "초반 배치",
     "Advantage": "유불리",
     "Spectator room": "관전방",
@@ -24,29 +30,39 @@
     "Sign in to chat": "채팅을 하려면 로그인 하세요",
     "Please be nice in the chat!": "성숙한 채팅을 부탁드립니다!",
     "Server": "서버",
+    "Choose where your pieces start": "어디서 말이 시작할지 선택하세요",
     "Shogi on a 5x5 board": "쇼기 5x5 판",
+    "Shogi on a 3x4 board": "쇼기 3x4판",
     "Xiangqi on a 7x7 board": "중국상기 7x7 판",
+    "Grand Chess with Crazyhouse drop rules": "Crazyhouse drop규칙 그랜드 체스",
+    "Standard piece variants": "표준 피스 변형",
+    "Southeast Asian variants": "동남아시아 변형",
+    "Shogi variants": "쇼기 변형",
+    "Xiangqi variants": "장기 변형",
+    "Fairy piece variants": "변형 체스",
     "%1 year ago": [
-        ""
+        "%1 년전"
     ],
     "%1 month ago": [
-        ""
+        "%1 개월 전"
     ],
     "%1 week ago": [
-        ""
+        "%1 주 전"
     ],
     "%1 day ago": [
-        ""
+        "%1 일 전"
     ],
     "%1 hour ago": [
-        ""
+        "%1 시간 전"
     ],
     "%1 minute ago": [
-        ""
+        "%1 분 전"
     ],
     "%1 second ago": [
-        ""
+        "%1 초 전"
     ],
+    "%1 to play": "%1 명의 대국자",
+    "Castling": "캐슬링",
     "White": "백",
     "Black": "흑",
     "CLEAR BOARD": "판 삭제",
@@ -56,7 +72,13 @@
     " (must be signed in)": "(로그인 하셔야 합니다)",
     "EXPORT TO PNG": "PNG 파일로 내보내기",
     "Invalid FEN": "잘못 된 FEN 입니다",
+    "Click/Ctrl+click to increase/decrease number of pieces": "피스 수 증가/감소하려면 클릭/컨트롤+클릭",
     "Challenge to a game": "대국 신청하기",
+    "CANCEL": "취소",
+    "JOIN THE GAME": "게임 참가하기",
+    "To invite someone to play, give this URL:": "초대하려면 이 URL을 보내세요",
+    "Copy URL": "URL 복사",
+    "The first person to come to this URL will play with you.": "이 URL로 처음에 오는 사람이 대국을 할 것 입니다.",
     "Cancel": "취소",
     "Challenge %1 to a game": "%1 님에게 대국 신청하기",
     "Paste the FEN text here": "FEN 텍스트를 여기에 붙여 넣으세요",
@@ -67,23 +89,36 @@
     "A.I. Level": "AI 레벨",
     "Random": "랜덤",
     "Create a game": "대국방 생성하기",
+    "Play with a friend": "친구와 같이 하기",
     "Play with AI (Fairy-Stockfish)": "페어리 스톡피쉬 AI와 대국하기",
     "Byoyomi in seconds:": "초읽기",
     "Increment in seconds:": "초 증가",
+    "Alternate Start": "교대 시작",
     "Custom": "임의 지정",
     "You have an unfinished game!\nPress OK to continue.": "아직 끝나지 않은 게임이 있습니다!\nOK 를 눌러 계속합니다.",
     "%1 game in play": [
-        ""
+        "%1 개의 게임이 진행 중"
     ],
     "%1 player": [
-        ""
+        "%1 명의 대국자"
     ],
     "Player": "대국자",
     "Rating": "레이팅",
     "Time": "시간",
     "Mode": "모드 선택",
     "Donate": "기부하기",
+    "FAQ": "자주 하는 질문",
+    "Stats": "통계",
+    "About": "더 알아보기",
     "Thank you for your support!": "지원해 주셔서 감사합니다!",
+    "Invalid PGN": "유효하지 않은 PGN",
+    "Paste the PGN text here": "PGN 텍스트를 여기에 복사하세요",
+    "IMPORT GAME": "게임 불러오기",
+    "Red": "빨강",
+    "Blue": "파랑",
+    "Gold": "금",
+    "IMPORT": "가져오기",
+    "level %1": "레벨 %1",
     "Game aborted": "게임 중단",
     "Checkmate": "외통수",
     "%1 resigned": "%1 님이 기권 하셨습니다.",
@@ -97,13 +132,17 @@
     "Unknown reason": "알 수 없는 오류",
     "Campmate": "캠프메이트",
     "Point counting": "점수 승",
+    "Repetition": "반복",
     "%1 move": [
-        ""
+        "%1 수"
     ],
     "Computer analysis available": "컴퓨터 분석 이용가능",
     "Lichess profile": "Lichess 프로필",
+    "Import game": "게임 내보내기",
     "Export games": "게임 저장하기",
     "Watch games": "관전하기",
+    "Games": "게임",
+    "Imported": "내보낸 파일",
     " +15 seconds": "+15 초",
     "Give 15 seconds": "15 초 부여하기",
     "Abort": "중단하기",
@@ -121,6 +160,11 @@
     "Stop counting": "계산 중단하기",
     "Stop": "중단하기",
     "Start counting": "계산 시작하기",
+    "Log out": "로그아웃",
+    "Are you sure you want to log out?": "정말 로그아웃 하시겠습니까?",
+    "Sound": "음량",
+    "Background": "배경",
+    "Board Settings": "보드 설정",
     "": {
         "language": "ko",
         "plural-forms": "nplurals=1; plural=0;"

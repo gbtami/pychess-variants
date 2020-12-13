@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Leo Ha <yeoha123@gmail.com>, 2020
+# SangbaekLee <esangbaek@ajou.ac.kr>, 2020
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-11-30 20:10+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Leo Ha <yeoha123@gmail.com>, 2020\n"
+"Last-Translator: SangbaekLee <esangbaek@ajou.ac.kr>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -86,7 +87,7 @@ msgstr ""
 
 #: ../client/about.ts:78
 msgid "Chess960 castling rules."
-msgstr ""
+msgstr "캐슬링 규칙이 있는 체스960"
 
 #: ../client/about.ts:81
 msgid "For move generation, validation, analysis, and engine play, we use "
@@ -118,7 +119,7 @@ msgstr "게임 종류"
 #: ../client/analysis.ts:134 ../client/analysisCtrl.ts:367
 #: ../client/analysisCtrl.ts:710
 msgid "in local browser"
-msgstr ""
+msgstr "로컬 브라우저에서"
 
 #: ../client/analysisCtrl.ts:379
 msgid "You need an account to do that."
@@ -178,11 +179,11 @@ msgstr "요청하신 %1 게임을 찾을 수 없습니다!"
 
 #: ../client/background.ts:9
 msgid "Light"
-msgstr ""
+msgstr "밝음"
 
 #: ../client/background.ts:10
 msgid "Dark"
-msgstr ""
+msgstr "어두움"
 
 #: ../client/boardSettings.ts:214
 msgid "Piece animation"
@@ -198,11 +199,11 @@ msgstr "퀸 자동 프로모션"
 
 #: ../client/boardSettings.ts:348
 msgid "Best move arrow in analysis board"
-msgstr ""
+msgstr "분석판의 최적 움직임 화살표"
 
 #: ../client/boardSettings.ts:376
 msgid "Invisible pieces"
-msgstr ""
+msgstr "투명 피스"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -242,7 +243,7 @@ msgstr ""
 
 #: ../client/chess.ts:223
 msgid "Choose where your pieces start"
-msgstr ""
+msgstr "어디서 말이 시작할지 선택하세요"
 
 #: ../client/chess.ts:233
 msgid "A game closely resembling the original Chaturanga"
@@ -274,7 +275,7 @@ msgstr ""
 
 #: ../client/chess.ts:329
 msgid "Shogi on a 3x4 board"
-msgstr ""
+msgstr "쇼기 3x4판"
 
 #: ../client/chess.ts:344
 msgid "Open fire on your opponent in this highly aggressive ancient game"
@@ -329,7 +330,7 @@ msgstr ""
 
 #: ../client/chess.ts:466
 msgid "Grand Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "Crazyhouse drop규칙 그랜드 체스"
 
 #: ../client/chess.ts:476
 msgid ""
@@ -358,66 +359,66 @@ msgstr ""
 
 #: ../client/chess.ts:534
 msgid "Standard piece variants"
-msgstr ""
+msgstr "표준 피스 변형"
 
 #: ../client/chess.ts:535
 msgid "Southeast Asian variants"
-msgstr ""
+msgstr "동남아시아 변형"
 
 #: ../client/chess.ts:536
 msgid "Shogi variants"
-msgstr ""
+msgstr "쇼기 변형"
 
 #: ../client/chess.ts:537
 msgid "Xiangqi variants"
-msgstr ""
+msgstr "장기 변형"
 
 #: ../client/chess.ts:538
 msgid "Fairy piece variants"
-msgstr ""
+msgstr "변형 체스"
 
 #: ../client/datetime.ts:13
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
+msgstr[0] "%1 년전"
 
 #: ../client/datetime.ts:15
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
+msgstr[0] "%1 개월 전"
 
 #: ../client/datetime.ts:17
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
+msgstr[0] "%1 주 전"
 
 #: ../client/datetime.ts:19
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
+msgstr[0] "%1 일 전"
 
 #: ../client/datetime.ts:21
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
+msgstr[0] "%1 시간 전"
 
 #: ../client/datetime.ts:23
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
+msgstr[0] "%1 분 전"
 
 #: ../client/datetime.ts:25
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
+msgstr[0] "%1 초 전"
 
 #: ../client/editor.ts:132 ../client/editor.ts:133
 msgid "%1 to play"
-msgstr ""
+msgstr "%1 명의 대국자"
 
 #: ../client/editor.ts:136
 msgid "Castling"
-msgstr ""
+msgstr "캐슬링"
 
 #: ../client/editor.ts:139 ../client/lobby.ts:344 ../client/profile.ts:21
 msgid "White"
@@ -457,7 +458,7 @@ msgstr "잘못 된 FEN 입니다"
 
 #: ../client/editor.ts:384
 msgid "Click/Ctrl+click to increase/decrease number of pieces"
-msgstr ""
+msgstr "피스 수 증가/감소하려면 클릭/컨트롤+클릭"
 
 #: ../client/invite.ts:27 ../client/profile.ts:268
 msgid "Challenge to a game"
@@ -465,23 +466,23 @@ msgstr "대국 신청하기"
 
 #: ../client/invite.ts:30
 msgid "CANCEL"
-msgstr ""
+msgstr "취소"
 
 #: ../client/invite.ts:35
 msgid "JOIN THE GAME"
-msgstr ""
+msgstr "게임 참가하기"
 
 #: ../client/invite.ts:60
 msgid "To invite someone to play, give this URL:"
-msgstr ""
+msgstr "초대하려면 이 URL을 보내세요"
 
 #: ../client/invite.ts:65 ../client/invite.ts:67
 msgid "Copy URL"
-msgstr ""
+msgstr "URL 복사"
 
 #: ../client/invite.ts:68
 msgid "The first person to come to this URL will play with you."
-msgstr ""
+msgstr "이 URL로 처음에 오는 사람이 대국을 할 것 입니다."
 
 #: ../client/lobby.ts:269
 msgid "Cancel"
@@ -526,7 +527,7 @@ msgstr "대국방 생성하기"
 
 #: ../client/lobby.ts:375
 msgid "Play with a friend"
-msgstr ""
+msgstr "친구와 같이 하기"
 
 #: ../client/lobby.ts:388
 msgid "Play with AI (Fairy-Stockfish)"
@@ -542,7 +543,7 @@ msgstr "초 증가"
 
 #: ../client/lobby.ts:409
 msgid "Alternate Start"
-msgstr ""
+msgstr "교대 시작"
 
 #: ../client/lobby.ts:535
 msgid "Custom"
@@ -559,12 +560,12 @@ msgstr ""
 #: ../client/lobby.ts:642
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
+msgstr[0] "%1 개의 게임이 진행 중"
 
 #: ../client/lobby.ts:647
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
+msgstr[0] "%1 명의 대국자"
 
 #: ../client/lobby.ts:656
 msgid "Player"
@@ -588,15 +589,15 @@ msgstr "기부하기"
 
 #: ../client/lobby.ts:699
 msgid "FAQ"
-msgstr ""
+msgstr "자주 하는 질문"
 
 #: ../client/lobby.ts:700
 msgid "Stats"
-msgstr ""
+msgstr "통계"
 
 #: ../client/lobby.ts:701
 msgid "About"
-msgstr ""
+msgstr "더 알아보기"
 
 #: ../client/main.ts:90
 msgid "Thank you for your support!"
@@ -604,35 +605,35 @@ msgstr "지원해 주셔서 감사합니다!"
 
 #: ../client/paste.ts:114
 msgid "Invalid PGN"
-msgstr ""
+msgstr "유효하지 않은 PGN"
 
 #: ../client/paste.ts:138
 msgid "Paste the PGN text here"
-msgstr ""
+msgstr "PGN 텍스트를 여기에 복사하세요"
 
 #: ../client/paste.ts:142
 msgid "IMPORT GAME"
-msgstr ""
+msgstr "게임 불러오기"
 
 #: ../client/profile.ts:23
 msgid "Red"
-msgstr ""
+msgstr "빨강"
 
 #: ../client/profile.ts:24
 msgid "Blue"
-msgstr ""
+msgstr "파랑"
 
 #: ../client/profile.ts:25
 msgid "Gold"
-msgstr ""
+msgstr "금"
 
 #: ../client/profile.ts:37
 msgid "IMPORT"
-msgstr ""
+msgstr "가져오기"
 
 #: ../client/profile.ts:44
 msgid "level %1"
-msgstr ""
+msgstr "레벨 %1"
 
 #: ../client/profile.ts:59
 msgid "Game aborted"
@@ -688,12 +689,12 @@ msgstr "점수 승"
 
 #: ../client/profile.ts:98
 msgid "Repetition"
-msgstr ""
+msgstr "반복"
 
 #: ../client/profile.ts:182
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
+msgstr[0] "%1 수"
 
 #: ../client/profile.ts:183
 msgid "Computer analysis available"
@@ -705,7 +706,7 @@ msgstr "Lichess 프로필"
 
 #: ../client/profile.ts:257
 msgid "Import game"
-msgstr ""
+msgstr "게임 내보내기"
 
 #: ../client/profile.ts:261
 msgid "Export games"
@@ -717,11 +718,11 @@ msgstr "관전하기"
 
 #: ../client/profile.ts:273
 msgid "Games"
-msgstr ""
+msgstr "게임"
 
 #: ../client/profile.ts:275
 msgid "Imported"
-msgstr ""
+msgstr "내보낸 파일"
 
 #: ../client/roundCtrl.ts:285 ../client/roundCtrl.ts:1183
 msgid " +15 seconds"
@@ -795,20 +796,20 @@ msgstr "계산 시작하기"
 
 #: ../client/settingsView.ts:60
 msgid "Log out"
-msgstr ""
+msgstr "로그아웃"
 
 #: ../client/settingsView.ts:65
 msgid "Are you sure you want to log out?"
-msgstr ""
+msgstr "정말 로그아웃 하시겠습니까?"
 
 #: ../client/settingsView.ts:72 ../client/settingsView.ts:107
 msgid "Sound"
-msgstr ""
+msgstr "음량"
 
 #: ../client/settingsView.ts:73 ../client/settingsView.ts:117
 msgid "Background"
-msgstr ""
+msgstr "배경"
 
 #: ../client/settingsView.ts:74 ../client/settingsView.ts:125
 msgid "Board Settings"
-msgstr ""
+msgstr "보드 설정"
