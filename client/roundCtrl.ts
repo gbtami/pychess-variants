@@ -553,12 +553,10 @@ export default class RoundController {
     }
 
     private onMsgBoard = (msg) => {
-        console.log("onMsgBoard()", msg);
         if (msg.gameId !== this.gameId) return;
 
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
         if (msg.ply === this.ply) return;
-        console.log(this.ply, msg.ply);
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
