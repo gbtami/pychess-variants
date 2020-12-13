@@ -344,7 +344,6 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
                             continue
                         else:
-                            games[data["gameId"]] = game
                             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                                 game.spectators.add(user)
                                 await round_broadcast(game, users, game.spectator_list, full=True)

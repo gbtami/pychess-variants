@@ -2,6 +2,8 @@ import cProfile
 import pstats
 from timeit import default_timer
 
+import objgraph
+
 
 class OnDemand:
     """ Helper class to conditionally logging expensive tasks
@@ -58,3 +60,24 @@ def time_control_str(base, inc, byo):
     else:
         inc_str = f"{byo}x{inc}(b)"
     return base + "+" + inc_str
+
+
+def server_state(app, amount=3):
+    print("=" * 40)
+    for akey in app:
+        length = len(app[akey]) if hasattr(app[akey], "__len__") else 1
+        print("--- %s %s ---" % (akey, length))
+        if isinstance(app[akey], dict):
+            items = list(app[akey].items())[:min(length, amount)]
+            for key, value in items:
+                print("   %s %s" % (key, value))
+        elif isinstance(app[akey], list):
+            for item in app[akey][:min(length, amount)]:
+                print("   %s" % item)
+        else:
+            print(app[akey])
+    print("=" * 40)
+
+
+def server_growth():
+    objgraph.show_growth()

@@ -12,6 +12,7 @@ from settings import ADMINS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
 from utils import new_game, load_game, online_count, MyWebSocketResponse
+from misc import server_growth, server_state
 
 log = logging.getLogger(__name__)
 
@@ -225,11 +226,16 @@ async def lobby_socket_handler(request):
                         message = data["message"]
                         response = None
 
-                        if message.startswith("/silence") and user.username in ADMINS:
-                            spammer = data["message"].split()[-1]
-                            if spammer in users:
-                                users[spammer].set_silence()
-                                response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
+                        if user.username in ADMINS:
+                            if message.startswith("/silence"):
+                                spammer = data["message"].split()[-1]
+                                if spammer in users:
+                                    users[spammer].set_silence()
+                                    response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
+                            elif message == "/growth":
+                                server_growth()
+                            elif message == "/state":
+                                server_state(request.app)
                         elif user.anon and user.username != "Discord-Relay":
                             pass
                         else:
