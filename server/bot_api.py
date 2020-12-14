@@ -210,6 +210,10 @@ async def event_stream(request):
     while bot_player.online():
         answer = await bot_player.event_queue.get()
         try:
+            bot_player.event_queue.task_done()
+        except ValueError:
+            log.error("task_done() called more times than there were items placed in the queue in bot_api.py event_stream()")
+        try:
             if request.protocol.transport.is_closing():
                 log.error("BOT %s request.protocol.transport.is_closing() == True ...", username)
                 break
@@ -269,6 +273,10 @@ async def game_stream(request):
 
     while True:
         answer = await bot_player.game_queues[gameId].get()
+        try:
+            bot_player.game_queues[gameId].task_done()
+        except ValueError:
+            log.error("task_done() called more times than there were items placed in the queue in bot_api.py game_stream()")
         try:
             await resp.write(answer.encode("utf-8"))
             await resp.drain()

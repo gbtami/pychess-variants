@@ -26,6 +26,11 @@ async def get_work(request, data):
     # priority can be "move" or "analysis"
     try:
         (priority, work_id) = fishnet_work_queue.get_nowait()
+        try:
+            fishnet_work_queue.task_done()
+        except ValueError:
+            log.error("task_done() called more times than there were items placed in the queue in fishnet.py get_work()")
+
         work = request.app["works"][work_id]
         # print("FISHNET ACQUIRE we have work for you:", work)
         if priority == ANALYSIS:

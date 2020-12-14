@@ -78,6 +78,13 @@ def server_state(app, amount=3):
             print(app[akey])
     print("=" * 40)
 
+    q = app["users"]["Random-Mover"].event_queue
+    print(" ... Random-Mover ...")
+    print(q)
+    q = app["users"]["Fairy-Stockfish"].event_queue
+    print(" ... Fairy-Stockfish ...")
+    print(q)
+
 
 def server_growth():
     objgraph.show_growth()
