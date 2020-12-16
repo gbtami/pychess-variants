@@ -484,7 +484,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "shogun", tooltip: _("Pieces promote and can be dropped, similar to Shogi"),
         startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
         board: "shogun8x8", piece: "shogun",
-        pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn", "ferz", "prook", "pbishop", "pknight", "ppawn"],
         pocketRoles: ["pawn", "knight", "bishop", "rook", "ferz"],
         promotion: "shogi",
         timeControl: "byoyomi",
