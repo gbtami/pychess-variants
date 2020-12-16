@@ -10,11 +10,18 @@ import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import { boardSettings } from './boardSettings';
+import AnalysisController from "./analysisCtrl";
+import RoundController from "./roundCtrl";
 
-export function selectMove (ctrl, ply) {
-    ctrl.goPly(ply);
-    activatePly(ctrl);
-    scrollToPly(ctrl);
+export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
+    ctrl.goPly(ply, plyVari);
+    if (plyVari == 0) {
+        activatePly(ctrl);
+        scrollToPly(ctrl);
+    } else {
+        activatePlyVari(ply + plyVari);
+    }
+
 }
 
 function activatePly (ctrl) {
@@ -40,11 +47,6 @@ function scrollToPly (ctrl) {
         movelistEl.scrollTop = st;
 }
 
-function selectVariMove (ctrl, ply, plyVari) {
-    ctrl.goPly(ply, plyVari);
-    activatePlyVari(ply + plyVari);
-}
-
 export function activatePlyVari (ply) {
     console.log('activatePlyVari()', ply);
     const active = document.querySelector('vari-move.active');
@@ -59,14 +61,20 @@ export function createMovelistButtons (ctrl) {
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
         h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh', { props: { title: 'Flip board' } } ) ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, Math.max(ctrl.ply - 1, 0)) } }, [ h('i.icon.icon-step-backward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ctrl.steps.length - 1)) } }, [ h('i.icon.icon-step-forward') ]),
+        h('button', { on: { click: () => { 
+            // this line is necessary, but I don't understand why
+            ctrl.ply = Math.min(ctrl.ply, ctrl.plyVari > 0 ? ctrl.steps[ctrl.plyVari]['vari'].length - 1 : Number.MAX_VALUE);
+            selectMove(ctrl, 
+                (ctrl.ply == 0 && ctrl.plyVari > 0) ? ctrl.plyVari : Math.max(ctrl.ply - 1, 0), 
+                (ctrl.ply == 0 && ctrl.plyVari > 0) ? 0 : ctrl.plyVari) 
+            } 
+        } }, [ h('i.icon.icon-step-backward') ]),
+        h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, (ctrl.plyVari > 0 ? ctrl.steps[ctrl.plyVari]['vari'].length : ctrl.steps.length) - 1), ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ]));
 }
 
 export function updateMovelist (ctrl, full = true, activate = true) {
-
     const plyFrom = (full) ? 1 : ctrl.steps.length -1
     const plyTo = ctrl.steps.length;
 
@@ -101,7 +109,7 @@ export function updateMovelist (ctrl, full = true, activate = true) {
                     const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
                     return h('vari-move', {
                         attrs: { ply: currPly },
-                        on: { click: () => selectVariMove(ctrl, idx, ctrl.plyVari) },
+                        on: { click: () => selectMove(ctrl, idx, ctrl.plyVari) },
                         }, [ h('san', moveCounter + x['san']) ]
                     );
                 })

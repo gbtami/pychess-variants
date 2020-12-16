@@ -955,9 +955,9 @@ export default class AnalysisController {
             };
 
         // New main line move
-        if (msg.ply === this.steps.length && this.plyVari === 0) {
+        if (this.ffishBoard.gamePly() === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
-            this.ply = msg.ply
+            this.ply = this.ffishBoard.gamePly()
             updateMovelist(this);
 
             this.checkStatus(msg);
@@ -970,8 +970,14 @@ export default class AnalysisController {
                     selectMove(this, this.ply);
                     return;
                 }
-                this.plyVari = this.ply;
-                this.steps[this.plyVari]['vari'] = [];
+                if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari]['vari'].length) {
+                    // continuing the variation
+                    this.plyVari = this.ffishBoard.gamePly();
+                    this.steps[this.plyVari]['vari'] = [];
+                } else {
+                    // variation in the variation: drop old moves
+                    this.steps[this.plyVari]['vari'] = this.steps[this.plyVari]['vari'].slice(0, this.ffishBoard.gamePly() - this.plyVari);    
+                }
             }
             this.steps[this.plyVari]['vari'].push(step);
 
