@@ -123,7 +123,7 @@ msgstr "개인 정보 보호 및 서비스 약관과 관련하여 lichess.org의
 
 #: ../client/analysis.ts:47 ../client/profile.ts:56 ../client/round.ts:41
 msgid "Playing right now"
-msgstr "지금 대국하기"
+msgstr "지금 플레이하기"
 
 #: ../client/analysis.ts:92 ../client/editor.ts:357 ../client/lobby.ts:277
 #: ../client/lobby.ts:659 ../client/settingsView.ts:128
@@ -428,7 +428,7 @@ msgstr[0] "%1 초 전"
 
 #: ../client/editor.ts:132 ../client/editor.ts:133
 msgid "%1 to play"
-msgstr "%1 명의 대국자"
+msgstr "%1 대국"
 
 #: ../client/editor.ts:136
 msgid "Castling"
@@ -579,11 +579,11 @@ msgstr[0] "%1 개의 게임이 진행 중"
 #: ../client/lobby.ts:647
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] "%1 명의 대국자"
+msgstr[0] "%1 명의 플레이어"
 
 #: ../client/lobby.ts:656
 msgid "Player"
-msgstr "대국자"
+msgstr "플레이어"
 
 #: ../client/lobby.ts:657
 msgid "Rating"

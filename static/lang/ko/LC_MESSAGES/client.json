@@ -13,7 +13,7 @@
     "On client side, the user interface of the game board is based on ": "클라이언트 측에서 게임 보드의 사용자 인터페이스는 기반한다",
     "The source code of the server is available on ": "서버 소스코드 사용가능",
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "개인 정보 보호 및 서비스 약관과 관련하여 lichess.org의 규칙도 여기에 적용됩니다.",
-    "Playing right now": "지금 대국하기",
+    "Playing right now": "지금 플레이하기",
     "Variant": "게임 종류",
     "in local browser": "로컬 브라우저에서",
     "You need an account to do that.": "계정이 필요합니다.",
@@ -98,7 +98,7 @@
     "%1 second ago": [
         "%1 초 전"
     ],
-    "%1 to play": "%1 명의 대국자",
+    "%1 to play": "%1 대국",
     "Castling": "캐슬링",
     "White": "백",
     "Black": "흑",
@@ -137,9 +137,9 @@
         "%1 개의 게임이 진행 중"
     ],
     "%1 player": [
-        "%1 명의 대국자"
+        "%1 명의 플레이어"
     ],
-    "Player": "대국자",
+    "Player": "플레이어",
     "Rating": "레이팅",
     "Time": "시간",
     "Mode": "모드 선택",
