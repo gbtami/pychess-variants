@@ -69,6 +69,8 @@ async def BOT_task(bot, app):
 
         gameId = event["game"]["id"]
         level = int(event["game"]["skill_level"])
+        if gameId not in app["games"]:
+            continue
         game = app["games"][gameId]
 
         if len(app["workers"]) == 0 and not random_mover:
