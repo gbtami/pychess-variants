@@ -681,8 +681,11 @@ export default class AnalysisController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             document.documentElement.style.setProperty('--pvheight', '28px');
-            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
+            const pvSan = (ceval.pvInSan === undefined || ceval.pvInSan === 1) ? ceval.p : this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
+            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? pvSan : ceval.m)]));
+
         } else {
+
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             if (this.localAnalysis) {
@@ -801,9 +804,6 @@ export default class AnalysisController {
             lastMove: move,
         });
 
-        this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-        this.drawServerEval(ply, step.scoreStr);
-
         this.fullfen = step.fen;
 
         updatePockets(this, this.vpocket0, this.vpocket1);
@@ -848,6 +848,9 @@ export default class AnalysisController {
             this.ffishBoard.setFen(this.fullfen);
             this.dests = this.getDests();
         }
+
+        this.drawEval(step.ceval, step.scoreStr, step.turnColor);
+        this.drawServerEval(ply, step.scoreStr);
 
         // TODO: multi PV
         this.maxDepth = maxDepth;
