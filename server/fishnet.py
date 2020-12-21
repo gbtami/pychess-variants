@@ -134,7 +134,6 @@ async def fishnet_analysis(request):
                         "s": analysis["score"],
                         "d": analysis["depth"],
                         "p": analysis["pv_san"] if vp_in_san else analysis["pv"],
-                        "pvInSan": 1 if vp_in_san else 0,
                         "m": analysis["pv"].partition(" ")[0]  # save first PV move to draw advice arrow
                     }
                 else:

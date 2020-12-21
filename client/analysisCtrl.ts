@@ -639,6 +639,7 @@ export default class AnalysisController {
                 }
             }
         }
+
         if (ceval?.p !== undefined) {
             let pv_move = ceval["m"].split(" ")[0];
             if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
@@ -681,17 +682,20 @@ export default class AnalysisController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             document.documentElement.style.setProperty('--pvheight', '28px');
-            const pvSan = (ceval.pvInSan === undefined || ceval.pvInSan === 1) ? ceval.p : this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
+            let pvSan = ceval.p;
+            if (this.ffishBoard !== null) {
+                try {
+                    pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
+                } catch (error) {
+                    pvSan = ceval.p
+                }
+            }
             this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? pvSan : ceval.m)]));
-
         } else {
-
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-            if (this.localAnalysis) {
-                document.documentElement.style.setProperty('--pvheight', '28px');
-                this.vpv = patch(this.vpv, h('div#pv', [h('pvline', '-')]));
-            }
+            document.documentElement.style.setProperty('--pvheight', '0px');
+            this.vpv = patch(this.vpv, h('div#pv'));
         }
 
         // console.log(shapes0);
