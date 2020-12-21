@@ -266,8 +266,12 @@ async def lobby_socket_handler(request):
             else:
                 log.debug("--- Lobby ws other msg.type %s %s", msg.type, msg)
 
-    except Exception as e:
-        log.error("!!! Lobby ws exception occured: %s", type(e))
+    except OSError:
+        # disconnected
+        pass
+
+    except Exception:
+        log.exception("ERROR: Exception in lobby_socket_handler() owned by %s ", session_user)
 
     finally:
         log.debug("---fianlly: await ws.close()")
