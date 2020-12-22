@@ -242,13 +242,26 @@ async def import_game(request):
     data = await request.post()
     app = request.app
     db = app["db"]
+    users = app["users"]
 
     # print("---IMPORT GAME---")
     # print(data)
     # print("-----------------")
 
-    wplayer = User(app, username=data["White"], anon=True)
-    bplayer = User(app, username=data["Black"], anon=True)
+    wp = data["White"]
+    bp = data["Black"]
+    if wp in users:
+        wplayer = users[wp]
+    else:
+        wplayer = User(app, username=wp, anon=True)
+        users[wp] = wplayer
+
+    if bp in users:
+        bplayer = users[bp]
+    else:
+        bplayer = User(app, username=bp, anon=True)
+        users[bp] = bplayer
+
     variant = data.get("Variant", "chess").lower()
     initial_fen = data.get("FEN", "")
     final_fen = data.get("final_fen", "")
