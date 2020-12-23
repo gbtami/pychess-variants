@@ -639,7 +639,7 @@ class LobbyController {
 function seekHeader() {
     return h('thead', [
         h('tr', [
-            h('th', ''),
+            h('th', [h('div#santa')]),
             h('th', _('Player')),
             h('th', _('Rating')),
             h('th', _('Time')),
