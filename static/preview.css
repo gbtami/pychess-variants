@@ -383,6 +383,9 @@ label.board.board3.standard8x8 {
 label.board.board4.standard8x8 {
     background-image: url('images/board/8x8olive.jpg');
 }
+label.board.board5.standard8x8 {
+    background-image: url('images/board/8x8santa.png');
+}
 
 label.piece.piece0.standard {
     background-image: url('images/pieces/merida/wN.svg');
@@ -395,6 +398,9 @@ label.piece.piece2.standard {
 }
 label.piece.piece3.standard {
     background-image: url('images/pieces/kaneo/wN.svg');
+}
+label.piece.piece4.standard {
+    background-image: url('images/pieces/santa/wN.png');
 }
 
 label.piece.piece0.orda {

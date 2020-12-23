@@ -1,0 +1,59 @@
+@namespace url(http://www.w3.org/1999/xhtml);
+
+/****
+
+Christmas themed set, by Ben Jacobs
+Thank you for using my Christmas themed chess pieces!
+Please consider donating via patreon, to recieve more AcChessories for lichess.
+My Patron account: patreon.com/AcChessories
+
+****/
+
+/* Christmas Themed Pieces, white pieces updated */
+
+
+piece.pawn.white { background-image: url("http://i.imgur.com/p2VBPkD.png")!important;} 
+piece.knight.white { background-image: url("http://i.imgur.com/sVNcfld.png")!important;} 
+piece.bishop.white { background-image: url("http://i.imgur.com/JKFEE0N.png")!important;} 
+piece.rook.white { background-image: url("http://i.imgur.com/LTkBSOf.png")!important;} 
+piece.queen.white { background-image: url("http://i.imgur.com/GpdmACB.png")!important;} 
+piece.king.white { background-image: url("http://i.imgur.com/ItJll7K.png")!important;}
+
+piece.pawn.black { background-image: url("http://i.imgur.com/czB0T91.png")!important;} 
+piece.knight.black { background-image: url("http://i.imgur.com/AsnR9mS.png")!important;} 
+piece.bishop.black { background-image: url("http://i.imgur.com/OT1fRvq.png")!important;} 
+piece.rook.black { background-image: url("http://i.imgur.com/VklhtC0.png")!important;} 
+piece.queen.black { background-image: url("http://i.imgur.com/QRW5SHt.png")!important;} 
+piece.king.black { background-image: url("http://i.imgur.com/YTBxYBe.png")!important;}
+
+/* Alternate White Pieces, use not recommended */
+
+/*
+
+piece.pawn.white { background-image: url("http://i.imgur.com/dlc4dfO.png")!important;} 
+piece.knight.white { background-image: url("http://i.imgur.com/i4POqom.png")!important;} 
+piece.bishop.white { background-image: url("http://i.imgur.com/gFHkjBC.png")!important;} 
+piece.rook.white { background-image: url("http://i.imgur.com/r3iYOEI.png")!important;} 
+piece.queen.white { background-image: url("http://i.imgur.com/W7PIHFE.png")!important;} 
+piece.king.white { background-image: url("http://i.imgur.com/cbsGhrD.png")!important;}
+
+/* Christmas Themed Boards */
+
+/* Standard */
+
+.blue .is2d .cg-board,
+#top div.color_demo.blue
+{
+background-image:url("http://i.imgur.com/1sK5kku.png") !important;
+}
+
+/* SnowBoard Alt*/
+
+.blue2 .is2d .cg-board,
+#top div.color_demo.blue2
+{
+background-image:url("http://i.imgur.com/hKI1wdU.png") !important;
+}
+
+/** To solve problems: **/
+/* i really want this to be global */
