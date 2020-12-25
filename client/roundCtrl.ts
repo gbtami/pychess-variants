@@ -278,7 +278,7 @@ export default class RoundController {
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
         }
 
-        if (!this.spectator) {
+        if (!this.spectator && model["rated"] != '1' && this.model['wtitle'] !== 'BOT' && this.model['btitle'] !== 'BOT') {
             const container = document.getElementById('more-time') as HTMLElement;
             patch(container, h('div#more-time', [
                 h('button.icon.icon-plus-square', {
