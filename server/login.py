@@ -10,7 +10,7 @@ from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_
 
 log = logging.getLogger(__name__)
 
-RESERVED_BOT_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-friend")
+RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-friend")
 
 
 async def oauth(request):
@@ -72,7 +72,7 @@ async def login(request):
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
         raise web.HTTPFound("/")
 
-    if user.username in RESERVED_BOT_USERS:
+    if user.username in RESERVED_USERS:
         log.error("User %s tried to log in.", user.username)
         raise web.HTTPFound("/")
 

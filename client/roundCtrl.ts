@@ -278,7 +278,7 @@ export default class RoundController {
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
         }
 
-        if (!this.spectator) {
+        if (!this.spectator && model["rated"] != '1' && this.model['wtitle'] !== 'BOT' && this.model['btitle'] !== 'BOT') {
             const container = document.getElementById('more-time') as HTMLElement;
             patch(container, h('div#more-time', [
                 h('button.icon.icon-plus-square', {
@@ -556,8 +556,7 @@ export default class RoundController {
         if (msg.gameId !== this.gameId) return;
 
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-        if (msg.ply === this.ply) return;
-
+        if (!this.spectator && msg.ply === this.ply) return;
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
@@ -632,7 +631,10 @@ export default class RoundController {
         // save capture state before updating chessground
         // 960 king takes rook castling is not capture
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
+        let capture = false;
+        if (step.san !== undefined) {
+            capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
+        }
         // console.log("CAPTURE ?", capture, lastMove, step);
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
             if (isVariantClass(this.variant, 'shogiSound')) {
@@ -1105,7 +1107,7 @@ export default class RoundController {
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         msg.lines.forEach((line) => {
-            if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
+            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
                 chatMessage(line.user, line.message, "roundchat");
             }
         });

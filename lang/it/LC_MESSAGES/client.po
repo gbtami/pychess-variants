@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
 # Translators:
-# ... ... <armandogagliardi0@gmail.com>, 2020
 # renyhp r <renyhp@disroot.org>, 2020
+# Armando Gagliardi <armandogagliardi0@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-11-30 20:10+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: renyhp r <renyhp@disroot.org>, 2020\n"
+"Last-Translator: Armando Gagliardi <armandogagliardi0@gmail.com>, 2020\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,6 +110,9 @@ msgid ""
 "S-chess, Capablanca, and Capahouse to start games from random positions with"
 " "
 msgstr ""
+"In più, puoi spuntare l'opzione Scacchi960 per gli Scacchi standard, "
+"Crazyhouse, S-chess, Capablanca e Capahouse per fare in modo che le partite "
+"comincino da posizioni casuali"
 
 #: ../client/about.ts:78
 msgid "Chess960 castling rules."
@@ -118,10 +121,11 @@ msgstr "Regole di arrocco degli Scacchi960"
 #: ../client/about.ts:81
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
+"Per la generazione di mosse, validazione, analisi e gioco con motore, usiamo"
 
 #: ../client/about.ts:89
 msgid "On client side, the user interface of the game board is based on "
-msgstr ""
+msgstr "Sul client-side, l'interfaccia utente della scacchiera è basata su"
 
 #: ../client/about.ts:93
 msgid "The source code of the server is available on "
@@ -132,6 +136,8 @@ msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
 msgstr ""
+"Per quanto riguarda la Privacy ed i Termini di servizio, le regole di "
+"lichess.org si applicano anche qui."
 
 #: ../client/analysis.ts:47 ../client/profile.ts:56 ../client/round.ts:41
 msgid "Playing right now"
@@ -213,7 +219,7 @@ msgstr "Scuro"
 
 #: ../client/boardSettings.ts:214
 msgid "Piece animation"
-msgstr ""
+msgstr "Animazione pezzi"
 
 #: ../client/boardSettings.ts:312
 msgid "Show piece destinations"
@@ -225,11 +231,11 @@ msgstr "Promuovi a Donna automaticamente"
 
 #: ../client/boardSettings.ts:348
 msgid "Best move arrow in analysis board"
-msgstr ""
+msgstr "Freccia della mossa migliore in scacchiera d'analisi"
 
 #: ../client/boardSettings.ts:376
 msgid "Invisible pieces"
-msgstr ""
+msgstr "Pezzi invisibili"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -313,6 +319,7 @@ msgstr "Apri il fuoco sul tuo avversario in questo antico gioco d'attacco"
 #: ../client/chess.ts:353
 msgid "The lone Red rook can also move as a cannon or a knight."
 msgstr ""
+"La torre Rossa solitaria può anche muovere come un cannone o un cavallo."
 
 #: ../client/chess.ts:363
 msgid ""
@@ -343,7 +350,7 @@ msgstr "Come gli Scacchi Capablanca ma con una posizione iniziale differente"
 
 #: ../client/chess.ts:426
 msgid "Gothic with Crazyhouse drop rules"
-msgstr ""
+msgstr "Scacchi gotici con regole di paracadutaggio Crazyhouse"
 
 #: ../client/chess.ts:436
 msgid ""
@@ -391,10 +398,12 @@ msgid ""
 "Asymmetric East vs. West variant which pits the western chess army against a"
 " xiangqi and janggi-styled army"
 msgstr ""
+"Varianti asimmetriche \"Est contro Ovest\" nelle quali l'esercito "
+"occidentale combatte contro eserciti basati sullo xiangqi e lo janggi"
 
 #: ../client/chess.ts:519
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
-msgstr ""
+msgstr "I cavalli catturano come alfieri, gli alfieri catturano come cavalli"
 
 #: ../client/chess.ts:534
 msgid "Standard piece variants"
@@ -414,7 +423,7 @@ msgstr "Varianti dello Xianqi"
 
 #: ../client/chess.ts:538
 msgid "Fairy piece variants"
-msgstr ""
+msgstr "Varianti con pezzi eterodossi"
 
 #: ../client/datetime.ts:13
 msgid "%1 year ago"
@@ -460,7 +469,7 @@ msgstr[1] "%1 secondi fa"
 
 #: ../client/editor.ts:132 ../client/editor.ts:133
 msgid "%1 to play"
-msgstr ""
+msgstr "%1 muove"
 
 #: ../client/editor.ts:136
 msgid "Castling"
@@ -504,7 +513,7 @@ msgstr "FEN invalido"
 
 #: ../client/editor.ts:384
 msgid "Click/Ctrl+click to increase/decrease number of pieces"
-msgstr ""
+msgstr "Click/Ctrl+click per aumentare/diminuire il numero di pezzi"
 
 #: ../client/invite.ts:27 ../client/profile.ts:268
 msgid "Challenge to a game"
@@ -516,11 +525,11 @@ msgstr "ANNULLA"
 
 #: ../client/invite.ts:35
 msgid "JOIN THE GAME"
-msgstr ""
+msgstr "UNISCITI ALLA PARTITA"
 
 #: ../client/invite.ts:60
 msgid "To invite someone to play, give this URL:"
-msgstr ""
+msgstr "Per invitare qualcuno a giocare, invia questo URL:"
 
 #: ../client/invite.ts:65 ../client/invite.ts:67
 msgid "Copy URL"
@@ -528,7 +537,7 @@ msgstr "Copia URL"
 
 #: ../client/invite.ts:68
 msgid "The first person to come to this URL will play with you."
-msgstr ""
+msgstr "La prima persona che userà questo URL giocherà con te."
 
 #: ../client/lobby.ts:269
 msgid "Cancel"
@@ -589,7 +598,7 @@ msgstr "Incremento in secondi:"
 
 #: ../client/lobby.ts:409
 msgid "Alternate Start"
-msgstr ""
+msgstr "Inizio alternativo"
 
 #: ../client/lobby.ts:535
 msgid "Custom"
@@ -606,8 +615,8 @@ msgstr ""
 #: ../client/lobby.ts:642
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 partita in corso"
+msgstr[1] "%1 partite in corso"
 
 #: ../client/lobby.ts:647
 msgid "%1 player"

@@ -344,7 +344,6 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
                             continue
                         else:
-                            games[data["gameId"]] = game
                             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                                 game.spectators.add(user)
                                 await round_broadcast(game, users, game.spectator_list, full=True)
@@ -483,8 +482,13 @@ async def round_socket_handler(request):
 
             else:
                 log.debug("--- Round ws other msg.type %s %s", msg.type, msg)
-    except Exception as e:
-        log.error("!!! Round ws exception occured: %s", type(e))
+
+    except OSError:
+        # disconnected
+        pass
+
+    except Exception:
+        log.exception("ERROR: Exception in round_socket_handler() owned by %s ", session_user)
 
     finally:
         log.debug("---fianlly: await ws.close()")

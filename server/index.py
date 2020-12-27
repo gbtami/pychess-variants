@@ -165,7 +165,6 @@ async def index(request):
                 text = await template.render_async({"home": URI})
                 return web.Response(
                     text=html_minify(text), content_type="text/html")
-            games[gameId] = game
 
             if game.status > STARTED:
                 view = "analysis"

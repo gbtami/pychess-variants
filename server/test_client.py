@@ -156,7 +156,7 @@ class TestUser:
         await ws.send_json({"type": "lobbychat", "user": self.username, "message": message})
 
     async def send_round_chat(self, ws, message, game_id, room):
-        await ws.send_json({"type": "roundchat", "message": message, "gameId": game_id, "room": room})
+        await ws.send_json({"type": "roundchat", "message": message, "gameId": game_id, "user": self.username, "room": room})
 
 
 async def spectators(game_id):

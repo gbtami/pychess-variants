@@ -16,6 +16,9 @@ async def BOT_task(bot, app):
         while game.status <= STARTED:
             try:
                 line = await bot.game_queues[game.id].get()
+                bot.game_queues[game.id].task_done()
+            except ValueError:
+                log.error("task_done() called more times than there were items placed in the queue in ai.py game_task()")
             except KeyError:
                 log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id)
                 if game.status <= STARTED:
@@ -53,6 +56,11 @@ async def BOT_task(bot, app):
 
     while not app["data"]["kill"]:
         line = await bot.event_queue.get()
+        try:
+            bot.event_queue.task_done()
+        except ValueError:
+            log.error("task_done() called more times than there were items placed in the queue in ai.py AI_move()")
+
         event = json.loads(line)
         # print("+++ AI event_queue.get()", event)
 
@@ -61,6 +69,8 @@ async def BOT_task(bot, app):
 
         gameId = event["game"]["id"]
         level = int(event["game"]["skill_level"])
+        if gameId not in app["games"]:
+            continue
         game = app["games"][gameId]
 
         if len(app["workers"]) == 0 and not random_mover:

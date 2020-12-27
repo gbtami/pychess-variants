@@ -3,7 +3,6 @@ import collections
 import logging
 import random
 import string
-import traceback
 from datetime import datetime
 from itertools import chain
 from time import monotonic
@@ -303,8 +302,7 @@ class Game:
         if self.saved:
             return
         if self.rated == IMPORTED:
-            log.error("Save IMPORTED game %s ???", self.id)
-            traceback.print_stack()
+            log.exception("Save IMPORTED game %s ???", self.id)
             return
 
         self.stopwatch.kill()

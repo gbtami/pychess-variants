@@ -26,6 +26,11 @@ async def get_work(request, data):
     # priority can be "move" or "analysis"
     try:
         (priority, work_id) = fishnet_work_queue.get_nowait()
+        try:
+            fishnet_work_queue.task_done()
+        except ValueError:
+            log.error("task_done() called more times than there were items placed in the queue in fishnet.py get_work()")
+
         work = request.app["works"][work_id]
         # print("FISHNET ACQUIRE we have work for you:", work)
         if priority == ANALYSIS:
@@ -124,10 +129,11 @@ async def fishnet_analysis(request):
                 if "analysis" not in game.steps[i]:
                     # TODO: save PV only for inaccuracy, mistake and blunder
                     # see https://github.com/ornicar/lila/blob/master/modules/analyse/src/main/Advice.scala
+                    vp_in_san = "pv_san" in analysis.keys()
                     game.steps[i]["analysis"] = {
                         "s": analysis["score"],
                         "d": analysis["depth"],
-                        "p": analysis["pv_san"],
+                        "p": analysis["pv_san"] if vp_in_san else analysis["pv"],
                         "m": analysis["pv"].partition(" ")[0]  # save first PV move to draw advice arrow
                     }
                 else:

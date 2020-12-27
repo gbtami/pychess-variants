@@ -7,6 +7,7 @@ from datetime import datetime
 from const import VARIANTS
 from broadcast import lobby_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF
+from login import RESERVED_USERS
 from seek import get_seeks
 
 log = logging.getLogger(__name__)
@@ -66,7 +67,7 @@ class User:
         self.silence = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec
-        if self.anon and not self.bot:
+        if self.anon and self.username not in RESERVED_USERS:
             loop = asyncio.get_event_loop()
             loop.create_task(self.remove())
 

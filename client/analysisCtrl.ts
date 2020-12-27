@@ -639,6 +639,7 @@ export default class AnalysisController {
                 }
             }
         }
+
         if (ceval?.p !== undefined) {
             let pv_move = ceval["m"].split(" ")[0];
             if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
@@ -681,14 +682,20 @@ export default class AnalysisController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             document.documentElement.style.setProperty('--pvheight', '28px');
-            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? ceval.p : ceval.m)]));
+            let pvSan = ceval.p;
+            if (this.ffishBoard !== null) {
+                try {
+                    pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
+                } catch (error) {
+                    pvSan = ceval.p
+                }
+            }
+            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? pvSan : ceval.m)]));
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-            if (this.localAnalysis) {
-                document.documentElement.style.setProperty('--pvheight', '28px');
-                this.vpv = patch(this.vpv, h('div#pv', [h('pvline', '-')]));
-            }
+            document.documentElement.style.setProperty('--pvheight', '0px');
+            this.vpv = patch(this.vpv, h('div#pv'));
         }
 
         // console.log(shapes0);
@@ -801,9 +808,6 @@ export default class AnalysisController {
             lastMove: move,
         });
 
-        this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-        this.drawServerEval(ply, step.scoreStr);
-
         this.fullfen = step.fen;
 
         updatePockets(this, this.vpocket0, this.vpocket1);
@@ -848,6 +852,9 @@ export default class AnalysisController {
             this.ffishBoard.setFen(this.fullfen);
             this.dests = this.getDests();
         }
+
+        this.drawEval(step.ceval, step.scoreStr, step.turnColor);
+        this.drawServerEval(ply, step.scoreStr);
 
         // TODO: multi PV
         this.maxDepth = maxDepth;
@@ -955,9 +962,9 @@ export default class AnalysisController {
             };
 
         // New main line move
-        if (msg.ply === this.steps.length && this.plyVari === 0) {
+        if (this.ffishBoard.gamePly() === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
-            this.ply = msg.ply
+            this.ply = this.ffishBoard.gamePly()
             updateMovelist(this);
 
             this.checkStatus(msg);
@@ -970,8 +977,14 @@ export default class AnalysisController {
                     selectMove(this, this.ply);
                     return;
                 }
-                this.plyVari = this.ply;
-                this.steps[this.plyVari]['vari'] = [];
+                if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari]['vari'].length) {
+                    // continuing the variation
+                    this.plyVari = this.ffishBoard.gamePly();
+                    this.steps[this.plyVari]['vari'] = [];
+                } else {
+                    // variation in the variation: drop old moves
+                    this.steps[this.plyVari]['vari'] = this.steps[this.plyVari]['vari'].slice(0, this.ffishBoard.gamePly() - this.plyVari);    
+                }
             }
             this.steps[this.plyVari]['vari'].push(step);
 
@@ -1231,7 +1244,7 @@ export default class AnalysisController {
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         msg.lines.forEach((line) => {
-            if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
+            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
                 chatMessage(line.user, line.message, "roundchat");
             }
         });

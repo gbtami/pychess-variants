@@ -168,8 +168,6 @@ async def subscribe_invites(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError:
-            pass
         finally:
             app['invite_channels'].remove(queue)
     return response
@@ -185,33 +183,28 @@ async def subscribe_games(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError:
-            pass
         finally:
             app['game_channels'].remove(queue)
     return response
 
 
 async def subscribe_notify(request):
-    try:
-        async with sse_response(request) as response:
-            session = await aiohttp_session.get_session(request)
-            session_user = session.get("user_name")
+    async with sse_response(request) as response:
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
 
-            user = request.app["users"].get(session_user)
-            if user is None:
-                return response
+        user = request.app["users"].get(session_user)
+        if user is None:
+            return response
 
-            user.notify_queue = asyncio.Queue()
-            try:
-                while not response.task.done():
-                    payload = await user.notify_queue.get()
-                    await response.send(payload)
-                    user.notify_queue.task_done()
-            finally:
-                user.notify_queue = None
-    except ConnectionResetError:
-        return
+        user.notify_queue = asyncio.Queue()
+        try:
+            while not response.task.done():
+                payload = await user.notify_queue.get()
+                await response.send(payload)
+                user.notify_queue.task_done()
+        finally:
+            user.notify_queue = None
     return response
 
 
