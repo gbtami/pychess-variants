@@ -53,7 +53,7 @@
         <img src="/static/images/board/minishogi.svg"/>
         <img src="/static/images/board/doubutsuboard.svg"/>
     </div>
-    <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --pocketheight: 0px; --pvheight: 0px; --countingHeight: 0px;"
+    <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --pocketheight: 0px; --pvheight: 0px; --countingHeight: 0px; --zoom:80;"
                                 data-view="{{ view }}"
                                 data-lang="{{ lang }}"
                                 data-home="{{ home }}"
@@ -113,3 +113,13 @@
     </body>
 </html>
 {% block js %}{% endblock %}
+
+<script>
+function resizeBoard() {
+  const ev = document.createEvent('Event');
+  ev.initEvent('chessground.resize', false, false);
+  document.body.dispatchEvent(ev);
+}
+
+window.addEventListener('resize', resizeBoard);
+</script>

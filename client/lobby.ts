@@ -467,7 +467,7 @@ class LobbyController {
             h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
             h('td', seek.rating),
             h('td', seek.tc),
-            h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, " " + variant.displayName(chess960)),
+            h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
             h('td', { class: { tooltip: seek.fen } }, [
                 this.tooltip(seek, variant),
                 this.mode(seek),

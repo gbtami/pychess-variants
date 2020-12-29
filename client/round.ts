@@ -26,50 +26,50 @@ export function roundView(model): VNode[] {
     renderTimeago();
 
     return [h('aside.sidebar-first', [
-        h('div.game-info', [
-            h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
-                h('div.info2', [
-                    h('div.tc', [
-                        timeControlStr(model["base"], model["inc"], model["byo"]) + " • " + gameType(model["rated"]) + " • ",
-                        h('a.user-link', {
-                            attrs: {
-                                target: '_blank',
-                                href: '/variant/' + model["variant"] + (chess960 ? '960': ''),
-                            }
-                        },
-                            variant.displayName(chess960)),
+            h('div.game-info', [
+                h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
+                    h('div.info2', [
+                        h('div.tc', [
+                            timeControlStr(model["base"], model["inc"], model["byo"]) + " • " + gameType(model["rated"]) + " • ",
+                            h('a.user-link', {
+                                attrs: {
+                                    target: '_blank',
+                                    href: '/variant/' + model["variant"] + (chess960 ? '960': ''),
+                                }
+                            },
+                                variant.displayName(chess960)),
+                        ]),
+                        Number(model["status"]) >= 0 ? h('info-date', { attrs: { timestamp: model["date"] } }, timeago(model["date"])) : _("Playing right now"),
                     ]),
-                    Number(model["status"]) >= 0 ? h('info-date', { attrs: { timestamp: model["date"] } }, timeago(model["date"])) : _("Playing right now"),
+                ]),
+                h('div.player-data', [
+                    h('i-side.icon', {
+                        class: {
+                            "icon-white": fc === "White",
+                            "icon-black": fc === "Black",
+                            "icon-red":   fc === "Red",
+                            "icon-blue":  fc === "Blue",
+                            "icon-gold":  fc === "Gold",
+                        }
+                    }),
+                    h('player', playerInfo(model, 'w', null)),
+                ]),
+                h('div.player-data', [
+                    h('i-side.icon', {
+                        class: {
+                            "icon-white": sc === "White",
+                            "icon-black": sc === "Black",
+                            "icon-red":   sc === "Red",
+                            "icon-blue":  sc === "Blue",
+                            "icon-gold":  sc === "Gold",
+                        }
+                    }),
+                    h('player', playerInfo(model, 'b', null)),
                 ]),
             ]),
-            h('div.player-data', [
-                h('i-side.icon', {
-                    class: {
-                        "icon-white": fc === "White",
-                        "icon-black": fc === "Black",
-                        "icon-red":   fc === "Red",
-                        "icon-blue":  fc === "Blue",
-                        "icon-gold":  fc === "Gold",
-                    }
-                }),
-                h('player', playerInfo(model, 'w', null)),
-            ]),
-            h('div.player-data', [
-                h('i-side.icon', {
-                    class: {
-                        "icon-white": sc === "White",
-                        "icon-black": sc === "Black",
-                        "icon-red":   sc === "Red",
-                        "icon-blue":  sc === "Blue",
-                        "icon-gold":  sc === "Gold",
-                    }
-                }),
-                h('player', playerInfo(model, 'b', null)),
-            ]),
+            h('div#roundchat'),
         ]),
-        h('div#roundchat'),
-    ]),
-        h('div', [
+        h('div.round-app', [
             h('selection#mainboard.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg, {
                     hook: {
@@ -77,38 +77,33 @@ export function roundView(model): VNode[] {
                     },
                 }),
             ]),
-        ]),
-        h('aside.sidebar-second', [
-            h('div#counting'),
-            h('div', [
+            h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
                     ]),
                 ]),
             ]),
-            h('div.info-wrap', [
+            h('div.info-wrap0', [
                 h('div.clock-wrap', [
                     h('div#clock0'),
                     h('div#more-time'),
                 ]),
                 h('div#misc-info0'),
             ]),
-            h('div.round-data', [
-                h('round-player#rplayer0'),
-                h('div#move-controls'),
-                h('div#movelist-block', [
-                    h('div#movelist'),
-                ]),
-                h('div#result'),
-                h('div#game-controls'),
-                h('round-player#rplayer1'),
+            h('round-player0#rplayer0'),
+            h('div#move-controls'),
+            h('div.movelist-block', [
+                h('div#movelist'),
             ]),
-            h('div.info-wrap', [
+            h('div#result'),
+            h('div#game-controls'),
+            h('round-player1#rplayer1'),
+            h('div.info-wrap1', [
                 h('div#clock1'),
                 h('div#misc-info1'),
             ]),
-            h('div', [
+            h('div.pocket-bot', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),

@@ -5,82 +5,68 @@
  * board and pieces displayed!
  */
 .cg-wrap {
-  background-size: cover;
-  position: relative;
-  display: block;
+    background-size: cover;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 0;
 }
 /* 8x8 */
 .cg-wrap.cg-512 {
-  width: 512px;
-  height: 512px;
+    padding-bottom: 100%;
 }
 .cg-wrap.cg-512.mini {
   width: 256px;
-  height: 256px;
 }
 /* 10x8 */
 .cg-wrap.cg-640 {
-  width: 640px;
-  height: 512px;
+    padding-bottom: calc(512 * 100% / 640);
 }
 .cg-wrap.cg-640.mini {
   width: 320px;
-  height: 256px;
 }
 /* 9x9 */
 .cg-wrap.cg-576 {
-  width: 468px;
-  height: 540px;
+    padding-bottom: calc(540 * 100% / 468);
 }
 .cg-wrap.cg-576.mini {
   width: 304px;
-  height: 351px;
 }
 /* 5x5 */
 .cg-wrap.cg-260 {
-  width: 390px;
-  height: 450px;
+    padding-bottom: calc(450 * 100% / 390);
 }
 .cg-wrap.cg-260.mini {
   width: 260px;
-  height: 300px;
 }
 /* 3x4 */
 .cg-wrap.cg-156 {
-  width: 212px;
-  height: 480px;
+    padding-bottom: calc(480 * 100% / 312);
 }
 .cg-wrap.cg-156.mini {
   width: 156px;
-  height: 240px;
 }
 
 /* 7x7 */
 .cg-wrap.cg-448 {
-  width: 448px;
-  height: 448px;
+    padding-bottom: 100%;
 }
 .cg-wrap.cg-448.mini {
   width: 224px;
-  height: 224px;
 }
 /* 9x10 */
 .cg-wrap.cg-576-640 {
-  width: 576px;
-  height: 640px;
+    padding-bottom: calc(640 * 100% / 576);
 }
 .cg-wrap.cg-576-640.mini {
   width: 288px;
-  height: 320px;
 }
 /* 10x10 */
 .cg-wrap.cg-640-640 {
-  width: 640px;
-  height: 640px;
+    padding-bottom: 100%;
 }
 .cg-wrap.cg-640-640.mini {
   width: 320px;
-  height: 320px;
 }
 
 cg-board {
@@ -248,6 +234,12 @@ cg-board piece.fading {
   font-size: 0.85em;
   font-weight: bold;
 }
+/* hide coords */
+@media (max-width: 799px) and (orientation: portrait) {
+    .cg-wrap coords {
+        display: none;
+    }
+}
 .cg-wrap coords.ranks {
   right: var(--ranks-right);
   top: var(--ranks-top);
@@ -272,6 +264,8 @@ cg-board piece.fading {
 .cg-wrap coords coord {
   flex: 1 1 auto;
 }
-.cg-wrap coords.ranks coord {
-  transform: translateY(39%);
+@media (min-width: 800px) and (min-height: 500px) {
+    .cg-wrap coords.ranks coord {
+      transform: translateY(39%);
+    }
 }
