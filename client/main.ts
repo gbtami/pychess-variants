@@ -24,8 +24,8 @@ import { sound, volumeSettings, soundThemeSettings } from './sound';
 import { debounce, getCookie } from './document';
 import { backgroundSettings } from './background';
 
-// redirect to correct URL
-if (window.location.href.includes('heroku')) {
+// redirect to correct URL except Heroku preview apps
+if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
     window.location.assign('https://www.pychess.org/');
 }
 
