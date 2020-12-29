@@ -547,7 +547,9 @@ button.back {
 .user-link {
     padding-right: 8px;
 }
-
+a {
+    white-space: nowrap;
+}
 a, .user-link:link, .user-link:visited {
     display: inline-block;
     color: var(--font-color);
