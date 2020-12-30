@@ -609,6 +609,18 @@ div#result {
     width: 100%;
     margin: 20px 2px;
 }
+@media (max-width: 1120px) {
+    .lobby-button {
+        padding: 12px 2px;
+        margin: 2px 2px;
+    }
+}
+@media (max-width: 800px) {
+    .lobby-button {
+        padding: 2px 2px;
+        margin: 2px 2px;
+    }
+}
 button#request-analysis, button#import, button.join {
     width: 200px;
     padding: 4px;
@@ -913,7 +925,7 @@ table#seeks-header, table#seeks {
     table-layout: fixed;
 }
 #seeks-table {
-    min-width: 400px;
+    min-width: 350px;
     max-width: 650px;
     box-shadow: var(--base-shadow);
     background-size: cover;
@@ -939,7 +951,7 @@ table#seeks-header, table#seeks {
     background-image: url('images/Santa_hat.svg');
 }
 #seeks-header th, #seeks td {
-    padding: 10 0 10 6;
+    padding: 10 4 10 4;
     white-space: nowrap;
     font-weight: inherit;
 }
@@ -980,6 +992,9 @@ table#seeks-header, table#seeks {
 @media (max-width: 799px) and (orientation: portrait) {
     #seeks-header tr > :nth-child(5), #seeks tr > :nth-child(5) {
         width: 5%;
+    }
+    #seeks-header tr > :nth-child(6), #seeks tr > :nth-child(6) {
+        text-align: right;
     }
 }
 #seekbuttons > button {
