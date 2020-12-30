@@ -1173,7 +1173,15 @@ select, input {
     width: 30%; /* Could be more or less, depending on screen size */
     border: 1px solid var(--bg-color2);
 }
-
+@media (max-width: 799px) and (orientation: portrait) {
+    .modal-content {
+        margin: 0;
+        width: 100%;
+    }
+    .modal-content .container {
+        padding: 0;
+    }
+}
 /* The Close Button (x) */
 .close {
     display: flex;
@@ -1189,7 +1197,12 @@ select, input {
     font-size: 18px;
     border-radius: 50%;
 }
-
+@media (max-width: 799px) and (orientation: portrait) {
+    .close {
+        right: 2px;
+        top: -16px;
+    }
+}
 .close:hover, .close:focus {
     cursor: pointer;
     color:#fff;
