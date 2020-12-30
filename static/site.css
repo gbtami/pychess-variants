@@ -206,6 +206,7 @@ iframe {
 .round {
     grid-area: main;
     display: grid;
+    grid-template-columns: 1fr;
     --board-scale: 1;
     grid-template-areas: 'app' 'uboard' 'side' 'uside';
 }
