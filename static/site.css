@@ -234,7 +234,7 @@ body {
 
 @media (max-width: 799px) and (orientation: portrait) {
     .round-app {
-        grid-template-rows: auto auto 50px auto min-content 50px auto auto auto auto;
+        grid-template-rows: auto auto 36px auto min-content 36px auto auto auto auto;
         grid-template-areas: 'move-controls' 'mat-top' 'user-top' 'clock-top' 'board' 'user-bot' 'clock-bot' 'mat-bot' 'game-controls' 'moves';
     }
 }
@@ -1292,11 +1292,14 @@ round-player0, round-player1 {
     font-size: 1.2em;
     padding: 0 .3em;
     line-height: 50px;
+    align-self: center;
     background: var(--bg-color0);
 }
 @media (max-width: 799px) and (orientation: portrait) {
     round-player0, round-player1 {
         background: none;
+        font-size: 1.0em;
+        line-height: 36px;
     }
 }
 round-player0 {
@@ -2024,7 +2027,14 @@ boardeditor {
 .pocket-bot {
     grid-area: mat-bot;
 }
-
+@media (max-width: 799px) and (orientation: portrait) {
+    .pocket.top {
+        margin-bottom: 0;
+    }
+    .pocket.bottom {
+        margin-top: 0;
+    }
+}
 .pocket-wrapper .editor {
     width: var(--cgwrapwidth);
     height: calc(var(--piecerows) * var(--cgwrapheight) / var(--ranks));
