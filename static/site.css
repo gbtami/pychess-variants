@@ -1,6 +1,6 @@
 @import "hamburger.css";
 :root {
-    --main-margin: 1.5vmin;
+    --main-margin: 0;
     --main-max-width: 1400px;
     --gauge-width: 17px;
     --site-header-height: 60px;
@@ -184,10 +184,11 @@ iframe {
     padding: 1em;
 }
 
-body {
-   --main-margin: 1vw;
+@media (min-width: 800px) {
+    body {
+       --main-margin: 1vw;
+    }
 }
-
 #main-wrap {
     --main-max-width: auto;
     display: grid;
