@@ -72,7 +72,7 @@ async def login(request):
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
             access_token=session_user.token)
-            user, info = await client.user_info()
+        user, info = await client.user_info()
     except Exception:
         log.error("Failed to get user info from lichess.org")
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
