@@ -36,6 +36,7 @@ async def oauth(request):
         token, data = token_data
         session = await aiohttp_session.get_session(request)
         session["token"] = token
+        print("oauth()", session, session["token"])
     except Exception:
         log.error("Failed to get oauth access token.")
         raise
@@ -58,6 +59,7 @@ async def login(request):
             session["token"] = DEV_TOKEN1
         request.app["dev_token"] = True
 
+    print("login()", session, session["token"])
     if "token" not in session:
         raise web.HTTPFound(REDIRECT_PATH)
 
@@ -65,9 +67,10 @@ async def login(request):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         access_token=session["token"])
-
+    print("login()", client)
     try:
         user, info = await client.user_info()
+    print("login()", user, info)
     except Exception:
         log.error("Failed to get user info from lichess.org")
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
