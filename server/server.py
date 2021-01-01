@@ -35,8 +35,9 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 async def on_prepare(request, response):
-    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
-    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    #response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    #response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    pass
 
 
 def make_app(with_db=True):
