@@ -33,6 +33,7 @@ class User:
             self.username = "Anon-" + "".join(random.sample(string.ascii_letters, 8))
         else:
             self.username = username
+        self.token = None
         self.first_name = first_name
         self.last_name = last_name
         self.country = country

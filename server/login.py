@@ -34,15 +34,15 @@ async def oauth(request):
             redirect_uri=REDIRECT_URI
         )
         token, data = token_data
+
+        users = request.app["users"]
         session = await aiohttp_session.get_session(request)
-        session["token"] = token
+        session_user = users[session.get("user_name")]
+        session_user.token = token
     except Exception:
         log.error("Failed to get oauth access token.")
-        raise
-    response = web.HTTPSeeOther("/login")
-    response.set_cookie("token", token, path="/login", max_age=1000, secure=True, httponly=True, samesite=None)
-    print(response.cookies)
-    raise response
+
+    raise web.HTTPSeeOther("/login")
 
 
 async def login(request):
@@ -61,22 +61,24 @@ async def login(request):
             session["token"] = DEV_TOKEN1
         request.app["dev_token"] = True
 
-    print("login()", session)
-    if "token" not in session:
+    users = request.app["users"]
+    session_user = users[session.get("user_name")]
+
+    if session_user.token is None:
         raise web.HTTPFound(REDIRECT_PATH)
 
     client = aioauth_client.LichessClient(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
-        access_token=session["token"])
-    print("login()", client)
+        access_token=session_user.token)
     try:
         user, info = await client.user_info()
-        print("login()", user, info)
     except Exception:
         log.error("Failed to get user info from lichess.org")
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
         raise web.HTTPFound("/")
+    finally:
+        session_user.token = None
 
     if user.username in RESERVED_USERS:
         log.error("User %s tried to log in.", user.username)
@@ -88,7 +90,6 @@ async def login(request):
         raise web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s %s %s", user.id, user.username, user.country)
-    users = request.app["users"]
 
     prev_session_user = session.get("user_name")
     prev_user = users.get(prev_session_user)
