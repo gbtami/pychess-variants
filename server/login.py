@@ -36,7 +36,8 @@ async def oauth(request):
         token, data = token_data
         session = await aiohttp_session.get_session(request)
         session["token"] = token
-        print("oauth()", session, session["token"])
+        print("oauth()", session)
+        assert 'token' in session
     except Exception:
         log.error("Failed to get oauth access token.")
         raise
@@ -59,7 +60,7 @@ async def login(request):
             session["token"] = DEV_TOKEN1
         request.app["dev_token"] = True
 
-    print("login()", session, session["token"])
+    print("login()", session)
     if "token" not in session:
         raise web.HTTPFound(REDIRECT_PATH)
 
