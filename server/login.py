@@ -44,6 +44,7 @@ async def oauth(request):
         session["token"] = token
     except Exception:
         log.error("Failed to get oauth access token.")
+        raise
     print("back to /login with token in session")
     raise web.HTTPFound("/login")
 
