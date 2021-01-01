@@ -41,6 +41,7 @@ async def index(request):
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
+    print("index()", session)
     session_user = session.get("user_name")
 
     session["last_visit"] = datetime.now().isoformat()
