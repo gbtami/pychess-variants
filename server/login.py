@@ -101,7 +101,7 @@ async def login(request):
     session["first_name"] = user.first_name
     session["last_name"] = user.last_name
     session["title"] = title
-
+    print("LOGIN OK", session)
     if user.username:
         db = request.app["db"]
         doc = await db.user.find_one({"_id": user.username})
