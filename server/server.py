@@ -248,7 +248,7 @@ async def shutdown(app):
                     pass
 
     for ws_set in app['lobbysockets'].values():
-        for ws in ws_set:
+        for ws in list(ws_set):
             await ws.close()
 
     if "client" in app:
