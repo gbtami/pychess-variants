@@ -35,12 +35,13 @@ async def oauth(request):
         )
         token, data = token_data
         session = await aiohttp_session.get_session(request)
-        #session["token"] = token
+        session["token"] = token
     except Exception:
         log.error("Failed to get oauth access token.")
         raise
     response = web.HTTPSeeOther("/login")
     response.set_cookie("token", token, max_age=1000, secure=True, httponly=True, samesite="Lax")
+    print(response.cookies)
     raise response
 
 
