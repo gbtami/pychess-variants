@@ -67,12 +67,12 @@ async def login(request):
     if session_user.token is None:
         raise web.HTTPFound(REDIRECT_PATH)
 
-    client = aioauth_client.LichessClient(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        access_token=session_user.token)
     try:
-        user, info = await client.user_info()
+        client = aioauth_client.LichessClient(
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+            access_token=session_user.token)
+            user, info = await client.user_info()
     except Exception:
         log.error("Failed to get user info from lichess.org")
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
@@ -118,8 +118,6 @@ async def login(request):
         elif not doc.get("enabled", True):
             log.info("Closed account %s tried to log in.", user.username)
             session["user_name"] = prev_session_user
-
-        del session["token"]
 
     raise web.HTTPFound("/")
 
