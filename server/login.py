@@ -25,12 +25,14 @@ async def oauth(request):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET
     )
-
+    print("LichessClient", client)
     if not request.query.get("code"):
+        print("no 'code' in request")
         raise web.HTTPFound(client.get_authorize_url(
             # scope="email:read",
             redirect_uri=REDIRECT_URI
         ))
+    print("client.get_access_token()")
     try:
         token_data = await client.get_access_token(
             request.query.get("code"),
@@ -42,6 +44,7 @@ async def oauth(request):
         session["token"] = token
     except Exception:
         log.error("Failed to get oauth access token.")
+    print("back to /login with token in session")
     raise web.HTTPFound("/login")
 
 
