@@ -14,9 +14,6 @@ RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-fr
 
 
 async def oauth(request):
-    print("oauth() CLIENT_ID", CLIENT_ID)
-    print("oauth() CLIENT_SECRET", CLIENT_SECRET)
-    print("oauth() REDIRECT_URI", REDIRECT_URI)
     """ Get lichess.org oauth token. """
     # TODO: check https://lichess.org/api/user/{username}
     # see https://lichess.org/api#operation/apiUser
@@ -25,32 +22,27 @@ async def oauth(request):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET
     )
-    print("LichessClient", client)
     if not request.query.get("code"):
-        print("no 'code' in request")
         raise web.HTTPFound(client.get_authorize_url(
             # scope="email:read",
             redirect_uri=REDIRECT_URI
         ))
-    print("client.get_access_token()")
+
     try:
         token_data = await client.get_access_token(
             request.query.get("code"),
             redirect_uri=REDIRECT_URI
         )
         token, data = token_data
-        print("got token and data", toke, data)
         session = await aiohttp_session.get_session(request)
         session["token"] = token
     except Exception:
         log.error("Failed to get oauth access token.")
         raise
-    print("back to /login with token in session")
     raise web.HTTPFound("/login")
 
 
 async def login(request):
-    print("login()")
     """ Login with lichess.org oauth. """
     if REDIRECT_PATH is None:
         log.error("Set REDIRECT_PATH env var if you want lichess OAuth login!")
@@ -67,7 +59,6 @@ async def login(request):
         request.app["dev_token"] = True
 
     if "token" not in session:
-        print("   not token in session, go to REDIRECT_PATH", REDIRECT_PATH)
         raise web.HTTPFound(REDIRECT_PATH)
 
     client = aioauth_client.LichessClient(
@@ -77,7 +68,6 @@ async def login(request):
 
     try:
         user, info = await client.user_info()
-        print("   got user, info", user, info)
     except Exception:
         log.error("Failed to get user info from lichess.org")
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
