@@ -39,7 +39,7 @@ async def oauth(request):
     except Exception:
         log.error("Failed to get oauth access token.")
         raise
-    response = web.HTTPFound("/login")
+    response = web.HTTPSeeOther("/login")
     response.set_cookie("token", token, samesite="Lax")
     raise response
 
