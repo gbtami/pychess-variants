@@ -166,7 +166,7 @@ async def index(request):
                 return web.Response(
                     text=html_minify(text), content_type="text/html")
 
-            if game.status > STARTED:
+            if ply is not None:
                 view = "analysis"
 
             if user.username != game.wplayer.username and user.username != game.bplayer.username:
