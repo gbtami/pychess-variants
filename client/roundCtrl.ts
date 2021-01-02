@@ -462,7 +462,7 @@ export default class RoundController {
     }
 
     private analysis = (home) => {
-        window.location.assign(home + '/' + this.gameId);
+        window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
     }
 
     private gameOver = (rdiffs) => {
