@@ -1,39 +1,39 @@
 .synochess .cg-wrap piece.pawn.white {
-    background-image: url('../../images/pieces/synochess/xq/wP.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/wP.svg');
 }
 .synochess .cg-wrap piece.bishop.white {
-    background-image: url('../../images/pieces/synochess/xq/wB.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/wB.svg');
 }
 .synochess .cg-wrap piece.knight.white {
-    background-image: url('../../images/pieces/synochess/xq/wN.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/wN.svg');
 }
 .synochess .cg-wrap piece.rook.white {
-    background-image: url('../../images/pieces/synochess/xq/wR.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/wR.svg');
 }
 .synochess .cg-wrap piece.queen.white {
-    background-image: url('../../images/pieces/synochess/xq/wQ.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/wQ.svg');
 }
 .synochess .cg-wrap piece.king.white {
-    background-image: url('../../images/pieces/synochess/xq/wK.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/wK.svg');
 }
 .synochess .cg-wrap piece.silver.black {
-    background-image: url('../../images/pieces/synochess/xq/bS.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/bS.svg');
 }
 .synochess .cg-wrap piece.elephant.black {
-    background-image: url('../../images/pieces/synochess/xq/bE.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/bE.svg');
 }
 .synochess .cg-wrap piece.knight.black {
-    background-image: url('../../images/pieces/synochess/xq/bN.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/bN.svg');
 }
 .synochess .cg-wrap piece.rook.black {
-    background-image: url('../../images/pieces/synochess/xq/bR.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/bR.svg');
 }
 .synochess .cg-wrap piece.archbishop.black {
-    background-image: url('../../images/pieces/synochess/xq/bA.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/bA.svg');
 }
 .synochess .cg-wrap piece.chancellor.black {
-    background-image: url('../../images/pieces/synochess/xq/bC.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/bC.svg');
 }
 .synochess .cg-wrap piece.king.black {
-    background-image: url('../../images/pieces/synochess/xq/bK.svg');
+    background-image: url('../../images/pieces/synochess/xq-red/bK.svg');
 }

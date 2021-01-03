@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="bR.svg"
+   id="svg2428"
+   version="1.1"
+   height="45"
+   width="45">
+  <rect
+     style="fill:#ff2a2a;fill-opacity:1;stroke:#000000;stroke-width:1.53141;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="rect4664"
+     width="30.094711"
+     height="20.108107"
+     x="7.4526486"
+     y="15.424111"
+     ry="3.0417755" />
+  <g
+     transform="matrix(0.86355122,0,0,0.86355122,-1.44234,-0.1900827)"
+     id="g1989">
+    <circle
+       r="14.910736"
+       cy="34.546993"
+       cx="27.725443"
+       id="path979"
+       style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.58161;stroke-linecap:round;stroke-linejoin:round" />
+    <circle
+       style="display:inline;fill:none;stroke:#ececec;stroke-width:2.64769;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       id="circle995"
+       cx="27.725443"
+       cy="34.546993"
+       r="11.022715" />
+    <path
+       id="path1027"
+       d="m 16.877615,33.561227 h 21.695661 v 2.082327 H 16.877615 Z"
+       style="display:inline;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:0.399487px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="display:inline;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:0.399487px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 20.791084,26.195602 15.341149,15.34115 -1.472427,1.472427 -15.341149,-15.34115 z"
+       id="path1035" />
+    <path
+       id="path1037"
+       d="m 34.659806,26.195602 -15.341149,15.34115 1.472427,1.472427 15.341149,-15.34115 z"
+       style="display:inline;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:0.399487px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="display:inline;fill:#ececec;fill-opacity:1;stroke:none;stroke-width:0.399487px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 28.766608,23.754559 V 45.450222 H 26.684281 V 23.754559 Z"
+       id="path1039" />
+  </g>
+  <path
+     sodipodi:nodetypes="cc"
+     style="fill:none;stroke:#000000;stroke-width:1.66847;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 22.322658,15.209423 23.857447,6.8051187"
+     id="path4668" />
+  <path
+     style="fill:#ff2a2a;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 6.8415734,6.0203808 C 15.749441,8.0400205 22.258074,9.2029473 40.310675,11.21501 c 0,0 -10.697996,-5.8639813 -16.307972,-6.7346871 C 18.392726,3.609617 6.8415724,6.0203806 6.8415734,6.0203808 Z"
+     id="path4672"
+     sodipodi:nodetypes="ccsc" />
+  <metadata
+     id="metadata2434">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2432" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg2428"
+     inkscape:window-maximized="1"
+     inkscape:window-y="1085"
+     inkscape:window-x="6708"
+     inkscape:cy="107.23739"
+     inkscape:cx="-97.987265"
+     inkscape:zoom="3.3194735"
+     showgrid="false"
+     id="namedview2430"
+     inkscape:window-height="1780"
+     inkscape:window-width="3360"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     inkscape:document-rotation="0" />
+</svg>

@@ -1,39 +1,39 @@
 .synochess .cg-wrap piece.pawn.white {
-    background-image: url('../../images/pieces/synochess/blackdisc/wP.svg');
+    background-image: url('../../images/pieces/synochess/xq/wP.svg');
 }
 .synochess .cg-wrap piece.bishop.white {
-    background-image: url('../../images/pieces/synochess/blackdisc/wB.svg');
+    background-image: url('../../images/pieces/synochess/xq/wB.svg');
 }
 .synochess .cg-wrap piece.knight.white {
-    background-image: url('../../images/pieces/synochess/blackdisc/wN.svg');
+    background-image: url('../../images/pieces/synochess/xq/wN.svg');
 }
 .synochess .cg-wrap piece.rook.white {
-    background-image: url('../../images/pieces/synochess/blackdisc/wR.svg');
+    background-image: url('../../images/pieces/synochess/xq/wR.svg');
 }
 .synochess .cg-wrap piece.queen.white {
-    background-image: url('../../images/pieces/synochess/blackdisc/wQ.svg');
+    background-image: url('../../images/pieces/synochess/xq/wQ.svg');
 }
 .synochess .cg-wrap piece.king.white {
-    background-image: url('../../images/pieces/synochess/blackdisc/wK.svg');
+    background-image: url('../../images/pieces/synochess/xq/wK.svg');
 }
 .synochess .cg-wrap piece.silver.black {
-    background-image: url('../../images/pieces/synochess/blackdisc/bS.svg');
+    background-image: url('../../images/pieces/xiangqi/hnz/red_pawn.svg');
 }
 .synochess .cg-wrap piece.elephant.black {
-    background-image: url('../../images/pieces/synochess/blackdisc/bE.svg');
+    background-image: url('../../images/pieces/xiangqi/hnz/red_elephant.svg');
 }
 .synochess .cg-wrap piece.knight.black {
-    background-image: url('../../images/pieces/synochess/blackdisc/bN.svg');
+    background-image: url('../../images/pieces/xiangqi/hnz/red_horse.svg');
 }
 .synochess .cg-wrap piece.rook.black {
-    background-image: url('../../images/pieces/synochess/blackdisc/bR.svg');
+    background-image: url('../../images/pieces/xiangqi/hnz/red_chariot.svg');
 }
 .synochess .cg-wrap piece.archbishop.black {
-    background-image: url('../../images/pieces/synochess/blackdisc/bA.svg');
+    background-image: url('../../images/pieces/xiangqi/hnz/red_advisor.svg');
 }
 .synochess .cg-wrap piece.chancellor.black {
-    background-image: url('../../images/pieces/synochess/blackdisc/bC.svg');
+    background-image: url('../../images/pieces/xiangqi/hnz/red_cannon.svg');
 }
 .synochess .cg-wrap piece.king.black {
-    background-image: url('../../images/pieces/synochess/blackdisc/bK.svg');
+    background-image: url('../../images/pieces/xiangqi/hnz/red_king.svg');
 }
