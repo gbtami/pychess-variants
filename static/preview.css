@@ -411,22 +411,22 @@ label.piece.piece1.orda {
 }
 
 label.piece.piece0.synochess {
-    background-image: url('images/pieces/synochess/intl/bR.svg');
+    background-image: url('images/pieces/synochess/intl-red/bR.svg');
 }
 label.piece.piece1.synochess {
-    background-image: url('images/pieces/synochess/xq/bR.svg');
+    background-image: url('images/pieces/synochess/xq-red/bR.svg');
 }
 label.piece.piece2.synochess {
-    background-image: url('images/pieces/green/synoshako/bR.svg');
+    background-image: url('images/pieces/green/syno-red/bR.svg');
 }
 label.piece.piece3.synochess {
-    background-image: url('images/pieces/xiangqi/ct3/black_chariot.svg');
+    background-image: url('images/pieces/xiangqi/ct3/red_chariot.svg');
 }
 label.piece.piece4.synochess {
-    background-image: url('images/pieces/xiangqi/hnzw/black_chariot.svg');
+    background-image: url('images/pieces/xiangqi/hnzw/red_chariot.svg');
 }
 label.piece.piece5.synochess {
-    background-image: url('images/pieces/synochess/blackdisc/bR.svg');
+    background-image: url('images/pieces/xiangqi/hnz/red_chariot.svg');
 }
 
 label.piece.piece0.hoppel {

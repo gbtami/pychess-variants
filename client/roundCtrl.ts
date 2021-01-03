@@ -477,14 +477,14 @@ export default class RoundController {
         patch(container, renderRdiff(rdiffs["brdiff"]));
 
         // console.log(rdiffs)
+        this.gameControls = patch(this.gameControls, h('div'));
+        let buttons: VNode[] = [];
         if (!this.spectator) {
-            this.gameControls = patch(this.gameControls, h('div'));
-            patch(this.gameControls, h('div#after-game-controls', [
-                h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")),
-                h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, _("NEW OPPONENT")),
-                h('button.analysis', { on: { click: () => this.analysis(this.model["home"]) } }, _("ANALYSIS BOARD")),
-            ]));
+            buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
+            buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, _("NEW OPPONENT")));
         }
+        buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.model["home"]) } }, _("ANALYSIS BOARD")));
+        patch(this.gameControls, h('div#after-game-controls', buttons));
     }
 
     private checkStatus = (msg) => {

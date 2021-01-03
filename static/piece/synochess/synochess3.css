@@ -17,23 +17,23 @@
     background-image: url('../../images/pieces/synochess/xq/wK.svg');
 }
 .synochess .cg-wrap piece.silver.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/black_pawn.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_pawn.svg');
 }
 .synochess .cg-wrap piece.elephant.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/black_elephant.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_elephant.svg');
 }
 .synochess .cg-wrap piece.knight.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/black_horse.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_horse.svg');
 }
 .synochess .cg-wrap piece.rook.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/black_chariot.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_chariot.svg');
 }
 .synochess .cg-wrap piece.archbishop.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/black_advisor.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_advisor.svg');
 }
 .synochess .cg-wrap piece.chancellor.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/black_cannon.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_cannon.svg');
 }
 .synochess .cg-wrap piece.king.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/black_king.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_king.svg');
 }
