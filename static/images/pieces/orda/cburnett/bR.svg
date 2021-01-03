@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="45"
+   height="45"
+   version="1.1"
+   id="svg12209"
+   sodipodi:docname="bR.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <metadata
+     id="metadata12215">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs12213" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1678"
+     inkscape:window-height="1767"
+     id="namedview12211"
+     showgrid="false"
+     inkscape:zoom="15.839192"
+     inkscape:cx="17.155905"
+     inkscape:cy="28.673312"
+     inkscape:window-x="6709"
+     inkscape:window-y="1097"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg12209" />
+  <g
+     fill="#fff"
+     fill-rule="evenodd"
+     stroke="#000"
+     stroke-width="1.5"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g12207">
+    <path
+       d="M9 39h27v-3H9v3zm3-3v-4h21v4H12zm-1-22V9h4v2h5V9h5v2h5V9h4v5"
+       stroke-linecap="butt"
+       id="path12197"
+       style="fill:#ffd42a;fill-opacity:1" />
+    <path
+       d="M34 14l-3 3H14l-3-3"
+       id="path12199"
+       style="fill:#ffd42a;fill-opacity:1" />
+    <path
+       d="m 31,17 v 6.25 6.25 H 22.5 14 V 23.25 17"
+       stroke-linecap="butt"
+       stroke-linejoin="miter"
+       id="path12201"
+       sodipodi:nodetypes="ccccccc"
+       style="fill:#ffd42a;fill-opacity:1" />
+    <path
+       d="M31 29.5l1.5 2.5h-20l1.5-2.5"
+       id="path12203"
+       style="fill:#ffd42a;fill-opacity:1" />
+    <path
+       d="M11 14h23"
+       fill="none"
+       stroke-linejoin="miter"
+       id="path12205" />
+  </g>
+</svg>
