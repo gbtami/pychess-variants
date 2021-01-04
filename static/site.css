@@ -585,6 +585,7 @@ div a {
 }
 
 div#result {
+    width: 100%;
     display: block;
     padding: 12px 0;
     font-family: Roboto, sans-serif;
@@ -651,14 +652,6 @@ div.import {
 .donate-button:hover {
     background-color: var(--gold);
     color: White;
-}
-
-#after-game-controls {
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
-    background: var(--bg-color1);
-    box-shadow: var(--btn-shadow);
 }
 
 button.rematch {
@@ -1227,6 +1220,15 @@ div.btn-controls {
     display: flex;
     justify-content: space-between;
 }
+div.btn-controls.after {
+    grid-area: game-controls;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    background: var(--bg-color1);
+    box-shadow: var(--btn-shadow);
+}
+
 #btn-controls-top button {
     font-size: 14px;
     background: var(--bg-color2);

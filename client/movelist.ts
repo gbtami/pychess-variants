@@ -12,6 +12,7 @@ import { VNode } from 'snabbdom/vnode';
 import { boardSettings } from './boardSettings';
 import AnalysisController from "./analysisCtrl";
 import RoundController from "./roundCtrl";
+import { result } from './profile'
 
 export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
     ctrl.goPly(ply, plyVari);
@@ -120,6 +121,10 @@ export function updateMovelist (ctrl, full = true, activate = true) {
                 moves.push(h('move', '...'));
             }
         }
+    }
+
+    if (ctrl.status >= 0) {
+        moves.push(h('div#result', result(ctrl.variant, ctrl.status, ctrl.result)));
     }
 
     if (full) {

@@ -382,8 +382,6 @@ export default class AnalysisController {
     private checkStatus = (msg) => {
         if (msg.gameId !== this.gameId && !this.isAnalysisBoard) return;
         if ((msg.status >= 0 && this.result === "") || this.isAnalysisBoard) {
-            this.result = msg.result;
-            this.status = msg.status;
 
             // Save finished game full pgn sent by server
             if (msg.pgn !== undefined) this.pgn = msg.pgn;
@@ -434,6 +432,9 @@ export default class AnalysisController {
 
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
+
+        this.result = msg.result;
+        this.status = msg.status;
 
         if (msg.steps.length > 1) {
             this.steps = [];
