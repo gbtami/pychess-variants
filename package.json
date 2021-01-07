@@ -8,8 +8,8 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "chessgroundx": "^7.6.43",
-    "ffish": "^0.4.7",
-    "ffish-es6": "^0.4.7",
+    "ffish": "^0.5.1",
+    "ffish-es6": "^0.5.1",
     "gettext.js": "^1.0.0",
     "highcharts": "^7.2.1",
     "howler": "^2.1.3",
