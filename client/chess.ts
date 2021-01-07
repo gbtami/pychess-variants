@@ -39,7 +39,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], baseURL: ["makruk/ada/wb", "makruk/ada/wr", "makruk/cambodian", "sittuyin/original", "makruk/intl"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"], baseURL: ["sittuyin/original", "sittuyin/Ka_blackred", "sittuyin/Ka_greenred", "makruk/ada", "makruk/intl"] },
     shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0p3d", "shogi0kw3d", "shogi0d"], baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/ctp3d", "shogi/ctkw3d", "shogi/Ka"] },
-    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi", "kyoto/Kanji", "kyoto/Intl"] },
+    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi/ctk", "kyoto/Kanji", "kyoto/Intl"] },
     dobutsu: { pieceCSS: ["dobutsu0"], baseURL: ["shogi/Ka/dobutsu"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa"], baseURL: ["xiangqi/playok", "xiangqi/ct3", "xiangqi/ct2", "xiangqi/hnz", "xiangqi/ct2w", "xiangqi/Ka"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlkakao", "janggi/intlwooden", "janggi/Ka_kako", "janggi/Ka_wooden"] },
