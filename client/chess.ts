@@ -507,6 +507,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "synochess", tooltip: _("Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army"),
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
         board: "standard8x8", piece: "synochess",
+        firstColor: "White", secondColor: "Red",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         pieceRoles2: ["king", "archbishop", "chancellor", "rook", "elephant", "knight", "silver"],
         pocketRoles: [], pocketRoles2: ["silver"],
