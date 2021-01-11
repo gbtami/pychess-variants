@@ -2,14 +2,14 @@
 
 ![Synochess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Synochess.png)
 
-Synochess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a variant where the western chess army can fight against the xiangqi or Chinese chess army in a fair manner. Given that the circumstances in xiangqi are much different (larger board, overall weaker pieces), this was difficult to achieve without significant boosts to the Chinese-style army. However, this was able to be achieved, without overall losing the feel of xiangqi when playing as the Chinese army. In this game, the white army represents the western chess side and is called the Kingdom, while the black army represents an amalgamation of xiangqi and janggi (Korean chess) and is called the Dynasty. All pieces on the Dynasty side resemble their counterpart in either xiangqi or janggi and should be familiar to those who have played those games.
+Synochess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a variant where the western chess army can fight against the xiangqi or Chinese chess army in a fair manner. Given that the circumstances in xiangqi are much different (larger board, overall weaker pieces), this was difficult to achieve without significant boosts to the Chinese-style army. However, this was able to be achieved, without overall losing the feel of xiangqi when playing as the Chinese army. In this game, the white army represents the western chess side and is called the Kingdom, while the red army represents an amalgamation of xiangqi and janggi (Korean chess) and is called the Dynasty. All pieces on the Dynasty side resemble their counterpart in either xiangqi or janggi and should be familiar to those who have played those games.
 The name Synochess is based off an earlier name, Sinochess, but it was changed as the Dynasty became less “Sino” (as in Chinese) and more a mixture of Chinese and Korean. Instead, the prefix syn- means together, and the game represents two different historic branches of chess coming together into one.
  
 ## General Rules
 1.	Setup is as above. 
 2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side)
 3.	The Kingdom (white) always moves first.
-4.	The Dynasty (black) cannot castle.
+4.	The Dynasty (red) cannot castle.
 5.	Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop). Dynasty soldiers do not promote.
 
 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
@@ -19,7 +19,7 @@ There are five additional rules that new players must be especially aware of! (A
 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 
 1.	**King Faceoff** – As in Xiangqi, **Kings may not face each other (on a file OR rank) without intervening pieces**, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king.
-2.	**Reinforcement Soldiers** – Black starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.
+2.	**Reinforcement Soldiers** – Red starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.
 3.	**Campmate** – A king that reaches the final rank (without moving into check) wins the game.
 4.	**Stalemate** – As in Xiangqi, stalemates are a loss (in Chess, they are a draw).
 5.	**Perpetual check** – As in Xiangqi, perpetual checks (repeating the position three times, and all moves in between were checks) are a loss (in Chess, they are a draw).
@@ -117,7 +117,7 @@ As the Dynasty, avoid moving the soldiers too much. Their initial formation is a
 * **Protect the queen!** – The queen is valued even more than in standard chess, because it is the one big trump card that the Kingdom has over the Dynasty. If it has to be exchanged, make sure that one of the enemy chariots go down with it.
 * **Trade, trade, trade** – This follows the last two tips. If you keep trading, while keeping your queen alive and also not making too many exchanges for cannons, you will be on top. The Dynasty has a complex piece coordination, and that can get broken down the fewer pieces they have. The Kingdom wants a simple, open game, while the Dynasty wants to take advantage of its early open files and soldier screens.
 
-### Dynasty (black) tips
+### Dynasty (red) tips
 
 * **Know the pieces' moves!** – This may seem obvious, but a lot of beginners forget that soldiers can move sideways. 
 * **Soldier structure – DO NOT MOVE YOUR SOLDIERS** – This may seem counterintuitive compared to regular chess pawns, but soldiers really shouldn’t be moving as part of your development OR for most attacks. The starting positions of your starting four soldiers are actually the strongest formation already. They each defend each other and prevent white from placing pieces anywhere on the 5th file. As such, each pair are probably even worth more than the average minor piece. Keep them there and use them as screens for your cannons to cramp and redirect white’s development as much as possible. Also, despite the words "DO NOT MOVE" in bold capital letters, if you have to, then you obviously have to.
