@@ -547,6 +547,9 @@ a, .user-link, .user-link:active {
 a:hover, .user-link:hover  {
     color: var(--link-hover);
 }
+p a  {
+    color: var(--link-hover);
+}
 div a {
     cursor: pointer;
 }
@@ -921,6 +924,7 @@ table#seeks-header, table#seeks {
 #seeks thead {
     display: none;
 }
+/*
 #santa {
     display: inline-block;
     width: 28px;
@@ -929,6 +933,7 @@ table#seeks-header, table#seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
+*/ 
 #seeks-header th, #seeks td {
     padding: 10 4 10 4;
     white-space: nowrap;
