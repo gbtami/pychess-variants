@@ -865,6 +865,7 @@ table#seeks-header, table#seeks {
 #seeks thead {
     display: none;
 }
+/*
 #santa {
     display: inline-block;
     width: 28px;
@@ -873,6 +874,7 @@ table#seeks-header, table#seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
+*/ 
 #seeks-header th, #seeks td {
     padding: 10 0 10 6;
     white-space: nowrap;
