@@ -503,6 +503,9 @@ a, .user-link, .user-link:active {
 a:hover, .user-link:hover  {
     color: var(--link-hover);
 }
+p a  {
+    color: var(--link-hover);
+}
 div a {
     cursor: pointer;
 }
