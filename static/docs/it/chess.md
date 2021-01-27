@@ -2,7 +2,7 @@
 
 ![Chess board](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-Se conosci gli scacchi, allora probabilmente non sei venuto qui per imparare le regole degli scacchi. Dai, prova qualche variante!
+Se conosci gli scacchi, allora probabilmente non sei venuto qui per impararne le regole. Dai, prova qualche variante!
 
 Se non hai familiarità con gli scacchi, allora le regole sono facilmente disponibili su internet, come su Wikipedia o sui siti di scacchi più importanti come lichess.org e chess.com.
 
