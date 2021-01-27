@@ -1,9 +1,9 @@
-# ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/chess.svg) Chess
+# ![Chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/chess.svg) Scacchi
 
 ![Chess board](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 
-If you are familiar with chess, then you probably didn't come here to learn the rules of chess. Please try some variants!
+Se conosci gli scacchi, allora probabilmente non sei venuto qui per imparare le regole degli scacchi. Dai, prova qualche variante!
 
-If you are not familiar with chess, then the rules are widely available on the internet, such as on Wikipedia or premier chess sites like lichess.org and chess.com.
+Se non hai familiarità con gli scacchi, allora le regole sono facilmente disponibili su internet, come su Wikipedia o sui siti di scacchi più importanti come lichess.org e chess.com.
 
-As with other variants, you can play chess on Pychess Variants against other people or the AI. You can also set custom positions by adjusting the [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) and play games with those using standard chess rules.
+Come con le altre varianti, puoi giocare a scacchi su Pychess Variants contro altre persone o contro il computer. Puoi anche impostare posizioni personalizzate regolando il [FEN](https://it.wikipedia.org/wiki/Notazione_Forsyth-Edwards) e giocare partite con quelle usando le regole standard degli scacchi.
