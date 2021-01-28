@@ -1,6 +1,6 @@
 # ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Capahouse960.svg) Capahouse 960
 
-Capahouse 960 è una variante che combina le regole degli scacchi Capablanca, Crazyhouse e Chess 960. Poiché questo è considerato un derivato degli scacchi Capablanca, si prega di controllare le regole Capablanca nella sua guida separata. Le regole di Crazyhouse e 960 sono riportate sotto come promemoria.
+Capahouse 960 è una variante che combina le regole degli scacchi Capablanca, Crazyhouse e Chess 960. Poiché questa variante è considerata un derivato degli scacchi Capablanca, si prega di controllare le regole Capablanca nella sua guida separata. Le regole di Crazyhouse e 960 sono riportate sotto come promemoria.
 
 Questa variante può essere giocata spuntando l'opzione "Chess960" quando si crea una partita Capahouse.
 
