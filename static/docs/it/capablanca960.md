@@ -1,17 +1,17 @@
 # ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
 
-Capablanca 960 is a custom variant combining the rules of Capablanca chess with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca chess rules in its separate guide. 960 rules are as below for a reminder.
+Capablanca 960 è una variante che combina le regole degli scacchi Capablanca con la posizione di partenza casuale degli Scacchi 960. Le stesse regole si applicano a entrambi i giochi. Poiché questa variante è considerata un derivato degli scacchi Capablanca, si prega di controllare le regole degli scacchi Capablanca nella sua guida separata. Le regole di 960 sono riportate sotto come promemoria.
 
-Note that unlike standard chess, there are more than 960 random positions. The 960 is more of a label than a technical number for this game.
+Nota che a differenza di quanto succede con gli scacchi standard, ci sono più di 960 possibili posizioni iniziali casuali. "960" in questo caso è utilizzato più come etichetta che come termine tecnico.
 
-This variant can be played by checking the "Chess960" option when creating a Capablanca chess game.
+Questa variante può essere giocata spuntando l'opzione "Scacchi 960" quando si crea una partita di scacchi Capablanca.
 
-## 960 Rules
+## Regole 960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+Le posizioni dei pezzi nella traversa di partenza sono scambiate in maniera casuale, ma devono seguire queste due regole:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+Gli alfieri devono essere posizionati su caselle di colore opposto.
+Il re deve essere posizionato su una casella tra le torri.
+L'arrocco è l'altra regola principale di cui prendere nota. Fondamentalmente, indipendentemente da dove sono le torri, se si arrocca la posizione finale del re e delle torri sarà la stessa rispetto alla posizione che si otterrebbe si avesse arroccato negli scacchi standard.
 
-All other rules are as in Capablanca chess.
+Tutte le altre regole sono uguali a quelle degli scacchi Capablanca.
