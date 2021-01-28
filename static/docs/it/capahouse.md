@@ -1,19 +1,19 @@
 # ![Capahouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/CHouse.svg) Capahouse
 
-Capahouse is a custom variant combining the rules of Capablanca chess with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse rules are as below for a reminder.
+Capahouse è una variante che combina le regole degli scacchi Capablanca con le regole di paracadutaggio di Crazyhouse. Le stesse regole si applicano a entrambi i giochi. Poiché questa variante è considerata un derivato degli scacchi Capablanca, si prega di controllare le regole Capablanca nella sua guida separata. Le regole di Crazyhouse sono riportate sotto come promemoria.
 
-## Crazyhouse Rules
+## Regole di Crazyhouse
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+I pezzi catturati possono essere paracadutati (*drops*) in gioco come tuoi, al posto di fare una normale mossa sulla scacchiera. La rimessa in gioco di un pezzo è annotato con @. Così, per esempio, R@e4 (si usa la notazione inglese) significa torre paracadutata in e4. Le regole per la rimessa in gioco dei pezzi sono le seguenti:
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* I paracadutaggi che risultano in uno scacco immediato sono permesse. A differenza dello shogi, questo include drops di pedone.
+* Non si possono rimettere in gioco pedoni sulla prima od ottava traversa.
+* Pedoni che sono stati promossi e che vengono catturati ritornano in gioco come semplici pedoni.
+* Pedoni bianchi e neri posizionati rispettivamente sulla seconda e settima traversa hanno la possibilità di muovere di due case durante le mosse successive.
+* Una torre paracadutata non può arroccare.
 
-All other rules are as in Capablanca chess.
+Tutte le altre regole sono uguali a quelle degli scacchi Capablanca.
 
-## Strategy
+## Strategia
 
-As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
+Come in Crazyhouse standard, i valori dei pezzi non si allineano con i valori dei pezzi degli scacchi comuni, e come in crazyhouse standard, sacrificare materiale per uno sviluppo veloce, attacchi al Re nemico, o semplicemente per la difesa, è spesso saggio. A volte è meglio rinforzare i difensori intorno al proprio Re piuttosto che cercare di salvarli. Rimandiamo dunque alle guide sulla strategia di Crazyhouse standard.
