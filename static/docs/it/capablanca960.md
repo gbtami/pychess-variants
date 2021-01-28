@@ -1,6 +1,6 @@
 # ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
 
-Capablanca 960 è una variante che combina le regole degli scacchi Capablanca con la posizione di partenza casuale degli Scacchi 960. Le stesse regole si applicano a entrambi i giochi. Poiché questa variante è considerata un derivato degli scacchi Capablanca, si prega di controllare le regole degli scacchi Capablanca nella sua guida separata. Le regole di 960 sono riportate sotto come promemoria.
+Capablanca 960 è una variante che combina le regole degli scacchi Capablanca con la posizione di partenza casuale degli Scacchi 960. Le stesse regole si applicano a entrambi i giochi. Poiché questa variante è considerata un derivato degli scacchi Capablanca, si prega di controllare le regole degli scacchi Capablanca nella sua guida separata. Le regole 960 sono riportate sotto come promemoria.
 
 Nota che a differenza di quanto succede con gli scacchi standard, ci sono più 960 possibili posizioni iniziali casuali. "960" in questo caso è utilizzato più come etichetta che come termine tecnico.
 
