@@ -1,27 +1,25 @@
 # ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Capahouse960.svg) Capahouse 960
 
-Capahouse 960 is a custom variant combining the rules of Capablanca chess, Crazyhouse, and Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse and 960 rules are as below for a reminder.
+Capahouse 960 è una variante che combina le regole degli scacchi Capablanca, Crazyhouse e Chess 960. Poiché questo è considerato un derivato degli scacchi Capablanca, si prega di controllare le regole Capablanca nella sua guida separata. Le regole di Crazyhouse e 960 sono riportate sotto come promemoria.
 
-This variant can be played by checking the "Chess960" option when creating a Capahouse game.
+Questa variante può essere giocata spuntando l'opzione "Chess960" quando si crea una partita Capahouse.
 
-## Crazyhouse Rules
+## Regole Crazyhouse
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+I pezzi catturati possono essere paracadutati (*drops*) in gioco come tuoi, al posto di fare una normale mossa sulla scacchiera. La rimessa in gioco di un pezzo è annotata con @. Così, per esempio, R@e4 (si usa la notazione inglese) significa "torre paracadutata in e4". Le regole per la rimessa in gioco dei pezzi sono le seguenti:
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* I paracadutaggi che risultano in uno scacco immediato sono permessi. A differenza dello shogi, questo include drops di pedone.
+* Non si possono rimettere in gioco pedoni sulla prima od ottava traversa.
+* Pedoni che sono stati promossi e che vengono catturati ritornano in gioco come semplici pedoni.
+* Pedoni bianchi e neri posizionati rispettivamente sulla seconda e settima traversa hanno la possibilità di muovere di due case durante le mosse successive.
+* Una torre paracadutata non può arroccare.
 
-## 960 Rules
+## Regole 960
 
-The starting bottom ranks are randomized, but two rules must be followed:
+Le posizioni dei pezzi nella traversa di partenza sono scambiate in maniera casuale, ma devono seguire queste regole:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+Gli alfieri devono essere posizionati su case di colore opposto.
 
-## Clarifications
+Il re deve essere posizionato su una casa tra le torri.
 
-A king may not castle with a dropped rook.
+L'arrocco è l'altra regola principale di cui prendere nota. Fondamentalmente, indipendentemente da dove sono le torri, se si arrocca la posizione finale del re e delle torri sarà la stessa rispetto alla posizione che si otterrebbe si avesse arroccato negli scacchi standard.
