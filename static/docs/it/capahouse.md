@@ -4,9 +4,9 @@ Capahouse è una variante che combina le regole degli scacchi Capablanca con le 
 
 ## Regole di Crazyhouse
 
-I pezzi catturati possono essere paracadutati (*drops*) in gioco come tuoi, al posto di fare una normale mossa sulla scacchiera. La rimessa in gioco di un pezzo è annotato con @. Così, per esempio, R@e4 (si usa la notazione inglese) significa torre paracadutata in e4. Le regole per la rimessa in gioco dei pezzi sono le seguenti:
+I pezzi catturati possono essere paracadutati (*drops*) in gioco come tuoi, al posto di fare una normale mossa sulla scacchiera. La rimessa in gioco di un pezzo è annotato con @. Così, per esempio, R@e4 (si usa la notazione inglese) significa "torre paracadutata in e4". Le regole per la rimessa in gioco dei pezzi sono le seguenti:
 
-* I paracadutaggi che risultano in uno scacco immediato sono permesse. A differenza dello shogi, questo include drops di pedone.
+* I paracadutaggi che risultano in uno scacco immediato sono permessi. A differenza dello shogi, questo include drops di pedone.
 * Non si possono rimettere in gioco pedoni sulla prima od ottava traversa.
 * Pedoni che sono stati promossi e che vengono catturati ritornano in gioco come semplici pedoni.
 * Pedoni bianchi e neri posizionati rispettivamente sulla seconda e settima traversa hanno la possibilità di muovere di due case durante le mosse successive.
