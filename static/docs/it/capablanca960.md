@@ -8,11 +8,11 @@ Questa variante può essere giocata spuntando l'opzione "Scacchi 960" quando si 
 
 ## Regole 960
 
-Le posizioni dei pezzi nella traversa di partenza sono scambiate in maniera casuale, ma devono seguire queste due regole:
+Le posizioni dei pezzi nella traversa di partenza sono scambiate in maniera casuale, ma devono seguire queste regole:
 
-Gli alfieri devono essere posizionati su caselle di colore opposto.
+Gli alfieri devono essere posizionati su case di colore opposto.
 
-Il re deve essere posizionato su una casella tra le torri.
+Il re deve essere posizionato su una casa tra le torri.
 
 L'arrocco è l'altra regola principale di cui prendere nota. Fondamentalmente, indipendentemente da dove sono le torri, se si arrocca la posizione finale del re e delle torri sarà la stessa rispetto alla posizione che si otterrebbe si avesse arroccato negli scacchi standard.
 
