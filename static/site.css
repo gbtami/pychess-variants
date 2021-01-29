@@ -281,6 +281,7 @@ iframe {
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
+    padding: 0 1em 0 1em;
 }
 .sidebar-second.analysis {
     justify-content: none;
@@ -582,16 +583,10 @@ div#result {
     width: 100%;
     margin: 20px 2px;
 }
-@media (max-width: 800px) {
-    .lobby-button {
-        padding: 12px 2px;
-        margin: 2px 2px;
-    }
-}
-@media (max-width: 800px) {
+@media (max-width: 799px) and (orientation: portrait) {
     .lobby-button {
         padding: 2px 2px;
-        margin: 2px 2px;
+        margin: 2px 0 2px 0;
     }
 }
 button#request-analysis, button#import, button.join {
@@ -1369,6 +1364,7 @@ label {
     justify-content: center;
     background: var(--bg-color0);
     box-shadow: var(--base-shadow);
+    min-height: 15em;
 }
 
 user {
