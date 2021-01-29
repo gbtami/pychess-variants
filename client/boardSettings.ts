@@ -9,8 +9,6 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
-import { dimensions } from 'chessgroundx/types';
-
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES, isVariantClass } from './chess';
 import { changeBoardCSS, changePieceCSS } from './document';
@@ -100,19 +98,16 @@ class BoardSettings {
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
             if (el) {
+                document.body.setAttribute('style', '--zoom:' + zoom);
+                document.body.dispatchEvent(new Event('chessground.resize'));
+
                 const baseWidth = el.getBoundingClientRect()['width'];
                 const baseHeight = el.getBoundingClientRect()['height'];
 
-                const pxw = `${(zoom / 100) * baseWidth}px`;
-                const pxh = `${(zoom / 100) * baseHeight}px`;
+                const pxw = `${baseWidth}px`;
+                const pxh = `${baseHeight}px`;
 
-                // 2 x pocket height
-                const pxp = (this.ctrl.hasPockets) ? `${2 * (((zoom / 100) * baseHeight) / dimensions[VARIANTS[variant].geometry].height)}px;` : '0px;';
-                // point counting values
-                const pxc = (isVariantClass(variant, "showMaterialPoint")) ? '48px;' : '0px;';
-
-                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --countingHeight:' + pxc + '; --zoom:' + zoom);
-                document.body.dispatchEvent(new Event('chessground.resize'));
+                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --zoom:' + zoom);
 
                 if (this.ctrl instanceof AnalysisController) {
                     analysisChart(this.ctrl);

@@ -287,7 +287,6 @@ export default class AnalysisController {
             this.checkStatus({fen: this.fullfen});
             document.documentElement.style.setProperty('--toolsHeight', '92px');
         }
-        document.documentElement.style.setProperty('--pvheight', '0px');
 
         patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
 
@@ -353,7 +352,6 @@ export default class AnalysisController {
                     this.engineGo();
                 } else {
                     this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-                    document.documentElement.style.setProperty('--pvheight', '0px');
                     this.vpv = patch(this.vpv, h('div#pv'));
                     this.engineStop();
                 }
@@ -381,7 +379,7 @@ export default class AnalysisController {
 
     private checkStatus = (msg) => {
         if (msg.gameId !== this.gameId && !this.isAnalysisBoard) return;
-        if ((msg.status >= 0 && this.result === "") || this.isAnalysisBoard) {
+        if ((msg.status >= 0) || this.isAnalysisBoard) {
 
             // Save finished game full pgn sent by server
             if (msg.pgn !== undefined) this.pgn = msg.pgn;
@@ -644,6 +642,7 @@ export default class AnalysisController {
         if (ceval?.p !== undefined) {
             let pv_move = ceval["m"].split(" ")[0];
             if (isVariantClass(this.variant, "tenRanks")) pv_move = grand2zero(pv_move);
+            console.log("ARROW", arrow);
             if (arrow === 'true') {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
@@ -682,7 +681,6 @@ export default class AnalysisController {
                 }
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
-            document.documentElement.style.setProperty('--pvheight', '28px');
             let pvSan = ceval.p;
             if (this.ffishBoard !== null) {
                 try {
@@ -695,11 +693,10 @@ export default class AnalysisController {
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-            document.documentElement.style.setProperty('--pvheight', '0px');
             this.vpv = patch(this.vpv, h('div#pv'));
         }
 
-        // console.log(shapes0);
+        console.log(shapes0);
         this.chessground.set({
             drawable: {autoShapes: shapes0},
         });

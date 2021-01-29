@@ -4,6 +4,13 @@
  * You need to include the css files in themes folder in order to have the
  * board and pieces displayed!
  */
+cg-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: block;
+    bottom: 0;
+}
 .cg-wrap {
     background-size: cover;
     position: relative;

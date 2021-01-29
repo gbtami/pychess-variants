@@ -198,6 +198,7 @@ async def index(request):
         "lang": lang,
         "title": view.capitalize(),
         "view": view,
+        "view_css": "round" if view == "tv" else view,
         "home": URI,
         "user": user.username if session["guest"] else "",
         "anon": user.anon,

@@ -1,0 +1,48 @@
+/* games */
+grid-container {
+    display: grid;
+    --auto-grid-min-size: 24rem;
+    justify-content: center;
+    overflow-x:hidden;
+    grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
+    grid-gap: 0.3rem;
+}
+.games {
+    margin: var(--main-margin);
+}
+minigame {
+    /*border: 1px solid var(--bg-color2);*/
+    margin:0.3em;
+    padding: 6px;
+    background-color: var(--bg-color0);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+minigame:hover {
+    background-color: var(--game-hover);
+    cursor: pointer;
+}
+minigame > div {
+    margin: auto;
+}
+minigame .row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+minigame .variant-info {
+    display: inline-flex;
+    flex-direction: inherit;
+    align-items: inherit;
+}
+minigame .icon {
+    font-size: 2em;
+}
+minigame .tc {
+    margin-left: 3px;
+}
+minigame .name {
+    text-align: right;
+}

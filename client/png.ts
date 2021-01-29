@@ -1,7 +1,7 @@
 import { toPng } from 'html-to-image';
 
 export function copyBoardToPNG(fen) {
-    const el = document.getElementById('board2png') as HTMLElement;
+    const el = document.getElementById('mainboard') as HTMLElement;
     const style = getComputedStyle(document.body);
     const width = parseInt(style.getPropertyValue('--cgwrapwidth'));
     const height = parseInt(style.getPropertyValue('--cgwrapheight'));

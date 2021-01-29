@@ -38,6 +38,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet"> 
         <link rel="stylesheet" href="/static/site.css">
+        <link rel="stylesheet" href="/static/{{ view_css }}.css">
         <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon" />
     </head>
     <div id="preload">
@@ -53,7 +54,7 @@
         <img src="/static/images/board/minishogi.svg"/>
         <img src="/static/images/board/doubutsuboard.svg"/>
     </div>
-    <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --pocketheight: 0px; --pvheight: 0px; --countingHeight: 0px; --zoom:80;"
+    <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --zoom:80;"
                                 data-view="{{ view }}"
                                 data-lang="{{ lang }}"
                                 data-home="{{ home }}"
@@ -113,13 +114,3 @@
     </body>
 </html>
 {% block js %}{% endblock %}
-
-<script>
-function resizeBoard() {
-  const ev = document.createEvent('Event');
-  ev.initEvent('chessground.resize', false, false);
-  document.body.dispatchEvent(ev);
-}
-
-window.addEventListener('resize', resizeBoard);
-</script>

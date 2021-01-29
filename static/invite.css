@@ -1,0 +1,56 @@
+/* Invite to a game */
+div.invitegame {
+    border: 1px solid green;
+    border-radius: 99px;
+    background-color: var(--invite-game);
+    padding: .5em 1.1em;
+}
+div.invitegame div.info0 {
+    padding: 14px;
+    align-items: center;
+}
+div.invitegame div.info0::before {
+    font-size: 64px;
+    color: var(--green-switch);
+}
+div.invitegame div.info2 {
+    font-size: 24px;
+    padding-bottom: 0;
+}
+div.rated {
+    margin-left: auto;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--green-switch);
+}
+div.inviteinfo {
+    background-color: var(--bg-color2);
+    padding: 30px;
+    margin: 20px;
+}
+form.invite {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+}
+button.red {
+    cursor: pointer;
+    font-size: 16px;
+    background: #c33;
+    color: white;
+    padding: 10px;
+    margin: 2px 2px;
+    border: none;
+    border-radius: 4px;
+}
+button.join {
+    cursor: pointer;
+    font-size: 16px;
+    background: var(--blue-hover);
+    width: 100%;
+    color: white;
+    padding: 18px;
+    margin: 2px 2px;
+    border: none;
+    border-radius: 4px;
+}

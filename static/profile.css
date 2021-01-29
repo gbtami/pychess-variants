@@ -1,0 +1,74 @@
+/* profile games */
+.filter-tabs {
+    display: flex;
+    padding-top: 10px;
+    background-color: var(--bg-color2);
+}
+div.filter-tabs div.sub-ratings {
+    flex: auto;
+    font-size: 1.2em;
+}
+player-head {
+    font-size: 24px;
+}
+.i-at, .i-tv, .i-dl, .i-ch {
+    float: right;
+    padding: 0px 4px 0px 4px;
+    color: #505050;
+    text-decoration: none;
+}
+.editor-button-container .i-pgn div:before {
+    padding-right: 6px;
+}
+a.i-at:link, a.i-tv:link, a.i-dl:link, a.i-ch:link, a.i-pgn:link {
+    display: inline-block;
+    text-decoration: none;
+}
+a.i-at:hover, a.i-tv:hover, a.i-dl:hover, a.i-ch:hover {
+    color: RoyalBlue;
+}
+.i-pgn:hover {
+    color: #004f98;
+}
+
+div#profile, table#players {
+    grid-area: content;
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0px;
+    border-radius: 3px;
+    /*box-shadow: var(--base-shadow);*/
+}
+table#games {
+    width: 100%;
+}
+td.player-data {
+    padding: 8px;
+}
+
+#games th {
+    height: 80px;
+    background-color: var(--bg-color2);
+}
+
+#games td {
+    padding: 6px 12px 6px 12px;
+}
+
+#games tr {
+    display: flex;
+    width:100%;
+    border: 1px solid var(--bg-color1);
+    background-color: var(--bg-color2);
+}
+
+#games tr:nth-child(odd) {
+    width:100%;
+    background-color: var(--bg-color1);
+}
+
+#games tbody tr:hover {
+    width:100%;
+    background-color: var(--game-hover);
+    cursor: pointer;
+}

@@ -1,0 +1,72 @@
+.editor-app {
+    grid-area: main;
+    display: grid;
+    grid-gap: 0.5rem;
+}
+@media (min-width: 800px) and (min-height: 500px) {
+    .editor-app {
+        --board-scale: calc((var(--zoom) / 100));
+    }
+}
+
+@media (min-width: 800px) {
+    .editor-app {
+        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);
+        grid-template-rows: auto;
+        grid-template-areas: 'side . poc-top . hint' 'side . board . mat-top' 'side . board . tools' 'side . poc-bot . mat-bot' 'uleft . uboard . .';
+    }
+}
+boardeditor {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    justify-content: center;
+}
+.pocket-wrapper {
+    justify-content: initial;
+}
+.pocket-wrapper .editor {
+    width: var(--cgwrapwidth);
+    height: calc(var(--piecerows) * var(--cgwrapheight) / var(--ranks));
+    display: flex;
+    flex-wrap: wrap;
+}
+.pocket-wrapper .editor piece {
+    flex: 0 0 calc(100% / var(--files));
+    height: auto!important;
+    width: auto!important;
+}
+.pocket-wrapper.top {
+    grid-area: poc-top;
+}
+.pocket-wrapper.bot {
+    grid-area: poc-bot;
+}
+
+div.editorhint {
+    grid-area: hint;
+    align-self: end;
+}
+.editor-button-container {
+    grid-area: tools;
+    display: flex;
+    flex-flow: column;
+}
+.editor-button-container .icon:before{
+    font-size: 18px;
+}
+
+#turn-block {
+    display: flex;
+    flex-flow: column;
+    background: var(--bg-color1);
+    padding: 10px;
+    box-shadow: var(--base-shadow);
+    width: max-content;
+}
+/* castling labels */
+.OO {
+    padding-left: 0;
+}
+.OOO {
+    padding-left: 28px;
+}
