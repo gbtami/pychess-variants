@@ -184,7 +184,7 @@ export function analysisView(model): VNode[] {
 function playerInfo(username: string, title: string, level: number, rating: number, rdiff: number | null) {
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + " (" + rating + ") ",
+        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
         rdiff === null ? h('rdiff') : renderRdiff(rdiff),
     ]);
 }

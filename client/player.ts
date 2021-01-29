@@ -11,7 +11,7 @@ export function player(id, title, name, rating, level) {
                     h('player-title', " " + title + " "),
                     name + aiLevel(title, level),
                 ]),
-                h('rating', rating),
+                h('rating', title !== 'BOT' ? rating : ''),
             ]),
         ]),
     ]);

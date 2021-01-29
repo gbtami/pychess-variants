@@ -126,7 +126,7 @@ function playerInfo(model, color: string, rdiff: number | null) {
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + " (" + rating + ") ",
+        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
         rdiff === null ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
     ]);
 }
