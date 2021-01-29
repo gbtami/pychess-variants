@@ -3,6 +3,16 @@
     display: grid;
     grid-gap: 0.5rem;
 }
+@media (max-width: 799px) and (orientation: portrait) {
+    .editor-app {
+        grid-template-rows: auto;
+        grid-template-areas: 'poc-top' 'board' 'poc-bot' 'hint' 'mat-top' 'mat-bot' 'tools' 'uboard' 'side';
+    }
+    input#fen {
+        padding: 4px 0 4px 0;
+    }
+}
+
 @media (min-width: 800px) and (min-height: 500px) {
     .editor-app {
         --board-scale: calc((var(--zoom) / 100));
