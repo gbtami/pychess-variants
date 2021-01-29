@@ -11,11 +11,8 @@
 
 @media (max-width: 799px) and (orientation: portrait) {
     .analysis-app {
-        grid-template-rows: auto auto 36px auto min-content 36px auto auto auto auto auto auto;
-        grid-template-areas: 'move-controls' 'mat-top' 'ceval' 'pv' 'board' 'gauge' 'misc-info' 'vari' 'mat-bot' 'moves' 'uboard' 'uleft';
-    }
-    #gauge {
-        display: none;
+        grid-template-rows: auto;
+        grid-template-areas: 'mat-top' 'board' 'mat-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
     }
     under-left {
         display: none;
@@ -81,6 +78,11 @@
     border-bottom: 7px solid rgba(214,79,0,0.4);
     margin-top: -3px;
 }
+@media (max-width: 799px) and (orientation: portrait) {
+    #gauge {
+        display: none;
+    }
+}
 
 .movelist-block{
     grid-area: moves;
@@ -96,7 +98,13 @@
     max-height: none;
     overflow-y: none;
 }
-
+@media (max-width: 799px) and (orientation: portrait) {
+    .movelist-block {
+        flex: initial;
+        height: var(--movelist-max-height);
+        max-height: var(--movelist-max-height);
+    }
+}
 .analysis-tools {
     grid-area: tools;
     display: flex;
@@ -139,9 +147,15 @@ pvline {
     overflow: hidden;
     white-space: nowrap;
     min-width: 0;
+    max-width: var(--cgwrapwidth);
     height: 28px;
     line-height: 28px;
     padding-left: 6px;
+}
+@media (max-width: 799px) and (orientation: portrait) {
+    pvline {
+        padding-left: 0;
+    }
 }
 score {
     flex: 0 0 75px;

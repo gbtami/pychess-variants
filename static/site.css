@@ -1450,12 +1450,6 @@ li.message.server {
     align-content:flex-start;
     background: var(--bg-color1);
 }
-/* TODO: Create horizontal (1D) movelist */
-@media (max-width: 799px) and (orientation: portrait) {
-    #movelist {
-        display: none;
-    }
-}
 move {
     line-height: 1.9em;
     float: left;
