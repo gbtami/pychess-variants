@@ -434,7 +434,7 @@ ul.guide li {
         background-color: var(--bg-color0);
     }
     .topnav a.navbar-show {
-        transform: translateX(100%);
+        transform: translateX(calc(0% + 64px));
         color: var(--font-color);
         background-color: var(--bg-color0);
     }
