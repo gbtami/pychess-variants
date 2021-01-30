@@ -416,9 +416,10 @@ ul.guide li {
     .topnav {
         flex-direction: column;
         height: initial;
+        transform: translateX(-100%);
     }
     .topnav a {
-        transform: translateX(calc(-100% - 10px));
+        transform: translateX(-100%);
         transition: transform 200ms;
         width: 20rem;
         height: 3rem;
@@ -430,7 +431,7 @@ ul.guide li {
         background-color: var(--bg-color0);
     }
     .topnav a.navbar-show {
-        transform: translateX(0%);
+        transform: translateX(100%);
         color: var(--font-color);
         background-color: var(--bg-color0);
     }
