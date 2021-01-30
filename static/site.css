@@ -413,6 +413,9 @@ ul.guide li {
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
+    .site-title-nav {
+        width: 64px;
+    }
     .topnav {
         flex-direction: column;
         height: initial;
