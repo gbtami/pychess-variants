@@ -256,7 +256,6 @@ iframe {
 .seeks [class*=" icon-"]:before {
     font-size: 18px;
 }
-
 .page-menu {
     grid-area: main;
     display: grid;
@@ -265,10 +264,6 @@ iframe {
     grid-template-areas: 'side content';
     grid-gap: 2vmin;
 }
-.page-menu.players {
-    grid-gap: 0;
-}
-
 .sidebar-first{
     grid-area: side;
     display: flex;
@@ -390,7 +385,12 @@ ul.guide li {
     justify-content: flex-start;
     padding-left: 14;
 }
-
+@media (max-width: 799px) and (orientation: portrait) {
+    .site-title-nav {
+        padding-left: 0;
+        flex-direction: column;
+    }
+}
 .topnav {
     display: flex;
     margin: 0;
@@ -409,20 +409,28 @@ ul.guide li {
 
 .hamburger {
     display: none;
+    width: 32px;
 }
 
-@media only screen and (max-width: 999px) {
+@media (max-width: 799px) and (orientation: portrait) {
     .topnav {
         flex-direction: column;
+        height: initial;
     }
     .topnav a {
-        display: none;
+        transform: translateX(calc(-100% - 10px));
+        transition: transform 200ms;
+        width: 20rem;
+        height: 3rem;
     }
     .hamburger {
         display: block;
     }
+    .hamburger.is-active {
+        background-color: var(--bg-color0);
+    }
     .topnav a.navbar-show {
-        display: flex;
+        transform: translateX(0%);
         color: var(--font-color);
         background-color: var(--bg-color0);
     }
@@ -845,33 +853,6 @@ vs-swords.lobby.opp {
     float: left;
 }
 
-.highscore {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    grid-gap: 6px;
-    padding-left: 2px;
-}
-
-.card {
-    border: 1px solid var(--leaderboard);
-    border-radius: .25rem;
-    background-color: var(--bg-color1);
-}
-.card div.info0 {
-    color: WhiteSmoke;
-    background-color: var(--leaderboard);
-    padding:0.2em;
-}
-.card .player-data {
-    padding:.4rem .5rem .4rem .5rem;
-}
-.player-data.odd {
-    background-color: var(--bg-color1);
-}
-.player-data.even {
-    background-color: var(--bg-color2);
-}
-
 ul.header {
     margin: 0;
     padding: 0;
@@ -973,7 +954,6 @@ table#seeks-header, table#seeks {
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
 }
-
 /* The Modal (background) */
 .modal {
     display: none; /* Hidden by default */
@@ -1633,9 +1613,6 @@ div#ctable-container {
     .pocket.bottom {
         margin-top: 0;
     }
-}
-.allplayers-button {
-    padding-top: 10px;
 }
 .langs select {
     padding: 0px 4px 0px 4px;
