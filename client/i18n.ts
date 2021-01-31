@@ -20,6 +20,7 @@ export const LANGUAGES = {
     ko: "한국어",
     pt: "Português",
     th: "ไทย",
+    tr: "Türkçe",
     zh: "繁體中文",
 };
 
@@ -34,6 +35,7 @@ const LANGUAGETEXT = {
     ko: "언어",
     pt: "Lingua",
     th: "ภาษา",
+    tr: "Dil",
     zh: "語言",
 };
 
