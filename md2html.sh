@@ -12,6 +12,10 @@ for f in hu/*.md; do
 showdown makehtml -i "$f" -o "$(basename -- "$f" .md).hu.html" --flavor github
 done
 
+for f in it/*.md; do
+showdown makehtml -i "$f" -o "$(basename -- "$f" .md).it.html" --flavor github
+done
+
 for f in pt/*.md; do
 showdown makehtml -i "$f" -o "$(basename -- "$f" .md).pt.html" --flavor github
 done
