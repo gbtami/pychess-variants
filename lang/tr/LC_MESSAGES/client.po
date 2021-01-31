@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
 # Translators:
-# Some Chess Dude <lichess960training@gmail.com>, 2021
+# Lichess Chess960 <lichess960training@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-11-30 20:10+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Some Chess Dude <lichess960training@gmail.com>, 2021\n"
+"Last-Translator: Lichess Chess960 <lichess960training@gmail.com>, 2021\n"
 "Language-Team: Turkish (https://www.transifex.com/gbtami/teams/14790/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -72,6 +72,8 @@ msgid ""
 "Pychess is a free, open-source chess server designed to play several chess "
 "variants."
 msgstr ""
+"Pychess sitesi, çeşitli satranç varyantlarını oynamak için dizayn edilmiş, "
+"ücretsiz ve açık kaynak kodlu bir satranç sunucusudur."
 
 #: ../client/about.ts:21
 msgid "Currently supported games are "
@@ -142,19 +144,19 @@ msgstr ""
 
 #: ../client/analysisCtrl.ts:417
 msgid "Download position to PNG image file"
-msgstr ""
+msgstr "Pozisyonu PGN görseli olarak indir"
 
 #: ../client/analysisCtrl.ts:417
 msgid " PNG image"
-msgstr ""
+msgstr "PGN görseli"
 
 #: ../client/analysisCtrl.ts:421
 msgid "Request Computer Analysis"
-msgstr ""
+msgstr "Bilgisayar analizi isteği gönder"
 
 #: ../client/analysisCtrl.ts:421
 msgid " Request Analysis"
-msgstr ""
+msgstr "Analiz isteği gönder"
 
 #: ../client/analysisCtrl.ts:584
 msgid "Selected variant %1 is not supported by stockfish.wasm"
@@ -170,7 +172,7 @@ msgstr ""
 
 #: ../client/analysisCtrl.ts:1289 ../client/roundCtrl.ts:1135
 msgid "Spectators: "
-msgstr "İzleyiciler"
+msgstr "İzleyiciler: "
 
 #: ../client/analysisCtrl.ts:1313 ../client/roundCtrl.ts:1200
 msgid "Requested game %1 not found!"
@@ -194,7 +196,7 @@ msgstr ""
 
 #: ../client/boardSettings.ts:330
 msgid "Promote to Queen automatically"
-msgstr ""
+msgstr "Otomatik vezir çık"
 
 #: ../client/boardSettings.ts:348
 msgid "Best move arrow in analysis board"
@@ -206,7 +208,7 @@ msgstr "Görünmez taşlar"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
-msgstr ""
+msgstr "Başlangıç pozisyonu"
 
 #: ../client/chart.ts:84
 msgid "Advantage"
@@ -424,7 +426,7 @@ msgstr ""
 
 #: ../client/editor.ts:136
 msgid "Castling"
-msgstr ""
+msgstr "Rok atmak"
 
 #: ../client/editor.ts:139 ../client/lobby.ts:344 ../client/profile.ts:21
 msgid "White"
@@ -436,7 +438,7 @@ msgstr "Siyah"
 
 #: ../client/editor.ts:170
 msgid "CLEAR BOARD"
-msgstr ""
+msgstr "TAHTAYI TEMİZLE"
 
 #: ../client/editor.ts:173
 msgid "STARTING POSITION"
@@ -444,19 +446,19 @@ msgstr "BAŞLANGIÇ POZİSYONU"
 
 #: ../client/editor.ts:176 ../client/roundCtrl.ts:503
 msgid "ANALYSIS BOARD"
-msgstr ""
+msgstr "ANALİZ TAHTASI"
 
 #: ../client/editor.ts:179
 msgid "PLAY WITH MACHINE"
-msgstr ""
+msgstr "BİLGİSAYARA KARŞI OYNA"
 
 #: ../client/editor.ts:179 ../client/lobby.ts:281
 msgid " (must be signed in)"
-msgstr ""
+msgstr "(oturum açmak gerekli)"
 
 #: ../client/editor.ts:182
 msgid "EXPORT TO PNG"
-msgstr ""
+msgstr "PGN olarak dışa aktar"
 
 #: ../client/editor.ts:244 ../client/lobby.ts:442
 msgid "Invalid FEN"
@@ -533,11 +535,11 @@ msgstr "Yeni bir oyun kur"
 
 #: ../client/lobby.ts:375
 msgid "Play with a friend"
-msgstr ""
+msgstr "Bir arkadaşınla oyna"
 
 #: ../client/lobby.ts:388
 msgid "Play with AI (Fairy-Stockfish)"
-msgstr ""
+msgstr "Bilgisayara karşı oyna (Fairy-Stockfish)"
 
 #: ../client/lobby.ts:404
 msgid "Byoyomi in seconds:"
@@ -545,7 +547,7 @@ msgstr ""
 
 #: ../client/lobby.ts:404
 msgid "Increment in seconds:"
-msgstr ""
+msgstr "Ekleme süresi (saniye)"
 
 #: ../client/lobby.ts:409
 msgid "Alternate Start"
@@ -553,13 +555,15 @@ msgstr ""
 
 #: ../client/lobby.ts:535
 msgid "Custom"
-msgstr ""
+msgstr "Özel"
 
 #: ../client/lobby.ts:608
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
 msgstr ""
+"Henüz tamamlanmamış bir oyununuz var!\n"
+"Devam etmek için OK tuşuna basın."
 
 #: ../client/lobby.ts:642
 msgid "%1 game in play"
@@ -575,7 +579,7 @@ msgstr[1] ""
 
 #: ../client/lobby.ts:656
 msgid "Player"
-msgstr ""
+msgstr "Oyuncu"
 
 #: ../client/lobby.ts:657
 msgid "Rating"
@@ -595,7 +599,7 @@ msgstr ""
 
 #: ../client/lobby.ts:699
 msgid "FAQ"
-msgstr ""
+msgstr "Sıkça sorulanlar"
 
 #: ../client/lobby.ts:700
 msgid "Stats"
@@ -603,35 +607,35 @@ msgstr "İstatistikler"
 
 #: ../client/lobby.ts:701
 msgid "About"
-msgstr ""
+msgstr "Hakkında"
 
 #: ../client/main.ts:90
 msgid "Thank you for your support!"
-msgstr ""
+msgstr "Desteğiniz için teşekkürler!"
 
 #: ../client/paste.ts:114
 msgid "Invalid PGN"
-msgstr ""
+msgstr "Geçersiz PGN"
 
 #: ../client/paste.ts:138
 msgid "Paste the PGN text here"
-msgstr ""
+msgstr "PGN metnini buraya yapıştırın"
 
 #: ../client/paste.ts:142
 msgid "IMPORT GAME"
-msgstr ""
+msgstr "OYUN YÜKLE"
 
 #: ../client/profile.ts:23
 msgid "Red"
-msgstr ""
+msgstr "Kırmızı"
 
 #: ../client/profile.ts:24
 msgid "Blue"
-msgstr ""
+msgstr "Mavi"
 
 #: ../client/profile.ts:25
 msgid "Gold"
-msgstr ""
+msgstr "Altın"
 
 #: ../client/profile.ts:37
 msgid "IMPORT"
@@ -643,7 +647,7 @@ msgstr ""
 
 #: ../client/profile.ts:59
 msgid "Game aborted"
-msgstr ""
+msgstr "Oyun iptal edildi"
 
 #: ../client/profile.ts:62
 msgid "Checkmate"
@@ -659,7 +663,7 @@ msgstr "Pat"
 
 #: ../client/profile.ts:71 ../client/profile.ts:77
 msgid "Time out"
-msgstr ""
+msgstr "Süre bitti"
 
 #: ../client/profile.ts:74 ../client/roundCtrl.ts:347
 msgid "Draw"
@@ -762,11 +766,11 @@ msgstr "Terk etmek istediğinize emin misiniz?"
 
 #: ../client/roundCtrl.ts:420
 msgid "Blue (Cho)"
-msgstr ""
+msgstr "Mavi (Cho)"
 
 #: ../client/roundCtrl.ts:420
 msgid "Red (Han)"
-msgstr ""
+msgstr "Kırmızı (Han)"
 
 #: ../client/roundCtrl.ts:421
 msgid ""
