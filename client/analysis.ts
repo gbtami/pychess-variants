@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
 import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
-import { aiLevel, gameType, renderRdiff, result } from './profile';
+import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeControlStr } from './view'
 
 declare global {
@@ -87,14 +87,12 @@ function leftSide(model) {
 
         const vVariant = model.variant || "chess";
 
-        return [
-            h('div.container', [
-                h('div', [
-                    h('label', { attrs: { for: "variant" } }, _("Variant")),
-                    selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false)),
-                ]),
+        return h('div.container', [
+            h('div', [
+                h('label', { attrs: { for: "variant" } }, _("Variant")),
+                selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false)),
             ]),
-        ];
+        ]);
     }
 }
 
@@ -104,9 +102,9 @@ export function analysisView(model): VNode[] {
     renderTimeago();
 
     return [
-        h('aside.sidebar-first', leftSide(model)),
-        h('div.analysis', [
-            h('selection#board2png.' + variant.board + '.' + variant.piece, [
+        h('div.analysis-app', [
+            h('aside.sidebar-first', leftSide(model)),
+            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
             ]),
             h('div#gauge', [
@@ -119,16 +117,15 @@ export function analysisView(model): VNode[] {
                 h('div.tick',      { props: { style: "height: 75%;" } }),
                 h('div.tick',      { props: { style: "height: 87.5%;" } }),
             ]),
-        ]),
-        h('aside.sidebar-second.analysis', [
-            h('div', [
+
+            h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
                     ]),
                 ]),
             ]),
-            h('div.round-data', [
+            h('div.analysis-tools', [
                 h('div#ceval', [
                     h('div.engine', [
                         h('score#score', ''),
@@ -145,49 +142,49 @@ export function analysisView(model): VNode[] {
                     ]),
                 ]),
                 h('div#pv'),
-                h('div#movelist-block', [
+                h('div.movelist-block', [
                     h('div#movelist'),
                 ]),
                 h('div#vari'),
-                (model["gameId"] !== "") ? h('div#result', result(model.variant, model.status, model.result)) : "",
                 h('div#misc-info', [
                     h('div#misc-infow'),
                     h('div#misc-info-center'),
                     h('div#misc-infob'),
                 ]),
-                h('div#move-controls'),
             ]),
-            h('div', [
+            h('div#move-controls'),
+
+            h('div.pocket-bot', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
                     ]),
                 ]),
             ]),
+            h('under-left#spectators'),
+            h('under-board', [
+                h('div#pgn', [
+                    h('div#ctable-container'),
+                    h('div.chart-container', [
+                        h('div#chart'),
+                        h('div#loader-wrapper', [h('div#loader')])
+                    ]),
+                    h('div#fentext', [
+                        h('strong', 'FEN'),
+                        h('input#fullfen', {attrs: {readonly: true, spellcheck: false}})
+                    ]),
+                    h('div#copyfen'),
+                    h('div', [h('textarea#pgntext')]),
+                ]),
+            ]),
         ]),
-        h('under-left#spectators'),
-        h('under-board', [
-            h('div#pgn', [
-                h('div#ctable-container'),
-                h('div.chart-container', [
-                    h('div#chart'),
-                    h('div#loader-wrapper', [h('div#loader')])
-                ]),
-                h('div#fentext', [
-                    h('strong', 'FEN'),
-                    h('input#fullfen', {attrs: {readonly: true, spellcheck: false}})
-                ]),
-                h('div#copyfen'),
-                h('div', [h('textarea#pgntext')]),
-            ])
-        ])
     ];
 }
 
 function playerInfo(username: string, title: string, level: number, rating: number, rdiff: number | null) {
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + " (" + rating + ") ",
+        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
         rdiff === null ? h('rdiff') : renderRdiff(rdiff),
     ]);
 }

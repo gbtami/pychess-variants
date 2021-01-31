@@ -1,0 +1,32 @@
+.page-menu.players {
+    grid-gap: 0;
+}
+.allplayers-button {
+    padding-top: 10px;
+}
+.highscore {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 6px;
+    padding-left: 2px;
+}
+
+.card {
+    border: 1px solid var(--leaderboard);
+    border-radius: .25rem;
+    background-color: var(--bg-color1);
+}
+.card div.info0 {
+    color: WhiteSmoke;
+    background-color: var(--leaderboard);
+    padding:0.2em;
+}
+.card .player-data {
+    padding:.4rem .5rem .4rem .5rem;
+}
+.player-data.odd {
+    background-color: var(--bg-color1);
+}
+.player-data.even {
+    background-color: var(--bg-color2);
+}

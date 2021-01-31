@@ -24,8 +24,8 @@ import { sound, volumeSettings, soundThemeSettings } from './sound';
 import { debounce, getCookie } from './document';
 import { backgroundSettings } from './background';
 
-// redirect to correct URL
-if (window.location.href.includes('heroku')) {
+// redirect to correct URL except Heroku preview apps
+if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
     window.location.assign('https://www.pychess.org/');
 }
 
@@ -74,11 +74,11 @@ export function view(el, model): VNode {
     case 'round':
         return h('div#main-wrap', [h('main.round', roundView(model))]);
     case 'analysis':
-        return h('div#main-wrap', [h('main.round', analysisView(model))]);
+        return h('div#main-wrap', analysisView(model));
     case 'invite':
         return h('div#main-wrap', inviteView(model));
     case 'editor':
-        return h('div#main-wrap', [h('main.round', editorView(model))]);
+        return h('div#main-wrap', editorView(model));
     case 'games':
         return h('div', renderGames());
     case 'paste':
@@ -149,6 +149,8 @@ function start() {
 
     if (model['anon'] === 'False') setupEventSource();
 }
+
+window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
 
 backgroundSettings.update();
 

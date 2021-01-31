@@ -9,8 +9,6 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import h from 'snabbdom/h';
 
-import { dimensions, Geometry } from 'chessgroundx/types';
-
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES, isVariantClass } from './chess';
 import { changeBoardCSS, changePieceCSS } from './document';
@@ -100,20 +98,16 @@ class BoardSettings {
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
             if (el) {
-                const geom = VARIANTS[variant].geometry;
-                const magnify = (geom === Geometry.dim3x4) ? 2 : (geom === Geometry.dim5x5) ? 1.5 : 1;
-                const baseWidth = dimensions[geom].width * (family.includes("shogi") ? 52 : 64) * magnify;
-                const baseHeight = dimensions[geom].height * (family.includes("shogi") ? 60 : 64) * magnify;
-                const pxw = `${zoom / 100 * baseWidth}px`;
-                const pxh = `${zoom / 100 * baseHeight}px`;
-                el.style.width = pxw;
-                el.style.height = pxh;
-                // 2 x pocket height
-                const pxp = (this.ctrl.hasPockets) ? `${2 * (((zoom / 100) * baseHeight) / dimensions[VARIANTS[variant].geometry].height)}px;` : '0px;';
-                // point counting values
-                const pxc = (isVariantClass(variant, "showMaterialPoint")) ? '48px;' : '0px;';
-                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --pocketheight:' + pxp + '; --countingHeight:' + pxc);
+                document.body.setAttribute('style', '--zoom:' + zoom);
                 document.body.dispatchEvent(new Event('chessground.resize'));
+
+                const baseWidth = el.getBoundingClientRect()['width'];
+                const baseHeight = el.getBoundingClientRect()['height'];
+
+                const pxw = `${baseWidth}px`;
+                const pxh = `${baseHeight}px`;
+
+                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --zoom:' + zoom);
 
                 if (this.ctrl instanceof AnalysisController) {
                     analysisChart(this.ctrl);
@@ -282,7 +276,7 @@ class ZoomSettings extends NumberSettings {
     readonly boardFamily: string;
 
     constructor(boardSettings: BoardSettings, boardFamily: string) {
-        super(boardFamily + '-zoom', 100);
+        super(boardFamily + '-zoom', 80);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
     }
@@ -292,7 +286,7 @@ class ZoomSettings extends NumberSettings {
     }
 
     view(): VNode {
-        return slider(this, 'zoom', 50, 150, this.boardFamily.includes("shogi") ? 1 : 1.15625);
+        return slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625);
     }
 }
 

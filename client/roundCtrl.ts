@@ -25,7 +25,7 @@ import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, getCounting, i
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove } from './movelist';
-import { renderRdiff, result } from './profile'
+import { renderRdiff } from './profile'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
 
@@ -300,9 +300,6 @@ export default class RoundController {
             this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
         }
 
-        const resultEl = document.getElementById('result') as HTMLElement;
-        resultEl.style.display = 'none';
-
         const flagCallback = () => {
             if (this.turnColor === this.mycolor) {
                 this.chessground.stop();
@@ -466,10 +463,7 @@ export default class RoundController {
     }
 
     private gameOver = (rdiffs) => {
-        let container = document.getElementById('result') as HTMLElement;
-        patch(container, h('div#result', result(this.variant, this.status, this.result)));
-        container.style.display = 'block';
-
+        let container;
         container = document.getElementById('wrdiff') as HTMLElement;
         patch(container, renderRdiff(rdiffs["wrdiff"]));
 
@@ -484,42 +478,42 @@ export default class RoundController {
             buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, _("NEW OPPONENT")));
         }
         buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.model["home"]) } }, _("ANALYSIS BOARD")));
-        patch(this.gameControls, h('div#after-game-controls', buttons));
+        patch(this.gameControls, h('div.btn-controls.after', buttons));
     }
 
     private checkStatus = (msg) => {
         if (msg.gameId !== this.gameId) return;
-        if (msg.status >= 0 && this.result === "") {
+        if (msg.status >= 0) {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-            this.result = msg.result;
-            this.status = msg.status;
-            if (!this.spectator) {
-                switch (msg.result) {
-                case "1/2-1/2":
-                    sound.draw();
-                    break;
-                case "1-0":
-                    if (!this.spectator) {
-                        if (this.mycolor === "white") {
-                            sound.victory();
-                        } else {
-                            sound.defeat();
+            if (this.result === "") {
+                if (!this.spectator) {
+                    switch (msg.result) {
+                    case "1/2-1/2":
+                        sound.draw();
+                        break;
+                    case "1-0":
+                        if (!this.spectator) {
+                            if (this.mycolor === "white") {
+                                sound.victory();
+                            } else {
+                                sound.defeat();
+                            }
                         }
-                    }
-                    break;
-                case "0-1":
-                    if (!this.spectator) {
-                        if (this.mycolor === "black") {
-                            sound.victory();
-                        } else {
-                            sound.defeat();
+                        break;
+                    case "0-1":
+                        if (!this.spectator) {
+                            if (this.mycolor === "black") {
+                                sound.victory();
+                            } else {
+                                sound.defeat();
+                            }
                         }
+                        break;
+                    // ABORTED
+                    default:
+                        break;
                     }
-                    break;
-                // ABORTED
-                default:
-                    break;
                 }
             }
             this.gameOver(msg.rdiffs);
@@ -587,6 +581,9 @@ export default class RoundController {
 
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
+
+        this.result = msg.result;
+        this.status = msg.status;
 
         if (msg.steps.length > 1) {
             this.steps = [];

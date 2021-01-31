@@ -14,22 +14,15 @@ const patch = init([klass, attributes, properties, listeners]);
 // Counting for makruk, cambodian, sittuyin
 export function updateCount(fen: string, whiteContainer: VNode | Element, blackContainer: VNode | Element) {
     const [countingPly, countingLimit, countingSide, ] = getCounting(fen);
-    let pxc = '0px';
     whiteContainer = patch(whiteContainer, h('div#misc-infow', ''));
     blackContainer = patch(blackContainer, h('div#misc-infob', ''));
 
     if (countingLimit !== 0 && countingPly !== 0) {
-        pxc = '48px';
         if (countingSide === 'w')
             whiteContainer = patch(whiteContainer, h('div#misc-infow', `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
         else
             blackContainer = patch(blackContainer, h('div#misc-infob', `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
     }
-
-    const curStyle = document.body.getAttribute('style') as string;
-    const startIdx = curStyle.indexOf('countingHeight') + 15;
-    const endIdx = startIdx + curStyle.substring(startIdx).indexOf(';');
-    document.body.setAttribute('style', curStyle.substring(0, startIdx) + pxc + curStyle.substring(endIdx));
 
     return [whiteContainer, blackContainer];
 }

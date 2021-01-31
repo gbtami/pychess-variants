@@ -377,7 +377,9 @@ export function editorView(model): VNode[] {
     const vVariant = model.variant || "chess";
     const variant = VARIANTS[vVariant];
 
-    return [h('aside.sidebar-first', [
+    return [
+        h('div.editor-app', [
+            h('aside.sidebar-first', [
                 h('div.container', [
                     h('div', [
                         h('label', { attrs: { for: "variant" } }, _("Variant")),
@@ -385,35 +387,37 @@ export function editorView(model): VNode[] {
                     ]),
                 ])
             ]),
-            h('boardeditor', [
-                h('div.pocket-wrapper', [
-                    h('div.' + variant.piece + '.' + model["variant"], [
-                        h('div.cg-wrap.pocket', [
-                            h('div#pieces0'),
-                        ]),
-                    ]),
-                ]),
-                h('selection#board2png.' + variant.board + '.' + variant.piece, [
-                    h('div.cg-wrap.' + variant.cg,
-                        { hook: { insert: (vnode) => runEditor(vnode, model)},
-                    }),
-                ]),
-                h('div.pocket-wrapper', [
-                    h('div.' + variant.piece + '.' + model["variant"], [
-                        h('div.cg-wrap.pocket', [
-                            h('div#pieces1'),
-                        ]),
+
+            h('div.pocket-wrapper.top', [
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pieces0'),
                     ]),
                 ]),
             ]),
-            h('aside.sidebar-second', [
-                h('div.editorhint', (needPockets(model['variant'])) ? _('Click/Ctrl+click to increase/decrease number of pieces') : ''),
+            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
+                h('div.cg-wrap.' + variant.cg,
+                    { hook: { insert: (vnode) => runEditor(vnode, model)},
+                }),
+            ]),
+            h('div.pocket-wrapper.bot', [
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pieces1'),
+                    ]),
+                ]),
+            ]),
+
+            h('div.editorhint', (needPockets(model['variant'])) ? _('Click/Ctrl+click to increase/decrease number of pieces') : ''),
+            h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
                     ]),
                 ]),
-                h('div#editor-button-container'),
+            ]),
+            h('div#editor-button-container'),
+            h('div.pocket-bot', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
@@ -423,5 +427,6 @@ export function editorView(model): VNode[] {
             h('under-board', [
                 h('input#fen'),
             ]),
-        ];
+        ]),
+    ];
 }

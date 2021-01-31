@@ -1,0 +1,54 @@
+:root {
+    --main-max-width: auto;
+}
+.round-app {
+    grid-area: app;
+    display: grid;
+    grid-column-gap: 2vmin;
+}
+
+@media (max-width: 799px) and (orientation: portrait) {
+    .round-app {
+        grid-template-rows: auto auto 36px auto min-content 36px auto auto auto auto auto auto;
+        grid-template-areas: 'move-controls' 'mat-top' 'user-top' 'clock-top' 'board' 'user-bot' 'clock-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';
+    }
+    under-left {
+        display: none;
+    }
+}
+
+@media (min-width: 800px) {
+    .round-app {
+        grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
+        grid-template-rows: min-content auto min-content auto auto auto min-content auto min-content;
+        grid-template-areas: 'board .' 'board mat-top' 'board clock-top' 'board user-top' 'board move-controls' 'board moves' 'board game-controls' 'board user-bot' 'board clock-bot' 'board mat-bot' 'board .';
+    }
+}
+
+.cg-wrap svg {
+    position: absolute;
+}
+
+/* Janggi setup buttons */
+#janggi-setup-buttons {
+    display: grid;
+    grid-template-columns: 22% 12% 22%;
+    grid-gap: 11%;
+    justify-content: center;
+}
+#janggi-setup-buttons button {
+    border-radius:3px;
+    border: 1px solid var(--janggi-setup);
+    height: 40px;
+    color: var(--font-color);
+    background: var(--bg-color2);
+    cursor: pointer;
+}
+
+#janggi-setup-buttons > button:nth-child(2):hover {
+    color:#fff;
+    background: var(--green-hover);
+}
+#janggi-setup-buttons > #flipLeft:hover, #janggi-setup-buttons > #flipRight:hover {
+    background: var(--rusty);
+}

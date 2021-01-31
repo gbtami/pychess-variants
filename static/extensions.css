@@ -9,15 +9,7 @@
   --editorLength: 6;
   --pocketLength: 5;
   --pocketMargin: 10px;
-  --movelist-max-height: 116px;
-}
-[data-view="analysis"] {
-  --ranks-right: var(--cgwrapwidth);
-  --ranks-top: 0px;
-  --files-bottom: -16px;
-  --files-left: 0px;
-  --pocketMargin: 0px;
-  --movelist-max-height: calc(var(--cgwrapheight) - var(--pocketheight) - var(--pvheight) - var(--countingHeight) - var(--toolsHeight));
+  --movelist-max-height: 8rem;
 }
 #extension_choice {
   position: absolute;
@@ -107,8 +99,8 @@
 }
 .pocket piece {
   flex: 0 0 calc(100% / var(--pocketLength));
-  height: auto!important; /* 100% fails on older chrome */
-  width: auto!important;
+  height: 100%!important;
+  width: 100%!important;
   position: relative!important;
   background-position: center;
 }
@@ -141,11 +133,11 @@
   bottom: 0;
   right: 0;
   position: absolute;
-  line-height: 14px;
+  line-height: 0.9em;
   padding: 3px 5px 4px 5px;
   font-weight: bold;
   border-radius: 2px;
-  font-size: 18px;
+  font-size: 1.1em;
 }
 .pocket piece[data-nb='0']::after {
   content: none;
@@ -190,5 +182,5 @@
   transform: translateY(39%);
 }
 .janggi .cg-wrap coords.ranks {
-  --ranks-right: var(--cgwrapwidth);
+  xxx--ranks-right: var(--cgwrapwidth);
 }

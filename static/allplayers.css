@@ -1,0 +1,11 @@
+.allplayers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    grid-gap: 10px;
+    width: 85%;
+    margin: 0 auto;
+    border-radius: 3px;
+    box-shadow: var(--base-shadow);
+    background-color: var(--bg-color1);
+    padding: 24px;
+}
