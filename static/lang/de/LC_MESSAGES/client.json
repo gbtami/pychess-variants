@@ -57,6 +57,18 @@
     "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board": "Führt die Kanone und den Elefanten von Xiangqi auf einem 10x10 Schachbrett ein",
     "Pieces promote and can be dropped, similar to Shogi": "Figuren können, wie im Shogi, befördert und eingesetzt werden",
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "Asymmetrische Variante wo eine Seite Figuren hat die sich wie Springer bewegen, aber anders schlagen.",
+    "Standard piece variants": "Variante mit Standard Figuren",
+    "Southeast Asian variants": "Südostasiatische Variante",
+    "Shogi variants": "Shogi Variante",
+    "Xiangqi variants": " Xiangqi Variante",
+    "%1 year ago": [
+        "Vor %1 Jahr ",
+        "Vor %1 Jahren"
+    ],
+    "%1 month ago": [
+        "Vor %1 Monat",
+        "Vor %1 Monaten"
+    ],
     "White": "Weiß",
     "Black": "Schwarz",
     "CLEAR BOARD": "BRETT RÄUMEN",
@@ -86,6 +98,10 @@
     "Increment in seconds:": "Inkrement in Sekunden:",
     "Custom": "Benutzerdefiniert",
     "You have an unfinished game!\nPress OK to continue.": "Du hast ein unbeendetes Spiel!\nDrücke OK um fortzufahren.  ",
+    "%1 player": [
+        "%1 Spieler",
+        "%1 Spieler"
+    ],
     "Player": "Spieler",
     "Rating": "Wertungszahl",
     "Time": "Zeit",
@@ -95,8 +111,13 @@
     "Stats": "Statistiken",
     "About": "Über",
     "Thank you for your support!": "Danke für deine Unterstützung!",
+    "Invalid PGN": "Ungültige PGN",
     "IMPORT GAME": "Spiel importieren",
+    "Red": "Rot",
+    "Blue": "Blau",
     "Gold": "Gold",
+    "IMPORT": "IMPORTIEREN",
+    "level %1": "niveau %1",
     "Game aborted": "Partie abgebrochen",
     "Checkmate": "Schachmatt",
     "%1 resigned": "%1 hat aufgegeben",
@@ -111,12 +132,17 @@
     "Campmate": "Eindrungsmatt",
     "Point counting": "Punkte zählen",
     "Repetition": "Wiederholung",
+    "%1 move": [
+        "%1 Zug",
+        "%1 Züge"
+    ],
     "Computer analysis available": "Computer-Analyse verfügbar",
     "Lichess profile": "Lichess Profil",
     "Import game": "Spiel importieren",
     "Export games": "Partien exportieren",
     "Watch games": "Partien zusehen",
     "Games": "Spiele",
+    "Imported": "Importiert",
     " +15 seconds": "+15 Sekunden",
     "Give 15 seconds": "Gebe 15 Sekunden",
     "Abort": "Abbrechen",

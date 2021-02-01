@@ -29,6 +29,11 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
+"“Bana göre, bugün ulaştığımız noktayı BÜYÜK ölçüde Stockfishe borçluyuz. "
+"Dünyanın dört bir yanından gönüllülerin bir araya gelerek açık kaynak kodu "
+"ruhuna uygun, böylesine güçlü bir makineyi yaratmaları ve ücretsiz olarak "
+"sunmaları için harekete geçirdiler. Bu bir çok harika beyinin ve işlem "
+"güçlerinin bir araya gelip güçlerini kullanması demek. "
 
 #: ../client/about.ts:9
 msgid ""
@@ -36,6 +41,10 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
+"Daha sonrasında ise Lichess’e teşekkür etmeliyiz. Lichess’de aynı açık "
+"kaynak kodu ruhundan doğdu ve harika insanları da kendine çekti. Lichess, "
+"Stockfish’i beyni olarak kendisine dahil ettiğinde ise, gerisi artık tarih "
+"oldu. "
 
 #: ../client/about.ts:10
 msgid ""
@@ -44,6 +53,10 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
+"Lichess, oyun oynamanın çevrimiçi, gerçek zamanlı ve rekabetçi yönlerini "
+"sağlar. Ayrıca, Stockfish'in muazzam gücüne, artık yerel bir GUI "
+"yapılandırmadan gerek kalmadan, kitlelerin erişmesini sağlıyorlar. Bu "
+"gelişmenin büyük bir önemi ve sonuçları olduğuna inanıyorum."
 
 #: ../client/about.ts:11
 msgid ""
@@ -54,6 +67,13 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
+"Daha sonra, Lichess projesiyle yakın iş birliği içinde bulunan "
+"geliştiriciler, Crazyhouse ve benzeri varyantların desteklenebilmesi için "
+"Stockfish’i Multivariant-Stockfish’e genişlettiler. Fair-Stockfish’in babası"
+" Fabian da (halen) Stockfish’in bu Fork’u üzerine çalışan geliştiricilerden "
+"biridir, ve de daha sonraları varyant desteği ve genişletilebilirlik "
+"açısından birkaç adım daha atmıştır. Fairy-Stockfish, Stockfish projesini "
+"temel aldığı için de çok güçlü olarak doğdu. "
 
 #: ../client/about.ts:12
 msgid ""
@@ -93,14 +113,17 @@ msgstr ""
 #: ../client/about.ts:81
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
+"Hamle oluşturma, onaylama, hamle analizi ve makine olarak kullanılanlar: "
 
 #: ../client/about.ts:89
 msgid "On client side, the user interface of the game board is based on "
 msgstr ""
+"Istemci tarafında, kullanıcı arayüzünde kullanılan oyun tahtasını burada "
+"bulabilirsiniz: "
 
 #: ../client/about.ts:93
 msgid "The source code of the server is available on "
-msgstr ""
+msgstr "Sunucunun kaynak kodunu burada bulabilirsiniz: "
 
 #: ../client/about.ts:98
 msgid ""
@@ -120,11 +143,11 @@ msgstr "Varyant"
 #: ../client/analysis.ts:134 ../client/analysisCtrl.ts:367
 #: ../client/analysisCtrl.ts:710
 msgid "in local browser"
-msgstr ""
+msgstr "yerel tarayıcıda"
 
 #: ../client/analysisCtrl.ts:379
 msgid "You need an account to do that."
-msgstr ""
+msgstr "Bu işlemi yapabilmek için bir hesap ile oturum açmalısınız. "
 
 #: ../client/analysisCtrl.ts:413
 msgid "Download game to PGN file"
@@ -136,11 +159,11 @@ msgstr "PGN indir"
 
 #: ../client/analysisCtrl.ts:415
 msgid "Copy USI/UCI to clipboard"
-msgstr ""
+msgstr "USI/UCI yi panoya kopyala"
 
 #: ../client/analysisCtrl.ts:415
 msgid " Copy UCI/USI"
-msgstr ""
+msgstr "UCI/USI kopyala"
 
 #: ../client/analysisCtrl.ts:417
 msgid "Download position to PNG image file"
@@ -192,7 +215,7 @@ msgstr "Taş animasyonu"
 
 #: ../client/boardSettings.ts:312
 msgid "Show piece destinations"
-msgstr ""
+msgstr "Taşların gidebilecekleri kareleri göster"
 
 #: ../client/boardSettings.ts:330
 msgid "Promote to Queen automatically"
@@ -200,7 +223,7 @@ msgstr "Otomatik vezir çık"
 
 #: ../client/boardSettings.ts:348
 msgid "Best move arrow in analysis board"
-msgstr ""
+msgstr "En iyi hamleyi analiz tahtasında ok ile göster"
 
 #: ../client/boardSettings.ts:376
 msgid "Invisible pieces"
@@ -236,7 +259,7 @@ msgstr "Sunucu"
 
 #: ../client/chess.ts:188
 msgid "Chess, unmodified, as it's played by FIDE standards"
-msgstr ""
+msgstr "FIDE standardlarına göre oynanan standard satranç. "
 
 #: ../client/chess.ts:205
 msgid "Take captured pieces and drop them back on to the board as your own"
@@ -248,7 +271,7 @@ msgstr ""
 
 #: ../client/chess.ts:233
 msgid "A game closely resembling the original Chaturanga"
-msgstr ""
+msgstr "Orijinal Chaturanga oyununa çok benzeyen bir oyun türüdür"
 
 #: ../client/chess.ts:242
 msgid "Makruk variant where kings cannot move to escape out of check"
@@ -261,14 +284,16 @@ msgstr ""
 #: ../client/chess.ts:260
 msgid "Similar to Makruk, but pieces are placed at the start of the match"
 msgstr ""
+"Makruk oyununa benzer, ancak taşlar oyunun başlangıcında tahtaya "
+"yerleştirilmiştir"
 
 #: ../client/chess.ts:271
 msgid "Pieces promote and can be dropped"
-msgstr ""
+msgstr "Taşlar terfi edebilir veya oyuna yeniden geri döndürülebilir"
 
 #: ../client/chess.ts:299
 msgid "Shogi on a 5x5 board"
-msgstr ""
+msgstr "5x5 tahtada Shogi"
 
 #: ../client/chess.ts:314
 msgid "5x5 Shogi where pieces flip to a different piece each move"
@@ -276,7 +301,7 @@ msgstr ""
 
 #: ../client/chess.ts:329
 msgid "Shogi on a 3x4 board"
-msgstr ""
+msgstr "3x4 tahtada Shogi"
 
 #: ../client/chess.ts:344
 msgid "Open fire on your opponent in this highly aggressive ancient game"
@@ -356,11 +381,11 @@ msgstr ""
 
 #: ../client/chess.ts:519
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
-msgstr ""
+msgstr "Atlar fil gibi taş alır, filler at gibi taş alır"
 
 #: ../client/chess.ts:534
 msgid "Standard piece variants"
-msgstr ""
+msgstr "Standard taşlarla oynanan varyantlar"
 
 #: ../client/chess.ts:535
 msgid "Southeast Asian variants"
@@ -372,53 +397,53 @@ msgstr "Shogi varyantları"
 
 #: ../client/chess.ts:537
 msgid "Xiangqi variants"
-msgstr ""
+msgstr "Xiangqi varyantları"
 
 #: ../client/chess.ts:538
 msgid "Fairy piece variants"
-msgstr ""
+msgstr "Fairy taşlarıyla oynanan varyantlar"
 
 #: ../client/datetime.ts:13
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 yıl önce"
+msgstr[1] "%1 yıl önce"
 
 #: ../client/datetime.ts:15
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 ay önce"
+msgstr[1] "%1 ay önce"
 
 #: ../client/datetime.ts:17
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 hafta önce"
+msgstr[1] "%1 hafta önce"
 
 #: ../client/datetime.ts:19
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 gün önce"
+msgstr[1] "%1 gün önce"
 
 #: ../client/datetime.ts:21
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 saat önce"
+msgstr[1] "%1 saat önce"
 
 #: ../client/datetime.ts:23
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 dakika önce"
+msgstr[1] "%1 dakika önce"
 
 #: ../client/datetime.ts:25
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 saniye önce"
+msgstr[1] "%1 saniye önce"
 
 #: ../client/editor.ts:132 ../client/editor.ts:133
 msgid "%1 to play"
@@ -506,7 +531,7 @@ msgstr "Buraya FEN metni ekleyin"
 
 #: ../client/lobby.ts:297
 msgid "Minutes per side:"
-msgstr ""
+msgstr "Taraf başına dakika: "
 
 #: ../client/lobby.ts:312
 msgid "Periods"
@@ -523,11 +548,11 @@ msgstr "Puanlı"
 
 #: ../client/lobby.ts:332
 msgid "A.I. Level"
-msgstr ""
+msgstr "Yapay Zeka seviyesi"
 
 #: ../client/lobby.ts:343
 msgid "Random"
-msgstr ""
+msgstr "Rastgele"
 
 #: ../client/lobby.ts:361
 msgid "Create a game"
@@ -543,15 +568,15 @@ msgstr "Bilgisayara karşı oyna (Fairy-Stockfish)"
 
 #: ../client/lobby.ts:404
 msgid "Byoyomi in seconds:"
-msgstr ""
+msgstr "Byoyomi saniyeleri: "
 
 #: ../client/lobby.ts:404
 msgid "Increment in seconds:"
-msgstr "Ekleme süresi (saniye)"
+msgstr "Saniye olarak ekleme süresi: "
 
 #: ../client/lobby.ts:409
 msgid "Alternate Start"
-msgstr ""
+msgstr "Alternatif başlangıç"
 
 #: ../client/lobby.ts:535
 msgid "Custom"
@@ -568,14 +593,14 @@ msgstr ""
 #: ../client/lobby.ts:642
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 oyun şu anda oynanıyor"
+msgstr[1] "%1 oyun şu anda oynanıyor"
 
 #: ../client/lobby.ts:647
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 oyuncu"
+msgstr[1] "%1 oyuncu "
 
 #: ../client/lobby.ts:656
 msgid "Player"
@@ -595,7 +620,7 @@ msgstr "Mod"
 
 #: ../client/lobby.ts:698
 msgid "Donate"
-msgstr ""
+msgstr "Bağış yap"
 
 #: ../client/lobby.ts:699
 msgid "FAQ"
@@ -639,7 +664,7 @@ msgstr "Altın"
 
 #: ../client/profile.ts:37
 msgid "IMPORT"
-msgstr ""
+msgstr "İÇE AKTAR"
 
 #: ../client/profile.ts:44
 msgid "level %1"
@@ -655,7 +680,7 @@ msgstr "Şah mat"
 
 #: ../client/profile.ts:65
 msgid "%1 resigned"
-msgstr ""
+msgstr "%1 terk etti"
 
 #: ../client/profile.ts:68
 msgid "Stalemate"
@@ -675,11 +700,11 @@ msgstr ""
 
 #: ../client/profile.ts:83
 msgid "Cheat detected"
-msgstr ""
+msgstr "Hile tespit edildi"
 
 #: ../client/profile.ts:86
 msgid "Not started"
-msgstr ""
+msgstr "Henüz başlamadı"
 
 #: ../client/profile.ts:89
 msgid "Invalid move"
@@ -687,7 +712,7 @@ msgstr "Geçersiz hamle"
 
 #: ../client/profile.ts:92
 msgid "Unknown reason"
-msgstr ""
+msgstr "Bilinmeyen sebep"
 
 #: ../client/profile.ts:95
 msgid "Campmate"
@@ -699,13 +724,13 @@ msgstr ""
 
 #: ../client/profile.ts:98
 msgid "Repetition"
-msgstr ""
+msgstr "Hamle tekrarı"
 
 #: ../client/profile.ts:182
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 move "
+msgstr[1] "%1 hamle "
 
 #: ../client/profile.ts:183
 msgid "Computer analysis available"
@@ -713,19 +738,19 @@ msgstr "Bilgisayar analizi mevcut"
 
 #: ../client/profile.ts:253
 msgid "Lichess profile"
-msgstr ""
+msgstr "Lichess profili"
 
 #: ../client/profile.ts:257
 msgid "Import game"
-msgstr ""
+msgstr "Oyunları içe aktar"
 
 #: ../client/profile.ts:261
 msgid "Export games"
-msgstr ""
+msgstr "Oyunları dışa aktar"
 
 #: ../client/profile.ts:265
 msgid "Watch games"
-msgstr ""
+msgstr "Oyunları izle"
 
 #: ../client/profile.ts:273
 msgid "Games"
@@ -733,7 +758,7 @@ msgstr "Oyunlar"
 
 #: ../client/profile.ts:275
 msgid "Imported"
-msgstr ""
+msgstr "İçe aktarıldı"
 
 #: ../client/roundCtrl.ts:285 ../client/roundCtrl.ts:1183
 msgid " +15 seconds"
@@ -741,16 +766,16 @@ msgstr "+15 saniye"
 
 #: ../client/roundCtrl.ts:292
 msgid "Give 15 seconds"
-msgstr ""
+msgstr "15 saniye ekle"
 
 #: ../client/roundCtrl.ts:345
 msgid "Abort"
-msgstr ""
+msgstr "İptal"
 
 #: ../client/roundCtrl.ts:346 ../client/roundCtrl.ts:879
 #: ../client/roundCtrl.ts:881
 msgid "Count"
-msgstr ""
+msgstr "Say"
 
 #: ../client/roundCtrl.ts:347
 msgid "Pass"
@@ -783,11 +808,11 @@ msgstr ""
 
 #: ../client/roundCtrl.ts:456
 msgid "Ready"
-msgstr ""
+msgstr "Hazır"
 
 #: ../client/roundCtrl.ts:501
 msgid "REMATCH"
-msgstr ""
+msgstr "RÖVANŞ"
 
 #: ../client/roundCtrl.ts:502
 msgid "NEW OPPONENT"
@@ -795,15 +820,15 @@ msgstr "YENİ RAKİP"
 
 #: ../client/roundCtrl.ts:877
 msgid "Stop counting"
-msgstr ""
+msgstr "Sayımı durdur"
 
 #: ../client/roundCtrl.ts:877
 msgid "Stop"
-msgstr ""
+msgstr "Dur"
 
 #: ../client/roundCtrl.ts:879 ../client/roundCtrl.ts:881
 msgid "Start counting"
-msgstr ""
+msgstr "Sayımı başlat"
 
 #: ../client/settingsView.ts:60
 msgid "Log out"
