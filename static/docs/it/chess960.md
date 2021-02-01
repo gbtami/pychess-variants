@@ -1,20 +1,22 @@
-# ![960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/960.svg) Chess960 (Fischer’s Random Chess)
+# ![960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/960.svg) Scacchi960 (Scacchi Fischerandom)
 
 Chess960 was created by Bobby Fischer to make the game more variable and remove a lot of the rote memorization for openings that standard chess forces you into. This is one of the most popular variants, and it will separate those who have truly mastered strategy and tactics from those who rely on memorizing opening lines.
 
-This can be played by checking the 960 box for a standard chess game.
+Gli Scacchi960 sono stati creati da Bobby Fischer per rendere il gioco più vario e rimuovere molta della memorizzazione meccanica delle aperture a cui gli scacchi standard ti costringono. Questa è una delle varianti più popolari, e separa coloro che hanno veramente imparato la strategia e la tattica da quelli che si affidano alla memorizzazione delle linee di apertura.
 
-## Rules
+Questa variante può essere giocata spuntando l'opzione "Scacchi960" quando si sta creando una partita di scacchi standard.
 
-The starting bottom ranks are randomized, but two rules must be followed:
+## Regole
 
-* The bishops must be placed on opposite-color squares.
-* The king must be placed on a square between the rooks.
+Le posizioni dei pezzi nella traversa di partenza sono scambiate in maniera casuale, ma devono seguire queste regole:
 
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+* Gli alfieri devono essere posizionati su case di colore opposto.
+* Il re deve essere posizionato su una casa tra le torri.
 
-All other rules are the same.
+L'arrocco è l'altra regola principale di cui prendere nota. Fondamentalmente, indipendentemente da dove sono le torri, se si arrocca la posizione finale del re e delle torri sarà la stessa rispetto alla posizione che si otterrebbe si avesse arroccato negli scacchi standard. Ad esempio, un arrocco su lato di donna risulterà sempre in un re sulla colonna c e una torre sulla colonna d (la notazione rimane la stessa, in questo caso: 0-0-0).
 
-## Strategy
+Le altre regole non cambiano.
 
-Normal chess strategy and tactics apply, except for openings! Since the starting position is random, standard opening lines don’t apply.
+## Strategia
+
+Si applicano le normali strategie e tattiche scacchistiche, tranne che per le aperture! Poiché la posizione di partenza è casuale, le linee di apertura standard non funzionano.
