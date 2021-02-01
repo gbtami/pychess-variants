@@ -177,7 +177,7 @@ export default class RoundController {
         this.predrop = null;
         this.preaction = false;
 
-        this.result = "";
+        this.result = "*";
         const parts = this.fullfen.split(" ");
         this.abortable = Number(parts[parts.length - 1]) <= 1;
 
@@ -486,7 +486,7 @@ export default class RoundController {
         if (msg.status >= 0) {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-            if (this.result === "") {
+            if (this.result === "*") {
                 if (!this.spectator) {
                     switch (msg.result) {
                     case "1/2-1/2":
@@ -611,7 +611,7 @@ export default class RoundController {
         }
 
         this.abortable = Number(msg.ply) <= 1;
-        if (!this.spectator && !this.abortable && this.result === "") {
+        if (!this.spectator && !this.abortable && this.result === "*") {
             const container = document.getElementById('abort') as HTMLElement;
             patch(container, h('button#abort', { props: {disabled: true} }));
         }
@@ -748,7 +748,7 @@ export default class RoundController {
             movable: {
                 free: false,
                 color: this.spectator ? undefined : step.turnColor,
-                dests: (this.turnColor === this.mycolor && this.result === "" && ply === this.steps.length - 1) ? this.dests : undefined,
+                dests: (this.turnColor === this.mycolor && this.result === "*" && ply === this.steps.length - 1) ? this.dests : undefined,
                 },
             check: step.check,
             lastMove: move,

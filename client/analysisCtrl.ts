@@ -221,7 +221,7 @@ export default class AnalysisController {
             this.mycolor === "white" ? this.model['wrating'] : this.model['brating']
         ];
 
-        this.result = "";
+        this.result = "*";
         const parts = this.fullfen.split(" ");
 
         const fen_placement = parts[0];
