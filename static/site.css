@@ -264,6 +264,11 @@ iframe {
     grid-template-areas: 'side content';
     grid-gap: 2vmin;
 }
+@media (max-width: 799px) and (orientation: portrait) {
+    .page-menu {
+        display: block;
+    }
+}
 .sidebar-first{
     grid-area: side;
     display: flex;
@@ -754,7 +759,7 @@ player-title {
     font-weight:bold;
 }
 @media (max-width: 799px) and (orientation: portrait) {
-    player-title, variant-name {
+    variant-name {
         display: none;
     }
 }
