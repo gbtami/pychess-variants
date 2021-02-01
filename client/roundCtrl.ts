@@ -486,6 +486,7 @@ export default class RoundController {
         if (msg.status >= 0) {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
+            this.dests = {};
             if (this.result === "*") {
                 if (!this.spectator) {
                     switch (msg.result) {
@@ -573,7 +574,7 @@ export default class RoundController {
                 }
             }
         }
-        this.dests = msg.dests;
+        this.dests = (msg.status < 0) ? msg.dests : {};
 
         // list of legal promotion moves
         this.promotions = msg.promo;
