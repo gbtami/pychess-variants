@@ -31,7 +31,7 @@ msgid ""
 msgstr ""
 "“Bana göre, bugün ulaştığımız noktayı BÜYÜK ölçüde Stockfishe borçluyuz. "
 "Dünyanın dört bir yanından gönüllülerin bir araya gelerek açık kaynak kodu "
-"ruhuna uygun, böylesine güçlü bir makineyi yaratmaları ve ücretsiz olarak "
+"ruhuna uygun, böylesine güçlü bir makineyi yaratmaları ve ÜCRETSİZ olarak "
 "sunmaları için harekete geçirdiler. Bu bir çok harika beyinin ve işlem "
 "güçlerinin bir araya gelip güçlerini kullanması demek. "
 
@@ -82,6 +82,10 @@ msgid ""
 "competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
 " power of Stockfish!\""
 msgstr ""
+"Ardından, büyük projelerin altında yatan süper güçleri yine çok akıllıca "
+"kullanan sevgili pychess varyantlarımız geliyor. Aynı çevrimiçi, gerçek "
+"zamanlı ve rekabetçi yönler. Aynı temiz ve tanıdık Lichess görünümü ve "
+"hissi. Ve bir de Stockfish'in gücü! \""
 
 #: ../client/about.ts:17
 msgid "About pychess"
@@ -92,12 +96,12 @@ msgid ""
 "Pychess is a free, open-source chess server designed to play several chess "
 "variants."
 msgstr ""
-"Pychess sitesi, çeşitli satranç varyantlarını oynamak için dizayn edilmiş, "
+"Pychess sitesi, çeşitli satranç varyantlarını oynamak için tasarlanmış, "
 "ücretsiz ve açık kaynak kodlu bir satranç sunucusudur."
 
 #: ../client/about.ts:21
 msgid "Currently supported games are "
-msgstr "Şu anda desteklenen oyunlar"
+msgstr "Şu anda desteklenen oyunlar "
 
 #: ../client/about.ts:77
 msgid ""
@@ -105,20 +109,23 @@ msgid ""
 "S-chess, Capablanca, and Capahouse to start games from random positions with"
 " "
 msgstr ""
+"Ayrıca, Standard Satranç, Crazyhouse, S-Chess, Capablanca ve Capahouse için "
+"Chess960 seçeneği ile oyunlara rastgele pozisyonlardan başlayabilirsiniz: "
 
 #: ../client/about.ts:78
 msgid "Chess960 castling rules."
-msgstr ""
+msgstr "Chess960 rok atma kuralları"
 
 #: ../client/about.ts:81
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
-"Hamle oluşturma, onaylama, hamle analizi ve makine olarak kullanılanlar: "
+"Hamle oluşturma, onaylama, hamle analizi ve analiz motoru olarak "
+"kullanılanlar: "
 
 #: ../client/about.ts:89
 msgid "On client side, the user interface of the game board is based on "
 msgstr ""
-"Istemci tarafında, kullanıcı arayüzünde kullanılan oyun tahtasını burada "
+"İstemci tarafında, kullanıcı arayüzünde kullanılan oyun tahtasını burada "
 "bulabilirsiniz: "
 
 #: ../client/about.ts:93
@@ -130,6 +137,7 @@ msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
 msgstr ""
+"Lichess.org’daki Gizlilik ve Hizmet Şartları kuralları da burada uygulanır."
 
 #: ../client/analysis.ts:47 ../client/profile.ts:56 ../client/round.ts:41
 msgid "Playing right now"
@@ -183,7 +191,7 @@ msgstr "Analiz isteği gönder"
 
 #: ../client/analysisCtrl.ts:584
 msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr ""
+msgstr "Seçtiğiniz varyant %1 stockfish.wasm tarafından desteklenmemektedir. "
 
 #: ../client/analysisCtrl.ts:692
 msgid "Depth"
@@ -191,7 +199,7 @@ msgstr "Derinlik"
 
 #: ../client/analysisCtrl.ts:697
 msgid "Go deeper"
-msgstr ""
+msgstr "Derinleştir"
 
 #: ../client/analysisCtrl.ts:1289 ../client/roundCtrl.ts:1135
 msgid "Spectators: "
@@ -199,7 +207,7 @@ msgstr "İzleyiciler: "
 
 #: ../client/analysisCtrl.ts:1313 ../client/roundCtrl.ts:1200
 msgid "Requested game %1 not found!"
-msgstr ""
+msgstr "Talep ettiğiniz oyun %1 bulunamadı!"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -264,10 +272,11 @@ msgstr "FIDE standardlarına göre oynanan standard satranç. "
 #: ../client/chess.ts:205
 msgid "Take captured pieces and drop them back on to the board as your own"
 msgstr ""
+"Aldığınız rakip taşları oyuna kendi taşınız olarak geri sokabilirsiniz"
 
 #: ../client/chess.ts:223
 msgid "Choose where your pieces start"
-msgstr ""
+msgstr "Kendi taşlarınızın başlangıç dizilimini kendiniz belirlersiniz"
 
 #: ../client/chess.ts:233
 msgid "A game closely resembling the original Chaturanga"
@@ -275,11 +284,11 @@ msgstr "Orijinal Chaturanga oyununa çok benzeyen bir oyun türüdür"
 
 #: ../client/chess.ts:242
 msgid "Makruk variant where kings cannot move to escape out of check"
-msgstr ""
+msgstr "Makruk varyantının, şah çekildiğinde şahların kaçamadığı versiyonu"
 
 #: ../client/chess.ts:251
 msgid "Makruk with a few additional opening abilities"
-msgstr ""
+msgstr "Ek açılış olanaklarına sahip bir Makruk versiyonu"
 
 #: ../client/chess.ts:260
 msgid "Similar to Makruk, but pieces are placed at the start of the match"
@@ -289,7 +298,7 @@ msgstr ""
 
 #: ../client/chess.ts:271
 msgid "Pieces promote and can be dropped"
-msgstr "Taşlar terfi edebilir veya oyuna yeniden geri döndürülebilir"
+msgstr "Taşlar terfi edebilir ve oyuna yeniden geri döndürülebilir"
 
 #: ../client/chess.ts:299
 msgid "Shogi on a 5x5 board"
@@ -297,7 +306,7 @@ msgstr "5x5 tahtada Shogi"
 
 #: ../client/chess.ts:314
 msgid "5x5 Shogi where pieces flip to a different piece each move"
-msgstr ""
+msgstr "5x5 Shogi, ancak her hamlede hamle yapılan taş başka bir taşa döner"
 
 #: ../client/chess.ts:329
 msgid "Shogi on a 3x4 board"
@@ -305,79 +314,95 @@ msgstr "3x4 tahtada Shogi"
 
 #: ../client/chess.ts:344
 msgid "Open fire on your opponent in this highly aggressive ancient game"
-msgstr ""
+msgstr "Son derece agresif olan bu antik oyunda rakibinize ateş açın"
 
 #: ../client/chess.ts:353
 msgid "The lone Red rook can also move as a cannon or a knight."
 msgstr ""
+"Tek olan kırmızı kale aynı zamanda top veya at gibi de hareket edebilir"
 
 #: ../client/chess.ts:363
 msgid ""
 "Similar to Xiangqi, but plays very differently. Tournament rules are used"
 msgstr ""
+"Xiangqi oyununa çok benzer, fakat farklı şekilde oynanır. Turnuva kuralları "
+"kullanılır"
 
 #: ../client/chess.ts:375
 msgid "Xiangqi on a 7x7 board"
-msgstr ""
+msgstr "7x7 tahtada Xiangqi"
 
 #: ../client/chess.ts:384
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board"
 msgstr ""
+"Yay-Fil (Fil+At) ve Şansölye (Kale+At) gibi melez taşlar ile 10x8 tahtada "
+"oynanır"
 
 #: ../client/chess.ts:400
 msgid "Capablanca with Crazyhouse drop rules"
 msgstr ""
+"Taşların Crazyhouse’daki gibi oyuna geri sokulabildiği Capablanca varyantı"
 
 #: ../client/chess.ts:417
 msgid "Like Capablanca Chess but with a different starting setup"
-msgstr ""
+msgstr "Capablanca Satrancı gibi, fakat başlangıç pozisyonu farklıdır"
 
 #: ../client/chess.ts:426
 msgid "Gothic with Crazyhouse drop rules"
 msgstr ""
+"Taşların Crazyhouse’daki gibi oyuna geri sokulabildiği Gothic varyantı"
 
 #: ../client/chess.ts:436
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after "
 "moving a back rank piece"
 msgstr ""
+"Şahin (Fil+At) ve Elephant (Kale+At) gibi melez taşlar oyuncunun ilk "
+"sırasında boşalan karelere konularak oyuna dahil edilebilir"
 
 #: ../client/chess.ts:447
 msgid "S-Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "Taşların Crazyhouse’daki gibi oyuna geri sokulabildiği S-Satrancı"
 
 #: ../client/chess.ts:457
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
 msgstr ""
+"Yay-Fil (Fil+At) ve Şansölye (Kale+At) gibi melez taşlar ile *büyük* 10x10 "
+"tahtada oynanır"
 
 #: ../client/chess.ts:466
 msgid "Grand Chess with Crazyhouse drop rules"
-msgstr ""
+msgstr "Taşların Crazyhouse’daki gibi geri sokulabildiği Grand Satranç"
 
 #: ../client/chess.ts:476
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
-msgstr ""
+msgstr "10x10 tahtada Xiangqi varyantındaki top ve elephant taşları da vardır"
 
 #: ../client/chess.ts:485
 msgid "Pieces promote and can be dropped, similar to Shogi"
 msgstr ""
+"Shogi oyunundaki gibi taşlar terfi edebilir ve oyuna geri döndürülebilir"
 
 #: ../client/chess.ts:497
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
 msgstr ""
+"Taraflardan birinin taşlarının at gibi hareket ettiği fakat rakip taşları "
+"farklı şekillerde aldığı, asimetrik bir varyant"
 
 #: ../client/chess.ts:508
 msgid ""
 "Asymmetric East vs. West variant which pits the western chess army against a"
 " xiangqi and janggi-styled army"
 msgstr ""
+"Xiangqi ve Janggi tarzındaki Doğu ve Batı ordularını karşı karşıya getiren "
+"asimetrik varyant"
 
 #: ../client/chess.ts:519
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
@@ -447,7 +472,7 @@ msgstr[1] "%1 saniye önce"
 
 #: ../client/editor.ts:132 ../client/editor.ts:133
 msgid "%1 to play"
-msgstr ""
+msgstr "Hamle sırası %1 taşlarda"
 
 #: ../client/editor.ts:136
 msgid "Castling"
@@ -492,10 +517,11 @@ msgstr "Geçersiz FEN"
 #: ../client/editor.ts:384
 msgid "Click/Ctrl+click to increase/decrease number of pieces"
 msgstr ""
+"Control tuşuna basılı tutarak taş sayısını arttırmak/azaltmak için tıklayın"
 
 #: ../client/invite.ts:27 ../client/profile.ts:268
 msgid "Challenge to a game"
-msgstr ""
+msgstr "Oyuna davet et"
 
 #: ../client/invite.ts:30
 msgid "CANCEL"
@@ -523,7 +549,7 @@ msgstr "İptal"
 
 #: ../client/lobby.ts:274
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "%1 adlı oyuncuyu oyuna davet et"
 
 #: ../client/lobby.ts:281
 msgid "Paste the FEN text here"
@@ -535,7 +561,7 @@ msgstr "Taraf başına dakika: "
 
 #: ../client/lobby.ts:312
 msgid "Periods"
-msgstr ""
+msgstr "Periyodlar"
 
 #: ../client/lobby.ts:322 ../client/lobby.ts:539 ../client/profile.ts:39
 msgid "Casual"
@@ -668,7 +694,7 @@ msgstr "İÇE AKTAR"
 
 #: ../client/profile.ts:44
 msgid "level %1"
-msgstr ""
+msgstr "seviye %1"
 
 #: ../client/profile.ts:59
 msgid "Game aborted"
@@ -696,7 +722,7 @@ msgstr "Berabere"
 
 #: ../client/profile.ts:80
 msgid "%1 abandoned the game"
-msgstr ""
+msgstr "%1 oyundan ayrıldı"
 
 #: ../client/profile.ts:83
 msgid "Cheat detected"
@@ -716,11 +742,11 @@ msgstr "Bilinmeyen sebep"
 
 #: ../client/profile.ts:95
 msgid "Campmate"
-msgstr ""
+msgstr "Kamp matı"
 
 #: ../client/profile.ts:95 ../client/profile.ts:98
 msgid "Point counting"
-msgstr ""
+msgstr "Puan sayılıyor"
 
 #: ../client/profile.ts:98
 msgid "Repetition"
@@ -779,7 +805,7 @@ msgstr "Say"
 
 #: ../client/roundCtrl.ts:347
 msgid "Pass"
-msgstr ""
+msgstr "Pas"
 
 #: ../client/roundCtrl.ts:348
 msgid "Resign"
@@ -801,10 +827,12 @@ msgstr "Kırmızı (Han)"
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr ""
+"%1 adlı oyuncunun atlar ve fillerin başlangıç pozisyonunu seçmesi "
+"bekleniyor..."
 
 #: ../client/roundCtrl.ts:455 ../client/roundCtrl.ts:457
 msgid "Switch pieces"
-msgstr ""
+msgstr "Taş değiştir"
 
 #: ../client/roundCtrl.ts:456
 msgid "Ready"
