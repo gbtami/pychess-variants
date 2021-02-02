@@ -70,7 +70,7 @@
     "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board": "10x10 tahtada Xiangqi varyantındaki top ve elephant taşları da vardır",
     "Pieces promote and can be dropped, similar to Shogi": "Shogi oyunundaki gibi taşlar terfi edebilir ve oyuna geri döndürülebilir",
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "Taraflardan birinin taşlarının at gibi hareket ettiği fakat rakip taşları farklı şekillerde aldığı, asimetrik bir varyant",
-    "Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army": "Xiangqi ve Janggi tarzındaki Doğu ve Batı ordularını karşı karşıya getiren asimetrik varyant",
+    "Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army": "Xiangqi ve Janggi tarzındaki Doğu ordularını Batı ordularıyla karşı karşıya getiren asimetrik varyant",
     "Knights are capturing as bishops, bishops are capturing as knights": "Atlar fil gibi taş alır, filler at gibi taş alır",
     "Standard piece variants": "Standard taşlarla oynanan varyantlar",
     "Southeast Asian variants": "Güneydoğu Asya varyantları",
@@ -177,7 +177,7 @@
     "Invalid move": "Geçersiz hamle",
     "Unknown reason": "Bilinmeyen sebep",
     "Campmate": "Kamp matı",
-    "Point counting": "Puan sayılıyor",
+    "Point counting": "Puan sayımı",
     "Repetition": "Hamle tekrarı",
     "%1 move": [
         "%1 move ",

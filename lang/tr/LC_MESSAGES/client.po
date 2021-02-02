@@ -401,8 +401,8 @@ msgid ""
 "Asymmetric East vs. West variant which pits the western chess army against a"
 " xiangqi and janggi-styled army"
 msgstr ""
-"Xiangqi ve Janggi tarzındaki Doğu ve Batı ordularını karşı karşıya getiren "
-"asimetrik varyant"
+"Xiangqi ve Janggi tarzındaki Doğu ordularını Batı ordularıyla karşı karşıya "
+"getiren asimetrik varyant"
 
 #: ../client/chess.ts:519
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
@@ -746,7 +746,7 @@ msgstr "Kamp matı"
 
 #: ../client/profile.ts:95 ../client/profile.ts:98
 msgid "Point counting"
-msgstr "Puan sayılıyor"
+msgstr "Puan sayımı"
 
 #: ../client/profile.ts:98
 msgid "Repetition"
