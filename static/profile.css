@@ -1,3 +1,9 @@
+@media (max-width: 799px) and (orientation: portrait) {
+    .page-menu {
+        display: grid;
+    }
+}
+
 /* profile games */
 .filter-tabs {
     display: flex;

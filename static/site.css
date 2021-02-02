@@ -360,6 +360,20 @@ ul.guide li {
     font-size:1.1em;
     margin-bottom: 24px;
 }
+@media (max-width: 799px) and (orientation: portrait) {
+    ul.guide {
+        margin-left: 4px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        padding: 0;
+        grid-gap: 6px;
+    }
+ul.guide li {
+    font-size:1rem;
+    margin: 0;
+}
+}
+
 .nav-link {
     line-height: var(--site-header-height);
 }
