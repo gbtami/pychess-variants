@@ -2,7 +2,7 @@
 
 ## Pychess
 
-*What is Pychess?* 
+*Pychess nedir?* 
 
 Pychess is a website dedicated to allowing people to play major and interesting chess variants (both regional and more modern chess variants). Please see [the about page](https://www.pychess.org/about).
 
