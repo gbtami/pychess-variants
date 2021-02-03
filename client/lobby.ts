@@ -687,7 +687,12 @@ export function lobbyView(model): VNode[] {
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
         ]),
-        h('under-lobby'),
+        h('under-lobby', [
+            h('news', [
+                h('icon', { attrs: {"data-icon": '2'} }),
+                h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
+            ]),
+        ]),
         h('under-right', [
             h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
             h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),

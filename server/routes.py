@@ -39,6 +39,8 @@ get_routes = (
     ("/level8win", index),
     ("/patron", index),
     ("/patron/thanks", index),
+    ("/news", index),
+    ("/news/{news_item}", index),
     ("/variant", index),
     ("/variant/{variant}", index),
     ("/wsl", lobby_socket_handler),

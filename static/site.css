@@ -331,7 +331,7 @@ under-right {
     justify-content: center;
 }
 
-div.about, div.guide, div.patron, div.closed, div.paste, div.invite {
+div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news {
     grid-area: main;
     margin: 0 auto;
     border-radius: 3px;
@@ -340,17 +340,20 @@ div.about, div.guide, div.patron, div.closed, div.paste, div.invite {
     background-color: var(--bg-color0);
     padding: 24px;
 }
-div.about, div.paste {
+div.about, div.paste, div.news {
     width: 75%;
 }
 div.patron, div.invite {
     width: 50%;
 }
-div.guide {
+div.guide, div.news {
   grid-area: content;
 }
 div.closed {
     width: 610px;
+}
+a.news {
+    margin-right: .4em;
 }
 ul.guide {
     list-style:none;

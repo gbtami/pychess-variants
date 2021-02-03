@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Learn docs
 cd static/docs
 
 export PATH="../../node_modules/.bin/:$PATH"
@@ -33,3 +34,15 @@ find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
 
 mkdir ../../templates/docs
 mv -t ../../templates/docs *.html
+
+# News
+cd ../news
+
+for f in *.md; do
+showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
+done
+
+find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
+
+mkdir ../../templates/news
+mv -t ../../templates/news *.html

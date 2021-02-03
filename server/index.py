@@ -18,7 +18,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, STARTED, VARIANTS, VARIANT_ICONS, RATED, IMPORTED, variant_display_name
+from const import LANGUAGES, VARIANTS, VARIANT_ICONS, RATED, IMPORTED, variant_display_name
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -92,6 +92,8 @@ async def index(request):
         view = "faq"
     elif request.path == "/stats":
         view = "stats"
+    elif request.path.startswith("/news"):
+        view = "news"
     elif request.path.startswith("/variant"):
         view = "variant"
     elif request.path == "/players":
@@ -181,6 +183,8 @@ async def index(request):
         template = get_template("players.html")
     elif view == "allplayers":
         template = get_template("allplayers.html")
+    elif view == "news":
+        template = get_template("news.html")
     elif view == "variant":
         template = get_template("variant.html")
     elif view == "patron":
@@ -298,6 +302,19 @@ async def index(request):
         else:
             render["variant"] = "docs/" + ("intro" if variant is None else variant) + "%s.html" % locale
         render["variant_display_name"] = variant_display_name
+
+    elif view == "news":
+        NEWS = ("2021.02.03", "2021.02.02")
+        news_item = request.match_info.get("news_item")
+        if news_item is not None:
+            if news_item not in NEWS:
+                log.debug("Invalid news date %s in request", news_item)
+                return web.Response(status=404)
+        else:
+            news_item = NEWS[0]
+
+        render["news"] = NEWS
+        render["news_item"] = "news/%s.html" % news_item
 
     elif view == "faq":
         # TODO: make it translatable similar to above variant pages
