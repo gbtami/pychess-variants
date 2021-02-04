@@ -2,13 +2,13 @@
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/icons/Dobutsu.svg" width="150" height="150">
 </p>
 <br>
-<h1 align="center"> The 1st Dobutsu Tournament on PyChess </h1>
+<h1 align="center"> The 1st Dōbutsu Tournament on PyChess </h1>
 
 <br>
 
 <p align="center"> <b> February 2021 <br>
-16 Players - 2 Groups (8 player each) <br>
-Single-Round Robin in qualification stage <br> Knockout Matches in Semi-Final and Final <br>
+16 Players - 2 Groups (8 players each) <br>
+Single-Round Robin in Qualification stage <br> Knockout Matches in Semi-Final and Final <br>
 Time Control: 3+2 mins <b> <p>
 <br> <br> <br> 
 <p align="center">
