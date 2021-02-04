@@ -688,9 +688,29 @@ export function lobbyView(model): VNode[] {
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
         ]),
         h('under-lobby', [
-            h('news', [
+            h('news-latest', [
                 h('icon', { attrs: {"data-icon": '2'} }),
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
+            ]),
+            h('posts', [
+                h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
+                    h('img', { attrs: {src: '/static/icons/Dobutsu.svg'} }),
+                    h('span.text', [
+                        h('strong', "PyChess tournament announcement"),
+                        h('span', 'The 1st Dōbutsu Tournament on PyChess'),
+                    ]),
+                    h('time', '2021.02.04'),
+                ]),
+/*
+                h('a.post', { attrs: {href: '/news/First_Blog_Post'} }, [
+                    h('img', { attrs: {src: '/static/images/pieces/synochess/intl-red/bE.svg'} }),
+                    h('span.text', [
+                        h('strong', "First PyChess blog post"),
+                        h('span', 'Just some random stuff...'),
+                    ]),
+                    h('time', '2021.02.03'),
+                ]),
+*/
             ]),
         ]),
         h('under-right', [

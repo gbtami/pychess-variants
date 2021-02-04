@@ -23,6 +23,7 @@ from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import MAX_AGE, URI
+from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
 
@@ -304,14 +305,10 @@ async def index(request):
         render["variant_display_name"] = variant_display_name
 
     elif view == "news":
-        NEWS = ("2021.02.03", "2021.02.02")
         news_item = request.match_info.get("news_item")
-        if news_item is not None:
-            if news_item not in NEWS:
-                log.debug("Invalid news date %s in request", news_item)
-                return web.Response(status=404)
-        else:
+        if (news_item is None) or (news_item not in NEWS):
             news_item = NEWS[0]
+        news_item = news_item.replace("_", " ")
 
         render["news"] = NEWS
         render["news_item"] = "news/%s.html" % news_item
