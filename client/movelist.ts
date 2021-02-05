@@ -75,7 +75,7 @@ export function createMovelistButtons (ctrl) {
     ]));
 }
 
-export function updateMovelist (ctrl, full = true, activate = true) {
+export function updateMovelist (ctrl, full = true, activate = true, needResult = true) {
     const plyFrom = (full) ? 1 : ctrl.steps.length -1
     const plyTo = ctrl.steps.length;
 
@@ -123,7 +123,7 @@ export function updateMovelist (ctrl, full = true, activate = true) {
         }
     }
 
-    if (ctrl.status >= 0) {
+    if (ctrl.status >= 0 && needResult) {
         moves.push(h('div#result', result(ctrl.variant, ctrl.status, ctrl.result)));
     }
 
@@ -138,4 +138,12 @@ export function updateMovelist (ctrl, full = true, activate = true) {
     if (activate)
         activatePly(ctrl);
         scrollToPly(ctrl);
+}
+
+export function updateResult (ctrl) {
+    if (ctrl.status < 0) return;
+
+    const container = document.getElementById('movelist') as HTMLElement;
+    ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.variant, ctrl.status, ctrl.result))]));
+    container.scrollTop = 99999;
 }

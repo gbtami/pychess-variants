@@ -24,7 +24,7 @@ import { sound } from './sound';
 import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, getCounting, isVariantClass, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
-import { createMovelistButtons, updateMovelist, selectMove } from './movelist';
+import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
 import { renderRdiff } from './profile'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
@@ -484,6 +484,8 @@ export default class RoundController {
     private checkStatus = (msg) => {
         if (msg.gameId !== this.gameId) return;
         if (msg.status >= 0) {
+            this.status = msg.status;
+            this.result = msg.result;
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             this.dests = {};
@@ -519,6 +521,8 @@ export default class RoundController {
             }
             this.gameOver(msg.rdiffs);
             selectMove(this, this.ply);
+
+            updateResult(this);
 
             if (msg.ct !== "") {
                 this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
@@ -556,7 +560,7 @@ export default class RoundController {
 
         // console.log("got board msg:", msg);
         const latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
-        if (latestPly) this.ply = msg.ply
+        if (latestPly) this.ply = msg.ply;
 
         this.fullfen = msg.fen;
 
@@ -594,7 +598,10 @@ export default class RoundController {
             msg.steps.forEach((step) => { 
                 this.steps.push(step);
                 });
-            updateMovelist(this);
+            const full = true;
+            const activate = true;
+            const result = false;
+            updateMovelist(this, full, activate, result);
         } else {
             if (msg.ply === this.steps.length) {
                 const step = {
@@ -607,7 +614,8 @@ export default class RoundController {
                 this.steps.push(step);
                 const full = false;
                 const activate = !this.spectator || latestPly;
-                updateMovelist(this, full, activate);
+                const result = false;
+                updateMovelist(this, full, activate, result);
             }
         }
 
