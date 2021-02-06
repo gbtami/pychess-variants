@@ -1,20 +1,20 @@
 # Translations template for PROJECT.
-# Copyright (C) 2020 ORGANIZATION
+# Copyright (C) 2021 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
 # Leo Ha <yeoha123@gmail.com>, 2020
-# SangbaekLee <esangbaek@ajou.ac.kr>, 2020
+# 이상백 <esangbaek@ajou.ac.kr>, 2020
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-30 20:10+0100\n"
+"POT-Creation-Date: 2021-02-05 11:59+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: SangbaekLee <esangbaek@ajou.ac.kr>, 2020\n"
+"Last-Translator: 이상백 <esangbaek@ajou.ac.kr>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -121,73 +121,73 @@ msgid ""
 "applied here. "
 msgstr "개인 정보 보호 및 서비스 약관과 관련하여 lichess.org의 규칙도 여기에 적용됩니다."
 
-#: ../client/analysis.ts:47 ../client/profile.ts:56 ../client/round.ts:41
+#: ../client/analysis.ts:48 ../client/profile.ts:57 ../client/round.ts:42
 msgid "Playing right now"
 msgstr "지금 플레이하기"
 
-#: ../client/analysis.ts:92 ../client/editor.ts:357 ../client/lobby.ts:277
-#: ../client/lobby.ts:659 ../client/settingsView.ts:128
+#: ../client/analysis.ts:92 ../client/editor.ts:394 ../client/lobby.ts:286
+#: ../client/lobby.ts:669 ../client/settingsView.ts:128
 msgid "Variant"
 msgstr "게임 종류"
 
-#: ../client/analysis.ts:134 ../client/analysisCtrl.ts:367
-#: ../client/analysisCtrl.ts:710
+#: ../client/analysis.ts:132 ../client/analysisCtrl.ts:366
+#: ../client/analysisCtrl.ts:725
 msgid "in local browser"
 msgstr "로컬 브라우저에서"
 
-#: ../client/analysisCtrl.ts:379
+#: ../client/analysisCtrl.ts:377
 msgid "You need an account to do that."
 msgstr "계정이 필요합니다."
 
-#: ../client/analysisCtrl.ts:413
+#: ../client/analysisCtrl.ts:409
 msgid "Download game to PGN file"
 msgstr "PGN 파일로 기보 저장하기"
 
-#: ../client/analysisCtrl.ts:413
+#: ../client/analysisCtrl.ts:409
 msgid " Download PGN"
 msgstr "PGN 파일로 저장"
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:411
 msgid "Copy USI/UCI to clipboard"
 msgstr "USI/UCI 클립보드에 복사하기"
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:411
 msgid " Copy UCI/USI"
 msgstr "UCI/USI 복사하기"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:413
 msgid "Download position to PNG image file"
 msgstr "판을 PNG파일로 저장하기"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:413
 msgid " PNG image"
 msgstr "PNG 그림파일"
 
-#: ../client/analysisCtrl.ts:421
+#: ../client/analysisCtrl.ts:417
 msgid "Request Computer Analysis"
 msgstr "컴퓨터 분석 의뢰하기"
 
-#: ../client/analysisCtrl.ts:421
+#: ../client/analysisCtrl.ts:417
 msgid " Request Analysis"
 msgstr "분석 의뢰하기"
 
-#: ../client/analysisCtrl.ts:584
+#: ../client/analysisCtrl.ts:589
 msgid "Selected variant %1 is not supported by stockfish.wasm"
 msgstr "선택하신 변형판 %1은 stockfish.wasm에서 지원되지 않습니다."
 
-#: ../client/analysisCtrl.ts:692
+#: ../client/analysisCtrl.ts:700
 msgid "Depth"
 msgstr "깊이"
 
-#: ../client/analysisCtrl.ts:697
+#: ../client/analysisCtrl.ts:705
 msgid "Go deeper"
 msgstr "더 알아보기"
 
-#: ../client/analysisCtrl.ts:1289 ../client/roundCtrl.ts:1135
+#: ../client/analysisCtrl.ts:1308 ../client/roundCtrl.ts:1139
 msgid "Spectators: "
 msgstr "관전자:"
 
-#: ../client/analysisCtrl.ts:1313 ../client/roundCtrl.ts:1200
+#: ../client/analysisCtrl.ts:1332 ../client/roundCtrl.ts:1204
 msgid "Requested game %1 not found!"
 msgstr "요청하신 %1 게임을 찾을 수 없습니다!"
 
@@ -199,23 +199,23 @@ msgstr "밝음"
 msgid "Dark"
 msgstr "어두움"
 
-#: ../client/boardSettings.ts:214
+#: ../client/boardSettings.ts:208
 msgid "Piece animation"
 msgstr "기물 애니메이션"
 
-#: ../client/boardSettings.ts:312
+#: ../client/boardSettings.ts:306
 msgid "Show piece destinations"
 msgstr "기물 행마법 보이기"
 
-#: ../client/boardSettings.ts:330
+#: ../client/boardSettings.ts:324
 msgid "Promote to Queen automatically"
 msgstr "퀸 자동 프로모션"
 
-#: ../client/boardSettings.ts:348
+#: ../client/boardSettings.ts:342
 msgid "Best move arrow in analysis board"
 msgstr "분석판의 최적 움직임 화살표"
 
-#: ../client/boardSettings.ts:376
+#: ../client/boardSettings.ts:370
 msgid "Invisible pieces"
 msgstr "투명 기물"
 
@@ -227,23 +227,31 @@ msgstr "초반 배치"
 msgid "Advantage"
 msgstr "유리한 점"
 
-#: ../client/chat.ts:23
-msgid "Spectator room"
-msgstr "관전방"
-
-#: ../client/chat.ts:23
-msgid "Chat room"
-msgstr "채팅방"
-
-#: ../client/chat.ts:32
+#: ../client/chat.ts:28 ../client/chat.ts:43
 msgid "Sign in to chat"
 msgstr "채팅을 하려면 로그인 하세요"
 
-#: ../client/chat.ts:32
+#: ../client/chat.ts:28 ../client/chat.ts:43
 msgid "Please be nice in the chat!"
 msgstr "성숙한 채팅을 부탁드립니다!"
 
-#: ../client/chat.ts:52
+#: ../client/chat.ts:28
+msgid "Chat is disabled"
+msgstr ""
+
+#: ../client/chat.ts:33
+msgid "Spectator room"
+msgstr "관전방"
+
+#: ../client/chat.ts:33
+msgid "Chat room"
+msgstr "채팅방"
+
+#: ../client/chat.ts:34
+msgid "Toggle the chat"
+msgstr ""
+
+#: ../client/chat.ts:63
 msgid "Server"
 msgstr "서버"
 
@@ -332,36 +340,36 @@ msgid ""
 "moving a back rank piece"
 msgstr "복합 기물 호크(비숍+나이트), 엘리펀트(룩+나이트)는 백-랭크 기물을 움직인 후에 대국판에서 사용 가능합니다."
 
-#: ../client/chess.ts:447
+#: ../client/chess.ts:446
 msgid "S-Chess with Crazyhouse drop rules"
 msgstr "크레이지 하우스 규칙이 적용된 S-체스"
 
-#: ../client/chess.ts:457
+#: ../client/chess.ts:456
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "*grand* 10x10 board"
 msgstr "10x10 그랜드 체스판에서 복합 기물 아크비숍(비숍+나이트)와 챈슬러(룩+나이트)를 사용하기"
 
-#: ../client/chess.ts:466
+#: ../client/chess.ts:465
 msgid "Grand Chess with Crazyhouse drop rules"
 msgstr "크레이지 하우스 규칙이 적용된 그랜드 체스"
 
-#: ../client/chess.ts:476
+#: ../client/chess.ts:475
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"
 msgstr "10x10체스판에 샹치의 포와 상 도입하기"
 
-#: ../client/chess.ts:485
+#: ../client/chess.ts:484
 msgid "Pieces promote and can be dropped, similar to Shogi"
 msgstr "기물는 쇼기처럼 프로모션이나 공격받을 수 있다."
 
-#: ../client/chess.ts:497
+#: ../client/chess.ts:496
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently"
 msgstr "한 사용자만 기사처럼 움직이고 다른 방식으로 공격하는 기물을 가진 비대칭 변형판"
 
-#: ../client/chess.ts:508
+#: ../client/chess.ts:507
 msgid ""
 "Asymmetric East vs. West variant which pits the western chess army against a"
 " xiangqi and janggi-styled army"
@@ -371,23 +379,23 @@ msgstr "서양 체스 군대와 샹치, 장기 스타일의 군대가 대국하�
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
 msgstr "나이트는 비숍처럼 공격하고, 비숍은 나이트처럼 공격합니다."
 
-#: ../client/chess.ts:534
+#: ../client/chess.ts:543
 msgid "Standard piece variants"
 msgstr "표준 피스 변형"
 
-#: ../client/chess.ts:535
+#: ../client/chess.ts:544
 msgid "Southeast Asian variants"
 msgstr "동남아시아 변형"
 
-#: ../client/chess.ts:536
+#: ../client/chess.ts:545
 msgid "Shogi variants"
 msgstr "쇼기 변형"
 
-#: ../client/chess.ts:537
+#: ../client/chess.ts:546
 msgid "Xiangqi variants"
 msgstr "샹치 변형판"
 
-#: ../client/chess.ts:538
+#: ../client/chess.ts:547
 msgid "Fairy piece variants"
 msgstr "변형 체스"
 
@@ -426,144 +434,144 @@ msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
 msgstr[0] "%1 초 전"
 
-#: ../client/editor.ts:132 ../client/editor.ts:133
+#: ../client/editor.ts:136 ../client/editor.ts:137
 msgid "%1 to play"
 msgstr "%1 대국"
 
-#: ../client/editor.ts:136
+#: ../client/editor.ts:140
 msgid "Castling"
 msgstr "캐슬링"
 
-#: ../client/editor.ts:139 ../client/lobby.ts:344 ../client/profile.ts:21
+#: ../client/editor.ts:143 ../client/lobby.ts:353 ../client/profile.ts:22
 msgid "White"
 msgstr "백"
 
-#: ../client/editor.ts:154 ../client/lobby.ts:342 ../client/profile.ts:22
+#: ../client/editor.ts:158 ../client/lobby.ts:351 ../client/profile.ts:23
 msgid "Black"
 msgstr "흑"
 
-#: ../client/editor.ts:170
+#: ../client/editor.ts:174
 msgid "CLEAR BOARD"
 msgstr "판 삭제"
 
-#: ../client/editor.ts:173
+#: ../client/editor.ts:177
 msgid "STARTING POSITION"
 msgstr "초기 배치"
 
-#: ../client/editor.ts:176 ../client/roundCtrl.ts:503
+#: ../client/editor.ts:180 ../client/roundCtrl.ts:498
 msgid "ANALYSIS BOARD"
 msgstr "분석판"
 
-#: ../client/editor.ts:179
+#: ../client/editor.ts:183
 msgid "PLAY WITH MACHINE"
 msgstr "컴퓨터와 대국하기"
 
-#: ../client/editor.ts:179 ../client/lobby.ts:281
+#: ../client/editor.ts:183 ../client/lobby.ts:290
 msgid " (must be signed in)"
 msgstr "(로그인 하셔야 합니다)"
 
-#: ../client/editor.ts:182
+#: ../client/editor.ts:186
 msgid "EXPORT TO PNG"
 msgstr "PNG 파일로 내보내기"
 
-#: ../client/editor.ts:244 ../client/lobby.ts:442
+#: ../client/editor.ts:279 ../client/lobby.ts:452
 msgid "Invalid FEN"
 msgstr "잘못 된 FEN 입니다"
 
-#: ../client/editor.ts:384
+#: ../client/editor.ts:420
 msgid "Click/Ctrl+click to increase/decrease number of pieces"
 msgstr "기물 수 증가/감소하려면 클릭/컨트롤+클릭"
 
-#: ../client/invite.ts:27 ../client/profile.ts:268
+#: ../client/invite.ts:28 ../client/profile.ts:269
 msgid "Challenge to a game"
 msgstr "대국 신청하기"
 
-#: ../client/invite.ts:30
+#: ../client/invite.ts:31
 msgid "CANCEL"
 msgstr "취소"
 
-#: ../client/invite.ts:35
+#: ../client/invite.ts:36
 msgid "JOIN THE GAME"
 msgstr "게임 참가하기"
 
-#: ../client/invite.ts:60
+#: ../client/invite.ts:61
 msgid "To invite someone to play, give this URL:"
 msgstr "초대하려면 이 URL을 보내세요"
 
-#: ../client/invite.ts:65 ../client/invite.ts:67
+#: ../client/invite.ts:66 ../client/invite.ts:68
 msgid "Copy URL"
 msgstr "URL 복사"
 
-#: ../client/invite.ts:68
+#: ../client/invite.ts:69
 msgid "The first person to come to this URL will play with you."
 msgstr "이 URL로 처음에 접속하는 사람과 대국을 진행합니다."
 
-#: ../client/lobby.ts:269
+#: ../client/lobby.ts:278
 msgid "Cancel"
 msgstr "취소"
 
-#: ../client/lobby.ts:274
+#: ../client/lobby.ts:283
 msgid "Challenge %1 to a game"
 msgstr "%1 님에게 대국 신청하기"
 
-#: ../client/lobby.ts:281
+#: ../client/lobby.ts:290
 msgid "Paste the FEN text here"
 msgstr "FEN 텍스트를 여기에 붙여 넣으세요"
 
-#: ../client/lobby.ts:297
+#: ../client/lobby.ts:306
 msgid "Minutes per side:"
 msgstr "대국자 자유시간 (분):"
 
-#: ../client/lobby.ts:312
+#: ../client/lobby.ts:321
 msgid "Periods"
 msgstr "횟수"
 
-#: ../client/lobby.ts:322 ../client/lobby.ts:539 ../client/profile.ts:39
+#: ../client/lobby.ts:331 ../client/lobby.ts:549 ../client/profile.ts:40
 msgid "Casual"
 msgstr "친선전"
 
-#: ../client/lobby.ts:324 ../client/lobby.ts:537 ../client/profile.ts:34
-#: ../client/profile.ts:274
+#: ../client/lobby.ts:333 ../client/lobby.ts:547 ../client/profile.ts:35
+#: ../client/profile.ts:275
 msgid "Rated"
 msgstr "승강전"
 
-#: ../client/lobby.ts:332
+#: ../client/lobby.ts:341
 msgid "A.I. Level"
 msgstr "AI 레벨"
 
-#: ../client/lobby.ts:343
+#: ../client/lobby.ts:352
 msgid "Random"
 msgstr "랜덤"
 
-#: ../client/lobby.ts:361
+#: ../client/lobby.ts:370
 msgid "Create a game"
 msgstr "대국방 생성하기"
 
-#: ../client/lobby.ts:375
+#: ../client/lobby.ts:384
 msgid "Play with a friend"
 msgstr "친구와 같이 하기"
 
-#: ../client/lobby.ts:388
+#: ../client/lobby.ts:397
 msgid "Play with AI (Fairy-Stockfish)"
 msgstr "페어리 스톡피쉬 AI와 대국하기"
 
-#: ../client/lobby.ts:404
+#: ../client/lobby.ts:413
 msgid "Byoyomi in seconds:"
 msgstr "초읽기"
 
-#: ../client/lobby.ts:404
+#: ../client/lobby.ts:413
 msgid "Increment in seconds:"
 msgstr "초 증가"
 
-#: ../client/lobby.ts:409
+#: ../client/lobby.ts:418
 msgid "Alternate Start"
 msgstr "교대 시작"
 
-#: ../client/lobby.ts:535
+#: ../client/lobby.ts:545
 msgid "Custom"
 msgstr "임의 지정"
 
-#: ../client/lobby.ts:608
+#: ../client/lobby.ts:618
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -571,47 +579,51 @@ msgstr ""
 "아직 끝나지 않은 게임이 있습니다!\n"
 "OK 를 눌러 계속합니다."
 
-#: ../client/lobby.ts:642
+#: ../client/lobby.ts:652
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 개의 게임이 진행 중"
 
-#: ../client/lobby.ts:647
+#: ../client/lobby.ts:657
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 명의 플레이어"
 
-#: ../client/lobby.ts:656
+#: ../client/lobby.ts:666
 msgid "Player"
 msgstr "플레이어"
 
-#: ../client/lobby.ts:657
+#: ../client/lobby.ts:667
 msgid "Rating"
 msgstr "레이팅"
 
-#: ../client/lobby.ts:658
+#: ../client/lobby.ts:668
 msgid "Time"
 msgstr "시간"
 
-#: ../client/lobby.ts:660
+#: ../client/lobby.ts:670
 msgid "Mode"
 msgstr "모드 선택"
 
-#: ../client/lobby.ts:698
+#: ../client/lobby.ts:708
 msgid "Donate"
 msgstr "기부하기"
 
-#: ../client/lobby.ts:699
+#: ../client/lobby.ts:709
 msgid "FAQ"
 msgstr "자주 하는 질문"
 
-#: ../client/lobby.ts:700
+#: ../client/lobby.ts:710
 msgid "Stats"
 msgstr "통계"
 
-#: ../client/lobby.ts:701
+#: ../client/lobby.ts:711
 msgid "About"
 msgstr "더 알아보기"
+
+#: ../client/lobby.ts:716
+msgid "Latest updates"
+msgstr ""
 
 #: ../client/main.ts:90
 msgid "Thank you for your support!"
@@ -629,116 +641,116 @@ msgstr "PGN 텍스트를 여기에 복사하세요"
 msgid "IMPORT GAME"
 msgstr "게임 불러오기"
 
-#: ../client/profile.ts:23
+#: ../client/profile.ts:24
 msgid "Red"
 msgstr "빨강"
 
-#: ../client/profile.ts:24
+#: ../client/profile.ts:25
 msgid "Blue"
 msgstr "파랑"
 
-#: ../client/profile.ts:25
+#: ../client/profile.ts:26
 msgid "Gold"
 msgstr "금"
 
-#: ../client/profile.ts:37
+#: ../client/profile.ts:38
 msgid "IMPORT"
 msgstr "가져오기"
 
-#: ../client/profile.ts:44
+#: ../client/profile.ts:45
 msgid "level %1"
 msgstr "레벨 %1"
 
-#: ../client/profile.ts:59
+#: ../client/profile.ts:60
 msgid "Game aborted"
 msgstr "게임 중단"
 
-#: ../client/profile.ts:62
+#: ../client/profile.ts:63
 msgid "Checkmate"
 msgstr "체크메이트"
 
-#: ../client/profile.ts:65
+#: ../client/profile.ts:66
 msgid "%1 resigned"
 msgstr "%1 님이 기권 하셨습니다."
 
-#: ../client/profile.ts:68
+#: ../client/profile.ts:69
 msgid "Stalemate"
 msgstr "부동"
 
-#: ../client/profile.ts:71 ../client/profile.ts:77
+#: ../client/profile.ts:72 ../client/profile.ts:78
 msgid "Time out"
 msgstr "시간 초과"
 
-#: ../client/profile.ts:74 ../client/roundCtrl.ts:347
+#: ../client/profile.ts:75 ../client/roundCtrl.ts:344
 msgid "Draw"
 msgstr "무승부"
 
-#: ../client/profile.ts:80
+#: ../client/profile.ts:81
 msgid "%1 abandoned the game"
 msgstr "%1 님이 게임을 포기 하셨습니다"
 
-#: ../client/profile.ts:83
+#: ../client/profile.ts:84
 msgid "Cheat detected"
 msgstr "부정행위가 인식됨"
 
-#: ../client/profile.ts:86
+#: ../client/profile.ts:87
 msgid "Not started"
 msgstr "시작 전입니다"
 
-#: ../client/profile.ts:89
+#: ../client/profile.ts:90
 msgid "Invalid move"
 msgstr "잘못된 수 입니다"
 
-#: ../client/profile.ts:92
+#: ../client/profile.ts:93
 msgid "Unknown reason"
 msgstr "알 수 없는 오류"
 
-#: ../client/profile.ts:95
+#: ../client/profile.ts:96
 msgid "Campmate"
 msgstr "캠프메이트"
 
-#: ../client/profile.ts:95 ../client/profile.ts:98
+#: ../client/profile.ts:96 ../client/profile.ts:99
 msgid "Point counting"
 msgstr "점수 승"
 
-#: ../client/profile.ts:98
+#: ../client/profile.ts:99
 msgid "Repetition"
 msgstr "반복"
 
-#: ../client/profile.ts:182
+#: ../client/profile.ts:183
 msgid "%1 move"
 msgid_plural "%1 moves"
 msgstr[0] "%1 수"
 
-#: ../client/profile.ts:183
+#: ../client/profile.ts:184
 msgid "Computer analysis available"
 msgstr "컴퓨터 분석 이용가능"
 
-#: ../client/profile.ts:253
+#: ../client/profile.ts:254
 msgid "Lichess profile"
 msgstr "Lichess 프로필"
 
-#: ../client/profile.ts:257
+#: ../client/profile.ts:258
 msgid "Import game"
 msgstr "게임 내보내기"
 
-#: ../client/profile.ts:261
+#: ../client/profile.ts:262
 msgid "Export games"
 msgstr "게임 저장하기"
 
-#: ../client/profile.ts:265
+#: ../client/profile.ts:266
 msgid "Watch games"
 msgstr "관전하기"
 
-#: ../client/profile.ts:273
+#: ../client/profile.ts:274
 msgid "Games"
 msgstr "게임"
 
-#: ../client/profile.ts:275
+#: ../client/profile.ts:276
 msgid "Imported"
 msgstr "내보낸 파일"
 
-#: ../client/roundCtrl.ts:285 ../client/roundCtrl.ts:1183
+#: ../client/roundCtrl.ts:285 ../client/roundCtrl.ts:1187
 msgid " +15 seconds"
 msgstr "+15 초"
 
@@ -746,65 +758,65 @@ msgstr "+15 초"
 msgid "Give 15 seconds"
 msgstr "15 초 부여하기"
 
-#: ../client/roundCtrl.ts:345
+#: ../client/roundCtrl.ts:342
 msgid "Abort"
 msgstr "중단하기"
 
-#: ../client/roundCtrl.ts:346 ../client/roundCtrl.ts:879
-#: ../client/roundCtrl.ts:881
+#: ../client/roundCtrl.ts:343 ../client/roundCtrl.ts:883
+#: ../client/roundCtrl.ts:885
 msgid "Count"
 msgstr "계산하기"
 
-#: ../client/roundCtrl.ts:347
+#: ../client/roundCtrl.ts:344
 msgid "Pass"
 msgstr "한수쉼"
 
-#: ../client/roundCtrl.ts:348
+#: ../client/roundCtrl.ts:345
 msgid "Resign"
 msgstr "기권"
 
-#: ../client/roundCtrl.ts:390
+#: ../client/roundCtrl.ts:387
 msgid "Are you sure you want to resign?"
 msgstr "기권 하시겠습니까?"
 
-#: ../client/roundCtrl.ts:420
+#: ../client/roundCtrl.ts:417
 msgid "Blue (Cho)"
 msgstr "청팀(초나라)"
 
-#: ../client/roundCtrl.ts:420
+#: ../client/roundCtrl.ts:417
 msgid "Red (Han)"
 msgstr "홍팀(한나라)"
 
-#: ../client/roundCtrl.ts:421
+#: ../client/roundCtrl.ts:418
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr "%1 에서 마와 상의 위치를 선택할 때 까지 기다려 주세요.."
 
-#: ../client/roundCtrl.ts:455 ../client/roundCtrl.ts:457
+#: ../client/roundCtrl.ts:452 ../client/roundCtrl.ts:454
 msgid "Switch pieces"
 msgstr "기물 바꾸기"
 
-#: ../client/roundCtrl.ts:456
+#: ../client/roundCtrl.ts:453
 msgid "Ready"
 msgstr "준비"
 
-#: ../client/roundCtrl.ts:501
+#: ../client/roundCtrl.ts:495
 msgid "REMATCH"
 msgstr "재대국"
 
-#: ../client/roundCtrl.ts:502
+#: ../client/roundCtrl.ts:496
 msgid "NEW OPPONENT"
 msgstr "새로운 상대"
 
-#: ../client/roundCtrl.ts:877
+#: ../client/roundCtrl.ts:881
 msgid "Stop counting"
 msgstr "계산 중단하기"
 
-#: ../client/roundCtrl.ts:877
+#: ../client/roundCtrl.ts:881
 msgid "Stop"
 msgstr "중단하기"
 
-#: ../client/roundCtrl.ts:879 ../client/roundCtrl.ts:881
+#: ../client/roundCtrl.ts:883 ../client/roundCtrl.ts:885
 msgid "Start counting"
 msgstr "계산 시작하기"
 
