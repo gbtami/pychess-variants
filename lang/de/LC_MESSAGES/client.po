@@ -5,9 +5,9 @@
 # 
 # Translators:
 # ubdip <hsart.liam@gmail.com>, 2020
-# Jonathan Kubik <j.kubik97@gmail.com>, 2020
 # Malte Schulz <0801malte@gmail.com>, 2020
 # Lichess Chess960 <lichess960training@gmail.com>, 2021
+# Jonathan Kubik <j.kubik97@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-02-05 11:59+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Lichess Chess960 <lichess960training@gmail.com>, 2021\n"
+"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -95,6 +95,9 @@ msgid ""
 "S-chess, Capablanca, and Capahouse to start games from random positions with"
 " "
 msgstr ""
+"Weiters kannst du die Chess960 Einstellung für Standard, Crazyhouse, "
+"S-chess, Capablanca und Capahouse wählen um Partien mit einer zufälligen "
+"Anfangsposition zu starten "
 
 #: ../client/about.ts:78
 msgid "Chess960 castling rules."
@@ -103,10 +106,12 @@ msgstr "Chess960 Rochade Regeln"
 #: ../client/about.ts:81
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
+"Für die Zuggeneration, Validierung, Analyse und das Spielen mit dem Computer"
+" verwenden wir"
 
 #: ../client/about.ts:89
 msgid "On client side, the user interface of the game board is based on "
-msgstr ""
+msgstr "Auf der Client Seite basiert die Benutzeroberfläche auf"
 
 #: ../client/about.ts:93
 msgid "The source code of the server is available on "
@@ -117,6 +122,8 @@ msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
 msgstr ""
+"Bezüglich der Privatsphäre und den Nutzungsbedingungen, gelten die "
+"Richtlinien von lichess.org."
 
 #: ../client/analysis.ts:48 ../client/profile.ts:57 ../client/round.ts:42
 msgid "Playing right now"
@@ -178,7 +185,7 @@ msgstr "Tiefe"
 
 #: ../client/analysisCtrl.ts:705
 msgid "Go deeper"
-msgstr ""
+msgstr "Tiefe erhöhen"
 
 #: ../client/analysisCtrl.ts:1308 ../client/roundCtrl.ts:1139
 msgid "Spectators: "
@@ -210,11 +217,11 @@ msgstr "Automatische Umwandlung zur Dame"
 
 #: ../client/boardSettings.ts:342
 msgid "Best move arrow in analysis board"
-msgstr ""
+msgstr "Pfeil für besten Zug"
 
 #: ../client/boardSettings.ts:370
 msgid "Invisible pieces"
-msgstr ""
+msgstr "Unsichtbare Figuren"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -234,7 +241,7 @@ msgstr "Bitte sei freundlich im Chat!"
 
 #: ../client/chat.ts:28
 msgid "Chat is disabled"
-msgstr ""
+msgstr "Chat ist deaktiviert"
 
 #: ../client/chat.ts:33
 msgid "Spectator room"
@@ -246,7 +253,7 @@ msgstr "Chat Raum"
 
 #: ../client/chat.ts:34
 msgid "Toggle the chat"
-msgstr ""
+msgstr "Chat ein-/ausblenden"
 
 #: ../client/chat.ts:63
 msgid "Server"
@@ -297,7 +304,7 @@ msgstr ""
 
 #: ../client/chess.ts:329
 msgid "Shogi on a 3x4 board"
-msgstr ""
+msgstr "Shogi auf einem 3x4 Brett"
 
 #: ../client/chess.ts:344
 msgid "Open fire on your opponent in this highly aggressive ancient game"
@@ -308,6 +315,8 @@ msgstr ""
 #: ../client/chess.ts:353
 msgid "The lone Red rook can also move as a cannon or a knight."
 msgstr ""
+"Der Turm von Rot hat, wenn alleine, die Züge von der Kanone und dem "
+"Springer."
 
 #: ../client/chess.ts:363
 msgid ""
@@ -338,7 +347,7 @@ msgstr "Wie Capablanca aber mit einer anderen Startposition"
 
 #: ../client/chess.ts:426
 msgid "Gothic with Crazyhouse drop rules"
-msgstr ""
+msgstr "Gothic mit Crazyhouse Einsetzregeln"
 
 #: ../client/chess.ts:436
 msgid ""
@@ -381,17 +390,19 @@ msgid ""
 "capture differently"
 msgstr ""
 "Asymmetrische Variante wo eine Seite Figuren hat die sich wie Springer "
-"bewegen, aber anders schlagen."
+"bewegen, aber anders schlagen"
 
 #: ../client/chess.ts:507
 msgid ""
 "Asymmetric East vs. West variant which pits the western chess army against a"
 " xiangqi and janggi-styled army"
 msgstr ""
+"Asymmetrische \"Osten vs. Westen\" Variante wo sich eine Schach Armee einer "
+"Armee im Stil von Xiangqi/Janggi stellt"
 
 #: ../client/chess.ts:519
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
-msgstr ""
+msgstr "Springer schlagen wie Läufer, Läufer schlagen wie Springer"
 
 #: ../client/chess.ts:543
 msgid "Standard piece variants"
@@ -411,7 +422,7 @@ msgstr " Xiangqi Variante"
 
 #: ../client/chess.ts:547
 msgid "Fairy piece variants"
-msgstr ""
+msgstr "Fairy Figuren Varianten"
 
 #: ../client/datetime.ts:13
 msgid "%1 year ago"
@@ -428,40 +439,40 @@ msgstr[1] "Vor %1 Monaten"
 #: ../client/datetime.ts:17
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Vor %1 Woche"
+msgstr[1] "Vor %1 Wochen"
 
 #: ../client/datetime.ts:19
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Vor %1 Tag"
+msgstr[1] "Vor %1 Tagen"
 
 #: ../client/datetime.ts:21
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Vor %1 Stunde"
+msgstr[1] "Vor %1 Stunden"
 
 #: ../client/datetime.ts:23
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Vor %1 Minute"
+msgstr[1] "Vor %1 Minuten"
 
 #: ../client/datetime.ts:25
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Vor %1 Sekunde"
+msgstr[1] "Vor %1 Sekunden"
 
 #: ../client/editor.ts:136 ../client/editor.ts:137
 msgid "%1 to play"
-msgstr ""
+msgstr "%1 am Zug"
 
 #: ../client/editor.ts:140
 msgid "Castling"
-msgstr ""
+msgstr "Rochade"
 
 #: ../client/editor.ts:143 ../client/lobby.ts:353 ../client/profile.ts:22
 msgid "White"
@@ -509,11 +520,11 @@ msgstr "Zu einer Partie herausfordern"
 
 #: ../client/invite.ts:31
 msgid "CANCEL"
-msgstr ""
+msgstr "ABBRECHEN"
 
 #: ../client/invite.ts:36
 msgid "JOIN THE GAME"
-msgstr "NIMM AM SPIEL TEIL"
+msgstr "AM SPIEL TEILNEHMEN"
 
 #: ../client/invite.ts:61
 msgid "To invite someone to play, give this URL:"
@@ -525,7 +536,7 @@ msgstr "URL kopieren"
 
 #: ../client/invite.ts:69
 msgid "The first person to come to this URL will play with you."
-msgstr ""
+msgstr "Die erste Person, die diese URL aufruft, wird dein Gegner."
 
 #: ../client/lobby.ts:278
 msgid "Cancel"

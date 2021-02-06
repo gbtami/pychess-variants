@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Boonhome Bamroongpakdee <boonhome.b@gmail.com>, 2020
-# Ada Joule <ada.fulmina@gmail.com>, 2020
+# Ada Joule <ada.fulmina@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-02-05 11:59+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2020\n"
+"Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2021\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -253,7 +253,7 @@ msgstr "กรุณาสนทนาอย่างสุภาพ"
 
 #: ../client/chat.ts:28
 msgid "Chat is disabled"
-msgstr ""
+msgstr "ห้องแชตถูกปิดอยู่"
 
 #: ../client/chat.ts:33
 msgid "Spectator room"
@@ -265,7 +265,7 @@ msgstr "ห้องแชต"
 
 #: ../client/chat.ts:34
 msgid "Toggle the chat"
-msgstr ""
+msgstr "เปิด/ปิดแชต"
 
 #: ../client/chat.ts:63
 msgid "Server"
@@ -649,7 +649,7 @@ msgstr "เกี่ยวกับ"
 
 #: ../client/lobby.ts:716
 msgid "Latest updates"
-msgstr ""
+msgstr "ข่าวล่าสุด"
 
 #: ../client/main.ts:90
 msgid "Thank you for your support!"
