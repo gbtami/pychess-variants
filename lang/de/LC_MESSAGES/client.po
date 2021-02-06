@@ -512,7 +512,7 @@ msgstr "Ungültige FEN"
 
 #: ../client/editor.ts:420
 msgid "Click/Ctrl+click to increase/decrease number of pieces"
-msgstr ""
+msgstr "Klick/Strg + Klick um die Anzahl der Figuren zu erhöhen/vermindern"
 
 #: ../client/invite.ts:28 ../client/profile.ts:269
 msgid "Challenge to a game"
@@ -597,7 +597,7 @@ msgstr "Inkrement in Sekunden:"
 
 #: ../client/lobby.ts:418
 msgid "Alternate Start"
-msgstr ""
+msgstr "Andere Startposition"
 
 #: ../client/lobby.ts:545
 msgid "Custom"
@@ -614,8 +614,8 @@ msgstr ""
 #: ../client/lobby.ts:652
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 laufende Partie"
+msgstr[1] "%1 laufende Partien"
 
 #: ../client/lobby.ts:657
 msgid "%1 player"
@@ -657,7 +657,7 @@ msgstr "Über"
 
 #: ../client/lobby.ts:716
 msgid "Latest updates"
-msgstr ""
+msgstr "Neueste Updates"
 
 #: ../client/main.ts:90
 msgid "Thank you for your support!"
@@ -669,7 +669,7 @@ msgstr "Ungültige PGN"
 
 #: ../client/paste.ts:138
 msgid "Paste the PGN text here"
-msgstr ""
+msgstr "PGN Text hier einfügen"
 
 #: ../client/paste.ts:142
 msgid "IMPORT GAME"

@@ -115,6 +115,7 @@
     " (must be signed in)": "(muss angemeldet sein)",
     "EXPORT TO PNG": "NACH PNG EXPORTIEREN",
     "Invalid FEN": "Ungültige FEN",
+    "Click/Ctrl+click to increase/decrease number of pieces": "Klick/Strg + Klick um die Anzahl der Figuren zu erhöhen/vermindern",
     "Challenge to a game": "Zu einer Partie herausfordern",
     "CANCEL": "ABBRECHEN",
     "JOIN THE GAME": "AM SPIEL TEILNEHMEN",
@@ -135,8 +136,13 @@
     "Play with AI (Fairy-Stockfish)": "Spiel mit der K.I. (Fairy-Stockfish)",
     "Byoyomi in seconds:": "Byoyomi in Sekunden:",
     "Increment in seconds:": "Inkrement in Sekunden:",
+    "Alternate Start": "Andere Startposition",
     "Custom": "Benutzerdefiniert",
     "You have an unfinished game!\nPress OK to continue.": "Du hast ein unbeendetes Spiel!\nDrücke OK um fortzufahren.  ",
+    "%1 game in play": [
+        "%1 laufende Partie",
+        "%1 laufende Partien"
+    ],
     "%1 player": [
         "%1 Spieler",
         "%1 Spieler"
@@ -149,8 +155,10 @@
     "FAQ": "FAQ",
     "Stats": "Statistiken",
     "About": "Über",
+    "Latest updates": "Neueste Updates",
     "Thank you for your support!": "Danke für deine Unterstützung!",
     "Invalid PGN": "Ungültige PGN",
+    "Paste the PGN text here": "PGN Text hier einfügen",
     "IMPORT GAME": "Spiel importieren",
     "Red": "Rot",
     "Blue": "Blau",
