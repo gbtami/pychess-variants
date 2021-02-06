@@ -339,7 +339,7 @@ export default class RoundController {
                 patch(document.getElementById('count') as HTMLElement, h('div'));
 
         } else {
-            this.gameControls = patch(container, h('div'));
+            this.gameControls = patch(container, h('div.btn-controls'));
         }
 
         createMovelistButtons(this);
