@@ -1,28 +1,28 @@
 
-# ![Dobutsu Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Dobutsu.svg) Dobutsu Shogi
+# ![Dobutsu Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Dobutsu.svg) Dobutsu 
 
 ![Dobutsu](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dobutsu.png)
 
-Dobutsu Shogi  (どうぶつしょうぎ, "animal chess") is a small shogi variant for young children. It was invented by female professional shogi player Madoka Kitao (北尾 まどか, Kitao Madoka), partially to attract young girls to the game. It is played on a 3×4 board and generally follows the rules of standard shogi, with a few exceptions described below.
+Lo Shogi Dobutsu (どうぶつしょうぎ, "scacchi animali") è una piccola variante dello shogi per bambini. È stato inventato dalla giocatrice professionista di shogi Madoka Kitao (北尾 まどか, Kitao Madoka), in parte per attirare giovani ragazze al gioco. Si gioca su una scacchiera 3×4 e generalmente segue le regole dello shogi standard, con alcune eccezioni descritte di seguito.
 
-## Rules
+## Regole
 
-The rules are simple, you must either capture the enemy Lion (King) or move your own Lion into the final rank. All piece moves are indicated on the pieces themselves (see the board above). There are no ranging pieces, so the Giraffe and Elephant only move one space each, despite being based on the Rook and Bishop.
+Le regole sono semplici, devi catturare il Leone nemico (Re) o spostare il tuo Leone nell'ultima traversa. Tutte le mosse dei pezzi sono indicate sui pezzi stessi (vedi l'immagine sopra). Non ci sono pezzi a lungo raggio, quindi la Giraffa e l'Elefante si muovono solo di uno spazio ciascuno, nonostante siano basati sulla Torre e sull'Alfiere.
 
-Like Shogi, pieces that are captured are sent to your own hand. In lieu of moving a piece, you can also drop these captured back on to the board as your own.
+Come nello Shogi, i pezzi che vengono catturati vanno nella propria tasca. Invece di muovere un pezzo, potete anche reintrodurre questi pezzi catturati come se fossero vostri.
 
-Unlike Shogi, only one piece can promote: The Chick (Pawn) promotes to a Hen (Tokin) when it reaches the final rank. 
+A differenza dello Shogi, solo un pezzo può promuovere: il Pulcino (Pedone) promuove a Gallina (Tokin) quando raggiunge l'ultima traversa. 
 
 ![Hen](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Hen.png)
 
-The Hen can move one space orthogonally in any direction like the Giraffe. Additionally, it can move diagonally forward by one space.
+La Gallina può muoversi di uno spazio ortogonalmente in qualsiasi direzione come la Giraffa. Inoltre, può muoversi diagonalmente in avanti di una casa.
 
-Also unlike Shogi, there are no Chick/Pawn restrictions. You may drop two Chicks in the same file. You may drop a Chick in the final rank (this is ill-advised though, as this Chick is then unable to move). And you may checkmate with a dropped Chick.
+Inoltre, a differenza dello Shogi, non ci sono restrizioni per i pulcini. Puoi inserire due pulcini nella stessa colonna. Puoi paracadutare un pulcino nell'ultima traversa (anche se ciò è sconsigliato, in quanto questo pulcino non sarà più in grado di muoversi). E si può dare scacco matto con un pulcino paracadutato.
 
-If the players play the same position three turns in a row, the game is a draw. Unlike in Shogi, perpetual check is also a draw.
+Se la stessa posizione si ripropone per tre turni di fila, la partita è patta. A differenza dello Shogi, anche lo scacco perpetuo è una patta.
 
-## Strategy
+## Strategia
 
-Dobutsu Shogi is a solved game (in favor of the second player). However, to learn the moves for a perfect game is beyond the skill of most humans.
+Il Dobutsu è un gioco risolto (a favore del secondo giocatore). Tuttavia, imparare le mosse per una partita perfetta è oltre le capacità della maggior parte degli esseri umani.
 
-Bottom line: Enjoy the game. :)
+In conclusione: Godetevi il gioco :)
