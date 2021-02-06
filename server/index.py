@@ -116,6 +116,8 @@ async def index(request):
         view = "editor"
     elif request.path.startswith("/analysis"):
         view = "analysis"
+    elif request.path.startswith("/embed"):
+        view = "embed"
     elif request.path == "/paste":
         view = "paste"
 
