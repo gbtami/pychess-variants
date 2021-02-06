@@ -25,4 +25,4 @@ Se la stessa posizione si ripropone per tre turni di fila, la partita è patta. 
 
 Il Dobutsu è un gioco risolto (a favore del secondo giocatore). Tuttavia, imparare le mosse per una partita perfetta è oltre le capacità della maggior parte degli esseri umani.
 
-In conclusione: Godetevi il gioco :)
+In conclusione: godetevi il gioco :)
