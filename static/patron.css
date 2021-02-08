@@ -1,0 +1,27 @@
+div.patron {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-areas: 'txt txt' 'btn btn';
+}
+@media (max-width: 799px) and (orientation: portrait) {
+    div.patron {
+        grid-template-areas: 'txt' 'btn' 'btn';
+    }
+}
+.patron-txt {
+    grid-area: txt;
+}
+.patron-btn {
+    height: 8rem;
+}
+.patron-btn img {
+    width: 100%;
+    height: 100%;
+}
+.patron-btn input {
+    padding: 0;
+    margin: 0;
+    border: none;
+    width: 100%;
+    height: 100%;
+}
