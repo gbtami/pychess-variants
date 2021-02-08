@@ -53,7 +53,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
 export interface IVariant {
     readonly name: string;
     readonly displayName: (chess960: boolean) => string;
-    readonly tooltip: string;
+    readonly tooltip: () => string;
 
     readonly startFen: string;
 
@@ -98,7 +98,8 @@ class Variant implements IVariant {
     readonly name: string;
     private readonly _displayName: string;
     displayName(chess960 = false) { return this._displayName + (chess960 ? "960" : ""); }
-    readonly tooltip: string;
+    private readonly _tooltip: () => string;
+    tooltip() { return this._tooltip(); }
     readonly startFen: string;
 
     readonly board: string;
@@ -146,7 +147,7 @@ class Variant implements IVariant {
     constructor(data) {
         this.name = data.name;
         this._displayName = (data.displayName ?? data.name).toUpperCase();
-        this.tooltip = data.tooltip;
+        this._tooltip = data.tooltip;
         this.startFen = data.startFen;
 
         this.board = data.board;
@@ -185,7 +186,7 @@ class Variant implements IVariant {
 
 export const VARIANTS: { [name: string]: IVariant } = {
     chess: new Variant({
-        name: "chess", tooltip: _("Chess, unmodified, as it's played by FIDE standards"),
+        name: "chess", tooltip: () => _("Chess, unmodified, as it's played by FIDE standards"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
@@ -202,7 +203,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     crazyhouse: new Variant({
-        name: "crazyhouse", tooltip: _("Take captured pieces and drop them back on to the board as your own"),
+        name: "crazyhouse", tooltip: () => _("Take captured pieces and drop them back on to the board as your own"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
@@ -220,7 +221,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     placement: new Variant({
-        name: "placement", tooltip: _("Choose where your pieces start"),
+        name: "placement", tooltip: () => _("Choose where your pieces start"),
         startFen: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
@@ -230,7 +231,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
     
     makruk: new Variant({
-        name: "makruk", tooltip: _("A game closely resembling the original Chaturanga"),
+        name: "makruk", tooltip: () => _("A game closely resembling the original Chaturanga"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
@@ -239,7 +240,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     makpong: new Variant({
-        name: "makpong", tooltip: _("Makruk variant where kings cannot move to escape out of check"),
+        name: "makpong", tooltip: () => _("Makruk variant where kings cannot move to escape out of check"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
@@ -248,7 +249,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     cambodian: new Variant({
-        name: "cambodian", displayName: "ouk chatrang", tooltip: _("Makruk with a few additional opening abilities"),
+        name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Makruk with a few additional opening abilities"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
@@ -257,7 +258,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     sittuyin: new Variant({
-        name: "sittuyin", tooltip: _("Similar to Makruk, but pieces are placed at the start of the match"),
+        name: "sittuyin", tooltip: () => _("Similar to Makruk, but pieces are placed at the start of the match"),
         startFen: "8/8/4pppp/pppp4/4PPPP/PPPP4/8/8[KFRRSSNNkfrrssnn] w - - 0 1",
         board: "sittuyin8x8", piece: "sittuyin",
         firstColor: "Red", secondColor: "Black",
@@ -268,7 +269,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     shogi: new Variant({
-        name: "shogi", tooltip: _("Pieces promote and can be dropped"),
+        name: "shogi", tooltip: () => _("Pieces promote and can be dropped"),
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         board: "shogi9x9", piece: "shogi",
         firstColor: "Black", secondColor: "White",
@@ -296,7 +297,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     minishogi: new Variant({
-        name: "minishogi", tooltip: _("Shogi on a 5x5 board"),
+        name: "minishogi", tooltip: () => _("Shogi on a 5x5 board"),
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         board: "shogi5x5", piece: "shogi",
         firstColor: "Black", secondColor: "White",
@@ -311,7 +312,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     kyotoshogi: new Variant({
-        name: "kyotoshogi", tooltip: _("5x5 Shogi where pieces flip to a different piece each move"),
+        name: "kyotoshogi", tooltip: () => _("5x5 Shogi where pieces flip to a different piece each move"),
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         board: "shogi5x5", piece: "kyoto",
         firstColor: "Black", secondColor: "White",
@@ -326,7 +327,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     dobutsu: new Variant({
-        name: "dobutsu", tooltip: _("Shogi on a 3x4 board"),
+        name: "dobutsu", tooltip: () => _("Shogi on a 3x4 board"),
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         board: "shogi3x4", piece: "dobutsu",
         firstColor: "Black", secondColor: "White",
@@ -341,7 +342,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     xiangqi: new Variant({
-        name: "xiangqi", tooltip: _("Open fire on your opponent in this highly aggressive ancient game"),
+        name: "xiangqi", tooltip: () => _("Open fire on your opponent in this highly aggressive ancient game"),
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
@@ -350,7 +351,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     manchu: new Variant({
-        name: "manchu", tooltip: _("The lone Red rook can also move as a cannon or a knight."),
+        name: "manchu", tooltip: () => _("The lone Red rook can also move as a cannon or a knight."),
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
@@ -360,7 +361,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     janggi: new Variant({
-        name: "janggi", tooltip: _("Similar to Xiangqi, but plays very differently. Tournament rules are used"),
+        name: "janggi", tooltip: () => _("Similar to Xiangqi, but plays very differently. Tournament rules are used"),
         startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
@@ -372,7 +373,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     minixiangqi: new Variant({
-        name: "minixiangqi", tooltip: _("Xiangqi on a 7x7 board"),
+        name: "minixiangqi", tooltip: () => _("Xiangqi on a 7x7 board"),
         startFen: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
         board: "xiangqi7x7", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
@@ -381,7 +382,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     capablanca: new Variant({
-        name: "capablanca", tooltip: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
+        name: "capablanca", tooltip: () => _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
@@ -397,7 +398,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     capahouse: new Variant({
-        name: "capahouse", tooltip: _("Capablanca with Crazyhouse drop rules"),
+        name: "capahouse", tooltip: () => _("Capablanca with Crazyhouse drop rules"),
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
@@ -414,7 +415,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     gothic: new Variant({
-        name: "gothic", tooltip: _("Like Capablanca Chess but with a different starting setup"),
+        name: "gothic", tooltip: () => _("Like Capablanca Chess but with a different starting setup"),
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
@@ -423,7 +424,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     gothhouse: new Variant({
-        name: "gothhouse", tooltip: _("Gothic with Crazyhouse drop rules"),
+        name: "gothhouse", tooltip: () => _("Gothic with Crazyhouse drop rules"),
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
@@ -433,7 +434,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     seirawan: new Variant({
-        name: "seirawan", displayName: "s-chess", tooltip: _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
+        name: "seirawan", displayName: "s-chess", tooltip: () => _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
@@ -443,7 +444,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     shouse: new Variant({
-        name: "shouse", displayName: "s-house", tooltip: _("S-Chess with Crazyhouse drop rules"),
+        name: "shouse", displayName: "s-house", tooltip: () => _("S-Chess with Crazyhouse drop rules"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
@@ -453,7 +454,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     grand: new Variant({
-        name: "grand", tooltip: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
+        name: "grand", tooltip: () => _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         board: "grand10x10", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
@@ -462,7 +463,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     grandhouse: new Variant({
-        name: "grandhouse", tooltip: _("Grand Chess with Crazyhouse drop rules"),
+        name: "grandhouse", tooltip: () => _("Grand Chess with Crazyhouse drop rules"),
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
         board: "grand10x10", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
@@ -472,7 +473,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     shako: new Variant({
-        name: "shako", tooltip: _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
+        name: "shako", tooltip: () => _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
         startFen: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
         board: "standard10x10", piece: "shako",
         pieceRoles: ["king", "queen", "elephant", "chancellor", "rook", "bishop", "knight", "pawn"],
@@ -481,7 +482,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     shogun: new Variant({
-        name: "shogun", tooltip: _("Pieces promote and can be dropped, similar to Shogi"),
+        name: "shogun", tooltip: () => _("Pieces promote and can be dropped, similar to Shogi"),
         startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
         board: "shogun8x8", piece: "shogun",
         pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn", "ferz", "prook", "pbishop", "pknight", "ppawn"],
@@ -493,7 +494,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     orda: new Variant({
-        name: "orda", tooltip: _("Asymmetric variant where one army has pieces that move like knights but capture differently"),
+        name: "orda", tooltip: () => _("Asymmetric variant where one army has pieces that move like knights but capture differently"),
         startFen: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         board: "standard8x8", piece: "orda",
         firstColor: "White", secondColor: "Gold",
@@ -504,7 +505,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     synochess: new Variant({
-        name: "synochess", tooltip: _("Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army"),
+        name: "synochess", tooltip: () => _("Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army"),
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
         board: "standard8x8", piece: "synochess",
         firstColor: "White", secondColor: "Red",
@@ -516,7 +517,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     hoppelpoppel: new Variant({
-        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: _("Knights are capturing as bishops, bishops are capturing as knights"),
+        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: () => _("Knights are capturing as bishops, bishops are capturing as knights"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "hoppel",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
@@ -560,7 +561,7 @@ export function selectVariant(id, selected, onChange, hookInsert) {
             return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.map(v => {
                 const variant = VARIANTS[v];
                 return h('option', {
-                    props: { value: v, title: variant.tooltip },
+                    props: { value: v, title: variant.tooltip() },
                     attrs: { selected: v === selected },
                 }, variant.displayName(false));
             }));
