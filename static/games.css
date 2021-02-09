@@ -46,3 +46,7 @@ minigame .tc {
 minigame .name {
     text-align: right;
 }
+/* Dobutsu needs wider board for long usernames */
+.cg-wrap.cg-156.mini {
+  width: 240px;
+}
