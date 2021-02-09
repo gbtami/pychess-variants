@@ -35,6 +35,9 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 async def on_prepare(request, response):
+    if request.path.startswith("/variant") or request.path.startswith("/news"):
+        response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
+        return
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 

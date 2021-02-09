@@ -1,0 +1,63 @@
+:root {
+    --main-max-width: auto;
+    --ranks-top: 0px;
+    --files-left: 0px;
+    --pocketMargin: 0px;
+}
+.embed-app {
+    grid-area: main;
+    display: grid;
+    --board-scale: calc((var(--zoom) / 100));
+}
+
+.embed-app {
+    grid-template-columns: minmax(200px, calc(100vh - 2.5rem)) minmax(200px, 1fr);
+    grid-template-rows: min-content 1fr;
+    grid-template-areas: 'board mat-top' 'board tools' 'board tools' 'board mat-bot' 'board move-controls';
+}
+.cg-wrap coords.ranks, .cg-wrap coords.files {
+    display: none;
+}
+#result {
+    background-color: var(--bg-color2);
+}
+.movelist-block{
+    grid-area: moves;
+    flex: 2 1 0;
+    overflow-y: auto;
+    overflow-x: hide;
+    justify-content: initial;
+    border-bottom: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
+}
+#movelist {
+    display: flex;
+    height: auto;
+    max-height: none;
+    overflow-y: none;
+}
+@media (max-width: 799px) and (orientation: portrait) {
+    .movelist-block {
+        flex: initial;
+        height: var(--movelist-max-height);
+        max-height: var(--movelist-max-height);
+    }
+}
+.analysis-tools {
+    grid-area: tools;
+    display: flex;
+    flex-flow: column;
+}
+.footer {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    font-size: 0.9em;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    height: 2.5rem;
+    padding: 0 1vw;
+}
+.gamelink {
+    color: var(--link-color-blue);
+}

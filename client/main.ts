@@ -16,7 +16,7 @@ import { roundView } from './round';
 import { inviteView } from './invite';
 import { renderGames } from './games';
 import { editorView } from './editor';
-import { analysisView } from './analysis';
+import { analysisView, embedView } from './analysis';
 import { profileView } from './profile';
 import { pasteView } from './paste';
 import { statsView } from './stats';
@@ -63,6 +63,7 @@ export function view(el, model): VNode {
     model["status"] = parseInt(el.getAttribute("data-status"));
     model["date"] = el.getAttribute("data-date");
     model["tv"] = el.getAttribute("data-view") === 'tv';
+    model["embed"] = el.getAttribute("data-view") === 'embed';
 
     switch (el.getAttribute("data-view")) {
     case 'about':
@@ -73,6 +74,8 @@ export function view(el, model): VNode {
     case 'tv':
     case 'round':
         return h('div#main-wrap', [h('main.round', roundView(model))]);
+    case 'embed':
+        return h('div', embedView(model));
     case 'analysis':
         return h('div#main-wrap', analysisView(model));
     case 'invite':

@@ -297,6 +297,18 @@ async def round_socket_handler(request):
 
                         await round_broadcast(game, users, response)
 
+                    elif data["type"] == "embed_user_connected":
+                        game = await load_game(request.app, data["gameId"])
+
+                        if game is None:
+                            log.debug("Requested game %s not found!")
+                            response = {"type": "game_not_found", "gameId": data["gameId"]}
+                            await ws.send_json(response)
+                            continue
+                        else:
+                            response = {"type": "embed_user_connected"}
+                            await ws.send_json(response)
+
                     elif data["type"] == "game_user_connected":
                         game = await load_game(request.app, data["gameId"])
                         if session_user is not None:

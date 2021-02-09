@@ -132,7 +132,9 @@ export default class AnalysisController {
 
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
-            if (!this.isAnalysisBoard) {
+            if (this.model['embed']) {
+                this.doSend({ type: "embed_user_connected", gameId: this.model["gameId"] });
+            } else if (!this.isAnalysisBoard) {
                 this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
             }
         };
@@ -272,15 +274,17 @@ export default class AnalysisController {
             updatePockets(this, pocket0, pocket1);
         }
 
-        this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
+        if (!this.isAnalysisBoard && !this.model["embed"]) {
+            this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
 
-        const element = document.getElementById('chart') as HTMLElement;
-        element.style.display = 'none';
+            const element = document.getElementById('chart') as HTMLElement;
+            element.style.display = 'none';
+        }
 
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard) {
+        if (!this.isAnalysisBoard && !this.model["embed"]) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
             document.documentElement.style.setProperty('--toolsHeight', '136px');
         } else {
@@ -288,11 +292,13 @@ export default class AnalysisController {
             document.documentElement.style.setProperty('--toolsHeight', '92px');
         }
 
-        patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
+        if (!this.model["embed"]) {
+            patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
 
-        this.vscore = document.getElementById('score') as HTMLElement;
-        this.vinfo = document.getElementById('info') as HTMLElement;
-        this.vpv = document.getElementById('pv') as HTMLElement;
+            this.vscore = document.getElementById('score') as HTMLElement;
+            this.vinfo = document.getElementById('info') as HTMLElement;
+            this.vpv = document.getElementById('pv') as HTMLElement;
+        }
 
         if (isVariantClass(this.variant, 'showMaterialPoint')) {
             const miscW = document.getElementById('misc-infow') as HTMLElement;
@@ -309,7 +315,6 @@ export default class AnalysisController {
             (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
-
 
         boardSettings.ctrl = this;
         const boardFamily = VARIANTS[this.variant].board;
@@ -378,7 +383,7 @@ export default class AnalysisController {
     }
 
     private checkStatus = (msg) => {
-        if (msg.gameId !== this.gameId && !this.isAnalysisBoard) return;
+        if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.model["embed"]) return;
         if ((msg.status >= 0) || this.isAnalysisBoard) {
 
             // Save finished game full pgn sent by server
@@ -846,6 +851,8 @@ export default class AnalysisController {
             updateMovelist(this);
         }
 
+        if (this.model["embed"]) return;
+
         if (this.ffishBoard !== null) {
             this.ffishBoard.setFen(this.fullfen);
             this.dests = this.getDests();
@@ -1280,6 +1287,7 @@ export default class AnalysisController {
             case "analysis":
                 this.onMsgAnalysis(msg);
                 break;
+            case "embed_user_connected":
             case "game_user_connected":
                 this.onMsgUserConnected(msg);
                 break;

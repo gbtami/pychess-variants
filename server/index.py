@@ -151,7 +151,7 @@ async def index(request):
 
     # Do we have gameId in request url?
     if gameId is not None:
-        if view != "tv":
+        if view not in ("tv", "analysis", "embed"):
             view = "round"
 
         invites = request.app["invites"]
@@ -171,7 +171,7 @@ async def index(request):
                 return web.Response(
                     text=html_minify(text), content_type="text/html")
 
-            if ply is not None:
+            if (ply is not None) and (view != "embed"):
                 view = "analysis"
 
             if user.username != game.wplayer.username and user.username != game.bplayer.username:
@@ -196,6 +196,8 @@ async def index(request):
         template = get_template("FAQ.html")
     elif view == "analysis":
         template = get_template("analysis.html")
+    elif view == "embed":
+        template = get_template("embed.html")
     else:
         template = get_template("index.html")
 

@@ -229,6 +229,18 @@ iframe {
     }
 }
 
+.embed {
+    position: relative;
+    width: 100%;
+    height:0;
+    padding-bottom: 56.25%;
+}
+.embed iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
 #mainboard {
     grid-area: board;
 }
@@ -341,7 +353,7 @@ div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news {
     font-size:1.1em;
     box-shadow: var(--base-shadow);
     background-color: var(--bg-color0);
-    padding: 24px;
+    padding: 2rem;
 }
 div.about, div.paste, div.news {
     width: 75%;

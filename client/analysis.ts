@@ -96,6 +96,53 @@ function leftSide(model) {
     }
 }
 
+export function embedView(model): VNode[] {
+    const variant = VARIANTS[model.variant];
+    const chess960 = model.chess960 === 'True';
+
+    return [
+        h('div.embed-app', [
+            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
+                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
+            ]),
+
+            h('div.pocket-top', [
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pocket0'),
+                    ]),
+                ]),
+            ]),
+
+            h('div.analysis-tools', [
+                h('div.movelist-block', [
+                    h('div#movelist'),
+                ]),
+                h('div#misc-info', [
+                    h('div#misc-infow'),
+                    h('div#misc-info-center'),
+                    h('div#misc-infob'),
+                ]),
+            ]),
+
+            h('div#move-controls'),
+
+            h('div.pocket-bot', [
+                h('div.' + variant.piece + '.' + model["variant"], [
+                    h('div.cg-wrap.pocket', [
+                        h('div#pocket1'),
+                    ]),
+                ]),
+            ]),
+        ]),
+        h('div.footer', [
+            h('a.gamelink', { attrs: { rel: "noopener", target: "_blank", href: '/' + model["gameId"] } },
+                [variant.displayName(chess960), '•', model.wtitle, model.wplayer, 'vs', model.btitle, model.bplayer].join(' ')
+            ),
+        ]),
+    ];
+}
+
 export function analysisView(model): VNode[] {
     const variant = VARIANTS[model.variant];
 

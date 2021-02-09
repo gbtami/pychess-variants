@@ -109,7 +109,7 @@ class BoardSettings {
 
                 document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --zoom:' + zoom);
 
-                if (this.ctrl instanceof AnalysisController) {
+                if (this.ctrl instanceof AnalysisController && !this.ctrl.model["embed"]) {
                     analysisChart(this.ctrl);
                 }
             }
