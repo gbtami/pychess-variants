@@ -38,6 +38,7 @@ async def oauth(request):
             token, data = token_data
             session = await aiohttp_session.get_session(request)
             session["token"] = token
+            print("OAUTH session", session)
         except Exception:
             log.error("Failed to get oauth access token.")
 
@@ -52,7 +53,7 @@ async def login(request):
 
     # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
-
+    print("LOGIN session", session)
     if DEV_TOKEN1 and DEV_TOKEN2:
         if "dev_token" in request.app:
             session["token"] = DEV_TOKEN2
