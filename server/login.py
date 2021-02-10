@@ -46,7 +46,7 @@ async def oauth(request):
         except Exception:
             log.error("Failed to get oauth access token.")
 
-        raise web.HTTPFound("/login")
+        return web.HTTPFound("/login")
 
 
 async def login(request):
@@ -124,7 +124,7 @@ async def login(request):
 
         del session["token"]
 
-    raise web.HTTPFound("/")
+    return web.HTTPFound("/")
 
 
 async def logout(request):
