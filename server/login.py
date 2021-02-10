@@ -97,8 +97,7 @@ async def login(request):
     if prev_user is not None:
         prev_user.lobby_sockets = set()  # make it offline
 
-    session = await aiohttp_session.new_session(request)
-    session["guest"] = False
+    session = await aiohttp_session.get_session(request)
     session["user_name"] = user.username
     session["country"] = user.country
     session["first_name"] = user.first_name
@@ -121,6 +120,8 @@ async def login(request):
         elif not doc.get("enabled", True):
             log.info("Closed account %s tried to log in.", user.username)
             session["user_name"] = prev_session_user
+
+        del session["token"]
 
     return web.HTTPFound("/")
 
