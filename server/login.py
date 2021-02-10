@@ -122,8 +122,6 @@ async def login(request):
             log.info("Closed account %s tried to log in.", user.username)
             session["user_name"] = prev_session_user
 
-        del session["token"]
-
     return web.HTTPFound("/")
 
 
