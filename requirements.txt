@@ -1,9 +1,9 @@
 aioauth-client==0.20.3
 aiohttp-session==2.9.0
 aiohttp-sse==2.0.0
-aiohttp==3.6.2
+aiohttp==3.7.3
 yarl==1.6.2
-cryptography==3.2
+cryptography==3.4.4
 dnspython==2.0.0
 htmlmin==0.1.12
 jinja2==2.11.2
