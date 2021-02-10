@@ -1,5 +1,5 @@
 import logging
-import time
+from datetime import datetime
 
 from aiohttp import web
 import aioauth_client
@@ -40,6 +40,7 @@ async def oauth(request):
             print("OAUTH data", token, data)
             session = await aiohttp_session.get_session(request)
             session["token"] = token
+            session["last_visit"] = datetime.now().isoformat()
             session.changed()
             print("OAUTH session", session)
         except Exception:
@@ -96,6 +97,8 @@ async def login(request):
     if prev_user is not None:
         prev_user.lobby_sockets = set()  # make it offline
 
+    session = await aiohttp_session.new_session(request)
+    session["guest"] = False
     session["user_name"] = user.username
     session["country"] = user.country
     session["first_name"] = user.first_name
