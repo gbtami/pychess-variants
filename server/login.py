@@ -22,7 +22,7 @@ async def oauth(request):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET
     )
-
+    print("OAUTH query", request.rel_url.query)
     if not request.rel_url.query.get("code"):
         raise web.HTTPFound(client.get_authorize_url(
             # scope="email:read",
