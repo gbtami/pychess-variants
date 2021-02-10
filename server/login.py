@@ -22,23 +22,26 @@ async def oauth(request):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET
     )
-    print("OAUTH query", request.rel_url.query)
-    if not request.rel_url.query.get("code"):
+    code = request.rel_url.query.get("code")
+    print("OAUTH code", code)
+    if code is None:
         raise web.HTTPFound(client.get_authorize_url(
             # scope="email:read",
             redirect_uri=REDIRECT_URI
         ))
-    try:
-        token_data = await client.get_access_token(
-            request.query.get("code"),
-            redirect_uri=REDIRECT_URI
-        )
-        token, data = token_data
-        session = await aiohttp_session.get_session(request)
-        session["token"] = token
-    except Exception:
-        log.error("Failed to get oauth access token.")
-    raise web.HTTPFound("/login")
+    else:
+        try:
+            token_data = await client.get_access_token(
+                code,
+                redirect_uri=REDIRECT_URI
+            )
+            token, data = token_data
+            session = await aiohttp_session.get_session(request)
+            session["token"] = token
+        except Exception:
+            log.error("Failed to get oauth access token.")
+
+        raise web.HTTPFound("/login")
 
 
 async def login(request):
