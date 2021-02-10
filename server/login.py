@@ -39,6 +39,7 @@ async def oauth(request):
             session = await aiohttp_session.get_session(request)
             session["token"] = token
             print("OAUTH session", session)
+            print("OAUTH data", data)
         except Exception:
             log.error("Failed to get oauth access token.")
 
