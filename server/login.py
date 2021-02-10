@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from aiohttp import web
 import aioauth_client
@@ -24,7 +23,6 @@ async def oauth(request):
         client_secret=CLIENT_SECRET
     )
     code = request.rel_url.query.get("code")
-    print("OAUTH code", code)
     if code is None:
         raise web.HTTPFound(client.get_authorize_url(
             # scope="email:read",
@@ -37,12 +35,8 @@ async def oauth(request):
                 redirect_uri=REDIRECT_URI
             )
             token, data = token_data
-            print("OAUTH data", token, data)
             session = await aiohttp_session.get_session(request)
             session["token"] = token
-            session["last_visit"] = datetime.now().isoformat()
-            session.changed()
-            print("OAUTH session", session)
         except Exception:
             log.error("Failed to get oauth access token.")
 
@@ -57,7 +51,7 @@ async def login(request):
 
     # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
-    print("LOGIN session", session)
+
     if DEV_TOKEN1 and DEV_TOKEN2:
         if "dev_token" in request.app:
             session["token"] = DEV_TOKEN2
@@ -97,7 +91,6 @@ async def login(request):
     if prev_user is not None:
         prev_user.lobby_sockets = set()  # make it offline
 
-    session = await aiohttp_session.get_session(request)
     session["user_name"] = user.username
     session["country"] = user.country
     session["first_name"] = user.first_name
