@@ -1,4 +1,5 @@
 import logging
+import time
 
 from aiohttp import web
 import aioauth_client
@@ -36,10 +37,11 @@ async def oauth(request):
                 redirect_uri=REDIRECT_URI
             )
             token, data = token_data
-            session = await aiohttp_session.get_session(request)
+            print("OAUTH data", token, data)
+            session = await aiohttp_session.new_session(request)
             session["token"] = token
+            session['last_visit'] = time.time()
             print("OAUTH session", session)
-            print("OAUTH data", data)
         except Exception:
             log.error("Failed to get oauth access token.")
 
