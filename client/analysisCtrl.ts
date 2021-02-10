@@ -276,10 +276,10 @@ export default class AnalysisController {
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
             this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
-
-            const element = document.getElementById('chart') as HTMLElement;
-            element.style.display = 'none';
         }
+
+        const element = document.getElementById('chart') as HTMLElement;
+        element.style.display = 'none';
 
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
