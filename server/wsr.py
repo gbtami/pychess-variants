@@ -222,7 +222,12 @@ async def round_socket_handler(request):
                             gameId = response["gameId"]
                             engine.game_queues[gameId] = asyncio.Queue()
                         else:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                            try:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                            except KeyError:
+                                # opp disconnected
+                                pass
+
                             if opp_name in game.rematch_offers:
                                 color = "w" if game.wplayer.username == opp_name else "b"
                                 if handicap:
@@ -260,8 +265,12 @@ async def round_socket_handler(request):
                             if game.status > STARTED:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            await opp_ws.send_json(response)
+                            try:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                await opp_ws.send_json(response)
+                            except KeyError:
+                                # opp disconnected
+                                pass
 
                         if opp_name not in game.draw_offers:
                             game.draw_offers.add(user.username)
