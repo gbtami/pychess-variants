@@ -16,7 +16,7 @@ async def round_broadcast(game, users, response, full=False, channels=None):
             try:
                 if game.id in users[spectator.username].game_sockets:
                     await users[spectator.username].game_sockets[game.id].send_json(response)
-            except KeyError:
+            except (KeyError, ConnectionResetError):
                 # spectator was removed from users
                 pass
 
