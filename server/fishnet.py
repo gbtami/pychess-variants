@@ -148,7 +148,10 @@ async def fishnet_analysis(request):
             # await user_ws.send_json(response)
 
             response = {"type": "analysis", "ply": ply, "color": "w" if i % 2 == 0 else "b", "ceval": game.steps[i]["analysis"]}
-            await user_ws.send_json(response)
+            try:
+                await user_ws.send_json(response)
+            except ConnectionResetError:
+                pass
 
     # remove completed work
     if all(data["analysis"]):
