@@ -457,7 +457,7 @@ def get_dests(board):
             dests[source] = [dest]
 
         if not move[-1].isdigit():
-            if not (board.variant in ("seirawan", "shouse") and (move[1] == '1' or move[1] == '8')):
+            if not (board.variant in ("seirawan", "shouse") and (move[1] in ('1', '8'))):
                 promotions.append(move)
 
         if board.variant == "kyotoshogi" and move[0] == "+":
