@@ -73,14 +73,15 @@ async def load_game(app, game_id, user=None):
             seek_id = invites[game_id].id
             seek = app["seeks"][seek_id]
             response = await new_game(app, user, seek_id, game_id)
-            await seek.ws.send_json(response)
-
-            # Put response data to sse subscribers queue
-            channels = app["invite_channels"]
-            for queue in channels:
-                await queue.put(json.dumps({"gameId": game_id}))
-
-            return games[game_id]
+            try:
+                await seek.ws.send_json(response)
+                # Put response data to sse subscribers queue
+                channels = app["invite_channels"]
+                for queue in channels:
+                    await queue.put(json.dumps({"gameId": game_id}))
+                return games[game_id]
+            except ConnectionResetError:
+                pass
         return None
 
     wp, bp = doc["us"]
