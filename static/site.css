@@ -378,6 +378,8 @@ div.news {
 a.news {
     margin-right: .4em;
 }
+news-latest {
+    padding: 0.3em 0.5em;}
 posts {
     display: flex;
     flex-direction:column;
