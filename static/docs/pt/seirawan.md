@@ -32,6 +32,6 @@ O Elefante é considerado melhor do que o Falcão, mas equivalente ou um bocado 
 
 Para Yasser Seirawan, proteger o Rei é muito mais importante nesta variante pelo facto de que um ataque de longa distância por uma peça na linha final tal como a Dama, o Bispo ou a Torre, poder ser imediatamente suportada por um Falcão ou um Elefante colocados, em alguns casos isto leva a Xeque-Mate!
 
-Também pode dar uma vista de olhos neste stream de Yasser Seirawan jogando contra JannLee (inglês) [aqui](https://www.youtube.com/watch?v=ujWzsxm18aQ).
+Também pode dar uma vista de olhos neste stream de Yasser Seirawan jogando contra JannLee (inglês)
 
-Estratégias ainda em construção!
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ujWzsxm18aQ" frameborder="0" allowfullscreen></iframe>

@@ -38,4 +38,6 @@ A gyalogok átváltoztathatók elefánttá vagy sólyommá is.
 
 Yasser Seirawan szerint a király védelmezése itt még fontosabb, mert a hátsó sorból kilépő bábu (mint pl. a vezér, a futó vagy a bástya) helyére érkezett új bábu azonnali támogatást nyújthat a támadáshoz, ami esetekben mattot is eredményezhet.
 
-[Egy youtube videó](https://www.youtube.com/watch?v=ujWzsxm18aQ), amiben Yasser Seirawan bemutatja a játékot JannLee-vel játszva.
+Egy youtube videó amiben Yasser Seirawan bemutatja a játékot JannLee-vel játszva
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ujWzsxm18aQ" frameborder="0" allowfullscreen></iframe>
