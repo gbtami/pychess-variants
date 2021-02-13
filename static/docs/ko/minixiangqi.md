@@ -16,3 +16,4 @@ Additionally, **pawns start with the ability to move sideways.**
 ## Strategy
 
 The king starts completely immobile and trapped by pieces. This makes the cannon able to checkmate very early if you are not careful. Early moves should try to give the king some breathing room.
+<div class="embed"><iframe src="/embed/2PsVfJty?ply=3" scrolling="no"></iframe></div>

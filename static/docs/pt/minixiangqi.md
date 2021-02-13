@@ -16,3 +16,4 @@ Além disso, **os peões começam com a habilidade de se moverem de lado.**
 ## Estratégia
 
 O Rei começa completamente imóvel e rodeado de peças. Isto faz com que os canhões possam dar xeque-mate desde cedo se não são tomadas as devidas precauções. A cada movimento deverá tentar dar margem de manobra ao Rei.
+<div class="embed"><iframe src="/embed/2PsVfJty?ply=3" scrolling="no"></iframe></div>

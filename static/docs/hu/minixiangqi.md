@@ -13,3 +13,4 @@ A kezdőállás a fenti képen látható. A standard xiangqival ellentétben itt
 ## Stratégia
 
 A játszma elején a király teljesen körbe van zárva, nem képes mozogni, emiatt az ágyú nagyon gyorsan mattot adhat, ha nem vigyázunk. A kezdőlépések során érdemes arra törekedni, hogy a királynak legyen lehetősége ellépni.
+<div class="embed"><iframe src="/embed/2PsVfJty?ply=3" scrolling="no"></iframe></div>

@@ -16,3 +16,4 @@ En plus, **les pions peuvent se déplacer horizontalement dès le début de la p
 ## Conseils
 
 Le roi commence complètement immobile, enfermé par ses pièces. Le canon donc peut effectuer un mat très vite si l'on ne fait pas attention. Les premiers coups devraient essayer laisser le roi un peu d'espace.
+<div class="embed"><iframe src="/embed/2PsVfJty?ply=3" scrolling="no"></iframe></div>
