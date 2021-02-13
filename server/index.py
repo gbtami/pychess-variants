@@ -337,7 +337,7 @@ async def index(request):
     # log.debug("Response: %s" % text)
     response = web.Response(text=html_minify(text), content_type="text/html")
     parts = urlparse(URI)
-    response.set_cookie("user", session["user_name"], domain=parts.hostname, secure=parts.scheme == "https", max_age=None if user.anon else MAX_AGE)
+    response.set_cookie("user", session["user_name"], domain=parts.hostname, secure=parts.scheme == "https", samesite="Lax", max_age=None if user.anon else MAX_AGE)
     return response
 
 
@@ -348,10 +348,11 @@ async def robots(request):
 async def select_lang(request):
     data = await request.post()
     lang = data.get("lang").lower()
+
     if lang is not None:
         referer = request.headers.get('REFERER')
         session = await aiohttp_session.get_session(request)
         session["lang"] = lang
-        raise web.HTTPFound(referer)
+        return web.HTTPFound(referer)
     else:
         return web.Response(status=404)
