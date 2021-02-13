@@ -136,6 +136,8 @@ function start() {
     if (placeholder)
         patch(placeholder, view(el, model));
 
+    if (model["embed"]) return;
+
     (document.querySelector('.hamburger') as HTMLElement).addEventListener('click', () => {
         document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show'));
         (document.querySelector('.hamburger') as HTMLElement).classList.toggle('is-active');

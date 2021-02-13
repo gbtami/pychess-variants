@@ -4,6 +4,9 @@
     --files-left: 0px;
     --pocketMargin: 0px;
 }
+body {
+    overflow-y: auto;
+}
 .embed-app {
     grid-area: main;
     display: grid;

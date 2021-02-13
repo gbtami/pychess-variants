@@ -278,8 +278,12 @@ export default class AnalysisController {
             this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
         }
 
-        const element = document.getElementById('chart') as HTMLElement;
-        element.style.display = 'none';
+        // Hide #chart div (embed view has no #chart)
+        if (!this.model["embed"]) {
+            const element = document.getElementById('chart') as HTMLElement;
+            element.style.display = 'none';
+        }
+
 
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
