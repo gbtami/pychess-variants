@@ -670,6 +670,16 @@ export function lobbyView(model): VNode[] {
 
     boardSettings.updateBoardAndPieceStyles();
 
+    if (model['anon'] === 'False') {
+        const evtSource = new EventSource(model["home"] + "/api/notify");
+        console.log("new EventSource" + model["home"] + "/api/notify");
+        evtSource.onmessage = e => {
+            const message = JSON.parse(e.data);
+            console.log(message);
+            sound.socialNotify();
+        };
+    }
+
     return [
         h('aside.sidebar-first', [ h('div#lobbychat') ]),
         h('div.seeks', [

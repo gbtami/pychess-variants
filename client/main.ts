@@ -20,8 +20,8 @@ import { analysisView, embedView } from './analysis';
 import { profileView } from './profile';
 import { pasteView } from './paste';
 import { statsView } from './stats';
-import { sound, volumeSettings, soundThemeSettings } from './sound';
-import { debounce, getCookie } from './document';
+import { volumeSettings, soundThemeSettings } from './sound';
+import { getCookie } from './document';
 import { backgroundSettings } from './background';
 
 // redirect to correct URL except Heroku preview apps
@@ -95,42 +95,6 @@ export function view(el, model): VNode {
     }
 }
 
-// reconnectFrequencySeconds doubles every retry
-let reconnectFrequencySeconds = 1;
-let evtSource;
-
-const reconnectFunc = debounce(
-    () => {
-        setupEventSource();
-        // Double every attempt to avoid overwhelming server
-        reconnectFrequencySeconds *= 2;
-        // Max out at ~1 minute as a compromise between user experience and server load
-        if (reconnectFrequencySeconds >= 64) {
-            reconnectFrequencySeconds = 64;
-        }
-    },
-    reconnectFrequencySeconds * 1000
-);
-
-function setupEventSource() {
-    evtSource = new EventSource(model["home"] + "/api/notify");
-    console.log("new EventSource" + model["home"] + "/api/notify");
-    evtSource.onmessage = e => {
-        const message = JSON.parse(e.data);
-        console.log(message);
-        sound.socialNotify();
-    };
-    evtSource.onopen = () => {
-        // Reset reconnect frequency upon successful connection
-        reconnectFrequencySeconds = 1;
-    };
-    evtSource.onerror = () => {
-        console.log("evtSource.onerror() retry", reconnectFrequencySeconds);
-        evtSource.close();
-        reconnectFunc();
-    };
-}
-
 function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder)
@@ -151,8 +115,6 @@ function start() {
         if (!settingsPanel.contains(event.target as Node))
             settings.style.display = 'none';
     });
-
-    if (model['anon'] === 'False') setupEventSource();
 }
 
 window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
