@@ -32,9 +32,6 @@ log = logging.getLogger(__name__)
 
 async def index(request):
     """ Create home html. """
-    # url = str(request.url)
-    # if url[:11] != URI[:11]:
-    #     raise web.HTTPFound(URI)
 
     users = request.app["users"]
     games = request.app["games"]
@@ -59,14 +56,14 @@ async def index(request):
             if not doc.get("enabled", True):
                 log.info("Closed account %s tried to connect.", session_user)
                 session.invalidate()
-                raise web.HTTPFound("/")
+                return web.HTTPFound("/")
 
         if session_user in users:
             user = users[session_user]
         else:
             if session_user.startswith("Anon-"):
                 session.invalidate()
-                raise web.HTTPFound(request.rel_url)
+                return web.HTTPFound(request.rel_url)
 
             log.debug("New lichess user %s joined.", session_user)
             title = session["title"] if "title" in session else ""
@@ -147,7 +144,7 @@ async def index(request):
         elif "/challenge" in request.path:
             view = "lobby"
             if user.anon:
-                raise web.HTTPFound("/")
+                return web.HTTPFound("/")
 
     # Do we have gameId in request url?
     if gameId is not None:
@@ -332,7 +329,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     # log.debug("Response: %s" % text)
     response = web.Response(text=html_minify(text), content_type="text/html")

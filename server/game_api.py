@@ -155,7 +155,7 @@ async def cancel_invite(request):
             # Seek was already deleted
             pass
 
-    raise web.HTTPFound("/")
+    return web.HTTPFound("/")
 
 
 async def subscribe_invites(request):

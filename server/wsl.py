@@ -44,7 +44,7 @@ async def lobby_socket_handler(request):
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     await ws.prepare(request)
 
@@ -55,7 +55,7 @@ async def lobby_socket_handler(request):
     if (user is not None) and (not user.enabled):
         await ws.close()
         session.invalidate()
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     log.debug("-------------------------- NEW lobby WEBSOCKET by %s", user)
 

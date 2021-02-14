@@ -33,7 +33,7 @@ async def round_socket_handler(request):
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     await ws.prepare(request)
 

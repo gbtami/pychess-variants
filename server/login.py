@@ -24,7 +24,7 @@ async def oauth(request):
     )
     code = request.rel_url.query.get("code")
     if code is None:
-        raise web.HTTPFound(client.get_authorize_url(
+        return web.HTTPFound(client.get_authorize_url(
             # scope="email:read",
             redirect_uri=REDIRECT_URI
         ))
@@ -47,7 +47,7 @@ async def login(request):
     """ Login with lichess.org oauth. """
     if REDIRECT_PATH is None:
         log.error("Set REDIRECT_PATH env var if you want lichess OAuth login!")
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
@@ -60,7 +60,7 @@ async def login(request):
         request.app["dev_token"] = True
 
     if "token" not in session:
-        raise web.HTTPFound(REDIRECT_PATH)
+        return web.HTTPFound(REDIRECT_PATH)
 
     client = aioauth_client.LichessClient(
         client_id=CLIENT_ID,
@@ -72,16 +72,16 @@ async def login(request):
     except Exception:
         log.error("Failed to get user info from lichess.org")
         log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     if user.username in RESERVED_USERS:
         log.error("User %s tried to log in.", user.username)
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     title = user.gender if user.gender is not None else ""
     if title == "BOT":
         log.error("BOT user %s tried to log in.", user.username)
-        raise web.HTTPFound("/")
+        return web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s %s %s", user.id, user.username, user.country)
     users = request.app["users"]
@@ -149,4 +149,4 @@ async def logout(request):
 
     session.invalidate()
 
-    raise web.HTTPFound("/")
+    return web.HTTPFound("/")
