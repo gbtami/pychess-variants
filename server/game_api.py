@@ -168,6 +168,8 @@ async def subscribe_invites(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
+        except ConnectionResetError:
+            pass
         finally:
             app['invite_channels'].remove(queue)
     return response
@@ -183,6 +185,8 @@ async def subscribe_games(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
+        except ConnectionResetError:
+            pass
         finally:
             app['game_channels'].remove(queue)
     return response
@@ -203,6 +207,8 @@ async def subscribe_notify(request):
                 payload = await user.notify_queue.get()
                 await response.send(payload)
                 user.notify_queue.task_done()
+        except ConnectionResetError:
+            pass
         finally:
             user.notify_queue = None
     return response
