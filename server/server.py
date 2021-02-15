@@ -82,7 +82,7 @@ async def init_state(app):
         "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
-    app["users"]["Random-Mover"].bot_online = True
+    app["users"]["Random-Mover"].online = True
     app["lobbysockets"] = {}
     app["seeks"] = {}
     app["games"] = {}

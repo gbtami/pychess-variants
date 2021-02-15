@@ -110,7 +110,7 @@ async def create_bot_seek(request):
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
-            if seek.variant == data["variant"] and seek.user.bot and seek.user.online() and seek.user.username != username and seek.level > 0:
+            if seek.variant == data["variant"] and seek.user.bot and seek.user.online and seek.user.username != username and seek.level > 0:
                 log.debug("MATCHING BOT SEEK %s FOUND!", seek.id)
                 matching_seek = seek
                 break
@@ -195,7 +195,7 @@ async def event_stream(request):
             })
             print("db insert user result %s" % repr(result.inserted_id))
 
-    bot_player.bot_online = True
+    bot_player.online = True
 
     log.info("+++ BOT %s connected", bot_player.username)
 
@@ -207,7 +207,7 @@ async def event_stream(request):
     await lobby_broadcast(sockets, get_seeks(seeks))
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
-    while bot_player.online():
+    while bot_player.online:
         answer = await bot_player.event_queue.get()
         try:
             bot_player.event_queue.task_done()
@@ -459,5 +459,4 @@ async def bot_pong(request):
     username = user_agent[user_agent.find("user:") + 5:]
     users = request.app["users"]
     bot_player = users[username]
-    bot_player.ping_counter -= 1
     return web.json_response({"ok": True})

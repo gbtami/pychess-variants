@@ -86,7 +86,7 @@ async def fishnet_acquire(request):
     if key not in request.app["workers"]:
         request.app["workers"].add(key)
         fm[worker].append("%s %s %s" % (datetime.utcnow(), "-", "joined"))
-        request.app["users"]["Fairy-Stockfish"].bot_online = True
+        request.app["users"]["Fairy-Stockfish"].online = True
 
     response = await get_work(request, data)
     return response
@@ -222,7 +222,7 @@ async def fishnet_abort(request):
     request.app["fishnet"].put_nowait((ANALYSIS, work_id))
 
     if len(request.app["workers"]) == 0:
-        request.app["users"]["Fairy-Stockfish"].bot_online = False
+        request.app["users"]["Fairy-Stockfish"].online = False
         # TODO: msg to work user
 
     return web.Response(status=204)

@@ -170,7 +170,7 @@ async def round_socket_handler(request):
                         else:
                             engine = users.get("Fairy-Stockfish")
 
-                            if (engine is not None) and engine.online():
+                            if (engine is not None) and engine.online:
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
                                 await engine.event_queue.put(game.analysis_start(data["username"]))
 
@@ -197,7 +197,7 @@ async def round_socket_handler(request):
                             else:
                                 engine = users.get("Fairy-Stockfish")
 
-                            if engine is None or not engine.online():
+                            if engine is None or not engine.online:
                                 # TODO: message that engine is offline, but capture BOT will play instead
                                 engine = users.get("Random-Mover")
 
@@ -348,12 +348,12 @@ async def round_socket_handler(request):
                             else:
                                 user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                 users[user.username] = user
-                        user.ping_counter = 0
 
                         # update websocket
                         if data["gameId"] in user.game_sockets:
                             await user.game_sockets[data["gameId"]].close()
                         user.game_sockets[data["gameId"]] = ws
+                        user.update_online()
 
                         # remove user seeks
                         if len(user.lobby_sockets) == 0 or (
@@ -519,6 +519,7 @@ async def round_socket_handler(request):
     if game is not None and not user.bot:
         if game.id in user.game_sockets:
             del user.game_sockets[game.id]
+            user.update_online()
 
         if user.username != game.wplayer.username and user.username != game.bplayer.username:
             game.spectators.discard(user)

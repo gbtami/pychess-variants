@@ -82,7 +82,7 @@ async def lobby_socket_handler(request):
                         variant = data["variant"]
                         engine = users.get("Fairy-Stockfish")
 
-                        if engine is None or not engine.online():
+                        if engine is None or not engine.online:
                             # TODO: message that engine is offline, but capture BOT will play instead
                             engine = users.get("Random-Mover")
 
@@ -204,6 +204,7 @@ async def lobby_socket_handler(request):
 
                         # update websocket
                         user.lobby_sockets.add(ws)
+                        user.update_online()
                         sockets[user.username] = user.lobby_sockets
 
                         response = {"type": "lobby_user_connected", "username": user.username}
@@ -281,6 +282,7 @@ async def lobby_socket_handler(request):
     if user is not None:
         if ws in user.lobby_sockets:
             user.lobby_sockets.remove(ws)
+            user.update_online()
 
         # online user counter will be updated in quit_lobby also!
         if len(user.lobby_sockets) == 0:

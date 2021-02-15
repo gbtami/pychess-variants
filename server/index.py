@@ -70,7 +70,6 @@ async def index(request):
             perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
             user = User(request.app, username=session_user, anon=session["guest"], title=title, perfs=perfs)
             users[user.username] = user
-        user.ping_counter = 0
     else:
         user = User(request.app, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
@@ -234,9 +233,8 @@ async def index(request):
         render["variant_display_name"] = variant_display_name
 
     if view == "players":
-        online_users = [u for u in users.values() if u.online(user.username) and not u.anon]
-        # offline_users = (u for u in users.values() if not u.online(user.username) and not u.anon)
-        anon_online = sum((1 for u in users.values() if u.anon and u.online(user.username)))
+        online_users = [u for u in users.values() if u.username == user.username or (u.online and not u.anon)]
+        anon_online = sum((1 for u in users.values() if u.anon and u.online))
 
         render["icons"] = VARIANT_ICONS
         render["users"] = users

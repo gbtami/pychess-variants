@@ -48,8 +48,7 @@ class User:
             self.title = title
             self.game_in_progress = None
 
-        self.ping_counter = 0
-        self.bot_online = False
+        self.online = False
 
         if perfs is None:
             if (not anon) and (not bot):
@@ -74,23 +73,18 @@ class User:
     async def remove(self):
         while True:
             await asyncio.sleep(ANON_TIMEOUT)
-            if not self.online():
+            if not self.online:
                 # give them a second chance
                 await asyncio.sleep(3)
-                if not self.online():
+                if not self.online:
                     try:
                         del self.app["users"][self.username]
                     except KeyError:
                         log.error("Failed to del %s from users", self.username)
                     break
 
-    def online(self, username=None):
-        if username is None:
-            if self.bot:
-                return self.bot_online
-            return len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0
-        else:
-            return username == self.username or self.online()
+    def update_online(self):
+        self.online = len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0
 
     def get_rating(self, variant, chess960):
         if variant in self.perfs:
@@ -128,7 +122,7 @@ class User:
             "title": self.title,
             "first_name": self.first_name,
             "last-name": self.last_name,
-            "online": True if self.username == requester else self.online(),
+            "online": True if self.username == requester else self.online,
             "country": self.country,
         }
 
