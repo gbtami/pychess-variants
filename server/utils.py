@@ -703,4 +703,4 @@ def sanitize_fen(variant, initial_fen, chess960):
 
 
 def online_count(users):
-    return sum((1 for name in users if users[name].online))
+    return sum((1 for user in users.values() if user.online))
