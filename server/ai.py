@@ -91,5 +91,4 @@ async def BOT_task(bot, app):
             else:
                 AI_move(game, level)
 
-        loop = asyncio.get_event_loop()
-        loop.create_task(game_task(bot, game, level, random_mover))
+        asyncio.create_task(game_task(bot, game, level, random_mover))

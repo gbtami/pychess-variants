@@ -122,10 +122,9 @@ async def init_state(app):
         rm.seeks[seek.id] = seek
 
     ai = app["users"]["Fairy-Stockfish"]
-    loop = asyncio.get_event_loop()
 
-    loop.create_task(BOT_task(ai, app))
-    loop.create_task(BOT_task(rm, app))
+    asyncio.create_task(BOT_task(ai, app))
+    asyncio.create_task(BOT_task(rm, app))
 
     # Configure templating.
     app["jinja"] = {}

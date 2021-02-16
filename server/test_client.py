@@ -82,8 +82,7 @@ class TestUser:
                         elif data["type"] == "new_game":
                             self.spectators = await spectators(data["gameId"])
 
-                            loop = asyncio.get_event_loop()
-                            loop.create_task(self.go_to_round(session, wsl, data["gameId"], data["wplayer"], data["bplayer"]))
+                            asyncio.create_task(self.go_to_round(session, wsl, data["gameId"], data["wplayer"], data["bplayer"]))
 
                         elif data["type"] == "lobby_user_connected":
                             print("Connected as %s" % data["username"])
@@ -174,7 +173,4 @@ async def main(users):
 if __name__ == '__main__':
     users = (TestUser() for i in range(10))
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(users))
-
-    loop.close()
+    asyncio.run(main(users))

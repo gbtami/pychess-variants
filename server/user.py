@@ -67,8 +67,7 @@ class User:
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and self.username not in RESERVED_USERS:
-            loop = asyncio.get_event_loop()
-            loop.create_task(self.remove())
+            asyncio.create_task(self.remove())
 
     async def remove(self):
         while True:
@@ -102,8 +101,7 @@ class User:
             await asyncio.sleep(SILENCE)
             self.silence -= SILENCE
 
-        loop = asyncio.get_event_loop()
-        loop.create_task(silencio())
+        asyncio.create_task(silencio())
 
     async def set_rating(self, variant, chess960, rating):
         if self.anon:
