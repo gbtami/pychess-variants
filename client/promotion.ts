@@ -72,7 +72,7 @@ export class Promotion {
         const variant = this.ctrl.variant;
         const possiblePromotions = this.ctrl.promotions.filter(move => this.promotionFilter(move, role, orig, dest));
         const choice = {};
-        if ([ "shogi", "minishogi", "shogun" ].includes(variant)) {
+        if ([ "shogi", "minishogi", "shogun", "dobutsu" ].includes(variant)) {
             choice["p" + role] = "+";
         } else if (variant === "kyotoshogi") {
             if (orig === "z0" || possiblePromotions[0].slice(-1) === "+")
