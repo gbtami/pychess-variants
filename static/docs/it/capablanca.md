@@ -44,7 +44,7 @@ Un Maresciallo è considerato migliore di un Cardinale, ma equivalente o leggerm
 
 ### Strategia
 
-Si sa relativamente poco su molte delle varianti qui. La creatività e l'attenzione ai dettagli sono sempre importanti. E quindi i seguenti consigli sono provvisori. 
+Si sa relativamente poco su molte delle varianti qui giocate. La creatività e l'attenzione ai dettagli sono sempre importanti. E quindi i seguenti consigli sono provvisori. 
 
 Cerca di non fare mosse di sviluppo "di routine". A volte vale la pena spendere più tempo per riposizionare pochi pezzi in modo ottimale, piuttosto che sviluppare molti pezzi in modo subottimale in meno tempo. Anche le varianti che sembrano assomigliare agli scacchi non possono essere giocate con mosse di routine negli scacchi per molto tempo.
 
