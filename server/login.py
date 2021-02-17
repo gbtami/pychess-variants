@@ -90,6 +90,8 @@ async def login(request):
     prev_user = users.get(prev_session_user)
     if prev_user is not None:
         prev_user.lobby_sockets = set()  # make it offline
+        prev_user.game_sockets = {}
+        prev_user.update_online()
 
     session["user_name"] = user.username
     session["country"] = user.country
