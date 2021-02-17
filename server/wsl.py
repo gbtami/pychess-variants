@@ -4,7 +4,6 @@ import logging
 
 import aiohttp
 from aiohttp import web
-from aiohttp.web import WebSocketResponse
 import aiohttp_session
 
 from broadcast import lobby_broadcast
@@ -12,7 +11,7 @@ from const import STARTED
 from settings import ADMINS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import new_game, load_game, online_count
+from utils import new_game, load_game, online_count, MyWebSocketResponse
 from misc import server_growth, server_state
 
 log = logging.getLogger(__name__)
@@ -40,7 +39,7 @@ async def lobby_socket_handler(request):
     db = request.app["db"]
     invites = request.app["invites"]
 
-    ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
+    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
