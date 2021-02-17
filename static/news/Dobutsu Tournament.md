@@ -22,7 +22,7 @@ Single-Round Robin in Qualification stage <br> Knockout Matches in Semi-Final an
 Time Control: 3+10(b) <b> <p>
 
 <p align="center">
-  <a href="https://lichess.org/team/dobutsu-tournament-pychess">All info and Registration here</a>
+  <a href="https://lichess.org/team/dobutsu-tournament-pychess">All info</a> and <a href="https://docs.google.com/spreadsheets/d/1Z-4waGc1YPTPdujpjtqD9Zntcdw5dBKVBQfJDfw_8Fw/edit#gid=1870125762">Pairings here</a>
 </p>
 <p align="center"> Have fun! <p> 
 <p align="center">
