@@ -1,49 +1,49 @@
-# ![gothic](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Gothic Chess
+# ![gothic](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Scacchi Gotici
 
 ![Gothic setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Gothic.png)
 
-Gothic chess was created by Ed Trice in 2000. In 2019, the name was changed to Trice's Chess. The game uses the same pieces and 10 x 8 board as Capablanca chess, but has a different starting arrangement. 
+Gli scacchi gotici sono stati creati da Ed Trice nel 2000. Nel 2019, il nome è stato cambiato in Scacchi Trice. Il gioco utilizza gli stessi pezzi e la stessa scacchiera 10 x 8 degli scacchi Capablanca, ma ha una diversa posizione iniziale. 
 
-## Rules
+## Regole
 
-The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces. The archbishop is to the left of the king, while the chancellor is on the queen's right, in between the king and queen. This difference from Capablanca allows all pawns to be protected at the start. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
+Si gioca su una scacchiera 10 x 8, con colonna extra per il nuovo Cardinale (Cavallo/Alfiere) e Maresciallo (Cavallo/Torre) tra l'Alfiere e il Cavallo. Il Cardinale è sul lato di donna, il Maresciallo su quello di re. Per arroccare, il Re si muove di tre case invece di due. I pedoni possono promuovere anche a Cardinale e Maresciallo.
 
-## New Pieces
+## Nuovi pezzi
 
-### Archbishop
+### Cardinale
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seiwaran Chess)
+Vari simboli utilizzati per il Cardinale. (Nota che il Falco è utilizzato solo per gli scacchi Seiwaran)
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The archbishop (A) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+Il Cardinale (in notazione inglese "A") è un pezzo ibrido che unisce le mosse dell'Alfiere e del Cavallo. Un nome generico con cui è conosciuto questo pezzo eterodosso nell'ambito delle varianti è "principessa" ma si può trovare con molti altri nomi.
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, in the case of Gothic chess, Ed Trice often uses the 3rd symbol depicted above.
+Il pezzo è spesso simboleggiato da una combinazione tra un Cavallo e un Alfiere; la maggior parte delle varianti non specifica come il pezzo dovrebbe apparire (ecco perché offriamo diversi set di pezzi tra cui scegliere).
 
-The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+L'unicità del Cardinale sta nel fatto che può dare scacco matto da solo, senza l'aiuto di nessun altro pezzo, cosa che si può comprendere se si osservano i suoi movimenti.
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
+Il Cardinale è considerato un po' più forte di una Torre, ma di minore valore rispetto ad un Maresciallo o una Donna.
 
-### Chancellor
+### Maresciallo
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seiwaran Chess)
+Vari simboli utilizzati per il Maresciallo. (Nota che l'Elefante è utilizzato solo per gli scacchi Seiwaran)
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The chancellor (C) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+Il Maresciallo (in notazione inglese "C") è un pezzo ibrido che unisce le mosse della Torre e del Cavallo. Nel contesto delle varianti, questo pezzo eterodosso è conosciuto come "imperatrice" ma si può trovare con molti altri nomi.
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from). However, in the case of Gothic chess, Ed Trice often uses the 1st symbol depicted above.
+Il pezzo è spesso simboleggiato da una combinazione tra un Cavallo e Torre; la maggior parte delle varianti spesso non specifica come dovrebbe apparire il pezzo (ecco perché offriamo diversi set di pezzi tra cui scegliere).
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
+Un Maresciallo è considerato migliore di un Cardinale, ma equivalente o leggermente inferiore a una Donna.
 
-### Strategy
+### Strategia
 
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
+Si sa relativamente poco su molte delle varianti qui giocate. La creatività e l'attenzione ai dettagli sono sempre importanti. E quindi i seguenti consigli sono provvisori.
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+Cerca di non fare mosse di sviluppo "di routine". A volte vale la pena spendere più tempo per riposizionare pochi pezzi in modo ottimale, piuttosto che sviluppare molti pezzi in modo subottimale in meno tempo. Anche le varianti che sembrano assomigliare agli scacchi non possono essere giocate con mosse di routine negli scacchi per molto tempo.
 
-Continue to play more and if you discover new strategies or advice, let us know!
+Continuate a giocare e se scoprite qualcosa, fatecelo sapere!
