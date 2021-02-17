@@ -19,7 +19,7 @@
 <p align="center"> <b> February 2021 <br>
 16 Players - 2 Groups (8 players each) <br>
 Single-Round Robin in Qualification stage <br> Knockout Matches in Semi-Final and Final <br>
-Time Control: 3+2 mins <b> <p>
+Time Control: 3+10(b) <b> <p>
 
 <p align="center">
   <a href="https://lichess.org/team/dobutsu-tournament-pychess">All info and Registration here</a>
