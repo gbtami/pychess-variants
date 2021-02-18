@@ -111,7 +111,7 @@ export class Promotion {
             case "shogun":
                 return role === "pawn" && this.isAwayFromLastRank(destRank, 1, color);
             case "dobutsu":
-                return false;
+                return role === "chancellor" && this.isAwayFromLastRank(destRank, 1, color);
             default:
                 return true;
         }
