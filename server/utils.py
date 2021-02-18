@@ -27,6 +27,7 @@ from settings import URI
 log = logging.getLogger(__name__)
 
 
+# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
 class MyWebSocketResponse(WebSocketResponse):
     @property
     def closed(self):
