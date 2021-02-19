@@ -875,8 +875,10 @@ export default class AnalysisController {
         if (this.isAnalysisBoard) {
             const idxInVari = (plyVari > 0) ? ply : 0;
             this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
+        } else {
+            const hist = this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString();
+            window.history.replaceState({}, this.model['title'], hist);
         }
-        window.history.replaceState({}, this.model['title'], this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString());
     }
 
     private doSend = (message: JSONObject) => {
