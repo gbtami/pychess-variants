@@ -62,12 +62,13 @@ td.player-data {
 }
 
 #games tr {
-    display: flex;
-    width:100%;
     border: 1px solid var(--bg-color1);
     background-color: var(--bg-color2);
 }
-
+#games tr a {
+    display: flex;
+    width:100%;
+}
 #games tr:nth-child(odd) {
     width:100%;
     background-color: var(--bg-color1);

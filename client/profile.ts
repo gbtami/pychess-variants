@@ -123,9 +123,7 @@ function renderGames(model, games) {
     const rows = games.map(game => {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
-        return h('tr', {
-            on: { click: () => { window.location.assign('/' + game["_id"]); } },
-        }, [
+        return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', [
                 h(`selection.${variant.board}.${variant.piece}`, [
                     h(`div.cg-wrap.${variant.cg}.mini`, {
@@ -181,9 +179,9 @@ function renderGames(model, games) {
                     h('div', [
                         h('div.info0', game["m"] === undefined ? "" : ngettext("%1 move", "%1 moves", game["m"].length)),
                         h('div.info0', game["a"] === undefined ? "" : [ h('span.icon', { attrs: {"data-icon": "3"} }), _("Computer analysis available") ]),
-                    ]),
-                ]),
-            ])
+                    ])
+                ])
+            ])])
         ])
     });
     return [h('tbody', rows)];
