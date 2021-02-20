@@ -275,27 +275,27 @@ async def lobby_socket_handler(request):
         log.exception("ERROR: Exception in lobby_socket_handler() owned by %s ", session_user)
 
     finally:
-        log.debug("---fianlly: await ws.close()")
+        log.debug("--- wsl.py fianlly: await ws.close() %s", session_user)
         await ws.close()
 
-    if user is not None:
-        if ws in user.lobby_sockets:
-            user.lobby_sockets.remove(ws)
-            user.update_online()
+        if user is not None:
+            if ws in user.lobby_sockets:
+                user.lobby_sockets.remove(ws)
+                user.update_online()
 
-        # online user counter will be updated in quit_lobby also!
-        if len(user.lobby_sockets) == 0:
-            if user.username in sockets:
-                del sockets[user.username]
+            # online user counter will be updated in quit_lobby also!
+            if len(user.lobby_sockets) == 0:
+                if user.username in sockets:
+                    del sockets[user.username]
 
-            # not connected to lobby socket and not connected to game socket
-            if len(user.game_sockets) == 0:
-                response = {"type": "u_cnt", "cnt": online_count(users)}
-                await lobby_broadcast(sockets, response)
+                # not connected to lobby socket and not connected to game socket
+                if len(user.game_sockets) == 0:
+                    response = {"type": "u_cnt", "cnt": online_count(users)}
+                    await lobby_broadcast(sockets, response)
 
-            # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
-            # await lobby_broadcast(sockets, response)
+                # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
+                # await lobby_broadcast(sockets, response)
 
-            await user.clear_seeks(sockets, seeks)
+                await user.clear_seeks(sockets, seeks)
 
     return ws

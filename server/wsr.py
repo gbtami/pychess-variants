@@ -512,25 +512,25 @@ async def round_socket_handler(request):
         log.exception("ERROR: Exception in round_socket_handler() owned by %s ", session_user)
 
     finally:
-        log.debug("---fianlly: await ws.close()")
+        log.debug("--- wsr.py fianlly: await ws.close() %s", session_user)
         await ws.close()
 
-    if game is not None and not user.bot:
-        if game.id in user.game_sockets:
-            del user.game_sockets[game.id]
-            user.update_online()
+        if game is not None and not user.bot:
+            if game.id in user.game_sockets:
+                del user.game_sockets[game.id]
+                user.update_online()
 
-        if user.username != game.wplayer.username and user.username != game.bplayer.username:
-            game.spectators.discard(user)
-            await round_broadcast(game, users, game.spectator_list, full=True)
+            if user.username != game.wplayer.username and user.username != game.bplayer.username:
+                game.spectators.discard(user)
+                await round_broadcast(game, users, game.spectator_list, full=True)
 
-        # not connected to lobby socket and not connected to game socket
-        if len(user.game_sockets) == 0 and user.username not in sockets:
-            response = {"type": "u_cnt", "cnt": online_count(users)}
-            await lobby_broadcast(sockets, response)
+            # not connected to lobby socket and not connected to game socket
+            if len(user.game_sockets) == 0 and user.username not in sockets:
+                response = {"type": "u_cnt", "cnt": online_count(users)}
+                await lobby_broadcast(sockets, response)
 
-    if game is not None:
-        response = {"type": "user_disconnected", "username": user.username}
-        await round_broadcast(game, users, response, full=True)
+        if game is not None:
+            response = {"type": "user_disconnected", "username": user.username}
+            await round_broadcast(game, users, response, full=True)
 
     return ws
