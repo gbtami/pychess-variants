@@ -12,6 +12,9 @@
 </div>
 
 <p align="center">
+  <iframe src="https://www.pychess.org/embed/qCE37xXH?ply=26" width=400 height=345 scrolling="no"></iframe>
+</p>
+
+<p align="center">
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/pychess_knight_and_peon.svg" width="150" height="150">
 </p>
-<br>
