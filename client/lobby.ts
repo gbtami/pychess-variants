@@ -703,6 +703,14 @@ export function lobbyView(model): VNode[] {
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
             h('posts', [
+                h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
+                    h('img', { attrs: {src: '/static/images/TomatoPlasticSet.svg'} }),
+                    h('span.text', [
+                        h('strong', "And Now for Something Completely Different"),
+                        h('span', 'Short History Of Pychess'),
+                    ]),
+                    h('time', '2021.02.26'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
                     h('img', { attrs: {src: '/static/icons/Dobutsu.svg'} }),
                     h('span.text', [
@@ -711,16 +719,6 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.02.04'),
                 ]),
-/*
-                h('a.post', { attrs: {href: '/news/First_Blog_Post'} }, [
-                    h('img', { attrs: {src: '/static/images/pieces/synochess/intl-red/bE.svg'} }),
-                    h('span.text', [
-                        h('strong', "First PyChess blog post"),
-                        h('span', 'Just some random stuff...'),
-                    ]),
-                    h('time', '2021.02.03'),
-                ]),
-*/
             ]),
         ]),
         h('under-right', [

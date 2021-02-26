@@ -1,2 +1,4 @@
-NEWS = ("Dobutsu_Tournament",)
-#NEWS = ("Dobutsu_Tournament", "First_Blog_Post")
+NEWS = (
+    "Short_History_Of_Pychess",
+    "Dobutsu_Tournament",
+)

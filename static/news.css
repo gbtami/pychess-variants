@@ -1,0 +1,18 @@
+.news > p {
+    margin: .5em 3em .5em 3em;
+}
+.news > ul {
+    margin: .5em 3em .5em 3em;
+}
+
+@media (max-width: 799px) and (orientation: portrait) {
+    div.news {
+        width: 100%;
+    }
+    .news > p {
+        margin: .5em ;
+    }
+    .news > ul {
+        margin: .5em;
+    }
+}

@@ -379,7 +379,8 @@ a.news {
     margin-right: .4em;
 }
 news-latest {
-    padding: 0.3em 0.5em;}
+    padding: 0.3em 0.5em;
+}
 posts {
     display: flex;
     flex-direction:column;
@@ -637,7 +638,7 @@ a, .user-link, .user-link:active {
 a:hover, .user-link:hover  {
     color: var(--link-hover);
 }
-p a  {
+p a, .news ul li a  {
     color: var(--link-hover);
 }
 div a {
