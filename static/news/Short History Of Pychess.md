@@ -13,9 +13,9 @@
 <p align="center">
     <img src="/static/images/TomatoPlasticSet.svg" width="300" height="150">
 </p>
-Everything started with lichess. We all loved how lichess is growing and gives us everything what chess players can imagine. But some people always want more. They asked to add [s-chess](https://lichess.org/forum/lichess-feedback/seirawan-chess), [bughouse](https://lichess.org/forum/lichess-feedback/bughouse-team-up-with-a-friend), [placement chess](https://lichess.org/forum/lichess-feedback/placement-chess-varient) and countless other chess variants.
+Everything started with lichess. We all loves how lichess was growing and gave us everything that chess players can imagine. But some people still want more. There were requests to add [S-Chess](https://lichess.org/forum/lichess-feedback/seirawan-chess), [Bughouse](https://lichess.org/forum/lichess-feedback/bughouse-team-up-with-a-friend), [Placement Chess](https://lichess.org/forum/lichess-feedback/placement-chess-varient) and countless other chess variants to the site.
 
-Around 2018-2019 several people started to work independently on interesting projects, and they all inspired the born of pychess variant server.<br>
+Around 2018-2019 several people started to work independently on interesting projects, and they all inspired the birth of pychess variant server.<br>
 
  - Igor Perelyotov created a chessground fork to support Capablanca chess on [github](https://github.com/IgorPerelyotov/chessground/tree/dev/capablanca)</br>
 
@@ -23,8 +23,8 @@ Around 2018-2019 several people started to work independently on interesting pro
 
  - Fabian Fichter forked Stockfish to implement several chess variants in [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)</br>
 
-It was time to put this ingredients to the pot and start cooking.
-First initial commit on github happened at 2019.04.19 and couple week later announcement on [lichess](https://lichess.org/forum/off-topic-discussion/lichess-survey-would-you-like-to-see-eastern-chess-variants-here-on-lichess#9). And finally we played our very first human-human game on pychess with Fabian at 2019.05.02.
+It was time to put these ingredients to the pot and start cooking.
+Pychess's initial commit on github happened on 2019.04.19. A couple of weeks later, announcement on [lichess](https://lichess.org/forum/off-topic-discussion/lichess-survey-would-you-like-to-see-eastern-chess-variants-here-on-lichess#9). And finally, I played the very first human-human game on Pychess with Fabian on 2019.05.02.
 
 <p style="background:var(--game-hover);padding-left:1em;padding-right:30%">
 Just in case you are curious, it was me playing against (I guess) you on your new server just a few minutes ago.</br>
@@ -74,4 +74,4 @@ And then the server slowly started to evolve.
  - 2020.11.17 S-chess960
  - 2021.01.31 Responsive layout/mobile support
  - 2021.02.09 Embed games via iframe tag
-
+</br>
