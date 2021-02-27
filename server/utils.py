@@ -306,7 +306,7 @@ async def import_game(request):
 
     try:
         print(new_id, variant, initial_fen, wplayer, bplayer)
-        new_game = Game(app, new_id, variant, initial_fen, wplayer, bplayer, create=False)
+        new_game = Game(app, new_id, variant, initial_fen, wplayer, bplayer, rated=IMPORTED, create=False)
     except Exception:
         message = "Creating new Game %s failed!" % new_id
         log.exception(message)
