@@ -26,6 +26,8 @@ VARIANTS = (
     "crazyhouse",
     "crazyhouse960",
     "placement",
+    "nocheckatomic",
+    "nocheckatomic960",
     "makruk",
     "makpong",
     "cambodian",
@@ -90,6 +92,8 @@ VARIANT_ICONS = {
     "synochess": "_",
     "hoppelpoppel": "`",
     "manchu": "{",
+    "nocheckatomic": "~",
+    "nocheckatomic960": "~",
 }
 
 VARIANT_960_TO_PGN = {
@@ -104,16 +108,22 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
+    "nocheckatomic": "Atomic960",
 }
 
 
 def variant_display_name(variant):
     if variant == "seirawan":
         return "S-CHESS"
-    if variant == "seirawan960":
+    elif variant == "seirawan960":
         return "S-CHESS960"
-    if variant == "shouse":
+    elif variant == "shouse":
         return "S-HOUSE"
-    if variant == "cambodian":
+    elif variant == "cambodian":
         return "OUK CHATRANG"
-    return variant.upper()
+    elif variant == "nocheckatomic":
+        return "ATOMIC"
+    elif variant == "nocheckatomic960":
+        return "ATOMIC960"
+    else:
+        return variant.upper()

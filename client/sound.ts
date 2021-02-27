@@ -22,6 +22,7 @@ class Sounds {
         Setup: 'dinding',
         LowTime: 'LowTime',
         Tick: 'Tick',
+        Explosion: 'Explosion',
     };
 
     tracks: { [key: string]: Howl };
@@ -76,6 +77,7 @@ class Sounds {
     setup()         { if (this.audio()) this.tracks.Setup.play(); }
     lowTime()       { if (this.audio()) this.tracks.LowTime.play(); }
     tick()          { if (this.audio()) this.tracks.Tick.play(); }
+    explosion()     { if (this.audio()) this.tracks.Explosion.play(); }
 }
 
 class VolumeSettings extends NumberSettings {

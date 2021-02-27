@@ -497,7 +497,11 @@ export default class AnalysisController {
                 }
             } else {
                 if (capture) {
-                    sound.capture();
+                    if (isVariantClass(this.variant, 'atomicSound')) {
+                        sound.explosion();
+                    } else {
+                        sound.capture();
+                    }
                 } else {
                     sound.move();
                 }
@@ -836,7 +840,11 @@ export default class AnalysisController {
                 }
             } else {
                 if (capture) {
-                    sound.capture();
+                    if (isVariantClass(this.variant, 'atomicSound')) {
+                        sound.explosion();
+                    } else {
+                        sound.capture();
+                    }
                 } else {
                     sound.move();
                 }
@@ -897,7 +905,11 @@ export default class AnalysisController {
                 }
             } else {
                 if (capturedPiece) {
-                    sound.capture();
+                    if (isVariantClass(this.variant, 'atomicSound')) {
+                        sound.explosion();
+                    } else {
+                        sound.capture();
+                    }
                 } else {
                     sound.move();
                 }

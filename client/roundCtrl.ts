@@ -651,7 +651,11 @@ export default class RoundController {
                 }
             } else {
                 if (capture) {
-                    sound.capture();
+                    if (isVariantClass(this.variant, 'atomicSound')) {
+                        sound.explosion();
+                    } else {
+                        sound.capture();
+                    }
                 } else {
                     sound.move();
                 }
@@ -782,7 +786,11 @@ export default class RoundController {
                 }
             } else {
                 if (capture) {
-                    sound.capture();
+                    if (isVariantClass(this.variant, 'atomicSound')) {
+                        sound.explosion();
+                    } else {
+                        sound.capture();
+                    }
                 } else {
                     sound.move();
                 }
@@ -867,7 +875,11 @@ export default class RoundController {
                 }
             } else {
                 if (capturedPiece) {
-                    sound.capture();
+                    if (isVariantClass(this.variant, 'atomicSound')) {
+                        sound.explosion();
+                    } else {
+                        sound.capture();
+                    }
                 } else {
                     sound.move();
                 }
