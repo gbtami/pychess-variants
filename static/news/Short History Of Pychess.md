@@ -2,7 +2,7 @@
 
 <div class="meta-headline">
     <div class= "meta">
-        <span class="text">2021.02.26</span>
+        <span class="text">2021.02.27</span>
         <span class="text"><a href="/@/gbtami">@gbtami</a></span>
         <span class="text">Announcements</span>
     </div>
@@ -13,13 +13,13 @@
 <p align="center">
     <img src="/static/images/TomatoPlasticSet.svg" width="300" height="150">
 </p>
-Everything started with Lichess. We all loves how Lichess has grown and gives us everything that chess players can imagine. However, some people still want more. There were requests to add [S-chess](https://lichess.org/forum/lichess-feedback/seirawan-chess), [Bughouse](https://lichess.org/forum/lichess-feedback/bughouse-team-up-with-a-friend), [Placement chess](https://lichess.org/forum/lichess-feedback/placement-chess-varient) and countless other chess variants to the site.
+Everything started with Lichess. We all love how Lichess has grown and gives us everything that chess players can imagine. However, some people still want more. There were requests to add [S-chess](https://lichess.org/forum/lichess-feedback/seirawan-chess), [Bughouse](https://lichess.org/forum/lichess-feedback/bughouse-team-up-with-a-friend), [Placement chess](https://lichess.org/forum/lichess-feedback/placement-chess-varient) and countless other chess variants to the site.
 
 Around 2018-2019 several people started to work independently on interesting projects, and they all inspired the birth of the Pychess-Variant server.<br>
 
- - Igor Perelyotov created [a chessground fork to support Capablanca chess](https://github.com/IgorPerelyotov/chessground/tree/dev/capablanca)</br>
+ - Igor Perelyotov created a [chessground fork](https://github.com/IgorPerelyotov/chessground/tree/dev/capablanca) to support Capablanca chess</br>
 
- - CouchTomato announced [his first version of an internationalized Shogi piece set on Reddit](https://www.reddit.com/r/shogi/comments/bn586v/modifiedredesigned_hidetchi_international_pieces/)</br>
+ - CouchTomato announced his first version of an internationalized [Shogi piece set on Reddit](https://www.reddit.com/r/shogi/comments/bn586v/modifiedredesigned_hidetchi_international_pieces/)</br>
 
  - Fabian Fichter forked Stockfish to implement several chess variants in [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)</br>
 
@@ -27,18 +27,17 @@ It was time to put these ingredients to the pot and start cooking.
 Pychess's initial commit on GitHub happened on 2019.04.19. A couple of weeks later, I [announced the project on Lichess](https://lichess.org/forum/off-topic-discussion/lichess-survey-would-you-like-to-see-eastern-chess-variants-here-on-lichess#9). And finally, I played the very first human-human game on Pychess with Fabian on 2019.05.02.
 
 <p style="background:var(--game-hover);padding-left:1em;padding-right:30%">
->Fabian:
->Just in case you are curious, it was me playing against (I guess) you on your new server just a few minutes ago.</br>
->I yesterday also tried a few bullet games against the engines, and it worked very nicely (although I of course stood no chance in any variant) no matter whether it was xiangqi, shogi, or the like. Although it is of course in an early stage, the UI and functionality already are quite nice, so keep up the good work.</br>
+ubdip:
+"Just in case you are curious, it was me playing against (I guess) you on your new server just a few minutes ago.</br>
+I yesterday also tried a few bullet games against the engines, and it worked very nicely (although I of course stood no chance in any variant) no matter whether it was xiangqi, shogi, or the like. Although it is of course in an early stage, the UI and functionality already are quite nice, so keep up the good work."</br>
 </p>
 
 <p style="background:var(--clock-hurry-bg);align:right;padding-left:30%;padding-right:1em">
->gbtami:
->Yes, I was really curious who was that brave man :)
->This first ever game immediately showed me that a basic chat window is a must.
->Anyhow thx for trying it in this very early stage!
+gbtami:
+"Yes, I was really curious who was that brave man :)
+This first ever game immediately showed me that a basic chat window is a must.
+Anyhow thx for trying it in this very early stage!"
 </p>
-<br>
 And then the server slowly started to evolve.
  - 2019.06.23 Random-Mover BOT
  - 2019.06.29 Games saved to mongodb database

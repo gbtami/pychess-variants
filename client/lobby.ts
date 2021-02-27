@@ -709,7 +709,7 @@ export function lobbyView(model): VNode[] {
                         h('strong', "And Now for Something Completely Different"),
                         h('span', 'Short History Of Pychess'),
                     ]),
-                    h('time', '2021.02.26'),
+                    h('time', '2021.02.27'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
                     h('img', { attrs: {src: '/static/icons/Dobutsu.svg'} }),
