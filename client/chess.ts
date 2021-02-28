@@ -230,8 +230,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "S",
     }),
 
-    nocheckatomic: new Variant({
-        name: "nocheckatomic", displayName: "Atomic", tooltip: () => _("Atomic chess with ICC rules"),
+    atomic: new Variant({
+        name: "atomic", tooltip: () => _("Explode your opponent's king to win"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
@@ -541,7 +541,7 @@ const disabledVariants = [ "gothic", "gothhouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "crazyhouse", "placement", "nocheckatomic" ] },
+    standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
@@ -596,7 +596,7 @@ const variant_classes = {
     placement: new Set(['pocket', 'enPassant', 'autoQueen']),
     crazyhouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
     chess: new Set(['enPassant', 'autoQueen']),
-    nocheckatomic: new Set(['enPassant', 'autoQueen', 'atomicSound']),
+    atomic: new Set(['enPassant', 'autoQueen', 'atomicSound']),
     shogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     minishogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
     kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),

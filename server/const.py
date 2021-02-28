@@ -26,8 +26,8 @@ VARIANTS = (
     "crazyhouse",
     "crazyhouse960",
     "placement",
-    "nocheckatomic",
-    "nocheckatomic960",
+    "atomic",
+    "atomic960",
     "makruk",
     "makpong",
     "cambodian",
@@ -92,8 +92,8 @@ VARIANT_ICONS = {
     "synochess": "_",
     "hoppelpoppel": "`",
     "manchu": "{",
-    "nocheckatomic": "~",
-    "nocheckatomic960": "~",
+    "atomic": "~",
+    "atomic960": "~",
 }
 
 VARIANT_960_TO_PGN = {
@@ -101,6 +101,7 @@ VARIANT_960_TO_PGN = {
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
+    "atomic": "Atomic",          # to let lichess import work
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -108,7 +109,6 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
-    "nocheckatomic": "Atomic960",
 }
 
 
@@ -121,9 +121,5 @@ def variant_display_name(variant):
         return "S-HOUSE"
     elif variant == "cambodian":
         return "OUK CHATRANG"
-    elif variant == "nocheckatomic":
-        return "ATOMIC"
-    elif variant == "nocheckatomic960":
-        return "ATOMIC960"
     else:
         return variant.upper()

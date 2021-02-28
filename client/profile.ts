@@ -99,7 +99,7 @@ export function result(variantName, status, result) {
                 case 'dobutsu':
                     text = _('Campmate');
                     break;
-                case 'nocheckatomic':
+                case 'atomic':
                     text = _('Explosion of king');
                     break;
                 default:
