@@ -12,10 +12,10 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Variant, dimensions, Notation } from 'chessgroundx/types';
+import { Color, Variant, Notation } from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { selectVariant, getPockets, needPockets, validFen, VARIANTS, hasCastling, isVariantClass } from './chess';
+import { selectVariant, getPockets, validFen, VARIANTS, IVariant, hasCastling } from './chess';
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { updatePockets, Pockets } from './pocket';
@@ -35,7 +35,7 @@ export default class EditorController {
     castling: string;
     pocketsPart: string;
     pockets: Pockets;
-    variant: string;
+    variant: IVariant;
     hasPockets: boolean;
     vpieces0: VNode;
     vpieces1: VNode;
@@ -51,7 +51,7 @@ export default class EditorController {
 
     constructor(el, model) {
         this.model = model;
-        this.variant = model["variant"] as string;
+        this.variant = VARIANTS[model["variant"]];
         this.startfen = model["fen"] as string;
         this.flip = false;
         this.anon = model["anon"] === 'True';
@@ -60,7 +60,7 @@ export default class EditorController {
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
         this.fullfen = this.startfen;
 
-        this.hasPockets = needPockets(this.variant);
+        this.hasPockets = this.variant.pocket;
 
         // pocket part of the FEN (including brackets)
         this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
@@ -71,9 +71,9 @@ export default class EditorController {
         this.chessground = Chessground(el, {
             fen: this.parts[0],
             autoCastle: false,
-            variant: this.variant as Variant,
-            geometry: VARIANTS[this.variant].geometry,
-            notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
+            variant: this.variant.name as Variant,
+            geometry: this.variant.geometry,
+            notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
             orientation: this.mycolor,
             movable: {
                 free: true,
@@ -90,8 +90,8 @@ export default class EditorController {
         });
 
         boardSettings.ctrl = this;
-        const boardFamily = VARIANTS[this.variant].board;
-        const pieceFamily = VARIANTS[this.variant].piece;
+        const boardFamily = this.variant.board;
+        const pieceFamily = this.variant.piece;
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
@@ -102,7 +102,7 @@ export default class EditorController {
         iniPieces(this, pieces0, pieces1);
 
         // initialize pockets
-        if (needPockets(this.variant)) {
+        if (this.hasPockets) {
             const pocket0 = document.getElementById('pocket0') as HTMLElement;
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
             updatePockets(this, pocket0, pocket1);
@@ -120,8 +120,8 @@ export default class EditorController {
         //const dataIcon = VARIANTS[this.variant].icon(false);
         const dataIcon = 'icon-' + this.variant;
         const container = document.getElementById('editor-button-container') as HTMLElement;
-        const firstColor = colorNames(VARIANTS[this.variant].firstColor);
-        const secondColor = colorNames(VARIANTS[this.variant].secondColor);
+        const firstColor = colorNames(this.variant.firstColor);
+        const secondColor = colorNames(this.variant.secondColor);
         if (container !== null) {
             const buttons = [
                 h('div#turn-block', [
@@ -243,7 +243,7 @@ export default class EditorController {
             // try to catch more invalid stuff using ffish.js
             try {
                 const ffValid = this.ffish.validateFen(fen, this.variant);
-                if (ffValid !== 1 && !(isVariantClass(this.variant, 'gate') && ffValid == -5)) return false;
+                if (ffValid !== 1 && !(this.variant.gate && ffValid == -5)) return false;
 
                 this.ffishBoard.setFen(fen);
                 const fenPlacement = fen.split(' ')[0].split('[')[0];
@@ -279,11 +279,11 @@ export default class EditorController {
     }
 
     private setEmptyFen = () => {
-        const w = dimensions[VARIANTS[this.variant].geometry].width;
-        const h = dimensions[VARIANTS[this.variant].geometry].height
+        const w = this.variant.boardWidth;
+        const h = this.variant.boardHeight;
         const empty_fen = (String(w) + '/').repeat(h);
 
-        this.pocketsPart = needPockets(this.variant) ? '[]' : '';
+        this.pocketsPart = (this.hasPockets) ? '[]' : '';
         this.parts[0] = empty_fen + this.pocketsPart;
         this.parts[1] = 'w'
         if (this.parts.length > 2) this.parts[2] = '-';
@@ -306,7 +306,7 @@ export default class EditorController {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
-            this.pocketsPart = (needPockets(this.variant) ? getPockets(fen.value) : '');
+            this.pocketsPart = (this.hasPockets) ? getPockets(fen.value) : '';
             this.chessground.set({ fen: fen.value });
             this.setInvalid(!this.validFen());
 
@@ -316,7 +316,7 @@ export default class EditorController {
             }
 
             this.fullfen = fen.value;
-            if (needPockets(this.variant)) {
+            if (this.hasPockets) {
                 updatePockets(this, this.vpocket0, this.vpocket1);
             }
 
@@ -351,8 +351,12 @@ export default class EditorController {
     }
 
     private variantFenChange = () => {
-        if (this.variant === "makruk" || this.variant === "makpong" || this.variant === "cambodian") {
-            this.parts[0] = this.parts[0].replace(/F/g, "M~").replace(/f/g, "m~");
+        switch (this.variant.name) {
+            case "makruk":
+            case "makpong":
+            case "cambodian":
+                this.parts[0] = this.parts[0].replace(/F/g, "M~").replace(/f/g, "m~");
+                break;
         }
     }
 }
@@ -408,7 +412,7 @@ export function editorView(model): VNode[] {
                 ]),
             ]),
 
-            h('div.editorhint', (needPockets(model['variant'])) ? _('Click/Ctrl+click to increase/decrease number of pieces') : ''),
+            h('div.editorhint', (variant.pocket) ? _('Click/Ctrl+click to increase/decrease number of pieces') : ''),
             h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [

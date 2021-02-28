@@ -21,7 +21,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, grand2zero, zero2grand, VARIANTS, getPockets, getCounting, isVariantClass, isHandicap } from './chess';
+import { roleToSan, grand2zero, zero2grand, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -50,7 +50,7 @@ export default class RoundController {
     clocktimes;
     abortable: boolean;
     gameId: string;
-    variant: string;
+    variant: IVariant;
     hasPockets: boolean;
     pockets: Pockets;
     vpocket0: VNode;
@@ -90,6 +90,7 @@ export default class RoundController {
     showDests: boolean;
     blindfold: boolean;
     handicap: boolean;
+    bigBoard: boolean;
     autoqueen: boolean;
     setupFen: string;
     prevPieces: Pieces;
@@ -124,14 +125,14 @@ export default class RoundController {
 
         this.model = model;
         this.gameId = model["gameId"] as string;
-        this.variant = model["variant"];
+        this.variant = VARIANTS[model["variant"]];
         this.fullfen = model["fen"];
         this.wplayer = model["wplayer"];
         this.bplayer = model["bplayer"];
         this.base = Number(model["base"]);
         this.inc = Number(model["inc"]);
         this.byoyomiPeriod = Number(model["byo"]);
-        this.byoyomi = isVariantClass(this.variant, 'byoyomi');
+        this.byoyomi = this.variant.timeControl === 'byoyomi';
         this.status = Number(model["status"]);
         this.tv = model["tv"];
         this.steps = [];
@@ -147,8 +148,9 @@ export default class RoundController {
         this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
-        this.hasPockets = isVariantClass(this.variant, 'pocket');
-        this.handicap = VARIANTS[this.variant].alternateStart ? Object.keys(VARIANTS[this.variant].alternateStart!).some(alt => isHandicap(alt) && VARIANTS[this.variant].alternateStart![alt] === this.fullfen) : false;
+        this.hasPockets = this.variant.pocket;
+        this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
+        this.bigBoard = this.variant.boardHeight >= 10;
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -193,12 +195,12 @@ export default class RoundController {
 
         this.chessground = Chessground(el, {
             fen: fen_placement,
-            variant: this.variant as Variant,
-            geometry: VARIANTS[this.variant].geometry,
-            notation: (this.variant === 'janggi') ? Notation.JANGGI : Notation.DEFAULT,
+            variant: this.variant.name as Variant,
+            geometry: this.variant.geometry,
+            notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
             orientation: this.mycolor,
             turnColor: this.turnColor,
-            autoCastle: this.variant !== 'cambodian',
+            autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
             animation: { enabled: this.animation },
         });
 
@@ -295,7 +297,7 @@ export default class RoundController {
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
 
         // initialize material point and counting indicator
-        if (isVariantClass(this.variant, 'showMaterialPoint') || isVariantClass(this.variant, 'showCount')) {
+        if (this.variant.materialPoint || this.variant.counting) {
             this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#misc-infow')) : patch(misc0, h('div#misc-infow'));
             this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
         }
@@ -326,7 +328,7 @@ export default class RoundController {
 
         const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
-            const pass = isVariantClass(this.variant, 'pass');
+            const pass = this.variant.pass;
             this.gameControls = patch(container, h('div.btn-controls', [
                 h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
                 h('button#count', _('Count')),
@@ -334,7 +336,7 @@ export default class RoundController {
                 h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
             ]));
 
-            const manualCount = isVariantClass(this.variant, 'manualCount') && !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT');
+            const manualCount = this.variant.counting === 'makruk' && !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
 
@@ -348,8 +350,8 @@ export default class RoundController {
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         boardSettings.ctrl = this;
-        const boardFamily = VARIANTS[this.variant].board;
-        const pieceFamily = VARIANTS[this.variant].piece;
+        const boardFamily = this.variant.board;
+        const pieceFamily = this.variant.piece;
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
@@ -564,7 +566,7 @@ export default class RoundController {
 
         this.fullfen = msg.fen;
 
-        if (isVariantClass(this.variant, 'gate')) {
+        if (this.variant.gate) {
             // When castling with gating is possible 
             // e1g1, e1g1h, e1g1e, h1e1h, h1e1e all will be offered by moving our king two squares
             // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
@@ -627,7 +629,7 @@ export default class RoundController {
 
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (isVariantClass(this.variant, 'tenRanks')) {
+            if (this.bigBoard) {
                 lastMove = grand2zero(lastMove);
             }
             // drop lastMove causing scrollbar flicker,
@@ -643,7 +645,7 @@ export default class RoundController {
         }
         // console.log("CAPTURE ?", capture, lastMove, step);
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (isVariantClass(this.variant, 'shogiSound')) {
+            if (this.variant.pieceSound === 'shogi') {
                 if (capture) {
                     sound.shogicapture();
                 } else {
@@ -651,7 +653,7 @@ export default class RoundController {
                 }
             } else {
                 if (capture) {
-                    if (isVariantClass(this.variant, 'atomicSound')) {
+                    if (this.variant.pieceSound === 'atomic') {
                         sound.explosion();
                     } else {
                         sound.capture();
@@ -668,11 +670,11 @@ export default class RoundController {
             sound.check();
         }
 
-        if (isVariantClass(this.variant, 'showCount')) {
+        if (this.variant.counting) {
             this.updateCount(msg.fen);
         }
 
-        if (isVariantClass(this.variant, 'showMaterialPoint')) {
+        if (this.variant.materialPoint) {
             this.updatePoint(msg.fen);
         }
 
@@ -682,8 +684,8 @@ export default class RoundController {
         this.clocks[0].pause(false);
         this.clocks[1].pause(false);
         if (this.byoyomi) {
-            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor == 'white') ? 0 : 1];
-            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor == 'white') ? 0 : 1];
+            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
+            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
         }
         this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
         this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
@@ -749,7 +751,7 @@ export default class RoundController {
         let move = step['move'];
         let capture = false;
         if (move !== undefined) {
-            if (isVariantClass(this.variant, 'tenRanks')) move = grand2zero(move);
+            if (this.bigBoard) move = grand2zero(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
@@ -769,16 +771,16 @@ export default class RoundController {
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
 
-        if (isVariantClass(this.variant, 'showCount')) {
+        if (this.variant.counting) {
             this.updateCount(step.fen);
         }
 
-        if (isVariantClass(this.variant, 'showMaterialPoint')) {
+        if (this.variant.materialPoint) {
             this.updatePoint(step.fen);
         }
 
         if (ply === this.ply + 1) {
-            if (isVariantClass(this.variant, 'shogiSound')) {
+            if (this.variant.pieceSound === 'shogi') {
                 if (capture) {
                     sound.shogicapture();
                 } else {
@@ -786,7 +788,7 @@ export default class RoundController {
                 }
             } else {
                 if (capture) {
-                    if (isVariantClass(this.variant, 'atomicSound')) {
+                    if (this.variant.pieceSound === 'atomic') {
                         sound.explosion();
                     } else {
                         sound.capture();
@@ -813,7 +815,7 @@ export default class RoundController {
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
         const uci_move = orig + dest + promo;
-        const move = (isVariantClass(this.variant, 'tenRanks')) ? zero2grand(uci_move) : uci_move;
+        const move = (this.bigBoard) ? zero2grand(uci_move) : uci_move;
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;
@@ -867,7 +869,7 @@ export default class RoundController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (isVariantClass(this.variant, 'shogiSound')) {
+            if (this.variant.pieceSound === 'shogi') {
                 if (capturedPiece) {
                     sound.shogicapture();
                 } else {
@@ -875,7 +877,7 @@ export default class RoundController {
                 }
             } else {
                 if (capturedPiece) {
-                    if (isVariantClass(this.variant, 'atomicSound')) {
+                    if (this.variant.pieceSound === 'atomic') {
                         sound.explosion();
                     } else {
                         sound.capture();
@@ -891,7 +893,7 @@ export default class RoundController {
         return (piece, dest) => {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
-                if (isVariantClass(this.variant, 'shogiSound')) {
+                if (this.variant.pieceSound === 'shogi') {
                     sound.shogimove();
                 } else {
                     sound.move();
@@ -947,7 +949,7 @@ export default class RoundController {
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
         const firstRankIs0 = this.chessground.state.dimensions.height === 10;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && isVariantClass(this.variant, 'enPassant')) {
+        if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && this.variant.enPassant) {
             const pos = key2pos(dest, firstRankIs0),
             pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
             const diff: PiecesDiff = {};
@@ -956,9 +958,10 @@ export default class RoundController {
             meta.captured = {role: "pawn"};
         }
         // increase pocket count
-        if (isVariantClass(this.variant, 'drop') && meta.captured) {
+        if (this.variant.drop && meta.captured) {
             let role = meta.captured.role
-            if (meta.captured.promoted) role = (this.variant.endsWith('shogi') || this.variant === 'shogun' || this.variant === 'dobutsu') ? meta.captured.role.slice(1) as Role : "pawn";
+            if (meta.captured.promoted)
+                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as Role : "pawn";
 
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
@@ -972,11 +975,11 @@ export default class RoundController {
         }
 
         //  gating elephant/hawk
-        if (isVariantClass(this.variant, 'gate')) {
+        if (this.variant.gate) {
             if (!this.promotion.start(moved.role, orig, dest) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
             if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
-        this.preaction = false;
+            this.preaction = false;
         }
     }
 
@@ -994,7 +997,7 @@ export default class RoundController {
                 this.pockets[1][role]--;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
-            if (this.variant === "kyotoshogi") {
+            if (this.variant.promotion === 'kyoto') {
                 if (!this.promotion.start(role, 'z0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
             } else {
                 this.sendMove(roleToSan[role] + "@", dest, '')
@@ -1036,7 +1039,7 @@ export default class RoundController {
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
-            if (this.model.chess960 === 'True' && isVariantClass(this.variant, 'gate')) {
+            if (this.model.chess960 === 'True' && this.variant.gate) {
                 this.prevPieces = Object.assign({}, this.chessground.state.pieces);
             }
 
@@ -1046,7 +1049,7 @@ export default class RoundController {
                 (this.chessground.state.movable.dests[key].indexOf(key) >= 0)
                 ) {
                 const piece = this.chessground.state.pieces[key];
-                if (this.variant === 'sittuyin') {
+                if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
                     const pieces = {};
                     pieces[key] = {
@@ -1056,7 +1059,7 @@ export default class RoundController {
                     };
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
-                } else if (isVariantClass(this.variant, 'pass') && piece!.role === 'king') {
+                } else if (this.variant.pass && piece!.role === 'king') {
                     this.pass();
                 }
             }
