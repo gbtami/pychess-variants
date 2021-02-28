@@ -8,10 +8,10 @@ import style from 'snabbdom/modules/style';
 
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
-import { Color, dimensions, Role } from 'chessgroundx/types';
+import { Color, Role } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import { VARIANTS, roleToSan, lc } from './chess';
+import { roleToSan, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import EditorController from './editor';
@@ -48,8 +48,8 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     class: { usable: true },
     style: {
         '--pocketLength': String(roles!.length),
-        '--files': String(dimensions[VARIANTS[ctrl.variant].geometry].width),
-        '--ranks': String(dimensions[VARIANTS[ctrl.variant].geometry].height),
+        '--files': String(ctrl.variant.boardWidth),
+        '--ranks': String(ctrl.variant.boardHeight),
     },
     hook: insertHook
   }, roles.map(role => {
@@ -61,7 +61,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
                 let newValue: number;
                 const oldValue = parseInt((event.target as HTMLElement).getAttribute("data-nb")!);
                 newValue = oldValue + ((event.ctrlKey) ? -1 : 1);
-                newValue = Math.min(Math.max(newValue, 0), dimensions[VARIANTS[ctrl.variant].geometry].width);
+                newValue = Math.min(Math.max(newValue, 0), ctrl.variant.boardWidth);
                 if (oldValue !== newValue) {
                     // patch(event.target as HTMLElement, h('piece.' + role + '.' + color, {attrs: {'data-nb': newValue}}));
                     if (event.ctrlKey) {
@@ -156,8 +156,8 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
 
         const c = ctrl.mycolor;
         const o = ctrl.oppcolor;
-        const rc = VARIANTS[ctrl.variant].pocketRoles(c) ?? [];
-        const ro = VARIANTS[ctrl.variant].pocketRoles(o) ?? [];
+        const rc = ctrl.variant.pocketRoles(c) ?? [];
+        const ro = ctrl.variant.pocketRoles(o) ?? [];
         const pc:Pocket = {};
         const po:Pocket = {};
         rc.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c==='white'));

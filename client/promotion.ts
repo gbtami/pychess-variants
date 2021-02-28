@@ -8,7 +8,7 @@ import { toVNode } from 'snabbdom/tovnode';
 import { key2pos } from 'chessgroundx/util';
 import { Key, Role, Color, dimensions } from 'chessgroundx/types';
 
-import { VARIANTS, isVariantClass, sanToRole, roleToSan } from './chess';
+import { VARIANTS, sanToRole, roleToSan } from './chess';
 import { bind } from './document';
 
 const patch = init([listeners, style]);
@@ -33,7 +33,7 @@ export class Promotion {
             const color = this.ctrl.turnColor;
             const orientation = ground.state.orientation;
 
-            if (this.ctrl.autoqueen && isVariantClass(this.ctrl.variant, "autoQueen"))
+            if (this.ctrl.autoqueen && this.ctrl.variant.autoQueenable)
                 this.choices = { 'queen': 'q' };
             else
                 this.choices = this.promotionChoices(movingRole, orig, dest);

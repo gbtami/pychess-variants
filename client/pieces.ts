@@ -11,7 +11,6 @@ import { dragNewPiece } from 'chessgroundx/drag';
 import { Color, dimensions } from 'chessgroundx/types';
 
 import EditorController from './editor';
-import { VARIANTS } from './chess';
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
@@ -20,9 +19,9 @@ type Position = 'top' | 'bottom';
 const eventNames = ['mousedown', 'touchstart'];
 
 export function piecesView(ctrl: EditorController, color: Color, position: Position) {
-    const width = dimensions[VARIANTS[ctrl.variant].geometry].width;
-    const height = dimensions[VARIANTS[ctrl.variant].geometry].height;
-    const roles = VARIANTS[ctrl.variant].pieceRoles(color);
+    const width = dimensions[ctrl.variant.geometry].width;
+    const height = dimensions[ctrl.variant.geometry].height;
+    const roles = ctrl.variant.pieceRoles(color);
     return h('div.pocket.' + position + '.editor.usable', {
         style: {
             '--editorLength': String(roles.length),

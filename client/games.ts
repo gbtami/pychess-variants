@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { VARIANTS, grand2zero, isVariantClass } from './chess';
+import { VARIANTS, grand2zero } from './chess';
 import { boardSettings } from './boardSettings';
 
 function gameView(games, game, fen, lastMove) {
@@ -26,13 +26,13 @@ function gameView(games, game, fen, lastMove) {
             ]),
             h('div.name', game.b),
         ]),
-        h(`div.cg-wrap.${VARIANTS[game.variant].cg}.mini`, {
+        h(`div.cg-wrap.${variant.cg}.mini`, {
             hook: {
                 insert: vnode => {
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
-                        geometry: VARIANTS[game.variant].geometry,
+                        geometry: variant.geometry,
                         coordinates: false,
                         viewOnly: true
                     });
@@ -64,11 +64,12 @@ export function renderGames(): VNode[] {
 
                     const game = response.find(g => g.gameId === message.gameId);
                     const cg = games[message.gameId];
+                    const variant = VARIANTS[game.variant];
 
                     const parts = message.fen.split(" ");
                     let lastMove = message.lastMove;
                     if (lastMove !== null) {
-                        if (isVariantClass(game.variant, "tenRanks"))
+                        if (variant.boardHeight >= 10)
                             lastMove = grand2zero(lastMove);
                         lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
                         if (lastMove[0][1] === '@')
