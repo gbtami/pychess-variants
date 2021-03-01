@@ -806,7 +806,7 @@ export default class RoundController {
         this.sock.send(JSON.stringify(message));
     }
 
-    private sendMove = (orig, dest, promo) => {
+    sendMove = (orig, dest, promo) => {
         // pause() will add increment!
         const oppclock = !this.flip ? 0 : 1
         const myclock = 1 - oppclock;

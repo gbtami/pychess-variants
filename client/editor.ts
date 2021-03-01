@@ -118,7 +118,7 @@ export default class EditorController {
         );
 
         //const dataIcon = VARIANTS[this.variant].icon(false);
-        const dataIcon = 'icon-' + this.variant;
+        const dataIcon = 'icon-' + this.variant.name;
         const container = document.getElementById('editor-button-container') as HTMLElement;
         const firstColor = colorNames(this.variant.firstColor);
         const secondColor = colorNames(this.variant.secondColor);
@@ -189,7 +189,7 @@ export default class EditorController {
 
                 if (this.ffish !== null) {
                     this.ffish.loadVariantConfig(variantsIni);
-                    this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
+                    this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.model.chess960 === 'True');
                 }
             });
         }
@@ -242,7 +242,7 @@ export default class EditorController {
         if (valid) {
             // try to catch more invalid stuff using ffish.js
             try {
-                const ffValid = this.ffish.validateFen(fen, this.variant);
+                const ffValid = this.ffish.validateFen(fen, this.variant.name);
                 if (ffValid !== 1 && !(this.variant.gate && ffValid == -5)) return false;
 
                 this.ffishBoard.setFen(fen);

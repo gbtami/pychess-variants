@@ -8,7 +8,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
-import { Color, dimensions } from 'chessgroundx/types';
+import { Color } from 'chessgroundx/types';
 
 import EditorController from './editor';
 
@@ -19,8 +19,8 @@ type Position = 'top' | 'bottom';
 const eventNames = ['mousedown', 'touchstart'];
 
 export function piecesView(ctrl: EditorController, color: Color, position: Position) {
-    const width = dimensions[ctrl.variant.geometry].width;
-    const height = dimensions[ctrl.variant.geometry].height;
+    const width = ctrl.variant.boardWidth;
+    const height = ctrl.variant.boardHeight;
     const roles = ctrl.variant.pieceRoles(color);
     return h('div.pocket.' + position + '.editor.usable', {
         style: {

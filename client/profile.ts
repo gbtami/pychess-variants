@@ -12,23 +12,23 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 
 import { _, ngettext } from './i18n';
-import { VARIANTS } from './chess';
+import { VARIANTS, IVariant } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 
-export function colorNames(color) {
-    const colors = {
+const translatedColors = {
     "White": _("White"),
     "Black": _("Black"),
     "Red": _("Red"),
     "Blue": _("Blue"),
     "Gold": _("Gold"),
-    }
-    return colors[color];
+}
+export function colorNames(color: string) {
+    return translatedColors[color];
 }
 
-export function gameType(rated) {
+export function gameType(rated: string | Number) {
     switch (rated) {
     case "1":
     case 1:
@@ -41,14 +41,14 @@ export function gameType(rated) {
     }
 }
 
-export function aiLevel(title, level) {
+export function aiLevel(title: string, level: Number) {
     return (title === 'BOT' && level >= 0) ? ' ' + _('level %1', level): '';
 }
 
-export function result(variantName, status, result) {
+export function result(variant: IVariant, status: Number, result: string) {
     let text = '';
+    const variantName = variant.name;
     console.log("result()", variantName, status, result);
-    const variant = VARIANTS[variantName];
     const first = colorNames(variant.firstColor);
     const second = colorNames(variant.secondColor);
     switch (status) {
@@ -117,7 +117,7 @@ export function result(variantName, status, result) {
     return (status <= 0) ? text : text + ', ' + result;
 }
 
-export function renderRdiff(rdiff) {
+export function renderRdiff(rdiff: Number) {
     if (rdiff === undefined) {
         return h('span');
     } else if (rdiff === 0) {

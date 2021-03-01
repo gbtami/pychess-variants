@@ -564,7 +564,7 @@ export default class AnalysisController {
                         const availableVariants = this.ffish.variants();
                         //console.log('Available variants:', availableVariants);
                         if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-                            this.ffishBoard = new this.ffish.Board(this.variant, this.fullfen, this.model.chess960 === 'True');
+                            this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.model.chess960 === 'True');
                             this.dests = this.getDests();
                             this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
                         } else {
@@ -951,7 +951,7 @@ export default class AnalysisController {
         return moves.join(' ');
     }
 
-    private sendMove = (orig, dest, promo) => {
+    sendMove = (orig, dest, promo) => {
         const uci_move = orig + dest + promo;
         const move = (this.bigBoard) ? zero2grand(uci_move) : uci_move;
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
