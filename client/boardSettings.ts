@@ -71,7 +71,7 @@ class BoardSettings {
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
         const variant = this.ctrl?.variant;
         if (this.ctrl && variant && variant.piece === family) {
-            if (variant.sideDetermination === 'pieceDirrection') {
+            if (variant.sideDetermination === 'direction') {
                 // change piece orientation according to board orientation
                 if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
                     css = css.replace('0', '1');
@@ -159,7 +159,7 @@ class BoardSettings {
             this.ctrl.flip = !this.ctrl.flip;
             this.ctrl.chessground.toggleOrientation();
 
-            if (this.ctrl.variant.sideDetermination === 'pieceDirection')
+            if (this.ctrl.variant.sideDetermination === 'direction')
                 this.updatePieceStyle(this.ctrl.variant.name);
 
             // console.log("FLIP");
