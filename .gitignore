@@ -1,6 +1,7 @@
 __pycache__/
 node_modules/
 templates/docs/
+templates/news/
 static/pychess-variants.js
 static/pychess-variants.min.js
 static/ffish.js
