@@ -66,7 +66,17 @@ export function result(variant: IVariant, status: number, result: string) {
             text = _('%1 resigned', (result === '1-0') ? second : first);
             break;
         case 3:
-            text = _('Stalemate');
+            switch (variantName) {
+                case 'atomic':
+                    if (result !== '1/2-1/2')
+                        text = _('Checkmate');
+                    else
+                        text = _('Stalemate');
+                    break;
+                default:
+                    text = _('Stalemate');
+                    break;
+            }
             break;
         case 4:
             text = _('Time out');
@@ -108,7 +118,14 @@ export function result(variant: IVariant, status: number, result: string) {
             }
             break;
         case 13:
-            text = (variantName === 'janggi') ? _('Point counting') : _('Repetition');
+            switch (variantName) {
+                case 'janggi':
+                    text = _('Point counting');
+                    break;
+                default:
+                    text = _('Repetition');
+                    break;
+            }
             break;
         default:
             text = '*';
@@ -184,7 +201,7 @@ function renderGames(model, games) {
                         class: {
                             "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
                             "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
-                        }}, result(game["v"], game["s"], game["r"])
+                        }}, result(variant, game["s"], game["r"])
                     ),
                 ]),
                 h('div.info0.games', [
