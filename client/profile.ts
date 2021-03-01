@@ -28,7 +28,7 @@ export function colorNames(color: string) {
     return translatedColors[color];
 }
 
-export function gameType(rated: string | Number) {
+export function gameType(rated: string | number) {
     switch (rated) {
     case "1":
     case 1:
@@ -41,11 +41,11 @@ export function gameType(rated: string | Number) {
     }
 }
 
-export function aiLevel(title: string, level: Number) {
+export function aiLevel(title: string, level: number) {
     return (title === 'BOT' && level >= 0) ? ' ' + _('level %1', level): '';
 }
 
-export function result(variant: IVariant, status: Number, result: string) {
+export function result(variant: IVariant, status: number, result: string) {
     let text = '';
     const variantName = variant.name;
     console.log("result()", variantName, status, result);
@@ -117,7 +117,7 @@ export function result(variant: IVariant, status: Number, result: string) {
     return (status <= 0) ? text : text + ', ' + result;
 }
 
-export function renderRdiff(rdiff: Number) {
+export function renderRdiff(rdiff: number) {
     if (rdiff === undefined) {
         return h('span');
     } else if (rdiff === 0) {
