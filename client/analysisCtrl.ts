@@ -665,7 +665,7 @@ export default class AnalysisController {
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3);
                     let color = turnColor;
-                    if (this.variant.firstColor === "Black")
+                    if (this.variant.sideDetermination === "direction")
                         if (this.flip !== (this.mycolor === "black"))
                             color = (color === 'white') ? 'black' : 'white';
                     shapes0 = [{
