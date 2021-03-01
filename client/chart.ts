@@ -10,7 +10,7 @@ export function analysisChart(ctrl: AnalysisController) {
         (step, ply) => {
             if (step.ceval !== undefined) {
                 const score = step.ceval.s;
-                const color = (ctrl.variant.endsWith('shogi')) ? step.turnColor === 'black' ? 'white' : 'black' : step.turnColor;
+                const color = (ctrl.variant.firstColor === "Black") ? step.turnColor === 'black' ? 'white' : 'black' : step.turnColor;
                 if (score !== undefined) {
                     const turn = Math.floor((ply - 1) / 2) + 1;
                     const dots = step.turnColor === 'black' ? '.' : '...';

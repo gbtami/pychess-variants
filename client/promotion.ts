@@ -6,19 +6,21 @@ import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import { Key, Role, Color, dimensions } from 'chessgroundx/types';
+import { Key, Role, Color } from 'chessgroundx/types';
 
-import { VARIANTS, isVariantClass, sanToRole, roleToSan } from './chess';
+import { sanToRole, roleToSan } from './chess';
 import { bind } from './document';
+import RoundController from './roundCtrl';
+import AnalysisController from './analysisCtrl';
 
 const patch = init([listeners, style]);
 
 export class Promotion {
-    ctrl;
+    ctrl: RoundController | AnalysisController;
     promoting: {orig: Key, dest: Key, callback: (orig: string, dest: string, promo: string) => void} | null;
     choices: { [ role: string ]: string };
 
-    constructor(ctrl) {
+    constructor(ctrl: RoundController | AnalysisController) {
         this.ctrl = ctrl;
         this.promoting = null;
         this.choices = {};
@@ -33,7 +35,7 @@ export class Promotion {
             const color = this.ctrl.turnColor;
             const orientation = ground.state.orientation;
 
-            if (this.ctrl.autoqueen && isVariantClass(this.ctrl.variant, "autoQueen"))
+            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && this.ctrl.variant.autoQueenable)
                 this.choices = { 'queen': 'q' };
             else
                 this.choices = this.promotionChoices(movingRole, orig, dest);
@@ -58,7 +60,7 @@ export class Promotion {
     }
 
     private promotionFilter(move, role, orig, dest) {
-        if (this.ctrl.variant === "kyotoshogi")
+        if (this.ctrl.variant.promotion === 'kyoto')
             if (orig === "z0")
                 return move.startsWith("+" + roleToSan[role]);
         return move.slice(0, -1) === orig + dest;
@@ -72,18 +74,21 @@ export class Promotion {
         const variant = this.ctrl.variant;
         const possiblePromotions = this.ctrl.promotions.filter(move => this.promotionFilter(move, role, orig, dest));
         const choice = {};
-        if ([ "shogi", "minishogi", "shogun" ].includes(variant)) {
-            choice["p" + role] = "+";
-        } else if (variant === "kyotoshogi") {
-            if (orig === "z0" || possiblePromotions[0].slice(-1) === "+")
+        switch (variant.promotion) {
+            case 'shogi':
                 choice["p" + role] = "+";
-            else
-                choice[role.slice(1)] = "-";
-        } else {
-            possiblePromotions.forEach(move => {
-                const r = move.slice(-1);
-                choice[sanToRole[r]] = r;
-            });
+                break;
+            case 'kyoto':
+                if (orig === "z0" || possiblePromotions[0].slice(-1) === "+")
+                    choice["p" + role] = "+";
+                else
+                    choice[role.slice(1)] = "-";
+                break;
+            default:
+                possiblePromotions.forEach(move => {
+                    const r = move.slice(-1);
+                    choice[sanToRole[r]] = r;
+                });
         }
 
         if (!this.isMandatoryPromotion(role, orig, dest))
@@ -92,10 +97,9 @@ export class Promotion {
     }
 
     private isMandatoryPromotion(role: Role, orig: Key, dest: Key) {
-        const variant = this.ctrl.variant;
         const color = this.ctrl.mycolor;
         const destRank = Number(dest[1]);
-        switch (variant) {
+        switch (this.ctrl.variant.name) {
             case "kyotoshogi":
                 return orig !== 'z0';
             case "shogi":
@@ -110,8 +114,6 @@ export class Promotion {
             case "grandhouse":
             case "shogun":
                 return role === "pawn" && this.isAwayFromLastRank(destRank, 1, color);
-            case "dobutsu":
-                return role === "chancellor" && this.isAwayFromLastRank(destRank, 1, color);
             default:
                 return true;
         }
@@ -119,8 +121,8 @@ export class Promotion {
 
     // fromLastRank = 1 means destRank IS the last rank of the color's side
     private isAwayFromLastRank(destRank: number, fromLastRank: number, color: Color) {
-        const height = dimensions[VARIANTS[this.ctrl.variant].geometry].height;
-        if (height === 10)
+        const height = this.ctrl.variant.boardHeight;
+        if (height >= 10)
             destRank += 1;
         if (color === "white")
             return destRank >= height - fromLastRank + 1;
@@ -158,7 +160,7 @@ export class Promotion {
             this.promote(this.ctrl.getGround(), this.promoting.dest, role);
             const promo = this.choices[role];
 
-            if (this.ctrl.variant === "kyotoshogi") {
+            if (this.ctrl.variant.promotion === 'kyoto') {
                 const droppedPiece = promo ? roleToSan[role.slice(1)] : roleToSan[role];
                 if (this.promoting.callback) this.promoting.callback(promo + droppedPiece, "@", this.promoting.dest);
             } else {

@@ -236,6 +236,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         enPassant: true, autoQueenable: true,
+        pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "~",
     }),
 
@@ -583,58 +584,9 @@ export function isHandicap(name: string) {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
 }
 
-/** TODO DEPRECATED
- * Variant classes
- * Use these classes to check for characteristics of variants
- ** shogiSound: This variant uses shogi piece move sound
- **/
-const variant_classes = {
-    makruk: new Set(['showCount', 'manualCount']),
-    makpong: new Set(['showCount', 'manualCount']),
-    cambodian: new Set(['showCount', 'manualCount']),
-    sittuyin: new Set(['showCount', 'pocket']),
-    placement: new Set(['pocket', 'enPassant', 'autoQueen']),
-    crazyhouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
-    chess: new Set(['enPassant', 'autoQueen']),
-    atomic: new Set(['enPassant', 'autoQueen', 'atomicSound']),
-    shogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
-    minishogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
-    kyotoshogi: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
-    dobutsu: new Set(['byoyomi', 'drop', 'pocket', 'pieceDir', 'shogiSound']),
-    janggi: new Set(['byoyomi', 'showMaterialPoint', 'pass', 'tenRanks']),
-    xiangqi: new Set(['tenRanks']),
-    manchu: new Set(['tenRanks']),
-    minixiangqi: new Set([]),
-    capablanca: new Set(['enPassant', 'autoQueen']),
-    seirawan: new Set(['gate', 'pocket', 'enPassant', 'autoQueen']),
-    capahouse: new Set(['drop', 'pocket', 'enPassant', 'autoQueen']),
-    shouse: new Set(['gate', 'drop', 'pocket', 'enPassant', 'autoQueen']),
-    grand: new Set(['enPassant', 'tenRanks', 'autoQueen']),
-    grandhouse: new Set(['drop', 'pocket', 'enPassant', 'tenRanks', 'autoQueen']),
-    gothic: new Set(['enPassant', 'autoQueen']),
-    shako: new Set(['enPassant', 'tenRanks', 'autoQueen']),
-    shogun: new Set(['byoyomi', 'drop', 'pocket', 'enPassant']),
-    orda: new Set(['enPassant']),
-    synochess: new Set(['pocket', 'enPassant']),
-    hoppelpoppel: new Set(['enPassant', 'autoQueen']),
-}
-
-export function isVariantClass(variant: string, variantClass: string) {
-    // variant can be upper case when called from lobby!
-    return variant_classes[variant.toLowerCase()].has(variantClass);
-}
-
-export function needPockets(variant: string) {
-    return isVariantClass(variant, 'pocket');
-}
-
-export function hasEp(variant: string) {
-    return isVariantClass(variant, 'enPassant');
-}
-
-export function hasCastling(variant: string, color: Color) {
-    if (variant === 'placement') return true;
-    const castl = VARIANTS[variant].startFen.split(' ')[2];
+export function hasCastling(variant: IVariant, color: Color) {
+    if (variant.name === 'placement') return true;
+    const castl = variant.startFen.split(' ')[2];
     if (color === 'white') {
         return castl.includes('KQ');
     } else {
@@ -674,8 +626,8 @@ export function grand2zero(move) {
 }
 
 // TODO Will be deprecated after WASM Fairy integration
-export function validFen(variantName: string, fen: string) {
-    const variant = VARIANTS[variantName];
+export function validFen(variant: IVariant, fen: string) {
+    const variantName = variant.name;
     const startfen = variant.startFen;
     const start = startfen.split(' ');
     const parts = fen.split(' ');

@@ -10,10 +10,11 @@ const patch = init([klass, attributes, properties, listeners]);
 import h from 'snabbdom/h';
 
 import { _ } from './i18n';
-import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES, isVariantClass } from './chess';
+import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
 import { changeBoardCSS, changePieceCSS } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
+import EditorController from './editor';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
@@ -22,7 +23,7 @@ import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 
 class BoardSettings {
-    ctrl; // BoardController | undefined
+    ctrl: AnalysisController | RoundController | EditorController | undefined; // BoardController | undefined
     settings: { [ key: string]: NumberSettings | BooleanSettings };
 
     constructor() {
@@ -69,8 +70,8 @@ class BoardSettings {
         const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
         const variant = this.ctrl?.variant;
-        if (variant && VARIANTS[variant].piece === family) {
-            if (isVariantClass(variant, "pieceDir")) {
+        if (this.ctrl && variant && variant.piece === family) {
+            if (variant.sideDetermination === 'direction') {
                 // change piece orientation according to board orientation
                 if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
                     css = css.replace('0', '1');
@@ -79,7 +80,7 @@ class BoardSettings {
             // Redraw the piece being suggested for dropping in the new piece style
             if (this.ctrl.hasPockets) {
                 const chessground = this.ctrl.chessground;
-                const baseurl = VARIANTS[variant].pieceBaseURL[idx] + '/';
+                const baseurl = variant.pieceBaseURL[idx] + '/';
                 chessground.set({
                     drawable: {
                         pieces: { baseUrl: '/static/images/pieces/' + baseurl },
@@ -93,7 +94,7 @@ class BoardSettings {
 
     updateZoom(family: string) {
         const variant = this.ctrl?.variant;
-        if (variant && VARIANTS[variant].board === family) {
+        if (variant && variant.board === family) {
             const zoomSettings = this.getSettings("Zoom", family) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
@@ -120,26 +121,27 @@ class BoardSettings {
         this.settings["blindfold"].update();
     }
 
-    view(variant: string) {
-        if (!variant) return h("div#board-settings");
+    view(variantName: string) {
+        if (!variantName) return h("div#board-settings");
+        const variant = VARIANTS[variantName];
 
         const settingsList : VNode[] = [];
 
-        const boardFamily = VARIANTS[variant].board;
-        const pieceFamily = VARIANTS[variant].piece;
+        const boardFamily = VARIANTS[variantName].board;
+        const pieceFamily = VARIANTS[variantName].piece;
 
         settingsList.push(this.getSettings("BoardStyle", boardFamily).view());
 
         settingsList.push(this.getSettings("PieceStyle", pieceFamily).view());
 
-        if (variant === this.ctrl?.variant)
+        if (variantName === this.ctrl?.variant.name)
             settingsList.push(this.getSettings("Zoom", boardFamily).view());
 
         settingsList.push(this.settings["animation"].view());
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (isVariantClass(variant, "autoQueen"))
+        if (variant.autoQueenable)
             settingsList.push(this.settings["autoQueen"].view());
 
         settingsList.push(this.settings["arrow"].view());
@@ -153,41 +155,43 @@ class BoardSettings {
     // which is the common class between RoundController and AnalysisController
     // (and maybe EditorController)
     toggleOrientation() {
-        this.ctrl.flip = !this.ctrl.flip;
-        this.ctrl.chessground.toggleOrientation();
+        if (this.ctrl) {
+            this.ctrl.flip = !this.ctrl.flip;
+            this.ctrl.chessground.toggleOrientation();
 
-        if (isVariantClass(this.ctrl.variant, "pieceDir"))
-            this.updatePieceStyle(this.ctrl.variant);
+            if (this.ctrl.variant.sideDetermination === 'direction')
+                this.updatePieceStyle(this.ctrl.variant.name);
 
-        // console.log("FLIP");
-        if (this.ctrl.hasPockets) {
-            const tmp_pocket = this.ctrl.pockets[0];
-            this.ctrl.pockets[0] = this.ctrl.pockets[1];
-            this.ctrl.pockets[1] = tmp_pocket;
-            this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
-            this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
-        }
+            // console.log("FLIP");
+            if (this.ctrl.hasPockets) {
+                const tmp_pocket = this.ctrl.pockets[0];
+                this.ctrl.pockets[0] = this.ctrl.pockets[1];
+                this.ctrl.pockets[1] = tmp_pocket;
+                this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
+                this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
+            }
 
-        // TODO: moretime button
-        if (this.ctrl instanceof RoundController) {
-            const new_running_clck = (this.ctrl.clocks[0].running) ? this.ctrl.clocks[1] : this.ctrl.clocks[0];
-            this.ctrl.clocks[0].pause(false);
-            this.ctrl.clocks[1].pause(false);
+            // TODO: moretime button
+            if (this.ctrl instanceof RoundController) {
+                const new_running_clck = (this.ctrl.clocks[0].running) ? this.ctrl.clocks[1] : this.ctrl.clocks[0];
+                this.ctrl.clocks[0].pause(false);
+                this.ctrl.clocks[1].pause(false);
 
-            const tmp_clock = this.ctrl.clocks[0];
-            const tmp_clock_time = tmp_clock.duration;
-            this.ctrl.clocks[0].setTime(this.ctrl.clocks[1].duration);
-            this.ctrl.clocks[1].setTime(tmp_clock_time);
-            if (this.ctrl.status < 0) new_running_clck.start();
+                const tmp_clock = this.ctrl.clocks[0];
+                const tmp_clock_time = tmp_clock.duration;
+                this.ctrl.clocks[0].setTime(this.ctrl.clocks[1].duration);
+                this.ctrl.clocks[1].setTime(tmp_clock_time);
+                if (this.ctrl.status < 0) new_running_clck.start();
 
-            this.ctrl.vplayer0 = patch(this.ctrl.vplayer0, player('player0', this.ctrl.titles[this.ctrl.flip ? 1 : 0], this.ctrl.players[this.ctrl.flip ? 1 : 0], this.ctrl.ratings[this.ctrl.flip ? 1 : 0], this.ctrl.model["level"]));
-            this.ctrl.vplayer1 = patch(this.ctrl.vplayer1, player('player1', this.ctrl.titles[this.ctrl.flip ? 0 : 1], this.ctrl.players[this.ctrl.flip ? 0 : 1], this.ctrl.ratings[this.ctrl.flip ? 0 : 1], this.ctrl.model["level"]));
+                this.ctrl.vplayer0 = patch(this.ctrl.vplayer0, player('player0', this.ctrl.titles[this.ctrl.flip ? 1 : 0], this.ctrl.players[this.ctrl.flip ? 1 : 0], this.ctrl.ratings[this.ctrl.flip ? 1 : 0], this.ctrl.model["level"]));
+                this.ctrl.vplayer1 = patch(this.ctrl.vplayer1, player('player1', this.ctrl.titles[this.ctrl.flip ? 0 : 1], this.ctrl.players[this.ctrl.flip ? 0 : 1], this.ctrl.ratings[this.ctrl.flip ? 0 : 1], this.ctrl.model["level"]));
 
-            if (isVariantClass(this.ctrl.variant, "showCount"))
-                [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updateCount(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+                if (this.ctrl.variant.counting)
+                    [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updateCount(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
 
-            if (isVariantClass(this.ctrl.variant, "showMaterialPoint"))
-                [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+                if (this.ctrl.variant.materialPoint)
+                    [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+            }
         }
     }
 }
@@ -316,7 +320,7 @@ class AutoQueenSettings extends BooleanSettings {
     }
 
     update(): void {
-        if (this.boardSettings.ctrl)
+        if (this.boardSettings.ctrl instanceof RoundController)
             this.boardSettings.ctrl.autoqueen = this.value;
     }
 
@@ -334,7 +338,7 @@ class ArrowSettings extends BooleanSettings {
     }
 
     update(): void {
-        if (this.boardSettings.ctrl)
+        if (this.boardSettings.ctrl instanceof AnalysisController)
             this.boardSettings.ctrl.arrow = this.value;
     }
 
@@ -352,7 +356,7 @@ class BlindfoldSettings extends BooleanSettings {
     }
 
     update(): void {
-        if (this.boardSettings.ctrl)
+        if (this.boardSettings.ctrl instanceof RoundController)
             this.boardSettings.ctrl.blindfold = this.value;
 
         const el = document.getElementById('mainboard') as HTMLInputElement;

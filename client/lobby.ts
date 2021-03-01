@@ -449,7 +449,7 @@ class LobbyController {
         const e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
-        return fen === "" || validFen(variant, fen);
+        return fen === "" || validFen(VARIANTS[variant], fen);
     }
 
     renderSeeks(seeks) {
