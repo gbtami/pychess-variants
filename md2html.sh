@@ -32,7 +32,7 @@ SRC='https://github.com/gbtami/pychess-variants/blob/master';
 DST='https://www.pychess.org';
 find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
 
-mkdir ../../templates/docs
+mkdir -p ../../templates/docs
 mv -t ../../templates/docs *.html
 
 # News
@@ -44,5 +44,5 @@ done
 
 find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
 
-mkdir ../../templates/news
+mkdir -p ../../templates/news
 mv -t ../../templates/news *.html
