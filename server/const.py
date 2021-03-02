@@ -93,7 +93,7 @@ VARIANT_ICONS = {
     "hoppelpoppel": "`",
     "manchu": "{",
     "atomic": "~",
-    "atomic960": "~",
+    "atomic960": "\\",
 }
 
 VARIANT_960_TO_PGN = {

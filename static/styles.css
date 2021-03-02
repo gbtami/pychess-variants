@@ -314,6 +314,9 @@
 .icon-seirawan960:before {
   content: "\7d";
 }
-.icon-bomb:before {
+.icon-atomic:before {
   content: "\7e";
+}
+.icon-atomic960:before {
+  content: "\5c";
 }

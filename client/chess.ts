@@ -237,7 +237,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
         enPassant: true, autoQueenable: true,
         pieceSound: "atomic",
-        chess960: true, icon: "~", icon960: "~",
+        chess960: true, icon: "~", icon960: "\\",
     }),
 
     makruk: new Variant({
