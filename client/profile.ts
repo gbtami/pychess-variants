@@ -67,6 +67,7 @@ export function result(variant: IVariant, status: number, result: string) {
             break;
         case 3:
             switch (variantName) {
+                // Temporary solution. Remove when pyffish properly detects atomic checkmate
                 case 'atomic':
                     if (result !== '1/2-1/2')
                         text = _('Checkmate');
