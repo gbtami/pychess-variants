@@ -703,6 +703,14 @@ export function lobbyView(model): VNode[] {
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
             h('posts', [
+                h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
+                    h('img', { attrs: {src: '/static/images/RS-24.jpg'} }),
+                    h('span.text', [
+                        h('strong', "Atomic chess and Atomic960 are here"),
+                        h('span', 'New Weapons Arrived'),
+                    ]),
+                    h('time', '2021.03.03'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
                     h('img', { attrs: {src: '/static/images/TomatoPlasticSet.svg'} }),
                     h('span.text', [

@@ -398,7 +398,7 @@ a.post:hover {
 }
 a.post img {
     width: 4em;
-    height: 4em;
+    height: auto;
     margin-right: .8em;
 }
 a.post span.text {
