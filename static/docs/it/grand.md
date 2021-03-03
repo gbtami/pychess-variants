@@ -49,7 +49,7 @@ Il pezzo è spesso simboleggiato da una combinazione tra un Cavallo e Torre; la 
 
 Un Maresciallo è considerato migliore di un Cardinale, ma equivalente o leggermente inferiore a una Donna.
 
-##Strategia
+### Strategia
 
 Si sa relativamente poco su molte delle varianti qui giocate. La creatività e l'attenzione ai dettagli sono sempre importanti. E quindi i seguenti consigli sono provvisori.
 
