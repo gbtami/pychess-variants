@@ -3,56 +3,56 @@
 
 ![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
 
-Grand Chess was created by Christian Freeling in 1984 and is one of the highest regarded chess variants according to the Chess Variants site.  
+Grand Chess è stato creato da Christian Freeling nel 1984 aed è una variante con una delle migliori reputazioni secondo il sito *Chess Variants*
 
-## Rules
+## Regole
 
-The game is played on a 10 x 10 board, with additional files for the new Marshal (Knight/Rook)  and Cardinal (Knight/Bishop), which are both placed on the king side. Because of the larger board size, most of the starting pieces are moved up one rank, with the exception of the rooks which remain in the last ranks.
+Si gioca su una tavola 10 x 10, con colonne aggiuntive per il nuovo Maresciallo (Cavallo/Rook) e il Cardinale (Cavallo/Alfiere), che sono entrambi posizionati sul lato di Re. A causa delle maggiori dimensioni della scacchiera, la maggior parte dei pezzi di partenza vengono spostati di una traversa, ad eccezione delle torri che rimangono nelle ultime traverse.
 
-In addition to the pieces and setup, there are three other significant differences:
+Oltre ai pezzi e alla posizione iniziale, ci sono altre tre differenze significative:
 
-* Pawns can promote when reaching the eighth or ninth rank. Promotion must happen upon reaching the 10th rank. If not possible (see next point), then the pawn can’t move.
-* Pawns can only promote to pieces of the same color that have been lost.
-* There is no castling.
+* I pedoni possono essere promossi quando raggiungono l'ottava o nona traversa. La promozione deve avvenire al raggiungimento della decima traversa. Se non è possibile (vedi punto successivo), allora il pedone non può muoversi.
+* I pedoni possono essere promossi solo a pezzi dello stesso colore che sono stati perduti.
+* Non esiste l'arrocco.
 
-(Please note that despite the names of Marshal and Cardinal, the notation used here uses A and C for both of those, respectively (as in Capablanca chess), so that the PGN is compatible with other chess variant software.)
+(Si prega di notare che nonostante i nomi "Maresciallo" e "Cardinale", la notazione usata qui usa A e C per entrambi, rispettivamente (come negli scacchi Capablanca), in modo che il PGN sia compatibile con altri software di varianti di scacchi).
 
-## New Pieces
+## Nuovi pezzi
 
-### Cardinal
+### Cardinale
 
 ![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess)
+Vari simboli utilizzati per il Cardinale. (Nota che il Falco è utilizzato solo per gli scacchi Seiwaran)
 
 ![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The cardinal (A in Pychess, for archbishop) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+Il Cardinale (in notazione inglese "A") è un pezzo ibrido che unisce le mosse dell'Alfiere e del Cavallo. Un nome generico con cui è conosciuto questo pezzo eterodosso nell'ambito delle varianti è "principessa" ma si può trovare con molti altri nomi.
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+Il pezzo è spesso simboleggiato da una combinazione tra un Cavallo e un Alfiere; la maggior parte delle varianti non specifica come il pezzo dovrebbe apparire (ecco perché offriamo diversi set di pezzi tra cui scegliere).
 
-The cardinal is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+L'unicità del Cardinale sta nel fatto che può dare scacco matto da solo, senza l'aiuto di nessun altro pezzo, cosa che si può comprendere se si osservano i suoi movimenti.
 
-The value of a cardinal is considered slightly better than a rook, but less than the elephant and queen.
+Il Cardinale è considerato un po' più forte di una Torre, ma di minore valore rispetto ad un Maresciallo o una Donna.
 
-### Marshal
+### Maresciallo
 
 ![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess)
+Vari simboli utilizzati per il Maresciallo. (Nota che l'Elefante è utilizzato solo per gli scacchi Seiwaran)
 
 ![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The marshal (C in Pychess, for chancellor) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+Il Maresciallo (in notazione inglese "C") è un pezzo ibrido che unisce le mosse della Torre e del Cavallo. Nel contesto delle varianti, questo pezzo eterodosso è conosciuto come "imperatrice" ma si può trovare con molti altri nomi.
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+Il pezzo è spesso simboleggiato da una combinazione tra un Cavallo e Torre; la maggior parte delle varianti spesso non specifica come dovrebbe apparire il pezzo (ecco perché offriamo diversi set di pezzi tra cui scegliere).
 
-The value of a marshal is considered better than a cardinal, but equivalent or slightly less than a queen.
+Un Maresciallo è considerato migliore di un Cardinale, ma equivalente o leggermente inferiore a una Donna.
 
-## Strategy
+##Strategia
 
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
+Si sa relativamente poco su molte delle varianti qui giocate. La creatività e l'attenzione ai dettagli sono sempre importanti. E quindi i seguenti consigli sono provvisori.
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+Cerca di non fare mosse di sviluppo "di routine". A volte vale la pena spendere più tempo per riposizionare pochi pezzi in modo ottimale, piuttosto che sviluppare molti pezzi in modo subottimale in meno tempo. Anche le varianti che sembrano assomigliare agli scacchi non possono essere giocate con mosse di routine negli scacchi per molto tempo.
 
-Continue to play more and if you discover new strategies or advice, let us know!
+Continuate a giocare e se scoprite qualcosa, fatecelo sapere!
