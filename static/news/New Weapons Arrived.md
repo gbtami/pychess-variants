@@ -13,7 +13,7 @@
 <p align="center">
     <img src="/static/images/RS-24.jpg" title="Source: www.kremlin.ru CC BY 4.0" width="320" height="197">
 </p>
-Exacty one year after [Atomic960 was asked](https://github.com/ianfab/Fairy-Stockfish/issues/81), it landed in Fairy-Stockfish. This opened the possibility to add it to PyChess. Enjoy!
+Exactly one year after [Atomic960 was requested](https://github.com/ianfab/Fairy-Stockfish/issues/81), it landed in Fairy-Stockfish. This opened the possibility to add it to PyChess. Enjoy!
 <br>
 <p align="center">
     <img src="/static/icons/Atomic960.svg" width="64" height="64">
