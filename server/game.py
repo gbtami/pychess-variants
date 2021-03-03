@@ -522,8 +522,13 @@ class Game:
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
-                self.status = STALEMATE
-                print(self.result, "stalemate")
+                # Atomic checkmate is internally a stalemate so we need to change it here. Remove when pyffish is fixed.
+                if self.variant == 'atomic' and self.result != "1/2-1/2":
+                    self.status = MATE
+                    print(self.result, "checkmate")
+                else:
+                    self.status = STALEMATE
+                    print(self.result, "stalemate")
 
         elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin'):
             parts = self.board.fen.split()

@@ -66,18 +66,7 @@ export function result(variant: IVariant, status: number, result: string) {
             text = _('%1 resigned', (result === '1-0') ? second : first);
             break;
         case 3:
-            switch (variantName) {
-                // Temporary solution. Remove when pyffish properly detects atomic checkmate
-                case 'atomic':
-                    if (result !== '1/2-1/2')
-                        text = _('Checkmate');
-                    else
-                        text = _('Stalemate');
-                    break;
-                default:
-                    text = _('Stalemate');
-                    break;
-            }
+            text = _('Stalemate');
             break;
         case 4:
             text = _('Time out');
