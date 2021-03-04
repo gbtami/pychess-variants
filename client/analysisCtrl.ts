@@ -347,7 +347,7 @@ export default class AnalysisController {
             // prevent calling pass() again by selectSquare() -> onSelect()
             this.chessground.state.movable.dests = undefined;
             this.chessground.selectSquare(passKey as Key);
-            sound.move();
+            sound.moveSound(this.variant, false);
             this.sendMove(passKey, passKey, '');
         }
     }
@@ -493,23 +493,7 @@ export default class AnalysisController {
         const capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (this.variant.pieceSound === 'shogi') {
-                if (capture) {
-                    sound.shogicapture();
-                } else {
-                    sound.shogimove();
-                }
-            } else {
-                if (capture) {
-                    if (this.variant.pieceSound === 'atomic') {
-                        sound.explosion();
-                    } else {
-                        sound.capture();
-                    }
-                } else {
-                    sound.move();
-                }
-            }
+            sound.moveSound(this.variant, capture);
         } else {
             lastMove = [];
         }
@@ -836,23 +820,7 @@ export default class AnalysisController {
         }
 
         if (ply === this.ply + 1) {
-            if (this.variant.pieceSound === 'shogi') {
-                if (capture) {
-                    sound.shogicapture();
-                } else {
-                    sound.shogimove();
-                }
-            } else {
-                if (capture) {
-                    if (this.variant.pieceSound === 'atomic') {
-                        sound.explosion();
-                    } else {
-                        sound.capture();
-                    }
-                } else {
-                    sound.move();
-                }
-            }
+            sound.moveSound(this.variant, capture);
         }
 
         // Go back to the main line
@@ -901,23 +869,7 @@ export default class AnalysisController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (this.variant.pieceSound === 'shogi') {
-                if (capturedPiece) {
-                    sound.shogicapture();
-                } else {
-                    sound.shogimove();
-                }
-            } else {
-                if (capturedPiece) {
-                    if (this.variant.pieceSound === 'atomic') {
-                        sound.explosion();
-                    } else {
-                        sound.capture();
-                    }
-                } else {
-                    sound.move();
-                }
-            }
+            sound.moveSound(this.variant, capturedPiece);
         }
     }
 
@@ -925,11 +877,7 @@ export default class AnalysisController {
         return (piece, dest) => {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
-                if (this.variant.pieceSound === 'shogi') {
-                    sound.shogimove();
-                } else {
-                    sound.move();
-                }
+                sound.moveSound(this.variant, false);
             } else if (this.clickDropEnabled) {
                 this.clickDrop = piece;
             }

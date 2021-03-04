@@ -2,6 +2,7 @@ import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 import { Howl } from 'howler';
 
+import { IVariant } from './chess';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
 
@@ -78,6 +79,41 @@ class Sounds {
     lowTime()       { if (this.audio()) this.tracks.LowTime.play(); }
     tick()          { if (this.audio()) this.tracks.Tick.play(); }
     explosion()     { if (this.audio()) this.tracks.Explosion.play(); }
+
+    private moveSoundSet = {
+        regular: { move: () => this.move(), capture: () => this.capture() },
+        shogi: { move: () => this.shogimove(), capture: () => this.shogicapture() },
+        atomic: { move: () => this.move(), capture: () => this.explosion() },
+    };
+
+    moveSound(variant: IVariant, capture: boolean) {
+        const soundSet = this.moveSoundSet[variant.pieceSound];
+        if (capture)
+            soundSet.capture();
+        else
+            soundSet.move();
+    }
+
+    gameEndSound(result: string, color: string) {
+        switch (result) {
+            case "1/2-1/2":
+                this.draw();
+                break;
+            case "1-0":
+                if (color === "white")
+                    this.victory();
+                else
+                    this.defeat();
+                break;
+            case "0-1":
+                if (color === "black")
+                    this.victory();
+                else
+                    this.defeat();
+                break;
+        }
+    }
+
 }
 
 class VolumeSettings extends NumberSettings {

@@ -390,7 +390,7 @@ export default class RoundController {
             // prevent calling pass() again by selectSquare() -> onSelect()
             this.chessground.state.movable.dests = undefined;
             this.chessground.selectSquare(passKey as Key);
-            sound.move();
+            sound.moveSound(this.variant, false);
             this.sendMove(passKey, passKey, '');
         }
     }
@@ -491,36 +491,8 @@ export default class RoundController {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             this.dests = {};
-            if (this.result === "*") {
-                if (!this.spectator) {
-                    switch (msg.result) {
-                    case "1/2-1/2":
-                        sound.draw();
-                        break;
-                    case "1-0":
-                        if (!this.spectator) {
-                            if (this.mycolor === "white") {
-                                sound.victory();
-                            } else {
-                                sound.defeat();
-                            }
-                        }
-                        break;
-                    case "0-1":
-                        if (!this.spectator) {
-                            if (this.mycolor === "black") {
-                                sound.victory();
-                            } else {
-                                sound.defeat();
-                            }
-                        }
-                        break;
-                    // ABORTED
-                    default:
-                        break;
-                    }
-                }
-            }
+            if (this.result === "*" && !this.spectator)
+                sound.gameEndSound(msg.result, this.mycolor);
             this.gameOver(msg.rdiffs);
             selectMove(this, this.ply);
 
@@ -645,23 +617,7 @@ export default class RoundController {
         }
         // console.log("CAPTURE ?", capture, lastMove, step);
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            if (this.variant.pieceSound === 'shogi') {
-                if (capture) {
-                    sound.shogicapture();
-                } else {
-                    sound.shogimove();
-                }
-            } else {
-                if (capture) {
-                    if (this.variant.pieceSound === 'atomic') {
-                        sound.explosion();
-                    } else {
-                        sound.capture();
-                    }
-                } else {
-                    sound.move();
-                }
-            }
+            sound.moveSound(this.variant, capture);
         } else {
             lastMove = [];
         }
@@ -780,23 +736,7 @@ export default class RoundController {
         }
 
         if (ply === this.ply + 1) {
-            if (this.variant.pieceSound === 'shogi') {
-                if (capture) {
-                    sound.shogicapture();
-                } else {
-                    sound.shogimove();
-                }
-            } else {
-                if (capture) {
-                    if (this.variant.pieceSound === 'atomic') {
-                        sound.explosion();
-                    } else {
-                        sound.capture();
-                    }
-                } else {
-                    sound.move();
-                }
-            }
+            sound.moveSound(this.variant, capture);
         }
         this.ply = ply
     }
@@ -869,23 +809,7 @@ export default class RoundController {
     private onMove = () => {
         return (orig, dest, capturedPiece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            if (this.variant.pieceSound === 'shogi') {
-                if (capturedPiece) {
-                    sound.shogicapture();
-                } else {
-                    sound.shogimove();
-                }
-            } else {
-                if (capturedPiece) {
-                    if (this.variant.pieceSound === 'atomic') {
-                        sound.explosion();
-                    } else {
-                        sound.capture();
-                    }
-                } else {
-                    sound.move();
-                }
-            }
+            sound.moveSound(this.variant, capturedPiece);
         }
     }
 
@@ -893,11 +817,7 @@ export default class RoundController {
         return (piece, dest) => {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
-                if (this.variant.pieceSound === 'shogi') {
-                    sound.shogimove();
-                } else {
-                    sound.move();
-                }
+                sound.moveSound(this.variant, false);
             } else if (this.clickDropEnabled) {
                 this.clickDrop = piece;
             }
