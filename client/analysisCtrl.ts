@@ -702,6 +702,7 @@ export default class AnalysisController {
             if (this.ffishBoard !== null) {
                 try {
                     pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
+                    if (pvSan === '') pvSan = ceval.p;
                 } catch (error) {
                     pvSan = ceval.p
                 }
