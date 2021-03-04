@@ -298,7 +298,7 @@ class ShowDestsSettings extends BooleanSettings {
     readonly boardSettings: BoardSettings;
 
     constructor(boardSettings: BoardSettings) {
-        super('showdests', true);
+        super('showDests', true);
         this.boardSettings = boardSettings;
     }
 
@@ -307,7 +307,7 @@ class ShowDestsSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'showdests', _("Show piece destinations")));
+        return h('div', checkbox(this, 'showDests', _("Show piece destinations")));
     }
 }
 
