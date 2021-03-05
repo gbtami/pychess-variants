@@ -647,13 +647,6 @@ export default class RoundController {
         this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
 
         if (this.spectator) {
-            if (!this.abortable && msg.status < 0) {
-                if (this.turnColor === this.mycolor) {
-                    this.clocks[myclock].start();
-                } else {
-                    this.clocks[oppclock].start();
-                }
-            }
             if (latestPly) {
                 this.chessground.set({
                     fen: parts[0],
@@ -663,12 +656,15 @@ export default class RoundController {
                 });
                 if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
             }
+            if (!this.abortable && msg.status < 0) {
+                if (this.turnColor === this.mycolor) {
+                    this.clocks[myclock].start();
+                } else {
+                    this.clocks[oppclock].start();
+                }
+            }
         } else {
             if (this.turnColor === this.mycolor) {
-                if (!this.abortable && msg.status < 0) {
-                    this.clocks[myclock].start();
-                    // console.log('MY CLOCK STARTED');
-                }
                 if (latestPly) {
                     this.chessground.set({
                         fen: parts[0],
@@ -687,17 +683,21 @@ export default class RoundController {
                     if (this.premove) this.performPremove();
                     if (this.predrop) this.performPredrop();
                 }
-            } else {
                 if (!this.abortable && msg.status < 0) {
-                    this.clocks[oppclock].start();
-                    // console.log('OPP CLOCK  STARTED');
+                    this.clocks[myclock].start();
+                    // console.log('MY CLOCK STARTED');
                 }
+            } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
                     fen: parts[0],
                     turnColor: this.turnColor,
                     check: msg.check,
                 });
+                if (!this.abortable && msg.status < 0) {
+                    this.clocks[oppclock].start();
+                    // console.log('OPP CLOCK  STARTED');
+                }
             }
         };
     }
