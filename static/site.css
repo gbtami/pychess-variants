@@ -598,6 +598,16 @@ ul.guide li {
     flex-direction: row;
 }
 
+#style-settings {
+    display: flex;
+}
+settings-board, settings-pieces {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: max-content max-content;
+    grid-gap: 0.5em;
+    border: 1px solid var(--border-color);
+}
 button.back {
     display: flex;
 }

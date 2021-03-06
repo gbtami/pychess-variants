@@ -130,13 +130,6 @@ class BoardSettings {
         const boardFamily = VARIANTS[variantName].board;
         const pieceFamily = VARIANTS[variantName].piece;
 
-        settingsList.push(this.getSettings("BoardStyle", boardFamily).view());
-
-        settingsList.push(this.getSettings("PieceStyle", pieceFamily).view());
-
-        if (variantName === this.ctrl?.variant.name)
-            settingsList.push(this.getSettings("Zoom", boardFamily).view());
-
         settingsList.push(this.settings["animation"].view());
 
         settingsList.push(this.settings["showDests"].view());
@@ -147,7 +140,18 @@ class BoardSettings {
         settingsList.push(this.settings["arrow"].view());
 
         settingsList.push(this.settings["blindfold"].view());
-            
+
+        if (variantName === this.ctrl?.variant.name)
+            settingsList.push(this.getSettings("Zoom", boardFamily).view());
+
+        settingsList.push(h('div#style-settings', [
+            this.getSettings("BoardStyle", boardFamily).view(),
+            this.getSettings("PieceStyle", pieceFamily).view(),
+            ])
+        );
+
+        settingsList.push();
+
         return h('div#board-settings', settingsList);
     }
 
@@ -240,7 +244,7 @@ class BoardStyleSettings extends NumberSettings {
             }));
             boards.push(h('label.board.board' + i + '.' + this.boardFamily, { attrs: { for: "board" + i } }, ""));
         }
-        return h('div.settings-board', boards);
+        return h('settings-board', boards);
     }
 }
 
@@ -271,7 +275,7 @@ class PieceStyleSettings extends NumberSettings {
             }));
             pieces.push(h('label.piece.piece' + i + '.' + this.pieceFamily, { attrs: { for: "piece" + i } }, ""));
         }
-        return h('div.settings-pieces', pieces);
+        return h('settings-pieces', pieces);
     }
 }
 
