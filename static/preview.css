@@ -43,6 +43,9 @@ label.board.board6.shogi9x9 {
 label.board.board7.shogi9x9 {
     background-image: url('images/board/doubutsu.svg');
 }
+label.board.board8.shogi9x9 {
+    background-image: url('images/board/ShogiOak.png');
+}
 
 label.piece.piece0.kyoto {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');
