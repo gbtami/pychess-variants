@@ -604,10 +604,13 @@ ul.guide li {
 settings-board, settings-pieces {
     display: grid;
     grid-template-columns: auto auto;
-    grid-template-rows: max-content max-content;
     grid-gap: 0.5em;
     border: 1px solid var(--border-color);
 }
+settings-board {
+    grid-template-rows: max-content max-content;
+}
+
 button.back {
     display: flex;
 }
