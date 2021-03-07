@@ -37,33 +37,29 @@ function changeCSS(cssLinkIndex: number, cssFile: string) {
     document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
 }
 
-// css file index in template.html
-const BOARD_CSS_START = 1;
-const PIECE_CSS_START = 14;
+// css file index in templates/base.html
+const BOARD_CSS_IDX = 1;
+const PIECE_CSS_IDX = 2;
 
 export function changeBoardCSS(family: string, cssFile: string) {
-    let cssLinkIndex = BOARD_CSS_START;
-    switch (family) {
-        case "makruk8x8": break;
-        case "sittuyin8x8": cssLinkIndex += 1; break;
-        case "shogi9x9": cssLinkIndex += 2; break;
-        case "shogi5x5": cssLinkIndex += 3; break;
-        case "janggi9x10": cssLinkIndex += 4; break;
-        case "xiangqi9x10": cssLinkIndex += 5; break;
-        case "xiangqi7x7": cssLinkIndex += 6; break;
-        case "standard8x8": cssLinkIndex += 7; break;
-        case "standard10x8": cssLinkIndex += 8; break;
-        case "standard10x10": cssLinkIndex += 9; break;
-        case "grand10x10": cssLinkIndex += 10; break;
-        case "shogun8x8": cssLinkIndex += 11; break;
-        case "shogi3x4": cssLinkIndex += 12; break;
-        default: throw "Unknown piece family " + family;
+    const sheet = document.styleSheets[BOARD_CSS_IDX];
+    const cssRules = sheet.cssRules;
+    for (let i = 0; i < cssRules.length; i++) {
+        const rule = cssRules[i];
+        if (!( rule instanceof CSSStyleRule)) {
+            continue;
+        }
+        if (rule.selectorText === `.${family} .cg-wrap`) {
+            // console.log("changeBoardCSS", family, cssFile, i)
+            sheet.deleteRule(i)
+            sheet.insertRule(`.${family} .cg-wrap {background-image: url(/static/images/board/${cssFile})}`, i);
+            break;
+        }
     }
-    changeCSS(cssLinkIndex, "/static/board/" + family + "/" + cssFile + ".css");
 }
 
 export function changePieceCSS(family: string, cssFile: string) {
-    let cssLinkIndex = PIECE_CSS_START;
+    let cssLinkIndex = PIECE_CSS_IDX;
     switch (family) {
         case "standard": break;
         case "seirawan": cssLinkIndex += 1; break;
