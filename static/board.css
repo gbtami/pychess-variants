@@ -19,6 +19,9 @@
 .shogi9x9 .cg-wrap {
     background-image: url(/static/images/board/shogi.svg);
 }
+.shogi5x6 .cg-wrap {
+    background-image: url(/static/images/board/gorogoro.svg);
+}
 .shogi5x5 .cg-wrap {
     background-image: url(/static/images/board/minishogi.svg);
 }

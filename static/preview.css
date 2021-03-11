@@ -92,6 +92,10 @@ label.board.board2.shogi5x5 {
     background-image: url('images/board/MiniboardWood2.png');
 }
 
+label.board.board0.shogi5x6 {
+    background-image: url('images/board/gorogoro.svg');
+}
+
 label.piece.piece0.dobutsu {
     background-image: url('images/pieces/shogi/Ka/dobutsu/0GY.svg');
 }

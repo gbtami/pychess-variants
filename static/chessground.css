@@ -39,6 +39,13 @@ cg-container {
 .cg-wrap.cg-576.mini {
   width: 304px;
 }
+/* 5x6 */
+.cg-wrap.cg-260-360 {
+    padding-bottom: calc(540 * 100% / 390);
+}
+.cg-wrap.cg-260-360.mini {
+  width: 260px;
+}
 /* 5x5 */
 .cg-wrap.cg-260 {
     padding-bottom: calc(450 * 100% / 390);
@@ -105,6 +112,10 @@ cg-board square {
 .cg-576 cg-board square{
   width: 11.11%;
   height: 11.11%;
+}
+.cg-260-360 cg-board square{
+  width: 20%;
+  height: 16.66%;
 }
 .cg-260 cg-board square{
   width: 20%;
@@ -180,6 +191,10 @@ cg-board square.current-premove {
 .cg-wrap.cg-576 piece {
   width: 11.11%;
   height: 11.11%;
+}
+.cg-wrap.cg-260-360 piece {
+  width: 20%;
+  height: 16.66%;
 }
 .cg-wrap.cg-260 piece {
   width: 20%;

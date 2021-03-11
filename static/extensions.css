@@ -46,6 +46,10 @@
   height: 10%;
   width: 10%;
 }
+.cg-260-360 #extension_choice square {
+  width: 20%;
+  height: 16.66%;
+}
 .cg-260 #extension_choice square {
   height: 20%;
   width: 20%;
@@ -153,7 +157,7 @@
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
 }
 
-.shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .dobutsu .cg-wrap coords.files {
+.shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .gorogoro .cg-wrap coords.files, .dobutsu .cg-wrap coords.files {
   left: auto;
   right: var(--ranks-right);
   top: 0;
@@ -161,7 +165,7 @@
   height: 100%;
   width: 12px;
 }
-.shogi .cg-wrap coords.files.black, .kyoto .cg-wrap coords.files.black, .dobutsu .cg-wrap coords.files.black {
+.shogi .cg-wrap coords.files.black, .kyoto .cg-wrap coords.files.black, .gorogoro .cg-wrap coords.files.black, .dobutsu .cg-wrap coords.files.black {
   flex-flow: column;
 }
 .shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks, .dobutsu .cg-wrap coords.ranks {
@@ -172,7 +176,7 @@
   height: 16px;
   text-align: center;
 }
-.shogi .cg-wrap coords.ranks.black, .kyoto .cg-wrap coords.ranks.black, .dobutsu .cg-wrap coords.ranks.black {
+.shogi .cg-wrap coords.ranks.black, .kyoto .cg-wrap coords.ranks.black, .gorogoro .cg-wrap coords.ranks.black, .dobutsu .cg-wrap coords.ranks.black {
   flex-flow: row-reverse;
 }
 .shogi .cg-wrap coords coord, .kyoto .cg-wrap coords coord, .dobutsu .cg-wrap coords coord {
