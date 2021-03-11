@@ -36,7 +36,7 @@ const LANGUAGETEXT = {
     pt: "Lingua",
     th: "ภาษา",
     tr: "Dil",
-    zh: "語言",
+    zh: "语言",
 };
 
 const preferredLang = window.navigator.language.slice(0, 2);
