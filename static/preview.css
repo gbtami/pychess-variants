@@ -93,6 +93,9 @@ label.board.board2.shogi5x5 {
 }
 
 label.board.board0.shogi5x6 {
+    background-image: url('images/board/gorogoroboard.svg');
+}
+label.board.board1.shogi5x6 {
     background-image: url('images/board/gorogoro.svg');
 }
 
