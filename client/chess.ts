@@ -41,6 +41,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"], baseURL: ["sittuyin/original", "sittuyin/Ka_blackred", "sittuyin/Ka_greenred", "makruk/ada", "makruk/intl"] },
     shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0p3d", "shogi0kw3d", "shogi0d"], baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/ctp3d", "shogi/ctkw3d", "shogi/Ka"] },
     kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi/ctk", "kyoto/Kanji", "kyoto/Intl"] },
+    gorogoro: { pieceCSS: ["gorogoro0"], baseURL: ["shogi/Ka"] },
     dobutsu: { pieceCSS: ["dobutsu0"], baseURL: ["shogi/Ka/dobutsu"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa"], baseURL: ["xiangqi/playok", "xiangqi/ct3", "xiangqi/ct2", "xiangqi/hnz", "xiangqi/ct2w", "xiangqi/Ka"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlkakao", "janggi/intlwooden", "janggi/Ka_kako", "janggi/Ka_wooden"] },
@@ -355,7 +356,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     gorogoro: new Variant({
         name: "gorogoro", tooltip: () => _("Shogi on a 5x6 board"),
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
-        board: "shogi5x6", piece: "shogi",
+        board: "shogi5x6", piece: "gorogoro",
         firstColor: "Black", secondColor: "White",
         pieceRoles: ["king", "gold", "silver", "pawn", "psilver", "ppawn"],
         pocketRoles: ["pawn", "silver", "gold"],
