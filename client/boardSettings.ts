@@ -21,6 +21,7 @@ import { pocketView } from './pocket';
 import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
+import { model } from './main';
 
 class BoardSettings {
     ctrl: AnalysisController | RoundController | EditorController | undefined; // BoardController | undefined
@@ -63,7 +64,7 @@ class BoardSettings {
     updateBoardStyle(family: string) {
         const idx = this.getSettings("BoardStyle", family).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(family, board);
+        changeBoardCSS(model["asset-url"], family, board);
     }
 
     updatePieceStyle(family: string) {
@@ -89,7 +90,7 @@ class BoardSettings {
                 chessground.redrawAll();
             }
         }
-        changePieceCSS(family, css);
+        changePieceCSS(model["asset-url"], family, css);
     }
 
     updateZoom(family: string) {

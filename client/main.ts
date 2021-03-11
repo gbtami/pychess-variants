@@ -29,7 +29,7 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
     window.location.assign('https://www.pychess.org/');
 }
 
-const model = {};
+export const model = {};
 
 export function view(el, model): VNode {
     const user = getCookie("user");
@@ -64,6 +64,7 @@ export function view(el, model): VNode {
     model["date"] = el.getAttribute("data-date");
     model["tv"] = el.getAttribute("data-view") === 'tv';
     model["embed"] = el.getAttribute("data-view") === 'embed';
+    model["asset-url"] = el.getAttribute("data-asset-url");
 
     switch (el.getAttribute("data-view")) {
     case 'about':

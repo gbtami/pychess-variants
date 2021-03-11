@@ -25,7 +25,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI
+from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, STATIC_ROOT
 from seek import Seek
 from user import User
 
@@ -40,6 +40,13 @@ async def on_prepare(request, response):
         return
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+
+
+ASSET_VERSION = "?v=1.1"
+
+
+def static_url(static_file_path):
+    return "%s/%s%s" % (STATIC_ROOT, static_file_path, ASSET_VERSION)
 
 
 def make_app(with_db=True):
@@ -156,6 +163,7 @@ async def init_state(app):
             loader=jinja2.FileSystemLoader("templates"),
             autoescape=jinja2.select_autoescape(["html"]))
         env.install_gettext_translations(translation, newstyle=True)
+        env.globals["static"] = static_url
 
         app["jinja"][lang] = env
 
