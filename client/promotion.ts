@@ -110,6 +110,7 @@ export class Promotion {
                 else
                     return false;
             case "minishogi":
+            case "gorogoro":
             case "grand":
             case "grandhouse":
             case "shogun":

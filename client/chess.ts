@@ -25,6 +25,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     sittuyin8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
     shogi9x9: { geometry: Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", 'ShogiGrayTexture.png', "ShogiSpace1.png", "doubutsu.svg", "ShogiOak.png"] },
     shogi5x5: { geometry: Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"] },
+    shogi5x6: { geometry: Geometry.dim5x6, cg: "cg-260", boardCSS: [] },
     shogi3x4: { geometry: Geometry.dim3x4, cg: "cg-156", boardCSS: ["doubutsuboard.svg", "dobutsu3x4.svg"] },
     xiangqi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg", "xiangqiWikimedia.svg"] },
     xiangqi7x7: { geometry: Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
@@ -351,6 +352,21 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "8",
     }),
 
+    gorogoro: new Variant({
+        name: "gorogoro", tooltip: () => _("Shogi on a 5x6 board"),
+        startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
+        board: "shogi5x6", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["king", "gold", "silver", "pawn", "psilver", "ppawn"],
+        pocketRoles: ["pawn", "silver", "gold"],
+        promotion: "shogi",
+        timeControl: "byoyomi",
+        sideDetermination: "direction",
+        pieceSound: "shogi",
+        drop: true,
+        icon: "8",
+    }),
+
     xiangqi: new Variant({
         name: "xiangqi", tooltip: () => _("Open fire on your opponent in this highly aggressive ancient game"),
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
@@ -544,7 +560,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
