@@ -21,7 +21,7 @@ export const LANGUAGES = {
     pt: "Português",
     th: "ไทย",
     tr: "Türkçe",
-    zh: "繁體中文",
+    zh: "简体中文",
 };
 
 const LANGUAGETEXT = {
