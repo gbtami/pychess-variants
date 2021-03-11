@@ -196,7 +196,7 @@ export default class AnalysisController {
         if (this.variant.name === 'janggi') { // TODO make this more generic / customisable
             this.notation = Notation.JANGGI;
         } else {
-            if (this.variant.name.endsWith("shogi") || this.variant.name === 'dobutsu') {
+            if (this.variant.name.endsWith("shogi") || this.variant.name === 'dobutsu' || this.variant.name === 'gorogoro') {
                 this.notation = Notation.SHOGI_HODGES_NUMBER;
             } else {
                 this.notation = Notation.SAN;
