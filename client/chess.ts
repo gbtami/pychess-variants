@@ -614,8 +614,8 @@ export function hasCastling(variant: IVariant, color: Color) {
 export function zero2grand(move) {
     const parts = move.split("");
     if (parts[1] !== "@")
-        parts[1] = (Number(parts[1]) + 1).toString();
-    parts[3] = (Number(parts[3]) + 1).toString();
+        parts[1] = (parts[1].charCodeAt(0) - 48).toString();
+    parts[3] = (parts[3].charCodeAt(0) - 48).toString();
     return parts.join("");
 }
 
@@ -628,18 +628,18 @@ export function grand2zero(move) {
     }
     const parts = move.split("");
 
-    if (parts[1] === '@') {
-        return parts[0] + parts[1] + parts[2] + (Number(move.slice(3)) - 1).toString();
-    }
-    if ('0123456789'.indexOf(parts[2]) !== -1) {
-        parts[1] = (Number(parts[1] + parts[2]) -1).toString();
-        parts[4] = (Number(move.slice(4)) - 1).toString();
-        return parts[0] + parts[1] + parts[3] + parts[4] + promo;
+        //return parts[0] + parts[1] + parts[2] + String.fromCharCode(Number(move.slice(3)) + 48);
+    if ('0123456789'.includes(parts[2])) {
+        parts[1] = String.fromCharCode(Number(parts[1] + parts[2]) + 48);
+        parts[2] = "";
+        parts[4] = String.fromCharCode(Number(move.slice(4)) + 48);
+        //return parts[0] + parts[1] + parts[3] + parts[4] + promo;
     } else {
-        parts[1] = (Number(parts[1]) -1).toString();
-        parts[3] = (Number(move.slice(3)) - 1).toString();
-        return parts[0] + parts[1] + parts[2] + parts[3] + promo;
+        parts[3] = String.fromCharCode(Number(move.slice(3)) + 48);
+        //return parts[0] + parts[1] + parts[2] + parts[3] + promo;
     }
+
+    return parts.join("") + promo;
 }
 
 // TODO Will be deprecated after WASM Fairy integration
