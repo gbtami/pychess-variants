@@ -1025,17 +1025,15 @@ export default class AnalysisController {
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
-        const geom = this.chessground.state.geometry;
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces[dest];
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
-        const firstRankIs0 = this.chessground.state.dimensions.height === 10;
         if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && this.variant.enPassant) {
-            const pos = key2pos(dest, firstRankIs0),
+            const pos = key2pos(dest),
             pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
             const diff: PiecesDiff = {};
-            diff[pos2key(pawnPos, geom)] = undefined;
+            diff[pos2key(pawnPos)] = undefined;
             this.chessground.setPieces(diff);
             meta.captured = {role: "pawn"};
         }
@@ -1080,7 +1078,7 @@ export default class AnalysisController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'z0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
             } else {
                 this.sendMove(roleToSan[role] + "@", dest, '')
             }

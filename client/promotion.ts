@@ -79,7 +79,7 @@ export class Promotion {
                 choice["p" + role] = "+";
                 break;
             case 'kyoto':
-                if (orig === "z0" || possiblePromotions[0].slice(-1) === "+")
+                if (orig === "a0" || possiblePromotions[0].slice(-1) === "+")
                     choice["p" + role] = "+";
                 else
                     choice[role.slice(1)] = "-";
@@ -101,7 +101,7 @@ export class Promotion {
         const destRank = Number(dest[1]);
         switch (this.ctrl.variant.name) {
             case "kyotoshogi":
-                return orig !== 'z0';
+                return orig !== 'a0';
             case "shogi":
                 if (role === "pawn" || role === "lance")
                     return this.isAwayFromLastRank(destRank, 1, color);
@@ -180,8 +180,7 @@ export class Promotion {
 
     private view(dest, color, orientation) {
         const dim = this.ctrl.getGround().state.dimensions
-        const firstRankIs0 = dim.height === 10;
-        const pos = key2pos(dest, firstRankIs0);
+        const pos = key2pos(dest);
 
         const leftFile = (orientation === "white") ? pos[0] - 1 : dim.width - pos[0];
         const left = leftFile * (100 / dim.width);
