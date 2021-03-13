@@ -21,7 +21,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, grand2zero, zero2grand, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
+import { roleToSan, san2key, key2san, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -90,7 +90,6 @@ export default class RoundController {
     showDests: boolean;
     blindfold: boolean;
     handicap: boolean;
-    bigBoard: boolean;
     autoqueen: boolean;
     setupFen: string;
     prevPieces: Pieces;
@@ -150,7 +149,6 @@ export default class RoundController {
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
         this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
-        this.bigBoard = this.variant.boardHeight >= 10;
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -601,12 +599,10 @@ export default class RoundController {
 
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.bigBoard) {
-                lastMove = grand2zero(lastMove);
-            }
+            lastMove = san2key(lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
+            lastMove = lastMove.includes('@') ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
         }
         // save capture state before updating chessground
         // 960 king takes rook castling is not capture
@@ -707,8 +703,8 @@ export default class RoundController {
         let move = step['move'];
         let capture = false;
         if (move !== undefined) {
-            if (this.bigBoard) move = grand2zero(move);
-            move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
+            move = san2key(move);
+            move = move.includes('@') ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
         }
@@ -754,8 +750,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const uci_move = orig + dest + promo;
-        const move = (this.bigBoard) ? zero2grand(uci_move) : uci_move;
+        const move = key2san(orig + dest + promo);
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;

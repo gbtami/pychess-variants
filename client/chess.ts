@@ -611,7 +611,7 @@ export function hasCastling(variant: IVariant, color: Color) {
     }
 }
 
-export function zero2grand(move) {
+export function key2san(move) {
     const parts = move.split("");
     if (parts[1] !== "@")
         parts[1] = (parts[1].charCodeAt(0) - 48).toString();
@@ -619,7 +619,7 @@ export function zero2grand(move) {
     return parts.join("");
 }
 
-export function grand2zero(move) {
+export function san2key(move) {
     // cut off promotion piece letter
     let promo = '';
     if (!'0123456789'.includes(move.slice(-1))) {
