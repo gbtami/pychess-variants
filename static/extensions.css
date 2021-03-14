@@ -168,7 +168,7 @@
 .shogi .cg-wrap coords.files.black, .kyoto .cg-wrap coords.files.black, .gorogoro .cg-wrap coords.files.black, .dobutsu .cg-wrap coords.files.black {
   flex-flow: column;
 }
-.shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks, .dobutsu .cg-wrap coords.ranks {
+.shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks, .gorogoro .cg-wrap coords.ranks, .dobutsu .cg-wrap coords.ranks {
   top: var(--ranks-top-shogi);
   left: 0;
   flex-flow: row;
@@ -179,10 +179,10 @@
 .shogi .cg-wrap coords.ranks.black, .kyoto .cg-wrap coords.ranks.black, .gorogoro .cg-wrap coords.ranks.black, .dobutsu .cg-wrap coords.ranks.black {
   flex-flow: row-reverse;
 }
-.shogi .cg-wrap coords coord, .kyoto .cg-wrap coords coord, .dobutsu .cg-wrap coords coord {
+.shogi .cg-wrap coords coord, .kyoto .cg-wrap coords coord, .gorogoro .cg-wrap coords coord, .dobutsu .cg-wrap coords coord {
   flex: 1 1 auto;
 }
-.shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord {
+.shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .gorogoro .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord {
   transform: translateY(39%);
 }
 .janggi .cg-wrap coords.ranks {
