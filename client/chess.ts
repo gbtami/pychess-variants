@@ -611,35 +611,12 @@ export function hasCastling(variant: IVariant, color: Color) {
     }
 }
 
-export function cg2uci(move) {
-    const parts = move.split("");
-    if (parts[1] !== "@")
-        parts[1] = (parts[1].charCodeAt(0) - 48).toString();
-    parts[3] = (parts[3].charCodeAt(0) - 48).toString();
-    return parts.join("");
+export function uci2cg(move) {
+    return move.replace(/10/g, ":");
 }
 
-export function uci2cg(move) {
-    // cut off promotion piece letter
-    let promo = '';
-    if (!'0123456789'.includes(move.slice(-1))) {
-        promo = move.slice(-1);
-        move = move.slice(0, -1);
-    }
-    const parts = move.split("");
-
-        //return parts[0] + parts[1] + parts[2] + String.fromCharCode(Number(move.slice(3)) + 48);
-    if ('0123456789'.includes(parts[2])) {
-        parts[1] = String.fromCharCode(Number(parts[1] + parts[2]) + 48);
-        parts[2] = "";
-        parts[4] = String.fromCharCode(Number(move.slice(4)) + 48);
-        //return parts[0] + parts[1] + parts[3] + parts[4] + promo;
-    } else {
-        parts[3] = String.fromCharCode(Number(move.slice(3)) + 48);
-        //return parts[0] + parts[1] + parts[2] + parts[3] + promo;
-    }
-
-    return parts.join("") + promo;
+export function cg2uci(move) {
+    return move.replace(/:/g, "10");
 }
 
 // TODO Will be deprecated after WASM Fairy integration
