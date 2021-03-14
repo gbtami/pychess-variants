@@ -21,7 +21,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, san2key, key2san, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
+import { roleToSan, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -599,7 +599,7 @@ export default class RoundController {
 
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            lastMove = san2key(lastMove);
+            lastMove = uci2cg(lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
             lastMove = lastMove.includes('@') ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
@@ -703,7 +703,7 @@ export default class RoundController {
         let move = step['move'];
         let capture = false;
         if (move !== undefined) {
-            move = san2key(move);
+            move = uci2cg(move);
             move = move.includes('@') ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
@@ -750,7 +750,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const move = key2san(orig + dest + promo);
+        const move = cg2uci(orig + dest + promo);
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;

@@ -24,7 +24,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, san2key, key2san, VARIANTS, IVariant, getPockets, sanToRole } from './chess';
+import { roleToSan, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, sanToRole } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -478,7 +478,7 @@ export default class AnalysisController {
 
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            lastMove = san2key(lastMove);
+            lastMove = uci2cg(lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
             lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
@@ -637,7 +637,7 @@ export default class AnalysisController {
         }
 
         if (ceval?.p !== undefined) {
-            const pv_move = san2key(ceval["m"].split(" ")[0]);
+            const pv_move = uci2cg(ceval["m"].split(" ")[0]);
             console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
@@ -746,7 +746,7 @@ export default class AnalysisController {
         const dests: Dests = {};
         this.promotions = [];
         legalMoves.forEach((move) => {
-            move = san2key(move);
+            move = uci2cg(move);
             const source = move.slice(0, 2);
             const dest = move.slice(2, 4);
             if (source in dests) {
@@ -785,7 +785,7 @@ export default class AnalysisController {
         let move = step.move;
         let capture = false;
         if (move !== undefined) {
-            move = san2key(move);
+            move = uci2cg(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
@@ -896,7 +896,7 @@ export default class AnalysisController {
     }
 
     sendMove = (orig, dest, promo) => {
-        const move = key2san(orig + dest + promo);
+        const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
         // console.log('sendMove()', move, san);
@@ -991,7 +991,7 @@ export default class AnalysisController {
         this.turnColor = parts[1] === "w" ? "white" : "black";
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            lastMove = san2key(lastMove);
+            lastMove = uci2cg(lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
             lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];

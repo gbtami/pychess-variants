@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { VARIANTS, san2key } from './chess';
+import { VARIANTS, uci2cg } from './chess';
 import { boardSettings } from './boardSettings';
 
 function gameView(games, game, fen, lastMove) {
@@ -67,7 +67,7 @@ export function renderGames(): VNode[] {
                     const parts = message.fen.split(" ");
                     let lastMove = message.lastMove;
                     if (lastMove !== null) {
-                        lastMove = san2key(lastMove);
+                        lastMove = uci2cg(lastMove);
                         lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
                         if (lastMove[0][1] === '@')
                             lastMove = [lastMove[1]];

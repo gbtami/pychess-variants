@@ -40,12 +40,12 @@ def uci2usi(move):
     return "%s%s%s%s%s" % (chr(ord(move[0]) - 48), chr(ord(move[1]) + 48), chr(ord(move[2]) - 48), chr(ord(move[3]) + 48), move[4] if len(move) == 5 else "")
 
 
-def san2key(move):
+def uci2cg(move):
     """ Converts 1 based UCI move row part (1-10) to (1-:).
         This step is needed to use compress.py (store 2 byte moves on 1 byte)
         and send 0 based list of keys/squares for chessgroundx dests. """
     return move.replace("10", ":")
 
 
-def key2san(move):
+def cg2uci(move):
     return move.replace(":", "10")
