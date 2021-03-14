@@ -80,7 +80,7 @@ VARIANT_ICONS = {
     "gothhouse": "&",
     "minishogi": "6",
     "dobutsu": "8",
-    "gorogoro": "8",
+    "gorogoro": "🐱",
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",
