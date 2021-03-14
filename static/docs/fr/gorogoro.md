@@ -9,4 +9,4 @@ Gorogoro is essentially shogi on a 5x6 board.
 
 As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
 
-The starting setup is as above. Unlike standard shogi, there is no knight, lance, bishhop or rook. There are only kings, pawns and generals. Promotion is only done in the last two ranks. 
+The starting setup is as above. Unlike standard shogi, there is no knight, lance, bishop or rook. There are only kings, pawns and generals. Promotion is only done in the last two ranks. 
