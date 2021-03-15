@@ -8,7 +8,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
-import { Color } from 'chessgroundx/types';
+import { Color, letter2role } from 'chessgroundx/types';
 
 import EditorController from './editor';
 
@@ -38,8 +38,13 @@ export function piecesView(ctrl: EditorController, color: Color, position: Posit
                 });
             }
         }
-    }, roles.map(role => {
-        return h('piece.' + role + '.' + color, {
+    }, roles.map(r => {
+        const promoted = r.length > 1;
+        if (r.endsWith('~')) {
+            r = r.slice(0, -1);
+        }
+        const role = letter2role(r);
+        return h(`piece.${role}.${promoted ? "promoted." : ""}${color}`, {
             attrs: {
                 'data-role': role,
                 'data-color': color,

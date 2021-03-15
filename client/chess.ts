@@ -1,6 +1,6 @@
 import { h } from 'snabbdom/h';
 
-import { Color, dimensions, Geometry, Role, Key } from 'chessgroundx/types';
+import { Color, dimensions, Geometry, Role, Key, role2letter } from 'chessgroundx/types';
 import { key2pos } from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
@@ -53,6 +53,22 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"], baseURL: ["merida", "hoppel/grafted", "hoppel/animal"] },
 };
 
+type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
+
+const alwaysMandatory: MandatoryPromotionPredicate = () => true;
+
+function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) {
+    return (role, _orig, dest, color) => {
+        const letter = role2letter(role);
+        return (letter in required) ? distanceFromLastRank(dest, color, boardHeight) < required[letter] : false;
+    };
+}
+
+function distanceFromLastRank(dest: Key, color: Color, boardHeight: number) {
+    const rank = key2pos(dest)[1];
+    return (color === "white") ? boardHeight - rank : rank - 1;
+}
+
 export interface IVariant {
     readonly name: string;
     readonly displayName: (chess960: boolean) => string;
@@ -74,9 +90,9 @@ export interface IVariant {
     readonly firstColor: string;
     readonly secondColor: string;
 
-    readonly pieceRoles: (color: Color) => Role[];
+    readonly pieceRoles: (color: Color) => string[];
     readonly pocket: boolean;
-    readonly pocketRoles: (color: Color) => Role[] | null;
+    readonly pocketRoles: (color: Color) => string[] | null;
 
     readonly promotion: string;
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
@@ -122,10 +138,10 @@ class Variant implements IVariant {
     readonly firstColor: string;
     readonly secondColor: string;
 
-    private readonly _pieceRoles: [ Role[], Role[] ];
+    private readonly _pieceRoles: [ string[], string[] ];
     pieceRoles(color: Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
     readonly pocket: boolean;
-    private readonly _pocketRoles: [ Role[] | null, Role[] | null ];
+    private readonly _pocketRoles: [ string[] | null, string[] | null ];
     pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
     readonly promotion: string;
@@ -195,7 +211,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "chess", tooltip: () => _("Chess, unmodified, as it's played by FIDE standards"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
         enPassant: true, autoQueenable: true,
         alternateStart: {
             '': '',
@@ -212,8 +228,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "crazyhouse", tooltip: () => _("Take captured pieces and drop them back on to the board as your own"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "queen"],
+        pieceRoles: ["k", "q", "r", "b", "k", "p"],
+        pocketRoles: ["p", "n", "b", "r", "q"],
         enPassant: true, autoQueenable: true, drop: true,
         alternateStart: {
             '': '',
@@ -230,8 +246,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "placement", tooltip: () => _("Choose where your pieces start"),
         startFen: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["knight", "bishop", "rook", "queen", "king"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        pocketRoles: ["n", "b", "r", "q", "k"],
         enPassant: true, autoQueenable: true,
         icon: "S",
     }),
@@ -240,7 +256,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "atomic", tooltip: () => _("Explode your opponent's king to win"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
         enPassant: true, autoQueenable: true,
         pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "\\",
@@ -250,7 +266,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "makruk", tooltip: () => _("A game closely resembling the original Chaturanga"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
         counting: "makruk",
         icon: "Q",
     }),
@@ -259,7 +275,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "makpong", tooltip: () => _("Makruk variant where kings cannot move to escape out of check"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
         counting: "makruk",
         icon: "O",
     }),
@@ -268,7 +284,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Makruk with a few additional opening abilities"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
         counting: "makruk",
         icon: "!",
     }),
@@ -278,8 +294,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "8/8/4pppp/pppp4/4PPPP/PPPP4/8/8[KFRRSSNNkfrrssnn] w - - 0 1",
         board: "sittuyin8x8", piece: "sittuyin",
         firstColor: "Red", secondColor: "Black",
-        pieceRoles: ["king", "ferz", "silver", "knight", "rook", "pawn"],
-        pocketRoles: ["rook", "knight", "silver", "ferz", "king"],
+        pieceRoles: ["k", "f", "s", "n", "r", "p"],
+        pocketRoles: ["r", "n", "s", "f", "k"],
         counting: "asean",
         icon: ":",
     }),
@@ -610,21 +626,6 @@ export function selectVariant(id, selected, onChange, hookInsert) {
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
 export function isHandicap(name: string) {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
-}
-
-type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
-
-const alwaysMandatory: MandatoryPromotionPredicate = () => true;
-
-function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) {
-    return (role, _orig, dest, color) => {
-        return distanceFromLastRank(dest, color, boardHeight) < required[role[0]];
-    };
-}
-
-function distanceFromLastRank(dest: Key, color: Color, boardHeight: number) {
-    const rank = key2pos(dest)[1];
-    return (color === "white") ? boardHeight - rank : rank - 1;
 }
 
 export function hasCastling(variant: IVariant, color: Color) {
