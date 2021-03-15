@@ -7,7 +7,7 @@
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
   "dependencies": {
-    "chessgroundx": "^7.6.44",
+    "chessgroundx": "^7.6.46",
     "ffish": "^0.6.1",
     "ffish-es6": "^0.6.1",
     "gettext.js": "^1.0.0",
