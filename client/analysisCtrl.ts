@@ -333,7 +333,7 @@ export default class AnalysisController {
     getGround = () => this.chessground;
 
     private pass = () => {
-        let passKey = 'z0';
+        let passKey = 'a0';
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests;
         for (const key in pieces) {
@@ -341,7 +341,7 @@ export default class AnalysisController {
                 if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
             }
         }
-        if (passKey !== 'z0') {
+        if (passKey !== 'a0') {
             // prevent calling pass() again by selectSquare() -> onSelect()
             this.chessground.state.movable.dests = undefined;
             this.chessground.selectSquare(passKey as Key);
@@ -871,7 +871,7 @@ export default class AnalysisController {
     private onDrop = () => {
         return (piece, dest) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest != 'z0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             } else if (this.clickDropEnabled) {
                 this.clickDrop = piece;
@@ -1099,7 +1099,7 @@ export default class AnalysisController {
             if (this.chessground.state.movable.dests === undefined) return;
 
             // If drop selection was set dropDests we have to restore dests here
-            if (key != 'z0' && 'z0' in this.chessground.state.movable.dests) {
+            if (key != 'a0' && 'a0' in this.chessground.state.movable.dests) {
                 if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
                     this.chessground.newPiece(this.clickDrop, key);
                     this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
