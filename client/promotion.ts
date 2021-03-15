@@ -104,7 +104,6 @@ export class Promotion {
     private promote(g, key, role) {
         const pieces = {};
         const piece = g.state.pieces[key];
-        if (role === "m-piece") role = "f-piece"; // Show the graphic of the flipped pawn instead of met for Makruk et al
         if (g.state.pieces[key].role !== role) {
             pieces[key] = {
                 color: piece.color,
