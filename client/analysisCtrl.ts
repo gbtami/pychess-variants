@@ -24,7 +24,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, sanToRole } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -654,7 +654,7 @@ export default class AnalysisController {
                         brush: 'paleGreen',
                         piece: {
                             color: color,
-                            role: sanToRole[pv_move.slice(0, atPos)]
+                            role: san2role(pv_move.slice(0, atPos))
                         }},
                         { orig: d, brush: 'paleGreen'}
                     ];
@@ -1072,9 +1072,9 @@ export default class AnalysisController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@", dest, '');
             } else {
-                this.sendMove(roleToSan[role] + "@", dest, '')
+                this.sendMove(role2san(role) + "@", dest, '')
             }
             // console.log("sent move", move);
         } else {

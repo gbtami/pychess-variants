@@ -11,7 +11,7 @@ import { dragNewPiece } from 'chessgroundx/drag';
 import { Color, Role } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import { roleToSan, lc } from './chess';
+import { role2san, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import EditorController from './editor';
@@ -115,7 +115,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
 
     // Show possible drop dests on my turn only not to mess up predrop
     if (ctrl.clickDropEnabled && ctrl.turnColor === ctrl.mycolor) {
-        const dropDests = { 'a0': ctrl.dests[roleToSan[role] + "@"] };
+        const dropDests = { 'a0': ctrl.dests[role2san(role) + "@"] };
         // console.log("     new piece to a0", role);
         ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
         ctrl.chessground.set({
@@ -134,7 +134,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
 }
 
 export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
-    const drops = dests[roleToSan[role] + "@"];
+    const drops = dests[role2san(role) + "@"];
     // console.log("drops:", drops)
 
     if (drops === undefined || drops === null) return false;
@@ -160,8 +160,8 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
         const ro = ctrl.variant.pocketRoles(o) ?? [];
         const pc:Pocket = {};
         const po:Pocket = {};
-        rc.forEach(role => pc[role] = lc(pockets, roleToSan[role].toLowerCase(), c==='white'));
-        ro.forEach(role => po[role] = lc(pockets, roleToSan[role].toLowerCase(), o==='white'));
+        rc.forEach(role => pc[role] = lc(pockets, role2san(role).toLowerCase(), c==='white'));
+        ro.forEach(role => po[role] = lc(pockets, role2san(role).toLowerCase(), o==='white'));
         if (ctrl.flip) {
             ctrl.pockets = [pc, po];
         } else {
@@ -176,7 +176,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
     for (const role in pocket) {
-        letters.push(roleToSan[role].repeat(pocket[role]));
+        letters.push(role2san(role).repeat(pocket[role]));
     }
     return letters.join('');
 }

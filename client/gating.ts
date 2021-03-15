@@ -8,9 +8,9 @@ import { VNode } from 'snabbdom/vnode';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import { Key, Role, role2letter, letter2role } from 'chessgroundx/types';
+import { Key, Role } from 'chessgroundx/types';
 
-import { getPockets, lc } from './chess';
+import { getPockets, lc, role2letter, letter2role  } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { bind } from './document';

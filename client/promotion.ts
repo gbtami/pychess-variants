@@ -8,7 +8,7 @@ import { toVNode } from 'snabbdom/tovnode';
 import { key2pos } from 'chessgroundx/util';
 import { Key, Role } from 'chessgroundx/types';
 
-import { sanToRole, roleToSan } from './chess';
+import { san2role, role2san } from './chess';
 import { bind } from './document';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
@@ -62,7 +62,7 @@ export class Promotion {
     private promotionFilter(move, role, orig, dest) {
         if (this.ctrl.variant.promotion === 'kyoto')
             if (orig === "a0")
-                return move.startsWith("+" + roleToSan[role]);
+                return move.startsWith("+" + role2san(role));
         return move.slice(0, -1) === orig + dest;
     }
 
@@ -88,7 +88,7 @@ export class Promotion {
             default:
                 possiblePromotions.forEach(move => {
                     const r = move.slice(-1);
-                    choice[sanToRole[r]] = r;
+                    choice[san2role(r)] = r;
                 });
         }
 
@@ -131,7 +131,7 @@ export class Promotion {
             const promo = this.choices[role];
 
             if (this.ctrl.variant.promotion === 'kyoto') {
-                const droppedPiece = promo ? roleToSan[role.slice(1)] : roleToSan[role];
+                const droppedPiece = promo ? role2san(role.slice(1)) : role2san(role);
                 if (this.promoting.callback) this.promoting.callback(promo + droppedPiece, "@", this.promoting.dest);
             } else {
                 if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo);

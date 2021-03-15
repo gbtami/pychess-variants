@@ -1,6 +1,6 @@
 import { h } from 'snabbdom/h';
 
-import { Color, dimensions, Geometry, Role, Key, role2letter } from 'chessgroundx/types';
+import { Color, dimensions, Geometry, Role, Key } from 'chessgroundx/types';
 import { key2pos } from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
@@ -60,11 +60,11 @@ const alwaysMandatory: MandatoryPromotionPredicate = () => true;
 function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) {
     return (role, _orig, dest, color) => {
         const letter = role2letter(role);
-        return (letter in required) ? distanceFromLastRank(dest, color, boardHeight) < required[letter] : false;
+        return (letter in required) ? distFromLastRank(dest, color, boardHeight) < required[letter] : false;
     };
 }
 
-function distanceFromLastRank(dest: Key, color: Color, boardHeight: number) {
+function distFromLastRank(dest: Key, color: Color, boardHeight: number) {
     const rank = key2pos(dest)[1];
     return (color === "white") ? boardHeight - rank : rank - 1;
 }
@@ -833,64 +833,25 @@ export function getJanggiPoints(board: string) {
     return [choPoint, hanPoint];
 }
 
-export const roleToSan = {
-    pawn: 'P',
-    knight: 'N',
-    bishop: 'B',
-    rook: 'R',
-    queen: 'Q',
-    king: 'K',
-    archbishop: 'A',
-    chancellor: 'C',
-    elephant: "E",
-    hawk: "H",
-    ferz: 'F',
-    met: 'M',
-    gold: 'G',
-    silver: 'S',
-    lance: 'L',
-    banner: 'M',
-};
+export function role2letter(role: Role) {
+    const letterPart = role.slice(0, role.indexOf('-'));
+    return (letterPart.length > 1) ? letterPart.replace('p', '+') : letterPart;
+}
+
+export function letter2role(letter: string) {
+    return (letter.replace('+', 'p') + '-piece') as Role;
+}
+
+export function role2san(role: Role) {
+    return role2letter(role).toUpperCase();
+}
 
 // Use cases
 // 1. determine piece role from analysis suggested (SAN) drop moves
 // 2. determine promotion piece roles from possible (UCI) promotion moves in grand, grandhouse, shako
-export const sanToRole = {
-    P: 'pawn',
-    N: 'knight',
-    B: 'bishop',
-    R: 'rook',
-    Q: 'queen',
-    K: 'king',
-    A: 'archbishop',
-    C: 'chancellor',
-    E: 'elephant',
-    H: 'hawk',
-    F: 'ferz',
-    M: 'met',
-    G: 'gold',
-    S: 'silver',
-    L: 'lance',
-    p: 'pawn',
-    n: 'knight',
-    b: 'bishop',
-    r: 'rook',
-    q: 'queen',
-    k: 'king',
-    a: 'archbishop',
-    c: 'chancellor',
-    e: 'elephant',
-    h: 'hawk',
-    f: 'ferz',
-    m: 'met',
-    g: 'gold',
-    s: 'silver',
-    l: 'lance',
-    '+L': 'plance',
-    '+N': 'gold',
-    '+P': 'rook',
-    '+S': 'bishop'
-};
+export function san2role(letter: string) {
+    return letter2role(letter.toLowerCase());
+}
 
 // Count given letter occurences in a string
 export function lc(str: string, letter: string, uppercase: boolean) {
