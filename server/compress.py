@@ -46,7 +46,7 @@ R2C = {"1-0": "a", "0-1": "b", "1/2-1/2": "c", "*": "d"}
 C2R = {v: k for k, v in R2C.items()}
 
 # Create square to int mapping
-M2C = dict(zip([a + b for a, b in product("abcdefghij", "0123456789")], list(range(34, 256))))
+M2C = dict(zip([a + b for a, b in product("abcdefghij", "123456789:")], list(range(34, 256))))
 
 # Add possible from parts of drop moves
 PIECES = "PNBRQKFGSLACHE"

@@ -117,7 +117,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
     if (ctrl.clickDropEnabled && ctrl.turnColor === ctrl.mycolor) {
         const dropDests = { 'z0': ctrl.dests[roleToSan[role] + "@"] };
         // console.log("     new piece to z0", role);
-        ctrl.chessground.newPiece({"role": role, "color": color}, 'z0')
+        ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
         ctrl.chessground.set({
             turnColor: color,
             movable: {
@@ -125,7 +125,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
                 showDests: ctrl.showDests,
             },
         });
-        ctrl.chessground.selectSquare('z0');
+        ctrl.chessground.selectSquare('a0');
         ctrl.chessground.set({ lastMove: ctrl.lastmove });
     }
     e.stopPropagation();

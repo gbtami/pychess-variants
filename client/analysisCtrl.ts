@@ -24,7 +24,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, grand2zero, zero2grand, VARIANTS, IVariant, getPockets, sanToRole } from './chess';
+import { roleToSan, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, sanToRole } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -126,7 +126,6 @@ export default class AnalysisController {
     notation: Notation;
     notationAsObject;
     prevPieces: Pieces;
-    bigBoard: boolean;
     arrow: boolean;
 
     constructor(el, model) {
@@ -202,7 +201,6 @@ export default class AnalysisController {
                 this.notation = Notation.SAN;
             }
         }
-        this.bigBoard = this.variant.boardHeight >= 10;
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -480,9 +478,7 @@ export default class AnalysisController {
 
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.bigBoard) {
-                lastMove = grand2zero(lastMove);
-            }
+            lastMove = uci2cg(lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
             lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
@@ -641,13 +637,12 @@ export default class AnalysisController {
         }
 
         if (ceval?.p !== undefined) {
-            let pv_move = ceval["m"].split(" ")[0];
-            if (this.bigBoard) pv_move = grand2zero(pv_move);
+            const pv_move = uci2cg(ceval["m"].split(" ")[0]);
             console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
-                    const d = pv_move.slice(atPos + 1, atPos + 3);
+                    const d = pv_move.slice(atPos + 1, atPos + 3) as Key;
                     let color = turnColor;
                     if (this.variant.sideDetermination === "direction")
                         if (this.flip !== (this.mycolor === "black"))
@@ -662,8 +657,8 @@ export default class AnalysisController {
                         { orig: d, brush: 'paleGreen'}
                     ];
                 } else {
-                    const o = pv_move.slice(0, 2);
-                    const d = pv_move.slice(2, 4);
+                    const o = pv_move.slice(0, 2) as Key;
+                    const d = pv_move.slice(2, 4) as Key;
                     shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
                 }
             }
@@ -751,7 +746,7 @@ export default class AnalysisController {
         const dests: Dests = {};
         this.promotions = [];
         legalMoves.forEach((move) => {
-            if (this.bigBoard) move = grand2zero(move);
+            move = uci2cg(move);
             const source = move.slice(0, 2);
             const dest = move.slice(2, 4);
             if (source in dests) {
@@ -790,7 +785,7 @@ export default class AnalysisController {
         let move = step.move;
         let capture = false;
         if (move !== undefined) {
-            if (this.bigBoard) move = grand2zero(move);
+            move = uci2cg(move);
             move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
@@ -901,8 +896,7 @@ export default class AnalysisController {
     }
 
     sendMove = (orig, dest, promo) => {
-        const uci_move = orig + dest + promo;
-        const move = (this.bigBoard) ? zero2grand(uci_move) : uci_move;
+        const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
         // console.log('sendMove()', move, san);
@@ -997,9 +991,7 @@ export default class AnalysisController {
         this.turnColor = parts[1] === "w" ? "white" : "black";
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.bigBoard) {
-                lastMove = grand2zero(lastMove);
-            }
+            lastMove = uci2cg(lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
             lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
@@ -1025,17 +1017,15 @@ export default class AnalysisController {
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
-        const geom = this.chessground.state.geometry;
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces[dest];
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
-        const firstRankIs0 = this.chessground.state.dimensions.height === 10;
         if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && this.variant.enPassant) {
-            const pos = key2pos(dest, firstRankIs0),
+            const pos = key2pos(dest),
             pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
             const diff: PiecesDiff = {};
-            diff[pos2key(pawnPos, geom)] = undefined;
+            diff[pos2key(pawnPos)] = undefined;
             this.chessground.setPieces(diff);
             meta.captured = {role: "pawn"};
         }
@@ -1080,7 +1070,7 @@ export default class AnalysisController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'z0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
             } else {
                 this.sendMove(roleToSan[role] + "@", dest, '')
             }

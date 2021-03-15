@@ -21,7 +21,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { roleToSan, grand2zero, zero2grand, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
+import { roleToSan, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -90,7 +90,6 @@ export default class RoundController {
     showDests: boolean;
     blindfold: boolean;
     handicap: boolean;
-    bigBoard: boolean;
     autoqueen: boolean;
     setupFen: string;
     prevPieces: Pieces;
@@ -150,7 +149,6 @@ export default class RoundController {
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
         this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
-        this.bigBoard = this.variant.boardHeight >= 10;
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -601,12 +599,10 @@ export default class RoundController {
 
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
-            if (this.bigBoard) {
-                lastMove = grand2zero(lastMove);
-            }
+            lastMove = uci2cg(lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
+            lastMove = lastMove.includes('@') ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
         }
         // save capture state before updating chessground
         // 960 king takes rook castling is not capture
@@ -707,8 +703,8 @@ export default class RoundController {
         let move = step['move'];
         let capture = false;
         if (move !== undefined) {
-            if (this.bigBoard) move = grand2zero(move);
-            move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
+            move = uci2cg(move);
+            move = move.includes('@') ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
         }
@@ -754,8 +750,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const uci_move = orig + dest + promo;
-        const move = (this.bigBoard) ? zero2grand(uci_move) : uci_move;
+        const move = cg2uci(orig + dest + promo);
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;
@@ -863,17 +858,15 @@ export default class RoundController {
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
-        const geom = this.chessground.state.geometry;
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces[dest];
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
-        const firstRankIs0 = this.chessground.state.dimensions.height === 10;
         if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && this.variant.enPassant) {
-            const pos = key2pos(dest, firstRankIs0),
+            const pos = key2pos(dest),
             pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
             const diff: PiecesDiff = {};
-            diff[pos2key(pawnPos, geom)] = undefined;
+            diff[pos2key(pawnPos)] = undefined;
             this.chessground.setPieces(diff);
             meta.captured = {role: "pawn"};
         }
@@ -918,7 +911,7 @@ export default class RoundController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'z0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(roleToSan[role] + "@", dest, '');
             } else {
                 this.sendMove(roleToSan[role] + "@", dest, '')
             }
