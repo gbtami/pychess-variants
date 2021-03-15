@@ -51,6 +51,7 @@ export default class RoundController {
     abortable: boolean;
     gameId: string;
     variant: IVariant;
+    chess960: boolean;
     hasPockets: boolean;
     pockets: Pockets;
     vpocket0: VNode;
@@ -125,6 +126,7 @@ export default class RoundController {
         this.model = model;
         this.gameId = model["gameId"] as string;
         this.variant = VARIANTS[model["variant"]];
+        this.chess960 = model["chess960"] === 'True';
         this.fullfen = model["fen"];
         this.wplayer = model["wplayer"];
         this.bplayer = model["bplayer"];
@@ -380,7 +382,7 @@ export default class RoundController {
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests;
         for (const key in pieces) {
-            if (pieces[key]!.role === 'king' && pieces[key]!.color === this.turnColor) {
+            if (pieces[key]!.role === 'k-piece' && pieces[key]!.color === this.turnColor) {
                 if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
             }
         }
@@ -542,10 +544,10 @@ export default class RoundController {
             // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
             for (const orig of Object.keys(msg.dests)) {
                 const movingPiece = this.chessground.state.pieces[orig];
-                if (movingPiece !== undefined && movingPiece.role === "rook") {
+                if (movingPiece !== undefined && movingPiece.role === "r-piece") {
                     msg.dests[orig] = msg.dests[orig].filter(x => {
                         const destPiece = this.chessground.state.pieces[x];
-                        return destPiece === undefined || destPiece.role !== 'king';
+                        return destPiece === undefined || destPiece.role !== 'k-piece';
                     });
                 }
             }
@@ -861,20 +863,20 @@ export default class RoundController {
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces[dest];
         // Fix king to rook 960 castling case
-        if (moved === undefined) moved = {role: 'king', color: this.mycolor} as Piece;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "pawn" && orig[0] != dest[0] && this.variant.enPassant) {
+        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as Piece;
+        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] != dest[0] && this.variant.enPassant) {
             const pos = key2pos(dest),
             pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
             const diff: PiecesDiff = {};
             diff[pos2key(pawnPos)] = undefined;
             this.chessground.setPieces(diff);
-            meta.captured = {role: "pawn"};
+            meta.captured = {role: "p-piece"};
         }
         // increase pocket count
         if (this.variant.drop && meta.captured) {
             let role = meta.captured.role
             if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as Role : "pawn";
+                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as Role : "p-piece";
 
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
@@ -952,27 +954,26 @@ export default class RoundController {
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
-            if (this.model.chess960 === 'True' && this.variant.gate) {
+            if (this.chess960 && this.variant.gate) {
                 this.prevPieces = Object.assign({}, this.chessground.state.pieces);
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
             if (this.chessground.state.stats.ctrlKey && 
-                (key in this.chessground.state.movable.dests) &&
-                (this.chessground.state.movable.dests[key].indexOf(key) >= 0)
+                (this.chessground.state.movable.dests[key]?.includes(key))
                 ) {
                 const piece = this.chessground.state.pieces[key];
                 if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
-                    const pieces = {};
+                    const pieces: Pieces = {};
                     pieces[key] = {
                         color: piece!.color,
-                        role: 'ferz',
+                        role: 'f-piece',
                         promoted: true
                     };
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
-                } else if (this.variant.pass && piece!.role === 'king') {
+                } else if (this.variant.pass && piece!.role === 'k-piece') {
                     this.pass();
                 }
             }
