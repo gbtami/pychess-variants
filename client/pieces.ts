@@ -48,6 +48,7 @@ export function piecesView(ctrl: EditorController, color: Color, position: Posit
             attrs: {
                 'data-role': role,
                 'data-color': color,
+                'data-promoted': promoted ? 'true' : 'false',
                 'data-nb': -1,
             }
         });
@@ -57,12 +58,13 @@ export function piecesView(ctrl: EditorController, color: Color, position: Posit
 export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
     const el = e.target as HTMLElement,
-    role = el.getAttribute('data-role') as cg.Role,
-    color = el.getAttribute('data-color') as cg.Color;
+        role = el.getAttribute('data-role') as cg.Role,
+        color = el.getAttribute('data-color') as cg.Color,
+        promoted = el.getAttribute('data-promoted') === 'true';
 
     e.stopPropagation();
     e.preventDefault();
-    dragNewPiece(ctrl.chessground.state, { color, role }, e);
+    dragNewPiece(ctrl.chessground.state, { color, role, promoted }, e);
 }
 
 export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
