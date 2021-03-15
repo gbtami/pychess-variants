@@ -1,6 +1,7 @@
 import { h } from 'snabbdom/h';
 
-import { Color, dimensions, Geometry, Role } from 'chessgroundx/types';
+import { Color, dimensions, Geometry, Role, Key } from 'chessgroundx/types';
+import { key2pos } from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
@@ -78,6 +79,7 @@ export interface IVariant {
     readonly pocketRoles: (color: Color) => Role[] | null;
 
     readonly promotion: string;
+    readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
     readonly materialPoint?: string;
@@ -127,6 +129,7 @@ class Variant implements IVariant {
     pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
     readonly promotion: string;
+    readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
     readonly materialPoint?: string;
@@ -165,6 +168,7 @@ class Variant implements IVariant {
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
         this.promotion = data.promotion ?? "regular";
+        this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
         this.materialPoint = data.materialPoint;
@@ -288,6 +292,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn", "prook", "pbishop", "psilver", "pknight", "plance", "ppawn"],
         pocketRoles: ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"],
         promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
         timeControl: "byoyomi",
         sideDetermination: "direction",
         pieceSound: "shogi",
@@ -316,6 +321,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "rook", "bishop", "gold", "silver", "pawn", "prook", "pbishop", "psilver", "ppawn"],
         pocketRoles: ["pawn", "silver", "gold", "bishop", "rook"],
         promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1 }, 5),
         timeControl: "byoyomi",
         sideDetermination: "direction",
         pieceSound: "shogi",
@@ -331,6 +337,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "pknight", "knight", "psilver", "silver", "plance", "lance", "ppawn", "pawn"],
         pocketRoles: ["pawn", "lance", "knight", "silver"],
         promotion: "kyoto",
+        isMandatoryPromotion: (_role, orig, _dest, _color) => orig !== 'a0',
         timeControl: "byoyomi",
         sideDetermination: "direction",
         pieceSound: "shogi",
@@ -361,6 +368,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "gold", "silver", "pawn", "psilver", "ppawn"],
         pocketRoles: ["pawn", "silver", "gold"],
         promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1 }, 6),
         timeControl: "byoyomi",
         sideDetermination: "direction",
         pieceSound: "shogi",
@@ -485,6 +493,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         board: "grand10x10", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true, autoQueenable: true,
         icon: "(",
     }),
@@ -495,6 +504,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "grand10x10", piece: "capa",
         pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
         pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "chancellor", "queen"],
+        isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true, autoQueenable: true, drop: true,
         icon: "*",
     }),
@@ -515,6 +525,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn", "ferz", "prook", "pbishop", "pknight", "ppawn"],
         pocketRoles: ["pawn", "knight", "bishop", "rook", "ferz"],
         promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1 }, 8),
         timeControl: "byoyomi",
         enPassant: true, drop: true,
         icon: "-",
@@ -599,6 +610,21 @@ export function selectVariant(id, selected, onChange, hookInsert) {
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
 export function isHandicap(name: string) {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
+}
+
+type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
+
+const alwaysMandatory: MandatoryPromotionPredicate = () => true;
+
+function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) {
+    return (role, _orig, dest, color) => {
+        return distanceFromLastRank(dest, color, boardHeight) < required[role[0]];
+    };
+}
+
+function distanceFromLastRank(dest: Key, color: Color, boardHeight: number) {
+    const rank = key2pos(dest)[1];
+    return (color === "white") ? boardHeight - rank : rank - 1;
 }
 
 export function hasCastling(variant: IVariant, color: Color) {
@@ -730,8 +756,8 @@ export function validFen(variant: IVariant, fen: string) {
     if (lc(placement, king, false) !== 1 || lc(placement, king, true) !== 1) return false;
 
     // Touching kings
-    const pieces = read(parts[0], variant.geometry);
-    if (touchingKings(pieces)) return false;
+    const pieces = read(parts[0]);
+    if (variantName !== 'atomic' && touchingKings(pieces)) return false;
 
     return true;
 }

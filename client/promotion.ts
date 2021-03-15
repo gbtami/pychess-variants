@@ -6,7 +6,7 @@ import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import { Key, Role, Color } from 'chessgroundx/types';
+import { Key, Role } from 'chessgroundx/types';
 
 import { sanToRole, roleToSan } from './chess';
 import { bind } from './document';
@@ -84,6 +84,7 @@ export class Promotion {
                 else
                     choice[role.slice(1)] = "-";
                 break;
+            case 'grand':
             default:
                 possiblePromotions.forEach(move => {
                     const r = move.slice(-1);
@@ -97,38 +98,7 @@ export class Promotion {
     }
 
     private isMandatoryPromotion(role: Role, orig: Key, dest: Key) {
-        const color = this.ctrl.mycolor;
-        const destRank = Number(dest[1]);
-        switch (this.ctrl.variant.name) {
-            case "kyotoshogi":
-                return orig !== 'a0';
-            case "shogi":
-                if (role === "pawn" || role === "lance")
-                    return this.isAwayFromLastRank(destRank, 1, color);
-                else if (role === "knight")
-                    return this.isAwayFromLastRank(destRank, 2, color);
-                else
-                    return false;
-            case "minishogi":
-            case "gorogoro":
-            case "grand":
-            case "grandhouse":
-            case "shogun":
-                return role === "pawn" && this.isAwayFromLastRank(destRank, 1, color);
-            default:
-                return true;
-        }
-    }
-
-    // fromLastRank = 1 means destRank IS the last rank of the color's side
-    private isAwayFromLastRank(destRank: number, fromLastRank: number, color: Color) {
-        const height = this.ctrl.variant.boardHeight;
-        if (height >= 10)
-            destRank += 1;
-        if (color === "white")
-            return destRank >= height - fromLastRank + 1;
-        else
-            return destRank <= fromLastRank;
+        return this.ctrl.variant.isMandatoryPromotion(role, orig, dest, this.ctrl.mycolor);
     }
 
     private promote(g, key, role) {
