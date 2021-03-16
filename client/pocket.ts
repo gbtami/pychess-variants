@@ -11,7 +11,7 @@ import { dragNewPiece } from 'chessgroundx/drag';
 import { Color, Role } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import { role2san, lc } from './chess';
+import { role2san, letter2role, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import EditorController from './editor';
@@ -158,10 +158,10 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
         const o = ctrl.oppcolor;
         const rc = ctrl.variant.pocketRoles(c) ?? [];
         const ro = ctrl.variant.pocketRoles(o) ?? [];
-        const pc:Pocket = {};
-        const po:Pocket = {};
-        rc.forEach(role => pc[role] = lc(pockets, role2san(role).toLowerCase(), c==='white'));
-        ro.forEach(role => po[role] = lc(pockets, role2san(role).toLowerCase(), o==='white'));
+        const pc: Pocket = {};
+        const po: Pocket = {};
+        rc.forEach(r => pc[letter2role(r)] = lc(pockets, r, c==='white'));
+        ro.forEach(r => po[letter2role(r)] = lc(pockets, r, o==='white'));
         if (ctrl.flip) {
             ctrl.pockets = [pc, po];
         } else {
@@ -176,7 +176,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
     for (const role in pocket) {
-        letters.push(role2san(role).repeat(pocket[role]));
+        letters.push(role2san(role as Role).repeat(pocket[role]));
     }
     return letters.join('');
 }
