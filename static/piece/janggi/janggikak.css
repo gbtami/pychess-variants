@@ -1,5 +1,5 @@
 .janggi .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/janggi/Ka_kakao/bluepawn.svg');
+    background-image: url('../../images/pieces/janggi/Ka_kakao/blue_pawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/janggi/Ka_kakao/blue_elephant.svg');
@@ -21,7 +21,7 @@
 }
 
 .janggi .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/janggi/Ka_kakao/redpawn.svg');
+    background-image: url('../../images/pieces/janggi/Ka_kakao/red_pawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/janggi/Ka_kakao/red_elephant.svg');

@@ -1,5 +1,5 @@
 .janggi .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/janggi/intlwooden/bluepawn.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/blue_pawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/janggi/intlwooden/blue_elephant.svg');
@@ -21,7 +21,7 @@
 }
 
 .janggi .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/janggi/intlwooden/redpawn.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/red_pawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/janggi/intlwooden/red_elephant.svg');
