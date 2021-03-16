@@ -1,84 +1,84 @@
-.gorogoro .cg-wrap piece.pawn.white {
+.gorogoro .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1FU.svg');
 }
-.gorogoro .cg-wrap piece.ppawn.white {
+.gorogoro .cg-wrap piece.pp-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1TO.svg');
 }
-.gorogoro .cg-wrap piece.bishop.white {
+.gorogoro .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1KA.svg');
 }
-.gorogoro .cg-wrap piece.pbishop.white {
+.gorogoro .cg-wrap piece.pb-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1UM.svg');
 }
-.gorogoro .cg-wrap piece.knight.white {
+.gorogoro .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1KE.svg');
 }
-.gorogoro .cg-wrap piece.pknight.white {
+.gorogoro .cg-wrap piece.pn-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1NK.svg');
 }
-.gorogoro .cg-wrap piece.rook.white {
+.gorogoro .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1HI.svg');
 }
-.gorogoro .cg-wrap piece.prook.white {
+.gorogoro .cg-wrap piece.pr-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1RY.svg');
 }
-.gorogoro .cg-wrap piece.lance.white {
+.gorogoro .cg-wrap piece.l-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1KY.svg');
 }
-.gorogoro .cg-wrap piece.plance.white {
+.gorogoro .cg-wrap piece.pl-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1NY.svg');
 }
-.gorogoro .cg-wrap piece.silver.white {
+.gorogoro .cg-wrap piece.s-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1GI.svg');
 }
-.gorogoro .cg-wrap piece.psilver.white {
+.gorogoro .cg-wrap piece.ps-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1NG.svg');
 }
-.gorogoro .cg-wrap piece.gold.white {
+.gorogoro .cg-wrap piece.g-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1KI.svg');
 }
-.gorogoro .cg-wrap piece.king.white {
+.gorogoro .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/shogi/Ka/1GY.svg');
 }
-.gorogoro .cg-wrap piece.pawn.black {
+.gorogoro .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0FU.svg');
 }
-.gorogoro .cg-wrap piece.ppawn.black {
+.gorogoro .cg-wrap piece.pp-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0TO.svg');
 }
-.gorogoro .cg-wrap piece.bishop.black {
+.gorogoro .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0KA.svg');
 }
-.gorogoro .cg-wrap piece.pbishop.black {
+.gorogoro .cg-wrap piece.pb-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0UM.svg');
 }
-.gorogoro .cg-wrap piece.knight.black {
+.gorogoro .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0KE.svg');
 }
-.gorogoro .cg-wrap piece.pknight.black {
+.gorogoro .cg-wrap piece.pn-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0NK.svg');
 }
-.gorogoro .cg-wrap piece.rook.black {
+.gorogoro .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0HI.svg');
 }
-.gorogoro .cg-wrap piece.prook.black {
+.gorogoro .cg-wrap piece.pr-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0RY.svg');
 }
-.gorogoro .cg-wrap piece.lance.black {
+.gorogoro .cg-wrap piece.l-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0KY.svg');
 }
-.gorogoro .cg-wrap piece.plance.black {
+.gorogoro .cg-wrap piece.pl-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0NY.svg');
 }
-.gorogoro .cg-wrap piece.silver.black {
+.gorogoro .cg-wrap piece.s-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0GI.svg');
 }
-.gorogoro .cg-wrap piece.psilver.black {
+.gorogoro .cg-wrap piece.ps-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0NG.svg');
 }
-.gorogoro .cg-wrap piece.gold.black {
+.gorogoro .cg-wrap piece.g-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0KI.svg');
 }
-.gorogoro .cg-wrap piece.king.black {
+.gorogoro .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/shogi/Ka/0OU.svg');
 }

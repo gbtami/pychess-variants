@@ -1,42 +1,36 @@
-.sittuyin .cg-wrap piece.pawn.white {
+.sittuyin .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/wP.svg');
 }
-.sittuyin .cg-wrap piece.silver.white {
+.sittuyin .cg-wrap piece.s-piece.white {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/wB.svg');
 }
-.sittuyin .cg-wrap piece.knight.white {
+.sittuyin .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/wN.svg');
 }
-.sittuyin .cg-wrap piece.rook.white {
+.sittuyin .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/wR.svg');
 }
-.sittuyin .cg-wrap piece.met.white {
+.sittuyin .cg-wrap piece.f-piece.white {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/wQ.svg');
 }
-.sittuyin .cg-wrap piece.ferz.white {
-    background-image: url('../../images/pieces/sittuyin/Ka_greenred/wQ.svg');
-}
-.sittuyin .cg-wrap piece.king.white {
+.sittuyin .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/wK.svg');
 }
-.sittuyin .cg-wrap piece.pawn.black {
+.sittuyin .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/bP.svg');
 }
-.sittuyin .cg-wrap piece.silver.black {
+.sittuyin .cg-wrap piece.s-piece.black {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/bB.svg');
 }
-.sittuyin .cg-wrap piece.knight.black {
+.sittuyin .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/bN.svg');
 }
-.sittuyin .cg-wrap piece.rook.black {
+.sittuyin .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/bR.svg');
 }
-.sittuyin .cg-wrap piece.met.black {
+.sittuyin .cg-wrap piece.f-piece.black {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/bQ.svg');
 }
-.sittuyin .cg-wrap piece.ferz.black {
-    background-image: url('../../images/pieces/sittuyin/Ka_greenred/bQ.svg');
-}
-.sittuyin .cg-wrap piece.king.black {
+.sittuyin .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/sittuyin/Ka_greenred/bK.svg');
 }

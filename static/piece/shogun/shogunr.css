@@ -1,67 +1,67 @@
-.shogun .cg-wrap piece.ferz.white {
+.shogun .cg-wrap piece.f-piece.white {
     background-image: url('../../images/pieces/shogun/red/wF.svg');
 }
-.shogun .cg-wrap piece.ferz.black {
+.shogun .cg-wrap piece.f-piece.black {
     background-image: url('../../images/pieces/shogun/red/bF.svg');
 }
-.shogun .cg-wrap piece.pferz.white {
+.shogun .cg-wrap piece.pf-piece.white {
     background-image: url('../../images/pieces/shogun/red/wQ.svg');
 }
-.shogun .cg-wrap piece.pferz.black {
+.shogun .cg-wrap piece.pf-piece.black {
     background-image: url('../../images/pieces/shogun/red/bQ.svg');
 }
-.shogun .cg-wrap piece.pknight.white {
+.shogun .cg-wrap piece.pn-piece.white {
     background-image: url('../../images/pieces/shogun/red/wG.svg');
 }
-.shogun .cg-wrap piece.pknight.black {
+.shogun .cg-wrap piece.pn-piece.black {
     background-image: url('../../images/pieces/shogun/red/bG.svg');
 }
-.shogun .cg-wrap piece.prook.white {
+.shogun .cg-wrap piece.pr-piece.white {
     background-image: url('../../images/pieces/shogun/red/wM.svg');
 }
-.shogun .cg-wrap piece.prook.black {
+.shogun .cg-wrap piece.pr-piece.black {
     background-image: url('../../images/pieces/shogun/red/bM.svg');
 }
-.shogun .cg-wrap piece.pbishop.white {
+.shogun .cg-wrap piece.pb-piece.white {
     background-image: url('../../images/pieces/shogun/red/wA.svg');
 }
-.shogun .cg-wrap piece.pbishop.black {
+.shogun .cg-wrap piece.pb-piece.black {
     background-image: url('../../images/pieces/shogun/red/bA.svg');
 }
-.shogun .cg-wrap piece.ppawn.white {
+.shogun .cg-wrap piece.pp-piece.white {
     background-image: url('../../images/pieces/shogun/red/wC.svg');
 }
-.shogun .cg-wrap piece.ppawn.black {
+.shogun .cg-wrap piece.pp-piece.black {
     background-image: url('../../images/pieces/shogun/red/bC.svg');
 }
 
-.shogun .cg-wrap piece.pawn.white {
+.shogun .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/shogun/red/wP.svg');
 }
-.shogun .cg-wrap piece.bishop.white {
+.shogun .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/shogun/red/wB.svg');
 }
-.shogun .cg-wrap piece.knight.white {
+.shogun .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/shogun/red/wN.svg');
 }
-.shogun .cg-wrap piece.rook.white {
+.shogun .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/shogun/red/wR.svg');
 }
-.shogun .cg-wrap piece.king.white {
+.shogun .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/shogun/red/wK.svg');
 }
-.shogun .cg-wrap piece.pawn.black {
+.shogun .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/shogun/red/bP.svg');
 }
-.shogun .cg-wrap piece.bishop.black {
+.shogun .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/shogun/red/bB.svg');
 }
-.shogun .cg-wrap piece.knight.black {
+.shogun .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/shogun/red/bN.svg');
 }
-.shogun .cg-wrap piece.rook.black {
+.shogun .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/shogun/red/bR.svg');
 }
-.shogun .cg-wrap piece.king.black {
+.shogun .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/shogun/red/bK.svg');
 }

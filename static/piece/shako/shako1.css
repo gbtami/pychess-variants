@@ -1,48 +1,48 @@
-.shako .cg-wrap piece.elephant.white {
+.shako .cg-wrap piece.e-piece.white {
     background-image: url('../../images/pieces/kaneo/wE.svg');
 }
-.shako .cg-wrap piece.chancellor.white {
+.shako .cg-wrap piece.c-piece.white {
     background-image: url('../../images/pieces/kaneo/wC.svg');
 }
-.shako .cg-wrap piece.pawn.white {
+.shako .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/kaneo/wP.svg');
 }
-.shako .cg-wrap piece.bishop.white {
+.shako .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/kaneo/wB.svg');
 }
-.shako .cg-wrap piece.knight.white {
+.shako .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/kaneo/wN.svg');
 }
-.shako .cg-wrap piece.rook.white {
+.shako .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/kaneo/wR.svg');
 }
-.shako .cg-wrap piece.queen.white {
+.shako .cg-wrap piece.q-piece.white {
     background-image: url('../../images/pieces/kaneo/wQ.svg');
 }
-.shako .cg-wrap piece.king.white {
+.shako .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/kaneo/wK.svg');
 }
-.shako .cg-wrap piece.pawn.black {
+.shako .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/kaneo/bP.svg');
 }
-.shako .cg-wrap piece.bishop.black {
+.shako .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/kaneo/bB.svg');
 }
-.shako .cg-wrap piece.knight.black {
+.shako .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/kaneo/bN.svg');
 }
-.shako .cg-wrap piece.rook.black {
+.shako .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/kaneo/bR.svg');
 }
-.shako .cg-wrap piece.queen.black {
+.shako .cg-wrap piece.q-piece.black {
     background-image: url('../../images/pieces/kaneo/bQ.svg');
 }
-.shako .cg-wrap piece.king.black {
+.shako .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/kaneo/bK.svg');
 }
-.shako .cg-wrap piece.elephant.black {
+.shako .cg-wrap piece.e-piece.black {
     background-image: url('../../images/pieces/kaneo/bE.svg');
 }
-.shako .cg-wrap piece.chancellor.black {
+.shako .cg-wrap piece.c-piece.black {
     background-image: url('../../images/pieces/kaneo/bC.svg');
 }
