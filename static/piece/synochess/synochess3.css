@@ -17,10 +17,10 @@
     background-image: url('../../images/pieces/synochess/xq/wK.svg');
 }
 .synochess .cg-wrap piece.s-piece.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/red_p-piece.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_pawn.svg');
 }
 .synochess .cg-wrap piece.e-piece.black {
-    background-image: url('../../images/pieces/xiangqi/ct3/red_e-piece.svg');
+    background-image: url('../../images/pieces/xiangqi/ct3/red_elephant.svg');
 }
 .synochess .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/xiangqi/ct3/red_horse.svg');
