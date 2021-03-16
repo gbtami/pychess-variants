@@ -13,12 +13,8 @@ label.piece {
     background-size: contain;
 }
 label.board {
-    background-size: auto 90%;
+    background-size: 90%;
 }
-label.board.standard10x8 {
-    background-size: 90% auto;
-}
-
 label.board.board0.shogi9x9 {
     background-image: url('images/board/shogi.svg');
 }
@@ -91,21 +87,21 @@ label.board.board1.shogi5x5 {
 label.board.board2.shogi5x5 {
     background-image: url('images/board/MiniboardWood2.png');
 }
+label.board.board3.shogi5x5 {
+    background-image: url('images/board/MinishogiDobutsu.svg');
+}
+label.board.board4.shogi5x5 {
+    background-image: url('images/board/MinishogiDobutsu2.svg');
+}
 
-label.piece.piece0.gorogoro {
-    background-image: url('images/pieces/shogi/Ka/dobutsu/0GY.svg');
-}
-label.piece.piece1.gorogoro {
-    background-image: url('images/pieces/shogi/ctk/0OU.svg');
-}
 label.board.board0.shogi5x6 {
-    background-image: url('images/board/gorogoroboard.svg');
+    background-image: url('images/board/gorogoro.svg');
 }
 label.board.board1.shogi5x6 {
-    background-image: url('images/board/gorogoro2.svg');
+    background-image: url('images/board/gorogoroboard.svg');
 }
 label.board.board2.shogi5x6 {
-    background-image: url('images/board/gorogoro.svg');
+    background-image: url('images/board/gorogoro2.svg');
 }
 
 label.piece.piece0.dobutsu {

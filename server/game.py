@@ -18,7 +18,7 @@ from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
     INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, IMPORTED
-from convert import uci2cg, uci2usi, mirror5, mirror9
+from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2, PROVISIONAL_PHI
 from settings import URI
@@ -352,7 +352,7 @@ class Game:
                 "s": self.status,
                 "r": R2C[self.result],
                 'm': encode_moves(
-                    map(uci2cg, self.board.move_stack) if self.variant in GRANDS
+                    map(grand2zero, self.board.move_stack) if self.variant in GRANDS
                     else self.board.move_stack, self.variant)}
 
             if self.rated == RATED and self.result != "*":
@@ -519,6 +519,10 @@ class Game:
                     if self.result == ("1-0" if counting_side == 'w' else "0-1"):
                         self.status = DRAW
                         self.result = "1/2-1/2"
+
+                # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
+                if self.board.move_stack[-1][0:2] == "P@" and self.variant in ("shogi", "minishogi", "gorogoro"):
+                    self.status = INVALIDMOVE
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
@@ -571,8 +575,9 @@ class Game:
             # print("RM: %s" % self.random_move)
 
         for move in moves:
+            # chessgroundx key uses ":" for tenth rank
             if self.variant in GRANDS:
-                move = uci2cg(move)
+                move = move.replace("10", ":")
             source, dest = move[0:2], move[2:4]
             if source in dests:
                 dests[source].append(dest)

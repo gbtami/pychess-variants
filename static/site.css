@@ -608,7 +608,7 @@ settings-board, settings-pieces {
     border: 1px solid var(--border-color);
 }
 settings-board {
-    grid-template-rows: max-content max-content;
+    grid-template-rows: auto auto;
 }
 
 button.back {
