@@ -18,7 +18,7 @@ from broadcast import round_broadcast
 from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
     UNKNOWNFINISH, CASUAL, RATED, IMPORTED
 from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
-from convert import mirror5, mirror9, usi2uci, uci2cg, cg2uci
+from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game
 from user import User
@@ -141,7 +141,7 @@ async def load_game(app, game_id, user=None):
         mlist = map(mirror, mlist)
 
     elif variant in GRANDS:
-        mlist = map(cg2uci, mlist)
+        mlist = map(zero2grand, mlist)
 
     if "a" in doc:
         if usi_format and "m" in doc["a"][0]:
@@ -294,7 +294,7 @@ async def import_game(request):
 
     move_stack = data.get("moves", "").split(" ")
     moves = encode_moves(
-        map(uci2cg, move_stack) if variant in GRANDS
+        map(grand2zero, move_stack) if variant in GRANDS
         else move_stack, variant)
 
     new_id = await new_game_id(db)
@@ -450,7 +450,7 @@ def get_dests(board):
 
     for move in moves:
         if board.variant in GRANDS:
-            move = uci2cg(move)
+            move = grand2zero(move)
         source, dest = move[0:2], move[2:4]
         if source in dests:
             dests[source].append(dest)
@@ -580,7 +580,7 @@ def pgn(doc):
         mlist = list(map(mirror, mlist))
 
     elif variant in GRANDS:
-        mlist = list(map(cg2uci, mlist))
+        mlist = list(map(zero2grand, mlist))
 
     fen = initial_fen if initial_fen is not None else sf.start_fen(variant)
     # print(variant, fen, mlist)
