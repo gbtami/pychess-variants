@@ -1,5 +1,5 @@
 .janggi .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/janggi/intlwooden/blue_p-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/bluepawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/janggi/intlwooden/blue_elephant.svg');
@@ -11,17 +11,17 @@
     background-image: url('../../images/pieces/janggi/intlwooden/blue_chariot.svg');
 }
 .janggi .cg-wrap piece.a-piece.white {
-    background-image: url('../../images/pieces/janggi/intlwooden/blue_a-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/blue_advisor.svg');
 }
 .janggi .cg-wrap piece.c-piece.white {
-    background-image: url('../../images/pieces/janggi/intlwooden/blue_c-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/blue_cannon.svg');
 }
 .janggi .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/janggi/intlwooden/blue_k-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/blue_king.svg');
 }
 
 .janggi .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/janggi/intlwooden/red_p-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/redpawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/janggi/intlwooden/red_elephant.svg');
@@ -33,11 +33,11 @@
     background-image: url('../../images/pieces/janggi/intlwooden/red_chariot.svg');
 }
 .janggi .cg-wrap piece.a-piece.black {
-    background-image: url('../../images/pieces/janggi/intlwooden/red_a-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/red_advisor.svg');
 }
 .janggi .cg-wrap piece.c-piece.black {
-    background-image: url('../../images/pieces/janggi/intlwooden/red_c-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/red_cannon.svg');
 }
 .janggi .cg-wrap piece.k-piece.black {
-    background-image: url('../../images/pieces/janggi/intlwooden/red_k-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlwooden/red_king.svg');
 }

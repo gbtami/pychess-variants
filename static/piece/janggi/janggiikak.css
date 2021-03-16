@@ -1,5 +1,5 @@
 .janggi .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/janggi/intlkakao/blue_p-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/bluepawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/janggi/intlkakao/blue_elephant.svg');
@@ -11,17 +11,17 @@
     background-image: url('../../images/pieces/janggi/intlkakao/blue_chariot.svg');
 }
 .janggi .cg-wrap piece.a-piece.white {
-    background-image: url('../../images/pieces/janggi/intlkakao/blue_a-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/blue_advisor.svg');
 }
 .janggi .cg-wrap piece.c-piece.white {
-    background-image: url('../../images/pieces/janggi/intlkakao/blue_c-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/blue_cannon.svg');
 }
 .janggi .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/janggi/intlkakao/blue_k-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/blue_king.svg');
 }
 
 .janggi .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/janggi/intlkakao/red_p-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/redpawn.svg');
 }
 .janggi .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/janggi/intlkakao/red_elephant.svg');
@@ -33,11 +33,11 @@
     background-image: url('../../images/pieces/janggi/intlkakao/red_chariot.svg');
 }
 .janggi .cg-wrap piece.a-piece.black {
-    background-image: url('../../images/pieces/janggi/intlkakao/red_a-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/red_advisor.svg');
 }
 .janggi .cg-wrap piece.c-piece.black {
-    background-image: url('../../images/pieces/janggi/intlkakao/red_c-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/red_cannon.svg');
 }
 .janggi .cg-wrap piece.k-piece.black {
-    background-image: url('../../images/pieces/janggi/intlkakao/red_k-piece.svg');
+    background-image: url('../../images/pieces/janggi/intlkakao/red_king.svg');
 }
