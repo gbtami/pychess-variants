@@ -27,8 +27,9 @@ describe('isHandicap test',
 
 describe('validFen test', 
     () => { 
-        it('should return true for standard chess initial position', () => { 
-            const result = validFen('chess', VARIANTS['chess'].startFen);
+        it('should return true for standard chess initial position', () => {
+            const variant = VARIANTS['chess'];
+            const result = validFen(variant, variant.startFen);
             expect(result).to.be.true; 
     }); 
 });
