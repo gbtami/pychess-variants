@@ -344,20 +344,9 @@ export default class EditorController {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
         this.parts[0] = this.chessground.getFen() + this.pocketsPart;
-        this.variantFenChange();
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());
-    }
-
-    private variantFenChange = () => {
-        switch (this.variant.name) {
-            case "makruk":
-            case "makpong":
-            case "cambodian":
-                this.parts[0] = this.parts[0].replace(/F/g, "M~").replace(/f/g, "m~");
-                break;
-        }
     }
 }
 

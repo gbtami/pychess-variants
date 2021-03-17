@@ -1,42 +1,42 @@
-.makruk .cg-wrap piece.pawn.white {
+.makruk .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/makruk/ada/wr/wP.svg');
 }
-.makruk .cg-wrap piece.silver.white {
+.makruk .cg-wrap piece.s-piece.white {
     background-image: url('../../images/pieces/makruk/ada/wr/wB.svg');
 }
-.makruk .cg-wrap piece.knight.white {
+.makruk .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/makruk/ada/wr/wN.svg');
 }
-.makruk .cg-wrap piece.rook.white {
+.makruk .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/makruk/ada/wr/wR.svg');
 }
-.makruk .cg-wrap piece.met.white {
+.makruk .cg-wrap piece.m-piece.white {
     background-image: url('../../images/pieces/makruk/ada/wr/wQ.svg');
 }
-.makruk .cg-wrap piece.ferz.white {
+.makruk .cg-wrap piece.m-piece.promoted.white {
     background-image: url('../../images/pieces/makruk/ada/wr/wF.svg');
 }
-.makruk .cg-wrap piece.king.white {
+.makruk .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/makruk/ada/wr/wK.svg');
 }
-.makruk .cg-wrap piece.pawn.black {
+.makruk .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/makruk/ada/wr/bP.svg');
 }
-.makruk .cg-wrap piece.silver.black {
+.makruk .cg-wrap piece.s-piece.black {
     background-image: url('../../images/pieces/makruk/ada/wr/bB.svg');
 }
-.makruk .cg-wrap piece.knight.black {
+.makruk .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/makruk/ada/wr/bN.svg');
 }
-.makruk .cg-wrap piece.rook.black {
+.makruk .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/makruk/ada/wr/bR.svg');
 }
-.makruk .cg-wrap piece.met.black {
+.makruk .cg-wrap piece.m-piece.black {
     background-image: url('../../images/pieces/makruk/ada/wr/bQ.svg');
 }
-.makruk .cg-wrap piece.ferz.black {
+.makruk .cg-wrap piece.m-piece.promoted.black {
     background-image: url('../../images/pieces/makruk/ada/wr/bF.svg');
 }
-.makruk .cg-wrap piece.king.black {
+.makruk .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/makruk/ada/wr/bK.svg');
 }

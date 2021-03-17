@@ -1,42 +1,42 @@
-.orda .cg-wrap piece.pawn.white {
+.orda .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/orda/cburnett/wP.svg');
 }
-.orda .cg-wrap piece.bishop.white {
+.orda .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/orda/cburnett/wB.svg');
 }
-.orda .cg-wrap piece.knight.white {
+.orda .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/orda/cburnett/wN.svg');
 }
-.orda .cg-wrap piece.rook.white {
+.orda .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/orda/cburnett/wR.svg');
 }
-.orda .cg-wrap piece.queen.white {
+.orda .cg-wrap piece.q-piece.white {
     background-image: url('../../images/pieces/orda/cburnett/wQ.svg');
 }
-.orda .cg-wrap piece.king.white {
+.orda .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/orda/cburnett/wK.svg');
 }
-.orda .cg-wrap piece.hawk.white {
+.orda .cg-wrap piece.h-piece.white {
     background-image: url('../../images/pieces/orda/cburnett/wH.svg');
 }
-.orda .cg-wrap piece.pawn.black {
+.orda .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/orda/cburnett/bP.svg');
 }
-.orda .cg-wrap piece.archbishop.black {
+.orda .cg-wrap piece.a-piece.black {
     background-image: url('../../images/pieces/orda/cburnett/bA.svg');
 }
-.orda .cg-wrap piece.hawk.black {
+.orda .cg-wrap piece.h-piece.black {
     background-image: url('../../images/pieces/orda/cburnett/bH.svg');
 }
-.orda .cg-wrap piece.lancer.black {
+.orda .cg-wrap piece.l-piece.black {
     background-image: url('../../images/pieces/orda/cburnett/bL.svg');
 }
-.orda .cg-wrap piece.yurt.black {
+.orda .cg-wrap piece.y-piece.black {
     background-image: url('../../images/pieces/orda/cburnett/bY.svg');
 }
-.orda .cg-wrap piece.king.black {
+.orda .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/orda/cburnett/bK.svg');
 }
-.orda .cg-wrap piece.queen.black {
+.orda .cg-wrap piece.q-piece.black {
     background-image: url('../../images/pieces/orda/cburnett/bQ.svg');
 }

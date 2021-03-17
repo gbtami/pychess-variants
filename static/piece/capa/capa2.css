@@ -1,49 +1,49 @@
-.capa .cg-wrap piece.archbishop.white {
+.capa .cg-wrap piece.a-piece.white {
     background-image: url('../../images/pieces/green/wA.svg');
 }
-.capa .cg-wrap piece.chancellor.white {
+.capa .cg-wrap piece.c-piece.white {
     background-image: url('../../images/pieces/green/wC.svg');
 }
-.capa .cg-wrap piece.archbishop.black {
+.capa .cg-wrap piece.a-piece.black {
     background-image: url('../../images/pieces/green/bA.svg');
 }
-.capa .cg-wrap piece.chancellor.black {
+.capa .cg-wrap piece.c-piece.black {
     background-image: url('../../images/pieces/green/bC.svg');
 }
 
-.capa .cg-wrap piece.pawn.white {
+.capa .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/green/wP.svg');
 }
-.capa .cg-wrap piece.bishop.white {
+.capa .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/green/wB.svg');
 }
-.capa .cg-wrap piece.knight.white {
+.capa .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/green/wN.svg');
 }
-.capa .cg-wrap piece.rook.white {
+.capa .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/green/wR.svg');
 }
-.capa .cg-wrap piece.queen.white {
+.capa .cg-wrap piece.q-piece.white {
     background-image: url('../../images/pieces/green/wQ.svg');
 }
-.capa .cg-wrap piece.king.white {
+.capa .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/green/wK.svg');
 }
-.capa .cg-wrap piece.pawn.black {
+.capa .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/green/bP.svg');
 }
-.capa .cg-wrap piece.bishop.black {
+.capa .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/green/bB.svg');
 }
-.capa .cg-wrap piece.knight.black {
+.capa .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/green/bN.svg');
 }
-.capa .cg-wrap piece.rook.black {
+.capa .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/green/bR.svg');
 }
-.capa .cg-wrap piece.queen.black {
+.capa .cg-wrap piece.q-piece.black {
     background-image: url('../../images/pieces/green/bQ.svg');
 }
-.capa .cg-wrap piece.king.black {
+.capa .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/green/bK.svg');
 }

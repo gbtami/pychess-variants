@@ -8,18 +8,20 @@ import { VNode } from 'snabbdom/vnode';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import { Key } from 'chessgroundx/types';
+import { Key, Role } from 'chessgroundx/types';
 
-import { getPockets, roleToSan, lc } from './chess';
+import { getPockets, lc, role2letter, letter2role  } from './chess';
+import RoundController from './roundCtrl';
+import AnalysisController from './analysisCtrl';
 import { bind } from './document';
 import { pocketView } from './pocket';
 
 const patch = init([attributes, event, style]);
 
 export class Gating {
-    private ctrl;
+    private ctrl: RoundController | AnalysisController;
     private gating;
-    private choices: string[];
+    private choices: (Role | "")[];
 
     constructor(ctrl) {
         this.ctrl = ctrl;
@@ -32,7 +34,7 @@ export class Gating {
         if (this.canGate(ground, fen, orig, dest)) {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
-            this.choices = ["hawk", "elephant", "queen", "rook", "bishop", "knight"].filter(role => lc(pocket, roleToSan[role], color === "white") > 0);
+            this.choices = ['h', 'e', 'q', 'r', 'b', 'n'].filter(letter => lc(pocket, letter, color === "white") > 0).map(letter2role);
 
             // prevent empty only choices in s-house (when H and E dropped before any gating move)
             if (this.choices.length === 0) return false;
@@ -42,22 +44,23 @@ export class Gating {
 
             const orientation = ground.state.orientation;
 
-            const moves = {"normal": [orig, dest]};
+            const moves: any = {"normal": [orig, dest]};
             let castling = false;
             let rookOrig = "";
-            const moveLength = dest[0].charCodeAt() - orig[0].charCodeAt();
+            const moveLength = dest.charCodeAt(0) - orig.charCodeAt(0);
 
             const pieceMoved = ground.state.pieces[dest];
-            const pieceMovedRole = (pieceMoved === undefined) ? 'king' : pieceMoved.role;
-            if (pieceMovedRole === "king") {
+            const pieceMovedRole: Role = pieceMoved?.role ?? "k-piece";
+            if (pieceMovedRole === "k-piece") {
                 // King long move is always castling move
                 if (Math.abs(moveLength) > 1 ) {
                     castling = true;
                     rookOrig = ((moveLength > 1) ? "h" : "a") + orig[1];
                 }
                 // King takes own Rook is always castling move in 960 games
-                if (this.ctrl.model.chess960 === 'True' && this.ctrl.prevPieces[dest] !== undefined) {
-                    if (this.ctrl.prevPieces[dest].role === "rook" && this.ctrl.prevPieces[dest].color === color) {
+                if (this.ctrl.chess960 && this.ctrl.prevPieces !== undefined) {
+                    const prevPiece = this.ctrl.prevPieces[dest];
+                    if (prevPiece !== undefined && prevPiece.role === "r-piece" && prevPiece.color === color) {
                         castling = true;
                         rookOrig = dest;
                         // remove gating possibility if king move orig is in castling destination squares 
@@ -74,8 +77,8 @@ export class Gating {
                     moves["special"] = [rookOrig, orig, dest];
                 }
                 const pieces = {};
-                pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'rook'};
-                pieces[((moveLength > 0) ? "g" : "c") + orig[1]] = {color: color, role: 'king'};
+                pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'r-piece'};
+                pieces[((moveLength > 0) ? "g" : "c") + orig[1]] = {color: color, role: 'k-piece'};
                 ground.setPieces(pieces);
             }
 
@@ -130,8 +133,8 @@ export class Gating {
         // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
 
         const pieceMoved = ground.state.pieces[dest];
-        const pieceMovedRole = (pieceMoved === undefined) ? 'king' : pieceMoved.role;
-        if (pieceMovedRole === 'king' || pieceMovedRole === 'rook') {
+        const pieceMovedRole: Role = pieceMoved?.role ?? 'k-piece';
+        if (pieceMovedRole === 'k-piece' || pieceMovedRole === 'r-piece') {
             if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
                 (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
                 const inverseDests = this.ctrl.dests[dest];
@@ -196,7 +199,7 @@ export class Gating {
             const move = this.gating.moves[moveType];
             if (gatedPieceRole) this.gate(move[0], color, gatedPieceRole);
 
-            const gatedPieceLetter = gatedPieceRole ? roleToSan[gatedPieceRole].toLowerCase() : "";
+            const gatedPieceLetter = gatedPieceRole ? role2letter(gatedPieceRole) : "";
             if (this.gating.callback) {
                 if (moveType === "special") {
                     if (gatedPieceLetter === "") {

@@ -1,42 +1,36 @@
-.sittuyin .cg-wrap piece.pawn.white {
+.sittuyin .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wP.svg');
 }
-.sittuyin .cg-wrap piece.silver.white {
+.sittuyin .cg-wrap piece.s-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wB.svg');
 }
-.sittuyin .cg-wrap piece.knight.white {
+.sittuyin .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wN.svg');
 }
-.sittuyin .cg-wrap piece.rook.white {
+.sittuyin .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wR.svg');
 }
-.sittuyin .cg-wrap piece.met.white {
+.sittuyin .cg-wrap piece.f-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wQ.svg');
 }
-.sittuyin .cg-wrap piece.ferz.white {
-    background-image: url('../../images/pieces/sittuyin/original/wQ.svg');
-}
-.sittuyin .cg-wrap piece.king.white {
+.sittuyin .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wK.svg');
 }
-.sittuyin .cg-wrap piece.pawn.black {
+.sittuyin .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bP.svg');
 }
-.sittuyin .cg-wrap piece.silver.black {
+.sittuyin .cg-wrap piece.s-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bB.svg');
 }
-.sittuyin .cg-wrap piece.knight.black {
+.sittuyin .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bN.svg');
 }
-.sittuyin .cg-wrap piece.rook.black {
+.sittuyin .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bR.svg');
 }
-.sittuyin .cg-wrap piece.met.black {
+.sittuyin .cg-wrap piece.f-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bQ.svg');
 }
-.sittuyin .cg-wrap piece.ferz.black {
-    background-image: url('../../images/pieces/sittuyin/original/bQ.svg');
-}
-.sittuyin .cg-wrap piece.king.black {
+.sittuyin .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bK.svg');
 }
