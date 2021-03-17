@@ -58,9 +58,9 @@ export class Gating {
                     rookOrig = ((moveLength > 1) ? "h" : "a") + orig[1];
                 }
                 // King takes own Rook is always castling move in 960 games
-                const prevPiece = this.ctrl.prevPieces[dest];
-                if (this.ctrl.chess960 && prevPiece !== undefined) {
-                    if (prevPiece.role === "r-piece" && prevPiece.color === color) {
+                if (this.ctrl.chess960 && this.ctrl.prevPieces !== undefined) {
+                    const prevPiece = this.ctrl.prevPieces[dest];
+                    if (prevPiece !== undefined && prevPiece.role === "r-piece" && prevPiece.color === color) {
                         castling = true;
                         rookOrig = dest;
                         // remove gating possibility if king move orig is in castling destination squares 
