@@ -34,11 +34,12 @@ export class Promotion {
         if (this.canPromote(movingRole, orig, dest)) {
             const color = this.ctrl.turnColor;
             const orientation = ground.state.orientation;
+            const pchoices = this.promotionChoices(movingRole, orig, dest);
 
-            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && this.ctrl.variant.autoQueenable)
-                this.choices = { 'queen': 'q' };
+            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && this.ctrl.variant.autoQueenable && 'q-piece' in pchoices)
+                this.choices = { 'q-piece': 'q' };
             else
-                this.choices = this.promotionChoices(movingRole, orig, dest);
+                this.choices = pchoices;
 
             if (Object.keys(this.choices).length === 1) {
                 const role = Object.keys(this.choices)[0];
