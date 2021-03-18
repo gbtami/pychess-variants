@@ -236,29 +236,11 @@ export default class EditorController {
     }
 
     private validFen = () => {
-        let valid = false;
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
-        valid = validFen(this.variant, fen);
-        if (valid) {
-            // try to catch more invalid stuff using ffish.js
-            try {
-                const ffValid = this.ffish.validateFen(fen, this.variant.name);
-                if (ffValid !== 1 && !(this.variant.gate && ffValid == -5)) return false;
-
-                this.ffishBoard.setFen(fen);
-                const fenPlacement = fen.split(' ')[0].split('[')[0];
-                const ffishPlacement = this.ffishBoard.fen().split(' ')[0].split('[')[0];
-
-                if (fenPlacement !== ffishPlacement) {
-                    valid = false;
-                    console.log('fenPlacement !== ffishPlacement', fenPlacement, ffishPlacement);
-                }
-            } catch (error) {
-                console.log("validFen() failed on FEN:", fen);
-                valid = false;
-            }
-        }
-        return valid;
+        const valid = validFen(this.variant, fen);
+        const ff = this.ffish.validateFen(fen, this.variant.name);
+        const ffValid = (ff === 1) || (this.variant.gate && ff === -5);
+        return valid && ffValid;
     }
 
     private setInvalid = (invalid) => {
