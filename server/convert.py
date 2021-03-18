@@ -41,9 +41,8 @@ def uci2usi(move):
 
 
 def grand2zero(move):
-    """ Converts 1 based UCI move row part (1-10) to be 0 based (0-9).
-        This step is needed to use compress.py (store 2 byte moves on 1 byte)
-        and send 0 based list of keys/squares for chessgroundx dests. """
+    """ Converts 1 based UCI move ranks (1-10) to be 0 based (0-9)
+        This step is needed to use compress.py (store 2 byte moves on 1 byte)"""
 
     if move[1] == "@":
         return "%s@%s%s" % (move[0], move[2], int(move[3:]) - 1)

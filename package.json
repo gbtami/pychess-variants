@@ -7,7 +7,7 @@
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
   "dependencies": {
-    "chessgroundx": "^7.6.43",
+    "chessgroundx": "8.1.1",
     "ffish": "^0.6.1",
     "ffish-es6": "^0.6.1",
     "gettext.js": "^1.0.0",
@@ -33,7 +33,7 @@
     "showdown": "^1.9.1",
     "ts-node": "^8.10.2",
     "tsify": "^4",
-    "typescript": "^3",
+    "typescript": "^4.1",
     "vinyl-buffer": "^1",
     "vinyl-source-stream": "^2",
     "watchify": "^3",

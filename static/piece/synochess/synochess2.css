@@ -1,39 +1,39 @@
-.synochess .cg-wrap piece.pawn.white {
+.synochess .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/green/wP.svg');
 }
-.synochess .cg-wrap piece.bishop.white {
+.synochess .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/green/wB.svg');
 }
-.synochess .cg-wrap piece.knight.white {
+.synochess .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/green/wN.svg');
 }
-.synochess .cg-wrap piece.rook.white {
+.synochess .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/green/wR.svg');
 }
-.synochess .cg-wrap piece.queen.white {
+.synochess .cg-wrap piece.q-piece.white {
     background-image: url('../../images/pieces/green/wQ.svg');
 }
-.synochess .cg-wrap piece.king.white {
+.synochess .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/green/wK.svg');
 }
-.synochess .cg-wrap piece.silver.black {
+.synochess .cg-wrap piece.s-piece.black {
     background-image: url('../../images/pieces/green/syno-red/bP.svg');
 }
-.synochess .cg-wrap piece.elephant.black {
+.synochess .cg-wrap piece.e-piece.black {
     background-image: url('../../images/pieces/green/syno-red/bE.svg');
 }
-.synochess .cg-wrap piece.knight.black {
+.synochess .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/green/syno-red/bN.svg');
 }
-.synochess .cg-wrap piece.rook.black {
+.synochess .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/green/syno-red/bR.svg');
 }
-.synochess .cg-wrap piece.archbishop.black {
+.synochess .cg-wrap piece.a-piece.black {
     background-image: url('../../images/pieces/green/syno-red/bA.svg');
 }
-.synochess .cg-wrap piece.chancellor.black {
+.synochess .cg-wrap piece.c-piece.black {
     background-image: url('../../images/pieces/green/syno-red/bC.svg');
 }
-.synochess .cg-wrap piece.king.black {
+.synochess .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/green/syno-red/bK.svg');
 }

@@ -1,6 +1,7 @@
 import { h } from 'snabbdom/h';
 
-import { Color, dimensions, Geometry, Role } from 'chessgroundx/types';
+import { Color, dimensions, Geometry, Role, Key } from 'chessgroundx/types';
+import { key2pos } from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
@@ -24,7 +25,8 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     makruk8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"] },
     sittuyin8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
     shogi9x9: { geometry: Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", 'ShogiGrayTexture.png', "ShogiSpace1.png", "doubutsu.svg", "ShogiOak.png"] },
-    shogi5x5: { geometry: Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png"] },
+    shogi5x5: { geometry: Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png", "MinishogiDobutsu.svg", "MinishogiDobutsu2.svg"] },
+    shogi5x6: { geometry: Geometry.dim5x6, cg: "cg-260-360", boardCSS: ["gorogoro.svg", "gorogoroboard.svg", "gorogoro2.svg"] },
     shogi3x4: { geometry: Geometry.dim3x4, cg: "cg-156", boardCSS: ["doubutsuboard.svg", "dobutsu3x4.svg"] },
     xiangqi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg", "xiangqiWikimedia.svg"] },
     xiangqi7x7: { geometry: Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
@@ -50,6 +52,22 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"], baseURL: ["merida", "hoppel/grafted", "hoppel/animal"] },
 };
 
+type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
+
+const alwaysMandatory: MandatoryPromotionPredicate = () => true;
+
+function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) {
+    return (role, _orig, dest, color) => {
+        const letter = role2letter(role);
+        return (letter in required) ? distFromLastRank(dest, color, boardHeight) < required[letter] : false;
+    };
+}
+
+function distFromLastRank(dest: Key, color: Color, boardHeight: number) {
+    const rank = key2pos(dest)[1];
+    return (color === "white") ? boardHeight - rank : rank - 1;
+}
+
 export interface IVariant {
     readonly name: string;
     readonly displayName: (chess960: boolean) => string;
@@ -71,11 +89,12 @@ export interface IVariant {
     readonly firstColor: string;
     readonly secondColor: string;
 
-    readonly pieceRoles: (color: Color) => Role[];
+    readonly pieceRoles: (color: Color) => string[];
     readonly pocket: boolean;
-    readonly pocketRoles: (color: Color) => Role[] | null;
+    readonly pocketRoles: (color: Color) => string[] | null;
 
     readonly promotion: string;
+    readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
     readonly materialPoint?: string;
@@ -118,13 +137,14 @@ class Variant implements IVariant {
     readonly firstColor: string;
     readonly secondColor: string;
 
-    private readonly _pieceRoles: [ Role[], Role[] ];
+    private readonly _pieceRoles: [ string[], string[] ];
     pieceRoles(color: Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
     readonly pocket: boolean;
-    private readonly _pocketRoles: [ Role[] | null, Role[] | null ];
+    private readonly _pocketRoles: [ string[] | null, string[] | null ];
     pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
     readonly promotion: string;
+    readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
     readonly materialPoint?: string;
@@ -163,6 +183,7 @@ class Variant implements IVariant {
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
         this.promotion = data.promotion ?? "regular";
+        this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
         this.materialPoint = data.materialPoint;
@@ -189,7 +210,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "chess", tooltip: () => _("Chess, unmodified, as it's played by FIDE standards"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
         enPassant: true, autoQueenable: true,
         alternateStart: {
             '': '',
@@ -206,8 +227,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "crazyhouse", tooltip: () => _("Take captured pieces and drop them back on to the board as your own"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "queen"],
+        pieceRoles: ["k", "q", "r", "b", "k", "p"],
+        pocketRoles: ["p", "n", "b", "r", "q"],
         enPassant: true, autoQueenable: true, drop: true,
         alternateStart: {
             '': '',
@@ -224,8 +245,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "placement", tooltip: () => _("Choose where your pieces start"),
         startFen: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["knight", "bishop", "rook", "queen", "king"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        pocketRoles: ["n", "b", "r", "q", "k"],
         enPassant: true, autoQueenable: true,
         icon: "S",
     }),
@@ -234,7 +255,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "atomic", tooltip: () => _("Explode your opponent's king to win"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
         enPassant: true, autoQueenable: true,
         pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "\\",
@@ -244,7 +265,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "makruk", tooltip: () => _("A game closely resembling the original Chaturanga"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
         counting: "makruk",
         icon: "Q",
     }),
@@ -253,7 +274,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "makpong", tooltip: () => _("Makruk variant where kings cannot move to escape out of check"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
         counting: "makruk",
         icon: "O",
     }),
@@ -262,7 +283,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Makruk with a few additional opening abilities"),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["king", "silver", "met", "knight", "rook", "pawn", "ferz"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
         counting: "makruk",
         icon: "!",
     }),
@@ -272,8 +293,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "8/8/4pppp/pppp4/4PPPP/PPPP4/8/8[KFRRSSNNkfrrssnn] w - - 0 1",
         board: "sittuyin8x8", piece: "sittuyin",
         firstColor: "Red", secondColor: "Black",
-        pieceRoles: ["king", "ferz", "silver", "knight", "rook", "pawn"],
-        pocketRoles: ["rook", "knight", "silver", "ferz", "king"],
+        pieceRoles: ["k", "f", "s", "n", "r", "p"],
+        pocketRoles: ["r", "n", "s", "f", "k"],
         counting: "asean",
         icon: ":",
     }),
@@ -283,9 +304,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         board: "shogi9x9", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["king", "rook", "bishop", "gold", "silver", "knight", "lance", "pawn", "prook", "pbishop", "psilver", "pknight", "plance", "ppawn"],
-        pocketRoles: ["pawn", "lance", "knight", "silver", "gold", "bishop", "rook"],
+        pieceRoles: ["k", "r", "b", "g", "s", "n", "l", "p", "pr", "pb", "ps", "pn", "pl", "pp"],
+        pocketRoles: ["p", "l", "n", "s", "g", "b", "r"],
         promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
         timeControl: "byoyomi",
         sideDetermination: "direction",
         pieceSound: "shogi",
@@ -311,9 +333,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         board: "shogi5x5", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["king", "rook", "bishop", "gold", "silver", "pawn", "prook", "pbishop", "psilver", "ppawn"],
-        pocketRoles: ["pawn", "silver", "gold", "bishop", "rook"],
+        pieceRoles: ["k", "r", "b", "g", "s", "p", "pr", "pb", "ps", "pp"],
+        pocketRoles: ["p", "s", "g", "b", "r"],
         promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1 }, 5),
         timeControl: "byoyomi",
         sideDetermination: "direction",
         pieceSound: "shogi",
@@ -326,9 +349,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         board: "shogi5x5", piece: "kyoto",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["king", "pknight", "knight", "psilver", "silver", "plance", "lance", "ppawn", "pawn"],
-        pocketRoles: ["pawn", "lance", "knight", "silver"],
+        pieceRoles: ["k", "pn", "n", "ps", "s", "pl", "l", "pp", "p"],
+        pocketRoles: ["p", "l", "n", "s"],
         promotion: "kyoto",
+        isMandatoryPromotion: (_role, orig, _dest, _color) => orig !== 'a0',
         timeControl: "byoyomi",
         sideDetermination: "direction",
         pieceSound: "shogi",
@@ -341,8 +365,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         board: "shogi3x4", piece: "dobutsu",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["king", "gold", "elephant", "chancellor", "pchancellor"],
-        pocketRoles: ["elephant", "gold", "chancellor"],
+        pieceRoles: ["l", "g", "e", "c", "pc"],
+        pocketRoles: ["e", "g", "c"],
         promotion: "shogi",
         timeControl: "byoyomi",
         sideDetermination: "direction",
@@ -351,12 +375,28 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "8",
     }),
 
+    gorogoro: new Variant({
+        name: "gorogoro", tooltip: () => _("Shogi on a 5x6 board"),
+        startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
+        board: "shogi5x6", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["k", "g", "s", "p", "ps", "pp"],
+        pocketRoles: ["p", "s", "g"],
+        promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1 }, 6),
+        timeControl: "byoyomi",
+        sideDetermination: "direction",
+        pieceSound: "shogi",
+        drop: true,
+        icon: "🐱",
+    }),
+
     xiangqi: new Variant({
         name: "xiangqi", tooltip: () => _("Open fire on your opponent in this highly aggressive ancient game"),
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
-        pieceRoles: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
         icon: "|",
     }),
 
@@ -365,8 +405,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
-        pieceRoles: ["king", "advisor", "banner", "bishop", "pawn"],
-        pieceRoles2: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "a", "m", "b", "p"],
+        pieceRoles2: ["k", "a", "c", "r", "b", "n", "p"],
         icon: "{",
     }),
 
@@ -375,7 +415,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
-        pieceRoles: ["king", "advisor", "cannon", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
         timeControl: "byoyomi",
         materialPoint: "janggi",
         pass: true,
@@ -387,7 +427,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
         board: "xiangqi7x7", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
-        pieceRoles: ["king", "cannon", "rook", "knight", "pawn"],
+        pieceRoles: ["k", "c", "r", "n", "p"],
         icon: "7",
     }),
 
@@ -395,7 +435,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "capablanca", tooltip: () => _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board"),
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
-        pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         enPassant: true, autoQueenable: true,
         alternateStart: {
             '': '',
@@ -411,8 +451,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "capahouse", tooltip: () => _("Capablanca with Crazyhouse drop rules"),
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
-        pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "chancellor", "queen"],
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
         enPassant: true, autoQueenable: true, drop: true,
         alternateStart: {
             '': '',
@@ -428,7 +468,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "gothic", tooltip: () => _("Like Capablanca Chess but with a different starting setup"),
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
-        pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
         enPassant: true, autoQueenable: true,
         icon: "P",
     }),
@@ -437,8 +478,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "gothhouse", tooltip: () => _("Gothic with Crazyhouse drop rules"),
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
-        pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "chancellor", "queen"],
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
         enPassant: true, autoQueenable: true, drop: true,
         icon: "P",
     }),
@@ -447,8 +488,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "seirawan", displayName: "s-chess", tooltip: () => _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         board: "standard8x8", piece: "seirawan",
-        pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["hawk", "elephant"],
+        pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
+        pocketRoles: ["h", "e"],
         enPassant: true, autoQueenable: true, gate: true,
         icon: "L",  chess960: true, icon960: "}",
     }),
@@ -457,8 +498,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "shouse", displayName: "s-house", tooltip: () => _("S-Chess with Crazyhouse drop rules"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         board: "standard8x8", piece: "seirawan",
-        pieceRoles: ["king", "queen", "elephant", "hawk", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "hawk", "elephant", "queen"],
+        pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "h", "e", "q"],
         enPassant: true, autoQueenable: true, drop: true, gate: true,
         icon: "$",
     }),
@@ -467,7 +508,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "grand", tooltip: () => _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board"),
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         board: "grand10x10", piece: "capa",
-        pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true, autoQueenable: true,
         icon: "(",
     }),
@@ -476,8 +518,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "grandhouse", tooltip: () => _("Grand Chess with Crazyhouse drop rules"),
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
         board: "grand10x10", piece: "capa",
-        pieceRoles: ["king", "queen", "chancellor", "archbishop", "rook", "bishop", "knight", "pawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "archbishop", "chancellor", "queen"],
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
+        isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true, autoQueenable: true, drop: true,
         icon: "*",
     }),
@@ -486,7 +529,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "shako", tooltip: () => _("Introduces the cannon and elephant from Xiangqi into a 10x10 chess board"),
         startFen: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
         board: "standard10x10", piece: "shako",
-        pieceRoles: ["king", "queen", "elephant", "chancellor", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "e", "c", "r", "b", "n", "p"],
         enPassant: true, autoQueenable: true,
         icon: "9",
     }),
@@ -495,9 +538,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "shogun", tooltip: () => _("Pieces promote and can be dropped, similar to Shogi"),
         startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
         board: "shogun8x8", piece: "shogun",
-        pieceRoles: ["king", "pferz", "rook", "bishop", "knight", "pawn", "ferz", "prook", "pbishop", "pknight", "ppawn"],
-        pocketRoles: ["pawn", "knight", "bishop", "rook", "ferz"],
+        pieceRoles: ["k", "pf", "r", "b", "n", "p", "f", "pr", "pb", "pn", "pp"],
+        pocketRoles: ["p", "n", "b", "r", "f"],
         promotion: "shogi",
+        isMandatoryPromotion: distanceBased({ p: 1 }, 8),
         timeControl: "byoyomi",
         enPassant: true, drop: true,
         icon: "-",
@@ -508,8 +552,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         board: "standard8x8", piece: "orda",
         firstColor: "White", secondColor: "Gold",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn", "hawk"],
-        pieceRoles2: ["king", "yurt", "lancer", "archbishop", "hawk", "pawn", "queen"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p", "h"],
+        pieceRoles2: ["k", "y", "l", "a", "h", "p", "q"],
         enPassant: true,
         icon: "R",
     }),
@@ -519,9 +563,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
         board: "standard8x8", piece: "synochess",
         firstColor: "White", secondColor: "Red",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
-        pieceRoles2: ["king", "archbishop", "chancellor", "rook", "elephant", "knight", "silver"],
-        pocketRoles: [], pocketRoles2: ["silver"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
+        pocketRoles: [], pocketRoles2: ["s"],
         autoQueenable: true,
         icon: "_",
     }),
@@ -530,7 +574,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: () => _("Knights are capturing as bishops, bishops are capturing as knights"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "hoppel",
-        pieceRoles: ["king", "queen", "rook", "bishop", "knight", "pawn"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
         enPassant: true, autoQueenable: true,
         icon: "`",
     }),
@@ -544,7 +588,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
@@ -594,35 +638,12 @@ export function hasCastling(variant: IVariant, color: Color) {
     }
 }
 
-export function zero2grand(move) {
-    const parts = move.split("");
-    if (parts[1] !== "@")
-        parts[1] = (Number(parts[1]) + 1).toString();
-    parts[3] = (Number(parts[3]) + 1).toString();
-    return parts.join("");
+export function uci2cg(move) {
+    return move.replace(/10/g, ":");
 }
 
-export function grand2zero(move) {
-    // cut off promotion piece letter
-    let promo = '';
-    if (!'0123456789'.includes(move.slice(-1))) {
-        promo = move.slice(-1);
-        move = move.slice(0, -1);
-    }
-    const parts = move.split("");
-
-    if (parts[1] === '@') {
-        return parts[0] + parts[1] + parts[2] + (Number(move.slice(3)) - 1).toString();
-    }
-    if ('0123456789'.indexOf(parts[2]) !== -1) {
-        parts[1] = (Number(parts[1] + parts[2]) -1).toString();
-        parts[4] = (Number(move.slice(4)) - 1).toString();
-        return parts[0] + parts[1] + parts[3] + parts[4] + promo;
-    } else {
-        parts[1] = (Number(parts[1]) -1).toString();
-        parts[3] = (Number(move.slice(3)) - 1).toString();
-        return parts[0] + parts[1] + parts[2] + parts[3] + promo;
-    }
+export function cg2uci(move) {
+    return move.replace(/:/g, "10");
 }
 
 // TODO Will be deprecated after WASM Fairy integration
@@ -736,8 +757,8 @@ export function validFen(variant: IVariant, fen: string) {
     if (lc(placement, king, false) !== 1 || lc(placement, king, true) !== 1) return false;
 
     // Touching kings
-    const pieces = read(parts[0], variant.geometry);
-    if (touchingKings(pieces)) return false;
+    const pieces = read(parts[0]);
+    if (variantName !== 'atomic' && touchingKings(pieces)) return false;
 
     return true;
 }
@@ -812,64 +833,25 @@ export function getJanggiPoints(board: string) {
     return [choPoint, hanPoint];
 }
 
-export const roleToSan = {
-    pawn: 'P',
-    knight: 'N',
-    bishop: 'B',
-    rook: 'R',
-    queen: 'Q',
-    king: 'K',
-    archbishop: 'A',
-    chancellor: 'C',
-    elephant: "E",
-    hawk: "H",
-    ferz: 'F',
-    met: 'M',
-    gold: 'G',
-    silver: 'S',
-    lance: 'L',
-    banner: 'M',
-};
+export function role2letter(role: Role) {
+    const letterPart = role.slice(0, role.indexOf('-'));
+    return (letterPart.length > 1) ? letterPart.replace('p', '+') : letterPart;
+}
+
+export function letter2role(letter: string) {
+    return (letter.replace('+', 'p') + '-piece') as Role;
+}
+
+export function role2san(role: Role) {
+    return role2letter(role).toUpperCase();
+}
 
 // Use cases
 // 1. determine piece role from analysis suggested (SAN) drop moves
 // 2. determine promotion piece roles from possible (UCI) promotion moves in grand, grandhouse, shako
-export const sanToRole = {
-    P: 'pawn',
-    N: 'knight',
-    B: 'bishop',
-    R: 'rook',
-    Q: 'queen',
-    K: 'king',
-    A: 'archbishop',
-    C: 'chancellor',
-    E: 'elephant',
-    H: 'hawk',
-    F: 'ferz',
-    M: 'met',
-    G: 'gold',
-    S: 'silver',
-    L: 'lance',
-    p: 'pawn',
-    n: 'knight',
-    b: 'bishop',
-    r: 'rook',
-    q: 'queen',
-    k: 'king',
-    a: 'archbishop',
-    c: 'chancellor',
-    e: 'elephant',
-    h: 'hawk',
-    f: 'ferz',
-    m: 'met',
-    g: 'gold',
-    s: 'silver',
-    l: 'lance',
-    '+L': 'plance',
-    '+N': 'gold',
-    '+P': 'rook',
-    '+S': 'bishop'
-};
+export function san2role(letter: string) {
+    return letter2role(letter.toLowerCase());
+}
 
 // Count given letter occurences in a string
 export function lc(str: string, letter: string, uppercase: boolean) {

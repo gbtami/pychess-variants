@@ -123,7 +123,7 @@ async def init_state(app):
     for variant in VARIANTS:
         variant960 = variant.endswith("960")
         variant_name = variant[:-3] if variant960 else variant
-        byoyomi = variant.endswith("shogi") or variant in ("dobutsu", "janggi", "shogun")
+        byoyomi = variant.endswith("shogi") or variant in ("dobutsu", "gorogoro", "janggi", "shogun")
         seek = Seek(rm, variant_name, base=5, inc=30 if byoyomi else 3, level=0, chess960=variant960, byoyomi_period=1 if byoyomi else 0)
         app["seeks"][seek.id] = seek
         rm.seeks[seek.id] = seek

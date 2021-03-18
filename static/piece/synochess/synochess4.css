@@ -1,39 +1,39 @@
-.synochess .cg-wrap piece.pawn.white {
+.synochess .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/synochess/xq/wP.svg');
 }
-.synochess .cg-wrap piece.bishop.white {
+.synochess .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/synochess/xq/wB.svg');
 }
-.synochess .cg-wrap piece.knight.white {
+.synochess .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/synochess/xq/wN.svg');
 }
-.synochess .cg-wrap piece.rook.white {
+.synochess .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/synochess/xq/wR.svg');
 }
-.synochess .cg-wrap piece.queen.white {
+.synochess .cg-wrap piece.q-piece.white {
     background-image: url('../../images/pieces/synochess/xq/wQ.svg');
 }
-.synochess .cg-wrap piece.king.white {
+.synochess .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/synochess/xq/wK.svg');
 }
-.synochess .cg-wrap piece.silver.black {
+.synochess .cg-wrap piece.s-piece.black {
     background-image: url('../../images/pieces/xiangqi/hnzw/red_pawn.svg');
 }
-.synochess .cg-wrap piece.elephant.black {
+.synochess .cg-wrap piece.e-piece.black {
     background-image: url('../../images/pieces/xiangqi/hnzw/red_elephant.svg');
 }
-.synochess .cg-wrap piece.knight.black {
+.synochess .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/xiangqi/hnzw/red_horse.svg');
 }
-.synochess .cg-wrap piece.rook.black {
+.synochess .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/xiangqi/hnzw/red_chariot.svg');
 }
-.synochess .cg-wrap piece.archbishop.black {
+.synochess .cg-wrap piece.a-piece.black {
     background-image: url('../../images/pieces/xiangqi/hnzw/red_advisor.svg');
 }
-.synochess .cg-wrap piece.chancellor.black {
+.synochess .cg-wrap piece.c-piece.black {
     background-image: url('../../images/pieces/xiangqi/hnzw/red_cannon.svg');
 }
-.synochess .cg-wrap piece.king.black {
+.synochess .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/xiangqi/hnzw/red_king.svg');
 }

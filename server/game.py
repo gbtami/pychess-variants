@@ -519,6 +519,10 @@ class Game:
                     if self.result == ("1-0" if counting_side == 'w' else "0-1"):
                         self.status = DRAW
                         self.result = "1/2-1/2"
+
+                # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
+                if self.board.move_stack[-1][0:2] == "P@" and self.variant in ("shogi", "minishogi", "gorogoro"):
+                    self.status = INVALIDMOVE
                 print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
@@ -571,8 +575,9 @@ class Game:
             # print("RM: %s" % self.random_move)
 
         for move in moves:
+            # chessgroundx key uses ":" for tenth rank
             if self.variant in GRANDS:
-                move = grand2zero(move)
+                move = move.replace("10", ":")
             source, dest = move[0:2], move[2:4]
             if source in dests:
                 dests[source].append(dest)

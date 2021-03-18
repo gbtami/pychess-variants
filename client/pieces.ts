@@ -8,9 +8,9 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
-import { Color } from 'chessgroundx/types';
 
 import EditorController from './editor';
+import { letter2role } from './chess';
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
@@ -18,7 +18,7 @@ type Position = 'top' | 'bottom';
 
 const eventNames = ['mousedown', 'touchstart'];
 
-export function piecesView(ctrl: EditorController, color: Color, position: Position) {
+export function piecesView(ctrl: EditorController, color: cg.Color, position: Position) {
     const width = ctrl.variant.boardWidth;
     const height = ctrl.variant.boardHeight;
     const roles = ctrl.variant.pieceRoles(color);
@@ -38,11 +38,17 @@ export function piecesView(ctrl: EditorController, color: Color, position: Posit
                 });
             }
         }
-    }, roles.map(role => {
-        return h('piece.' + role + '.' + color, {
+    }, roles.map(r => {
+        const promoted = r.length > 1;
+        if (r.endsWith('~')) {
+            r = r.slice(0, -1);
+        }
+        const role = letter2role(r);
+        return h(`piece.${role}.${promoted ? "promoted." : ""}${color}`, {
             attrs: {
                 'data-role': role,
                 'data-color': color,
+                'data-promoted': promoted ? 'true' : 'false',
                 'data-nb': -1,
             }
         });
@@ -52,12 +58,13 @@ export function piecesView(ctrl: EditorController, color: Color, position: Posit
 export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
     const el = e.target as HTMLElement,
-    role = el.getAttribute('data-role') as cg.Role,
-    color = el.getAttribute('data-color') as cg.Color;
+        role = el.getAttribute('data-role') as cg.Role,
+        color = el.getAttribute('data-color') as cg.Color,
+        promoted = el.getAttribute('data-promoted') === 'true';
 
     e.stopPropagation();
     e.preventDefault();
-    dragNewPiece(ctrl.chessground.state, { color, role }, e);
+    dragNewPiece(ctrl.chessground.state, { color, role, promoted }, e);
 }
 
 export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {

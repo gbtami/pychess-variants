@@ -6,9 +6,9 @@ import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import { Key, Role, Color } from 'chessgroundx/types';
+import { Key, Role } from 'chessgroundx/types';
 
-import { sanToRole, roleToSan } from './chess';
+import { san2role, role2san } from './chess';
 import { bind } from './document';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
@@ -34,11 +34,12 @@ export class Promotion {
         if (this.canPromote(movingRole, orig, dest)) {
             const color = this.ctrl.turnColor;
             const orientation = ground.state.orientation;
+            const pchoices = this.promotionChoices(movingRole, orig, dest);
 
-            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && this.ctrl.variant.autoQueenable)
-                this.choices = { 'queen': 'q' };
+            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && this.ctrl.variant.autoQueenable && 'q-piece' in pchoices)
+                this.choices = { 'q-piece': 'q' };
             else
-                this.choices = this.promotionChoices(movingRole, orig, dest);
+                this.choices = pchoices;
 
             if (Object.keys(this.choices).length === 1) {
                 const role = Object.keys(this.choices)[0];
@@ -61,8 +62,8 @@ export class Promotion {
 
     private promotionFilter(move, role, orig, dest) {
         if (this.ctrl.variant.promotion === 'kyoto')
-            if (orig === "z0")
-                return move.startsWith("+" + roleToSan[role]);
+            if (orig === "a0")
+                return move.startsWith("+" + role2san(role));
         return move.slice(0, -1) === orig + dest;
     }
 
@@ -79,15 +80,16 @@ export class Promotion {
                 choice["p" + role] = "+";
                 break;
             case 'kyoto':
-                if (orig === "z0" || possiblePromotions[0].slice(-1) === "+")
+                if (orig === "a0" || possiblePromotions[0].slice(-1) === "+")
                     choice["p" + role] = "+";
                 else
                     choice[role.slice(1)] = "-";
                 break;
+            case 'grand':
             default:
                 possiblePromotions.forEach(move => {
                     const r = move.slice(-1);
-                    choice[sanToRole[r]] = r;
+                    choice[san2role(r)] = r;
                 });
         }
 
@@ -97,43 +99,12 @@ export class Promotion {
     }
 
     private isMandatoryPromotion(role: Role, orig: Key, dest: Key) {
-        const color = this.ctrl.mycolor;
-        const destRank = Number(dest[1]);
-        switch (this.ctrl.variant.name) {
-            case "kyotoshogi":
-                return orig !== 'z0';
-            case "shogi":
-                if (role === "pawn" || role === "lance")
-                    return this.isAwayFromLastRank(destRank, 1, color);
-                else if (role === "knight")
-                    return this.isAwayFromLastRank(destRank, 2, color);
-                else
-                    return false;
-            case "minishogi":
-            case "grand":
-            case "grandhouse":
-            case "shogun":
-                return role === "pawn" && this.isAwayFromLastRank(destRank, 1, color);
-            default:
-                return true;
-        }
-    }
-
-    // fromLastRank = 1 means destRank IS the last rank of the color's side
-    private isAwayFromLastRank(destRank: number, fromLastRank: number, color: Color) {
-        const height = this.ctrl.variant.boardHeight;
-        if (height >= 10)
-            destRank += 1;
-        if (color === "white")
-            return destRank >= height - fromLastRank + 1;
-        else
-            return destRank <= fromLastRank;
+        return this.ctrl.variant.isMandatoryPromotion(role, orig, dest, this.ctrl.mycolor);
     }
 
     private promote(g, key, role) {
         const pieces = {};
         const piece = g.state.pieces[key];
-        if (role === "met") role = "ferz"; // Show the graphic of the flipped pawn instead of met for Makruk et al
         if (g.state.pieces[key].role !== role) {
             pieces[key] = {
                 color: piece.color,
@@ -161,7 +132,7 @@ export class Promotion {
             const promo = this.choices[role];
 
             if (this.ctrl.variant.promotion === 'kyoto') {
-                const droppedPiece = promo ? roleToSan[role.slice(1)] : roleToSan[role];
+                const droppedPiece = promo ? role2san(role.slice(1)) : role2san(role);
                 if (this.promoting.callback) this.promoting.callback(promo + droppedPiece, "@", this.promoting.dest);
             } else {
                 if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo);
@@ -179,8 +150,7 @@ export class Promotion {
 
     private view(dest, color, orientation) {
         const dim = this.ctrl.getGround().state.dimensions
-        const firstRankIs0 = dim.height === 10;
-        const pos = key2pos(dest, firstRankIs0);
+        const pos = key2pos(dest);
 
         const leftFile = (orientation === "white") ? pos[0] - 1 : dim.width - pos[0];
         const left = leftFile * (100 / dim.width);

@@ -11,7 +11,7 @@ import { VNode } from 'snabbdom/vnode';
 
 import { Chessground } from 'chessgroundx';
 
-import { VARIANTS, grand2zero } from './chess';
+import { VARIANTS, uci2cg } from './chess';
 import { boardSettings } from './boardSettings';
 
 function gameView(games, game, fen, lastMove) {
@@ -62,15 +62,12 @@ export function renderGames(): VNode[] {
                 evtSource.onmessage = function(event) {
                     const message = JSON.parse(event.data);
 
-                    const game = response.find(g => g.gameId === message.gameId);
                     const cg = games[message.gameId];
-                    const variant = VARIANTS[game.variant];
 
                     const parts = message.fen.split(" ");
                     let lastMove = message.lastMove;
                     if (lastMove !== null) {
-                        if (variant.boardHeight >= 10)
-                            lastMove = grand2zero(lastMove);
+                        lastMove = uci2cg(lastMove);
                         lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
                         if (lastMove[0][1] === '@')
                             lastMove = [lastMove[1]];

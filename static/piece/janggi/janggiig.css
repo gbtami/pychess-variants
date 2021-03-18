@@ -1,43 +1,43 @@
-.janggi .cg-wrap piece.pawn.white {
+.janggi .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/janggi/intlgreen/blue_pawn.svg');
 }
-.janggi .cg-wrap piece.bishop.white {
+.janggi .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/janggi/intlgreen/blue_elephant.svg');
 }
-.janggi .cg-wrap piece.knight.white {
+.janggi .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/janggi/intlgreen/blue_horse.svg');
 }
-.janggi .cg-wrap piece.rook.white {
+.janggi .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/janggi/intlgreen/blue_chariot.svg');
 }
-.janggi .cg-wrap piece.advisor.white {
+.janggi .cg-wrap piece.a-piece.white {
     background-image: url('../../images/pieces/janggi/intlgreen/blue_advisor.svg');
 }
-.janggi .cg-wrap piece.cannon.white {
+.janggi .cg-wrap piece.c-piece.white {
     background-image: url('../../images/pieces/janggi/intlgreen/blue_cannon.svg');
 }
-.janggi .cg-wrap piece.king.white {
+.janggi .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/janggi/intlgreen/blue_king.svg');
 }
 
-.janggi .cg-wrap piece.pawn.black {
+.janggi .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/janggi/intlgreen/red_pawn.svg');
 }
-.janggi .cg-wrap piece.bishop.black {
+.janggi .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/janggi/intlgreen/red_elephant.svg');
 }
-.janggi .cg-wrap piece.knight.black {
+.janggi .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/janggi/intlgreen/red_horse.svg');
 }
-.janggi .cg-wrap piece.rook.black {
+.janggi .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/janggi/intlgreen/red_chariot.svg');
 }
-.janggi .cg-wrap piece.advisor.black {
+.janggi .cg-wrap piece.a-piece.black {
     background-image: url('../../images/pieces/janggi/intlgreen/red_advisor.svg');
 }
-.janggi .cg-wrap piece.cannon.black {
+.janggi .cg-wrap piece.c-piece.black {
     background-image: url('../../images/pieces/janggi/intlgreen/red_cannon.svg');
 }
-.janggi .cg-wrap piece.king.black {
+.janggi .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/janggi/intlgreen/red_king.svg');
 }

@@ -1,49 +1,49 @@
-.seirawan .cg-wrap piece.hawk.white {
+.seirawan .cg-wrap piece.h-piece.white {
     background-image: url('../../images/pieces/green/wH.svg');
 }
-.seirawan .cg-wrap piece.elephant.white {
+.seirawan .cg-wrap piece.e-piece.white {
     background-image: url('../../images/pieces/green/wE.svg');
 }
-.seirawan .cg-wrap piece.hawk.black {
+.seirawan .cg-wrap piece.h-piece.black {
     background-image: url('../../images/pieces/green/bH.svg');
 }
-.seirawan .cg-wrap piece.elephant.black {
+.seirawan .cg-wrap piece.e-piece.black {
     background-image: url('../../images/pieces/green/bE.svg');
 }
 
-.seirawan .cg-wrap piece.pawn.white {
+.seirawan .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/green/wP.svg');
 }
-.seirawan .cg-wrap piece.bishop.white {
+.seirawan .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/green/wB.svg');
 }
-.seirawan .cg-wrap piece.knight.white {
+.seirawan .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/green/wN.svg');
 }
-.seirawan .cg-wrap piece.rook.white {
+.seirawan .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/green/wR.svg');
 }
-.seirawan .cg-wrap piece.queen.white {
+.seirawan .cg-wrap piece.q-piece.white {
     background-image: url('../../images/pieces/green/wQ.svg');
 }
-.seirawan .cg-wrap piece.king.white {
+.seirawan .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/green/wK.svg');
 }
-.seirawan .cg-wrap piece.pawn.black {
+.seirawan .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/green/bP.svg');
 }
-.seirawan .cg-wrap piece.bishop.black {
+.seirawan .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/green/bB.svg');
 }
-.seirawan .cg-wrap piece.knight.black {
+.seirawan .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/green/bN.svg');
 }
-.seirawan .cg-wrap piece.rook.black {
+.seirawan .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/green/bR.svg');
 }
-.seirawan .cg-wrap piece.queen.black {
+.seirawan .cg-wrap piece.q-piece.black {
     background-image: url('../../images/pieces/green/bQ.svg');
 }
-.seirawan .cg-wrap piece.king.black {
+.seirawan .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/green/bK.svg');
 }

@@ -38,6 +38,7 @@ V2C = {
     "hoppelpoppel": "w",
     "manchu": "M",
     "dobutsu": "D",
+    "gorogoro": "G",
 }
 C2V = {v: k for k, v in V2C.items()}
 

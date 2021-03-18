@@ -35,6 +35,8 @@ export function aboutView(): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variant/dobutsu' } }, 'Dobutsu shogi'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variant/gorogoro' } }, 'Gorogoro shogi'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variant/xiangqi' } }, 'Xiangqi'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variant/manchu' } }, 'Manchu'),

@@ -1,42 +1,42 @@
-.makruk .cg-wrap piece.pawn.white {
+.makruk .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wP.svg');
 }
-.makruk .cg-wrap piece.silver.white {
+.makruk .cg-wrap piece.s-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wB.svg');
 }
-.makruk .cg-wrap piece.knight.white {
+.makruk .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wN.svg');
 }
-.makruk .cg-wrap piece.rook.white {
+.makruk .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wR.svg');
 }
-.makruk .cg-wrap piece.met.white {
+.makruk .cg-wrap piece.m-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wQ.svg');
 }
-.makruk .cg-wrap piece.ferz.white {
+.makruk .cg-wrap piece.m-piece.promoted.white {
     background-image: url('../../images/pieces/sittuyin/original/wQ.svg');
 }
-.makruk .cg-wrap piece.king.white {
+.makruk .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/sittuyin/original/wK.svg');
 }
-.makruk .cg-wrap piece.pawn.black {
+.makruk .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bP.svg');
 }
-.makruk .cg-wrap piece.silver.black {
+.makruk .cg-wrap piece.s-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bB.svg');
 }
-.makruk .cg-wrap piece.knight.black {
+.makruk .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bN.svg');
 }
-.makruk .cg-wrap piece.rook.black {
+.makruk .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bR.svg');
 }
-.makruk .cg-wrap piece.met.black {
+.makruk .cg-wrap piece.m-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bQ.svg');
 }
-.makruk .cg-wrap piece.ferz.black {
+.makruk .cg-wrap piece.m-piece.promoted.black {
     background-image: url('../../images/pieces/sittuyin/original/bQ.svg');
 }
-.makruk .cg-wrap piece.king.black {
+.makruk .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/sittuyin/original/bK.svg');
 }
