@@ -528,8 +528,6 @@ export default class RoundController {
     private onMsgBoard = (msg) => {
         if (msg.gameId !== this.gameId) return;
 
-        // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-        if (!this.spectator && msg.ply === this.ply) return;
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
@@ -677,9 +675,12 @@ export default class RoundController {
                     });
                     if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
 
-                    // console.log("trying to play premove....");
-                    if (this.premove) this.performPremove();
-                    if (this.predrop) this.performPredrop();
+                    // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
+                    if (latestPly) {
+                        // console.log("trying to play premove....");
+                        if (this.premove) this.performPremove();
+                        if (this.predrop) this.performPredrop();
+                    }
                 }
                 if (!this.abortable && msg.status < 0) {
                     this.clocks[myclock].start();
