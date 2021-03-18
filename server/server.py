@@ -42,7 +42,7 @@ async def on_prepare(request, response):
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
 
-ASSET_VERSION = "?v=1.1"
+ASSET_VERSION = "?v=1.2"
 
 
 def static_url(static_file_path):
