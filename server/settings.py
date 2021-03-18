@@ -36,7 +36,7 @@ ADMINS = os.getenv("ADMINS")
 
 STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
 
-ASSET_VERSION = "?v=1.2"
+ASSET_VERSION = "?v=1.3"
 
 
 def static_url(static_file_path):
