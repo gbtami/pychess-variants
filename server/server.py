@@ -25,7 +25,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, STATIC_ROOT
+from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
 from seek import Seek
 from user import User
 
@@ -40,13 +40,6 @@ async def on_prepare(request, response):
         return
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
-
-
-ASSET_VERSION = "?v=1.2"
-
-
-def static_url(static_file_path):
-    return "%s/%s%s" % (STATIC_ROOT, static_file_path, ASSET_VERSION)
 
 
 def make_app(with_db=True):

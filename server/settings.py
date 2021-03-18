@@ -35,3 +35,9 @@ FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
 ADMINS = os.getenv("ADMINS")
 
 STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
+
+ASSET_VERSION = "?v=1.2"
+
+
+def static_url(static_file_path):
+    return "%s/%s%s" % (STATIC_ROOT, static_file_path, ASSET_VERSION)

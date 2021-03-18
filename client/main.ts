@@ -65,6 +65,7 @@ export function view(el, model): VNode {
     model["tv"] = el.getAttribute("data-view") === 'tv';
     model["embed"] = el.getAttribute("data-view") === 'embed';
     model["asset-url"] = el.getAttribute("data-asset-url");
+    model["asset-ver"] = el.getAttribute("data-asset-ver");
 
     switch (el.getAttribute("data-view")) {
     case 'about':
