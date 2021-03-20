@@ -64,7 +64,7 @@ class BoardSettings {
     updateBoardStyle(family: string) {
         const idx = this.getSettings("BoardStyle", family).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"], model["asset-ver"], family, board);
+        changeBoardCSS(model["asset-url"], family, board);
     }
 
     updatePieceStyle(family: string) {
@@ -90,7 +90,7 @@ class BoardSettings {
                 chessground.redrawAll();
             }
         }
-        changePieceCSS(model["asset-url"], model["asset-ver"], family, css);
+        changePieceCSS(model["asset-url"], family, css);
     }
 
     updateZoom(family: string) {
