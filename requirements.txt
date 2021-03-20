@@ -6,7 +6,7 @@ yarl==1.6.2
 cryptography==3.4.4
 dnspython==2.0.0
 htmlmin==0.1.12
-jinja2==2.11.2
+jinja2==2.11.3
 motor==2.3.0
 pyffish==0.0.55
 sortedcollections==1.2.1
