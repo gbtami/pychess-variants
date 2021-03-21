@@ -352,19 +352,19 @@ label.board.board2.makruk8x8 {
 }
 
 label.piece.piece0.makruk {
-    background-image: url('images/pieces/makruk/ada/wB.svg');
-}
-label.piece.piece1.makruk {
     background-image: url('images/pieces/makruk/ada/bB.svg');
 }
+label.piece.piece1.makruk {
+    background-image: url('images/pieces/makruk/ada/rB.svg');
+}
 label.piece.piece2.makruk {
-    background-image: url('images/pieces/makruk/cambodian/wB.svg');
+    background-image: url('images/pieces/makruk/cambodian/bB.svg');
 }
 label.piece.piece3.makruk {
-    background-image: url('images/pieces/sittuyin/original/wB.svg');
+    background-image: url('images/pieces/sittuyin/original/bB.svg');
 }
 label.piece.piece4.makruk {
-    background-image: url('images/pieces/makruk/intl/wB.svg');
+    background-image: url('images/pieces/merida/bS.svg');
 }
 
 label.piece.piece0.sittuyin  {
@@ -380,7 +380,7 @@ label.piece.piece3.sittuyin  {
     background-image: url('images/pieces/makruk/ada/bK.svg');
 }
 label.piece.piece4.sittuyin  {
-    background-image: url('images/pieces/makruk/intl/bK.svg');
+    background-image: url('images/pieces/merida/bS.svg');
 }
 
 label.board.board0.standard8x8 {

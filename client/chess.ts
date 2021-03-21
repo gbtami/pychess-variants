@@ -14,7 +14,6 @@ export interface BoardFamily {
 
 export interface PieceFamily {
     pieceCSS: string[];
-    baseURL: string[];
 }
 
 export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
@@ -35,21 +34,21 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
-    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa"], baseURL: ["merida", "green", "alpha", "kaneo", "santa"] },
-    capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"], baseURL: ["capa", "seir", "green", "musk", "kaneo"] },
-    seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"], baseURL: ["seir", "capa", "green", "musk", "kaneo"] },
-    makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"], baseURL: ["makruk/ada", "makruk/ada", "makruk/cambodian", "sittuyin/original", "makruk/intl"] },
-    sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"], baseURL: ["sittuyin/original", "sittuyin/Ka_blackred", "sittuyin/Ka_greenred", "makruk/ada", "makruk/intl"] },
-    shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0p3d", "shogi0kw3d", "shogi0d"], baseURL: ["shogi/ctk", "shogi/2kanji", "shogi/ctw", "shogi/ctp", "shogi/ctm", "shogi/ctp3d", "shogi/ctkw3d", "shogi/Ka"] },
-    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"], baseURL: ["shogi/ctk", "kyoto/Kanji", "kyoto/Intl"] },
-    dobutsu: { pieceCSS: ["dobutsu0"], baseURL: ["shogi/Ka/dobutsu"] },
-    xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa"], baseURL: ["xiangqi/playok", "xiangqi/ct3", "xiangqi/ct2", "xiangqi/hnz", "xiangqi/ct2w", "xiangqi/Ka"] },
-    janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"], baseURL: ["janggi/hanjablue", "janggi/hanjagreen", "janggi/intlkakao", "janggi/intlwooden", "janggi/Ka_kako", "janggi/Ka_wooden"] },
-    shako: { pieceCSS: ["shako0", "shako1", "shako2"], baseURL: ["shako", "kaneo", "green"] },
-    shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"], baseURL: ["shogun/blue", "shogun/red", "shogun/white"] },
-    orda: { pieceCSS: ["orda0", "orda1"], baseURL: ["orda/merida", "orda/cburnett"] },
-    synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"], baseURL: ["synochess/intl-red", "synochess/xq-red", "green/syno-red", "xiangqi/ct3", "xiangqi/hnzw", "synochess/blackdisc"] },
-    hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"], baseURL: ["merida", "hoppel/grafted", "hoppel/animal"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa"] },
+    capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"] },
+    seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"] },
+    makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"] },
+    sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"] },
+    shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0p3d", "shogi0kw3d", "shogi0d"] },
+    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"] },
+    dobutsu: { pieceCSS: ["dobutsu0"] },
+    xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa"] },
+    janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"] },
+    shako: { pieceCSS: ["shako0", "shako1", "shako2"] },
+    shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"] },
+    orda: { pieceCSS: ["orda0", "orda1"] },
+    synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"] },
+    hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"] },
 };
 
 type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
@@ -84,7 +83,6 @@ export interface IVariant {
 
     readonly piece: string;
     readonly pieceCSS: string[];
-    readonly pieceBaseURL: string[];
 
     readonly firstColor: string;
     readonly secondColor: string;
@@ -132,7 +130,6 @@ class Variant implements IVariant {
     readonly piece: string;
     private readonly pieceFamily: PieceFamily;
     get pieceCSS() { return this.pieceFamily.pieceCSS; }
-    get pieceBaseURL() { return this.pieceFamily.baseURL; }
 
     readonly firstColor: string;
     readonly secondColor: string;

@@ -23,6 +23,21 @@ import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { model } from './main';
 
+
+export function getPieceImageUrl (role, color) {
+    // console.log('getPieceImageUrl()', role, color);
+    const el = document.querySelector(`piece.${role}.${color}`) as HTMLElement;
+    if (el) {
+        const image = window.getComputedStyle(el, null).getPropertyValue("background-image");
+        if (image) {
+            const url = image.split('"')[1];
+            if (url) return url.slice(url.indexOf('/static'));
+        }
+    }
+    return '/static/images/pieces/merida/';
+}
+
+
 class BoardSettings {
     ctrl: AnalysisController | RoundController | EditorController | undefined; // BoardController | undefined
     settings: { [ key: string]: NumberSettings | BooleanSettings };
@@ -77,20 +92,22 @@ class BoardSettings {
                 if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
                     css = css.replace('0', '1');
             }
+        }
+        changePieceCSS(model["asset-url"], family, css);
 
-            // Redraw the piece being suggested for dropping in the new piece style
-            if (this.ctrl.hasPockets) {
-                const chessground = this.ctrl.chessground;
-                const baseurl = variant.pieceBaseURL[idx] + '/';
-                chessground.set({
-                    drawable: {
-                        pieces: { baseUrl: '/static/images/pieces/' + baseurl },
-                    }
-                });
+        // Redraw the piece being suggested for dropping in the new piece style
+        if (this.ctrl && this.ctrl.hasPockets) {
+            const chessground = this.ctrl.chessground;
+            const el = document.querySelector('svg image') as HTMLElement;
+            // if there is any
+            if (el) {
+                const classNames = el.getAttribute('className')!.split(' ');
+                const role = classNames[0];
+                const color = classNames[1];
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color)! } } });
                 chessground.redrawAll();
             }
         }
-        changePieceCSS(model["asset-url"], family, css);
     }
 
     updateZoom(family: string) {
