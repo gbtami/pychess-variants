@@ -33,7 +33,8 @@ import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
 import { updateCount, updatePoint } from './info';
-import { boardSettings, getPieceImageUrl } from './boardSettings';
+import { boardSettings } from './boardSettings';
+import { getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 
 const patch = init([klass, attributes, properties, listeners]);

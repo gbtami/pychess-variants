@@ -7,6 +7,19 @@ export function getDocumentData(name: string) {
     }
 }
 
+export function getPieceImageUrl (role, color) {
+    // console.log('getPieceImageUrl()', role, color);
+    const el = document.querySelector(`piece.${role}.${color}`) as HTMLElement;
+    if (el) {
+        const image = window.getComputedStyle(el, null).getPropertyValue("background-image");
+        if (image) {
+            const url = image.split('"')[1];
+            if (url) return url.slice(url.indexOf('/static'));
+        }
+    }
+    return '/static/images/pieces/merida/';
+}
+
 export function debounce(callback, wait) {
     let timeout;
     return function() {

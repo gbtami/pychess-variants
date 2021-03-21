@@ -11,7 +11,7 @@ import h from 'snabbdom/h';
 
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
-import { changeBoardCSS, changePieceCSS } from './document';
+import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import EditorController from './editor';
@@ -22,20 +22,6 @@ import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { model } from './main';
-
-
-export function getPieceImageUrl (role, color) {
-    // console.log('getPieceImageUrl()', role, color);
-    const el = document.querySelector(`piece.${role}.${color}`) as HTMLElement;
-    if (el) {
-        const image = window.getComputedStyle(el, null).getPropertyValue("background-image");
-        if (image) {
-            const url = image.split('"')[1];
-            if (url) return url.slice(url.indexOf('/static'));
-        }
-    }
-    return '/static/images/pieces/merida/';
-}
 
 
 class BoardSettings {
