@@ -64,7 +64,6 @@ export function view(el, model): VNode {
     model["date"] = el.getAttribute("data-date");
     model["tv"] = el.getAttribute("data-view") === 'tv';
     model["embed"] = el.getAttribute("data-view") === 'embed';
-    model["asset-url"] = el.getAttribute("data-asset-url");
 
     switch (el.getAttribute("data-view")) {
     case 'about':
@@ -122,14 +121,16 @@ window.addEventListener('resize', () => document.body.dispatchEvent(new Event('c
 
 backgroundSettings.update();
 
-// Always update sound theme before volume
-// Updating sound theme requires reloading sound files,
-// while updating volume does not
-soundThemeSettings.update();
-volumeSettings.update();
-
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
+    model["asset-url"] = el.getAttribute("data-asset-url");
+
+    // Always update sound theme before volume
+    // Updating sound theme requires reloading sound files,
+    // while updating volume does not
+    soundThemeSettings.update();
+    volumeSettings.update();
+
     const lang = el.getAttribute("data-lang");
     fetch('/static/lang/' + lang + '/LC_MESSAGES/client.json')
       .then(res => res.json())
