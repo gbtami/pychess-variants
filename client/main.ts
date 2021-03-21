@@ -132,7 +132,7 @@ if (el instanceof Element) {
     volumeSettings.update();
 
     const lang = el.getAttribute("data-lang");
-    fetch('/static/lang/' + lang + '/LC_MESSAGES/client.json')
+    fetch(model["asset-url"] + '/lang/' + lang + '/LC_MESSAGES/client.json')
       .then(res => res.json())
       .then(translation => {
         i18n.loadJSON(translation, 'messages');
