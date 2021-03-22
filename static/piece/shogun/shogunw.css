@@ -1,67 +1,68 @@
-.shogun .cg-wrap piece.f-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wF.svg');
+
+.shogun .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.shogun .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.shogun .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.shogun .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
 }
 .shogun .cg-wrap piece.f-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bF.svg');
+    background-image: url('../../images/pieces/shogun/blue/bF.svg');
 }
-.shogun .cg-wrap piece.pf-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wQ.svg');
+.shogun .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
 }
 .shogun .cg-wrap piece.pf-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bQ.svg');
-}
-.shogun .cg-wrap piece.pn-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wG.svg');
+    background-image: url('../../images/pieces/merida/bQ.svg');
 }
 .shogun .cg-wrap piece.pn-piece.black {
     background-image: url('../../images/pieces/shogun/white/bG.svg');
 }
-.shogun .cg-wrap piece.pr-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wM.svg');
-}
 .shogun .cg-wrap piece.pr-piece.black {
     background-image: url('../../images/pieces/shogun/white/bM.svg');
 }
-.shogun .cg-wrap piece.pb-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wA.svg');
-}
 .shogun .cg-wrap piece.pb-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bA.svg');
-}
-.shogun .cg-wrap piece.pp-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wC.svg');
+    background-image: url('../../images/pieces/merida/bAr.svg');
 }
 .shogun .cg-wrap piece.pp-piece.black {
     background-image: url('../../images/pieces/shogun/white/bC.svg');
 }
 
 .shogun .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wP.svg');
+    background-image: url('../../images/pieces/merida/wP.svg');
 }
 .shogun .cg-wrap piece.b-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wB.svg');
+    background-image: url('../../images/pieces/merida/wB.svg');
 }
 .shogun .cg-wrap piece.n-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wN.svg');
+    background-image: url('../../images/pieces/merida/wN.svg');
 }
 .shogun .cg-wrap piece.r-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wR.svg');
+    background-image: url('../../images/pieces/merida/wR.svg');
+}
+.shogun .cg-wrap piece.f-piece.white {
+    background-image: url('../../images/pieces/shogun/blue/wF.svg');
 }
 .shogun .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/shogun/white/wK.svg');
+    background-image: url('../../images/pieces/merida/wK.svg');
 }
-.shogun .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bP.svg');
+.shogun .cg-wrap piece.pf-piece.white {
+    background-image: url('../../images/pieces/merida/wQ.svg');
 }
-.shogun .cg-wrap piece.b-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bB.svg');
+.shogun .cg-wrap piece.pn-piece.white {
+    background-image: url('../../images/pieces/shogun/white/wG.svg');
 }
-.shogun .cg-wrap piece.n-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bN.svg');
+.shogun .cg-wrap piece.pr-piece.white {
+    background-image: url('../../images/pieces/shogun/white/wM.svg');
 }
-.shogun .cg-wrap piece.r-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bR.svg');
+.shogun .cg-wrap piece.pb-piece.white {
+    background-image: url('../../images/pieces/merida/wAr.svg');
 }
-.shogun .cg-wrap piece.k-piece.black {
-    background-image: url('../../images/pieces/shogun/white/bK.svg');
+.shogun .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/shogun/white/wC.svg');
 }
