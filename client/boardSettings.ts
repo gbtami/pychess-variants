@@ -168,7 +168,7 @@ class BoardSettings {
             this.ctrl.chessground.toggleOrientation();
 
             if (this.ctrl.variant.sideDetermination === 'direction')
-                this.updatePieceStyle(this.ctrl.variant.name);
+                this.updatePieceStyle(this.ctrl.variant.piece);
 
             // console.log("FLIP");
             if (this.ctrl.hasPockets) {
