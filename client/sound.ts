@@ -5,6 +5,8 @@ import { Howl } from 'howler';
 import { IVariant } from './chess';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
+import { model } from './main';
+
 
 class Sounds {
 
@@ -49,13 +51,16 @@ class Sounds {
         const soundTheme = soundThemeSettings.value;
         const soundTrack = (soundTheme === 'silent') ? 'Silence' : trackName;
         const sound = new Howl({
-          src: ['/static/sound/' + soundTheme + '/' + soundTrack + '.ogg', '/static/sound/' + soundTheme + '/' + soundTrack + '.mp3'],
-          onplayerror: function() {
-            sound.once('unlock', function() {
-              sound.play();
-            });
-          },
-          volume: volumeSettings.value,
+            src: [
+                model["asset-url"] + '/sound/' + soundTheme + '/' + soundTrack + '.ogg',
+                model["asset-url"] + '/sound/' + soundTheme + '/' + soundTrack + '.mp3'
+            ],
+            onplayerror: function() {
+                sound.once('unlock', function() {
+                sound.play();
+                });
+            },
+            volume: volumeSettings.value,
         });
         return sound;
     }

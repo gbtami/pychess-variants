@@ -11,7 +11,7 @@ import h from 'snabbdom/h';
 
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
-import { changeBoardCSS, changePieceCSS } from './document';
+import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import EditorController from './editor';
@@ -21,6 +21,8 @@ import { pocketView } from './pocket';
 import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
+import { model } from './main';
+
 
 class BoardSettings {
     ctrl: AnalysisController | RoundController | EditorController | undefined; // BoardController | undefined
@@ -63,7 +65,7 @@ class BoardSettings {
     updateBoardStyle(family: string) {
         const idx = this.getSettings("BoardStyle", family).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(family, board);
+        changeBoardCSS(model["asset-url"], family, board);
     }
 
     updatePieceStyle(family: string) {
@@ -76,20 +78,22 @@ class BoardSettings {
                 if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
                     css = css.replace('0', '1');
             }
+        }
+        changePieceCSS(model["asset-url"], family, css);
 
-            // Redraw the piece being suggested for dropping in the new piece style
-            if (this.ctrl.hasPockets) {
-                const chessground = this.ctrl.chessground;
-                const baseurl = variant.pieceBaseURL[idx] + '/';
-                chessground.set({
-                    drawable: {
-                        pieces: { baseUrl: '/static/images/pieces/' + baseurl },
-                    }
-                });
+        // Redraw the piece being suggested for dropping in the new piece style
+        if (this.ctrl && this.ctrl.hasPockets) {
+            const chessground = this.ctrl.chessground;
+            const el = document.querySelector('svg image') as HTMLElement;
+            // if there is any
+            if (el) {
+                const classNames = el.getAttribute('className')!.split(' ');
+                const role = classNames[0];
+                const color = classNames[1];
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color)! } } });
                 chessground.redrawAll();
             }
         }
-        changePieceCSS(family, css);
     }
 
     updateZoom(family: string) {

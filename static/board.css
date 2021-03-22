@@ -1,42 +1,42 @@
 .standard8x8 .cg-wrap {
-    background-image: url(/static/images/board/8x8brown.svg);
+    background-image: url('images/board/8x8brown.svg');
 }
 .standard10x8 .cg-wrap {
-    background-image: url(/static/images/board/10x8brown.svg);
+    background-image: url('images/board/10x8brown.svg');
 }
 .standard10x10 .cg-wrap {
-    background-image: url(/static/images/board/10x10brown.svg);
+    background-image: url('images/board/10x10brown.svg');
 }
 .grand10x10 .cg-wrap {
-    background-image: url(/static/images/board/Grandboard.svg);
+    background-image: url('images/board/Grandboard.svg');
 }
 .makruk8x8 .cg-wrap {
-    background-image: url(/static/images/board/makruk2.svg);
+    background-image: url('images/board/makruk2.svg');
 }
 .sittuyin8x8 .cg-wrap {
-    background-image: url(/static/images/board/sittuyin.svg);
+    background-image: url('images/board/sittuyin.svg');
 }
 .shogi9x9 .cg-wrap {
-    background-image: url(/static/images/board/shogi.svg);
+    background-image: url('images/board/shogi.svg');
 }
 .shogi5x6 .cg-wrap {
-    background-image: url(/static/images/board/gorogoroboard.svg);
+    background-image: url('images/board/gorogoroboard.svg');
 }
 .shogi5x5 .cg-wrap {
-    background-image: url(/static/images/board/minishogi.svg);
+    background-image: url('images/board/minishogi.svg');
 }
 .shogi3x4 .cg-wrap {
-    background-image: url(/static/images/board/dobutsuboard.svg);
+    background-image: url('images/board/dobutsuboard.svg');
 }
 .xiangqi9x10 .cg-wrap {
-    background-image: url(/static/images/board/xiangqi.svg);
+    background-image: url('images/board/xiangqi.svg');
 }
 .xiangqi7x7 .cg-wrap {
-    background-image: url(/static/images/board/minixiangqi.svg);
+    background-image: url('images/board/minixiangqi.svg');
 }
 .janggi9x10 .cg-wrap {
-    background-image: url(/static/images/board/JanggiBrown.svg);
+    background-image: url('images/board/JanggiBrown.svg');
 }
 .shogun8x8 .cg-wrap {
-    background-image: url(/static/images/board/ShogunPlain.svg);
+    background-image: url('images/board/ShogunPlain.svg');
 }

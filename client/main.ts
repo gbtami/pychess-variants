@@ -29,7 +29,7 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
     window.location.assign('https://www.pychess.org/');
 }
 
-const model = {};
+export const model = {};
 
 export function view(el, model): VNode {
     const user = getCookie("user");
@@ -121,16 +121,18 @@ window.addEventListener('resize', () => document.body.dispatchEvent(new Event('c
 
 backgroundSettings.update();
 
-// Always update sound theme before volume
-// Updating sound theme requires reloading sound files,
-// while updating volume does not
-soundThemeSettings.update();
-volumeSettings.update();
-
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {
+    model["asset-url"] = el.getAttribute("data-asset-url");
+
+    // Always update sound theme before volume
+    // Updating sound theme requires reloading sound files,
+    // while updating volume does not
+    soundThemeSettings.update();
+    volumeSettings.update();
+
     const lang = el.getAttribute("data-lang");
-    fetch('/static/lang/' + lang + '/LC_MESSAGES/client.json')
+    fetch(model["asset-url"] + '/lang/' + lang + '/LC_MESSAGES/client.json')
       .then(res => res.json())
       .then(translation => {
         i18n.loadJSON(translation, 'messages');

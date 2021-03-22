@@ -105,7 +105,7 @@ label.board.board2.shogi5x6 {
 }
 
 label.piece.piece0.dobutsu {
-    background-image: url('images/pieces/shogi/Ka/dobutsu/0GY.svg');
+    background-image: url('images/pieces/shogi/Ka/0GY.svg');
 }
 label.board.board0.shogi3x4 {
     background-image: url('images/board/doubutsuboard.svg');
@@ -274,7 +274,7 @@ label.board.board4.standard10x10 {
 }
 
 label.piece.piece0.shako {
-    background-image: url('images/pieces/shako/wC.svg');
+    background-image: url('images/pieces/merida/shako/wC.svg');
 }
 label.piece.piece1.shako {
     background-image: url('images/pieces/kaneo/wC.svg');
@@ -352,19 +352,19 @@ label.board.board2.makruk8x8 {
 }
 
 label.piece.piece0.makruk {
-    background-image: url('images/pieces/makruk/ada/wb/wB.svg');
+    background-image: url('images/pieces/makruk/ada/bB.svg');
 }
 label.piece.piece1.makruk {
-    background-image: url('images/pieces/makruk/ada/wr/bB.svg');
+    background-image: url('images/pieces/makruk/ada/rB.svg');
 }
 label.piece.piece2.makruk {
-    background-image: url('images/pieces/makruk/cambodian/wB.svg');
+    background-image: url('images/pieces/makruk/cambodian/bB.svg');
 }
 label.piece.piece3.makruk {
-    background-image: url('images/pieces/sittuyin/original/wB.svg');
+    background-image: url('images/pieces/sittuyin/original/bB.svg');
 }
 label.piece.piece4.makruk {
-    background-image: url('images/pieces/makruk/intl/wB.svg');
+    background-image: url('images/pieces/merida/bS.svg');
 }
 
 label.piece.piece0.sittuyin  {
@@ -377,10 +377,10 @@ label.piece.piece2.sittuyin  {
     background-image: url('images/pieces/sittuyin/Ka_blackred/bK.svg');
 }
 label.piece.piece3.sittuyin  {
-    background-image: url('images/pieces/makruk/ada/rb/bK.svg');
+    background-image: url('images/pieces/makruk/ada/bK.svg');
 }
 label.piece.piece4.sittuyin  {
-    background-image: url('images/pieces/makruk/intl/bK.svg');
+    background-image: url('images/pieces/merida/bS.svg');
 }
 
 label.board.board0.standard8x8 {

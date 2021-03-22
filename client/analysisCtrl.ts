@@ -34,6 +34,7 @@ import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
+import { getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 
 const patch = init([klass, attributes, properties, listeners]);
@@ -649,12 +650,17 @@ export default class AnalysisController {
                     if (this.variant.sideDetermination === "direction")
                         if (this.flip !== (this.mycolor === "black"))
                             color = (color === 'white') ? 'black' : 'white';
+
+                    const dropPieceRole = san2role(pv_move.slice(0, atPos));
+                    const url = getPieceImageUrl(dropPieceRole, color);
+                    this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
+
                     shapes0 = [{
                         orig: d,
                         brush: 'paleGreen',
                         piece: {
                             color: color,
-                            role: san2role(pv_move.slice(0, atPos))
+                            role: dropPieceRole
                         }},
                         { orig: d, brush: 'paleGreen'}
                     ];

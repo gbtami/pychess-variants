@@ -3,50 +3,50 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#dbd7d1"><title>{{ title }} • PyChess</title>
-        <link rel="stylesheet" href="/static/chessground.css">
-        <link rel="stylesheet" href="/static/board.css">
-        <link rel="stylesheet" href="/static/piece/standard/empty.css">
-        <link rel="stylesheet" href="/static/piece/seirawan/empty.css">
-        <link rel="stylesheet" href="/static/piece/makruk/empty.css">
-        <link rel="stylesheet" href="/static/piece/sittuyin/empty.css">
-        <link rel="stylesheet" href="/static/piece/shogi/empty.css">
-        <link rel="stylesheet" href="/static/piece/kyoto/empty.css">
-        <link rel="stylesheet" href="/static/piece/xiangqi/empty.css">
-        <link rel="stylesheet" href="/static/piece/capa/empty.css">
-        <link rel="stylesheet" href="/static/piece/shako/empty.css">
-        <link rel="stylesheet" href="/static/piece/shogun/empty.css">
-        <link rel="stylesheet" href="/static/piece/janggi/empty.css">
-        <link rel="stylesheet" href="/static/piece/orda/empty.css">
-        <link rel="stylesheet" href="/static/piece/synochess/empty.css">
-        <link rel="stylesheet" href="/static/piece/hoppel/empty.css">
-        <link rel="stylesheet" href="/static/piece/dobutsu/empty.css">
-        <link rel="stylesheet" href="/static/extensions.css">
-        <link rel="stylesheet" href="/static/style.css">
-        <link rel="stylesheet" href="/static/preview.css">
+        <link rel="stylesheet" href={{ static("chessground.css") }}>
+        <link rel="stylesheet" href={{ static("board.css") }} crossorigin="anonymous">
+        <link rel="stylesheet" href={{ static("piece/standard/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/seirawan/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/makruk/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/sittuyin/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/shogi/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/kyoto/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/xiangqi/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/capa/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/shako/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/shogun/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/janggi/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/orda/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/synochess/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/hoppel/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/dobutsu/empty.css") }}>
+        <link rel="stylesheet" href={{ static("extensions.css") }}>
+        <link rel="stylesheet" href={{ static("style.css") }}>
+        <link rel="stylesheet" href={{ static("preview.css") }}>
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet"> 
-        <link rel="stylesheet" href="/static/site.css">
-        <link rel="stylesheet" href="/static/{{ view_css }}.css">
-        <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href={{ static("site.css") }}>
+        <link rel="stylesheet" href={{ static(view_css) }}>
+        <link rel="icon" href={{ static("favicon/favicon.ico") }} type="image/x-icon" />
     </head>
     <div id="preload">
-        <img src="/static/images/board/makruk2.svg"/>
-        <img src="/static/images/board/sittuyin.svg"/>
-        <img src="/static/images/board/8x8brown.svg"/>
-        <img src="/static/images/board/10x8brown.svg"/>
-        <img src="/static/images/board/10x10brown.svg"/>
-        <img src="/static/images/board/xiangqi.svg"/>
-        <img src="/static/images/board/JanggiBrown.svg"/>
-        <img src="/static/images/board/minixiangqi.svg"/>
-        <img src="/static/images/board/shogi.svg"/>
-        <img src="/static/images/board/minishogi.svg"/>
-        <img src="/static/images/board/gorogoro.svg"/>
-        <img src="/static/images/board/doubutsuboard.svg"/>
-        <img src="/static/images/board/Grandboard.svg"/>
-        <img src="/static/images/board/ShogunPlain.svg"/>
+        <img src={{ static("images/board/makruk2.svg") }}/>
+        <img src={{ static("images/board/sittuyin.svg") }}/>
+        <img src={{ static("images/board/8x8brown.svg") }}/>
+        <img src={{ static("images/board/10x8brown.svg") }}/>
+        <img src={{ static("images/board/10x10brown.svg") }}/>
+        <img src={{ static("images/board/xiangqi.svg") }}/>
+        <img src={{ static("images/board/JanggiBrown.svg") }}/>
+        <img src={{ static("images/board/minixiangqi.svg") }}/>
+        <img src={{ static("images/board/shogi.svg") }}/>
+        <img src={{ static("images/board/minishogi.svg") }}/>
+        <img src={{ static("images/board/doubutsuboard.svg") }}/>
+        <img src={{ static("images/board/Grandboard.svg") }}/>
+        <img src={{ static("images/board/ShogunPlain.svg") }}/>
     </div>
     <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --zoom:80;"
                                 data-view="{{ view }}"
+                                data-asset-url="{{ asseturl }}"
                                 data-lang="{{ lang }}"
                                 data-home="{{ home }}"
                                 data-user="{{ username }}"

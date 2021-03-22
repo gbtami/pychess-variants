@@ -22,7 +22,7 @@ from const import LANGUAGES, VARIANTS, VARIANT_ICONS, RATED, IMPORTED, variant_d
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
-from settings import MAX_AGE, URI
+from settings import MAX_AGE, URI, STATIC_ROOT
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
@@ -203,7 +203,8 @@ async def index(request):
         "lang": lang,
         "title": view.capitalize(),
         "view": view,
-        "view_css": "round" if view == "tv" else view,
+        "asseturl": STATIC_ROOT,
+        "view_css": ("round" if view == "tv" else view) + ".css",
         "home": URI,
         "user": user.username if session["guest"] else "",
         "anon": user.anon,

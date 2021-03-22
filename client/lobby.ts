@@ -704,7 +704,7 @@ export function lobbyView(model): VNode[] {
             ]),
             h('posts', [
                 h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
-                    h('img', { attrs: {src: '/static/images/RS-24.jpg'} }),
+                    h('img', { attrs: {src: model["asset-url"] + '/images/RS-24.jpg'} }),
                     h('span.text', [
                         h('strong', "Atomic chess and Atomic960 are here"),
                         h('span', 'New Weapons Arrived'),
@@ -712,7 +712,7 @@ export function lobbyView(model): VNode[] {
                     h('time', '2021.03.03'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
-                    h('img', { attrs: {src: '/static/images/TomatoPlasticSet.svg'} }),
+                    h('img', { attrs: {src: model["asset-url"] + '/images/TomatoPlasticSet.svg'} }),
                     h('span.text', [
                         h('strong', "And Now for Something Completely Different"),
                         h('span', 'Short History Of Pychess'),
@@ -720,7 +720,7 @@ export function lobbyView(model): VNode[] {
                     h('time', '2021.02.27'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
-                    h('img', { attrs: {src: '/static/icons/Dobutsu.svg'} }),
+                    h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
                     h('span.text', [
                         h('strong', "PyChess tournament announcement"),
                         h('span', 'The 1st Dōbutsu Tournament on PyChess'),

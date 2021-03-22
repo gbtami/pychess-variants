@@ -25,7 +25,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI
+from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
 from seek import Seek
 from user import User
 
@@ -156,6 +156,7 @@ async def init_state(app):
             loader=jinja2.FileSystemLoader("templates"),
             autoescape=jinja2.select_autoescape(["html"]))
         env.install_gettext_translations(translation, newstyle=True)
+        env.globals["static"] = static_url
 
         app["jinja"][lang] = env
 

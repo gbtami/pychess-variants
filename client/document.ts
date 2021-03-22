@@ -7,6 +7,19 @@ export function getDocumentData(name: string) {
     }
 }
 
+export function getPieceImageUrl (role, color) {
+    // console.log('getPieceImageUrl()', role, color);
+    const el = document.querySelector(`piece.${role}.${color}`) as HTMLElement;
+    if (el) {
+        const image = window.getComputedStyle(el, null).getPropertyValue("background-image");
+        if (image) {
+            const url = image.split('"')[1];
+            if (url) return url.slice(url.indexOf('/static'));
+        }
+    }
+    return '/static/images/pieces/merida/';
+}
+
 export function debounce(callback, wait) {
     let timeout;
     return function() {
@@ -41,7 +54,7 @@ function changeCSS(cssLinkIndex: number, cssFile: string) {
 const BOARD_CSS_IDX = 1;
 const PIECE_CSS_IDX = 2;
 
-export function changeBoardCSS(family: string, cssFile: string) {
+export function changeBoardCSS(assetUrl: string, family: string, cssFile: string) {
     const sheet = document.styleSheets[BOARD_CSS_IDX];
     const cssRules = sheet.cssRules;
     for (let i = 0; i < cssRules.length; i++) {
@@ -50,15 +63,17 @@ export function changeBoardCSS(family: string, cssFile: string) {
             continue;
         }
         if (rule.selectorText === `.${family} .cg-wrap`) {
-            // console.log("changeBoardCSS", family, cssFile, i)
+            console.log("changeBoardCSS", family, cssFile, i)
             sheet.deleteRule(i)
-            sheet.insertRule(`.${family} .cg-wrap {background-image: url(/static/images/board/${cssFile})}`, i);
+            const newRule = `.${family} .cg-wrap {background-image: url(${assetUrl}/images/board/${cssFile})}`;
+            console.log(newRule);
+            sheet.insertRule(newRule, i);
             break;
         }
     }
 }
 
-export function changePieceCSS(family: string, cssFile: string) {
+export function changePieceCSS(assetUrl: string, family: string, cssFile: string) {
     let cssLinkIndex = PIECE_CSS_IDX;
     switch (family) {
         case "standard": break;
@@ -78,7 +93,9 @@ export function changePieceCSS(family: string, cssFile: string) {
         case "dobutsu": cssLinkIndex += 14; break;
         default: throw "Unknown piece family " + family;
     }
-    changeCSS(cssLinkIndex, "/static/piece/" + family + "/" + cssFile + ".css");
+    const newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;
+    console.log("changePieceCSS", family, cssFile, newUrl)
+    changeCSS(cssLinkIndex, newUrl);
 }
 
 export function bind(eventName: string, f: (e: Event) => void, redraw) {
