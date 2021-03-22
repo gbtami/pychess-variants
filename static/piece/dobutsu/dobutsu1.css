@@ -1,6 +1,6 @@
 /* chick */
 .dobutsu .cg-wrap piece.c-piece.white {
-    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1FU.svg');
+    background-image: url('../../images/pieces/shogi/Ka/1FU.svg');
 }
 /* giraffe */
 .dobutsu .cg-wrap piece.g-piece.white {
@@ -8,7 +8,7 @@
 }
 /* hen */
 .dobutsu .cg-wrap piece.pc-piece.white {
-    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1TO.svg');
+    background-image: url('../../images/pieces/shogi/Ka/1TO.svg');
 }
 /* elephant */
 .dobutsu .cg-wrap piece.e-piece.white {
@@ -16,12 +16,12 @@
 }
 /* lion */
 .dobutsu .cg-wrap piece.l-piece.white {
-    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1GY.svg');
+    background-image: url('../../images/pieces/shogi/Ka/1GY.svg');
 }
 
 /* chick */
 .dobutsu .cg-wrap piece.c-piece.black {
-    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0FU.svg');
+    background-image: url('../../images/pieces/shogi/Ka/0FU.svg');
 }
 /* giraffe */
 .dobutsu .cg-wrap piece.g-piece.black {
@@ -29,7 +29,7 @@
 }
 /* hen */
 .dobutsu .cg-wrap piece.pc-piece.black {
-    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0TO.svg');
+    background-image: url('../../images/pieces/shogi/Ka/0TO.svg');
 }
 /* elephant */
 .dobutsu .cg-wrap piece.e-piece.black {
@@ -37,5 +37,5 @@
 }
 /* lion */
 .dobutsu .cg-wrap piece.l-piece.black {
-    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0GY.svg');
+    background-image: url('../../images/pieces/shogi/Ka/0GY.svg');
 }
