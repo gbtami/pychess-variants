@@ -1,5 +1,5 @@
 .hoppel .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/hoppel/animal/wP.svg');
+    background-image: url('../../images/pieces/green/wP.svg');
 }
 .hoppel .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/hoppel/animal/wB.svg');
@@ -8,16 +8,16 @@
     background-image: url('../../images/pieces/hoppel/animal/wN.svg');
 }
 .hoppel .cg-wrap piece.r-piece.white {
-    background-image: url('../../images/pieces/hoppel/animal/wR.svg');
+    background-image: url('../../images/pieces/green/wR.svg');
 }
 .hoppel .cg-wrap piece.q-piece.white {
-    background-image: url('../../images/pieces/hoppel/animal/wQ.svg');
+    background-image: url('../../images/pieces/green/wQ.svg');
 }
 .hoppel .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/hoppel/animal/wK.svg');
+    background-image: url('../../images/pieces/green/wK.svg');
 }
 .hoppel .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/hoppel/animal/bP.svg');
+    background-image: url('../../images/pieces/green/bP.svg');
 }
 .hoppel .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/hoppel/animal/bB.svg');
@@ -26,11 +26,11 @@
     background-image: url('../../images/pieces/hoppel/animal/bN.svg');
 }
 .hoppel .cg-wrap piece.r-piece.black {
-    background-image: url('../../images/pieces/hoppel/animal/bR.svg');
+    background-image: url('../../images/pieces/green/bR.svg');
 }
 .hoppel .cg-wrap piece.q-piece.black {
-    background-image: url('../../images/pieces/hoppel/animal/bQ.svg');
+    background-image: url('../../images/pieces/green/bQ.svg');
 }
 .hoppel .cg-wrap piece.k-piece.black {
-    background-image: url('../../images/pieces/hoppel/animal/bK.svg');
+    background-image: url('../../images/pieces/green/bK.svg');
 }
