@@ -2,6 +2,8 @@ import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
+import { model } from './main';
+
 
 export function aboutView(): VNode[] {
     const untitled = [
@@ -13,7 +15,7 @@ export function aboutView(): VNode[] {
     ]
     return [
         h('div.about', [
-            h('img.center', { attrs: { src: '/static/favicon/favicon-96x96.png' } }),
+            h('img.center', { attrs: { src: model["asset-url"] + '/favicon/favicon-96x96.png' } }),
             h('h1', { attrs: { align: 'center' } }, _('About pychess')),
             h('p', _('Pychess is a free, open-source chess server designed to play several chess variants.')),
             h('p', [
