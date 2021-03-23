@@ -45,7 +45,7 @@ class Seek:
         }
 
     @property
-    def discord(self):
+    def discord_msg(self):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         return "%s: *%s* %s" % (self.user.username, self.variant, tc)
 
