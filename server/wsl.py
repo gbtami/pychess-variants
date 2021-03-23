@@ -123,7 +123,9 @@ async def lobby_socket_handler(request):
 
                         # Send msg to discord-relay BOT
                         try:
-                            await sockets["Discord-Relay"].send_json({"type": "create_seek", "message": seek.discord_msg})
+                            for dr_ws in sockets["Discord-Relay"]:
+                                await dr_ws.send_json({"type": "create_seek", "message": seek.discord_msg})
+                                break
                         except (KeyError, ConnectionResetError):
                             # BOT disconnected
                             log.error("--- Discord-Relay disconnected!")
