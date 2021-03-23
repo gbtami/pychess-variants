@@ -28,6 +28,7 @@ import { createMovelistButtons, updateMovelist, updateResult, selectMove } from 
 import { renderRdiff } from './profile'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
+import { notify } from './notification';
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -94,8 +95,14 @@ export default class RoundController {
     autoqueen: boolean;
     setupFen: string;
     prevPieces: Pieces;
+    focus: boolean;
 
     constructor(el, model) {
+        this.focus = !document.hidden;
+        document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
+        window.addEventListener('blur', () => {this.focus = false});
+        window.addEventListener('focus', () => {this.focus = true});
+
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
             this.clocks[0].connecting = false;
@@ -444,7 +451,13 @@ export default class RoundController {
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);
         if (msg.gameId !== this.gameId) return;
-        if (!this.spectator) sound.genericNotify();
+        if (!this.spectator) {
+            sound.genericNotify();
+            if (!this.focus) {
+                const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
+                notify('pychess.org', {body: opp_name + '\njoined the game.'});
+            }
+        }
     }
 
     private onMsgNewGame = (msg) => {

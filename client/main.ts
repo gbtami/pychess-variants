@@ -137,7 +137,7 @@ if (el instanceof Element) {
       .then(translation => {
         i18n.loadJSON(translation, 'messages');
         i18n.setLocale(lang);
-        console.log('Loaded translations for lang', lang);
+        // console.log('Loaded translations for lang', lang);
         start();
       })
       .catch(() => {

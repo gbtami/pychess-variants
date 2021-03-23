@@ -44,6 +44,11 @@ class Seek:
             "gameId": self.game_id if self.game_id is not None else "",
         }
 
+    @property
+    def discord(self):
+        tc = time_control_str(self.base, self.inc, self.byoyomi_period)
+        return "%s: *%s* %s" % (self.user.username, self.variant, tc)
+
 
 async def create_seek(db, invites, seeks, user, data, ws=None):
     if len(user.seeks) >= MAX_USER_SEEKS:

@@ -63,10 +63,10 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
             continue;
         }
         if (rule.selectorText === `.${family} .cg-wrap`) {
-            console.log("changeBoardCSS", family, cssFile, i)
+            // console.log("changeBoardCSS", family, cssFile, i)
             sheet.deleteRule(i)
             const newRule = `.${family} .cg-wrap {background-image: url(${assetUrl}/images/board/${cssFile})}`;
-            console.log(newRule);
+            // console.log(newRule);
             sheet.insertRule(newRule, i);
             break;
         }
@@ -94,7 +94,7 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         default: throw "Unknown piece family " + family;
     }
     const newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;
-    console.log("changePieceCSS", family, cssFile, newUrl)
+    // console.log("changePieceCSS", family, cssFile, newUrl)
     changeCSS(cssLinkIndex, newUrl);
 }
 

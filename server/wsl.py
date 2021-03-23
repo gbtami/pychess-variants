@@ -113,13 +113,20 @@ async def lobby_socket_handler(request):
                             continue
 
                         print("create_seek", data)
-                        await create_seek(db, invites, seeks, user, data, ws)
+                        seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                         if data.get("target"):
                             queue = users[data["target"]].notify_queue
                             if queue is not None:
                                 await queue.put(json.dumps({"notify": "new_challenge"}))
+
+                        # Send msg to discord-relay BOT
+                        try:
+                            await sockets["Discord-Relay"].send_json({"type": "create_seek", "message": seek.discord_msg})
+                        except (KeyError, ConnectionResetError):
+                            # BOT disconnected
+                            log.error("--- Discord-Relay disconnected!")
 
                     elif data["type"] == "create_invite":
                         no = await is_playing(request, user, ws)

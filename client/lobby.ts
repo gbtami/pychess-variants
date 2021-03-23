@@ -22,6 +22,8 @@ import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { debounce } from './document';
 import { timeControlStr } from './view';
+import { notify } from './notification';
+
 
 class LobbyController {
     test_ratings: boolean;
@@ -236,6 +238,9 @@ class LobbyController {
         // prevent to create challenges continuously
         this.model.profileid = '';
         window.history.replaceState({}, this.model.title, '/');
+
+        // We need to ask the user for permission
+        notify(null, null);
     }
 
     renderSeekButtons() {
@@ -624,12 +629,12 @@ class LobbyController {
         alert(msg.message);
     }
     private onMsgGameCounter(msg) {
-        console.log("Gcnt=", msg.cnt);
+        // console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
         patch(gameCount, h('counter#g_cnt', ngettext('%1 game in play', '%1 games in play', msg.cnt)));
     }
     private onMsgUserCounter(msg) {
-        console.log("Ucnt=", msg.cnt);
+        // console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
         patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
     }
@@ -651,8 +656,8 @@ function seekHeader() {
 
 function runSeeks(vnode: VNode, model) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new LobbyController(el, model);
-    console.log("lobbyView() -> runSeeks()", el, model, ctrl);
+    new LobbyController(el, model);
+    // console.log("lobbyView() -> runSeeks()", el, model, ctrl);
 }
 
 export function lobbyView(model): VNode[] {
@@ -672,7 +677,7 @@ export function lobbyView(model): VNode[] {
 
     if (model['anon'] === 'False') {
         const evtSource = new EventSource(model["home"] + "/api/notify");
-        console.log("new EventSource" + model["home"] + "/api/notify");
+        // console.log("new EventSource" + model["home"] + "/api/notify");
         evtSource.onmessage = e => {
             const message = JSON.parse(e.data);
             console.log(message);
