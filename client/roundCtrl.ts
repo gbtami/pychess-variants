@@ -448,15 +448,18 @@ export default class RoundController {
         ]));
     }
 
+    private notifyMsg = (msg) => {
+        const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
+        const logoUrl = `${this.model["asset-url"]}/favicon/android-icon-192x192.png`;
+        notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
+    }
+
     private onMsgGameStart = (msg) => {
         // console.log("got gameStart msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (!this.spectator) {
             sound.genericNotify();
-            if (!this.focus) {
-                const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
-                notify('pychess.org', {body: opp_name + '\njoined the game.'});
-            }
+            if (!this.focus) this.notifyMsg('joined the game.');
         }
     }
 
@@ -688,10 +691,7 @@ export default class RoundController {
                     });
                     if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
 
-                    if (!this.focus) {
-                        const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
-                        notify('pychess.org', {body: `${opp_name}\nPlayed ${step.san}\nYour turn.`});
-                    }
+                    if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
                     // console.log("trying to play premove....");
