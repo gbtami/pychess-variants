@@ -47,7 +47,8 @@ class Seek:
     @property
     def discord_msg(self):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
-        return "%s: **%s** %s" % (self.user.username, self.variant, tc)
+        tail960 = "960" if self.chess960 else ""
+        return "%s: **%s%s** %s" % (self.user.username, self.variant, tail960, tc)
 
 
 async def create_seek(db, invites, seeks, user, data, ws=None):
