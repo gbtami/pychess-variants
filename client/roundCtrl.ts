@@ -688,12 +688,15 @@ export default class RoundController {
                     });
                     if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
 
-                    // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-                    if (latestPly) {
-                        // console.log("trying to play premove....");
-                        if (this.premove) this.performPremove();
-                        if (this.predrop) this.performPredrop();
+                    if (!this.focus) {
+                        const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
+                        notify('pychess.org', {body: `${opp_name}\nPlayed ${step.san}\nYour turn.`});
                     }
+
+                    // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
+                    // console.log("trying to play premove....");
+                    if (this.premove) this.performPremove();
+                    if (this.predrop) this.performPredrop();
                 }
                 if (!this.abortable && msg.status < 0) {
                     this.clocks[myclock].start();
