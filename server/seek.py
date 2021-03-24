@@ -47,7 +47,7 @@ class Seek:
     @property
     def discord_msg(self):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
-        return "%s: *%s* %s" % (self.user.username, self.variant, tc)
+        return "%s: **%s** %s" % (self.user.username, self.variant, tc)
 
 
 async def create_seek(db, invites, seeks, user, data, ws=None):
