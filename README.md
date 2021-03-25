@@ -39,7 +39,7 @@ Additionally you can check Chess960 option in for Standard, Crazyhouse, Atomic, 
 [Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
-- [Fairy-Stockfish Python3 bindings](https://github.com/gbtami/Fairy-Stockfish) fork of [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
+- [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/niklasf/fishnet)
 - [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/careless25/lichess-bot)
 
