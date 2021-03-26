@@ -40,7 +40,9 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "rating": self.rating,
-            "tc": time_control_str(self.base, self.inc, self.byoyomi_period),
+            "base": self.base,
+            "inc": self.inc,
+            "byoyomi": self.byoyomi_period,
             "gameId": self.game_id if self.game_id is not None else "",
         }
 

@@ -57,7 +57,16 @@ class LobbyController {
 
         const onOpen = (evt) => {
             this._ws = evt.target;
+            console.log('onOpen()');
             // console.log("---CONNECTED", evt);
+            // prevent losing my seeks in case of websocket reconnections
+            if (this.seeks !== undefined) {
+                this.seeks.forEach(s => {
+                    if (s.user === this.model["username"]) {
+                        this.createSeekMsg(s.variant, s.color, s.fen, s.base, s.inc, s.byoyomi, s.chess960, s.rated, s.alternateStart);
+                    }
+                });
+            }
             this.doSend({ type: "lobby_user_connected", username: this.model["username"]});
             this.doSend({ type: "get_seeks" });
 
@@ -167,7 +176,9 @@ class LobbyController {
             seek.variant === variant &&
             seek.fen === fen &&
             seek.color === color &&
-            seek.tc === timeControlStr(minutes, increment, byoyomiPeriod) &&
+            seek.base === minutes &&
+            seek.inc === increment &&
+            seek.byoyomi === byoyomiPeriod &&
             seek.chess960 === chess960 &&
             seek.rated === rated
         );
@@ -471,7 +482,7 @@ class LobbyController {
             h('td', [ this.colorIcon(seek.color) ]),
             h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
             h('td', seek.rating),
-            h('td', seek.tc),
+            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
             h('td', { class: { tooltip: seek.fen } }, [
                 this.tooltip(seek, variant),

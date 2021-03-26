@@ -13,6 +13,7 @@ import { Chessground } from 'chessgroundx';
 
 import { VARIANTS, uci2cg } from './chess';
 import { boardSettings } from './boardSettings';
+import { timeControlStr } from './view';
 
 function gameView(games, game, fen, lastMove) {
     const variant = VARIANTS[game.variant];
@@ -22,7 +23,7 @@ function gameView(games, game, fen, lastMove) {
         h('div.row', [
             h('div.variant-info', [
                 h('div.icon', { props: { title: variant.displayName(game.chess960) }, attrs: { "data-icon": variant.icon(game.chess960) } }),
-                h('div.tc', game.tc),
+                h('div.tc', timeControlStr(game.base, game.inc, game.byoyomi)),
             ]),
             h('div.name', game.b),
         ]),

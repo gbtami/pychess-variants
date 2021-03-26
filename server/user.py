@@ -126,7 +126,7 @@ class User:
 
     async def clear_seeks(self, sockets, seeks):
         has_seek = len(self.seeks) > 0
-        if has_seek:
+        if has_seek and len(self.lobby_sockets) == 0:
             for seek in self.seeks:
                 game_id = self.seeks[seek].game_id
                 # preserve invites (seek with game_id)!
