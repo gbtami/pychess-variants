@@ -29,49 +29,37 @@ In **group B** IM Spinaltap was the clear favorite. The question was who can gai
 
 In the first semifinal match, Licetus proved that strong Shogi skills count. He convincingly won against Fynmorph 6-1.
 
-<ol>
-
-<li>    https://www.pychess.org/tSzkCPpH 1-0 </li>
-<li>    https://www.pychess.org/R3Xx9Jwb 0-1 </li>
-<li>    https://www.pychess.org/uRKR8d7p 1-0 </li>
-<li>    https://www.pychess.org/t4pEA469 1-0 </li>
-<li>    https://www.pychess.org/Q2ZHOR7U 1-0 </li>
-<li>    https://www.pychess.org/pO0uh3BU 1-0 </li>
-<li>    https://www.pychess.org/V9j0ukqb 1-0 </li>
-
-</ol>
+ - https://www.pychess.org/tSzkCPpH 1-0
+ - https://www.pychess.org/R3Xx9Jwb 0-1
+ - https://www.pychess.org/uRKR8d7p 1-0
+ - https://www.pychess.org/t4pEA469 1-0
+ - https://www.pychess.org/Q2ZHOR7U 1-0
+ - https://www.pychess.org/pO0uh3BU 1-0
+ - https://www.pychess.org/V9j0ukqb 1-0
 
 In the second semifinal match, we saw a huge surprise: IM Spinaltap lost to Tasshaq  3-6!
 
-<ol>
-
- <li> https://www.pychess.org/Qh06kX9E 1-0 </li>
- <li> https://www.pychess.org/rdEqqAoi 0-1 </li>
- <li> https://www.pychess.org/xZgcqnvb 0-1 </li>
- <li> https://www.pychess.org/6MyC7KxM 0-1 </li>
- <li> https://www.pychess.org/COLqbEan 1-0 </li>
- <li> https://www.pychess.org/eamOiD5V 0-1 </li>
- <li> https://www.pychess.org/RfNWvxNh 1-0 </li>
- <li> https://www.pychess.org/U856jVPs 0-1 </li>
- <li> https://www.pychess.org/k3i55dE1 0-1 </li>
-
-</ol>
+ - https://www.pychess.org/Qh06kX9E 1-0
+ - https://www.pychess.org/rdEqqAoi 0-1
+ - https://www.pychess.org/xZgcqnvb 0-1
+ - https://www.pychess.org/6MyC7KxM 0-1
+ - https://www.pychess.org/COLqbEan 1-0
+ - https://www.pychess.org/eamOiD5V 0-1
+ - https://www.pychess.org/RfNWvxNh 1-0
+ - https://www.pychess.org/U856jVPs 0-1
+ - https://www.pychess.org/k3i55dE1 0-1
 
 <h3 align="center">The Final</h3>
 
 The day of the final arrived and we were all thrilled. Could Tasshaq take revenge on Licetus? And yes, he did! Licetus - Tasshaq 1.5-5.5
 
-<ol>
-
-<li>    https://www.pychess.org/onxBKAEL 1-0 </li>
-<li>    https://www.pychess.org/dFgu4qmt 0-1 </li>
-<li>    https://www.pychess.org/Z5Gkj5MB 0-1 </li>
-<li>    https://www.pychess.org/Zy1qVd6D 0-1 </li>
-<li>    https://www.pychess.org/onmOdKgp 1/2 </li>
-<li>    https://www.pychess.org/P9YNfxfo 0-1 </li>
-<li>    https://www.pychess.org/6zEfIJoo 0-1 </li>
-
-</ol>
+ - https://www.pychess.org/onxBKAEL 1-0
+ - https://www.pychess.org/dFgu4qmt 0-1
+ - https://www.pychess.org/Z5Gkj5MB 0-1
+ - https://www.pychess.org/Zy1qVd6D 0-1
+ - https://www.pychess.org/onmOdKgp 1/2
+ - https://www.pychess.org/P9YNfxfo 0-1
+ - https://www.pychess.org/6zEfIJoo 0-1
 
 <br>
 
