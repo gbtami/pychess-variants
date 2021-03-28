@@ -719,6 +719,15 @@ export function lobbyView(model): VNode[] {
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
             h('posts', [
+                // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
+                    h('span.text', [
+                        h('strong', "And the winner is Tasshaq"),
+                        h('span', 'Subjective report on 1st Dōbutsu Tournament'),
+                    ]),
+                    h('time', '2021.03.28'),
+                ]),
                 h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/RS-24.jpg'} }),
                     h('span.text', [
@@ -735,6 +744,7 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.02.27'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
                     h('span.text', [
@@ -743,6 +753,7 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.02.04'),
                 ]),
+                */ 
             ]),
         ]),
         h('under-right', [
