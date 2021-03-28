@@ -24,7 +24,7 @@ The tournament started with a Licetus - Tasshaq match in **group A**. Licetus co
 
 In **group B** IM Spinaltap was the clear favorite. The question was who can geain the second spot. Surprisingly [@Fynmorph](https://www.pychess.org/@/Fynmorph) was able to win against abunickabhi for 6-3 and finally managed to overtake him by half a point in the overall standings. Spinaltap brought the mandatory and lost just one point and made it to the semi-finals.
 
-<h3 align="center">Semi finals</h3>
+<h3 align="center">Semi Finals</h3>
 
 In the first semi final match Licetus proved that strong Shogi skills counts. He convincingly won agains Fynmorph for 6-1.
 
@@ -57,7 +57,7 @@ In the second semi final match we seen the huge surprise. IM Spinaltap lost to T
 
 </ol>
 
-<h3 align="center">The final</h3>
+<h3 align="center">The Final</h3>
 
 The day of final arrived and we where all thrilled. Can Tasshaq take a revenge over Licetus? And yes, he did it! Licetus - Tasshaq 1.5-5.5
 
