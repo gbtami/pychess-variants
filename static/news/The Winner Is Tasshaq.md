@@ -16,13 +16,14 @@
 </p>
 <br>
 
+[The 1st Dobutsu Tournament](https://lichess.org/team/dobutsu-tournament-pychess) on Pychess is now completed! 
 Initially, 16 players were scheduled for the tournament, but for several reasons, some withdrew, so the two group round-robin ended with 6-6 players. The field was strong including two titled players [IM @Spinaltap](https://www.pychess.org/@/Spinaltap), [CM @alms](https://www.pychess.org/@/alms), one Dan level Shogi player [@Licetus](https://www.pychess.org/@/Licetus), the former leaderboard #1 [@abunickabhi](https://www.pychess.org/@/abunickabhi) and [three time lichess chess960 shield winner](https://lichess.org/tournament/shields/chess960) [@Tasshaq](https://www.pychess.org/@/Tasshaq).
 
 <h3 align="center">Group Matches</h3>
 
 The tournament started with a Licetus - Tasshaq match in **group A**. Licetus convincingly won for 5.5-3.5. These two player seemd to be the strongest here, but [@CyberShredder](https://www.pychess.org/@/CyberShredder) tried to keep up with them. Finally he lost to Tasshaq for 6-0 and was not able to qualify to semi finals.
 
-In **group B** IM Spinaltap was the clear favorite. The question was who can geain the second spot. Surprisingly [@Fynmorph](https://www.pychess.org/@/Fynmorph) was able to win against abunickabhi for 6-3 and finally managed to overtake him by half a point in the overall standings. Spinaltap brought the mandatory and lost just one point and made it to the semi-finals.
+In **group B** IM Spinaltap was the clear favorite. The question was who can geain the second spot. Surprisingly [@Fynmorph](https://www.pychess.org/@/Fynmorph) was able to win against abunickabhi for 6-3 and finally managed to overtake him by half a point in the overall standings. Spinaltap brought the mandatory and lost just one point and made it to the semi-finals. Final Standings for the Group Matches, along with Crosstable and Pairings can be seen [here](https://docs.google.com/spreadsheets/d/1Z-4waGc1YPTPdujpjtqD9Zntcdw5dBKVBQfJDfw_8Fw/edit#gid=1870125762)
 
 <h3 align="center">Semi Finals</h3>
 
