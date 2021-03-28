@@ -21,13 +21,13 @@ Initially, 16 players were scheduled for the tournament, but for several reasons
 
 <h3 align="center">Group Matches</h3>
 
-The tournament started with a Licetus - Tasshaq match in **group A**. Licetus convincingly won for 5.5-3.5. These two player seemd to be the strongest here, but [@CyberShredder](https://www.pychess.org/@/CyberShredder) tried to keep up with them. Finally he lost to Tasshaq for 6-0 and was not able to qualify to semi finals.
+The tournament started with a Licetus - Tasshaq match in **group A**. Licetus convincingly won for 5.5-3.5. These two players seemed to be the strongest here, but [@CyberShredder](https://www.pychess.org/@/CyberShredder) tried to keep up with them. Finally he lost to Tasshaq for 6-0 and was not able to qualify to semi finals.
 
-In **group B** IM Spinaltap was the clear favorite. The question was who can geain the second spot. Surprisingly [@Fynmorph](https://www.pychess.org/@/Fynmorph) was able to win against abunickabhi for 6-3 and finally managed to overtake him by half a point in the overall standings. Spinaltap brought the mandatory and lost just one point and made it to the semi-finals. Final Standings for the Group Matches, along with Crosstable and Pairings can be seen [here](https://docs.google.com/spreadsheets/d/1Z-4waGc1YPTPdujpjtqD9Zntcdw5dBKVBQfJDfw_8Fw/edit#gid=1870125762)
+In **group B** IM Spinaltap was the clear favorite. The question was who can gain the second spot. Surprisingly [@Fynmorph](https://www.pychess.org/@/Fynmorph) was able to win against abunickabhi for 6-3 and finally managed to overtake him by half a point in the overall standings. Spinaltap brought the mandatory and lost just one point and made it to the semi-finals. Final Standings for the Group Matches, along with Crosstable and Pairings can be seen [here](https://docs.google.com/spreadsheets/d/1Z-4waGc1YPTPdujpjtqD9Zntcdw5dBKVBQfJDfw_8Fw/edit#gid=1870125762)
 
 <h3 align="center">Semi Finals</h3>
 
-In the first semi final match Licetus proved that strong Shogi skills counts. He convincingly won agains Fynmorph for 6-1.
+In the first semi final match Licetus proved that strong Shogi skills counts. He convincingly won against Fynmorph for 6-1.
 
 
 <ol>
@@ -42,7 +42,7 @@ In the first semi final match Licetus proved that strong Shogi skills counts. He
 
 </ol>
 
-In the second semi final match we seen the huge surprise. IM Spinaltap lost to Tasshaq for 3-6!
+In the second semi final match we saw the huge surprise. IM Spinaltap lost to Tasshaq for 3-6!
 
 <ol>
 
@@ -60,7 +60,7 @@ In the second semi final match we seen the huge surprise. IM Spinaltap lost to T
 
 <h3 align="center">The Final</h3>
 
-The day of final arrived and we where all thrilled. Can Tasshaq take a revenge over Licetus? And yes, he did it! Licetus - Tasshaq 1.5-5.5
+The day of the final arrived and we were all thrilled. Can Tasshaq take revenge over Licetus? And yes, he did it! Licetus - Tasshaq 1.5-5.5
 
 <ol>
 
