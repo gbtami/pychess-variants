@@ -1,4 +1,4 @@
-import { VARIANTS, getPockets, isHandicap, validFen, cg2uci, uci2cg } from '../client/chess';
+import { getJanggiPoints, variants, VARIANTS, getPockets, isHandicap, validFen, cg2uci, uci2cg } from '../client/chess';
 import { expect } from 'chai';
 
 describe('getPockets test', 
@@ -27,10 +27,11 @@ describe('isHandicap test',
 
 describe('validFen test', 
     () => { 
-        it('should return true for standard chess initial position', () => {
-            const variant = VARIANTS['chess'];
-            const result = validFen(variant, variant.startFen);
-            expect(result).to.be.true; 
+        it('should return true for all variants initial position', () => {
+            variants.forEach( (variant) => {
+                const result = validFen(VARIANTS[variant], VARIANTS[variant].startFen);
+                expect(result).to.be.true; 
+            });
     }); 
 });
 
@@ -47,5 +48,13 @@ describe('cg2uci test',
         it('should chnage all occurences of ":" to "10" in UCI moves', () => { 
             const result = cg2uci('a:j:');
             expect(result).to.be.equal('a10j10'); 
+    }); 
+});
+
+describe('getJanggiPoints test',
+    () => { 
+        it('should return [72, 73.5]', () => { 
+            const result = getJanggiPoints(VARIANTS['janggi'].startFen);
+            expect(result).to.have.members([72, 73.5]); 
     }); 
 });
