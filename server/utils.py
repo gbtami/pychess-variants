@@ -657,32 +657,33 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     # Castling rights (and piece virginity) check
     invalid4 = False
-    if variant in ("seirawan", "shouse"):
-        invalid4 = len(init) > 2 and any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
-    elif chess960:
-        if all((c in "KQkq-" for c in init[2])):
-            chess960 = False
-        else:
-            invalid4 = len(init) > 2 and any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
-    elif variant[-5:] != "shogi" and variant not in ("dobutsu", "gorogoro"):
-        invalid4 = len(init) > 2 and any((c not in start[2] + "-" for c in init[2]))
+    if len(init) > 2:
+        if variant in ("seirawan", "shouse"):
+            invalid4 = any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
+        elif chess960:
+            if all((c in "KQkq-" for c in init[2])):
+                chess960 = False
+            else:
+                invalid4 = any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
+        elif variant[-5:] != "shogi" and variant not in ("dobutsu", "gorogoro"):
+            invalid4 = any((c not in start[2] + "-" for c in init[2]))
 
-    # Castling right need rooks and king placed in starting square
-    if (not invalid2) and (not invalid4) and not (chess960 and (variant in ("seirawan", "shouse"))):
-        rows = init[0].split("/")
-        backRankB = rows[1] if (variant == 'shako') else rows[0]
-        backRankW = rows[-2] if (variant == 'shako') else rows[-1]
-        # cut off pockets
-        k = backRankW.rfind("[")
-        if k > 0:
-            backRankW = backRankW[:k]
-        rookPosQ = 1 if (variant == 'shako') else 0
-        rookPosK = -2 if (variant == 'shako') else -1
-        if ("q" in init[2] and backRankB[rookPosQ] != 'r') or \
-            ("k" in init[2] and backRankB[rookPosK] != 'r') or \
-                ("Q" in init[2] and backRankW[rookPosQ] != 'R') or \
-                ("K" in init[2] and backRankW[rookPosK] != 'R'):
-            invalid4 = True
+        # Castling right need rooks and king placed in starting square
+        if (not invalid2) and (not invalid4) and not (chess960 and (variant in ("seirawan", "shouse"))):
+            rows = init[0].split("/")
+            backRankB = rows[1] if (variant == 'shako') else rows[0]
+            backRankW = rows[-2] if (variant == 'shako') else rows[-1]
+            # cut off pockets
+            k = backRankW.rfind("[")
+            if k > 0:
+                backRankW = backRankW[:k]
+            rookPosQ = 1 if (variant == 'shako') else 0
+            rookPosK = -2 if (variant == 'shako') else -1
+            if ("q" in init[2] and backRankB[rookPosQ] != 'r') or \
+                ("k" in init[2] and backRankB[rookPosK] != 'r') or \
+                    ("Q" in init[2] and backRankW[rookPosQ] != 'R') or \
+                    ("K" in init[2] and backRankW[rookPosK] != 'R'):
+                invalid4 = True
 
     # Number of kings
     bking = "l" if variant == "dobutsu" else "k"
