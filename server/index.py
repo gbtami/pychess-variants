@@ -116,6 +116,9 @@ async def index(request):
         view = "embed"
     elif request.path == "/paste":
         view = "paste"
+    elif request.path.startswith("/tournament"):
+        view = "tournament"
+        tournamentId = request.match_info.get("tournamentId")
 
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")

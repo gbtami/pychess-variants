@@ -38,6 +38,7 @@ class User:
         self.country = country
         self.seeks = {}
         self.lobby_sockets = set()
+        self.tournament_sockets = set()
 
         if self.bot:
             self.event_queue = asyncio.Queue()
@@ -83,7 +84,7 @@ class User:
                     break
 
     def update_online(self):
-        self.online = len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0
+        self.online = len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0 or len(self.tournament_sockets) > 0
 
     def get_rating(self, variant, chess960):
         if variant in self.perfs:
