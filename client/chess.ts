@@ -461,26 +461,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         chess960: true, icon: "&", icon960: "'",
     }),
 
-    gothic: new Variant({
-        name: "gothic", tooltip: () => _("Like Capablanca Chess but with a different starting setup"),
-        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
-        board: "standard10x8", piece: "capa",
-        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
-        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true,
-        icon: "P",
-    }),
-
-    gothhouse: new Variant({
-        name: "gothhouse", tooltip: () => _("Gothic with Crazyhouse drop rules"),
-        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
-        board: "standard10x8", piece: "capa",
-        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
-        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true, drop: true,
-        icon: "P",
-    }),
-
     seirawan: new Variant({
         name: "seirawan", displayName: "s-chess", tooltip: () => _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
@@ -576,10 +556,41 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "`",
     }),
 
+    // We support to import/store/analyze some variants
+    // but don't want to add them to leaderboard page
+    embassy: new Variant({
+        name: "embassy", tooltip: () => _("Like Capablanca Chess but with Grand starting setup"),
+        startFen: "rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
+        enPassant: true, autoQueenable: true,
+        icon: "P",
+    }),
+
+    gothic: new Variant({
+        name: "gothic", tooltip: () => _("Like Capablanca Chess but with a different starting setup"),
+        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
+        enPassant: true, autoQueenable: true,
+        icon: "P",
+    }),
+
+    gothhouse: new Variant({
+        name: "gothhouse", tooltip: () => _("Gothic with Crazyhouse drop rules"),
+        startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
+        enPassant: true, autoQueenable: true, drop: true,
+        icon: "P",
+    }),
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {

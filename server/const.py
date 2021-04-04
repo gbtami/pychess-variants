@@ -45,8 +45,11 @@ VARIANTS = (
     "capablanca960",
     "capahouse",
     "capahouse960",
+    # We support to import/store/analyze these variants
+    # but don't support to add them to leaderboard page
     # "gothic",
     # "gothhouse",
+    # "embassy",
     "seirawan",
     "seirawan960",
     "shouse",
@@ -78,6 +81,7 @@ VARIANT_ICONS = {
     "grandhouse": "*",
     "gothic": "P",
     "gothhouse": "&",
+    "embassy": "P",
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
