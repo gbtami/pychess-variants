@@ -26,6 +26,7 @@ V2C = {
     "grandhouse": "r",
     "gothic": "o",
     "gothhouse": "t",
+    "embassy": "E",
     "cambodian": "b",
     "shako": "d",
     "minixiangqi": "e",

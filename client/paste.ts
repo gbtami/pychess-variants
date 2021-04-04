@@ -8,6 +8,10 @@ import { variantsIni } from './variantsIni';
 import { VARIANTS } from './chess';
 import { parseKif, resultString } from '../client/kif';
 
+const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
+const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
+
+
 export function pasteView(model): VNode[] {
     let ffish = null;
     new (Module as any)().then(loadedModule => {
@@ -17,6 +21,16 @@ export function pasteView(model): VNode[] {
     const importGame = (model, ffish) => {
         const e = document.getElementById("pgnpaste") as HTMLInputElement;
         //console.log('PGN:', e.value);
+        let pgn = e.value;
+        // Add missing Variant tag and switch short/long castling notations
+        if (pgn.indexOf(BRAINKING_SITE) != -1 && pgn.indexOf(EMBASSY_FEN) != -1) {
+            const lines = pgn.split(/\n/);
+            const fenIndex = lines.findIndex((elem) => {return elem.startsWith('[FEN ');});
+            lines[fenIndex] = `[FEN "${VARIANTS['embassy'].startFen}"]`;
+            lines.splice(fenIndex, 0, '[Variant "Embassy"]');
+            lines.forEach((line, idx) => {if (idx > fenIndex) lines[idx] = line.replace(/(O-O-O|O-O)/g, (match) => { return match === 'O-O' ? 'O-O-O' : 'O-O' });});
+            pgn = lines.join('\n');
+        }
 
         if (ffish !== null) {
             ffish.loadVariantConfig(variantsIni);
@@ -27,11 +41,11 @@ export function pasteView(model): VNode[] {
             let mainlineMoves: string[] = [];
 
             try {
-                const firstLine = e.value.slice(0, e.value.indexOf('\n'));
+                const firstLine = pgn.slice(0, pgn.indexOf('\n'));
 
                 // Fullwidth Colon(!) is used to separate game tag key-value pairs in Shogi KIF files :
                 if (firstLine.includes('：') || firstLine.toUpperCase().includes('KIF')) {
-                    const kif = parseKif(e.value);
+                    const kif = parseKif(pgn);
                     //console.log(kif['moves'].join(', '));
                     const handicap = kif['handicap'];
                     const moves = kif['moves'];
@@ -77,7 +91,7 @@ export function pasteView(model): VNode[] {
 
                 } else {
 
-                    const game = ffish.readGamePGN(e.value);
+                    const game = ffish.readGamePGN(pgn);
 
                     variant = "chess";
                     const v = game.headers("Variant");
