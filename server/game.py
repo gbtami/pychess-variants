@@ -332,7 +332,7 @@ class Game:
                     log.error("Failed to del %s from game_queues", self.id)
 
         self.saved = True
-        asyncio.create_task(remove(KEEP_TIME))
+        self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
         if self.board.ply < 3 and (self.db is not None):
             result = await self.db.game.delete_one({"_id": self.id})

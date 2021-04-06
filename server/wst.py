@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 
@@ -9,6 +8,7 @@ import aiohttp_session
 from broadcast import lobby_broadcast
 from settings import ADMINS
 from utils import MyWebSocketResponse
+from user import User
 
 log = logging.getLogger(__name__)
 
@@ -16,8 +16,7 @@ log = logging.getLogger(__name__)
 async def tournament_socket_handler(request):
 
     users = request.app["users"]
-    sockets = request.app["tournamentsockets"]
-    db = request.app["db"]
+    sockets = request.app["tournsockets"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -50,8 +49,7 @@ async def tournament_socket_handler(request):
                         log.debug("Websocket (%s) message: %s", id(ws), msg)
 
                     if data["type"] == "get_participants":
-                        response = get_participants(seeks)
-                        await ws.send_json(response)
+                        pass
 
                     elif data["type"] == "tournament_user_connected":
                         if session_user is not None:
