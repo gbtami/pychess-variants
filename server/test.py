@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from operator import neg
 
 from sortedcollections import ValueSortedDict
@@ -52,7 +52,7 @@ PERFS["user7"]["crazyhouse960"] = {
         "d": 125,
         "v": 0.06
     },
-    "la": datetime.utcnow(),
+    "la": datetime.now(timezone.utc),
     "nb": 12
 }
 
@@ -62,7 +62,7 @@ PERFS["newplayer"]["crazyhouse960"] = {
         "d": 136,
         "v": 0.06
     },
-    "la": datetime.utcnow(),
+    "la": datetime.now(timezone.utc),
     "nb": 7
 }
 
@@ -72,7 +72,7 @@ PERFS["strongplayer"]["crazyhouse960"] = {
         "d": 350,
         "v": 0.06
     },
-    "la": datetime.utcnow(),
+    "la": datetime.now(timezone.utc),
     "nb": 0
 }
 
@@ -82,7 +82,7 @@ PERFS["weakplayer"]["crazyhouse960"] = {
         "d": 350,
         "v": 0.06
     },
-    "la": datetime.utcnow(),
+    "la": datetime.now(timezone.utc),
     "nb": 0
 }
 
@@ -321,22 +321,22 @@ class RatingTestCase(AioHTTPTestCase):
     async def test_rating(self):
         # New Glicko2 rating calculation example from original paper
 
-        u1 = User(self.app, username="testuser1", perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
+        u1 = User(self.app, username="testuser1", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
         r1 = u1.get_rating("chess", False)
 
         self.assertEqual(r1.mu, 1500)
         self.assertEqual(r1.phi, 200)
         self.assertEqual(r1.sigma, 0.06)
 
-        u2 = User(self.app, username="testuser2", perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1400, "d": 30, "v": 0.06}}})
+        u2 = User(self.app, username="testuser2", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1400, "d": 30, "v": 0.06}}})
         r2 = u2.get_rating("chess", False)
         self.assertEqual(r2.mu, 1400)
 
-        u3 = User(self.app, username="testuser3", perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1550, "d": 100, "v": 0.06}}})
+        u3 = User(self.app, username="testuser3", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1550, "d": 100, "v": 0.06}}})
         r3 = u3.get_rating("chess", False)
         self.assertEqual(r3.mu, 1550)
 
-        u4 = User(self.app, username="testuser4", perfs={"chess": {"la": datetime.utcnow(), "gl": {"r": 1700, "d": 300, "v": 0.06}}})
+        u4 = User(self.app, username="testuser4", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1700, "d": 300, "v": 0.06}}})
         r4 = u4.get_rating("chess", False)
         self.assertEqual(r4.mu, 1700)
 

@@ -1,6 +1,6 @@
 import logging
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 from aiohttp import web
@@ -275,7 +275,7 @@ async def import_game(request):
         date = datetime(*date)
     except Exception:
         log.exception("Date tag parsing failed")
-        date = datetime.utcnow()
+        date = datetime.now(timezone.utc)
 
     try:
         minute = False
