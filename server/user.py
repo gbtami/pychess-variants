@@ -2,7 +2,7 @@ import asyncio
 import logging
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timezone
 
 from const import VARIANTS
 from broadcast import lobby_broadcast
@@ -107,7 +107,7 @@ class User:
         if self.anon:
             return
         gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
-        la = datetime.utcnow()
+        la = datetime.now(timezone.utc)
         nb = self.perfs[variant + ("960" if chess960 else "")].get("nb", 0)
         self.perfs[variant + ("960" if chess960 else "")] = {"gl": gl, "la": la, "nb": nb + 1}
 

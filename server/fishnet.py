@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import partial
 import json
 import logging
@@ -34,7 +34,7 @@ async def get_work(request, data):
         work = request.app["works"][work_id]
         # print("FISHNET ACQUIRE we have work for you:", work)
         if priority == ANALYSIS:
-            fm[worker].append("%s %s %s %s of %s moves" % (datetime.utcnow(), work_id, "request", "analysis", work["moves"].count(" ") + 1))
+            fm[worker].append("%s %s %s %s of %s moves" % (datetime.now(timezone.utc), work_id, "request", "analysis", work["moves"].count(" ") + 1))
 
             # delete previous analysis
             gameId = work["game_id"]
@@ -51,7 +51,7 @@ async def get_work(request, data):
             response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Work for fishnet sent..."}
             await user_ws.send_json(response)
         else:
-            fm[worker].append("%s %s %s %s for level %s" % (datetime.utcnow(), work_id, "request", "move", work["work"]["level"]))
+            fm[worker].append("%s %s %s %s for level %s" % (datetime.now(timezone.utc), work_id, "request", "move", work["work"]["level"]))
 
         return web.json_response(work, status=202)
     except asyncio.QueueEmpty:
@@ -63,7 +63,7 @@ async def get_work(request, data):
         for work_id in pending_works:
             work = pending_works[work_id]
             if work["work"]["type"] == "move" and (now - work["time"] > MOVE_WORK_TIME_OUT):
-                fm[worker].append("%s %s %s %s for level %s" % (datetime.utcnow(), work_id, "request", "move AGAIN", work["work"]["level"]))
+                fm[worker].append("%s %s %s %s for level %s" % (datetime.now(timezone.utc), work_id, "request", "move AGAIN", work["work"]["level"]))
                 return web.json_response(work, status=202)
         return web.Response(status=204)
 
@@ -86,7 +86,7 @@ async def fishnet_acquire(request):
 
     if key not in request.app["workers"]:
         request.app["workers"].add(key)
-        fm[worker].append("%s %s %s" % (datetime.utcnow(), "-", "joined"))
+        fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), "-", "joined"))
         request.app["users"]["Fairy-Stockfish"].online = True
 
     response = await get_work(request, data)
@@ -106,7 +106,7 @@ async def fishnet_analysis(request):
         return web.Response(status=404)
 
     work = request.app["works"][work_id]
-    fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "analysis"))
+    fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "analysis"))
 
     gameId = work["game_id"]
     game = await load_game(request.app, gameId)
@@ -175,7 +175,7 @@ async def fishnet_move(request):
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
-    fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "move"))
+    fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "move"))
 
     if work_id not in request.app["works"]:
         response = await get_work(request, data)
@@ -211,7 +211,7 @@ async def fishnet_abort(request):
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
-    fm[worker].append("%s %s %s" % (datetime.utcnow(), work_id, "abort"))
+    fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "abort"))
 
     # remove fishnet client
     try:

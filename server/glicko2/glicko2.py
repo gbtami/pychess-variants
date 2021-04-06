@@ -11,7 +11,7 @@
 """
 import math
 from calendar import timegm
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 #: The actual score for win
@@ -56,8 +56,8 @@ def pre_rating_RD(phi, sigma, ltime):
     # 4.665 days is the length of a “baseline” rating period used by Lichess,
     # which is essentially arbitrary but calibrated so a typical player’s RD goes from 60 to 110 in a year.
 
-    t = (timegm(datetime.utcnow().timetuple()) - timegm(ltime.timetuple())) / (60.0 * 60 * 24) / 4.665
-    # print("pre_rating_RD(", timegm(datetime.utcnow().timetuple()), timegm(ltime.timetuple()), t)
+    t = (timegm(datetime.now(timezone.utc).timetuple()) - timegm(ltime.timetuple())) / (60.0 * 60 * 24) / 4.665
+    # print("pre_rating_RD(", timegm(datetime.now(timezone.utc).timetuple()), timegm(ltime.timetuple()), t)
     t = max(1, t)
     ret = math.sqrt(math.pow(phi, 2) + t * math.pow(sigma, 2))
     return min(ret, 350.0 / 173.7178)
@@ -80,7 +80,7 @@ class Glicko2:
         if sigma is None:
             sigma = self.sigma
         if ltime is None:
-            ltime = datetime.utcnow()
+            ltime = datetime.now(timezone.utc)
         return Rating(mu, phi, sigma, ltime)
 
     def scale_down(self, rating, ratio=173.7178):
@@ -207,4 +207,4 @@ class Glicko2:
 
 gl2 = Glicko2()
 rating = gl2.create_rating()
-DEFAULT_PERF = {"gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma}, "la": datetime.utcnow(), "nb": 0}
+DEFAULT_PERF = {"gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma}, "la": datetime.now(timezone.utc), "nb": 0}

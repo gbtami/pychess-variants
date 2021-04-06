@@ -3,7 +3,7 @@ import collections
 import logging
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timezone
 from itertools import chain
 from time import monotonic
 
@@ -86,7 +86,7 @@ class Game:
         self.draw_offers = set()
         self.rematch_offers = set()
         self.messages = collections.deque([], 200)
-        self.date = datetime.utcnow()
+        self.date = datetime.now(timezone.utc)
 
         self.ply_clocks = [{
             "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
