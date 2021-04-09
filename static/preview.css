@@ -77,6 +77,9 @@ label.piece.piece6.shogi {
 label.piece.piece7.shogi {
     background-image: url('images/pieces/shogi/Ka/0KA.svg');
 }
+label.piece.piece8.shogi {
+    background-image: url('images/pieces/shogi/ctim/0KA.svg');
+}
 
 label.board.board0.shogi5x5 {
     background-image: url('images/board/minishogi.svg');

@@ -7,6 +7,7 @@ import string
 logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
+PROD = URI.startswith("https")
 
 REDIRECT_PATH = "/oauth"  # path of oauth callback in app
 # lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth

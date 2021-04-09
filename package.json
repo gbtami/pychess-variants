@@ -26,6 +26,7 @@
     "gulp-sourcemaps": "^2",
     "gulp-typescript": "^3",
     "gulp-util": "^3",
+    "gulp-brotli": "3.0.0",
     "jsdom": "10.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "^8.1.0",
@@ -37,7 +38,8 @@
     "vinyl-buffer": "^1",
     "vinyl-source-stream": "^2",
     "watchify": "^3",
-    "yarn": "^1.17.3"
+    "yarn": "^1.17.3",
+    "zlib": "1.0.5"
   },
   "scripts": {
     "heroku-postbuild": "cp node_modules/ffish-es6/ffish.* static/ && gulp prod && ./md2html.sh",
