@@ -2,6 +2,7 @@ aioauth-client==0.25.4
 aiohttp-session==2.9.0
 aiohttp-sse==2.0.0
 aiohttp==3.7.4
+brotli==1.0.9
 yarl==1.6.2
 cryptography==3.4.4
 dnspython==2.0.0
