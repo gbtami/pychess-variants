@@ -48,7 +48,7 @@ get_routes = (
     ("/variant/{variant}", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
-    ("/tsl", tournament_socket_handler),
+    ("/wst", tournament_socket_handler),
     ("/api/account", account),
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),

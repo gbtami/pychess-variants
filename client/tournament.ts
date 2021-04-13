@@ -44,7 +44,7 @@ export default class TournamentController {
         };
 
         const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/tsl", opts);
+        this.sock = new Sockette(ws + location.host + "/wst", opts);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
     }
