@@ -7,7 +7,7 @@ import string
 logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
-PROD = URI.startswith("https")
+BR_EXTENSION = ".br" if URI.startswith("https") else ""
 
 REDIRECT_PATH = "/oauth"  # path of oauth callback in app
 # lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth
@@ -36,6 +36,10 @@ FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
 ADMINS = os.getenv("ADMINS")
 
 STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
+
+SOURCE_VERSION = os.getenv("SOURCE_VERSION", "")
+if SOURCE_VERSION != "":
+    SOURCE_VERSION = "?v=%s" % SOURCE_VERSION
 
 
 def static_url(static_file_path):
