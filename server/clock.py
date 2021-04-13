@@ -14,13 +14,8 @@ class Clock:
     def __init__(self, game):
         self.game = game
         self.running = False
-        self.alive = True
         self.restart()
-        asyncio.create_task(self.countdown())
-
-    def kill(self):
-        self.alive = False
-        self.running = False
+        self.clock_task = asyncio.create_task(self.countdown())
 
     def stop(self):
         self.running = False
@@ -40,7 +35,7 @@ class Clock:
         self.running = True
 
     async def countdown(self):
-        while self.alive:
+        while True:
             while self.secs > 0 and self.running:
                 await asyncio.sleep(1)
                 self.secs -= 1000

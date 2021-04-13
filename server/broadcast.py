@@ -25,22 +25,14 @@ async def round_broadcast(game, users, response, full=False, channels=None):
             try:
                 wplayer_ws = users[game.wplayer.username].game_sockets[game.id]
                 await wplayer_ws.send_json(response)
-            except KeyError:
-                print("wplayer %s game socket closed" % game.wplayer.username)
-            except AttributeError:
-                print("wplayer %s has no game_sockets" % game.wplayer.username)
-            except ConnectionResetError:
+            except (KeyError, AttributeError, ConnectionResetError):
                 pass
 
         if not game.bplayer.bot:
             try:
                 bplayer_ws = users[game.bplayer.username].game_sockets[game.id]
                 await bplayer_ws.send_json(response)
-            except KeyError:
-                print("bplayer %s game socket closed" % game.bplayer.username)
-            except AttributeError:
-                print("bplayer %s has no game_sockets" % game.bplayer.username)
-            except ConnectionResetError:
+            except (KeyError, AttributeError, ConnectionResetError):
                 pass
 
     # Put response data to sse subscribers queue

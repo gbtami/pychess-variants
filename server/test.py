@@ -13,12 +13,11 @@ from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 from const import CREATED, STARTED, VARIANTS
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
-from game import Game
+from game import Game, new_game_id
 from login import RESERVED_USERS
 from user import User
 from utils import sanitize_fen
 from server import make_app
-from tournament import Tournament, TCREATED, TSTARTED, TABORTED, TFINISHED
 import game
 
 game.KEEP_TIME = 0
@@ -95,6 +94,8 @@ class SanitizeFenTestCase(unittest.TestCase):
             variant_name = variant[:-3] if chess960 else variant
             board = FairyBoard(variant_name, chess960=chess960)
             fen = board.initial_fen
+            print()
+            print(variant_name, chess960, fen)
 
             valid, sanitized = sanitize_fen(variant_name, fen, chess960)
             self.assertTrue(valid)
@@ -140,7 +141,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
                 try:
                     await user.remove_task
                 except asyncio.CancelledError:
-                    print("Task Cancelled already")
+                    pass
 
     async def get_application(self):
         app = make_app(with_db=False)
@@ -171,13 +172,13 @@ class GamePlayTestCase(AioHTTPTestCase):
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
     @unittest_run_loop
-    async def xxxtest_game_play(self):
+    async def test_game_play(self):
         """ Playtest test_player vs Random-Mover """
         for i, variant in enumerate(VARIANTS):
             print(i, variant)
             variant960 = variant.endswith("960")
             variant_name = variant[:-3] if variant960 else variant
-            game_id = str(i)
+            game_id = await new_game_id(self.app["db"])
             game = Game(self.app, game_id, variant_name, "", self.test_player, self.random_mover, rated=False, chess960=variant960, create=True)
             self.app["games"][game.id] = game
             self.random_mover.game_queues[game_id] = None
@@ -224,7 +225,8 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_lost_but_still_there(self):
-        game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
+        game_id = await new_game_id(self.app["db"])
+        game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
@@ -244,7 +246,8 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_lost_and_out(self):
-        game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
+        game_id = await new_game_id(self.app["db"])
+        game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
@@ -264,7 +267,8 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_win_and_in_then_lost_and_out(self):
-        game = Game(self.app, "12345678", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
+        game_id = await new_game_id(self.app["db"])
+        game = Game(self.app, game_id, "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
@@ -282,7 +286,8 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"].keys()[:10])
 
         # now strong player will lose to weak_player and should be out from leaderboard
-        game = Game(self.app, "98765432", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
+        game_id = await new_game_id(self.app["db"])
+        game = Game(self.app, game_id, "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         print(game.crosstable)
 
@@ -353,35 +358,6 @@ class RatingTestCase(AioHTTPTestCase):
         self.assertEqual(round(r1.mu, 3), 1464.051)
         self.assertEqual(round(r1.phi, 3), 151.515)
         self.assertEqual(round(r1.sigma, 6), 0.059996)
-
-
-class TournamentTestCase(AioHTTPTestCase):
-
-    async def tearDownAsync(self):
-        task = self.tournament.start_task
-        task.cancel()
-        try:
-            await task
-        except asyncio.CancelledError:
-            print("Task Cancelled already")
-
-    async def startup(self, app):
-        self.player1 = User(self.app, username="test_player", perfs=PERFS["newplayer"])
-        self.tournament = Tournament("12345678", "Test Tournament", "crazyhouse", before_start=1, duration=1)
-
-    async def get_application(self):
-        app = make_app(with_db=False)
-        app.on_startup.append(self.startup)
-        return app
-
-    @unittest_run_loop
-    async def test_tournament(self):
-        self.assertTrue(self.tournament.status == TCREATED)
-
-    @unittest_run_loop
-    async def test_tournament_user(self):
-        self.tournament.join(self.player1)
-        self.assertIn(self.player1, self.tournament.players)
 
 
 if __name__ == '__main__':

@@ -222,7 +222,7 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                         # send game count
-                        response = {"type": "g_cnt", "cnt": request.app["g_cnt"]}
+                        response = {"type": "g_cnt", "cnt": request.app["g_cnt"][0]}
                         await ws.send_json(response)
 
                         # send user count

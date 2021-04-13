@@ -32,14 +32,15 @@ KEEP_TIME = 600  # keep game in app["games"] for KEEP_TIME secs
 
 async def new_game_id(db):
     new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
-    existing = await db.game.find_one({'_id': {'$eq': new_id}})
-    if existing:
-        new_id = "".join(random.choice(string.digits + string.ascii_letters) for x in range(8))
+    if db is not None:
+        existing = await db.game.find_one({'_id': {'$eq': new_id}})
+        if existing:
+            new_id = "".join(random.choice(string.digits + string.ascii_letters) for x in range(8))
     return new_id
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=CASUAL, chess960=False, create=True):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=CASUAL, chess960=False, create=True, tournament=None):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.users = app["users"]
@@ -56,6 +57,7 @@ class Game:
         self.base = base
         self.inc = inc
         self.level = level if level is not None else 0
+        self.tournament = tournament
         self.chess960 = chess960
         self.create = create
 
@@ -202,8 +204,8 @@ class Game:
             return
         if self.status == CREATED:
             self.status = STARTED
-            self.app["g_cnt"] += 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+            self.app["g_cnt"][0] += 1
+            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
             await lobby_broadcast(self.app["lobbysockets"], response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
@@ -305,11 +307,15 @@ class Game:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatch.kill()
+        self.stopwatch.clock_task.cancel()
+        try:
+            await self.stopwatch.clock_task
+        except asyncio.CancelledError:
+            pass
 
         if self.board.ply > 0:
-            self.app["g_cnt"] -= 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+            self.app["g_cnt"][0] -= 1
+            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
             await lobby_broadcast(self.app["lobbysockets"], response)
 
         async def remove(keep_time):
@@ -374,6 +380,24 @@ class Game:
 
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+
+    def update_tournament(self):
+        leaderboard = self.tournament.leaderboard
+        players = self.tournament.players
+
+        wpscore = leaderboard.get(self.wplayer)
+        bpscore = leaderboard.get(self.bplayer)
+
+        if self.result == "1/2-1/2":
+            leaderboard.update({self.wplayer: wpscore + 0.5, self.bplayer: bpscore + 0.5})
+        elif self.result == "1-0":
+            leaderboard.update({self.wplayer: wpscore + 1})
+        elif self.result == "0-1":
+            leaderboard.update({self.bplayer: bpscore + 1})
+
+        self.tournament.ongoing_games -= 1
+        players[self.wplayer].free = True
+        players[self.bplayer].free = True
 
     def set_crosstable(self):
         if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.board.ply < 3 or self.result == "*":
@@ -493,6 +517,10 @@ class Game:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
+
+            if self.tournament is not None:
+                self.update_tournament()
+
             return
 
         if self.board.move_stack:
@@ -560,10 +588,14 @@ class Game:
 
         if self.status > STARTED:
             self.set_crosstable()
+
             if not self.bplayer.bot:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
+
+            if self.tournament is not None:
+                self.update_tournament()
 
     def set_dests(self):
         dests = {}

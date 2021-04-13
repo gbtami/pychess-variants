@@ -100,7 +100,7 @@ async def init_state(app):
     app["stats"] = {}
 
     # counters for games
-    app["g_cnt"] = 0
+    app["g_cnt"] = [0]
 
     # last game played
     app["tv"] = None
