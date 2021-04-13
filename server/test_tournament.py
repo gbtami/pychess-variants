@@ -82,7 +82,9 @@ class TestTournament(Tournament):
 
     async def play_random(self, game):
         """ Play random moves in test tournament games """
-        await asyncio.sleep(random.choice((0, 1, 3, 5, 7)))
+        if self.pairing == ARENA:
+            await asyncio.sleep(random.choice((0, 1, 3, 5, 7)))
+
         while game.status <= STARTED:
             game.set_dests()
             move = game.random_move
