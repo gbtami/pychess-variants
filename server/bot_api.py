@@ -453,8 +453,4 @@ async def bot_pong(request):
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
-    users = request.app["users"]
-    bot_player = users[username]
     return web.json_response({"ok": True})
