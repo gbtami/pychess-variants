@@ -9,7 +9,7 @@ from operator import neg
 from sortedcollections import ValueSortedDict
 
 from game import Game, new_game_id
-from const import STARTED
+from const import RATED, STARTED
 from rr import BERGER_TABLES
 
 log = logging.getLogger(__name__)
@@ -43,11 +43,12 @@ class PlayerData:
 
 class Tournament:
 
-    def __init__(self, app, tournamentId, name, variant, before_start=5, duration=45, description="", fen="", base=1, inc=0, byoyomi_period=0, chess960=False, ws=None, pairing=ARENA, rounds=0):
+    def __init__(self, app, tournamentId, name, variant, rated=RATED, before_start=5, duration=45, description="", fen="", base=1, inc=0, byoyomi_period=0, chess960=False, ws=None, system=ARENA, rounds=0):
         self.app = app
         self.id = tournamentId
         self.name = name
         self.variant = variant
+        self.rated = rated
         self.before_start = before_start  # in minutes
         self.duration = duration  # in minutes
         self.description = description
@@ -57,7 +58,7 @@ class Tournament:
         self.byoyomi_period = byoyomi_period
         self.chess960 = chess960
         self.ws = ws
-        self.pairing = pairing
+        self.system = system
         self.rounds = rounds
 
         self.created = datetime.now(timezone.utc)
@@ -83,27 +84,23 @@ class Tournament:
         self.clock_task = asyncio.create_task(self.clock())
 
     async def clock(self):
-        while True:
+        while self.status != T_FINISHED:
             now = datetime.now(timezone.utc)
 
             if self.status == T_CREATED and now >= self.start_time:
                 self.status = T_STARTED
-                if self.pairing == ARENA:
+
+                # force first pairing wave in arena
+                if self.system == ARENA:
                     self.prev_pairing = now - self.wave
                 continue
 
             elif (self.duration is not None) and now >= self.finish:
                 self.status = T_FINISHED
-                if self.pairing == ARENA:
-                    # remove latest games from players tournament if it was not finished in time
-                    for player in self.players:
-                        games = self.players[player].games
-                        if len(games) > 0 and games[-1].status <= STARTED:
-                            self.players[player].games.pop()
                 break
 
             elif self.status == T_STARTED:
-                if self.pairing == ARENA:
+                if self.system == ARENA:
                     if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
                         waiting_players = [p for p in self.players if self.players[p].free]
                         if len(waiting_players) >= 4:
@@ -121,10 +118,19 @@ class Tournament:
             print("CLOCK", now.strftime("%H:%M:%S"))
             await asyncio.sleep(1)
 
+        # remove latest games from players tournament if it was not finished in time
+        for player in self.players:
+            games = self.players[player].games
+            if len(games) > 0 and (games[-1] is not None) and games[-1].status <= STARTED:
+                self.players[player].games.pop()
+
         self.finish_event.set()
 
+    def terminate(self):
+        self.status = T_FINISHED
+
     def join(self, player):
-        if self.pairing == RR and len(self.players) > self.rounds + 1:
+        if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
         self.players[player] = PlayerData()
@@ -156,7 +162,7 @@ class Tournament:
         pairing = []
         players = list(self.players.keys())
 
-        if self.pairing == RR:
+        if self.system == RR:
             n = len(self.players)
             odd = (n % 2 == 1)
             if odd:
@@ -187,7 +193,7 @@ class Tournament:
 
                 pairing.append((wp, bp))
 
-            if len(waiting_players) == 1 and self.pairing == SWISS:
+            if len(waiting_players) == 1 and self.system == SWISS:
                 self.players[waiting_players[0]].games.append(None)
 
         return pairing
@@ -200,7 +206,7 @@ class Tournament:
                         base=self.base,
                         inc=self.inc,
                         byoyomi_period=self.byoyomi_period,
-                        rated=True,
+                        rated=self.rated,
                         tournament=self,
                         chess960=self.chess960)
             games.append(game)

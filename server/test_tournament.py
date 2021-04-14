@@ -82,7 +82,7 @@ class TestTournament(Tournament):
 
     async def play_random(self, game):
         """ Play random moves in test tournament games """
-        if self.pairing == ARENA:
+        if self.system == ARENA:
             await asyncio.sleep(random.choice((0, 1, 3, 5, 7)))
 
         while game.status <= STARTED:
@@ -158,7 +158,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest_run_loop
     async def test_tournament_pairing_5_round_SWISS(self):
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, pairing=SWISS, rounds=5)
+        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, system=SWISS, rounds=5)
         self.tournament.game_tasks = set()
         for i in range(15):
             player = User(self.app, username="player%s" % i, perfs=PERFS)
@@ -169,7 +169,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest_run_loop
     async def test_tournament_pairing_1_min_ARENA(self):
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, duration=1, pairing=ARENA)
+        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, duration=1)
         self.tournament.game_tasks = set()
         for i in range(15):
             player = User(self.app, username="player%s" % i, perfs=PERFS)
@@ -180,7 +180,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest_run_loop
     async def test_tournament_pairing_5_round_RR(self):
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, pairing=RR, rounds=5)
+        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, system=RR, rounds=5)
         self.tournament.game_tasks = set()
         for i in range(5):
             player = User(self.app, username="player%s" % i, perfs=PERFS)

@@ -89,6 +89,7 @@ async def init_state(app):
     app["users"]["Random-Mover"].online = True
     app["lobbysockets"] = {}
     app["tournsockets"] = {}
+    app["tournaments"] = {}
     app["seeks"] = {}
     app["games"] = {}
     app["invites"] = {}
