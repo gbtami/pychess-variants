@@ -456,3 +456,7 @@ label.piece.piece1.hoppel {
 label.piece.piece2.hoppel {
     background-image: url('images/pieces/hoppel/animal/bN.svg');
 }
+
+label.piece.piece0.shinobi {
+    background-image: url('images/pieces/shinobi/wj.svg');
+}
