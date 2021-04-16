@@ -556,6 +556,19 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "`",
     }),
 
+    shinobi: new Variant({
+        name: "shinobi", tooltip: () => _("Western chess VS Ninja"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
+        board: "standard8x8", piece: "shinobi",
+        firstColor: "Pink", secondColor: "Black",
+        pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "+l", "+h", "+m", "+p"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p", "c"],
+        pocketRoles: ["l", "h", "m", "d", "j"],
+        pocketRoles2: [],
+        promotion: "shogi",
+        icon: "K",
+    }),
+
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
@@ -590,7 +603,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "shinobi" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {

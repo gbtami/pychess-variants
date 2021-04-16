@@ -40,6 +40,7 @@ V2C = {
     "manchu": "M",
     "dobutsu": "D",
     "gorogoro": "G",
+    "shinobi": "J",
 }
 C2V = {v: k for k, v in V2C.items()}
 
@@ -59,6 +60,14 @@ for piece in PIECES:
 # Kyoto Shogi drop moves can start with extra "+"
 for piece in "PLNS":
     M2C["+%s" % piece] = m2c_len
+    m2c_len += 1
+
+# More droppable pieces
+#   The variant that uses these pieces (shinobi) was added after kyotoshogi
+#   so these letters need to be here to be backward compatible
+PIECES = "MDJ"
+for piece in PIECES:
+    M2C["%s@" % piece] = m2c_len
     m2c_len += 1
 
 C2M = {v: k for k, v in M2C.items()}
