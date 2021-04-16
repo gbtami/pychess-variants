@@ -559,7 +559,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     shinobi: new Variant({
         name: "shinobi", tooltip: () => _("Western chess VS Ninja"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
-        board: "standard8x8", piece: "standard",
+        board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
         pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "+l", "+h", "+m", "+p"],
         pieceRoles2: ["k", "q", "r", "b", "n", "p", "c"],
@@ -603,7 +603,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "shinobi" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
@@ -611,7 +611,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel", "shinobi" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
 };
 
 function variantGroupLabel(group) {
