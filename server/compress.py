@@ -62,6 +62,14 @@ for piece in "PLNS":
     M2C["+%s" % piece] = m2c_len
     m2c_len += 1
 
+# More droppable pieces
+#   The variant that uses these pieces (shinobi) was added after kyotoshogi
+#   so these letters need to be here to be backward compatible
+PIECES = "MDJ"
+for piece in PIECES:
+    M2C["%s@" % piece] = m2c_len
+    m2c_len += 1
+
 C2M = {v: k for k, v in M2C.items()}
 
 
