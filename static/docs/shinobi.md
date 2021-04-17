@@ -24,7 +24,7 @@ The Clan also has access to the Kingdom pieces of the Rook, Bishop, and Knight a
 
 ### Captain (C)
 
-![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
+![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ClanCaptain.png)
 
 The Clan starts with one Captain in the Queen's spot. Additional Captains can be obtained by both sides by promoting their pawns at the 7th rank. The Captain has the same movement of a King. Of course, unlike the King, capturing a Captain does not end the game.
 
