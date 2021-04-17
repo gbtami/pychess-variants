@@ -568,7 +568,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pocketRoles2: [],
         promotion: "shogi",
         enPassant: true,
-        icon: "K",
+        icon: "🐢",
     }),
 
     // We support to import/store/analyze some variants
@@ -605,7 +605,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy", "shinobi" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {

@@ -101,7 +101,7 @@ VARIANT_ICONS = {
     "manchu": "{",
     "atomic": "~",
     "atomic960": "\\",
-    "shinobi": "K",  # TODO change to correct icon
+    "shinobi": "🐢",  # TODO change to correct icon
 }
 
 VARIANT_960_TO_PGN = {
