@@ -60,6 +60,7 @@ VARIANTS = (
     "orda",
     "synochess",
     "hoppelpoppel",
+    "shinobi",
 )
 
 VARIANT_ICONS = {
@@ -100,6 +101,7 @@ VARIANT_ICONS = {
     "manchu": "{",
     "atomic": "~",
     "atomic960": "\\",
+    "shinobi": "🐢",  # TODO change to correct icon
 }
 
 VARIANT_960_TO_PGN = {

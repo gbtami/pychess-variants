@@ -49,6 +49,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     orda: { pieceCSS: ["orda0", "orda1"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"] },
+    shinobi: { pieceCSS: ["shinobi0"] },
 };
 
 type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
@@ -556,6 +557,20 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "`",
     }),
 
+    shinobi: new Variant({
+        name: "shinobi", tooltip: () => _("Western chess VS Ninja"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
+        board: "standard8x8", piece: "shinobi",
+        firstColor: "Pink", secondColor: "Black",
+        pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "pl", "ph", "pm", "pp"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p", "c"],
+        pocketRoles: ["l", "h", "m", "d", "j"],
+        pocketRoles2: [],
+        promotion: "shogi",
+        enPassant: true,
+        icon: "🐢",
+    }),
+
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
@@ -598,7 +613,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel", "shinobi" ] },
 };
 
 function variantGroupLabel(group) {

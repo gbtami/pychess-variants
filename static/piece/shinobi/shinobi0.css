@@ -1,0 +1,58 @@
+.shinobi .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/shinobi/wP.svg');
+}
+.shinobi .cg-wrap piece.l-piece.white {
+    background-image: url('../../images/pieces/shinobi/wL.svg');
+}
+.shinobi .cg-wrap piece.h-piece.white {
+    background-image: url('../../images/pieces/shinobi/wH.svg');
+}
+.shinobi .cg-wrap piece.c-piece.white {
+    background-image: url('../../images/pieces/shinobi/wC.svg');
+}
+.shinobi .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/shinobi/wK.svg');
+}
+.shinobi .cg-wrap piece.m-piece.white {
+    background-image: url('../../images/pieces/shinobi/wM.svg');
+}
+.shinobi .cg-wrap piece.d-piece.white {
+    background-image: url('../../images/pieces/shinobi/wD.svg');
+}
+.shinobi .cg-wrap piece.j-piece.white {
+    background-image: url('../../images/pieces/shinobi/wJ.svg');
+}
+.shinobi .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/shinobi/wC.svg');
+}
+.shinobi .cg-wrap piece.pl-piece.white {
+    background-image: url('../../images/pieces/shinobi/wR.svg');
+}
+.shinobi .cg-wrap piece.ph-piece.white {
+    background-image: url('../../images/pieces/shinobi/wN.svg');
+}
+.shinobi .cg-wrap piece.pm-piece.white {
+    background-image: url('../../images/pieces/shinobi/wB.svg');
+}
+
+.shinobi .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.shinobi .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.shinobi .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.shinobi .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
+}
+.shinobi .cg-wrap piece.c-piece.black {
+    background-image: url('../../images/pieces/shogun/white/bC.svg');
+}
+.shinobi .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
+}
+.shinobi .cg-wrap piece.q-piece.black {
+    background-image: url('../../images/pieces/merida/bQ.svg');
+}
