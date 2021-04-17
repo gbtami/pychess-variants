@@ -5,6 +5,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="177.17"
@@ -26,7 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -39,20 +40,32 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1662"
+     inkscape:window-width="1678"
      inkscape:window-height="1767"
      id="namedview911"
      showgrid="false"
-     inkscape:zoom="11.378902"
-     inkscape:cx="111.33047"
-     inkscape:cy="79.703723"
-     inkscape:window-x="1703"
-     inkscape:window-y="182"
+     inkscape:zoom="2.8447255"
+     inkscape:cx="108.84828"
+     inkscape:cy="17.141802"
+     inkscape:window-x="6709"
+     inkscape:window-y="1097"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg909"
      inkscape:document-rotation="0" />
   <defs
      id="defs903">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient5041">
+      <stop
+         style="stop-color:#fae4ed;stop-opacity:1;"
+         offset="0"
+         id="stop5037" />
+      <stop
+         style="stop-color:#1f1a17;stop-opacity:1"
+         offset="1"
+         id="stop5039" />
+    </linearGradient>
     <linearGradient
        id="0"
        x1="21.376"
@@ -67,6 +80,15 @@
          stop-opacity="0"
          id="stop900" />
     </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5041"
+       id="linearGradient5035"
+       x1="75.111198"
+       y1="22.772614"
+       x2="114.43468"
+       y2="22.772614"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <g
      id="g10570"
@@ -82,7 +104,7 @@
          rx="9.7507782"
          ry="12.20601" />
       <path
-         style="fill:#fae4ed;fill-opacity:1;stroke:#1f1a17;stroke-width:1.69329;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:url(#linearGradient5035);fill-opacity:1;stroke:#1f1a17;stroke-width:1.69329;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 77.509139,15.179751 c 8.698496,-5.49e-4 18.96239,15.185724 18.96239,15.185724 H 58.550365 c 0,0 10.261155,-15.185174 18.958774,-15.185724 z"
          id="path10558"
          sodipodi:nodetypes="sccs" />
