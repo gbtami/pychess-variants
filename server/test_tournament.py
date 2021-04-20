@@ -12,26 +12,13 @@ from glicko2.glicko2 import DEFAULT_PERF
 from server import make_app
 from user import User
 from tournament import new_tournament_id, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
-import game
+import game as game_modul
 
-game.KEEP_TIME = 0
-game.MAX_PLY = 120
+#game_modul.KEEP_TIME = 0
+game_modul.MAX_PLY = 120
 
-MAX_PLY = game.MAX_PLY
+MAX_PLY = game_modul.MAX_PLY
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
-
-
-def score(game, player):
-    if game is None:
-        return "-"
-    elif game.result == "1/2-1/2":
-        return "½"
-    elif game.result == "1-0":
-        return "1" if player == game.wplayer else "0"
-    elif game.result == "0-1":
-        return "1" if player == game.bplayer else "0"
-    else:
-        return "*"
 
 
 class TestTournament(Tournament):
@@ -53,10 +40,9 @@ class TestTournament(Tournament):
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
     def print_leaderboard(self):
-        print("--- LEADERBOARD ---")
+        print("--- LEADERBOARD ---", self.id)
         for player, full_score in self.leaderboard.items():
-            scores = [score(game, player) for game in self.players[player].games]
-            print("%10s %s %s" % (player.username, scores, full_score))
+            print("%10s %s %s" % (player.username, self.players[player].points, full_score))
 
     def print_final_result(self):
         if len(self.players) > 0:
@@ -69,31 +55,32 @@ class TestTournament(Tournament):
             player = self.leaderboard.peekitem(i)[0]
             print("--- #%s ---" % (i + 1), player.username)
 
-    def print_player_games(self, player):
-        for game in self.players[player].games:
-            if game is None:
-                print("-")
-            else:
-                color = "w" if game.wplayer == player else "b"
-                opp_player = game.bplayer if color == "w" else game.wplayer
-                opp_rating = game.black_rating if color == "w" else game.white_rating
-                opp_rating = int(round(opp_rating.mu, 0))
-                print(opp_player.username, opp_rating, color, game.result)
-
     async def play_random(self, game):
         """ Play random moves in test tournament games """
         if self.system == ARENA:
             await asyncio.sleep(random.choice((0, 1, 3, 5, 7)))
 
+        game.status = STARTED
         while game.status <= STARTED:
             game.set_dests()
             move = game.random_move
             await game.play_move(move, clocks={"white": 60, "black": 60})
             ply = random.randint(4, int(MAX_PLY / 2))
-            if game.board.ply == ply and (ply % 2) == random.randint(0, 1):
+            if game.board.ply == ply:
                 player = game.wplayer if ply % 2 == 0 else game.bplayer
                 await game.game_ended(player, "resign")
                 print(game.result, "resign")
+
+
+def create_arena_test(app):
+    tid = "12345678"
+    tournament = TestTournament(app, tid, before_start=0, minutes=1)
+    app["tournaments"][tid] = tournament
+
+    tournament.game_tasks = set()
+    for i in range(15):
+        player = User(app, username="player%s" % i, perfs=PERFS)
+        tournament.join(player)
 
 
 class TournamentTestCase(AioHTTPTestCase):
@@ -104,7 +91,8 @@ class TournamentTestCase(AioHTTPTestCase):
         has_games = len(self.app["games"]) > 0
 
         for game in self.app["games"].values():
-            await game.abort()
+            if game.status <= STARTED:
+                await game.abort()
             game.remove_task.cancel()
             try:
                 await game.remove_task
@@ -125,68 +113,87 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_tournament_without_players(self):
-        # 2s tournament with 1s waiting before start
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=1.0 / 60.0, duration=2.0 / 60.0)
+        self.tournament = TestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
         self.assertEqual(self.tournament.status, T_CREATED)
 
         await asyncio.sleep((self.tournament.before_start * 60) + 0.1)
         self.assertEqual(self.tournament.status, T_STARTED)
 
-        await asyncio.sleep((self.tournament.duration * 60) + 0.1)
+        await asyncio.sleep((self.tournament.minutes * 60) + 0.1)
         self.assertEqual(self.tournament.status, T_FINISHED)
 
         await self.tournament.clock_task
 
     @unittest_run_loop
     async def test_tournament_players(self):
-        # tournament with 15 -1 players
+        NB_PLAYERS = 15
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, duration=1.0 / 60.0)
-        for i in range(15):
+        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1.0 / 60.0)
+        for i in range(NB_PLAYERS):
             player = User(self.app, username="player%s" % i, perfs=PERFS)
             self.tournament.join(player)
             self.tournament.pause(player)
-        self.assertEqual(len(self.tournament.leaderboard), 15)
+        self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS)
 
         withdrawn_player = next(iter(self.tournament.players))
         self.tournament.withdraw(withdrawn_player)
+
         self.assertNotIn(withdrawn_player, self.tournament.leaderboard)
+        self.assertEqual(len(self.tournament.players), NB_PLAYERS - 1)
+        self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS - 1)
 
         await self.tournament.clock_task
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
 
     @unittest_run_loop
     async def test_tournament_pairing_5_round_SWISS(self):
+        NB_PLAYERS = 15
+        NB_ROUNDS = 5
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, system=SWISS, rounds=5)
+        self.tournament = TestTournament(self.app, tid, before_start=0, system=SWISS, rounds=NB_ROUNDS)
         self.tournament.game_tasks = set()
-        for i in range(15):
+        for i in range(NB_PLAYERS):
             player = User(self.app, username="player%s" % i, perfs=PERFS)
             self.tournament.join(player)
 
         await self.tournament.clock_task
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
 
     @unittest_run_loop
     async def test_tournament_pairing_1_min_ARENA(self):
+        NB_PLAYERS = 15
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, duration=1)
+        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1)
         self.tournament.game_tasks = set()
-        for i in range(15):
+        for i in range(NB_PLAYERS):
             player = User(self.app, username="player%s" % i, perfs=PERFS)
+            self.app["users"][player.username] = player
             self.tournament.join(player)
 
         await self.tournament.clock_task
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
 
     @unittest_run_loop
     async def test_tournament_pairing_5_round_RR(self):
+        NB_PLAYERS = 5
+        NB_ROUNDS = 5
+
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, "Test Tournament", "crazyhouse", before_start=0, system=RR, rounds=5)
+        self.tournament = TestTournament(self.app, tid, before_start=0, system=RR, rounds=NB_ROUNDS)
         self.tournament.game_tasks = set()
-        for i in range(5):
+        for i in range(NB_PLAYERS):
             player = User(self.app, username="player%s" % i, perfs=PERFS)
             self.tournament.join(player)
 
         await self.tournament.clock_task
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
 
 
 if __name__ == '__main__':

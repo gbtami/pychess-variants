@@ -88,7 +88,7 @@ async def init_state(app):
     }
     app["users"]["Random-Mover"].online = True
     app["lobbysockets"] = {}
-    app["tournsockets"] = {}
+    app["tourneysockets"] = {}
     app["tournaments"] = {}
     app["seeks"] = {}
     app["games"] = {}
@@ -168,6 +168,11 @@ async def init_state(app):
 
     if app["db"] is None:
         return
+
+    # create test tournament
+    if 1:
+        from test_tournament import create_arena_test
+        create_arena_test(app)
 
     # Read users and highscore from db
     try:

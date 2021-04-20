@@ -26,6 +26,7 @@ from settings import MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
+from tournament import load_tournament
 
 log = logging.getLogger(__name__)
 
@@ -83,6 +84,8 @@ async def index(request):
     gameId = request.match_info.get("gameId")
     ply = request.rel_url.query.get("ply")
 
+    tournamentId = request.match_info.get("tournamentId")
+
     if request.path == "/about":
         view = "about"
     elif request.path == "/faq":
@@ -118,7 +121,9 @@ async def index(request):
         view = "paste"
     elif request.path.startswith("/tournament"):
         view = "tournament"
-        tournamentId = request.match_info.get("tournamentId")
+        tournament = await load_tournament(request.app, tournamentId)
+        if tournament is None:
+            return web.HTTPFound("/")
 
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
@@ -162,7 +167,7 @@ async def index(request):
                 inviter = seek.user.username if user.username != seek.user.username else ""
 
         if view != "invite":
-            game = await load_game(request.app, gameId, user)
+            game = await load_game(request.app, gameId)
             if game is None:
                 log.debug("Requested game %s not in app['games']", gameId)
                 template = get_template("404.html")
@@ -287,6 +292,9 @@ async def index(request):
             render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
             if ply is not None:
                 render["ply"] = ply
+
+    if tournamentId is not None:
+        render["tournamentid"] = tournamentId
 
     if view == "level8win":
         render["level"] = 8

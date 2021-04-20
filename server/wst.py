@@ -9,6 +9,7 @@ from broadcast import lobby_broadcast
 from settings import ADMINS
 from utils import MyWebSocketResponse
 from user import User
+from tournament import load_tournament
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +17,8 @@ log = logging.getLogger(__name__)
 async def tournament_socket_handler(request):
 
     users = request.app["users"]
-    sockets = request.app["tournsockets"]
+    tournaments = request.app["tournaments"]
+    sockets = request.app["tourneysockets"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -48,10 +50,14 @@ async def tournament_socket_handler(request):
                     if not data["type"] == "pong":
                         log.debug("Websocket (%s) message: %s", id(ws), msg)
 
-                    if data["type"] == "get_participants":
-                        pass
+                    if data["type"] == "get_players":
+                        tournament = await load_tournament(request.app, data["tournamentId"])
+                        if tournament is not None:
+                            response = tournament.players_json()
+                            await ws.send_json(response)
 
                     elif data["type"] == "tournament_user_connected":
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing tournament_user %s socket connected as %s.", session_user, data["username"])
@@ -81,6 +87,7 @@ async def tournament_socket_handler(request):
                         # update websocket
                         user.tournament_sockets.add(ws)
                         user.update_online()
+
                         sockets[user.username] = user.tournament_sockets
 
                         response = {"type": "tournament_user_connected", "username": user.username}
@@ -143,7 +150,6 @@ async def tournament_socket_handler(request):
                 user.tournament_sockets.remove(ws)
                 user.update_online()
 
-            # online user counter will be updated in quit_lobby also!
             if len(user.tournament_sockets) == 0:
                 if user.username in sockets:
                     del sockets[user.username]

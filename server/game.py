@@ -381,24 +381,6 @@ class Game:
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
-    def update_tournament(self):
-        leaderboard = self.tournament.leaderboard
-        players = self.tournament.players
-
-        wpscore = leaderboard.get(self.wplayer)
-        bpscore = leaderboard.get(self.bplayer)
-
-        if self.result == "1/2-1/2":
-            leaderboard.update({self.wplayer: wpscore + 0.5, self.bplayer: bpscore + 0.5})
-        elif self.result == "1-0":
-            leaderboard.update({self.wplayer: wpscore + 1})
-        elif self.result == "0-1":
-            leaderboard.update({self.bplayer: bpscore + 1})
-
-        self.tournament.ongoing_games -= 1
-        players[self.wplayer].free = True
-        players[self.bplayer].free = True
-
     def set_crosstable(self):
         if self.bot_game or self.wplayer.anon or self.bplayer.anon or self.board.ply < 3 or self.result == "*":
             return
@@ -499,6 +481,8 @@ class Game:
         await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     def update_status(self, status=None, result=None):
+        assert self.status <= STARTED
+            
         def result_string_from_value(color, game_result_value):
             if game_result_value < 0:
                 return "1-0" if color == BLACK else "0-1"
@@ -519,7 +503,7 @@ class Game:
                 self.wplayer.game_in_progress = None
 
             if self.tournament is not None:
-                self.update_tournament()
+                self.tournament.game_update(self)
 
             return
 
@@ -595,7 +579,7 @@ class Game:
                 self.wplayer.game_in_progress = None
 
             if self.tournament is not None:
-                self.update_tournament()
+                self.tournament.game_update(self)
 
     def set_dests(self):
         dests = {}

@@ -20,7 +20,7 @@ from utils import sanitize_fen
 from server import make_app
 import game
 
-game.KEEP_TIME = 0
+#game.KEEP_TIME = 0
 game.MAX_PLY = 120
 
 logging.basicConfig()

@@ -46,6 +46,7 @@ export function view(el, model): VNode {
     model["level"] = el.getAttribute("data-level");
     model["username"] = user !== "" ? user : el.getAttribute("data-user");
     model["gameId"] = el.getAttribute("data-gameid");
+    model["tournamentId"] = el.getAttribute("data-tournamentid");
     model["inviter"] = el.getAttribute("data-inviter");
     model["ply"] = el.getAttribute("data-ply");
     model["wplayer"] = el.getAttribute("data-wplayer");
