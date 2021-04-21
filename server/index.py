@@ -308,7 +308,7 @@ async def index(request):
     elif view == "news":
         news_item = request.match_info.get("news_item")
         if (news_item is None) or (news_item not in NEWS):
-            news_item = NEWS[0]
+            news_item = list(NEWS.keys())[0]
         news_item = news_item.replace("_", " ")
 
         render["news"] = NEWS

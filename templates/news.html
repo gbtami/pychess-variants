@@ -6,7 +6,7 @@
     <ul class="guide">
     {% for key in news %}
     <li>
-        <a href="{{ home }}/news/{{ key }}">{{ key }}</a>
+        <a href="{{ home }}/news/{{ key }}">{{ news[key] }}</a>
     </li>
     {% endfor %}
     </ul>

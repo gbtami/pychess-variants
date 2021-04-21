@@ -720,6 +720,14 @@ export function lobbyView(model): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/icons/shinobi.svg'} }),
+                    h('span.text', [
+                        h('strong', "Shinobi Arrives in Time For the Sakura Blossoms"),
+                        h('span', 'Shinobi Chess has arrived!'),
+                    ]),
+                    h('time', '2021.04.21'),
+                ]),
                 h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
                     h('span.text', [
@@ -736,6 +744,7 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.03.03'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/TomatoPlasticSet.svg'} }),
                     h('span.text', [
@@ -744,7 +753,6 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.02.27'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
                     h('span.text', [

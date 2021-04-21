@@ -1,8 +1,24 @@
-# Shinobi Chess has arrived!
+<h1 align="center">Shinobi Arrives in Time For the Sakura Blossoms</h1>
 
-![Shinobi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg) 
+<div class="meta-headline">
+    <div class= "meta">
+        <span class="text">2021.04.21</span>
+        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
+        <span class="text">Announcements</span>
+    </div>
+    <div class= "headline">Shinobi Chess has arrived!</div>
+</div>
+</br>
 
-![Shinobi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobi.png)
+<p align="center">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg" width="150" height="150">
+</p>
+<br>
+
+<p align="center">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobi.png" width="492" height="589">
+</p>
+<br>
 
 Hey everyone, Couch Tomato here! I'm pleased to announce that my latest variant, Shinobi Chess is now available to play on Pychess! Much like most of my other variants, this is another asymmetric game pitting the classic chess army (the Kingdom) against the Sakura Clan. As with all other new armies I've made, the Clan also has its own theme and quirk. The theme is quite obvious, and the quirk is that they have the ability to drop a lot of pieces (five pieces start in hand!) as well as promote, basically almost straight out of Shogi for those are familiar with it. I could go on, but I would be repeating myself from what's written in the [guide](https://www.pychess.org/variant/shinobi), so hop on over and check it out!
 
@@ -10,7 +26,10 @@ Instead, I figure I can give a brief history of the game's creation, something t
 
 Later, the idea kept swirling in my head despite not being able to playtest it, and I mentally drafted an idea of the game. Originally the theme for the new army was tentatively going to be a "rebel army," which would thematically tie into the ability to drop a bunch of weak pieces all over the place. As the game shaped more, the weak pieces that I used were adopted from Shogi, as they were the most obvious. Similarly, the mechanism for promotion sounded more like Shogi. At this point, I couldn't ignore the homage to Shogi, and I went with a ninja theme, which still makes for sneaky drop-happy army. The titular ninja became the name of the Clan's strongest piece, the archbishop. Actually, I think the name ninja is much better than an archbishop! You can you can imagine a ninja hopping around (like its horse movement) or charging at an angle with a swift sword strike (bishop movement).
 
-![Ninja movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Ninja.png)
+<p align="center">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Ninja.png" width="492" height="492">
+</p>
+<br>
 
 The idea, finally named Shinobi Chess ("Ninja Chess" already exists) was then ported to VChess without my usual playtesting. The Clan started with its entire army in hand except for the pawns and its king (called the kage). It was fun, yet obviously skewed in favor of the Clan. At the time, the Clan also had a chancellor, redubbed as the Samurai. At the same time, Fables began to add support for my other variants to Cutechess. Cutechess is more flexible than Winboard, and so it was able to handle promotions. He ran some tests for the original version of Shinobi, which showed the game was indeed skewed towards the Clan (at least 60% win rate, if I recall), and many games reused around the same opening line, which was essentially an abuse of the Clan's powers to immediately pick off an enemy rook.
 
