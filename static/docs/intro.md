@@ -82,7 +82,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Synochess** - Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army
 
-**Shinobi Chess** - Asymmetric variant where one army has pieces that can drop and promote, like in Shogi.
+**Shinobi Chess** - Asymmetric variant where one army has pieces that can drop and promote, like in Shogi
 
 **Capablanca 960** - Capablanca with Chess 960 rules
 
@@ -95,3 +95,7 @@ If you need to practice with the piece moves and rules before diving into a real
 **Grandhouse** - Grand Chess with Crazyhouse drop rules
 
 **Hoppel-poppel** - Knights capture as bishops, bishops capture as knights
+
+**Atomic Chess** = Pieces explode upon capture!
+
+**Atomic 960** - Atomic chess with Chess 960 rules
