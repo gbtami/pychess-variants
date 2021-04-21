@@ -3,10 +3,10 @@
 
 ![Gorogoro](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Gorogoro1.png) ![Gorogoro](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Gorogoro2.png)
 
-Gorogoro is essentially shogi on a 5x6 board.
+O Gorogoro é uma variante de Shogi num tabuleiro 5x6.
 
-## Rules
+## Regras
 
-As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
+Pelo facto de ser baseada em Shogi, por favor deia uma leitura no guia básico das regras de Shogi se não estiver familiarizado com este.
 
-The starting setup is as above. Unlike standard shogi, there is no knight, lance, bishop or rook. There are only kings, pawns and generals. Promotion is only done in the last two ranks. 
+A posição inicial está representada acima. Ao contrário do Shogi tradicional, não existem cavalos, lanças, bispos ou torres. Só existem Reis, Peões e Generais. As promoções só podem ser efetuadas nas duas últimas filas.
