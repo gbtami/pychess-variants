@@ -10,6 +10,5 @@ As peças na primeira linha são dispostas aleatoriamente, mas duas regras devem
 
 Os Bispos são posicionados em casas com cores diferentes. O Rei é posicionado entre duas Torres. O Roque é considerado uma regra notável aqui. Basicamente, independentemente da posição das Torres, Se for possível efetuar o Roque, a posição final irá ser igual ao do Roque no Xadrez Normal.
 
-Todas as outras regras são as mesmas do Capablanca Chess.
 
 Todas as outras regras são de Xadrez Atómico.
