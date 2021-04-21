@@ -1,7 +1,7 @@
 # ![Hoppelpoppel](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Hoppelpoppel.svg) Hoppel-Poppel
 
-Hoppel-Poppel is a modest divergent variant from Germany.
+O Hoppel-Poppel é uma variante divergente proveniente da Alemanha.
 
-## Rules
+## Regras
 
-The Knights are now Knibis' (moving without capturing as Knights, capturing as Bishops) and the Bishops are now Bisknis (moving as Bishops and capturing as Knights). All other rules are the same as in FIDE chess. 
+Os Cavalos agora são denominados de Cavalos-Bispo (movimentam-se como Cavalos e capturam como Bispos) e os Bispos são agora Bispos-Cavalos (movimentam-se como Bispos e capturam como Cavalos). Todas as outras regras são as mesmas do Xadrez tradicional
