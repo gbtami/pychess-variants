@@ -68,8 +68,6 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Capablanca Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board
 
-**Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
-
 **S-Chess / Seirawan Chess / SHARPER Chess** - Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece
 
 **Grand Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a *grand* 10x10 board
