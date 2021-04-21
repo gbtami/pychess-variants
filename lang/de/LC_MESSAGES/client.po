@@ -8,6 +8,8 @@
 # Malte Schulz <0801malte@gmail.com>, 2020
 # Lichess Chess960 <lichess960training@gmail.com>, 2021
 # Jonathan Kubik <j.kubik97@gmail.com>, 2021
+# asdfas sadfasdf <oksarfert@gmail.com>, 2021
+# Bodhi Baum <lotusblume.h2@googlemail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +18,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-02-05 11:59+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2021\n"
+"Last-Translator: Bodhi Baum <lotusblume.h2@googlemail.com>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,6 +34,11 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
+"\"Wie wir heute hierher gekommen sind, verdanken wir Stockfish in hohem "
+"Maße. Sie haben weltweit Freiwillige zusammengetrommelt, die sich im Open-"
+"Source-Geist zusammengetan haben, um eine so leistungsstarke Engine "
+"kostenlos zu erstellen. Das sind eine Menge großartiger Köpfe und eine Menge"
+" Rechenleistung, die sie sich zunutze machen konnten."
 
 #: ../client/about.ts:9
 msgid ""
@@ -39,9 +46,9 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
-"Dann haben wir Lichess zu danken. Lichess wurde ebenfalls aus dem gleichen "
-"Open-Source-Geist geboren und zog auch großartige Menschen an. Sobald "
-"Lichess Stockfisch als Gehirn aufgenommen hat, ist der Rest Geschichte."
+"Dann haben wir Lichess zu danken. Lichess entstand ebenfalls aus einem Open-"
+"Source-Geist und zog großartige Menschen an. Als Lichess Stockfisch als "
+"Gehirn integriert hatte, war der Rest Geschichte."
 
 #: ../client/about.ts:10
 msgid ""
@@ -50,6 +57,11 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
+"Lichess ermöglicht die Online-, Echtzeit- und kompetitiven Aspekte des "
+"Spielens. Sie bringen auch die enorme Leistung von Stockfish zu den Massen, "
+"die nun davon profitieren können, ohne eine lokale GUI zu konfigurieren. Ich"
+" glaube, dass diese Entwicklung sich als von großer Tragweite und Bedeutung "
+"erweisen wird."
 
 #: ../client/about.ts:11
 msgid ""
@@ -60,6 +72,13 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
+"Später haben Entwickler, die dem Lichess-Projekt nahestehen, Stockfish "
+"schließlich zu Multivariant-Stockfish erweitert, um Crazyhouse und Co. zu "
+"unterstützen. Der Vater von Fairy-Stockfish, Fabian, ist auch einer der "
+"Entwickler, die (noch) an diesem Fork arbeiten, und er ist später einige "
+"Schritte weiter gegangen, was Variantenunterstützung und Erweiterbarkeit "
+"angeht. So wurde Fairy-Stockfish geboren, so mächtig, weil es auf dem "
+"Stockfish-Projekt aufbaut."
 
 #: ../client/about.ts:12
 msgid ""
@@ -95,8 +114,8 @@ msgid ""
 "S-chess, Capablanca, and Capahouse to start games from random positions with"
 " "
 msgstr ""
-"Weiters kannst du die Chess960 Einstellung für Standard, Crazyhouse, "
-"S-chess, Capablanca und Capahouse wählen um Partien mit einer zufälligen "
+"Außerdem kannst du die Chess960-Einstellung für Standard, Crazyhouse, "
+"S-chess, Capablanca und Capahouse wählen, um Partien mit einer zufälligen "
 "Anfangsposition zu starten "
 
 #: ../client/about.ts:78
@@ -261,7 +280,7 @@ msgstr "Server"
 
 #: ../client/chess.ts:188
 msgid "Chess, unmodified, as it's played by FIDE standards"
-msgstr "Schach, unverändert, wie as nach dem FIDE Standard gespielt wird"
+msgstr "Schach, unverändert, wie es nach dem FIDE Standard gespielt wird"
 
 #: ../client/chess.ts:205
 msgid "Take captured pieces and drop them back on to the board as your own"
@@ -300,7 +319,7 @@ msgstr "Shogi auf einem 5x5 Brett"
 #: ../client/chess.ts:314
 msgid "5x5 Shogi where pieces flip to a different piece each move"
 msgstr ""
-"5x5 Shogi wo Figuren sich nach jedem Zug zu einer anderen Figur umdrehen"
+"5x5 Shogi, wo Figuren sich nach jedem Zug zu einer anderen Figur umdrehen"
 
 #: ../client/chess.ts:329
 msgid "Shogi on a 3x4 board"
@@ -410,7 +429,7 @@ msgstr "Variante mit Standard Figuren"
 
 #: ../client/chess.ts:544
 msgid "Southeast Asian variants"
-msgstr "Südostasiatische Variante"
+msgstr "Südostasiatische Varianten"
 
 #: ../client/chess.ts:545
 msgid "Shogi variants"
@@ -812,7 +831,7 @@ msgstr "Aufgeben"
 
 #: ../client/roundCtrl.ts:387
 msgid "Are you sure you want to resign?"
-msgstr "Bist du sicher dass du aufgeben willst?"
+msgstr "Bist du sicher, dass du aufgeben willst?"
 
 #: ../client/roundCtrl.ts:417
 msgid "Blue (Cho)"
