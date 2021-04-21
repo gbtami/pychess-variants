@@ -6,6 +6,7 @@
 # Translators:
 # What Ever <benjamin.a@mailoo.org>, 2021
 # Marken Foo <marken.foo.yw@gmail.com>, 2021
+# William Wu <fynmorph@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-02-05 11:59+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
+"Last-Translator: William Wu <fynmorph@gmail.com>, 2021\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -255,7 +256,7 @@ msgstr "Soyez courtois dans le tchat !"
 
 #: ../client/chat.ts:28
 msgid "Chat is disabled"
-msgstr ""
+msgstr "Le chat est désactivé"
 
 #: ../client/chat.ts:33
 msgid "Spectator room"
@@ -267,7 +268,7 @@ msgstr "Salon de discussion"
 
 #: ../client/chat.ts:34
 msgid "Toggle the chat"
-msgstr ""
+msgstr "Ouvrir le chat"
 
 #: ../client/chat.ts:63
 msgid "Server"

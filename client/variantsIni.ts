@@ -11,9 +11,11 @@ startFen = rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 
 pieceDrops = true
 capturesToHand = true
 
-# Shogun chess
 [shogun:crazyhouse]
-startFen = rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1
+variantTemplate = shogi
+pieceToCharTable = PNBR.F.....++++.+Kpnbr.f.....++++.+k
+pocketSize = 8
+startFen = rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR[] w KQkq - 0 1
 commoner = c
 centaur = g
 archbishop = a
@@ -30,19 +32,21 @@ whiteDropRegion = *1 *2 *3 *4 *5
 blackDropRegion = *4 *5 *6 *7 *8
 immobilityIllegal = true
 
-# Asymmetric variant with one army using pieces that move like knights but attack like other pieces (kniroo and knibis)
 [orda:chess]
-startFen = lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1
+pieceToCharTable = PNBRQ..AH...........LKp...q..ah.y.........lk
 centaur = h
 knibis = a
 kniroo = l
 silver = y
 promotionPieceTypes = qh
+startFen = lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1
 flagPiece = k
 whiteFlag = *8
 blackFlag = *1
 
 [synochess:pocketknight]
+pieceToCharTable = PNBRQAE...SCH........Kpnbrqae...sch........k
+pocketSize = 8
 janggiCannon = c
 soldier = s
 horse = h
@@ -80,4 +84,32 @@ immobilityIllegal = true
 flagPiece = k
 whiteFlag = *8
 blackFlag = *1
+
+[ordamirror:chess]
+pieceToCharTable = P...Q..AH.F.........LKp...q..ah.f.........lk
+centaur = h
+knibis = a
+kniroo = l
+customPiece1 = f:mQcN
+promotionPieceTypes = qh
+startFen = lhafkahl/8/pppppppp/8/8/PPPPPPPP/8/LHAFKAHL w - - 0 1
+flagPiece = k
+whiteFlag = *8
+blackFlag = *1
+
+[empire:chess]
+pieceToCharTable = PNBRQ.....ST.C.D.E...Kpnbrq.....st.c.d.e...k
+customPiece1 = e:mQcN
+customPiece2 = c:mQcB
+customPiece3 = t:mQcR
+customPiece4 = d:mQcK
+soldier = s
+promotionPieceTypes = qne
+startFen = rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1
+stalemateValue = loss
+nFoldValue = loss
+flagPiece = k
+whiteFlag = *8
+blackFlag = *1
+flyingGeneral = true
 `
