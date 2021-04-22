@@ -24,13 +24,49 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Crazyhouse 960** - Combines Crazyhouse and Chess 960
 
+## Southeast Asian variants
+
+![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
+
+**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga
+
+**Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
+
+**Sittuyin (Burmese Chess)** - Similar to Makruk, but pieces are placed at the start of the match
+
+**Makpong** - Makruk variant where kings cannot move to escape out of check
+
+## Shogi variants
+
+![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
+
+**Shogi (Japanese Chess)** - Pieces promote and can be dropped
+
+**Minishogi** - Shogi on a 5x5 board
+
+**Kyoto Shogi** - 5x5 Shogi where pieces flip to a different piece each move
+
+**Dobutsu** - Shogi on a 3x4 board, designed to introduce children to Shogi
+
+**Gorogoro Shogi** Shogi on a 5x6 board
+
+## Xiangqi variants
+
+![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Xiangqi.png?raw=true)
+
+**Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
+
+**Manchu** - The lone Red rook can also move as a cannon or a knight
+
+**Janggi (Korean Chess)** - Similar to Xiangqi, but plays very differently. Tournament rules are used.
+
+**Minixiangqi** - Xiangqi on a 7x7 board
+
 ## Chess variants using fairy pieces
 
 ![Capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png?raw=true)
 
 **Capablanca Chess** - Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board
-
-**Gothic Chess / Trice's Chess** - Like Capablanca Chess but with a different starting setup
 
 **S-Chess / Seirawan Chess / SHARPER Chess** - Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece
 
@@ -44,6 +80,8 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Synochess** - Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army
 
+**Shinobi Chess** - Asymmetric variant where one army has pieces that can drop and promote, like in Shogi
+
 **Capablanca 960** - Capablanca with Chess 960 rules
 
 **Capahouse** - Capablanca with Crazyhouse drop rules
@@ -54,34 +92,8 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Grandhouse** - Grand Chess with Crazyhouse drop rules
 
-## Shogi variants
+**Hoppel-poppel** - Knights capture as bishops, bishops capture as knights
 
-![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Shogi.png?raw=true)
+**Atomic Chess** = Pieces explode upon capture!
 
-**Shogi (Japanese Chess)** - Pieces promote and can be dropped
-
-**Minishogi** - Shogi on a 5x5 board
-
-**Kyoto Shogi** - 5x5 Shogi where pieces flip to a different piece each move
-
-## Xiangqi variants
-
-![Xiangqi](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Xiangqi.png?raw=true)
-
-**Xiangqi (Chinese Chess)** - Open fire on your opponent in this highly aggressive ancient game
-
-**Janggi (Korean Chess)** - Similar to Xiangqi, but plays very differently. Tournament rules are used.
-
-**Minixiangqi** - Xiangqi on a 7x7 board
-
-## Southeast Asian variants
-
-![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
-
-**Makruk (Thai Chess)** - A game closely resembling the original Chaturanga
-
-**Cambodian Chess / Ok / Ouk Chatrang** - Makruk with a few additional opening abilities
-
-**Sittuyin (Burmese Chess)** - Similar to Makruk, but pieces are placed at the start of the match
-
-**Makpong** - Makruk variant where kings cannot move to escape out of check
+**Atomic 960** - Atomic chess with Chess 960 rules
