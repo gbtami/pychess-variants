@@ -12,9 +12,6 @@ pieceDrops = true
 capturesToHand = true
 
 [shogun:crazyhouse]
-variantTemplate = shogi
-pieceToCharTable = PNBR.F.....++++.+Kpnbr.f.....++++.+k
-pocketSize = 8
 startFen = rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR[] w KQkq - 0 1
 commoner = c
 centaur = g
@@ -33,7 +30,6 @@ blackDropRegion = *4 *5 *6 *7 *8
 immobilityIllegal = true
 
 [orda:chess]
-pieceToCharTable = PNBRQ..AH...........LKp...q..ah.y.........lk
 centaur = h
 knibis = a
 kniroo = l
@@ -45,8 +41,6 @@ whiteFlag = *8
 blackFlag = *1
 
 [synochess:pocketknight]
-pieceToCharTable = PNBRQAE...SCH........Kpnbrqae...sch........k
-pocketSize = 8
 janggiCannon = c
 soldier = s
 horse = h
@@ -62,9 +56,6 @@ whiteFlag = *8
 blackFlag = *1
 
 [shinobi:crazyhouse]
-variantTemplate = shogi
-pieceToCharTable = PNBRQ.DJMLH.....CKpnbrq.djmlh.....ck
-pocketSize = 8
 commoner = c
 bers = d
 archbishop = j
@@ -86,7 +77,6 @@ whiteFlag = *8
 blackFlag = *1
 
 [ordamirror:chess]
-pieceToCharTable = P...Q..AH.F.........LKp...q..ah.f.........lk
 centaur = h
 knibis = a
 kniroo = l
@@ -98,7 +88,6 @@ whiteFlag = *8
 blackFlag = *1
 
 [empire:chess]
-pieceToCharTable = PNBRQ.....ST.C.D.E...Kpnbrq.....st.c.d.e...k
 customPiece1 = e:mQcN
 customPiece2 = c:mQcB
 customPiece3 = t:mQcR

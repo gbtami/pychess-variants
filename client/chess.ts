@@ -563,7 +563,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
         pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "pl", "ph", "pm", "pp"],
-        pieceRoles2: ["k", "q", "r", "b", "n", "p", "c"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p", "pp"],
         pocketRoles: ["l", "h", "m", "d", "j"],
         pocketRoles2: [],
         promotion: "shogi",

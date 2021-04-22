@@ -17,8 +17,25 @@ import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 
+
 export function colorNames(color: string) {
-    return _(color);
+    // We need color name tranlations in run time
+    switch (color) {
+    case "White":
+        return _("White");
+    case "Black":
+        return  _("Black");
+    case "Red":
+        return  _("Red");
+    case "Blue":
+        return  _("Blue");
+    case "Gold":
+        return  _("Gold");
+    case "Pink":
+        return  _("Pink");
+    default:
+        return color;
+    }
 }
 
 export function gameType(rated: string | number) {
@@ -90,6 +107,7 @@ export function result(variant: IVariant, status: number, result: string) {
                 case 'orda':
                 case 'synochess':
                 case 'dobutsu':
+                case 'shinobi':
                     text = _('Campmate');
                     break;
                 case 'atomic':
