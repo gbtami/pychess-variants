@@ -107,6 +107,7 @@ export function result(variant: IVariant, status: number, result: string) {
                 case 'orda':
                 case 'synochess':
                 case 'dobutsu':
+                case 'shinobi':
                     text = _('Campmate');
                     break;
                 case 'atomic':
