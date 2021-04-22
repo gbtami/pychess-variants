@@ -17,14 +17,19 @@ import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 
+
+// List explicite color names for pybabel extract
 const translatedColors = {
     "White": _("White"),
     "Black": _("Black"),
     "Red": _("Red"),
     "Blue": _("Blue"),
     "Gold": _("Gold"),
+    "Pink": _("Pink"),
 }
+
 export function colorNames(color: string) {
+    // We need color name tranlations in run time
     return translatedColors[color];
 }
 
