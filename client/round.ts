@@ -50,6 +50,7 @@ export function roundView(model): VNode[] {
                             "icon-red":   fc === "Red",
                             "icon-blue":  fc === "Blue",
                             "icon-gold":  fc === "Gold",
+                            "icon-pink":  fc === "Pink",
                         }
                     }),
                     h('player', playerInfo(model, 'w', null)),
@@ -62,6 +63,7 @@ export function roundView(model): VNode[] {
                             "icon-red":   sc === "Red",
                             "icon-blue":  sc === "Blue",
                             "icon-gold":  sc === "Gold",
+                            "icon-pink":  sc === "Pink",
                         }
                     }),
                     h('player', playerInfo(model, 'b', null)),
