@@ -17,8 +17,15 @@ import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 
+const translatedColors = {
+    "White": _("White"),
+    "Black": _("Black"),
+    "Red": _("Red"),
+    "Blue": _("Blue"),
+    "Gold": _("Gold"),
+}
 export function colorNames(color: string) {
-    return _(color);
+    return translatedColors[color];
 }
 
 export function gameType(rated: string | number) {
