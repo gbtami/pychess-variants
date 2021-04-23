@@ -36,11 +36,12 @@ async def new_tournament_id(db):
 
 class PlayerData:
     '''Class for keeping track of player availability and games '''
-    __slots__ = "rating", "free", "win_streak", "games", "points"
+    __slots__ = "rating", "free", "paused", "win_streak", "games", "points"
 
     def __init__(self, rating):
         self.rating = rating
         self.free = True
+        self.paused = False
         self.win_streak = 0
         self.games = []
         self.points = []
@@ -158,9 +159,12 @@ class Tournament:
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
-        self.players[player] = PlayerData(int(round(player.get_rating(self.variant, self.chess960).mu, 0)))
-        self.leaderboard.setdefault(player, 0)
-        self.nb_players += 1
+        if player not in self.players:
+            self.players[player] = PlayerData(int(round(player.get_rating(self.variant, self.chess960).mu, 0)))
+            self.leaderboard.setdefault(player, 0)
+            self.nb_players += 1
+
+        self.players[player].paused = False
 
     def withdraw(self, player):
         if player in self.players:
@@ -169,10 +173,7 @@ class Tournament:
         self.nb_players -= 1
 
     def pause(self, player):
-        self.players[player].free = False
-
-    def resume(self, player):
-        self.players[player].free = True
+        self.players[player].paused = True
 
     def spactator_join(self, spectator):
         self.spectators.add(spectator)
@@ -208,10 +209,15 @@ class Tournament:
                     pairing.append((wp, bp))
 
         else:
+            waiting_players = [
+                p for p in self.players if
+                self.players[p].free and
+                len(p.tournament_sockets) > 0 and
+                not self.players[p].paused
+            ]
+
             # TODO: this is just a simple random pairing
             # TODO: create pairings for SWISS and ARENA
-            waiting_players = [p for p in self.players if self.players[p].free]
-
             while len(waiting_players) > 1:
                 wp = random.choice(waiting_players)
                 waiting_players.remove(wp)
@@ -252,6 +258,17 @@ class Tournament:
 
             self.players[wp].free = False
             self.players[bp].free = False
+
+            response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
+
+            if len(wp.tournament_sockets) > 0:
+                ws = next(iter(wp.tournament_sockets))
+                if ws is not None:
+                    await ws.send_json(response)
+            if len(bp.tournament_sockets) > 0:
+                ws = next(iter(bp.tournament_sockets))
+                if ws is not None:
+                    await ws.send_json(response)
 
         return games
 

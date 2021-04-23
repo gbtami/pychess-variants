@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 async def tournament_socket_handler(request):
 
     users = request.app["users"]
-    tournaments = request.app["tournaments"]
     sockets = request.app["tourneysockets"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
@@ -53,6 +52,13 @@ async def tournament_socket_handler(request):
                     if data["type"] == "get_players":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
+                            response = tournament.players_json()
+                            await ws.send_json(response)
+
+                    elif data["type"] == "join":
+                        tournament = await load_tournament(request.app, data["tournamentId"])
+                        if tournament is not None:
+                            tournament.join(user)
                             response = tournament.players_json()
                             await ws.send_json(response)
 

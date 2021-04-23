@@ -8,13 +8,13 @@ from datetime import datetime, timezone
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
 from const import STARTED, VARIANTS
+from fairy import BLACK
+import game as game_modul
 from glicko2.glicko2 import DEFAULT_PERF
 from server import make_app
 from user import User
 from tournament import new_tournament_id, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
-import game as game_modul
 
-#game_modul.KEEP_TIME = 0
 game_modul.MAX_PLY = 120
 
 MAX_PLY = game_modul.MAX_PLY
@@ -42,7 +42,7 @@ class TestTournament(Tournament):
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
         for player, full_score in self.leaderboard.items():
-            print("%10s %s %s" % (player.username, self.players[player].points, full_score))
+            print("%20s %s %s" % (player.username, self.players[player].points, full_score))
 
     def print_final_result(self):
         if len(self.players) > 0:
@@ -61,25 +61,32 @@ class TestTournament(Tournament):
             await asyncio.sleep(random.choice((0, 1, 3, 5, 7)))
 
         game.status = STARTED
+        print("play_random()")
         while game.status <= STARTED:
-            game.set_dests()
-            move = game.random_move
-            await game.play_move(move, clocks={"white": 60, "black": 60})
-            ply = random.randint(4, int(MAX_PLY / 2))
-            if game.board.ply == ply:
-                player = game.wplayer if ply % 2 == 0 else game.bplayer
-                await game.game_ended(player, "resign")
-                print(game.result, "resign")
+            cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
+            if cur_player.title == "TEST":
+                game.set_dests()
+                move = game.random_move
+                await game.play_move(move, clocks={"white": 60, "black": 60})
+                ply = random.randint(4, int(MAX_PLY / 2))
+                if game.board.ply == ply:
+                    player = game.wplayer if ply % 2 == 0 else game.bplayer
+                    await game.game_ended(player, "resign")
+                    print(game.result, "resign")
+            else:
+                await asyncio.sleep(1)
 
 
 def create_arena_test(app):
     tid = "12345678"
-    tournament = TestTournament(app, tid, before_start=0, minutes=1)
+    tournament = TestTournament(app, tid, before_start=0.1, minutes=5)
     app["tournaments"][tid] = tournament
 
     tournament.game_tasks = set()
     for i in range(15):
-        player = User(app, username="player%s" % i, perfs=PERFS)
+        player = User(app, username="player%s" % i, title="TEST", perfs=PERFS)
+        app["users"][player.username] = player
+        player.tournament_sockets.add(None)
         tournament.join(player)
 
 

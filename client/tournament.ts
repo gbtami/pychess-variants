@@ -50,16 +50,39 @@ export default class TournamentController {
         this.sock = new Sockette(ws + location.host + "/wst", opts);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
+        patch(document.getElementById('players-header') as HTMLElement, this.renderHeader());
     }
 
     doSend(message: JSONObject) {
-        // console.log("---> tournament doSend():", message);
+        console.log("---> tournament doSend():", message);
         this.sock.send(JSON.stringify(message));
+    }
+
+    renderHeader() {
+        // TODO
+        return h('table#players-header', [
+            h('button.lobby-button', {
+                on: {
+                    click: () => {
+                        this.doSend({ type: "join", "tournamentId": this.model["tournamentId"] });
+                    }
+                }
+            },
+                _("Join")
+            ),
+
+    //        h('tr', [
+    //            h('th', _('Sign in')),
+    //            h('th', _('Join')),
+    //            h('th', _('Withdraw')),
+    //            h('th', _('Pause')),
+    //        ])
+        ]);
     }
 
     renderPlayers(players) {
         const rows = players.map(player => this.playerView(player));
-        return [ playersHeader(), h('tbody', rows) ];
+        return rows;
     }
 
     private playerView(player) {
@@ -83,6 +106,11 @@ export default class TournamentController {
         const oldPlayers = document.getElementById('players') as Element;
         oldPlayers.innerHTML = "";
         patch(oldPlayers, h('table#players', this.renderPlayers(msg.players)));
+    }
+
+    private onMsgNewGame(msg) {
+        // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
+        window.location.assign('/' + msg.gameId);
     }
 
     private onMsgUserConnected(msg) {
@@ -117,6 +145,9 @@ export default class TournamentController {
             case "get_players":
                 this.onMsgGetPlayers(msg);
                 break;
+            case "new_game":
+                this.onMsgNewGame(msg);
+                break;
             case "tournament_user_connected":
                 this.onMsgUserConnected(msg);
                 break;
@@ -142,25 +173,13 @@ function runTournament(vnode: VNode, model) {
     new TournamentController(el, model);
 }
 
-function playersHeader() {
-    // TODO
-    return h('thead', [
-//        h('tr', [
-//            h('th', _('Sign in')),
-//            h('th', _('Join')),
-//            h('th', _('Withdraw')),
-//            h('th', _('Pause')),
-//        ])
-    ]);
-}
-
 export function tournamentView(model): VNode[] {
 
     return [
         h('aside.sidebar-first', [ h('div#lobbychat') ]),
         h('div.players', [
             h('div#players-table', [
-                h('table#players-header', playersHeader()),
+                h('table#players-header'),
                 h('div#players-wrapper', h('table#players', { hook: { insert: vnode => runTournament(vnode, model) } })),
             ]),
         ]),
