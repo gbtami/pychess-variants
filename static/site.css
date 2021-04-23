@@ -38,6 +38,7 @@
     --blue-text: RoyalBlue;
     --red-text: Crimson;
     --gold-text: GoldenRod;
+    --pink-text: Pink;
     --modal-bg: #fff;
     --box-header: #f5f5f5;
     --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
@@ -886,6 +887,10 @@ i-side, .icon-cloud-upload:before {
 .icon-gold:before {
     content: "\62";
     color: var(--gold-text);
+}
+.icon-pink:before {
+    content: "\62";
+    color: var(--pink-text);
 }
 .icon-online::before {
     color: var(--good);
