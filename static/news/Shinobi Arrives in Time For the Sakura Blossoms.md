@@ -37,6 +37,6 @@ From there, Fables tested many different combinations and then also provided me 
 
 On another note, as I was alluding to earlier, I think this may be my last variant. I've exhausted all the ideas I had from the start. If I do add any variants, maybe they'll be  variants of something other than international chess, as there are zillions of variants for that, but not nearly as many for games like Xiangqi and Shogi! Only time will tell.
 
-Anyways, I hope everyone Shinobi! Tomato out.
+Anyways, I hope everyone enjoys Shinobi! Tomato out.
 
 ![Shinobi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg)  *whoosh*
