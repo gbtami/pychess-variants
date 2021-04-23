@@ -1,24 +1,24 @@
 # Translations template for PROJECT.
-# Copyright (C) 2020 ORGANIZATION
+# Copyright (C) 2021 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
-# gbtami <gbtami@gmail.com>, 2020
+# gbtami <gbtami@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-30 12:03+0100\n"
+"POT-Creation-Date: 2021-04-22 11:56+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2020\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2021\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -27,8 +27,8 @@ msgid "404 GAME NOT FOUND"
 msgstr "404 JÁTSZMA NEM TALÁLHATÓ"
 
 #: ../templates/404.html:21
-msgid "Sorry, but not all games saved on PyChess-Variants server."
-msgstr "Elnézést, de nincs minden játszme mentve a pychess serveren."
+msgid "Sorry, not all games are saved on the Pychess server."
+msgstr "Elnézést, de nincs minden játszma mentve a pychess szerveren."
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
@@ -72,34 +72,34 @@ msgid_plural "%(count)s games"
 msgstr[0] "%(count)s játszma"
 msgstr[1] "%(count)s játszma"
 
-#: ../templates/template.html:96
+#: ../templates/template.html:12
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:97
+#: ../templates/template.html:13
 msgid "Current games"
 msgstr "Játszmák"
 
-#: ../templates/template.html:98
+#: ../templates/template.html:14
 msgid "Players"
 msgstr "Játékosok"
 
-#: ../templates/template.html:99
+#: ../templates/template.html:15
 msgid "Editor"
 msgstr "Szerkesztő"
 
-#: ../templates/template.html:100
+#: ../templates/template.html:16
 msgid "Analysis"
 msgstr "Elemzés"
 
-#: ../templates/template.html:101
+#: ../templates/template.html:17
 msgid "Learn"
 msgstr "Tanulás"
 
-#: ../templates/template.html:107
+#: ../templates/template.html:23
 msgid "Login with Lichess"
 msgstr "Bejelentkezés lichess azonosítóval"
 
-#: ../templates/template.html:107
+#: ../templates/template.html:23
 msgid "Log in"
 msgstr "Bejelentkezés"

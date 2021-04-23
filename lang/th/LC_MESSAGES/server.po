@@ -1,24 +1,24 @@
 # Translations template for PROJECT.
-# Copyright (C) 2020 ORGANIZATION
+# Copyright (C) 2021 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
-# Ada Joule <ada.fulmina@gmail.com>, 2020
+# Ada Joule <ada.fulmina@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-30 20:10+0100\n"
+"POT-Creation-Date: 2021-04-22 11:56+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2020\n"
+"Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2021\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -27,13 +27,12 @@ msgid "404 GAME NOT FOUND"
 msgstr "404 หาเกมไม่พบ"
 
 #: ../templates/404.html:21
-msgid "Sorry, but not all games saved on PyChess-Variants server."
-msgstr ""
-"ขออภัย เซิร์ฟเวอร์ของ PyChess-Variants ไม่ได้บันทึกเกมที่ได้เล่นไว้ทุกเกม"
+msgid "Sorry, not all games are saved on the Pychess server."
+msgstr "ขออภัย ไม่ใช่ทุกเกมที่จะถูกบันทึกไว้ในเซิร์ฟเวอร์ Pychess"
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr "เป็นไปได้ว่าเกมนี้ถูกละทิ้งหรือหยุดไปก่อนถึงตาที่สาม"
+msgstr "เป็นไปได้ว่าเกมนี้ถูกละทิ้งหรือหยุดไปก่อนถึงตาเดินที่สาม"
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
@@ -69,34 +68,34 @@ msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)sเกมที่กำลังเล่น"
 
-#: ../templates/template.html:96
+#: ../templates/template.html:12
 msgid "Tv"
 msgstr "ทีวี"
 
-#: ../templates/template.html:97
+#: ../templates/template.html:13
 msgid "Current games"
 msgstr "เกมที่กำลังเล่น"
 
-#: ../templates/template.html:98
+#: ../templates/template.html:14
 msgid "Players"
 msgstr "ผู้เล่น"
 
-#: ../templates/template.html:99
+#: ../templates/template.html:15
 msgid "Editor"
 msgstr "ตั้งกระดาน"
 
-#: ../templates/template.html:100
+#: ../templates/template.html:16
 msgid "Analysis"
 msgstr "ถอดหมาก"
 
-#: ../templates/template.html:101
+#: ../templates/template.html:17
 msgid "Learn"
 msgstr "เรียนรู้"
 
-#: ../templates/template.html:107
+#: ../templates/template.html:23
 msgid "Login with Lichess"
 msgstr "เข้าสู่ระบบด้วย lichess"
 
-#: ../templates/template.html:107
+#: ../templates/template.html:23
 msgid "Log in"
 msgstr "เข้าสู่ระบบ"
