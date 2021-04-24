@@ -3966,14 +3966,20 @@
         {
           "ligatures": "play3, player8",
           "name": "play3",
-          "order": 0,
-          "id": 285
+          "order": 309,
+          "id": 285,
+          "prevSize": 32,
+          "code": 59932,
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
           "name": "pause2",
-          "order": 0,
-          "id": 286
+          "order": 310,
+          "id": 286,
+          "prevSize": 32,
+          "code": 59933,
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",
@@ -12702,7 +12708,7 @@
       ],
       "id": 1,
       "prevSize": 32,
-      "invisible": true
+      "invisible": false
     }
   ],
   "preferences": {
