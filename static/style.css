@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'pychess';
-  src:  url('fonts/pychess.eot?2ypbfs');
-  src:  url('fonts/pychess.eot?2ypbfs#iefix') format('embedded-opentype'),
-    url('fonts/pychess.ttf?2ypbfs') format('truetype'),
-    url('fonts/pychess.woff?2ypbfs') format('woff'),
-    url('fonts/pychess.svg?2ypbfs#pychess') format('svg');
+  src:  url('fonts/pychess.eot?eaail8');
+  src:  url('fonts/pychess.eot?eaail8#iefix') format('embedded-opentype'),
+    url('fonts/pychess.ttf?eaail8') format('truetype'),
+    url('fonts/pychess.woff?eaail8') format('woff'),
+    url('fonts/pychess.svg?eaail8#pychess') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -327,4 +327,11 @@
 }
 .icon-Gorogoro:before {
   content: "\1f431";
+  color: #3771c8;
+}
+.icon-play3:before {
+  content: "\ea1c";
+}
+.icon-pause2:before {
+  content: "\ea1d";
 }
