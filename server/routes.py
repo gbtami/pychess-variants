@@ -32,6 +32,7 @@ get_routes = (
     (r"/{gameId:\w{8}}", index),
     (r"/embed/{gameId:\w{8}}", index),
     (r"/tournament/{tournamentId:\w{8}}", index),
+    (r"/tournament/{tournamentId:\w{8}}/pause", index),
     ("/@/{profileId}", index),
     ("/@/{profileId}/tv", index),
     ("/@/{profileId}/challenge", index),

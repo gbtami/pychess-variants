@@ -480,6 +480,14 @@ export default class RoundController {
         window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
     }
 
+    private joinTournament = () => {
+        window.location.assign(this.model["home"] + '/tournament/' + this.model["tournamentId"]);
+    }
+
+    private pauseTournament = () => {
+        window.location.assign(this.model["home"] + '/tournament/' + this.model["tournamentId"] + '/pause');
+    }
+
     private gameOver = (rdiffs) => {
         let container;
         container = document.getElementById('wrdiff') as HTMLElement;
@@ -492,8 +500,22 @@ export default class RoundController {
         this.gameControls = patch(this.gameControls, h('div'));
         let buttons: VNode[] = [];
         if (!this.spectator) {
-            buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
-            buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, _("NEW OPPONENT")));
+            if (this.model["tournamentId"] !== '') {
+                // TODO: isOver = ?
+                const isOver = false;
+                if (isOver) {
+                    buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
+                        [h('div', {class: {"icon": true, 'icon-play3': true} }, _("VIEW TOURNAMENT"))]));
+                } else{
+                    buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
+                        [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO TOURNAMENT"))]));
+                    buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
+                        [h('div', {class: {"icon": true, 'icon-pause2': true} }, _("PAUSE"))]));
+                }
+            } else {
+                buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
+                buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, _("NEW OPPONENT")));
+            }
         }
         buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.model["home"]) } }, _("ANALYSIS BOARD")));
         patch(this.gameControls, h('div.btn-controls.after', buttons));

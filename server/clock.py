@@ -51,7 +51,7 @@ class Clock:
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
                         user = self.game.bplayer if self.color == BLACK else self.game.wplayer
-                        reason = "abort" if self.ply < 2 else "flag"
+                        reason = "abort" if (self.ply < 2) and (self.game.tournamentId is None) else "flag"
                         response = await self.game.game_ended(user, reason)
                         await round_broadcast(self.game, self.game.users, response, full=True)
                         return

@@ -40,7 +40,7 @@ async def new_game_id(db):
 
 
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=CASUAL, chess960=False, create=True, tournament=None):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=CASUAL, chess960=False, create=True, tournamentId=None):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.users = app["users"]
@@ -57,7 +57,7 @@ class Game:
         self.base = base
         self.inc = inc
         self.level = level if level is not None else 0
-        self.tournament = tournament
+        self.tournamentId = tournamentId
         self.chess960 = chess960
         self.create = create
 
@@ -340,7 +340,7 @@ class Game:
         self.saved = True
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
-        if self.board.ply < 3 and (self.db is not None):
+        if self.board.ply < 3 and (self.db is not None) and (self.tournamentId is not None):
             result = await self.db.game.delete_one({"_id": self.id})
             log.debug("Removed too short game %s from db. Deleted %s game.", self.id, result.deleted_count)
         else:
@@ -482,7 +482,7 @@ class Game:
 
     def update_status(self, status=None, result=None):
         assert self.status <= STARTED
-            
+
         def result_string_from_value(color, game_result_value):
             if game_result_value < 0:
                 return "1-0" if color == BLACK else "0-1"
@@ -502,8 +502,8 @@ class Game:
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
 
-            if self.tournament is not None:
-                self.tournament.game_update(self)
+            if self.tournamentId is not None:
+                self.app["tournaments"][self.tournamentId].game_update(self)
 
             return
 
@@ -578,8 +578,8 @@ class Game:
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
 
-            if self.tournament is not None:
-                self.tournament.game_update(self)
+            if self.tournamentId is not None:
+                self.app["tournaments"][self.tournamentId].game_update(self)
 
     def set_dests(self):
         dests = {}

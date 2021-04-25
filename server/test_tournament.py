@@ -14,6 +14,7 @@ from glicko2.glicko2 import DEFAULT_PERF
 from server import make_app
 from user import User
 from tournament import new_tournament_id, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
+from utils import play_move
 
 game_modul.MAX_PLY = 120
 
@@ -22,6 +23,15 @@ PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
 
 class TestTournament(Tournament):
+
+    def join_players(self, nb_players):
+        self.game_tasks = set()
+
+        for i in range(nb_players):
+            player = User(self.app, username="player%s" % i, title="TEST", perfs=PERFS)
+            self.app["users"][player.username] = player
+            player.tournament_sockets.add(None)
+            self.join(player)
 
     async def create_new_pairings(self):
         self.print_leaderboard()
@@ -42,7 +52,7 @@ class TestTournament(Tournament):
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
         for player, full_score in self.leaderboard.items():
-            print("%20s %s %s" % (player.username, self.players[player].points, full_score))
+            print("%20s %s %s" % (player.title + player.username, self.players[player].points, full_score))
 
     def print_final_result(self):
         if len(self.players) > 0:
@@ -56,38 +66,41 @@ class TestTournament(Tournament):
             print("--- #%s ---" % (i + 1), player.username)
 
     async def play_random(self, game):
-        """ Play random moves in test tournament games """
+        """ Play random moves for TEST players """
         if self.system == ARENA:
             await asyncio.sleep(random.choice((0, 1, 3, 5, 7)))
 
         game.status = STARTED
-        print("play_random()")
         while game.status <= STARTED:
             cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
+            opp_player = game.wplayer if game.board.color == BLACK else game.bplayer
             if cur_player.title == "TEST":
-                game.set_dests()
-                move = game.random_move
-                await game.play_move(move, clocks={"white": 60, "black": 60})
                 ply = random.randint(4, int(MAX_PLY / 2))
                 if game.board.ply == ply:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
-                    await game.game_ended(player, "resign")
+                    response = await game.game_ended(player, "resign")
                     print(game.result, "resign")
+                    if opp_player.title != "TEST":
+                        opp_ws = opp_player.game_sockets[game.id]
+                        await opp_ws.send_json(response)
+                else:
+                    game.set_dests()
+                    move = game.random_move
+                    clocks = {
+                        "white": game.ply_clocks[-1]["white"],
+                        "black": game.ply_clocks[-1]["white"],
+                        "movetime": 0
+                    }
+                    await play_move(self.app, cur_player, game, move, clocks=clocks)
             else:
                 await asyncio.sleep(1)
 
 
 def create_arena_test(app):
     tid = "12345678"
-    tournament = TestTournament(app, tid, before_start=0.1, minutes=5)
+    tournament = TestTournament(app, tid, before_start=0.1, minutes=1)
     app["tournaments"][tid] = tournament
-
-    tournament.game_tasks = set()
-    for i in range(15):
-        player = User(app, username="player%s" % i, title="TEST", perfs=PERFS)
-        app["users"][player.username] = player
-        player.tournament_sockets.add(None)
-        tournament.join(player)
+    tournament.join_players(15)
 
 
 class TournamentTestCase(AioHTTPTestCase):
@@ -122,6 +135,8 @@ class TournamentTestCase(AioHTTPTestCase):
     async def test_tournament_without_players(self):
         tid = await new_tournament_id(self.app["db"])
         self.tournament = TestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
+        self.app["tournaments"][tid] = self.tournament
+
         self.assertEqual(self.tournament.status, T_CREATED)
 
         await asyncio.sleep((self.tournament.before_start * 60) + 0.1)
@@ -137,10 +152,9 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_PLAYERS = 15
         tid = await new_tournament_id(self.app["db"])
         self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1.0 / 60.0)
-        for i in range(NB_PLAYERS):
-            player = User(self.app, username="player%s" % i, perfs=PERFS)
-            self.tournament.join(player)
-            self.tournament.pause(player)
+        self.app["tournaments"][tid] = self.tournament
+        self.tournament.join_players(NB_PLAYERS)
+
         self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS)
 
         withdrawn_player = next(iter(self.tournament.players))
@@ -160,10 +174,8 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_ROUNDS = 5
         tid = await new_tournament_id(self.app["db"])
         self.tournament = TestTournament(self.app, tid, before_start=0, system=SWISS, rounds=NB_ROUNDS)
-        self.tournament.game_tasks = set()
-        for i in range(NB_PLAYERS):
-            player = User(self.app, username="player%s" % i, perfs=PERFS)
-            self.tournament.join(player)
+        self.app["tournaments"][tid] = self.tournament
+        self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
 
@@ -174,12 +186,9 @@ class TournamentTestCase(AioHTTPTestCase):
     async def test_tournament_pairing_1_min_ARENA(self):
         NB_PLAYERS = 15
         tid = await new_tournament_id(self.app["db"])
-        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1)
-        self.tournament.game_tasks = set()
-        for i in range(NB_PLAYERS):
-            player = User(self.app, username="player%s" % i, perfs=PERFS)
-            self.app["users"][player.username] = player
-            self.tournament.join(player)
+        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=0.5)
+        self.app["tournaments"][tid] = self.tournament
+        self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
 
@@ -192,10 +201,8 @@ class TournamentTestCase(AioHTTPTestCase):
 
         tid = await new_tournament_id(self.app["db"])
         self.tournament = TestTournament(self.app, tid, before_start=0, system=RR, rounds=NB_ROUNDS)
-        self.tournament.game_tasks = set()
-        for i in range(NB_PLAYERS):
-            player = User(self.app, username="player%s" % i, perfs=PERFS)
-            self.tournament.join(player)
+        self.app["tournaments"][tid] = self.tournament
+        self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
 

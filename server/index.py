@@ -122,8 +122,12 @@ async def index(request):
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
+
         if tournament is None:
             return web.HTTPFound("/")
+
+        if request.path.endswith("/pause"):
+            tournament.pause(user)
 
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
@@ -292,6 +296,8 @@ async def index(request):
             render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
             if ply is not None:
                 render["ply"] = ply
+            if game.tournamentId is not None:
+                render["tournamentid"] = game.tournamentId
 
     if tournamentId is not None:
         render["tournamentid"] = tournamentId

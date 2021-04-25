@@ -125,7 +125,8 @@ async def load_game(app, game_id, user=None):
         level=doc.get("x"),
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
-        create=False)
+        create=False,
+        tournamentId=doc.get("tid"))
 
     mlist = decode_moves(doc["m"], variant)
 
@@ -383,7 +384,7 @@ async def new_game(app, user, seek_id, new_id=None):
 
     # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
-        new_game = Game(
+        game = Game(
             app, new_id, seek.variant, sanitized_fen, wplayer, bplayer,
             base=seek.base,
             inc=seek.inc,
@@ -396,43 +397,54 @@ async def new_game(app, user, seek_id, new_id=None):
         log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s", new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer)
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
-    games[new_id] = new_game
+    games[new_id] = game
 
     remove_seek(seeks, seek)
 
-    document = {
-        "_id": new_id,
-        "us": [wplayer.username, bplayer.username],
-        "p0": {"e": new_game.wrating},
-        "p1": {"e": new_game.brating},
-        "v": V2C[seek.variant],
-        "b": seek.base,
-        "i": seek.inc,
-        "bp": seek.byoyomi_period,
-        "m": [],
-        "d": new_game.date,
-        "f": new_game.initial_fen,
-        "s": new_game.status,
-        "r": R2C["*"],
-        "x": seek.level,
-        "y": RATED if seek.rated else CASUAL,
-        "z": int(seek.chess960),
-    }
-
-    if seek.fen or seek.chess960:
-        document["if"] = new_game.initial_fen
-
-    if seek.variant.endswith("shogi") or seek.variant in ("dobutsu", "gorogoro"):
-        document["uci"] = 1
-
-    result = await db.game.insert_one(document)
-    print("db insert game result %s" % repr(result.inserted_id))
-
-    app["tv"] = new_id
-    wplayer.tv = new_id
-    bplayer.tv = new_id
+    await insert_game_to_db(game, app)
 
     return {"type": "new_game", "gameId": new_id, "wplayer": wplayer.username, "bplayer": bplayer.username}
+
+
+async def insert_game_to_db(game, app):
+    # unit test app may have no db
+    if app["db"] is None:
+        return
+
+    document = {
+        "_id": game.id,
+        "us": [game.wplayer.username, game.bplayer.username],
+        "p0": {"e": game.wrating},
+        "p1": {"e": game.brating},
+        "v": V2C[game.variant],
+        "b": game.base,
+        "i": game.inc,
+        "bp": game.byoyomi_period,
+        "m": [],
+        "d": game.date,
+        "f": game.initial_fen,
+        "s": game.status,
+        "r": R2C["*"],
+        "x": game.level,
+        "y": RATED if game.rated else CASUAL,
+        "z": int(game.chess960),
+    }
+
+    if game.tournamentId is not None:
+        document["tid"] = game.tournamentId
+
+    if game.initial_fen or game.chess960:
+        document["if"] = game.initial_fen
+
+    if game.variant.endswith("shogi") or game.variant in ("dobutsu", "gorogoro"):
+        document["uci"] = 1
+
+    result = await app["db"].game.insert_one(document)
+    print("db insert game result %s" % repr(result.inserted_id))
+
+    app["tv"] = game.id
+    game.wplayer.tv = game.id
+    game.bplayer.tv = game.id
 
 
 def remove_seek(seeks, seek):
@@ -519,8 +531,11 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         board_response = game.get_board(full=game.board.ply == 1)
 
         if not user.bot:
-            ws = user.game_sockets[gameId]
-            await ws.send_json(board_response)
+            try:
+                ws = user.game_sockets[gameId]
+                await ws.send_json(board_response)
+            except (KeyError, ConnectionResetError):
+                pass
 
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
@@ -539,10 +554,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             if game.status > STARTED:
                 response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id, "pgn": game.pgn}
                 await opp_ws.send_json(response)
-        except KeyError:
-            log.exception("Move %s can't send to %s. Game %s was removed from game_sockets !!!", move, user.username, gameId)
-        except ConnectionResetError:
-            log.exception("Move %s can't send to %s in game %s. User disconnected !!!", move, user.username, gameId)
+        except (KeyError, ConnectionResetError):
+            pass
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=app["game_channels"])

@@ -13,6 +13,7 @@ from compress import C2V
 from const import RATED, STARTED
 from game import Game, new_game_id
 from rr import BERGER_TABLES
+from utils import insert_game_to_db
 
 log = logging.getLogger(__name__)
 
@@ -45,6 +46,9 @@ class PlayerData:
         self.win_streak = 0
         self.games = []
         self.points = []
+
+    def __str__(self):
+        return self.points.join(" ")
 
 
 class Tournament:
@@ -242,11 +246,12 @@ class Tournament:
                         inc=self.inc,
                         byoyomi_period=self.byoyomi_period,
                         rated=self.rated,
-                        tournament=self,
+                        tournamentId=self.id,
                         chess960=self.chess960)
 
             games.append(game)
             self.app["games"][game_id] = game
+            await insert_game_to_db(game, self.app)
 
             self.players[wp].games.append(game)
             self.players[bp].games.append(game)
@@ -272,7 +277,7 @@ class Tournament:
 
         return games
 
-    def points(self, game):
+    def calculate_points(self, game):
         wplayer_data = self.players[game.wplayer]
         bplayer_data = self.players[game.bplayer]
 
@@ -321,21 +326,29 @@ class Tournament:
 
     def game_update(self, game):
         """ Called from Game.update_status() """
+        if self.status == T_FINISHED:
+            return
+
         leaderboard = self.leaderboard
         players = self.players
 
         wpscore = leaderboard.get(game.wplayer)
         bpscore = leaderboard.get(game.bplayer)
 
-        wpoint, bpoint = self.points(game)
+        wpoint, bpoint = self.calculate_points(game)
 
         if wpoint > 0:
             leaderboard.update({game.wplayer: wpscore + wpoint})
         if bpoint > 0:
             leaderboard.update({game.bplayer: bpscore + bpoint})
 
-        players[game.wplayer].points[-1] = wpoint
-        players[game.bplayer].points[-1] = bpoint
+        try:
+            players[game.wplayer].points[-1] = wpoint
+            players[game.bplayer].points[-1] = bpoint
+        except Exception:
+            for player in players:
+                print(player)
+            raise
 
         self.ongoing_games -= 1
         self.game_ended = True
