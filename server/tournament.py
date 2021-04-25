@@ -342,13 +342,8 @@ class Tournament:
         if bpoint > 0:
             leaderboard.update({game.bplayer: bpscore + bpoint})
 
-        try:
-            players[game.wplayer].points[-1] = wpoint
-            players[game.bplayer].points[-1] = bpoint
-        except Exception:
-            for player in players:
-                print(player)
-            raise
+        players[game.wplayer].points[-1] = wpoint
+        players[game.bplayer].points[-1] = bpoint
 
         self.ongoing_games -= 1
         self.game_ended = True
