@@ -1,19 +1,17 @@
 import asyncio
 import logging
-import random
-import string
 from datetime import datetime, timezone
 
 from const import VARIANTS
 from broadcast import lobby_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF
 from login import RESERVED_USERS
+from newid import id8
 from seek import get_seeks
 
 log = logging.getLogger(__name__)
 
 SILENCE = 10 * 60
-
 ANON_TIMEOUT = 10 * 60
 
 
@@ -30,7 +28,7 @@ class User:
         self.anon = anon
         if username is None:
             self.anon = True
-            self.username = "Anon-" + "".join(random.sample(string.ascii_letters, 8))
+            self.username = "Anon-" + id8()
         else:
             self.username = username
         self.first_name = first_name

@@ -6,8 +6,6 @@ import json
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
 
-from game import new_game_id, MAX_PLY
-
 try:
     import pyffish as sf
     sf.set_option("VariantPath", "variants.ini")
@@ -20,7 +18,8 @@ from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
 from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
-from game import Game
+from game import Game, MAX_PLY
+from newid import new_id
 from user import User
 from settings import URI
 
@@ -298,23 +297,23 @@ async def import_game(request):
         map(grand2zero, move_stack) if variant in GRANDS
         else move_stack, variant)
 
-    new_id = await new_game_id(db)
-    existing = await db.game.find_one({'_id': {'$eq': new_id}})
+    game_id = await new_id(None if db is none else db.game)
+    existing = await db.game.find_one({'_id': {'$eq': game_id}})
     if existing:
-        message = "Failed to create game. Game ID %s allready in mongodb." % new_id
+        message = "Failed to create game. Game ID %s allready in mongodb." % game_id
         log.exception(message)
         return web.json_response({"error": message})
 
     try:
-        print(new_id, variant, initial_fen, wplayer, bplayer)
-        new_game = Game(app, new_id, variant, initial_fen, wplayer, bplayer, rated=IMPORTED, create=False)
+        print(game_id, variant, initial_fen, wplayer, bplayer)
+        new_game = Game(app, game_id, variant, initial_fen, wplayer, bplayer, rated=IMPORTED, create=False)
     except Exception:
-        message = "Creating new Game %s failed!" % new_id
+        message = "Creating new Game %s failed!" % game_id
         log.exception(message)
         return web.json_response({"error": message})
 
     document = {
-        "_id": new_id,
+        "_id": game_id,
         "us": [wplayer.username, bplayer.username],
         "v": V2C[variant],
         "b": base,
@@ -348,10 +347,10 @@ async def import_game(request):
     result = await db.game.insert_one(document)
     print("db insert IMPORTED game result %s" % repr(result.inserted_id))
 
-    return web.json_response({"gameId": new_id})
+    return web.json_response({"gameId": game_id})
 
 
-async def new_game(app, user, seek_id, new_id=None):
+async def new_game(app, user, seek_id, game_id=None):
     db = app["db"]
     games = app["games"]
     seeks = app["seeks"]
@@ -376,16 +375,16 @@ async def new_game(app, user, seek_id, new_id=None):
         wplayer = seek.user if seek.color == "w" else user
         bplayer = seek.user if seek.color == "b" else user
 
-    if new_id is not None:
+    if game_id is not None:
         # game invitation
-        del app["invites"][new_id]
+        del app["invites"][game_id]
     else:
-        new_id = await new_game_id(db)
+        game_id = await new_id(None if db is None else db.game)
 
-    # print("new_game", new_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
+    # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
         game = Game(
-            app, new_id, seek.variant, sanitized_fen, wplayer, bplayer,
+            app, game_id, seek.variant, sanitized_fen, wplayer, bplayer,
             base=seek.base,
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
@@ -394,16 +393,16 @@ async def new_game(app, user, seek_id, new_id=None):
             chess960=seek.chess960,
             create=True)
     except Exception:
-        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s", new_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer)
+        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s", game_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer)
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
-    games[new_id] = game
+    games[game_id] = game
 
     remove_seek(seeks, seek)
 
     await insert_game_to_db(game, app)
 
-    return {"type": "new_game", "gameId": new_id, "wplayer": wplayer.username, "bplayer": bplayer.username}
+    return {"type": "new_game", "gameId": game_id, "wplayer": wplayer.username, "bplayer": bplayer.username}
 
 
 async def insert_game_to_db(game, app):

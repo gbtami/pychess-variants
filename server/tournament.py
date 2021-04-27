@@ -2,16 +2,17 @@ import asyncio
 import collections
 import logging
 import random
-import string
 from datetime import datetime, timedelta, timezone
 from operator import neg
 
 from sortedcollections import ValueSortedDict
+from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
-from compress import C2V
-from const import RATED, STARTED
-from game import Game, new_game_id
+from compress import C2V, V2C
+from const import CASUAL, RATED, STARTED
+from game import Game
+from newid import new_id
 from rr import BERGER_TABLES
 from utils import insert_game_to_db
 
@@ -24,15 +25,6 @@ ARENA, RR, SWISS = range(3)
 class EnoughPlayer(Exception):
     """ Raised when RR is already full """
     pass
-
-
-async def new_tournament_id(db):
-    new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
-    if db is not None:
-        existing = await db.tournament.find_one({'_id': {'$eq': new_id}})
-        if existing:
-            new_id = "".join(random.choice(string.digits + string.ascii_letters) for x in range(8))
-    return new_id
 
 
 class PlayerData:
@@ -71,7 +63,7 @@ class Tournament:
 
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc)
-        self.started_at = self.created_at + timedelta(seconds=int(before_start * 60))
+        self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
 
         # TODO: calculate wave from TC, variant, number of players
         self.wave = timedelta(seconds=3)
@@ -88,7 +80,7 @@ class Tournament:
         self.game_ended = False
 
         if minutes is not None:
-            self.finish = self.started_at + timedelta(minutes=minutes)
+            self.finish = self.starts_at + timedelta(minutes=minutes)
 
         self.finish_event = asyncio.Event()
 
@@ -110,7 +102,7 @@ class Tournament:
         while self.status != T_FINISHED:
             now = datetime.now(timezone.utc)
 
-            if self.status == T_CREATED and now >= self.started_at:
+            if self.status == T_CREATED and now >= self.starts_at:
                 self.status = T_STARTED
 
                 # force first pairing wave in arena
@@ -153,6 +145,8 @@ class Tournament:
                 self.players[player].points.pop()
 
         await lobby_broadcast(self.app["tourneysockets"], self.players_json())
+
+        await self.save()
 
         self.finish_event.set()
 
@@ -239,8 +233,9 @@ class Tournament:
 
     async def create_games(self, pairing):
         games = []
+        game_table = None if self.app["db"] is None else self.app["db"].game
         for wp, bp in pairing:
-            game_id = await new_game_id(self.app["db"])
+            game_id = await new_id(game_table)
             game = Game(self.app, game_id, self.variant, "", wp, bp,
                         base=self.base,
                         inc=self.inc,
@@ -362,10 +357,31 @@ class Tournament:
                 opp_rating = int(round(opp_rating.mu, 0))
                 print(opp_player.username, opp_rating, color, game.result)
 
+    async def save(self):
+        if len(self.leaderboard) == 0 or self.app["db"] is None:
+            return
+
+        winner = self.leaderboard.peekitem(0)[0].username
+        new_data = {
+            "status": self.status,
+            "nbPlayers": self.nb_players,
+            "winner": winner,
+        }
+
+        print(await self.app["db"].tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": new_data},
+            return_document=ReturnDocument.AFTER)
+        )
+
+        i = 0
+        for player, full_score in self.leaderboard.items():
+            i += 1
+            print("%s %20s %s %s" % (i, player.title + player.username, self.players[player].points, full_score))
+
 
 async def new_tournament(app, data):
-    db = app["db"]
-    tid = await new_tournament_id(db)
+    tid = await new_id(app["db"].tournament)
 
     tournament = Tournament(
         app, tid,
@@ -385,7 +401,40 @@ async def new_tournament(app, data):
     )
 
     app["tournaments"][tid] = tournament
+
+    insert_tournament_to_db(tournament, app)
+
     return {"type": "new_tournament", "tournamentId": tid}
+
+
+async def insert_tournament_to_db(tournament, app):
+    # unit test app may have no db
+    if app["db"] is None:
+        return
+
+    document = {
+        "_id": tournament.id,
+        "name": tournament.name,
+        "minutes": tournament.minutes,
+        "v": V2C[tournament.variant],
+        "b": tournament.base,
+        "i": tournament.inc,
+        "bp": tournament.byoyomi_period,
+        "f": tournament.fen,
+        "s": tournament.status,
+        "y": RATED if tournament.rated else CASUAL,
+        "z": int(tournament.chess960),
+        "system": tournament.system,
+        "rounds": tournament.rounds,
+        "nbPlayers": 0,
+        "createdBy": tournament.created_by,
+        "cretaedAt": tournament.created_at,
+        "startsAt": tournament.starts_at,
+        "status": T_CREATED,
+    }
+
+    result = await app["db"].tournament.insert_one(document)
+    print("db insert tournament result %s" % repr(result.inserted_id))
 
 
 async def load_tournament(app, tournament_id):
@@ -395,7 +444,7 @@ async def load_tournament(app, tournament_id):
     if tournament_id in tournaments:
         return tournaments[tournament_id]
 
-    doc = await db.tournaments.find_one({"_id": tournament_id})
+    doc = await db.tournament.find_one({"_id": tournament_id})
 
     if doc is None:
         return None
@@ -409,7 +458,7 @@ async def load_tournament(app, tournament_id):
         byoyomi_period=int(bool(doc.get("bp"))),
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
-        fen=doc.get("if"),
+        fen=doc.get("f"),
         system=doc["system"],
         rounds=doc["rounds"],
         created_by=doc["createdBy"],
@@ -418,7 +467,7 @@ async def load_tournament(app, tournament_id):
     )
 
     tournament.created_at = doc["createdAt"],
-    tournament.started_at = doc["startedAt"],
+    tournament.starts_at = doc["startsAt"],
     tournament.status = doc["status"]
     tournament.nb_players = doc["nbPlayers"]
     tournament.winner = doc["winner"]

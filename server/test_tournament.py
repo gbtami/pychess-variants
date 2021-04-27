@@ -11,9 +11,10 @@ from const import STARTED, VARIANTS
 from fairy import BLACK
 import game as game_modul
 from glicko2.glicko2 import DEFAULT_PERF
+from newid import id8
 from server import make_app
 from user import User
-from tournament import new_tournament_id, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
+from tournament import insert_tournament_to_db, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
 from utils import play_move
 
 game_modul.MAX_PLY = 120
@@ -35,6 +36,8 @@ class TestTournament(Tournament):
 
     async def create_new_pairings(self):
         self.print_leaderboard()
+
+        self.app["db"] = None
 
         pairing, games = await Tournament.create_new_pairing(self)
 
@@ -96,10 +99,14 @@ class TestTournament(Tournament):
                 await asyncio.sleep(1)
 
 
-def create_arena_test(app):
+async def create_arena_test(app):
     tid = "12345678"
-    tournament = TestTournament(app, tid, before_start=0.1, minutes=1)
+    await app["db"].tournament.delete_one({"_id": tid})
+    tournament = TestTournament(app, tid, name="Test Arena", before_start=0.1, minutes=0.2)
     app["tournaments"][tid] = tournament
+
+    await insert_tournament_to_db(tournament, app)
+
     tournament.join_players(15)
 
 
@@ -133,7 +140,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_tournament_without_players(self):
-        tid = await new_tournament_id(self.app["db"])
+        tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
         self.app["tournaments"][tid] = self.tournament
 
@@ -150,7 +157,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest_run_loop
     async def test_tournament_players(self):
         NB_PLAYERS = 15
-        tid = await new_tournament_id(self.app["db"])
+        tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1.0 / 60.0)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
@@ -172,7 +179,7 @@ class TournamentTestCase(AioHTTPTestCase):
     async def test_tournament_pairing_5_round_SWISS(self):
         NB_PLAYERS = 15
         NB_ROUNDS = 5
-        tid = await new_tournament_id(self.app["db"])
+        tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=0, system=SWISS, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
@@ -185,7 +192,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest_run_loop
     async def test_tournament_pairing_1_min_ARENA(self):
         NB_PLAYERS = 15
-        tid = await new_tournament_id(self.app["db"])
+        tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=0, minutes=0.5)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
@@ -199,7 +206,7 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_PLAYERS = 5
         NB_ROUNDS = 5
 
-        tid = await new_tournament_id(self.app["db"])
+        tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=0, system=RR, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)

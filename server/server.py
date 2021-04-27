@@ -170,9 +170,9 @@ async def init_state(app):
         return
 
     # create test tournament
-    if 1:
+    if 0:
         from test_tournament import create_arena_test
-        create_arena_test(app)
+        await create_arena_test(app)
 
     # Read users and highscore from db
     try:

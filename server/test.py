@@ -13,8 +13,9 @@ from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 from const import CREATED, STARTED, VARIANTS
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
-from game import Game, new_game_id
+from game import Game
 from login import RESERVED_USERS
+from newid import id8
 from user import User
 from utils import sanitize_fen
 from server import make_app
@@ -178,7 +179,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             print(i, variant)
             variant960 = variant.endswith("960")
             variant_name = variant[:-3] if variant960 else variant
-            game_id = await new_game_id(self.app["db"])
+            game_id = id8()
             game = Game(self.app, game_id, variant_name, "", self.test_player, self.random_mover, rated=False, chess960=variant960, create=True)
             self.app["games"][game.id] = game
             self.random_mover.game_queues[game_id] = None
@@ -225,7 +226,7 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_lost_but_still_there(self):
-        game_id = await new_game_id(self.app["db"])
+        game_id = id8()
         game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
@@ -246,7 +247,7 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_lost_and_out(self):
-        game_id = await new_game_id(self.app["db"])
+        game_id = id8()
         game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
@@ -267,7 +268,7 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_win_and_in_then_lost_and_out(self):
-        game_id = await new_game_id(self.app["db"])
+        game_id = id8()
         game = Game(self.app, game_id, "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
@@ -286,7 +287,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"].keys()[:10])
 
         # now strong player will lose to weak_player and should be out from leaderboard
-        game_id = await new_game_id(self.app["db"])
+        game_id = id8()
         game = Game(self.app, game_id, "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         print(game.crosstable)

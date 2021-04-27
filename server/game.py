@@ -2,7 +2,6 @@ import asyncio
 import collections
 import logging
 import random
-import string
 from datetime import datetime, timezone
 from itertools import chain
 from time import monotonic
@@ -28,15 +27,6 @@ log = logging.getLogger(__name__)
 MAX_HIGH_SCORE = 10
 MAX_PLY = 600
 KEEP_TIME = 600  # keep game in app["games"] for KEEP_TIME secs
-
-
-async def new_game_id(db):
-    new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
-    if db is not None:
-        existing = await db.game.find_one({'_id': {'$eq': new_id}})
-        if existing:
-            new_id = "".join(random.choice(string.digits + string.ascii_letters) for x in range(8))
-    return new_id
 
 
 class Game:

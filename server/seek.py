@@ -1,5 +1,5 @@
 from misc import time_control_str
-from game import new_game_id
+from newid import new_id
 
 MAX_USER_SEEKS = 10
 
@@ -59,7 +59,7 @@ async def create_seek(db, invites, seeks, user, data, ws=None):
 
     target = data.get("target")
     if target == "Invite-friend":
-        game_id = await new_game_id(db)
+        game_id = await new_id(db.game)
     else:
         game_id = None
 
