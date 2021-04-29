@@ -52,7 +52,7 @@ async def tournament_socket_handler(request):
                     if data["type"] == "get_players":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            response = tournament.players_json()
+                            response = tournament.players_json(data["page"])
                             await ws.send_json(response)
 
                     elif data["type"] == "join":

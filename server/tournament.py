@@ -10,7 +10,7 @@ from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
 from compress import C2V, V2C
-from const import CASUAL, RATED, STARTED
+from const import CASUAL, RATED
 from game import Game
 from newid import new_id
 from rr import BERGER_TABLES
@@ -79,7 +79,6 @@ class Tournament:
         self.status = T_CREATED
         self.ongoing_games = 0
         self.nb_players = 0
-        self.game_ended = False
 
         if minutes is not None:
             self.finish = self.starts_at + timedelta(minutes=minutes)
@@ -88,10 +87,11 @@ class Tournament:
 
         self.clock_task = asyncio.create_task(self.clock())
 
+    # TODO: cache this
     def players_json(self, page=1):
-        # TODO: implement pagination
         def player_json(player, full_score):
             return {
+                "paused": self.players[player].paused,
                 "title": player.title,
                 "name": player.username,
                 "rating": self.players[player].rating,
@@ -99,7 +99,20 @@ class Tournament:
                 "score": int(full_score / 100000),
                 "perf": self.players[player].performance
             }
-        return {"type": "get_players", "players": [player_json(player, full_score) for player, full_score in self.leaderboard.items()]}
+
+        start = (page - 1) * 10
+        end = start + 10
+
+        return {
+            "type": "get_players",
+            "nbPlayers": self.nb_players,
+            "page": page,
+            "players": [
+                player_json(player, full_score) for
+                player, full_score in
+                self.leaderboard.items()[start:end]
+            ]
+        }
 
     async def clock(self):
         while self.status != T_FINISHED:
@@ -136,10 +149,6 @@ class Tournament:
             print("CLOCK", now.strftime("%H:%M:%S"))
             await asyncio.sleep(1)
 
-            if self.game_ended:
-                await lobby_broadcast(self.app["tourneysockets"], self.players_json())
-                self.game_ended = False
-
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
             if not self.players[player].free:
@@ -147,7 +156,7 @@ class Tournament:
                 self.players[player].points.pop()
                 self.players[player].nb_games -= 1
 
-        await lobby_broadcast(self.app["tourneysockets"], self.players_json())
+        await lobby_broadcast(self.app["tourneysockets"], {"type": "finished"})
 
         await self.save()
 
@@ -340,7 +349,7 @@ class Tournament:
 
         return (wpoint, bpoint, wperf, bperf)
 
-    def game_update(self, game):
+    async def game_update(self, game):
         """ Called from Game.update_status() """
         if self.status == T_FINISHED:
             return
@@ -369,10 +378,11 @@ class Tournament:
         self.leaderboard.update({game.bplayer: 100000 * (bpscore + bpoint) + bplayer.performance})
 
         self.ongoing_games -= 1
-        self.game_ended = True
 
         wplayer.free = True
         bplayer.free = True
+
+        await lobby_broadcast(self.app["tourneysockets"], {"type": "game_update"})
 
     def get_games(self, player):
         for game in self.players[player].games:
@@ -412,7 +422,7 @@ class Tournament:
         for user, full_score in self.leaderboard.items():
             i += 1
             player = self.players[user]
-            print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, int(full_score / 100000), player.performance))
+            # print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, int(full_score / 100000), player.performance))
             player_id = await new_id(player_table)
 
             player_documents.append({

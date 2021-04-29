@@ -1,3 +1,30 @@
+.tournament {
+    grid-area: main;
+    display: grid;
+    grid-gap: 2vmin;
+}
+@media (max-width: 799px) and (orientation: portrait) {
+    .tournament {
+        grid-template-areas: 'app' 'table' 'side' 'uleft' 'utable' 'blog';
+    }
+}
+@media (min-width: 800px) {
+    .tournament {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, fit-content(0));
+        grid-template-areas: 'side app app table' 'uleft blog blog utable';
+    }
+}
+.players {
+    display: grid;
+    grid-area: app;
+}
+
+span.page {
+    align-self: center;
+    padding: 3px;
+}
+
 .sheet {
     text-align: right;
     padding-right: 0;

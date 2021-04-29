@@ -35,16 +35,15 @@ class TestTournament(Tournament):
             self.join(player)
 
     async def create_new_pairings(self):
+        now = datetime.now(timezone.utc).strftime("%H:%M:%S")
+        print("--- new pairings at %s ---" % now)
         self.print_leaderboard()
-
         pairing, games = await Tournament.create_new_pairing(self)
 
         # aouto play test games
-        now = datetime.now(timezone.utc).strftime("%H:%M:%S")
-        print("--- new pairings at %s ---" % now)
-        for wp, bp in pairing:
-            print("%s - %s" % (wp.username, bp.username))
-        print("---")
+        # for wp, bp in pairing:
+        #     print("%s - %s" % (wp.username, bp.username))
+        print("--- done ---")
 
         for game in games:
             game.random_mover = True
@@ -52,7 +51,7 @@ class TestTournament(Tournament):
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
-        for player, full_score in self.leaderboard.items():
+        for player, full_score in self.leaderboard.items()[:10]:
             print("%20s %4s %30s %2s %s" % (
                 player.username,
                 self.players[player].rating,
@@ -86,7 +85,7 @@ class TestTournament(Tournament):
                 if game.board.ply == ply:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
                     response = await game.game_ended(player, "resign")
-                    print(game.result, "resign")
+                    # print(game.result, "resign")
                     if opp_player.title != "TEST":
                         opp_ws = opp_player.game_sockets[game.id]
                         await opp_ws.send_json(response)
@@ -110,12 +109,12 @@ async def create_arena_test(app):
     await app["db"].tournament_leaderboard.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = TestTournament(app, tid, name="Test Arena", before_start=0.1, minutes=0.5)
+    tournament = TestTournament(app, tid, name="Test Arena", before_start=0.1, minutes=1)
     app["tournaments"][tid] = tournament
 
     await insert_tournament_to_db(tournament, app)
 
-    tournament.join_players(15)
+    tournament.join_players(107)
 
 
 class TournamentTestCase(AioHTTPTestCase):

@@ -341,7 +341,7 @@ class Game:
                     await self.save_crosstable()
 
             if self.tournamentId is not None:
-                self.app["tournaments"][self.tournamentId].game_update(self)
+                await self.app["tournaments"][self.tournamentId].game_update(self)
 
             # self.print_game()
 
@@ -502,7 +502,7 @@ class Game:
 
         w, b = self.board.insufficient_material()
         if w and b:
-            print("1/2 by board.insufficient_material()")
+            # print("1/2 by board.insufficient_material()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
@@ -512,7 +512,7 @@ class Game:
 
             if self.board.is_immediate_game_end()[0]:
                 self.status = VARIANTEND
-                print(self.result, "variant end")
+                # print(self.result, "variant end")
             elif self.check:
                 self.status = MATE
                 # Draw if the checkmating player is the one counting
@@ -525,16 +525,16 @@ class Game:
                 # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
                 if self.board.move_stack[-1][0:2] == "P@" and self.variant in ("shogi", "minishogi", "gorogoro"):
                     self.status = INVALIDMOVE
-                print(self.result, "checkmate")
+                # print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 # Atomic checkmate is internally a stalemate so we need to change it here. Remove when pyffish is fixed.
                 if self.variant == 'atomic' and self.result != "1/2-1/2":
                     self.status = MATE
-                    print(self.result, "checkmate")
+                    # print(self.result, "checkmate")
                 else:
                     self.status = STALEMATE
-                    print(self.result, "stalemate")
+                    # print(self.result, "stalemate")
 
         elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin'):
             parts = self.board.fen.split()
@@ -544,7 +544,7 @@ class Game:
                 if counting_ply > counting_limit:
                     self.status = DRAW
                     self.result = "1/2-1/2"
-                    print(self.result, "counting limit reached")
+                    # print(self.result, "counting limit reached")
 
         else:
             # end the game by 50 move rule and repetition automatically
@@ -553,12 +553,12 @@ class Game:
             if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
-                print(self.result, "claim")
+                # print(self.result, "claim")
 
         if self.board.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
-            print(self.result, "Ply %s reached" % MAX_PLY)
+            # print(self.result, "Ply %s reached" % MAX_PLY)
 
         if self.status > STARTED:
             self.set_crosstable()

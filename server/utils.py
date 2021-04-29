@@ -439,7 +439,7 @@ async def insert_game_to_db(game, app):
         document["uci"] = 1
 
     result = await app["db"].game.insert_one(document)
-    print("db insert game result %s" % repr(result.inserted_id))
+    # print("db insert game result %s" % repr(result.inserted_id))
 
     app["tv"] = game.id
     game.wplayer.tv = game.id
