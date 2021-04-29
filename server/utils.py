@@ -297,7 +297,7 @@ async def import_game(request):
         map(grand2zero, move_stack) if variant in GRANDS
         else move_stack, variant)
 
-    game_id = await new_id(None if db is none else db.game)
+    game_id = await new_id(None if db is None else db.game)
     existing = await db.game.find_one({'_id': {'$eq': game_id}})
     if existing:
         message = "Failed to create game. Game ID %s allready in mongodb." % game_id

@@ -27,17 +27,19 @@ class EnoughPlayer(Exception):
     pass
 
 
-class PlayerData:
-    '''Class for keeping track of player availability and games '''
-    __slots__ = "rating", "free", "paused", "win_streak", "games", "points"
+class Player:
+    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "performance"
 
-    def __init__(self, rating):
+    def __init__(self, rating, provisional):
         self.rating = rating
+        self.provisional = provisional
         self.free = True
         self.paused = False
         self.win_streak = 0
         self.games = []
         self.points = []
+        self.nb_games = 0
+        self.performance = 0
 
     def __str__(self):
         return self.points.join(" ")
@@ -88,13 +90,14 @@ class Tournament:
 
     def players_json(self, page=1):
         # TODO: implement pagination
-        def player_json(player, score):
+        def player_json(player, full_score):
             return {
                 "title": player.title,
                 "name": player.username,
                 "rating": self.players[player].rating,
                 "points": self.players[player].points,
-                "score": score,
+                "score": int(full_score / 100000),
+                "perf": self.players[player].performance
             }
         return {"type": "get_players", "players": [player_json(player, full_score) for player, full_score in self.leaderboard.items()]}
 
@@ -139,8 +142,7 @@ class Tournament:
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
-            games = self.players[player].games
-            if len(games) > 0 and (games[-1] is not None) and games[-1].status <= STARTED:
+            if not self.players[player].free:
                 self.players[player].games.pop()
                 self.players[player].points.pop()
 
@@ -158,7 +160,8 @@ class Tournament:
             raise EnoughPlayer
 
         if player not in self.players:
-            self.players[player] = PlayerData(int(round(player.get_rating(self.variant, self.chess960).mu, 0)))
+            rating, provisional = player.get_rating(self.variant, self.chess960).rating_prov
+            self.players[player] = Player(rating, provisional)
             self.leaderboard.setdefault(player, 0)
             self.nb_players += 1
 
@@ -259,6 +262,9 @@ class Tournament:
             self.players[wp].free = False
             self.players[bp].free = False
 
+            self.players[wp].nb_games += 1
+            self.players[bp].nb_games += 1
+
             response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
 
             if len(wp.tournament_sockets) > 0:
@@ -272,79 +278,91 @@ class Tournament:
 
         return games
 
-    def calculate_points(self, game):
+    def points_perfs(self, game):
         wplayer_data = self.players[game.wplayer]
         bplayer_data = self.players[game.bplayer]
 
-        if self.system == ARENA:
-            if game.result == "1/2-1/2":
+        wpoint = 0
+        bpoint = 0
+        wperf = game.black_rating.rating_prov[0]
+        bperf = game.white_rating.rating_prov[0]
+
+        if game.result == "1/2-1/2":
+            if self.system == ARENA:
                 if game.board.ply > 10:
-                    points = (2 if wplayer_data.win_streak == 2 else 1, 2 if bplayer_data.win_streak == 2 else 1)
-                else:
-                    points = (0, 0)
+                    wpoint = 2 if wplayer_data.win_streak == 2 else 1
+                    bpoint = 2 if bplayer_data.win_streak == 2 else 1
 
                 wplayer_data.win_streak = 0
                 bplayer_data.win_streak = 0
+            else:
+                wpoint, bpoint = 0.5, 0.5
 
-            elif game.result == "1-0":
+        elif game.result == "1-0":
+            if self.system == ARENA:
                 if wplayer_data.win_streak == 2:
-                    points = (4, 0)
+                    wpoint = 4
                 else:
                     wplayer_data.win_streak += 1
-                    points = (2, 0)
+                    wpoint = 2
 
                 bplayer_data.win_streak = 0
+            else:
+                wpoint = 1
 
-            elif game.result == "0-1":
+            wperf += 500
+            bperf -= 500
+
+        elif game.result == "0-1":
+            if self.system == ARENA:
                 if bplayer_data.win_streak == 2:
-                    points = (0, 4)
+                    bpoint = 4
                 else:
                     bplayer_data.win_streak += 1
-                    points = (0, 2)
+                    bpoint = 2
 
                 wplayer_data.win_streak = 0
-
             else:
-                points = (0, 0)
+                bpoint = 1
 
-        else:
-            if game.result == "1/2-1/2":
-                points = (0.5, 0.5)
-            elif game.result == "1-0":
-                points = (1, 0)
-            elif game.result == "0-1":
-                points = (0, 1)
-            else:
-                points = (0, 0)
+            wperf -= 500
+            bperf += 500
 
-        return points
+        return (wpoint, bpoint, wperf, bperf)
 
     def game_update(self, game):
         """ Called from Game.update_status() """
         if self.status == T_FINISHED:
             return
 
-        leaderboard = self.leaderboard
-        players = self.players
+        wplayer = self.players[game.wplayer]
+        bplayer = self.players[game.bplayer]
 
-        wpscore = leaderboard.get(game.wplayer)
-        bpscore = leaderboard.get(game.bplayer)
+        wpoint, bpoint, wperf, bperf = self.points_perfs(game)
 
-        wpoint, bpoint = self.calculate_points(game)
+        wplayer.points[-1] = wpoint
+        bplayer.points[-1] = bpoint
 
-        if wpoint > 0:
-            leaderboard.update({game.wplayer: wpscore + wpoint})
-        if bpoint > 0:
-            leaderboard.update({game.bplayer: bpscore + bpoint})
+        wplayer.rating += game.wrdiff
+        bplayer.rating += game.brdiff
 
-        players[game.wplayer].points[-1] = wpoint
-        players[game.bplayer].points[-1] = bpoint
+        nb = wplayer.nb_games
+        wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
+
+        nb = bplayer.nb_games
+        bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
+
+        wpscore = int(self.leaderboard.get(game.wplayer) / 100000)
+        self.leaderboard.update({game.wplayer: 100000 * (wpscore + wpoint) + wplayer.performance})
+
+        bpscore = int(self.leaderboard.get(game.bplayer) / 100000)
+        self.leaderboard.update({game.bplayer: 100000 * (bpscore + bpoint) + bplayer.performance})
 
         self.ongoing_games -= 1
         self.game_ended = True
 
-        players[game.wplayer].free = True
-        players[game.bplayer].free = True
+        wplayer.free = True
+        bplayer.free = True
 
     def get_games(self, player):
         for game in self.players[player].games:
@@ -354,8 +372,8 @@ class Tournament:
                 color = "w" if game.wplayer == player else "b"
                 opp_player = game.bplayer if color == "w" else game.wplayer
                 opp_rating = game.black_rating if color == "w" else game.white_rating
-                opp_rating = int(round(opp_rating.mu, 0))
-                print(opp_player.username, opp_rating, color, game.result)
+                opp_rating, prov = opp_rating.rating_prov
+                print(opp_player.username, opp_rating, prov, color, game.result)
 
     async def save(self):
         if len(self.leaderboard) == 0 or self.app["db"] is None:
@@ -374,10 +392,40 @@ class Tournament:
             return_document=ReturnDocument.AFTER)
         )
 
+        player_documents = []
+        leaderboard_documents = []
+
+        player_table = self.app["db"].tournament_player
+        leaderboard_table = self.app["db"].tournament_leaderboard
+
         i = 0
-        for player, full_score in self.leaderboard.items():
+        for user, full_score in self.leaderboard.items():
             i += 1
-            print("%s %20s %s %s" % (i, player.title + player.username, self.players[player].points, full_score))
+            player = self.players[user]
+            print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, full_score, player.performance))
+            player_id = await new_id(player_table)
+
+            player_documents.append({
+                "_id": player_id,
+                "tid": self.id,
+                "uid": user.username,
+                "r": player.rating,
+                "pr": player.provisional,
+                "f": player.win_streak == 2,
+                "s": full_score,
+                "e": player.performance,
+            })
+
+            leaderboard_documents.append({
+                "_id": player_id,
+                "tid": self.id,
+                "uid": user.username,
+                "r": i,
+                "g": player.nb_games,
+            })
+
+        await player_table.insert_many(player_documents)
+        await leaderboard_table.insert_many(leaderboard_documents)
 
 
 async def new_tournament(app, data):

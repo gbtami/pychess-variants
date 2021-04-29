@@ -45,6 +45,10 @@ class Rating:
         self.sigma = sigma
         self.ltime = ltime
 
+    @property
+    def rating_prov(self):
+        return (int(round(self.mu, 0)), "?" if self.phi > PROVISIONAL_PHI else "")
+
     def __repr__(self):
         return '(mu=%.3f, phi=%.3f, sigma=%.3f, ltime=%s)' % (self.mu, self.phi, self.sigma, self.ltime)
 

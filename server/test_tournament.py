@@ -55,7 +55,13 @@ class TestTournament(Tournament):
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
         for player, full_score in self.leaderboard.items():
-            print("%20s %s %s" % (player.title + player.username, self.players[player].points, full_score))
+            print("%20s %4s %30s %2s %s" % (
+                player.username,
+                self.players[player].rating,
+                self.players[player].points,
+                int(full_score / 100000),
+                self.players[player].performance
+            ))
 
     def print_final_result(self):
         if len(self.players) > 0:
@@ -102,7 +108,7 @@ class TestTournament(Tournament):
 async def create_arena_test(app):
     tid = "12345678"
     await app["db"].tournament.delete_one({"_id": tid})
-    tournament = TestTournament(app, tid, name="Test Arena", before_start=0.1, minutes=0.2)
+    tournament = TestTournament(app, tid, name="Test Arena", before_start=0.1, minutes=0.5)
     app["tournaments"][tid] = tournament
 
     await insert_tournament_to_db(tournament, app)
@@ -158,7 +164,7 @@ class TournamentTestCase(AioHTTPTestCase):
     async def test_tournament_players(self):
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1.0 / 60.0)
+        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=0)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
 

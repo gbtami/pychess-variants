@@ -92,6 +92,7 @@ export default class TournamentController {
             h('td', player.rating),
             h('td.sheet', player.points.join('').padStart(30, '_')),
             h('td', player.score),
+            h('td', player.perf),
         ]);
     }
 

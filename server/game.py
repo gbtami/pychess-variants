@@ -19,7 +19,7 @@ from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM,
     INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, IMPORTED
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
-from glicko2.glicko2 import gl2, PROVISIONAL_PHI
+from glicko2.glicko2 import gl2
 from settings import URI
 
 log = logging.getLogger(__name__)
@@ -53,10 +53,10 @@ class Game:
 
         # rating info
         self.white_rating = wplayer.get_rating(variant, chess960)
-        self.wrating = "%s%s" % (int(round(self.white_rating.mu, 0)), "?" if self.white_rating.phi > PROVISIONAL_PHI else "")
+        self.wrating = "%s%s" % self.white_rating.rating_prov
         self.wrdiff = 0
         self.black_rating = bplayer.get_rating(variant, chess960)
-        self.brating = "%s%s" % (int(round(self.black_rating.mu, 0)), "?" if self.black_rating.phi > PROVISIONAL_PHI else "")
+        self.brating = "%s%s" % self.black_rating.rating_prov
         self.brdiff = 0
 
         # crosstable info
@@ -340,6 +340,9 @@ class Game:
                 if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
                     await self.save_crosstable()
 
+            if self.tournamentId is not None:
+                self.app["tournaments"][self.tournamentId].game_update(self)
+
             # self.print_game()
 
             new_data = {
@@ -492,9 +495,6 @@ class Game:
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
 
-            if self.tournamentId is not None:
-                self.app["tournaments"][self.tournamentId].game_update(self)
-
             return
 
         if self.board.move_stack:
@@ -567,9 +567,6 @@ class Game:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
-
-            if self.tournamentId is not None:
-                self.app["tournaments"][self.tournamentId].game_update(self)
 
     def set_dests(self):
         dests = {}

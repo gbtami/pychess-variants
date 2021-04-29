@@ -13,7 +13,7 @@ class Seek:
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
-        self.rating = int(round(user.get_rating(variant, chess960).mu, 0))
+        self.rating = user.get_rating(variant, chess960).rating_prov[0]
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period

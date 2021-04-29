@@ -170,7 +170,7 @@ async def init_state(app):
         return
 
     # create test tournament
-    if 0:
+    if 1:
         from test_tournament import create_arena_test
         await create_arena_test(app)
 
