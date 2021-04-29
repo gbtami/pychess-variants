@@ -145,6 +145,7 @@ class Tournament:
             if not self.players[player].free:
                 self.players[player].games.pop()
                 self.players[player].points.pop()
+                self.players[player].nb_games -= 1
 
         await lobby_broadcast(self.app["tourneysockets"], self.players_json())
 
@@ -251,6 +252,15 @@ class Tournament:
             self.app["games"][game_id] = game
             await insert_game_to_db(game, self.app)
 
+            if self.app["db"] is not None:
+                doc = {
+                    "_id": game.id,
+                    "tid": self.id,
+                    "us": [game.wplayer.username, game.bplayer.username],
+                    "s": game.status,
+                }
+                await self.app["db"].tournament_pairing.insert_one(doc)
+
             self.players[wp].games.append(game)
             self.players[bp].games.append(game)
 
@@ -279,8 +289,8 @@ class Tournament:
         return games
 
     def points_perfs(self, game):
-        wplayer_data = self.players[game.wplayer]
-        bplayer_data = self.players[game.bplayer]
+        wplayer = self.players[game.wplayer]
+        bplayer = self.players[game.bplayer]
 
         wpoint = 0
         bpoint = 0
@@ -290,23 +300,23 @@ class Tournament:
         if game.result == "1/2-1/2":
             if self.system == ARENA:
                 if game.board.ply > 10:
-                    wpoint = 2 if wplayer_data.win_streak == 2 else 1
-                    bpoint = 2 if bplayer_data.win_streak == 2 else 1
+                    wpoint = 2 if wplayer.win_streak == 2 else 1
+                    bpoint = 2 if bplayer.win_streak == 2 else 1
 
-                wplayer_data.win_streak = 0
-                bplayer_data.win_streak = 0
+                wplayer.win_streak = 0
+                bplayer.win_streak = 0
             else:
                 wpoint, bpoint = 0.5, 0.5
 
         elif game.result == "1-0":
             if self.system == ARENA:
-                if wplayer_data.win_streak == 2:
+                if wplayer.win_streak == 2:
                     wpoint = 4
                 else:
-                    wplayer_data.win_streak += 1
+                    wplayer.win_streak += 1
                     wpoint = 2
 
-                bplayer_data.win_streak = 0
+                bplayer.win_streak = 0
             else:
                 wpoint = 1
 
@@ -315,13 +325,13 @@ class Tournament:
 
         elif game.result == "0-1":
             if self.system == ARENA:
-                if bplayer_data.win_streak == 2:
+                if bplayer.win_streak == 2:
                     bpoint = 4
                 else:
-                    bplayer_data.win_streak += 1
+                    bplayer.win_streak += 1
                     bpoint = 2
 
-                wplayer_data.win_streak = 0
+                wplayer.win_streak = 0
             else:
                 bpoint = 1
 
@@ -402,7 +412,7 @@ class Tournament:
         for user, full_score in self.leaderboard.items():
             i += 1
             player = self.players[user]
-            print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, full_score, player.performance))
+            print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, int(full_score / 100000), player.performance))
             player_id = await new_id(player_table)
 
             player_documents.append({
@@ -412,7 +422,8 @@ class Tournament:
                 "r": player.rating,
                 "pr": player.provisional,
                 "f": player.win_streak == 2,
-                "s": full_score,
+                "s": int(full_score / 100000),
+                "g": player.nb_games,
                 "e": player.performance,
             })
 
@@ -421,7 +432,6 @@ class Tournament:
                 "tid": self.id,
                 "uid": user.username,
                 "r": i,
-                "g": player.nb_games,
             })
 
         await player_table.insert_many(player_documents)

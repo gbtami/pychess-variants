@@ -37,8 +37,6 @@ class TestTournament(Tournament):
     async def create_new_pairings(self):
         self.print_leaderboard()
 
-        self.app["db"] = None
-
         pairing, games = await Tournament.create_new_pairing(self)
 
         # aouto play test games
@@ -108,6 +106,10 @@ class TestTournament(Tournament):
 async def create_arena_test(app):
     tid = "12345678"
     await app["db"].tournament.delete_one({"_id": tid})
+    await app["db"].tournament_player.delete_many({"tid": tid})
+    await app["db"].tournament_leaderboard.delete_many({"tid": tid})
+    await app["db"].tournament_pairing.delete_many({"tid": tid})
+
     tournament = TestTournament(app, tid, name="Test Arena", before_start=0.1, minutes=0.5)
     app["tournaments"][tid] = tournament
 
@@ -146,6 +148,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_tournament_without_players(self):
+        self.app["db"] = None
         tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
         self.app["tournaments"][tid] = self.tournament
@@ -162,6 +165,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_tournament_players(self):
+        self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=0, minutes=0)
@@ -183,6 +187,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_tournament_pairing_5_round_SWISS(self):
+        self.app["db"] = None
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
@@ -197,6 +202,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_tournament_pairing_1_min_ARENA(self):
+        self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = TestTournament(self.app, tid, before_start=0, minutes=0.5)
@@ -209,6 +215,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_tournament_pairing_5_round_RR(self):
+        self.app["db"] = None
         NB_PLAYERS = 5
         NB_ROUNDS = 5
 
