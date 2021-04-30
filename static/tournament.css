@@ -15,14 +15,16 @@
         grid-template-areas: 'side app app table' 'uleft blog blog utable';
     }
 }
-.box {
+div.players.box {
+    grid-area: app;
     background: var(--bg-color0);
     box-shadow: var(--btn-shadow);
 }
 table#players {
-    display: grid;
-    grid-area: app;
     width: 100%;
+    border: none;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 div.pager {
     display: flex;
@@ -66,10 +68,34 @@ table tr:hover {
 }
 table td {
     padding: 1rem;
+    font-size: 14px;
 }
-.sheet {
+td.rank {
+    padding: 1em 0.5em 1em 10px;
+    width: 1px;
+}
+td.player {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+span.title {
+    padding-right: 5px;
+    color: var(--gold);
+}
+span.name {
+    padding-right: 5px;
+}
+td.sheet {
     text-align: right;
-    padding-right: 0;
-    padding-left: 0;
+    padding-right: 0px;
+    padding-left: 0px;
     letter-spacing: 0.1em;
+}
+td.total {
+    text-align: right;
+    padding-left: 0px;
+    padding-right: 2vmin;
+}
+strong.score {
+    padding-right: 8px;
 }

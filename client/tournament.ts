@@ -93,18 +93,23 @@ export default class TournamentController {
     }
 
     renderPlayers(players) {
-        const rows = players.map(player => this.playerView(player));
+        const rows = players.map((player,index) => this.playerView(player, (this.page - 1) * 10 + index + 1));
         return rows;
     }
 
-    private playerView(player) {
+    private playerView(player, index) {
         return h('tr', { on: { click: () => this.onClickPlayer(player) } }, [
-            h('td', player.title),
-            h('td', player.name),
-            h('td', player.rating),
-            h('td.sheet', player.points.join('').padStart(30, '_')),
-            h('td', player.score),
-            h('td', player.perf),
+            h('td.rank', index),
+            h('td.player', [
+                h('span.title', player.title),
+                h('span.name', player.name),
+                h('span', player.rating),
+            ]),
+            h('td.sheet', player.points.join('')),
+            h('td.total', [
+                h('strong.score', player.score),
+                h('span.perf', player.perf)
+            ]),
         ]);
     }
 
@@ -121,7 +126,7 @@ export default class TournamentController {
 
         const oldPlayers = document.getElementById('players') as Element;
         oldPlayers.innerHTML = "";
-        patch(oldPlayers, h('table#players', this.renderPlayers(msg.players)));
+        patch(oldPlayers, h('table#players', [h('tbody', this.renderPlayers(msg.players))]));
     }
 
     private onMsgNewGame(msg) {
