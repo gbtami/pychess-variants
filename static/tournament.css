@@ -15,16 +15,58 @@
         grid-template-areas: 'side app app table' 'uleft blog blog utable';
     }
 }
-.players {
+.box {
+    background: var(--bg-color0);
+    box-shadow: var(--btn-shadow);
+}
+table#players {
     display: grid;
     grid-area: app;
+    width: 100%;
 }
-
+div.pager {
+    display: flex;
+    align-items: center;
+    flex-flow: row wrap;
+}
 span.page {
     align-self: center;
     padding: 3px;
 }
-
+.btn-controls {
+    display: flex;
+    position: relative;
+    background-color: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+}
+.btn-controls button {
+    flex: 1;
+    border: none;
+    padding: 0.6em 1em;
+    font-size:0.8em;
+    cursor: pointer;
+    background-color: var(--bg-color);
+}
+button#join {
+    position: absolute;
+    right: 5px;
+    top: -3px;
+    padding: 3px 20px;
+    border-radius: 8px;
+    border-bottom: 5px solid #759900;
+    color: white;
+    background-color: var(--green-hover);
+    font-size:1.6em;
+}
+table tr:nth-child(2n) {
+    background: var(--bg-color2);
+}
+table tr:hover {
+    background-color: var(--game-hover);
+}
+table td {
+    padding: 1rem;
+}
 .sheet {
     text-align: right;
     padding-right: 0;

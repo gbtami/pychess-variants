@@ -81,12 +81,14 @@ export default class TournamentController {
 
     renderButtons() {
         return h('div#page-controls.btn-controls', [
-            h('button.lobby-button', { on: { click: () => this.goToPage(1) } }, [ h('i.icon.icon-fast-backward') ]),
-            h('button.lobby-button', { on: { click: () => this.goToPage(this.page - 1) } }, [ h('i.icon.icon-step-backward') ]),
-            h('span.page', `${(this.page-1)*10 + 1} - ${Math.min((this.page)*10, this.nbPlayers)} / ${this.nbPlayers}`),
-            h('button.lobby-button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward') ]),
-            h('button.lobby-button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward') ]),
-            h('button.lobby-button', { on: { click: () => this.join() } }, _('Join')), // TODO: _('Sign in') _('Join') _('Withdraw') _('Pause')
+            h('div.pager', [
+                h('button', { on: { click: () => this.goToPage(1) } }, [ h('i.icon.icon-fast-backward') ]),
+                h('button', { on: { click: () => this.goToPage(this.page - 1) } }, [ h('i.icon.icon-step-backward') ]),
+                h('span.page', `${(this.page-1)*10 + 1} - ${Math.min((this.page)*10, this.nbPlayers)} / ${this.nbPlayers}`),
+                h('button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward') ]),
+                h('button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward') ]),
+            ]),
+            h('button#join', { on: { click: () => this.join() }, class: {"icon": true, "icon-play2": true} }, _('JOIN')), // TODO: _('SIGN IN') _('WITHDRAW') _('PAUSE')
         ]);
     }
 
@@ -197,7 +199,7 @@ export function tournamentView(model): VNode[] {
 
     return [
         h('aside.sidebar-first', [ h('div#lobbychat') ]),
-        h('div.players', [
+        h('div.players.box', [
             h('div#players-table', [
                 h('div#page-controls'),
                 h('div#players-wrapper', h('table#players', { hook: { insert: vnode => runTournament(vnode, model) } })),
