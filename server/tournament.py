@@ -244,8 +244,46 @@ class Tournament:
 
         return pairing
 
+    async def start_game(self, game):
+        await insert_game_to_db(game, self.app)
+
+        if self.app["db"] is not None:
+            doc = {
+                "_id": game.id,
+                "tid": self.id,
+                "us": [game.wplayer.username, game.bplayer.username],
+                "s": game.status,
+            }
+            await self.app["db"].tournament_pairing.insert_one(doc)
+
+        self.players[wp].games.append(game)
+        self.players[bp].games.append(game)
+
+        self.players[wp].points.append("*")
+        self.players[bp].points.append("*")
+
+        self.ongoing_games += 1
+
+        self.players[wp].free = False
+        self.players[bp].free = False
+
+        self.players[wp].nb_games += 1
+        self.players[bp].nb_games += 1
+
+        response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
+
+        if len(wp.tournament_sockets) > 0:
+            ws = next(iter(wp.tournament_sockets))
+            if ws is not None:
+                await ws.send_json(response)
+        if len(bp.tournament_sockets) > 0:
+            ws = next(iter(bp.tournament_sockets))
+            if ws is not None:
+                await ws.send_json(response)
+
     async def create_games(self, pairing):
         games = []
+        game_tasks = []
         game_table = None if self.app["db"] is None else self.app["db"].game
         for wp, bp in pairing:
             game_id = await new_id(game_table)
@@ -259,41 +297,10 @@ class Tournament:
 
             games.append(game)
             self.app["games"][game_id] = game
-            await insert_game_to_db(game, self.app)
+            game_tasks.append(self.start_game(game))
 
-            if self.app["db"] is not None:
-                doc = {
-                    "_id": game.id,
-                    "tid": self.id,
-                    "us": [game.wplayer.username, game.bplayer.username],
-                    "s": game.status,
-                }
-                await self.app["db"].tournament_pairing.insert_one(doc)
-
-            self.players[wp].games.append(game)
-            self.players[bp].games.append(game)
-
-            self.players[wp].points.append("*")
-            self.players[bp].points.append("*")
-
-            self.ongoing_games += 1
-
-            self.players[wp].free = False
-            self.players[bp].free = False
-
-            self.players[wp].nb_games += 1
-            self.players[bp].nb_games += 1
-
-            response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
-
-            if len(wp.tournament_sockets) > 0:
-                ws = next(iter(wp.tournament_sockets))
-                if ws is not None:
-                    await ws.send_json(response)
-            if len(bp.tournament_sockets) > 0:
-                ws = next(iter(bp.tournament_sockets))
-                if ws is not None:
-                    await ws.send_json(response)
+        g = asyncio.gather(game_tasks)
+        await g
 
         return games
 
