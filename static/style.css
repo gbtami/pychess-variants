@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'pychess';
-  src:  url('fonts/pychess.eot?eaail8');
-  src:  url('fonts/pychess.eot?eaail8#iefix') format('embedded-opentype'),
-    url('fonts/pychess.ttf?eaail8') format('truetype'),
-    url('fonts/pychess.woff?eaail8') format('woff'),
-    url('fonts/pychess.svg?eaail8#pychess') format('svg');
+  src:  url('fonts/pychess.eot?xacqh4');
+  src:  url('fonts/pychess.eot?xacqh4#iefix') format('embedded-opentype'),
+    url('fonts/pychess.ttf?xacqh4') format('truetype'),
+    url('fonts/pychess.woff?xacqh4') format('woff'),
+    url('fonts/pychess.svg?xacqh4#pychess') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -329,9 +329,15 @@
   content: "\1f431";
   color: #3771c8;
 }
-.icon-play3:before {
+.icon-fire:before {
+  content: "\e9a9";
+}
+.icon-target:before {
+  content: "\e9b3";
+}
+.icon-play:before {
   content: "\ea1c";
 }
-.icon-pause2:before {
+.icon-pause:before {
   content: "\ea1d";
 }

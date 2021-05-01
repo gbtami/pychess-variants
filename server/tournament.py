@@ -96,6 +96,7 @@ class Tournament:
                 "name": player.username,
                 "rating": self.players[player].rating,
                 "points": self.players[player].points,
+                "fire": self.players[player].win_streak,
                 "score": int(full_score / 100000),
                 "perf": self.players[player].performance
             }
@@ -285,6 +286,7 @@ class Tournament:
             self.players[bp].nb_games += 1
 
             response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
+            print(response)
 
             if len(wp.tournament_sockets) > 0:
                 ws = next(iter(wp.tournament_sockets))

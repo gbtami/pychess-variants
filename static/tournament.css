@@ -1,24 +1,49 @@
-.tournament {
+.tour {
     grid-area: main;
     display: grid;
     grid-gap: 2vmin;
 }
 @media (max-width: 799px) and (orientation: portrait) {
-    .tournament {
-        grid-template-areas: 'app' 'table' 'side' 'uleft' 'utable' 'blog';
+    .tour {
+        grid-template-areas: 'main' 'side' 'uchat' 'table';
     }
 }
 @media (min-width: 800px) {
-    .tournament {
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(2, fit-content(0));
-        grid-template-areas: 'side app app table' 'uleft blog blog utable';
+    .tour {
+        grid-template-columns: minmax(230px, 20vw) minmax(500px, calc( 100vh * .9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
+        grid-template-rows: calc(100vh - calc(var(--site-header-height) + var(--site-header-margin)) - 2vmin - 3rem) auto;
+        grid-template-areas: 'side main table' 'uchat main table';
     }
 }
-div.players.box {
-    grid-area: app;
+table#players {
+    grid-area: main;
+}
+.box {
     background: var(--bg-color0);
-    box-shadow: var(--btn-shadow);
+    box-shadow: var(--base-shadow);
+}
+div.tour-header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    min-height: 7em;
+    padding: 0 3vmin;
+}
+div.tour-header i {
+    font-size: 2.2rem;
+    color: var(--gold);
+    margin-right: 1rem;
+}
+div.tour-header h1 {
+    color: var(--gold);
+    font-size: 2.2rem;
+    font-weight: normal;
+    flex: 9 1 auto;
+    margin: 0;
+    overflow: hidden;
+}
+div.tour-header clock {
+    text-align: right;
 }
 table#players {
     width: 100%;
@@ -90,6 +115,10 @@ td.sheet {
     padding-right: 0px;
     padding-left: 0px;
     letter-spacing: 0.1em;
+}
+fire {
+    color: var(--gold);
+    margin-right: 2vim;
 }
 td.total {
     text-align: right;

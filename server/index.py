@@ -301,6 +301,15 @@ async def index(request):
 
     if tournamentId is not None:
         render["tournamentid"] = tournamentId
+        render["profile_title"] = tournament.name
+        render["variant"] = tournament.variant
+        render["chess960"] = tournament.chess960
+        render["rated"] = tournament.rated
+        render["base"] = tournament.base
+        render["inc"] = tournament.inc
+        render["byo"] = tournament.byoyomi_period
+        render["fen"] = tournament.fen
+        render["date"] = tournament.starts_at.date()
 
     if view == "level8win":
         render["level"] = 8

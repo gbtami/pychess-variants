@@ -16,6 +16,9 @@ import { JSONObject } from './types';
 import { _ } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { sound } from './sound';
+import { VARIANTS } from './chess';
+import { timeControlStr } from "./view";
+import { gameType } from './profile';
 
 
 export default class TournamentController {
@@ -68,15 +71,18 @@ export default class TournamentController {
     }
 
     goToPage(page) {
+        let newPage = page;
         if (page < 1) {
-            this.page = 1;
+            newPage = 1;
         } else {
             const x = Math.floor(this.nbPlayers / 10);
             const y = this.nbPlayers % 10;
             const lastPage = x + ((y > 0) ? 1 : 0);
-            this.page = (page > lastPage) ? lastPage : page;
+            newPage = (page > lastPage) ? lastPage : page;
         }
-        this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], "page": this.page });
+        if (newPage !== this.page) {
+            this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], "page": newPage });
+        }
     }
 
     renderButtons() {
@@ -88,7 +94,7 @@ export default class TournamentController {
                 h('button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward') ]),
                 h('button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward') ]),
             ]),
-            h('button#join', { on: { click: () => this.join() }, class: {"icon": true, "icon-play2": true} }, _('JOIN')), // TODO: _('SIGN IN') _('WITHDRAW') _('PAUSE')
+            h('button#join', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('JOIN')), // TODO: _('SIGN IN') _('WITHDRAW') _('PAUSE')
         ]);
     }
 
@@ -99,7 +105,7 @@ export default class TournamentController {
 
     private playerView(player, index) {
         return h('tr', { on: { click: () => this.onClickPlayer(player) } }, [
-            h('td.rank', index),
+            h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
                 h('span.name', player.name),
@@ -107,6 +113,7 @@ export default class TournamentController {
             ]),
             h('td.sheet', player.points.join('')),
             h('td.total', [
+                h('fire', [(player.fire === 2) ? h('i', {class: {"icon": true, "icon-fire": true} }) : '']),
                 h('strong.score', player.score),
                 h('span.perf', player.perf)
             ]),
@@ -126,7 +133,7 @@ export default class TournamentController {
 
         const oldPlayers = document.getElementById('players') as Element;
         oldPlayers.innerHTML = "";
-        patch(oldPlayers, h('table#players', [h('tbody', this.renderPlayers(msg.players))]));
+        patch(oldPlayers, h('table#players.box', [h('tbody', this.renderPlayers(msg.players))]));
     }
 
     private onMsgNewGame(msg) {
@@ -201,14 +208,41 @@ function runTournament(vnode: VNode, model) {
 }
 
 export function tournamentView(model): VNode[] {
+    const variant = VARIANTS[model.variant];
+    const chess960 = model.chess960 === 'True';
+    const dataIcon = variant.icon(chess960);
 
     return [
-        h('aside.sidebar-first', [ h('div#lobbychat') ]),
-        h('div.players.box', [
-            h('div#players-table', [
-                h('div#page-controls'),
-                h('div#players-wrapper', h('table#players', { hook: { insert: vnode => runTournament(vnode, model) } })),
+        h('aside.sidebar-first', [
+            h('div.game-info', [
+                h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
+                    h('div.info2', [
+                        h('div.tc', [
+                            timeControlStr(model["base"], model["inc"], model["byo"]) + " • ",
+                            h('a.user-link', {
+                                attrs: {
+                                    target: '_blank',
+                                    href: '/variant/' + model["variant"] + (chess960 ? '960': ''),
+                                }
+                            },
+                                variant.displayName(chess960)),
+                        ]),
+                        gameType(model["rated"]) + " • " + 'Arena'
+                    ]),
+                ]),
+                h('info-date', model["date"]),
             ]),
+            h('div#lobbychat')
+        ]),
+        h('div.players', [
+                h('div.tour-header.box', [
+                    h('i', {class: {"icon": true, "icon-trophy": true} }),
+                    h('h1', model["title"]),
+                    // TODO: 
+                    h('clock', model["date"])
+                ]),
+                h('div#page-controls'),
+                h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),
         ]),
         h('aside.sidebar-second', [ h('div#tournament-games') ]),
     ];

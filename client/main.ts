@@ -85,7 +85,7 @@ export function view(el, model): VNode {
     case 'editor':
         return h('div#main-wrap', editorView(model));
     case 'tournament':
-        return h('div#main-wrap', [h('main.tournament', tournamentView(model))]);
+        return h('div#main-wrap', [h('main.tour', tournamentView(model))]);
     case 'games':
         return h('div', renderGames());
     case 'paste':
