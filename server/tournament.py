@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED = range(4)
 ARENA, RR, SWISS = range(3)
 
+SCORE, STREAK, DOUBLE = range(1, 4)
+
 
 class EnoughPlayer(Exception):
     """ Raised when RR is already full """
@@ -303,33 +305,33 @@ class Tournament:
         wplayer = self.players[game.wplayer]
         bplayer = self.players[game.bplayer]
 
-        wpoint = 0
-        bpoint = 0
+        wpoint = (0, SCORE)
+        bpoint = (0, SCORE)
         wperf = game.black_rating.rating_prov[0]
         bperf = game.white_rating.rating_prov[0]
 
         if game.result == "1/2-1/2":
             if self.system == ARENA:
                 if game.board.ply > 10:
-                    wpoint = 2 if wplayer.win_streak == 2 else 1
-                    bpoint = 2 if bplayer.win_streak == 2 else 1
+                    wpoint = (2, SCORE) if wplayer.win_streak == 2 else (1, SCORE)
+                    bpoint = (2, SCORE) if bplayer.win_streak == 2 else (1, SCORE)
 
                 wplayer.win_streak = 0
                 bplayer.win_streak = 0
             else:
-                wpoint, bpoint = 0.5, 0.5
+                wpoint, bpoint = (0.5, SCORE), (0.5, SCORE)
 
         elif game.result == "1-0":
             if self.system == ARENA:
                 if wplayer.win_streak == 2:
-                    wpoint = 4
+                    wpoint = (4, DOUBLE)
                 else:
                     wplayer.win_streak += 1
-                    wpoint = 2
+                    wpoint = (2, STREAK if wplayer.win_streak == 2 else SCORE)
 
                 bplayer.win_streak = 0
             else:
-                wpoint = 1
+                wpoint = (1, SCORE)
 
             wperf += 500
             bperf -= 500
@@ -337,14 +339,14 @@ class Tournament:
         elif game.result == "0-1":
             if self.system == ARENA:
                 if bplayer.win_streak == 2:
-                    bpoint = 4
+                    bpoint = (4, DOUBLE)
                 else:
                     bplayer.win_streak += 1
-                    bpoint = 2
+                    bpoint = (2, STREAK if bplayer.win_streak == 2 else SCORE)
 
                 wplayer.win_streak = 0
             else:
-                bpoint = 1
+                bpoint = (1, SCORE)
 
             wperf -= 500
             bperf += 500
@@ -363,6 +365,10 @@ class Tournament:
 
         wplayer.points[-1] = wpoint
         bplayer.points[-1] = bpoint
+        if wpoint[1] == STREAK:
+            wplayer.points[-2] = (wplayer.points[-2][0], STREAK)
+        if bpoint[1] == STREAK:
+            bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
 
         wplayer.rating += game.wrdiff
         bplayer.rating += game.brdiff
@@ -374,10 +380,10 @@ class Tournament:
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
         wpscore = int(self.leaderboard.get(game.wplayer) / 100000)
-        self.leaderboard.update({game.wplayer: 100000 * (wpscore + wpoint) + wplayer.performance})
+        self.leaderboard.update({game.wplayer: 100000 * (wpscore + wpoint[0]) + wplayer.performance})
 
         bpscore = int(self.leaderboard.get(game.bplayer) / 100000)
-        self.leaderboard.update({game.bplayer: 100000 * (bpscore + bpoint) + bplayer.performance})
+        self.leaderboard.update({game.bplayer: 100000 * (bpscore + bpoint[0]) + bplayer.performance})
 
         self.ongoing_games -= 1
 

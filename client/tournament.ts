@@ -29,6 +29,12 @@ const localeOptions: Intl.DateTimeFormatOptions = {
     minute: 'numeric',
 };
 
+const scoreTagNames = ['score', 'streak', 'double'];
+
+function scoreTag(s) {
+  return h(scoreTagNames[(s[1] || 1) - 1], [Array.isArray(s) ? s[0] : s]);
+}
+
 
 export default class TournamentController {
     model;
@@ -120,7 +126,7 @@ export default class TournamentController {
                 h('span.name', player.name),
                 h('span', player.rating),
             ]),
-            h('td.sheet', player.points.join('')),
+            h('td.sheet', player.points.map(scoreTag)),
             h('td.total', [
                 h('fire', [(player.fire === 2) ? h('i', {class: {"icon": true, "icon-fire": true} }) : '']),
                 h('strong.score', player.score),

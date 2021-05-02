@@ -116,6 +116,18 @@ td.sheet {
     padding-left: 0px;
     letter-spacing: 0.1em;
 }
+td.sheet > * {
+    display: inline-block;
+}
+td.sheet score {
+    opacity: 0.7;
+}
+td.sheet streak {
+    color: var(--green-hover);
+}
+td.sheet double {
+    color: var(--gold);
+}
 fire {
     color: var(--gold);
     margin-right: 2vim;

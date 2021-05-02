@@ -48,9 +48,7 @@ class TestTournament(Tournament):
 
         for game in games:
             game.random_mover = True
-            self.game_tasks.add(self.play_random(game))
-
-        await asyncio.gather(*self.game_tasks)
+            self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
