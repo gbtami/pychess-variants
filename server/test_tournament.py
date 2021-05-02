@@ -16,6 +16,7 @@ from server import make_app
 from user import User
 from tournament import insert_tournament_to_db, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
 from utils import play_move
+from misc import timeit
 
 game_modul.MAX_PLY = 120
 
@@ -47,7 +48,9 @@ class TestTournament(Tournament):
 
         for game in games:
             game.random_mover = True
-            self.game_tasks.add(asyncio.create_task(self.play_random(game)))
+            self.game_tasks.add(self.play_random(game))
+
+        await asyncio.gather(*self.game_tasks)
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
@@ -71,6 +74,7 @@ class TestTournament(Tournament):
             player = self.leaderboard.peekitem(i)[0]
             print("--- #%s ---" % (i + 1), player.username)
 
+    @timeit
     async def play_random(self, game):
         """ Play random moves for TEST players """
         if self.system == ARENA:

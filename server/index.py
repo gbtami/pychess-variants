@@ -126,7 +126,7 @@ async def index(request):
         if tournament is None:
             return web.HTTPFound("/")
 
-        if request.path.endswith("/pause"):
+        if request.path.endswith("/pause") and user in tournament.players:
             tournament.pause(user)
 
     profileId = request.match_info.get("profileId")
@@ -309,7 +309,7 @@ async def index(request):
         render["inc"] = tournament.inc
         render["byo"] = tournament.byoyomi_period
         render["fen"] = tournament.fen
-        render["date"] = tournament.starts_at.date()
+        render["date"] = tournament.starts_at
 
     if view == "level8win":
         render["level"] = 8

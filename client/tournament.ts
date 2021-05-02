@@ -21,6 +21,15 @@ import { timeControlStr } from "./view";
 import { gameType } from './profile';
 
 
+const localeOptions: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+};
+
+
 export default class TournamentController {
     model;
     sock;
@@ -211,6 +220,7 @@ export function tournamentView(model): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
+    const serverDate = new Date(model["date"]);
 
     return [
         h('aside.sidebar-first', [
@@ -230,7 +240,7 @@ export function tournamentView(model): VNode[] {
                         gameType(model["rated"]) + " • " + 'Arena'
                     ]),
                 ]),
-                h('info-date', model["date"]),
+                h('info-date', serverDate.toLocaleString("default", localeOptions)),
             ]),
             h('div#lobbychat')
         ]),
@@ -239,7 +249,7 @@ export function tournamentView(model): VNode[] {
                     h('i', {class: {"icon": true, "icon-trophy": true} }),
                     h('h1', model["title"]),
                     // TODO: 
-                    h('clock', model["date"])
+                    h('clock', serverDate.toLocaleString("default", localeOptions))
                 ]),
                 h('div#page-controls'),
                 h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),
