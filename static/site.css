@@ -266,6 +266,7 @@ iframe {
 .seeks {
     display: grid;
     grid-area: app;
+    border-radius: 3px;
 }
 .seeks  [data-icon]:before {
     font-size: 20px;
@@ -780,6 +781,7 @@ button.newopp:hover,  button.analysis:hover {
     margin-bottom: 16px;
     padding: 12px;
     font-size: 14px;
+    border-radius: 3px;
 }
 
 div.info1.icon, div.info0.icon::before {
@@ -1461,6 +1463,7 @@ label {
     background: var(--bg-color0);
     box-shadow: var(--base-shadow);
     min-height: 15em;
+    border-radius: 3px;
 }
 
 user {

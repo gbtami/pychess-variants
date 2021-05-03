@@ -111,7 +111,7 @@ async def create_arena_test(app):
     await app["db"].tournament_leaderboard.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = TestTournament(app, tid, name="Test Arena", before_start=0.1, minutes=1)
+    tournament = TestTournament(app, tid, variant="minixiangqi", name="First Minixiangqi Arena", before_start=0.1, minutes=1)
     app["tournaments"][tid] = tournament
 
     await insert_tournament_to_db(tournament, app)

@@ -117,6 +117,37 @@ class Tournament:
             ]
         }
 
+    # TODO: cache this
+    def games_json(self, player_name, player_rank):
+        player = self.app["users"].get(player_name)
+
+        def game_json(player, game):
+            color = "w" if game.wplayer == player else "b"
+            opp_player = game.bplayer if color == "w" else game.wplayer
+            opp_rating = game.black_rating if color == "w" else game.white_rating
+            opp_rating, prov = opp_rating.rating_prov
+            return {
+                "gameId": game.id,
+                "oppname": opp_player.username,
+                "rating": opp_rating,
+                "prov": prov,
+                "color": color,
+                "result": game.result,
+            }
+
+        return {
+            "type": "get_games",
+            "rank": player_rank,
+            "title": player.title,
+            "name": player_name,
+            "perf": self.players[player].performance,
+            "games": [
+                game_json(player, game) for
+                game in
+                self.players[player].games
+            ]
+        }
+
     async def clock(self):
         while self.status != T_FINISHED:
             now = datetime.now(timezone.utc)
@@ -391,17 +422,6 @@ class Tournament:
         bplayer.free = True
 
         await lobby_broadcast(self.app["tourneysockets"], {"type": "game_update"})
-
-    def get_games(self, player):
-        for game in self.players[player].games:
-            if game is None:
-                print("-")
-            else:
-                color = "w" if game.wplayer == player else "b"
-                opp_player = game.bplayer if color == "w" else game.wplayer
-                opp_rating = game.black_rating if color == "w" else game.white_rating
-                opp_rating, prov = opp_rating.rating_prov
-                print(opp_player.username, opp_rating, prov, color, game.result)
 
     async def save(self):
         if len(self.leaderboard) == 0 or self.app["db"] is None:

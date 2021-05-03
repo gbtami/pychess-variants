@@ -45,7 +45,7 @@ div.tour-header h1 {
 div.tour-header clock {
     text-align: right;
 }
-table#players {
+table#players, table#games {
     width: 100%;
     border: none;
     border-collapse: collapse;
@@ -85,10 +85,13 @@ button#join {
     background-color: var(--green-hover);
     font-size:1.6em;
 }
-table tr:nth-child(2n) {
+table.players tr:nth-child(2n) {
     background: var(--bg-color2);
 }
-table tr:hover {
+table.pairings tr:nth-child(2n+1) {
+    background: var(--bg-color2);
+}
+table.players tr:hover, table.pairings tr:hover {
     background-color: var(--game-hover);
 }
 table td {
@@ -139,4 +142,64 @@ td.total {
 }
 strong.score {
     padding-right: 8px;
+}
+.player table th {
+    text-align: left;
+    font-size: 14px;
+    font-weight: normal;
+}
+.player table td {
+    padding: 0.3em;
+    font-size: 14px;
+}
+table.stats td {
+    padding: 0;
+    line-height: 1.8em;
+    text-align: right;
+}
+div.player {
+    position: relative;
+}
+div#stats {
+    display: flex;
+    flex-flow: column;
+}
+.close {
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    opacity: 0.6;
+    transition: all 150ms;
+    color: var(--bad);
+    background: none;
+    border-radius: 0;
+}
+.close:hover, .close:focus {
+    cursor: pointer;
+    opacity: 0.9;
+    color: var(--bad);
+    background: none;
+}
+#stats table {
+    margin: 1em auto;
+}
+#stats h2 {
+    background: linear-gradient(to bottom, var(--bg-meta) 0%, var(--bg-color2) 100%);
+    font-size: 1.4em;
+    font-family: 'Roboto', Sans-Serif;
+    padding: 0.6rem 1rem;
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+#stats tr {
+    vertical-align: middle;
+}
+td.result {
+    font-weight: bold;
+}
+.loss {
+    color: var(--bad);
+}
+.win {
+    color: var(--good);
 }

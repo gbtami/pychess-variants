@@ -44,6 +44,8 @@ export default class TournamentController {
     players;
     nbPlayers;
     page;
+    fc;
+    sc;
 
     constructor(el, model) {
         console.log("TournamentController constructor", el, model);
@@ -71,6 +73,10 @@ export default class TournamentController {
 
         const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
         this.sock = new Sockette(ws + location.host + "/wst", opts);
+
+        const variant = VARIANTS[this.model.variant];
+        this.fc = variant.firstColor;
+        this.sc = variant.secondColor;
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
@@ -119,7 +125,7 @@ export default class TournamentController {
     }
 
     private playerView(player, index) {
-        return h('tr', { on: { click: () => this.onClickPlayer(player) } }, [
+        return h('tr', { on: { click: () => this.onClickPlayer(player, index) } }, [
             h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
@@ -135,8 +141,79 @@ export default class TournamentController {
         ]);
     }
 
-    private onClickPlayer(player) {
-        console.log(player.name);
+    private onClickPlayer(player, index) {
+        this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player.name, rank: index });
+    }
+
+    renderGames(games) {
+        const rows = games.reverse().map((game, index) => this.gameView(game, games.length - index));
+        return rows;
+    }
+
+    result(result, color) {
+        let value = '-';
+        switch (result) {
+        case '1-0':
+            value = (color === 'w') ? '1' : '0';
+            break;
+        case '0-1':
+            value = (color === 'b') ? '1' : '0';
+            break;
+        case '1/2-1/2':
+            value = '½';
+            break;
+        }
+        const klass = (value === '1') ? '.win' : (value === '0') ? '.loss' : '';
+        return h(`td.result${klass}`, value);
+    }
+
+    private gameView(game, index) {
+        const color = (game.color === 'w') ? this.fc : this.sc;
+        return h('tr', [
+            h('td.index', index),
+            h('td.player', game.oppname),
+            h('td.rating', game.rating),
+            h('td.color', [
+                h('i-side.icon', {
+                    class: {
+                        "icon-white": color === "White",
+                        "icon-black": color === "Black",
+                        "icon-red":   color === "Red",
+                        "icon-blue":  color === "Blue",
+                        "icon-gold":  color === "Gold",
+                        "icon-pink":  color === "Pink",
+                    }
+                }),
+            ]),
+            this.result(game.result, game.color),
+        ]);
+    }
+
+    renderStats(msg) {
+        return [
+            h('a.close', { attrs: { 'data-icon': 'j' } }),
+            h('h2', [
+                h('rank', msg.rank + '. '),
+                h('a.user-link', { attrs: { href: '/@/' + msg.name } }, [h('player-title', " " + msg.title), msg.name]),
+            ]),
+            h('table.stats', [
+                h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
+                h('tr', [h('th', _('Games played')), h('td', msg.games.length)]),
+                // TODO
+                h('tr', [h('th', _('Win rate')), h('td', 0)]),
+                h('tr', [h('th', _('Average opponent')), h('td', 0)]),
+            ]),
+        ];
+    }
+
+    private onMsgGetGames(msg) {
+        const oldStats = document.getElementById('stats') as Element;
+        oldStats.innerHTML = "";
+        patch(oldStats, h('div#stats.box', [h('tbody', this.renderStats(msg))]));
+
+        const oldGames = document.getElementById('games') as Element;
+        oldGames.innerHTML = "";
+        patch(oldGames, h('table#games.pairings.box', [h('tbody', this.renderGames(msg.games))]));
     }
 
     private onMsgGetPlayers(msg) {
@@ -148,7 +225,7 @@ export default class TournamentController {
 
         const oldPlayers = document.getElementById('players') as Element;
         oldPlayers.innerHTML = "";
-        patch(oldPlayers, h('table#players.box', [h('tbody', this.renderPlayers(msg.players))]));
+        patch(oldPlayers, h('table#players.players.box', [h('tbody', this.renderPlayers(msg.players))]));
     }
 
     private onMsgNewGame(msg) {
@@ -196,6 +273,9 @@ export default class TournamentController {
                 break;
             case "game_update":
                 this.onMsgGameUpdate();
+                break;
+            case "get_games":
+                this.onMsgGetGames(msg);
                 break;
             case "tournament_user_connected":
                 this.onMsgUserConnected(msg);
@@ -260,6 +340,9 @@ export function tournamentView(model): VNode[] {
                 h('div#page-controls'),
                 h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),
         ]),
-        h('aside.sidebar-second', [ h('div#tournament-games') ]),
+        h('div.player', [
+                h('div#stats.box'),
+                h('table#games.box'),
+        ]),
     ];
 }
