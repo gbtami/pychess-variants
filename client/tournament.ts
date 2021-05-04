@@ -151,7 +151,7 @@ export default class TournamentController {
     }
 
     result(result, color) {
-        let value = '-';
+        let value = '*';
         switch (result) {
         case '1-0':
             value = (color === 'w') ? '1' : '0';
@@ -169,7 +169,7 @@ export default class TournamentController {
 
     private gameView(game, index) {
         const color = (game.color === 'w') ? this.fc : this.sc;
-        return h('tr', [
+        return h('tr', { on: { click: () => { window.open('/' + game.gameId, '_blank', 'noopener'); }}}, [
             h('td.index', index),
             h('td.player', game.oppname),
             h('td.rating', game.rating),
