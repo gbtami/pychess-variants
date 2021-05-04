@@ -101,8 +101,7 @@ class TestTournament(Tournament):
                         "movetime": 0
                     }
                     await play_move(self.app, cur_player, game, move, clocks=clocks)
-            else:
-                await asyncio.sleep(1)
+            await asyncio.sleep(0)
 
 
 async def create_arena_test(app):
