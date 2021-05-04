@@ -30,7 +30,8 @@ class TestTournament(Tournament):
         self.game_tasks = set()
 
         for i in range(nb_players):
-            player = User(self.app, username="player%s" % i, title="TEST", perfs=PERFS)
+            name = (id8() + id8())[:random.randint(1, 16)]
+            player = User(self.app, username=name, title="TEST", perfs=PERFS)
             self.app["users"][player.username] = player
             player.tournament_sockets.add(None)
             self.join(player)

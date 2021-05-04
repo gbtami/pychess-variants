@@ -128,7 +128,8 @@ class Tournament:
             opp_rating, prov = opp_rating.rating_prov
             return {
                 "gameId": game.id,
-                "oppname": opp_player.username,
+                "title": opp_player.title,
+                "name": opp_player.username,
                 "rating": opp_rating,
                 "prov": prov,
                 "color": color,

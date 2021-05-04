@@ -35,7 +35,6 @@ function scoreTag(s) {
   return h(scoreTagNames[(s[1] || 1) - 1], [Array.isArray(s) ? s[0] : s]);
 }
 
-
 export default class TournamentController {
     model;
     sock;
@@ -170,10 +169,13 @@ export default class TournamentController {
     private gameView(game, index) {
         const color = (game.color === 'w') ? this.fc : this.sc;
         return h('tr', { on: { click: () => { window.open('/' + game.gameId, '_blank', 'noopener'); }}}, [
-            h('td.index', index),
-            h('td.player', game.oppname),
-            h('td.rating', game.rating),
-            h('td.color', [
+            h('th', index),
+            h('td.player', [
+                h('span.title', game.title),
+                h('span.name', game.name),
+            ]),
+            h('td', game.rating),
+            h('td', [
                 h('i-side.icon', {
                     class: {
                         "icon-white": color === "White",
@@ -190,6 +192,15 @@ export default class TournamentController {
     }
 
     renderStats(msg) {
+        const gamesLen = msg.games.length;
+        const avgOp = gamesLen
+            ? Math.round(
+                msg.games.reduce(function (a, b) {
+                    return a + b.rating;
+                }, 0) / gamesLen
+            )
+            : undefined;
+
         return [
             h('a.close', { attrs: { 'data-icon': 'j' } }),
             h('h2', [
@@ -201,7 +212,7 @@ export default class TournamentController {
                 h('tr', [h('th', _('Games played')), h('td', msg.games.length)]),
                 // TODO
                 h('tr', [h('th', _('Win rate')), h('td', 0)]),
-                h('tr', [h('th', _('Average opponent')), h('td', 0)]),
+                h('tr', [h('th', _('Average opponent')), h('td', avgOp)]),
             ]),
         ];
     }

@@ -85,6 +85,9 @@ button#join {
     background-color: var(--green-hover);
     font-size:1.6em;
 }
+table.players tr {
+    cursor: pointer;
+}
 table.players tr:nth-child(2n) {
     background: var(--bg-color2);
 }
@@ -152,8 +155,17 @@ strong.score {
     padding: 0.3em;
     font-size: 14px;
 }
+table.pairings tr {
+    cursor: pointer;
+}
+table.pairings th {
+    padding: 0.3em;
+    border: 0;
+    border-left: 3px solid var(--bg-color0);
+}
 table.stats td {
     padding: 0;
+    padding-left: 10px;
     line-height: 1.8em;
     text-align: right;
 }
