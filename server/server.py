@@ -169,11 +169,6 @@ async def init_state(app):
     if app["db"] is None:
         return
 
-    # create test tournament
-    if 1:
-        from test_tournament import create_arena_test
-        await create_arena_test(app)
-
     # Read users and highscore from db
     try:
         cursor = app["db"].user.find()
@@ -218,6 +213,14 @@ async def init_state(app):
     except Exception:
         print("Maybe mongodb is not running...")
         raise
+
+    # create test tournament
+    if 1:
+        from first_janggi_tournament import add_games
+        await add_games(app)
+
+        # from test_tournament import create_arena_test
+        # await create_arena_test(app)
 
 
 async def shutdown(app):

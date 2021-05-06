@@ -199,8 +199,8 @@ export default class TournamentController {
                     return a + b.rating;
                 }, 0) / gamesLen
             )
-            : undefined;
-
+            : 0;
+        const winRate = ((msg.nbGames !== 0) ? Math.round(100 * (msg.nbWin / msg.nbGames)) : 0) + '%';
         return [
             h('a.close', { attrs: { 'data-icon': 'j' } }),
             h('h2', [
@@ -210,8 +210,7 @@ export default class TournamentController {
             h('table.stats', [
                 h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
                 h('tr', [h('th', _('Games played')), h('td', msg.games.length)]),
-                // TODO
-                h('tr', [h('th', _('Win rate')), h('td', 0)]),
+                h('tr', [h('th', _('Win rate')), h('td', winRate)]),
                 h('tr', [h('th', _('Average opponent')), h('td', avgOp)]),
             ]),
         ];

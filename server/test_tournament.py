@@ -40,7 +40,7 @@ class TestTournament(Tournament):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
         print("--- new pairings at %s ---" % now)
         self.print_leaderboard()
-        pairing, games = await Tournament.create_new_pairing(self)
+        pairing, games = await Tournament.create_new_pairings(self)
 
         # aouto play test games
         # for wp, bp in pairing:

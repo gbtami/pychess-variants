@@ -10,7 +10,7 @@ from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
 from compress import C2V, V2C
-from const import CASUAL, RATED
+from const import CASUAL, RATED, VARIANTEND
 from game import Game
 from newid import new_id
 from rr import BERGER_TABLES
@@ -18,7 +18,7 @@ from utils import insert_game_to_db
 
 log = logging.getLogger(__name__)
 
-T_CREATED, T_STARTED, T_ABORTED, T_FINISHED = range(4)
+T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
 ARENA, RR, SWISS = range(3)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
@@ -30,7 +30,7 @@ class EnoughPlayer(Exception):
 
 
 class Player:
-    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "performance"
+    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "performance"
 
     def __init__(self, rating, provisional):
         self.rating = rating
@@ -41,15 +41,16 @@ class Player:
         self.games = []
         self.points = []
         self.nb_games = 0
+        self.nb_win = 0
         self.performance = 0
 
     def __str__(self):
-        return self.points.join(" ")
+        return (" ").join(self.points)
 
 
 class Tournament:
 
-    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=RATED, before_start=5, minutes=45, name="", fen="", base=1, inc=0, byoyomi_period=0, system=ARENA, rounds=0, created_by=""):
+    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=RATED, before_start=5, minutes=45, name="", fen="", base=1, inc=0, byoyomi_period=0, system=ARENA, rounds=0, created_by="", created_at=None, status=None):
         self.app = app
         self.id = tournamentId
         self.name = name
@@ -66,7 +67,7 @@ class Tournament:
         self.rounds = rounds
 
         self.created_by = created_by
-        self.created_at = datetime.now(timezone.utc)
+        self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
         self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
 
         # TODO: calculate wave from TC, variant, number of players
@@ -78,7 +79,7 @@ class Tournament:
         self.spectators = set()
         self.players = {}
         self.leaderboard = ValueSortedDict(neg)
-        self.status = T_CREATED
+        self.status = T_CREATED if status is None else status
         self.ongoing_games = 0
         self.nb_players = 0
 
@@ -142,6 +143,8 @@ class Tournament:
             "title": player.title,
             "name": player_name,
             "perf": self.players[player].performance,
+            "nbGames": self.players[player].nb_games,
+            "nbWin": self.players[player].nb_win,
             "games": [
                 game_json(player, game) for
                 game in
@@ -150,7 +153,7 @@ class Tournament:
         }
 
     async def clock(self):
-        while self.status != T_FINISHED:
+        while self.status not in (T_FINISHED, T_ARCHIVED):
             now = datetime.now(timezone.utc)
 
             if self.status == T_CREATED and now >= self.starts_at:
@@ -227,7 +230,7 @@ class Tournament:
     def spactator_leave(self, spectator):
         self.spectators.remove(spectator)
 
-    async def create_new_pairing(self):
+    async def create_new_pairings(self):
         pairing = self.create_pairing()
         games = await self.create_games(pairing)
         return (pairing, games)
@@ -354,6 +357,8 @@ class Tournament:
                 wpoint, bpoint = (0.5, SCORE), (0.5, SCORE)
 
         elif game.result == "1-0":
+            wplayer.nb_win += 1
+
             if self.system == ARENA:
                 if wplayer.win_streak == 2:
                     wpoint = (4, DOUBLE)
@@ -363,12 +368,18 @@ class Tournament:
 
                 bplayer.win_streak = 0
             else:
-                wpoint = (1, SCORE)
+                if game.variant == "janggi":
+                    wpoint = (4 if game.status == VARIANTEND else 7, SCORE)
+                    bpoint = (4 if game.status == VARIANTEND else 0, SCORE)
+                else:
+                    wpoint = (1, SCORE)
 
             wperf += 500
             bperf -= 500
 
         elif game.result == "0-1":
+            bplayer.nb_win += 1
+
             if self.system == ARENA:
                 if bplayer.win_streak == 2:
                     bpoint = (4, DOUBLE)
@@ -378,7 +389,11 @@ class Tournament:
 
                 wplayer.win_streak = 0
             else:
-                bpoint = (1, SCORE)
+                if game.variant == "janggi":
+                    wpoint = (2 if game.status == VARIANTEND else 0, SCORE)
+                    bpoint = (4 if game.status == VARIANTEND else 7, SCORE)
+                else:
+                    bpoint = (1, SCORE)
 
             wperf -= 500
             bperf += 500
@@ -387,7 +402,7 @@ class Tournament:
 
     async def game_update(self, game):
         """ Called from Game.update_status() """
-        if self.status == T_FINISHED:
+        if self.status == T_FINISHED and self.status != T_ARCHIVED:
             return
 
         wplayer = self.players[game.wplayer]
@@ -402,8 +417,8 @@ class Tournament:
         if bpoint[1] == STREAK:
             bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
 
-        wplayer.rating += game.wrdiff
-        bplayer.rating += game.brdiff
+        wplayer.rating += int(game.wrdiff) if game.wrdiff else 0
+        bplayer.rating += int(game.brdiff) if game.brdiff else 0
 
         nb = wplayer.nb_games
         wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
@@ -478,7 +493,10 @@ class Tournament:
 
 
 async def new_tournament(app, data):
-    tid = await new_id(app["db"].tournament)
+    if "tid" not in data:
+        tid = await new_id(app["db"].tournament)
+    else:
+        tid = data["tid"]
 
     tournament = Tournament(
         app, tid,
@@ -495,11 +513,13 @@ async def new_tournament(app, data):
         before_start=data["beforeStart"],
         minutes=data["minutes"],
         name=data["name"],
+        created_at=data.get("createdAt"),
+        status=data.get("status")
     )
 
     app["tournaments"][tid] = tournament
 
-    insert_tournament_to_db(tournament, app)
+    await insert_tournament_to_db(tournament, app)
 
     return {"type": "new_tournament", "tournamentId": tid}
 
@@ -527,7 +547,7 @@ async def insert_tournament_to_db(tournament, app):
         "createdBy": tournament.created_by,
         "cretaedAt": tournament.created_at,
         "startsAt": tournament.starts_at,
-        "status": T_CREATED,
+        "status": tournament.status,
     }
 
     result = await app["db"].tournament.insert_one(document)
@@ -561,11 +581,9 @@ async def load_tournament(app, tournament_id):
         created_by=doc["createdBy"],
         minutes=doc["minutes"],
         name=doc["name"],
+        status=doc["status"],
     )
 
-    tournament.created_at = doc["createdAt"],
-    tournament.starts_at = doc["startsAt"],
-    tournament.status = doc["status"]
     tournament.nb_players = doc["nbPlayers"]
     tournament.winner = doc["winner"]
 

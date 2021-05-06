@@ -12,6 +12,7 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
+from glicko2.glicko2 import gl2
 from broadcast import round_broadcast
 from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
     UNKNOWNFINISH, CASUAL, RATED, IMPORTED
@@ -214,6 +215,9 @@ async def load_game(app, game_id, user=None):
     except KeyError:
         game.wrating = "1500?"
         game.brating = "1500?"
+
+    game.white_rating = gl2.create_rating(int(game.wrating.rstrip("?")))
+    game.black_rating = gl2.create_rating(int(game.brating.rstrip("?")))
 
     try:
         game.wrdiff = doc["p0"]["d"]
@@ -439,7 +443,8 @@ async def insert_game_to_db(game, app):
         document["uci"] = 1
 
     result = await app["db"].game.insert_one(document)
-    # print("db insert game result %s" % repr(result.inserted_id))
+    if not result:
+        log.error("db insert game result %s failed !!!", game.id)
 
     app["tv"] = game.id
     game.wplayer.tv = game.id
