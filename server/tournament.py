@@ -10,7 +10,7 @@ from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
 from compress import C2V, V2C
-from const import CASUAL, RATED, VARIANTEND
+from const import CASUAL, RATED, CREATED, STARTED, VARIANTEND
 from game import Game
 from newid import new_id
 from rr import BERGER_TABLES
@@ -19,6 +19,7 @@ from utils import insert_game_to_db
 log = logging.getLogger(__name__)
 
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
+
 ARENA, RR, SWISS = range(3)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
@@ -90,6 +91,12 @@ class Tournament:
 
         self.clock_task = asyncio.create_task(self.clock())
 
+    def user_status(self, user):
+        if user in self.players:
+            return "paused" if self.players[user].paused else "joined"
+        else:
+            return "spectator"
+
     # TODO: cache this
     def players_json(self, page=1):
         def player_json(player, full_score):
@@ -105,7 +112,7 @@ class Tournament:
             }
 
         start = (page - 1) * 10
-        end = start + 10
+        end = min(start + 10, self.nb_players)
 
         return {
             "type": "get_players",
@@ -119,7 +126,7 @@ class Tournament:
         }
 
     # TODO: cache this
-    def games_json(self, player_name, player_rank):
+    def games_json(self, player_name):
         player = self.app["users"].get(player_name)
 
         def game_json(player, game):
@@ -139,7 +146,7 @@ class Tournament:
 
         return {
             "type": "get_games",
-            "rank": player_rank,
+            "rank": self.leaderboard.index(player) + 1,
             "title": player.title,
             "name": player_name,
             "perf": self.players[player].performance,
@@ -158,6 +165,7 @@ class Tournament:
 
             if self.status == T_CREATED and now >= self.starts_at:
                 self.status = T_STARTED
+                await lobby_broadcast(self.app["tourneysockets"], {"type": "tstatus", "tstatus": self.status})
 
                 # force first pairing wave in arena
                 if self.system == ARENA:
@@ -189,12 +197,13 @@ class Tournament:
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
-            if not self.players[player].free:
+            latest = self.players[player].games[-1]
+            if latest and latest.status in (CREATED, STARTED):
                 self.players[player].games.pop()
                 self.players[player].points.pop()
                 self.players[player].nb_games -= 1
 
-        await lobby_broadcast(self.app["tourneysockets"], {"type": "finished"})
+        await lobby_broadcast(self.app["tourneysockets"], {"type": "tstatus", "tstatus": self.status})
 
         await self.save()
 
@@ -323,7 +332,6 @@ class Tournament:
             self.players[bp].nb_games += 1
 
             response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
-            print(response)
 
             if len(wp.tournament_sockets) > 0:
                 ws = next(iter(wp.tournament_sockets))
@@ -437,7 +445,11 @@ class Tournament:
         wplayer.free = True
         bplayer.free = True
 
-        await lobby_broadcast(self.app["tourneysockets"], {"type": "game_update"})
+        await lobby_broadcast(self.app["tourneysockets"], {
+            "type": "game_update",
+            "wname": game.wplayer.username,
+            "bname": game.bplayer.username
+        })
 
     async def save(self):
         if len(self.leaderboard) == 0 or self.app["db"] is None:

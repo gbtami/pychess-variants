@@ -21,6 +21,14 @@ import { timeControlStr } from "./view";
 import { gameType } from './profile';
 
 
+const T_STATUS = {
+    0: "created",
+    1: "started",
+    2: "aborted",
+    3: "finished",
+    4: "archived",
+}
+
 const localeOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'short',
@@ -43,20 +51,26 @@ export default class TournamentController {
     players;
     nbPlayers;
     page;
+    tournamentStatus;
+    userStatus;
+    action;
     fc;
     sc;
+    visitedPlayer;
 
     constructor(el, model) {
         console.log("TournamentController constructor", el, model);
         this.model = model;
         this.nbPlayers = 0;
         this.page = 1;
+        this.tournamentStatus = T_STATUS[model["status"]];
+        this.visitedPlayer = '';
 
         const onOpen = (evt) => {
             this._ws = evt.target;
             console.log('onOpen()');
-            this.doSend({ type: "tournament_user_connected", username: this.model["username"], "tournamentId": this.model["tournamentId"]});
-            this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], "page": this.page });
+            this.doSend({ type: "tournament_user_connected", username: this.model["username"], tournamentId: this.model["tournamentId"]});
+            this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
 
         this._ws = { "readyState": -1 };
@@ -86,10 +100,6 @@ export default class TournamentController {
         this.sock.send(JSON.stringify(message));
     }
 
-    join() {
-        this.doSend({ type: "join", "tournamentId": this.model["tournamentId"] });
-    }
-
     goToPage(page) {
         let newPage = page;
         if (page < 1) {
@@ -105,17 +115,55 @@ export default class TournamentController {
         }
     }
 
+    join() {
+        this.doSend({ type: "join", "tournamentId": this.model["tournamentId"] });
+    }
+
+    pause() {
+        this.doSend({ type: "pause", "tournamentId": this.model["tournamentId"] });
+    }
+
+    withdraw() {
+        this.doSend({ type: "withdraw", "tournamentId": this.model["tournamentId"] });
+    }
+
     renderButtons() {
         return h('div#page-controls.btn-controls', [
             h('div.pager', [
                 h('button', { on: { click: () => this.goToPage(1) } }, [ h('i.icon.icon-fast-backward') ]),
                 h('button', { on: { click: () => this.goToPage(this.page - 1) } }, [ h('i.icon.icon-step-backward') ]),
+                 // TODO: update
                 h('span.page', `${(this.page-1)*10 + 1} - ${Math.min((this.page)*10, this.nbPlayers)} / ${this.nbPlayers}`),
                 h('button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward') ]),
                 h('button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward') ]),
             ]),
-            h('button#join', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('JOIN')), // TODO: _('SIGN IN') _('WITHDRAW') _('PAUSE')
+            h('div#action'),
         ]);
+    }
+
+    updateActionButton() {
+        let button = h('div#action');
+        switch (this.tournamentStatus) {
+        case 'created':
+            if (this.userStatus === 'joined') {
+                button = h('button#action', { on: { click: () => this.withdraw() }, class: {"icon": true, "icon-flag-o": true} }, _('WITHDRAW'));
+            } else {
+                button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('JOIN'));
+            }
+            break;
+        case 'started':
+            if ('spectator|paused'.includes(this.userStatus)) {
+                button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('JOIN'));
+            } else {
+                button = h('button#action', { on: { click: () => this.pause() }, class: {"icon": true, "icon-pause": true} }, _('PAUSE'));
+            }
+            break;
+        }
+        if (this.model["anon"] === 'True' && 'created|started'.includes(this.tournamentStatus)) {
+            button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('SIGN IN'));
+        }
+        console.log("updateActionButton()", this.tournamentStatus, button);
+        this.action = patch(document.getElementById('action') as HTMLElement, button);
     }
 
     renderPlayers(players) {
@@ -124,7 +172,10 @@ export default class TournamentController {
     }
 
     private playerView(player, index) {
-        return h('tr', { on: { click: () => this.onClickPlayer(player, index) } }, [
+        if (player.name === this.visitedPlayer) {
+            this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: this.visitedPlayer });
+        }
+        return h('tr', { on: { click: () => this.onClickPlayer(player) } }, [
             h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
@@ -140,8 +191,8 @@ export default class TournamentController {
         ]);
     }
 
-    private onClickPlayer(player, index) {
-        this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player.name, rank: index });
+    private onClickPlayer(player) {
+        this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player.name });
     }
 
     renderGames(games) {
@@ -205,7 +256,7 @@ export default class TournamentController {
             h('a.close', { attrs: { 'data-icon': 'j' } }),
             h('h2', [
                 h('rank', msg.rank + '. '),
-                h('a.user-link', { attrs: { href: '/@/' + msg.name } }, [h('player-title', " " + msg.title), msg.name]),
+                h('a.user-link', { attrs: { href: '/@/' + msg.name } }, [h('player-title', " " + msg.title + " "), msg.name]),
             ]),
             h('table.stats', [
                 h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
@@ -217,6 +268,8 @@ export default class TournamentController {
     }
 
     private onMsgGetGames(msg) {
+        this.visitedPlayer = msg.name;
+
         const oldStats = document.getElementById('stats') as Element;
         oldStats.innerHTML = "";
         patch(oldStats, h('div#stats.box', [h('tbody', this.renderStats(msg))]));
@@ -230,7 +283,6 @@ export default class TournamentController {
         this.players = msg.players;
         this.page = msg.page;
         this.nbPlayers = msg.nbPlayers;
-        console.log("!!!! got get_players msg:", msg);
         this.buttons = patch(this.buttons, this.renderButtons());
 
         const oldPlayers = document.getElementById('players') as Element;
@@ -243,11 +295,27 @@ export default class TournamentController {
     }
 
     private onMsgGameUpdate() {
-        this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], "page": this.page });
+        this.doSend({ type: "get_players", tournamentId: this.model["tournamentId"], page: this.page });
     }
 
     private onMsgUserConnected(msg) {
         this.model.username = msg.username;
+        this.tournamentStatus = T_STATUS[msg.tstatus];
+        this.userStatus = msg.ustatus;
+        this.updateActionButton()
+    }
+
+    private onMsgUserStatus(msg) {
+        this.userStatus = msg.ustatus;
+        this.updateActionButton()
+    }
+
+    private onMsgTournamentStatus(msg) {
+        this.tournamentStatus = T_STATUS[msg.tstatus];
+        this.updateActionButton()
+        if ('finished|archived'.includes(this.tournamentStatus)) {
+            this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
+        }
     }
 
     private onMsgChat(msg) {
@@ -260,7 +328,6 @@ export default class TournamentController {
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        // console.log("NEW FULL MESSAGES");
         msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat"));
     }
 
@@ -272,9 +339,15 @@ export default class TournamentController {
     }
 
     onMessage(evt) {
-        // console.log("<+++ tournament onMessage():", evt.data);
+        console.log("<+++ tournament onMessage():", evt.data);
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
+            case "ustatus":
+                this.onMsgUserStatus(msg);
+                break;
+            case "tstatus":
+                this.onMsgTournamentStatus(msg);
+                break;
             case "get_players":
                 this.onMsgGetPlayers(msg);
                 break;

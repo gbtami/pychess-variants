@@ -16,7 +16,7 @@ from server import make_app
 from user import User
 from tournament import insert_tournament_to_db, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
 from utils import play_move
-from misc import timeit
+# from misc import timeit
 
 game_modul.MAX_PLY = 120
 
@@ -73,7 +73,7 @@ class TestTournament(Tournament):
             player = self.leaderboard.peekitem(i)[0]
             print("--- #%s ---" % (i + 1), player.username)
 
-    @timeit
+    # @timeit
     async def play_random(self, game):
         """ Play random moves for TEST players """
         if self.system == ARENA:
@@ -111,7 +111,7 @@ async def create_arena_test(app):
     await app["db"].tournament_leaderboard.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = TestTournament(app, tid, variant="minixiangqi", name="First Minixiangqi Arena", before_start=0.1, minutes=1)
+    tournament = TestTournament(app, tid, variant="minixiangqi", name="First Minixiangqi Arena", before_start=1, minutes=1)
     app["tournaments"][tid] = tournament
 
     await insert_tournament_to_db(tournament, app)

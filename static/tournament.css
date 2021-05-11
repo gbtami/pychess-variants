@@ -74,7 +74,7 @@ span.page {
     cursor: pointer;
     background-color: var(--bg-color);
 }
-button#join {
+button#action {
     position: absolute;
     right: 5px;
     top: -3px;

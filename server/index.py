@@ -310,6 +310,7 @@ async def index(request):
         render["byo"] = tournament.byoyomi_period
         render["fen"] = tournament.fen
         render["date"] = tournament.starts_at
+        render["status"] = tournament.status
 
     if view == "level8win":
         render["level"] = 8

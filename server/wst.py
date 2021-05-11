@@ -58,14 +58,17 @@ async def tournament_socket_handler(request):
                     if data["type"] == "get_games":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            response = tournament.games_json(data["player"], data["rank"])
+                            response = tournament.games_json(data["player"])
                             await ws.send_json(response)
 
                     elif data["type"] == "join":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             tournament.join(user)
-                            response = tournament.players_json()
+                            response = tournament.players_json((tournament.leaderboard.index(user) + 1) // 10)
+                            await ws.send_json(response)
+
+                            response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)
 
                     elif data["type"] == "pause":
@@ -75,11 +78,17 @@ async def tournament_socket_handler(request):
                             response = tournament.players_json()
                             await ws.send_json(response)
 
+                            response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
+                            await ws.send_json(response)
+
                     elif data["type"] == "withdraw":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             tournament.withdraw(user)
                             response = tournament.players_json()
+                            await ws.send_json(response)
+
+                            response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)
 
                     elif data["type"] == "tournament_user_connected":
@@ -116,12 +125,7 @@ async def tournament_socket_handler(request):
 
                         sockets[user.username] = user.tournament_sockets
 
-                        if user in tournament.players:
-                            user_status = "paused" if tournament.players[user].paused else "joined"
-                        else:
-                            user_status = "spectator"
-
-                        response = {"type": "tournament_user_connected", "username": user.username, "tStatus": tournament.status, "uStatus": user_status}
+                        response = {"type": "tournament_user_connected", "username": user.username, "tstatus": tournament.status, "ustatus": tournament.user_status(user)}
                         await ws.send_json(response)
 
                         response = {"type": "fullchat", "lines": list(request.app["chat"])}
