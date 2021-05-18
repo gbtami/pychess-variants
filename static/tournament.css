@@ -215,3 +215,22 @@ td.result {
 .win {
     color: var(--good);
 }
+
+.shy {
+    font-size: 0.9em;
+    font-weight: bold;
+    opacity: 0.6;
+    text-align: right;
+}
+#clockdiv {
+    display: flex;
+    flex-flow: column;
+}
+#clock {
+    font-family: 'Roboto', Sans-Serif;
+    color: var(--font-color);
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.5em;
+}

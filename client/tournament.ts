@@ -18,6 +18,7 @@ import { chatMessage, chatView } from './chat';
 import { sound } from './sound';
 import { VARIANTS } from './chess';
 import { timeControlStr } from "./view";
+import { initializeClock, localeOptions } from './datetime';
 import { gameType } from './profile';
 
 
@@ -29,14 +30,6 @@ const T_STATUS = {
     4: "archived",
 }
 
-const localeOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-};
-
 const scoreTagNames = ['score', 'streak', 'double'];
 
 function scoreTag(s) {
@@ -47,16 +40,20 @@ export default class TournamentController {
     model;
     sock;
     _ws;
-    buttons;
-    players;
-    nbPlayers;
-    page;
-    tournamentStatus;
-    userStatus;
-    action;
-    fc;
-    sc;
-    visitedPlayer;
+    buttons: VNode;
+    players: string[];
+    nbPlayers: number;
+    page: number;
+    tournamentStatus: string;
+    userStatus: string;
+    action: VNode;
+    clockdiv: VNode;
+    fc: string;
+    sc: string;
+    startsAt: string;
+    visitedPlayer: string;
+    secondsToStart: number;
+    secondsToFinish: number;
 
     constructor(el, model) {
         console.log("TournamentController constructor", el, model);
@@ -65,6 +62,9 @@ export default class TournamentController {
         this.page = 1;
         this.tournamentStatus = T_STATUS[model["status"]];
         this.visitedPlayer = '';
+        this.startsAt = model["date"];
+        this.secondsToStart = 0;
+        this.secondsToFinish = 0;
 
         const onOpen = (evt) => {
             this._ws = evt.target;
@@ -93,10 +93,12 @@ export default class TournamentController {
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
+        
+        this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
     }
 
     doSend(message: JSONObject) {
-        console.log("---> tournament doSend():", message);
+        // console.log("---> tournament doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
 
@@ -302,7 +304,10 @@ export default class TournamentController {
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus];
         this.userStatus = msg.ustatus;
+        this.secondsToStart = msg.secondsToStart;
+        this.secondsToFinish = msg.secondsToFinish;
         this.updateActionButton()
+        initializeClock(this);
     }
 
     private onMsgUserStatus(msg) {
@@ -311,7 +316,14 @@ export default class TournamentController {
     }
 
     private onMsgTournamentStatus(msg) {
+        const oldStatus = this.tournamentStatus;
         this.tournamentStatus = T_STATUS[msg.tstatus];
+        if (oldStatus !== this.tournamentStatus) {
+            if (msg.secondsToFinish !== undefined) {
+                this.secondsToFinish = msg.secondsToFinish;
+            }
+            initializeClock(this);
+        }
         this.updateActionButton()
         if ('finished|archived'.includes(this.tournamentStatus)) {
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
@@ -339,7 +351,7 @@ export default class TournamentController {
     }
 
     onMessage(evt) {
-        console.log("<+++ tournament onMessage():", evt.data);
+        //console.log("<+++ tournament onMessage():", evt.data);
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "ustatus":
@@ -417,8 +429,7 @@ export function tournamentView(model): VNode[] {
                 h('div.tour-header.box', [
                     h('i', {class: {"icon": true, "icon-trophy": true} }),
                     h('h1', model["title"]),
-                    // TODO: 
-                    h('clock', serverDate.toLocaleString("default", localeOptions))
+                    h('div#clockdiv'),
                 ]),
                 h('div#page-controls'),
                 h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),

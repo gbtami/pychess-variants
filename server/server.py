@@ -36,12 +36,15 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 async def on_prepare(request, response):
     if request.path.endswith(".br"):
+        # brotli compressed js
         response.headers["Content-Encoding"] = "br"
         return
     elif request.path.startswith("/variant") or request.path.startswith("/news"):
+        # Learn and News pages may have links to other sites
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
         return
     else:
+        # required to get stockfish.wasm in Firefox
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 

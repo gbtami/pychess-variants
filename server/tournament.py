@@ -165,7 +165,8 @@ class Tournament:
 
             if self.status == T_CREATED and now >= self.starts_at:
                 self.status = T_STARTED
-                await lobby_broadcast(self.app["tourneysockets"], {"type": "tstatus", "tstatus": self.status})
+                response = {"type": "tstatus", "tstatus": self.status, "secondsToFinish": (self.finish - now).total_seconds()}
+                await lobby_broadcast(self.app["tourneysockets"], response)
 
                 # force first pairing wave in arena
                 if self.system == ARENA:

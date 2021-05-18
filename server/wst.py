@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import json
 import logging
 
@@ -125,7 +126,15 @@ async def tournament_socket_handler(request):
 
                         sockets[user.username] = user.tournament_sockets
 
-                        response = {"type": "tournament_user_connected", "username": user.username, "tstatus": tournament.status, "ustatus": tournament.user_status(user)}
+                        now = datetime.now(timezone.utc)
+                        response = {
+                            "type": "tournament_user_connected",
+                            "username": user.username,
+                            "tstatus": tournament.status,
+                            "ustatus": tournament.user_status(user),
+                            "secondsToStart": (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0,
+                            "secondsToFinish": (tournament.finish - now).total_seconds() if tournament.starts_at < now else 0,
+                        }
                         await ws.send_json(response)
 
                         response = {"type": "fullchat", "lines": list(request.app["chat"])}
