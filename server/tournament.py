@@ -9,11 +9,13 @@ from sortedcollections import ValueSortedDict
 from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
-from compress import C2V, V2C
+from compress import C2V, V2C, R2C, C2R
 from const import CASUAL, RATED, CREATED, STARTED, VARIANTEND
 from game import Game
+from glicko2.glicko2 import gl2
 from newid import new_id
 from rr import BERGER_TABLES
+from user import User
 from utils import insert_game_to_db
 
 log = logging.getLogger(__name__)
@@ -24,13 +26,15 @@ ARENA, RR, SWISS = range(3)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 
+SCORE_SHIFT = 100000
+
 
 class EnoughPlayer(Exception):
     """ Raised when RR is already full """
     pass
 
 
-class Player:
+class PlayerData:
     __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "performance"
 
     def __init__(self, rating, provisional):
@@ -47,6 +51,18 @@ class Player:
 
     def __str__(self):
         return (" ").join(self.points)
+
+
+class GameData:
+    __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result"
+
+    def __init__(self, _id, wplayer, wrating, bplayer, brating, result):
+        self.id = _id
+        self.wplayer = wplayer
+        self.bplayer = bplayer
+        self.result = result
+        self.white_rating = gl2.create_rating(int(wrating.rstrip("?")))
+        self.black_rating = gl2.create_rating(int(brating.rstrip("?")))
 
 
 class Tournament:
@@ -97,6 +113,12 @@ class Tournament:
         else:
             return "spectator"
 
+    def user_rating(self, user):
+        if user in self.players:
+            return self.players[user].rating
+        else:
+            return "%s%s" % user.get_rating(self.variant, self.chess960).rating_prov
+
     # TODO: cache this
     def players_json(self, page=1):
         def player_json(player, full_score):
@@ -107,7 +129,7 @@ class Tournament:
                 "rating": self.players[player].rating,
                 "points": self.players[player].points,
                 "fire": self.players[player].win_streak,
-                "score": int(full_score / 100000),
+                "score": int(full_score / SCORE_SHIFT),
                 "perf": self.players[player].performance
             }
 
@@ -198,6 +220,8 @@ class Tournament:
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
+            if self.players[player].nb_games == 0:
+                continue
             latest = self.players[player].games[-1]
             if latest and latest.status in (CREATED, STARTED):
                 self.players[player].games.pop()
@@ -219,7 +243,7 @@ class Tournament:
 
         if player not in self.players:
             rating, provisional = player.get_rating(self.variant, self.chess960).rating_prov
-            self.players[player] = Player(rating, provisional)
+            self.players[player] = PlayerData(rating, provisional)
             self.leaderboard.setdefault(player, 0)
             self.nb_players += 1
 
@@ -435,11 +459,11 @@ class Tournament:
         nb = bplayer.nb_games
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
-        wpscore = int(self.leaderboard.get(game.wplayer) / 100000)
-        self.leaderboard.update({game.wplayer: 100000 * (wpscore + wpoint[0]) + wplayer.performance})
+        wpscore = int(self.leaderboard.get(game.wplayer) / SCORE_SHIFT)
+        self.leaderboard.update({game.wplayer: SCORE_SHIFT * (wpscore + wpoint[0]) + wplayer.performance})
 
-        bpscore = int(self.leaderboard.get(game.bplayer) / 100000)
-        self.leaderboard.update({game.bplayer: 100000 * (bpscore + bpoint[0]) + bplayer.performance})
+        bpscore = int(self.leaderboard.get(game.bplayer) / SCORE_SHIFT)
+        self.leaderboard.update({game.bplayer: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance})
 
         self.ongoing_games -= 1
 
@@ -469,17 +493,19 @@ class Tournament:
             return_document=ReturnDocument.AFTER)
         )
 
+        # TODO: save players and pairings on user join time and when games created
         player_documents = []
         leaderboard_documents = []
 
         player_table = self.app["db"].tournament_player
+        pairing_table = self.app["db"].tournament_pairing
         leaderboard_table = self.app["db"].tournament_leaderboard
 
         i = 0
         for user, full_score in self.leaderboard.items():
             i += 1
             player = self.players[user]
-            # print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, int(full_score / 100000), player.performance))
+            # print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, int(full_score / SCORE_SHIFT), player.performance))
             player_id = await new_id(player_table)
 
             player_documents.append({
@@ -488,10 +514,13 @@ class Tournament:
                 "uid": user.username,
                 "r": player.rating,
                 "pr": player.provisional,
+                "a": player.paused,
                 "f": player.win_streak == 2,
-                "s": int(full_score / 100000),
+                "s": int(full_score / SCORE_SHIFT),
                 "g": player.nb_games,
+                "w": player.nb_win,
                 "e": player.performance,
+                "p": player.points,
             })
 
             leaderboard_documents.append({
@@ -503,6 +532,25 @@ class Tournament:
 
         await player_table.insert_many(player_documents)
         await leaderboard_table.insert_many(leaderboard_documents)
+
+        pairing_documents = []
+        processed_games = set()
+
+        for user, user_data in self.players.items():
+            for i, game in enumerate(user_data.games):
+                if game.id not in processed_games:
+                    pairing_documents.append({
+                        "_id": game.id,
+                        "tid": self.id,
+                        "u": (game.wplayer.username, game.bplayer.username),
+                        "r": R2C[game.result],
+                        "t": i + 1,
+                        "wr": game.wrating,
+                        "br": game.brating,
+                    })
+                processed_games.add(game.id)
+
+        await pairing_table.insert_many(pairing_documents)
 
 
 async def new_tournament(app, data):
@@ -570,6 +618,7 @@ async def insert_tournament_to_db(tournament, app):
 async def load_tournament(app, tournament_id):
     """ Return Tournament object from app cache or from database """
     db = app["db"]
+    users = app["users"]
     tournaments = app["tournaments"]
     if tournament_id in tournaments:
         return tournaments[tournament_id]
@@ -597,8 +646,44 @@ async def load_tournament(app, tournament_id):
         status=doc["status"],
     )
 
+    tournaments[tournament_id] = tournament
+
     tournament.nb_players = doc["nbPlayers"]
     tournament.winner = doc["winner"]
 
-    # TODO: load players(games) and leaderboard data
+    player_table = app["db"].tournament_player
+    cursor = player_table.find({"tid": tournament_id})
+
+    async for doc in cursor:
+        uid = doc["uid"]
+        if uid in users:
+            user = users[uid]
+        else:
+            user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
+            users[uid] = user
+
+        tournament.players[user] = PlayerData(doc["r"], doc["pr"])
+        tournament.players[user].points = doc["p"]
+        tournament.players[user].nb_games = doc["g"]
+        tournament.players[user].nb_win = doc["w"]
+        tournament.players[user].performance = doc["e"]
+        tournament.players[user].games = [None] * doc["g"]
+        tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
+
+    pairing_table = app["db"].tournament_pairing
+    cursor = pairing_table.find({"tid": tournament_id})
+
+    async for doc in cursor:
+        _id = doc["_id"]
+        result = C2R[doc["r"]]
+        wp, bp = doc["u"]
+        wrating = doc["wr"]
+        brating = doc["br"]
+        turn = doc["t"]
+
+        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result)
+
+        tournament.players[users[wp]].games[turn - 1] = game_data
+        tournament.players[users[bp]].games[turn - 1] = game_data
+
     return tournament

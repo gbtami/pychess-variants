@@ -102,7 +102,7 @@ async def add_games(app):
 
     data = {
         "tid": tid,
-        "name": "First EJF Anniversary E-Tourn@manet",
+        "name": "First EJF Anniversary E-Tourn@ment",
         "createdBy": "Janggi-France",
         "createdAt": datetime(2019, 5, 2, tzinfo=timezone.utc),
         "variant": "janggi",
@@ -184,3 +184,5 @@ async def add_games(app):
 
                 await t.game_update(game)
                 updated_games.add(game_id)
+
+    await t.save()

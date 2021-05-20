@@ -14,7 +14,7 @@ from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
 from server import make_app
 from user import User
-from tournament import insert_tournament_to_db, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
+from tournament import insert_tournament_to_db, SCORE_SHIFT, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
 from utils import play_move
 # from misc import timeit
 
@@ -58,7 +58,7 @@ class TestTournament(Tournament):
                 player.username,
                 self.players[player].rating,
                 self.players[player].points,
-                int(full_score / 100000),
+                int(full_score / SCORE_SHIFT),
                 self.players[player].performance
             ))
 

@@ -50,7 +50,7 @@ class User:
         self.online = False
 
         if perfs is None:
-            if (not anon) and (not bot):
+            if (not anon) and (not bot) and (title != "TEST"):
                 raise MissingRatingsException(username)
             self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
         else:

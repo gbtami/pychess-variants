@@ -32,20 +32,19 @@ const T_STATUS = {
 
 const scoreTagNames = ['score', 'streak', 'double'];
 
-function scoreTag(s) {
-  return h(scoreTagNames[(s[1] || 1) - 1], [Array.isArray(s) ? s[0] : s]);
-}
 
 export default class TournamentController {
     model;
     sock;
     _ws;
     buttons: VNode;
+    system: number;
     players: string[];
     nbPlayers: number;
     page: number;
     tournamentStatus: string;
     userStatus: string;
+    userRating: string;
     action: VNode;
     clockdiv: VNode;
     fc: string;
@@ -184,7 +183,10 @@ export default class TournamentController {
                 h('span.name', player.name),
                 h('span', player.rating),
             ]),
-            h('td.sheet', player.points.map(scoreTag)),
+            h('td.sheet', player.points.map(s => {
+                const score = Array.isArray(s) ? s[0] : s;
+                return h(scoreTagNames[(s[1] || 1) - 1] + ((this.system > 0) ? (score > 1) ? '.win': (score > 0) ? '.draw' : '.lose' : ''), [score]);
+            })),
             h('td.total', [
                 h('fire', [(player.fire === 2) ? h('i', {class: {"icon": true, "icon-fire": true} }) : '']),
                 h('strong.score', player.score),
@@ -215,7 +217,7 @@ export default class TournamentController {
             value = '½';
             break;
         }
-        const klass = (value === '1') ? '.win' : (value === '0') ? '.loss' : '';
+        const klass = (value === '1') ? '.win' : (value === '0') ? '.lose' : '';
         return h(`td.result${klass}`, value);
     }
 
@@ -242,6 +244,17 @@ export default class TournamentController {
             ]),
             this.result(game.result, game.color),
         ]);
+    }
+
+    private tSystem(system) {
+        switch (parseInt(system)) {
+        case 0:
+            return "Arena";
+        case 1:
+            return "Round-Robin";
+        default:
+            return "Swiss";
+        }
     }
 
     renderStats(msg) {
@@ -301,9 +314,14 @@ export default class TournamentController {
     }
 
     private onMsgUserConnected(msg) {
+        this.system = msg.tsystem;
+        const tsystem = document.getElementById('tsystem') as Element;
+        patch(tsystem, h('div#tsystem', gameType(this.model["rated"]) + " • " + this.tSystem(this.system)));
+        
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus];
         this.userStatus = msg.ustatus;
+        this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
         this.updateActionButton()
@@ -418,9 +436,11 @@ export function tournamentView(model): VNode[] {
                             },
                                 variant.displayName(chess960)),
                         ]),
-                        gameType(model["rated"]) + " • " + 'Arena'
+                        h('div#tsystem'),
                     ]),
                 ]),
+                // TODO: update in onMsgUserConnected()
+                h('div#requirements'),
                 h('info-date', serverDate.toLocaleString("default", localeOptions)),
             ]),
             h('div#lobbychat')

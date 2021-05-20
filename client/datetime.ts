@@ -68,7 +68,7 @@ function getTimeRemaining(endtime: number) {
 
 export function initializeClock(ctrl) {
     // console.log('initializeClock', ctrl.tournamentStatus, ctrl.secondsToStart, ctrl.secondsToFinish);
-    if (ctrl.tournamentStatus === 'finished') return;
+    if ('finished|archived'.includes(ctrl.tournamentStatus)) return;
 
     let endtime;
     if (ctrl.secondsToFinish > 0) {

@@ -206,10 +206,13 @@ div#stats {
 #stats tr {
     vertical-align: middle;
 }
+td i-side {
+    opacity: 0.6;
+}
 td.result {
     font-weight: bold;
 }
-.loss {
+.lose {
     color: var(--bad);
 }
 .win {
