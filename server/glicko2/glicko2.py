@@ -38,6 +38,7 @@ PROVISIONAL_PHI = 110
 
 
 class Rating:
+    __slots__ = "mu", "phi", "sigma", "ltime"
 
     def __init__(self, mu=MU, phi=PHI, sigma=SIGMA, ltime=None):
         self.mu = mu
@@ -68,6 +69,7 @@ def pre_rating_RD(phi, sigma, ltime):
 
 
 class Glicko2:
+    __slots__ = "mu", "phi", "sigma", "tau", "epsilon"
 
     def __init__(self, mu=MU, phi=PHI, sigma=SIGMA, tau=TAU, epsilon=EPSILON):
         self.mu = mu
