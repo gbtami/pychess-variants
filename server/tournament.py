@@ -3,7 +3,7 @@ import collections
 import logging
 import random
 from datetime import datetime, timedelta, timezone
-from operator import neg
+from operator import neg, attrgetter
 
 from sortedcollections import ValueSortedDict
 from pymongo import ReturnDocument
@@ -54,13 +54,14 @@ class PlayerData:
 
 
 class GameData:
-    __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result"
+    __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "turn"
 
-    def __init__(self, _id, wplayer, wrating, bplayer, brating, result):
+    def __init__(self, _id, wplayer, wrating, bplayer, brating, result, turn):
         self.id = _id
         self.wplayer = wplayer
         self.bplayer = bplayer
         self.result = result
+        self.turn = turn
         self.white_rating = gl2.create_rating(int(wrating.rstrip("?")))
         self.black_rating = gl2.create_rating(int(brating.rstrip("?")))
 
@@ -177,7 +178,7 @@ class Tournament:
             "games": [
                 game_json(player, game) for
                 game in
-                self.players[player].games
+                sorted(self.players[player].games, key=attrgetter('turn'))
             ]
         }
 
@@ -333,11 +334,11 @@ class Tournament:
             self.app["games"][game_id] = game
             await insert_game_to_db(game, self.app)
 
-            if self.app["db"] is not None:
+            if 0:  # self.app["db"] is not None:
                 doc = {
                     "_id": game.id,
                     "tid": self.id,
-                    "us": [game.wplayer.username, game.bplayer.username],
+                    "u": [game.wplayer.username, game.bplayer.username],
                     "s": game.status,
                 }
                 await self.app["db"].tournament_pairing.insert_one(doc)
@@ -667,7 +668,6 @@ async def load_tournament(app, tournament_id):
         tournament.players[user].nb_games = doc["g"]
         tournament.players[user].nb_win = doc["w"]
         tournament.players[user].performance = doc["e"]
-        tournament.players[user].games = [None] * doc["g"]
         tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
 
     pairing_table = app["db"].tournament_pairing
@@ -681,9 +681,9 @@ async def load_tournament(app, tournament_id):
         brating = doc["br"]
         turn = doc["t"]
 
-        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result)
+        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result, turn)
 
-        tournament.players[users[wp]].games[turn - 1] = game_data
-        tournament.players[users[bp]].games[turn - 1] = game_data
+        tournament.players[users[wp]].games.append(game_data)
+        tournament.players[users[bp]].games.append(game_data)
 
     return tournament
