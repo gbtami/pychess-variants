@@ -225,7 +225,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "crazyhouse", tooltip: () => _("Take captured pieces and drop them back on to the board as your own"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceRoles: ["k", "q", "r", "b", "k", "p"],
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "q"],
         enPassant: true, autoQueenable: true, drop: true,
         alternateStart: {
