@@ -208,6 +208,9 @@ label.piece.piece5.xiangqi {
 label.piece.piece6.xiangqi {
     background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
 }
+label.piece.piece7.xiangqi {
+    background-image: url('images/pieces/xiangqi/wikim/red_king.svg');
+}
 
 label.piece.piece0.seirawan {
     background-image: url('images/pieces/merida/wH.svg');

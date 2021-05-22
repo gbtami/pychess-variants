@@ -1,0 +1,46 @@
+.xiangqi .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_pawn.svg');
+}
+.xiangqi .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_elephant.svg');
+}
+.xiangqi .cg-wrap piece.n-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_horse.svg');
+}
+.xiangqi .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_chariot.svg');
+}
+.xiangqi .cg-wrap piece.a-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_advisor.svg');
+}
+.xiangqi .cg-wrap piece.c-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_cannon.svg');
+}
+.xiangqi .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_king.svg');
+}
+.xiangqi .cg-wrap piece.m-piece.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_chariot.svg');
+}
+
+.xiangqi .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_pawn.svg');
+}
+.xiangqi .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_elephant.svg');
+}
+.xiangqi .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_horse.svg');
+}
+.xiangqi .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_chariot.svg');
+}
+.xiangqi .cg-wrap piece.a-piece.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_advisor.svg');
+}
+.xiangqi .cg-wrap piece.c-piece.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_cannon.svg');
+}
+.xiangqi .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_king.svg');
+}
