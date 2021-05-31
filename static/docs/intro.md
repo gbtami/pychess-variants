@@ -24,6 +24,10 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Crazyhouse 960** - Combines Crazyhouse and Chess 960
 
+**Atomic Chess** = Pieces explode upon capture!
+
+**Atomic 960** - Atomic chess with Chess 960 rules
+
 ## Southeast Asian variants
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/MakrukSmall.png?raw=true)
@@ -93,7 +97,3 @@ If you need to practice with the piece moves and rules before diving into a real
 **Grandhouse** - Grand Chess with Crazyhouse drop rules
 
 **Hoppel-poppel** - Knights capture as bishops, bishops capture as knights
-
-**Atomic Chess** = Pieces explode upon capture!
-
-**Atomic 960** - Atomic chess with Chess 960 rules
