@@ -12,15 +12,17 @@ const patch = init([klass, attributes, properties, listeners, style]);
 import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
+import { Chessground } from 'chessgroundx';
+
 import { JSONObject } from './types';
 import { _ } from './i18n';
 import { chatMessage, chatView } from './chat';
 import { sound } from './sound';
-import { VARIANTS } from './chess';
+import { VARIANTS, uci2cg } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
 import { gameType } from './profile';
-
+import { boardSettings } from './boardSettings';
 
 const T_STATUS = {
     0: "created",
@@ -47,12 +49,16 @@ export default class TournamentController {
     userRating: string;
     action: VNode;
     clockdiv: VNode;
+    topGame: VNode;
+    topGameChessground;
+    playerGamesOn: boolean;
     fc: string;
     sc: string;
     startsAt: string;
     visitedPlayer: string;
     secondsToStart: number;
     secondsToFinish: number;
+    
 
     constructor(el, model) {
         console.log("TournamentController constructor", el, model);
@@ -94,6 +100,11 @@ export default class TournamentController {
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
         
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
+        this.topGame = patch(document.getElementById('top-game') as HTMLElement, h('div#top-game'));
+        this.topGameChessground = undefined;
+        this.playerGamesOn = false;
+
+        boardSettings.updateBoardAndPieceStyles();
     }
 
     doSend(message: JSONObject) {
@@ -197,6 +208,16 @@ export default class TournamentController {
 
     private onClickPlayer(player) {
         this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player.name });
+        if (this.playerGamesOn) {
+            (document.getElementById('top-game') as HTMLElement).style.display = 'none';
+            (document.getElementById('player') as HTMLElement).style.display = 'block';
+            this.playerGamesOn = false;
+        } else if (this.visitedPlayer === player.name) {
+            (document.getElementById('top-game') as HTMLElement).style.display = 'block';
+            (document.getElementById('player') as HTMLElement).style.display = 'none';
+            this.playerGamesOn = true;
+        }
+        this.visitedPlayer = player.name;
     }
 
     renderGames(games) {
@@ -282,9 +303,31 @@ export default class TournamentController {
         ];
     }
 
-    private onMsgGetGames(msg) {
-        this.visitedPlayer = msg.name;
+    renderTopGame(game) {
+        const variant = VARIANTS[game.variant];
+        return h(`selection#mainboard.${variant.board}.${variant.piece}`, {
+            on: { click: () => window.location.assign('/' + game.gameId) }
+        }, h('div', [
+            h('div.name', game.b),
+            h(`div.cg-wrap.${variant.cg}`, {
+                hook: {
+                    insert: vnode => {
+                        const cg = Chessground(vnode.elm as HTMLElement, {
+                            fen: game.fen,
+                            lastMove: game.lastMove,
+                            geometry: variant.geometry,
+                            coordinates: false,
+                            viewOnly: true
+                        });
+                        this.topGameChessground = cg;
+                    }
+                }
+            }),
+            h('div.name', game.w),
+        ]));
+    }
 
+    private onMsgGetGames(msg) {
         const oldStats = document.getElementById('stats') as Element;
         oldStats.innerHTML = "";
         patch(oldStats, h('div#stats.box', [h('tbody', this.renderStats(msg))]));
@@ -328,6 +371,11 @@ export default class TournamentController {
         initializeClock(this);
     }
 
+    private onMsgSpectators = (msg) => {
+        const container = document.getElementById('spectators') as HTMLElement;
+        patch(container, h('under-chat#spectators', _('Spectators: ') + msg.spectators));
+    }
+
     private onMsgUserStatus(msg) {
         this.userStatus = msg.ustatus;
         this.updateActionButton()
@@ -346,6 +394,34 @@ export default class TournamentController {
         if ('finished|archived'.includes(this.tournamentStatus)) {
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
+    }
+
+    private onMsgTopGame(msg) {
+        console.log("onMsgTopGame", msg);
+        this.topGame = patch(this.topGame, h('div#top-game', this.renderTopGame(msg)));
+    }
+
+    private onMsgBoard = (msg) => {
+        console.log("onMsgBoard", msg);
+        if (this.topGameChessground === undefined) return;
+
+        let lastMove = msg.lastMove;
+        if (lastMove !== null) {
+            lastMove = uci2cg(lastMove);
+            // drop lastMove causing scrollbar flicker,
+            // so we remove from part to avoid that
+            lastMove = lastMove.includes('@') ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
+        }
+        this.topGameChessground.set({
+            fen: msg.fen,
+            check: msg.check,
+            lastMove: lastMove,
+        });
+    }
+
+    private checkStatus = (msg) => {
+        // TODO
+        console.log(msg);
     }
 
     private onMsgChat(msg) {
@@ -390,8 +466,22 @@ export default class TournamentController {
             case "get_games":
                 this.onMsgGetGames(msg);
                 break;
+            case "board":
+                console.log("<+++ tournament onMessage():", evt.data);
+                this.onMsgBoard(msg);
+                break;
+            case "gameEnd":
+                console.log("<+++ tournament onMessage():", evt.data);
+                this.checkStatus(msg);
+                break;
             case "tournament_user_connected":
                 this.onMsgUserConnected(msg);
+                break;
+            case "spectators":
+                this.onMsgSpectators(msg);
+                break;
+            case "top_game":
+                this.onMsgTopGame(msg);
                 break;
             case "lobbychat":
                 this.onMsgChat(msg);
@@ -454,9 +544,13 @@ export function tournamentView(model): VNode[] {
                 h('div#page-controls'),
                 h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),
         ]),
-        h('div.player', [
-                h('div#stats.box'),
-                h('table#games.box'),
+        h('div.tour-table', [
+            h('div#top-game'),
+            h('div#player', [
+                    h('div#stats.box'),
+                    h('table#games.box'),
+            ]),
         ]),
+        h('under-chat#spectators'),
     ];
 }

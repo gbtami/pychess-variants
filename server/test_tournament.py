@@ -38,18 +38,22 @@ class TestTournament(Tournament):
 
     async def create_new_pairings(self):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
-        print("--- new pairings at %s ---" % now)
+        print("--- create_new_pairings at %s ---" % now)
         self.print_leaderboard()
         pairing, games = await Tournament.create_new_pairings(self)
 
         # aouto play test games
         # for wp, bp in pairing:
         #     print("%s - %s" % (wp.username, bp.username))
-        print("--- done ---")
+        print("--- create_new_pairings done ---")
 
+        new_tasks = set()
         for game in games:
             game.random_mover = True
-            self.game_tasks.add(asyncio.create_task(self.play_random(game)))
+            new_tasks.add(self.play_random(game))
+
+        self.game_tasks |= new_tasks
+        await asyncio.gather(*new_tasks)
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
@@ -84,7 +88,7 @@ class TestTournament(Tournament):
             cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
             opp_player = game.wplayer if game.board.color == BLACK else game.bplayer
             if cur_player.title == "TEST":
-                ply = random.randint(4, int(MAX_PLY / 2))
+                ply = random.randint(20, int(MAX_PLY / 2))
                 if game.board.ply == ply:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
                     response = await game.game_ended(player, "resign")

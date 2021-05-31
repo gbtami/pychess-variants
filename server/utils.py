@@ -13,7 +13,7 @@ except ImportError:
     print("No pyffish module installed!")
 
 from glicko2.glicko2 import gl2
-from broadcast import round_broadcast
+from broadcast import round_broadcast, tournament_broadcast
 from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
     UNKNOWNFINISH, CASUAL, RATED, IMPORTED
 from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
@@ -563,6 +563,18 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
 
     if not invalid_move:
         await round_broadcast(game, users, board_response, channels=app["game_channels"])
+
+        if game.tournamentId is not None:
+            tournament = app["tournaments"][game.tournamentId]
+            if tournament.top_game.id == gameId:
+                # no need to send lots of data to tournament top game
+                del board_response["dests"]
+                del board_response["promo"]
+                del board_response["pgn"]
+                del board_response["uci_usi"]
+                del board_response["ct"]
+
+                await tournament_broadcast(tournament, board_response)
 
 
 def pgn(doc):

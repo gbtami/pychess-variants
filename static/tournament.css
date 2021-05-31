@@ -15,6 +15,10 @@
         grid-template-areas: 'side main table' 'uchat main table';
     }
 }
+under-chat {
+    grid-area: uchat;
+}
+
 table#players {
     grid-area: main;
 }
@@ -146,12 +150,16 @@ td.total {
 strong.score {
     padding-right: 8px;
 }
-.player table th {
+.tour-table {
+    display: flex;
+    flex-flow: column;
+}
+#player table th {
     text-align: left;
     font-size: 14px;
     font-weight: normal;
 }
-.player table td {
+#player table td {
     padding: 0.3em;
     font-size: 14px;
 }
@@ -169,7 +177,7 @@ table.stats td {
     line-height: 1.8em;
     text-align: right;
 }
-div.player {
+div#player {
     position: relative;
 }
 div#stats {

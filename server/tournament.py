@@ -3,9 +3,11 @@ import collections
 import logging
 import random
 from datetime import datetime, timedelta, timezone
+from itertools import chain
 from operator import neg, attrgetter
 
 from sortedcollections import ValueSortedDict
+from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
@@ -54,14 +56,14 @@ class PlayerData:
 
 
 class GameData:
-    __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "turn"
+    __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "date"
 
-    def __init__(self, _id, wplayer, wrating, bplayer, brating, result, turn):
+    def __init__(self, _id, wplayer, wrating, bplayer, brating, result, date):
         self.id = _id
         self.wplayer = wplayer
         self.bplayer = bplayer
         self.result = result
-        self.turn = turn
+        self.date = date
         self.white_rating = gl2.create_rating(int(wrating.rstrip("?")))
         self.black_rating = gl2.create_rating(int(brating.rstrip("?")))
 
@@ -97,9 +99,13 @@ class Tournament:
         self.spectators = set()
         self.players = {}
         self.leaderboard = ValueSortedDict(neg)
+        self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
         self.status = T_CREATED if status is None else status
         self.ongoing_games = 0
         self.nb_players = 0
+
+        self.top_player = None
+        self.top_game = None
 
         if minutes is not None:
             self.finish = self.starts_at + timedelta(minutes=minutes)
@@ -178,8 +184,40 @@ class Tournament:
             "games": [
                 game_json(player, game) for
                 game in
-                sorted(self.players[player].games, key=attrgetter('turn'))
+                sorted(self.players[player].games, key=attrgetter("date"))
             ]
+        }
+
+    @property
+    def spectator_list(self):
+        spectators = (spectator.username for spectator in self.spectators if not spectator.anon)
+        anons = ()
+        anon = sum(1 for user in self.spectators if user.anon)
+
+        cnt = len(self.spectators)
+        if cnt > 10:
+            spectators = str(cnt)
+        else:
+            if anon > 0:
+                anons = ("Anonymous(%s)" % anon,)
+            spectators = ", ".join(chain(spectators, anons))
+        return {"type": "spectators", "spectators": spectators, "gameId": self.id}
+
+    @property
+    def top_game_json(self):
+        return {
+            "type": "top_game",
+            "gameId": self.top_game.id,
+            "variant": self.top_game.variant,
+            "fen": self.top_game.board.fen,
+            "w": self.top_game.wplayer.username,
+            "b": self.top_game.bplayer.username,
+            "wr": self.leaderboard_keys_view.index(self.top_game.wplayer),
+            "br": self.leaderboard_keys_view.index(self.top_game.bplayer),
+            "chess960": self.top_game.chess960,
+            "base": self.top_game.base,
+            "inc": self.top_game.inc,
+            "byoyomi": self.top_game.byoyomi_period
         }
 
     async def clock(self):
@@ -188,6 +226,9 @@ class Tournament:
 
             if self.status == T_CREATED and now >= self.starts_at:
                 self.status = T_STARTED
+
+                self.set_top_player()
+
                 response = {"type": "tstatus", "tstatus": self.status, "secondsToFinish": (self.finish - now).total_seconds()}
                 await lobby_broadcast(self.app["tourneysockets"], response)
 
@@ -259,11 +300,14 @@ class Tournament:
     def pause(self, player):
         self.players[player].paused = True
 
+        if self.top_player.username == player.username:
+            self.top_player = None
+
     def spactator_join(self, spectator):
         self.spectators.add(spectator)
 
     def spactator_leave(self, spectator):
-        self.spectators.remove(spectator)
+        self.spectators.discard(spectator)
 
     async def create_new_pairings(self):
         pairing = self.create_pairing()
@@ -317,7 +361,20 @@ class Tournament:
 
         return pairing
 
+    def set_top_player(self):
+        idx = 0
+        self.top_player = None
+        while (idx < self.nb_players):
+            top_player = self.leaderboard.peekitem(idx)[0]
+            if self.players[top_player].paused:
+                idx += 1
+                continue
+            else:
+                self.top_player = top_player
+                break
+
     async def create_games(self, pairing):
+        check_top_game = self.top_player is not None
         games = []
         game_table = None if self.app["db"] is None else self.app["db"].game
         for wp, bp in pairing:
@@ -334,6 +391,7 @@ class Tournament:
             self.app["games"][game_id] = game
             await insert_game_to_db(game, self.app)
 
+            # TODO: save new game to db
             if 0:  # self.app["db"] is not None:
                 doc = {
                     "_id": game.id,
@@ -367,6 +425,13 @@ class Tournament:
                 ws = next(iter(bp.tournament_sockets))
                 if ws is not None:
                     await ws.send_json(response)
+
+            if (check_top_game) and (self.top_player.username in (game.wplayer.username, game.bplayer.username)):
+                self.top_game = game
+                check_top_game = False
+
+        if self.top_game is not None:
+            await lobby_broadcast(self.app["tourneysockets"], self.top_game_json)
 
         return games
 
@@ -471,11 +536,21 @@ class Tournament:
         wplayer.free = True
         bplayer.free = True
 
+        # print("---- game end", game.wplayer.username, game.bplayer.username, self.top_player)
+        if self.top_player is not None and self.top_player.username in (game.wplayer.username, game.bplayer.username):
+            self.top_player = None
+
         await lobby_broadcast(self.app["tourneysockets"], {
             "type": "game_update",
             "wname": game.wplayer.username,
             "bname": game.bplayer.username
         })
+
+        if self.top_game.id == game.id and self.top_player != self.leaderboard.peekitem(0)[0]:
+            self.set_top_player()
+            self.top_game = self.players[self.top_player].games[-1]
+            if self.top_game.status <= STARTED:
+                await lobby_broadcast(self.app["tourneysockets"], self.top_game_json)
 
     async def save(self):
         if len(self.leaderboard) == 0 or self.app["db"] is None:
@@ -538,14 +613,14 @@ class Tournament:
         processed_games = set()
 
         for user, user_data in self.players.items():
-            for i, game in enumerate(user_data.games):
+            for game in user_data.games:
                 if game.id not in processed_games:
                     pairing_documents.append({
                         "_id": game.id,
                         "tid": self.id,
                         "u": (game.wplayer.username, game.bplayer.username),
                         "r": R2C[game.result],
-                        "t": i + 1,
+                        "d": game.date,
                         "wr": game.wrating,
                         "br": game.brating,
                     })
@@ -679,9 +754,9 @@ async def load_tournament(app, tournament_id):
         wp, bp = doc["u"]
         wrating = doc["wr"]
         brating = doc["br"]
-        turn = doc["t"]
+        date = doc["d"]
 
-        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result, turn)
+        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result, date)
 
         tournament.players[users[wp]].games.append(game_data)
         tournament.players[users[bp]].games.append(game_data)

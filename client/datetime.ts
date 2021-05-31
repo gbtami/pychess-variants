@@ -62,7 +62,7 @@ function getTimeRemaining(endtime: number) {
     const minutes = Math.floor((totalSecs / 1000 / 60) % 60);
     const hours = Math.floor((totalSecs / (1000 * 60 * 60)) % 24);
     const days = Math.floor(totalSecs / (1000 * 60 * 60 * 24));
-    console.log('getTimeRemaining()', endtime, '-', totalSecs, '-', days, hours, minutes, seconds);
+    // console.log('getTimeRemaining()', endtime, '-', totalSecs, '-', days, hours, minutes, seconds);
     return {totalSecs, days, hours, minutes, seconds};
 }
 

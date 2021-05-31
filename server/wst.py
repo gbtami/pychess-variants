@@ -142,6 +142,10 @@ async def tournament_socket_handler(request):
                         response = {"type": "fullchat", "lines": list(request.app["chat"])}
                         await ws.send_json(response)
 
+                        if user.username not in tournament.spectators:
+                            tournament.spactator_join(user)
+                            await lobby_broadcast(sockets, tournament.spectator_list)
+
                     elif data["type"] == "lobbychat":
                         message = data["message"]
                         response = None
@@ -199,5 +203,7 @@ async def tournament_socket_handler(request):
             if len(user.tournament_sockets) == 0:
                 if user.username in sockets:
                     del sockets[user.username]
+                    tournament.spactator_leave(user)
+                    await lobby_broadcast(sockets, tournament.spectator_list)
 
     return ws

@@ -35,6 +35,7 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 async def on_prepare(request, response):
+    response.headers["Cache-Control"] = "max-age=%s" % MAX_AGE
     if request.path.endswith(".br"):
         # brotli compressed js
         response.headers["Content-Encoding"] = "br"
@@ -218,9 +219,9 @@ async def init_state(app):
         raise
 
     # create test tournament
-    if 0:
-        from first_janggi_tournament import add_games
-        await add_games(app)
+    if 1:
+        # from first_janggi_tournament import add_games
+        # await add_games(app)
 
         from test_tournament import create_arena_test
         await create_arena_test(app)
