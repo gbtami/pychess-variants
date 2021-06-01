@@ -6,7 +6,6 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from broadcast import lobby_broadcast
 from settings import ADMINS
 from utils import MyWebSocketResponse
 from user import User
@@ -93,7 +92,8 @@ async def tournament_socket_handler(request):
                             await ws.send_json(response)
 
                     elif data["type"] == "tournament_user_connected":
-                        tournament = await load_tournament(request.app, data["tournamentId"])
+                        tournamentId = data["tournamentId"]
+                        tournament = await load_tournament(request.app, tournamentId)
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing tournament_user %s socket connected as %s.", session_user, data["username"])
@@ -103,14 +103,12 @@ async def tournament_socket_handler(request):
                                 else:
                                     user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                     users[user.username] = user
-                                # response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
                                     user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                     users[user.username] = user
-                                # response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected.", data["username"])
                             session_user = data["username"]
@@ -121,10 +119,13 @@ async def tournament_socket_handler(request):
                                 users[user.username] = user
 
                         # update websocket
-                        user.tournament_sockets.add(ws)
+                        if tournamentId not in user.tournament_sockets:
+                            user.tournament_sockets[tournamentId] = set()
+                        user.tournament_sockets[tournamentId].add(ws)
+
                         user.update_online()
 
-                        sockets[user.username] = user.tournament_sockets
+                        sockets[tournamentId][user.username] = user.tournament_sockets[tournamentId]
 
                         now = datetime.now(timezone.utc)
                         response = {
@@ -139,14 +140,15 @@ async def tournament_socket_handler(request):
                         }
                         await ws.send_json(response)
 
-                        response = {"type": "fullchat", "lines": list(request.app["chat"])}
+                        response = {"type": "fullchat", "lines": list(request.app["tourneychat"][tournamentId])}
                         await ws.send_json(response)
 
                         if user.username not in tournament.spectators:
                             tournament.spactator_join(user)
-                            await lobby_broadcast(sockets, tournament.spectator_list)
+                            await tournament.broadcast(tournament.spectator_list)
 
                     elif data["type"] == "lobbychat":
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         message = data["message"]
                         response = None
 
@@ -163,8 +165,8 @@ async def tournament_socket_handler(request):
                                 response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
 
                         if response is not None:
-                            await lobby_broadcast(sockets, response)
-                            request.app["chat"].append(response)
+                            await tournament.broadcast(response)
+                            request.app["tourneychat"][tournamentId].append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()
@@ -196,14 +198,17 @@ async def tournament_socket_handler(request):
         await ws.close()
 
         if user is not None:
-            if ws in user.tournament_sockets:
-                user.tournament_sockets.remove(ws)
-                user.update_online()
+            for tournamentId in user.tournament_sockets:
+                if ws in user.tournament_sockets[tournamentId]:
+                    user.tournament_sockets[tournamentId].remove(ws)
+                    user.update_online()
 
-            if len(user.tournament_sockets) == 0:
-                if user.username in sockets:
-                    del sockets[user.username]
-                    tournament.spactator_leave(user)
-                    await lobby_broadcast(sockets, tournament.spectator_list)
+                    if len(user.tournament_sockets[tournamentId]) == 0:
+                        if user.username in sockets[tournamentId]:
+                            del sockets[tournamentId][user.username]
+                            tournament = await load_tournament(request.app, tournamentId)
+                            tournament.spactator_leave(user)
+                            await tournament.broadcast(tournament.spectator_list)
+                    break
 
     return ws

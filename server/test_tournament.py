@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import collections
 import random
 import unittest
 from datetime import datetime, timezone
@@ -33,7 +34,7 @@ class TestTournament(Tournament):
             name = (id8() + id8())[:random.randint(1, 16)]
             player = User(self.app, username=name, title="TEST", perfs=PERFS)
             self.app["users"][player.username] = player
-            player.tournament_sockets.add(None)
+            player.tournament_sockets[self.id] = set((None,))
             self.join(player)
 
     async def create_new_pairings(self):
@@ -117,6 +118,8 @@ async def create_arena_test(app):
 
     tournament = TestTournament(app, tid, variant="minixiangqi", name="First Minixiangqi Arena", before_start=0.1, minutes=1)
     app["tournaments"][tid] = tournament
+    app["tourneysockets"][tid] = {}
+    app["tourneychat"][tid] = collections.deque([], 100)
 
     await insert_tournament_to_db(tournament, app)
 
@@ -128,7 +131,7 @@ class TournamentTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         self.tournament.print_final_result()
 
-        has_games = len(self.app["games"]) > 0
+        # has_games = len(self.app["games"]) > 0
 
         for game in self.app["games"].values():
             if game.status <= STARTED:
@@ -139,7 +142,7 @@ class TournamentTestCase(AioHTTPTestCase):
             except asyncio.CancelledError:
                 pass
 
-        if has_games:
+        if 0:  # has_games:
             for task in self.tournament.game_tasks:
                 task.cancel()
                 try:
@@ -210,7 +213,7 @@ class TournamentTestCase(AioHTTPTestCase):
         self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=0.5)
+        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
 

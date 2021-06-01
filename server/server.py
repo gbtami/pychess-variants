@@ -91,13 +91,16 @@ async def init_state(app):
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
     app["users"]["Random-Mover"].online = True
-    app["lobbysockets"] = {}
-    app["tourneysockets"] = {}
+    app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
+    app["lobbychat"] = collections.deque([], 100)
+
+    app["tourneysockets"] = {}  # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
     app["tournaments"] = {}
+    app["tourneychat"] = {}  # one deque per tournament! {tournamentId: collections.deque([], 100), ...}
+
     app["seeks"] = {}
     app["games"] = {}
     app["invites"] = {}
-    app["chat"] = collections.deque([], 100)
     app["game_channels"] = set()
     app["invite_channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}

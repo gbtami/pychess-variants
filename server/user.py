@@ -36,7 +36,7 @@ class User:
         self.country = country
         self.seeks = {}
         self.lobby_sockets = set()
-        self.tournament_sockets = set()
+        self.tournament_sockets = {}  # {tournamentId: set()}
 
         if self.bot:
             self.event_queue = asyncio.Queue()

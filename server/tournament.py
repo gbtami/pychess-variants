@@ -10,7 +10,6 @@ from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
-from broadcast import lobby_broadcast
 from compress import C2V, V2C, R2C, C2R
 from const import CASUAL, RATED, CREATED, STARTED, VARIANTEND
 from game import Game
@@ -230,7 +229,7 @@ class Tournament:
                 self.set_top_player()
 
                 response = {"type": "tstatus", "tstatus": self.status, "secondsToFinish": (self.finish - now).total_seconds()}
-                await lobby_broadcast(self.app["tourneysockets"], response)
+                await self.broadcast(response)
 
                 # force first pairing wave in arena
                 if self.system == ARENA:
@@ -270,7 +269,7 @@ class Tournament:
                 self.players[player].points.pop()
                 self.players[player].nb_games -= 1
 
-        await lobby_broadcast(self.app["tourneysockets"], {"type": "tstatus", "tstatus": self.status})
+        await self.broadcast({"type": "tstatus", "tstatus": self.status})
 
         await self.save()
 
@@ -418,11 +417,11 @@ class Tournament:
             response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
 
             if len(wp.tournament_sockets) > 0:
-                ws = next(iter(wp.tournament_sockets))
+                ws = next(iter(wp.tournament_sockets[self.id]))
                 if ws is not None:
                     await ws.send_json(response)
             if len(bp.tournament_sockets) > 0:
-                ws = next(iter(bp.tournament_sockets))
+                ws = next(iter(bp.tournament_sockets[self.id]))
                 if ws is not None:
                     await ws.send_json(response)
 
@@ -431,7 +430,8 @@ class Tournament:
                 check_top_game = False
 
         if self.top_game is not None:
-            await lobby_broadcast(self.app["tourneysockets"], self.top_game_json)
+            print("... broadcast()", self.top_game_json)
+            await self.broadcast(self.top_game_json)
 
         return games
 
@@ -540,17 +540,29 @@ class Tournament:
         if self.top_player is not None and self.top_player.username in (game.wplayer.username, game.bplayer.username):
             self.top_player = None
 
-        await lobby_broadcast(self.app["tourneysockets"], {
+        await self.broadcast({
             "type": "game_update",
             "wname": game.wplayer.username,
             "bname": game.bplayer.username
         })
 
-        if self.top_game.id == game.id and self.top_player != self.leaderboard.peekitem(0)[0]:
+        if self.top_game is not None and self.top_game.id == game.id and self.top_player != self.leaderboard.peekitem(0)[0]:
             self.set_top_player()
             self.top_game = self.players[self.top_player].games[-1]
             if self.top_game.status <= STARTED:
-                await lobby_broadcast(self.app["tourneysockets"], self.top_game_json)
+                print("... broadcast()", self.top_game_json)
+                await self.broadcast(self.top_game_json)
+
+    async def broadcast(self, response):
+        # if response["type"] == "board":
+        #    print("... tournament_broadcast()", response)
+        for spectator in self.spectators:
+            for ws in spectator.tournament_sockets[self.id]:
+                try:
+                    await ws.send_json(response)
+                except (KeyError, ConnectionResetError):
+                    # spectator was removed
+                    pass
 
     async def save(self):
         if len(self.leaderboard) == 0 or self.app["db"] is None:
@@ -655,6 +667,8 @@ async def new_tournament(app, data):
     )
 
     app["tournaments"][tid] = tournament
+    app["tourneysockets"][tid] = {}
+    app["tourneychat"][tid] = collections.deque([], 100)
 
     await insert_tournament_to_db(tournament, app)
 
@@ -723,6 +737,8 @@ async def load_tournament(app, tournament_id):
     )
 
     tournaments[tournament_id] = tournament
+    app["tourneysockets"][tournament_id] = {}
+    app["tourneychat"][tournament_id] = collections.deque([], 100)
 
     tournament.nb_players = doc["nbPlayers"]
     tournament.winner = doc["winner"]
