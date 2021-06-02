@@ -35,7 +35,6 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 async def on_prepare(request, response):
-    response.headers["Cache-Control"] = "max-age=%s" % MAX_AGE
     if request.path.endswith(".br"):
         # brotli compressed js
         response.headers["Content-Encoding"] = "br"
