@@ -103,6 +103,10 @@ class Tournament:
         self.ongoing_games = 0
         self.nb_players = 0
 
+        self.nb_games_finished = 0
+        self.nb_games_cached = -1
+        self.leaderboard_cache = {}
+
         self.top_player = None
         self.top_game = None
 
@@ -125,8 +129,14 @@ class Tournament:
         else:
             return "%s%s" % user.get_rating(self.variant, self.chess960).rating_prov
 
-    # TODO: cache this
     def players_json(self, page=1):
+        if self.nb_games_cached != self.nb_games_finished:
+            self.leaderboard_cache = {}
+            self.nb_games_cached = self.nb_games_finished
+
+        if page in self.leaderboard_cache:
+            return self.leaderboard_cache[page]
+
         def player_json(player, full_score):
             return {
                 "paused": self.players[player].paused,
@@ -142,7 +152,7 @@ class Tournament:
         start = (page - 1) * 10
         end = min(start + 10, self.nb_players)
 
-        return {
+        page_json = {
             "type": "get_players",
             "nbPlayers": self.nb_players,
             "page": page,
@@ -152,6 +162,9 @@ class Tournament:
                 self.leaderboard.items()[start:end]
             ]
         }
+
+        self.leaderboard_cache[page] = page_json
+        return page_json
 
     # TODO: cache this
     def games_json(self, player_name):
@@ -279,6 +292,9 @@ class Tournament:
         self.status = T_FINISHED
 
     def join(self, player):
+        if player.anon or player.bot:
+            return
+
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
@@ -532,6 +548,7 @@ class Tournament:
         self.leaderboard.update({game.bplayer: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance})
 
         self.ongoing_games -= 1
+        self.nb_games_finished += 1
 
         wplayer.free = True
         bplayer.free = True
@@ -572,6 +589,7 @@ class Tournament:
         new_data = {
             "status": self.status,
             "nbPlayers": self.nb_players,
+            "nbGames": self.nb_games_finished,
             "winner": winner,
         }
 
@@ -741,6 +759,7 @@ async def load_tournament(app, tournament_id):
     app["tourneychat"][tournament_id] = collections.deque([], 100)
 
     tournament.nb_players = doc["nbPlayers"]
+    tournament.nb_games_finished = doc["nbGames"]
     tournament.winner = doc["winner"]
 
     player_table = app["db"].tournament_player
