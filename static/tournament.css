@@ -245,3 +245,7 @@ td.result {
     text-align: center;
     font-size: 1.5em;
 }
+rank {
+    font-weight: bold;
+    padding-right: 1ch;
+}

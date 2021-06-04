@@ -50,6 +50,7 @@ export default class TournamentController {
     action: VNode;
     clockdiv: VNode;
     topGame: VNode;
+    topGameId: string;
     topGameChessground;
     playerGamesOn: boolean;
     fc: string;
@@ -101,7 +102,6 @@ export default class TournamentController {
         
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.topGame = patch(document.getElementById('top-game') as HTMLElement, h('div#top-game'));
-        this.topGameChessground = undefined;
         this.playerGamesOn = false;
 
         boardSettings.updateBoardAndPieceStyles();
@@ -174,7 +174,7 @@ export default class TournamentController {
         if (this.model["anon"] === 'True' && 'created|started'.includes(this.tournamentStatus)) {
             button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('SIGN IN'));
         }
-        console.log("updateActionButton()", this.tournamentStatus, button);
+        // console.log("updateActionButton()", this.tournamentStatus, button);
         this.action = patch(document.getElementById('action') as HTMLElement, button);
     }
 
@@ -308,7 +308,7 @@ export default class TournamentController {
         return h(`selection#mainboard.${variant.board}.${variant.piece}`, {
             on: { click: () => window.location.assign('/' + game.gameId) }
         }, h('div', [
-            h('div.name', game.b),
+            h('div.name', [h('rank', '#' + game.br), game.b]),
             h(`div.cg-wrap.${variant.cg}`, {
                 hook: {
                     insert: vnode => {
@@ -320,10 +320,11 @@ export default class TournamentController {
                             viewOnly: true
                         });
                         this.topGameChessground = cg;
+                        this.topGameId = game.gameId;
                     }
                 }
             }),
-            h('div.name', game.w),
+            h('div.name', [h('rank', '#' + game.wr), game.w]),
         ]));
     }
 
@@ -397,13 +398,14 @@ export default class TournamentController {
     }
 
     private onMsgTopGame(msg) {
-        console.log("onMsgTopGame", msg);
+        this.topGame = patch(this.topGame, h('div#top-game'));
         this.topGame = patch(this.topGame, h('div#top-game', this.renderTopGame(msg)));
     }
 
     private onMsgBoard = (msg) => {
-        console.log("onMsgBoard", msg);
-        if (this.topGameChessground === undefined) return;
+        if (this.topGameChessground === undefined || this.topGameId !== msg.gameId) {
+            return;
+        };
 
         let lastMove = msg.lastMove;
         if (lastMove !== null) {
@@ -467,11 +469,9 @@ export default class TournamentController {
                 this.onMsgGetGames(msg);
                 break;
             case "board":
-                console.log("<+++ tournament onMessage():", evt.data);
                 this.onMsgBoard(msg);
                 break;
             case "gameEnd":
-                console.log("<+++ tournament onMessage():", evt.data);
                 this.checkStatus(msg);
                 break;
             case "tournament_user_connected":

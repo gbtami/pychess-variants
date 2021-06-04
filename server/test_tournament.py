@@ -48,13 +48,9 @@ class TestTournament(Tournament):
         #     print("%s - %s" % (wp.username, bp.username))
         print("--- create_new_pairings done ---")
 
-        new_tasks = set()
         for game in games:
             game.random_mover = True
-            new_tasks.add(self.play_random(game))
-
-        self.game_tasks |= new_tasks
-        await asyncio.gather(*new_tasks)
+            self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
@@ -82,7 +78,7 @@ class TestTournament(Tournament):
     async def play_random(self, game):
         """ Play random moves for TEST players """
         if self.system == ARENA:
-            await asyncio.sleep(random.choice((0, 1, 3, 5, 7)))
+            await asyncio.sleep(random.choice((0, 0.1, 0.3, 0.5, 0.7)))
 
         game.status = STARTED
         while game.status <= STARTED:
@@ -106,7 +102,7 @@ class TestTournament(Tournament):
                         "movetime": 0
                     }
                     await play_move(self.app, cur_player, game, move, clocks=clocks)
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.1)
 
 
 async def create_arena_test(app):
@@ -116,7 +112,7 @@ async def create_arena_test(app):
     await app["db"].tournament_leaderboard.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = TestTournament(app, tid, variant="minixiangqi", name="First Minixiangqi Arena", before_start=0.1, minutes=1)
+    tournament = TestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=1)
     app["tournaments"][tid] = tournament
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)
@@ -131,7 +127,7 @@ class TournamentTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         self.tournament.print_final_result()
 
-        # has_games = len(self.app["games"]) > 0
+        has_games = len(self.app["games"]) > 0
 
         for game in self.app["games"].values():
             if game.status <= STARTED:
@@ -142,7 +138,7 @@ class TournamentTestCase(AioHTTPTestCase):
             except asyncio.CancelledError:
                 pass
 
-        if 0:  # has_games:
+        if has_games:
             for task in self.tournament.game_tasks:
                 task.cancel()
                 try:

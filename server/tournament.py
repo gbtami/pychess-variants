@@ -144,7 +144,7 @@ class Tournament:
                 "name": player.username,
                 "rating": self.players[player].rating,
                 "points": self.players[player].points,
-                "fire": self.players[player].win_streak,
+                "fire": self.players[player].win_streak if self.status == T_STARTED else 0,
                 "score": int(full_score / SCORE_SHIFT),
                 "perf": self.players[player].performance
             }
@@ -224,8 +224,8 @@ class Tournament:
             "fen": self.top_game.board.fen,
             "w": self.top_game.wplayer.username,
             "b": self.top_game.bplayer.username,
-            "wr": self.leaderboard_keys_view.index(self.top_game.wplayer),
-            "br": self.leaderboard_keys_view.index(self.top_game.bplayer),
+            "wr": self.leaderboard_keys_view.index(self.top_game.wplayer) + 1,
+            "br": self.leaderboard_keys_view.index(self.top_game.bplayer) + 1,
             "chess960": self.top_game.chess960,
             "base": self.top_game.base,
             "inc": self.top_game.inc,
@@ -292,7 +292,7 @@ class Tournament:
         self.status = T_FINISHED
 
     def join(self, player):
-        if player.anon or player.bot:
+        if player.anon:
             return
 
         if self.system == RR and len(self.players) > self.rounds + 1:
@@ -390,6 +390,8 @@ class Tournament:
 
     async def create_games(self, pairing):
         check_top_game = self.top_player is not None
+        new_top_game = False
+
         games = []
         game_table = None if self.app["db"] is None else self.app["db"].game
         for wp, bp in pairing:
@@ -444,10 +446,11 @@ class Tournament:
             if (check_top_game) and (self.top_player.username in (game.wplayer.username, game.bplayer.username)):
                 self.top_game = game
                 check_top_game = False
+                new_top_game = True
 
-        if self.top_game is not None:
-            print("... broadcast()", self.top_game_json)
-            await self.broadcast(self.top_game_json)
+        if new_top_game:
+            tgj = self.top_game_json
+            await self.broadcast(tgj)
 
         return games
 
@@ -553,9 +556,7 @@ class Tournament:
         wplayer.free = True
         bplayer.free = True
 
-        # print("---- game end", game.wplayer.username, game.bplayer.username, self.top_player)
-        if self.top_player is not None and self.top_player.username in (game.wplayer.username, game.bplayer.username):
-            self.top_player = None
+        self.set_top_player()
 
         await self.broadcast({
             "type": "game_update",
@@ -563,16 +564,13 @@ class Tournament:
             "bname": game.bplayer.username
         })
 
-        if self.top_game is not None and self.top_game.id == game.id and self.top_player != self.leaderboard.peekitem(0)[0]:
-            self.set_top_player()
+        if self.top_game is not None and self.top_game.id == game.id and self.top_player.username not in (game.wplayer.username, game.bplayer.username):
             self.top_game = self.players[self.top_player].games[-1]
             if self.top_game.status <= STARTED:
-                print("... broadcast()", self.top_game_json)
-                await self.broadcast(self.top_game_json)
+                tgj = self.top_game_json
+                await self.broadcast(tgj)
 
     async def broadcast(self, response):
-        # if response["type"] == "board":
-        #    print("... tournament_broadcast()", response)
         for spectator in self.spectators:
             for ws in spectator.tournament_sockets[self.id]:
                 try:
