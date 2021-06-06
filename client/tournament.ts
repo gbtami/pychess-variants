@@ -308,7 +308,7 @@ export default class TournamentController {
         return h(`selection#mainboard.${variant.board}.${variant.piece}`, {
             on: { click: () => window.location.assign('/' + game.gameId) }
         }, h('div', [
-            h('div.name', [h('rank', '#' + game.br), game.b]),
+            h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
             h(`div.cg-wrap.${variant.cg}`, {
                 hook: {
                     insert: vnode => {
@@ -324,7 +324,7 @@ export default class TournamentController {
                     }
                 }
             }),
-            h('div.name', [h('rank', '#' + game.wr), game.w]),
+            h('div.player', [h('user', [h('rank', '#' + game.wr), game.w]), h('div#wresult')]),
         ]));
     }
 
@@ -416,14 +416,22 @@ export default class TournamentController {
         }
         this.topGameChessground.set({
             fen: msg.fen,
+            turnColor: msg.fen.split(" ") === "w" ? "white" : "black",
             check: msg.check,
             lastMove: lastMove,
         });
     }
 
     private checkStatus = (msg) => {
-        // TODO
+        if (this.topGameChessground === undefined || this.topGameId !== msg.gameId) {
+            return;
+        }
         console.log(msg);
+        if (msg.status >= 0) {
+            const result = msg.result.split('-');
+            patch(document.getElementById('wresult') as HTMLElement, h('div#wresult', result[0]));
+            patch(document.getElementById('bresult') as HTMLElement, h('div#bresult', result[1]));
+        }
     }
 
     private onMsgChat(msg) {

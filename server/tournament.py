@@ -564,11 +564,15 @@ class Tournament:
             "bname": game.bplayer.username
         })
 
-        if self.top_game is not None and self.top_game.id == game.id and self.top_player.username not in (game.wplayer.username, game.bplayer.username):
-            self.top_game = self.players[self.top_player].games[-1]
-            if self.top_game.status <= STARTED:
-                tgj = self.top_game_json
-                await self.broadcast(tgj)
+        if self.top_game is not None and self.top_game.id == game.id:
+            response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id}
+            await self.broadcast(response)
+
+            if self.top_player.username not in (game.wplayer.username, game.bplayer.username):
+                self.top_game = self.players[self.top_player].games[-1]
+                if self.top_game.status <= STARTED:
+                    tgj = self.top_game_json
+                    await self.broadcast(tgj)
 
     async def broadcast(self, response):
         for spectator in self.spectators:

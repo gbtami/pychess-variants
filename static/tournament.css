@@ -249,3 +249,8 @@ rank {
     font-weight: bold;
     padding-right: 1ch;
 }
+div.player {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
