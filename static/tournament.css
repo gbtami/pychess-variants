@@ -254,9 +254,14 @@ div.player {
     flex-flow: row;
     justify-content: space-between;
 }
+.podium {
+    padding-bottom: 20px;
+}
 .podium > div {
     display: inline-block;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .podium .second {
     font-size: 1.3em;
@@ -288,4 +293,18 @@ div.player {
     height: 7em;
     width: 7em;
     background-image: url("images/trophy/bronze.svg");
+}
+.podium .stats {
+    margin: 0.5em auto 0 auto;
+    font-size: 0.7em;
+}
+.podium .stats th {
+    font-weight: normal;
+    letter-spacing: -1px;
+    text-align: left;
+}
+.podium .stats td {
+    font-weight: bold;
+    padding-left: 5px;
+    text-align: right;
 }

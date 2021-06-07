@@ -201,7 +201,7 @@ export default class TournamentController {
             h('td.total', [
                 h('fire', [(player.fire === 2) ? h('i', {class: {"icon": true, "icon-fire": true} }) : '']),
                 h('strong.score', player.score),
-                h('span.perf', player.perf)
+                // h('span.perf', player.perf)
             ]),
         ]);
     }
@@ -287,7 +287,7 @@ export default class TournamentController {
                 }, 0) / gamesLen
             )
             : 0;
-        const winRate = ((msg.nbGames !== 0) ? Math.round(100 * (msg.nbWin / msg.nbGames)) : 0) + '%';
+
         return [
             h('a.close', { attrs: { 'data-icon': 'j' } }),
             h('h2', [
@@ -297,7 +297,7 @@ export default class TournamentController {
             h('table.stats', [
                 h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
                 h('tr', [h('th', _('Games played')), h('td', msg.games.length)]),
-                h('tr', [h('th', _('Win rate')), h('td', winRate)]),
+                h('tr', [h('th', _('Win rate')), h('td', this.winRate(msg.nbGames, msg.nbWin))]),
                 h('tr', [h('th', _('Average opponent')), h('td', avgOp)]),
             ]),
         ];
@@ -328,22 +328,41 @@ export default class TournamentController {
         ]));
     }
 
+    winRate(nbGames, nbWin) {
+        return ((nbGames !== 0) ? Math.round(100 * (nbWin / nbGames)) : 0) + '%';
+    }
+
     renderPodium(players) {
         return h('div.podium', [
             h('div.second', [
                 h('div.trophy'),
-                h('user', playerInfo(players[1].name, players[1].title)),
-                h('stats', players[1].score)
+                playerInfo(players[1].name, players[1].title),
+                h('table.stats', [
+                    h('tr', [h('th', 'Performance'), h('td', players[1].perf)]),
+                    h('tr', [h('th', 'Games played'), h('td', players[1].nbGames)]),
+                    h('tr', [h('th', 'Win rate'), h('td', this.winRate(players[1].nbGames, players[1].nbWin))]),
+                    //h('tr', [h('th', 'Berserk rate'), h('td', players[1].???)])
+                ])
             ]),
             h('div.first', [
                 h('div.trophy'),
-                h('user', playerInfo(players[0].name, players[0].title)),
-                h('stats', players[0].score)
+                playerInfo(players[0].name, players[0].title),
+                h('table.stats', [
+                    h('tr', [h('th', 'Performance'), h('td', players[0].perf)]),
+                    h('tr', [h('th', 'Games played'), h('td', players[0].nbGames)]),
+                    h('tr', [h('th', 'Win rate'), h('td', this.winRate(players[0].nbGames, players[0].nbWin))]),
+                    //h('tr', [h('th', 'Berserk rate'), h('td', players[0].???)])
+                ])
             ]),
             h('div.third', [
                 h('div.trophy'),
-                h('user', playerInfo(players[2].name, players[2].title)),
-                h('stats', players[2].score)
+                playerInfo(players[2].name, players[2].title),
+                h('table.stats', [
+                    h('tr', [h('th', 'Performance'), h('td', players[2].perf)]),
+                    h('tr', [h('th', 'Games played'), h('td', players[2].nbGames)]),
+                    h('tr', [h('th', 'Win rate'), h('td', this.winRate(players[2].nbGames, players[2].nbWin))]),
+                    //h('tr', [h('th', 'Berserk rate'), h('td', players[2].???)])
+                ])
             ])
         ]);
     }

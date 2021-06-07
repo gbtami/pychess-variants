@@ -146,7 +146,9 @@ class Tournament:
                 "points": self.players[player].points,
                 "fire": self.players[player].win_streak if self.status == T_STARTED else 0,
                 "score": int(full_score / SCORE_SHIFT),
-                "perf": self.players[player].performance
+                "perf": self.players[player].performance,
+                "nbGames": self.players[player].nb_games,
+                "nbWin": self.players[player].nb_win,
             }
 
         start = (page - 1) * 10

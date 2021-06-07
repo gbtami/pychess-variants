@@ -643,9 +643,10 @@ a {
     white-space: nowrap;
 }
 a, .user-link:link, .user-link:visited {
-    display: inline-block;
     color: var(--font-color);
     text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
 }
 a, .user-link, .user-link:active {
     color: var(--link-color);
