@@ -292,7 +292,7 @@ export default class TournamentController {
             h('a.close', { attrs: { 'data-icon': 'j' } }),
             h('h2', [
                 h('rank', msg.rank + '. '),
-                h('a.user-link', { attrs: { href: '/@/' + msg.name } }, [h('player-title', " " + msg.title + " "), msg.name]),
+                playerInfo(msg.name, msg.title),
             ]),
             h('table.stats', [
                 h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
@@ -328,6 +328,26 @@ export default class TournamentController {
         ]));
     }
 
+    renderPodium(players) {
+        return h('div.podium', [
+            h('div.second', [
+                h('div.trophy'),
+                h('user', playerInfo(players[1].name, players[1].title)),
+                h('stats', players[1].score)
+            ]),
+            h('div.first', [
+                h('div.trophy'),
+                h('user', playerInfo(players[0].name, players[0].title)),
+                h('stats', players[0].score)
+            ]),
+            h('div.third', [
+                h('div.trophy'),
+                h('user', playerInfo(players[2].name, players[2].title)),
+                h('stats', players[2].score)
+            ])
+        ]);
+    }
+
     private onMsgGetGames(msg) {
         const oldStats = document.getElementById('stats') as Element;
         oldStats.innerHTML = "";
@@ -339,6 +359,9 @@ export default class TournamentController {
     }
 
     private onMsgGetPlayers(msg) {
+        if ('finished|archived'.includes(this.tournamentStatus)) {
+            patch(document.getElementById('podium') as HTMLElement, this.renderPodium(msg.players));
+        }
         this.players = msg.players;
         this.page = msg.page;
         this.nbPlayers = msg.nbPlayers;
@@ -369,7 +392,10 @@ export default class TournamentController {
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
         this.updateActionButton()
-        initializeClock(this);
+
+        if (!'finished|archived'.includes(this.tournamentStatus)) {
+            initializeClock(this);
+        }
     }
 
     private onMsgSpectators = (msg) => {
@@ -543,12 +569,13 @@ export function tournamentView(model): VNode[] {
             ]),
             h('div#lobbychat')
         ]),
-        h('div.players', [
-                h('div.tour-header.box', [
+        h('div.players.box', [
+                h('div.tour-header', [
                     h('i', {class: {"icon": true, "icon-trophy": true} }),
                     h('h1', model["title"]),
                     h('div#clockdiv'),
                 ]),
+                h('div#podium'),
                 h('div#page-controls'),
                 h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),
         ]),
@@ -562,3 +589,6 @@ export function tournamentView(model): VNode[] {
         h('under-chat#spectators'),
     ];
 }
+
+function playerInfo(name, title) {
+    return h('a.user-link', { attrs: { href: '/@/' + name } }, [h('player-title', " " + title + " "), name])}

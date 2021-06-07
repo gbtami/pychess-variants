@@ -254,3 +254,38 @@ div.player {
     flex-flow: row;
     justify-content: space-between;
 }
+.podium > div {
+    display: inline-block;
+    text-align: center;
+}
+.podium .second {
+    font-size: 1.3em;
+    width: 29%;
+}
+.podium .first {
+    width: 44%;
+    font-size: 1.6em;
+}
+.podium .third {
+    font-size: 1.2em;
+    width: 27%;
+}
+.podium .trophy {
+    margin: 0 auto 0.5em auto;
+    background: center / contain no-repeat;
+}
+.podium .second .trophy {
+    height: 9em;
+    width: 7em;
+    background-image: url("images/trophy/silver.svg");
+}
+.podium .first .trophy {
+    height: 9em;
+    width: 9em;
+    background-image: url("images/trophy/gold.svg");
+}
+.podium .third .trophy {
+    height: 7em;
+    width: 7em;
+    background-image: url("images/trophy/bronze.svg");
+}
