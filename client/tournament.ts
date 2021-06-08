@@ -199,7 +199,7 @@ export default class TournamentController {
                 return h(scoreTagNames[(s[1] || 1) - 1] + ((this.system > 0) ? (score > 1) ? '.win': (score > 0) ? '.draw' : '.lose' : ''), [score]);
             })),
             h('td.total', [
-                h('fire', [(player.fire === 2) ? h('i', {class: {"icon": true, "icon-fire": true} }) : '']),
+                h('fire', [(player.fire === 2 && this.tournamentStatus === 'started') ? h('i', {class: {"icon": true, "icon-fire": true} }) : '']),
                 h('strong.score', player.score),
                 // h('span.perf', player.perf)
             ]),
@@ -379,7 +379,10 @@ export default class TournamentController {
 
     private onMsgGetPlayers(msg) {
         if ('finished|archived'.includes(this.tournamentStatus)) {
-            patch(document.getElementById('podium') as HTMLElement, this.renderPodium(msg.players));
+            const podium = document.getElementById('podium') as HTMLElement;
+            if (podium instanceof Element) {
+                patch(podium, this.renderPodium(msg.players));
+            }
         }
         this.players = msg.players;
         this.page = msg.page;
@@ -438,6 +441,7 @@ export default class TournamentController {
         }
         this.updateActionButton()
         if ('finished|archived'.includes(this.tournamentStatus)) {
+            this.topGame = patch(this.topGame, h('div#top-game'));
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
     }
@@ -590,7 +594,7 @@ export function tournamentView(model): VNode[] {
         ]),
         h('div.players.box', [
                 h('div.tour-header', [
-                    h('i', {class: {"icon": true, "icon-trophy": true} }),
+                    // h('i', {class: {"icon": true, "icon-trophy": true} }),
                     h('h1', model["title"]),
                     h('div#clockdiv'),
                 ]),

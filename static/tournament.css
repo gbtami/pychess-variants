@@ -40,11 +40,11 @@ div.tour-header i {
 }
 div.tour-header h1 {
     color: var(--gold);
-    font-size: 2.2rem;
     font-weight: normal;
     flex: 9 1 auto;
     margin: 0;
     overflow: hidden;
+    text-align: center;
 }
 div.tour-header clock {
     text-align: right;

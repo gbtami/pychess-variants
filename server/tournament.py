@@ -144,7 +144,7 @@ class Tournament:
                 "name": player.username,
                 "rating": self.players[player].rating,
                 "points": self.players[player].points,
-                "fire": self.players[player].win_streak if self.status == T_STARTED else 0,
+                "fire": self.players[player].win_streak,
                 "score": int(full_score / SCORE_SHIFT),
                 "perf": self.players[player].performance,
                 "nbGames": self.players[player].nb_games,
