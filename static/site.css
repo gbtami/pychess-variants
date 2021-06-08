@@ -299,7 +299,7 @@ iframe {
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
-    padding: 0 1em 0 1em;
+    margin: 2em 0 0 0;
 }
 .sidebar-second.analysis {
     justify-content: none;

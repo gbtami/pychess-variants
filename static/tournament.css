@@ -1,3 +1,6 @@
+:root {
+    --main-max-width: auto;
+}
 .tour {
     grid-area: main;
     display: grid;
@@ -12,7 +15,7 @@
     .tour {
         grid-template-columns: minmax(230px, 20vw) minmax(500px, calc( 100vh * .9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
         grid-template-rows: calc(100vh - calc(var(--site-header-height) + var(--site-header-margin)) - 2vmin - 3rem) auto;
-        grid-template-areas: 'side main table' 'uchat main table';
+        grid-template-areas: 'side players table' 'uchat players table';
     }
 }
 under-chat {
@@ -88,6 +91,12 @@ button#action {
     color: white;
     background-color: var(--green-hover);
     font-size:1.6em;
+}
+.players {
+    grid-area: players;
+}
+.tour-table {
+    grid-area: table;
 }
 table.players tr {
     cursor: pointer;
