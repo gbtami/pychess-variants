@@ -30,7 +30,7 @@ showdown makehtml -i "zh/intro.md" -o "intro.zh.html" --flavor github
 
 SRC='https://github.com/gbtami/pychess-variants/blob/master'; 
 #DST='https://www.pychess.org';
-DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants@1.5.3';
+DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants@1.5.4';
 find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',g' {} \;
 
 mkdir -p ../../templates/docs
