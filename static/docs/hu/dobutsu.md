@@ -24,5 +24,5 @@ If the players play the same position three turns in a row, the game is a draw. 
 ## Strategy
 
 Dobutsu Shogi is a solved game (in favor of the second player). However, to learn the moves for a perfect game is beyond the skill of most humans.
-
+[https://variantslove.netlify.app/](https://variantslove.netlify.app/) by Tasshaq is recommended for everyone.
 Bottom line: Enjoy the game. :)

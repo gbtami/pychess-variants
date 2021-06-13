@@ -37,6 +37,7 @@ A gyalogok átváltoztathatók elefánttá vagy sólyommá is.
 ## Stratégia
 
 Yasser Seirawan szerint a király védelmezése itt még fontosabb, mert a hátsó sorból kilépő bábu (mint pl. a vezér, a futó vagy a bástya) helyére érkezett új bábu azonnali támogatást nyújthat a támadáshoz, ami esetekben mattot is eredményezhet.
+[https://www.chess.com/blog/catask/s-chess-ramblings-1](https://www.chess.com/blog/catask/s-chess-ramblings-1) by catask is recommended for everyone.
 
 Egy youtube videó amiben Yasser Seirawan bemutatja a játékot JannLee-vel játszva
 

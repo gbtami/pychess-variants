@@ -11,6 +11,7 @@ from aiohttp_sse import sse_response
 from const import STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from compress import C2V, V2C, C2R
 from utils import pgn
+from settings import ADMINS
 
 log = logging.getLogger(__name__)
 
@@ -240,12 +241,21 @@ async def export(request):
     game_list = []
     game_counter = 0
     failed = 0
-    if profileId is not None:
-        if profileId == "all_games" and session_user in request.app["fishnet_versions"]:
-            cursor = db.game.find()
-        else:
-            cursor = db.game.find({"us": profileId})
+    cursor = None
 
+    if profileId is not None:
+        cursor = db.game.find({"us": profileId})
+    elif session_user in ADMINS:
+        yearmonth = request.match_info.get("yearmonth")
+        print("---", yearmonth[:4], yearmonth[4:])
+        filter_cond = {}
+        filter_cond["$and"] = [
+            {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
+            {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
+        ]
+        cursor = db.game.find(filter_cond)
+
+    if cursor is not None:
         async for doc in cursor:
             try:
                 # print(game_counter)

@@ -40,7 +40,7 @@ The Ninja does not promote.
 
 ![Dragon](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Dragon.png)
 
-The Ninja is a hybrid piece that combines the movements of the rook and king (or for purists, rook and ferz). This is identical to the Dragon King (promoted Rook) in Shogi. The Dragon is weaker than the Ninja, but stronger than the Rook.
+The Dragon is a hybrid piece that combines the movements of the rook and king (or for purists, rook and ferz). This is identical to the Dragon King (promoted Rook) in Shogi. The Dragon is weaker than the Ninja, but stronger than the Rook.
 
 The Dragon does not promote.
 

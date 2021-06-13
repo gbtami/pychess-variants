@@ -24,5 +24,5 @@ Se os jogadores atingirem a mesma posição 3 vezes, o jogo é considerado empat
 ## Estratégia
 
 O Dobutsu Shogi é uma variante que tem solução (a favor do segundo jogador). No entanto, aprender as jogadas a fim de atingir o jogo perfeito está além das capacidades da maioria dos seres humanos.
-
+[https://variantslove.netlify.app/](https://variantslove.netlify.app/) by Tasshaq is recommended for everyone.
 Conclusão: Divirtam-se no jogo.  :)
