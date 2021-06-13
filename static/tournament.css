@@ -317,3 +317,13 @@ div.player {
     padding-left: 5px;
     text-align: right;
 }
+
+.tour-stats {
+    padding: 1.7em 0;
+    align-self: flex-start;
+}
+.tour-stats h2 {
+    font-size: 1.5em;
+    margin-bottom: 1em;
+    text-align: center;
+}

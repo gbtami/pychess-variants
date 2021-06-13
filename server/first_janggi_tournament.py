@@ -97,7 +97,6 @@ async def add_games(app):
 
     await app["db"].tournament.delete_one({"_id": tid})
     await app["db"].tournament_player.delete_many({"tid": tid})
-    await app["db"].tournament_leaderboard.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
     data = {

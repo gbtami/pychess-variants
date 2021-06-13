@@ -605,11 +605,7 @@ class Tournament:
 
         # TODO: save players and pairings on user join time and when games created
         player_documents = []
-        leaderboard_documents = []
-
         player_table = self.app["db"].tournament_player
-        pairing_table = self.app["db"].tournament_pairing
-        leaderboard_table = self.app["db"].tournament_leaderboard
 
         i = 0
         for user, full_score in self.leaderboard.items():
@@ -633,17 +629,11 @@ class Tournament:
                 "p": player.points,
             })
 
-            leaderboard_documents.append({
-                "_id": player_id,
-                "tid": self.id,
-                "uid": user.username,
-                "r": i,
-            })
-
         await player_table.insert_many(player_documents)
-        await leaderboard_table.insert_many(leaderboard_documents)
 
         pairing_documents = []
+        pairing_table = self.app["db"].tournament_pairing
+
         processed_games = set()
 
         for user, user_data in self.players.items():

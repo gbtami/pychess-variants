@@ -99,7 +99,10 @@ export default class TournamentController {
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
-        
+
+        if (this.completed()) {
+            patch(document.getElementById('summary') as HTMLElement, h('div#summary', this.renderSummary()));
+        }
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.topGame = patch(document.getElementById('top-game') as HTMLElement, h('div#top-game'));
         this.playerGamesOn = false;
@@ -178,6 +181,16 @@ export default class TournamentController {
         this.action = patch(document.getElementById('action') as HTMLElement, button);
     }
 
+    completed() {
+        return 'aborted|finished|archived'.includes(this.tournamentStatus);
+    }
+
+    renderSummary() {
+        return h('div.tour-stats.box', [
+            h('h2', 'Tournament complete'),
+        ]);
+    }
+
     renderPlayers(players) {
         const rows = players.map((player,index) => this.playerView(player, (this.page - 1) * 10 + index + 1));
         return rows;
@@ -187,7 +200,7 @@ export default class TournamentController {
         if (player.name === this.visitedPlayer) {
             this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: this.visitedPlayer });
         }
-        return h('tr', { on: { click: () => this.onClickPlayer(player) } }, [
+        return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, [
             h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
@@ -207,17 +220,35 @@ export default class TournamentController {
     }
 
     private onClickPlayer(player) {
-        this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player.name });
-        if (this.playerGamesOn) {
-            (document.getElementById('top-game') as HTMLElement).style.display = 'none';
-            (document.getElementById('player') as HTMLElement).style.display = 'block';
-            this.playerGamesOn = false;
-        } else if (this.visitedPlayer === player.name) {
-            (document.getElementById('top-game') as HTMLElement).style.display = 'block';
-            (document.getElementById('player') as HTMLElement).style.display = 'none';
-            this.playerGamesOn = true;
+        console.log('onClickPlayer()', player);
+        if (this.tournamentStatus === 'created') return;
+
+        if (this.completed()) {
+            if (this.playerGamesOn && this.visitedPlayer === player) {
+                (document.getElementById('summary') as HTMLElement).style.display = 'block';
+                (document.getElementById('player') as HTMLElement).style.display = 'none';
+                this.playerGamesOn = false;
+            } else {
+                this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player });
+                (document.getElementById('summary') as HTMLElement).style.display = 'none';
+                (document.getElementById('player') as HTMLElement).style.display = 'block';
+                this.playerGamesOn = true;
+                this.visitedPlayer = player;
+            }
+        // started
+        } else {
+            this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player });
+            if (this.playerGamesOn && this.visitedPlayer === player) {
+                (document.getElementById('top-game') as HTMLElement).style.display = 'block';
+                (document.getElementById('player') as HTMLElement).style.display = 'none';
+                this.playerGamesOn = false;
+            } else {
+                (document.getElementById('top-game') as HTMLElement).style.display = 'none';
+                (document.getElementById('player') as HTMLElement).style.display = 'block';
+                this.playerGamesOn = true;
+            }
+            this.visitedPlayer = player;
         }
-        this.visitedPlayer = player.name;
     }
 
     renderGames(games) {
@@ -289,7 +320,10 @@ export default class TournamentController {
             : 0;
 
         return [
-            h('a.close', { attrs: { 'data-icon': 'j' } }),
+            h('span.close', {
+                on: { click: () => this.onClickPlayer(this.visitedPlayer) },
+                attrs: { 'data-icon': 'j' } 
+            }),
             h('h2', [
                 h('rank', msg.rank + '. '),
                 playerInfo(msg.name, msg.title),
@@ -378,7 +412,7 @@ export default class TournamentController {
     }
 
     private onMsgGetPlayers(msg) {
-        if ('finished|archived'.includes(this.tournamentStatus)) {
+        if (this.completed()) {
             const podium = document.getElementById('podium') as HTMLElement;
             if (podium instanceof Element) {
                 patch(podium, this.renderPodium(msg.players));
@@ -415,7 +449,7 @@ export default class TournamentController {
         this.secondsToFinish = msg.secondsToFinish;
         this.updateActionButton()
 
-        if (!'finished|archived'.includes(this.tournamentStatus)) {
+        if (!this.completed()) {
             initializeClock(this);
         }
     }
@@ -440,7 +474,8 @@ export default class TournamentController {
             initializeClock(this);
         }
         this.updateActionButton()
-        if ('finished|archived'.includes(this.tournamentStatus)) {
+        if (this.completed()) {
+            this.renderSummary();
             this.topGame = patch(this.topGame, h('div#top-game'));
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
@@ -603,6 +638,7 @@ export function tournamentView(model): VNode[] {
                 h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),
         ]),
         h('div.tour-table', [
+            h('div#summary'),
             h('div#top-game'),
             h('div#player', [
                     h('div#stats.box'),
