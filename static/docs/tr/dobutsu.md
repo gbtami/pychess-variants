@@ -5,7 +5,7 @@
 
 Dobutsu Shogi  (どうぶつしょうぎ, "animal chess") is a small shogi variant for young children. It was invented by female professional shogi player Madoka Kitao (北尾 まどか, Kitao Madoka), partially to attract young girls to the game. It is played on a 3×4 board and generally follows the rules of standard shogi, with a few exceptions described below.
 
-## Kurallar
+## Rules
 
 The rules are simple, you must either capture the enemy Lion (King) or move your own Lion into the final rank. All piece moves are indicated on the pieces themselves (see the board above). There are no ranging pieces, so the Giraffe and Elephant only move one space each, despite being based on the Rook and Bishop.
 
@@ -24,5 +24,5 @@ If the players play the same position three turns in a row, the game is a draw. 
 ## Strategy
 
 Dobutsu Shogi is a solved game (in favor of the second player). However, to learn the moves for a perfect game is beyond the skill of most humans.
-
+[https://variantslove.netlify.app/](https://variantslove.netlify.app/) by Tasshaq is recommended for everyone.
 Bottom line: Enjoy the game. :)

@@ -18,3 +18,4 @@ Toutes les autres règles sont inchangées.
 ## Stratégie
 
 Les tactiques et strétégies usuelles s'appliquent, sauf dans l'ouverture ! Puisque la position initiale est aléatoire, les débuts habituels n'existent pas.
+[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by Tasshaq is recommended for everyone.

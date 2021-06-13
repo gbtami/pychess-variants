@@ -16,3 +16,4 @@ A sötét bábuk a megfelelő világos bábukkal szemben kezdenek.
 A sáncolás a standard sakk szabálya szerint működik, azaz mindegy, hogy a bástya melyik mezőn áll, a sáncolás során a király és a bástya ugyanarra a mezőre érkezik, mint a standard sakkban. Ha például a király a vezérszárnyra sáncol, akkor a c1 mezőre érkezik, a bástya pedig a d1 mezőre. 
 
 A további szabályok a standard sakkban megszokotottak.
+[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by Tasshaq is recommended for everyone.
