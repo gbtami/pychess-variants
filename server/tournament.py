@@ -572,7 +572,7 @@ class Tournament:
 
             if self.top_player.username not in (game.wplayer.username, game.bplayer.username):
                 self.top_game = self.players[self.top_player].games[-1]
-                if self.top_game.status <= STARTED:
+                if (self.top_game is not None) and (self.top_game.status <= STARTED):
                     tgj = self.top_game_json
                     await self.broadcast(tgj)
 
