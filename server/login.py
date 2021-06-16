@@ -83,7 +83,7 @@ async def login(request):
         log.error("BOT user %s tried to log in.", user.username)
         return web.HTTPFound("/")
 
-    log.info("+++ Lichess authenticated user: %s %s %s", user.id, user.username, user.country)
+    log.info("+++ Lichess authenticated user: %s %s %s", user.id)
     users = request.app["users"]
 
     prev_session_user = session.get("user_name")
@@ -94,9 +94,6 @@ async def login(request):
         prev_user.update_online()
 
     session["user_name"] = user.username
-    session["country"] = user.country
-    session["first_name"] = user.first_name
-    session["last_name"] = user.last_name
     session["title"] = title
 
     if user.username:
@@ -105,9 +102,6 @@ async def login(request):
         if doc is None:
             result = await db.user.insert_one({
                 "_id": user.username,
-                "first_name": session.get("first_name"),
-                "last_name": session.get("last_name"),
-                "country": session.get("country"),
                 "title": session.get("title"),
                 "perfs": {},
             })

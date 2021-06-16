@@ -188,9 +188,6 @@ async def init_state(app):
                     app,
                     username=doc["_id"],
                     title=doc.get("title"),
-                    first_name=doc.get("first_name"),
-                    last_name=doc.get("last_name"),
-                    country=doc.get("country"),
                     bot=doc.get("title") == "BOT",
                     perfs=perfs,
                     enabled=doc.get("enabled", True)

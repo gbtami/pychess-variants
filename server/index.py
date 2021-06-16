@@ -222,7 +222,6 @@ async def index(request):
         "user": user.username if session["guest"] else "",
         "anon": user.anon,
         "username": user.username,
-        "country": session["country"] if "country" in session else "",
         "guest": session["guest"],
         "profile": profileId if profileId is not None else "",
         "variant": variant if variant is not None else "",

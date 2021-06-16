@@ -188,9 +188,6 @@ async def event_stream(request):
         if doc is None:
             result = await db.user.insert_one({
                 "_id": username,
-                "first_name": None,
-                "last_name": None,
-                "country": None,
                 "title": "BOT",
             })
             print("db insert user result %s" % repr(result.inserted_id))
