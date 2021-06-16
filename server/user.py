@@ -22,7 +22,7 @@ class MissingRatingsException(Exception):
 
 
 class User:
-    def __init__(self, app, bot=False, username=None, anon=False, title="", country="", first_name="", last_name="", perfs=None, enabled=True):
+    def __init__(self, app, bot=False, username=None, anon=False, title="", perfs=None, enabled=True):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.notify_queue = None
@@ -33,9 +33,6 @@ class User:
             self.username = "Anon-" + "".join(random.sample(string.ascii_letters, 8))
         else:
             self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
-        self.country = country
         self.seeks = {}
         self.lobby_sockets = set()
 
@@ -118,10 +115,7 @@ class User:
         return {
             "_id": self.username,
             "title": self.title,
-            "first_name": self.first_name,
-            "last-name": self.last_name,
             "online": True if self.username == requester else self.online,
-            "country": self.country,
         }
 
     async def clear_seeks(self, sockets, seeks):
