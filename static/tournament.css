@@ -25,10 +25,6 @@ under-chat {
 table#players {
     grid-area: main;
 }
-.box {
-    background: var(--bg-color0);
-    box-shadow: var(--base-shadow);
-}
 div.tour-header {
     display: flex;
     flex-flow: row nowrap;

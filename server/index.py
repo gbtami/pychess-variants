@@ -18,7 +18,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name
+from const import LANGUAGES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -26,7 +26,7 @@ from settings import MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
-from tournament import load_tournament
+from tournament import load_tournament, T_STARTED
 
 log = logging.getLogger(__name__)
 
@@ -119,6 +119,8 @@ async def index(request):
         view = "embed"
     elif request.path == "/paste":
         view = "paste"
+    elif request.path.startswith("/tournaments"):
+        view = "tournaments"
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
@@ -194,6 +196,8 @@ async def index(request):
         template = get_template("players.html")
     elif view == "allplayers":
         template = get_template("allplayers.html")
+    elif view == "tournaments":
+        template = get_template("tournaments.html")
     elif view == "news":
         template = get_template("news.html")
     elif view == "variant":
@@ -257,9 +261,22 @@ async def index(request):
         hs = request.app["highscore"]
         render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
         render["variant_display_name"] = variant_display_name
+
     elif view == "allplayers":
         allusers = [u for u in users.values() if not u.anon]
         render["allusers"] = allusers
+
+    elif view == "tournaments":
+        tournaments = request.app["tournaments"]
+        render["icons"] = VARIANT_ICONS
+        render["variant_display_name"] = variant_display_name
+        render["pairing_system_name"] = pairing_system_name
+        render["tables"] = []
+        render["tables"].append([tournaments[tid] for tid in tournaments if tournaments[tid].status == T_STARTED])
+        # TODO: query upcoming and completed from db
+        render["tables"].append([tournaments[tid] for tid in tournaments if tournaments[tid].status < T_STARTED])
+        render["tables"].append(sorted([tournaments[tid] for tid in tournaments if tournaments[tid].status > T_STARTED], key=lambda x: x.starts_at, reverse=True))
+        render["theads"] = ("Now playing", "Starting soon", "Finished")
 
     if gameId is not None:
         if view == "invite":

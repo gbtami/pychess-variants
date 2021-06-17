@@ -1,0 +1,60 @@
+.tournaments {
+    grid-area: main;
+    max-width: 1000px;
+    margin: auto;
+    width: 100%;
+    padding: 5vh 60px;
+}
+h1 {
+    font-size: 40px;
+    margin-bottom: 5vh;
+}
+th {
+    font: inherit;
+    vertical-align: middle;
+    text-align: inherit;
+}
+.slist {
+    width: 100%;
+    border-bottom: 1px solid #d9d9d9;
+    margin-bottom: 3em;
+}
+.slist thead {
+    background: var(--bg-color2);
+    text-shadow: 0 1px 0 #fff;
+}
+.slist th:first-child {
+    padding-left: 1.5rem;
+}
+.slist thead th {
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    padding: 0.5rem 0.8rem;
+}
+.header a .name, .infos .system, .starts {
+    display: block;
+}
+.header a .name {
+    font-size: 1.3em;
+}
+.by, td .icon {
+    color: var(--gold);
+}
+td .icon {
+    text-align: center;
+    font-size: 2.5em;
+}
+.slist tbody tr:nth-child(2n) {
+    background-color: var(--bg-color2)
+}
+.slist td {
+    padding: 0.5rem 1rem;
+    font: inherit;
+}
+.slist td:last-child {
+    text-align: right;
+}
+td a {
+    display: block;
+    color: #4d4d4d;
+}

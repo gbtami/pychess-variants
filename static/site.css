@@ -167,6 +167,16 @@ div#preload {
     display: none;
 }
 
+h1, h2, h3 {
+    font-weight: normal;
+    font-family: 'Roboto', Sans-Serif;
+}
+.box {
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+    border-radius: 3px;
+}
+
 header {
     display: flex;
     justify-content: space-between;
@@ -947,7 +957,6 @@ vs-swords.lobby.opp {
 }
 .sub-ratings h3{
     font-size: 12px;
-    font-weight: normal;
     letter-spacing: 1.1px;
     margin: 0;
 }

@@ -111,7 +111,7 @@ async def create_arena_test(app):
     await app["db"].tournament_player.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = TestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=1)
+    tournament = TestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=1, created_by="PyChess")
     app["tournaments"][tid] = tournament
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)

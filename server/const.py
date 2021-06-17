@@ -131,3 +131,14 @@ def variant_display_name(variant):
         return "OUK CHATRANG"
     else:
         return variant.upper()
+
+
+def pairing_system_name(system):
+    if system == 0:
+        return "Arena"
+    elif system == 1:
+        return "Round-Robin"
+    elif system == 2:
+        return "Swiss"
+    else:
+        return ""

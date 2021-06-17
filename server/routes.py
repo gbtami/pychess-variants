@@ -31,6 +31,7 @@ get_routes = (
     ("/editor/{variant}/{fen}", index),
     (r"/{gameId:\w{8}}", index),
     (r"/embed/{gameId:\w{8}}", index),
+    ("/tournaments", index),
     (r"/tournament/{tournamentId:\w{8}}", index),
     (r"/tournament/{tournamentId:\w{8}}/pause", index),
     ("/@/{profileId}", index),
