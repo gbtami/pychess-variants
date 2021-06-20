@@ -7,6 +7,8 @@ from broadcast import round_broadcast
 
 log = logging.getLogger(__name__)
 
+ESTIMATE_MOVES = 40
+
 
 class Clock:
     """ Check game start and abandoned games time out """
@@ -27,9 +29,9 @@ class Clock:
         if secs is not None:
             self.secs = secs
         else:
-            # give 5 min per player to make first move
+            # give some time to make first move
             if self.ply < 2:
-                self.secs = 15 * 60 * 1000
+                self.secs = self.time_for_first_move
             else:
                 self.secs = self.game.ply_clocks[self.ply]["white" if self.color == WHITE else "black"]
         self.running = True
@@ -46,7 +48,8 @@ class Clock:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
-                    await asyncio.sleep(10 + self.game.byoyomi_period * self.game.inc)
+                    if self.ply >= 2:
+                        await asyncio.sleep(10 + self.game.byoyomi_period * self.game.inc)
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
@@ -58,3 +61,37 @@ class Clock:
 
             # After stop() we are just waiting for next restart
             await asyncio.sleep(1)
+
+    @property
+    def estimate_game_time(self):
+        # TODO: calculate with byoyomi
+        return (60 * self.game.base) + (ESTIMATE_MOVES * self.game.inc)
+
+    @property
+    def time_for_first_move(self):
+        egt = self.estimate_game_time
+        base = 0
+        if self.game.tournamentId != "":
+            if egt < 30:  # ultra
+                base = 11
+            elif egt < 180:  # bullet
+                base = 16
+            elif egt < 480:  # blitz
+                base = 21
+            elif egt < 1500:  # rapid
+                base = 25
+            else:  # classical
+                base = 30
+        else:
+            if egt < 30:  # ultra
+                base = 15
+            elif egt < 180:  # bullet
+                base = 20
+            elif egt < 480:  # blitz
+                base = 25
+            elif egt < 1500:  # rapid
+                base = 30
+            else:  # classical
+                base = 35
+
+        return (int(base * 5 / 4) if self.game.chess960 else base) * 1000

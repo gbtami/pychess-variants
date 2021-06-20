@@ -70,7 +70,7 @@ export function initializeClock(ctrl) {
     // console.log('initializeClock', ctrl.tournamentStatus, ctrl.secondsToStart, ctrl.secondsToFinish);
     if ('finished|archived'.includes(ctrl.tournamentStatus)) return;
 
-    let endtime;
+    let endtime, timeinterval;
     if (ctrl.secondsToFinish > 0) {
         endtime = Date.now() + ctrl.secondsToFinish * 1000;
         ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span#clock')]));
@@ -92,12 +92,12 @@ export function initializeClock(ctrl) {
 
         clock!.innerHTML = ('0' + t.hours).slice(-2) + ':' + ('0' + t.minutes).slice(-2) + ':' + ('0' + t.seconds).slice(-2);
 
-        if (t.totalSecs <= 1000) {
+        if (t.totalSecs <= 1000 && timeinterval !== undefined) {
             clearInterval(timeinterval);
             ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv'));
         }
     }
 
     updateClock();
-    const timeinterval = setInterval(updateClock, 1000);
+    timeinterval = setInterval(updateClock, 1000);
 }

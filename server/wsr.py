@@ -369,7 +369,7 @@ async def round_socket_handler(request):
                                 game.spectators.add(user)
                                 await round_broadcast(game, users, game.spectator_list, full=True)
 
-                            response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.board.ply}
+                            response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.board.ply, "firstmovetime": game.stopwatch.secs}
                             await ws.send_json(response)
 
                         response = {"type": "crosstable", "ct": game.crosstable}

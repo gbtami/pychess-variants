@@ -555,8 +555,17 @@ class Tournament:
         self.ongoing_games -= 1
         self.nb_games_finished += 1
 
-        wplayer.free = True
-        bplayer.free = True
+        if game.reason == "flag":
+            # pause players when they don't start their game
+            if game.board.ply == 0:
+                wplayer.paused = True
+                bplayer.free = True
+            elif game.board.ply == 1:
+                wplayer.free = True
+                bplayer.paused = True
+            else:
+                wplayer.free = True
+                bplayer.free = True
 
         self.set_top_player()
 

@@ -32,6 +32,7 @@ import { notify } from './notification';
 
 const patch = init([klass, attributes, properties, listeners]);
 
+let rang = false;
 
 export default class RoundController {
     model;
@@ -49,6 +50,10 @@ export default class RoundController {
     turnColor: Color;
     clocks: [Clock, Clock];
     clocktimes;
+    expirations: [VNode | HTMLElement, VNode | HTMLElement];
+    expiStart: number;
+    firstmovetime: number;
+    tournamentGame: boolean;
     abortable: boolean;
     gameId: string;
     variant: IVariant;
@@ -188,7 +193,8 @@ export default class RoundController {
 
         this.result = "*";
         const parts = this.fullfen.split(" ");
-        this.abortable = Number(parts[parts.length - 1]) <= 1;
+        this.tournamentGame = this.model["tournamentId"] !== '';
+        this.abortable = Number(parts[parts.length - 1]) <= 1 && !this.tournamentGame;
 
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
@@ -269,6 +275,12 @@ export default class RoundController {
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
             updatePockets(this, pocket0, pocket1);
         }
+
+        // initialize expirations
+        this.expirations = [
+            document.getElementById('expiration-top') as HTMLElement,
+            document.getElementById('expiration-bottom') as HTMLElement
+        ];
 
         // initialize clocks
         this.clocktimes = {};
@@ -491,10 +503,10 @@ export default class RoundController {
     private gameOver = (rdiffs) => {
         let container;
         container = document.getElementById('wrdiff') as HTMLElement;
-        patch(container, renderRdiff(rdiffs["wrdiff"]));
+        if (container) patch(container, renderRdiff(rdiffs["wrdiff"]));
 
         container = document.getElementById('brdiff') as HTMLElement;
-        patch(container, renderRdiff(rdiffs["brdiff"]));
+        if (container) patch(container, renderRdiff(rdiffs["brdiff"]));
 
         // console.log(rdiffs)
         this.gameControls = patch(this.gameControls, h('div'));
@@ -572,6 +584,15 @@ export default class RoundController {
         const latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
         if (latestPly) this.ply = msg.ply;
 
+        if (this.ply === 1 || this.ply === 2) {
+            this.expiStart = 0;
+            this.renderExpiration();
+            if (this.ply === 1) {
+                this.expiStart = Date.now();
+                setTimeout(this.showExpiration, 350);
+            }
+        }
+
         this.fullfen = msg.fen;
 
         if (this.variant.gate) {
@@ -629,7 +650,7 @@ export default class RoundController {
             }
         }
 
-        this.abortable = Number(msg.ply) <= 1;
+        this.abortable = (Number(msg.ply) <= 1 && !this.tournamentGame);
         if (!this.spectator && !this.abortable && this.result === "*") {
             const container = document.getElementById('abort') as HTMLElement;
             patch(container, h('button#abort', { props: {disabled: true} }));
@@ -1019,6 +1040,35 @@ export default class RoundController {
         }
     }
 
+    private renderExpiration = () => {
+        let position = (this.turnColor === this.mycolor) ? "bottom": "top";
+        if (this.flip) position = (position === "top") ? "bottom" : "top";
+        let expi = (position === 'top') ? 0 : 1;
+        const timeLeft = Math.max(0, this.expiStart - Date.now() + this.firstmovetime );
+        // console.log("renderExpiration()", position, timeLeft);
+        if (timeLeft === 0 || this.status >= 0) {
+            this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position));
+        } else {
+            const emerg = (this.turnColor === this.mycolor && timeLeft < 8000);
+            if (!rang && emerg) {
+                sound.lowTime();
+                rang = true;
+            }
+            this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position + '.expiration',
+                {class:
+                    {emerg, 'bar-glider': this.turnColor === this.mycolor}
+                },
+                [h('strong', Math.floor(timeLeft / 1000)), 'seconds to play the firts move']
+            ));
+        }
+    }
+
+    private showExpiration = () => {
+        if (this.expiStart === 0) return;
+        this.renderExpiration();
+        setTimeout(this.showExpiration, 250);
+    }
+
     private onMsgUserConnected = (msg) => {
         this.model["username"] = msg["username"];
         if (this.spectator) {
@@ -1028,6 +1078,10 @@ export default class RoundController {
             // we want to know lastMove and check status
             this.doSend({ type: "board", gameId: this.gameId });
         } else {
+            this.firstmovetime = msg.firstmovetime;
+            this.expiStart = Date.now();
+            setTimeout(this.showExpiration, 350);
+
             const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
             this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
 
