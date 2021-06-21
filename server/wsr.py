@@ -138,6 +138,9 @@ async def round_socket_handler(request):
                         if opp_player.bot:
                             await opp_player.event_queue.put(game.game_start)
 
+                        # restart expiration time after setup phase
+                        game.stopwatch.restart(game.stopwatch.time_for_first_move)
+
                     elif data["type"] == "analysis":
                         game = await load_game(request.app, data["gameId"])
 

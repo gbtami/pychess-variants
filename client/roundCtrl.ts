@@ -422,6 +422,12 @@ export default class RoundController {
         const side = (msg.color === 'white') ? _('Blue (Cho)') : _('Red (Han)');
         const message = _('Waiting for %1 to choose starting positions of the horses and elephants...', side);
 
+        this.expiStart = 0;
+        this.renderExpiration();
+        this.turnColor = msg.color;
+        this.expiStart = Date.now();
+        setTimeout(this.showExpiration, 350);
+
         if (this.spectator || msg.color !== this.mycolor) {
             chatMessage('', message, "roundchat");
             return;
@@ -762,6 +768,7 @@ export default class RoundController {
 
     goPly = (ply) => {
         const step = this.steps[ply];
+        if (step === undefined) return;
         let move = step['move'];
         let capture = false;
         if (move !== undefined) {
@@ -1080,7 +1087,7 @@ export default class RoundController {
         } else {
             this.firstmovetime = msg.firstmovetime;
             this.expiStart = Date.now();
-            setTimeout(this.showExpiration, 350);
+            if (this.variant.name !== 'janggi') setTimeout(this.showExpiration, 350);
 
             const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
             this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
