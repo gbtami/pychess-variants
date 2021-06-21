@@ -11,7 +11,7 @@ from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
 from compress import C2V, V2C, R2C, C2R
-from const import CASUAL, RATED, CREATED, STARTED, VARIANTEND
+from const import CASUAL, RATED, CREATED, STARTED, VARIANTEND, FLAG
 from game import Game
 from glicko2.glicko2 import gl2
 from newid import new_id
@@ -555,7 +555,7 @@ class Tournament:
         self.ongoing_games -= 1
         self.nb_games_finished += 1
 
-        if game.reason == "flag":
+        if game.status == FLAG:
             # pause players when they don't start their game
             if game.board.ply == 0:
                 wplayer.paused = True
@@ -566,6 +566,9 @@ class Tournament:
             else:
                 wplayer.free = True
                 bplayer.free = True
+        else:
+            wplayer.free = True
+            bplayer.free = True
 
         self.set_top_player()
 
