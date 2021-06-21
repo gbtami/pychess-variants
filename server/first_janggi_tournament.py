@@ -2,7 +2,9 @@ import asyncio
 from collections import namedtuple
 from datetime import datetime, timezone
 
-from tournament import new_tournament, T_ARCHIVED, RR
+from const import RR
+from tournament import T_ARCHIVED
+from tournaments import new_tournament
 from utils import load_game
 
 GameRecord = namedtuple('GameRecord', 'color, result, id, oppname')

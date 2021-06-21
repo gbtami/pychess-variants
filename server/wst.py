@@ -9,7 +9,7 @@ import aiohttp_session
 from settings import ADMINS
 from utils import MyWebSocketResponse
 from user import User
-from tournament import load_tournament
+from tournaments import load_tournament
 
 log = logging.getLogger(__name__)
 

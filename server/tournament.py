@@ -2,6 +2,7 @@ import asyncio
 import collections
 import logging
 import random
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from itertools import chain
 from operator import neg, attrgetter
@@ -10,20 +11,16 @@ from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
-from compress import C2V, V2C, R2C, C2R
-from const import CASUAL, RATED, CREATED, STARTED, VARIANTEND, FLAG
+from compress import R2C
+from const import RATED, CREATED, STARTED, VARIANTEND, FLAG, ARENA, RR
 from game import Game
 from glicko2.glicko2 import gl2
 from newid import new_id
-from rr import BERGER_TABLES
-from user import User
 from utils import insert_game_to_db
 
 log = logging.getLogger(__name__)
 
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
-
-ARENA, RR, SWISS = range(3)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 
@@ -36,7 +33,7 @@ class EnoughPlayer(Exception):
 
 
 class PlayerData:
-    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "performance"
+    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "performance", "prev_opp", "color_diff"
 
     def __init__(self, rating, provisional):
         self.rating = rating
@@ -49,6 +46,8 @@ class PlayerData:
         self.nb_games = 0
         self.nb_win = 0
         self.performance = 0
+        self.prev_opp = ""
+        self.color_diff = 0
 
     def __str__(self):
         return (" ").join(self.points)
@@ -67,9 +66,9 @@ class GameData:
         self.black_rating = gl2.create_rating(int(brating.rstrip("?")))
 
 
-class Tournament:
+class Tournament(ABC):
 
-    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=RATED, before_start=5, minutes=45, name="", fen="", base=1, inc=0, byoyomi_period=0, system=ARENA, rounds=0, created_by="", created_at=None, status=None):
+    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=RATED, before_start=5, minutes=45, name="", fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, status=None):
         self.app = app
         self.id = tournamentId
         self.name = name
@@ -82,7 +81,6 @@ class Tournament:
         self.inc = inc
         self.byoyomi_period = byoyomi_period
         self.chess960 = chess960
-        self.system = system
         self.rounds = rounds
 
         self.created_by = created_by
@@ -116,6 +114,10 @@ class Tournament:
         self.finish_event = asyncio.Event()
 
         self.clock_task = asyncio.create_task(self.clock())
+
+    @abstractmethod
+    def create_pairing(self):
+        pass
 
     def user_status(self, user):
         if user in self.players:
@@ -331,53 +333,6 @@ class Tournament:
         games = await self.create_games(pairing)
         return (pairing, games)
 
-    def create_pairing(self):
-        pairing = []
-        players = list(self.players.keys())
-
-        if self.system == RR:
-            n = len(self.players)
-            odd = (n % 2 == 1)
-            if odd:
-                n += 1
-
-            berger = BERGER_TABLES[int(n / 2) - 2][self.current_round - 1]
-
-            for wpn, bpn in berger:
-                if odd and (wpn == n or bpn == n):
-                    sit = wpn if bpn == n else bpn
-                    self.players[players[sit - 1]].games.append(None)
-                    self.players[players[sit - 1]].points.append("-")
-                else:
-                    wp = players[wpn - 1]
-                    bp = players[bpn - 1]
-                    pairing.append((wp, bp))
-
-        else:
-            waiting_players = [
-                p for p in self.players if
-                self.players[p].free and
-                len(p.tournament_sockets) > 0 and
-                not self.players[p].paused
-            ]
-
-            # TODO: this is just a simple random pairing
-            # TODO: create pairings for SWISS and ARENA
-            while len(waiting_players) > 1:
-                wp = random.choice(waiting_players)
-                waiting_players.remove(wp)
-
-                bp = random.choice(waiting_players)
-                waiting_players.remove(bp)
-
-                pairing.append((wp, bp))
-
-            if len(waiting_players) == 1 and self.system == SWISS:
-                self.players[waiting_players[0]].games.append(None)
-                self.players[waiting_players[0]].points.append("-")
-
-        return pairing
-
     def set_top_player(self):
         idx = 0
         self.top_player = None
@@ -433,6 +388,12 @@ class Tournament:
 
             self.players[wp].nb_games += 1
             self.players[bp].nb_games += 1
+
+            self.players[wp].prev_opp = game.bplayer.username
+            self.players[bp].prev_opp = game.wplayer.username
+
+            self.players[wp].color_diff += 1
+            self.players[bp].color_diff -= 1
 
             response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
 
@@ -663,143 +624,3 @@ class Tournament:
                 processed_games.add(game.id)
 
         await pairing_table.insert_many(pairing_documents)
-
-
-async def new_tournament(app, data):
-    if "tid" not in data:
-        tid = await new_id(app["db"].tournament)
-    else:
-        tid = data["tid"]
-
-    tournament = Tournament(
-        app, tid,
-        variant=data["variant"],
-        base=data["base"],
-        inc=data["inc"],
-        byoyomi_period=data["bp"],
-        rated=data["rated"],
-        chess960=data["chess960"],
-        fen=data["fen"],
-        system=data["system"],
-        rounds=data["rounds"],
-        created_by=data["createdBy"],
-        before_start=data["beforeStart"],
-        minutes=data["minutes"],
-        name=data["name"],
-        created_at=data.get("createdAt"),
-        status=data.get("status")
-    )
-
-    app["tournaments"][tid] = tournament
-    app["tourneysockets"][tid] = {}
-    app["tourneychat"][tid] = collections.deque([], 100)
-
-    await insert_tournament_to_db(tournament, app)
-
-    return {"type": "new_tournament", "tournamentId": tid}
-
-
-async def insert_tournament_to_db(tournament, app):
-    # unit test app may have no db
-    if app["db"] is None:
-        return
-
-    document = {
-        "_id": tournament.id,
-        "name": tournament.name,
-        "minutes": tournament.minutes,
-        "v": V2C[tournament.variant],
-        "b": tournament.base,
-        "i": tournament.inc,
-        "bp": tournament.byoyomi_period,
-        "f": tournament.fen,
-        "s": tournament.status,
-        "y": RATED if tournament.rated else CASUAL,
-        "z": int(tournament.chess960),
-        "system": tournament.system,
-        "rounds": tournament.rounds,
-        "nbPlayers": 0,
-        "createdBy": tournament.created_by,
-        "cretaedAt": tournament.created_at,
-        "startsAt": tournament.starts_at,
-        "status": tournament.status,
-    }
-
-    result = await app["db"].tournament.insert_one(document)
-    print("db insert tournament result %s" % repr(result.inserted_id))
-
-
-async def load_tournament(app, tournament_id):
-    """ Return Tournament object from app cache or from database """
-    db = app["db"]
-    users = app["users"]
-    tournaments = app["tournaments"]
-    if tournament_id in tournaments:
-        return tournaments[tournament_id]
-
-    doc = await db.tournament.find_one({"_id": tournament_id})
-
-    if doc is None:
-        return None
-
-    variant = C2V[doc["v"]]
-
-    tournament = Tournament(
-        app, tournament_id, variant,
-        base=doc["b"],
-        inc=doc["i"],
-        byoyomi_period=int(bool(doc.get("bp"))),
-        rated=doc.get("y"),
-        chess960=bool(doc.get("z")),
-        fen=doc.get("f"),
-        system=doc["system"],
-        rounds=doc["rounds"],
-        created_by=doc["createdBy"],
-        minutes=doc["minutes"],
-        name=doc["name"],
-        status=doc["status"],
-    )
-
-    tournaments[tournament_id] = tournament
-    app["tourneysockets"][tournament_id] = {}
-    app["tourneychat"][tournament_id] = collections.deque([], 100)
-
-    tournament.nb_players = doc["nbPlayers"]
-    tournament.nb_games_finished = doc["nbGames"]
-    tournament.winner = doc["winner"]
-
-    player_table = app["db"].tournament_player
-    cursor = player_table.find({"tid": tournament_id})
-
-    async for doc in cursor:
-        uid = doc["uid"]
-        if uid in users:
-            user = users[uid]
-        else:
-            user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
-            users[uid] = user
-
-        tournament.players[user] = PlayerData(doc["r"], doc["pr"])
-        tournament.players[user].points = doc["p"]
-        tournament.players[user].nb_games = doc["g"]
-        tournament.players[user].nb_win = doc["w"]
-        tournament.players[user].performance = doc["e"]
-        tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
-
-    pairing_table = app["db"].tournament_pairing
-    cursor = pairing_table.find({"tid": tournament_id})
-
-    async for doc in cursor:
-        _id = doc["_id"]
-        result = C2R[doc["r"]]
-        wp, bp = doc["u"]
-        wrating = doc["wr"]
-        brating = doc["br"]
-        date = doc["d"]
-
-        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result, date)
-
-        tournament.players[users[wp]].games.append(game_data)
-        tournament.players[users[bp]].games.append(game_data)
-
-    return tournament

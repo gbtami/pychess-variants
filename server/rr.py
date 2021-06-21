@@ -1,3 +1,7 @@
+from const import RR
+from tournament import Tournament
+
+
 BERGER_TABLES = ((
     ((1, 4), (2, 3)),
     ((4, 3), (1, 2)),
@@ -69,3 +73,30 @@ BERGER_TABLES = ((
     ((16, 15), (1, 14), (2, 13), (3, 12), (4, 11), (5, 10), (6, 9), (7, 8)),
     ((8, 16), (9, 7), (10, 6), (11, 5), (12, 4), (13, 3), (14, 2), (15, 1)),
 ))
+
+
+class RRTournament(Tournament):
+    system = RR
+
+    def create_pairing(self):
+        pairing = []
+        players = list(self.players.keys())
+
+        n = len(self.players)
+        odd = (n % 2 == 1)
+        if odd:
+            n += 1
+
+        berger = BERGER_TABLES[int(n / 2) - 2][self.current_round - 1]
+
+        for wpn, bpn in berger:
+            if odd and (wpn == n or bpn == n):
+                sit = wpn if bpn == n else bpn
+                self.players[players[sit - 1]].games.append(None)
+                self.players[players[sit - 1]].points.append("-")
+            else:
+                wp = players[wpn - 1]
+                bp = players[bpn - 1]
+                pairing.append((wp, bp))
+
+        return pairing

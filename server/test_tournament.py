@@ -8,14 +8,18 @@ from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
-from const import STARTED, VARIANTS
+from const import STARTED, VARIANTS, ARENA, RR, SWISS
 from fairy import BLACK
 import game as game_modul
 from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
 from server import make_app
 from user import User
-from tournament import insert_tournament_to_db, SCORE_SHIFT, Tournament, T_CREATED, T_STARTED, T_FINISHED, ARENA, RR, SWISS
+from tournament import SCORE_SHIFT, Tournament, T_CREATED, T_STARTED, T_FINISHED
+from tournaments import insert_tournament_to_db
+from arena import ArenaTournament
+from rr import RRTournament
+from swiss import SwissTournament
 from utils import play_move
 # from misc import timeit
 
@@ -105,13 +109,34 @@ class TestTournament(Tournament):
             await asyncio.sleep(0.1)
 
 
+class ArenaTestTournament(TestTournament, ArenaTournament):
+    system = ARENA
+
+    def create_pairing(self):
+        return ArenaTournament.create_pairing(self)
+
+
+class RRTestTournament(TestTournament, RRTournament):
+    system = RR
+
+    def create_pairing(self):
+        return RRTournament.create_pairing(self)
+
+
+class SwissTestTournament(TestTournament, SwissTournament):
+    system = SWISS
+
+    def create_pairing(self):
+        return SwissTournament.create_pairing(self)
+
+
 async def create_arena_test(app):
     tid = "12345678"
     await app["db"].tournament.delete_one({"_id": tid})
     await app["db"].tournament_player.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = TestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=1, created_by="PyChess")
+    tournament = ArenaTestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=1, created_by="PyChess")
     app["tournaments"][tid] = tournament
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)
@@ -153,7 +178,7 @@ class TournamentTestCase(AioHTTPTestCase):
     async def test_tournament_without_players(self):
         self.app["db"] = None
         tid = id8()
-        self.tournament = TestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
+        self.tournament = ArenaTestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
         self.app["tournaments"][tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)
@@ -171,7 +196,7 @@ class TournamentTestCase(AioHTTPTestCase):
         self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=0)
+        self.tournament = ArenaTestTournament(self.app, tid, before_start=0, minutes=0)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
 
@@ -194,7 +219,7 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
-        self.tournament = TestTournament(self.app, tid, before_start=0, system=SWISS, rounds=NB_ROUNDS)
+        self.tournament = SwissTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
 
@@ -208,7 +233,7 @@ class TournamentTestCase(AioHTTPTestCase):
         self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = TestTournament(self.app, tid, before_start=0, minutes=1)
+        self.tournament = ArenaTestTournament(self.app, tid, before_start=0, minutes=1)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
 
@@ -223,7 +248,7 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_ROUNDS = 5
 
         tid = id8()
-        self.tournament = TestTournament(self.app, tid, before_start=0, system=RR, rounds=NB_ROUNDS)
+        self.tournament = RRTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
 

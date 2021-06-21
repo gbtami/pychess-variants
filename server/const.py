@@ -1,3 +1,6 @@
+# tournament pairings
+ARENA, RR, SWISS = range(3)
+
 # translations
 LANGUAGES = ["de", "en", "es", "fr", "hu", "it", "ja", "ko", "pt", "th", "tr", "zh"]
 

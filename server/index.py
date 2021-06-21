@@ -26,7 +26,8 @@ from settings import MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
-from tournament import load_tournament, T_STARTED
+from tournament import T_STARTED
+from tournaments import load_tournament
 
 log = logging.getLogger(__name__)
 
