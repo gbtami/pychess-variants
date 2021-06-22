@@ -1,5 +1,7 @@
-Contributing
-I want to contribute code to pychess-variants
+# Contributing
+
+## I want to contribute code to Lichess
+
 Set up your development environment.
 Pick a GitHub issue to work on. The good first issue and tag might be useful.
 Communicate with other devs on Discord.
