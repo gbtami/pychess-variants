@@ -33,6 +33,7 @@ class LobbyController {
     logged_in;
     challengeAI: boolean;
     inviteFriend: boolean;
+    validGameData: boolean;
     _ws;
     seeks;
     minutesValues = [
@@ -54,6 +55,7 @@ class LobbyController {
         this.model = model;
         this.challengeAI = false;
         this.inviteFriend = false;
+        this.validGameData = false;
 
         const onOpen = (evt) => {
             this._ws = evt.target;
@@ -186,6 +188,8 @@ class LobbyController {
 
     createSeek(color) {
         document.getElementById('id01')!.style.display='none';
+        if (!this.validGameData) return;
+
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
@@ -452,9 +456,9 @@ class LobbyController {
         this.setStartButtons();
     }
     private setStartButtons() {
-        const valid = this.validateTimeControl() && this.validateFen();
+        this.validGameData = this.validateTimeControl() && this.validateFen();
         const e = document.getElementById('color-button-group') as HTMLElement;
-        e.classList.toggle("disabled", !valid);
+        e.classList.toggle("disabled", !this.validGameData);
     }
     private validateTimeControl() {
         const min = Number((document.getElementById('min') as HTMLInputElement).value);
