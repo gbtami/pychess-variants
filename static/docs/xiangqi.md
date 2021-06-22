@@ -15,7 +15,7 @@ Regarding perpertual checks, the player that perpetually checks loses after thre
 
 ## The Board
 
-The xiangqi board is a little different than other chess games. In addition to being played on the intersections, there are important sections of the board. First is the river, which splits the board in half. The river affects the movement of the elephant and pawn pieces. Second is the palaces, which are the 3 x 3 squares at each end of the board that has diagonal lines inside. The king and his advisors are confined to the palace.
+The xiangqi board is a little different than other chess games. In addition to being played on the intersections, there are important sections of the board. First is the river, which splits the board in half. The river affects the movement of the elephant and pawn pieces. Second are the palaces, which are the 3 x 3 squares at each end of the board that has diagonal lines inside. The king and his advisors are confined to the palace.
 
 ## The Pieces
 
