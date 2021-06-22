@@ -60,7 +60,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 ### Prerequisites
 * Mongo daemon (You need mongodb up and running)
 
-
+The Wiki describes how to setup a development environment [how to setup a development environment](https://github.com/lidevelopers/pychess-variants/wiki/pychess-variants-Development-Onboarding)
 ### Project setup
 ```
 pip3 install -r requirements.txt --user
