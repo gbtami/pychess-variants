@@ -54,7 +54,7 @@ The Lance is like a Rook but can only move straight forward. This is identical t
 
 ![Wooden Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Horse.png)
 
-The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The Knights that start on the board can exert similar pressure, but must be moved carefully because they cannot retreat. The Horse promotes to a Knight upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
+The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The Knights that start on the board can exert pressure similarly, but must be moved carefully because they cannot retreat. The Horse promotes to a Knight upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
 
 ### Monk (M)
 
