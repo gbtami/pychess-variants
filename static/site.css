@@ -121,6 +121,10 @@
     vertical-align: middle;
     opacity: 0.9;
 }
+img {
+  max-width: 100%;
+  height: auto;
+}
 
 .hide {
     display: none !important;
@@ -409,6 +413,7 @@ a.post:hover {
     background: var(--post-hover);
 }
 a.post img {
+    max-width: none;
     width: 4em;
     height: auto;
     margin-right: .8em;
