@@ -93,7 +93,6 @@ class TestTournament(Tournament):
                 if game.board.ply == ply:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
                     response = await game.game_ended(player, "resign")
-                    # print(game.result, "resign")
                     if opp_player.title != "TEST":
                         opp_ws = opp_player.game_sockets[game.id]
                         await opp_ws.send_json(response)
@@ -102,7 +101,7 @@ class TestTournament(Tournament):
                     move = game.random_move
                     clocks = {
                         "white": game.ply_clocks[-1]["white"],
-                        "black": game.ply_clocks[-1]["white"],
+                        "black": game.ply_clocks[-1]["black"],
                         "movetime": 0
                     }
                     await play_move(self.app, cur_player, game, move, clocks=clocks)

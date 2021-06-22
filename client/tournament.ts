@@ -482,7 +482,7 @@ export default class TournamentController {
     }
 
     private onMsgTopGame(msg) {
-        this.topGame = patch(this.topGame, h('div#top-game'));
+        this.topGame = patch(this.topGame, h('div#top-game.clear'));
         this.topGame = patch(this.topGame, h('div#top-game', this.renderTopGame(msg)));
     }
 

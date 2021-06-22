@@ -131,10 +131,21 @@ class Tournament(ABC):
         else:
             return "%s%s" % user.get_rating(self.variant, self.chess960).rating_prov
 
-    def players_json(self, page=1):
+    def players_json(self, page=None, user=None):
+        if page is None:
+            page = 1
+
+        if user is not None:
+            page = (self.leaderboard.index(user) + 1) // 10
+
         if self.nb_games_cached != self.nb_games_finished:
+            # game ended
             self.leaderboard_cache = {}
             self.nb_games_cached = self.nb_games_finished
+        elif user is not None:
+            # player status changed (JOIN/PAUSE/WITHDRAW)
+            if page in self.leaderboard_cache:
+                del self.leaderboard_cache[page]
 
         if page in self.leaderboard_cache:
             return self.leaderboard_cache[page]
@@ -242,7 +253,6 @@ class Tournament(ABC):
 
             if self.status == T_CREATED and now >= self.starts_at:
                 self.status = T_STARTED
-
                 self.set_top_player()
 
                 response = {"type": "tstatus", "tstatus": self.status, "secondsToFinish": (self.finish - now).total_seconds()}
@@ -262,16 +272,25 @@ class Tournament(ABC):
                     if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
                         waiting_players = [p for p in self.players if self.players[p].free]
                         if len(waiting_players) >= 4:
+                            print("Enough player (%s), do pairing" % len(waiting_players))
                             await self.create_new_pairings()
                             self.prev_pairing = now
+                        else:
+                            print("Too few player (%s) to make pairing" % len(waiting_players))
+                    else:
+                        print("Waiting for new pairing wave...")
 
                 elif self.ongoing_games == 0:
                     if self.current_round < self.rounds:
                         self.current_round += 1
+                        print("Do %s. round pairing" % self.current_round)
                         await self.create_new_pairings()
                     else:
                         self.status = T_FINISHED
+                        print("self.status")
                         break
+                else:
+                    print("%s has %s ongoing game(s)..." % ("RR" if self.system == RR else "Swiss", self.ongoing_games))
 
             print("CLOCK", now.strftime("%H:%M:%S"))
             await asyncio.sleep(1)
@@ -397,16 +416,23 @@ class Tournament(ABC):
 
             response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
 
-            if len(wp.tournament_sockets) > 0:
+            try:
                 ws = next(iter(wp.tournament_sockets[self.id]))
                 if ws is not None:
                     await ws.send_json(response)
-            if len(bp.tournament_sockets) > 0:
+            except Exception:
+                self.pause(wp)
+                log.debug("White player %s left the tournament", wp.username)
+
+            try:
                 ws = next(iter(bp.tournament_sockets[self.id]))
                 if ws is not None:
                     await ws.send_json(response)
+            except Exception:
+                self.pause(bp)
+                log.debug("Black player %s left the tournament", bp.username)
 
-            if (check_top_game) and (self.top_player.username in (game.wplayer.username, game.bplayer.username)):
+            if (check_top_game) and (self.top_player is not None) and (self.top_player.username in (game.wplayer.username, game.bplayer.username)):
                 self.top_game = game
                 check_top_game = False
                 new_top_game = True

@@ -52,7 +52,7 @@ async def tournament_socket_handler(request):
                     if data["type"] == "get_players":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            response = tournament.players_json(data["page"])
+                            response = tournament.players_json(page=data["page"])
                             await ws.send_json(response)
 
                     elif data["type"] == "get_games":
@@ -65,7 +65,7 @@ async def tournament_socket_handler(request):
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             tournament.join(user)
-                            response = tournament.players_json((tournament.leaderboard.index(user) + 1) // 10)
+                            response = tournament.players_json(user=user)
                             await ws.send_json(response)
 
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
@@ -75,7 +75,7 @@ async def tournament_socket_handler(request):
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             tournament.pause(user)
-                            response = tournament.players_json()
+                            response = tournament.players_json(user=user)
                             await ws.send_json(response)
 
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
@@ -85,7 +85,7 @@ async def tournament_socket_handler(request):
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             tournament.withdraw(user)
-                            response = tournament.players_json()
+                            response = tournament.players_json(user=user)
                             await ws.send_json(response)
 
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
