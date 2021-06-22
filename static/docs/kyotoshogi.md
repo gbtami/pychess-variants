@@ -8,7 +8,7 @@ Kyoto shogi is a shogi variant on a 5x5 board, but is quite different than stand
 
 As this game is based off shogi, please see the corresponding guide for the piece movement rules first if you are not familiar with them.
 
-The starting setup is as above. Unlike in shogi, each piece (except the King) must flip to the other side fater moving. All pieces represent a pair of pieces. Every piece in standard shogi is used except the dragon king and dragon horse.
+The starting setup is as above. Unlike in shogi, each piece (except the King) must flip to the other side after moving. All pieces represent a pair of pieces. Every piece in standard shogi is used except the dragon king and dragon horse.
 
 Original piece | Other side
 --- | ---
