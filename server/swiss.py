@@ -13,7 +13,7 @@ class SwissTournament(Tournament):
         waiting_players = [
             p for p in self.leaderboard if
             self.players[p].free and
-            len(p.tournament_sockets) > 0 and
+            len(p.tournament_sockets[self.id]) > 0 and
             not self.players[p].paused
         ]
 
