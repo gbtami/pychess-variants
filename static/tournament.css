@@ -130,9 +130,15 @@ td.sheet {
     padding-right: 0px;
     padding-left: 0px;
     letter-spacing: 0.1em;
+    width: 100%;
 }
 td.sheet > * {
     display: inline-block;
+}
+td.sheet div {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
 }
 td.sheet score {
     opacity: 0.7;
@@ -150,7 +156,7 @@ fire {
 td.total {
     text-align: right;
     padding-left: 0px;
-    padding-right: 2vmin;
+    padding: 1rem;
 }
 strong.score {
     padding-right: 8px;
@@ -224,6 +230,9 @@ td i-side {
 }
 td.result {
     font-weight: bold;
+}
+.point {
+    flex: 0 0 2em;
 }
 .lose {
     color: var(--bad);
@@ -321,5 +330,8 @@ div.player {
 .tour-stats h2 {
     font-size: 1.5em;
     margin-bottom: 1em;
+    text-align: center;
+}
+td.bye {
     text-align: center;
 }

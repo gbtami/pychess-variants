@@ -15,7 +15,7 @@ from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
 from server import make_app
 from user import User
-from tournament import SCORE_SHIFT, Tournament, T_CREATED, T_STARTED, T_FINISHED
+from tournament import Tournament, T_CREATED, T_STARTED, T_FINISHED
 from tournaments import insert_tournament_to_db
 from arena import ArenaTournament
 from rr import RRTournament
@@ -55,28 +55,6 @@ class TestTournament(Tournament):
         for game in games:
             game.random_mover = True
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
-
-    def print_leaderboard(self):
-        print("--- LEADERBOARD ---", self.id)
-        for player, full_score in self.leaderboard.items()[:10]:
-            print("%20s %4s %30s %2s %s" % (
-                player.username,
-                self.players[player].rating,
-                self.players[player].points,
-                int(full_score / SCORE_SHIFT),
-                self.players[player].performance
-            ))
-
-    def print_final_result(self):
-        if len(self.players) > 0:
-            self.print_leaderboard()
-        else:
-            return
-
-        print("--- TOURNAMENT RESULT ---")
-        for i in range(3):
-            player = self.leaderboard.peekitem(i)[0]
-            print("--- #%s ---" % (i + 1), player.username)
 
     # @timeit
     async def play_random(self, game):
@@ -136,6 +114,7 @@ async def create_arena_test(app):
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
     tournament = ArenaTestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=1, created_by="PyChess")
+#    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
     app["tournaments"][tid] = tournament
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)
@@ -148,8 +127,6 @@ async def create_arena_test(app):
 class TournamentTestCase(AioHTTPTestCase):
 
     async def tearDownAsync(self):
-        self.tournament.print_final_result()
-
         has_games = len(self.app["games"]) > 0
 
         for game in self.app["games"].values():

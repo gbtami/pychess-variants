@@ -12,7 +12,7 @@ from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
 from compress import R2C
-from const import RATED, CREATED, STARTED, VARIANTEND, FLAG, ARENA, RR
+from const import RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG, ARENA, RR
 from game import Game
 from glicko2.glicko2 import gl2
 from newid import new_id
@@ -30,6 +30,25 @@ SCORE_SHIFT = 100000
 class EnoughPlayer(Exception):
     """ Raised when RR is already full """
     pass
+
+
+class ByeGame:
+    __slots__ = "date", "status"
+
+    def __init__(self):
+        self.date = datetime.now(timezone.utc)
+        self.status = NOSTART
+
+    def game_json(self, player):
+        return {
+            "gameId": "",
+            "title": "",
+            "name": "",
+            "rating": "",
+            "prov": "",
+            "color": "",
+            "result": "-"
+        }
 
 
 class PlayerData:
@@ -159,7 +178,7 @@ class Tournament(ABC):
                 "rating": self.players[player].rating,
                 "points": self.players[player].points,
                 "fire": self.players[player].win_streak,
-                "score": int(full_score / SCORE_SHIFT),
+                "score": full_score,  # / SCORE_SHIFT,  # what about half points???
                 "perf": self.players[player].performance,
                 "nbGames": self.players[player].nb_games,
                 "nbWin": self.players[player].nb_win,
@@ -185,22 +204,6 @@ class Tournament(ABC):
     # TODO: cache this
     def games_json(self, player_name):
         player = self.app["users"].get(player_name)
-
-        def game_json(player, game):
-            color = "w" if game.wplayer == player else "b"
-            opp_player = game.bplayer if color == "w" else game.wplayer
-            opp_rating = game.black_rating if color == "w" else game.white_rating
-            opp_rating, prov = opp_rating.rating_prov
-            return {
-                "gameId": game.id,
-                "title": opp_player.title,
-                "name": opp_player.username,
-                "rating": opp_rating,
-                "prov": prov,
-                "color": color,
-                "result": game.result,
-            }
-
         return {
             "type": "get_games",
             "rank": self.leaderboard.index(player) + 1,
@@ -210,7 +213,7 @@ class Tournament(ABC):
             "nbGames": self.players[player].nb_games,
             "nbWin": self.players[player].nb_win,
             "games": [
-                game_json(player, game) for
+                game.game_json(player) for
                 game in
                 sorted(self.players[player].games, key=attrgetter("date"))
             ]
@@ -264,6 +267,7 @@ class Tournament(ABC):
                 if self.system != ARENA and len(self.players) < 3:
                     # Swiss and RR Tournaments need at least 3 players to start
                     self.status = T_ABORTED
+                    print("T_ABORTED: less than 3 player joined")
                     response = {"type": "tstatus", "tstatus": self.status}
                     await self.broadcast(response)
                     break
@@ -282,6 +286,7 @@ class Tournament(ABC):
 
             elif (self.minutes is not None) and now >= self.finish:
                 self.status = T_FINISHED
+                print("T_FINISHED: no more time left")
                 break
 
             elif self.status == T_STARTED:
@@ -305,13 +310,20 @@ class Tournament(ABC):
                         await self.create_new_pairings(waiting_players)
                     else:
                         self.status = T_FINISHED
-                        print("self.status")
+                        print("T_FINISHED: no more round left")
                         break
                 else:
                     print("%s has %s ongoing game(s)..." % ("RR" if self.system == RR else "Swiss", self.ongoing_games))
 
             print("CLOCK", now.strftime("%H:%M:%S"))
             await asyncio.sleep(1)
+
+        if len(self.players) > 0:
+            self.print_leaderboard()
+            print("--- TOURNAMENT RESULT ---")
+            for i in range(3):
+                player = self.leaderboard.peekitem(i)[0]
+                print("--- #%s ---" % (i + 1), player.username)
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
@@ -322,6 +334,9 @@ class Tournament(ABC):
                 self.players[player].games.pop()
                 self.players[player].points.pop()
                 self.players[player].nb_games -= 1
+
+        # force to create new players json data
+        self.nb_games_cached = -1
 
         await self.broadcast({"type": "tstatus", "tstatus": self.status})
 
@@ -492,7 +507,7 @@ class Tournament(ABC):
                 wplayer.win_streak = 0
                 bplayer.win_streak = 0
             else:
-                wpoint, bpoint = (0.5, SCORE), (0.5, SCORE)
+                wpoint, bpoint = (1, SCORE), (1, SCORE)
 
         elif game.result == "1-0":
             wplayer.nb_win += 1
@@ -510,7 +525,7 @@ class Tournament(ABC):
                     wpoint = (4 if game.status == VARIANTEND else 7, SCORE)
                     bpoint = (4 if game.status == VARIANTEND else 0, SCORE)
                 else:
-                    wpoint = (1, SCORE)
+                    wpoint = (2, SCORE)
 
             wperf += 500
             bperf -= 500
@@ -531,7 +546,7 @@ class Tournament(ABC):
                     wpoint = (2 if game.status == VARIANTEND else 0, SCORE)
                     bpoint = (4 if game.status == VARIANTEND else 7, SCORE)
                 else:
-                    bpoint = (1, SCORE)
+                    bpoint = (2, SCORE)
 
             wperf -= 500
             bperf += 500
@@ -558,17 +573,17 @@ class Tournament(ABC):
         wplayer.rating += int(game.wrdiff) if game.wrdiff else 0
         bplayer.rating += int(game.brdiff) if game.brdiff else 0
 
+        # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
         nb = wplayer.nb_games
         wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
 
         nb = bplayer.nb_games
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
-        # TODO: 0.5 points in RR/Swiss are not summarized at all
-        wpscore = int(self.leaderboard.get(game.wplayer) / SCORE_SHIFT)
+        wpscore = self.leaderboard.get(game.wplayer) // SCORE_SHIFT
         self.leaderboard.update({game.wplayer: SCORE_SHIFT * (wpscore + wpoint[0]) + wplayer.performance})
 
-        bpscore = int(self.leaderboard.get(game.bplayer) / SCORE_SHIFT)
+        bpscore = self.leaderboard.get(game.bplayer) // SCORE_SHIFT
         self.leaderboard.update({game.bplayer: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance})
 
         self.ongoing_games -= 1
@@ -682,3 +697,14 @@ class Tournament(ABC):
                 processed_games.add(game.id)
 
         await pairing_table.insert_many(pairing_documents)
+
+    def print_leaderboard(self):
+        print("--- LEADERBOARD ---", self.id)
+        for player, full_score in self.leaderboard.items()[:10]:
+            print("%20s %4s %30s %2s %s" % (
+                player.username,
+                self.players[player].rating,
+                self.players[player].points,
+                full_score,
+                self.players[player].performance
+            ))

@@ -1,5 +1,5 @@
 from const import RR
-from tournament import Tournament
+from tournament import Tournament, ByeGame
 
 
 BERGER_TABLES = ((
@@ -92,7 +92,7 @@ class RRTournament(Tournament):
         for wpn, bpn in berger:
             if odd and (wpn == n or bpn == n):
                 sit = wpn if bpn == n else bpn
-                self.players[players[sit - 1]].games.append(None)
+                self.players[players[sit - 1]].games.append(ByeGame)
                 self.players[players[sit - 1]].points.append("-")
             else:
                 wp = players[wpn - 1]

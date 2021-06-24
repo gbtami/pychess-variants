@@ -1,7 +1,7 @@
 import random
 
 from const import SWISS
-from tournament import Tournament
+from tournament import Tournament, ByeGame
 
 
 class SwissTournament(Tournament):
@@ -21,7 +21,7 @@ class SwissTournament(Tournament):
             pairing.append((wp, bp))
 
         if len(waiting_players) == 1:
-            self.players[waiting_players[0]].games.append(None)
+            self.players[waiting_players[0]].games.append(ByeGame())
             self.players[waiting_players[0]].points.append("-")
 
         return pairing

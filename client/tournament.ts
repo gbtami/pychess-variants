@@ -34,6 +34,8 @@ const T_STATUS = {
 
 const scoreTagNames = ['score', 'streak', 'double'];
 
+const SCORE_SHIFT = 100000;
+
 
 export default class TournamentController {
     model;
@@ -200,6 +202,9 @@ export default class TournamentController {
         if (player.name === this.visitedPlayer) {
             this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: this.visitedPlayer });
         }
+        let fullScore = Math.trunc(player.score / SCORE_SHIFT);
+        if (this.system > 0 && this.model["variant"] !== 'janggi') fullScore = fullScore / 2;
+        
         return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, [
             h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
@@ -207,13 +212,17 @@ export default class TournamentController {
                 h('span.name', player.name),
                 h('span', player.rating),
             ]),
-            h('td.sheet', player.points.map(s => {
-                const score = Array.isArray(s) ? s[0] : s;
-                return h(scoreTagNames[(s[1] || 1) - 1] + ((this.system > 0) ? (score > 1) ? '.win': (score > 0) ? '.draw' : '.lose' : ''), [score]);
-            })),
+            h('td.sheet', [h('div', player.points.map(s => {
+                let score = Array.isArray(s) ? s[0] : s;
+                if (this.system > 0 && score !== '*' && score !== '-' && this.model["variant"] !== 'janggi') score = score / 2;
+                const pointKlass = this.system > 0 ? '.point' : '';
+                const resultKlass = ((this.system > 0) ? (score >= 1) ? '.win': (score === 0.5) ? '.draw' : '.lose' : '');
+                if (score === 0.5) score = '½';
+                return h(scoreTagNames[(s[1] || 1) - 1] + pointKlass + resultKlass, [score]);
+            }))]),
             h('td.total', [
                 h('fire', [(player.fire === 2 && this.tournamentStatus === 'started') ? h('i', {class: {"icon": true, "icon-fire": true} }) : '']),
-                h('strong.score', player.score),
+                h('strong.score', fullScore),
                 // h('span.perf', player.perf)
             ]),
         ]);
@@ -268,34 +277,45 @@ export default class TournamentController {
         case '1/2-1/2':
             value = '½';
             break;
+        case '-':
+            value = '-';
+            break;
         }
         const klass = (value === '1') ? '.win' : (value === '0') ? '.lose' : '';
         return h(`td.result${klass}`, value);
     }
 
     private gameView(game, index) {
-        const color = (game.color === 'w') ? this.fc : this.sc;
-        return h('tr', { on: { click: () => { window.open('/' + game.gameId, '_blank', 'noopener'); }}}, [
-            h('th', index),
-            h('td.player', [
-                h('span.title', game.title),
-                h('span.name', game.name),
-            ]),
-            h('td', game.rating),
-            h('td', [
-                h('i-side.icon', {
-                    class: {
-                        "icon-white": color === "White",
-                        "icon-black": color === "Black",
-                        "icon-red":   color === "Red",
-                        "icon-blue":  color === "Blue",
-                        "icon-gold":  color === "Gold",
-                        "icon-pink":  color === "Pink",
-                    }
-                }),
-            ]),
-            this.result(game.result, game.color),
-        ]);
+        if (game.result === '-') {
+            return h('tr', [
+                h('th', index),
+                h('td.bye', { attrs: { colspan: '3' } }, 'bye'),
+                h('td.result', '-')
+            ]);
+        } else {
+            const color = (game.color === 'w') ? this.fc : this.sc;
+            return h('tr', { on: { click: () => { window.open('/' + game.gameId, '_blank', 'noopener'); }}}, [
+                h('th', index),
+                h('td.player', [
+                    h('span.title', game.title),
+                    h('span.name', game.name),
+                ]),
+                h('td', game.rating),
+                h('td', [
+                    h('i-side.icon', {
+                        class: {
+                            "icon-white": color === "White",
+                            "icon-black": color === "Black",
+                            "icon-red":   color === "Red",
+                            "icon-blue":  color === "Blue",
+                            "icon-gold":  color === "Gold",
+                            "icon-pink":  color === "Pink",
+                        }
+                    }),
+                ]),
+                this.result(game.result, game.color),
+            ]);
+        }
     }
 
     private tSystem(system) {
@@ -310,10 +330,11 @@ export default class TournamentController {
     }
 
     renderStats(msg) {
-        const gamesLen = msg.games.length;
+        const games = msg.games.filter(game => game.result !== '-');
+        const gamesLen = games.length;
         const avgOp = gamesLen
             ? Math.round(
-                msg.games.reduce(function (a, b) {
+                games.reduce(function (a, b) {
                     return a + b.rating;
                 }, 0) / gamesLen
             )
@@ -330,7 +351,7 @@ export default class TournamentController {
             ]),
             h('table.stats', [
                 h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
-                h('tr', [h('th', _('Games played')), h('td', msg.games.length)]),
+                h('tr', [h('th', _('Games played')), h('td', gamesLen)]),
                 h('tr', [h('th', _('Win rate')), h('td', this.winRate(msg.nbGames, msg.nbWin))]),
                 h('tr', [h('th', _('Average opponent')), h('td', avgOp)]),
             ]),
@@ -471,6 +492,7 @@ export default class TournamentController {
             if (msg.secondsToFinish !== undefined) {
                 this.secondsToFinish = msg.secondsToFinish;
             }
+            // TODO: in Swiss/RR clock is meaningless, we need the number of ongoing games shown and updating
             initializeClock(this);
         }
         this.updateActionButton()
