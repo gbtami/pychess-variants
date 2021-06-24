@@ -78,7 +78,7 @@ BERGER_TABLES = ((
 class RRTournament(Tournament):
     system = RR
 
-    def create_pairing(self):
+    def create_pairing(self, waiting_players):
         pairing = []
         players = list(self.players.keys())
 

@@ -41,11 +41,11 @@ class TestTournament(Tournament):
             player.tournament_sockets[self.id] = set((None,))
             self.join(player)
 
-    async def create_new_pairings(self):
+    async def create_new_pairings(self, waiting_players):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
         print("--- create_new_pairings at %s ---" % now)
         self.print_leaderboard()
-        pairing, games = await Tournament.create_new_pairings(self)
+        pairing, games = await Tournament.create_new_pairings(self, waiting_players)
 
         # aouto play test games
         # for wp, bp in pairing:
@@ -111,22 +111,22 @@ class TestTournament(Tournament):
 class ArenaTestTournament(TestTournament, ArenaTournament):
     system = ARENA
 
-    def create_pairing(self):
-        return ArenaTournament.create_pairing(self)
+    def create_pairing(self, waiting_players):
+        return ArenaTournament.create_pairing(self, waiting_players)
 
 
 class RRTestTournament(TestTournament, RRTournament):
     system = RR
 
-    def create_pairing(self):
-        return RRTournament.create_pairing(self)
+    def create_pairing(self, waiting_players):
+        return RRTournament.create_pairing(self, waiting_players)
 
 
 class SwissTestTournament(TestTournament, SwissTournament):
     system = SWISS
 
-    def create_pairing(self):
-        return SwissTournament.create_pairing(self)
+    def create_pairing(self, waiting_players):
+        return SwissTournament.create_pairing(self, waiting_players)
 
 
 async def create_arena_test(app):

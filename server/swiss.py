@@ -7,15 +7,8 @@ from tournament import Tournament
 class SwissTournament(Tournament):
     system = SWISS
 
-    def create_pairing(self):
+    def create_pairing(self, waiting_players):
         pairing = []
-
-        waiting_players = [
-            p for p in self.leaderboard if
-            self.players[p].free and
-            len(p.tournament_sockets[self.id]) > 0 and
-            not self.players[p].paused
-        ]
 
         # TODO: use bbpPairings instead of random pairings
         while len(waiting_players) > 1:

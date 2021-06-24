@@ -7,16 +7,9 @@ from tournament import Tournament
 class ArenaTournament(Tournament):
     system = ARENA
 
-    def create_pairing(self):
+    def create_pairing(self, waiting_players):
         start = time.time()
         pairing = []
-
-        waiting_players = [
-            p for p in self.leaderboard if
-            self.players[p].free and
-            len(p.tournament_sockets[self.id]) > 0 and
-            not self.players[p].paused
-        ]
 
         print("=== WAITING PLAYERS ===", len(waiting_players))
         for p in waiting_players:

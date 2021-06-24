@@ -105,6 +105,7 @@ class Tournament(ABC):
         self.nb_games_cached = -1
         self.leaderboard_cache = {}
 
+        self.first_pairing = False
         self.top_player = None
         self.top_game = None
 
@@ -135,8 +136,8 @@ class Tournament(ABC):
         if page is None:
             page = 1
 
-        if user is not None:
-            page = (self.leaderboard.index(user) + 1) // 10
+        if page is None and user is not None:
+            page = ((self.leaderboard.index(user) + 1) // 10) + 1
 
         if self.nb_games_cached != self.nb_games_finished:
             # game ended
@@ -247,11 +248,27 @@ class Tournament(ABC):
             "byoyomi": self.top_game.byoyomi_period
         }
 
+    def waiting_players(self):
+        return [
+            p for p in self.leaderboard if
+            self.players[p].free and
+            len(p.tournament_sockets[self.id]) > 0 and
+            not self.players[p].paused
+        ]
+
     async def clock(self):
         while self.status not in (T_FINISHED, T_ARCHIVED):
             now = datetime.now(timezone.utc)
 
             if self.status == T_CREATED and now >= self.starts_at:
+                if self.system != ARENA and len(self.players) < 3:
+                    # Swiss and RR Tournaments need at least 3 players to start
+                    self.status = T_ABORTED
+                    response = {"type": "tstatus", "tstatus": self.status}
+                    await self.broadcast(response)
+                    break
+
+                self.first_pairing = True
                 self.status = T_STARTED
                 self.set_top_player()
 
@@ -270,10 +287,10 @@ class Tournament(ABC):
             elif self.status == T_STARTED:
                 if self.system == ARENA:
                     if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
-                        waiting_players = [p for p in self.players if self.players[p].free]
-                        if len(waiting_players) >= 4:
+                        waiting_players = self.waiting_players()
+                        if len(waiting_players) >= (4 if len(self.players) > 4 else 3):
                             print("Enough player (%s), do pairing" % len(waiting_players))
-                            await self.create_new_pairings()
+                            await self.create_new_pairings(waiting_players)
                             self.prev_pairing = now
                         else:
                             print("Too few player (%s) to make pairing" % len(waiting_players))
@@ -284,7 +301,8 @@ class Tournament(ABC):
                     if self.current_round < self.rounds:
                         self.current_round += 1
                         print("Do %s. round pairing" % self.current_round)
-                        await self.create_new_pairings()
+                        waiting_players = self.waiting_players()
+                        await self.create_new_pairings(waiting_players)
                     else:
                         self.status = T_FINISHED
                         print("self.status")
@@ -324,7 +342,10 @@ class Tournament(ABC):
         if player not in self.players:
             rating, provisional = player.get_rating(self.variant, self.chess960).rating_prov
             self.players[player] = PlayerData(rating, provisional)
-            self.leaderboard.setdefault(player, 0)
+            if self.status == T_CREATED:
+                self.leaderboard.setdefault(player, rating)
+            else:
+                self.leaderboard.setdefault(player, 0)
             self.nb_players += 1
 
         self.players[player].paused = False
@@ -347,8 +368,18 @@ class Tournament(ABC):
     def spactator_leave(self, spectator):
         self.spectators.discard(spectator)
 
-    async def create_new_pairings(self):
-        pairing = self.create_pairing()
+    async def create_new_pairings(self, waiting_players):
+        pairing = self.create_pairing(waiting_players)
+
+        if self.first_pairing:
+            self.first_pairing = False
+            # Before tournament starts leaderboard is ordered by ratings
+            # After first pairing it will be sorted by score points and performance
+            # so we have to make a clear (all 0) leaderboard here
+            new_leaderboard = [(player, 0) for player in self.leaderboard]
+            self.leaderboard = ValueSortedDict(neg, new_leaderboard)
+            self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
+
         games = await self.create_games(pairing)
         return (pairing, games)
 
@@ -533,6 +564,7 @@ class Tournament(ABC):
         nb = bplayer.nb_games
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
+        # TODO: 0.5 points in RR/Swiss are not summarized at all
         wpscore = int(self.leaderboard.get(game.wplayer) / SCORE_SHIFT)
         self.leaderboard.update({game.wplayer: SCORE_SHIFT * (wpscore + wpoint[0]) + wplayer.performance})
 
