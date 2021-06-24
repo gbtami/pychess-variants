@@ -32,7 +32,7 @@ Details and diagrams of each piece are below.  
 ### Soldier (S)
 
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Soldier.png)
-The Soldier can move either one space forward or one space sideways. It is the exact same a Xiangqi soldier that has crossed the river and the exact same as a Janggi soldier from the start. The soldier, unlike the pawn, cannot promote.
+The Soldier can move either one space forward or one space sideways. It is the exact same as a Xiangqi soldier that has crossed the river and the exact same as a Janggi soldier from the start. The soldier, unlike the pawn, cannot promote.
 Because the soldier cannot move backwards, it can only move sideways in the final rank. Avoid putting them in this situation unless it will lead to checkmate or campmate. Soldiers are strongest when paired side to side so that they can protect each other.
 
 ### Elephant (E)

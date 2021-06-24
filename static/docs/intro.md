@@ -24,7 +24,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Crazyhouse 960** - Combines Crazyhouse and Chess 960
 
-**Atomic Chess** = Pieces explode upon capture!
+**Atomic Chess** - Pieces explode upon capture!
 
 **Atomic 960** - Atomic chess with Chess 960 rules
 
