@@ -20,7 +20,7 @@ Pychess's design is heavily influenced by Lichess and is meant to be comfortable
 
 *What is Fairy-Stockfish?*
 
-Stockfish is one of the premier engines designed to play chess. Fairy-Stockfish is a fork of that created by [Ianfab](https://www.github.com/ianfab) to handle multiple chess variants.
+Stockfish is one of the premier engines designed to play chess. [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish) is a fork of that created by [Ianfab](https://www.github.com/ianfab) to handle multiple chess variants.
 
 *Is level 8 Stockfish the strongest available?*
 
