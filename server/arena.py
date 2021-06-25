@@ -20,6 +20,8 @@ class ArenaTournament(Tournament):
         failed_limit = len(waiting_players)
         while True:
             if len(waiting_players) <= 1:
+                if len(waiting_players) == 1:
+                    self.players[waiting_players[0]].nb_not_paired += 1
                 break
             elif failed >= failed_limit:
                 print("!!! TOO MUCH fail, STOP PAIRING !!!", failed)
@@ -30,6 +32,29 @@ class ArenaTournament(Tournament):
 
             def find_opp(max_color_diff):
                 find = False
+
+                if len(waiting_players) == 3:
+                    a = waiting_players[-1]
+                    b = waiting_players[-2]
+
+                    if self.players[a].nb_not_paired > self.players[b].nb_not_paired:
+                        y = a
+                    else:
+                        y = a if b.username == x.username else b
+
+                    if self.players[x].color_diff < self.players[y].color_diff:
+                        wp, bp = x, y
+                    else:
+                        wp, bp = y, x
+
+                    find = True
+                    print("   find OK opp (a brand NEW player!)", y.username)
+                    waiting_players.remove(wp)
+                    waiting_players.remove(bp)
+
+                    pairing.append((wp, bp))
+                    return find
+
                 for y in waiting_players:
                     print("   try", y.username)
                     if y.username == x.username:

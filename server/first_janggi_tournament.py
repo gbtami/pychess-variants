@@ -94,12 +94,17 @@ pairings["Fairy-Stockfish"] = (
 )
 
 
-async def add_games(app):
+async def add_games(app, force=False):
     tid = "00000001"
 
-    await app["db"].tournament.delete_one({"_id": tid})
-    await app["db"].tournament_player.delete_many({"tid": tid})
-    await app["db"].tournament_pairing.delete_many({"tid": tid})
+    doc = await app["db"].tournament.find_one({"_id": tid})
+    if doc is not None:
+        if force:
+            await app["db"].tournament.delete_one({"_id": tid})
+            await app["db"].tournament_player.delete_many({"tid": tid})
+            await app["db"].tournament_pairing.delete_many({"tid": tid})
+        else:
+            return
 
     data = {
         "tid": tid,

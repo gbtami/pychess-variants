@@ -52,7 +52,7 @@ class ByeGame:
 
 
 class PlayerData:
-    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "performance", "prev_opp", "color_diff"
+    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff"
 
     def __init__(self, rating, provisional):
         self.rating = rating
@@ -64,6 +64,7 @@ class PlayerData:
         self.points = []
         self.nb_games = 0
         self.nb_win = 0
+        self.nb_not_paired = 0
         self.performance = 0
         self.prev_opp = ""
         self.color_diff = 0
@@ -459,6 +460,9 @@ class Tournament(ABC):
 
             self.players[wp].color_diff += 1
             self.players[bp].color_diff -= 1
+
+            self.players[wp].nb_not_paired = 0
+            self.players[bp].nb_not_paired = 0
 
             response = {"type": "new_game", "gameId": game_id, "wplayer": wp.username, "bplayer": bp.username}
 
