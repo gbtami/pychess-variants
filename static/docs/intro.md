@@ -8,7 +8,7 @@ Many chess variants are available to play here. Available games range from tradi
 
 Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the top right of the screen (next to login or your username), choose "Board Settings," and then choose the variant you would like to configure.
 
-If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
+If you need to practice with the piece moves and rules before diving into a real game, feel free to select a game against the *Random Mover* bot in the lobby.
 
 ## Chess variants using standard pieces
 
