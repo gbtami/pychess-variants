@@ -98,7 +98,7 @@ Purely through donations. You can [become a patron](https://www.pychess.org/patr
 
 *Can I contribute?*
 
-You sure can! Pychess is open source. Please communicate your suggestions by [Github](https://github.com/gbtami/pychess-variants) or Discord.
+You sure can! Pychess is open source. Please communicate your suggestions by [Github](https://github.com/gbtami/pychess-variants) or [Discord](https://discord.gg/aPs8RKr) 
 
 
 
