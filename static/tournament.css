@@ -21,9 +21,12 @@
 under-chat {
     grid-area: uchat;
 }
-
+div.info0 {
+    margin-bottom: 3vmin;
+}
 table#players {
     grid-area: main;
+    margin-bottom: 3vmin;
 }
 div.tour-header {
     display: flex;

@@ -6,6 +6,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from const import STARTED
 from settings import ADMINS
 from utils import MyWebSocketResponse
 from user import User
@@ -140,6 +141,9 @@ async def tournament_socket_handler(request):
                             "secondsToFinish": (tournament.finish - now).total_seconds() if tournament.starts_at < now else 0,
                         }
                         await ws.send_json(response)
+
+                        if (tournament.top_game is not None) and (tournament.top_game.status <= STARTED):
+                            await ws.send_json(tournament.top_game_json)
 
                         response = {"type": "fullchat", "lines": list(request.app["tourneychat"][tournamentId])}
                         await ws.send_json(response)

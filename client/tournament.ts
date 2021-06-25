@@ -649,7 +649,8 @@ export function tournamentView(model): VNode[] {
             ]),
             h('div#lobbychat')
         ]),
-        h('div.players.box', [
+        h('div.players', [
+            h('div.box', [
                 h('div.tour-header', [
                     // h('i', {class: {"icon": true, "icon-trophy": true} }),
                     h('h1', model["title"]),
@@ -657,7 +658,8 @@ export function tournamentView(model): VNode[] {
                 ]),
                 h('div#podium'),
                 h('div#page-controls'),
-                h('table#players.box', { hook: { insert: vnode => runTournament(vnode, model) } }),
+                h('table#players', { hook: { insert: vnode => runTournament(vnode, model) } }),
+            ]),
         ]),
         h('div.tour-table', [
             h('div#summary'),
