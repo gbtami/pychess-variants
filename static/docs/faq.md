@@ -28,7 +28,7 @@ It is the strongest available on this site, but does not represent Fairy-Stockfi
 
 *I found a bug! Where do I report it?*
 
-[**Make an issue**](https://github.com/gbtami/pychess-variants/issues/new). Ultimately it needs to be filled in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.
+[**Make an issue**](https://github.com/gbtami/pychess-variants/issues/new). Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.
 
 ## Variants
 
