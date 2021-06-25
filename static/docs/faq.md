@@ -56,7 +56,7 @@ It depends on how popular or how interesting the variant is. We can't even consi
 
 *How do I change settings?*
 
-Click the gear button at the top right of the screen.
+Click the settings icon button at the top right of the screen.
 
 *How do I change pieces and boards? Are there western or internationalized pieces?*
 
