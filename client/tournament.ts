@@ -518,6 +518,7 @@ export default class TournamentController {
         this.updateActionButton()
         if (this.completed()) {
             this.renderEmptyTopGame();
+            (document.getElementById('player') as HTMLElement).style.display = 'none';
             this.renderSummary();
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
