@@ -102,9 +102,8 @@ export default class TournamentController {
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
-        if (this.completed()) {
-            patch(document.getElementById('summary') as HTMLElement, h('div#summary', this.renderSummary()));
-        }
+        if (this.completed()) this.renderSummary();
+
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.topGame = patch(document.getElementById('top-game') as HTMLElement, h('div#top-game'));
         this.playerGamesOn = false;
@@ -188,9 +187,10 @@ export default class TournamentController {
     }
 
     renderSummary() {
-        return h('div.tour-stats.box', [
+        const summary = h('div.tour-stats.box', [
             h('h2', 'Tournament complete'),
         ]);
+        patch(document.getElementById('summary') as HTMLElement, h('div#summary', summary));
     }
 
     renderPlayers(players) {
