@@ -517,6 +517,7 @@ export default class TournamentController {
         }
         this.updateActionButton()
         if (this.completed()) {
+            patch(this.clockdiv, h('div#clockdiv'));
             this.renderEmptyTopGame();
             (document.getElementById('player') as HTMLElement).style.display = 'none';
             this.renderSummary();

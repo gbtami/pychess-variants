@@ -261,7 +261,7 @@ class Tournament(ABC):
         ]
 
     async def clock(self):
-        while self.status not in (T_FINISHED, T_ARCHIVED):
+        while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
             now = datetime.now(timezone.utc)
 
             if self.status == T_CREATED and now >= self.starts_at:
@@ -345,8 +345,8 @@ class Tournament(ABC):
 
         self.finish_event.set()
 
-    def terminate(self):
-        self.status = T_FINISHED
+    def abort(self):
+        self.status = T_ABORTED
 
     def join(self, player):
         if player.anon:
