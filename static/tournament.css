@@ -24,6 +24,9 @@ under-chat {
 div.info0 {
     margin-bottom: 3vmin;
 }
+.user-link {
+    padding: 0;
+}
 table#players {
     grid-area: main;
     margin-bottom: 3vmin;

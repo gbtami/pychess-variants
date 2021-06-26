@@ -137,6 +137,7 @@ async def tournament_socket_handler(request):
                             "urating": tournament.user_rating(user),
                             "tstatus": tournament.status,
                             "tsystem": tournament.system,
+                            "tminutes": tournament.minutes,
                             "secondsToStart": (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0,
                             "secondsToFinish": (tournament.finish - now).total_seconds() if tournament.starts_at < now else 0,
                         }

@@ -457,11 +457,23 @@ export default class TournamentController {
         this.doSend({ type: "get_players", tournamentId: this.model["tournamentId"], page: this.page });
     }
 
+    durationString(minutes) {
+        if (minutes == 0) return '';
+        if (minutes < 60) {
+            return " • " + minutes + 'm';
+        } else {
+            return " • " + Math.floor(minutes / 60) + 'h' + ((minutes % 60 != 0) ? ' ' + (minutes % 60) + 'm': '')
+        }
+    }
+
     private onMsgUserConnected(msg) {
         this.system = msg.tsystem;
         const tsystem = document.getElementById('tsystem') as Element;
         patch(tsystem, h('div#tsystem', gameType(this.model["rated"]) + " • " + this.tSystem(this.system)));
-        
+
+        const tminutes = document.getElementById('tminutes') as Element;
+        patch(tminutes, h('span#tminutes', this.durationString(msg.tminutes)));
+
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus];
         this.userStatus = msg.ustatus;
@@ -638,7 +650,8 @@ export function tournamentView(model): VNode[] {
                                     href: '/variant/' + model["variant"] + (chess960 ? '960': ''),
                                 }
                             },
-                                variant.displayName(chess960)),
+                            variant.displayName(chess960)),
+                            h('span#tminutes'),
                         ]),
                         h('div#tsystem'),
                     ]),
