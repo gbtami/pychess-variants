@@ -12,7 +12,7 @@ The server code is written in Python.
 
 *What is the difference between this and the software?*
 
-Both are designed to play chess, and both share the same developer ([gbtami](https://www.github.com/gbtami)). However, the differences end there. The full name for this site is "Pychess Variants" for distinction, but is often just called Pychess. The site for the desktop application is [here](https://pychess.github.io/).
+Both are designed to play chess variants, and both share the same developer ([gbtami](https://www.github.com/gbtami)). However, the differences end there. The full name for this site is "Pychess Variants" for distinction, but is often just called Pychess. The site for the desktop application is [here](https://pychess.github.io/).
 
 *What is the relationship to [Lichess](https://lichess.org/)?*
 
@@ -20,7 +20,7 @@ Pychess's design is heavily influenced by Lichess and is meant to be comfortable
 
 *What is Fairy-Stockfish?*
 
-Stockfish is one of the premier engines designed to play chess. Fairy-Stockfish is a fork of that created by [Ianfab](https://www.github.com/ianfab) to handle multiple chess variants.
+Stockfish is one of the premier engines designed to play chess. [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish) is a fork of that created by [Ianfab](https://www.github.com/ianfab) to handle multiple chess variants.
 
 *Is level 8 Stockfish the strongest available?*
 
@@ -28,7 +28,7 @@ It is the strongest available on this site, but does not represent Fairy-Stockfi
 
 *I found a bug! Where do I report it?*
 
-Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.
+[**Make an issue**](https://github.com/gbtami/pychess-variants/issues/new). Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.
 
 ## Variants
 
@@ -56,7 +56,7 @@ It depends on how popular or how interesting the variant is. We can't even consi
 
 *How do I change settings?*
 
-Click the gear button at the top right of the screen.
+To change the settings, click the gear button in the top right of the screen (next to login or your username), choose "Board Settings.
 
 *How do I change pieces and boards? Are there western or internationalized pieces?*
 
@@ -82,7 +82,7 @@ Random-Mover is a bot that just chooses a random move from the list of available
 
 *How do I log in?*
 
-You need to have a Lichess account. If you don't already, please go to [Lichess](https://lichess.org/) to make an account.
+You need to have a Lichess account. If you don't already, please go to [Lichess](https://lichess.org/signup) to make an account.
 
 *Would logging in with my Lichess account compromise my account/password?*
 
@@ -98,7 +98,7 @@ Purely through donations. You can [become a patron](https://www.pychess.org/patr
 
 *Can I contribute?*
 
-You sure can! Pychess is open source. Please communicate your suggestions by Github or Discord.
+You sure can! Pychess is open source. Please communicate your suggestions by [Github](https://github.com/gbtami/pychess-variants) or [Discord](https://discord.gg/aPs8RKr) 
 
 
 

@@ -58,7 +58,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 ## Installation
 
 ### Prerequisites
-* Mongo daemon (You need mongodb up and running)
+* [Mongo daemon](https://docs.mongodb.com/manual/installation/) (You need mongodb up and running)
 
 
 ### Project setup
