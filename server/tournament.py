@@ -85,6 +85,21 @@ class GameData:
         self.white_rating = gl2.create_rating(int(wrating.rstrip("?")))
         self.black_rating = gl2.create_rating(int(brating.rstrip("?")))
 
+    def game_json(self, player):
+        color = "w" if self.wplayer == player else "b"
+        opp_player = self.bplayer if color == "w" else self.wplayer
+        opp_rating = self.black_rating if color == "w" else self.white_rating
+        opp_rating, prov = opp_rating.rating_prov
+        return {
+            "gameId": self.id,
+            "title": opp_player.title,
+            "name": opp_player.username,
+            "rating": opp_rating,
+            "prov": prov,
+            "color": color,
+            "result": self.result,
+        }
+
 
 class Tournament(ABC):
 
