@@ -688,6 +688,8 @@ class Tournament(ABC):
 
         for user, user_data in self.players.items():
             for game in user_data.games:
+                if game.status == NOSTART:  # ByeGame
+                    continue
                 if game.id not in processed_games:
                     pairing_documents.append({
                         "_id": game.id,

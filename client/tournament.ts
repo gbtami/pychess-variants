@@ -289,7 +289,7 @@ export default class TournamentController {
         if (game.result === '-') {
             return h('tr', [
                 h('th', index),
-                h('td.bye', { attrs: { colspan: '3' } }, 'bye'),
+                h('td.bye', { attrs: { colspan: '3' } }, 'Bye'),
                 h('td.result', '-')
             ]);
         } else {

@@ -205,6 +205,8 @@ async def load_game(app, game_id, user=None):
 
     level = doc.get("x")
     game.date = doc["d"]
+    if game.date.tzinfo is None:
+        game.date = game.date.replace(tzinfo=timezone.utc)
     game.status = doc["s"]
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
@@ -276,7 +278,7 @@ async def import_game(request):
     try:
         date = data.get("Date", "")[0:10]
         date = map(int, date.split("." if "." in date else "/"))
-        date = datetime(*date)
+        date = datetime(*date, tzinfo=timezone.utc)
     except Exception:
         log.exception("Date tag parsing failed")
         date = datetime.now(timezone.utc)

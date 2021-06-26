@@ -3,7 +3,7 @@ from collections import namedtuple
 from datetime import datetime, timezone
 
 from const import RR
-from tournament import T_ARCHIVED
+from tournament import T_ARCHIVED, ByeGame
 from tournaments import new_tournament
 from utils import load_game
 
@@ -110,7 +110,7 @@ async def add_games(app, force=False):
         "tid": tid,
         "name": "First EJF Anniversary E-Tourn@ment",
         "createdBy": "Janggi-France",
-        "createdAt": datetime(2019, 5, 2, tzinfo=timezone.utc),
+        "createdAt": datetime(2020, 5, 2, tzinfo=timezone.utc),
         "variant": "janggi",
         "chess960": False,
         "base": 15,
@@ -164,6 +164,7 @@ async def add_games(app, force=False):
     for current_round in range(8):
         for player in pairings:
             if len(pairings[player]) <= current_round:
+                t.players[users[player]].games.append(ByeGame())
                 t.players[users[player]].points.append("-")
                 continue
 
@@ -171,7 +172,7 @@ async def add_games(app, force=False):
 
             if game_id not in updated_games:
                 game = await load_game(app, game_id)
-                print("--- %s - %s ---" % (game.wplayer.username, game.bplayer.username))
+                print("--- %s - %s --- %s" % (game.wplayer.username, game.bplayer.username, game.date))
                 wp = game.wplayer
                 bp = game.bplayer
 
