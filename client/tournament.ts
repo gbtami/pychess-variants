@@ -51,7 +51,7 @@ export default class TournamentController {
     userRating: string;
     action: VNode;
     clockdiv: VNode;
-    topGame: VNode;
+    topGame: any;
     topGameId: string;
     topGameChessground;
     playerGamesOn: boolean;
@@ -105,7 +105,6 @@ export default class TournamentController {
         if (this.completed()) this.renderSummary();
 
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
-        this.topGame = patch(document.getElementById('top-game') as HTMLElement, h('div#top-game'));
         this.playerGamesOn = false;
 
         boardSettings.updateBoardAndPieceStyles();
@@ -248,11 +247,11 @@ export default class TournamentController {
         } else {
             this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player });
             if (this.playerGamesOn && this.visitedPlayer === player) {
-                (document.getElementById('top-game') as HTMLElement).style.display = 'block';
+                this.renderTopGame();
                 (document.getElementById('player') as HTMLElement).style.display = 'none';
                 this.playerGamesOn = false;
             } else {
-                (document.getElementById('top-game') as HTMLElement).style.display = 'none';
+                this.renderEmptyTopGame();
                 (document.getElementById('player') as HTMLElement).style.display = 'block';
                 this.playerGamesOn = true;
             }
@@ -358,9 +357,16 @@ export default class TournamentController {
         ];
     }
 
-    renderTopGame(game) {
+    renderEmptyTopGame() {
+        patch(document.getElementById('top-game') as HTMLElement, h('div#top-game.empty'));
+    }
+
+    renderTopGame() {
+        if (this.topGame === undefined) return;
+
+        const game = this.topGame;
         const variant = VARIANTS[game.variant];
-        return h(`selection#mainboard.${variant.board}.${variant.piece}`, {
+        const element = h(`selection#mainboard.${variant.board}.${variant.piece}`, {
             on: { click: () => window.location.assign('/' + game.gameId) }
         }, h('div', [
             h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
@@ -381,6 +387,8 @@ export default class TournamentController {
             }),
             h('div.player', [h('user', [h('rank', '#' + game.wr), game.w]), h('div#wresult')]),
         ]));
+
+        patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', element));
     }
 
     winRate(nbGames, nbWin) {
@@ -509,15 +517,18 @@ export default class TournamentController {
         }
         this.updateActionButton()
         if (this.completed()) {
+            this.renderEmptyTopGame();
             this.renderSummary();
-            this.topGame = patch(this.topGame, h('div#top-game'));
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
     }
 
     private onMsgTopGame(msg) {
-        this.topGame = patch(this.topGame, h('div#top-game.clear'));
-        this.topGame = patch(this.topGame, h('div#top-game', this.renderTopGame(msg)));
+        this.topGame = msg;
+        if (!this.playerGamesOn) {
+            this.renderEmptyTopGame();
+            this.renderTopGame();
+        }
     }
 
     private onMsgBoard = (msg) => {
