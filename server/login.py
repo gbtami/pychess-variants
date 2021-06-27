@@ -1,12 +1,17 @@
 import logging
+import secrets
+import hashlib
+import base64
+from urllib.parse import urlencode
 
+import aiohttp
 from aiohttp import web
-import aioauth_client
 import aiohttp_session
 
 from broadcast import round_broadcast
 from const import STARTED
-from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, DEV_TOKEN1, DEV_TOKEN2
+from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH,\
+    LICHESS_OAUTH_AUTHORIZE_URL, LICHESS_OAUTH_TOKEN_URL, LICHESS_ACCOUNT_API_URL
 
 log = logging.getLogger(__name__)
 
@@ -14,33 +19,52 @@ RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-fr
 
 
 async def oauth(request):
-    """ Get lichess.org oauth token. """
+    """ Get lichess.org oauth token with PKCE """
     # TODO: check https://lichess.org/api/user/{username}
     # see https://lichess.org/api#operation/apiUser
     # and disable login if engine or booster is true or user is disabled
-    client = aioauth_client.LichessClient(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET
-    )
-    code = request.rel_url.query.get("code")
-    if code is None:
-        return web.HTTPFound(client.get_authorize_url(
-            # scope="email:read",
-            redirect_uri=REDIRECT_URI
-        ))
-    else:
-        try:
-            token_data = await client.get_access_token(
-                code,
-                redirect_uri=REDIRECT_URI
-            )
-            token, data = token_data
-            session = await aiohttp_session.get_session(request)
-            session["token"] = token
-        except Exception:
-            log.error("Failed to get oauth access token.")
 
-        return web.HTTPFound("/login")
+    session = await aiohttp_session.get_session(request)
+    code = request.rel_url.query.get("code")
+
+    if code is None:
+        code_verifier = secrets.token_urlsafe(64)
+        session['oauth_code_verifier'] = code_verifier
+        code_challenge = get_code_challenge(code_verifier)
+
+        authorize_url = LICHESS_OAUTH_AUTHORIZE_URL + '/?' + urlencode({
+            'state': CLIENT_SECRET,
+            'client_id': CLIENT_ID,
+            'response_type': 'code',
+            'redirect_uri': REDIRECT_URI,
+            'code_challenge': code_challenge,
+            'code_challenge_method': 'S256',
+        })
+        return web.HTTPFound(authorize_url)
+    else:
+        state = request.rel_url.query.get("state")
+        if state != CLIENT_SECRET:
+            log.error("State got back from %s changed", LICHESS_OAUTH_AUTHORIZE_URL)
+            return web.HTTPFound("/")
+
+        data = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "code_verifier": session['oauth_code_verifier'],
+            'client_id': CLIENT_ID,
+            'redirect_uri': REDIRECT_URI,
+        }
+
+        async with aiohttp.ClientSession() as client_session:
+            async with client_session.post(LICHESS_OAUTH_TOKEN_URL, json=data) as resp:
+                data = await resp.json()
+                token = data.get("access_token")
+                if token is not None:
+                    session["token"] = token
+                    return web.HTTPFound("/login")
+                else:
+                    log.error("Failed to get lichess OAuth token from %s", LICHESS_OAUTH_TOKEN_URL)
+                    return web.HTTPFound("/")
 
 
 async def login(request):
@@ -49,41 +73,33 @@ async def login(request):
         log.error("Set REDIRECT_PATH env var if you want lichess OAuth login!")
         return web.HTTPFound("/")
 
-    # TODO: flag and ratings using lichess.org API
     session = await aiohttp_session.get_session(request)
-
-    if DEV_TOKEN1 and DEV_TOKEN2:
-        if "dev_token" in request.app:
-            session["token"] = DEV_TOKEN2
-        else:
-            session["token"] = DEV_TOKEN1
-        request.app["dev_token"] = True
 
     if "token" not in session:
         return web.HTTPFound(REDIRECT_PATH)
 
-    client = aioauth_client.LichessClient(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        access_token=session["token"])
+    username = None
+    title = None
 
-    try:
-        user, info = await client.user_info()
-    except Exception:
-        log.error("Failed to get user info from lichess.org")
-        log.exception("ERROR: Exception in login(request) user, info = await client.user_info()!")
+    async with aiohttp.ClientSession() as client_session:
+        data = {'Authorization': "Bearer %s" % session["token"]}
+        async with client_session.get(LICHESS_ACCOUNT_API_URL, headers=data) as resp:
+            data = await resp.json()
+            username = data.get("username")
+            title = data.get("title")
+            if username is None:
+                log.error("Failed to get lichess public user account data from %s", LICHESS_ACCOUNT_API_URL)
+                return web.HTTPFound("/")
+
+    if username in RESERVED_USERS:
+        log.error("User %s tried to log in.", username)
         return web.HTTPFound("/")
 
-    if user.username in RESERVED_USERS:
-        log.error("User %s tried to log in.", user.username)
-        return web.HTTPFound("/")
-
-    title = user.gender if user.gender is not None else ""
     if title == "BOT":
-        log.error("BOT user %s tried to log in.", user.username)
+        log.error("BOT user %s tried to log in.", username)
         return web.HTTPFound("/")
 
-    log.info("+++ Lichess authenticated user: %s %s %s", user.id)
+    log.info("+++ Lichess authenticated user: %s", username)
     users = request.app["users"]
 
     prev_session_user = session.get("user_name")
@@ -93,21 +109,21 @@ async def login(request):
         prev_user.game_sockets = {}
         prev_user.update_online()
 
-    session["user_name"] = user.username
+    session["user_name"] = username
     session["title"] = title
 
-    if user.username:
+    if username:
         db = request.app["db"]
-        doc = await db.user.find_one({"_id": user.username})
+        doc = await db.user.find_one({"_id": username})
         if doc is None:
             result = await db.user.insert_one({
-                "_id": user.username,
+                "_id": username,
                 "title": session.get("title"),
                 "perfs": {},
             })
             print("db insert user result %s" % repr(result.inserted_id))
         elif not doc.get("enabled", True):
-            log.info("Closed account %s tried to log in.", user.username)
+            log.info("Closed account %s tried to log in.", username)
             session["user_name"] = prev_session_user
 
         del session["token"]
@@ -146,3 +162,9 @@ async def logout(request):
     session.invalidate()
 
     return web.HTTPFound("/")
+
+
+def get_code_challenge(code_verifier):
+    hashed = hashlib.sha256(code_verifier.encode('ascii')).digest()
+    encoded = base64.urlsafe_b64encode(hashed)
+    return encoded.decode('ascii')[:-1]
