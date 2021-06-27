@@ -21,7 +21,7 @@ Additional rules:
 
 - When dropping a piece, you may choose *either* side to drop.
 - You *can* move a piece such that it can't move until it's captured (this is illegal in standard shogi).
-- Reptition: Repeating the same position results in a draw.
+- Repetition: Repeating the same position results in a draw.
 
 ## Strategy
 
