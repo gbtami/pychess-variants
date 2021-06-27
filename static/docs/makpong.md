@@ -12,4 +12,4 @@ The only difference from Makruk is as follows:
 
 * The king may not move away from check
 
-There were generally three ways to answer a check: move the king away, block with another piece, or capture the attacker. In Makpong, you are not allowed to move away from the check, so you can only answer it by blocking the check or capturing the attacker. You are allowed to capture the attacker with the king, provided that it is legal to do so.
+There were generally three ways to answer a check: move the king away, block with another piece, or capture the attacker. In Makpong, you are not allowed to move away from check, so you can only answer it by blocking the check or capturing the attacker. You are allowed to capture the attacker with the king, provided that it is legal to do so.
