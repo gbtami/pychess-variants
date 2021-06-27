@@ -26,8 +26,7 @@ from settings import MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
-from tournament import T_STARTED
-from tournaments import load_tournament
+from tournaments import get_latest_tournaments, load_tournament
 
 log = logging.getLogger(__name__)
 
@@ -268,15 +267,10 @@ async def index(request):
         render["allusers"] = allusers
 
     elif view == "tournaments":
-        tournaments = request.app["tournaments"]
         render["icons"] = VARIANT_ICONS
         render["variant_display_name"] = variant_display_name
         render["pairing_system_name"] = pairing_system_name
-        render["tables"] = []
-        render["tables"].append([tournaments[tid] for tid in tournaments if tournaments[tid].status == T_STARTED])
-        # TODO: query upcoming and completed from db
-        render["tables"].append([tournaments[tid] for tid in tournaments if tournaments[tid].status < T_STARTED])
-        render["tables"].append(sorted([tournaments[tid] for tid in tournaments if tournaments[tid].status > T_STARTED], key=lambda x: x.starts_at, reverse=True))
+        render["tables"] = await get_latest_tournaments(request.app)
         render["theads"] = ("Now playing", "Starting soon", "Finished")
 
     if gameId is not None:
