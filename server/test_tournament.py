@@ -113,7 +113,7 @@ async def create_arena_test(app):
     await app["db"].tournament_player.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = ArenaTestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=1, created_by="PyChess")
+    tournament = ArenaTestTournament(app, tid, variant="makpong", name="First Makpong Arena", before_start=0.1, minutes=25, created_by="PyChess")
 #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
 #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
     app["tournaments"][tid] = tournament
