@@ -137,7 +137,7 @@ This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. A
 
 **Queenslayer**
 
-This is an extremely deadly tactic that may end in an inevitable loss for white if not caught. The situation is where a chariot has an open file (which it already starts with), and the cannon has an open path to the first rank square (b1 or g1). That square may or not contain a knight, but if it's empty, the knight cannot cover it for this to work.
+This is an extremely deadly tactic that may end in an inevitable loss for white if not caught. The situation is where a chariot has an open file (which it already starts with), and the cannon has an open path to the first rank square (b1 or g1). That square may or may not contain a knight, but if it's empty, the knight cannot cover it for this to work.
 
 ![Queenslayer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Queenslayer.png)
 
