@@ -61,6 +61,7 @@ async def oauth(request):
                 token = data.get("access_token")
                 if token is not None:
                     session["token"] = token
+                    # TODO: "expires_in": 5270400
                     return web.HTTPFound("/login")
                 else:
                     log.error("Failed to get lichess OAuth token from %s", LICHESS_OAUTH_TOKEN_URL)
