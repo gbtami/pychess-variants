@@ -45,7 +45,7 @@ The rook moves exactly like a chess rook: any number of squares orthogonally. Th
 
 ### Bishop
 
-The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The is the second most valuable unpromoted piece in the game, excluding the king.
+The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The bishop is the second most valuable unpromoted piece in the game, excluding the king.
 
 ![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
 

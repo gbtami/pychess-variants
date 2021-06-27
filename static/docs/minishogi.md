@@ -9,7 +9,7 @@ Minishogi is essentially shogi on a 5x5 board. The game was invented (or redisco
 
 As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
 
-The starting setup is as above. Unlike standard shogi, there is no knight or lance. There is only one pawn, a bishhop and rook, and one of each general. Promotion is only done in the last rank. 
+The starting setup is as above. Unlike standard shogi, there is no knight or lance. There is only one pawn, a bishop and rook, and one of each general. Promotion is only done in the last rank. 
 
 Additionally, regarding repetitions: repetitions that are not perpetuals are adjucated as a win for *gote*/white after the fourth repetition.
 

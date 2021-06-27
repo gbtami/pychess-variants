@@ -16,7 +16,7 @@ Both are designed to play chess variants, and both share the same developer ([gb
 
 *What is the relationship to [Lichess](https://lichess.org/)?*
 
-Pychess's design is heavily influenced by Lichess and is meant to be comfortable for Lichess users. Pychess has no offficial relationship to Lichess. However, it does use Lichess accounts to facilitate user management.
+Pychess's design is heavily influenced by Lichess and is meant to be comfortable for Lichess users. Pychess has no official relationship to Lichess. However, it does use Lichess accounts to facilitate user management.
 
 *What is Fairy-Stockfish?*
 
