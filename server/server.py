@@ -224,8 +224,11 @@ async def init_state(app):
         # await add_games(app, force=True)
         # await add_games(app, force=True)
 
-        from test_tournament import create_arena_test
-        await create_arena_test(app)
+        # from test_tournament import create_arena_test
+        # await create_arena_test(app)
+
+        from test_tournament import create_dev_arena_tournament
+        await create_dev_arena_tournament(app)
 
 
 async def shutdown(app):

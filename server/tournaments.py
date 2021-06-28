@@ -24,19 +24,20 @@ async def new_tournament(app, data):
     elif data["system"] == RR:
         tournament_class = RRTournament
 
+    print(tid, data)
     tournament = tournament_class(
         app, tid,
         variant=data["variant"],
         base=data["base"],
         inc=data["inc"],
-        byoyomi_period=data["bp"],
-        rated=data["rated"],
-        chess960=data["chess960"],
-        fen=data["fen"],
-        rounds=data["rounds"],
+        byoyomi_period=data.get("bp", 0),
+        rated=data.get("rated", RATED),
+        chess960=data.get("chess960", False),
+        fen=data.get("fen", ""),
+        rounds=data.get("rounds", 0),
         created_by=data["createdBy"],
-        before_start=data["beforeStart"],
-        minutes=data["minutes"],
+        before_start=data.get("beforeStart", 5),
+        minutes=data.get("minutes", 45),
         name=data["name"],
         created_at=data.get("createdAt"),
         status=data.get("status")
@@ -165,8 +166,8 @@ async def load_tournament(app, tournament_id):
     app["tourneychat"][tournament_id] = collections.deque([], 100)
 
     tournament.nb_players = doc["nbPlayers"]
-    tournament.nb_games_finished = doc["nbGames"]
-    tournament.winner = doc["winner"]
+    tournament.nb_games_finished = doc.get("nbGames", 0)
+    tournament.winner = doc.get("winner", "")
 
     player_table = app["db"].tournament_player
     cursor = player_table.find({"tid": tournament_id})

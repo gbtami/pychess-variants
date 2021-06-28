@@ -16,7 +16,7 @@ from newid import id8
 from server import make_app
 from user import User
 from tournament import Tournament, T_CREATED, T_STARTED, T_FINISHED
-from tournaments import insert_tournament_to_db
+from tournaments import insert_tournament_to_db, new_tournament
 from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
@@ -107,6 +107,21 @@ class SwissTestTournament(TestTournament, SwissTournament):
         return SwissTournament.create_pairing(self, waiting_players)
 
 
+async def create_dev_arena_tournament(app):
+    data = {
+        "name": "2nd test zh960 arena",
+        "createdBy": "gbtami",
+        "variant": "crazyhouse",
+        "chess960": True,
+        "base": 1,
+        "inc": 1,
+        "system": ARENA,
+        "beforeStart": 0.1,
+        "minutes": 5,
+    }
+    await new_tournament(app, data)
+
+
 async def create_arena_test(app):
     tid = "12345678"
     await app["db"].tournament.delete_one({"_id": tid})
@@ -123,7 +138,7 @@ async def create_arena_test(app):
     await insert_tournament_to_db(tournament, app)
 
 #    tournament.join_players(6)
-#    tournament.join_players(7)
+    tournament.join_players(7)
 
 
 class TournamentTestCase(AioHTTPTestCase):

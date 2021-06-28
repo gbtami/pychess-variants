@@ -10,7 +10,7 @@ import aiohttp_session
 
 from broadcast import round_broadcast
 from const import STARTED
-from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH,\
+from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, URI,\
     LICHESS_OAUTH_AUTHORIZE_URL, LICHESS_OAUTH_TOKEN_URL, LICHESS_ACCOUNT_API_URL
 
 log = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ async def login(request):
         log.error("User %s tried to log in.", username)
         return web.HTTPFound("/")
 
-    if title == "BOT":
+    if "pychess" in URI and title == "BOT":
         log.error("BOT user %s tried to log in.", username)
         return web.HTTPFound("/")
 
