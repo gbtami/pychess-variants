@@ -1309,7 +1309,7 @@ button:disabled {
         justify-self: flex-end;
     }
     .info-wrap1  {
-        grid-area: 6 / 1 / 6 / 2;
+        grid-area: 7 / 1 / 7 / 2;
         justify-self: flex-end;
     }
 }
