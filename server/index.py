@@ -121,6 +121,9 @@ async def index(request):
         view = "paste"
     elif request.path.startswith("/tournaments"):
         view = "tournaments"
+        if request.path.endswith("new"):
+            pass
+            # TODO
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)

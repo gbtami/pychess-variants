@@ -390,7 +390,7 @@ class Tournament(ABC):
     def pause(self, player):
         self.players[player].paused = True
 
-        if self.top_player.username == player.username:
+        if (self.top_player is not None) and self.top_player.username == player.username:
             self.top_player = None
 
     def spactator_join(self, spectator):
@@ -608,20 +608,15 @@ class Tournament(ABC):
         self.ongoing_games -= 1
         self.nb_games_finished += 1
 
+        wplayer.free = True
+        bplayer.free = True
+
         if game.status == FLAG:
             # pause players when they don't start their game
             if game.board.ply == 0:
                 wplayer.paused = True
-                bplayer.free = True
             elif game.board.ply == 1:
-                wplayer.free = True
                 bplayer.paused = True
-            else:
-                wplayer.free = True
-                bplayer.free = True
-        else:
-            wplayer.free = True
-            bplayer.free = True
 
         self.set_top_player()
 
@@ -635,7 +630,7 @@ class Tournament(ABC):
             response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id}
             await self.broadcast(response)
 
-            if self.top_player.username not in (game.wplayer.username, game.bplayer.username):
+            if (self.top_player is not None) and self.top_player.username not in (game.wplayer.username, game.bplayer.username):
                 self.top_game = self.players[self.top_player].games[-1]
                 if (self.top_game is not None) and (self.top_game.status <= STARTED):
                     tgj = self.top_game_json

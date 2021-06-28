@@ -94,6 +94,10 @@ button#action {
     background-color: var(--green-hover);
     font-size:1.6em;
 }
+button#action::before {
+    margin-right: 0.4em;
+}
+
 .players {
     grid-area: players;
 }

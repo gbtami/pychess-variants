@@ -67,7 +67,7 @@ async def tournament_socket_handler(request):
                         if tournament is not None:
                             tournament.join(user)
                             response = tournament.players_json(user=user)
-                            await ws.send_json(response)
+                            await tournament.broadcast(response)
 
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)
@@ -77,7 +77,7 @@ async def tournament_socket_handler(request):
                         if tournament is not None:
                             tournament.pause(user)
                             response = tournament.players_json(user=user)
-                            await ws.send_json(response)
+                            await tournament.broadcast(response)
 
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)
@@ -88,7 +88,7 @@ async def tournament_socket_handler(request):
                             page = ((tournament.leaderboard.index(user) + 1) // 10) + 1
                             tournament.withdraw(user)
                             response = tournament.players_json(page=page, user=user)
-                            await ws.send_json(response)
+                            await tournament.broadcast(response)
 
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)

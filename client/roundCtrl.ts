@@ -194,7 +194,7 @@ export default class RoundController {
         this.result = "*";
         const parts = this.fullfen.split(" ");
         this.tournamentGame = this.model["tournamentId"] !== '';
-        this.abortable = Number(parts[parts.length - 1]) <= 1 && !this.tournamentGame;
+        this.abortable = Number(parts[parts.length - 1]) <= 1;
 
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
@@ -518,7 +518,7 @@ export default class RoundController {
         this.gameControls = patch(this.gameControls, h('div'));
         let buttons: VNode[] = [];
         if (!this.spectator) {
-            if (this.model["tournamentId"] !== '') {
+            if (this.tournamentGame) {
                 // TODO: isOver = ?
                 const isOver = false;
                 if (isOver) {
@@ -656,10 +656,12 @@ export default class RoundController {
             }
         }
 
-        this.abortable = (Number(msg.ply) <= 1 && !this.tournamentGame);
-        if (!this.spectator && !this.abortable && this.result === "*") {
+        if (!this.spectator && this.abortable && Number(msg.ply) > 1) {
             const container = document.getElementById('abort') as HTMLElement;
-            patch(container, h('button#abort', { props: {disabled: true} }));
+            if (container) {
+                patch(container, h('div'));
+                this.abortable = false;
+            }
         }
 
         let lastMove = msg.lastMove;

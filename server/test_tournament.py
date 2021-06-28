@@ -106,7 +106,7 @@ class SwissTestTournament(TestTournament, SwissTournament):
 
 async def create_dev_arena_tournament(app):
     data = {
-        "name": "2nd test zh960 arena",
+        "name": "3. zh960 test arena",
         "createdBy": "gbtami",
         "variant": "crazyhouse",
         "chess960": True,
