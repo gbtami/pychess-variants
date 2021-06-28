@@ -10,7 +10,7 @@ import aiohttp_session
 
 from broadcast import round_broadcast
 from const import STARTED
-from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, URI,\
+from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, \
     LICHESS_OAUTH_AUTHORIZE_URL, LICHESS_OAUTH_TOKEN_URL, LICHESS_ACCOUNT_API_URL, DEV
 
 log = logging.getLogger(__name__)
