@@ -1065,7 +1065,7 @@ export default class RoundController {
                 {class:
                     {emerg, 'bar-glider': this.turnColor === this.mycolor}
                 },
-                [h('strong', Math.floor(timeLeft / 1000)), 'seconds to play the firts move']
+                [h('strong', Math.floor(timeLeft / 1000)), 'seconds to play the first move']
             ));
         }
     }
