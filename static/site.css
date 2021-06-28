@@ -520,6 +520,14 @@ ul.guide li {
     font-size: 17px;
 }
 
+.topnav span {
+    position: relative;
+    top: -12px;
+    margin-left: 5px;
+    font-size: 14px;
+    color: red;
+}
+
 .hamburger {
     display: none;
     width: 32px;
