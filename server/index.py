@@ -272,7 +272,7 @@ async def index(request):
         render["pairing_system_name"] = pairing_system_name
         render["tables"] = await get_latest_tournaments(request.app)
         render["theads"] = ("Now playing", "Starting soon", "Finished")
-        render["admin"] = user.username in ADMINS
+        render["admin"] = user.username in ADMINS.split(",")
 
     if gameId is not None:
         if view == "invite":
