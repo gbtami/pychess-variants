@@ -116,8 +116,8 @@ async def create_dev_arena_tournament(app):
         "base": 1,
         "inc": 1,
         "system": ARENA,
-        "beforeStart": 0.1,
-        "minutes": 5,
+        "beforeStart": 10,
+        "minutes": 25,
     }
     await new_tournament(app, data)
 
