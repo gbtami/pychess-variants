@@ -2,7 +2,14 @@
 {% block content %}
 <div id="main-wrap">
 <main class="tournaments box">
-    <h1>{% trans %}Tournaments{% endtrans %}</h1>
+    <div class="box-top">
+        <h1>{% trans %}Tournaments{% endtrans %}</h1>
+        {% if admin %}
+        <div class="actions">
+            <a class="button icon icon-plus-square text" href="{{ home }}/tournaments/new">CREATE A NEW TOURNAMENT</a>
+        </div>
+        {% endif %}
+    </div>
     {% for table in tables %}
     <table class="slist">
         <thead>

@@ -5,9 +5,34 @@
     width: 100%;
     padding: 5vh 60px;
 }
+.box-top {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-between;
+}
 h1 {
     font-size: 40px;
     margin-bottom: 5vh;
+}
+.actions {
+    display: flex;
+    flex-flow: row wrap;
+}
+a.button.icon-plus-square {
+    color: #fff;
+    background: var(--green-switch);
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.225);
+    border-radius: 3px;
+    padding: 0.8em 1em;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    transition: all 150ms;
+}
+.text::before {
+    margin-right: 0.4em;
 }
 th {
     font: inherit;

@@ -22,7 +22,7 @@ from const import LANGUAGES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, v
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
-from settings import MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION
+from settings import ADMINS, MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
@@ -272,6 +272,7 @@ async def index(request):
         render["pairing_system_name"] = pairing_system_name
         render["tables"] = await get_latest_tournaments(request.app)
         render["theads"] = ("Now playing", "Starting soon", "Finished")
+        render["admin"] = user.username in ADMINS
 
     if gameId is not None:
         if view == "invite":
