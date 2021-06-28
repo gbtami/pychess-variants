@@ -10,7 +10,7 @@ from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
 from const import STARTED, VARIANTS, ARENA, RR, SWISS
 from fairy import BLACK
-import game as game_modul
+from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
 from server import make_app
@@ -23,9 +23,6 @@ from swiss import SwissTournament
 from utils import play_move
 # from misc import timeit
 
-game_modul.MAX_PLY = 120
-
-MAX_PLY = game_modul.MAX_PLY
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
 
