@@ -80,14 +80,14 @@ async def login(request):
         return web.HTTPFound(REDIRECT_PATH)
 
     username = None
-    title = None
+    title = ""
 
     async with aiohttp.ClientSession() as client_session:
         data = {'Authorization': "Bearer %s" % session["token"]}
         async with client_session.get(LICHESS_ACCOUNT_API_URL, headers=data) as resp:
             data = await resp.json()
             username = data.get("username")
-            title = data.get("title")
+            title = data.get("title", "")
             if username is None:
                 log.error("Failed to get lichess public user account data from %s", LICHESS_ACCOUNT_API_URL)
                 return web.HTTPFound("/")
