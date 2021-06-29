@@ -20,7 +20,7 @@ from tournaments import insert_tournament_to_db, new_tournament
 from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
-from utils import play_move
+from utils import draw, play_move
 # from misc import timeit
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
@@ -50,6 +50,7 @@ class TestTournament(Tournament):
         print("--- create_new_pairings done ---")
 
         for game in games:
+            self.app["games"][game.id] = game
             game.random_mover = True
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
@@ -64,10 +65,13 @@ class TestTournament(Tournament):
             cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
             opp_player = game.wplayer if game.board.color == BLACK else game.bplayer
             if cur_player.title == "TEST":
-                ply = random.randint(20, int(MAX_PLY / 2))
-                if game.board.ply == ply:
+                ply = random.randint(20, int(MAX_PLY / 10))
+                if game.board.ply == ply or game.board.ply > 60:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
-                    response = await game.game_ended(player, "resign")
+                    if game.board.ply > 60:
+                        await draw(self.app["games"], {"gameId": game.id}, agreement=True)
+                    else:
+                        response = await game.game_ended(player, "resign")
                     if opp_player.title != "TEST":
                         opp_ws = opp_player.game_sockets[game.id]
                         await opp_ws.send_json(response)
@@ -113,7 +117,7 @@ async def create_dev_arena_tournament(app):
         "base": 1,
         "inc": 1,
         "system": ARENA,
-        "beforeStart": 10,
+        "beforeStart": 15,
         "minutes": 25,
     }
     await new_tournament(app, data)
