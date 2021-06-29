@@ -60,8 +60,8 @@ class ArenaTournament(Tournament):
                     if y.username == x.username:
                         print("   SKIP the same")
                         continue
-                    if y.username == self.players[x].prev_opp:
-                        print("   FAIL, prev_opp")
+                    if y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp:
+                        print("   FAIL, same prev_opp")
                         continue
 
                     if max_color_diff < -1:
