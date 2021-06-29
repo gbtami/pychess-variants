@@ -75,9 +75,9 @@ async def tournament_socket_handler(request):
                     elif data["type"] == "pause":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            tournament.pause(user)
-                            response = tournament.players_json(user=user)
-                            await tournament.broadcast(response)
+                            await tournament.pause(user)
+                            # tournament.pause() broadcasts, so we don't have to do it here
+                            # pause is different from withdraw and join because pause can be initiated from finished games page as well
 
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)

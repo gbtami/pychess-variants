@@ -190,13 +190,13 @@ class Tournament(ABC):
 
         def player_json(player, full_score):
             return {
-                "paused": self.players[player].paused,
+                "paused": self.players[player].paused if self.status == T_STARTED else False,
                 "title": player.title,
                 "name": player.username,
                 "rating": self.players[player].rating,
                 "points": self.players[player].points,
                 "fire": self.players[player].win_streak,
-                "score": full_score,  # / SCORE_SHIFT,  # what about half points???
+                "score": full_score,  # SCORE_SHIFT-ed + performance rating
                 "perf": self.players[player].performance,
                 "nbGames": self.players[player].nb_games,
                 "nbWin": self.players[player].nb_win,
@@ -389,8 +389,12 @@ class Tournament(ABC):
         self.leaderboard.pop(player)
         self.nb_players -= 1
 
-    def pause(self, player):
+    async def pause(self, player):
         self.players[player].paused = True
+
+        # pause is different from withdraw and join because pause can be initiated from finished games page as well
+        response = self.players_json(user=player)
+        await self.broadcast(response)
 
         if (self.top_player is not None) and self.top_player.username == player.username:
             self.top_player = None

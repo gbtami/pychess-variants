@@ -130,6 +130,10 @@ export default class TournamentController {
         }
     }
 
+    login() {
+        window.location.assign(this.model["home"] + '/login';
+    }
+
     join() {
         this.doSend({ type: "join", "tournamentId": this.model["tournamentId"] });
     }
@@ -175,7 +179,7 @@ export default class TournamentController {
             break;
         }
         if (this.model["anon"] === 'True' && 'created|started'.includes(this.tournamentStatus)) {
-            button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('SIGN IN'));
+            button = h('button#action', { on: { click: () => this.login() }, class: {"icon": true, "icon-play": true} }, _('LOG IN'));
         }
         // console.log("updateActionButton()", this.tournamentStatus, button);
         this.action = patch(document.getElementById('action') as HTMLElement, button);

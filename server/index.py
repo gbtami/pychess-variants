@@ -132,7 +132,7 @@ async def index(request):
             return web.HTTPFound("/")
 
         if request.path.endswith("/pause") and user in tournament.players:
-            tournament.pause(user)
+            await tournament.pause(user)
 
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
