@@ -590,6 +590,11 @@ export default class RoundController {
         const latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
         if (latestPly) this.ply = msg.ply;
 
+        if (this.ply === 0 && this.variant.name !== 'janggi') {
+            this.expiStart = Date.now();
+            setTimeout(this.showExpiration, 350);
+        }
+
         if (this.ply === 1 || this.ply === 2) {
             this.expiStart = 0;
             this.renderExpiration();
@@ -1088,8 +1093,6 @@ export default class RoundController {
             this.doSend({ type: "board", gameId: this.gameId });
         } else {
             this.firstmovetime = msg.firstmovetime;
-            this.expiStart = Date.now();
-            if (this.variant.name !== 'janggi') setTimeout(this.showExpiration, 350);
 
             const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
             this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
