@@ -103,7 +103,8 @@ class GameData:
 
 class Tournament(ABC):
 
-    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=RATED, before_start=5, minutes=45, name="", fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, status=None):
+    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=RATED, before_start=5, minutes=45, name="",
+                 fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, status=None, with_clock=True):
         self.app = app
         self.id = tournamentId
         self.name = name
@@ -149,7 +150,8 @@ class Tournament(ABC):
 
         self.finish_event = asyncio.Event()
 
-        self.clock_task = asyncio.create_task(self.clock())
+        if with_clock:
+            self.clock_task = asyncio.create_task(self.clock())
 
     @abstractmethod
     def create_pairing(self):

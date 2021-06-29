@@ -83,6 +83,7 @@ async def insert_tournament_to_db(tournament, app):
 
 
 async def get_latest_tournaments(app):
+    tournaments = app["tournaments"]
     started, scheduled, completed = [], [], []
 
     cursor = app["db"].tournament.find()
@@ -92,29 +93,34 @@ async def get_latest_tournaments(app):
         if nb_tournament > 20:
             break
 
-        if doc["system"] == ARENA:
-            tournament_class = ArenaTournament
-        elif doc["system"] == SWISS:
-            tournament_class = SwissTournament
-        elif doc["system"] == RR:
-            tournament_class = RRTournament
+        tid = doc["_id"]
+        if tid in tournaments:
+            tournament = tournaments[tid]
+        else:
+            if doc["system"] == ARENA:
+                tournament_class = ArenaTournament
+            elif doc["system"] == SWISS:
+                tournament_class = SwissTournament
+            elif doc["system"] == RR:
+                tournament_class = RRTournament
 
-        tournament = tournament_class(
-            app, doc["_id"], C2V[doc["v"]],
-            base=doc["b"],
-            inc=doc["i"],
-            byoyomi_period=int(bool(doc.get("bp"))),
-            rated=doc.get("y"),
-            chess960=bool(doc.get("z")),
-            fen=doc.get("f"),
-            rounds=doc["rounds"],
-            created_by=doc["createdBy"],
-            created_at=doc["createdAt"],
-            minutes=doc["minutes"],
-            name=doc["name"],
-            status=doc["status"],
-        )
-        tournament.nb_players = doc["nbPlayers"]
+            tournament = tournament_class(
+                app, tid, C2V[doc["v"]],
+                base=doc["b"],
+                inc=doc["i"],
+                byoyomi_period=int(bool(doc.get("bp"))),
+                rated=doc.get("y"),
+                chess960=bool(doc.get("z")),
+                fen=doc.get("f"),
+                rounds=doc["rounds"],
+                created_by=doc["createdBy"],
+                created_at=doc["createdAt"],
+                minutes=doc["minutes"],
+                name=doc["name"],
+                status=doc["status"],
+                with_clock=False
+            )
+            tournament.nb_players = doc["nbPlayers"]
 
         if doc["status"] == T_STARTED:
             started.append(tournament)
