@@ -72,7 +72,7 @@ def make_app(with_db=True):
 
 
 async def init_db(app):
-    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
+    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST, tz_aware=True,)
     app["db"] = app["client"][MONGO_DB_NAME]
 
 
