@@ -18,7 +18,7 @@ export const localeOptions: Intl.DateTimeFormatOptions = {
 };
 
 export function timeago(date) {
-    const TZdate = new Date(date + 'Z');
+    const TZdate = new Date(date);
     const maxLength = { second: 60, minute: 60, hour: 24, day: 7, week: 4.35, month: 12, year: 10000 };
     let val = (Date.now() - TZdate.getTime()) / 1000;
 
