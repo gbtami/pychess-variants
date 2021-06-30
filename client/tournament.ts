@@ -131,7 +131,7 @@ export default class TournamentController {
     }
 
     login() {
-        window.location.assign(this.model["home"] + '/login';
+        window.location.assign(this.model["home"] + '/login');
     }
 
     join() {
