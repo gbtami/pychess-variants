@@ -104,6 +104,9 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
     if (!role || !color || number === '0') return;
+    
+/* Removed to fix https://github.com/gbtami/pychess-variants/issues/549
+
     if (ctrl.clickDropEnabled && ctrl.clickDrop !== undefined && role === ctrl.clickDrop.role) {
         ctrl.clickDrop = undefined;
         ctrl.chessground.selectSquare(null);
@@ -128,6 +131,8 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
         ctrl.chessground.selectSquare('a0');
         ctrl.chessground.set({ lastMove: ctrl.lastmove });
     }
+*/
+
     e.stopPropagation();
     e.preventDefault();
     dragNewPiece(ctrl.chessground.state, { color, role }, e);

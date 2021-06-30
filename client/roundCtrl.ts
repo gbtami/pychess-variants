@@ -86,8 +86,8 @@ export default class RoundController {
     players: string[];
     titles: string[];
     ratings: string[];
-    clickDrop: Piece | undefined;
-    clickDropEnabled: boolean;
+//    clickDrop: Piece | undefined;
+//    clickDropEnabled: boolean;
     animation: boolean;
     showDests: boolean;
     blindfold: boolean;
@@ -149,7 +149,7 @@ export default class RoundController {
 
         this.flip = false;
         this.settings = true;
-        this.clickDropEnabled = true;
+//        this.clickDropEnabled = true;
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
@@ -832,8 +832,8 @@ export default class RoundController {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
-            } else if (this.clickDropEnabled) {
-                this.clickDrop = piece;
+//            } else if (this.clickDropEnabled) {
+//                this.clickDrop = piece;
             }
         }
     }
@@ -938,7 +938,7 @@ export default class RoundController {
         } else {
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
-            this.clickDrop = undefined;
+//            this.clickDrop = undefined;
             this.chessground.set({
                 fen: this.fullfen,
                 lastMove: this.lastmove,
@@ -958,6 +958,8 @@ export default class RoundController {
         return (key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
+/* Removed to fix https://github.com/gbtami/pychess-variants/issues/549
+
             // If drop selection was set dropDests we have to restore dests here
             if (key != 'a0' && 'a0' in this.chessground.state.movable.dests) {
                 if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
@@ -968,6 +970,7 @@ export default class RoundController {
                 //cancelDropMode(this.chessground.state);
                 this.chessground.set({ movable: { dests: this.dests }});
             }
+*/
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?

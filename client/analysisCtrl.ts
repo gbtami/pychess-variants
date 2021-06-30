@@ -112,8 +112,8 @@ export default class AnalysisController {
     players: string[];
     titles: string[];
     ratings: string[];
-    clickDrop: Piece | undefined;
-    clickDropEnabled: boolean;
+//    clickDrop: Piece | undefined;
+//    clickDropEnabled: boolean;
     animation: boolean;
     showDests: boolean;
     analysisChart;
@@ -188,7 +188,7 @@ export default class AnalysisController {
 
         this.flip = false;
         this.settings = true;
-        this.clickDropEnabled = true;
+//        this.clickDropEnabled = true;
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
@@ -881,8 +881,8 @@ export default class AnalysisController {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
-            } else if (this.clickDropEnabled) {
-                this.clickDrop = piece;
+//            } else if (this.clickDropEnabled) {
+//                this.clickDrop = piece;
             }
         }
     }
@@ -1086,7 +1086,7 @@ export default class AnalysisController {
         } else {
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
-            this.clickDrop = undefined;
+//            this.clickDrop = undefined;
             this.chessground.set({
                 fen: this.fullfen,
                 lastMove: this.lastmove,
@@ -1106,6 +1106,8 @@ export default class AnalysisController {
         return (key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
+/* Removed to fix https://github.com/gbtami/pychess-variants/issues/549
+
             // If drop selection was set dropDests we have to restore dests here
             if (key != 'a0' && 'a0' in this.chessground.state.movable.dests) {
                 if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
@@ -1117,6 +1119,7 @@ export default class AnalysisController {
                 this.chessground.set({ movable: { dests: this.dests }});
             }
 
+*/
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
             if (this.chess960 && this.variant.gate) {
