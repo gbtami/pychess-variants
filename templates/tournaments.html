@@ -1,0 +1,53 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="tournaments box">
+    <div class="box-top">
+        <h1>{% trans %}Tournaments{% endtrans %}</h1>
+        {% if admin %}
+        <div class="actions">
+            <a class="button icon icon-plus-square text" href="{{ home }}/tournaments/new">CREATE A NEW TOURNAMENT</a>
+        </div>
+        {% endif %}
+    </div>
+    {% for table in tables %}
+    <table class="slist">
+        <thead>
+            <tr>
+                <th colspan="4">{{ theads[loop.index -1] }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tourney in table %}
+            <tr>
+                <td>
+                    <div class="icon" data-icon="{{ icons[tourney.variant] }}">
+                </td>
+                <td class="header">
+                    <a href="/tournament/{{ tourney.id }}">
+                        <span class="name">{{ tourney.name }}</span>by
+                        <span class="by">{{ tourney.created_by }}</span>
+                    </a>
+                </td>
+                <td class="infos">
+                    <span class="system">{{ pairing_system_name(tourney.system) }} • {{ "Rated" if tourney.rated else "Casual" }}</span>
+                    <span>{{ tourney.base }} + {{ tourney.inc }} • {{ variant_display_name(tourney.variant) }}</span>
+                </td>
+                <td>
+                    <span class="starts">
+                        <info-date timestamp="{{ tourney.starts_at }}">{{ tourney.starts_at.date() }}</info-date>
+                    </span>
+                    <span>{{ tourney.nb_players }} players</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
+

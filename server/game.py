@@ -2,7 +2,6 @@ import asyncio
 import collections
 import logging
 import random
-import string
 from datetime import datetime, timezone
 from itertools import chain
 from time import monotonic
@@ -20,7 +19,7 @@ from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM,
     INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, IMPORTED
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
-from glicko2.glicko2 import gl2, PROVISIONAL_PHI
+from glicko2.glicko2 import gl2
 from settings import URI
 
 log = logging.getLogger(__name__)
@@ -30,16 +29,8 @@ MAX_PLY = 600
 KEEP_TIME = 600  # keep game in app["games"] for KEEP_TIME secs
 
 
-async def new_game_id(db):
-    new_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(8))
-    existing = await db.game.find_one({'_id': {'$eq': new_id}})
-    if existing:
-        new_id = "".join(random.choice(string.digits + string.ascii_letters) for x in range(8))
-    return new_id
-
-
 class Game:
-    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=CASUAL, chess960=False, create=True):
+    def __init__(self, app, gameId, variant, initial_fen, wplayer, bplayer, base=1, inc=0, byoyomi_period=0, level=0, rated=CASUAL, chess960=False, create=True, tournamentId=None):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.users = app["users"]
@@ -56,15 +47,16 @@ class Game:
         self.base = base
         self.inc = inc
         self.level = level if level is not None else 0
+        self.tournamentId = tournamentId
         self.chess960 = chess960
         self.create = create
 
         # rating info
         self.white_rating = wplayer.get_rating(variant, chess960)
-        self.wrating = "%s%s" % (int(round(self.white_rating.mu, 0)), "?" if self.white_rating.phi > PROVISIONAL_PHI else "")
+        self.wrating = "%s%s" % self.white_rating.rating_prov
         self.wrdiff = 0
         self.black_rating = bplayer.get_rating(variant, chess960)
-        self.brating = "%s%s" % (int(round(self.black_rating.mu, 0)), "?" if self.black_rating.phi > PROVISIONAL_PHI else "")
+        self.brating = "%s%s" % self.black_rating.rating_prov
         self.brdiff = 0
 
         # crosstable info
@@ -202,8 +194,8 @@ class Game:
             return
         if self.status == CREATED:
             self.status = STARTED
-            self.app["g_cnt"] += 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+            self.app["g_cnt"][0] += 1
+            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
             await lobby_broadcast(self.app["lobbysockets"], response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
@@ -305,11 +297,15 @@ class Game:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatch.kill()
+        self.stopwatch.clock_task.cancel()
+        try:
+            await self.stopwatch.clock_task
+        except asyncio.CancelledError:
+            pass
 
         if self.board.ply > 0:
-            self.app["g_cnt"] -= 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"]}
+            self.app["g_cnt"][0] -= 1
+            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
             await lobby_broadcast(self.app["lobbysockets"], response)
 
         async def remove(keep_time):
@@ -332,9 +328,9 @@ class Game:
                     log.error("Failed to del %s from game_queues", self.id)
 
         self.saved = True
-        asyncio.create_task(remove(KEEP_TIME))
+        self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
-        if self.board.ply < 3 and (self.db is not None):
+        if self.board.ply < 3 and (self.db is not None) and (self.tournamentId is None):
             result = await self.db.game.delete_one({"_id": self.id})
             log.debug("Removed too short game %s from db. Deleted %s game.", self.id, result.deleted_count)
         else:
@@ -343,6 +339,9 @@ class Game:
                     await self.update_ratings()
                 if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
                     await self.save_crosstable()
+
+            if self.tournamentId is not None:
+                await self.app["tournaments"][self.tournamentId].game_update(self)
 
             # self.print_game()
 
@@ -475,6 +474,8 @@ class Game:
         await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     def update_status(self, status=None, result=None):
+        assert self.status <= STARTED
+
         def result_string_from_value(color, game_result_value):
             if game_result_value < 0:
                 return "1-0" if color == BLACK else "0-1"
@@ -493,6 +494,7 @@ class Game:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
+
             return
 
         if self.board.move_stack:
@@ -500,7 +502,7 @@ class Game:
 
         w, b = self.board.insufficient_material()
         if w and b:
-            print("1/2 by board.insufficient_material()")
+            # print("1/2 by board.insufficient_material()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
@@ -510,7 +512,7 @@ class Game:
 
             if self.board.is_immediate_game_end()[0]:
                 self.status = VARIANTEND
-                print(self.result, "variant end")
+                # print(self.result, "variant end")
             elif self.check:
                 self.status = MATE
                 # Draw if the checkmating player is the one counting
@@ -523,16 +525,16 @@ class Game:
                 # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
                 if self.board.move_stack[-1][0:2] == "P@" and self.variant in ("shogi", "minishogi", "gorogoro"):
                     self.status = INVALIDMOVE
-                print(self.result, "checkmate")
+                # print(self.result, "checkmate")
             else:
                 # being in stalemate loses in xiangqi and shogi variants
                 # Atomic checkmate is internally a stalemate so we need to change it here. Remove when pyffish is fixed.
                 if self.variant == 'atomic' and self.result != "1/2-1/2":
                     self.status = MATE
-                    print(self.result, "checkmate")
+                    # print(self.result, "checkmate")
                 else:
                     self.status = STALEMATE
-                    print(self.result, "stalemate")
+                    # print(self.result, "stalemate")
 
         elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin'):
             parts = self.board.fen.split()
@@ -542,7 +544,7 @@ class Game:
                 if counting_ply > counting_limit:
                     self.status = DRAW
                     self.result = "1/2-1/2"
-                    print(self.result, "counting limit reached")
+                    # print(self.result, "counting limit reached")
 
         else:
             # end the game by 50 move rule and repetition automatically
@@ -551,15 +553,16 @@ class Game:
             if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
-                print(self.result, "claim")
+                # print(self.result, "claim")
 
         if self.board.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
-            print(self.result, "Ply %s reached" % MAX_PLY)
+            # print(self.result, "Ply %s reached" % MAX_PLY)
 
         if self.status > STARTED:
             self.set_crosstable()
+
             if not self.bplayer.bot:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
@@ -772,3 +775,18 @@ class Game:
                 "rm": self.random_move if self.status <= STARTED else "",
                 "ct": crosstable,
                 }
+
+    def game_json(self, player):
+        color = "w" if self.wplayer == player else "b"
+        opp_player = self.bplayer if color == "w" else self.wplayer
+        opp_rating = self.black_rating if color == "w" else self.white_rating
+        opp_rating, prov = opp_rating.rating_prov
+        return {
+            "gameId": self.id,
+            "title": opp_player.title,
+            "name": opp_player.username,
+            "rating": opp_rating,
+            "prov": prov,
+            "color": color,
+            "result": self.result,
+        }

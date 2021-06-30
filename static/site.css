@@ -5,7 +5,7 @@
     --gauge-gap: 17px;
     --site-header-height: 60px;
     --site-header-margin: 0px;
-    --base-shadow: 0 3px 6px 0 rgba(0,0,0,0.1), 0 2px 4px 0 rgba(0,0,0,0.1);
+    --base-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.2),0 1px 5px 0 rgba(0,0,0,0.12);
     --btn-shadow: 2px 1px 2px 0 rgba(0,0,0,0.1);
     --dark-mode: 0;
     --font-color: #4d4d4d;
@@ -26,7 +26,7 @@
     --invite-game: #eff5e9;
     --good: #629924;
     --bad: #c33;
-    --gold: GoldenRod;
+    --gold: #d59020;
     --rusty: rgba(214,79,0,0.5);
     --ct-current: #e2834d;
     --clock-hurry-bg: MistyRose;
@@ -115,11 +115,11 @@
 }
 [data-icon]:before {
     vertical-align: middle;
-    opacity: 0.7;
+    opacity: 0.9;
 }
 [class*=" icon-"]:before {
     vertical-align: middle;
-    opacity: 0.7;
+    opacity: 0.9;
 }
 img {
   max-width: 100%;
@@ -169,6 +169,16 @@ body.no-select {
 div#preload {
     /* preload board .svg images */
     display: none;
+}
+
+h1, h2, h3 {
+    font-weight: normal;
+    font-family: 'Roboto', Sans-Serif;
+}
+.box {
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+    border-radius: 3px;
 }
 
 header {
@@ -270,6 +280,7 @@ iframe {
 .seeks {
     display: grid;
     grid-area: app;
+    border-radius: 3px;
 }
 .seeks  [data-icon]:before {
     font-size: 20px;
@@ -302,7 +313,7 @@ iframe {
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
-    padding: 0 1em 0 1em;
+    margin: 2em 0 0 0;
 }
 .sidebar-second.analysis {
     justify-content: none;
@@ -509,6 +520,14 @@ ul.guide li {
     font-size: 17px;
 }
 
+.topnav span {
+    position: relative;
+    top: -12px;
+    margin-left: 5px;
+    font-size: 14px;
+    color: red;
+}
+
 .hamburger {
     display: none;
     width: 32px;
@@ -647,9 +666,10 @@ a {
     white-space: nowrap;
 }
 a, .user-link:link, .user-link:visited {
-    display: inline-block;
     color: var(--font-color);
     text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
 }
 a, .user-link, .user-link:active {
     color: var(--link-color);
@@ -785,6 +805,7 @@ button.newopp:hover,  button.analysis:hover {
     margin-bottom: 16px;
     padding: 12px;
     font-size: 14px;
+    border-radius: 3px;
 }
 
 div.info1.icon, div.info0.icon::before {
@@ -949,7 +970,6 @@ vs-swords.lobby.opp {
 }
 .sub-ratings h3{
     font-size: 12px;
-    font-weight: normal;
     letter-spacing: 1.1px;
     margin: 0;
 }
@@ -1289,7 +1309,7 @@ button:disabled {
         justify-self: flex-end;
     }
     .info-wrap1  {
-        grid-area: 6 / 1 / 6 / 2;
+        grid-area: 7 / 1 / 7 / 2;
         justify-self: flex-end;
     }
 }
@@ -1466,6 +1486,7 @@ label {
     background: var(--bg-color0);
     box-shadow: var(--base-shadow);
     min-height: 15em;
+    border-radius: 3px;
 }
 
 user {

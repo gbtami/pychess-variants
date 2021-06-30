@@ -1,5 +1,5 @@
 from misc import time_control_str
-from game import new_game_id
+from newid import new_id
 
 MAX_USER_SEEKS = 10
 
@@ -13,7 +13,7 @@ class Seek:
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
-        self.rating = int(round(user.get_rating(variant, chess960).mu, 0))
+        self.rating = user.get_rating(variant, chess960).rating_prov[0]
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
@@ -59,7 +59,7 @@ async def create_seek(db, invites, seeks, user, data, ws=None):
 
     target = data.get("target")
     if target == "Invite-friend":
-        game_id = await new_game_id(db)
+        game_id = await new_id(db.game)
     else:
         game_id = None
 

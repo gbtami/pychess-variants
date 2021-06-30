@@ -1,0 +1,347 @@
+:root {
+    --main-max-width: auto;
+}
+.tour {
+    grid-area: main;
+    display: grid;
+    grid-gap: 2vmin;
+}
+@media (max-width: 799px) and (orientation: portrait) {
+    .tour {
+        grid-template-areas: 'main' 'side' 'uchat' 'table';
+    }
+}
+@media (min-width: 800px) {
+    .tour {
+        grid-template-columns: minmax(230px, 20vw) minmax(500px, calc( 100vh * .9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
+        grid-template-rows: calc(100vh - calc(var(--site-header-height) + var(--site-header-margin)) - 2vmin - 3rem) auto;
+        grid-template-areas: 'side players table' 'uchat players table';
+    }
+}
+under-chat {
+    grid-area: uchat;
+}
+div.info0 {
+    margin-bottom: 3vmin;
+}
+.user-link {
+    padding: 0;
+}
+table#players {
+    grid-area: main;
+    margin-bottom: 3vmin;
+}
+div.tour-header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    min-height: 7em;
+    padding: 0 3vmin;
+}
+div.tour-header i {
+    font-size: 2.2rem;
+    color: var(--gold);
+    margin-right: 1rem;
+}
+div.tour-header h1 {
+    color: var(--gold);
+    font-weight: normal;
+    flex: 9 1 auto;
+    margin: 0;
+    overflow: hidden;
+    text-align: center;
+}
+div.tour-header clock {
+    text-align: right;
+}
+table#players, table#games {
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+div.pager {
+    display: flex;
+    align-items: center;
+    flex-flow: row wrap;
+}
+span.page {
+    align-self: center;
+    padding: 3px;
+}
+.btn-controls {
+    display: flex;
+    position: relative;
+    background-color: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+}
+.btn-controls button {
+    flex: 1;
+    border: none;
+    padding: 0.6em 1em;
+    font-size:0.8em;
+    cursor: pointer;
+    background-color: var(--bg-color);
+}
+button#action {
+    position: absolute;
+    right: 5px;
+    top: -3px;
+    padding: 3px 20px;
+    border-radius: 8px;
+    border-bottom: 5px solid #759900;
+    color: white;
+    background-color: var(--green-hover);
+    font-size:1.6em;
+}
+button#action::before {
+    margin-right: 0.4em;
+}
+
+.players {
+    grid-area: players;
+}
+.tour-table {
+    grid-area: table;
+}
+table.players tr {
+    cursor: pointer;
+}
+table.players tr:nth-child(2n) {
+    background: var(--bg-color2);
+}
+table.pairings tr:nth-child(2n+1) {
+    background: var(--bg-color2);
+}
+table.players tr:hover, table.pairings tr:hover {
+    background-color: var(--game-hover);
+}
+table td {
+    padding: 1rem;
+    font-size: 14px;
+}
+td.rank {
+    padding: 1em 0.5em 1em 10px;
+    width: 1px;
+}
+td.player {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+span.title {
+    padding-right: 5px;
+    color: var(--gold);
+}
+span.name {
+    padding-right: 5px;
+}
+td.sheet {
+    text-align: right;
+    padding-right: 0px;
+    padding-left: 0px;
+    letter-spacing: 0.1em;
+    width: 100%;
+}
+td.sheet > * {
+    display: inline-block;
+}
+td.sheet div {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+}
+td.sheet score {
+    opacity: 0.7;
+}
+td.sheet streak {
+    color: var(--green-hover);
+}
+td.sheet double {
+    color: var(--gold);
+}
+fire {
+    color: var(--gold);
+    margin-right: 2vim;
+}
+td.total {
+    text-align: right;
+    padding-left: 0px;
+    padding: 1rem;
+}
+strong.score {
+    padding-right: 8px;
+}
+.tour-table {
+    display: flex;
+    flex-flow: column;
+}
+#player table th {
+    text-align: left;
+    font-size: 14px;
+    font-weight: normal;
+}
+#player table td {
+    padding: 0.3em;
+    font-size: 14px;
+}
+table.pairings tr {
+    cursor: pointer;
+}
+table.pairings th {
+    padding: 0.3em;
+    border: 0;
+    border-left: 3px solid var(--bg-color0);
+}
+table.stats td {
+    padding: 0;
+    padding-left: 10px;
+    line-height: 1.8em;
+    text-align: right;
+}
+div#player {
+    position: relative;
+}
+div#stats {
+    display: flex;
+    flex-flow: column;
+}
+.close {
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    opacity: 0.6;
+    transition: all 150ms;
+    color: var(--bad);
+    background: none;
+    border-radius: 0;
+}
+.close:hover, .close:focus {
+    cursor: pointer;
+    opacity: 0.9;
+    color: var(--bad);
+    background: none;
+}
+#stats table {
+    margin: 1em auto;
+}
+#stats h2 {
+    background: linear-gradient(to bottom, var(--bg-meta) 0%, var(--bg-color2) 100%);
+    font-size: 1.4em;
+    font-family: 'Roboto', Sans-Serif;
+    padding: 0.6rem 1rem;
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+#stats tr {
+    vertical-align: middle;
+}
+td i-side {
+    opacity: 0.6;
+}
+td.result {
+    font-weight: bold;
+}
+.point {
+    flex: 0 0 2em;
+}
+.lose {
+    color: var(--bad);
+}
+.win {
+    color: var(--good);
+}
+
+.shy {
+    font-size: 0.9em;
+    font-weight: bold;
+    opacity: 0.6;
+    text-align: right;
+}
+#clockdiv {
+    display: flex;
+    flex-flow: column;
+}
+#clock {
+    font-family: 'Roboto', Sans-Serif;
+    color: var(--font-color);
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.5em;
+}
+rank {
+    font-weight: bold;
+    padding-right: 1ch;
+}
+div.player {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
+.podium {
+    padding-bottom: 20px;
+}
+.podium > div {
+    display: inline-block;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.podium .second {
+    font-size: 1.3em;
+    width: 29%;
+}
+.podium .first {
+    width: 44%;
+    font-size: 1.6em;
+}
+.podium .third {
+    font-size: 1.2em;
+    width: 27%;
+}
+.podium .trophy {
+    margin: 0 auto 0.5em auto;
+    background: center / contain no-repeat;
+}
+.podium .second .trophy {
+    height: 9em;
+    width: 7em;
+    background-image: url("images/trophy/silver.svg");
+}
+.podium .first .trophy {
+    height: 9em;
+    width: 9em;
+    background-image: url("images/trophy/gold.svg");
+}
+.podium .third .trophy {
+    height: 7em;
+    width: 7em;
+    background-image: url("images/trophy/bronze.svg");
+}
+.podium .stats {
+    margin: 0.5em auto 0 auto;
+    font-size: 0.7em;
+}
+.podium .stats th {
+    font-weight: normal;
+    letter-spacing: -1px;
+    text-align: left;
+}
+.podium .stats td {
+    font-weight: bold;
+    padding-left: 5px;
+    text-align: right;
+}
+
+.tour-stats {
+    padding: 1.7em 0;
+    align-self: flex-start;
+}
+.tour-stats h2 {
+    font-size: 1.5em;
+    margin-bottom: 1em;
+    text-align: center;
+}
+td.bye {
+    text-align: center;
+}

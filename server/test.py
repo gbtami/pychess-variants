@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import logging
 import unittest
 from datetime import datetime, timezone
@@ -13,11 +14,13 @@ from const import CREATED, STARTED, VARIANTS
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from game import Game
+from login import RESERVED_USERS
+from newid import id8
 from user import User
 from utils import sanitize_fen
 from server import make_app
-
 import game
+
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
 
@@ -92,6 +95,8 @@ class SanitizeFenTestCase(unittest.TestCase):
             variant_name = variant[:-3] if chess960 else variant
             board = FairyBoard(variant_name, chess960=chess960)
             fen = board.initial_fen
+            print()
+            print(variant_name, chess960, fen)
 
             valid, sanitized = sanitize_fen(variant_name, fen, chess960)
             self.assertTrue(valid)
@@ -130,6 +135,15 @@ class SanitizeFenTestCase(unittest.TestCase):
 
 class RequestLobbyTestCase(AioHTTPTestCase):
 
+    async def tearDownAsync(self):
+        for user in self.app["users"].values():
+            if user.anon and user.username not in RESERVED_USERS:
+                user.remove_task.cancel()
+                try:
+                    await user.remove_task
+                except asyncio.CancelledError:
+                    pass
+
     async def get_application(self):
         app = make_app(with_db=False)
         return app
@@ -165,7 +179,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             print(i, variant)
             variant960 = variant.endswith("960")
             variant_name = variant[:-3] if variant960 else variant
-            game_id = str(i)
+            game_id = id8()
             game = Game(self.app, game_id, variant_name, "", self.test_player, self.random_mover, rated=False, chess960=variant960, create=True)
             self.app["games"][game.id] = game
             self.random_mover.game_queues[game_id] = None
@@ -212,7 +226,8 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_lost_but_still_there(self):
-        game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
+        game_id = id8()
+        game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
@@ -232,7 +247,8 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_lost_and_out(self):
-        game = Game(self.app, "12345678", "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
+        game_id = id8()
+        game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
@@ -252,7 +268,8 @@ class HighscoreTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_win_and_in_then_lost_and_out(self):
-        game = Game(self.app, "12345678", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
+        game_id = id8()
+        game = Game(self.app, game_id, "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
@@ -270,7 +287,8 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"].keys()[:10])
 
         # now strong player will lose to weak_player and should be out from leaderboard
-        game = Game(self.app, "98765432", "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
+        game_id = id8()
+        game = Game(self.app, game_id, "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
         self.app["games"][game.id] = game
         print(game.crosstable)
 
@@ -285,7 +303,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertTrue(self.strong_player.username not in game.highscore["crazyhouse960"].keys()[:10])
 
 
-class TestRatings(AioHTTPTestCase):
+class RatingTestCase(AioHTTPTestCase):
 
     async def get_application(self):
         app = make_app(with_db=False)
@@ -309,22 +327,22 @@ class TestRatings(AioHTTPTestCase):
     async def test_rating(self):
         # New Glicko2 rating calculation example from original paper
 
-        u1 = User(self.app, username="testuser", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
+        u1 = User(self.app, username="testuser1", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1500, "d": 200, "v": 0.06}}})
         r1 = u1.get_rating("chess", False)
 
         self.assertEqual(r1.mu, 1500)
         self.assertEqual(r1.phi, 200)
         self.assertEqual(r1.sigma, 0.06)
 
-        u2 = User(self.app, perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1400, "d": 30, "v": 0.06}}})
+        u2 = User(self.app, username="testuser2", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1400, "d": 30, "v": 0.06}}})
         r2 = u2.get_rating("chess", False)
         self.assertEqual(r2.mu, 1400)
 
-        u3 = User(self.app, perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1550, "d": 100, "v": 0.06}}})
+        u3 = User(self.app, username="testuser3", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1550, "d": 100, "v": 0.06}}})
         r3 = u3.get_rating("chess", False)
         self.assertEqual(r3.mu, 1550)
 
-        u4 = User(self.app, perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1700, "d": 300, "v": 0.06}}})
+        u4 = User(self.app, username="testuser4", perfs={"chess": {"la": datetime.now(timezone.utc), "gl": {"r": 1700, "d": 300, "v": 0.06}}})
         r4 = u4.get_rating("chess", False)
         self.assertEqual(r4.mu, 1700)
 

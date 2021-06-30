@@ -38,12 +38,17 @@ PROVISIONAL_PHI = 110
 
 
 class Rating:
+    __slots__ = "mu", "phi", "sigma", "ltime"
 
     def __init__(self, mu=MU, phi=PHI, sigma=SIGMA, ltime=None):
         self.mu = mu
         self.phi = phi
         self.sigma = sigma
         self.ltime = ltime
+
+    @property
+    def rating_prov(self):
+        return (int(round(self.mu, 0)), "?" if self.phi > PROVISIONAL_PHI else "")
 
     def __repr__(self):
         return '(mu=%.3f, phi=%.3f, sigma=%.3f, ltime=%s)' % (self.mu, self.phi, self.sigma, self.ltime)
@@ -64,6 +69,7 @@ def pre_rating_RD(phi, sigma, ltime):
 
 
 class Glicko2:
+    __slots__ = "mu", "phi", "sigma", "tau", "epsilon"
 
     def __init__(self, mu=MU, phi=PHI, sigma=SIGMA, tau=TAU, epsilon=EPSILON):
         self.mu = mu

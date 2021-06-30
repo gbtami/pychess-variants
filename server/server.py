@@ -36,12 +36,15 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 async def on_prepare(request, response):
     if request.path.endswith(".br"):
+        # brotli compressed js
         response.headers["Content-Encoding"] = "br"
         return
     elif request.path.startswith("/variant") or request.path.startswith("/news"):
+        # Learn and News pages may have links to other sites
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
         return
     else:
+        # required to get stockfish.wasm in Firefox
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
@@ -69,7 +72,7 @@ def make_app(with_db=True):
 
 
 async def init_db(app):
-    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST)
+    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST, tz_aware=True,)
     app["db"] = app["client"][MONGO_DB_NAME]
 
 
@@ -87,11 +90,16 @@ async def init_state(app):
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
     app["users"]["Random-Mover"].online = True
-    app["lobbysockets"] = {}
+    app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
+    app["lobbychat"] = collections.deque([], 100)
+
+    app["tourneysockets"] = {}  # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
+    app["tournaments"] = {}
+    app["tourneychat"] = {}  # one deque per tournament! {tournamentId: collections.deque([], 100), ...}
+
     app["seeks"] = {}
     app["games"] = {}
     app["invites"] = {}
-    app["chat"] = collections.deque([], 100)
     app["game_channels"] = set()
     app["invite_channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
@@ -99,7 +107,7 @@ async def init_state(app):
     app["stats"] = {}
 
     # counters for games
-    app["g_cnt"] = 0
+    app["g_cnt"] = [0]
 
     # last game played
     app["tv"] = None
@@ -208,6 +216,18 @@ async def init_state(app):
     except Exception:
         print("Maybe mongodb is not running...")
         raise
+
+    # create test tournament
+    if 0:
+        pass
+        from first_janggi_tournament import add_games
+        await add_games(app, force=False)
+
+        # from test_tournament import create_arena_test
+        # await create_arena_test(app)
+
+        # from test_tournament import create_dev_arena_tournament
+        # await create_dev_arena_tournament(app)
 
 
 async def shutdown(app):

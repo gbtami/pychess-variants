@@ -190,14 +190,12 @@ async def lobby_socket_handler(request):
                                 else:
                                     user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                     users[user.username] = user
-                                # response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                             else:
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
                                     user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                     users[user.username] = user
-                                # response = {"type": "lobbychat", "user": "", "message": "%s joined the lobby" % session_user}
                         else:
                             log.info("+++ Existing lobby_user %s socket reconnected.", data["username"])
                             session_user = data["username"]
@@ -206,9 +204,6 @@ async def lobby_socket_handler(request):
                             else:
                                 user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
                                 users[user.username] = user
-                            # response = {"type": "lobbychat", "user": "", "message": "%s rejoined the lobby" % session_user}
-
-                        # await lobby_broadcast(sockets, response)
 
                         # update websocket
                         user.lobby_sockets.add(ws)
@@ -218,11 +213,11 @@ async def lobby_socket_handler(request):
                         response = {"type": "lobby_user_connected", "username": user.username}
                         await ws.send_json(response)
 
-                        response = {"type": "fullchat", "lines": list(request.app["chat"])}
+                        response = {"type": "fullchat", "lines": list(request.app["lobbychat"])}
                         await ws.send_json(response)
 
                         # send game count
-                        response = {"type": "g_cnt", "cnt": request.app["g_cnt"]}
+                        response = {"type": "g_cnt", "cnt": request.app["g_cnt"][0]}
                         await ws.send_json(response)
 
                         # send user count
@@ -256,7 +251,7 @@ async def lobby_socket_handler(request):
 
                         if response is not None:
                             await lobby_broadcast(sockets, response)
-                            request.app["chat"].append(response)
+                            request.app["lobbychat"].append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()
