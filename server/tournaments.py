@@ -61,7 +61,8 @@ async def new_tournament(app, data):
         minutes=data.get("minutes", 45),
         name=data["name"],
         created_at=data.get("createdAt"),
-        status=data.get("status")
+        status=data.get("status"),
+        with_clock=data.get("with_clock", True)
     )
 
     app["tournaments"][tid] = tournament

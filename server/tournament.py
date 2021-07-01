@@ -655,7 +655,7 @@ class Tournament(ABC):
         if self.app["db"] is None:
             return
 
-        if len(self.leaderboard) == 0:
+        if self.nb_games_finished == 0:
             print(await self.app["db"].tournament.delete_many({"_id": self.id}))
             log.debug("--- Deleted empty tournament %s", self.id)
             return

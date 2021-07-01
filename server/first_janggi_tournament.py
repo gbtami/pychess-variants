@@ -94,17 +94,12 @@ pairings["Fairy-Stockfish"] = (
 )
 
 
-async def add_games(app, force=False):
+async def add_games(app):
     tid = "00000001"
 
-    doc = await app["db"].tournament.find_one({"_id": tid})
-    if doc is not None:
-        if force:
-            await app["db"].tournament.delete_one({"_id": tid})
-            await app["db"].tournament_player.delete_many({"tid": tid})
-            await app["db"].tournament_pairing.delete_many({"tid": tid})
-        else:
-            return
+    await app["db"].tournament.delete_one({"_id": tid})
+    await app["db"].tournament_player.delete_many({"tid": tid})
+    await app["db"].tournament_pairing.delete_many({"tid": tid})
 
     data = {
         "tid": tid,
@@ -123,17 +118,12 @@ async def add_games(app, force=False):
         "beforeStart": 0,
         "minutes": 0,
         "status": T_ARCHIVED,
+        "with_clock": False,
     }
 
     response = await new_tournament(app, data)
 
     t = app["tournaments"][response["tournamentId"]]
-
-    t.clock_task.cancel()
-    try:
-        await t.clock_task
-    except asyncio.CancelledError:
-        pass
 
     users = app["users"]
 
