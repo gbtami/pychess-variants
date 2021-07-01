@@ -1058,6 +1058,7 @@ export default class RoundController {
     }
 
     private renderExpiration = () => {
+        if (this.spectator) return;
         let position = (this.turnColor === this.mycolor) ? "bottom": "top";
         if (this.flip) position = (position === "top") ? "bottom" : "top";
         let expi = (position === 'top') ? 0 : 1;
@@ -1081,7 +1082,7 @@ export default class RoundController {
     }
 
     private showExpiration = () => {
-        if (this.expiStart === 0) return;
+        if (this.expiStart === 0 || this.spectator) return;
         this.renderExpiration();
         setTimeout(this.showExpiration, 250);
     }
