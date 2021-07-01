@@ -46,7 +46,6 @@ th {
 }
 .slist thead {
     background: var(--bg-color2);
-    text-shadow: 0 1px 0 #fff;
 }
 .slist th:first-child {
     padding-left: 1.5rem;
