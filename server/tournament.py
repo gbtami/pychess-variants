@@ -154,7 +154,7 @@ class Tournament(ABC):
             self.clock_task = asyncio.create_task(self.clock())
 
     @abstractmethod
-    def create_pairing(self):
+    def create_pairing(self, waiting_players):
         pass
 
     def user_status(self, user):
