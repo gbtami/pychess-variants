@@ -1,0 +1,109 @@
+* {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+main {
+    grid-area: main;
+}
+main.page-small {
+    max-width: 1000px;
+    margin: auto;
+    width: 100%;
+}
+a {
+    color: var(--link-hover);
+}
+.box {
+    --box-padding: 60px;
+}
+.box-pad, .box:not(.box-pad) > h1 {
+    padding: 5vh var(--box-padding);
+}
+.form-group {
+    margin-bottom: 3rem;
+}
+.form-split, .form-actions {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: inherit;
+    justify-content: space-between;
+}
+.tour__faq h2 {
+    margin: 1.2em 0 0.5em 0;
+}
+h1 {
+    font-size: 40px;
+    margin-bottom: 5vh;
+}
+
+h2 {
+    font-size: 30px;
+}
+.form-group label {
+    padding: 0;
+}
+.form-label {
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    cursor: text;
+}
+.tour__form #form3-name {
+    width: 48% !important;
+    display: inline-block;
+}
+input {
+    background: var(--bg-input);
+    color: --var(--font-color);
+    outline-color: #1b78d0;
+    padding: 0.6em 1em;
+    margin: 0;
+    outline-color: #1b78d0;
+}
+.form-control {
+    display: block;
+    width: 100%;
+    height: calc(2.7em + 2px);
+    background-clip: padding-box;
+}
+.form-check {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+}
+.form-check div {
+    display: flex;
+}
+.form-check label {
+    align-self: center;
+    margin-right: 6px;
+    margin-bottom: 0;
+}
+select {
+    background: var(--bg-input);
+    background-clip: border-box;
+    border: 1px solid var(--border-color);
+    padding: 0.6em 1em;
+    margin: 0;
+}
+.form-half {
+    flex: 1 1 48%;
+    flex-grow: 0;
+    min-width: 200px;
+}
+textarea {
+    resize: vertical;
+    padding: 0.8em 1em;
+    background: var(--bg-input);
+    background-clip: border-box;
+    border: 1px solid var(--border-color);
+    overflow: auto;
+}
+textarea.form-control {
+    height: auto;
+}
+.form-help {
+    font-size: 90%;
+    color: var(--button-text);
+}

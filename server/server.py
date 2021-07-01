@@ -218,10 +218,10 @@ async def init_state(app):
         raise
 
     # create test tournament
-    if 1:
+    if 0:
         pass
-        from first_janggi_tournament import add_games
-        await add_games(app, force=False)
+        # from first_janggi_tournament import add_games
+        # await add_games(app, force=False)
 
         # from test_tournament import create_arena_test
         # await create_arena_test(app)

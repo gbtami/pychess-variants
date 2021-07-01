@@ -652,7 +652,12 @@ class Tournament(ABC):
                     pass
 
     async def save(self):
-        if len(self.leaderboard) == 0 or self.app["db"] is None:
+        if self.app["db"] is None:
+            return
+
+        if len(self.leaderboard) == 0:
+            print(await self.app["db"].tournament.delete_many({"_id": self.id}))
+            log.debug("--- Deleted empty tournament %s", self.id)
             return
 
         winner = self.leaderboard.peekitem(0)[0].username

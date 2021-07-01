@@ -94,4 +94,5 @@ post_routes = (
     ("/fishnet/abort/{workId}", fishnet_abort),
     ("/translation/select", select_lang),
     ("/import", import_game),
+    ("/tournaments/arena", index),
 )

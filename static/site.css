@@ -18,6 +18,7 @@
     --bg-color2: WhiteSmoke;
     --bg-seek: rgba(255,255,255,0.8);
     --bg-meta: #f7f6f5;
+    --bg-input: #fafaf9;
     --game-hover: #d1e6fa;
     --green-hover: #89b25b;
     --green-switch: #629924;
@@ -73,6 +74,7 @@
     --bg-color2: #333333;
     --bg-seek: #2e2a24;
     --bg-meta: #302e2c;
+    --bg-input: #24221e;
     --game-hover: #223344;
     --green-hover: #537c23;
     --blue-active: #293a49;
@@ -736,7 +738,7 @@ div#result {
         margin: 2px 0 2px 0;
     }
 }
-button#request-analysis, button#import, button.join {
+button#request-analysis, button#import, button.join, button.submit {
     width: 200px;
     padding: 4px;
     margin: 2px 2px;

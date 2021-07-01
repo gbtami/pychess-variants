@@ -11,6 +11,27 @@ from rr import RRTournament
 from swiss import SwissTournament
 
 
+async def create_tournament(app, username, form):
+    variant = form["variant"]
+    variant960 = variant.endswith("960")
+    variant_name = variant[:-3] if variant960 else variant
+
+    data = {
+        "name": form["name"],
+        "createdBy": username,
+        "rated": form["rated"] == "true",
+        "variant": variant_name,
+        "chess960": variant960,
+        "base": float(form["clockTime"]),
+        "inc": int(form["clockIncrement"]),
+        "system": ARENA,
+        "beforeStart": int(form["waitMinutes"]),
+        "minutes": int(form["minutes"]),
+        "fen": form["position"],
+    }
+    await new_tournament(app, data)
+
+
 async def new_tournament(app, data):
     if "tid" not in data:
         tid = await new_id(app["db"].tournament)

@@ -26,7 +26,7 @@ from settings import ADMINS, MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VER
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
-from tournaments import get_latest_tournaments, load_tournament
+from tournaments import get_latest_tournaments, load_tournament, create_tournament
 
 log = logging.getLogger(__name__)
 
@@ -121,9 +121,11 @@ async def index(request):
         view = "paste"
     elif request.path.startswith("/tournaments"):
         view = "tournaments"
-        if request.path.endswith("new"):
-            pass
-            # TODO
+        if request.path.endswith("/new"):
+            view = "arena-new"
+        elif request.path.endswith("/arena"):
+            data = await request.post()
+            await create_tournament(request.app, user.username, data)
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
@@ -201,6 +203,8 @@ async def index(request):
         template = get_template("allplayers.html")
     elif view == "tournaments":
         template = get_template("tournaments.html")
+    elif view == "arena-new":
+        template = get_template("arena-new.html")
     elif view == "news":
         template = get_template("news.html")
     elif view == "variant":
@@ -235,6 +239,7 @@ async def index(request):
         "variant": variant if variant is not None else "",
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
         "variants": VARIANTS,
+        "variant_display_name": variant_display_name,
     }
     if view in ("profile", "level8win"):
         if view == "level8win":
@@ -251,7 +256,6 @@ async def index(request):
             render["variant"] = variant
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
-        render["variant_display_name"] = variant_display_name
 
     if view == "players":
         online_users = [u for u in users.values() if u.username == user.username or (u.online and not u.anon)]
@@ -264,7 +268,6 @@ async def index(request):
         # render["offline_users"] = offline_users
         hs = request.app["highscore"]
         render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
-        render["variant_display_name"] = variant_display_name
 
     elif view == "allplayers":
         allusers = [u for u in users.values() if not u.anon]
@@ -272,7 +275,6 @@ async def index(request):
 
     elif view == "tournaments":
         render["icons"] = VARIANT_ICONS
-        render["variant_display_name"] = variant_display_name
         render["pairing_system_name"] = pairing_system_name
         render["tables"] = await get_latest_tournaments(request.app)
         render["theads"] = ("Now playing", "Starting soon", "Finished")
@@ -346,7 +348,6 @@ async def index(request):
             render["variant"] = "docs/terminology%s.html" % locale
         else:
             render["variant"] = "docs/" + ("intro" if variant is None else variant) + "%s.html" % locale
-        render["variant_display_name"] = variant_display_name
 
     elif view == "news":
         news_item = request.match_info.get("news_item")
