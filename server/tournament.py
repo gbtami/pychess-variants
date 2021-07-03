@@ -12,7 +12,7 @@ from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
 from compress import R2C
-from const import RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG, ARENA, RR
+from const import CASUAL, RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG, ARENA, RR
 from game import Game
 from glicko2.glicko2 import gl2
 from newid import new_id
@@ -103,7 +103,7 @@ class GameData:
 
 class Tournament(ABC):
 
-    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=RATED, before_start=5, minutes=45, name="",
+    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="",
                  fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, status=None, with_clock=True):
         self.app = app
         self.id = tournamentId
@@ -461,7 +461,7 @@ class Tournament(ABC):
                         base=self.base,
                         inc=self.inc,
                         byoyomi_period=self.byoyomi_period,
-                        rated=self.rated,
+                        rated=RATED if self.rated else CASUAL,
                         tournamentId=self.id,
                         chess960=self.chess960)
 

@@ -431,7 +431,7 @@ async def insert_game_to_db(game, app):
         "s": game.status,
         "r": R2C["*"],
         "x": game.level,
-        "y": RATED if game.rated else CASUAL,
+        "y": int(game.rated),
         "z": int(game.chess960),
     }
 

@@ -63,7 +63,7 @@ async def new_tournament(app, data):
         base=data["base"],
         inc=data["inc"],
         byoyomi_period=data.get("bp", 0),
-        rated=data.get("rated", RATED),
+        rated=data.get("rated", True),
         chess960=data.get("chess960", False),
         fen=data.get("fen", ""),
         rounds=data.get("rounds", 0),
