@@ -672,6 +672,10 @@ export function cg2uci(move) {
 
 // TODO Will be deprecated after WASM Fairy integration
 export function validFen(variant: IVariant, fen: string) {
+    const as = variant.alternateStart;
+    if (as !== undefined) {
+        if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
+    }
     const variantName = variant.name;
     const startfen = variant.startFen;
     const start = startfen.split(' ');

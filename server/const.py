@@ -23,6 +23,8 @@ LOSERS = {
 
 GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 
+CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
+
 VARIANTS = (
     "chess",
     "chess960",

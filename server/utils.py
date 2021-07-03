@@ -15,7 +15,7 @@ except ImportError:
 from glicko2.glicko2 import gl2
 from broadcast import round_broadcast
 from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
-    UNKNOWNFINISH, CASUAL, RATED, IMPORTED
+    UNKNOWNFINISH, CASUAL, RATED, IMPORTED, CONSERVATIVE_CAPA_FEN
 from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
@@ -648,6 +648,10 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960):
+    # Prevent this particular one to fail on our general sastling check
+    if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
+        return True, initial_fen
+
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
