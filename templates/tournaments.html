@@ -21,7 +21,7 @@
             {% for tourney in table %}
             <tr>
                 <td>
-                    <div class="icon" data-icon="{{ icons[tourney.variant] }}">
+                    <div class="icon" data-icon="{{ icons[tourney.variant + ('960' if tourney.chess960 else '')] }}">
                 </td>
                 <td class="header">
                     <a href="/tournament/{{ tourney.id }}">
@@ -31,7 +31,7 @@
                 </td>
                 <td class="infos">
                     <span class="system">{{ pairing_system_name(tourney.system) }} • {{ "Rated" if tourney.rated else "Casual" }}</span>
-                    <span>{{ time_control_str(tourney.base, tourney.inc, tourney.byoyomi_period) }} • {{ variant_display_name(tourney.variant) }}</span>
+                    <span>{{ time_control_str(tourney.base, tourney.inc, tourney.byoyomi_period) }} • {{ variant_display_name(tourney.variant + ('960' if tourney.chess960 else '')) }}</span>
                 </td>
                 <td>
                     <span class="starts">

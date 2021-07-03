@@ -1,7 +1,7 @@
 import collections
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS
+from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name
 from newid import new_id
 from user import User
 
@@ -9,22 +9,32 @@ from tournament import GameData, PlayerData, SCORE_SHIFT, T_STARTED
 from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
+from settings import ADMINS
+from misc import time_control_str
 
 
 async def create_tournament(app, username, form):
     variant = form["variant"]
     variant960 = variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
+    base = float(form["clockTime"])
+    inc = int(form["clockIncrement"])
+    bp = int(form["byoyomiPeriod"])
+
+    name = form["name"]
+    # Create meningful tournament name in case we forget to change it :)
+    if name in ADMINS:
+        name = "%s %s Arena" % (variant_display_name(variant).title(), time_control_str(base, inc, bp))
 
     data = {
-        "name": form["name"],
+        "name": name,
         "createdBy": username,
         "rated": form["rated"] == "true",
         "variant": variant_name,
         "chess960": variant960,
-        "base": float(form["clockTime"]),
-        "inc": int(form["clockIncrement"]),
-        "bp": int(form["byoyomiPeriod"]),
+        "base": base,
+        "inc": inc,
+        "bp": bp,
         "system": ARENA,
         "beforeStart": int(form["waitMinutes"]),
         "minutes": int(form["minutes"]),
