@@ -343,11 +343,12 @@ class Tournament(ABC):
         if self.system == ARENA:
             self.prev_pairing = now - self.wave
 
-        print(await self.app["db"].tournament.find_one_and_update(
-            {"_id": self.id},
-            {"$set": {"status": self.status}},
-            return_document=ReturnDocument.AFTER)
-        )
+        if self.app["db"] is not None:
+            print(await self.app["db"].tournament.find_one_and_update(
+                {"_id": self.id},
+                {"$set": {"status": self.status}},
+                return_document=ReturnDocument.AFTER)
+            )
 
     async def finalize(self, status):
         self.status = status
