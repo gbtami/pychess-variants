@@ -189,6 +189,7 @@ async def load_tournament(app, tournament_id):
         fen=doc.get("f"),
         rounds=doc["rounds"],
         created_by=doc["createdBy"],
+        created_at=doc["createdAt"],
         minutes=doc["minutes"],
         name=doc["name"],
         status=doc["status"],

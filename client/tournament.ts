@@ -486,6 +486,10 @@ export default class TournamentController {
         const tminutes = document.getElementById('tminutes') as Element;
         patch(tminutes, h('span#tminutes', this.durationString(msg.tminutes)));
 
+        const startsAtDate = new Date(msg.startsAt);
+        const startsAt = document.getElementById('startsAt') as Element;
+        patch(startsAt, h('date', startsAtDate.toLocaleString("default", localeOptions)));
+
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus];
         this.userStatus = msg.ustatus;
@@ -652,7 +656,6 @@ export function tournamentView(model): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-    const serverDate = new Date(model["date"]);
 
     return [
         h('aside.sidebar-first', [
@@ -675,7 +678,7 @@ export function tournamentView(model): VNode[] {
                 ]),
                 // TODO: update in onMsgUserConnected()
                 h('div#requirements'),
-                h('info-date', serverDate.toLocaleString("default", localeOptions)),
+                h('div#startsAt'),
             ]),
             h('div#lobbychat')
         ]),

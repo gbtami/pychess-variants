@@ -122,7 +122,6 @@ class Tournament(ABC):
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
         self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
-
         # TODO: calculate wave from TC, variant, number of players
         self.wave = timedelta(seconds=3)
         self.wave_delta = timedelta(seconds=1)
@@ -152,6 +151,9 @@ class Tournament(ABC):
 
         if with_clock:
             self.clock_task = asyncio.create_task(self.clock())
+
+    def __repr__(self):
+        return " ".join((self.id, self.name, self.created_at.isoformat()))
 
     @abstractmethod
     def create_pairing(self, waiting_players):
@@ -347,17 +349,8 @@ class Tournament(ABC):
             return_document=ReturnDocument.AFTER)
         )
 
-    async def abort(self):
-        self.status = T_ABORTED
-
-        # force to create new players json data
-        self.nb_games_cached = -1
-
-        await self.broadcast({"type": "tstatus", "tstatus": self.status})
-        await self.save()
-
-    async def finish(self):
-        self.status = T_FINISHED
+    async def finalize(self, status):
+        self.status = status
 
         if len(self.players) > 0:
             self.print_leaderboard()
@@ -381,6 +374,12 @@ class Tournament(ABC):
 
         await self.broadcast({"type": "tstatus", "tstatus": self.status})
         await self.save()
+
+    async def abort(self):
+        await self.finalize(T_ABORTED)
+
+    async def finish(self):
+        await self.finalize(T_FINISHED)
 
     def join(self, player):
         if player.anon:
