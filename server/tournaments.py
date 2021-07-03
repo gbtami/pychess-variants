@@ -24,6 +24,7 @@ async def create_tournament(app, username, form):
         "chess960": variant960,
         "base": float(form["clockTime"]),
         "inc": int(form["clockIncrement"]),
+        "bp": int(form["byoyomiPeriod"]),
         "system": ARENA,
         "beforeStart": int(form["waitMinutes"]),
         "minutes": int(form["minutes"]),

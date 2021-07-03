@@ -77,7 +77,7 @@ def time_control_str(base, inc, byo):
     elif base == 3 / 4:
         base = "¾"
     else:
-        base = str(base)
+        base = str(int(base))
     if byo == 0:
         inc_str = f"{inc}"
     elif byo == 1:

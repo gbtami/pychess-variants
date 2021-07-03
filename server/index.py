@@ -23,6 +23,7 @@ from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import ADMINS, MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION, DEV
+from misc import time_control_str
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
@@ -276,6 +277,7 @@ async def index(request):
     elif view == "tournaments":
         render["icons"] = VARIANT_ICONS
         render["pairing_system_name"] = pairing_system_name
+        render["time_control_str"] = time_control_str
         render["tables"] = await get_latest_tournaments(request.app)
         render["theads"] = ("Now playing", "Starting soon", "Finished")
         render["admin"] = user.username in ADMINS.split(",")

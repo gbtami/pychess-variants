@@ -31,11 +31,11 @@
                 </td>
                 <td class="infos">
                     <span class="system">{{ pairing_system_name(tourney.system) }} • {{ "Rated" if tourney.rated else "Casual" }}</span>
-                    <span>{{ tourney.base }} + {{ tourney.inc }} • {{ variant_display_name(tourney.variant) }}</span>
+                    <span>{{ time_control_str(tourney.base, tourney.inc, tourney.byoyomi_period) }} • {{ variant_display_name(tourney.variant) }}</span>
                 </td>
                 <td>
                     <span class="starts">
-                        <info-date timestamp="{{ tourney.starts_at }}">{{ tourney.starts_at.date() }}</info-date>
+                        <info-date timestamp="{{ tourney.starts_at }}"></info-date>
                     </span>
                     <span>{{ tourney.nb_players }} players</span>
                 </td>

@@ -194,7 +194,7 @@ export default class RoundController {
         this.result = "*";
         const parts = this.fullfen.split(" ");
         this.tournamentGame = this.model["tournamentId"] !== '';
-        this.abortable = Number(parts[parts.length - 1]) <= 1;
+        this.abortable = (Number(parts[parts.length - 1]) <= 1) && !this.tournamentGame;
 
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
@@ -661,7 +661,7 @@ export default class RoundController {
             }
         }
 
-        if (!this.spectator && this.abortable && Number(msg.ply) > 1) {
+        if ((!this.spectator && this.abortable && Number(msg.ply) > 1) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
             if (container) {
                 patch(container, h('div'));
