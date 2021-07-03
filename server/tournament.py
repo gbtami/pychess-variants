@@ -278,52 +278,55 @@ class Tournament(ABC):
         ]
 
     async def clock(self):
-        while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
-            now = datetime.now(timezone.utc)
+        try:
+            while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
+                now = datetime.now(timezone.utc)
 
-            if self.status == T_CREATED and now >= self.starts_at:
-                if self.system != ARENA and len(self.players) < 3:
-                    # Swiss and RR Tournaments need at least 3 players to start
-                    await self.abort()
-                    print("T_ABORTED: less than 3 player joined")
+                if self.status == T_CREATED and now >= self.starts_at:
+                    if self.system != ARENA and len(self.players) < 3:
+                        # Swiss and RR Tournaments need at least 3 players to start
+                        await self.abort()
+                        print("T_ABORTED: less than 3 player joined")
+                        break
+
+                    await self.start(now)
+                    continue
+
+                elif (self.minutes is not None) and now >= self.ends_at:
+                    await self.finish()
+                    print("T_FINISHED: no more time left")
                     break
 
-                await self.start(now)
-                continue
-
-            elif (self.minutes is not None) and now >= self.ends_at:
-                await self.finish()
-                print("T_FINISHED: no more time left")
-                break
-
-            elif self.status == T_STARTED:
-                if self.system == ARENA:
-                    if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
-                        waiting_players = self.waiting_players()
-                        if len(waiting_players) >= (4 if len(self.players) > 4 else 3):
-                            print("Enough player (%s), do pairing" % len(waiting_players))
-                            await self.create_new_pairings(waiting_players)
-                            self.prev_pairing = now
+                elif self.status == T_STARTED:
+                    if self.system == ARENA:
+                        if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
+                            waiting_players = self.waiting_players()
+                            if len(waiting_players) >= (4 if len(self.players) > 4 else 3):
+                                print("Enough player (%s), do pairing" % len(waiting_players))
+                                await self.create_new_pairings(waiting_players)
+                                self.prev_pairing = now
+                            else:
+                                print("Too few player (%s) to make pairing" % len(waiting_players))
                         else:
-                            print("Too few player (%s) to make pairing" % len(waiting_players))
-                    else:
-                        print("Waiting for new pairing wave...")
+                            print("Waiting for new pairing wave...")
 
-                elif self.ongoing_games == 0:
-                    if self.current_round < self.rounds:
-                        self.current_round += 1
-                        print("Do %s. round pairing" % self.current_round)
-                        waiting_players = self.waiting_players()
-                        await self.create_new_pairings(waiting_players)
+                    elif self.ongoing_games == 0:
+                        if self.current_round < self.rounds:
+                            self.current_round += 1
+                            print("Do %s. round pairing" % self.current_round)
+                            waiting_players = self.waiting_players()
+                            await self.create_new_pairings(waiting_players)
+                        else:
+                            await self.finish()
+                            print("T_FINISHED: no more round left")
+                            break
                     else:
-                        await self.finish()
-                        print("T_FINISHED: no more round left")
-                        break
-                else:
-                    print("%s has %s ongoing game(s)..." % ("RR" if self.system == RR else "Swiss", self.ongoing_games))
+                        print("%s has %s ongoing game(s)..." % ("RR" if self.system == RR else "Swiss", self.ongoing_games))
 
-            print("CLOCK", now.strftime("%H:%M:%S"))
-            await asyncio.sleep(1)
+                print("CLOCK", now.strftime("%H:%M:%S"))
+                await asyncio.sleep(1)
+        except Exception:
+            log.exception("Exception in tournament clock()")
 
     async def start(self, now):
         self.status = T_STARTED
@@ -338,8 +341,18 @@ class Tournament(ABC):
         if self.system == ARENA:
             self.prev_pairing = now - self.wave
 
+        print(await self.app["db"].tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": {"status": self.status}},
+            return_document=ReturnDocument.AFTER)
+        )
+
     async def abort(self):
         self.status = T_ABORTED
+
+        # force to create new players json data
+        self.nb_games_cached = -1
+
         await self.broadcast({"type": "tstatus", "tstatus": self.status})
         await self.save()
 

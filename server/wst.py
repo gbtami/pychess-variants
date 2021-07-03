@@ -141,7 +141,7 @@ async def tournament_socket_handler(request):
                             "tsystem": tournament.system,
                             "tminutes": tournament.minutes,
                             "secondsToStart": (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0,
-                            "secondsToFinish": (tournament.finish - now).total_seconds() if tournament.starts_at < now else 0,
+                            "secondsToFinish": (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0,
                         }
                         await ws.send_json(response)
 
