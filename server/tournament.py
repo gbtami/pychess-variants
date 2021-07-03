@@ -145,10 +145,10 @@ class Tournament(ABC):
         self.top_player = None
         self.top_game = None
 
-        if minutes is not None:
-            self.finish = self.starts_at + timedelta(minutes=minutes)
-
-        self.finish_event = asyncio.Event()
+        if minutes is None:
+            self.ends_at = self.starts_at + timedelta(days=1)
+        else:
+            self.ends_at = self.starts_at + timedelta(minutes=minutes)
 
         if with_clock:
             self.clock_task = asyncio.create_task(self.clock())
@@ -284,26 +284,15 @@ class Tournament(ABC):
             if self.status == T_CREATED and now >= self.starts_at:
                 if self.system != ARENA and len(self.players) < 3:
                     # Swiss and RR Tournaments need at least 3 players to start
-                    self.status = T_ABORTED
+                    await self.abort()
                     print("T_ABORTED: less than 3 player joined")
-                    response = {"type": "tstatus", "tstatus": self.status}
-                    await self.broadcast(response)
                     break
 
-                self.first_pairing = True
-                self.status = T_STARTED
-                self.set_top_player()
-
-                response = {"type": "tstatus", "tstatus": self.status, "secondsToFinish": (self.finish - now).total_seconds()}
-                await self.broadcast(response)
-
-                # force first pairing wave in arena
-                if self.system == ARENA:
-                    self.prev_pairing = now - self.wave
+                await self.start(now)
                 continue
 
-            elif (self.minutes is not None) and now >= self.finish:
-                self.status = T_FINISHED
+            elif (self.minutes is not None) and now >= self.ends_at:
+                await self.finish()
                 print("T_FINISHED: no more time left")
                 break
 
@@ -327,7 +316,7 @@ class Tournament(ABC):
                         waiting_players = self.waiting_players()
                         await self.create_new_pairings(waiting_players)
                     else:
-                        self.status = T_FINISHED
+                        await self.finish()
                         print("T_FINISHED: no more round left")
                         break
                 else:
@@ -336,16 +325,37 @@ class Tournament(ABC):
             print("CLOCK", now.strftime("%H:%M:%S"))
             await asyncio.sleep(1)
 
+    async def start(self, now):
+        self.status = T_STARTED
+
+        self.first_pairing = True
+        self.set_top_player()
+
+        response = {"type": "tstatus", "tstatus": self.status, "secondsToFinish": (self.ends_at - now).total_seconds()}
+        await self.broadcast(response)
+
+        # force first pairing wave in arena
+        if self.system == ARENA:
+            self.prev_pairing = now - self.wave
+
+    async def abort(self):
+        self.status = T_ABORTED
+        await self.broadcast({"type": "tstatus", "tstatus": self.status})
+        await self.save()
+
+    async def finish(self):
+        self.status = T_FINISHED
+
         if len(self.players) > 0:
             self.print_leaderboard()
             print("--- TOURNAMENT RESULT ---")
-            for i in range(3):
+            for i in range(min(3, len(self.leaderboard))):
                 player = self.leaderboard.peekitem(i)[0]
                 print("--- #%s ---" % (i + 1), player.username)
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
-            if self.players[player].nb_games == 0:
+            if len(self.players[player].games) == 0:
                 continue
             latest = self.players[player].games[-1]
             if latest and latest.status in (CREATED, STARTED):
@@ -357,13 +367,7 @@ class Tournament(ABC):
         self.nb_games_cached = -1
 
         await self.broadcast({"type": "tstatus", "tstatus": self.status})
-
         await self.save()
-
-        self.finish_event.set()
-
-    def abort(self):
-        self.status = T_ABORTED
 
     def join(self, player):
         if player.anon:
@@ -657,7 +661,7 @@ class Tournament(ABC):
 
         if self.nb_games_finished == 0:
             print(await self.app["db"].tournament.delete_many({"_id": self.id}))
-            log.debug("--- Deleted empty tournament %s", self.id)
+            print("--- Deleted empty tournament %s" % self.id)
             return
 
         winner = self.leaderboard.peekitem(0)[0].username

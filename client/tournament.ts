@@ -445,7 +445,7 @@ export default class TournamentController {
     }
 
     private onMsgGetPlayers(msg) {
-        if (this.completed()) {
+        if (this.completed() && msg.players.length >= 3) {
             const podium = document.getElementById('podium') as HTMLElement;
             if (podium instanceof Element) {
                 patch(podium, this.renderPodium(msg.players));

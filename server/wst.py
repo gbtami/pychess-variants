@@ -11,6 +11,8 @@ from settings import ADMINS
 from utils import MyWebSocketResponse
 from user import User
 from tournaments import load_tournament
+from tournament import T_CREATED, T_STARTED
+
 
 log = logging.getLogger(__name__)
 
@@ -165,7 +167,8 @@ async def tournament_socket_handler(request):
                                     users[spammer].set_silence()
                                     response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
                             elif message.startswith("/abort"):
-                                tournament.abort()
+                                if tournament.status in (T_CREATED, T_STARTED):
+                                    await tournament.abort()
                             else:
                                 response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
                         else:
