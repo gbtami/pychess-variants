@@ -229,9 +229,18 @@ class TournamentTestCase(AioHTTPTestCase):
         self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=0, minutes=1)
+        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
         self.app["tournaments"][tid] = self.tournament
         self.tournament.join_players(NB_PLAYERS)
+
+        # withdraw one player
+        self.tournament.withdraw(list(self.tournament.players.keys())[-1])
+        self.assertEqual(self.tournament.nb_players, NB_PLAYERS - 1)
+
+        # make one player leave the tournament lobby
+        del list(self.tournament.players.keys())[-1].tournament_sockets[self.tournament.id]
+
+        self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 2)
 
         await self.tournament.clock_task
 
