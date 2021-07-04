@@ -8,10 +8,11 @@ import aiohttp_session
 
 from const import STARTED
 from settings import ADMINS
-from utils import MyWebSocketResponse
+from utils import MyWebSocketResponse, online_count
 from user import User
 from tournaments import load_tournament
 from tournament import T_CREATED, T_STARTED
+from broadcast import lobby_broadcast
 
 
 log = logging.getLogger(__name__)
@@ -21,6 +22,7 @@ async def tournament_socket_handler(request):
 
     users = request.app["users"]
     sockets = request.app["tourneysockets"]
+    lobby_sockets = request.app["lobbysockets"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -156,6 +158,10 @@ async def tournament_socket_handler(request):
                             tournament.spactator_join(user)
                             await tournament.broadcast(tournament.spectator_list)
 
+                        if len(user.game_sockets) == 0 and len(user.lobby_sockets) == 0:
+                            response = {"type": "u_cnt", "cnt": online_count(users)}
+                            await lobby_broadcast(lobby_sockets, response)
+
                     elif data["type"] == "lobbychat":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         message = data["message"]
@@ -213,14 +219,20 @@ async def tournament_socket_handler(request):
             for tournamentId in user.tournament_sockets:
                 if ws in user.tournament_sockets[tournamentId]:
                     user.tournament_sockets[tournamentId].remove(ws)
-                    user.update_online()
 
                     if len(user.tournament_sockets[tournamentId]) == 0:
+                        del user.tournament_sockets[tournamentId]
+                        user.update_online()
+
                         if user.username in sockets[tournamentId]:
                             del sockets[tournamentId][user.username]
                             tournament = await load_tournament(request.app, tournamentId)
                             tournament.spactator_leave(user)
                             await tournament.broadcast(tournament.spectator_list)
+
+                        if not user.online:
+                            response = {"type": "u_cnt", "cnt": online_count(users)}
+                            await lobby_broadcast(lobby_sockets, response)
                     break
 
     return ws
