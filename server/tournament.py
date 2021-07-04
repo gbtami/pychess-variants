@@ -275,6 +275,7 @@ class Tournament(ABC):
         return [
             p for p in self.leaderboard if
             self.players[p].free and
+            self.id in p.tournament_sockets and
             len(p.tournament_sockets[self.id]) > 0 and
             not self.players[p].paused
         ]
@@ -661,12 +662,15 @@ class Tournament(ABC):
 
     async def broadcast(self, response):
         for spectator in self.spectators:
-            for ws in spectator.tournament_sockets[self.id]:
-                try:
-                    await ws.send_json(response)
-                except (KeyError, ConnectionResetError):
-                    # spectator was removed
-                    pass
+            try:
+                for ws in spectator.tournament_sockets[self.id]:
+                    try:
+                        await ws.send_json(response)
+                    except ConnectionResetError:
+                        pass
+            except KeyError:
+                # spectator was removed
+                pass
 
     async def save(self):
         if self.app["db"] is None:
