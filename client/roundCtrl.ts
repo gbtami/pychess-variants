@@ -554,7 +554,7 @@ export default class RoundController {
 
             updateResult(this);
 
-            if (msg.ct !== "") {
+            if (msg.ct) {
                 this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
                 this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.gameId));
             }

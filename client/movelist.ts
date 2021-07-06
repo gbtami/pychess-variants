@@ -143,6 +143,10 @@ export function updateMovelist (ctrl, full = true, activate = true, needResult =
 export function updateResult (ctrl) {
     if (ctrl.status < 0) return;
 
+    // Prevent to render it twice
+    const resultEl = document.getElementById('result') as HTMLElement;
+    if (resultEl) return;
+
     const container = document.getElementById('movelist') as HTMLElement;
     ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.variant, ctrl.status, ctrl.result))]));
     container.scrollTop = 99999;
