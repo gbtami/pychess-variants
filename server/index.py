@@ -169,7 +169,6 @@ async def index(request):
     if gameId is not None:
         if view not in ("tv", "analysis", "embed"):
             view = "round"
-
         invites = request.app["invites"]
         if (gameId not in games) and (gameId in invites):
             if not request.path.startswith("/invite/accept/"):
@@ -179,7 +178,7 @@ async def index(request):
                 inviter = seek.user.username if user.username != seek.user.username else ""
 
         if view != "invite":
-            game = await load_game(request.app, gameId)
+            game = await load_game(request.app, gameId, user=user)
             if game is None:
                 log.debug("Requested game %s not in app['games']", gameId)
                 template = get_template("404.html")

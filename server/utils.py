@@ -67,15 +67,12 @@ async def load_game(app, game_id, user=None):
         return games[game_id]
 
     doc = await db.game.find_one({"_id": game_id})
-
     if doc is None:
         invites = app["invites"]
         if game_id in invites:
             seek_id = invites[game_id].id
-            seek = app["seeks"][seek_id]
-            response = await new_game(app, user, seek_id, game_id)
+            await new_game(app, user, seek_id, game_id)
             try:
-                await seek.ws.send_json(response)
                 # Put response data to sse subscribers queue
                 channels = app["invite_channels"]
                 for queue in channels:
@@ -395,7 +392,7 @@ async def new_game(app, user, seek_id, game_id=None):
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
             level=seek.level,
-            rated=RATED if seek.rated else CASUAL,
+            rated=RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL,
             chess960=seek.chess960,
             create=True)
     except Exception:

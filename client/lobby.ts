@@ -226,7 +226,7 @@ class LobbyController {
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
-        if (!this.test_ratings && (this.challengeAI || this.inviteFriend || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
+        if (!this.test_ratings && (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
             rated = false;
         else
             rated = e.value === "1";

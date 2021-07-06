@@ -138,9 +138,6 @@ async def lobby_socket_handler(request):
                         print("create_invite", data)
                         seek = await create_seek(db, invites, seeks, user, data, ws)
 
-                        response = get_seeks(seeks)
-                        await ws.send_json(response)
-
                         response = {"type": "invite_created", "gameId": seek.game_id}
                         await ws.send_json(response)
 

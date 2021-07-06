@@ -448,7 +448,8 @@ async def round_socket_handler(request):
                         response = {"type": "roundchat", "user": "", "message": "%s left the game" % user.username, "room": "player"}
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
-                        game.messages.append(response)
+                        if game is not None:
+                            game.messages.append(response)
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
