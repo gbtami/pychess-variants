@@ -35,14 +35,14 @@ class User:
         self.lobby_sockets = set()
         self.tournament_sockets = {}  # {tournamentId: set()}
 
+        self.game_sockets = {}
+        self.title = title
+        self.game_in_progress = None
+
         if self.bot:
             self.event_queue = asyncio.Queue()
             self.game_queues = {}
             self.title = "BOT"
-        else:
-            self.game_sockets = {}
-            self.title = title
-            self.game_in_progress = None
 
         self.online = False
 
@@ -130,4 +130,4 @@ class User:
             await lobby_broadcast(sockets, get_seeks(seeks))
 
     def __str__(self):
-        return self.username
+        return "%s %s bot=%s" % (self.title, self.username, self.bot)
