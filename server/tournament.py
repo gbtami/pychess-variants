@@ -4,7 +4,6 @@ import logging
 import random
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
-from itertools import chain
 from operator import neg, attrgetter
 
 from sortedcollections import ValueSortedDict
@@ -17,6 +16,7 @@ from game import Game
 from glicko2.glicko2 import gl2
 from newid import new_id
 from utils import insert_game_to_db
+from spectators import spectators
 
 log = logging.getLogger(__name__)
 
@@ -241,18 +241,7 @@ class Tournament(ABC):
 
     @property
     def spectator_list(self):
-        spectators = (spectator.username for spectator in self.spectators if not spectator.anon)
-        anons = ()
-        anon = sum(1 for user in self.spectators if user.anon)
-
-        cnt = len(self.spectators)
-        if cnt > 10:
-            spectators = str(cnt)
-        else:
-            if anon > 0:
-                anons = ("Anonymous(%s)" % anon,)
-            spectators = ", ".join(chain(spectators, anons))
-        return {"type": "spectators", "spectators": spectators, "gameId": self.id}
+        return spectators(self)
 
     @property
     def top_game_json(self):

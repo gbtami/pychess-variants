@@ -3,7 +3,6 @@ import collections
 import logging
 import random
 from datetime import datetime, timezone
-from itertools import chain
 from time import monotonic
 
 try:
@@ -21,6 +20,7 @@ from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
 from settings import URI
+from spectators import spectators
 
 log = logging.getLogger(__name__)
 
@@ -651,18 +651,7 @@ class Game:
 
     @property
     def spectator_list(self):
-        spectators = (spectator.username for spectator in self.spectators if not spectator.anon)
-        anons = ()
-        anon = sum(1 for user in self.spectators if user.anon)
-
-        cnt = len(self.spectators)
-        if cnt > 10:
-            spectators = str(cnt)
-        else:
-            if anon > 0:
-                anons = ("Anonymous(%s)" % anon,)
-            spectators = ", ".join(chain(spectators, anons))
-        return {"type": "spectators", "spectators": spectators, "gameId": self.id}
+        return spectators(self)
 
     def analysis_start(self, username):
         return '{"type": "analysisStart", "username": "%s", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n' % (username, self.id, self.level, self.chess960)

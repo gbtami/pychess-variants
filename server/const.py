@@ -1,3 +1,6 @@
+# Show the number of spectators only after this limit
+MAX_NAMED_SPECTATORS = 20
+
 # tournament pairings
 ARENA, RR, SWISS = range(3)
 
