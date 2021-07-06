@@ -976,7 +976,6 @@ vs-swords.lobby.opp {
 .sub-ratings {
     display: flex;
     flex-flow: row;
-    font-size: 3em;
 }
 .sub-ratings a.empty {
     opacity: 0.3;
@@ -997,7 +996,7 @@ vs-swords.lobby.opp {
     align-items: center;
     color: var(--font-color);
     text-decoration: none;
-    padding: 0.3em;
+    padding: 0.7em 2vmin 0.7em 0.4em;
     opacity: 0.7;
 }
 .sub-ratings a:hover {
@@ -1005,6 +1004,10 @@ vs-swords.lobby.opp {
 }
 .sub-ratings a:hover::before {
     color: LightSkyBlue;
+}
+.sub-ratings a::before {
+    font-size: 3em;
+    margin-right: 0.2em;
 }
 .sub-ratings a .info2 {
     display: flex;
