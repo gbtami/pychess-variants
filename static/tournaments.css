@@ -1,9 +1,35 @@
+*, ::before, ::after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
 .tournaments {
     grid-area: main;
     max-width: 1000px;
     margin: auto;
     width: 100%;
-    padding: 5vh 60px;
+}
+#main-wrap {
+    --main-max-width: 1300px;
+}
+a {
+    white-space:unset;
+}
+.box-pad, .box:not(.box-pad) > h1 {
+    padding: 5vh var(--box-padding);
+}
+.box {
+    --box-padding: 15px;
+}
+@media (min-width: 320px) {
+    .box {
+        --box-padding: calc( 15px + 45 * ((100vw - 320px) / 880));
+    }
+}
+@media (min-width: 1200px) {
+    .box {
+        --box-padding: 60px;
+    }
 }
 .box-top {
     display: flex;
@@ -43,6 +69,7 @@ th {
     width: 100%;
     border-bottom: 1px solid #d9d9d9;
     margin-bottom: 3em;
+    border-collapse: collapse;
 }
 .slist thead {
     background: var(--bg-color2);
@@ -72,7 +99,7 @@ td .icon {
     background-color: var(--bg-color2)
 }
 .slist td {
-    padding: 0.5rem 1rem;
+    padding: 1rem;
     font: inherit;
 }
 .slist td:last-child {
@@ -81,4 +108,7 @@ td .icon {
 td a {
     display: block;
     color: #4d4d4d;
+}
+td.header {
+    padding: 0;
 }

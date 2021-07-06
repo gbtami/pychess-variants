@@ -108,7 +108,6 @@
     --checkbox-border: #4f7a1d;
     --post-hover: #29353f;
 }
-
 [data-theme="dark"] .icon-black:before {
   content: "\63";
 }
@@ -116,10 +115,12 @@
   content: "\62";
 }
 [data-icon]:before {
+    font-size: 1.2em;
     vertical-align: middle;
     opacity: 0.9;
 }
 [class*=" icon-"]:before {
+    font-size: 1.2em;
     vertical-align: middle;
     opacity: 0.9;
 }
@@ -140,9 +141,10 @@ img {
 }
 
 html {
-    font-size: 14px ;
+    font-size: 12px ;
     min-height: 100%;
     font-family: 'Noto Sans', Sans-Serif;
+    box-sizing:border-box;
 }
 body {
     margin: 0;
@@ -182,7 +184,11 @@ h1, h2, h3 {
     box-shadow: var(--base-shadow);
     border-radius: 3px;
 }
-
+table, tbody, tfoot, thead, tr, th, td {
+    font-size: 100%;
+    font: inherit;
+    text-align: inherit;
+}
 header {
     display: flex;
     justify-content: space-between;
@@ -204,7 +210,16 @@ iframe {
     background-color: var(--bg-color0);
     padding: 1em;
 }
-
+@media (min-width: 320px) {
+    html {
+        font-size: calc( 12px + 2 * ((100vw - 320px) / 880));
+    }
+}
+@media (min-width: 1220px) {
+    html {
+        font-size: 14px;
+    }
+}
 @media (min-width: 800px) {
     body {
        --main-margin: 1vw;
