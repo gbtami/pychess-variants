@@ -29,7 +29,7 @@ async def create_tournament(app, username, form):
     data = {
         "name": name,
         "createdBy": username,
-        "rated": form["rated"] == "true",
+        "rated": form["rated"] == "true" and form["position"] == "",
         "variant": variant_name,
         "chess960": variant960,
         "base": base,

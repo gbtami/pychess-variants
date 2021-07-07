@@ -489,6 +489,14 @@ export default class TournamentController {
         const startsAtDate = new Date(msg.startsAt);
         const startsAt = document.getElementById('startsAt') as Element;
         patch(startsAt, h('date', startsAtDate.toLocaleString("default", localeOptions)));
+        if (msg.startFen !== '') {
+            const startFen = document.getElementById('startFen') as Element;
+            const fen = msg.startFen.split(" ").join('_').replace(/\+/g, '.');
+            patch(startFen, h('p', [
+                'Custom position • ',
+                h('a', { attrs: { href: '/analysis/' + this.model["variant"] + '?fen=' + fen } }, 'Analysis board')
+            ]));
+        }
 
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus];
@@ -664,7 +672,7 @@ export function tournamentView(model): VNode[] {
                     h('div.info2', [
                         h('div.tc', [
                             timeControlStr(model["base"], model["inc"], model["byo"]) + " • ",
-                            h('a.user-link', {
+                            h('a', {
                                 attrs: {
                                     target: '_blank',
                                     href: '/variant/' + model["variant"] + (chess960 ? '960': ''),
@@ -679,6 +687,7 @@ export function tournamentView(model): VNode[] {
                 // TODO: update in onMsgUserConnected()
                 h('div#requirements'),
                 h('div#startsAt'),
+                h('div#startFen'),
             ]),
             h('div#lobbychat')
         ]),

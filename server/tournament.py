@@ -447,7 +447,7 @@ class Tournament(ABC):
         game_table = None if self.app["db"] is None else self.app["db"].game
         for wp, bp in pairing:
             game_id = await new_id(game_table)
-            game = Game(self.app, game_id, self.variant, "", wp, bp,
+            game = Game(self.app, game_id, self.variant, self.fen, wp, bp,
                         base=self.base,
                         inc=self.inc,
                         byoyomi_period=self.byoyomi_period,
