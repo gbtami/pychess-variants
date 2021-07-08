@@ -179,9 +179,14 @@ async def init_state(app):
     # Read tournaments, users and highscore from db
     try:
         cursor = app["db"].tournament.find()
+        cursor.sort('startsAt', -1)
+        counter = 0
         async for doc in cursor:
             if doc["status"] in (T_CREATED, T_STARTED):
                 await load_tournament(app, doc["_id"])
+                counter += 1
+                if counter > 3:
+                    break
 
         cursor = app["db"].user.find()
         async for doc in cursor:

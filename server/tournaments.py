@@ -121,15 +121,12 @@ async def insert_tournament_to_db(tournament, app):
     print("db insert tournament result %s" % repr(result.inserted_id))
 
 
-def sorted_by_starts_at(tournaments):
-    return sorted(tournaments, key=lambda x: x.starts_at, reverse=True)
-
-
 async def get_latest_tournaments(app):
     tournaments = app["tournaments"]
     started, scheduled, completed = [], [], []
 
     cursor = app["db"].tournament.find()
+    cursor.sort('startsAt', -1)
     nb_tournament = 0
     async for doc in cursor:
         nb_tournament += 1
@@ -172,7 +169,7 @@ async def get_latest_tournaments(app):
         elif doc["status"] > T_STARTED:
             completed.append(tournament)
 
-    return list(map(sorted_by_starts_at, (started, scheduled, completed)))
+    return (started, scheduled, completed)
 
 
 async def load_tournament(app, tournament_id):
