@@ -28,7 +28,7 @@ PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
 class TestTournament(Tournament):
 
-    def join_players(self, nb_players):
+    async def join_players(self, nb_players):
         self.game_tasks = set()
 
         for i in range(nb_players):
@@ -36,7 +36,7 @@ class TestTournament(Tournament):
             player = User(self.app, username=name, title="TEST", perfs=PERFS)
             self.app["users"][player.username] = player
             player.tournament_sockets[self.id] = set((None,))
-            self.join(player)
+            await self.join(player)
 
     async def create_new_pairings(self, waiting_players):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
@@ -144,7 +144,7 @@ async def create_arena_test(app):
     await insert_tournament_to_db(tournament, app)
 
 #    tournament.join_players(6)
-    tournament.join_players(7)
+    await tournament.join_players(7)
 
 
 class TournamentTestCase(AioHTTPTestCase):
@@ -197,12 +197,12 @@ class TournamentTestCase(AioHTTPTestCase):
         tid = id8()
         self.tournament = ArenaTestTournament(self.app, tid, before_start=0, minutes=0)
         self.app["tournaments"][tid] = self.tournament
-        self.tournament.join_players(NB_PLAYERS)
+        await self.tournament.join_players(NB_PLAYERS)
 
         self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS)
 
         withdrawn_player = next(iter(self.tournament.players))
-        self.tournament.withdraw(withdrawn_player)
+        await self.tournament.withdraw(withdrawn_player)
 
         self.assertNotIn(withdrawn_player, self.tournament.leaderboard)
         self.assertEqual(len(self.tournament.players), NB_PLAYERS - 1)
@@ -220,7 +220,7 @@ class TournamentTestCase(AioHTTPTestCase):
         tid = id8()
         self.tournament = SwissTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
-        self.tournament.join_players(NB_PLAYERS)
+        await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
 
@@ -234,10 +234,10 @@ class TournamentTestCase(AioHTTPTestCase):
         tid = id8()
         self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
         self.app["tournaments"][tid] = self.tournament
-        self.tournament.join_players(NB_PLAYERS)
+        await self.tournament.join_players(NB_PLAYERS)
 
         # withdraw one player
-        self.tournament.withdraw(list(self.tournament.players.keys())[-1])
+        await self.tournament.withdraw(list(self.tournament.players.keys())[-1])
         self.assertEqual(self.tournament.nb_players, NB_PLAYERS - 1)
 
         # make one player leave the tournament lobby
@@ -258,7 +258,7 @@ class TournamentTestCase(AioHTTPTestCase):
         tid = id8()
         self.tournament = RRTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
-        self.tournament.join_players(NB_PLAYERS)
+        await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
 

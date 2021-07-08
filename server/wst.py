@@ -69,7 +69,7 @@ async def tournament_socket_handler(request):
                     elif data["type"] == "join":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            tournament.join(user)
+                            await tournament.join(user)
                             response = tournament.players_json(user=user)
                             await tournament.broadcast(response)
 
@@ -90,7 +90,7 @@ async def tournament_socket_handler(request):
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             page = ((tournament.leaderboard.index(user) + 1) // 10) + 1
-                            tournament.withdraw(user)
+                            await tournament.withdraw(user)
                             response = tournament.players_json(page=page, user=user)
                             await tournament.broadcast(response)
 

@@ -372,6 +372,9 @@ class Tournament(ABC):
         await self.broadcast({"type": "tstatus", "tstatus": self.status})
         await self.save()
 
+        await self.broadcast_spotlight()
+
+    async def broadcast_spotlight(self):
         spotlights = tournament_spotlights(self.app["tournaments"])
         lobby_sockets = self.app["lobbysockets"]
         response = {"type": "spotlights", "items": spotlights}
@@ -383,7 +386,7 @@ class Tournament(ABC):
     async def finish(self):
         await self.finalize(T_FINISHED)
 
-    def join(self, player):
+    async def join(self, player):
         if player.anon:
             return
 
@@ -401,11 +404,16 @@ class Tournament(ABC):
 
         self.players[player].paused = False
 
-    def withdraw(self, player):
+        if self.status == T_CREATED:
+            await self.broadcast_spotlight()
+
+    async def withdraw(self, player):
         if player in self.players:
             del self.players[player]
         self.leaderboard.pop(player)
         self.nb_players -= 1
+
+        await self.broadcast_spotlight()
 
     async def pause(self, player):
         self.players[player].paused = True
