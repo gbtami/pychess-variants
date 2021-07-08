@@ -8,14 +8,14 @@ from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
-from const import NOSTART, STARTED, VARIANTS, ARENA, RR, SWISS
+from const import NOSTART, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
 from server import make_app
 from user import User
-from tournament import Tournament, T_CREATED, T_STARTED, T_FINISHED
+from tournament import Tournament
 from tournaments import insert_tournament_to_db, new_tournament
 from arena import ArenaTournament
 from rr import RRTournament

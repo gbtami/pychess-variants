@@ -1,8 +1,8 @@
 from collections import namedtuple
 from datetime import datetime, timezone
 
-from const import RR
-from tournament import T_ARCHIVED, ByeGame
+from const import RR, T_ARCHIVED
+from tournament import ByeGame
 from tournaments import new_tournament
 from utils import load_game
 

@@ -1,11 +1,12 @@
 import collections
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name
+from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED
 from newid import new_id
 from user import User
 
-from tournament import GameData, PlayerData, SCORE_SHIFT, T_STARTED
+from broadcast import lobby_broadcast
+from tournament import GameData, PlayerData, SCORE_SHIFT, tournament_spotlights
 from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
@@ -41,6 +42,11 @@ async def create_tournament(app, username, form):
         "fen": form["position"],
     }
     await new_tournament(app, data)
+
+    spotlights = tournament_spotlights(app["tournaments"])
+    lobby_sockets = app["lobbysockets"]
+    response = {"type": "spotlights", "items": spotlights}
+    await lobby_broadcast(lobby_sockets, response)
 
 
 async def new_tournament(app, data):

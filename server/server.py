@@ -20,7 +20,7 @@ from pythongettext.msgfmt import PoSyntaxError
 
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
-from const import VARIANTS, STARTED, LANGUAGES
+from const import VARIANTS, STARTED, LANGUAGES, T_CREATED, T_STARTED
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from glicko2.glicko2 import DEFAULT_PERF
@@ -28,6 +28,7 @@ from routes import get_routes, post_routes
 from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
 from seek import Seek
 from user import User
+from tournaments import load_tournament
 
 log = logging.getLogger(__name__)
 
@@ -175,8 +176,13 @@ async def init_state(app):
     if app["db"] is None:
         return
 
-    # Read users and highscore from db
+    # Read tournaments, users and highscore from db
     try:
+        cursor = app["db"].tournament.find()
+        async for doc in cursor:
+            if doc["status"] in (T_CREATED, T_STARTED):
+                await load_tournament(app, doc["_id"])
+
         cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:

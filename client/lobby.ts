@@ -36,6 +36,7 @@ class LobbyController {
     validGameData: boolean;
     _ws;
     seeks;
+    spotlights;
     minutesValues = [
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180
@@ -95,6 +96,8 @@ class LobbyController {
         }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
+
+        this.spotlights = document.getElementById('spotlights') as HTMLElement;
 
         // challenge!
         const anon = this.model.anon === 'True';
@@ -552,6 +555,23 @@ class LobbyController {
             return _("Casual");
     }
 
+    private spotlightView(spotlight) {
+        const variant = VARIANTS[spotlight.variant];
+        const chess960 = spotlight.chess960;
+        const dataIcon = variant.icon(chess960);
+
+        return h('a.tour-spotlight', { attrs: { "href": "/tournament/" + spotlight.tid } }, [
+            h('i.icon', { attrs: { "data-icon": dataIcon } }),
+            h('span.content', [
+                h('span.name', spotlight.name),
+                h('span.more', [
+                    h('nb', spotlight.nbPlayers + ' players • '),
+                    h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
+                ])
+            ])
+        ]);
+    }
+
     onMessage(evt) {
         // console.log("<+++ lobby onMessage():", evt.data);
         const msg = JSON.parse(evt.data);
@@ -582,6 +602,9 @@ class LobbyController {
                 break;
             case "u_cnt":
                 this.onMsgUserCounter(msg);
+                break;
+            case "spotlights":
+                this.onMsgSpotlights(msg);
                 break;
             case "invite_created":
                 this.onMsgInviteCreated(msg);
@@ -653,7 +676,9 @@ class LobbyController {
         const userCount = document.getElementById('u_cnt') as HTMLElement;
         patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
     }
-
+    private onMsgSpotlights(msg) {
+        this.spotlights = patch(this.spotlights, h('div#spotlights', msg.items.map(spotlight => this.spotlightView(spotlight))));
+    }
 }
 
 function seekHeader() {
@@ -701,7 +726,10 @@ export function lobbyView(model): VNode[] {
     }
 
     return [
-        h('aside.sidebar-first', [ h('div#lobbychat') ]),
+        h('aside.sidebar-first', [
+            h('div#spotlights'),
+            h('div#lobbychat')
+        ]),
         h('div.seeks', [
             h('div#seeks-table', [
                 h('table#seeks-header', { hook: { insert: () => resizeSeeksHeader() } }, seekHeader()),

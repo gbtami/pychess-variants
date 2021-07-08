@@ -13,6 +13,7 @@ from seek import challenge, create_seek, get_seeks, Seek
 from user import User
 from utils import new_game, load_game, online_count, MyWebSocketResponse
 from misc import server_growth, server_state
+from tournament import tournament_spotlights
 
 log = logging.getLogger(__name__)
 
@@ -223,6 +224,10 @@ async def lobby_socket_handler(request):
                             await lobby_broadcast(sockets, response)
                         else:
                             await ws.send_json(response)
+
+                        spotlights = tournament_spotlights(request.app["tournaments"])
+                        if len(spotlights) > 0:
+                            await ws.send_json({"type": "spotlights", "items": spotlights})
 
                     elif data["type"] == "lobbychat":
                         message = data["message"]

@@ -10,8 +10,10 @@ from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
+from broadcast import lobby_broadcast
 from compress import R2C
-from const import CASUAL, RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG, ARENA, RR
+from const import CASUAL, RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG,\
+    ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED
 from game import Game
 from glicko2.glicko2 import gl2
 from newid import new_id
@@ -20,7 +22,6 @@ from spectators import spectators
 
 log = logging.getLogger(__name__)
 
-T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 
@@ -126,6 +127,7 @@ class Tournament(ABC):
         self.wave = timedelta(seconds=3)
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
+        self.prev_pairing = None
 
         self.messages = collections.deque([], 200)
         self.spectators = set()
@@ -291,6 +293,10 @@ class Tournament(ABC):
 
                 elif self.status == T_STARTED:
                     if self.system == ARENA:
+                        # In case of server restart
+                        if self.prev_pairing is None:
+                            self.prev_pairing = now - self.wave
+
                         if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
                             waiting_players = self.waiting_players()
                             if len(waiting_players) >= (4 if len(self.players) > 4 else 3):
@@ -365,6 +371,11 @@ class Tournament(ABC):
 
         await self.broadcast({"type": "tstatus", "tstatus": self.status})
         await self.save()
+
+        spotlights = tournament_spotlights(self.app["tournaments"])
+        lobby_sockets = self.app["lobbysockets"]
+        response = {"type": "spotlights", "items": spotlights}
+        await lobby_broadcast(lobby_sockets, response)
 
     async def abort(self):
         await self.finalize(T_ABORTED)
@@ -745,3 +756,18 @@ class Tournament(ABC):
                 full_score,
                 self.players[player].performance
             ))
+
+
+def tournament_spotlights(tournaments):
+    items = []
+    for tid, tournament in tournaments.items():
+        if tournament.status in (T_CREATED, T_STARTED):
+            items.append({
+                "tid": tournament.id,
+                "name": tournament.name,
+                "variant": tournament.variant,
+                "chess960": tournament.chess960,
+                "nbPlayers": tournament.nb_players,
+                "startsAt": tournament.starts_at.isoformat(),
+            })
+    return items

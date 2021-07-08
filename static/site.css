@@ -23,6 +23,7 @@
     --green-hover: #89b25b;
     --green-switch: #629924;
     --blue-active: #d1e4f6;
+    --blue-passive: #c5d8e9;
     --blue-hover: #1b78d0;
     --invite-game: #eff5e9;
     --good: #629924;
@@ -78,6 +79,7 @@
     --game-hover: #223344;
     --green-hover: #537c23;
     --blue-active: #293a49;
+    --blue-passive: #33312e;
     --blue-hover: #3692e7;
     --invite-game: #2c3021;
     --gold: #bf811d;
@@ -446,7 +448,7 @@ a.post time {
 .meta-headline {
     background: var(--bg-meta);
     text-align: center;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.2),0 1px 5px 0 rgba(0,0,0,0.12);
+    box-shadow: var(--base-shadow);
     padding: 1rem;
 }
 .meta {
@@ -1784,4 +1786,46 @@ div#ctable-container {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+/* tournaments */
+.tour-spotlight {
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 0 0 auto;
+    padding: 0.3em;
+    opacity: 0.8;
+    transition: all 150ms;
+    color: var(--font-color);
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    background: linear-gradient(to bottom, var(--blue-active), var(--blue-passive) 100%);
+    box-shadow: var(--base-shadow);
+}
+.tour-spotlight:last-child {
+    margin-bottom: 1em;
+}
+.tour-spotlight:hover {
+ opacity:1
+}
+
+.tour-spotlight i.icon::before {
+    color: #fff;
+    font-size: 50px;
+    margin: 0 5px 0 0;
+    text-shadow: 1px 1px 2px #1b78d0;
+}
+.tour-spotlight .name {
+    margin-top: 1px;
+    line-height: 13px;
+    display: block;
+}
+.tour-spotlight .headline {
+    display: block;
+    font-size: 0.85em;
+    margin-bottom: -3px;
+}
+.tour-spotlight .more {
+    font-size: 0.85em;
 }

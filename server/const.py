@@ -1,7 +1,10 @@
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
 
-# tournament pairings
+# tournament status
+T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
+
+# tournament pairing
 ARENA, RR, SWISS = range(3)
 
 # translations
