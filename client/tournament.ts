@@ -126,8 +126,13 @@ export default class TournamentController {
             newPage = (page > lastPage) ? lastPage : page;
         }
         if (newPage !== this.page) {
+            this.page = newPage;
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], "page": newPage });
         }
+    }
+
+    goToMyPage() {
+        this.doSend({ type: "my_page", "tournamentId": this.model["tournamentId"] });
     }
 
     login() {
@@ -149,12 +154,13 @@ export default class TournamentController {
     renderButtons() {
         return h('div#page-controls.btn-controls', [
             h('div.pager', [
-                h('button', { on: { click: () => this.goToPage(1) } }, [ h('i.icon.icon-fast-backward') ]),
-                h('button', { on: { click: () => this.goToPage(this.page - 1) } }, [ h('i.icon.icon-step-backward') ]),
+                h('button', { on: { click: () => this.goToPage(1) } }, [ h('i.icon.icon-fast-backward', { props: { title: 'First' } }) ]),
+                h('button', { on: { click: () => this.goToPage(this.page - 1) } }, [ h('i.icon.icon-step-backward', { props: { title: 'Prev' } }) ]),
                  // TODO: update
                 h('span.page', `${(this.page-1)*10 + 1} - ${Math.min((this.page)*10, this.nbPlayers)} / ${this.nbPlayers}`),
-                h('button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward') ]),
-                h('button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward') ]),
+                h('button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward', { props: { title: 'Next' } }) ]),
+                h('button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward', { props: { title: 'Last' } }) ]),
+                h('button', { on: { click: () => this.goToMyPage() } }, [ h('i.icon.icon-target', { props: { title: 'Scroll to your player' } }) ]),
             ]),
             h('div#action'),
         ]);
@@ -445,20 +451,23 @@ export default class TournamentController {
     }
 
     private onMsgGetPlayers(msg) {
-        if (this.completed() && msg.players.length >= 3) {
+        if (this.completed() && msg.players.length >= 3 && msg.nbGames > 0) {
             const podium = document.getElementById('podium') as HTMLElement;
             if (podium instanceof Element) {
                 patch(podium, this.renderPodium(msg.players));
             }
         }
-        this.players = msg.players;
-        this.page = msg.page;
-        this.nbPlayers = msg.nbPlayers;
-        this.buttons = patch(this.buttons, this.renderButtons());
 
-        const oldPlayers = document.getElementById('players') as Element;
-        oldPlayers.innerHTML = "";
-        patch(oldPlayers, h('table#players.players.box', [h('tbody', this.renderPlayers(msg.players))]));
+        if (this.page = msg.page || msg.requestedBy === this.model["username"]) {
+            this.players = msg.players;
+            this.page = msg.page;
+            this.nbPlayers = msg.nbPlayers;
+            this.buttons = patch(this.buttons, this.renderButtons());
+
+            const oldPlayers = document.getElementById('players') as Element;
+            oldPlayers.innerHTML = "";
+            patch(oldPlayers, h('table#players.players.box', [h('tbody', this.renderPlayers(msg.players))]));
+        }
     }
 
     private onMsgNewGame(msg) {

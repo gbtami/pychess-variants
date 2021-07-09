@@ -34,7 +34,7 @@ MONGO_DB_NAME = "pychess-variants"
 BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS", "{}"))
 FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
 
-ADMINS = os.getenv("ADMINS")
+ADMINS = os.getenv("ADMINS", "")
 
 STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
 

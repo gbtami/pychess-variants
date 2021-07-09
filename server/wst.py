@@ -57,7 +57,19 @@ async def tournament_socket_handler(request):
                     if data["type"] == "get_players":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            response = tournament.players_json(page=data["page"])
+                            page = data["page"]
+                            if user in tournament.players and tournament.players[user].page != page:
+                                tournament.players[user].page = page
+                            response = tournament.players_json(page=page)
+                            await ws.send_json(response)
+
+                    elif data["type"] == "my_page":
+                        tournament = await load_tournament(request.app, data["tournamentId"])
+                        if tournament is not None:
+                            if user in tournament.players:
+                                # force to get users current page by leaderbord status
+                                tournament.players[user].page = -1
+                            response = tournament.players_json(user=user)
                             await ws.send_json(response)
 
                     elif data["type"] == "get_games":
@@ -70,9 +82,6 @@ async def tournament_socket_handler(request):
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             await tournament.join(user)
-                            response = tournament.players_json(user=user)
-                            await tournament.broadcast(response)
-
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)
 
@@ -80,26 +89,22 @@ async def tournament_socket_handler(request):
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             await tournament.pause(user)
-                            # tournament.pause() broadcasts, so we don't have to do it here
-                            # pause is different from withdraw and join because pause can be initiated from finished games page as well
-
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)
 
                     elif data["type"] == "withdraw":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            page = ((tournament.leaderboard.index(user) + 1) // 10) + 1
                             await tournament.withdraw(user)
-                            response = tournament.players_json(page=page, user=user)
-                            await tournament.broadcast(response)
-
                             response = {"type": "ustatus", "username": user.username, "ustatus": tournament.user_status(user)}
                             await ws.send_json(response)
 
                     elif data["type"] == "tournament_user_connected":
                         tournamentId = data["tournamentId"]
                         tournament = await load_tournament(request.app, tournamentId)
+                        if tournament is None:
+                            continue
+
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
                                 log.info("+++ Existing tournament_user %s socket connected as %s.", session_user, data["username"])
@@ -225,7 +230,7 @@ async def tournament_socket_handler(request):
                         del user.tournament_sockets[tournamentId]
                         user.update_online()
 
-                        if user.username in sockets[tournamentId]:
+                        if tournamentId in sockets and user.username in sockets[tournamentId]:
                             del sockets[tournamentId][user.username]
                             tournament = await load_tournament(request.app, tournamentId)
                             tournament.spactator_leave(user)

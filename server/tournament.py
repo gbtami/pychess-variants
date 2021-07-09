@@ -16,6 +16,7 @@ from const import CASUAL, RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG,\
     ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED
 from game import Game
 from glicko2.glicko2 import gl2
+from misc import time_control_str
 from newid import new_id
 from utils import insert_game_to_db
 from spectators import spectators
@@ -53,7 +54,7 @@ class ByeGame:
 
 
 class PlayerData:
-    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff"
+    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff", "page"
 
     def __init__(self, rating, provisional):
         self.rating = rating
@@ -69,6 +70,7 @@ class PlayerData:
         self.performance = 0
         self.prev_opp = ""
         self.color_diff = 0
+        self.page = 0
 
     def __str__(self):
         return (" ").join(self.points)
@@ -174,20 +176,29 @@ class Tournament(ABC):
             return "%s%s" % user.get_rating(self.variant, self.chess960).rating_prov
 
     def players_json(self, page=None, user=None):
+        if (page is None) and (user is not None) and (user in self.players):
+            if self.players[user].page > 0:
+                page = self.players[user].page
+            else:
+                div, mod = divmod(self.leaderboard.index(user) + 1, 10)
+                page = div + (1 if mod > 0 else 0)
+                if self.status == T_CREATED:
+                    self.players[user].page = page
         if page is None:
             page = 1
 
-        if page is None and user is not None:
-            page = ((self.leaderboard.index(user) + 1) // 10) + 1
-
         if self.nb_games_cached != self.nb_games_finished:
-            # game ended
+            # number of games changed (game ended)
             self.leaderboard_cache = {}
             self.nb_games_cached = self.nb_games_finished
         elif user is not None:
-            # player status changed (JOIN/PAUSE/WITHDRAW)
-            if page in self.leaderboard_cache:
-                del self.leaderboard_cache[page]
+            if self.status == T_STARTED:
+                # player status changed (JOIN/PAUSE)
+                if page in self.leaderboard_cache:
+                    del self.leaderboard_cache[page]
+            elif self.status == T_CREATED:
+                # number of players changed (JOIN/WITHDRAW)
+                self.leaderboard_cache = {}
 
         if page in self.leaderboard_cache:
             return self.leaderboard_cache[page]
@@ -211,7 +222,9 @@ class Tournament(ABC):
 
         page_json = {
             "type": "get_players",
+            "requestedBy": user.username if user is not None else "",
             "nbPlayers": self.nb_players,
+            "nbGames": self.nb_games_finished,
             "page": page,
             "players": [
                 player_json(player, full_score) for
@@ -300,28 +313,28 @@ class Tournament(ABC):
                         if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
                             waiting_players = self.waiting_players()
                             if len(waiting_players) >= (4 if len(self.players) > 4 else 3):
-                                print("Enough player (%s), do pairing" % len(waiting_players))
+                                log.debug("Enough player (%s), do pairing", len(waiting_players))
                                 await self.create_new_pairings(waiting_players)
                                 self.prev_pairing = now
                             else:
-                                print("Too few player (%s) to make pairing" % len(waiting_players))
+                                log.debug("Too few player (%s) to make pairing", len(waiting_players))
                         else:
-                            print("Waiting for new pairing wave...")
+                            log.debug("Waiting for new pairing wave...")
 
                     elif self.ongoing_games == 0:
                         if self.current_round < self.rounds:
                             self.current_round += 1
-                            print("Do %s. round pairing" % self.current_round)
+                            log.debug("Do %s. round pairing", self.current_round)
                             waiting_players = self.waiting_players()
                             await self.create_new_pairings(waiting_players)
                         else:
                             await self.finish()
-                            print("T_FINISHED: no more round left")
+                            log.debug("T_FINISHED: no more round left")
                             break
                     else:
                         print("%s has %s ongoing game(s)..." % ("RR" if self.system == RR else "Swiss", self.ongoing_games))
 
-                print("CLOCK", now.strftime("%H:%M:%S"))
+                log.debug("%s CLOCK %s", self.id, now.strftime("%H:%M:%S"))
                 await asyncio.sleep(1)
         except Exception:
             log.exception("Exception in tournament clock()")
@@ -404,6 +417,9 @@ class Tournament(ABC):
 
         self.players[player].paused = False
 
+        response = self.players_json(user=player)
+        await self.broadcast(response)
+
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
 
@@ -412,6 +428,9 @@ class Tournament(ABC):
             del self.players[player]
         self.leaderboard.pop(player)
         self.nb_players -= 1
+
+        response = self.players_json(user=player)
+        await self.broadcast(response)
 
         await self.broadcast_spotlight()
 
@@ -764,6 +783,13 @@ class Tournament(ABC):
                 full_score,
                 self.players[player].performance
             ))
+
+    @property
+    def discord_msg(self):
+        tc = time_control_str(self.base, self.inc, self.byoyomi_period)
+        tail960 = "960" if self.chess960 else ""
+        return "%s: **%s%s** %s tournament created at UTC %s will start in **%s** minutes" % (
+            self.created_by, self.variant, tail960, tc, self.created_at.strftime("%Y.%m.%d %H:%M"), self.minutes)
 
 
 def tournament_spotlights(tournaments):

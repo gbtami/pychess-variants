@@ -74,7 +74,7 @@ class TestTournament(Tournament):
                 if game.board.ply == ply or game.board.ply > 60:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
                     if game.board.ply > 60:
-                        await draw(self.app["games"], {"gameId": game.id}, agreement=True)
+                        response = await draw(self.app["games"], {"gameId": game.id}, agreement=True)
                     else:
                         response = await game.game_ended(player, "resign")
                     if opp_player.title != "TEST":
@@ -143,8 +143,8 @@ async def create_arena_test(app):
 
     await insert_tournament_to_db(tournament, app)
 
-#    tournament.join_players(6)
-    await tournament.join_players(7)
+#    await tournament.join_players(6)
+    await tournament.join_players(19)
 
 
 class TournamentTestCase(AioHTTPTestCase):

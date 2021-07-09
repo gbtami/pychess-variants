@@ -1,4 +1,5 @@
 import collections
+import logging
 
 from compress import C2V, V2C, C2R
 from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED
@@ -11,6 +12,8 @@ from rr import RRTournament
 from swiss import SwissTournament
 from settings import ADMINS
 from misc import time_control_str
+
+log = logging.getLogger(__name__)
 
 
 async def create_tournament(app, username, form):
@@ -44,6 +47,17 @@ async def create_tournament(app, username, form):
 
     await tournament.broadcast_spotlight()
 
+    # Send msg to discord-relay BOT
+    try:
+        lobby_sockets = app["lobbysockets"]
+        msg = tournament.discord_msg
+        for dr_ws in lobby_sockets["Discord-Relay"]:
+            await dr_ws.send_json({"type": "create_tournament", "message": msg})
+            break
+    except (KeyError, ConnectionResetError):
+        # BOT disconnected
+        log.error("--- Discord-Relay disconnected!")
+
 
 async def new_tournament(app, data):
     if "tid" not in data:
@@ -58,7 +72,6 @@ async def new_tournament(app, data):
     elif data["system"] == RR:
         tournament_class = RRTournament
 
-    print(tid, data)
     tournament = tournament_class(
         app, tid,
         variant=data["variant"],
