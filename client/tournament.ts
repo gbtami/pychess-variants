@@ -552,7 +552,7 @@ export default class TournamentController {
 
     private onMsgTopGame(msg) {
         this.topGame = msg;
-        if (!this.playerGamesOn) {
+        if (this.tournamentStatus === 'started' && !this.playerGamesOn) {
             this.renderEmptyTopGame();
             this.renderTopGame();
         }

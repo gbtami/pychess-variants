@@ -15,7 +15,7 @@ except ImportError:
 from glicko2.glicko2 import gl2
 from broadcast import round_broadcast
 from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
-    UNKNOWNFINISH, CASUAL, RATED, IMPORTED, CONSERVATIVE_CAPA_FEN
+    UNKNOWNFINISH, CASUAL, RATED, IMPORTED, CONSERVATIVE_CAPA_FEN, T_STARTED
 from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
@@ -565,7 +565,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
 
         if game.tournamentId is not None:
             tournament = app["tournaments"][game.tournamentId]
-            if tournament.top_game is not None and tournament.top_game.id == gameId:
+            if (tournament.top_game is not None) and tournament.status == T_STARTED and tournament.top_game.id == gameId:
                 # no need to send lots of data to tournament top game
                 del board_response["dests"]
                 del board_response["promo"]
