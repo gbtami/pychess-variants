@@ -47,6 +47,10 @@ async def oauth(request):
             log.error("State got back from %s changed", LICHESS_OAUTH_AUTHORIZE_URL)
             return web.HTTPFound("/")
 
+        if "oauth_code_verifier" not in session:
+            log.error("No oauth_code_verifier in session")
+            return web.HTTPFound("/")
+
         data = {
             "grant_type": "authorization_code",
             "code": code,
