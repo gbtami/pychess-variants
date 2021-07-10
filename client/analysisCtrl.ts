@@ -130,6 +130,8 @@ export default class AnalysisController {
     prevPieces: Pieces;
     arrow: boolean;
 
+    dropmodeActive: boolean = false;//TODO:do i really need that - is there existing one for this with a different name
+
     constructor(el, model) {
         this.isAnalysisBoard = model["gameId"] === "";
 

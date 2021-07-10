@@ -8,6 +8,9 @@ import style from 'snabbdom/modules/style';
 
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
+
+import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
+
 import { Color, Role } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
@@ -23,11 +26,19 @@ type Position = 'top' | 'bottom';
 type Pocket = Partial<Record<Role, number>>;
 export type Pockets = [Pocket, Pocket];
 
-const eventNames = ['mousedown', 'touchstart'];
+//There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
+const eventNamesDragDrop = [/*'mousedown',*/ 'touchmove'];
+const eventNamesClickDrop = ['click'];
 
+const attrLastEvent = "last-event";
+
+/**
+ *
+ *
+ */
 export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: Color, position: Position) {
     const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
-    const roles = Object.keys(pocket);
+    const roles = Object.keys(pocket);//contains the list of possible pieces/roles (i.e. for crazyhouse p-piece, n-piece, b-piece, r-piece, q-piece) in the order they will be displayed in the pocket
 
     let insertHook;
     if (ctrl instanceof EditorController) {
@@ -35,11 +46,65 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     } else {
         insertHook = {
             insert: vnode => {
-                eventNames.forEach(name => {
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                    drag((ctrl as RoundController | AnalysisController), e);
+                //TODO:test this - is it needed or mouseup/down replace it
+                eventNamesDragDrop.forEach(name => {
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => 
+                    {
+                        drag((ctrl as RoundController | AnalysisController), e);
                     })
                 });
+
+                eventNamesClickDrop.forEach(name => {
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => 
+                    {
+                        if (e && (e.target as HTMLElement).getAttribute(attrLastEvent) == "mousemove") { 
+                            return; /*it has been dragged - that is not a click - do nothing*/ 
+                        }
+                        (e.target as HTMLElement).setAttribute(attrLastEvent,"click");//why not use mouseup
+                        click((ctrl as RoundController | AnalysisController), e);
+                    })
+                });
+
+                (vnode.elm as HTMLElement).addEventListener("mousedown", (e: cg.MouchEvent) => 
+                    {
+                        const el = e.target as HTMLElement;
+                        if (e) { el.setAttribute(attrLastEvent,"mousedown"); }//this event is triggered on mousedown - reset to false, so if immediate mouseup triggers click it will know it has not been dragged (even though drag event was also triggered)
+    
+                        const
+                        role = el.getAttribute('data-role') as cg.Role,
+                        color = el.getAttribute('data-color') as cg.Color,
+                        number = el.getAttribute('data-nb');
+                        if (!role || !color || number === '0') return;
+
+                        dragNewPiece(ctrl.chessground.state, { color, role }, e);//always start the dragging of new piece. on mouse up, chessgroundx will take care of cancelling the drag, and same time the click event will trigger the click-to-drop mechanics
+                                                                                 //we will detect mousemove additionally and only then will do other things like canclling currently selected pieces and highlighting destination squares only once we are sure it is actually 
+                                                                                 //a dragging happening and is not just a click (in which case different logic should be executed but never both) 
+                        e.stopPropagation();
+                        e.preventDefault();
+                    });
+
+                (vnode.elm as HTMLElement).addEventListener("mousemove", (e: cg.MouchEvent) => 
+                    {
+                        if (e) { 
+                            if ((e.target as HTMLElement).getAttribute(attrLastEvent) == "mousedown"){
+                                //means this is the first mousemove after mousedown - i.e. dragging starts. lets use this event+condition instead of "drag" event
+                                (e.target as HTMLElement).setAttribute(attrLastEvent,"mousemove"); //mark element as "dragged". this way on mouseup, when click event is fired we know it was not really a click
+                                drag((ctrl as RoundController | AnalysisController), e);
+                            } else {
+                                //(e.target as HTMLElement).setAttribute(attrLastEvent,"mousemove"); //always must set it to clear potential mousedowns that were clicks
+                            }
+
+                            //(e.target as HTMLElement).setAttribute(attrLastEvent,"true"); //always set to true. if it was set to false on drag
+
+                        }
+                    });
+
+                // (vnode.elm as HTMLElement).addEventListener("mouseup", (e: cg.MouchEvent) => 
+                //     {
+                //     if (e && (e.target as HTMLElement).getAttribute(attrLastEvent) != "true") { return; /*if it has been a click without dragging - do nothing*/ }
+                //         mouseupAfterDrag((ctrl as RoundController | AnalysisController), e);
+                //     });
+
             }
         }
     }
@@ -85,18 +150,140 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         onEventHandler = {};
     }
 
-    return h('piece.' + role + '.' + color, {
-      attrs: {
-        'data-role': role,
-        'data-color': color,
-        'data-nb': nb,
-      },
-      on: onEventHandler
-    });
+    if (ctrl instanceof RoundController) {
+        const dropMode = ctrl.chessground?.state.dropmode;
+        const dropPiece = ctrl.chessground?.state.dropmode.piece;
+        const selectedSquare = dropMode?.active && dropPiece?.role == role && dropPiece?.color == color;
+        const preDropRole = ctrl.predrop?.role;
+        const activeColor = color === ctrl.turnColor;//TODO:not sure if mycolor or current color of player whose turn it is?
+
+        return h('piece.' + role + '.' + color, {
+          class: {
+            premove: activeColor && preDropRole === role,
+            'selected-square': selectedSquare,
+          },
+          attrs: {
+            'data-role': role,
+            'data-color': color,
+            'data-nb': nb,
+          },
+          on: onEventHandler
+        });
+        
+    } else {
+        //TODO:do not duplicate the return expression, but instead figure out how to condition the class thing
+        return h('piece.' + role + '.' + color, {
+          attrs: {
+            'data-role': role,
+            'data-color': color,
+            'data-nb': nb,
+          },
+          on: onEventHandler
+        });
+    }
+
   }));
 }
 
+export function mouseupAfterDrag(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
+
+    if (e.button !== undefined && e.button !== 0) return; // only touch or left click
+    //if (ctrl.replaying() || !ctrl.isPlaying()) return; TODO: are there such analogues in pychess - maybe controller types
+    
+    const el = e.target as HTMLElement,
+    role = el.getAttribute('data-role') as cg.Role,
+    color = el.getAttribute('data-color') as cg.Color,
+    number = el.getAttribute('data-nb');
+    if (!role || !color || number === '0') return;
+    const dropMode = ctrl.chessground?.state.dropmode;
+    const dropPiece = ctrl.chessground?.state.dropmode.piece;
+    if (!dropMode.active || dropPiece?.role !== role) {
+    } else {
+        cancelDropMode(ctrl.chessground.state);
+        ctrl.dropmodeActive = false;
+        ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
+        ctrl.chessground.selectSquare(null);
+        updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
+
+    }
+
+}
+
+/**
+ * 
+ */
+export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
+    console.log('clickkkkkkkk. ctrl=' + ctrl + ". e = " + e);
+    //click event is triggered even if user holds mouse button down and drags the piece for however long and far just as long as when dropping it, the mouse is back
+    //somewhere on the original piece. That is not a click in my book, so have to detect there was dragging between the mouse down/up events and not treat it as such.
+    //TODO:is it same on mobile/touch events?
+
+    console.log(ctrl.chessground.state.draggable.current);
+
+    
+    if (e.button !== undefined && e.button !== 0) return; // only touch or left click
+    //if (ctrl.replaying() || !ctrl.isPlaying()) return; TODO: are there such analogues in pychess - maybe controller types
+    
+    const el = e.target as HTMLElement,
+    role = el.getAttribute('data-role') as cg.Role,
+    color = el.getAttribute('data-color') as cg.Color,
+    number = el.getAttribute('data-nb');
+    if (!role || !color || number === '0') return;
+    const dropMode = ctrl.chessground?.state.dropmode;
+    const dropPiece = ctrl.chessground?.state.dropmode.piece;
+    if (!dropMode.active || dropPiece?.role !== role) {
+        setDropMode(ctrl.chessground.state, { color, role });
+        ctrl.dropmodeActive = true;
+        console.log("click ctrl.turnColor === ctrl.mycolor", ctrl.turnColor === ctrl.mycolor, ":",ctrl.turnColor," and ",ctrl.mycolor);
+        if ( ctrl.turnColor === ctrl.mycolor) {
+            console.log(">>>>>>>>>>>>>>>> ", ctrl.dests);
+
+            const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]);
+            
+            //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
+            ctrl.chessground.set({
+                turnColor: color,
+                dropmode: {
+                    dropDests: dropDests,
+                    showDropDests: ctrl.showDests,
+                },
+            });
+        } else {
+            const roleKey = role2san(role) + "@";
+            const dropDests = ctrl.dests[roleKey];
+            console.log(">>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
+            //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
+            ctrl.chessground.set({
+                predroppable: {
+                    dropDests: dropDests,
+                    showDropDests: ctrl.showDests,
+                },
+            });
+
+        }
+
+    } else {
+        cancelDropMode(ctrl.chessground.state);
+        ctrl.dropmodeActive = false;
+        ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
+        ctrl.chessground.selectSquare(null);
+
+    }
+    e.stopPropagation();
+    e.preventDefault();
+    updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
+    //ctrl.redraw(); TODO:no such method
+}
+
+/**
+ *
+ *
+ *
+ */
 export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
+
+    console.log('dragggggggg. ctrl=' + ctrl + ". e = " + e);
+
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
     if (ctrl.spectator && ctrl instanceof RoundController) return;
     const el = e.target as HTMLElement,
@@ -104,33 +291,56 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
     if (!role || !color || number === '0') return;
-    if (ctrl.clickDropEnabled && ctrl.clickDrop !== undefined && role === ctrl.clickDrop.role) {
-        ctrl.clickDrop = undefined;
+
+    //if the piece we are dragging is different than the currently selected for click-drop, then cancel the click-drop
+    //if it is the same, we will not cancel it yet - if this drag event turns out to just be a click - then the cancelling will happen in the click method
+    //if it is an actual drag then no point in canelling ???
+    if (ctrl.clickDropEnabled && ctrl.chessground.state.dropmode.piece /*&& ctrl.chessground.state.dropmode.piece.role != role*//*&& ctrl.clickDrop !== undefined && role === ctrl.clickDrop.role*/) {
+        ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
         ctrl.chessground.selectSquare(null);
-        //cancelDropMode(ctrl.chessground.state);
-        return;
-    } else {
-        //setDropMode(ctrl.chessground.state, number !== '0' ? { color, role } : undefined);
-    }
+        cancelDropMode(ctrl.chessground.state);
+        ctrl.dropmodeActive = false;
+        el.setAttribute("just-unselected","true");//right after this, the click event might also fire if not an actual drag. use this attr to detect if current piece has just been unselected to do nothing instead of selecting in right back in thus reverting the effect of this if body
+        updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
+        //return;
+    } 
 
     // Show possible drop dests on my turn only not to mess up predrop
-    if (ctrl.clickDropEnabled && ctrl.turnColor === ctrl.mycolor) {
-        const dropDests = { 'a0': ctrl.dests[role2san(role) + "@"] };
-        // console.log("     new piece to a0", role);
-        ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
-        ctrl.chessground.set({
-            turnColor: color,
-            movable: {
-                dests: dropDests,
-                showDests: ctrl.showDests,
-            },
-        });
-        ctrl.chessground.selectSquare('a0');
-        ctrl.chessground.set({ lastMove: ctrl.lastmove });
+    if (ctrl.clickDropEnabled) {
+        console.log("drag ctrl.turnColor === ctrl.mycolor", ctrl.turnColor === ctrl.mycolor, ":",ctrl.turnColor," and ",ctrl.mycolor);
+        if (ctrl.turnColor === ctrl.mycolor) {
+            const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]);
+            console.log(">>>>>>>>>>>>>>>> ", ctrl.dests);
+
+            // console.log("     new piece to a0", role);
+            //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
+            ctrl.chessground.set({
+                turnColor: color,
+                dropmode: {
+                    dropDests: dropDests,
+                    showDropDests: ctrl.showDests,
+                },
+            });
+        } else {//TODO: in ctrl should keep both sides dests and not only the ones whose current move is so we can use it for pre-drop
+            const roleKey = role2san(role) + "@";
+            const dropDests = ctrl.dests[roleKey];
+            console.log(">>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
+            
+            //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
+            ctrl.chessground.set({
+                predroppable: {
+                    dropDests: dropDests,
+                    showDropDests: ctrl.showDests,
+                },
+            });
+
+        }
+
     }
+
     e.stopPropagation();
     e.preventDefault();
-    dragNewPiece(ctrl.chessground.state, { color, role }, e);
+    //dragNewPiece(ctrl.chessground.state, { color, role }, e);
 }
 
 export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {

@@ -7,7 +7,7 @@
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
   "dependencies": {
-    "chessgroundx": "8.1.4",
+    "chessgroundx": "^8.1.4",
     "ffish": "^0.6.1",
     "ffish-es6": "^0.6.1",
     "gettext.js": "^1.0.0",
@@ -23,10 +23,10 @@
     "browserify": "^16",
     "chai": "^4.2.0",
     "gulp": "^4",
+    "gulp-brotli": "3.0.0",
     "gulp-sourcemaps": "^2",
     "gulp-typescript": "^3",
     "gulp-util": "^3",
-    "gulp-brotli": "3.0.0",
     "jsdom": "10.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "^8.1.0",
@@ -42,7 +42,7 @@
     "zlib": "1.0.5"
   },
   "scripts": {
-    "heroku-postbuild": "cp node_modules/ffish-es6/ffish.* static/ && gulp prod && ./md2html.sh",
+    "heroku-postbuild": "cp node_modules/ffish-es6/ffish.* static/ && gulp dev && ./md2html.sh",
     "test": "mocha -r ts-node/register -r jsdom-global/register 'tests/**/*.test.ts'"
   }
 }

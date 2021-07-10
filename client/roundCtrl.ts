@@ -12,6 +12,7 @@ import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation, SetPremoveMetadata } from 'chessgroundx/types';
+import { cancelDropMode } from 'chessgroundx/drop';
 
 import { JSONObject } from './types';
 import { _ } from './i18n';
@@ -96,6 +97,8 @@ export default class RoundController {
     setupFen: string;
     prevPieces: Pieces;
     focus: boolean;
+
+    dropmodeActive: boolean = false;//TODO:do i really need that - is there existing one for this with a different
 
     constructor(el, model) {
         this.focus = !document.hidden;
@@ -833,6 +836,9 @@ export default class RoundController {
             if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             } else if (this.clickDropEnabled) {
+                console.log('onDrop->else if');
+                console.log(this.clickDrop);
+                console.log(this.chessground.state);
                 this.clickDrop = piece;
             }
         }
@@ -874,6 +880,8 @@ export default class RoundController {
     }
 
     private onUserMove = (orig, dest, meta) => {
+        this.dropmodeActive = false;
+        cancelDropMode(this.chessground.state);
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
@@ -916,6 +924,8 @@ export default class RoundController {
     }
 
     private onUserDrop = (role, dest, meta) => {
+        this.dropmodeActive = false;
+        cancelDropMode(this.chessground.state);
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
@@ -965,7 +975,8 @@ export default class RoundController {
                     this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
                 }
                 this.clickDrop = undefined;
-                //cancelDropMode(this.chessground.state);
+                cancelDropMode(this.chessground.state);
+                updatePockets(this,this.vpocket0,this.vpocket1)
                 this.chessground.set({ movable: { dests: this.dests }});
             }
 

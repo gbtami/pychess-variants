@@ -3,6 +3,7 @@ import collections
 import logging
 import random
 import string
+import time
 from datetime import datetime, timezone
 from itertools import chain
 from time import monotonic
@@ -195,6 +196,9 @@ class Game:
         return FairyBoard(variant, initial_fen, chess960, count_started)
 
     async def play_move(self, move, clocks=None, ply=None):
+
+        print('niki')
+
         self.stopwatch.stop()
         self.byo_correction = 0
 
@@ -217,8 +221,12 @@ class Game:
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
         if self.bot_game:
+            print('niki 2', cur_player.username, cur_player.bot)
+            if cur_player.bot:
+                time.sleep(5)
+
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
-            # print(self.board.ply, move, movetime)
+            print(self.board.ply, move, movetime)
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
