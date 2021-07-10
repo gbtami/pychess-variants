@@ -646,8 +646,9 @@ class LobbyController {
     }
     private onMsgChat(msg) {
         chatMessage(msg.user, msg.message, "lobbychat");
-        if (msg.user.length !== 0 && msg.user !== '_server')
-            sound.socialNotify();
+        // seems this is annoying for most of the users
+        //if (msg.user.length !== 0 && msg.user !== '_server')
+        //    sound.socialNotify();
     }
     private onMsgFullChat(msg) {
         // To prevent multiplication of messages we have to remove old messages div first
