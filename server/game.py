@@ -474,7 +474,8 @@ class Game:
         await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     def update_status(self, status=None, result=None):
-        assert self.status <= STARTED
+        if self.status > STARTED:
+            return
 
         def result_string_from_value(color, game_result_value):
             if game_result_value < 0:
