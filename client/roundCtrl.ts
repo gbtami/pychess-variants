@@ -547,8 +547,10 @@ export default class RoundController {
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             this.dests = {};
-            if (this.result === "*" && !this.spectator)
+
+            if (this.result !== "*" && !this.spectator)
                 sound.gameEndSound(msg.result, this.mycolor);
+
             this.gameOver(msg.rdiffs);
             selectMove(this, this.ply);
 
