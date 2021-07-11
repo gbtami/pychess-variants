@@ -54,7 +54,7 @@ export default class RoundController {
     expiStart: number;
     firstmovetime: number;
     tournamentGame: boolean;
-    abortable: boolean;
+    clockOn: boolean;
     gameId: string;
     variant: IVariant;
     chess960: boolean;
@@ -194,7 +194,7 @@ export default class RoundController {
         this.result = "*";
         const parts = this.fullfen.split(" ");
         this.tournamentGame = this.model["tournamentId"] !== '';
-        this.abortable = (Number(parts[parts.length - 1]) <= 1);
+        this.clockOn = (Number(parts[parts.length - 1]) >= 2);
 
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
@@ -663,12 +663,10 @@ export default class RoundController {
             }
         }
 
-        if ((!this.spectator && this.abortable && Number(msg.ply) > 1) || this.tournamentGame) {
+        this.clockOn = Number(msg.ply) >= 2;
+        if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
-            if (container) {
-                patch(container, h('div'));
-                if (Number(msg.ply) > 1) this.abortable = false;
-            }
+            if (container) patch(container, h('div'));
         }
 
         let lastMove = msg.lastMove;
@@ -726,7 +724,7 @@ export default class RoundController {
                 });
                 if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
             }
-            if (!this.abortable && msg.status < 0) {
+            if (this.clockOn && msg.status < 0) {
                 if (this.turnColor === this.mycolor) {
                     this.clocks[myclock].start();
                 } else {
@@ -756,7 +754,7 @@ export default class RoundController {
                     if (this.premove) this.performPremove();
                     if (this.predrop) this.performPredrop();
                 }
-                if (!this.abortable && msg.status < 0) {
+                if (this.clockOn && msg.status < 0) {
                     this.clocks[myclock].start();
                     // console.log('MY CLOCK STARTED');
                 }
@@ -767,7 +765,7 @@ export default class RoundController {
                     turnColor: this.turnColor,
                     check: msg.check,
                 });
-                if (!this.abortable && msg.status < 0) {
+                if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     // console.log('OPP CLOCK  STARTED');
                 }
@@ -848,7 +846,7 @@ export default class RoundController {
 
         this.doSend({ type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 });
 
-        if (!this.abortable) this.clocks[oppclock].start();
+        if (this.clockOn) this.clocks[oppclock].start();
     }
 
     private startCount = () => {
