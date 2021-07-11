@@ -4,7 +4,6 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
-# Ignacio Poggi <ignaciop.3@gmail.com>, 2020
 # Jose Doval Gonzalez <pepellou@gmail.com>, 2021
 # 
 #, fuzzy
@@ -15,48 +14,45 @@ msgstr ""
 "POT-Creation-Date: 2021-04-22 11:56+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
-"Language-Team: Spanish (https://www.transifex.com/gbtami/teams/14790/es/)\n"
+"Language-Team: Galician (Spain) (https://www.transifex.com/gbtami/teams/14790/gl_ES/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
-"Language: es\n"
+"Language: gl_ES\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../templates/404.html:19
 msgid "404 GAME NOT FOUND"
-msgstr "404 PARTIDA NO ENCONTRADA"
+msgstr "404 PARTIDA NON ATOPADA"
 
 #: ../templates/404.html:21
 msgid "Sorry, not all games are saved on the Pychess server."
-msgstr ""
-"Lamentablemente no todas las partidas son guardadas en el servidor de "
-"Pychess."
+msgstr "Sentímolo, non todas as partidas son gardadas no servidor de Pychess."
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr ""
-"Es posible que haya sido abandonada o detenida antes del tercer movimiento."
+msgstr "Probablemente foi abandonada ou detida antes do terceiro movemento."
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
-msgstr "Volver a la página principal"
+msgstr "Voltar á páxina principal"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr "Esta cuenta está cerrada."
+msgstr "Esta conta está pechada."
 
 #: ../templates/patron.html:8
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
-"Como sabe, pychess-variants es un servidor gratuito y permanecerá así por siempre. Sin embargo, el mantenimiento y las mejoras del servidor cuestan tiempo y dinero.\n"
-"Si está satisfecho con nuestro trabajo y considera que nuestro servidor es útil, puede hacer una donación a través de Patreon o PayPal."
+"Como sabes, pychess-variants é un servidor gratuíto e será gratuíto para sempre. Sen embargo, manter e mellorar o servidor custa tempo e diñeiro.\n"
+"Se che gusta o noso traballo e atopas o noso servidor útil, por favor fai unha doazón a través de patron ou paypal."
 
 #: ../templates/players.html:9
 msgid "Online"
-msgstr "En línea"
+msgstr "En liña"
 
 #: ../templates/players.html:28
 msgid "Anonymous"
@@ -64,14 +60,14 @@ msgstr "Anónimo"
 
 #: ../templates/players.html:35
 msgid "All players"
-msgstr "Todos los jugadores"
+msgstr "Tódolos xogadores"
 
 #: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] "%(count)spartida"
-msgstr[1] "%(count)spartidas"
+msgstr[0] "%(count)s partida"
+msgstr[1] "%(count)s partidas"
 
 #: ../templates/template.html:12
 msgid "Tv"
@@ -79,11 +75,11 @@ msgstr "Tv"
 
 #: ../templates/template.html:13
 msgid "Current games"
-msgstr "Partidas actuales"
+msgstr "Partidas actuais"
 
 #: ../templates/template.html:14
 msgid "Players"
-msgstr "Jugadores"
+msgstr "Xogadores"
 
 #: ../templates/template.html:15
 msgid "Editor"
@@ -91,7 +87,7 @@ msgstr "Editor"
 
 #: ../templates/template.html:16
 msgid "Analysis"
-msgstr "Análisis"
+msgstr "Análise"
 
 #: ../templates/template.html:17
 msgid "Learn"
@@ -99,8 +95,8 @@ msgstr "Aprender"
 
 #: ../templates/template.html:23
 msgid "Login with Lichess"
-msgstr "Iniciar sesión con Lichess"
+msgstr "Identificarse con Lichess"
 
 #: ../templates/template.html:23
 msgid "Log in"
-msgstr "Iniciar sesión"
+msgstr "Identificarse"

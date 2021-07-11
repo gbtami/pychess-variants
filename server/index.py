@@ -79,7 +79,7 @@ async def index(request):
         session["user_name"] = user.username
 
     lang = session.get("lang", "en")
-    get_template = request.app["jinja"][lang].get_template
+    get_template = request.app["jinja"][lang.lower()].get_template
 
     view = "lobby"
     gameId = request.match_info.get("gameId")
