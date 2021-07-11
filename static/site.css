@@ -339,6 +339,9 @@ iframe {
 }
 under-left {
     grid-area: uleft;
+    display: flex;
+    align-content: flex-start;
+    flex-flow: row wrap;
 }
 under-board {
     grid-area: uboard;
@@ -708,7 +711,7 @@ div a {
     opacity: 0.6;
 }
 .reflist {
-    padding: 6px;
+    margin-right: 1.2em;
     text-decoration: none;
 }
 .movelist-block{

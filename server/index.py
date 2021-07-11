@@ -79,7 +79,7 @@ async def index(request):
         session["user_name"] = user.username
 
     lang = session.get("lang", "en")
-    get_template = request.app["jinja"][lang.lower()].get_template
+    get_template = request.app["jinja"][lang].get_template
 
     view = "lobby"
     gameId = request.match_info.get("gameId")
@@ -389,7 +389,7 @@ async def robots(request):
 
 async def select_lang(request):
     data = await request.post()
-    lang = data.get("lang").lower()
+    lang = data.get("lang")
 
     if lang is not None:
         referer = request.headers.get('REFERER')

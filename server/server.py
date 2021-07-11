@@ -171,7 +171,7 @@ async def init_state(app):
         env.install_gettext_translations(translation, newstyle=True)
         env.globals["static"] = static_url
 
-        app["jinja"][lang.lower()] = env
+        app["jinja"][lang] = env
 
     if app["db"] is None:
         return
