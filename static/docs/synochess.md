@@ -7,7 +7,7 @@ The name Synochess is based off an earlier name, Sinochess, but it was changed a
  
 ## General Rules
 1.	Setup is as above. 
-2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side)
+2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side).
 3.	The Kingdom (white) always moves first.
 4.	The Dynasty (red) cannot castle.
 5.	Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop). Dynasty soldiers do not promote.

@@ -11,7 +11,7 @@ As this game is based off xiangqi, please see the corresponding guide for basic 
 
 The starting setup is as above. Unlike standard xiangqi, there is no river, advisors, or elephants. 
 
-Additionally, **pawns start with the ability to move sideways.** 
+Additionally, **pawns start with the ability to move sideways**. 
 
 ## Strategy
 

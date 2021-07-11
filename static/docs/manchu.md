@@ -5,7 +5,7 @@ Manchu chess (Chinese: 满洲棋; pinyin: *Mǎnzhōuqí*), also known as Yitong 
 
 ## Rules
 
-The board and pieces are almost the same as Xiangqi. The black side is unchanged, while the red side loses all its cannons, horses, and chariots except for a single chariot. That chariot combines the moves of the normal chariot, cannon, and horse. This piece is sometimes referred to as the *Banner.*
+The board and pieces are almost the same as Xiangqi. The black side is unchanged, while the red side loses all its cannons, horses, and chariots except for a single chariot. That chariot combines the moves of the normal chariot, cannon, and horse. This piece is sometimes referred to as the *Banner*.
 
 ## Strategy
 

@@ -56,7 +56,7 @@ It depends on how popular or how interesting the variant is. We can't even consi
 
 *How do I change settings?*
 
-To change the settings, click the gear button in the top right of the screen (next to login or your username), choose "Board Settings.
+To change the settings, click the gear button in the top right of the screen (next to login or your username) and choose "Board Settings".
 
 *How do I change pieces and boards? Are there western or internationalized pieces?*
 
@@ -66,11 +66,11 @@ Same answer as above, and then click on "Board Settings." All Asian variants hav
 
 Use the right click. Clicking gives you a circle, and dragging gives you an arrow. These are green by default. You can make them red by holding Shift or Ctrl, and you can make them blue by holding Alt.
 
-*What does "5+3" mean for time?"*
+*What does "5+3" mean for time?*
 
 Those are the time controls for the game. By default we use an increment system. "5+3" means each player has 5 *minutes*, and after each move adds 3 *seconds* to the clock. You can set the time control to be whatever you want when creating the game. The 5+3 is just the default for random mover.
 
-*Okay, what about the (b) in "5+3(b)?"*
+*Okay, what about the (b) in "5+3(b)"?*
 
 The b signifies byo-yomi time control, which is different from increment, and is only used in certain variants (i.e. Shogi and Janggi). Each player has a fixed time bank (5 minutes, in this example), and then after that, they only have the byo-yomi period for the rest of their moves before losing. In this example, that means only 3 seconds per move. Typically, byo-yomi is played with more than just 3 seconds... usually anywhere from 10 seconds to 30 seconds.
 
