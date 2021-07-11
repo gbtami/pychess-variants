@@ -62,7 +62,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 **Move** - A move in chess is a piece movement by both players. However, in shogi, a move is described as a single movement by each player. In chess, you can have "checkmate in 1," 2, 3, etc. But in shogi, you can only have checkmate in 1, 3, 5, 7, etc.
 
-**Drop** - A move made by taking a captured piece and dropping it onto the board as your own. This is a staple of Shogi and Crazyhouse, but cannot be done in chess. Variants that allow drops are called "drop variants," and there are several in Pychess (often with the suffix "house")
+**Drop** - A move made by taking a captured piece and dropping it onto the board as your own. This is a staple of Shogi and Crazyhouse, but cannot be done in chess. Variants that allow drops are called "drop variants", and there are several in Pychess (often with the suffix "house")
 
 **Promotion Zone** - The area of the board in which pieces can promote. In chess, only pawns can promote on the furthest rank. However, in shogi, the promotion zone is the last three ranks, and most pieces can promote. Other variations can vary on how the promotion zone is defined.
 

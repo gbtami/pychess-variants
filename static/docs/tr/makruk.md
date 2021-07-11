@@ -104,7 +104,7 @@ The pace is rather slow, with most pieces stepping only one square at a time. It
 
 ## Tactics
  
-**Rooks are the only pieces that can pin or skewer pieces. The rest of the tactics mostly consist of forks.**
+**Rooks are the only pieces that can pin or skewer pieces. The rest of the tactics mostly consist of forks**.
 
 Most Sittuyin and Makruk games will actually reach the bitter (near) end.
 When one side has only a bare King remaining, there are certain "counting rules" (see above) which come into effect and put pressure on the stronger side. Such requirements offer the weaker side an incentive to play out the whole game. Therefore it is crucial to master all the basic checkmates against a lone King. There just isn't much point in playing these games if one can't finish off the bare King at the end.
