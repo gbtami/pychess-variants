@@ -1,4 +1,4 @@
-# ![Ajedrez](https://github.com/gbtami/pychess-variants/blob/master/static/icons/chess.svg) Scacchi
+# ![Ajedrez](https://github.com/gbtami/pychess-variants/blob/master/static/icons/chess.svg) Ajedrez
 
 ![Posición inicial](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chess.png?raw=true)
 

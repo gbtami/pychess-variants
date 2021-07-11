@@ -7,7 +7,6 @@ Grand Chess fue creado por Christian Freeling en 1984 y es una de las variantes 
 
 ## Reglas
 
-Si gioca su una tavola 10 x 10, con colonne aggiuntive per il nuovo Maresciallo (Cavallo/Rook) e il Cardinale (Cavallo/Alfiere), che sono entrambi posizionati sul lato di Re. A causa delle maggiori dimensioni della scacchiera, la maggior parte dei pezzi di partenza vengono spostati di una traversa, ad eccezione delle torri che rimangono nelle ultime traverse.
 La partida se juega en un tablero de 10 x 8, con columnas adicionales para las nuevas piezas Mariscal (Caballo/Torre) y Cardenal (Caballo/Alfil), ambas situadas al lado del rey. Debido al mayor tamaño del tablero, la mayoría de las piezas se sitúan al comienzo una fila más adelante, con la excepción de las torres que permanecen en las últimas filas.
 
 A mayores de las piezas y posición inicial, hay otras tres diferencias signiticativas:
