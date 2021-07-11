@@ -178,7 +178,7 @@ Semelhante ao descrito acima, mas usando o canhão oposto. A ideia moderna é de
 
 **5. Tigre em três passos**
 
-![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
+![Three Step Tiger](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
 As Pretas desenvolvem a sua Biga rapidamente movimentando o seu Canhão para o canto do tabuleiro. Uma jogada típica é de avançar os Cavalos primeiro e após isto os Canhões para o canto, e finalmente as Bigas para as colunas do Canhão.
 

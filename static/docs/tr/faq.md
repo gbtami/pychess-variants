@@ -12,7 +12,7 @@ The server code is written in Python.
 
 *What is the difference between this and the software?*
 
-Both are designed to play chess, and both share the same developer ([gbtami](https://www.github.com/gbtami)). However, the differences end there. The full name for this site is "Pychess Variants" for distinction, but is often just called Pychess. The site for the desktop application is [here](https://pychess.github.io/).
+Both are designed to play chess, and both share the same developer ([gbtami](https://www.github.com/gbtami)). However, the similitudes end there. The full name for this site is "Pychess Variants" for distinction, but is often just called Pychess. The site for the desktop application is [here](https://pychess.github.io/).
 
 *What is the relationship to [Lichess](https://lichess.org/)?*
 

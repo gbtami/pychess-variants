@@ -108,7 +108,7 @@ Also like Xiangqi and perhaps even more so, using kings offensively is important
 
 The Dynasty player needs to play aggressively. It starts with an advanced position, but overall weaker pieces. It needs to seek trades that are in its favor. Soldiers are worth more than pawns, so the Dynasty should make the Kingdom work hard to remove a soldier. 
 
-As the Dynasty, avoid moving the soldiers too much. Their initial formation is already in an optimal "soldier structure" (a pair of soldiers side-by-side). Slide them to open up or create attacks for your cannons and chariots. Use the reinforcements to replace lost soldiers. If you drop them too early, you only block yoruselves in.
+As the Dynasty, avoid moving the soldiers too much. Their initial formation is already in an optimal "soldier structure" (a pair of soldiers side-by-side). Slide them to open up or create attacks for your cannons and chariots. Use the reinforcements to replace lost soldiers. If you drop them too early, you only block yourself in.
 
 ### Kingdom (white) tips
 
