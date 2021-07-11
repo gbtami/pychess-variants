@@ -176,7 +176,7 @@ Like the above, except the opposite cannon. The modern practice is to move the b
 
 **5. Three Step Tiger**
 
-![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
+![Three Step Tiger](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
 Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
 
