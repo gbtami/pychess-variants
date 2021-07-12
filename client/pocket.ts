@@ -339,10 +339,6 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
         }
 
     }
-<<<<<<< HEAD
-=======
-*/
->>>>>>> 881608b1cb27680a4b9ceab1b6a36af730c1155f
 
     e.stopPropagation();
     e.preventDefault();

@@ -42,12 +42,8 @@
     "zlib": "1.0.5"
   },
   "scripts": {
-<<<<<<< HEAD
-    "heroku-postbuild": "cp node_modules/ffish-es6/ffish.* static/ && gulp dev && ./md2html.sh",
-=======
     "dev": "cp node_modules/ffish-es6/ffish.* static/ && gulp dev && ./md2html.sh",
     "heroku-postbuild": "cp node_modules/ffish-es6/ffish.* static/ && gulp prod && ./md2html.sh",
->>>>>>> 881608b1cb27680a4b9ceab1b6a36af730c1155f
     "test": "mocha -r ts-node/register -r jsdom-global/register 'tests/**/*.test.ts'"
   }
 }
