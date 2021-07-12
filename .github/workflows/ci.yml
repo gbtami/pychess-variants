@@ -34,3 +34,4 @@ jobs:
     - name: Run unit tests
       run: |
         python server/test.py
+        python server/test_tournament.py

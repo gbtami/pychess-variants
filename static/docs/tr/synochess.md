@@ -7,7 +7,7 @@ The name Synochess is based off an earlier name, Sinochess, but it was changed a
  
 ## General Rules
 1.	Setup is as above. 
-2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side)
+2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side).
 3.	The Kingdom (white) always moves first.
 4.	The Dynasty (red) cannot castle.
 5.	Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop). Dynasty soldiers do not promote.
@@ -45,7 +45,7 @@ The Elephant is a leaping piece that moves diagonally one or two spaces. Because
 
 ![Cannon](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/CannonDynasty.png)
  
-The Cannon is a hopping piece. It is essentially a rook that requires an intervening piece (often called a “screen”) to hop over before it can move or capture along that line. *****A cannon cannot hop over another cannon.***** This version of the cannon is the exact same as the one in Janggi. Because it requires another piece to move or capture, the cannon loses value in the endgame.
+The Cannon is a hopping piece. It is essentially a rook that requires an intervening piece (often called a “screen”) to hop over before it can move or capture along that line. *****A cannon cannot hop over another cannon*****. This version of the cannon is the exact same as the one in Janggi. Because it requires another piece to move or capture, the cannon loses value in the endgame.
  
 ### Advisor
 
@@ -108,7 +108,7 @@ Also like Xiangqi and perhaps even more so, using kings offensively is important
 
 The Dynasty player needs to play aggressively. It starts with an advanced position, but overall weaker pieces. It needs to seek trades that are in its favor. Soldiers are worth more than pawns, so the Dynasty should make the Kingdom work hard to remove a soldier. 
 
-As the Dynasty, avoid moving the soldiers too much. Their initial formation is already in an optimal "soldier structure" (a pair of soldiers side-by-side). Slide them to open up or create attacks for your cannons and chariots. Use the reinforcements to replace lost soldiers. If you drop them too early, you only block yoruselves in.
+As the Dynasty, avoid moving the soldiers too much. Their initial formation is already in an optimal "soldier structure" (a pair of soldiers side-by-side). Slide them to open up or create attacks for your cannons and chariots. Use the reinforcements to replace lost soldiers. If you drop them too early, you only block yourself in.
 
 ### Kingdom (white) tips
 

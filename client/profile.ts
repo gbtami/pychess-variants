@@ -40,6 +40,7 @@ export function colorNames(color: string) {
 
 export function gameType(rated: string | number) {
     switch (rated) {
+    case "True":
     case "1":
     case 1:
         return _("Rated");

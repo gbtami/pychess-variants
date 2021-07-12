@@ -7,19 +7,20 @@ import string
 logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
+DEV = ("heroku" in URI) or URI.startswith("http:")
 BR_EXTENSION = ".br" if URI.startswith("https") else ""
 
 REDIRECT_PATH = "/oauth"  # path of oauth callback in app
 # lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth
 REDIRECT_URI = URI + REDIRECT_PATH
 
-# lichess tokens for local dev users login
-DEV_TOKEN1 = os.getenv("DEV_TOKEN1")
-DEV_TOKEN2 = os.getenv("DEV_TOKEN2")
-
 # client app id and secret from lichess.org
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
+LICHESS_OAUTH_AUTHORIZE_URL = 'https://lichess.org/oauth'
+LICHESS_OAUTH_TOKEN_URL = 'https://lichess.org/api/token'
+LICHESS_ACCOUNT_API_URL = 'https://lichess.org/api/account'
 
 # secret_key for session encryption
 # key must be 32 url-safe base64-encoded bytes
@@ -33,7 +34,7 @@ MONGO_DB_NAME = "pychess-variants"
 BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS", "{}"))
 FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
 
-ADMINS = os.getenv("ADMINS")
+ADMINS = os.getenv("ADMINS", "")
 
 STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
 

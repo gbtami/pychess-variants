@@ -1,13 +1,13 @@
 import asyncio
 import json
 import random
-import string
 
 import pstats
 import cProfile
 
 import aiohttp
 
+from newid import id8
 from settings import URI
 
 
@@ -29,7 +29,7 @@ def profile_me(fn):
 
 class TestUser:
     def __init__(self):
-        self.username = "Anon-" + "".join(random.sample(string.ascii_letters, 8))
+        self.username = "Anon-" + id8()
         self.seeks = []
         self.playing = False
 

@@ -11,7 +11,7 @@ If you enjoy Chess, Xiangqi is definitely worth trying. While slightly slower pa
 ## The Rules
 
 The general rules are extremely similar to Chess, so this guide will focus on the few differences. The most striking difference is that pieces are on intersections instead of squares, which is mainly an aesthetic difference. Players take turns moving pieces on a board to checkmate the enemy king. The red player traditionally moves first, followed by black, although the order is not crucial as the board is symmetric. The only other main difference from chess is that stalemates are considered losses for the player who got stalemated (i.e. can’t move any pieces).
-Regarding perpertual checks, the player that perpetually checks loses after three repetitions.
+Regarding perpetual checks, the player that perpetually checks loses after three repetitions.
 
 ## The Board
 
@@ -29,7 +29,7 @@ Xiangqi pieces traditionally have had different names: their Chinese translation
 
 The king (also known by its Chinese name, the **general**) can only move one step orthogonally. Additionally, it is confined to the palace.
 
-*Special rule:* Kings are not allowed to face each other with no piece in between (“General face-off rule”). Consider them as being able to attack each other as rooks (also called “flying generals”). This is useful for setting up checkmates in the endgame.
+*Special rule*: Kings are not allowed to face each other with no piece in between (“General face-off rule”). Consider them as being able to attack each other as rooks (also called “flying generals”). This is useful for setting up checkmates in the endgame.
 
 ![King and advisor movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/KingAdvisorDiagram.png)
 
@@ -55,7 +55,7 @@ On a side note, the Chinese character for the red elephant means “minister,”
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/HorseDiagram.png)
 
-The horse (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
+The horse (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the knight **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
 
 ### Chariot
 
@@ -81,7 +81,7 @@ The cannon is a unique piece in xiangqi. It can move exactly like the chariot. H
 
 The pawn (also called by its Chinese name, the **soldier**) moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
 
-*Special rule:* After crossing the river, the pawn can move and capture sideways one space as well. The piece itself does not change to reflect this.
+*Special rule*: After crossing the river, the pawn can move and capture sideways one space as well. The piece itself does not change to reflect this.
 
 ## Additional Rules - Perpetual checks and chases
 
@@ -172,11 +172,11 @@ Black moves the cannon from the same side that red moved his. Red capturing the 
 
 **4. Opposite Direction Cannon**
 
-Like the above, except the opposite cannon. The modern practice is to move the black cannon later though "Delayed Opposite Direction Cannon."
+Like the above, except the opposite cannon. The modern practice is to move the black cannon later though "Delayed Opposite Direction Cannon".
 
 **5. Three Step Tiger**
 
-![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
+![Three Step Tiger](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
 Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
 

@@ -1,6 +1,6 @@
 # ![Capahouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Capahouse960.svg) Capahouse 960
 
-Capahouse 960 is a custom variant combining the rules of Capablanca chess, Crazyhouse, and Chess 960. The same rules apply to both games. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse and 960 rules are as below for a reminder.
+Capahouse 960 is a custom variant combining the rules of Capablanca chess, Crazyhouse, and Chess 960. As this is considered a derivative of Capablanca chess, please check the Capablanca rules in its separate guide. Crazyhouse and 960 rules are as below for a reminder.
 
 This variant can be played by checking the "Chess960" option when creating a Capahouse game.
 

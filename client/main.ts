@@ -18,11 +18,13 @@ import { renderGames } from './games';
 import { editorView } from './editor';
 import { analysisView, embedView } from './analysis';
 import { profileView } from './profile';
+import { tournamentView } from './tournament';
 import { pasteView } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { getCookie } from './document';
 import { backgroundSettings } from './background';
+import { renderTimeago } from './datetime';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -45,6 +47,7 @@ export function view(el, model): VNode {
     model["level"] = el.getAttribute("data-level");
     model["username"] = user !== "" ? user : el.getAttribute("data-user");
     model["gameId"] = el.getAttribute("data-gameid");
+    model["tournamentId"] = el.getAttribute("data-tournamentid");
     model["inviter"] = el.getAttribute("data-inviter");
     model["ply"] = el.getAttribute("data-ply");
     model["wplayer"] = el.getAttribute("data-wplayer");
@@ -82,6 +85,8 @@ export function view(el, model): VNode {
         return h('div#main-wrap', inviteView(model));
     case 'editor':
         return h('div#main-wrap', editorView(model));
+    case 'tournament':
+        return h('div#main-wrap', [h('main.tour', tournamentView(model))]);
     case 'games':
         return h('div', renderGames());
     case 'paste':
@@ -107,6 +112,8 @@ function start() {
         (document.querySelector('.hamburger') as HTMLElement).classList.toggle('is-active');
         }
     );
+
+    renderTimeago();
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;

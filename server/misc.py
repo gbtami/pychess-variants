@@ -1,8 +1,33 @@
+import asyncio
+import time
 import cProfile
 import pstats
 from timeit import default_timer
 
 import objgraph
+
+
+def timeit(func):
+    async def process(func, *args, **params):
+        if asyncio.iscoroutinefunction(func):
+            # print('this function is a coroutine: {}'.format(func.__name__))
+            return await func(*args, **params)
+        else:
+            # print('this is not a coroutine')
+            return func(*args, **params)
+
+    async def helper(*args, **params):
+        # print('{}.time'.format(func.__name__))
+        start = time.time()
+        result = await process(func, *args, **params)
+
+        # Test normal function route...
+        # result = await process(lambda *a, **p: print(*a, **p), *args, **params)
+
+        print('>>>', time.time() - start)
+        return result
+
+    return helper
 
 
 class OnDemand:
@@ -52,7 +77,7 @@ def time_control_str(base, inc, byo):
     elif base == 3 / 4:
         base = "¾"
     else:
-        base = str(base)
+        base = str(int(base))
     if byo == 0:
         inc_str = f"{inc}"
     elif byo == 1:

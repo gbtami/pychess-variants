@@ -7,7 +7,7 @@ The name Synochess is based off an earlier name, Sinochess, but it was changed a
  
 ## General Rules
 1.	Setup is as above. 
-2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side)
+2.	The only pieces that the sides have in common are the kings, knights, and rooks (called chariots on the Dynasty side).
 3.	The Kingdom (white) always moves first.
 4.	The Dynasty (red) cannot castle.
 5.	Kingdom pawns can only promote to their own pieces (queen, rook, knight, bishop). Dynasty soldiers do not promote.
@@ -32,7 +32,7 @@ Details and diagrams of each piece are below.  
 ### Soldier (S)
 
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Soldier.png)
-The Soldier can move either one space forward or one space sideways. It is the exact same a Xiangqi soldier that has crossed the river and the exact same as a Janggi soldier from the start. The soldier, unlike the pawn, cannot promote.
+The Soldier can move either one space forward or one space sideways. It is the exact same as a Xiangqi soldier that has crossed the river and the exact same as a Janggi soldier from the start. The soldier, unlike the pawn, cannot promote.
 Because the soldier cannot move backwards, it can only move sideways in the final rank. Avoid putting them in this situation unless it will lead to checkmate or campmate. Soldiers are strongest when paired side to side so that they can protect each other.
 
 ### Elephant (E)
@@ -137,7 +137,7 @@ This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. A
 
 **Queenslayer**
 
-This is an extremely deadly tactic that may end in an inevitable loss for white if not caught. The situation is where a chariot has an open file (which it already starts with), and the cannon has an open path to the first rank square (b1 or g1). That square may or may or not contain a knight, but if it's empty, the knight cannot cover it for this to work.
+This is an extremely deadly tactic that may end in an inevitable loss for white if not caught. The situation is where a chariot has an open file (which it already starts with), and the cannon has an open path to the first rank square (b1 or g1). That square may or may not contain a knight, but if it's empty, the knight cannot cover it for this to work.
 
 ![Queenslayer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Queenslayer.png)
 

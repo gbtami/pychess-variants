@@ -20,7 +20,6 @@ import { chatMessage, chatView } from './chat';
 import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
-import { debounce } from './document';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 
@@ -36,6 +35,7 @@ class LobbyController {
     validGameData: boolean;
     _ws;
     seeks;
+    spotlights;
     minutesValues = [
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180
@@ -71,8 +71,6 @@ class LobbyController {
             }
             this.doSend({ type: "lobby_user_connected", username: this.model["username"]});
             this.doSend({ type: "get_seeks" });
-
-            window.addEventListener("resize", debounce(resizeSeeksHeader, 10));
         }
 
         this._ws = { "readyState": -1 };
@@ -95,6 +93,8 @@ class LobbyController {
         }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
+
+        this.spotlights = document.getElementById('spotlights') as HTMLElement;
 
         // challenge!
         const anon = this.model.anon === 'True';
@@ -226,7 +226,7 @@ class LobbyController {
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
-        if (!this.test_ratings && (this.challengeAI || this.inviteFriend || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
+        if (!this.test_ratings && (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
             rated = false;
         else
             rated = e.value === "1";
@@ -552,6 +552,23 @@ class LobbyController {
             return _("Casual");
     }
 
+    private spotlightView(spotlight) {
+        const variant = VARIANTS[spotlight.variant];
+        const chess960 = spotlight.chess960;
+        const dataIcon = variant.icon(chess960);
+
+        return h('a.tour-spotlight', { attrs: { "href": "/tournament/" + spotlight.tid } }, [
+            h('i.icon', { attrs: { "data-icon": dataIcon } }),
+            h('span.content', [
+                h('span.name', spotlight.name),
+                h('span.more', [
+                    h('nb', spotlight.nbPlayers + ' players • '),
+                    h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
+                ])
+            ])
+        ]);
+    }
+
     onMessage(evt) {
         // console.log("<+++ lobby onMessage():", evt.data);
         const msg = JSON.parse(evt.data);
@@ -582,6 +599,9 @@ class LobbyController {
                 break;
             case "u_cnt":
                 this.onMsgUserCounter(msg);
+                break;
+            case "spotlights":
+                this.onMsgSpotlights(msg);
                 break;
             case "invite_created":
                 this.onMsgInviteCreated(msg);
@@ -623,8 +643,9 @@ class LobbyController {
     }
     private onMsgChat(msg) {
         chatMessage(msg.user, msg.message, "lobbychat");
-        if (msg.user.length !== 0 && msg.user !== '_server')
-            sound.socialNotify();
+        // seems this is annoying for most of the users
+        //if (msg.user.length !== 0 && msg.user !== '_server')
+        //    sound.socialNotify();
     }
     private onMsgFullChat(msg) {
         // To prevent multiplication of messages we have to remove old messages div first
@@ -653,7 +674,9 @@ class LobbyController {
         const userCount = document.getElementById('u_cnt') as HTMLElement;
         patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
     }
-
+    private onMsgSpotlights(msg) {
+        this.spotlights = patch(this.spotlights, h('div#spotlights', msg.items.map(spotlight => this.spotlightView(spotlight))));
+    }
 }
 
 function seekHeader() {
@@ -701,10 +724,12 @@ export function lobbyView(model): VNode[] {
     }
 
     return [
-        h('aside.sidebar-first', [ h('div#lobbychat') ]),
+        h('aside.sidebar-first', [
+            h('div#spotlights'),
+            h('div#lobbychat')
+        ]),
         h('div.seeks', [
             h('div#seeks-table', [
-                h('table#seeks-header', { hook: { insert: () => resizeSeeksHeader() } }, seekHeader()),
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
@@ -773,10 +798,4 @@ export function lobbyView(model): VNode[] {
             h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
     ];
-}
-
-function resizeSeeksHeader() {
-    const seeksHeader = document.getElementById('seeks-header') as HTMLElement;
-    const seeks = document.getElementById('seeks') as HTMLElement;
-    seeksHeader.style.width = seeks.clientWidth + 'px';
 }

@@ -195,6 +195,7 @@ export function mouseupAfterDrag(ctrl: RoundController | AnalysisController, e: 
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
     if (!role || !color || number === '0') return;
+
     const dropMode = ctrl.chessground?.state.dropmode;
     const dropPiece = ctrl.chessground?.state.dropmode.piece;
     if (!dropMode.active || dropPiece?.role !== role) {
@@ -202,6 +203,7 @@ export function mouseupAfterDrag(ctrl: RoundController | AnalysisController, e: 
         cancelDropMode(ctrl.chessground.state);
         ctrl.dropmodeActive = false;
         ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
+
         ctrl.chessground.selectSquare(null);
         updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
 
@@ -337,6 +339,10 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
         }
 
     }
+<<<<<<< HEAD
+=======
+*/
+>>>>>>> 881608b1cb27680a4b9ceab1b6a36af730c1155f
 
     e.stopPropagation();
     e.preventDefault();

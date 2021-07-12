@@ -1,0 +1,114 @@
+*, ::before, ::after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+.tournaments {
+    grid-area: main;
+    max-width: 1000px;
+    margin: auto;
+    width: 100%;
+}
+#main-wrap {
+    --main-max-width: 1300px;
+}
+a {
+    white-space:unset;
+}
+.box-pad, .box:not(.box-pad) > h1 {
+    padding: 5vh var(--box-padding);
+}
+.box {
+    --box-padding: 15px;
+}
+@media (min-width: 320px) {
+    .box {
+        --box-padding: calc( 15px + 45 * ((100vw - 320px) / 880));
+    }
+}
+@media (min-width: 1200px) {
+    .box {
+        --box-padding: 60px;
+    }
+}
+.box-top {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+h1 {
+    font-size: 40px;
+    margin-bottom: 5vh;
+}
+.actions {
+    display: flex;
+    flex-flow: row wrap;
+}
+a.button.icon-plus-square {
+    color: #fff;
+    background: var(--green-switch);
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.225);
+    border-radius: 3px;
+    padding: 0.8em 1em;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    transition: all 150ms;
+}
+.text::before {
+    margin-right: 0.4em;
+}
+th {
+    font: inherit;
+    vertical-align: middle;
+    text-align: inherit;
+}
+.slist {
+    width: 100%;
+    border-bottom: 1px solid #d9d9d9;
+    margin-bottom: 3em;
+    border-collapse: collapse;
+}
+.slist thead {
+    background: var(--bg-color2);
+}
+.slist th:first-child {
+    padding-left: 1.5rem;
+}
+.slist thead th {
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    padding: 0.5rem 0.8rem;
+}
+.header a .name, .infos .system, .starts {
+    display: block;
+}
+.header a .name {
+    font-size: 1.3em;
+}
+.by, td .icon {
+    color: var(--gold);
+}
+td .icon {
+    text-align: center;
+    font-size: 2.5em;
+}
+.slist tbody tr:nth-child(2n) {
+    background-color: var(--bg-color2)
+}
+.slist td {
+    padding: 1rem;
+    font: inherit;
+}
+.slist td:last-child {
+    text-align: right;
+}
+td a {
+    display: block;
+    color: #4d4d4d;
+}
+td.header {
+    padding: 0;
+}

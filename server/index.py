@@ -18,14 +18,16 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, VARIANTS, VARIANT_ICONS, RATED, IMPORTED, variant_display_name
+from const import LANGUAGES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
-from settings import MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION
+from settings import ADMINS, MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION, DEV
+from misc import time_control_str
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
+from tournaments import get_latest_tournaments, load_tournament, create_tournament
 
 log = logging.getLogger(__name__)
 
@@ -83,6 +85,8 @@ async def index(request):
     gameId = request.match_info.get("gameId")
     ply = request.rel_url.query.get("ply")
 
+    tournamentId = request.match_info.get("tournamentId")
+
     if request.path == "/about":
         view = "about"
     elif request.path == "/faq":
@@ -116,6 +120,22 @@ async def index(request):
         view = "embed"
     elif request.path == "/paste":
         view = "paste"
+    elif request.path.startswith("/tournaments"):
+        view = "tournaments"
+        if request.path.endswith("/new"):
+            view = "arena-new"
+        elif request.path.endswith("/arena"):
+            data = await request.post()
+            await create_tournament(request.app, user.username, data)
+    elif request.path.startswith("/tournament"):
+        view = "tournament"
+        tournament = await load_tournament(request.app, tournamentId)
+
+        if tournament is None:
+            return web.HTTPFound("/")
+
+        if request.path.endswith("/pause") and user in tournament.players:
+            await tournament.pause(user)
 
     profileId = request.match_info.get("profileId")
     variant = request.match_info.get("variant")
@@ -149,7 +169,6 @@ async def index(request):
     if gameId is not None:
         if view not in ("tv", "analysis", "embed"):
             view = "round"
-
         invites = request.app["invites"]
         if (gameId not in games) and (gameId in invites):
             if not request.path.startswith("/invite/accept/"):
@@ -159,7 +178,7 @@ async def index(request):
                 inviter = seek.user.username if user.username != seek.user.username else ""
 
         if view != "invite":
-            game = await load_game(request.app, gameId, user)
+            game = await load_game(request.app, gameId, user=user)
             if game is None:
                 log.debug("Requested game %s not in app['games']", gameId)
                 template = get_template("404.html")
@@ -182,6 +201,10 @@ async def index(request):
         template = get_template("players.html")
     elif view == "allplayers":
         template = get_template("allplayers.html")
+    elif view == "tournaments":
+        template = get_template("tournaments.html")
+    elif view == "arena-new":
+        template = get_template("arena-new.html")
     elif view == "news":
         template = get_template("news.html")
     elif view == "variant":
@@ -199,6 +222,7 @@ async def index(request):
 
     render = {
         "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
+        "dev": DEV,
         "app_name": "PyChess",
         "languages": LANGUAGES,
         "lang": lang,
@@ -215,6 +239,7 @@ async def index(request):
         "variant": variant if variant is not None else "",
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
         "variants": VARIANTS,
+        "variant_display_name": variant_display_name,
     }
     if view in ("profile", "level8win"):
         if view == "level8win":
@@ -231,7 +256,6 @@ async def index(request):
             render["variant"] = variant
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
-        render["variant_display_name"] = variant_display_name
 
     if view == "players":
         online_users = [u for u in users.values() if u.username == user.username or (u.online and not u.anon)]
@@ -244,10 +268,18 @@ async def index(request):
         # render["offline_users"] = offline_users
         hs = request.app["highscore"]
         render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
-        render["variant_display_name"] = variant_display_name
+
     elif view == "allplayers":
         allusers = [u for u in users.values() if not u.anon]
         render["allusers"] = allusers
+
+    elif view == "tournaments":
+        render["icons"] = VARIANT_ICONS
+        render["pairing_system_name"] = pairing_system_name
+        render["time_control_str"] = time_control_str
+        render["tables"] = await get_latest_tournaments(request.app)
+        render["theads"] = ("Now playing", "Starting soon", "Finished")
+        render["admin"] = user.username in ADMINS.split(",")
 
     if gameId is not None:
         if view == "invite":
@@ -283,6 +315,21 @@ async def index(request):
             render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
             if ply is not None:
                 render["ply"] = ply
+            if game.tournamentId is not None:
+                render["tournamentid"] = game.tournamentId
+
+    if tournamentId is not None:
+        render["tournamentid"] = tournamentId
+        render["profile_title"] = tournament.name
+        render["variant"] = tournament.variant
+        render["chess960"] = tournament.chess960
+        render["rated"] = RATED if tournament.rated else CASUAL
+        render["base"] = tournament.base
+        render["inc"] = tournament.inc
+        render["byo"] = tournament.byoyomi_period
+        render["fen"] = tournament.fen
+        render["date"] = tournament.starts_at
+        render["status"] = tournament.status
 
     if view == "level8win":
         render["level"] = 8
@@ -291,7 +338,7 @@ async def index(request):
     elif view == "variant":
         render["icons"] = VARIANT_ICONS
         # variant None indicates intro.md
-        if lang in ("hu", "it", "pt", "fr"):
+        if lang in ("es", "hu", "it", "pt", "fr"):
             locale = ".%s" % lang
         elif lang == "zh":
             # Only intro.md
@@ -302,7 +349,6 @@ async def index(request):
             render["variant"] = "docs/terminology%s.html" % locale
         else:
             render["variant"] = "docs/" + ("intro" if variant is None else variant) + "%s.html" % locale
-        render["variant_display_name"] = variant_display_name
 
     elif view == "news":
         news_item = request.match_info.get("news_item")
@@ -343,7 +389,7 @@ async def robots(request):
 
 async def select_lang(request):
     data = await request.post()
-    lang = data.get("lang").lower()
+    lang = data.get("lang")
 
     if lang is not None:
         referer = request.headers.get('REFERER')
