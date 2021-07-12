@@ -20,7 +20,6 @@ import { chatMessage, chatView } from './chat';
 import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
-import { debounce } from './document';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 
@@ -72,8 +71,6 @@ class LobbyController {
             }
             this.doSend({ type: "lobby_user_connected", username: this.model["username"]});
             this.doSend({ type: "get_seeks" });
-
-            window.addEventListener("resize", debounce(resizeSeeksHeader, 10));
         }
 
         this._ws = { "readyState": -1 };
@@ -733,7 +730,6 @@ export function lobbyView(model): VNode[] {
         ]),
         h('div.seeks', [
             h('div#seeks-table', [
-                h('table#seeks-header', { hook: { insert: () => resizeSeeksHeader() } }, seekHeader()),
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
@@ -802,10 +798,4 @@ export function lobbyView(model): VNode[] {
             h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
     ];
-}
-
-function resizeSeeksHeader() {
-    const seeksHeader = document.getElementById('seeks-header') as HTMLElement;
-    const seeks = document.getElementById('seeks') as HTMLElement;
-    seeksHeader.style.width = seeks.clientWidth + 'px';
 }

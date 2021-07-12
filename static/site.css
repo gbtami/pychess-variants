@@ -119,12 +119,12 @@
 [data-icon]:before {
     font-size: 1.2em;
     vertical-align: middle;
-    opacity: 0.9;
+    opacity: 0.6;
 }
 [class*=" icon-"]:before {
     font-size: 1.2em;
     vertical-align: middle;
-    opacity: 0.9;
+    opacity: 0.6;
 }
 img {
   max-width: 100%;
@@ -148,6 +148,12 @@ html {
     font-family: 'Noto Sans', Sans-Serif;
     box-sizing:border-box;
 }
+*, ::before, ::after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     margin: 0;
     color: var(--font-color);
@@ -180,6 +186,12 @@ div#preload {
 h1, h2, h3 {
     font-weight: normal;
     font-family: 'Roboto', Sans-Serif;
+}
+h1 {
+    padding: 4vh 2vh;
+}
+h2, p {
+    padding: 1vh;
 }
 .box {
     background: var(--bg-color0);
@@ -685,12 +697,12 @@ button.back {
     padding-right: 8px;
 }
 a {
-    white-space: nowrap;
+    white-space: break-spaces;
 }
 a, .user-link:link, .user-link:visited {
     color: var(--font-color);
     text-decoration: none;
-    white-space: nowrap;
+    white-space: break-spaces;
     overflow: hidden;
 }
 a, .user-link, .user-link:active {
@@ -747,6 +759,7 @@ div#result {
     margin: 4px 2px;
     cursor: pointer;
     box-shadow: var(--base-shadow);
+    border-radius: 3px;
 }
 .lobby-button {
     width: 100%;
@@ -831,7 +844,7 @@ button.newopp:hover,  button.analysis:hover {
 }
 
 div.info1.icon, div.info0.icon::before {
-    opacity: 0.9;
+    opacity: 0.6;
 }
 div.info0, div.info1 {
     display: flex;
@@ -1032,12 +1045,11 @@ li.header {
 }
 
 table#seeks-header, table#seeks {
-    width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
     border-radius: 3px;
     font-size: 14px;
-    table-layout: fixed;
+    width:100%;
 }
 #seeks-table {
     box-shadow: var(--base-shadow);
@@ -1053,7 +1065,7 @@ table#seeks-header, table#seeks {
     -ms-overflow-style: scrollbar;
 }
 #seeks thead {
-    display: none;
+    background: var(--bg-color2);
 }
 /*
 #santa {
@@ -1064,53 +1076,35 @@ table#seeks-header, table#seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
-*/ 
-#seeks-header th, #seeks td {
-    padding: 10 4 10 4;
+*/
+#seeks th, #seeks td {
     white-space: nowrap;
     font-weight: inherit;
+    padding: .5em 0.7em .5em 0.7em;
 }
-#seeks-header th {
-    text-align: left;
+@media (max-width: 799px) and (orientation: portrait) {
+    #seeks th, #seeks td {
+        padding: .5em 0 .5em 0;
+    }
 }
-#seeks-header > thead > tr {
-    border: none;
-    cursor: default;
+#seeks thead th {
+    background: var(--bg-color2);
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
-#seeks tr {
+#seeks tbody tr {
     cursor: pointer;
     border-bottom: 1px solid var(--bg-color2);
+    z-index: 1;
 }
 #seeks tbody tr:hover {
     background-color: var(--rusty);
 }
-#seeks-header tr > :nth-child(1), #seeks tr > :nth-child(1) {
-    width: 4%;
-}
-#seeks-header tr > :nth-child(2), #seeks tr > :nth-child(2) {
-    width: 25%;
-}
-#seeks-header tr > :nth-child(3), #seeks tr > :nth-child(3) {
-    width: 10%;
-}
-#seeks-header tr > :nth-child(4), #seeks tr > :nth-child(4) {
-    width: 15%;
-}
-#seeks-header tr > :nth-child(5), #seeks tr > :nth-child(5) {
-    width: 25%;
-}
-#seeks-header tr > :nth-child(6), #seeks tr > :nth-child(6) {
-    width: 18%;
-    text-align: center;
-}
-
-@media (max-width: 799px) and (orientation: portrait) {
-    #seeks-header tr > :nth-child(5), #seeks tr > :nth-child(5) {
-        width: 5%;
-    }
-    #seeks-header tr > :nth-child(6), #seeks tr > :nth-child(6) {
-        text-align: right;
-    }
+#seekbuttons {
+    display: flex;
+    flex-flow: column;
+    margin: 0 1em 0 1em;
 }
 #seekbuttons > button {
     color: var(--button-text);
