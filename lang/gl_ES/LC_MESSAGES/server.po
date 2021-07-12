@@ -1,0 +1,102 @@
+# Translations template for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# 
+# Translators:
+# Jose Doval Gonzalez <pepellou@gmail.com>, 2021
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-04-22 11:56+0200\n"
+"PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
+"Language-Team: Galician (Spain) (https://www.transifex.com/gbtami/teams/14790/gl_ES/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+"Language: gl_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../templates/404.html:19
+msgid "404 GAME NOT FOUND"
+msgstr "404 PARTIDA NON ATOPADA"
+
+#: ../templates/404.html:21
+msgid "Sorry, not all games are saved on the Pychess server."
+msgstr "Sentímolo, non todas as partidas son gardadas no servidor de Pychess."
+
+#: ../templates/404.html:22
+msgid "Probably it was abandoned or stopped before the third move."
+msgstr "Probablemente foi abandonada ou detida antes do terceiro movemento."
+
+#: ../templates/404.html:23
+msgid "Return to the main page"
+msgstr "Voltar á páxina principal"
+
+#: ../templates/closed.html:8
+msgid "This account is closed."
+msgstr "Esta conta está pechada."
+
+#: ../templates/patron.html:8
+msgid ""
+"As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
+"If you like our work and find our server useful, please donate through patreon or paypal."
+msgstr ""
+"Como sabes, pychess-variants é un servidor gratuíto e será gratuíto para sempre. Sen embargo, manter e mellorar o servidor custa tempo e diñeiro.\n"
+"Se che gusta o noso traballo e atopas o noso servidor útil, por favor fai unha doazón a través de patron ou paypal."
+
+#: ../templates/players.html:9
+msgid "Online"
+msgstr "En liña"
+
+#: ../templates/players.html:28
+msgid "Anonymous"
+msgstr "Anónimo"
+
+#: ../templates/players.html:35
+msgid "All players"
+msgstr "Tódolos xogadores"
+
+#: ../templates/profile.html:14
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] "%(count)s partida"
+msgstr[1] "%(count)s partidas"
+
+#: ../templates/template.html:12
+msgid "Tv"
+msgstr "Tv"
+
+#: ../templates/template.html:13
+msgid "Current games"
+msgstr "Partidas actuais"
+
+#: ../templates/template.html:14
+msgid "Players"
+msgstr "Xogadores"
+
+#: ../templates/template.html:15
+msgid "Editor"
+msgstr "Editor"
+
+#: ../templates/template.html:16
+msgid "Analysis"
+msgstr "Análise"
+
+#: ../templates/template.html:17
+msgid "Learn"
+msgstr "Aprender"
+
+#: ../templates/template.html:23
+msgid "Login with Lichess"
+msgstr "Identificarse con Lichess"
+
+#: ../templates/template.html:23
+msgid "Log in"
+msgstr "Identificarse"

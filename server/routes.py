@@ -10,6 +10,7 @@ from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
+from wst import tournament_socket_handler
 
 
 get_routes = (
@@ -30,6 +31,10 @@ get_routes = (
     ("/editor/{variant}/{fen}", index),
     (r"/{gameId:\w{8}}", index),
     (r"/embed/{gameId:\w{8}}", index),
+    ("/tournaments", index),
+    ("/tournaments/new", index),
+    (r"/tournament/{tournamentId:\w{8}}", index),
+    (r"/tournament/{tournamentId:\w{8}}/pause", index),
     ("/@/{profileId}", index),
     ("/@/{profileId}/tv", index),
     ("/@/{profileId}/challenge", index),
@@ -46,6 +51,7 @@ get_routes = (
     ("/variant/{variant}", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
+    ("/wst", tournament_socket_handler),
     ("/api/account", account),
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),
@@ -88,4 +94,5 @@ post_routes = (
     ("/fishnet/abort/{workId}", fishnet_abort),
     ("/translation/select", select_lang),
     ("/import", import_game),
+    ("/tournaments/arena", index),
 )

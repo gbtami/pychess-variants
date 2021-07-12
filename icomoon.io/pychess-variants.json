@@ -3276,8 +3276,11 @@
         {
           "ligatures": "fire, flame",
           "name": "fire",
-          "order": 0,
-          "id": 170
+          "order": 312,
+          "id": 170,
+          "prevSize": 32,
+          "code": 59817,
+          "tempChar": ""
         },
         {
           "ligatures": "lab, beta",
@@ -3336,8 +3339,11 @@
         {
           "ligatures": "target, goal",
           "name": "target",
-          "order": 0,
-          "id": 180
+          "order": 311,
+          "id": 180,
+          "prevSize": 32,
+          "code": 59827,
+          "tempChar": ""
         },
         {
           "ligatures": "shield, security",
@@ -3965,21 +3971,21 @@
         },
         {
           "ligatures": "play3, player8",
-          "name": "play3",
+          "name": "play",
           "order": 309,
           "id": 285,
           "prevSize": 32,
           "code": 59932,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
-          "name": "pause2",
+          "name": "pause",
           "order": 310,
           "id": 286,
           "prevSize": 32,
           "code": 59933,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",

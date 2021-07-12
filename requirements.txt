@@ -1,4 +1,3 @@
-aioauth-client==0.25.4
 aiohttp-session==2.9.0
 aiohttp-sse==2.0.0
 aiohttp==3.7.4

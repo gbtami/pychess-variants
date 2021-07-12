@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Ignacio Poggi <ignaciop.3@gmail.com>, 2020
+# Jose Doval Gonzalez <pepellou@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-04-22 11:56+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Ignacio Poggi <ignaciop.3@gmail.com>, 2020\n"
+"Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
 "Language-Team: Spanish (https://www.transifex.com/gbtami/teams/14790/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -108,6 +109,9 @@ msgid ""
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
+"A mayores, puedes seleccionar la opción \"Ajedrez 960\" para Ajedrez, "
+"Crazyhouse, Atomic, S-chess, Capablanca y Capahouse para empezar partidas "
+"desde posiciones aleatorias con"
 
 #: ../client/about.ts:84
 msgid "Chess960 castling rules."
@@ -148,7 +152,7 @@ msgstr "Variante"
 #: ../client/analysis.ts:179 ../client/analysisCtrl.ts:382
 #: ../client/analysisCtrl.ts:733
 msgid "in local browser"
-msgstr ""
+msgstr "en el navegador local"
 
 #: ../client/analysisCtrl.ts:393
 msgid "You need an account to do that."
@@ -188,7 +192,7 @@ msgstr "Solicitar análisis"
 
 #: ../client/analysisCtrl.ts:591
 msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr ""
+msgstr "La variante seleccionada %1 no está soportada por stockfish.wasm"
 
 #: ../client/analysisCtrl.ts:707
 msgid "Depth"
@@ -196,7 +200,7 @@ msgstr "Profundidad"
 
 #: ../client/analysisCtrl.ts:712
 msgid "Go deeper"
-msgstr ""
+msgstr "Ir a más profundidad"
 
 #: ../client/analysisCtrl.ts:1288 ../client/roundCtrl.ts:1095
 msgid "Spectators: "
@@ -216,7 +220,7 @@ msgstr "Oscuro"
 
 #: ../client/boardSettings.ts:220
 msgid "Piece animation"
-msgstr ""
+msgstr "Animación de las piezas"
 
 #: ../client/boardSettings.ts:318
 msgid "Show piece destinations"
@@ -232,7 +236,7 @@ msgstr "Flecha de mejor movimiento en el tablero de análisis"
 
 #: ../client/boardSettings.ts:382
 msgid "Invisible pieces"
-msgstr ""
+msgstr "Piezas invisibles"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -252,7 +256,7 @@ msgstr "¡Por favor, sea amable en el chat!"
 
 #: ../client/chat.ts:28
 msgid "Chat is disabled"
-msgstr ""
+msgstr "El chat está desactivado"
 
 #: ../client/chat.ts:33
 msgid "Spectator room"
@@ -264,7 +268,7 @@ msgstr "Sala de chat"
 
 #: ../client/chat.ts:34
 msgid "Toggle the chat"
-msgstr ""
+msgstr "Activar/desactivar el chat"
 
 #: ../client/chat.ts:63
 msgid "Server"
@@ -287,7 +291,7 @@ msgstr "Elija la posición inicial de sus piezas"
 
 #: ../client/chess.ts:253
 msgid "Explode your opponent's king to win"
-msgstr ""
+msgstr "Explota al rey adversario para ganar"
 
 #: ../client/chess.ts:263
 msgid "A game closely resembling the original Chaturanga"
@@ -321,11 +325,11 @@ msgstr ""
 
 #: ../client/chess.ts:362
 msgid "Shogi on a 3x4 board"
-msgstr ""
+msgstr "Shogi en un tablero de 3x4"
 
 #: ../client/chess.ts:377
 msgid "Shogi on a 5x6 board"
-msgstr ""
+msgstr "Shogi en un tablero de 5x6"
 
 #: ../client/chess.ts:393
 msgid "Open fire on your opponent in this highly aggressive ancient game"
@@ -335,6 +339,7 @@ msgstr ""
 #: ../client/chess.ts:402
 msgid "The lone Red rook can also move as a cannon or a knight."
 msgstr ""
+"La solitaria Torre roja puede también mover como un cañón o como un caballo."
 
 #: ../client/chess.ts:412
 msgid ""
@@ -412,14 +417,15 @@ msgstr ""
 #: ../client/chess.ts:552
 msgid "Knights are capturing as bishops, bishops are capturing as knights"
 msgstr ""
+"Los caballos capturan como alfiles, los alfiles capturan como caballos"
 
 #: ../client/chess.ts:561
 msgid "Western chess VS Ninja"
-msgstr ""
+msgstr "Ajedrez del Oeste VS Ninja"
 
 #: ../client/chess.ts:579
 msgid "Like Capablanca Chess but with Grand starting setup"
-msgstr ""
+msgstr "Como el ajedrez Capablanca pero con la posición inicial de Grand"
 
 #: ../client/chess.ts:589
 msgid "Like Capablanca Chess but with a different starting setup"
@@ -432,73 +438,73 @@ msgstr "Gótico con las reglas de Crazyhouse"
 
 #: ../client/chess.ts:623
 msgid "Standard piece variants"
-msgstr ""
+msgstr "Variantes de piezas estándar"
 
 #: ../client/chess.ts:624
 msgid "Southeast Asian variants"
-msgstr ""
+msgstr "Variantes del Sureste Asiático"
 
 #: ../client/chess.ts:625
 msgid "Shogi variants"
-msgstr ""
+msgstr "Variantes de Shogi"
 
 #: ../client/chess.ts:626
 msgid "Xiangqi variants"
-msgstr ""
+msgstr "Variantes de Xiangqi"
 
 #: ../client/chess.ts:627
 msgid "Fairy piece variants"
-msgstr ""
+msgstr "Variantes de piezas de fantasía"
 
 #: ../client/datetime.ts:13
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hace %1 año"
+msgstr[1] "Hace %1 años"
 
 #: ../client/datetime.ts:15
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hace %1 mes"
+msgstr[1] "Hace %1 meses"
 
 #: ../client/datetime.ts:17
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hace %1 semana"
+msgstr[1] "Hace %1 semanas"
 
 #: ../client/datetime.ts:19
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hace %1 día"
+msgstr[1] "Hace %1 días"
 
 #: ../client/datetime.ts:21
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hace %1 hora"
+msgstr[1] "Hace %1 horas"
 
 #: ../client/datetime.ts:23
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hace %1 minuto"
+msgstr[1] "Hace %1 minutos"
 
 #: ../client/datetime.ts:25
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hace %1 segundo"
+msgstr[1] "Hace %1 segundos"
 
 #: ../client/editor.ts:137 ../client/editor.ts:138
 msgid "%1 to play"
-msgstr ""
+msgstr "Juegan %1"
 
 #: ../client/editor.ts:141
 msgid "Castling"
-msgstr ""
+msgstr "Enroque"
 
 #: ../client/editor.ts:144 ../client/lobby.ts:371 ../client/profile.ts:24
 msgid "White"
@@ -538,7 +544,7 @@ msgstr "FEN inválido"
 
 #: ../client/editor.ts:395
 msgid "Click/Ctrl+click to increase/decrease number of pieces"
-msgstr ""
+msgstr "Click/Ctrl+click para incrementar/decrementar el número de piezas"
 
 #: ../client/invite.ts:28 ../client/profile.ts:293
 msgid "Challenge to a game"
@@ -546,23 +552,23 @@ msgstr "Desafiar a una partida"
 
 #: ../client/invite.ts:31
 msgid "CANCEL"
-msgstr ""
+msgstr "CANCELAR"
 
 #: ../client/invite.ts:36
 msgid "JOIN THE GAME"
-msgstr ""
+msgstr "UNIRSE A LA PARTIDA"
 
 #: ../client/invite.ts:61
 msgid "To invite someone to play, give this URL:"
-msgstr ""
+msgstr "Para invitar a alguien a jugar, dale esta URL:"
 
 #: ../client/invite.ts:66 ../client/invite.ts:68
 msgid "Copy URL"
-msgstr ""
+msgstr "Copiar URL"
 
 #: ../client/invite.ts:69
 msgid "The first person to come to this URL will play with you."
-msgstr ""
+msgstr "La primera persona en visitar esta URL jugará contigo."
 
 #: ../client/lobby.ts:296
 msgid "Cancel"
@@ -607,7 +613,7 @@ msgstr "Crear una partida"
 
 #: ../client/lobby.ts:402
 msgid "Play with a friend"
-msgstr ""
+msgstr "Jugar con un amigo"
 
 #: ../client/lobby.ts:415
 msgid "Play with AI (Fairy-Stockfish)"
@@ -640,14 +646,14 @@ msgstr ""
 #: ../client/lobby.ts:671
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 partida en juego"
+msgstr[1] "%1 partidas en juego"
 
 #: ../client/lobby.ts:677
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 jugador"
+msgstr[1] "%1 jugadores"
 
 #: ../client/lobby.ts:686
 msgid "Player"
@@ -671,7 +677,7 @@ msgstr "Donar"
 
 #: ../client/lobby.ts:741
 msgid "FAQ"
-msgstr ""
+msgstr "Preguntas frecuentes"
 
 #: ../client/lobby.ts:742
 msgid "Stats"
@@ -679,11 +685,11 @@ msgstr "Estadísticas"
 
 #: ../client/lobby.ts:743
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 #: ../client/lobby.ts:748
 msgid "Latest updates"
-msgstr ""
+msgstr "Últimas novedades"
 
 #: ../client/main.ts:93
 msgid "Thank you for your support!"
@@ -691,39 +697,39 @@ msgstr "¡Gracias por su apoyo!"
 
 #: ../client/paste.ts:128
 msgid "Invalid PGN"
-msgstr ""
+msgstr "PGN inválido"
 
 #: ../client/paste.ts:152
 msgid "Paste the PGN text here"
-msgstr ""
+msgstr "Pega el texto PGN aquí"
 
 #: ../client/paste.ts:156
 msgid "IMPORT GAME"
-msgstr ""
+msgstr "IMPORTAR PARTIDA"
 
 #: ../client/profile.ts:26
 msgid "Red"
-msgstr ""
+msgstr "Rojo"
 
 #: ../client/profile.ts:27
 msgid "Blue"
-msgstr ""
+msgstr "Azul"
 
 #: ../client/profile.ts:28
 msgid "Gold"
-msgstr ""
+msgstr "Dorado"
 
 #: ../client/profile.ts:29
 msgid "Pink"
-msgstr ""
+msgstr "Rosa"
 
 #: ../client/profile.ts:45
 msgid "IMPORT"
-msgstr ""
+msgstr "IMPORTAR"
 
 #: ../client/profile.ts:52
 msgid "level %1"
-msgstr ""
+msgstr "nivel %1"
 
 #: ../client/profile.ts:67
 msgid "Game aborted"
@@ -775,7 +781,7 @@ msgstr "Camp mate"
 
 #: ../client/profile.ts:110
 msgid "Explosion of king"
-msgstr ""
+msgstr "Explosión del rey"
 
 #: ../client/profile.ts:113 ../client/profile.ts:120
 msgid "Point counting"
@@ -788,8 +794,8 @@ msgstr "Repetición"
 #: ../client/profile.ts:207
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 movimiento"
+msgstr[1] "%1 movimientos"
 
 #: ../client/profile.ts:208
 msgid "Computer analysis available"
@@ -801,7 +807,7 @@ msgstr "Perfil de Lichess"
 
 #: ../client/profile.ts:282
 msgid "Import game"
-msgstr ""
+msgstr "Importar partida"
 
 #: ../client/profile.ts:286
 msgid "Export games"
@@ -813,11 +819,11 @@ msgstr "Ver partidas"
 
 #: ../client/profile.ts:298
 msgid "Games"
-msgstr ""
+msgstr "Partidas"
 
 #: ../client/profile.ts:300
 msgid "Imported"
-msgstr ""
+msgstr "Importado"
 
 #: ../client/roundCtrl.ts:296 ../client/roundCtrl.ts:1143
 msgid " +15 seconds"
