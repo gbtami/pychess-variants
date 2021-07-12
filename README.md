@@ -68,6 +68,11 @@ yarn install
 yarn dev
 ```
 
+For MacOS, replace the last command with:
+```
+yarn dev-mac
+```
+
 ### Start server
 ```
 python3 server/server.py
