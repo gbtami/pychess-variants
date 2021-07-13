@@ -1826,3 +1826,21 @@ div#ctable-container {
 .tour-spotlight .more {
     font-size: 0.85em;
 }
+button#zen-button {
+    display: none;
+    border: none;
+    color: var(--font-color);
+    cursor: pointer;
+    padding: 20px;
+    margin: 5px;
+}
+[data-zen="on"] round-player0,
+[data-zen="on"] round-player1,
+[data-zen="on"] .sidebar-first,
+[data-zen="on"] .site-title-nav,
+[data-zen="on"] #spectators {
+    display: none;
+}
+[data-zen="on"] button#zen-button {
+    display: flex;
+}

@@ -14,6 +14,7 @@ import { selectVariant } from './chess';
 import { getDocumentData } from './document';
 import { _, translatedLanguage, languageSettings } from './i18n';
 import { volumeSettings, soundThemeSettings } from './sound';
+import { zenModeSettings } from './zen';
 
 export function settingsView() {
     const anon = getDocumentData('anon');
@@ -27,6 +28,7 @@ export function settingsView() {
                 soundSettingsView(),
                 backgroundSettingsView(),
                 boardSettingsView(),
+                zenModeSettingsView(),
             ]),
         ]),
     ]);
@@ -72,6 +74,7 @@ function settingsMenu() {
         h('button#btn-sound', { on: { click: showSubsettings } }, _('Sound')),
         h('button#btn-background', { on: { click: showSubsettings } }, _('Background')),
         h('button#btn-board', { on: { click: showSubsettings } }, _('Board Settings')),
+        h('button#btn-zen', { on: { click: showSubsettings } }, _('Zen Mode')),
     ]);
 }
 
@@ -116,6 +119,13 @@ function backgroundSettingsView() {
     return h('div#settings-background', [
         backButton(_("Background")),
         backgroundSettings.view(),
+    ]);
+}
+
+function zenModeSettingsView() {
+    return h('div#settings-zen', [
+        backButton(_("Zen Mode")),
+        zenModeSettings.view(),
     ]);
 }
 
