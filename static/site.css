@@ -1829,7 +1829,8 @@ div#ctable-container {
 button#zen-button {
     display: none;
     border: none;
-    color: var(--font-color);
+    color: var(--button-text);
+    background: var(--button-new-game);
     cursor: pointer;
     padding: 20px;
     margin: 5px;
