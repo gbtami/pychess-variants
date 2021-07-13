@@ -35,6 +35,7 @@ class EnoughPlayer(Exception):
 
 
 class ByeGame:
+    """ Used in RR/Swiss tournaments when pairing odd number of players """
     __slots__ = "date", "status"
 
     def __init__(self):
@@ -54,6 +55,8 @@ class ByeGame:
 
 
 class PlayerData:
+    """ Used to save/load tournament players to/from mongodb tournament-player documents """
+
     __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff", "page"
 
     def __init__(self, rating, provisional):
@@ -77,6 +80,8 @@ class PlayerData:
 
 
 class GameData:
+    """ Used to save/load tournament games to/from mongodb tournament-pairing documents """
+
     __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "date"
 
     def __init__(self, _id, wplayer, wrating, bplayer, brating, result, date):
@@ -105,6 +110,8 @@ class GameData:
 
 
 class Tournament(ABC):
+    """ Abstract base class for Arena/Swisss/RR Tournament classes
+        They have to implement create_pairing() for waiting_players """
 
     def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="",
                  fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, status=None, with_clock=True):
