@@ -555,7 +555,9 @@ class Tournament(ABC):
                 self.pause(bp)
                 log.debug("Black player %s left the tournament", bp.username)
 
-            if (check_top_game) and (self.top_player is not None) and (self.top_player.username in (game.wplayer.username, game.bplayer.username)):
+            if (check_top_game and (self.top_player is not None) and
+                    self.top_player.username in (game.wplayer.username, game.bplayer.username) and
+                    game.status != NOSTART):  # Bye game
                 self.top_game = game
                 check_top_game = False
                 new_top_game = True
