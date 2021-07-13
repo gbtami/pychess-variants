@@ -52,6 +52,7 @@ class LobbyController {
         this.challengeAI = false;
         this.inviteFriend = false;
         this.validGameData = false;
+        this.seeks = [];
 
         const onOpen = (evt) => {
             this._ws = evt.target;
@@ -222,7 +223,13 @@ class LobbyController {
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
-        if (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== "")
+        if (this.challengeAI ||
+            this.model.anon === "True" ||
+            this.model.title === "BOT" ||
+            fen !== "" ||
+            (minutes < 1 && increment === 0) ||
+            (minutes === 0 && increment === 1)
+            )
             rated = false;
         else
             rated = e.value === "1";
@@ -330,9 +337,19 @@ class LobbyController {
                         ]),
                         h('form#game-mode', [
                             h('div.radio-group', [
-                                h('input#casual', { props: { type: "radio", name: "mode", value: "0" }, attrs: { checked: vRated === "0" }, }),
+                                h('input#casual', {
+                                    props: { type: "radio", name: "mode", value: "0" },
+                                    attrs: { checked: vRated === "0" }, 
+                                    on: { input: e => this.setCasual((e.target as HTMLInputElement).value) },
+                                    hook: { insert: vnode => this.setCasual((vnode.elm as HTMLInputElement).value) },
+                                }),
                                 h('label', { attrs: { for: "casual"} }, _("Casual")),
-                                h('input#rated', { props: { type: "radio", name: "mode", value: "1" }, attrs: { checked: vRated === "1" }, }),
+                                h('input#rated', {
+                                    props: { type: "radio", name: "mode", value: "1" },
+                                    attrs: { checked: vRated === "1" },
+                                    on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
+                                    hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
+                                }),
                                 h('label', { attrs: { for: "rated"} }, _("Rated")),
                             ]),
                         ]),
@@ -451,6 +468,14 @@ class LobbyController {
         e.setCustomValidity(this.validateFen() ? '' : _('Invalid FEN'));
         this.setStartButtons();
     }
+    private setCasual(casual) {
+        console.log("setCasual", casual);
+        this.setStartButtons();
+    }
+    private setRated(rated) {
+        console.log("setRated", rated);
+        this.setStartButtons();
+    }
     private setStartButtons() {
         this.validGameData = this.validateTimeControl() && this.validateFen();
         const e = document.getElementById('color-button-group') as HTMLElement;
@@ -459,7 +484,15 @@ class LobbyController {
     private validateTimeControl() {
         const min = Number((document.getElementById('min') as HTMLInputElement).value);
         const inc = Number((document.getElementById('inc') as HTMLInputElement).value);
-        return min + inc > ((this.challengeAI) ? 4 : 0);
+        const minutes = this.minutesValues[min];
+
+        const e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
+        const rated = e.value === "1";
+
+        const atLeast = (this.challengeAI) ? 4 : min + inc > 0;
+        const tooFast = (minutes < 1 && inc === 0) || (minutes === 0 && inc === 1);
+
+        return atLeast && !(tooFast && rated);
     }
     private validateFen() {
         const e = document.getElementById('variant') as HTMLSelectElement;
