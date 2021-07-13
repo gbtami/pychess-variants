@@ -106,3 +106,14 @@
     -webkit-animation:bar-glider-anim 3s linear infinite;
     animation:bar-glider-anim 3s linear infinite
 }
+
+@media (min-width: 800px) {
+    [data-zen="on"] .round-app {
+        grid-template-rows: min-content auto min-content auto 0 auto auto auto 0 auto min-content auto min-content
+    }
+}
+@media (max-width: 799px) and (orientation: portrait) {
+    [data-zen="on"] .round-app {
+        grid-template-rows: auto auto 36px auto auto min-content 36px auto auto auto auto auto auto auto;
+    }
+}
