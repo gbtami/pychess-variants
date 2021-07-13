@@ -5,6 +5,14 @@ import { _ } from './i18n';
 import { StringSettings } from './settings';
 import { radioList } from './view';
 
+import { init } from "snabbdom";
+import klass from 'snabbdom/modules/class';
+import attributes from 'snabbdom/modules/attributes';
+import properties from 'snabbdom/modules/props';
+import listeners from 'snabbdom/modules/eventlisteners';
+
+const patch = init([klass, attributes, properties, listeners]);
+
 const zenModeOptions = {
     off: _("Off"),
     on: _("On"),
@@ -31,6 +39,10 @@ export const zenModeSettings = new ZenModeSettings();
 function deactivateZenMode() {
     zenModeSettings.value = 'off';
     zenModeSettings.update();
+
+    const zenSettings = document.getElementById('zen-selector') as HTMLElement;
+    zenSettings.innerHTML = "";
+    patch(zenSettings, zenModeSettings.view());
 }
 
 export function zenButtonView() {
