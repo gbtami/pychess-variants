@@ -25,7 +25,6 @@ import { notify } from './notification';
 
 
 class LobbyController {
-    test_ratings: boolean;
     model;
     sock;
     player;
@@ -48,9 +47,6 @@ class LobbyController {
 
     constructor(el, model) {
         console.log("LobbyController constructor", el, model);
-        // enable for local testong only !!!
-        // this.test_ratings = true;
-        this.test_ratings = false;
 
         this.model = model;
         this.challengeAI = false;
@@ -226,7 +222,7 @@ class LobbyController {
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
-        if (!this.test_ratings && (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
+        if (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== "")
             rated = false;
         else
             rated = e.value === "1";
@@ -392,7 +388,7 @@ class LobbyController {
                     click: () => {
                         this.challengeAI = true;
                         this.inviteFriend = false;
-                        document.getElementById('game-mode')!.style.display = (!this.test_ratings || anon) ? 'none' : 'inline-flex';
+                        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
                         document.getElementById('challenge-block')!.style.display = 'none';
                         document.getElementById('ailevel')!.style.display = 'inline-block';
                         document.getElementById('id01')!.style.display = 'block';
