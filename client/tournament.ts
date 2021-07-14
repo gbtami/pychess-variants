@@ -17,7 +17,7 @@ import { Chessground } from 'chessgroundx';
 import { JSONObject } from './types';
 import { _ } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { sound } from './sound';
+//import { sound } from './sound';
 import { VARIANTS, uci2cg } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
@@ -592,8 +592,9 @@ export default class TournamentController {
 
     private onMsgChat(msg) {
         chatMessage(msg.user, msg.message, "lobbychat");
-        if (msg.user.length !== 0 && msg.user !== '_server')
-            sound.socialNotify();
+        // seems this is annoying for most of the users
+        //if (msg.user.length !== 0 && msg.user !== '_server')
+        //    sound.socialNotify();
     }
     private onMsgFullChat(msg) {
         // To prevent multiplication of messages we have to remove old messages div first
