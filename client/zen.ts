@@ -46,9 +46,8 @@ function deactivateZenMode() {
 }
 
 export function zenButtonView() {
-    return h('button#zen-button', { on: { click: deactivateZenMode } }, [
-        h('div.icon.icon-check'),
-        _('ZEN MODE'),
+    return h('a#zen-button', { on: { click: deactivateZenMode } }, [
+        h('div.icon.icon-check', _('ZEN MODE'))
     ]);
 }
 
