@@ -1828,36 +1828,4 @@ div#ctable-container {
 }
 a#zen-button {
     display: none;
-    border: none;
-    color: #fff;
-    background: var(--green-hover);
-    cursor: pointer;
-    text-transform: uppercase;
-    line-height: 1.5;
-    height: max-content;
-    transition: all 150ms;
-    border-bottom-right-radius: 3px;
-    opacity: 0.6;
-}
-a#zen-button:hover {
-    background: var(--green-switch);
-    opacity: 0.9;
-}
-.icon-check {
-    align-self: center;
-    padding: 0.5em 1em;
-}
-.icon-check::before {
-    opacity: 0.9;
-    margin-right: 0.4em;
-}
-[data-zen="on"] round-player0,
-[data-zen="on"] round-player1,
-[data-zen="on"] .sidebar-first,
-[data-zen="on"] .site-title-nav,
-[data-zen="on"] #spectators {
-    display: none;
-}
-[data-zen="on"] a#zen-button {
-    display: flex;
 }
