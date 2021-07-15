@@ -146,6 +146,8 @@ a#zen-button:hover {
 [data-zen="on"] round-player1,
 [data-zen="on"] .sidebar-first,
 [data-zen="on"] .site-title-nav,
+[data-zen="on"] .crosstable,
+[data-zen="on"] move,
 [data-zen="on"] #spectators {
     display: none;
 }
