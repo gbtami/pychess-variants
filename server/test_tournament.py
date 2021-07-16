@@ -205,7 +205,7 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.tournament.withdraw(withdrawn_player)
 
         self.assertNotIn(withdrawn_player, self.tournament.leaderboard)
-        self.assertEqual(len(self.tournament.players), NB_PLAYERS - 1)
+        self.assertEqual(len(self.tournament.players), NB_PLAYERS)
         self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS - 1)
 
         await self.tournament.clock_task
@@ -240,8 +240,8 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.tournament.withdraw(list(self.tournament.players.keys())[-1])
         self.assertEqual(self.tournament.nb_players, NB_PLAYERS - 1)
 
-        # make one player leave the tournament lobby
-        del list(self.tournament.players.keys())[-1].tournament_sockets[self.tournament.id]
+        # make the first player leave the tournament lobby
+        del list(self.tournament.players.keys())[0].tournament_sockets[self.tournament.id]
 
         self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 2)
 

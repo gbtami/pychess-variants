@@ -726,6 +726,9 @@ class Tournament(ABC):
                 pass
 
     async def db_update_player(self, user, player_data):
+        if self.app["db"] is None:
+            return
+
         player_id = player_data.id
         player_table = self.app["db"].tournament_player
 
