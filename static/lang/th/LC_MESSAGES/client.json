@@ -236,6 +236,7 @@
     "Sound": "เสียง",
     "Background": "พื้นหลัง",
     "Board Settings": "ตั้งค่ากระดาน",
+    "Zen Mode": "โหมดสมาธิ",
     "First": "หน้าแรก",
     "Prev": "หน้าที่แล้ว",
     "Next": "หน้าต่อไป",
@@ -245,8 +246,15 @@
     "JOIN": "เข้าร่วม",
     "LOG IN": "เข้าสู่ระบบ",
     "Tournament complete": "การแข่งขันเสร็จสิ้น",
+    "Performance": "คะแนนสมรรถนะ",
     "Games played": "จำนวนเกมที่เล่น",
     "Win rate": "อัตราชนะ",
+    "Average opponent": "ค่าเฉลี่ยคู่แข่ง",
+    "Custom position": "ตำแหน่งเริ่มต้นต่างจากปกติ",
+    "Analysis board": "ถอดหมาก",
+    "Off": "ปิด",
+    "On": "เปิด",
+    "ZEN MODE": "โหมดสมาธิ",
     "": {
         "language": "th",
         "plural-forms": "nplurals=1; plural=0;"
