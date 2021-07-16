@@ -122,6 +122,7 @@ async def insert_tournament_to_db(tournament, app):
         "nbPlayers": 0,
         "createdBy": tournament.created_by,
         "createdAt": tournament.created_at,
+        "beforeStart": tournament.before_start,
         "startsAt": tournament.starts_at,
         "status": tournament.status,
     }
@@ -212,6 +213,7 @@ async def load_tournament(app, tournament_id):
         rounds=doc["rounds"],
         created_by=doc["createdBy"],
         created_at=doc["createdAt"],
+        before_start=doc.get("beforeStart", 0),
         minutes=doc["minutes"],
         name=doc["name"],
         status=doc["status"],
@@ -221,12 +223,12 @@ async def load_tournament(app, tournament_id):
     app["tourneysockets"][tournament_id] = {}
     app["tourneychat"][tournament_id] = collections.deque([], 100)
 
-    tournament.nb_players = doc["nbPlayers"]
     tournament.nb_games_finished = doc.get("nbGames", 0)
     tournament.winner = doc.get("winner", "")
 
     player_table = app["db"].tournament_player
     cursor = player_table.find({"tid": tournament_id})
+    nb_players = 0
 
     async for doc in cursor:
         uid = doc["uid"]
@@ -236,12 +238,24 @@ async def load_tournament(app, tournament_id):
             user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
             users[uid] = user
 
+        withdrawn = doc.get("wd", False)
+
         tournament.players[user] = PlayerData(doc["r"], doc["pr"])
+        tournament.players[user].id = doc["_id"]
+        tournament.players[user].paused = doc["a"]
+        tournament.players[user].withdrawn = withdrawn
         tournament.players[user].points = doc["p"]
         tournament.players[user].nb_games = doc["g"]
         tournament.players[user].nb_win = doc["w"]
         tournament.players[user].performance = doc["e"]
-        tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
+
+        if not withdrawn:
+            tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
+            nb_players += 1
+
+    tournament.nb_players = nb_players
+
+    tournament.print_leaderboard()
 
     pairing_table = app["db"].tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})

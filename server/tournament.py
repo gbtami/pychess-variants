@@ -57,13 +57,15 @@ class ByeGame:
 class PlayerData:
     """ Used to save/load tournament players to/from mongodb tournament-player documents """
 
-    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff", "page"
+    __slots__ = "id", "rating", "provisional", "free", "paused", "withdrawn", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff", "page"
 
     def __init__(self, rating, provisional):
+        self.id = None
         self.rating = rating
         self.provisional = provisional
         self.free = True
         self.paused = False
+        self.withdrawn = False
         self.win_streak = 0
         self.games = []
         self.points = []
@@ -172,7 +174,7 @@ class Tournament(ABC):
 
     def user_status(self, user):
         if user in self.players:
-            return "paused" if self.players[user].paused else "joined"
+            return "paused" if self.players[user].paused else "withdrawn" if self.players[user].withdrawn else "joined"
         else:
             return "spectator"
 
@@ -288,7 +290,8 @@ class Tournament(ABC):
             self.players[p].free and
             self.id in p.tournament_sockets and
             len(p.tournament_sockets[self.id]) > 0 and
-            not self.players[p].paused
+            not self.players[p].paused and
+            not self.players[p].withdrawn
         ]
 
     async def clock(self):
@@ -406,50 +409,64 @@ class Tournament(ABC):
     async def finish(self):
         await self.finalize(T_FINISHED)
 
-    async def join(self, player):
-        if player.anon:
+    async def join(self, user):
+        if user.anon:
             return
 
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
-        if player not in self.players:
-            rating, provisional = player.get_rating(self.variant, self.chess960).rating_prov
-            self.players[player] = PlayerData(rating, provisional)
+        if user not in self.players:
+            # new player joined
+            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+            self.players[user] = PlayerData(rating, provisional)
+        elif self.players[user].withdrawn:
+            # withdrawn player joined again
+            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+
+        if user not in self.leaderboard:
+            # new player joined or withdrawn player joined again
             if self.status == T_CREATED:
-                self.leaderboard.setdefault(player, rating)
+                self.leaderboard.setdefault(user, rating)
             else:
-                self.leaderboard.setdefault(player, 0)
+                self.leaderboard.setdefault(user, 0)
             self.nb_players += 1
 
-        self.players[player].paused = False
+        self.players[user].paused = False
+        self.players[user].withdrawn = False
 
-        response = self.players_json(user=player)
+        response = self.players_json(user=user)
         await self.broadcast(response)
 
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
 
-    async def withdraw(self, player):
-        if player in self.players:
-            del self.players[player]
-        self.leaderboard.pop(player)
+        await self.db_update_player(user, self.players[user])
+
+    async def withdraw(self, user):
+        self.players[user].withdrawn = True
+
+        self.leaderboard.pop(user)
         self.nb_players -= 1
 
-        response = self.players_json(user=player)
+        response = self.players_json(user=user)
         await self.broadcast(response)
 
         await self.broadcast_spotlight()
 
-    async def pause(self, player):
-        self.players[player].paused = True
+        await self.db_update_player(user, self.players[user])
+
+    async def pause(self, user):
+        self.players[user].paused = True
 
         # pause is different from withdraw and join because pause can be initiated from finished games page as well
-        response = self.players_json(user=player)
+        response = self.players_json(user=user)
         await self.broadcast(response)
 
-        if (self.top_player is not None) and self.top_player.username == player.username:
+        if (self.top_player is not None) and self.top_player.username == user.username:
             self.top_player = None
+
+        await self.db_update_player(user, self.players[user])
 
     def spactator_join(self, spectator):
         self.spectators.add(spectator)
@@ -465,7 +482,7 @@ class Tournament(ABC):
             # Before tournament starts leaderboard is ordered by ratings
             # After first pairing it will be sorted by score points and performance
             # so we have to make a clear (all 0) leaderboard here
-            new_leaderboard = [(player, 0) for player in self.leaderboard]
+            new_leaderboard = [(user, 0) for user in self.leaderboard]
             self.leaderboard = ValueSortedDict(neg, new_leaderboard)
             self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
 
@@ -708,6 +725,57 @@ class Tournament(ABC):
                 # spectator was removed
                 pass
 
+    async def db_update_player(self, user, player_data):
+        player_id = player_data.id
+        player_table = self.app["db"].tournament_player
+
+        if player_data.id is None:  # new player join
+            player_id = await new_id(player_table)
+            player_data.id = player_id
+
+        if player_data.withdrawn:
+            new_data = {
+                "wd": True,
+            }
+        else:
+            full_score = self.leaderboard[user]
+            # print("%s %20s %s %s %s" % (i, user.title + user.username, player_data.points, int(full_score / SCORE_SHIFT), player_data.performance))
+            new_data = {
+                "_id": player_id,
+                "tid": self.id,
+                "uid": user.username,
+                "r": player_data.rating,
+                "pr": player_data.provisional,
+                "a": player_data.paused,
+                "f": player_data.win_streak == 2,
+                "s": int(full_score / SCORE_SHIFT),
+                "g": player_data.nb_games,
+                "w": player_data.nb_win,
+                "e": player_data.performance,
+                "p": player_data.points,
+                "wd": False,
+            }
+
+        try:
+            print(await player_table.find_one_and_update(
+                {"_id": player_id},
+                {"$set": new_data},
+                upsert=True,
+                return_document=ReturnDocument.AFTER)
+            )
+        except Exception:
+            if self.db is not None:
+                log.error("db find_one_and_update tournament_player %s into %s failed !!!", player_id, self.id)
+
+        new_data = {
+            "nbPlayers": self.nb_players
+        }
+        print(await self.app["db"].tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": new_data},
+            return_document=ReturnDocument.AFTER)
+        )
+
     async def save(self):
         if self.app["db"] is None:
             return
@@ -730,34 +798,6 @@ class Tournament(ABC):
             {"$set": new_data},
             return_document=ReturnDocument.AFTER)
         )
-
-        # TODO: save players and pairings on user join time and when games created
-        player_documents = []
-        player_table = self.app["db"].tournament_player
-
-        i = 0
-        for user, full_score in self.leaderboard.items():
-            i += 1
-            player = self.players[user]
-            # print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, int(full_score / SCORE_SHIFT), player.performance))
-            player_id = await new_id(player_table)
-
-            player_documents.append({
-                "_id": player_id,
-                "tid": self.id,
-                "uid": user.username,
-                "r": player.rating,
-                "pr": player.provisional,
-                "a": player.paused,
-                "f": player.win_streak == 2,
-                "s": int(full_score / SCORE_SHIFT),
-                "g": player.nb_games,
-                "w": player.nb_win,
-                "e": player.performance,
-                "p": player.points,
-            })
-
-        await player_table.insert_many(player_documents)
 
         pairing_documents = []
         pairing_table = self.app["db"].tournament_pairing
