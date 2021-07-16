@@ -436,15 +436,15 @@ msgstr "Warianty używające niestandardowych figur"
 #: ../client/datetime.ts:37
 msgid "in %1 year"
 msgid_plural "in %1 years"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "za rok"
+msgstr[1] "za %1 lata"
+msgstr[2] "za %1 lat"
+msgstr[3] "za %1 roku"
 
 #: ../client/datetime.ts:37
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] "%1 rok temu"
+msgstr[0] "rok temu"
 msgstr[1] "%1 lata temu"
 msgstr[2] "%1 lat temu"
 msgstr[3] "%1 roku temu"
@@ -452,15 +452,15 @@ msgstr[3] "%1 roku temu"
 #: ../client/datetime.ts:39
 msgid "in %1 month"
 msgid_plural "in %1 months"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "za miesiąc"
+msgstr[1] "za %1 miesiące"
+msgstr[2] "za %1 miesięcy"
+msgstr[3] "za %1 miesiąca"
 
 #: ../client/datetime.ts:39
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] "%1 miesiąc temu"
+msgstr[0] "miesiąc temu"
 msgstr[1] "%1 miesiące temu"
 msgstr[2] "%1 miesięcy temu"
 msgstr[3] "%1 miesiąca temu"
@@ -468,15 +468,15 @@ msgstr[3] "%1 miesiąca temu"
 #: ../client/datetime.ts:41
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "za tydzień"
+msgstr[1] "za %1 tygodnie"
+msgstr[2] "za %1 tygodni"
+msgstr[3] "za %1 tygodnia"
 
 #: ../client/datetime.ts:41
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] "%1 tydzień temu"
+msgstr[0] "tydzień temu"
 msgstr[1] "%1 tygodnie temu"
 msgstr[2] "%1 tygodni temu"
 msgstr[3] "%1 tygodnia temu"
@@ -484,15 +484,15 @@ msgstr[3] "%1 tygodnia temu"
 #: ../client/datetime.ts:43
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "jutro"
+msgstr[1] "za %1 dni"
+msgstr[2] "za %1 dni"
+msgstr[3] "za %1 dnia"
 
 #: ../client/datetime.ts:43
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] "%1 dzień temu"
+msgstr[0] "wczoraj"
 msgstr[1] "%1 dni temu"
 msgstr[2] "%1 dni temu"
 msgstr[3] "%1 dnia temu"
@@ -500,15 +500,15 @@ msgstr[3] "%1 dnia temu"
 #: ../client/datetime.ts:45
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "za godzinę"
+msgstr[1] "za %1 godziny"
+msgstr[2] "za %1 godzin"
+msgstr[3] "za %1 godzin"
 
 #: ../client/datetime.ts:45
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] "%1 godzinę temu"
+msgstr[0] "godzinę temu"
 msgstr[1] "%1 godziny temu"
 msgstr[2] "%1 godzin temu"
 msgstr[3] "%1 godziny temu"
@@ -516,15 +516,15 @@ msgstr[3] "%1 godziny temu"
 #: ../client/datetime.ts:47
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "za minutę"
+msgstr[1] "za %1 minuty"
+msgstr[2] "za %1 minut"
+msgstr[3] "za %1 minuty"
 
 #: ../client/datetime.ts:47
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] "%1 minutę temu"
+msgstr[0] "minutę temu"
 msgstr[1] "%1 minuty temu"
 msgstr[2] "%1 minut temu"
 msgstr[3] "%1 minuty temu"
@@ -532,22 +532,22 @@ msgstr[3] "%1 minuty temu"
 #: ../client/datetime.ts:49
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "za sekundę"
+msgstr[1] "za %1 sekundy"
+msgstr[2] "za %1 sekund"
+msgstr[3] "za %1 sekundy"
 
 #: ../client/datetime.ts:49
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] "%1 sekundę temu"
+msgstr[0] "sekundę temu"
 msgstr[1] "%1 sekundy temu"
 msgstr[2] "%1 sekund temu"
 msgstr[3] "%1 sekundy temu"
 
 #: ../client/datetime.ts:91
 msgid "STARTING IN"
-msgstr ""
+msgstr "START ZA"
 
 #: ../client/editor.ts:137 ../client/editor.ts:138
 msgid "%1 to play"
@@ -934,15 +934,15 @@ msgstr "Gotowe"
 
 #: ../client/roundCtrl.ts:551
 msgid "VIEW TOURNAMENT"
-msgstr ""
+msgstr "WYŚWIETL TURNIEJ"
 
 #: ../client/roundCtrl.ts:554
 msgid "BACK TO TOURNAMENT"
-msgstr ""
+msgstr "WRÓĆ DO TURNIEJU"
 
 #: ../client/roundCtrl.ts:556 ../client/tournament.ts:186
 msgid "PAUSE"
-msgstr ""
+msgstr "ZRÓB PRZERWĘ"
 
 #: ../client/roundCtrl.ts:559
 msgid "REMATCH"
@@ -986,23 +986,23 @@ msgstr "Ustawienia planszy"
 
 #: ../client/settingsView.ts:77 ../client/settingsView.ts:127
 msgid "Zen Mode"
-msgstr ""
+msgstr "Tryb zen"
 
 #: ../client/tournament.ts:159
 msgid "First"
-msgstr ""
+msgstr "Pierwsza"
 
 #: ../client/tournament.ts:160
 msgid "Prev"
-msgstr ""
+msgstr "Poprzednia"
 
 #: ../client/tournament.ts:164
 msgid "Next"
-msgstr ""
+msgstr "Następna"
 
 #: ../client/tournament.ts:165
 msgid "Last"
-msgstr ""
+msgstr "Ostatnia"
 
 #: ../client/tournament.ts:166
 msgid "Scroll to your player"
@@ -1010,19 +1010,19 @@ msgstr ""
 
 #: ../client/tournament.ts:177
 msgid "WITHDRAW"
-msgstr ""
+msgstr "WYCOFAJ SIĘ"
 
 #: ../client/tournament.ts:179 ../client/tournament.ts:184
 msgid "JOIN"
-msgstr ""
+msgstr "DOŁĄCZ"
 
 #: ../client/tournament.ts:191
 msgid "LOG IN"
-msgstr ""
+msgstr "ZALOGUJ SIĘ"
 
 #: ../client/tournament.ts:204
 msgid "Tournament complete"
-msgstr ""
+msgstr "Turniej zakończony"
 
 #: ../client/tournament.ts:368 ../client/tournament.ts:420
 #: ../client/tournament.ts:431 ../client/tournament.ts:442
@@ -1032,33 +1032,33 @@ msgstr ""
 #: ../client/tournament.ts:369 ../client/tournament.ts:421
 #: ../client/tournament.ts:432 ../client/tournament.ts:443
 msgid "Games played"
-msgstr ""
+msgstr "Partii rozegranych"
 
 #: ../client/tournament.ts:370 ../client/tournament.ts:422
 #: ../client/tournament.ts:433 ../client/tournament.ts:444
 msgid "Win rate"
-msgstr ""
+msgstr "Procent wygranych"
 
 #: ../client/tournament.ts:371
 msgid "Average opponent"
-msgstr ""
+msgstr "Średni ranking przeciwników"
 
 #: ../client/tournament.ts:514
 msgid "Custom position"
-msgstr ""
+msgstr "Niestandardowa pozycja początkowa"
 
 #: ../client/tournament.ts:515
 msgid "Analysis board"
-msgstr ""
+msgstr "Analiza"
 
 #: ../client/zen.ts:17
 msgid "Off"
-msgstr ""
+msgstr "Wyłączony"
 
 #: ../client/zen.ts:18
 msgid "On"
-msgstr ""
+msgstr "Włączony"
 
 #: ../client/zen.ts:50
 msgid "ZEN MODE"
-msgstr ""
+msgstr "TRYB ZEN"

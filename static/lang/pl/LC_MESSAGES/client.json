@@ -79,48 +79,91 @@
     "Shogi variants": "Warianty wzorowane na Shogi",
     "Xiangqi variants": "Warianty wzorowane na Xiangqi",
     "Fairy piece variants": "Warianty używające niestandardowych figur",
+    "in %1 year": [
+        "za rok",
+        "za %1 lata",
+        "za %1 lat",
+        "za %1 roku"
+    ],
     "%1 year ago": [
-        "%1 rok temu",
+        "rok temu",
         "%1 lata temu",
         "%1 lat temu",
         "%1 roku temu"
     ],
+    "in %1 month": [
+        "za miesiąc",
+        "za %1 miesiące",
+        "za %1 miesięcy",
+        "za %1 miesiąca"
+    ],
     "%1 month ago": [
-        "%1 miesiąc temu",
+        "miesiąc temu",
         "%1 miesiące temu",
         "%1 miesięcy temu",
         "%1 miesiąca temu"
     ],
+    "in %1 week": [
+        "za tydzień",
+        "za %1 tygodnie",
+        "za %1 tygodni",
+        "za %1 tygodnia"
+    ],
     "%1 week ago": [
-        "%1 tydzień temu",
+        "tydzień temu",
         "%1 tygodnie temu",
         "%1 tygodni temu",
         "%1 tygodnia temu"
     ],
+    "in %1 day": [
+        "jutro",
+        "za %1 dni",
+        "za %1 dni",
+        "za %1 dnia"
+    ],
     "%1 day ago": [
-        "%1 dzień temu",
+        "wczoraj",
         "%1 dni temu",
         "%1 dni temu",
         "%1 dnia temu"
     ],
+    "in %1 hour": [
+        "za godzinę",
+        "za %1 godziny",
+        "za %1 godzin",
+        "za %1 godzin"
+    ],
     "%1 hour ago": [
-        "%1 godzinę temu",
+        "godzinę temu",
         "%1 godziny temu",
         "%1 godzin temu",
         "%1 godziny temu"
     ],
+    "in %1 minute": [
+        "za minutę",
+        "za %1 minuty",
+        "za %1 minut",
+        "za %1 minuty"
+    ],
     "%1 minute ago": [
-        "%1 minutę temu",
+        "minutę temu",
         "%1 minuty temu",
         "%1 minut temu",
         "%1 minuty temu"
     ],
+    "in %1 second": [
+        "za sekundę",
+        "za %1 sekundy",
+        "za %1 sekund",
+        "za %1 sekundy"
+    ],
     "%1 second ago": [
-        "%1 sekundę temu",
+        "sekundę temu",
         "%1 sekundy temu",
         "%1 sekund temu",
         "%1 sekundy temu"
     ],
+    "STARTING IN": "START ZA",
     "%1 to play": "%1 na ruchu",
     "Castling": "Roszady:",
     "White": "Białe",
@@ -227,6 +270,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "Oczekujemy aż %1 ustawi swoje skoczki i słonie...",
     "Switch pieces": "Zamień figury",
     "Ready": "Gotowe",
+    "VIEW TOURNAMENT": "WYŚWIETL TURNIEJ",
+    "BACK TO TOURNAMENT": "WRÓĆ DO TURNIEJU",
+    "PAUSE": "ZRÓB PRZERWĘ",
     "REMATCH": "REWANŻ",
     "NEW OPPONENT": "NOWY PRZECIWNIK",
     "Stop counting": "Przerwij odliczanie",
@@ -237,6 +283,23 @@
     "Sound": "Dźwięk",
     "Background": "Tło",
     "Board Settings": "Ustawienia planszy",
+    "Zen Mode": "Tryb zen",
+    "First": "Pierwsza",
+    "Prev": "Poprzednia",
+    "Next": "Następna",
+    "Last": "Ostatnia",
+    "WITHDRAW": "WYCOFAJ SIĘ",
+    "JOIN": "DOŁĄCZ",
+    "LOG IN": "ZALOGUJ SIĘ",
+    "Tournament complete": "Turniej zakończony",
+    "Games played": "Partii rozegranych",
+    "Win rate": "Procent wygranych",
+    "Average opponent": "Średni ranking przeciwników",
+    "Custom position": "Niestandardowa pozycja początkowa",
+    "Analysis board": "Analiza",
+    "Off": "Wyłączony",
+    "On": "Włączony",
+    "ZEN MODE": "TRYB ZEN",
     "": {
         "language": "pl",
         "plural-forms": "nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);"
