@@ -78,7 +78,7 @@ msgstr "เกมที่กำลังเล่น"
 
 #: ../templates/template.html:19 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "การแข่งขัน"
 
 #: ../templates/template.html:20
 msgid "Players"
@@ -106,16 +106,16 @@ msgstr "เข้าสู่ระบบ"
 
 #: ../templates/tournaments.html:9
 msgid "CREATE A NEW TOURNAMENT"
-msgstr ""
+msgstr "สร้างการแข่งขันใหม่"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr ""
+msgstr "กำลังเล่นอยู่"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr ""
+msgstr "กำลังจะเริ่ม"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr ""
+msgstr "เสร็จสิ้นแล้ว"

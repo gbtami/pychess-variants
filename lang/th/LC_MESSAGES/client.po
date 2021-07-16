@@ -945,7 +945,7 @@ msgstr "ตั้งค่ากระดาน"
 
 #: ../client/settingsView.ts:77 ../client/settingsView.ts:127
 msgid "Zen Mode"
-msgstr ""
+msgstr "โหมดสมาธิ"
 
 #: ../client/tournament.ts:159
 msgid "First"
@@ -986,7 +986,7 @@ msgstr "การแข่งขันเสร็จสิ้น"
 #: ../client/tournament.ts:368 ../client/tournament.ts:420
 #: ../client/tournament.ts:431 ../client/tournament.ts:442
 msgid "Performance"
-msgstr ""
+msgstr "คะแนนสมรรถนะ"
 
 #: ../client/tournament.ts:369 ../client/tournament.ts:421
 #: ../client/tournament.ts:432 ../client/tournament.ts:443
@@ -1000,24 +1000,24 @@ msgstr "อัตราชนะ"
 
 #: ../client/tournament.ts:371
 msgid "Average opponent"
-msgstr ""
+msgstr "ค่าเฉลี่ยคู่แข่ง"
 
 #: ../client/tournament.ts:514
 msgid "Custom position"
-msgstr ""
+msgstr "ตำแหน่งเริ่มต้นต่างจากปกติ"
 
 #: ../client/tournament.ts:515
 msgid "Analysis board"
-msgstr ""
+msgstr "ถอดหมาก"
 
 #: ../client/zen.ts:17
 msgid "Off"
-msgstr ""
+msgstr "ปิด"
 
 #: ../client/zen.ts:18
 msgid "On"
-msgstr ""
+msgstr "เปิด"
 
 #: ../client/zen.ts:50
 msgid "ZEN MODE"
-msgstr ""
+msgstr "โหมดสมาธิ"

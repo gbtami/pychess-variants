@@ -636,7 +636,7 @@ msgstr "Amistosa"
 #: ../client/lobby.ts:366 ../client/lobby.ts:596 ../client/profile.ts:47
 #: ../client/profile.ts:305
 msgid "Rated"
-msgstr "Puntuada"
+msgstr "Por puntos"
 
 #: ../client/lobby.ts:374
 msgid "A.I. Level"
