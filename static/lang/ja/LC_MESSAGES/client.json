@@ -29,22 +29,43 @@
     "Similar to Xiangqi, but plays very differently. Tournament rules are used": "チャンギです。ピッチャンの場合は、残っている駒の点数を数えて勝負を決めます。",
     "Xiangqi on a 7x7 board": "７ｘ７マスのシャンチー類です。",
     "Pieces promote and can be dropped, similar to Shogi": "チェスですが、駒は将棋のように打つことも成ることもできます。",
+    "in %1 year": [
+        ""
+    ],
     "%1 year ago": [
+        ""
+    ],
+    "in %1 month": [
         ""
     ],
     "%1 month ago": [
         ""
     ],
+    "in %1 week": [
+        ""
+    ],
     "%1 week ago": [
+        ""
+    ],
+    "in %1 day": [
         ""
     ],
     "%1 day ago": [
         ""
     ],
+    "in %1 hour": [
+        ""
+    ],
     "%1 hour ago": [
         ""
     ],
+    "in %1 minute": [
+        ""
+    ],
     "%1 minute ago": [
+        ""
+    ],
+    "in %1 second": [
         ""
     ],
     "%1 second ago": [
