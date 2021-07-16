@@ -278,7 +278,6 @@ async def index(request):
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
         render["tables"] = await get_latest_tournaments(request.app)
-        render["theads"] = ("Now playing", "Starting soon", "Finished")
         render["admin"] = user.username in ADMINS.split(",")
 
     if gameId is not None:

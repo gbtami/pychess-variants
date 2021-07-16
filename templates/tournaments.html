@@ -6,7 +6,7 @@
         <h1>{% trans %}Tournaments{% endtrans %}</h1>
         {% if admin %}
         <div class="actions">
-            <a class="button icon icon-plus-square text" href="{{ home }}/tournaments/new">CREATE A NEW TOURNAMENT</a>
+            <a class="button icon icon-plus-square text" href="{{ home }}/tournaments/new">{% trans %}CREATE A NEW TOURNAMENT{% endtrans %}</a>
         </div>
         {% endif %}
     </div>
@@ -14,7 +14,13 @@
     <table class="slist">
         <thead>
             <tr>
-                <th colspan="4">{{ theads[loop.index -1] }}</th>
+                {% if loop.index == 1 %}
+                <th colspan="4">{% trans %}Now playing{% endtrans %}</th>
+                {% elif loop.index == 2 %}
+                <th colspan="4">{% trans %}Starting soon{% endtrans %}</th>
+                {% else %}
+                <th colspan="4">{% trans %}Finished{% endtrans %}</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
