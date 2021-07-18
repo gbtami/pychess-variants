@@ -74,7 +74,7 @@ export default class RoundController {
     ctableContainer: VNode | HTMLElement;
     gating: Gating;
     promotion: Promotion;
-    dests: Dests;
+    dests: Dests;//stores all possible moves for all pieces of the player whose turn it is currently
     promotions: string[];
     lastmove: Key[];
     premove: {orig: Key, dest: Key, metadata?: SetPremoveMetadata} | null;
@@ -625,14 +625,37 @@ export default class RoundController {
                 }
             }
         }
+        const parts = msg.fen.split(" ");
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+
         this.dests = (msg.status < 0) ? msg.dests : {};
+        if (this.mycolor === this.turnColor) {
+              // fix predrop dests
+            this.chessground.state.predroppable.dropDests=undefined;
+            var pdrole : Role | undefined = undefined;//TODO:sure below if can be some expression instead and this can be const - types are different though - one allows undefined the other is strict Role i think
+            if (this.chessground.state.predroppable.current?.role){
+                pdrole = this.chessground.state.predroppable.current?.role;
+            } else if (this.chessground.state.draggable.current?.piece.role){
+                pdrole = this.chessground.state.draggable.current?.piece.role;
+            }
+            if (pdrole) {
+              
+              const dropDests = new Map([ [pdrole, this.dests[role2san(pdrole) + "@"] ] ]);
+              this.chessground.set({
+ //               turnColor: color,
+                dropmode: {
+                    active: true,//what is "dropmode" by design and is it/should it be active if dragging and clicking or only makes sense in one of those cases?
+                    dropDests: dropDests,
+                    showDropDests: this.showDests,
+                    }
+                });
+
+            }
+        }
 
         // list of legal promotion moves
         this.promotions = msg.promo;
         this.clocktimes = msg.clocks;
-
-        const parts = msg.fen.split(" ");
-        this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.result = msg.result;
         this.status = msg.status;
@@ -1026,7 +1049,7 @@ export default class RoundController {
             if (this.chessground.state.movable.dests === undefined) return;
 
             // If drop selection was set dropDests we have to restore dests here
-            if (key != 'a0' && 'a0' in this.chessground.state.movable.dests) {
+            if (key != 'a0' && this.chessground.state.dropmode.active/*'a0' in this.chessground.state.movable.dests TODO:not sure if this even made sense before the changes*/) {
                 if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
                     this.chessground.newPiece(this.clickDrop, key);
                     this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});

@@ -94,6 +94,7 @@ export default class AnalysisController {
     gating: Gating;
     promotion: Promotion;
     dests: Dests;
+    myDests: Dests;
     promotions: string[];
     lastmove: Key[];
     premove: {orig: Key, dest: Key, metadata?: SetPremoveMetadata} | null;

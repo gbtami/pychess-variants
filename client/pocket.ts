@@ -14,6 +14,8 @@ import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 import { Color, Role } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
+import predrop from 'chessgroundx/predrop';
+
 import { role2san, letter2role, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
@@ -50,6 +52,8 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
                 eventNamesDragDrop.forEach(name => {
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => 
                     {
+                        console.log(">>>>> eventNamesDragDrop");
+                        console.log(e);
                         drag((ctrl as RoundController | AnalysisController), e);
                     })
                 });
@@ -57,6 +61,8 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
                 eventNamesClickDrop.forEach(name => {
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => 
                     {
+                        console.log(">>>>> eventNamesClickDrop ");
+                        console.log(e);
                         if (e && (e.target as HTMLElement).getAttribute(attrLastEvent) == "mousemove") { 
                             return; /*it has been dragged - that is not a click - do nothing*/ 
                         }
@@ -67,6 +73,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
 
                 (vnode.elm as HTMLElement).addEventListener("mousedown", (e: cg.MouchEvent) => 
                     {
+                        console.log(">>>>> mousedown");
                         const el = e.target as HTMLElement;
                         if (e) { el.setAttribute(attrLastEvent,"mousedown"); }//this event is triggered on mousedown - reset to false, so if immediate mouseup triggers click it will know it has not been dragged (even though drag event was also triggered)
     
@@ -85,6 +92,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
 
                 (vnode.elm as HTMLElement).addEventListener("mousemove", (e: cg.MouchEvent) => 
                     {
+                        console.log(">>>>> mousemove");
                         if (e) { 
                             if ((e.target as HTMLElement).getAttribute(attrLastEvent) == "mousedown"){
                                 //means this is the first mousemove after mousedown - i.e. dragging starts. lets use this event+condition instead of "drag" event
@@ -104,6 +112,17 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
                 //     if (e && (e.target as HTMLElement).getAttribute(attrLastEvent) != "true") { return; /*if it has been a click without dragging - do nothing*/ }
                 //         mouseupAfterDrag((ctrl as RoundController | AnalysisController), e);
                 //     });
+
+                (vnode.elm as HTMLElement).addEventListener("touchstart", (e: cg.MouchEvent) => 
+                    {
+                        console.log(">>>>> touchstart");
+                        console.log(e);
+                    });
+                (vnode.elm as HTMLElement).addEventListener("touchend", (e: cg.MouchEvent) => 
+                    {
+                        console.log(">>>>> touchend");
+                        console.log(e);
+                    });
 
             }
         }
@@ -246,21 +265,26 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
             ctrl.chessground.set({
                 turnColor: color,
                 dropmode: {
+                    active: true,
                     dropDests: dropDests,
                     showDropDests: ctrl.showDests,
                 },
             });
         } else {
             const roleKey = role2san(role) + "@";
-            const dropDests = ctrl.dests[roleKey];
-            console.log(">>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
+            //TODO:this should probably happen in chessgroundx ? is it possible - i think premove is called from there but not sure how aware it is about the concept of pockets
+            const dropDests = predrop(role, ctrl.chessground.state.variant);//ctrl.myDests[roleKey];
+            console.log("select for predrop >>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
             //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
             ctrl.chessground.set({
                 predroppable: {
                     dropDests: dropDests,
                     showDropDests: ctrl.showDests,
+                    current: {"role":role, key:"a0"}
                 },
             });
+            //ctrl.chessground.selectSquare("a0"); this is noop
+            console.log(ctrl.chessground.state);
 
         }
 
@@ -325,7 +349,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
             });
         } else {//TODO: in ctrl should keep both sides dests and not only the ones whose current move is so we can use it for pre-drop
             const roleKey = role2san(role) + "@";
-            const dropDests = ctrl.dests[roleKey];
+            const dropDests = predrop(role, ctrl.chessground.state.variant);//const dropDests = ctrl.myDests[roleKey];
             console.log(">>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
             
             //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
