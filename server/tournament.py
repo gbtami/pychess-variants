@@ -12,7 +12,7 @@ from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
 from compress import R2C
-from const import CASUAL, RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG,\
+from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
     ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED
 from game import Game
 from glicko2.glicko2 import gl2
@@ -40,7 +40,7 @@ class ByeGame:
 
     def __init__(self):
         self.date = datetime.now(timezone.utc)
-        self.status = NOSTART
+        self.status = BYEGAME
 
     def game_json(self, player):
         return {
@@ -578,7 +578,7 @@ class Tournament(ABC):
 
             if (check_top_game and (self.top_player is not None) and
                     self.top_player.username in (game.wplayer.username, game.bplayer.username) and
-                    game.status != NOSTART):  # Bye game
+                    game.status != BYEGAME):  # Bye game
                 self.top_game = game
                 check_top_game = False
                 new_top_game = True
@@ -712,10 +712,12 @@ class Tournament(ABC):
             await self.broadcast(response)
 
             if (self.top_player is not None) and self.top_player.username not in (game.wplayer.username, game.bplayer.username):
-                self.top_game = self.players[self.top_player].games[-1]
-                if (self.top_game is not None) and (self.top_game.status <= STARTED):
-                    tgj = self.top_game_json
-                    await self.broadcast(tgj)
+                top_game_candidate = self.players[self.top_player].games[-1]
+                if top_game_candidate.status != BYEGAME:
+                    self.top_game = top_game_candidate
+                    if (self.top_game is not None) and (self.top_game.status <= STARTED):
+                        tgj = self.top_game_json
+                        await self.broadcast(tgj)
 
     async def broadcast(self, response):
         for spectator in self.spectators:
@@ -813,7 +815,7 @@ class Tournament(ABC):
 
         for user, user_data in self.players.items():
             for game in user_data.games:
-                if game.status == NOSTART:  # ByeGame
+                if game.status == BYEGAME:  # ByeGame
                     continue
                 if game.id not in processed_games:
                     pairing_documents.append({

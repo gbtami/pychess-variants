@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
-from const import NOSTART, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
+from const import BYEGAME, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
@@ -50,7 +50,7 @@ class TestTournament(Tournament):
         print("--- create_new_pairings done ---")
 
         for game in games:
-            if game.status == NOSTART:  # ByeGame
+            if game.status == BYEGAME:  # ByeGame
                 continue
             self.app["games"][game.id] = game
             game.random_mover = True
@@ -59,7 +59,7 @@ class TestTournament(Tournament):
     # @timeit
     async def play_random(self, game):
         """ Play random moves for TEST players """
-        if game.status == NOSTART:  # ByeGame
+        if game.status == BYEGAME:  # ByeGame
             return
 
         if self.system == ARENA:
