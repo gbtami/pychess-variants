@@ -40,6 +40,7 @@ async def create_tournament(app, username, form):
         "bp": bp,
         "system": ARENA,
         "beforeStart": int(form["waitMinutes"]),
+        "startDate": form["startDate"],
         "minutes": int(form["minutes"]),
         "fen": form["position"],
     }
@@ -85,6 +86,7 @@ async def new_tournament(app, data):
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
+        starts_at=data.get("startDate"),
         name=data["name"],
         created_at=data.get("createdAt"),
         status=data.get("status"),

@@ -8,6 +8,7 @@ import logging
 import os
 from operator import neg
 from urllib.parse import urlparse
+from datetime import datetime, timezone
 
 import jinja2
 from aiohttp import web
@@ -81,6 +82,7 @@ async def init_state(app):
     # We have to put "kill" into a dict to prevent getting:
     # DeprecationWarning: Changing state of started or joined application is deprecated
     app["data"] = {"kill": False}
+    app["date"] = {"startedAt": datetime.now(timezone.utc)}
 
     if "db" not in app:
         app["db"] = None

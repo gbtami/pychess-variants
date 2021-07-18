@@ -164,6 +164,13 @@
                         </small>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="startDate">Custom start date</label>
+                    <input id="startDate" name="startDate" class="form-control flatpickr"/>
+                    <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
+                </div>
+
                 <div class="form-actions">
                     <a href="/tournaments">Cancel</a>
                     <button type="submit" data-icon="x" class="submit button text">Create a new tournament</button>
@@ -212,5 +219,18 @@
 </div>
 {% endblock %}
 {% block js %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>document.getElementsByClassName("flatpickr").flatpickr({
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: 'Z',
+        altInput: true,
+        altFormat: 'Y-m-d h:i K',
+        minDate: 'today',
+        maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 3),
+        monthSelectorType: 'static',
+        disableMobile: true, // https://flatpickr.js.org/mobile-support/ https://github.com/ornicar/lila/issues/8110
+    });</script>
     <script src="{{ js }}"></script>
 {% endblock %}

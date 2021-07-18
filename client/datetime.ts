@@ -55,9 +55,8 @@ export function timeago(date) {
 }
 
 export function renderTimeago() {
-    const x = document.getElementsByTagName("info-date");
-    for (let i = 0; i < x.length; i++)
-        x[i].innerHTML = timeago(x[i].getAttribute('timestamp'));
+    const els = document.getElementsByTagName("info-date");
+    Array.from(els).forEach((el) => {el.innerHTML = timeago(el.getAttribute('timestamp'));});
     setTimeout(renderTimeago, 1200);
 }
 
