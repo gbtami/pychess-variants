@@ -261,6 +261,7 @@ async def load_tournament(app, tournament_id):
 
     pairing_table = app["db"].tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})
+    cursor.sort('d', 1)
 
     async for doc in cursor:
         _id = doc["_id"]

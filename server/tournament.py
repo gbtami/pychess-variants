@@ -4,7 +4,7 @@ import logging
 import random
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
-from operator import neg, attrgetter
+from operator import neg
 
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
@@ -263,7 +263,7 @@ class Tournament(ABC):
             "games": [
                 game.game_json(player) for
                 game in
-                sorted(self.players[player].games, key=attrgetter("date"))
+                self.players[player].games
             ]
         }
 
