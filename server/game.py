@@ -293,6 +293,8 @@ class Game:
     async def save_game(self, with_clocks=False):
         if self.saved:
             return
+        self.saved = True
+
         if self.rated == IMPORTED:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
@@ -327,7 +329,6 @@ class Game:
                 except KeyError:
                     log.error("Failed to del %s from game_queues", self.id)
 
-        self.saved = True
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
         if self.board.ply < 3 and (self.db is not None) and (self.tournamentId is None):
