@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Bodhi Baum <lotusblume.h2@googlemail.com>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
@@ -541,7 +541,7 @@ msgid_plural "%1 seconds ago"
 msgstr[0] "Vor %1 Sekunde"
 msgstr[1] "Vor %1 Sekunden"
 
-#: ../client/datetime.ts:91
+#: ../client/datetime.ts:90
 msgid "STARTING IN"
 msgstr ""
 
@@ -642,7 +642,6 @@ msgid "Casual"
 msgstr "Ungewertet"
 
 #: ../client/lobby.ts:366 ../client/lobby.ts:596 ../client/profile.ts:47
-#: ../client/profile.ts:305
 msgid "Rated"
 msgstr "Gewertet"
 
@@ -867,6 +866,11 @@ msgstr "Partien zusehen"
 #: ../client/profile.ts:304
 msgid "Games"
 msgstr "Spiele"
+
+#: ../client/profile.ts:305
+msgctxt "UsePluralFormIfNeeded"
+msgid "Rated"
+msgstr ""
 
 #: ../client/profile.ts:306
 msgid "Imported"

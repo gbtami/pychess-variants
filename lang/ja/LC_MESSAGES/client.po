@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
@@ -471,7 +471,7 @@ msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
 msgstr[0] ""
 
-#: ../client/datetime.ts:91
+#: ../client/datetime.ts:90
 msgid "STARTING IN"
 msgstr ""
 
@@ -572,7 +572,6 @@ msgid "Casual"
 msgstr "非レート戦"
 
 #: ../client/lobby.ts:366 ../client/lobby.ts:596 ../client/profile.ts:47
-#: ../client/profile.ts:305
 msgid "Rated"
 msgstr "レート戦"
 
@@ -791,6 +790,11 @@ msgstr "観戦する"
 
 #: ../client/profile.ts:304
 msgid "Games"
+msgstr ""
+
+#: ../client/profile.ts:305
+msgctxt "UsePluralFormIfNeeded"
+msgid "Rated"
 msgstr ""
 
 #: ../client/profile.ts:306

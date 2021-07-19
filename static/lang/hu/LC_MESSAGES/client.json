@@ -272,6 +272,7 @@
     "Off": "Ki",
     "On": "Be",
     "ZEN MODE": "ZEN MÓD",
+    "UsePluralFormIfNeeded\u0004Rated": "Értékelt",
     "": {
         "language": "hu",
         "plural-forms": "nplurals=2; plural=(n != 1);"

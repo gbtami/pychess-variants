@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -52,6 +52,10 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
+"Lichess umożliwia rywalizację online w czasie rzeczywistym. Daje też "
+"powszechny dostęp do ogromnej mocy Stockfisha ludziom, którzy mogą korzystać"
+" z niego bez potrzeby konfigurowania GUI lokalnie. W mojej jest to coś "
+"wyjątkowo znaczącego."
 
 #: ../client/about.ts:13
 msgid ""
@@ -62,6 +66,12 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
+"Później deweloperzy blisko związani z Lichess rozszerzyli Stockfisha do "
+"Multivariant-Stockfisha wspierającego crazyhouse'a i inne warianty. Twórca "
+"Fairy-Stockfisha, Fabian, jest jednym z nich i wciąż pracuje nad tym "
+"forkiem, ale później poszedł dalej w stronę obsługiwania coraz większej "
+"liczby wariantów i łatwej rozszerzalności. Tak oto narodził się Fairy-"
+"Stockfish, który jest tak potężny ponieważ opiera się na Stockfishu"
 
 #: ../client/about.ts:14
 msgid ""
@@ -70,6 +80,10 @@ msgid ""
 "competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
 " power of Stockfish!\""
 msgstr ""
+"Potem pojawia się nasz ukochany pychess-variants, który również w bardzo "
+"sprytny sposób korzysta z leżących u podstaw supermocy wielkich projektów. "
+"Taka sama rywalizacja online w czasie rzeczywistym. Taki sam czysty, znajomo"
+" wyglądający interfejs jak na Lichess. Plus ogromna moc Stockfisha!\""
 
 #: ../client/about.ts:19
 msgid "About pychess"
@@ -105,15 +119,15 @@ msgstr "zasadami roszowania jak w szachach 960."
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
 "Do generowania ruchów, sprawdzania poprawności, analizy oraz gry z "
-"komputerem używamy:"
+"komputerem używamy: "
 
 #: ../client/about.ts:97
 msgid "On client side, the user interface of the game board is based on "
-msgstr "Po stronie użytkownika interfejs jest oparty o"
+msgstr "Po stronie użytkownika interfejs jest oparty o "
 
 #: ../client/about.ts:101
 msgid "The source code of the server is available on "
-msgstr "Kod źródłowy serwera jest dostępny na"
+msgstr "Kod źródłowy serwera jest dostępny na "
 
 #: ../client/about.ts:106
 msgid ""
@@ -121,7 +135,7 @@ msgid ""
 "applied here. "
 msgstr ""
 "W kwestiach prywatności i zasad użytkowania obowiązują zasady takie jak na "
-"lichess.org"
+"lichess.org "
 
 #: ../client/analysis.ts:48 ../client/profile.ts:69 ../client/round.ts:42
 msgid "Playing right now"
@@ -316,6 +330,7 @@ msgstr "Shogi na planszy 5x6"
 #: ../client/chess.ts:393
 msgid "Open fire on your opponent in this highly aggressive ancient game"
 msgstr ""
+"Otwórz ogień w kierunku przeciwnika w tej bardzo agresywnej starożytnej grze"
 
 #: ../client/chess.ts:402
 msgid "The lone Red rook can also move as a cannon or a knight."
@@ -342,7 +357,7 @@ msgstr ""
 
 #: ../client/chess.ts:450
 msgid "Capablanca with Crazyhouse drop rules"
-msgstr "Szachy Capablanki z zasadami dostawiania jak w Crazyhouse'ie"
+msgstr "Szachy Capablanki z zasadami dostawiania jak w crazyhouse'ie"
 
 #: ../client/chess.ts:467
 msgid ""
@@ -545,7 +560,7 @@ msgstr[1] "%1 sekundy temu"
 msgstr[2] "%1 sekund temu"
 msgstr[3] "%1 sekundy temu"
 
-#: ../client/datetime.ts:91
+#: ../client/datetime.ts:90
 msgid "STARTING IN"
 msgstr "START ZA"
 
@@ -646,7 +661,6 @@ msgid "Casual"
 msgstr "Towarzyska"
 
 #: ../client/lobby.ts:366 ../client/lobby.ts:596 ../client/profile.ts:47
-#: ../client/profile.ts:305
 msgid "Rated"
 msgstr "Rankingowa"
 
@@ -804,7 +818,7 @@ msgstr "Pat"
 
 #: ../client/profile.ts:84 ../client/profile.ts:90
 msgid "Time out"
-msgstr "Przegrana na czas"
+msgstr "Przekroczenie czasu"
 
 #: ../client/profile.ts:87 ../client/roundCtrl.ts:371
 msgid "Draw"
@@ -840,7 +854,7 @@ msgstr "Wysadzenie króla"
 
 #: ../client/profile.ts:119 ../client/profile.ts:126
 msgid "Point counting"
-msgstr "Wygrana na punkty"
+msgstr "Rozstrzygnięcie na punkty"
 
 #: ../client/profile.ts:129
 msgid "Repetition"
@@ -856,7 +870,7 @@ msgstr[3] "%1 ruchu"
 
 #: ../client/profile.ts:214
 msgid "Computer analysis available"
-msgstr "Analiza komputerowa jest dostępna"
+msgstr "Dostępna analiza komputerowa"
 
 #: ../client/profile.ts:284
 msgid "Lichess profile"
@@ -877,6 +891,11 @@ msgstr "Oglądaj partie"
 #: ../client/profile.ts:304
 msgid "Games"
 msgstr "Partie"
+
+#: ../client/profile.ts:305
+msgctxt "UsePluralFormIfNeeded"
+msgid "Rated"
+msgstr "Rankingowe"
 
 #: ../client/profile.ts:306
 msgid "Imported"
@@ -1006,7 +1025,7 @@ msgstr "Ostatnia"
 
 #: ../client/tournament.ts:166
 msgid "Scroll to your player"
-msgstr ""
+msgstr "Przewiń do swojej pozycji"
 
 #: ../client/tournament.ts:177
 msgid "WITHDRAW"
@@ -1027,7 +1046,7 @@ msgstr "Turniej zakończony"
 #: ../client/tournament.ts:368 ../client/tournament.ts:420
 #: ../client/tournament.ts:431 ../client/tournament.ts:442
 msgid "Performance"
-msgstr ""
+msgstr "Wynik"
 
 #: ../client/tournament.ts:369 ../client/tournament.ts:421
 #: ../client/tournament.ts:432 ../client/tournament.ts:443

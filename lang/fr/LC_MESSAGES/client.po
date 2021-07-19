@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: William Wu <fynmorph@gmail.com>, 2021\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
@@ -544,7 +544,7 @@ msgid_plural "%1 seconds ago"
 msgstr[0] "Il y a %1 seconde"
 msgstr[1] "Il y a %1 secondes"
 
-#: ../client/datetime.ts:91
+#: ../client/datetime.ts:90
 msgid "STARTING IN"
 msgstr ""
 
@@ -645,7 +645,6 @@ msgid "Casual"
 msgstr "Amicale"
 
 #: ../client/lobby.ts:366 ../client/lobby.ts:596 ../client/profile.ts:47
-#: ../client/profile.ts:305
 msgid "Rated"
 msgstr "Classée"
 
@@ -870,6 +869,11 @@ msgstr "Regarder les parties"
 #: ../client/profile.ts:304
 msgid "Games"
 msgstr "Parties jouées"
+
+#: ../client/profile.ts:305
+msgctxt "UsePluralFormIfNeeded"
+msgid "Rated"
+msgstr ""
 
 #: ../client/profile.ts:306
 msgid "Imported"

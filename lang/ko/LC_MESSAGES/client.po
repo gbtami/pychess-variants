@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: 이상백 <esangbaek@ajou.ac.kr>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
@@ -484,7 +484,7 @@ msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
 msgstr[0] "%1 초 전"
 
-#: ../client/datetime.ts:91
+#: ../client/datetime.ts:90
 msgid "STARTING IN"
 msgstr ""
 
@@ -585,7 +585,6 @@ msgid "Casual"
 msgstr "친선전"
 
 #: ../client/lobby.ts:366 ../client/lobby.ts:596 ../client/profile.ts:47
-#: ../client/profile.ts:305
 msgid "Rated"
 msgstr "승강전"
 
@@ -807,6 +806,11 @@ msgstr "관전하기"
 #: ../client/profile.ts:304
 msgid "Games"
 msgstr "게임"
+
+#: ../client/profile.ts:305
+msgctxt "UsePluralFormIfNeeded"
+msgid "Rated"
+msgstr ""
 
 #: ../client/profile.ts:306
 msgid "Imported"

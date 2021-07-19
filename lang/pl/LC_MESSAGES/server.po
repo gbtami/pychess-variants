@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -48,7 +48,7 @@ msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
-"Jak wszyscy wiecie pychess-variants jest darmowym serwerem i zawsze będzie "
+"Jak zapewne wiecie pychess-variants jest darmowym serwerem i zawsze będzie "
 "darmowy. Niemniej konserwacja i usprawnianie serwera kosztują czas i "
 "pieniądze. Jeśli podoba Ci się nasza praca i uważasz, że nasz serwer jest "
 "przydatny możesz wesprzeć nas na patreonie lub paypalu"
@@ -84,7 +84,7 @@ msgstr "Partie w toku"
 
 #: ../templates/template.html:19 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "Turnieje"
 
 #: ../templates/template.html:20
 msgid "Players"
@@ -112,16 +112,16 @@ msgstr "Zaloguj się"
 
 #: ../templates/tournaments.html:9
 msgid "CREATE A NEW TOURNAMENT"
-msgstr ""
+msgstr "UTWÓRZ TURNIEJ"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr ""
+msgstr "W trakcie"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr ""
+msgstr "Startujące wkrótce"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr ""
+msgstr "Zakończone"
