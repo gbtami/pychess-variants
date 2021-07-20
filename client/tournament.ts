@@ -487,6 +487,23 @@ export default class TournamentController {
         }
     }
 
+    renderDescription(text) {
+        const parts = text.split(/(\[.*?\))/g);
+        if (parts != null && parts.length > 0) {
+            const newArr = parts.map(el => {
+                const txtPart = el.match(/\[(.+)\]/);  //get only the txt
+                const urlPart = el.match(/\((.+)\)/);  //get only the link
+                if (txtPart && urlPart) {
+                    return h('a', { attrs: { href: urlPart[1], target: "_blank" } }, txtPart[1]);
+                } else {
+                    return el;
+                }
+            });
+            return h('div.description', newArr);
+        }
+        return h('div.description', text);
+    }
+
     private onMsgUserConnected(msg) {
         this.system = msg.tsystem;
         const tsystem = document.getElementById('tsystem') as Element;
@@ -506,6 +523,9 @@ export default class TournamentController {
                 h('a', { attrs: { href: '/analysis/' + this.model["variant"] + '?fen=' + fen } }, _('Analysis board'))
             ]));
         }
+
+        const description = document.getElementById('description') as Element;
+        if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
 
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus];
@@ -695,6 +715,7 @@ export function tournamentView(model): VNode[] {
                     ]),
                 ]),
                 // TODO: update in onMsgUserConnected()
+                h('div#description'),
                 h('div#requirements'),
                 h('div#startsAt'),
                 h('div#startFen'),

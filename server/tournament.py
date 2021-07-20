@@ -115,11 +115,12 @@ class Tournament(ABC):
     """ Abstract base class for Arena/Swisss/RR Tournament classes
         They have to implement create_pairing() for waiting_players """
 
-    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="",
+    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="", description="",
                  fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, starts_at=None, status=None, with_clock=True):
         self.app = app
         self.id = tournamentId
         self.name = name
+        self.description = description
         self.variant = variant
         self.rated = rated
         self.before_start = before_start  # in minutes
@@ -133,7 +134,7 @@ class Tournament(ABC):
 
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
-        if starts_at is None:
+        if starts_at == "" or starts_at is None:
             self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
         else:
             self.starts_at = datetime.fromisoformat(starts_at[:-1]).replace(tzinfo=timezone.utc)

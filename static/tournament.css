@@ -27,6 +27,16 @@ div.info0 {
 .user-link {
     padding: 0;
 }
+.description {
+    max-height: 20vh;
+    overflow-y: auto;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    margin-bottom: 2vmin;
+}
+.description a {
+    color: var(--blue-hover);
+}
 table#players {
     grid-area: main;
     margin-bottom: 3vmin;

@@ -43,6 +43,7 @@ async def create_tournament(app, username, form):
         "startDate": form["startDate"],
         "minutes": int(form["minutes"]),
         "fen": form["position"],
+        "description": form["description"],
     }
     tournament = await new_tournament(app, data)
 
@@ -88,6 +89,7 @@ async def new_tournament(app, data):
         minutes=data.get("minutes", 45),
         starts_at=data.get("startDate"),
         name=data["name"],
+        description=data["description"],
         created_at=data.get("createdAt"),
         status=data.get("status"),
         with_clock=data.get("with_clock", True)
@@ -110,6 +112,7 @@ async def insert_tournament_to_db(tournament, app):
     document = {
         "_id": tournament.id,
         "name": tournament.name,
+        "d": tournament.description,
         "minutes": tournament.minutes,
         "v": V2C[tournament.variant],
         "b": tournament.base,
@@ -169,6 +172,7 @@ async def get_latest_tournaments(app):
                 created_at=doc["createdAt"],
                 minutes=doc["minutes"],
                 name=doc["name"],
+                description=doc.get("d", ""),
                 status=doc["status"],
                 with_clock=False
             )
@@ -218,6 +222,7 @@ async def load_tournament(app, tournament_id):
         before_start=doc.get("beforeStart", 0),
         minutes=doc["minutes"],
         name=doc["name"],
+        description=doc.get("d", ""),
         status=doc["status"],
     )
 
