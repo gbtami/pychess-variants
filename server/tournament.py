@@ -137,7 +137,10 @@ class Tournament(ABC):
         if starts_at == "" or starts_at is None:
             self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
         else:
-            self.starts_at = datetime.fromisoformat(starts_at[:-1]).replace(tzinfo=timezone.utc)
+            if isinstance(starts_at, str):
+                self.starts_at = datetime.fromisoformat(starts_at[:-1]).replace(tzinfo=timezone.utc)
+            else:
+                self.starts_at = starts_at
 
         # TODO: calculate wave from TC, variant, number of players
         self.wave = timedelta(seconds=3)
