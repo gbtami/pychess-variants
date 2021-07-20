@@ -231,8 +231,11 @@ async def init_state(app):
         raise
 
     # create test tournament
-    if 0:
+    if 1:
         pass
+        from fix_first_minishogi_arena import fix_first_minishogi_arena
+        await fix_first_minishogi_arena(app)
+
         # from first_janggi_tournament import add_games
         # await add_games(app)
 

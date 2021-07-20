@@ -831,6 +831,9 @@ class Tournament(ABC):
 
         await pairing_table.insert_many(pairing_documents)
 
+        for user in self.leaderboard:
+            await self.db_update_player(user, self.players[user])
+
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)
         for player, full_score in self.leaderboard.items()[:10]:
