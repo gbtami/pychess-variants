@@ -637,16 +637,19 @@ export default class RoundController {
                 pdrole = this.chessground.state.predroppable.current?.role;
             } else if (this.chessground.state.draggable.current?.piece.role){
                 pdrole = this.chessground.state.draggable.current?.piece.role;
+            } else {
+                console.log("wtfwtfwtfwtfwtf");
             }
+
             if (pdrole) {
               
               const dropDests = new Map([ [pdrole, this.dests[role2san(pdrole) + "@"] ] ]);
               this.chessground.set({
  //               turnColor: color,
                 dropmode: {
-                    active: true,//what is "dropmode" by design and is it/should it be active if dragging and clicking or only makes sense in one of those cases?
-                    dropDests: dropDests,
-                    showDropDests: this.showDests,
+                    //active: true,//what is "dropmode" by design and is it/should it be active if dragging and clicking or only makes sense in one of those cases?
+                    dropDests: dropDests,//TODO:why not use draggable
+                    //showDropDests: this.showDests,
                     }
                 });
 
