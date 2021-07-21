@@ -1,8 +1,9 @@
 import collections
 import logging
+from datetime import datetime, timezone
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED
+from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED
 from newid import new_id
 from user import User
 
@@ -24,6 +25,11 @@ async def create_tournament(app, username, form):
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
 
+    if form["startDate"]:
+        start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(tzinfo=timezone.utc)
+    else:
+        start_date = None
+
     name = form["name"]
     # Create meningful tournament name in case we forget to change it :)
     if name in ADMINS:
@@ -40,7 +46,7 @@ async def create_tournament(app, username, form):
         "bp": bp,
         "system": ARENA,
         "beforeStart": int(form["waitMinutes"]),
-        "startDate": form["startDate"],
+        "startDate": start_date,
         "minutes": int(form["minutes"]),
         "fen": form["position"],
         "description": form["description"],
@@ -238,6 +244,9 @@ async def load_tournament(app, tournament_id):
     player_table = app["db"].tournament_player
     cursor = player_table.find({"tid": tournament_id})
     nb_players = 0
+
+    if tournament.status == T_CREATED:
+        cursor.sort('r', -1)
 
     async for doc in cursor:
         uid = doc["uid"]
