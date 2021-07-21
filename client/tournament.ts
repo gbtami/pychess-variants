@@ -17,7 +17,7 @@ import { Chessground } from 'chessgroundx';
 import { JSONObject } from './types';
 import { _ } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { sound } from './sound';
+//import { sound } from './sound';
 import { VARIANTS, uci2cg } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
@@ -154,13 +154,13 @@ export default class TournamentController {
     renderButtons() {
         return h('div#page-controls.btn-controls', [
             h('div.pager', [
-                h('button', { on: { click: () => this.goToPage(1) } }, [ h('i.icon.icon-fast-backward', { props: { title: 'First' } }) ]),
-                h('button', { on: { click: () => this.goToPage(this.page - 1) } }, [ h('i.icon.icon-step-backward', { props: { title: 'Prev' } }) ]),
+                h('button', { on: { click: () => this.goToPage(1) } }, [ h('i.icon.icon-fast-backward', { props: { title: _('First') } }) ]),
+                h('button', { on: { click: () => this.goToPage(this.page - 1) } }, [ h('i.icon.icon-step-backward', { props: { title: _('Prev') } }) ]),
                  // TODO: update
                 h('span.page', `${(this.page-1)*10 + 1} - ${Math.min((this.page)*10, this.nbPlayers)} / ${this.nbPlayers}`),
-                h('button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward', { props: { title: 'Next' } }) ]),
-                h('button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward', { props: { title: 'Last' } }) ]),
-                h('button', { on: { click: () => this.goToMyPage() } }, [ h('i.icon.icon-target', { props: { title: 'Scroll to your player' } }) ]),
+                h('button', { on: { click: () => this.goToPage(this.page + 1) } }, [ h('i.icon.icon-step-forward', { props: { title: _('Next') } }) ]),
+                h('button', { on: { click: () => this.goToPage(10000) } }, [ h('i.icon.icon-fast-forward', { props: { title: _('Last') } }) ]),
+                h('button', { on: { click: () => this.goToMyPage() } }, [ h('i.icon.icon-target', { props: { title: _('Scroll to your player') } }) ]),
             ]),
             h('div#action'),
         ]);
@@ -197,7 +197,7 @@ export default class TournamentController {
 
     renderSummary() {
         const summary = h('div.tour-stats.box', [
-            h('h2', 'Tournament complete'),
+            h('h2', _('Tournament complete')),
         ]);
         patch(document.getElementById('summary') as HTMLElement, h('div#summary', summary));
     }
@@ -411,30 +411,30 @@ export default class TournamentController {
                 h('div.trophy'),
                 playerInfo(players[1].name, players[1].title),
                 h('table.stats', [
-                    h('tr', [h('th', 'Performance'), h('td', players[1].perf)]),
-                    h('tr', [h('th', 'Games played'), h('td', players[1].nbGames)]),
-                    h('tr', [h('th', 'Win rate'), h('td', this.winRate(players[1].nbGames, players[1].nbWin))]),
-                    //h('tr', [h('th', 'Berserk rate'), h('td', players[1].???)])
+                    h('tr', [h('th', _('Performance')), h('td', players[1].perf)]),
+                    h('tr', [h('th', _('Games played')), h('td', players[1].nbGames)]),
+                    h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[1].nbGames, players[1].nbWin))]),
+                    //h('tr', [h('th', _('Berserk rate')), h('td', players[1].???)])
                 ])
             ]),
             h('div.first', [
                 h('div.trophy'),
                 playerInfo(players[0].name, players[0].title),
                 h('table.stats', [
-                    h('tr', [h('th', 'Performance'), h('td', players[0].perf)]),
-                    h('tr', [h('th', 'Games played'), h('td', players[0].nbGames)]),
-                    h('tr', [h('th', 'Win rate'), h('td', this.winRate(players[0].nbGames, players[0].nbWin))]),
-                    //h('tr', [h('th', 'Berserk rate'), h('td', players[0].???)])
+                    h('tr', [h('th', _('Performance')), h('td', players[0].perf)]),
+                    h('tr', [h('th', _('Games played')), h('td', players[0].nbGames)]),
+                    h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[0].nbGames, players[0].nbWin))]),
+                    //h('tr', [h('th', _('Berserk rate')), h('td', players[0].???)])
                 ])
             ]),
             h('div.third', [
                 h('div.trophy'),
                 playerInfo(players[2].name, players[2].title),
                 h('table.stats', [
-                    h('tr', [h('th', 'Performance'), h('td', players[2].perf)]),
-                    h('tr', [h('th', 'Games played'), h('td', players[2].nbGames)]),
-                    h('tr', [h('th', 'Win rate'), h('td', this.winRate(players[2].nbGames, players[2].nbWin))]),
-                    //h('tr', [h('th', 'Berserk rate'), h('td', players[2].???)])
+                    h('tr', [h('th', _('Performance')), h('td', players[2].perf)]),
+                    h('tr', [h('th', _('Games played')), h('td', players[2].nbGames)]),
+                    h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[2].nbGames, players[2].nbWin))]),
+                    //h('tr', [h('th', _('Berserk rate')), h('td', players[2].???)])
                 ])
             ])
         ]);
@@ -487,6 +487,23 @@ export default class TournamentController {
         }
     }
 
+    renderDescription(text) {
+        const parts = text.split(/(\[.*?\))/g);
+        if (parts != null && parts.length > 0) {
+            const newArr = parts.map(el => {
+                const txtPart = el.match(/\[(.+)\]/);  //get only the txt
+                const urlPart = el.match(/\((.+)\)/);  //get only the link
+                if (txtPart && urlPart) {
+                    return h('a', { attrs: { href: urlPart[1], target: "_blank" } }, txtPart[1]);
+                } else {
+                    return el;
+                }
+            });
+            return h('div.description', newArr);
+        }
+        return h('div.description', text);
+    }
+
     private onMsgUserConnected(msg) {
         this.system = msg.tsystem;
         const tsystem = document.getElementById('tsystem') as Element;
@@ -497,15 +514,18 @@ export default class TournamentController {
 
         const startsAtDate = new Date(msg.startsAt);
         const startsAt = document.getElementById('startsAt') as Element;
-        patch(startsAt, h('date', startsAtDate.toLocaleString("default", localeOptions)));
+        if (startsAt) patch(startsAt, h('date', startsAtDate.toLocaleString("default", localeOptions)));
         if (msg.startFen !== '') {
             const startFen = document.getElementById('startFen') as Element;
             const fen = msg.startFen.split(" ").join('_').replace(/\+/g, '.');
             patch(startFen, h('p', [
-                'Custom position • ',
-                h('a', { attrs: { href: '/analysis/' + this.model["variant"] + '?fen=' + fen } }, 'Analysis board')
+                _('Custom position') + ' • ',
+                h('a', { attrs: { href: '/analysis/' + this.model["variant"] + '?fen=' + fen } }, _('Analysis board'))
             ]));
         }
+
+        const description = document.getElementById('description') as Element;
+        if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
 
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus];
@@ -592,8 +612,9 @@ export default class TournamentController {
 
     private onMsgChat(msg) {
         chatMessage(msg.user, msg.message, "lobbychat");
-        if (msg.user.length !== 0 && msg.user !== '_server')
-            sound.socialNotify();
+        // seems this is annoying for most of the users
+        //if (msg.user.length !== 0 && msg.user !== '_server')
+        //    sound.socialNotify();
     }
     private onMsgFullChat(msg) {
         // To prevent multiplication of messages we have to remove old messages div first
@@ -694,6 +715,7 @@ export function tournamentView(model): VNode[] {
                     ]),
                 ]),
                 // TODO: update in onMsgUserConnected()
+                h('div#description'),
                 h('div#requirements'),
                 h('div#startsAt'),
                 h('div#startFen'),

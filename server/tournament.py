@@ -4,7 +4,7 @@ import logging
 import random
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
-from operator import neg, attrgetter
+from operator import neg
 
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
@@ -12,7 +12,7 @@ from pymongo import ReturnDocument
 
 from broadcast import lobby_broadcast
 from compress import R2C
-from const import CASUAL, RATED, CREATED, STARTED, NOSTART, VARIANTEND, FLAG,\
+from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
     ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED
 from game import Game
 from glicko2.glicko2 import gl2
@@ -35,11 +35,12 @@ class EnoughPlayer(Exception):
 
 
 class ByeGame:
+    """ Used in RR/Swiss tournaments when pairing odd number of players """
     __slots__ = "date", "status"
 
     def __init__(self):
         self.date = datetime.now(timezone.utc)
-        self.status = NOSTART
+        self.status = BYEGAME
 
     def game_json(self, player):
         return {
@@ -54,13 +55,17 @@ class ByeGame:
 
 
 class PlayerData:
-    __slots__ = "rating", "provisional", "free", "paused", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff", "page"
+    """ Used to save/load tournament players to/from mongodb tournament-player documents """
+
+    __slots__ = "id", "rating", "provisional", "free", "paused", "withdrawn", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff", "page"
 
     def __init__(self, rating, provisional):
+        self.id = None
         self.rating = rating
         self.provisional = provisional
         self.free = True
         self.paused = False
+        self.withdrawn = False
         self.win_streak = 0
         self.games = []
         self.points = []
@@ -77,6 +82,8 @@ class PlayerData:
 
 
 class GameData:
+    """ Used to save/load tournament games to/from mongodb tournament-pairing documents """
+
     __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "date"
 
     def __init__(self, _id, wplayer, wrating, bplayer, brating, result, date):
@@ -105,12 +112,15 @@ class GameData:
 
 
 class Tournament(ABC):
+    """ Abstract base class for Arena/Swisss/RR Tournament classes
+        They have to implement create_pairing() for waiting_players """
 
-    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="",
-                 fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, status=None, with_clock=True):
+    def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="", description="",
+                 fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, starts_at=None, status=None, with_clock=True):
         self.app = app
         self.id = tournamentId
         self.name = name
+        self.description = description
         self.variant = variant
         self.rated = rated
         self.before_start = before_start  # in minutes
@@ -124,7 +134,11 @@ class Tournament(ABC):
 
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
-        self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
+        if starts_at == "" or starts_at is None:
+            self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
+        else:
+            self.starts_at = starts_at
+
         # TODO: calculate wave from TC, variant, number of players
         self.wave = timedelta(seconds=3)
         self.wave_delta = timedelta(seconds=1)
@@ -165,7 +179,7 @@ class Tournament(ABC):
 
     def user_status(self, user):
         if user in self.players:
-            return "paused" if self.players[user].paused else "joined"
+            return "paused" if self.players[user].paused else "withdrawn" if self.players[user].withdrawn else "joined"
         else:
             return "spectator"
 
@@ -250,7 +264,7 @@ class Tournament(ABC):
             "games": [
                 game.game_json(player) for
                 game in
-                sorted(self.players[player].games, key=attrgetter("date"))
+                self.players[player].games
             ]
         }
 
@@ -281,7 +295,8 @@ class Tournament(ABC):
             self.players[p].free and
             self.id in p.tournament_sockets and
             len(p.tournament_sockets[self.id]) > 0 and
-            not self.players[p].paused
+            not self.players[p].paused and
+            not self.players[p].withdrawn
         ]
 
     async def clock(self):
@@ -399,50 +414,64 @@ class Tournament(ABC):
     async def finish(self):
         await self.finalize(T_FINISHED)
 
-    async def join(self, player):
-        if player.anon:
+    async def join(self, user):
+        if user.anon:
             return
 
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
-        if player not in self.players:
-            rating, provisional = player.get_rating(self.variant, self.chess960).rating_prov
-            self.players[player] = PlayerData(rating, provisional)
+        if user not in self.players:
+            # new player joined
+            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+            self.players[user] = PlayerData(rating, provisional)
+        elif self.players[user].withdrawn:
+            # withdrawn player joined again
+            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+
+        if user not in self.leaderboard:
+            # new player joined or withdrawn player joined again
             if self.status == T_CREATED:
-                self.leaderboard.setdefault(player, rating)
+                self.leaderboard.setdefault(user, rating)
             else:
-                self.leaderboard.setdefault(player, 0)
+                self.leaderboard.setdefault(user, 0)
             self.nb_players += 1
 
-        self.players[player].paused = False
+        self.players[user].paused = False
+        self.players[user].withdrawn = False
 
-        response = self.players_json(user=player)
+        response = self.players_json(user=user)
         await self.broadcast(response)
 
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
 
-    async def withdraw(self, player):
-        if player in self.players:
-            del self.players[player]
-        self.leaderboard.pop(player)
+        await self.db_update_player(user, self.players[user])
+
+    async def withdraw(self, user):
+        self.players[user].withdrawn = True
+
+        self.leaderboard.pop(user)
         self.nb_players -= 1
 
-        response = self.players_json(user=player)
+        response = self.players_json(user=user)
         await self.broadcast(response)
 
         await self.broadcast_spotlight()
 
-    async def pause(self, player):
-        self.players[player].paused = True
+        await self.db_update_player(user, self.players[user])
+
+    async def pause(self, user):
+        self.players[user].paused = True
 
         # pause is different from withdraw and join because pause can be initiated from finished games page as well
-        response = self.players_json(user=player)
+        response = self.players_json(user=user)
         await self.broadcast(response)
 
-        if (self.top_player is not None) and self.top_player.username == player.username:
+        if (self.top_player is not None) and self.top_player.username == user.username:
             self.top_player = None
+
+        await self.db_update_player(user, self.players[user])
 
     def spactator_join(self, spectator):
         self.spectators.add(spectator)
@@ -458,7 +487,7 @@ class Tournament(ABC):
             # Before tournament starts leaderboard is ordered by ratings
             # After first pairing it will be sorted by score points and performance
             # so we have to make a clear (all 0) leaderboard here
-            new_leaderboard = [(player, 0) for player in self.leaderboard]
+            new_leaderboard = [(user, 0) for user in self.leaderboard]
             self.leaderboard = ValueSortedDict(neg, new_leaderboard)
             self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
 
@@ -548,7 +577,9 @@ class Tournament(ABC):
                 self.pause(bp)
                 log.debug("Black player %s left the tournament", bp.username)
 
-            if (check_top_game) and (self.top_player is not None) and (self.top_player.username in (game.wplayer.username, game.bplayer.username)):
+            if (check_top_game and (self.top_player is not None) and
+                    self.top_player.username in (game.wplayer.username, game.bplayer.username) and
+                    game.status != BYEGAME):  # Bye game
                 self.top_game = game
                 check_top_game = False
                 new_top_game = True
@@ -682,10 +713,12 @@ class Tournament(ABC):
             await self.broadcast(response)
 
             if (self.top_player is not None) and self.top_player.username not in (game.wplayer.username, game.bplayer.username):
-                self.top_game = self.players[self.top_player].games[-1]
-                if (self.top_game is not None) and (self.top_game.status <= STARTED):
-                    tgj = self.top_game_json
-                    await self.broadcast(tgj)
+                top_game_candidate = self.players[self.top_player].games[-1]
+                if top_game_candidate.status != BYEGAME:
+                    self.top_game = top_game_candidate
+                    if (self.top_game is not None) and (self.top_game.status <= STARTED):
+                        tgj = self.top_game_json
+                        await self.broadcast(tgj)
 
     async def broadcast(self, response):
         for spectator in self.spectators:
@@ -698,6 +731,60 @@ class Tournament(ABC):
             except KeyError:
                 # spectator was removed
                 pass
+
+    async def db_update_player(self, user, player_data):
+        if self.app["db"] is None:
+            return
+
+        player_id = player_data.id
+        player_table = self.app["db"].tournament_player
+
+        if player_data.id is None:  # new player join
+            player_id = await new_id(player_table)
+            player_data.id = player_id
+
+        if player_data.withdrawn:
+            new_data = {
+                "wd": True,
+            }
+        else:
+            full_score = self.leaderboard[user]
+            # print("%s %20s %s %s %s" % (i, user.title + user.username, player_data.points, int(full_score / SCORE_SHIFT), player_data.performance))
+            new_data = {
+                "_id": player_id,
+                "tid": self.id,
+                "uid": user.username,
+                "r": player_data.rating,
+                "pr": player_data.provisional,
+                "a": player_data.paused,
+                "f": player_data.win_streak == 2,
+                "s": int(full_score / SCORE_SHIFT),
+                "g": player_data.nb_games,
+                "w": player_data.nb_win,
+                "e": player_data.performance,
+                "p": player_data.points,
+                "wd": False,
+            }
+
+        try:
+            print(await player_table.find_one_and_update(
+                {"_id": player_id},
+                {"$set": new_data},
+                upsert=True,
+                return_document=ReturnDocument.AFTER)
+            )
+        except Exception:
+            if self.db is not None:
+                log.error("db find_one_and_update tournament_player %s into %s failed !!!", player_id, self.id)
+
+        new_data = {
+            "nbPlayers": self.nb_players
+        }
+        print(await self.app["db"].tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": new_data},
+            return_document=ReturnDocument.AFTER)
+        )
 
     async def save(self):
         if self.app["db"] is None:
@@ -722,34 +809,6 @@ class Tournament(ABC):
             return_document=ReturnDocument.AFTER)
         )
 
-        # TODO: save players and pairings on user join time and when games created
-        player_documents = []
-        player_table = self.app["db"].tournament_player
-
-        i = 0
-        for user, full_score in self.leaderboard.items():
-            i += 1
-            player = self.players[user]
-            # print("%s %20s %s %s %s" % (i, user.title + user.username, player.points, int(full_score / SCORE_SHIFT), player.performance))
-            player_id = await new_id(player_table)
-
-            player_documents.append({
-                "_id": player_id,
-                "tid": self.id,
-                "uid": user.username,
-                "r": player.rating,
-                "pr": player.provisional,
-                "a": player.paused,
-                "f": player.win_streak == 2,
-                "s": int(full_score / SCORE_SHIFT),
-                "g": player.nb_games,
-                "w": player.nb_win,
-                "e": player.performance,
-                "p": player.points,
-            })
-
-        await player_table.insert_many(player_documents)
-
         pairing_documents = []
         pairing_table = self.app["db"].tournament_pairing
 
@@ -757,7 +816,7 @@ class Tournament(ABC):
 
         for user, user_data in self.players.items():
             for game in user_data.games:
-                if game.status == NOSTART:  # ByeGame
+                if game.status == BYEGAME:  # ByeGame
                     continue
                 if game.id not in processed_games:
                     pairing_documents.append({
@@ -772,6 +831,9 @@ class Tournament(ABC):
                 processed_games.add(game.id)
 
         await pairing_table.insert_many(pairing_documents)
+
+        for user in self.leaderboard:
+            await self.db_update_player(user, self.players[user])
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)

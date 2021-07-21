@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-22 11:56+0200\n"
+"POT-Creation-Date: 2021-07-16 13:23+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Language-Team: Hindi (https://www.transifex.com/gbtami/teams/14790/hi/)\n"
 "MIME-Version: 1.0\n"
@@ -56,41 +56,61 @@ msgstr ""
 msgid "All players"
 msgstr ""
 
-#: ../templates/profile.html:14
+#: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../templates/template.html:12
+#: ../templates/template.html:17
 msgid "Tv"
 msgstr ""
 
-#: ../templates/template.html:13
+#: ../templates/template.html:18
 msgid "Current games"
 msgstr ""
 
-#: ../templates/template.html:14
+#: ../templates/template.html:19 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr ""
+
+#: ../templates/template.html:20
 msgid "Players"
 msgstr ""
 
-#: ../templates/template.html:15
+#: ../templates/template.html:21
 msgid "Editor"
 msgstr ""
 
-#: ../templates/template.html:16
+#: ../templates/template.html:22
 msgid "Analysis"
 msgstr ""
 
-#: ../templates/template.html:17
+#: ../templates/template.html:23
 msgid "Learn"
 msgstr ""
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Login with Lichess"
 msgstr ""
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Log in"
+msgstr ""
+
+#: ../templates/tournaments.html:9
+msgid "CREATE A NEW TOURNAMENT"
+msgstr ""
+
+#: ../templates/tournaments.html:18
+msgid "Now playing"
+msgstr ""
+
+#: ../templates/tournaments.html:20
+msgid "Starting soon"
+msgstr ""
+
+#: ../templates/tournaments.html:22
+msgid "Finished"
 msgstr ""

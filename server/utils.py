@@ -127,7 +127,7 @@ async def load_game(app, game_id, user=None):
 
     mlist = decode_moves(doc["m"], variant)
 
-    if mlist:
+    if mlist or (game.tournamentId is not None and doc["s"] > STARTED):
         game.saved = True
 
     if usi_format and variant == "shogi":

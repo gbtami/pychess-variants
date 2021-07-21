@@ -8,6 +8,7 @@ import logging
 import os
 from operator import neg
 from urllib.parse import urlparse
+from datetime import datetime, timezone
 
 import jinja2
 from aiohttp import web
@@ -81,6 +82,7 @@ async def init_state(app):
     # We have to put "kill" into a dict to prevent getting:
     # DeprecationWarning: Changing state of started or joined application is deprecated
     app["data"] = {"kill": False}
+    app["date"] = {"startedAt": datetime.now(timezone.utc)}
 
     if "db" not in app:
         app["db"] = None
@@ -178,16 +180,6 @@ async def init_state(app):
 
     # Read tournaments, users and highscore from db
     try:
-        cursor = app["db"].tournament.find()
-        cursor.sort('startsAt', -1)
-        counter = 0
-        async for doc in cursor:
-            if doc["status"] in (T_CREATED, T_STARTED):
-                await load_tournament(app, doc["_id"])
-                counter += 1
-                if counter > 3:
-                    break
-
         cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
@@ -203,6 +195,16 @@ async def init_state(app):
                     perfs=perfs,
                     enabled=doc.get("enabled", True)
                 )
+
+        cursor = app["db"].tournament.find()
+        cursor.sort('startsAt', -1)
+        counter = 0
+        async for doc in cursor:
+            if doc["status"] in (T_CREATED, T_STARTED):
+                await load_tournament(app, doc["_id"])
+                counter += 1
+                if counter > 3:
+                    break
 
         db_collections = await app["db"].list_collection_names()
 
@@ -229,8 +231,11 @@ async def init_state(app):
         raise
 
     # create test tournament
-    if 0:
+    if 1:
         pass
+        from fix_first_minishogi_arena import fix_first_minishogi_arena
+        await fix_first_minishogi_arena(app)
+
         # from first_janggi_tournament import add_games
         # await add_games(app)
 

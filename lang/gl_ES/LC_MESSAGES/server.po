@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-22 11:56+0200\n"
+"POT-Creation-Date: 2021-07-16 13:23+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
 "Language-Team: Galician (Spain) (https://www.transifex.com/gbtami/teams/14790/gl_ES/)\n"
@@ -62,41 +62,61 @@ msgstr "Anónimo"
 msgid "All players"
 msgstr "Tódolos xogadores"
 
-#: ../templates/profile.html:14
+#: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partida"
 msgstr[1] "%(count)s partidas"
 
-#: ../templates/template.html:12
+#: ../templates/template.html:17
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:13
+#: ../templates/template.html:18
 msgid "Current games"
 msgstr "Partidas actuais"
 
-#: ../templates/template.html:14
+#: ../templates/template.html:19 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr "Torneos"
+
+#: ../templates/template.html:20
 msgid "Players"
 msgstr "Xogadores"
 
-#: ../templates/template.html:15
+#: ../templates/template.html:21
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:16
+#: ../templates/template.html:22
 msgid "Analysis"
 msgstr "Análise"
 
-#: ../templates/template.html:17
+#: ../templates/template.html:23
 msgid "Learn"
 msgstr "Aprender"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Login with Lichess"
 msgstr "Identificarse con Lichess"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Log in"
 msgstr "Identificarse"
+
+#: ../templates/tournaments.html:9
+msgid "CREATE A NEW TOURNAMENT"
+msgstr "CREAR NOVO TORNEO"
+
+#: ../templates/tournaments.html:18
+msgid "Now playing"
+msgstr "Agora en xogo"
+
+#: ../templates/tournaments.html:20
+msgid "Starting soon"
+msgstr "Comezando cedo"
+
+#: ../templates/tournaments.html:22
+msgid "Finished"
+msgstr "Completados"

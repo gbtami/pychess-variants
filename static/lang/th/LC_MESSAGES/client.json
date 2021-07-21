@@ -83,27 +83,49 @@
     "Shogi variants": "เกมหมากรุกญี่ปุ่น",
     "Xiangqi variants": "เกมหมากรุกจีน",
     "Fairy piece variants": "เกมที่ใช้ตัวหมากพิเศษ",
+    "in %1 year": [
+        "ในอีก %1 ปี"
+    ],
     "%1 year ago": [
         "%1 ปีที่แล้ว"
+    ],
+    "in %1 month": [
+        "ในอีก %1 เดือน"
     ],
     "%1 month ago": [
         "%1 เดือนที่แล้ว"
     ],
+    "in %1 week": [
+        "ในอีก %1 สัปดาห์"
+    ],
     "%1 week ago": [
         "%1 สัปดาห์ที่แล้ว"
+    ],
+    "in %1 day": [
+        "ในอีก %1 วัน"
     ],
     "%1 day ago": [
         "%1 วันที่แล้ว"
     ],
+    "in %1 hour": [
+        "ในอีก %1 ชั่วโมง"
+    ],
     "%1 hour ago": [
         "%1 ชั่วโมงที่แล้ว"
+    ],
+    "in %1 minute": [
+        "ในอีก %1 นาที"
     ],
     "%1 minute ago": [
         "%1 นาทีที่แล้ว"
     ],
+    "in %1 second": [
+        "ในอีก %1 วินาที"
+    ],
     "%1 second ago": [
         "%1 วินาทีที่แล้ว"
     ],
+    "STARTING IN": "กำลังจะเริ่มในอีก",
     "%1 to play": "ตา%1เดิน",
     "Castling": "การเข้าป้อม",
     "White": "ขาว",
@@ -201,6 +223,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "กำลังรอให้ฝ่าย%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง...",
     "Switch pieces": "สลับตัวหมาก",
     "Ready": "พร้อม",
+    "VIEW TOURNAMENT": "ดูหน้าการแข่งขัน",
+    "BACK TO TOURNAMENT": "กลับสู่หน้าการแข่งขัน",
+    "PAUSE": "หยุดชั่วคราว",
     "REMATCH": "ขอเล่นอีกครั้ง",
     "NEW OPPONENT": "หาคู่ต่อสู้ใหม่",
     "Stop counting": "หยุดนับ",
@@ -211,6 +236,25 @@
     "Sound": "เสียง",
     "Background": "พื้นหลัง",
     "Board Settings": "ตั้งค่ากระดาน",
+    "Zen Mode": "โหมดสมาธิ",
+    "First": "หน้าแรก",
+    "Prev": "หน้าที่แล้ว",
+    "Next": "หน้าต่อไป",
+    "Last": "หน้าสุดท้าย",
+    "Scroll to your player": "เลื่อนไปหาคู่แข่ง",
+    "WITHDRAW": "ถอนตัว",
+    "JOIN": "เข้าร่วม",
+    "LOG IN": "เข้าสู่ระบบ",
+    "Tournament complete": "การแข่งขันเสร็จสิ้น",
+    "Performance": "คะแนนสมรรถนะ",
+    "Games played": "จำนวนเกมที่เล่น",
+    "Win rate": "อัตราชนะ",
+    "Average opponent": "ค่าเฉลี่ยคู่แข่ง",
+    "Custom position": "ตำแหน่งเริ่มต้นต่างจากปกติ",
+    "Analysis board": "ถอดหมาก",
+    "Off": "ปิด",
+    "On": "เปิด",
+    "ZEN MODE": "โหมดสมาธิ",
     "": {
         "language": "th",
         "plural-forms": "nplurals=1; plural=0;"

@@ -83,34 +83,63 @@
     "Shogi variants": "Variantes de Shogi",
     "Xiangqi variants": "Variantes de Xiangqi",
     "Fairy piece variants": "Variantes de piezas de fantasía",
+    "in %1 year": [
+        "en %1 año",
+        "en %1 años"
+    ],
     "%1 year ago": [
         "Hace %1 año",
         "Hace %1 años"
+    ],
+    "in %1 month": [
+        "en %1 mes",
+        "en %1 meses"
     ],
     "%1 month ago": [
         "Hace %1 mes",
         "Hace %1 meses"
     ],
+    "in %1 week": [
+        "en %1 semana",
+        "en %1 semanas"
+    ],
     "%1 week ago": [
         "Hace %1 semana",
         "Hace %1 semanas"
+    ],
+    "in %1 day": [
+        "en %1 día",
+        "en %1 días"
     ],
     "%1 day ago": [
         "Hace %1 día",
         "Hace %1 días"
     ],
+    "in %1 hour": [
+        "en %1 hora",
+        "en %1 horas"
+    ],
     "%1 hour ago": [
         "Hace %1 hora",
         "Hace %1 horas"
+    ],
+    "in %1 minute": [
+        "en %1 minuto",
+        "en %1 minutos"
     ],
     "%1 minute ago": [
         "Hace %1 minuto",
         "Hace %1 minutos"
     ],
+    "in %1 second": [
+        "en %1 segundo",
+        "en %1 segundos"
+    ],
     "%1 second ago": [
         "Hace %1 segundo",
         "Hace %1 segundos"
     ],
+    "STARTING IN": "COMENZANDO EN",
     "%1 to play": "Juegan %1",
     "Castling": "Enroque",
     "White": "Blanco",
@@ -135,7 +164,7 @@
     "Minutes per side:": "Minutos por lado:",
     "Periods": "Períodos",
     "Casual": "Casual",
-    "Rated": "Calificado",
+    "Rated": "Por puntos",
     "A.I. Level": "Nivel I.A.",
     "Random": "Aleatorio",
     "Create a game": "Crear una partida",
@@ -211,6 +240,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "Esperando que %1 elija las posiciones iniciales de los caballos y elefantes...",
     "Switch pieces": "Cambiar piezas",
     "Ready": "Listo",
+    "VIEW TOURNAMENT": "VER TORNEO",
+    "BACK TO TOURNAMENT": "VOLVER AL TORNEO",
+    "PAUSE": "PAUSAR",
     "REMATCH": "REVANCHA",
     "NEW OPPONENT": "NUEVO OPONENTE",
     "Stop counting": "Parar el conteo",
@@ -221,6 +253,25 @@
     "Sound": "Sonido",
     "Background": "Fondo",
     "Board Settings": "Preferencias del tablero",
+    "Zen Mode": "Modo Zen",
+    "First": "Primera",
+    "Prev": "Anterior",
+    "Next": "Siguiente",
+    "Last": "Última",
+    "Scroll to your player": "Localizar jugador",
+    "WITHDRAW": "RETIRARSE",
+    "JOIN": "UNIRSE",
+    "LOG IN": "IDENTIFICARSE",
+    "Tournament complete": "Torneo completo",
+    "Performance": "Rendimiento",
+    "Games played": "Partidas jugadas",
+    "Win rate": "Porcentaje de victorias",
+    "Average opponent": "Nivel medio rivales",
+    "Custom position": "Posición personalizada",
+    "Analysis board": "Tablero de análisis",
+    "Off": "Desactivado",
+    "On": "Activado",
+    "ZEN MODE": "MODO ZEN",
     "": {
         "language": "es",
         "plural-forms": "nplurals=2; plural=(n != 1);"

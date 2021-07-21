@@ -68,23 +68,44 @@
     "Shogi variants": "将棋变体",
     "Xiangqi variants": "象棋变体",
     "Fairy piece variants": "国际象棋变体（运用变种棋子）",
+    "in %1 year": [
+        ""
+    ],
     "%1 year ago": [
         "%1 年前"
+    ],
+    "in %1 month": [
+        ""
     ],
     "%1 month ago": [
         "%1 月前"
     ],
+    "in %1 week": [
+        ""
+    ],
     "%1 week ago": [
         "%1 周前"
+    ],
+    "in %1 day": [
+        ""
     ],
     "%1 day ago": [
         "%1 天前"
     ],
+    "in %1 hour": [
+        ""
+    ],
     "%1 hour ago": [
         "%1 小时前"
     ],
+    "in %1 minute": [
+        ""
+    ],
     "%1 minute ago": [
         "%1 分钟前"
+    ],
+    "in %1 second": [
+        ""
     ],
     "%1 second ago": [
         "%1 秒前"
