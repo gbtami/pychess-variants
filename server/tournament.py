@@ -469,7 +469,7 @@ class Tournament(ABC):
         await self.broadcast(response)
 
         if (self.top_player is not None) and self.top_player.username == user.username:
-            self.top_player = None
+            self.set_top_player()
 
         await self.db_update_player(user, self.players[user])
 
