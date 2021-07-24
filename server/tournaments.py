@@ -24,6 +24,7 @@ async def create_tournament(app, username, form):
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
+    shield = form["shield"] == "true"
 
     if form["startDate"]:
         start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(tzinfo=timezone.utc)
@@ -34,6 +35,16 @@ async def create_tournament(app, username, form):
     # Create meningful tournament name in case we forget to change it :)
     if name in ADMINS:
         name = "%s %s Arena" % (variant_display_name(variant).title(), time_control_str(base, inc, bp))
+
+    if shield:
+        name = "%s Shield Arena" % variant_display_name(variant).title()
+        description = """
+This Shield trophy is unique.
+The winner keeps it for one month,
+then must defend it during the next %s Shield tournament!
+""" % variant_display_name(variant).title()
+    else:
+        description = form["description"]
 
     data = {
         "name": name,
@@ -47,9 +58,10 @@ async def create_tournament(app, username, form):
         "system": ARENA,
         "beforeStart": int(form["waitMinutes"]),
         "startDate": start_date,
+        "shield": shield,
         "minutes": int(form["minutes"]),
         "fen": form["position"],
-        "description": form["description"],
+        "description": description,
     }
     tournament = await new_tournament(app, data)
 
@@ -94,6 +106,7 @@ async def new_tournament(app, data):
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
         starts_at=data.get("startDate"),
+        shield=data.get("shield", False),
         name=data["name"],
         description=data["description"],
         created_at=data.get("createdAt"),
@@ -119,6 +132,7 @@ async def insert_tournament_to_db(tournament, app):
         "_id": tournament.id,
         "name": tournament.name,
         "d": tournament.description,
+        "sh": tournament.shield,
         "minutes": tournament.minutes,
         "v": V2C[tournament.variant],
         "b": tournament.base,
@@ -180,6 +194,7 @@ async def get_latest_tournaments(app):
                 starts_at=doc.get("startsAt"),
                 name=doc["name"],
                 description=doc.get("d", ""),
+                shield=doc.get("sh", False),
                 status=doc["status"],
                 with_clock=False
             )
@@ -231,6 +246,7 @@ async def load_tournament(app, tournament_id):
         starts_at=doc.get("startsAt"),
         name=doc["name"],
         description=doc.get("d", ""),
+        shield=doc.get("sh", False),
         status=doc["status"],
     )
 

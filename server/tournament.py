@@ -116,7 +116,7 @@ class Tournament(ABC):
         They have to implement create_pairing() for waiting_players """
 
     def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="", description="",
-                 fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, starts_at=None, status=None, with_clock=True):
+                 fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, starts_at=None, status=None, with_clock=True, shield=False):
         self.app = app
         self.id = tournamentId
         self.name = name
@@ -131,6 +131,7 @@ class Tournament(ABC):
         self.byoyomi_period = byoyomi_period
         self.chess960 = chess960
         self.rounds = rounds
+        self.shield = shield
 
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at

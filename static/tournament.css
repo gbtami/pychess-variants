@@ -390,3 +390,16 @@ div.player {
 td.bye {
     text-align: center;
 }
+.shield-trophy {
+    display: block;
+    width: 67px;
+    height: 80px;
+    background: url(images/trophy/shield-gold.png) no-repeat;
+    background-size: contain;
+    font-family: 'pychess';
+    font-size: 40px;
+    line-height: 70px;
+    text-align: center;
+    color: #333 !important;
+    text-shadow: 0 0 6px #fff;
+}

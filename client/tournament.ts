@@ -521,6 +521,13 @@ export default class TournamentController {
     }
 
     private onMsgUserConnected(msg) {
+        const variant = VARIANTS[this.model.variant];
+        const chess960 = this.model.chess960 === 'True';
+        const dataIcon = variant.icon(chess960);
+
+        const trophy = document.getElementById('trophy') as Element;
+        if (trophy && msg.shield) patch(trophy, h('a', {class: {"shield-trophy": true} }, dataIcon));
+        
         this.system = msg.tsystem;
         const tsystem = document.getElementById('tsystem') as Element;
         patch(tsystem, h('div#tsystem', gameType(this.model["rated"]) + " • " + this.tSystem(this.system)));
@@ -741,7 +748,7 @@ export function tournamentView(model): VNode[] {
         h('div.players', [
             h('div.box', [
                 h('div.tour-header', [
-                    // h('i', {class: {"icon": true, "icon-trophy": true} }),
+                    h('div#trophy'),
                     h('h1', model["title"]),
                     h('div#clockdiv'),
                 ]),
