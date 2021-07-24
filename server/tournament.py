@@ -155,6 +155,10 @@ class Tournament(ABC):
         self.nb_players = 0
 
         self.nb_games_finished = 0
+        self.w_win = 0
+        self.b_win = 0
+        self.draw = 0
+
         self.nb_games_cached = -1
         self.leaderboard_cache = {}
 
@@ -374,6 +378,19 @@ class Tournament(ABC):
                 return_document=ReturnDocument.AFTER)
             )
 
+    @property
+    def summary(self):
+        return {
+            "type": "tstatus",
+            "tstatus": self.status,
+            "nbPlayers": self.nb_players,
+            "nbGames": self.nb_games_finished,
+            "wWin": self.w_win,
+            "bWin": self.b_win,
+            "draw": self.draw,
+            "sumRating": sum(self.players[player].rating for player in self.players if not self.players[player].withdrawn),
+        }
+
     async def finalize(self, status):
         self.status = status
 
@@ -397,7 +414,7 @@ class Tournament(ABC):
         # force to create new players json data
         self.nb_games_cached = -1
 
-        await self.broadcast({"type": "tstatus", "tstatus": self.status})
+        await self.broadcast(self.summary)
         await self.save()
 
         await self.broadcast_spotlight()
@@ -689,6 +706,13 @@ class Tournament(ABC):
 
         self.ongoing_games -= 1
         self.nb_games_finished += 1
+
+        if game.result == "1-0":
+            self.w_win += 1
+        elif game.result == "0-1":
+            self.b_win += 1
+        elif game.result == "1/2-1/2":
+            self.draw += 1
 
         wplayer.free = True
         bplayer.free = True

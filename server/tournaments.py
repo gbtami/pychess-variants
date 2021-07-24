@@ -279,9 +279,11 @@ async def load_tournament(app, tournament_id):
     cursor = pairing_table.find({"tid": tournament_id})
     cursor.sort('d', 1)
 
+    w_win, b_win, draw = 0, 0, 0
     async for doc in cursor:
+        res = doc["r"]
         _id = doc["_id"]
-        result = C2R[doc["r"]]
+        result = C2R[res]
         wp, bp = doc["u"]
         wrating = doc["wr"]
         brating = doc["br"]
@@ -291,5 +293,16 @@ async def load_tournament(app, tournament_id):
 
         tournament.players[users[wp]].games.append(game_data)
         tournament.players[users[bp]].games.append(game_data)
+
+        if res == "a":
+            w_win += 1
+        elif res == "b":
+            b_win += 1
+        elif res == "c":
+            draw += 1
+
+    tournament.w_win = w_win
+    tournament.b_win = b_win
+    tournament.draw = draw
 
     return tournament

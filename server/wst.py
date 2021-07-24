@@ -158,6 +158,9 @@ async def tournament_socket_handler(request):
                         if (tournament.top_game is not None) and (tournament.top_game.status <= STARTED):
                             await ws.send_json(tournament.top_game_json)
 
+                        if tournament.status > T_STARTED:
+                            await ws.send_json(tournament.summary)
+
                         response = {"type": "fullchat", "lines": list(request.app["tourneychat"][tournamentId])}
                         await ws.send_json(response)
 

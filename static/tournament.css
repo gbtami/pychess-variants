@@ -119,6 +119,7 @@ button#action::before {
 }
 .tour-table {
     grid-area: table;
+    align-self: flex-start;
 }
 table.players tr {
     cursor: pointer;
@@ -237,6 +238,15 @@ div#stats {
     color: var(--bad);
     background: none;
 }
+.tour-stats table {
+    margin: auto;
+}
+.tour-stats td {
+    font-weight: bold;
+    padding-left: 1em;
+    text-align: right;
+    line-height: 2em;
+}
 #stats table {
     margin: 1em auto;
 }
@@ -349,14 +359,33 @@ div.player {
     text-align: right;
 }
 
-.tour-stats {
-    padding: 1.7em 0;
-    align-self: flex-start;
+.tour-table table {
+    margin: auto;
 }
-.tour-stats h2 {
+#summary.box  {
+    padding: 1.7em 0;
+}
+#summary h2 {
     font-size: 1.5em;
     margin-bottom: 1em;
     text-align: center;
+}
+#summary table td {
+    font-weight: bold;
+    padding: 0 0 0 1em;
+    text-align: right;
+    line-height: 2em;
+}
+.tour-stats-links {
+    margin: 2em auto 0 auto;
+}
+.tour-stats-links a {
+    display: block;
+    margin: 0.5em 0;
+    color: var(--link-color-blue);
+}
+[class*=" icon-"]:before {
+    margin-right: 0.4em;
 }
 td.bye {
     text-align: center;

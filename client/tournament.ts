@@ -102,8 +102,6 @@ export default class TournamentController {
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
-        if (this.completed()) this.renderSummary();
-
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.playerGamesOn = false;
 
@@ -195,11 +193,29 @@ export default class TournamentController {
         return 'aborted|finished|archived'.includes(this.tournamentStatus);
     }
 
-    renderSummary() {
-        const summary = h('div.tour-stats.box', [
+    renderSummary(msg) {
+        const summary = h('div#summary', {class: {"box": true}}, [
             h('h2', _('Tournament complete')),
+            h('table', [
+                h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
+                h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
+                h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
+                h('tr', [h('th', _('White wins')), h('td', this.winRate(msg.nbGames, msg.wWin))]),
+                h('tr', [h('th', _('Black wins')), h('td', this.winRate(msg.nbGames, msg.bWin))]),
+                h('tr', [h('th', _('Draws')), h('td', this.winRate(msg.nbGames, msg.draw))]),
+                //h('tr', [h('div', _('Berserk rate')), h('td', 0)]),
+            ]),
+            h('table.tour-stats-links', [
+                h('a.i-dl.icon.icon-download', {
+                    attrs: {
+                        href: '/games/export/tournament/' + this.model["tournamentId"],
+                        download: this.model["tournamentId"] + '.pgn',
+                    },
+                }, _('Download all games')),
+            ]),
         ]);
-        patch(document.getElementById('summary') as HTMLElement, h('div#summary', summary));
+        const el = document.getElementById('summarybox') as HTMLElement;
+        if (el) patch(el, summary);
     }
 
     renderPlayers(players) {
@@ -565,7 +581,7 @@ export default class TournamentController {
             patch(this.clockdiv, h('div#clockdiv'));
             this.renderEmptyTopGame();
             (document.getElementById('player') as HTMLElement).style.display = 'none';
-            this.renderSummary();
+            this.renderSummary(msg);
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
     }
@@ -735,7 +751,7 @@ export function tournamentView(model): VNode[] {
             ]),
         ]),
         h('div.tour-table', [
-            h('div#summary'),
+            h('div#summarybox'),
             h('div#top-game'),
             h('div#player', [
                     h('div#stats.box'),

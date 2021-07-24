@@ -233,7 +233,7 @@ async def get_games(request):
 async def export(request):
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
-
+    tournamentId = request.match_info.get("tournamentId")
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -245,6 +245,8 @@ async def export(request):
 
     if profileId is not None:
         cursor = db.game.find({"us": profileId})
+    if tournamentId is not None:
+        cursor = db.game.find({"tid": tournamentId})
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")
         print("---", yearmonth[:4], yearmonth[4:])
