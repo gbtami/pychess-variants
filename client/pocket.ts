@@ -203,7 +203,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
     //if the piece we are dragging is different than the currently selected for click-drop, then cancel the click-drop
     //if it is the same, we will not cancel it yet - if this drag event turns out to just be a click - then the cancelling will happen in the click method
     //if it is an actual drag then no point in canelling ???
-    if (ctrl.clickDropEnabled && ctrl.chessground.state.dropmode.piece && ctrl.chessground.state.dropmode.piece.role != role) {
+    if (ctrl.chessground.state.dropmode.piece && ctrl.chessground.state.dropmode.piece.role != role) {
         ctrl.chessground.selectSquare(null);
         cancelDropMode(ctrl.chessground.state);
         el.setAttribute("just-unselected","true");//right after this, the click event might also fire if not an actual drag. use this attr to detect if current piece has just been unselected to do nothing instead of selecting in right back in thus reverting the effect of this if body

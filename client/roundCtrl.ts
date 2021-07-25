@@ -92,8 +92,6 @@ export default class RoundController {
     players: string[];
     titles: string[];
     ratings: string[];
-    //clickDrop: Piece | undefined;
-    clickDropEnabled: boolean;
     animation: boolean;
     showDests: boolean;
     blindfold: boolean;
@@ -155,7 +153,6 @@ export default class RoundController {
 
         this.flip = false;
         this.settings = true;
-        this.clickDropEnabled = true;
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
@@ -916,11 +913,6 @@ export default class RoundController {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
-            } else if (this.clickDropEnabled) {
-                console.log('onDrop->else if');
-                //console.log(this.clickDrop);
-                console.log(this.chessground.state);
-                //this.clickDrop = piece;
             }
         }
     }
@@ -1029,7 +1021,6 @@ export default class RoundController {
         } else {
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
-            //this.clickDrop = undefined;
             this.chessground.set({
                 fen: this.fullfen,
                 lastMove: this.lastmove,
@@ -1051,11 +1042,6 @@ export default class RoundController {
 
             // If drop selection was set dropDests we have to restore dests here
             if (key != 'a0' && this.chessground.state.dropmode.active/*'a0' in this.chessground.state.movable.dests TODO:not sure if this even made sense before the changes*/) {
-                //if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
-                //    this.chessground.newPiece(this.clickDrop, key);
-                //    this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
-                //}
-                //this.clickDrop = undefined;
                 cancelDropMode(this.chessground.state);//TODO:move to events.ts together with the line below (and next maybe as well)
                 updatePockets(this,this.vpocket0,this.vpocket1)//TODO:if we move pocket.ts to chessgroundx this call can be done there, which would be one more piece of board logic moved away from pychess. see below more similar comments about moving other stuff to chessgroundx maybe as well
                 this.chessground.set({ movable: { dests: this.dests }});
