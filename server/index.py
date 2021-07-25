@@ -248,14 +248,14 @@ async def index(request):
             render["trophies"] = []
         else:
             hs = request.app["highscore"]
-            render["trophies"] = [(variant, "top10") for variant in hs if profileId in hs[variant]]
-            for i, (variant, kind) in enumerate(render["trophies"]):
-                if hs[variant].peekitem(0)[0] == profileId:
-                    render["trophies"][i] = (variant, "top1")
+            render["trophies"] = [(v, "top10") for v in hs if profileId in hs[v]]
+            for i, (v, kind) in enumerate(render["trophies"]):
+                if hs[v].peekitem(0)[0] == profileId:
+                    render["trophies"][i] = (v, "top1")
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 
             shield_owners = request.app["shield_owners"]
-            render["trophies"] += [(variant, "shield") for variant in shield_owners if shield_owners[variant] == profileId]
+            render["trophies"] += [(v, "shield") for v in shield_owners if shield_owners[v] == profileId]
 
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
