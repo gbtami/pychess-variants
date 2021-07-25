@@ -245,7 +245,7 @@ async def export(request):
 
     if profileId is not None:
         cursor = db.game.find({"us": profileId})
-    if tournamentId is not None:
+    elif tournamentId is not None:
         cursor = db.game.find({"tid": tournamentId})
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")

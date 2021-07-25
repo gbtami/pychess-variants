@@ -36,6 +36,8 @@ const scoreTagNames = ['score', 'streak', 'double'];
 
 const SCORE_SHIFT = 100000;
 
+const SHIELD = 's';
+
 
 export default class TournamentController {
     model;
@@ -526,7 +528,7 @@ export default class TournamentController {
         const dataIcon = variant.icon(chess960);
 
         const trophy = document.getElementById('trophy') as Element;
-        if (trophy && msg.shield) patch(trophy, h('a', {class: {"shield-trophy": true} }, dataIcon));
+        if (trophy && msg.frequency === SHIELD) patch(trophy, h('a', {class: {"shield-trophy": true} }, dataIcon));
         
         this.system = msg.tsystem;
         const tsystem = document.getElementById('tsystem') as Element;

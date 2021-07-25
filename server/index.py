@@ -18,7 +18,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name
+from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -241,11 +241,22 @@ async def index(request):
         "variants": VARIANTS,
         "variant_display_name": variant_display_name,
     }
+
     if view in ("profile", "level8win"):
         if view == "level8win":
             profileId = "Fairy-Stockfish"
+            render["trophies"] = []
+        else:
+            hs = request.app["highscore"]
+            render["trophies"] = [(variant, "top10") for variant in hs if profileId in hs[variant]]
+            for i, (variant, kind) in enumerate(render["trophies"]):
+                if hs[variant].peekitem(0)[0] == profileId:
+                    render["trophies"][i] = (variant, "top1")
+            render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
+
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
+        render["cup"] = TROPHIES
         if profileId not in users or users[profileId].perfs is None:
             render["ratings"] = {}
         else:
@@ -257,7 +268,7 @@ async def index(request):
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
 
-    if view == "players":
+    elif view == "players":
         online_users = [u for u in users.values() if u.username == user.username or (u.online and not u.anon)]
         anon_online = sum((1 for u in users.values() if u.anon and u.online))
 

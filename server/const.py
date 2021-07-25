@@ -1,8 +1,13 @@
+from settings import static_url
+
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
 
 # tournament status
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
+
+# tournament frequency
+DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
 
 # tournament pairing
 ARENA, RR, SWISS = range(3)
@@ -128,6 +133,14 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
+}
+
+TROPHIES = {
+    "top1": (static_url("images/trophy/Big-Gold-Cup.png"), "Champion!"),
+    "top10": (static_url("images/trophy/Big-Silver-Cup.png"), "Top 10!"),
+    "top50": (static_url("images/trophy/Fancy-Gold-Cup.png"), "Top 50!"),
+    "top100": (static_url("images/trophy/Gold-Cup.png"), "Top 100!"),
+    "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
 }
 
 
