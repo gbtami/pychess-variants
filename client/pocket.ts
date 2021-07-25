@@ -1,3 +1,5 @@
+//TODO:maybe move this to chessgroundx - in one version of shogiground it is moved there, but also logically the pocket belongs to the board - this way more  board logic like calls to updatePockets can be moved entireliy to chessgroundx and away of pychess
+
 import { h, init } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
@@ -14,7 +16,7 @@ import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 import { Color, Role } from 'chessgroundx/types';
 //import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import predrop from 'chessgroundx/predrop';
+//import predrop from 'chessgroundx/predrop';
 
 import { role2san, letter2role, lc } from './chess';
 import RoundController from './roundCtrl';
@@ -221,7 +223,7 @@ export function mouseupAfterDrag(ctrl: RoundController | AnalysisController, e: 
     } else {
         cancelDropMode(ctrl.chessground.state);
         ctrl.dropmodeActive = false;
-        ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
+        //ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
 
         ctrl.chessground.selectSquare(null);
         updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
@@ -259,7 +261,7 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
         if ( ctrl.turnColor === ctrl.mycolor) {
             console.log(">>>>>>>>>>>>>>>> ", ctrl.dests);
 
-            const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]);
+            const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]);//TODO:ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
             
             //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
             ctrl.chessground.set({
@@ -271,18 +273,19 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
                 },
             });
         } else {
-            const roleKey = role2san(role) + "@";
+            //const roleKey = role2san(role) + "@";
+            //setDropMode(ctrl.chessground.state, { color, role });
             //TODO:this should probably happen in chessgroundx ? is it possible - i think premove is called from there but not sure how aware it is about the concept of pockets
-            const dropDests = predrop(role, ctrl.chessground.state.variant);//ctrl.myDests[roleKey];
-            console.log("select for predrop >>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
+            //const dropDests = predrop(role, ctrl.chessground.state.variant);//ctrl.myDests[roleKey];
+            //console.log("select for predrop >>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
             //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
-            ctrl.chessground.set({
-                predroppable: {
-                    dropDests: dropDests,
-                    showDropDests: ctrl.showDests,
-                    current: {"role":role, key:"a0"}
-                },
-            });
+            // ctrl.chessground.set({
+            //     predroppable: {
+            //         dropDests: dropDests,
+            //         showDropDests: ctrl.showDests,
+            //         //current: {"role":role, key:"a0"}
+            //     },
+            // });
             //ctrl.chessground.selectSquare("a0"); this is noop
             console.log(ctrl.chessground.state);
 
@@ -291,7 +294,7 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
     } else {
         cancelDropMode(ctrl.chessground.state);
         ctrl.dropmodeActive = false;
-        ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
+        //ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
         ctrl.chessground.selectSquare(null);
 
     }
@@ -322,7 +325,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
     //if it is the same, we will not cancel it yet - if this drag event turns out to just be a click - then the cancelling will happen in the click method
     //if it is an actual drag then no point in canelling ???
     if (ctrl.clickDropEnabled && ctrl.chessground.state.dropmode.piece /*&& ctrl.chessground.state.dropmode.piece.role != role*//*&& ctrl.clickDrop !== undefined && role === ctrl.clickDrop.role*/) {
-        ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
+        //ctrl.clickDrop = undefined;//TODO:what is this - is it always undefined
         ctrl.chessground.selectSquare(null);
         cancelDropMode(ctrl.chessground.state);
         ctrl.dropmodeActive = false;
@@ -341,23 +344,23 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
             // console.log("     new piece to a0", role);
             //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
             ctrl.chessground.set({
-                dropmode: {
+                dropmode: {//TODO:why not draggable?
                     dropDests: dropDests,
                     showDropDests: ctrl.showDests,
                 },
             });
         } else {//TODO: in ctrl should keep both sides dests and not only the ones whose current move is so we can use it for pre-drop
-            const roleKey = role2san(role) + "@";
-            const dropDests = predrop(role, ctrl.chessground.state.variant);//const dropDests = ctrl.myDests[roleKey];
-            console.log(">>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
+            //const roleKey = role2san(role) + "@";
+            //const dropDests = predrop(role, ctrl.chessground.state.variant);//const dropDests = ctrl.myDests[roleKey];
+            //console.log(">>>>>>>>>>>>>>>> ",roleKey," : ",dropDests, " : ", ctrl.dests);
             
             //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
-            ctrl.chessground.set({
-                predroppable: {
-                    dropDests: dropDests,
-                    showDropDests: ctrl.showDests,
-                },
-            });
+            // ctrl.chessground.set({
+            //     predroppable: {
+            //         dropDests: dropDests,
+            //         showDropDests: ctrl.showDests,
+            //     },
+            // });
 
         }
 

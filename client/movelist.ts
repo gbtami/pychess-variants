@@ -138,8 +138,6 @@ export function updateMovelist (ctrl, full = true, activate = true, needResult =
     if (activate)
         activatePly(ctrl);
         scrollToPly(ctrl);
-
-    console.log('exit updateMovelist');
 }
 
 export function updateResult (ctrl) {

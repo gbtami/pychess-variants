@@ -92,7 +92,7 @@ export default class RoundController {
     players: string[];
     titles: string[];
     ratings: string[];
-    clickDrop: Piece | undefined;
+    //clickDrop: Piece | undefined;
     clickDropEnabled: boolean;
     animation: boolean;
     showDests: boolean;
@@ -633,8 +633,8 @@ export default class RoundController {
               // fix predrop dests
             this.chessground.state.predroppable.dropDests=undefined;
             var pdrole : Role | undefined = undefined;//TODO:sure below if can be some expression instead and this can be const - types are different though - one allows undefined the other is strict Role i think
-            if (this.chessground.state.predroppable.current?.role){
-                pdrole = this.chessground.state.predroppable.current?.role;
+            if (this.chessground.state.dropmode.piece?.role){//TODO:this whole thing belongs in chessground somehow - but where can i put it on turn change
+                pdrole = this.chessground.state.dropmode.piece?.role;
             } else if (this.chessground.state.draggable.current?.piece.role){
                 pdrole = this.chessground.state.draggable.current?.piece.role;
             } else {
@@ -920,9 +920,9 @@ export default class RoundController {
                 sound.moveSound(this.variant, false);
             } else if (this.clickDropEnabled) {
                 console.log('onDrop->else if');
-                console.log(this.clickDrop);
+                //console.log(this.clickDrop);
                 console.log(this.chessground.state);
-                this.clickDrop = piece;
+                //this.clickDrop = piece;
             }
         }
     }
@@ -963,8 +963,8 @@ export default class RoundController {
     }
 
     private onUserMove = (orig, dest, meta) => {
-        this.dropmodeActive = false;
-        cancelDropMode(this.chessground.state);
+        this.dropmodeActive = false;//TODO:why do we need this property - isnt state enough?
+        cancelDropMode(this.chessground.state);//why cancel - the drop was already performed at this point (at least when valid) - at least misleading name
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
@@ -988,7 +988,7 @@ export default class RoundController {
 
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
+            if (position === "top") {//TODO:this refreshes pocket similar to pocket.ts -> updatePocket - consider moving it there - what is the difference?
                 this.pockets[0][role]++;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
@@ -1031,7 +1031,7 @@ export default class RoundController {
         } else {
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
-            this.clickDrop = undefined;
+            //this.clickDrop = undefined;
             this.chessground.set({
                 fen: this.fullfen,
                 lastMove: this.lastmove,
@@ -1053,13 +1053,13 @@ export default class RoundController {
 
             // If drop selection was set dropDests we have to restore dests here
             if (key != 'a0' && this.chessground.state.dropmode.active/*'a0' in this.chessground.state.movable.dests TODO:not sure if this even made sense before the changes*/) {
-                if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
-                    this.chessground.newPiece(this.clickDrop, key);
-                    this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
-                }
-                this.clickDrop = undefined;
-                cancelDropMode(this.chessground.state);
-                updatePockets(this,this.vpocket0,this.vpocket1)
+                //if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
+                //    this.chessground.newPiece(this.clickDrop, key);
+                //    this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
+                //}
+                //this.clickDrop = undefined;
+                cancelDropMode(this.chessground.state);//TODO:move to events.ts together with the line below (and next maybe as well)
+                updatePockets(this,this.vpocket0,this.vpocket1)//TODO:if we move pocket.ts to chessgroundx this call can be done there, which would be one more piece of board logic moved away from pychess. see below more similar comments about moving other stuff to chessgroundx maybe as well
                 this.chessground.set({ movable: { dests: this.dests }});
             }
 
