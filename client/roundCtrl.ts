@@ -103,8 +103,6 @@ export default class RoundController {
     prevPieces: Pieces;
     focus: boolean;
 
-    dropmodeActive: boolean = false;//TODO:do i really need that - is there existing one for this with a different
-
     constructor(el, model) {
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
@@ -963,7 +961,7 @@ export default class RoundController {
     }
 
     private onUserMove = (orig, dest, meta) => {
-        this.dropmodeActive = false;//TODO:why do we need this property - isnt state enough?
+
         cancelDropMode(this.chessground.state);//why cancel - the drop was already performed at this point (at least when valid) - at least misleading name
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
@@ -1007,7 +1005,7 @@ export default class RoundController {
     }
 
     private onUserDrop = (role, dest, meta) => {
-        this.dropmodeActive = false;
+
         cancelDropMode(this.chessground.state);
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
