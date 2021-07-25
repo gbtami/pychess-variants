@@ -24,6 +24,7 @@ from broadcast import lobby_broadcast, round_broadcast
 from const import VARIANTS, STARTED, LANGUAGES, T_CREATED, T_STARTED
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
+from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
 from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
@@ -107,6 +108,9 @@ async def init_state(app):
     app["invite_channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
     app["crosstable"] = {}
+    app["shield"] = {}
+    app["shield_owners"] = {}  # {variant: username, ...}
+
     app["stats"] = {}
 
     # counters for games
@@ -205,6 +209,8 @@ async def init_state(app):
                 counter += 1
                 if counter > 3:
                     break
+
+        await generate_shield(app)
 
         db_collections = await app["db"].list_collection_names()
 

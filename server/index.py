@@ -254,6 +254,9 @@ async def index(request):
                     render["trophies"][i] = (variant, "top1")
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 
+            shield_owners = request.app["shield_owners"]
+            render["trophies"] += [(variant, "shield") for variant in shield_owners if shield_owners[variant] == profileId]
+
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
         render["cup"] = TROPHIES

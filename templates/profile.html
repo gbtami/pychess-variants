@@ -25,9 +25,13 @@
             </h1>
             <div class="trophies">
             {% for key, kind in trophies %}
+                {% if kind == "shield" %}
+                <a class="shield-trophy combo-trophy" title="{{ variant_display_name(key).title() }} {{ cup[kind][1] }}">{{ icons[key] }}</a>
+                {% else %}
                 <span class="trophy perf {{ kind }}" title="{{ variant_display_name(key).title() }} {{ cup[kind][1] }}">
                     <img src="{{ cup[kind][0] }}"></img>
                 </span>
+                {% endif %}
             {% endfor %}
             </div>
         </div>

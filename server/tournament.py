@@ -13,7 +13,7 @@ from pymongo import ReturnDocument
 from broadcast import lobby_broadcast
 from compress import R2C
 from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
-    ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED
+    ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED, SHIELD
 from game import Game
 from glicko2.glicko2 import gl2
 from misc import time_control_str
@@ -859,6 +859,11 @@ class Tournament(ABC):
 
         for user in self.leaderboard:
             await self.db_update_player(user, self.players[user])
+
+        if self.frequency == SHIELD:
+            variant_name = self.variant + ("960" if self.chess960 else "")
+            self.app["shield"][variant_name].append((winner, self.starts_at, self.id))
+            self.app["shield_owners"][variant_name] = winner
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)

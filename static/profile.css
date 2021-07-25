@@ -61,6 +61,14 @@ div.filter-tabs div.sub-ratings {
 .trophy.top1 {
     filter: drop-shadow(0 0 6px #d59020);
 }
+.combo-trophy {
+    width: 60px;
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    font-family: 'pychess';
+    text-align: center;
+}
 .shield-trophy {
     width: 50px;
     background-image: url(images/trophy/shield-gold.png);
@@ -71,18 +79,10 @@ div.filter-tabs div.sub-ratings {
     margin-top: -20px;
     filter: drop-shadow(0 0 6px #d59020);
 }
-.combo-trophy {
-    width: 60px;
-    height: 60px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    font-family: 'pychess';
-    text-align: center;
-}
 .btn-rack {
     display: inline-flex;
     align-items: center;
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--border-color);
     border-radius: 3px;
     margin: 1em;
 }
@@ -92,8 +92,8 @@ div.filter-tabs div.sub-ratings {
     text-align: center;
     line-height: 2rem;
     cursor: pointer;
-    border-right: 1px solid #d9d9d9;
-    color: #4d4d4d;
+    border-right: 1px solid var(--border-color);
+    color: var(--font-color);
 }
 [class*=" icon-"]::before {
     line-height: 2rem;
