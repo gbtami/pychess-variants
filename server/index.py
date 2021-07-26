@@ -122,11 +122,12 @@ async def index(request):
         view = "paste"
     elif request.path.startswith("/tournaments"):
         view = "tournaments"
-        if request.path.endswith("/new"):
-            view = "arena-new"
-        elif request.path.endswith("/arena"):
-            data = await request.post()
-            await create_tournament(request.app, user.username, data)
+        if user.username in ADMINS:
+            if request.path.endswith("/new"):
+                view = "arena-new"
+            elif request.path.endswith("/arena"):
+                data = await request.post()
+                await create_tournament(request.app, user.username, data)
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
