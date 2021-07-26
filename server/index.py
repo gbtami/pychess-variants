@@ -248,7 +248,7 @@ async def index(request):
             render["trophies"] = []
         else:
             hs = request.app["highscore"]
-            render["trophies"] = [(v, "top10") for v in hs if profileId in hs[v]]
+            render["trophies"] = [(v, "top10") for v in hs if profileId in hs[v].keys()[:10]]
             for i, (v, kind) in enumerate(render["trophies"]):
                 if hs[v].peekitem(0)[0] == profileId:
                     render["trophies"][i] = (v, "top1")
