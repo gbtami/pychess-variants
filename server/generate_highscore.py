@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from const import VARIANTS
+from const import VARIANTS, HIGHSCORE_MIN_GAMES
 
 
 async def generate_highscore(db):
@@ -10,7 +10,7 @@ async def generate_highscore(db):
         d = "perfs.%s.gl.d" % variant
         r = "perfs.%s.gl.r" % variant
         nb = "perfs.%s.nb" % variant
-        filt = {d: {"$lt": 350}, "enabled": {"$ne": False}, nb: {"$gte": 5}}
+        filt = {d: {"$lt": 350}, "enabled": {"$ne": False}, nb: {"$gte": HIGHSCORE_MIN_GAMES}}
 
         scores = {}
         cursor = db.user.find(filt, sort=[(r, -1)], limit=10)

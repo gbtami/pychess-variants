@@ -1,5 +1,8 @@
 from settings import static_url
 
+# Minimum number of rated games needed
+HIGHSCORE_MIN_GAMES = 5
+
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
 
