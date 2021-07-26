@@ -107,3 +107,6 @@ textarea.form-control {
     font-size: 90%;
     color: var(--button-text);
 }
+input[type="checkbox"] {
+    width: auto;
+}
