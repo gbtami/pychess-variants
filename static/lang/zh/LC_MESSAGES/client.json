@@ -48,6 +48,8 @@
     "Pieces promote and can be dropped": "日本将棋。棋子既可升变，又能打入",
     "Shogi on a 5x5 board": "在5x5棋盘上的日本将棋",
     "5x5 Shogi where pieces flip to a different piece each move": "5x5的日本将棋，但棋子每走一步会翻转成为别种棋子",
+    "Shogi on a 3x4 board": "在3x4棋盘上的日本将棋",
+    "Shogi on a 5x6 board": "在5x6棋盘上的日本将棋",
     "Open fire on your opponent in this highly aggressive ancient game": "正统中国象棋",
     "The lone Red rook can also move as a cannon or a knight.": "单独红车能行如车，炮或马",
     "Similar to Xiangqi, but plays very differently. Tournament rules are used": "朝鲜将棋。相似象棋，但玩法异同。本网站使用大赛规则。",
@@ -61,6 +63,7 @@
     "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board": "来自象棋的“炮”和“象”进入10x10路棋盘上的国际象棋大战",
     "Pieces promote and can be dropped, similar to Shogi": "棋子既可升变，又能打入，如同日本将棋",
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "非对称棋类，一方指挥走法如马但吃法不一致的棋子",
+    "Like Capablanca Chess but with Grand starting setup": "相似Capablanca但使用Grand的起始局面",
     "Like Capablanca Chess but with a different starting setup": "相似Capablanca但起始局面不一致",
     "Gothic with Crazyhouse drop rules": " 在Gothic上添加Crazyhouse的打入规则",
     "Standard piece variants": "国际象棋变体（运用正常棋子）",
@@ -69,47 +72,48 @@
     "Xiangqi variants": "象棋变体",
     "Fairy piece variants": "国际象棋变体（运用变种棋子）",
     "in %1 year": [
-        ""
+        "%1 年后"
     ],
     "%1 year ago": [
         "%1 年前"
     ],
     "in %1 month": [
-        ""
+        "%1 个月后"
     ],
     "%1 month ago": [
         "%1 月前"
     ],
     "in %1 week": [
-        ""
+        "%1 个星期后"
     ],
     "%1 week ago": [
         "%1 周前"
     ],
     "in %1 day": [
-        ""
+        "%1 天后"
     ],
     "%1 day ago": [
         "%1 天前"
     ],
     "in %1 hour": [
-        ""
+        "%1 小时后"
     ],
     "%1 hour ago": [
         "%1 小时前"
     ],
     "in %1 minute": [
-        ""
+        "%1 分钟后"
     ],
     "%1 minute ago": [
         "%1 分钟前"
     ],
     "in %1 second": [
-        ""
+        "%1 秒后"
     ],
     "%1 second ago": [
         "%1 秒前"
     ],
+    "STARTING IN": "离开始时点",
     "%1 to play": "%1 走棋",
     "Castling": "王车易位权",
     "White": "白方",
@@ -124,6 +128,8 @@
     "Challenge to a game": "挑战",
     "CANCEL": "取消",
     "JOIN THE GAME": "参入棋局",
+    "Copy URL": "复制URL",
+    "The first person to come to this URL will play with you.": "您将和首先浏览此URL的人对弈。",
     "Cancel": "取消",
     "Challenge %1 to a game": "挑战 %1 下棋",
     "Paste the FEN text here": "在此处粘贴FEN字串",
@@ -175,6 +181,7 @@
     "Invalid move": "走步无效",
     "Unknown reason": "原因不明",
     "Campmate": "抢占",
+    "Explosion of king": "爆王死",
     "Point counting": "数分",
     "Repetition": "重复局面",
     "%1 move": [
@@ -199,6 +206,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "等待 %1 选择己方马和象的起始位置 ...",
     "Switch pieces": "易位",
     "Ready": "确定",
+    "VIEW TOURNAMENT": "观看锦标赛",
+    "BACK TO TOURNAMENT": "返回锦标赛",
+    "PAUSE": "暂停",
     "REMATCH": "重赛",
     "NEW OPPONENT": "新对手",
     "Stop counting": "停止数步",
@@ -209,6 +219,20 @@
     "Sound": "声音",
     "Background": "背景",
     "Board Settings": "棋盘设定",
+    "Zen Mode": "禅意模式",
+    "WITHDRAW": "退出",
+    "JOIN": "参赛",
+    "LOG IN": "登录",
+    "Tournament complete": "锦标赛结束",
+    "Performance": "表现评分",
+    "Games played": "棋局",
+    "Win rate": "胜率",
+    "Average opponent": "对手平均积分",
+    "Analysis board": "分析面板",
+    "Off": "解除",
+    "On": "开启",
+    "ZEN MODE": "禅意模式",
+    "UsePluralFormIfNeeded\u0004Rated": "积分",
     "": {
         "language": "zh",
         "plural-forms": "nplurals=1; plural=0;"

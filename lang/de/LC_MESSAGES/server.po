@@ -37,7 +37,7 @@ msgstr ""
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr "Es wurde wahrscheinlich vor dem dritten Zug verlassen oder gestoppt. "
+msgstr "Sie wurde wahrscheinlich vor dem dritten Zug verlassen oder beendet. "
 
 #: ../templates/404.html:23
 msgid "Return to the main page"

@@ -287,11 +287,11 @@ msgstr "5x5的日本将棋，但棋子每走一步会翻转成为别种棋子"
 
 #: ../client/chess.ts:362
 msgid "Shogi on a 3x4 board"
-msgstr ""
+msgstr "在3x4棋盘上的日本将棋"
 
 #: ../client/chess.ts:377
 msgid "Shogi on a 5x6 board"
-msgstr ""
+msgstr "在5x6棋盘上的日本将棋"
 
 #: ../client/chess.ts:393
 msgid "Open fire on your opponent in this highly aggressive ancient game"
@@ -371,7 +371,7 @@ msgstr ""
 
 #: ../client/chess.ts:580
 msgid "Like Capablanca Chess but with Grand starting setup"
-msgstr ""
+msgstr "相似Capablanca但使用Grand的起始局面"
 
 #: ../client/chess.ts:590
 msgid "Like Capablanca Chess but with a different starting setup"
@@ -404,7 +404,7 @@ msgstr "国际象棋变体（运用变种棋子）"
 #: ../client/datetime.ts:37
 msgid "in %1 year"
 msgid_plural "in %1 years"
-msgstr[0] ""
+msgstr[0] "%1 年后"
 
 #: ../client/datetime.ts:37
 msgid "%1 year ago"
@@ -414,7 +414,7 @@ msgstr[0] "%1 年前"
 #: ../client/datetime.ts:39
 msgid "in %1 month"
 msgid_plural "in %1 months"
-msgstr[0] ""
+msgstr[0] "%1 个月后"
 
 #: ../client/datetime.ts:39
 msgid "%1 month ago"
@@ -424,7 +424,7 @@ msgstr[0] "%1 月前"
 #: ../client/datetime.ts:41
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
-msgstr[0] ""
+msgstr[0] "%1 个星期后"
 
 #: ../client/datetime.ts:41
 msgid "%1 week ago"
@@ -434,7 +434,7 @@ msgstr[0] "%1 周前"
 #: ../client/datetime.ts:43
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] ""
+msgstr[0] "%1 天后"
 
 #: ../client/datetime.ts:43
 msgid "%1 day ago"
@@ -444,7 +444,7 @@ msgstr[0] "%1 天前"
 #: ../client/datetime.ts:45
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
-msgstr[0] ""
+msgstr[0] "%1 小时后"
 
 #: ../client/datetime.ts:45
 msgid "%1 hour ago"
@@ -454,7 +454,7 @@ msgstr[0] "%1 小时前"
 #: ../client/datetime.ts:47
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
-msgstr[0] ""
+msgstr[0] "%1 分钟后"
 
 #: ../client/datetime.ts:47
 msgid "%1 minute ago"
@@ -464,7 +464,7 @@ msgstr[0] "%1 分钟前"
 #: ../client/datetime.ts:49
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] ""
+msgstr[0] "%1 秒后"
 
 #: ../client/datetime.ts:49
 msgid "%1 second ago"
@@ -473,7 +473,7 @@ msgstr[0] "%1 秒前"
 
 #: ../client/datetime.ts:90
 msgid "STARTING IN"
-msgstr ""
+msgstr "离开始时点"
 
 #: ../client/editor.ts:137 ../client/editor.ts:138
 msgid "%1 to play"
@@ -541,11 +541,11 @@ msgstr ""
 
 #: ../client/invite.ts:66 ../client/invite.ts:68
 msgid "Copy URL"
-msgstr ""
+msgstr "复制URL"
 
 #: ../client/invite.ts:69
 msgid "The first person to come to this URL will play with you."
-msgstr ""
+msgstr "您将和首先浏览此URL的人对弈。"
 
 #: ../client/lobby.ts:301
 msgid "Cancel"
@@ -755,7 +755,7 @@ msgstr "抢占"
 
 #: ../client/profile.ts:116
 msgid "Explosion of king"
-msgstr ""
+msgstr "爆王死"
 
 #: ../client/profile.ts:119 ../client/profile.ts:126
 msgid "Point counting"
@@ -797,7 +797,7 @@ msgstr "对局"
 #: ../client/profile.ts:305
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
-msgstr ""
+msgstr "积分"
 
 #: ../client/profile.ts:306
 msgid "Imported"
@@ -855,15 +855,15 @@ msgstr "确定"
 
 #: ../client/roundCtrl.ts:551
 msgid "VIEW TOURNAMENT"
-msgstr ""
+msgstr "观看锦标赛"
 
 #: ../client/roundCtrl.ts:554
 msgid "BACK TO TOURNAMENT"
-msgstr ""
+msgstr "返回锦标赛"
 
 #: ../client/roundCtrl.ts:556 ../client/tournament.ts:186
 msgid "PAUSE"
-msgstr ""
+msgstr "暂停"
 
 #: ../client/roundCtrl.ts:559
 msgid "REMATCH"
@@ -907,7 +907,7 @@ msgstr "棋盘设定"
 
 #: ../client/settingsView.ts:77 ../client/settingsView.ts:127
 msgid "Zen Mode"
-msgstr ""
+msgstr "禅意模式"
 
 #: ../client/tournament.ts:159
 msgid "First"
@@ -931,38 +931,38 @@ msgstr ""
 
 #: ../client/tournament.ts:177
 msgid "WITHDRAW"
-msgstr ""
+msgstr "退出"
 
 #: ../client/tournament.ts:179 ../client/tournament.ts:184
 msgid "JOIN"
-msgstr ""
+msgstr "参赛"
 
 #: ../client/tournament.ts:191
 msgid "LOG IN"
-msgstr ""
+msgstr "登录"
 
 #: ../client/tournament.ts:204
 msgid "Tournament complete"
-msgstr ""
+msgstr "锦标赛结束"
 
 #: ../client/tournament.ts:368 ../client/tournament.ts:420
 #: ../client/tournament.ts:431 ../client/tournament.ts:442
 msgid "Performance"
-msgstr ""
+msgstr "表现评分"
 
 #: ../client/tournament.ts:369 ../client/tournament.ts:421
 #: ../client/tournament.ts:432 ../client/tournament.ts:443
 msgid "Games played"
-msgstr ""
+msgstr "棋局"
 
 #: ../client/tournament.ts:370 ../client/tournament.ts:422
 #: ../client/tournament.ts:433 ../client/tournament.ts:444
 msgid "Win rate"
-msgstr ""
+msgstr "胜率"
 
 #: ../client/tournament.ts:371
 msgid "Average opponent"
-msgstr ""
+msgstr "对手平均积分"
 
 #: ../client/tournament.ts:514
 msgid "Custom position"
@@ -970,16 +970,16 @@ msgstr ""
 
 #: ../client/tournament.ts:515
 msgid "Analysis board"
-msgstr ""
+msgstr "分析面板"
 
 #: ../client/zen.ts:17
 msgid "Off"
-msgstr ""
+msgstr "解除"
 
 #: ../client/zen.ts:18
 msgid "On"
-msgstr ""
+msgstr "开启"
 
 #: ../client/zen.ts:50
 msgid "ZEN MODE"
-msgstr ""
+msgstr "禅意模式"
