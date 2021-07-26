@@ -53,7 +53,7 @@ PERFS["user7"]["crazyhouse960"] = {
         "v": 0.06
     },
     "la": datetime.now(timezone.utc),
-    "nb": 12
+    "nb": 100
 }
 
 PERFS["newplayer"]["crazyhouse960"] = {
@@ -63,7 +63,7 @@ PERFS["newplayer"]["crazyhouse960"] = {
         "v": 0.06
     },
     "la": datetime.now(timezone.utc),
-    "nb": 7
+    "nb": 100
 }
 
 PERFS["strongplayer"]["crazyhouse960"] = {
@@ -73,7 +73,7 @@ PERFS["strongplayer"]["crazyhouse960"] = {
         "v": 0.06
     },
     "la": datetime.now(timezone.utc),
-    "nb": 0
+    "nb": 100
 }
 
 PERFS["weakplayer"]["crazyhouse960"] = {
@@ -83,7 +83,7 @@ PERFS["weakplayer"]["crazyhouse960"] = {
         "v": 0.06
     },
     "la": datetime.now(timezone.utc),
-    "nb": 0
+    "nb": 100
 }
 
 
