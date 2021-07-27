@@ -50,6 +50,8 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"] },
     shinobi: { pieceCSS: ["shinobi0"] },
+    empire: { pieceCSS: ["empire0"] },
+    ordamirror: { pieceCSS: ["ordamirror0"] },
 };
 
 type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
@@ -572,6 +574,26 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "🐢",
     }),
 
+    empire: new Variant({
+        name: "empire", tooltip: () => _("Asymmetric variant where one army has pieces that move like queens but capturing (almost) as usual"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1",
+        board: "standard8x8", piece: "empire",
+        firstColor: "Gold", secondColor: "Black",
+        pieceRoles: ["k", "d", "t", "c", "e", "p", "s", "q"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true,
+        icon: "X",
+    }),
+
+    ordamirror: new Variant({
+        name: "ordamirror", displayName: "orda mirror", tooltip: () => _("Pieces move generally like a knight, and capture differently"),
+        startFen: "lhafkahl/8/pppppppp/8/8/PPPPPPPP/8/LHAFKAHL w - - 0 1",
+        board: "standard8x8", piece: "ordamirror",
+        firstColor: "White", secondColor: "Gold",
+        pieceRoles: ["k", "f", "l", "a", "h", "p", "q"],
+        icon: "R",
+    }),
+
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
@@ -614,7 +636,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel", "shinobi" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel", "shinobi", "empire", "ordamirror" ] },
 };
 
 function variantGroupLabel(group) {
