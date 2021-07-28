@@ -53,4 +53,4 @@ The Lancer is a unique divergent piece that moves and attacks differently. The l
 ## Strategy
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
 
-Piece valuation is difficult and not optimally known at this point. It is suspected that the minor pieces (Falcon, Archer, Lancer) are actualy all fairly similar in value. The Kheshigs are the sole major pieces and will often be the main instrument of delivering checkmate.
+Piece valuation is difficult and not optimally known at this point. It is suspected that the minor pieces (Falcon, Archer, Lancer) are actually all fairly similar in value. The Kheshigs are the sole major pieces and will often be the main instrument of delivering checkmate.
