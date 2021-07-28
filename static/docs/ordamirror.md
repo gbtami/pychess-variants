@@ -2,7 +2,7 @@
 
 ![Orda Mirror Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/OrdaMirror.png)
 
-Orda Mirror is a chess variant designed in 2020 by Couch Tomato and is a derivative variant of Orda Chess. Orda Mirror takes the Horde army from Orda Chess and pits them against each other, turning into a Horde vs Horde mirror match. However, the Horde army is not completely identical; the Yurt is replaced with the new Falcon, a piece that moves like a queen, but attacks like a knight (all other Horde pieces *move* like a knight). This gives some long range flexibility that the Horde was otherwise missing while preserving the horse motif.
+Orda Mirror is a chess variant designed in 2020 by Couch Tomato and is a derivative variant of Orda Chess. Orda Mirror takes the Horde army from Orda Chess and pits them against each other, turning into a Horde vs Horde mirror match. However, the Horde armies in Orda Mirror are not completely identical to the one in Orda Chess; the Yurt is replaced with the new Falcon, a piece that moves like a queen, but attacks like a knight (all other Horde pieces *move* like a knight). This gives some long range flexibility that the Horde was otherwise missing while preserving the horse motif.
  
 ## General Rules
 1.	Setup is as above.
