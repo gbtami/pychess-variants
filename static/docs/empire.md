@@ -23,7 +23,12 @@ The game itself is incredibly balanced by engine evaluation (even more than stan
 
 ## Imperial Pieces
 
-There are five new units unique to the Empire: two Siege Towers, two Eagles, two Cardinals, and one Duke. All Imperial pieces move like queens but attack like their Royal counterparts. The exception is the Duke, which also moves like a Queen, but attacks like a King.  The Imperial "king" is called a Kaiser (K) and has a different symbol, but the change is purely aesthetic and thematic: it behaves like an orthodox King. 
+There are five new units unique to the Empire: two Soldiers, two Siege Towers, two Eagles, two Cardinals, and one Duke. All Imperial back-rank pieces move like queens but attack like their Royal counterparts. The exception is the Duke, which also moves like a Queen, but attacks like a King.  The Imperial "king" is called a Kaiser (K) and has a different symbol, but the change is purely aesthetic and thematic: it behaves like an orthodox King. 
+
+### Soldier (S)
+![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/EmpireSoldier.png)
+
+The Soldiers replace the two middle Pawns. Soldiers both move and attack either one space forwards or one space to either side. These act as the bodyguards of the Kaiser; they're strongest when paired together. 
 
 ### Duke (D)
 
@@ -41,7 +46,7 @@ The Siege Tower, or Tower for short, moves like a Queen, but attacks like a Rook
 
 ![Eagle](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Tower.png)
 
-The Eagle moves like a Queen, but attacks like a Knight only. The value of an Eagle is very similar to that of a Knight and is consequently the weakest piece in the Empire (outside of Pawns).
+The Eagle moves like a Queen, but attacks like a Knight only. The value of an Eagle is very similar to that of a Knight and is consequently the weakest piece in the Empire (outside of Pawns and Soldiers).
 
 ### Cardinal (C)
 
@@ -51,7 +56,7 @@ The Cardinal moves like a Queen, but attacks like a Bishop only. Effectively, th
 
 ## Piece valuation
 
-Accurate piece values are unknown. However, these are the values used by the version Fairy Stockfish of used to the balance the game.
+Accurate piece values are unknown. However, these are the values used by the version of Fairy Stockfish used to balance the game.
 
 Royal piece	| Value (Early / Late) | Imperial piece | Value (Early / Late)
 -- | -- | -- | --
@@ -60,5 +65,6 @@ Queen | 2538 / 2682	| Duke | 1050 / 1150
 Bishop | 825 / 915	| Cardinal	| 1375 / 1480
 Knight | 781 / 854	| Eagle | 1000 / 1075
 Rook | 1276 / 1380	| Tower | 1225 / 1420
+ | | | Soldier | 200 / 270
 ## Strategy
 The game is still young, so strategy is still being developed! 
