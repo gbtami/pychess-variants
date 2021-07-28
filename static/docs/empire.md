@@ -44,7 +44,7 @@ The Siege Tower, or Tower for short, moves like a Queen, but attacks like a Rook
 
 ### Eagle (E)
 
-![Eagle](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Tower.png)
+![Eagle](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Eagle.png)
 
 The Eagle moves like a Queen, but attacks like a Knight only. The value of an Eagle is very similar to that of a Knight and is consequently the weakest piece in the Empire (outside of Pawns and Soldiers).
 
