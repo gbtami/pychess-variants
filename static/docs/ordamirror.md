@@ -19,10 +19,10 @@ The Horde's Lancer and Horse Archer capture differently than movement ("divergen
 
 **Horde** piece	| Classic counterpart	| Movement | Capture/Check
 -- | -- | -- | --
-Falcon | Queen | Queen | Knight
-Horse Archer | Bishop | Knight | Bishop
-Kheshig | Knight | Knight+King | Knight+King
-Lancer | Rook | Knight | Rook
+Falcon | Queen | Queen | **Knight**
+Horse Archer | Bishop | **Knight** | Bishop
+Kheshig | Knight | **Knight**+King | **Knight**+King
+Lancer | Rook | **Knight** | Rook
 
 Details and diagrams of each piece are below. Green dots represent movement, red dots represent capture, and yellow represents both.
  
