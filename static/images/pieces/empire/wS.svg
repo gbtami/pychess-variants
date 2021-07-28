@@ -53,16 +53,17 @@
        y1="24.200911"
        x2="47.090347"
        y2="24.200911"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.92922002,0,0,0.92922002,1.7694994,3.9964251)" />
   </defs>
   <sodipodi:namedview
      inkscape:current-layer="svg4260"
      inkscape:window-maximized="1"
      inkscape:window-y="-12"
      inkscape:window-x="3828"
-     inkscape:cy="44.533093"
-     inkscape:cx="24.938926"
-     inkscape:zoom="3.4642925"
+     inkscape:cy="99.590188"
+     inkscape:cx="-15.432059"
+     inkscape:zoom="5.1080883"
      showgrid="false"
      id="namedview4262"
      inkscape:window-height="2050"
@@ -78,7 +79,7 @@
      inkscape:document-rotation="0" />
   <path
      id="path2176-6"
-     style="fill:url(#linearGradient4720);fill-opacity:1.0;stroke:#000000;stroke-width:3.38658;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
-     d="M 25.000001,6.2475591 C 21.692952,13.879581 11.577004,24.029711 8.0288377,26.95148 14.360789,26.549197 19.354139,25.335848 21.5291,25.353044 20.503337,38.890575 11.088252,36.163899 8.8189178,44.791394 c 4.6896962,0 10.4144202,-0.02612 16.1810832,-0.05107 5.766661,0.02495 11.491387,0.05107 16.181082,0.05107 -2.347504,-8.393109 -11.684419,-5.900819 -12.710182,-19.43835 2.174961,-0.0172 7.168312,1.196153 13.500262,1.598436 C 38.422998,24.029711 28.144122,13.798117 25.000001,6.2475591 Z"
+     style="fill:url(#linearGradient4720);fill-opacity:1;stroke:#000000;stroke-width:1.66507;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+     d="M 25.000001,9.8017823 C 21.927025,16.89361 12.527083,26.325314 9.2300562,29.04028 15.113832,28.66647 19.753753,27.539003 21.774771,27.554982 20.821611,40.134326 12.072925,37.600645 9.9642141,45.617486 c 4.3577599,0 9.6772879,-0.02427 15.0357869,-0.04746 5.358497,0.02319 10.678027,0.04746 15.035786,0.04746 C 37.854439,37.818441 29.17839,40.134326 28.22523,27.554982 30.246248,27.539002 34.88617,28.66647 40.769945,29.04028 37.472919,26.325314 27.921581,16.817912 25.000001,9.8017823 Z"
      sodipodi:nodetypes="ccccccccc" />
 </svg>
