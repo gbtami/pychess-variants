@@ -2,7 +2,7 @@
 
 ![Orda Mirror Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/OrdaMirror.png)
 
-Orda Mirror is a chess variant designed in 2020 by Couch Tomato and is a derivative variant of Orda Chess. Orda Mirror takes the Horde army from Orda Chess and pits them against each other, turning into a Horde vs Horde mirror match. However, the Horde army is not completely identical; the Yurt is replaced with the new Falcon, a piece that moves like a queen, but attacks like a knight (all other Horde pieces *move* like a knight). This gives some long range flexibility that the Horde was otherwise missing while preserving the horse motif.
+Orda Mirror is a chess variant designed in 2020 by Couch Tomato and is a derivative variant of Orda Chess. Orda Mirror takes the Horde army from Orda Chess and pits them against each other, turning into a Horde vs Horde mirror match. However, the Horde armies in Orda Mirror are not completely identical to the one in Orda Chess; the Yurt is replaced with the new Falcon, a piece that moves like a queen, but attacks like a knight (all other Horde pieces *move* like a knight). This gives some long range flexibility that the Horde was otherwise missing while preserving the horse motif.
  
 ## General Rules
 1.	Setup is as above.
@@ -17,12 +17,12 @@ There are four new units unique* to the Horde: 2 Lancers, 2 Horse Archers, 2 Khe
 The Horde’s "king" is called the Khan and has a different symbol, but is essentially the same as a classic King, also using the same abbreviation (K) – the change is purely aesthetic and thematic. 
 The Horde's Lancer and Horse Archer capture differently than movement ("divergent" pieces, like the pawn). Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Falcon replaces the Queen. Unlike the other two pieces, it retains the movement of the Queen, but instead *captures/checks* like a knight. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. 
 
-**Horde** piece	| Classic “counterpart”	| Movement | Capture/Check
+**Horde** piece	| Classic counterpart	| Movement | Capture/Check
 -- | -- | -- | --
-Falcon | Queen | Queen | Knight
-Horse Archer | Bishop | Knight | Bishop
-Kheshig | Knight | Knight+King | Knight+King
-Lancer | Rook | Knight | Rook
+Falcon | Queen | Queen | **Knight**
+Horse Archer | Bishop | **Knight** | Bishop
+Kheshig | Knight | **Knight**+King | **Knight**+King
+Lancer | Rook | **Knight** | Rook
 
 Details and diagrams of each piece are below. Green dots represent movement, red dots represent capture, and yellow represents both.
  
