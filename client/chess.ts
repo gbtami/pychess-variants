@@ -582,7 +582,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["k", "d", "t", "c", "e", "p", "s", "q"],
         pieceRoles2: ["k", "q", "r", "b", "n", "p"],
         enPassant: true,
-        icon: "X",
+        icon: "♚",
     }),
 
     ordamirror: new Variant({
@@ -591,7 +591,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "ordamirror",
         firstColor: "White", secondColor: "Gold",
         pieceRoles: ["k", "f", "l", "a", "h", "p", "q"],
-        icon: "R",
+        icon: "◩",
     }),
 
     // We support to import/store/analyze some variants
@@ -636,7 +636,8 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "orda", "synochess", "hoppelpoppel", "shinobi", "empire", "ordamirror" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "ordamirror" ] },
+    asymmetric: { variants: [ "orda", "synochess", "shinobi", "empire" ] },
 };
 
 function variantGroupLabel(group) {
@@ -646,6 +647,7 @@ function variantGroupLabel(group) {
         shogi: _("Shogi variants"),
         xiangqi: _("Xiangqi variants"),
         fairy: _("Fairy piece variants"),
+        asymmetric: _("Asymmetric variants"),
     }
     return groups[group];
 }

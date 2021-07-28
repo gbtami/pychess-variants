@@ -123,8 +123,8 @@ VARIANT_ICONS = {
     "atomic": "~",
     "atomic960": "\\",
     "shinobi": "🐢",
-    "empire": "E",
-    "ordamirror": "R",
+    "empire": "♚",
+    "ordamirror": "◩",
 }
 
 VARIANT_960_TO_PGN = {
