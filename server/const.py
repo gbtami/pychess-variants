@@ -80,8 +80,8 @@ VARIANTS = (
     "synochess",
     "hoppelpoppel",
     "shinobi",
-    "empire",
-    "ordamirror",
+    # "empire",
+    # "ordamirror",
 )
 
 VARIANT_ICONS = {
