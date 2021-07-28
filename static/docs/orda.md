@@ -41,7 +41,7 @@ A yurt is a mobile home for Mongol and Turkic peoples in the steppes of Asia. Th
 
 ![Kheshig](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Kheshig.png)
  
-The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troop on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid game because of their extreme importance to the Horde in the endgame.
+The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troops on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid game because of their extreme importance to the Horde in the endgame.
 The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately, it is incredibly difficult for the Kingdom to checkmate the khan without at least eliminating one of his kheshigs first.
 
 ### Horse Archer (A)
