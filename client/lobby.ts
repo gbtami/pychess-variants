@@ -779,7 +779,7 @@ export function lobbyView(model): VNode[] {
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
                 h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/Dart-Vader-Comic.jpg'} }),
+                    h('img', { attrs: {src: model["asset-url"] + '/images/Darth-Vader-Comic.jpg'} }),
                     h('span.text', [
                         h('strong', "Empire Chess and Orda Mirror Have Arrived!"),
                         h('span', 'New variants'),
