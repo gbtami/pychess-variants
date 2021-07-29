@@ -305,11 +305,13 @@ if __name__ == '__main__':
     print(board.fen)
     board.print_pos()
     print(board.legal_moves())
+    print([board.get_san(move) for move in board.legal_moves()])
 
     board = FairyBoard("ordamirror")
     print(board.fen)
     board.print_pos()
     print(board.legal_moves())
+    print([board.get_san(move) for move in board.legal_moves()])
 
     print(sf.version())
     print(sf.info())
