@@ -839,7 +839,7 @@ msgstr "เกมทั้งหมด"
 #: ../client/profile.ts:305
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
-msgstr ""
+msgstr "คิดคะแนน"
 
 #: ../client/profile.ts:306
 msgid "Imported"
@@ -990,12 +990,12 @@ msgstr "การแข่งขันเสร็จสิ้น"
 #: ../client/tournament.ts:368 ../client/tournament.ts:420
 #: ../client/tournament.ts:431 ../client/tournament.ts:442
 msgid "Performance"
-msgstr "คะแนนสมรรถนะ"
+msgstr "สมรรถนะ"
 
 #: ../client/tournament.ts:369 ../client/tournament.ts:421
 #: ../client/tournament.ts:432 ../client/tournament.ts:443
 msgid "Games played"
-msgstr "จำนวนเกมที่เล่น"
+msgstr "จำนวนเกม"
 
 #: ../client/tournament.ts:370 ../client/tournament.ts:422
 #: ../client/tournament.ts:433 ../client/tournament.ts:444
