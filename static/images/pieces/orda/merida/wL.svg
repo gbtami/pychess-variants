@@ -60,46 +60,6 @@
        x2="77.760002"
        y1="37.220001"
        x1="21.129999"
-       id="linearGradient2051"
-       gradientTransform="translate(-91.535601,53.38202)">
-      <stop
-         style="stop-color:#808080;stop-opacity:1"
-         offset="0"
-         stop-color="#fff"
-         stop-opacity="0"
-         id="stop2047" />
-      <stop
-         stop-color="#fff"
-         id="stop2049"
-         offset="1"
-         style="stop-color:#ffffff;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient
-       gradientUnits="userSpaceOnUse"
-       y2="37.469002"
-       x2="77.760002"
-       y1="37.220001"
-       x1="21.129999"
-       id="linearGradient9444"
-       gradientTransform="translate(-91.535601,53.38202)">
-      <stop
-         style="stop-color:#4d4d4d;stop-opacity:1"
-         offset="0"
-         stop-color="#fff"
-         stop-opacity="0"
-         id="stop9442" />
-      <stop
-         stop-color="#fff"
-         id="stop9440"
-         offset="1"
-         style="stop-color:#f9f9f9;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient
-       gradientUnits="userSpaceOnUse"
-       y2="37.469002"
-       x2="77.760002"
-       y1="37.220001"
-       x1="21.129999"
        id="linearGradient9444-9"
        gradientTransform="translate(-91.535601,53.38202)">
       <stop
@@ -139,7 +99,7 @@
        sodipodi:nodetypes="ccccc"
        id="path3973"
        d="m 75.119024,43.874689 13.822887,0.589734 C 81.427711,39.083746 72.886976,23.620424 73.246263,10.293252 72.951274,23.647412 65.324765,39.18622 57.621403,44.429572 l 13.769501,-0.600428"
-       style="fill:url(#linearGradient2816);fill-opacity:1;stroke:#1f1a17;stroke-width:1.86823937;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#linearGradient2816);fill-opacity:1;stroke:#1f1a17;stroke-width:1.86823937;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-rule:nonzero"
        inkscape:connector-curvature="0" />
     <path
        id="path10325"
