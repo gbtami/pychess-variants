@@ -25,6 +25,8 @@ The game itself is incredibly balanced by engine evaluation (even more than stan
 
 There are five new units unique to the Empire: two Soldiers, two Siege Towers, two Eagles, two Cardinals, and one Duke. All Imperial back-rank pieces move like queens but attack like their Royal counterparts. The exception is the Duke, which also moves like a Queen, but attacks like a King.  The Imperial "king" is called a Kaiser (K) and has a different symbol, but the change is purely aesthetic and thematic: it behaves like an orthodox King. 
 
+In these images, green dots represent movement only, while yellow dots represent both movement and capture.
+
 ### Soldier (S)
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/EmpireSoldier.png)
 
