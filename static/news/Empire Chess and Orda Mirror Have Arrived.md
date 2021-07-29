@@ -1,4 +1,15 @@
-# Empire Chess and Orda Mirror Have Arrived!
+<h1 align="center">Empire Chess and Orda Mirror Have Arrived!</h1>
+
+<div class="meta-headline">
+    <div class= "meta">
+        <span class="text">2021.07.30</span>
+        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
+        <span class="text">Announcements</span>
+    </div>
+    <div class= "headline">New variants</div>
+</div>
+</br>
+
 
 ![The Empire?](https://github.com/gbtami/pychess-variants/blob/master/static/images/Darth-Vader-Comic.jpg)
 <br>
