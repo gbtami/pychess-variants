@@ -165,10 +165,25 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="startDate">Custom start date</label>
-                    <input id="startDate" name="startDate" class="form-control flatpickr"/>
-                    <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
+                <div class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="startDate">Custom start date</label>
+                        <input id="startDate" name="startDate" class="form-control flatpickr"/>
+                        <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
+                    </div>
+
+                    <div class="form-check form-group">
+                        <div>
+                            <label class="form-label" for="form3-shield">Shield</label>
+                            <span class="form-check-input">
+                                <input id="form3-shield" name="shield" value="true" type="checkbox" class="form-control cmn-toggle"/>
+                            </span>
+                        </div>
+                        <small class="form-help">This will be removed
+                            <br />when we will have sheduled tourneys.
+                        </small>
+                    </div>
+                    <input type="hidden" name="shield" value="false" />
                 </div>
 
                 <div class="form-actions">

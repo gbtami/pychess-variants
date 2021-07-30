@@ -7,6 +7,7 @@
     "About pychess": "À propos de pychess",
     "Pychess is a free, open-source chess server designed to play several chess variants.": "Pychess est un serveur d'échecs libre, gratuit et open-source, réalisé pour jouer à diverses variantes du jeu d'échecs.",
     "Currently supported games are ": "Les jeux supportés actuellement sont",
+    "Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with ": "De plus, vous pouvez activer l'option Chess960 pour Chess, Crazyhouse, Atomic, S-chess, Capablanca et Capahouse afin de démarrer une partie depuis une position aléatoire avec",
     "Chess960 castling rules.": "les règles du roque de Chess960.",
     "For move generation, validation, analysis, and engine play, we use ": "Pour la génération et validation des coups, l'analyse et le jeu contre l'ordinateur on utilise",
     "On client side, the user interface of the game board is based on ": "Du côté client, l'interface de jeu est basée sur",
@@ -48,6 +49,7 @@
     "Chess, unmodified, as it's played by FIDE standards": "Les échecs, sans modification, tels qu'ils sont joués sous les règles de la FIDÉ",
     "Take captured pieces and drop them back on to the board as your own": "Prendre les pièces adversaires qui changent alors de camp, puis les parachuter sur l'échiquier",
     "Choose where your pieces start": "Choisir où vos pièces commencent la partie",
+    "Explode your opponent's king to win": "Faire exploser le roi adversaire pour gagner",
     "A game closely resembling the original Chaturanga": "Un jeu qui ressemble au Chaturanga (règles très anciennes)",
     "Makruk variant where kings cannot move to escape out of check": "Une variante de Makruk où les rois ne peuvent se déplacer lors d'un échec (sauf pour capturer la pièce donnant échec)",
     "Makruk with a few additional opening abilities": "Makruk avec quelques options supplémentaires dans l'ouverture",
@@ -56,6 +58,7 @@
     "Shogi on a 5x5 board": "Le shogi sur un shogiban 5x5",
     "5x5 Shogi where pieces flip to a different piece each move": "Le shogi sur un shogiban 5x5 où les pièces changent de type après chaque coup",
     "Shogi on a 3x4 board": "Le shogi sur un shogiban 3x4",
+    "Shogi on a 5x6 board": "Le shogi sur un shogiban 5x6",
     "Open fire on your opponent in this highly aggressive ancient game": "Ouvrez le feu sur l'ennemi dans ce jeu ancien particulièrement violent",
     "The lone Red rook can also move as a cannon or a knight.": "Le chariot rouge isolé peut aussi se déplacer comme un canon ou un cheval.",
     "Similar to Xiangqi, but plays very differently. Tournament rules are used": "Similaire au Xiangqi, mais se joue très différemment. On utilise les règles de tournoi.",
@@ -71,6 +74,8 @@
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "Une variante asymétrique où un camp dirige des pièces qui se déplacent comme des cavaliers mais capturent différemment",
     "Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army": "Une variante asymétrique, l'Est contre l'Ouest, où l'armée des échecs occidentaux se bat contre une armée dérivée du Xiangqi et du Janggi",
     "Knights are capturing as bishops, bishops are capturing as knights": "Les cavaliers capturent comme des fous, et les fous capturent comme des cavaliers",
+    "Western chess VS Ninja": "Échecs occidentaux VS Ninja",
+    "Like Capablanca Chess but with Grand starting setup": "Comme les échecs Capablanca mais avec la position de départ du Grand Chess",
     "Like Capablanca Chess but with a different starting setup": "Comme les échecs Capablanca mais avec une position de départ différente",
     "Gothic with Crazyhouse drop rules": "Les échecs Gothiques avec la règle de parachutage de Crazyhouse",
     "Standard piece variants": "Variantes avec des pièces standard",
@@ -78,34 +83,63 @@
     "Shogi variants": "Variantes du Shogi",
     "Xiangqi variants": "Variantes du Xiangqi",
     "Fairy piece variants": "Variantes avec des pièces féeriques",
+    "in %1 year": [
+        "dans %1 an",
+        "dans %1 ans"
+    ],
     "%1 year ago": [
         "Il y a %1 ans",
         "Il y a %1 ans"
+    ],
+    "in %1 month": [
+        "dans %1 mois",
+        "dans %1 mois"
     ],
     "%1 month ago": [
         "Il y a %1 mois",
         "Il y a %1 mois"
     ],
+    "in %1 week": [
+        "dans %1 semaine",
+        "dans %1 semaines"
+    ],
     "%1 week ago": [
         "Il y a %1 semaine",
         "Il y a %1 semaines"
+    ],
+    "in %1 day": [
+        "dans %1 jour",
+        "dans %1 jours"
     ],
     "%1 day ago": [
         "Il y a %1 jour",
         "Il y a %1 jours"
     ],
+    "in %1 hour": [
+        "dans %1 heure",
+        "dans %1 heures"
+    ],
     "%1 hour ago": [
         "Il y a %1 heure",
         "Il y a %1 heures"
+    ],
+    "in %1 minute": [
+        "dans %1 minute",
+        "dans %1 minutes"
     ],
     "%1 minute ago": [
         "Il y a %1 minute",
         "Il y a %1 minutes"
     ],
+    "in %1 second": [
+        "dans %1 seconde",
+        "dans %1 secondes"
+    ],
     "%1 second ago": [
         "Il y a %1 seconde",
         "Il y a %1 secondes"
     ],
+    "STARTING IN": "COMMENCE DANS",
     "%1 to play": "Trait aux %1",
     "Castling": "Roque",
     "White": "Les blancs",
@@ -165,6 +199,7 @@
     "Red": "Rouge",
     "Blue": "Bleu",
     "Gold": "Or",
+    "Pink": "Roses",
     "IMPORT": "IMPORTER",
     "level %1": "niveau %1",
     "Game aborted": "Partie annulée",
@@ -179,6 +214,7 @@
     "Invalid move": "Coup invalide",
     "Unknown reason": "Raison inconnue",
     "Campmate": "Camp conquis",
+    "Explosion of king": "Explosion du roi",
     "Point counting": "Comptage de points",
     "Repetition": "Répétition",
     "%1 move": [
@@ -204,6 +240,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "En attente de %1 devant sélectionner les cases de départ de ses cavaliers et éléphants...",
     "Switch pieces": "Échanger les pièces",
     "Ready": "Prêt",
+    "VIEW TOURNAMENT": "VOIR LE TOURNOI",
+    "BACK TO TOURNAMENT": "RETOUR AU TOURNOI",
+    "PAUSE": "PAUSE",
     "REMATCH": "REVANCHE",
     "NEW OPPONENT": "NOUVEL ADVERSAIRE",
     "Stop counting": "Arrêter de compter",
@@ -214,6 +253,20 @@
     "Sound": "Son",
     "Background": "Arrière-plan",
     "Board Settings": "Réglages de l'échiquier",
+    "Zen Mode": "Mode Zen",
+    "WITHDRAW": "SE RETIRER",
+    "JOIN": "REJOINDRE",
+    "LOG IN": "SE CONNECTER",
+    "Tournament complete": "Tournoi complet",
+    "Performance": "Performance",
+    "Games played": "Parties jouées",
+    "Win rate": "Taux de victoires",
+    "Average opponent": "Opposition moyenne",
+    "Analysis board": "Échiquier d'analyse",
+    "Off": "Désactiver",
+    "On": "Activer",
+    "ZEN MODE": "MODE ZEN",
+    "UsePluralFormIfNeeded\u0004Rated": "Classée",
     "": {
         "language": "fr",
         "plural-forms": "nplurals=2; plural=(n > 1);"

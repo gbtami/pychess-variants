@@ -778,6 +778,14 @@ export function lobbyView(model): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/Darth-Vader-Comic.jpg'} }),
+                    h('span.text', [
+                        h('strong', "Empire Chess and Orda Mirror Have Arrived!"),
+                        h('span', 'New variants'),
+                    ]),
+                    h('time', '2021.07.30'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/shinobi.svg'} }),
                     h('span.text', [
@@ -794,6 +802,7 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.03.28'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/RS-24.jpg'} }),
                     h('span.text', [
@@ -802,7 +811,6 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.03.03'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/TomatoPlasticSet.svg'} }),
                     h('span.text', [

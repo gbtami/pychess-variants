@@ -17,7 +17,44 @@
     </div>
     {% endfor %}
 </aside>
-<aside id="placeholder"></aside>
+<aside>
+    <div class="player-sum box">
+        <div class="player-head">
+            <h1 class="player">
+                <a class="user-link" href="/@/{{ profile }}"><player-title>{{ profile_title }}</player-title> {{ profile }}</a>
+            </h1>
+            <div class="trophies">
+            {% for key, kind in trophies %}
+                {% if kind == "shield" %}
+                <a class="shield-trophy combo-trophy" title="{{ variant_display_name(key).title() }} {{ cup[kind][1] }}">{{ icons[key] }}</a>
+                {% else %}
+                <span class="trophy perf {{ kind }}" title="{{ variant_display_name(key).title() }} {{ cup[kind][1] }}">
+                    <img src="{{ cup[kind][0] }}"></img>
+                </span>
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+        <div class="player-social">
+            <div class="btn-rack">
+            <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}"></a>
+            {% if (not anon) and (profile != username) %}
+            <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}"></a>
+            {% endif %}
+            {% if (not anon) and (profile_title != "BOT") %}
+            <a class="icon icon-cloud-upload" href="/paste" title="{% trans %}Import game{% endtrans %}"></a>
+            {% endif %}
+            {% if (not anon) and (profile_title != "BOT") %}
+            <a class="icon icon-download" href="/games/export/{{ profile }}" download="{{ profile }}.pgn" title="{% trans %}Export games{% endtrans %}"></a>
+            {% endif %}
+            {% if not anon %}
+            <a class="icon icon-at" href="https://lichess.org/@/{{ profile }}" title="{% trans %}Lichess profile{% endtrans %}"></a>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+    <div id="placeholder">
+</aside>
 </main>
 </div>
 {% endblock %}

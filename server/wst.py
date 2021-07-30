@@ -150,6 +150,7 @@ async def tournament_socket_handler(request):
                             "startsAt": tournament.starts_at.isoformat(),
                             "startFen": tournament.fen,
                             "description": tournament.description,
+                            "frequency": tournament.frequency,
                             "secondsToStart": (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0,
                             "secondsToFinish": (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0,
                         }
@@ -157,6 +158,9 @@ async def tournament_socket_handler(request):
 
                         if (tournament.top_game is not None) and (tournament.top_game.status <= STARTED):
                             await ws.send_json(tournament.top_game_json)
+
+                        if tournament.status > T_STARTED:
+                            await ws.send_json(tournament.summary)
 
                         response = {"type": "fullchat", "lines": list(request.app["tourneychat"][tournamentId])}
                         await ws.send_json(response)

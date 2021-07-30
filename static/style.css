@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'pychess';
-  src:  url('fonts/pychess.eot?xacqh4');
-  src:  url('fonts/pychess.eot?xacqh4#iefix') format('embedded-opentype'),
-    url('fonts/pychess.ttf?xacqh4') format('truetype'),
-    url('fonts/pychess.woff?xacqh4') format('woff'),
-    url('fonts/pychess.svg?xacqh4#pychess') format('svg');
+  src:  url('fonts/pychess.eot?xaw7gc');
+  src:  url('fonts/pychess.eot?xaw7gc#iefix') format('embedded-opentype'),
+    url('fonts/pychess.ttf?xaw7gc') format('truetype'),
+    url('fonts/pychess.woff?xaw7gc') format('woff'),
+    url('fonts/pychess.svg?xaw7gc#pychess') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -40,6 +40,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-ordamirror:before {
+  content: "\25e9";
+}
+.icon-empire:before {
+  content: "\265a";
+}
 .icon-shinobi:before {
   content: "\1f422";
 }

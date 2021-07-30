@@ -5,16 +5,16 @@
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2020
-# Marken Foo <marken.foo.yw@gmail.com>, 2020
+# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -79,7 +79,7 @@ msgstr "当前对局"
 
 #: ../templates/template.html:19 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "锦标赛"
 
 #: ../templates/template.html:20
 msgid "Players"
@@ -107,7 +107,7 @@ msgstr "登录"
 
 #: ../templates/tournaments.html:9
 msgid "CREATE A NEW TOURNAMENT"
-msgstr ""
+msgstr "创建锦标赛"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"

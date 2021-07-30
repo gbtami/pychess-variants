@@ -7,15 +7,16 @@
 # Jonathan Kubik <j.kubik97@gmail.com>, 2020
 # ubdip <hsart.liam@gmail.com>, 2020
 # Lichess Chess960 <lichess960training@gmail.com>, 2021
+# Skeg Overren <skegoverren@posteo.de>, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Lichess Chess960 <lichess960training@gmail.com>, 2021\n"
+"Last-Translator: Skeg Overren <skegoverren@posteo.de>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -31,10 +32,12 @@ msgstr "404 PARTIE NICHT GEFUNDEN"
 #: ../templates/404.html:21
 msgid "Sorry, not all games are saved on the Pychess server."
 msgstr ""
+"Es tut uns leid, nicht alle Partien werden auf dem PyChess-Server "
+"gespeichert."
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr "Es wurde wahrscheinlich vor dem dritten Zug verlassen oder gestoppt. "
+msgstr "Sie wurde wahrscheinlich vor dem dritten Zug verlassen oder beendet. "
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
@@ -83,7 +86,7 @@ msgstr "Laufende Partien"
 
 #: ../templates/template.html:19 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "Turniere"
 
 #: ../templates/template.html:20
 msgid "Players"
@@ -111,16 +114,16 @@ msgstr "Anmelden"
 
 #: ../templates/tournaments.html:9
 msgid "CREATE A NEW TOURNAMENT"
-msgstr ""
+msgstr "NEUES TURNIER ERSTELLEN"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr ""
+msgstr "Läuft gerade"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr ""
+msgstr "Beginnt bald"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr ""
+msgstr "Beendet"

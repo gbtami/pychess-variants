@@ -123,7 +123,7 @@ msgstr ""
 
 #: ../client/about.ts:97
 msgid "On client side, the user interface of the game board is based on "
-msgstr "Po stronie użytkownika interfejs jest oparty o "
+msgstr "Interfejs po stronie użytkownika jest oparty na"
 
 #: ../client/about.ts:101
 msgid "The source code of the server is available on "
@@ -189,7 +189,7 @@ msgstr "Poproś o analizę"
 
 #: ../client/analysisCtrl.ts:594
 msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr "Wybrany wariant %1 nie jest wspierany przez stockfish.wasm"
+msgstr "Wybrany wariant %1 nie jest obsługiwany przez stockfish.wasm"
 
 #: ../client/analysisCtrl.ts:710
 msgid "Depth"
@@ -499,7 +499,7 @@ msgstr[3] "%1 tygodnia temu"
 #: ../client/datetime.ts:43
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] "jutro"
+msgstr[0] "za dobę"
 msgstr[1] "za %1 dni"
 msgstr[2] "za %1 dni"
 msgstr[3] "za %1 dnia"
@@ -507,7 +507,7 @@ msgstr[3] "za %1 dnia"
 #: ../client/datetime.ts:43
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] "wczoraj"
+msgstr[0] "dobę temu"
 msgstr[1] "%1 dni temu"
 msgstr[2] "%1 dni temu"
 msgstr[3] "%1 dnia temu"
@@ -941,7 +941,7 @@ msgstr "Czerwone (Han)"
 #: ../client/roundCtrl.ts:445
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr "Oczekujemy aż %1 ustawi swoje skoczki i słonie..."
+msgstr "Oczekujemy aż %1 ustawią swoje skoczki i słonie..."
 
 #: ../client/roundCtrl.ts:485 ../client/roundCtrl.ts:487
 msgid "Switch pieces"

@@ -10,7 +10,7 @@
     "Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with ": "Dodatkowo możesz wybrać opcję szachów 960 dla szachów, crazyhouse'a, szachów atomowych, S-szachów, szachów Capablanki i Capahouse'a, żeby zacząć partię z losowej pozycji z",
     "Chess960 castling rules.": "zasadami roszowania jak w szachach 960.",
     "For move generation, validation, analysis, and engine play, we use ": "Do generowania ruchów, sprawdzania poprawności, analizy oraz gry z komputerem używamy: ",
-    "On client side, the user interface of the game board is based on ": "Po stronie użytkownika interfejs jest oparty o ",
+    "On client side, the user interface of the game board is based on ": "Interfejs po stronie użytkownika jest oparty na",
     "The source code of the server is available on ": "Kod źródłowy serwera jest dostępny na ",
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "W kwestiach prywatności i zasad użytkowania obowiązują zasady takie jak na lichess.org ",
     "Playing right now": "W trakcie gry",
@@ -25,7 +25,7 @@
     " PNG image": "grafika PNG",
     "Request Computer Analysis": "Poproś o analizę komputerową",
     " Request Analysis": "Poproś o analizę",
-    "Selected variant %1 is not supported by stockfish.wasm": "Wybrany wariant %1 nie jest wspierany przez stockfish.wasm",
+    "Selected variant %1 is not supported by stockfish.wasm": "Wybrany wariant %1 nie jest obsługiwany przez stockfish.wasm",
     "Depth": "Głębokość",
     "Go deeper": "Głębsza analiza",
     "Spectators: ": "Widzowie: ",
@@ -120,13 +120,13 @@
         "%1 tygodnia temu"
     ],
     "in %1 day": [
-        "jutro",
+        "za dobę",
         "za %1 dni",
         "za %1 dni",
         "za %1 dnia"
     ],
     "%1 day ago": [
-        "wczoraj",
+        "dobę temu",
         "%1 dni temu",
         "%1 dni temu",
         "%1 dnia temu"
@@ -271,7 +271,7 @@
     "Are you sure you want to resign?": "Na pewno chcesz się poddać?",
     "Blue (Cho)": "Niebieskie (Cho)",
     "Red (Han)": "Czerwone (Han)",
-    "Waiting for %1 to choose starting positions of the horses and elephants...": "Oczekujemy aż %1 ustawi swoje skoczki i słonie...",
+    "Waiting for %1 to choose starting positions of the horses and elephants...": "Oczekujemy aż %1 ustawią swoje skoczki i słonie...",
     "Switch pieces": "Zamień figury",
     "Ready": "Gotowe",
     "VIEW TOURNAMENT": "WYŚWIETL TURNIEJ",

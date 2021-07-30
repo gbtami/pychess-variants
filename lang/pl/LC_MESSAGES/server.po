@@ -120,7 +120,7 @@ msgstr "W trakcie"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr "Startujące wkrótce"
+msgstr "Planowane"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"

@@ -246,8 +246,8 @@
     "JOIN": "เข้าร่วม",
     "LOG IN": "เข้าสู่ระบบ",
     "Tournament complete": "การแข่งขันเสร็จสิ้น",
-    "Performance": "คะแนนสมรรถนะ",
-    "Games played": "จำนวนเกมที่เล่น",
+    "Performance": "สมรรถนะ",
+    "Games played": "จำนวนเกม",
     "Win rate": "อัตราชนะ",
     "Average opponent": "ค่าเฉลี่ยคู่แข่ง",
     "Custom position": "ตำแหน่งเริ่มต้นต่างจากปกติ",
@@ -255,6 +255,7 @@
     "Off": "ปิด",
     "On": "เปิด",
     "ZEN MODE": "โหมดสมาธิ",
+    "UsePluralFormIfNeeded\u0004Rated": "คิดคะแนน",
     "": {
         "language": "th",
         "plural-forms": "nplurals=1; plural=0;"

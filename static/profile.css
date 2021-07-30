@@ -8,14 +8,95 @@
 .filter-tabs {
     display: flex;
     padding-top: 10px;
-    background-color: var(--bg-color2);
 }
 div.filter-tabs div.sub-ratings {
     flex: auto;
     font-size: 1.2em;
 }
-player-head {
+.player-sum {
+    display: flex;
+    flex-flow: column;
+}
+.player-head {
     font-size: 24px;
+    display: flex;
+    padding: 2em 1.5em 1em 1.5em;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-color2);
+}
+.player-head h1 {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0;
+}
+.player-social {
+    display: flex;
+    background: var(--bg-color2);
+    justify-content: flex-end;
+}
+.trophies {
+    height: 40px;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-top: 0 !important;
+}
+.trophy {
+    display: flex;
+    align-items: flex-end;
+    height: 40px;
+    transition: transform 0.2s;
+    margin-right: -8px;
+}
+.trophy:not(.patron):hover, .shield-trophy:not(.patron):hover {
+    transform:translateY(-3px);
+}
+
+.trophy img {
+    height: 80px;
+}
+.trophy.top1 {
+    filter: drop-shadow(0 0 6px #d59020);
+}
+.combo-trophy {
+    width: 60px;
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    font-family: 'pychess';
+    text-align: center;
+}
+.shield-trophy {
+    width: 50px;
+    background-image: url(images/trophy/shield-gold.png);
+    font-size: 30px;
+    line-height: 60px;
+    color: #333 !important;
+    text-shadow: 0 0 6px #fff;
+    margin-top: -20px;
+    filter: drop-shadow(0 0 6px #d59020);
+}
+.btn-rack {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    margin: 1em;
+}
+.btn-rack a {
+    justify-content: center;
+    padding: 0 0.6em;
+    text-align: center;
+    line-height: 2rem;
+    cursor: pointer;
+    border-right: 1px solid var(--border-color);
+    color: var(--font-color);
+}
+[class*=" icon-"]::before {
+    line-height: 2rem;
 }
 .i-at, .i-tv, .i-dl, .i-ch {
     float: right;

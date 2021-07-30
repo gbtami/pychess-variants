@@ -5,8 +5,8 @@
 # 
 # Translators:
 # What Ever <benjamin.a@mailoo.org>, 2021
-# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # William Wu <fynmorph@gmail.com>, 2021
+# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: William Wu <fynmorph@gmail.com>, 2021\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,6 +110,9 @@ msgid ""
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
+"De plus, vous pouvez activer l'option Chess960 pour Chess, Crazyhouse, "
+"Atomic, S-chess, Capablanca et Capahouse afin de démarrer une partie depuis "
+"une position aléatoire avec"
 
 #: ../client/about.ts:86
 msgid "Chess960 castling rules."
@@ -290,7 +293,7 @@ msgstr "Choisir où vos pièces commencent la partie"
 
 #: ../client/chess.ts:253
 msgid "Explode your opponent's king to win"
-msgstr ""
+msgstr "Faire exploser le roi adversaire pour gagner"
 
 #: ../client/chess.ts:263
 msgid "A game closely resembling the original Chaturanga"
@@ -330,7 +333,7 @@ msgstr "Le shogi sur un shogiban 3x4"
 
 #: ../client/chess.ts:377
 msgid "Shogi on a 5x6 board"
-msgstr ""
+msgstr "Le shogi sur un shogiban 5x6"
 
 #: ../client/chess.ts:393
 msgid "Open fire on your opponent in this highly aggressive ancient game"
@@ -425,11 +428,12 @@ msgstr ""
 
 #: ../client/chess.ts:562
 msgid "Western chess VS Ninja"
-msgstr ""
+msgstr "Échecs occidentaux VS Ninja"
 
 #: ../client/chess.ts:580
 msgid "Like Capablanca Chess but with Grand starting setup"
 msgstr ""
+"Comme les échecs Capablanca mais avec la position de départ du Grand Chess"
 
 #: ../client/chess.ts:590
 msgid "Like Capablanca Chess but with a different starting setup"
@@ -463,8 +467,8 @@ msgstr "Variantes avec des pièces féeriques"
 #: ../client/datetime.ts:37
 msgid "in %1 year"
 msgid_plural "in %1 years"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dans %1 an"
+msgstr[1] "dans %1 ans"
 
 #: ../client/datetime.ts:37
 msgid "%1 year ago"
@@ -475,8 +479,8 @@ msgstr[1] "Il y a %1 ans"
 #: ../client/datetime.ts:39
 msgid "in %1 month"
 msgid_plural "in %1 months"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dans %1 mois"
+msgstr[1] "dans %1 mois"
 
 #: ../client/datetime.ts:39
 msgid "%1 month ago"
@@ -487,8 +491,8 @@ msgstr[1] "Il y a %1 mois"
 #: ../client/datetime.ts:41
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dans %1 semaine"
+msgstr[1] "dans %1 semaines"
 
 #: ../client/datetime.ts:41
 msgid "%1 week ago"
@@ -499,8 +503,8 @@ msgstr[1] "Il y a %1 semaines"
 #: ../client/datetime.ts:43
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dans %1 jour"
+msgstr[1] "dans %1 jours"
 
 #: ../client/datetime.ts:43
 msgid "%1 day ago"
@@ -511,8 +515,8 @@ msgstr[1] "Il y a %1 jours"
 #: ../client/datetime.ts:45
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dans %1 heure"
+msgstr[1] "dans %1 heures"
 
 #: ../client/datetime.ts:45
 msgid "%1 hour ago"
@@ -523,8 +527,8 @@ msgstr[1] "Il y a %1 heures"
 #: ../client/datetime.ts:47
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dans %1 minute"
+msgstr[1] "dans %1 minutes"
 
 #: ../client/datetime.ts:47
 msgid "%1 minute ago"
@@ -535,8 +539,8 @@ msgstr[1] "Il y a %1 minutes"
 #: ../client/datetime.ts:49
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dans %1 seconde"
+msgstr[1] "dans %1 secondes"
 
 #: ../client/datetime.ts:49
 msgid "%1 second ago"
@@ -546,7 +550,7 @@ msgstr[1] "Il y a %1 secondes"
 
 #: ../client/datetime.ts:90
 msgid "STARTING IN"
-msgstr ""
+msgstr "COMMENCE DANS"
 
 #: ../client/editor.ts:137 ../client/editor.ts:138
 msgid "%1 to play"
@@ -770,7 +774,7 @@ msgstr "Or"
 
 #: ../client/profile.ts:36
 msgid "Pink"
-msgstr ""
+msgstr "Roses"
 
 #: ../client/profile.ts:50
 msgid "IMPORT"
@@ -830,7 +834,7 @@ msgstr "Camp conquis"
 
 #: ../client/profile.ts:116
 msgid "Explosion of king"
-msgstr ""
+msgstr "Explosion du roi"
 
 #: ../client/profile.ts:119 ../client/profile.ts:126
 msgid "Point counting"
@@ -873,7 +877,7 @@ msgstr "Parties jouées"
 #: ../client/profile.ts:305
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
-msgstr ""
+msgstr "Classée"
 
 #: ../client/profile.ts:306
 msgid "Imported"
@@ -933,15 +937,15 @@ msgstr "Prêt"
 
 #: ../client/roundCtrl.ts:551
 msgid "VIEW TOURNAMENT"
-msgstr ""
+msgstr "VOIR LE TOURNOI"
 
 #: ../client/roundCtrl.ts:554
 msgid "BACK TO TOURNAMENT"
-msgstr ""
+msgstr "RETOUR AU TOURNOI"
 
 #: ../client/roundCtrl.ts:556 ../client/tournament.ts:186
 msgid "PAUSE"
-msgstr ""
+msgstr "PAUSE"
 
 #: ../client/roundCtrl.ts:559
 msgid "REMATCH"
@@ -985,7 +989,7 @@ msgstr "Réglages de l'échiquier"
 
 #: ../client/settingsView.ts:77 ../client/settingsView.ts:127
 msgid "Zen Mode"
-msgstr ""
+msgstr "Mode Zen"
 
 #: ../client/tournament.ts:159
 msgid "First"
@@ -1009,38 +1013,38 @@ msgstr ""
 
 #: ../client/tournament.ts:177
 msgid "WITHDRAW"
-msgstr ""
+msgstr "SE RETIRER"
 
 #: ../client/tournament.ts:179 ../client/tournament.ts:184
 msgid "JOIN"
-msgstr ""
+msgstr "REJOINDRE"
 
 #: ../client/tournament.ts:191
 msgid "LOG IN"
-msgstr ""
+msgstr "SE CONNECTER"
 
 #: ../client/tournament.ts:204
 msgid "Tournament complete"
-msgstr ""
+msgstr "Tournoi complet"
 
 #: ../client/tournament.ts:368 ../client/tournament.ts:420
 #: ../client/tournament.ts:431 ../client/tournament.ts:442
 msgid "Performance"
-msgstr ""
+msgstr "Performance"
 
 #: ../client/tournament.ts:369 ../client/tournament.ts:421
 #: ../client/tournament.ts:432 ../client/tournament.ts:443
 msgid "Games played"
-msgstr ""
+msgstr "Parties jouées"
 
 #: ../client/tournament.ts:370 ../client/tournament.ts:422
 #: ../client/tournament.ts:433 ../client/tournament.ts:444
 msgid "Win rate"
-msgstr ""
+msgstr "Taux de victoires"
 
 #: ../client/tournament.ts:371
 msgid "Average opponent"
-msgstr ""
+msgstr "Opposition moyenne"
 
 #: ../client/tournament.ts:514
 msgid "Custom position"
@@ -1048,16 +1052,16 @@ msgstr ""
 
 #: ../client/tournament.ts:515
 msgid "Analysis board"
-msgstr ""
+msgstr "Échiquier d'analyse"
 
 #: ../client/zen.ts:17
 msgid "Off"
-msgstr ""
+msgstr "Désactiver"
 
 #: ../client/zen.ts:18
 msgid "On"
-msgstr ""
+msgstr "Activer"
 
 #: ../client/zen.ts:50
 msgid "ZEN MODE"
-msgstr ""
+msgstr "MODE ZEN"

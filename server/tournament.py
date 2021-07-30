@@ -13,7 +13,7 @@ from pymongo import ReturnDocument
 from broadcast import lobby_broadcast
 from compress import R2C
 from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
-    ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED
+    ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED, SHIELD
 from game import Game
 from glicko2.glicko2 import gl2
 from misc import time_control_str
@@ -116,7 +116,7 @@ class Tournament(ABC):
         They have to implement create_pairing() for waiting_players """
 
     def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="", description="",
-                 fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, starts_at=None, status=None, with_clock=True):
+                 fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, starts_at=None, status=None, with_clock=True, frequency=""):
         self.app = app
         self.id = tournamentId
         self.name = name
@@ -131,6 +131,7 @@ class Tournament(ABC):
         self.byoyomi_period = byoyomi_period
         self.chess960 = chess960
         self.rounds = rounds
+        self.frequency = frequency
 
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
@@ -155,6 +156,10 @@ class Tournament(ABC):
         self.nb_players = 0
 
         self.nb_games_finished = 0
+        self.w_win = 0
+        self.b_win = 0
+        self.draw = 0
+
         self.nb_games_cached = -1
         self.leaderboard_cache = {}
 
@@ -374,6 +379,19 @@ class Tournament(ABC):
                 return_document=ReturnDocument.AFTER)
             )
 
+    @property
+    def summary(self):
+        return {
+            "type": "tstatus",
+            "tstatus": self.status,
+            "nbPlayers": self.nb_players,
+            "nbGames": self.nb_games_finished,
+            "wWin": self.w_win,
+            "bWin": self.b_win,
+            "draw": self.draw,
+            "sumRating": sum(self.players[player].rating for player in self.players if not self.players[player].withdrawn),
+        }
+
     async def finalize(self, status):
         self.status = status
 
@@ -397,7 +415,7 @@ class Tournament(ABC):
         # force to create new players json data
         self.nb_games_cached = -1
 
-        await self.broadcast({"type": "tstatus", "tstatus": self.status})
+        await self.broadcast(self.summary)
         await self.save()
 
         await self.broadcast_spotlight()
@@ -469,7 +487,7 @@ class Tournament(ABC):
         await self.broadcast(response)
 
         if (self.top_player is not None) and self.top_player.username == user.username:
-            self.top_player = None
+            self.set_top_player()
 
         await self.db_update_player(user, self.players[user])
 
@@ -671,8 +689,8 @@ class Tournament(ABC):
         if bpoint[1] == STREAK:
             bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
 
-        wplayer.rating += int(game.wrdiff) if game.wrdiff else 0
-        bplayer.rating += int(game.brdiff) if game.brdiff else 0
+        wplayer.rating = game.white_rating.rating_prov[0] + int(game.wrdiff) if game.wrdiff else 0
+        bplayer.rating = game.black_rating.rating_prov[0] + int(game.brdiff) if game.brdiff else 0
 
         # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
         nb = wplayer.nb_games
@@ -689,6 +707,13 @@ class Tournament(ABC):
 
         self.ongoing_games -= 1
         self.nb_games_finished += 1
+
+        if game.result == "1-0":
+            self.w_win += 1
+        elif game.result == "0-1":
+            self.b_win += 1
+        elif game.result == "1/2-1/2":
+            self.draw += 1
 
         wplayer.free = True
         bplayer.free = True
@@ -834,6 +859,11 @@ class Tournament(ABC):
 
         for user in self.leaderboard:
             await self.db_update_player(user, self.players[user])
+
+        if self.frequency == SHIELD:
+            variant_name = self.variant + ("960" if self.chess960 else "")
+            self.app["shield"][variant_name].append((winner, self.starts_at, self.id))
+            self.app["shield_owners"][variant_name] = winner
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)

@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
-# Marken Foo <marken.foo.yw@gmail.com>, 2020
+# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -65,7 +65,7 @@ msgstr ""
 
 #: ../client/about.ts:19
 msgid "About pychess"
-msgstr ""
+msgstr "PyChessについて"
 
 #: ../client/about.ts:20
 msgid ""
@@ -179,15 +179,15 @@ msgstr ""
 
 #: ../client/background.ts:9
 msgid "Light"
-msgstr ""
+msgstr "明るい"
 
 #: ../client/background.ts:10
 msgid "Dark"
-msgstr ""
+msgstr "暗い"
 
 #: ../client/boardSettings.ts:220
 msgid "Piece animation"
-msgstr ""
+msgstr "駒の移動アニメーション"
 
 #: ../client/boardSettings.ts:318
 msgid "Show piece destinations"
@@ -203,7 +203,7 @@ msgstr ""
 
 #: ../client/boardSettings.ts:382
 msgid "Invisible pieces"
-msgstr ""
+msgstr "目隠し将棋"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -383,93 +383,93 @@ msgstr ""
 
 #: ../client/chess.ts:624
 msgid "Standard piece variants"
-msgstr ""
+msgstr "チェス類（普通の駒）"
 
 #: ../client/chess.ts:625
 msgid "Southeast Asian variants"
-msgstr ""
+msgstr "東南アジア将棋類"
 
 #: ../client/chess.ts:626
 msgid "Shogi variants"
-msgstr ""
+msgstr "日本将棋類"
 
 #: ../client/chess.ts:627
 msgid "Xiangqi variants"
-msgstr ""
+msgstr "シャンチー類"
 
 #: ../client/chess.ts:628
 msgid "Fairy piece variants"
-msgstr ""
+msgstr "チェス類（変則の駒）"
 
 #: ../client/datetime.ts:37
 msgid "in %1 year"
 msgid_plural "in %1 years"
-msgstr[0] ""
+msgstr[0] "%1年以内"
 
 #: ../client/datetime.ts:37
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] ""
+msgstr[0] "%1年前"
 
 #: ../client/datetime.ts:39
 msgid "in %1 month"
 msgid_plural "in %1 months"
-msgstr[0] ""
+msgstr[0] "%1月以内"
 
 #: ../client/datetime.ts:39
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] ""
+msgstr[0] "%1月前"
 
 #: ../client/datetime.ts:41
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
-msgstr[0] ""
+msgstr[0] "%1週間以内"
 
 #: ../client/datetime.ts:41
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] ""
+msgstr[0] "%1週間前"
 
 #: ../client/datetime.ts:43
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] ""
+msgstr[0] "%1日以内"
 
 #: ../client/datetime.ts:43
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] ""
+msgstr[0] "%1日前"
 
 #: ../client/datetime.ts:45
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
-msgstr[0] ""
+msgstr[0] "%1時間以内"
 
 #: ../client/datetime.ts:45
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] ""
+msgstr[0] "%1時間前"
 
 #: ../client/datetime.ts:47
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
-msgstr[0] ""
+msgstr[0] "%1分以内"
 
 #: ../client/datetime.ts:47
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] ""
+msgstr[0] "%1分前"
 
 #: ../client/datetime.ts:49
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] ""
+msgstr[0] "%1秒以内"
 
 #: ../client/datetime.ts:49
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] ""
+msgstr[0] "%1秒前"
 
 #: ../client/datetime.ts:90
 msgid "STARTING IN"
@@ -477,11 +477,11 @@ msgstr ""
 
 #: ../client/editor.ts:137 ../client/editor.ts:138
 msgid "%1 to play"
-msgstr ""
+msgstr "%1番"
 
 #: ../client/editor.ts:141
 msgid "Castling"
-msgstr ""
+msgstr "キャスリング"
 
 #: ../client/editor.ts:144 ../client/lobby.ts:386 ../client/profile.ts:26
 msgid "White"
@@ -620,12 +620,12 @@ msgstr ""
 #: ../client/lobby.ts:726
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] ""
+msgstr[0] "%1局対局中"
 
 #: ../client/lobby.ts:732
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] ""
+msgstr[0] "現在%1人連続中"
 
 #: ../client/lobby.ts:743
 msgid "Player"
@@ -649,7 +649,7 @@ msgstr "寄付"
 
 #: ../client/lobby.ts:800
 msgid "FAQ"
-msgstr ""
+msgstr "よくある質問"
 
 #: ../client/lobby.ts:801
 msgid "Stats"
@@ -661,11 +661,11 @@ msgstr ""
 
 #: ../client/lobby.ts:807
 msgid "Latest updates"
-msgstr ""
+msgstr "最新情報"
 
 #: ../client/main.ts:99
 msgid "Thank you for your support!"
-msgstr ""
+msgstr "いつも応援してくれてありがとうございます！"
 
 #: ../client/paste.ts:128
 msgid "Invalid PGN"
@@ -853,15 +853,15 @@ msgstr "準備"
 
 #: ../client/roundCtrl.ts:551
 msgid "VIEW TOURNAMENT"
-msgstr ""
+msgstr "トーナメントを見る"
 
 #: ../client/roundCtrl.ts:554
 msgid "BACK TO TOURNAMENT"
-msgstr ""
+msgstr "トーナメントへ戻る"
 
 #: ../client/roundCtrl.ts:556 ../client/tournament.ts:186
 msgid "PAUSE"
-msgstr ""
+msgstr "一時停止"
 
 #: ../client/roundCtrl.ts:559
 msgid "REMATCH"
@@ -905,7 +905,7 @@ msgstr "ボード設定"
 
 #: ../client/settingsView.ts:77 ../client/settingsView.ts:127
 msgid "Zen Mode"
-msgstr ""
+msgstr "集中モード"
 
 #: ../client/tournament.ts:159
 msgid "First"
@@ -929,38 +929,38 @@ msgstr ""
 
 #: ../client/tournament.ts:177
 msgid "WITHDRAW"
-msgstr ""
+msgstr "棄権する"
 
 #: ../client/tournament.ts:179 ../client/tournament.ts:184
 msgid "JOIN"
-msgstr ""
+msgstr "参加する"
 
 #: ../client/tournament.ts:191
 msgid "LOG IN"
-msgstr ""
+msgstr "ログインする"
 
 #: ../client/tournament.ts:204
 msgid "Tournament complete"
-msgstr ""
+msgstr "トーナメント終了"
 
 #: ../client/tournament.ts:368 ../client/tournament.ts:420
 #: ../client/tournament.ts:431 ../client/tournament.ts:442
 msgid "Performance"
-msgstr ""
+msgstr "パフォーマンス"
 
 #: ../client/tournament.ts:369 ../client/tournament.ts:421
 #: ../client/tournament.ts:432 ../client/tournament.ts:443
 msgid "Games played"
-msgstr ""
+msgstr "対局数"
 
 #: ../client/tournament.ts:370 ../client/tournament.ts:422
 #: ../client/tournament.ts:433 ../client/tournament.ts:444
 msgid "Win rate"
-msgstr ""
+msgstr "勝率"
 
 #: ../client/tournament.ts:371
 msgid "Average opponent"
-msgstr ""
+msgstr "対局相手の平均"
 
 #: ../client/tournament.ts:514
 msgid "Custom position"
@@ -968,16 +968,16 @@ msgstr ""
 
 #: ../client/tournament.ts:515
 msgid "Analysis board"
-msgstr ""
+msgstr "棋譜解析"
 
 #: ../client/zen.ts:17
 msgid "Off"
-msgstr ""
+msgstr "いいえ"
 
 #: ../client/zen.ts:18
 msgid "On"
-msgstr ""
+msgstr "はい"
 
 #: ../client/zen.ts:50
 msgid "ZEN MODE"
-msgstr ""
+msgstr "集中モード"
