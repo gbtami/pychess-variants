@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 import functools
 import logging
@@ -139,6 +140,10 @@ async def index(request):
             await tournament.pause(user)
 
     profileId = request.match_info.get("profileId")
+    if profileId is not None and profileId not in users:
+        await asyncio.sleep(3)
+        return web.Response(status=404)
+
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
         log.debug("Invalid variant %s in request", variant)
