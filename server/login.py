@@ -20,9 +20,6 @@ RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-fr
 
 async def oauth(request):
     """ Get lichess.org oauth token with PKCE """
-    # TODO: check https://lichess.org/api/user/{username}
-    # see https://lichess.org/api#operation/apiUser
-    # and disable login if engine or booster is true or user is disabled
 
     session = await aiohttp_session.get_session(request)
     code = request.rel_url.query.get("code")
@@ -85,6 +82,8 @@ async def login(request):
 
     username = None
     title = ""
+    disabled = ""
+    tosViolation = ""
 
     async with aiohttp.ClientSession() as client_session:
         data = {'Authorization': "Bearer %s" % session["token"]}
@@ -92,6 +91,8 @@ async def login(request):
             data = await resp.json()
             username = data.get("username")
             title = data.get("title", "")
+            disabled = data.get("disabled", "")
+            tosViolation = data.get("tosViolation", "")
             if username is None:
                 log.error("Failed to get lichess public user account data from %s", LICHESS_ACCOUNT_API_URL)
                 return web.HTTPFound("/")
@@ -100,8 +101,16 @@ async def login(request):
         log.error("User %s tried to log in.", username)
         return web.HTTPFound("/")
 
-    if (not DEV) and title == "BOT":
+    elif (not DEV) and title == "BOT":
         log.error("BOT user %s tried to log in.", username)
+        return web.HTTPFound("/")
+
+    elif tosViolation == "true":
+        log.error("tosViolation user %s tried to log in.", username)
+        return web.HTTPFound("/")
+
+    elif disabled == "true":
+        log.error("disabled user %s tried to log in.", username)
         return web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s", username)
