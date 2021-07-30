@@ -590,7 +590,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "lhafkahl/8/pppppppp/8/8/PPPPPPPP/8/LHAFKAHL w - - 0 1",
         board: "standard8x8", piece: "ordamirror",
         firstColor: "White", secondColor: "Gold",
-        pieceRoles: ["k", "f", "l", "a", "h", "p", "q"],
+        pieceRoles: ["k", "f", "l", "a", "h", "p"],
         icon: "◩",
     }),
 
