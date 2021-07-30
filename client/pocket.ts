@@ -61,102 +61,96 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         }
     }
 
-  return h('div.pocket.' + position, {
-    class: { usable: true },
-    style: {
-        '--pocketLength': String(roles!.length),
-        '--files': String(ctrl.variant.boardWidth),
-        '--ranks': String(ctrl.variant.boardHeight),
-    },
-    hook: insertHook
-  }, roles.map(role => {
-    const nb = pocket[role] || 0;
-    let onEventHandler;
-    if (ctrl instanceof EditorController) {
-        onEventHandler = {
-            click: (event) => {
-                let newValue: number;
-                const oldValue = parseInt((event.target as HTMLElement).getAttribute("data-nb")!);
-                newValue = oldValue + ((event.ctrlKey) ? -1 : 1);
-                newValue = Math.min(Math.max(newValue, 0), ctrl.variant.boardWidth);
-                if (oldValue !== newValue) {
-                    // patch(event.target as HTMLElement, h('piece.' + role + '.' + color, {attrs: {'data-nb': newValue}}));
-                    if (event.ctrlKey) {
-                        pocket[role]--;
-                    } else {
-                        pocket[role]++;
-                    }
+    return h('div.pocket.' + position, {
+        class: { usable: true },
+        style: {
+            '--pocketLength': String(roles!.length),
+            '--files': String(ctrl.variant.boardWidth),
+            '--ranks': String(ctrl.variant.boardHeight),
+        },
+        hook: insertHook
+      }, roles.map(role => {
+        const nb = pocket[role] || 0;
+        let onEventHandler;
+        if (ctrl instanceof EditorController) {
+            onEventHandler = {
+                click: (event) => {
+                    let newValue: number;
+                    const oldValue = parseInt((event.target as HTMLElement).getAttribute("data-nb")!);
+                    newValue = oldValue + ((event.ctrlKey) ? -1 : 1);
+                    newValue = Math.min(Math.max(newValue, 0), ctrl.variant.boardWidth);
+                    if (oldValue !== newValue) {
+                        // patch(event.target as HTMLElement, h('piece.' + role + '.' + color, {attrs: {'data-nb': newValue}}));
+                        if (event.ctrlKey) {
+                            pocket[role]--;
+                        } else {
+                            pocket[role]++;
+                        }
 
-                    if (position === "top") {
-                        ctrl.vpocket0 = patch(ctrl.vpocket0, pocketView(ctrl, color, "top"));
-                    } else {
-                        ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, color, "bottom"));
-                    }
+                        if (position === "top") {
+                            ctrl.vpocket0 = patch(ctrl.vpocket0, pocketView(ctrl, color, "top"));
+                        } else {
+                            ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, color, "bottom"));
+                        }
 
-                    ctrl.pocketsPart = pockets2str(ctrl);
-                    ctrl.onChange();
+                        ctrl.pocketsPart = pockets2str(ctrl);
+                        ctrl.onChange();
+                    }
                 }
             }
+        } else {
+            onEventHandler = {};
         }
-    } else {
-        onEventHandler = {};
-    }
 
-    if (ctrl instanceof RoundController) {
+        let clazz;
+
         const dropMode = ctrl.chessground?.state.dropmode;
         const dropPiece = ctrl.chessground?.state.dropmode.piece;
         const selectedSquare = dropMode?.active && dropPiece?.role == role && dropPiece?.color == color;
-        const preDropRole = ctrl.predrop?.role;
-        const activeColor = color === ctrl.turnColor;//TODO:not sure if mycolor or current color of player whose turn it is?
+
+        if (ctrl instanceof RoundController) {
+            const preDropRole = ctrl.predrop?.role;
+            const activeColor = color === ctrl.turnColor;
+
+            clazz = {
+                premove: activeColor && preDropRole === role,
+                'selected-square': selectedSquare,
+            };
+        } else {
+            clazz = {
+                'selected-square': selectedSquare,
+            };
+        }
 
         return h('piece.' + role + '.' + color, {
-          class: {
-            premove: activeColor && preDropRole === role,
-            'selected-square': selectedSquare,
-          },
-          attrs: {
-            'data-role': role,
-            'data-color': color,
-            'data-nb': nb,
-          },
-          on: onEventHandler
+            class: clazz,
+            attrs: {
+                'data-role': role,
+                'data-color': color,
+                'data-nb': nb,
+            },
+            on: onEventHandler
         });
-        
-    } else {
-        //TODO:do not duplicate the return expression, but instead figure out how to condition the class thing
-        return h('piece.' + role + '.' + color, {
-          attrs: {
-            'data-role': role,
-            'data-color': color,
-            'data-nb': nb,
-          },
-          on: onEventHandler
-        });
-    }
 
-  }));
+    } ) );
 }
 
-/**
- * 
- */
 export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
-    console.log('clickkkkkkkk. ctrl=' + ctrl + ". e = " + e);
-    //click event is triggered even if user holds mouse button down and drags the piece for however long and far just as long as when dropping it, the mouse is back
-    //somewhere on the original piece. That is not a click in my book, so have to detect there was dragging between the mouse down/up events and not treat it as such.
-    //TODO:is it same on mobile/touch events?
 
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
-    //if (ctrl.replaying() || !ctrl.isPlaying()) return; TODO: are there such analogues in pychess - maybe controller types
-    
+
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
     if (!role || !color || number === '0') return;
-    const dropMode = ctrl.chessground?.state.dropmode;
+    const dropMode = ctrl.chessground?.state.dropmode;//TODO:why do we even check this? when is it not active? do we have pockets if it is ever not active?
     const dropPiece = ctrl.chessground?.state.dropmode.piece;
-    if (!dropMode.active || dropPiece?.role !== role) {
+
+    const canceledDropMode = el.getAttribute("canceledDropMode");
+    el.setAttribute("canceledDropMode", "");
+
+    if ((!dropMode.active || dropPiece?.role !== role ) && canceledDropMode!=="true") {
         setDropMode(ctrl.chessground.state, { color, role });
 
         if ( ctrl.turnColor === ctrl.mycolor) {
@@ -165,19 +159,18 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
             
             //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
             ctrl.chessground.set({
-                turnColor: color,
                 dropmode: {
                     active: true,
                     dropDests: dropDests,
                     showDropDests: ctrl.showDests,
-                },
+                }
             });
         } else {
         }
 
     } else {
         cancelDropMode(ctrl.chessground.state);
-        ctrl.chessground.selectSquare(null);
+        //ctrl.chessground.selectSquare(null);
 
     }
     e.stopPropagation();
@@ -190,26 +183,40 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
  */
 export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
 
-    console.log('dragggggggg. ctrl=' + ctrl + ". e = " + e);
-
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
     if (ctrl.spectator && ctrl instanceof RoundController) return;
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
+    el.setAttribute("canceledDropMode", "");// We want to know if later in this method cancelDropMode was called,
+                                                              // so right after mouse button is up and dragging is over if a click event is triggered
+                                                              // (which annoyingly does happen if mouse is still over same pocket element)
+                                                              // then we know not to call setDropMode selecting the piece we have just unselected.
+                                                              // Alternatively we might not cancelDropMode on drag of same piece but then after drag is over
+                                                              // the selected piece remains selected which is not how board pieces behave and more importantly is counter intuitive
     if (!role || !color || number === '0') return;
 
     //if the piece we are dragging is different than the currently selected for click-drop, then cancel the click-drop
     //if it is the same, we will not cancel it yet - if this drag event turns out to just be a click - then the cancelling will happen in the click method
     //if it is an actual drag then no point in canelling ???
-    if (ctrl.chessground.state.dropmode.piece && ctrl.chessground.state.dropmode.piece.role != role) {
-        ctrl.chessground.selectSquare(null);
+    if (ctrl.chessground.state.dropmode.active/* && ctrl.chessground.state.dropmode.piece.role != role*/) {
         cancelDropMode(ctrl.chessground.state);
-        el.setAttribute("just-unselected","true");//right after this, the click event might also fire if not an actual drag. use this attr to detect if current piece has just been unselected to do nothing instead of selecting in right back in thus reverting the effect of this if body
+        //setDropMode(ctrl.chessground.state, {, role})
         updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
-        //return;
-    } 
+
+        if (ctrl.chessground.state.dropmode.piece?.role == role) {
+            //we mark it with this only if we are cancelling the same piece we "drag"
+            el.setAttribute("canceledDropMode", "true");
+        }
+    }
+
+    const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]);//TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
+    ctrl.chessground.set({
+        dropmode: {
+            dropDests: dropDests,
+        }
+    });
 
     e.stopPropagation();
     e.preventDefault();
@@ -218,15 +225,22 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
 
 export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
     const drops = dests[role2san(role) + "@"];
-    // console.log("drops:", drops)
-
     if (drops === undefined || drops === null) return false;
-
     return drops.indexOf(key) !== -1;
 }
 
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
-export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0: VNode | HTMLElement, vpocket1: VNode | HTMLElement): void {
+export function refreshPockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement) : void {
+    // update pockets from FEN
+    if (ctrl.hasPockets) {
+        // console.log(o,c,po,pc);
+        ctrl.vpocket0 = patch(vpocket0? vpocket0 : ctrl.vpocket0, pocketView(ctrl, (ctrl.flip) ? ctrl.mycolor : ctrl.oppcolor, "top"));
+        ctrl.vpocket1 = patch(vpocket1? vpocket1 : ctrl.vpocket1, pocketView(ctrl, (ctrl.flip) ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+    }
+}
+
+export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement): void {
+    console.log('updatePockets');
     // update pockets from FEN
     if (ctrl.hasPockets) {
         const parts = ctrl.fullfen.split(" ");
@@ -251,8 +265,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
             ctrl.pockets = [po, pc];
         }
         // console.log(o,c,po,pc);
-        ctrl.vpocket0 = patch(vpocket0, pocketView(ctrl, (ctrl.flip) ? ctrl.mycolor : ctrl.oppcolor, "top"));
-        ctrl.vpocket1 = patch(vpocket1, pocketView(ctrl, (ctrl.flip) ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+        refreshPockets(ctrl, vpocket0, vpocket1);
     }
 }
 
