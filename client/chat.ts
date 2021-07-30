@@ -65,5 +65,5 @@ export function chatMessage (user, message, chatType) {
         patch(container, h('div#messages', [ h("li.message", [h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
 
-    if (isScrolled) myDiv.scrollTop = myDiv.scrollHeight;
+    if (isScrolled) setTimeout(() => {myDiv.scrollTop = myDiv.scrollHeight;}, 200);
 }
