@@ -92,6 +92,8 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         case "hoppel": cssLinkIndex += 13; break;
         case "dobutsu": cssLinkIndex += 14; break;
         case "shinobi": cssLinkIndex += 15; break;
+        case "empire": cssLinkIndex += 16; break;
+        case "ordamirror": cssLinkIndex += 17; break;
         default: throw "Unknown piece family " + family;
     }
     const newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;

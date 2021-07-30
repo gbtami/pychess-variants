@@ -76,23 +76,44 @@
     "Shogi variants": "쇼기 변형",
     "Xiangqi variants": "샹치 변형판",
     "Fairy piece variants": "변형 체스",
+    "in %1 year": [
+        ""
+    ],
     "%1 year ago": [
         "%1 년전"
+    ],
+    "in %1 month": [
+        ""
     ],
     "%1 month ago": [
         "%1 개월 전"
     ],
+    "in %1 week": [
+        ""
+    ],
     "%1 week ago": [
         "%1 주 전"
+    ],
+    "in %1 day": [
+        ""
     ],
     "%1 day ago": [
         "%1 일 전"
     ],
+    "in %1 hour": [
+        ""
+    ],
     "%1 hour ago": [
         "%1 시간 전"
     ],
+    "in %1 minute": [
+        ""
+    ],
     "%1 minute ago": [
         "%1 분 전"
+    ],
+    "in %1 second": [
+        ""
     ],
     "%1 second ago": [
         "%1 초 전"

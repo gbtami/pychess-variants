@@ -16,7 +16,8 @@ from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
-    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, IMPORTED
+    INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, \
+    IMPORTED, HIGHSCORE_MIN_GAMES
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
@@ -301,6 +302,8 @@ class Game:
     async def save_game(self, with_clocks=False):
         if self.saved:
             return
+        self.saved = True
+
         if self.rated == IMPORTED:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
@@ -335,7 +338,6 @@ class Game:
                 except KeyError:
                     log.error("Failed to del %s from game_queues", self.id)
 
-        self.saved = True
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
         if self.board.ply < 3 and (self.db is not None) and (self.tournamentId is None):
@@ -478,8 +480,13 @@ class Game:
         self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
 
-        await self.set_highscore(self.variant, self.chess960, {self.wplayer.username: int(round(wr.mu, 0))})
-        await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
+        w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
+        if w_nb >= HIGHSCORE_MIN_GAMES:
+            await self.set_highscore(self.variant, self.chess960, {self.wplayer.username: int(round(wr.mu, 0))})
+
+        b_nb = self.bplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
+        if b_nb >= HIGHSCORE_MIN_GAMES:
+            await self.set_highscore(self.variant, self.chess960, {self.bplayer.username: int(round(br.mu, 0))})
 
     def update_status(self, status=None, result=None):
         if self.status > STARTED:

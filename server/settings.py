@@ -4,6 +4,8 @@ import json
 import logging
 import string
 
+from newid import id8
+
 logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
@@ -15,8 +17,8 @@ REDIRECT_PATH = "/oauth"  # path of oauth callback in app
 REDIRECT_URI = URI + REDIRECT_PATH
 
 # client app id and secret from lichess.org
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+CLIENT_ID = os.getenv("CLIENT_ID", "pychess")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET", id8())[:8]
 
 LICHESS_OAUTH_AUTHORIZE_URL = 'https://lichess.org/oauth'
 LICHESS_OAUTH_TOKEN_URL = 'https://lichess.org/api/token'

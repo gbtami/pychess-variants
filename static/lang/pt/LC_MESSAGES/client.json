@@ -83,34 +83,63 @@
     "Shogi variants": "Variantes de Shogi",
     "Xiangqi variants": "Variantes de Xiangqi",
     "Fairy piece variants": "Variantes com peças não ortodoxas",
+    "in %1 year": [
+        "em %1 ano",
+        "em %1 anos"
+    ],
     "%1 year ago": [
         "%1 ano atrás",
         "%1 anos atrás"
+    ],
+    "in %1 month": [
+        "em %1 mês",
+        "em %1 meses"
     ],
     "%1 month ago": [
         "%1 mês atrás",
         "%1 meses atrás"
     ],
+    "in %1 week": [
+        "em %1 semana",
+        "em %1 semanas"
+    ],
     "%1 week ago": [
         "%1 semana atrás",
         "%1 semanas atrás"
+    ],
+    "in %1 day": [
+        "em %1 dia",
+        "em %1 dias"
     ],
     "%1 day ago": [
         "%1 dia atrás",
         "%1 dias atrás"
     ],
+    "in %1 hour": [
+        "em %1 hora",
+        "em %1 horas"
+    ],
     "%1 hour ago": [
         "%1 hora atrás",
         "%1 horas atrás"
+    ],
+    "in %1 minute": [
+        "em %1 minuto",
+        "em %1 minutos"
     ],
     "%1 minute ago": [
         "%1 minuto atrás",
         "%1 minutos atrás"
     ],
+    "in %1 second": [
+        "em %1 segundo",
+        "em %1 segundos"
+    ],
     "%1 second ago": [
         "%1 segundo atrás",
         "%1 segundos atrás"
     ],
+    "STARTING IN": "COMEÇANDO EM",
     "%1 to play": "%1 a jogar",
     "Castling": "Roque",
     "White": "Brancas",
@@ -211,6 +240,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "À espera que %1 escolha as posições iniciais dos Elefantes e dos Cavalos...",
     "Switch pieces": "Trocar peças",
     "Ready": "Pronto",
+    "VIEW TOURNAMENT": "VER TORNEIO",
+    "BACK TO TOURNAMENT": "VOLTAR PARA O TORNEIO",
+    "PAUSE": "PAUSAR",
     "REMATCH": "DESFORRA",
     "NEW OPPONENT": "NOVO OPONENTE",
     "Stop counting": "Parar contagem",
@@ -221,6 +253,25 @@
     "Sound": "Som",
     "Background": "Fundo",
     "Board Settings": "Definições de Tabuleiro",
+    "Zen Mode": "Modo Zen",
+    "First": "Primeira",
+    "Prev": "Anterior",
+    "Next": "Seguinte",
+    "Last": "Última",
+    "Scroll to your player": "Localize o seu jogador",
+    "WITHDRAW": "DEIXAR",
+    "JOIN": "ENTRAR",
+    "LOG IN": "CONECTAR",
+    "Tournament complete": "Torneio concluído",
+    "Performance": "Desempenho",
+    "Games played": "Partidas jogadas",
+    "Win rate": "Porcentagem de vitórias",
+    "Average opponent": "Nível médio rivais",
+    "Custom position": "Posição personalizada",
+    "Analysis board": "Tabuleiro de análise",
+    "Off": "Desativado",
+    "On": "Ativado",
+    "ZEN MODE": "MODO ZEN",
     "": {
         "language": "pt",
         "plural-forms": "nplurals=2; plural=(n != 1);"

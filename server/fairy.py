@@ -300,3 +300,19 @@ if __name__ == '__main__':
         board.print_pos()
         print(board.fen)
         print(board.legal_moves())
+
+    board = FairyBoard("empire")
+    print(board.fen)
+    board.print_pos()
+    print(board.legal_moves())
+    print([board.get_san(move) for move in board.legal_moves()])
+
+    board = FairyBoard("ordamirror")
+    print(board.fen)
+    board.print_pos()
+    print(board.legal_moves())
+    print([board.get_san(move) for move in board.legal_moves()])
+
+    print(sf.version())
+    print(sf.info())
+    print(sf.variants())

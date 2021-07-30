@@ -76,6 +76,10 @@ async def get_user_games(request):
     db = request.app["db"]
     profileId = request.match_info.get("profileId")
 
+    if profileId is not None and profileId not in users:
+        await asyncio.sleep(3)
+        return web.json_response({})
+
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -232,8 +236,13 @@ async def get_games(request):
 
 async def export(request):
     db = request.app["db"]
+    users = request.app["users"]
     profileId = request.match_info.get("profileId")
+    if profileId is not None and profileId not in users:
+        await asyncio.sleep(3)
+        return web.Response(text="")
 
+    tournamentId = request.match_info.get("tournamentId")
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -245,6 +254,8 @@ async def export(request):
 
     if profileId is not None:
         cursor = db.game.find({"us": profileId})
+    elif tournamentId is not None:
+        cursor = db.game.find({"tid": tournamentId})
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")
         print("---", yearmonth[:4], yearmonth[4:])

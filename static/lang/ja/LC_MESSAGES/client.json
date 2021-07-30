@@ -1,4 +1,5 @@
 {
+    "About pychess": "PyChessについて",
     "Playing right now": "対局中",
     "Variant": "将棋類",
     "You need an account to do that.": "アカウントが必要です",
@@ -11,8 +12,12 @@
     " Request Analysis": "解析をリクエストする",
     "Depth": "深度",
     "Spectators: ": "観覧者：",
+    "Light": "明るい",
+    "Dark": "暗い",
+    "Piece animation": "駒の移動アニメーション",
     "Show piece destinations": "駒の行き先を表示する",
     "Promote to Queen automatically": "自動的にクイーンに昇格する",
+    "Invisible pieces": "目隠し将棋",
     "Initial position": "開始局面",
     "Advantage": "優勢",
     "Sign in to chat": "（ログインが必要）",
@@ -29,27 +34,55 @@
     "Similar to Xiangqi, but plays very differently. Tournament rules are used": "チャンギです。ピッチャンの場合は、残っている駒の点数を数えて勝負を決めます。",
     "Xiangqi on a 7x7 board": "７ｘ７マスのシャンチー類です。",
     "Pieces promote and can be dropped, similar to Shogi": "チェスですが、駒は将棋のように打つことも成ることもできます。",
+    "Standard piece variants": "チェス類（普通の駒）",
+    "Southeast Asian variants": "東南アジア将棋類",
+    "Shogi variants": "日本将棋類",
+    "Xiangqi variants": "シャンチー類",
+    "Fairy piece variants": "チェス類（変則の駒）",
+    "in %1 year": [
+        "%1年以内"
+    ],
     "%1 year ago": [
-        ""
+        "%1年前"
+    ],
+    "in %1 month": [
+        "%1月以内"
     ],
     "%1 month ago": [
-        ""
+        "%1月前"
+    ],
+    "in %1 week": [
+        "%1週間以内"
     ],
     "%1 week ago": [
-        ""
+        "%1週間前"
+    ],
+    "in %1 day": [
+        "%1日以内"
     ],
     "%1 day ago": [
-        ""
+        "%1日前"
+    ],
+    "in %1 hour": [
+        "%1時間以内"
     ],
     "%1 hour ago": [
-        ""
+        "%1時間前"
+    ],
+    "in %1 minute": [
+        "%1分以内"
     ],
     "%1 minute ago": [
-        ""
+        "%1分前"
+    ],
+    "in %1 second": [
+        "%1秒以内"
     ],
     "%1 second ago": [
-        ""
+        "%1秒前"
     ],
+    "%1 to play": "%1番",
+    "Castling": "キャスリング",
     "White": "白",
     "Black": "黒",
     "CLEAR BOARD": "盤面をクリアする",
@@ -75,16 +108,19 @@
     "Increment in seconds:": "１手ごとに増える秒数：",
     "Custom": "カスタム",
     "%1 game in play": [
-        ""
+        "%1局対局中"
     ],
     "%1 player": [
-        ""
+        "現在%1人連続中"
     ],
     "Player": "プレイヤー",
     "Rating": "レーティング",
     "Time": "時間",
     "Mode": "モード",
     "Donate": "寄付",
+    "FAQ": "よくある質問",
+    "Latest updates": "最新情報",
+    "Thank you for your support!": "いつも応援してくれてありがとうございます！",
     "Game aborted": "対局中止",
     "Checkmate": "詰み",
     "%1 resigned": "%1 が投了しました",
@@ -117,6 +153,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "%1 番が馬と象の初期配置選び中．．．",
     "Switch pieces": "駒の場所を交換する",
     "Ready": "準備",
+    "VIEW TOURNAMENT": "トーナメントを見る",
+    "BACK TO TOURNAMENT": "トーナメントへ戻る",
+    "PAUSE": "一時停止",
     "REMATCH": "再戦",
     "NEW OPPONENT": "新しい相手",
     "Stop counting": "手数を数え止める",
@@ -126,6 +165,19 @@
     "Sound": "音声",
     "Background": "背景",
     "Board Settings": "ボード設定",
+    "Zen Mode": "集中モード",
+    "WITHDRAW": "棄権する",
+    "JOIN": "参加する",
+    "LOG IN": "ログインする",
+    "Tournament complete": "トーナメント終了",
+    "Performance": "パフォーマンス",
+    "Games played": "対局数",
+    "Win rate": "勝率",
+    "Average opponent": "対局相手の平均",
+    "Analysis board": "棋譜解析",
+    "Off": "いいえ",
+    "On": "はい",
+    "ZEN MODE": "集中モード",
     "": {
         "language": "ja",
         "plural-forms": "nplurals=1; plural=0;"

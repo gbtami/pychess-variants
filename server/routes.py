@@ -70,6 +70,7 @@ get_routes = (
     ("/paste", index),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
     ("/games/export/{profileId}", export),
+    ("/games/export/tournament/{tournamentId}", export),
     ("/fishnet/monitor", fishnet_monitor),
     ("/fishnet/key/{key}", fishnet_key),
     ("/robots.txt", robots),

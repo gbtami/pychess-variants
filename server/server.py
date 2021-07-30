@@ -8,6 +8,7 @@ import logging
 import os
 from operator import neg
 from urllib.parse import urlparse
+from datetime import datetime, timezone
 
 import jinja2
 from aiohttp import web
@@ -23,6 +24,7 @@ from broadcast import lobby_broadcast, round_broadcast
 from const import VARIANTS, STARTED, LANGUAGES, T_CREATED, T_STARTED
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
+from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
 from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
@@ -81,6 +83,7 @@ async def init_state(app):
     # We have to put "kill" into a dict to prevent getting:
     # DeprecationWarning: Changing state of started or joined application is deprecated
     app["data"] = {"kill": False}
+    app["date"] = {"startedAt": datetime.now(timezone.utc)}
 
     if "db" not in app:
         app["db"] = None
@@ -105,6 +108,9 @@ async def init_state(app):
     app["invite_channels"] = set()
     app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
     app["crosstable"] = {}
+    app["shield"] = {}
+    app["shield_owners"] = {}  # {variant: username, ...}
+
     app["stats"] = {}
 
     # counters for games
@@ -178,16 +184,6 @@ async def init_state(app):
 
     # Read tournaments, users and highscore from db
     try:
-        cursor = app["db"].tournament.find()
-        cursor.sort('startsAt', -1)
-        counter = 0
-        async for doc in cursor:
-            if doc["status"] in (T_CREATED, T_STARTED):
-                await load_tournament(app, doc["_id"])
-                counter += 1
-                if counter > 3:
-                    break
-
         cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
@@ -203,6 +199,18 @@ async def init_state(app):
                     perfs=perfs,
                     enabled=doc.get("enabled", True)
                 )
+
+        cursor = app["db"].tournament.find()
+        cursor.sort('startsAt', -1)
+        counter = 0
+        async for doc in cursor:
+            if doc["status"] in (T_CREATED, T_STARTED):
+                await load_tournament(app, doc["_id"])
+                counter += 1
+                if counter > 3:
+                    break
+
+        await generate_shield(app)
 
         db_collections = await app["db"].list_collection_names()
 
@@ -229,11 +237,8 @@ async def init_state(app):
         raise
 
     # create test tournament
-    if 0:
+    if 1:
         pass
-        # from first_janggi_tournament import add_games
-        # await add_games(app)
-
         # from test_tournament import create_arena_test
         # await create_arena_test(app)
 

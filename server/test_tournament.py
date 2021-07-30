@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
-from const import NOSTART, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
+from const import BYEGAME, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
@@ -50,7 +50,7 @@ class TestTournament(Tournament):
         print("--- create_new_pairings done ---")
 
         for game in games:
-            if game.status == NOSTART:  # ByeGame
+            if game.status == BYEGAME:  # ByeGame
                 continue
             self.app["games"][game.id] = game
             game.random_mover = True
@@ -59,7 +59,7 @@ class TestTournament(Tournament):
     # @timeit
     async def play_random(self, game):
         """ Play random moves for TEST players """
-        if game.status == NOSTART:  # ByeGame
+        if game.status == BYEGAME:  # ByeGame
             return
 
         if self.system == ARENA:
@@ -205,7 +205,7 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.tournament.withdraw(withdrawn_player)
 
         self.assertNotIn(withdrawn_player, self.tournament.leaderboard)
-        self.assertEqual(len(self.tournament.players), NB_PLAYERS - 1)
+        self.assertEqual(len(self.tournament.players), NB_PLAYERS)
         self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS - 1)
 
         await self.tournament.clock_task
@@ -240,8 +240,8 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.tournament.withdraw(list(self.tournament.players.keys())[-1])
         self.assertEqual(self.tournament.nb_players, NB_PLAYERS - 1)
 
-        # make one player leave the tournament lobby
-        del list(self.tournament.players.keys())[-1].tournament_sockets[self.tournament.id]
+        # make the first player leave the tournament lobby
+        del list(self.tournament.players.keys())[0].tournament_sockets[self.tournament.id]
 
         self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 2)
 

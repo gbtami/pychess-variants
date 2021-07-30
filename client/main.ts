@@ -25,6 +25,7 @@ import { volumeSettings, soundThemeSettings } from './sound';
 import { getCookie } from './document';
 import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
+import { zenButtonView, zenModeSettings } from './zen';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -122,11 +123,14 @@ function start() {
         if (!settingsPanel.contains(event.target as Node))
             settings.style.display = 'none';
     });
+
+    patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;
 }
 
 window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
 
 backgroundSettings.update();
+zenModeSettings.update();
 
 const el = document.getElementById('pychess-variants');
 if (el instanceof Element) {

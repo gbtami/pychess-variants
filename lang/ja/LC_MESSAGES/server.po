@@ -5,16 +5,16 @@
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2020
-# Marken Foo <marken.foo.yw@gmail.com>, 2020
+# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-22 11:56+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2020\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -61,40 +61,60 @@ msgstr "匿名"
 msgid "All players"
 msgstr "プレイヤーの一覧"
 
-#: ../templates/profile.html:14
+#: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s 局対局"
 
-#: ../templates/template.html:12
+#: ../templates/template.html:17
 msgid "Tv"
 msgstr "TV"
 
-#: ../templates/template.html:13
+#: ../templates/template.html:18
 msgid "Current games"
 msgstr "現在対局中"
 
-#: ../templates/template.html:14
+#: ../templates/template.html:19 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr ""
+
+#: ../templates/template.html:20
 msgid "Players"
 msgstr "プレイヤー"
 
-#: ../templates/template.html:15
+#: ../templates/template.html:21
 msgid "Editor"
 msgstr "盤面入力"
 
-#: ../templates/template.html:16
+#: ../templates/template.html:22
 msgid "Analysis"
 msgstr "棋譜解析"
 
-#: ../templates/template.html:17
+#: ../templates/template.html:23
 msgid "Learn"
 msgstr "将棋類の一覧"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Login with Lichess"
 msgstr "Lichessアカウントでログイン"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Log in"
 msgstr "ログイン"
+
+#: ../templates/tournaments.html:9
+msgid "CREATE A NEW TOURNAMENT"
+msgstr "新しいトーナメントを作る"
+
+#: ../templates/tournaments.html:18
+msgid "Now playing"
+msgstr ""
+
+#: ../templates/tournaments.html:20
+msgid "Starting soon"
+msgstr ""
+
+#: ../templates/tournaments.html:22
+msgid "Finished"
+msgstr ""

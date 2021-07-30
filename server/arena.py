@@ -42,18 +42,19 @@ class ArenaTournament(Tournament):
                     else:
                         y = a if b.username == x.username else b
 
-                    if self.players[x].color_diff < self.players[y].color_diff:
-                        wp, bp = x, y
-                    else:
-                        wp, bp = y, x
+                    if not (y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp):
+                        if self.players[x].color_diff < self.players[y].color_diff:
+                            wp, bp = x, y
+                        else:
+                            wp, bp = y, x
 
-                    find = True
-                    print("   find OK opp (a brand NEW player!)", y.username)
-                    waiting_players.remove(wp)
-                    waiting_players.remove(bp)
+                        find = True
+                        print("   find OK opp (a brand NEW player!)", y.username)
+                        waiting_players.remove(wp)
+                        waiting_players.remove(bp)
 
-                    pairing.append((wp, bp))
-                    return find
+                        pairing.append((wp, bp))
+                        return find
 
                 for y in waiting_players:
                     print("   try", y.username)

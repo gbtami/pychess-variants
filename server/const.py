@@ -1,14 +1,22 @@
+from settings import static_url
+
+# Minimum number of rated games needed
+HIGHSCORE_MIN_GAMES = 5
+
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
 
 # tournament status
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
 
+# tournament frequency
+DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
+
 # tournament pairing
 ARENA, RR, SWISS = range(3)
 
 # translations
-LANGUAGES = ["de", "en", "es", "gl_ES", "fr", "hu", "it", "ja", "ko", "pt", "th", "tr", "zh"]
+LANGUAGES = ["de", "en", "es", "gl_ES", "fr", "hu", "it", "ja", "ko", "pl", "pt", "th", "tr", "zh"]
 
 # fishnet work types
 MOVE, ANALYSIS = 0, 1
@@ -18,7 +26,7 @@ CASUAL, RATED, IMPORTED = 0, 1, 2
 
 # game status
 CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
-    ABANDONE, CHEAT, NOSTART, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND, CLAIM = range(-2, 14)
+    ABANDONE, CHEAT, BYEGAME, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND, CLAIM = range(-2, 14)
 
 LOSERS = {
     "abandone": ABANDONE,
@@ -72,6 +80,8 @@ VARIANTS = (
     "synochess",
     "hoppelpoppel",
     "shinobi",
+    "empire",
+    "ordamirror",
 )
 
 VARIANT_ICONS = {
@@ -112,7 +122,9 @@ VARIANT_ICONS = {
     "manchu": "{",
     "atomic": "~",
     "atomic960": "\\",
-    "shinobi": "🐢",  # TODO change to correct icon
+    "shinobi": "🐢",
+    "empire": "♚",
+    "ordamirror": "◩",
 }
 
 VARIANT_960_TO_PGN = {
@@ -128,6 +140,14 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
+}
+
+TROPHIES = {
+    "top1": (static_url("images/trophy/Big-Gold-Cup.png"), "Champion!"),
+    "top10": (static_url("images/trophy/Big-Silver-Cup.png"), "Top 10!"),
+    "top50": (static_url("images/trophy/Fancy-Gold-Cup.png"), "Top 50!"),
+    "top100": (static_url("images/trophy/Gold-Cup.png"), "Top 100!"),
+    "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
 }
 
 

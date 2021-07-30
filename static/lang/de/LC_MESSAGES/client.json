@@ -7,6 +7,7 @@
     "About pychess": "Über pychess",
     "Pychess is a free, open-source chess server designed to play several chess variants.": "Pychess ist ein kostenloser Open-Source-Schachserver, mit dem verschiedene Schachvarianten gespielt werden können",
     "Currently supported games are ": "Derzeit unterstützte Spiele sind ",
+    "Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with ": "Außerdem kannst du die Chess960-Einstellung für Standard, Crazyhouse, Atomic, S-chess, Capablanca und Capahouse wählen, um Partien mit einer zufälligen Anfangsposition zu starten ",
     "Chess960 castling rules.": "Chess960 Rochade Regeln",
     "For move generation, validation, analysis, and engine play, we use ": "Für die Zuggeneration, Validierung, Analyse und das Spielen mit dem Computer verwenden wir",
     "On client side, the user interface of the game board is based on ": "Auf der Client Seite basiert die Benutzeroberfläche auf",
@@ -48,6 +49,7 @@
     "Chess, unmodified, as it's played by FIDE standards": "Schach, unverändert, wie es nach dem FIDE Standard gespielt wird",
     "Take captured pieces and drop them back on to the board as your own": "Nimm geschlagene Figuren und setze sie wieder als deine eigenen Figuren ein",
     "Choose where your pieces start": "Wähle wo deine Figuren starten",
+    "Explode your opponent's king to win": "Explodiere den gegnerischen König um zu gewinnen",
     "A game closely resembling the original Chaturanga": "Ein Spiel das dem ursprünglichen Chaturanga sehr ähnlich ist",
     "Makruk variant where kings cannot move to escape out of check": "Makruk Variante wo Könige sich nicht aus dem Schach bewegen können",
     "Makruk with a few additional opening abilities": "Makruk mit etwas mehr Eröffnungsmöglichkeiten ",
@@ -56,6 +58,7 @@
     "Shogi on a 5x5 board": "Shogi auf einem 5x5 Brett",
     "5x5 Shogi where pieces flip to a different piece each move": "5x5 Shogi, wo Figuren sich nach jedem Zug zu einer anderen Figur umdrehen",
     "Shogi on a 3x4 board": "Shogi auf einem 3x4 Brett",
+    "Shogi on a 5x6 board": "Shogi auf einem 5x6 Brett",
     "Open fire on your opponent in this highly aggressive ancient game": "Lass Feuer auf deinen Gegner regnen in diesem hoch aggressiven, antiken Spiel",
     "The lone Red rook can also move as a cannon or a knight.": "Der Turm von Rot hat, wenn alleine, die Züge von der Kanone und dem Springer.",
     "Similar to Xiangqi, but plays very differently. Tournament rules are used": "Ähnlich wie Xiangqi, spielt sich aber anders. Turnier Regeln werden verwendet",
@@ -71,6 +74,8 @@
     "Asymmetric variant where one army has pieces that move like knights but capture differently": "Asymmetrische Variante wo eine Seite Figuren hat die sich wie Springer bewegen, aber anders schlagen",
     "Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army": "Asymmetrische \"Osten vs. Westen\" Variante wo sich eine Schach Armee einer Armee im Stil von Xiangqi/Janggi stellt",
     "Knights are capturing as bishops, bishops are capturing as knights": "Springer schlagen wie Läufer, Läufer schlagen wie Springer",
+    "Western chess VS Ninja": "Standard Schach gegen Ninja",
+    "Like Capablanca Chess but with Grand starting setup": "Wie Capablanca aber mit der Grand Startposition",
     "Like Capablanca Chess but with a different starting setup": "Wie Capablanca aber mit einer anderen Startposition",
     "Gothic with Crazyhouse drop rules": "Gothic mit Crazyhouse Einsetzregeln",
     "Standard piece variants": "Variante mit Standard Figuren",
@@ -78,34 +83,63 @@
     "Shogi variants": "Shogi Variante",
     "Xiangqi variants": " Xiangqi Variante",
     "Fairy piece variants": "Fairy Figuren Varianten",
+    "in %1 year": [
+        "in %1 Jahr",
+        "in %1 Jahren"
+    ],
     "%1 year ago": [
         "Vor %1 Jahr ",
         "Vor %1 Jahren"
+    ],
+    "in %1 month": [
+        "in %1 Monat",
+        "in %1 Monaten"
     ],
     "%1 month ago": [
         "Vor %1 Monat",
         "Vor %1 Monaten"
     ],
+    "in %1 week": [
+        "in %1 Woche",
+        "in %1 Wochen"
+    ],
     "%1 week ago": [
         "Vor %1 Woche",
         "Vor %1 Wochen"
+    ],
+    "in %1 day": [
+        "in %1 Tag",
+        "in %1 Tagen"
     ],
     "%1 day ago": [
         "Vor %1 Tag",
         "Vor %1 Tagen"
     ],
+    "in %1 hour": [
+        "in %1 Stunde",
+        "in %1 Stunden"
+    ],
     "%1 hour ago": [
         "Vor %1 Stunde",
         "Vor %1 Stunden"
+    ],
+    "in %1 minute": [
+        "in %1 Minute",
+        "in %1 Minuten"
     ],
     "%1 minute ago": [
         "Vor %1 Minute",
         "Vor %1 Minuten"
     ],
+    "in %1 second": [
+        "in %1 Sekunde",
+        "in %1 Sekunden"
+    ],
     "%1 second ago": [
         "Vor %1 Sekunde",
         "Vor %1 Sekunden"
     ],
+    "STARTING IN": "STARTET IN",
     "%1 to play": "%1 am Zug",
     "Castling": "Rochade",
     "White": "Weiß",
@@ -165,6 +199,7 @@
     "Red": "Rot",
     "Blue": "Blau",
     "Gold": "Gold",
+    "Pink": "Pink",
     "IMPORT": "IMPORTIEREN",
     "level %1": "niveau %1",
     "Game aborted": "Partie abgebrochen",
@@ -179,6 +214,7 @@
     "Invalid move": "Ungültiger Zug",
     "Unknown reason": "Unbekannter Grund",
     "Campmate": "Eindrungsmatt",
+    "Explosion of king": "Explosion des Königs",
     "Point counting": "Punkte zählen",
     "Repetition": "Wiederholung",
     "%1 move": [
@@ -204,6 +240,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": "Warte bis %1 die Startposition für die Pferde und Elefanten ausgewählt hat...",
     "Switch pieces": "Figuren wechseln",
     "Ready": "Bereit",
+    "VIEW TOURNAMENT": "TURNIER ANSEHEN",
+    "BACK TO TOURNAMENT": "ZURÜCK ZUM TURNIER",
+    "PAUSE": "PAUSIEREN",
     "REMATCH": "REVANCHE",
     "NEW OPPONENT": "NEUER GEGNER",
     "Stop counting": "Aufhören zu zählen",
@@ -214,6 +253,26 @@
     "Sound": "Ton",
     "Background": "Hintergrund",
     "Board Settings": "Bretteinstellungen",
+    "Zen Mode": "Zen Modus",
+    "First": "Anfang",
+    "Prev": "Vorheriges",
+    "Next": "Nächstes",
+    "Last": "Letztes",
+    "Scroll to your player": "Zu deinem Spieler scrollen",
+    "WITHDRAW": "VERLASSEN",
+    "JOIN": "TEILNEHMEN",
+    "LOG IN": "EINLOGGEN",
+    "Tournament complete": "Turnier beendet",
+    "Performance": "Turnierleistung",
+    "Games played": "Gespielte Partien",
+    "Win rate": "Gewinnrate",
+    "Average opponent": "Durchschnittlicher Gegner",
+    "Custom position": "Benutzerdefinierte Stellung",
+    "Analysis board": "Analysebrett",
+    "Off": "Aus",
+    "On": "An",
+    "ZEN MODE": "ZEN MODUS",
+    "UsePluralFormIfNeeded\u0004Rated": "Gewertet",
     "": {
         "language": "de",
         "plural-forms": "nplurals=2; plural=(n != 1);"

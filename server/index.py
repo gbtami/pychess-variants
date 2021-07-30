@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 import functools
 import logging
@@ -18,7 +19,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name
+from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -122,11 +123,12 @@ async def index(request):
         view = "paste"
     elif request.path.startswith("/tournaments"):
         view = "tournaments"
-        if request.path.endswith("/new"):
-            view = "arena-new"
-        elif request.path.endswith("/arena"):
-            data = await request.post()
-            await create_tournament(request.app, user.username, data)
+        if user.username in ADMINS:
+            if request.path.endswith("/new"):
+                view = "arena-new"
+            elif request.path.endswith("/arena"):
+                data = await request.post()
+                await create_tournament(request.app, user.username, data)
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
@@ -138,6 +140,10 @@ async def index(request):
             await tournament.pause(user)
 
     profileId = request.match_info.get("profileId")
+    if profileId is not None and profileId not in users:
+        await asyncio.sleep(3)
+        return web.Response(status=404)
+
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
         log.debug("Invalid variant %s in request", variant)
@@ -241,11 +247,25 @@ async def index(request):
         "variants": VARIANTS,
         "variant_display_name": variant_display_name,
     }
+
     if view in ("profile", "level8win"):
         if view == "level8win":
             profileId = "Fairy-Stockfish"
+            render["trophies"] = []
+        else:
+            hs = request.app["highscore"]
+            render["trophies"] = [(v, "top10") for v in hs if profileId in hs[v].keys()[:10]]
+            for i, (v, kind) in enumerate(render["trophies"]):
+                if hs[v].peekitem(0)[0] == profileId:
+                    render["trophies"][i] = (v, "top1")
+            render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
+
+            shield_owners = request.app["shield_owners"]
+            render["trophies"] += [(v, "shield") for v in shield_owners if shield_owners[v] == profileId]
+
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
+        render["cup"] = TROPHIES
         if profileId not in users or users[profileId].perfs is None:
             render["ratings"] = {}
         else:
@@ -257,7 +277,7 @@ async def index(request):
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
 
-    if view == "players":
+    elif view == "players":
         online_users = [u for u in users.values() if u.username == user.username or (u.online and not u.anon)]
         anon_online = sum((1 for u in users.values() if u.anon and u.online))
 
@@ -278,7 +298,6 @@ async def index(request):
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
         render["tables"] = await get_latest_tournaments(request.app)
-        render["theads"] = ("Now playing", "Starting soon", "Finished")
         render["admin"] = user.username in ADMINS.split(",")
 
     if gameId is not None:

@@ -25,7 +25,6 @@ import { notify } from './notification';
 
 
 class LobbyController {
-    test_ratings: boolean;
     model;
     sock;
     player;
@@ -48,14 +47,12 @@ class LobbyController {
 
     constructor(el, model) {
         console.log("LobbyController constructor", el, model);
-        // enable for local testong only !!!
-        // this.test_ratings = true;
-        this.test_ratings = false;
 
         this.model = model;
         this.challengeAI = false;
         this.inviteFriend = false;
         this.validGameData = false;
+        this.seeks = [];
 
         const onOpen = (evt) => {
             this._ws = evt.target;
@@ -226,7 +223,13 @@ class LobbyController {
 
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
-        if (!this.test_ratings && (this.challengeAI || this.model.anon === "True" || this.model.title === "BOT" || fen !== ""))
+        if (this.challengeAI ||
+            this.model.anon === "True" ||
+            this.model.title === "BOT" ||
+            fen !== "" ||
+            (minutes < 1 && increment === 0) ||
+            (minutes === 0 && increment === 1)
+            )
             rated = false;
         else
             rated = e.value === "1";
@@ -334,9 +337,19 @@ class LobbyController {
                         ]),
                         h('form#game-mode', [
                             h('div.radio-group', [
-                                h('input#casual', { props: { type: "radio", name: "mode", value: "0" }, attrs: { checked: vRated === "0" }, }),
+                                h('input#casual', {
+                                    props: { type: "radio", name: "mode", value: "0" },
+                                    attrs: { checked: vRated === "0" }, 
+                                    on: { input: e => this.setCasual((e.target as HTMLInputElement).value) },
+                                    hook: { insert: vnode => this.setCasual((vnode.elm as HTMLInputElement).value) },
+                                }),
                                 h('label', { attrs: { for: "casual"} }, _("Casual")),
-                                h('input#rated', { props: { type: "radio", name: "mode", value: "1" }, attrs: { checked: vRated === "1" }, }),
+                                h('input#rated', {
+                                    props: { type: "radio", name: "mode", value: "1" },
+                                    attrs: { checked: vRated === "1" },
+                                    on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
+                                    hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
+                                }),
                                 h('label', { attrs: { for: "rated"} }, _("Rated")),
                             ]),
                         ]),
@@ -392,7 +405,7 @@ class LobbyController {
                     click: () => {
                         this.challengeAI = true;
                         this.inviteFriend = false;
-                        document.getElementById('game-mode')!.style.display = (!this.test_ratings || anon) ? 'none' : 'inline-flex';
+                        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
                         document.getElementById('challenge-block')!.style.display = 'none';
                         document.getElementById('ailevel')!.style.display = 'inline-block';
                         document.getElementById('id01')!.style.display = 'block';
@@ -455,6 +468,14 @@ class LobbyController {
         e.setCustomValidity(this.validateFen() ? '' : _('Invalid FEN'));
         this.setStartButtons();
     }
+    private setCasual(casual) {
+        console.log("setCasual", casual);
+        this.setStartButtons();
+    }
+    private setRated(rated) {
+        console.log("setRated", rated);
+        this.setStartButtons();
+    }
     private setStartButtons() {
         this.validGameData = this.validateTimeControl() && this.validateFen();
         const e = document.getElementById('color-button-group') as HTMLElement;
@@ -463,7 +484,15 @@ class LobbyController {
     private validateTimeControl() {
         const min = Number((document.getElementById('min') as HTMLInputElement).value);
         const inc = Number((document.getElementById('inc') as HTMLInputElement).value);
-        return min + inc > ((this.challengeAI) ? 4 : 0);
+        const minutes = this.minutesValues[min];
+
+        const e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
+        const rated = e.value === "1";
+
+        const atLeast = (this.challengeAI) ? 4 : min + inc > 0;
+        const tooFast = (minutes < 1 && inc === 0) || (minutes === 0 && inc === 1);
+
+        return atLeast && !(tooFast && rated);
     }
     private validateFen() {
         const e = document.getElementById('variant') as HTMLSelectElement;
@@ -749,6 +778,14 @@ export function lobbyView(model): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/Darth-Vader-Comic.jpg'} }),
+                    h('span.text', [
+                        h('strong', "Empire Chess and Orda Mirror Have Arrived!"),
+                        h('span', 'New variants'),
+                    ]),
+                    h('time', '2021.07.30'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/shinobi.svg'} }),
                     h('span.text', [
@@ -765,6 +802,7 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.03.28'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/RS-24.jpg'} }),
                     h('span.text', [
@@ -773,7 +811,6 @@ export function lobbyView(model): VNode[] {
                     ]),
                     h('time', '2021.03.03'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/TomatoPlasticSet.svg'} }),
                     h('span.text', [

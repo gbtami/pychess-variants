@@ -1,8 +1,9 @@
 import collections
 import logging
+from datetime import datetime, timezone
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED
+from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, SHIELD
 from newid import new_id
 from user import User
 
@@ -23,11 +24,27 @@ async def create_tournament(app, username, form):
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
+    frequency = SHIELD if form["shield"] == "true" else ""
+
+    if form["startDate"]:
+        start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(tzinfo=timezone.utc)
+    else:
+        start_date = None
 
     name = form["name"]
     # Create meningful tournament name in case we forget to change it :)
     if name in ADMINS:
         name = "%s %s Arena" % (variant_display_name(variant).title(), time_control_str(base, inc, bp))
+
+    if frequency == SHIELD:
+        name = "%s Shield Arena" % variant_display_name(variant).title()
+        description = """
+This Shield trophy is unique.
+The winner keeps it for one month,
+then must defend it during the next %s Shield tournament!
+""" % variant_display_name(variant).title()
+    else:
+        description = form["description"]
 
     data = {
         "name": name,
@@ -40,8 +57,11 @@ async def create_tournament(app, username, form):
         "bp": bp,
         "system": ARENA,
         "beforeStart": int(form["waitMinutes"]),
+        "startDate": start_date,
+        "frequency": frequency,
         "minutes": int(form["minutes"]),
         "fen": form["position"],
+        "description": description,
     }
     tournament = await new_tournament(app, data)
 
@@ -85,7 +105,10 @@ async def new_tournament(app, data):
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
+        starts_at=data.get("startDate"),
+        frequency=data.get("frequency", ""),
         name=data["name"],
+        description=data["description"],
         created_at=data.get("createdAt"),
         status=data.get("status"),
         with_clock=data.get("with_clock", True)
@@ -108,6 +131,8 @@ async def insert_tournament_to_db(tournament, app):
     document = {
         "_id": tournament.id,
         "name": tournament.name,
+        "d": tournament.description,
+        "fr": tournament.frequency,
         "minutes": tournament.minutes,
         "v": V2C[tournament.variant],
         "b": tournament.base,
@@ -122,6 +147,7 @@ async def insert_tournament_to_db(tournament, app):
         "nbPlayers": 0,
         "createdBy": tournament.created_by,
         "createdAt": tournament.created_at,
+        "beforeStart": tournament.before_start,
         "startsAt": tournament.starts_at,
         "status": tournament.status,
     }
@@ -165,7 +191,10 @@ async def get_latest_tournaments(app):
                 created_by=doc["createdBy"],
                 created_at=doc["createdAt"],
                 minutes=doc["minutes"],
+                starts_at=doc.get("startsAt"),
                 name=doc["name"],
+                description=doc.get("d", ""),
+                frequency=doc.get("fr", ""),
                 status=doc["status"],
                 with_clock=False
             )
@@ -212,8 +241,12 @@ async def load_tournament(app, tournament_id):
         rounds=doc["rounds"],
         created_by=doc["createdBy"],
         created_at=doc["createdAt"],
+        before_start=doc.get("beforeStart", 0),
         minutes=doc["minutes"],
+        starts_at=doc.get("startsAt"),
         name=doc["name"],
+        description=doc.get("d", ""),
+        frequency=doc.get("fr", False),
         status=doc["status"],
     )
 
@@ -221,12 +254,15 @@ async def load_tournament(app, tournament_id):
     app["tourneysockets"][tournament_id] = {}
     app["tourneychat"][tournament_id] = collections.deque([], 100)
 
-    tournament.nb_players = doc["nbPlayers"]
     tournament.nb_games_finished = doc.get("nbGames", 0)
     tournament.winner = doc.get("winner", "")
 
     player_table = app["db"].tournament_player
     cursor = player_table.find({"tid": tournament_id})
+    nb_players = 0
+
+    if tournament.status == T_CREATED:
+        cursor.sort('r', -1)
 
     async for doc in cursor:
         uid = doc["uid"]
@@ -236,19 +272,34 @@ async def load_tournament(app, tournament_id):
             user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
             users[uid] = user
 
+        withdrawn = doc.get("wd", False)
+
         tournament.players[user] = PlayerData(doc["r"], doc["pr"])
+        tournament.players[user].id = doc["_id"]
+        tournament.players[user].paused = doc["a"]
+        tournament.players[user].withdrawn = withdrawn
         tournament.players[user].points = doc["p"]
         tournament.players[user].nb_games = doc["g"]
         tournament.players[user].nb_win = doc["w"]
         tournament.players[user].performance = doc["e"]
-        tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
+
+        if not withdrawn:
+            tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
+            nb_players += 1
+
+    tournament.nb_players = nb_players
+
+    tournament.print_leaderboard()
 
     pairing_table = app["db"].tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})
+    cursor.sort('d', 1)
 
+    w_win, b_win, draw = 0, 0, 0
     async for doc in cursor:
+        res = doc["r"]
         _id = doc["_id"]
-        result = C2R[doc["r"]]
+        result = C2R[res]
         wp, bp = doc["u"]
         wrating = doc["wr"]
         brating = doc["br"]
@@ -258,5 +309,16 @@ async def load_tournament(app, tournament_id):
 
         tournament.players[users[wp]].games.append(game_data)
         tournament.players[users[bp]].games.append(game_data)
+
+        if res == "a":
+            w_win += 1
+        elif res == "b":
+            b_win += 1
+        elif res == "c":
+            draw += 1
+
+    tournament.w_win = w_win
+    tournament.b_win = b_win
+    tournament.draw = draw
 
     return tournament

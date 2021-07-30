@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-22 11:56+0200\n"
+"POT-Creation-Date: 2021-07-16 13:23+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2021\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -62,40 +62,60 @@ msgstr "ไม่ระบุตัวตน"
 msgid "All players"
 msgstr "ผู้เล่นทั้งหมด"
 
-#: ../templates/profile.html:14
+#: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)sเกมที่กำลังเล่น"
 
-#: ../templates/template.html:12
+#: ../templates/template.html:17
 msgid "Tv"
 msgstr "ทีวี"
 
-#: ../templates/template.html:13
+#: ../templates/template.html:18
 msgid "Current games"
 msgstr "เกมที่กำลังเล่น"
 
-#: ../templates/template.html:14
+#: ../templates/template.html:19 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr "การแข่งขัน"
+
+#: ../templates/template.html:20
 msgid "Players"
 msgstr "ผู้เล่น"
 
-#: ../templates/template.html:15
+#: ../templates/template.html:21
 msgid "Editor"
 msgstr "ตั้งกระดาน"
 
-#: ../templates/template.html:16
+#: ../templates/template.html:22
 msgid "Analysis"
 msgstr "ถอดหมาก"
 
-#: ../templates/template.html:17
+#: ../templates/template.html:23
 msgid "Learn"
 msgstr "เรียนรู้"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Login with Lichess"
 msgstr "เข้าสู่ระบบด้วย lichess"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Log in"
 msgstr "เข้าสู่ระบบ"
+
+#: ../templates/tournaments.html:9
+msgid "CREATE A NEW TOURNAMENT"
+msgstr "สร้างการแข่งขันใหม่"
+
+#: ../templates/tournaments.html:18
+msgid "Now playing"
+msgstr "กำลังเล่นอยู่"
+
+#: ../templates/tournaments.html:20
+msgid "Starting soon"
+msgstr "กำลังจะเริ่ม"
+
+#: ../templates/tournaments.html:22
+msgid "Finished"
+msgstr "เสร็จสิ้นแล้ว"

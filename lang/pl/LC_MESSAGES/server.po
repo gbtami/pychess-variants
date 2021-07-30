@@ -3,13 +3,17 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
+# Translators:
+# a b <kezsulap@gmail.com>, 2021
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-22 11:56+0200\n"
+"POT-Creation-Date: 2021-07-18 21:26+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,79 +24,104 @@ msgstr ""
 
 #: ../templates/404.html:19
 msgid "404 GAME NOT FOUND"
-msgstr ""
+msgstr "404 NIE ZNALEZIONO PARTII"
 
 #: ../templates/404.html:21
 msgid "Sorry, not all games are saved on the Pychess server."
-msgstr ""
+msgstr "Przepraszamy, nie przechowujemy wszystkich partii na serwerze Pychess"
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
 msgstr ""
+"Prawdopodobnie została ona przerwana lub porzucona przed trzecim ruchem."
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
-msgstr ""
+msgstr "Powrót do strony głównej"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr ""
+msgstr "To konto zostało zamknięte."
 
 #: ../templates/patron.html:8
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
+"Jak zapewne wiecie pychess-variants jest darmowym serwerem i zawsze będzie "
+"darmowy. Niemniej konserwacja i usprawnianie serwera kosztują czas i "
+"pieniądze. Jeśli podoba Ci się nasza praca i uważasz, że nasz serwer jest "
+"przydatny możesz wesprzeć nas na patreonie lub paypalu"
 
 #: ../templates/players.html:9
 msgid "Online"
-msgstr ""
+msgstr "Online"
 
 #: ../templates/players.html:28
 msgid "Anonymous"
-msgstr ""
+msgstr "Anonimowi"
 
 #: ../templates/players.html:35
 msgid "All players"
-msgstr ""
+msgstr "Wszyscy gracze"
 
-#: ../templates/profile.html:14
+#: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-
-#: ../templates/template.html:12
-msgid "Tv"
-msgstr ""
-
-#: ../templates/template.html:13
-msgid "Current games"
-msgstr ""
-
-#: ../templates/template.html:14
-msgid "Players"
-msgstr ""
-
-#: ../templates/template.html:15
-msgid "Editor"
-msgstr ""
-
-#: ../templates/template.html:16
-msgid "Analysis"
-msgstr ""
+msgstr[0] "%(count)spartia"
+msgstr[1] "%(count)spartie"
+msgstr[2] "%(count)spartii"
+msgstr[3] "%(count)spartii"
 
 #: ../templates/template.html:17
+msgid "Tv"
+msgstr "Tv"
+
+#: ../templates/template.html:18
+msgid "Current games"
+msgstr "Partie w toku"
+
+#: ../templates/template.html:19 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr "Turnieje"
+
+#: ../templates/template.html:20
+msgid "Players"
+msgstr "Gracze"
+
+#: ../templates/template.html:21
+msgid "Editor"
+msgstr "Edytor"
+
+#: ../templates/template.html:22
+msgid "Analysis"
+msgstr "Analiza"
+
+#: ../templates/template.html:23
 msgid "Learn"
-msgstr ""
+msgstr "Nauka"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Login with Lichess"
-msgstr ""
+msgstr "Zaloguj się kontem z Lichess"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:29
 msgid "Log in"
-msgstr ""
+msgstr "Zaloguj się"
+
+#: ../templates/tournaments.html:9
+msgid "CREATE A NEW TOURNAMENT"
+msgstr "UTWÓRZ TURNIEJ"
+
+#: ../templates/tournaments.html:18
+msgid "Now playing"
+msgstr "W trakcie"
+
+#: ../templates/tournaments.html:20
+msgid "Starting soon"
+msgstr "Planowane"
+
+#: ../templates/tournaments.html:22
+msgid "Finished"
+msgstr "Zakończone"

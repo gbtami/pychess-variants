@@ -83,34 +83,63 @@
     "Shogi variants": "Sógi variánsok",
     "Xiangqi variants": "Xiangqi variánsok",
     "Fairy piece variants": "Tündér sakkfigura variánsok",
+    "in %1 year": [
+        "%1 év múlva",
+        "%1 év múlva"
+    ],
     "%1 year ago": [
         "%1 éve",
         "%1 éve"
+    ],
+    "in %1 month": [
+        "%1 hónap múlva",
+        "%1 hónap múlva"
     ],
     "%1 month ago": [
         "%1 hónapja",
         "%1 hónapja"
     ],
+    "in %1 week": [
+        "%1 hét múlva",
+        "%1 hét múlva"
+    ],
     "%1 week ago": [
         "%1 hete",
         "%1 hete"
+    ],
+    "in %1 day": [
+        "%1 napon belül",
+        "%1 napon belül"
     ],
     "%1 day ago": [
         "%1 napja",
         "%1 napja"
     ],
+    "in %1 hour": [
+        "%1 órán belül",
+        "%1 órán belül"
+    ],
     "%1 hour ago": [
         "%1 órája",
         "%1 órája"
+    ],
+    "in %1 minute": [
+        "%1 percen belül",
+        "%1 percen belül"
     ],
     "%1 minute ago": [
         "%1 perce",
         "%1 perce"
     ],
+    "in %1 second": [
+        "%1 másodpercen belül",
+        "%1 másodpercen belül"
+    ],
     "%1 second ago": [
         "%1 másodperce",
         "%1 másodperce"
     ],
+    "STARTING IN": "A KEZDÉSIG VAN MÉG",
     "%1 to play": "%1 lép",
     "Castling": "Sáncolás",
     "White": "Világos",
@@ -211,6 +240,9 @@
     "Waiting for %1 to choose starting positions of the horses and elephants...": " %1 kiválaszthatja a lovak és elefántok kezdő pozícióját...",
     "Switch pieces": "Figurák cseréje",
     "Ready": "Kész",
+    "VIEW TOURNAMENT": "VERSENY MEGNÉZÉSE",
+    "BACK TO TOURNAMENT": "VISSZA A VERSENYHEZ",
+    "PAUSE": "SZÜNET",
     "REMATCH": "VISSZAVÁGÓ",
     "NEW OPPONENT": "ÚJ JÁTSZMA",
     "Stop counting": "Számolás leállítása",
@@ -221,6 +253,26 @@
     "Sound": "Hang",
     "Background": "Háttér",
     "Board Settings": "Tábla beállítások",
+    "Zen Mode": "Zen Mód",
+    "First": "Első",
+    "Prev": "Előző",
+    "Next": "Következő",
+    "Last": "Utolsó",
+    "Scroll to your player": "Saját magadhoz",
+    "WITHDRAW": "VISSZALÉPÉS",
+    "JOIN": "CSATLAKOZÁS",
+    "LOG IN": "BELÉPÉS",
+    "Tournament complete": "A verseny befejeződött",
+    "Performance": "Teljesítmény",
+    "Games played": "Játszmák száma",
+    "Win rate": "Győzelmek aránya",
+    "Average opponent": "Ellenfelek átlaga",
+    "Custom position": "Kezdőállás",
+    "Analysis board": "Elemzés",
+    "Off": "Ki",
+    "On": "Be",
+    "ZEN MODE": "ZEN MÓD",
+    "UsePluralFormIfNeeded\u0004Rated": "Értékelt",
     "": {
         "language": "hu",
         "plural-forms": "nplurals=2; plural=(n != 1);"

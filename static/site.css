@@ -1118,7 +1118,7 @@ table#seeks-header, table#seeks {
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 999; /* Sit on top */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -1825,4 +1825,7 @@ div#ctable-container {
 }
 .tour-spotlight .more {
     font-size: 0.85em;
+}
+a#zen-button {
+    display: none;
 }
