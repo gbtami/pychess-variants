@@ -175,7 +175,7 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
     }
     e.stopPropagation();
     e.preventDefault();
-    updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
+    refreshPockets(ctrl);
 }
 
 /**
@@ -203,7 +203,7 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
     if (ctrl.chessground.state.dropmode.active/* && ctrl.chessground.state.dropmode.piece.role != role*/) {
         cancelDropMode(ctrl.chessground.state);
         //setDropMode(ctrl.chessground.state, {, role})
-        updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
+        //updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
 
         if (ctrl.chessground.state.dropmode.piece?.role == role) {
             //we mark it with this only if we are cancelling the same piece we "drag"

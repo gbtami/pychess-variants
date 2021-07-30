@@ -1040,11 +1040,11 @@ export default class RoundController {
             if (this.chessground.state.movable.dests === undefined) return;
 
             // If drop selection was set dropDests we have to restore dests here
-            if (/*key != 'a0' && current version never calls selectSquare with a0*/
-                this.chessground.state.dropmode.active) {
-                cancelDropMode(this.chessground.state);//TODO:maybe move to events.ts together with the line below (and next maybe as well)
-                updatePockets(this,this.vpocket0,this.vpocket1)//TODO:if we move pocket.ts to chessgroundx this call can be done there, which would be one more piece of board logic moved away from pychess. see below more similar comments about moving other stuff to chessgroundx maybe as well
-            }
+            // if (/*key != 'a0' && current version never calls selectSquare with a0*/
+            //     this.chessground.state.dropmode.active) {
+            //     cancelDropMode(this.chessground.state);//TODO:maybe move to events.ts together with the line below (and next maybe as well)
+            //     updatePockets(this,this.vpocket0,this.vpocket1)//TODO:if we move pocket.ts to chessgroundx this call can be done there, which would be one more piece of board logic moved away from pychess. see below more similar comments about moving other stuff to chessgroundx maybe as well
+            // }
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
