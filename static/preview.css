@@ -431,6 +431,20 @@ label.piece.piece1.orda {
     background-image: url('images/pieces/orda/cburnett/bH.svg');
 }
 
+label.piece.piece0.ordamirror {
+    background-image: url('images/pieces/orda/merida/bH.svg');
+}
+label.piece.piece1.ordamirror {
+    background-image: url('images/pieces/orda/cburnett/bH.svg');
+}
+
+label.piece.piece0.empire {
+    background-image: url('images/pieces/empire/merida/wC.svg');
+}
+label.piece.piece1.empire {
+    background-image: url('images/pieces/empire/cburnett/wC.svg');
+}
+
 label.piece.piece0.synochess {
     background-image: url('images/pieces/synochess/intl-red/bR.svg');
 }

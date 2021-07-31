@@ -50,8 +50,8 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"] },
     shinobi: { pieceCSS: ["shinobi0"] },
-    empire: { pieceCSS: ["empire0"] },
-    ordamirror: { pieceCSS: ["ordamirror0"] },
+    empire: { pieceCSS: ["empire0", "empire1"] },
+    ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
 };
 
 type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;

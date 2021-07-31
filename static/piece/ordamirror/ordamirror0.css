@@ -16,9 +16,6 @@
 .ordamirror .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/orda/merida/wK.svg');
 }
-.ordamirror .cg-wrap piece.q-piece.white {
-    background-image: url('../../images/pieces/merida/wQ.svg');
-}
 
 .ordamirror .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/orda/merida/bP.svg');
@@ -37,7 +34,4 @@
 }
 .ordamirror .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/orda/merida/bK.svg');
-}
-.ordamirror .cg-wrap piece.q-piece.black {
-    background-image: url('../../images/pieces/orda/merida/bQ.svg');
 }
