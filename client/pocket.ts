@@ -1,5 +1,3 @@
-//TODO:maybe move this to chessgroundx - in one version of shogiground it is moved there, but also logically the pocket belongs to the board - this way more  board logic like calls to updatePockets can be moved entireliy to chessgroundx and away of pychess
-
 import { h, init } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
@@ -28,11 +26,6 @@ export type Pockets = [Pocket, Pocket];
 //There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
 const eventNames1 = ['mousedown', 'touchmove'];
 const eventNames2 = ['click'];
-//TODO: it is possible instead of above events, to make it a bit more complex by detecting mousemove before/after mousedown and this way
-//      do select/unselect only on click and not also on dragging which triggers click event even if mouse moved as long as mouseup happens on same element
-//      but that would not be consistent with board pieces behaviour where select/unselect happens in same way (i.e. drag is a click if within the area of same piece/square)
-//TODO: Another maybe more important point is it would be nice somehow (maybe plug behaviour in drag.end()) to unselect if currently selected pieces is dragged into nothing -
-//      feels more natural to unselect when obiously user is dragging a piece away of the board instead of using it and it has been selected before that
 
 /**
  *
@@ -43,9 +36,24 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
 
     let insertHook;
     if (ctrl instanceof EditorController) {
-        insertHook = {};
-    } else {
+        insertHook = {};//TODO:editor not implemented for zh. always enable both pockets all the time
+    } else if (ctrl instanceof AnalysisController) {//enabling both the pocket whose turn it is
         insertHook = {
+            insert: vnode => {
+                eventNames1.forEach(name =>
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                        if (color===ctrl.turnColor) drag((ctrl as RoundController | AnalysisController), e);
+                    })
+                );
+                eventNames2.forEach(name =>
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                        if (color===ctrl.turnColor) click((ctrl as RoundController | AnalysisController), e);
+                    })
+                );
+            }
+        }
+    } else {//RoundController
+        insertHook = {//always enabling only my pocket
             insert: vnode => {
                 eventNames1.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
@@ -71,36 +79,6 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         hook: insertHook
       }, roles.map(role => {
         const nb = pocket[role] || 0;
-        let onEventHandler;
-        if (ctrl instanceof EditorController) {
-            onEventHandler = {
-                click: (event) => {
-                    let newValue: number;
-                    const oldValue = parseInt((event.target as HTMLElement).getAttribute("data-nb")!);
-                    newValue = oldValue + ((event.ctrlKey) ? -1 : 1);
-                    newValue = Math.min(Math.max(newValue, 0), ctrl.variant.boardWidth);
-                    if (oldValue !== newValue) {
-                        // patch(event.target as HTMLElement, h('piece.' + role + '.' + color, {attrs: {'data-nb': newValue}}));
-                        if (event.ctrlKey) {
-                            pocket[role]--;
-                        } else {
-                            pocket[role]++;
-                        }
-
-                        if (position === "top") {
-                            ctrl.vpocket0 = patch(ctrl.vpocket0, pocketView(ctrl, color, "top"));
-                        } else {
-                            ctrl.vpocket1 = patch(ctrl.vpocket1, pocketView(ctrl, color, "bottom"));
-                        }
-
-                        ctrl.pocketsPart = pockets2str(ctrl);
-                        ctrl.onChange();
-                    }
-                }
-            }
-        } else {
-            onEventHandler = {};
-        }
 
         let clazz;
 
@@ -118,6 +96,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
             };
         } else {
             clazz = {
+                premove: false,
                 'selected-square': selectedSquare,
             };
         }
@@ -128,8 +107,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
                 'data-role': role,
                 'data-color': color,
                 'data-nb': nb,
-            },
-            on: onEventHandler
+            }
         });
 
     } ) );
@@ -153,25 +131,21 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
     if ((!dropMode.active || dropPiece?.role !== role ) && canceledDropMode!=="true") {
         setDropMode(ctrl.chessground.state, { color, role });
 
+        //TODO:move below lines to drop.ts -> setDropMode
         if ( ctrl.turnColor === ctrl.mycolor) {
-
             const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]);//TODO:ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
-            
-            //ctrl.chessground.newPiece({"role": role, "color": color}, 'a0')
             ctrl.chessground.set({
                 dropmode: {
                     active: true,
-                    dropDests: dropDests,
-                    showDropDests: ctrl.showDests,
+                    dropDests: dropDests
                 }
             });
         } else {
+            //premove logic already moved to setDropMode
         }
 
     } else {
         cancelDropMode(ctrl.chessground.state);
-        //ctrl.chessground.selectSquare(null);
-
     }
     e.stopPropagation();
     e.preventDefault();
@@ -197,13 +171,9 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
                                                               // the selected piece remains selected which is not how board pieces behave and more importantly is counter intuitive
     if (!role || !color || number === '0') return;
 
-    //if the piece we are dragging is different than the currently selected for click-drop, then cancel the click-drop
-    //if it is the same, we will not cancel it yet - if this drag event turns out to just be a click - then the cancelling will happen in the click method
-    //if it is an actual drag then no point in canelling ???
-    if (ctrl.chessground.state.dropmode.active/* && ctrl.chessground.state.dropmode.piece.role != role*/) {
+    //always cancel drop mode if it is active
+    if (ctrl.chessground.state.dropmode.active) {
         cancelDropMode(ctrl.chessground.state);
-        //setDropMode(ctrl.chessground.state, {, role})
-        //updatePockets(ctrl,ctrl.vpocket0,ctrl.vpocket1);
 
         if (ctrl.chessground.state.dropmode.piece?.role == role) {
             //we mark it with this only if we are cancelling the same piece we "drag"

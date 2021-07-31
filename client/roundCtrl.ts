@@ -13,6 +13,7 @@ import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation, SetPremoveMetadata } from 'chessgroundx/types';
 import { cancelDropMode } from 'chessgroundx/drop';
+import predrop from 'chessgroundx/predrop';
 
 import { JSONObject } from './types';
 import { _ } from './i18n';
@@ -93,7 +94,7 @@ export default class RoundController {
     titles: string[];
     ratings: string[];
     animation: boolean;
-    showDests: boolean;
+    showDests: boolean;//TODO:not sure what is the point of this? doesn't chessground (especially now) have plenty of booleans like this for all kind of dests anyway?
     blindfold: boolean;
     handicap: boolean;
     autoqueen: boolean;
@@ -630,9 +631,10 @@ export default class RoundController {
 
         this.dests = (msg.status < 0) ? msg.dests : {};
 
-        //when turn get mine, if a piece is being dragged or is selected, then pre-drop dests should be hidden and replaced by dests
-        //TODO:this logic ideally belongs in chessground somehow i feel - but where can i put it on turn change and also it depends now on this.dests
+        //TODO: this logic ideally belongs in chessground somehow i feel - but where can i put it on turn change and also it depends now on this.dests
+        //      as far as i can tell the analogous logic for setting up move/pre-move destinations is in state.ts->configure->call to setSelected
         if (this.mycolor === this.turnColor) {
+            //when turn gets mine, if a piece is being dragged or is selected, then pre-drop dests should be hidden and replaced by dests
             this.chessground.state.predroppable.dropDests=undefined;//always clean up predrop dests when my turn starts
 
             const pdrole : Role | undefined =
@@ -649,6 +651,21 @@ export default class RoundController {
                     dropDests: dropDests
                     }
                 });//if yes - show normal dests on turn start after the pre-drop dests were hidden
+            }
+        } else {
+            console.log("are we dragging something while it is opponents turn?");
+            console.log(this.chessground.state.draggable.current);
+            if (this.chessground.state.draggable.current){
+                //we have just received a message from the server confirming it is not our turn (i.e. we must have just moved a piece)
+                // at the same time we are dragging a piece - either we are very fast and managed to grab another piece while
+                // waiting for server's message that confirm the move we just made, or the move we just made was a pre-move/pre-drop
+                // either way we have to init the predrop destinations so they can be highlighted
+                const dropDests = predrop(this.chessground.state.pieces, this.chessground.state.draggable.current.piece, this.chessground.state.variant);
+                this.chessground.set({
+                    predroppable: {
+                        dropDests: dropDests
+                    }
+                });
             }
         }
 
@@ -1039,12 +1056,6 @@ export default class RoundController {
         return (key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
-            // If drop selection was set dropDests we have to restore dests here
-            // if (/*key != 'a0' && current version never calls selectSquare with a0*/
-            //     this.chessground.state.dropmode.active) {
-            //     cancelDropMode(this.chessground.state);//TODO:maybe move to events.ts together with the line below (and next maybe as well)
-            //     updatePockets(this,this.vpocket0,this.vpocket1)//TODO:if we move pocket.ts to chessgroundx this call can be done there, which would be one more piece of board logic moved away from pychess. see below more similar comments about moving other stuff to chessgroundx maybe as well
-            // }
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?

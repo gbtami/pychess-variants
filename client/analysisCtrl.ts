@@ -22,7 +22,7 @@ import { JSONObject } from './types';
 import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
+import {dropIsValid, pocketView, updatePockets, Pockets, refreshPockets} from './pocket';
 import { sound } from './sound';
 import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role } from './chess';
 import { crosstableView } from './crosstable';
@@ -263,6 +263,11 @@ export default class AnalysisController {
                 move: this.onMove(),
                 dropNewPiece: this.onDrop(),
                 select: this.onSelect(),
+            },
+            dropmode: {
+                events: {
+                    cancel: this.onCancelDropMode()
+                }
             }
         });
 
@@ -1266,4 +1271,9 @@ export default class AnalysisController {
                 break;
         }
     }
+
+    private onCancelDropMode = () => {
+        return () => { refreshPockets(this); }
+    }
+
 }
