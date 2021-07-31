@@ -653,8 +653,8 @@ export default class RoundController {
                 });//if yes - show normal dests on turn start after the pre-drop dests were hidden
             }
         } else {
-            console.log("are we dragging something while it is opponents turn?");
-            console.log(this.chessground.state.draggable.current);
+            //console.log("are we dragging something while it is opponents turn?");
+            //console.log(this.chessground.state.draggable.current);
             if (this.chessground.state.draggable.current){
                 //we have just received a message from the server confirming it is not our turn (i.e. we must have just moved a piece)
                 // at the same time we are dragging a piece - either we are very fast and managed to grab another piece while

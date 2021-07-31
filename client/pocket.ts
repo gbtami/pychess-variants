@@ -210,7 +210,7 @@ export function refreshPockets(ctrl: RoundController | AnalysisController | Edit
 }
 
 export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement): void {
-    console.log('updatePockets');
+    //console.log('updatePockets');
     // update pockets from FEN
     if (ctrl.hasPockets) {
         const parts = ctrl.fullfen.split(" ");
