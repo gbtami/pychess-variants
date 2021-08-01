@@ -32,6 +32,8 @@ Currently supported games are:
 - [Synochess](https://www.pychess.org/variant/synochess)
 - [Hoppel-Poppel](https://www.pychess.org/variant/hoppelpoppel)
 - [Shinobi](https://www.pychess.org/variant/shinobi)
+- [Empire Chess](https://www.pychess.org/variant/empire)
+- [Orda Mirror](https://www.pychess.org/variant/ordamirror)
 - [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variant/shouse)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variant/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variant/grandhouse)
