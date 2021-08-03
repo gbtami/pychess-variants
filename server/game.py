@@ -16,7 +16,7 @@ from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
     INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, \
-    IMPORTED, HIGHSCORE_MIN_GAMES
+    IMPORTED, HIGHSCORE_MIN_GAMES, variant_display_name
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
@@ -51,6 +51,12 @@ class Game:
         self.tournamentId = tournamentId
         self.chess960 = chess960
         self.create = create
+
+        self.browser_title = "%s • %s vs %s" % (
+            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
+            self.wplayer.username,
+            self.bplayer.username
+        )
 
         # rating info
         self.white_rating = wplayer.get_rating(variant, chess960)

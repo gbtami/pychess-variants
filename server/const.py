@@ -160,6 +160,8 @@ def variant_display_name(variant):
         return "S-HOUSE"
     elif variant == "cambodian":
         return "OUK CHATRANG"
+    elif variant == "ordamirror":
+        return "ORDA MIRROR"
     else:
         return variant.upper()
 

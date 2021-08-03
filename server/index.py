@@ -331,7 +331,7 @@ async def index(request):
             render["result"] = game.result
             render["status"] = game.status
             render["date"] = game.date.isoformat()
-            render["title"] = game.wplayer.username + ' vs ' + game.bplayer.username
+            render["title"] = game.browser_title
             if ply is not None:
                 render["ply"] = ply
             if game.tournamentId is not None:
