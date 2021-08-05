@@ -34,11 +34,11 @@ Es el más fuerte disponible en este sitio, pero no representa Fairy-Stockfish a
 
 *¿Qué variantes están disponibles?*
 
-Lee [la página Aprender](https://www.pychess.org/variant) para ver la lista completa.
+Lee [la página Aprender](https://www.pychess.org/variants) para ver la lista completa.
 
 *¿Cómo se juega a XXX?*
 
-Lee [la página Aprender](https://www.pychess.org/variant). También, durante una partida, puedes hacer click en el nombre de la variante en la esquina superior izquierda y te llevará a la correspondiente página en Aprender.
+Lee [la página Aprender](https://www.pychess.org/variants). También, durante una partida, puedes hacer click en el nombre de la variante en la esquina superior izquierda y te llevará a la correspondiente página en Aprender.
 
 *¿Cómo escogéis qué variantes añadir?*
 

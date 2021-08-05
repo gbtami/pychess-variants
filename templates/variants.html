@@ -6,13 +6,13 @@
     <ul class="guide">
     <li>
     <div class="icon" data-icon="">
-        <a href="{{ home }}/variant/terminology">Terminology</a>
+        <a href="{{ home }}/variants/terminology">Terminology</a>
     </div>
     </li>
     {% for key in variants %}
     <li>
     <div class="icon" data-icon="{{ icons[key] }}">
-        <a href="{{ home }}/variant/{{ key }}">{{ variant_display_name(key).title() }}</a>
+        <a href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key).title() }}</a>
     </div>
     </li>
     {% endfor %}

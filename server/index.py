@@ -96,8 +96,8 @@ async def index(request):
         view = "stats"
     elif request.path.startswith("/news"):
         view = "news"
-    elif request.path.startswith("/variant"):
-        view = "variant"
+    elif request.path.startswith("/variants"):
+        view = "variants"
     elif request.path == "/players":
         view = "players"
     elif request.path == "/allplayers":
@@ -172,7 +172,7 @@ async def index(request):
                 return web.HTTPFound("/")
 
     # Do we have gameId in request url?
-    if gameId is not None:
+    if (gameId is not None) and gameId != "variants":
         if view not in ("tv", "analysis", "embed"):
             view = "round"
         invites = request.app["invites"]
@@ -213,8 +213,8 @@ async def index(request):
         template = get_template("arena-new.html")
     elif view == "news":
         template = get_template("news.html")
-    elif view == "variant":
-        template = get_template("variant.html")
+    elif view == "variants":
+        template = get_template("variants.html")
     elif view == "patron":
         template = get_template("patron.html")
     elif view == "faq":
@@ -300,7 +300,7 @@ async def index(request):
         render["tables"] = await get_latest_tournaments(request.app)
         render["admin"] = user.username in ADMINS.split(",")
 
-    if gameId is not None:
+    if (gameId is not None) and gameId != "variants":
         if view == "invite":
             render["gameid"] = gameId
             render["variant"] = seek.variant
@@ -354,7 +354,7 @@ async def index(request):
         render["level"] = 8
         render["profile"] = "Fairy-Stockfish"
 
-    elif view == "variant":
+    elif view == "variants":
         render["icons"] = VARIANT_ICONS
         # variant None indicates intro.md
         if lang in ("es", "hu", "it", "pt", "fr"):

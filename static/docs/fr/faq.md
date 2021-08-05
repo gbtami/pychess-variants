@@ -34,11 +34,11 @@ Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a 
 
 *What games are available?*
 
-Check out the [Learn page](https://www.pychess.org/variant).
+Check out the [Variants page](https://www.pychess.org/variants).
 
 *How do you play XXX?*
 
-Check out the [Learn page](https://www.pychess.org/variant). Also, within a game, you can click the variant name at the top left to be taken to that game's learn page.
+Check out the [Variants page](https://www.pychess.org/variants). Also, within a game, you can click the variant name at the top left to be taken to that game's learn page.
 
 *How do you choose which variants to add?*
 

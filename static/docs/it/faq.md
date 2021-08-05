@@ -34,11 +34,11 @@ Alla fine dei conti deve in ogni caso essere archiviato nell'issue tracker di Gi
 
 *Quali giochi sono disponibili?*
 
-Puoi controllare la [pagina Impara](https://www.pychess.org/variant) per avere una lista completa.
+Puoi controllare la [pagina Impara](https://www.pychess.org/variants) per avere una lista completa.
 
 *Come si gioca a XXX?*
 
-Controlla la [pagina Impara](https://www.pychess.org/variant). Inoltre, mentre sei in partita, puoi cliccare sul nome della variante che stai giocando in alto a sinistra e verrai indirizzato alla pagina Impara della variante
+Controlla la [pagina Impara](https://www.pychess.org/variants). Inoltre, mentre sei in partita, puoi cliccare sul nome della variante che stai giocando in alto a sinistra e verrai indirizzato alla pagina Impara della variante
 
 *Come scegliete quali varianti aggiungere?*
 
