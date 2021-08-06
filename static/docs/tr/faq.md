@@ -28,7 +28,13 @@ It is the strongest available on this site, but does not represent Fairy-Stockfi
 
 *I found a bug! Where do I report it?*
 
-Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.
+Ultimately it needs to be filed in Github issue tracker. However, note that issues that provide little value compared to the required effort may be closed. Before creating an issue, make sure that:
+
+1. You list the steps to reproduce the problem to show that other users may experience it as well, if the issue is not self-descriptive.
+2. Search to make sure it isn't a duplicate. [The advanced search syntax](https://help.github.com/articles/searching-issues/) may come in handy.
+3. It is not a trivial problem or demand unrealistic dev time to fix.
+
+If you're not on Github, you can also mention it on Discord, and someone can file it.
 
 ## Variants
 
