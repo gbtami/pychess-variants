@@ -34,7 +34,7 @@ Ultimately it needs to be filed in Github issue tracker. However, note that issu
 2. Search to make sure it isn't a duplicate. [The advanced search syntax](https://help.github.com/articles/searching-issues/) may come in handy.
 3. It is not a trivial problem or demand unrealistic dev time to fix.
 
-If you're not on Github, you can also mention it on Discord, and someone can file it.
+If you're not on Github, you can also mention it on [Discord](https://discord.com/invite/aPs8RKr), and someone can file it.
 
 ## Variants
 
