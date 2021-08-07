@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -30,15 +30,15 @@
   <sodipodi:namedview
      inkscape:current-layer="svg1957"
      inkscape:window-maximized="1"
-     inkscape:window-y="1085"
-     inkscape:window-x="6708"
+     inkscape:window-y="-12"
+     inkscape:window-x="-12"
      inkscape:cy="26.930969"
      inkscape:cx="69.166218"
      inkscape:zoom="13.639304"
      showgrid="false"
      id="namedview1959"
-     inkscape:window-height="1780"
-     inkscape:window-width="3360"
+     inkscape:window-height="2050"
+     inkscape:window-width="3840"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      guidetolerance="10"
@@ -59,13 +59,13 @@
          inkscape:connector-curvature="0"
          id="path7039-8"
          d="m 46.213835,59.000144 c -4.337713,-0.106113 -8.805939,0.133592 -14.547379,-0.393637 -3.058483,-4.365293 -7.669835,-20.160522 -6.59342,-27.568225 8.133658,-4.954192 35.196714,-5.374469 41.572966,0.164983 1.076415,7.407703 -2.923901,22.91519 -5.982386,27.280482"
-         style="fill:#ff2a2a;fill-opacity:1;stroke:#000000;stroke-width:1.89884419;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill:#df4a4a;fill-opacity:1;stroke:#000000;stroke-width:1.89884419;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="cccccsc"
          inkscape:connector-curvature="0"
          id="path7043-7"
          d="m 31.268708,57.912189 c 0.303804,3.771269 0.984734,7.129255 2.001421,10.900524 4.677097,2.079376 8.290066,2.312316 12.581636,2.411335 4.291572,-0.07951 9.098353,-0.716921 13.005531,-2.521323 1.016687,-3.771269 2.010052,-7.461209 2.358048,-11.14409 0,0 -10.15492,-2.799652 -15.350591,-2.716095 -4.971136,0.07995 -14.596045,3.069649 -14.596045,3.069649 z"
-         style="fill:#ff2a2a;fill-opacity:1;stroke:#000000;stroke-width:1.89884;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill:#df4a4a;fill-opacity:1;stroke:#000000;stroke-width:1.89884;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
