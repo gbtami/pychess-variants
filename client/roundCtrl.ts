@@ -101,6 +101,7 @@ export default class RoundController {
     setupFen: string;
     prevPieces: Pieces;
     focus: boolean;
+    lastMaybeSentMsgMove;
 
     constructor(el, model) {
         this.focus = !document.hidden;
@@ -110,8 +111,30 @@ export default class RoundController {
 
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
+            console.log("this.unsentMsgMove=", this.lastMaybeSentMsgMove);
+            console.log("this.lastmove=", this.lastmove);
+            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
+                // const msg = this.unsentMoveMsg;
+                const msgMove = this.lastMaybeSentMsgMove;
+                try {
+                    //do not clean up - we are never sure if sending succeeded so lets retry again always if (this.unsentMsgMove.ply === this.ply) condition is true
+                    // this.unsentMsgMove=undefined;//clean up just in case, although the (this.unsentMsgMove.ply === this.ply) check should prevent unwanted resends
+                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
+                    this.doSend(this.lastMaybeSentMsgMove);
+                } catch (e) {
+                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
+                    this.lastMaybeSentMsgMove = msgMove;//presumably connection dropped again - so we should expect another reconnect and onOpen
+                }
+            }
+
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
+
+            const cl = document.body.classList;
+            cl.remove('offline');
+            cl.add('online');
+            cl.toggle('reconnected'/*, this.nbConnects > 1*/);
+
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 
@@ -120,15 +143,23 @@ export default class RoundController {
             onopen: e => onOpen(e),
             onmessage: e => this.onMessage(e),
             onreconnect: e => {
+
                 this.clocks[0].connecting = true;
                 this.clocks[1].connecting = true;
                 console.log('Reconnecting in round...', e);
+
+                document.body.classList.add('offline');
+                document.body.classList.remove('online');
 
                 const container = document.getElementById('player1') as HTMLElement;
                 patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
                 },
             onmaximum: e => console.log('Stop Attempting!', e),
-            onclose: e => console.log('Closed!', e),
+            onclose: e => {
+                console.log('Closed!', e);
+                //document.body.classList.add('offline');
+                //document.body.classList.remove('online');
+            },
             onerror: e => console.log('Error:', e),
             };
 
@@ -585,7 +616,8 @@ export default class RoundController {
 
     private onMsgBoard = (msg) => {
         if (msg.gameId !== this.gameId) return;
-
+        console.log("onMsgBoard");
+        console.log(msg);
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
@@ -670,6 +702,7 @@ export default class RoundController {
         }
 
         let lastMove = msg.lastMove;
+        msg.ply;
         if (lastMove !== null) {
             lastMove = uci2cg(lastMove);
             // drop lastMove causing scrollbar flicker,
@@ -844,7 +877,17 @@ export default class RoundController {
 
         clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.doSend({ type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 });
+        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
+        try {
+            console.log("sendMove");
+            console.log(this.lastMaybeSentMsgMove);
+            this.doSend(this.lastMaybeSentMsgMove);
+        } catch(e) {
+            console.log("could not send move ", move);
+            console.log(e);
+            // this.unsentMsgMove = msgMove;
+            throw e;
+        }
 
         if (this.clockOn) this.clocks[oppclock].start();
     }

@@ -133,6 +133,7 @@ backgroundSettings.update();
 zenModeSettings.update();
 
 const el = document.getElementById('pychess-variants');
+
 if (el instanceof Element) {
     model["asset-url"] = el.getAttribute("data-asset-url");
 
