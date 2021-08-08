@@ -40,15 +40,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="3360"
-     inkscape:window-height="1780"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
      id="namedview976"
      showgrid="false"
-     inkscape:zoom="0.84611754"
-     inkscape:cx="497.58197"
-     inkscape:cy="153.9121"
-     inkscape:window-x="6708"
-     inkscape:window-y="1085"
+     inkscape:zoom="3.3844702"
+     inkscape:cx="153.89065"
+     inkscape:cy="43.407041"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg974"
      showguides="false"
@@ -133,13 +133,13 @@
        inkscape:connector-curvature="0"
        id="path5349"
        d="m 119.66608,20.578823 c 0.12511,0.773672 0.40427,1.44388 1.3,1.7 11.23011,-0.424319 16.82956,-5.233235 20.30001,-11.7 l 0.2,-2.099999 c -2.10707,-8.89280401 -8.15113,-13.4502442 -16.2,-15.8 -4.40015,-0.5317426 -7.59668,1.3815851 -10.20001,4.5 -2.59354,2.64077835 -4.39616,5.9439949 -5.3,10 -0.9084,3.60641 -5.79067,1.6990508 -4.9,-0.6 2.76583,-4.0566968 11.00069,-10.7605086 4.9,-12.3 -8.75831,-2.0518262 -7.05798,4.7061225 -5.2,6.20000004 1.23982,-0.5457366 2.00197,-1.22280981 2.4,-2.00000004 -0.25951,-0.4357328 -0.98217,-0.8162564 0,-1.4 0.5387,0.045976 0.81918,0.2856122 1,0.6 0,1 0.50403,1.1455069 -3.6,4 -7.640521,5.2325602 -3.73403,16.328533 2.94302,17.405035 2.93812,0.458135 3.4042,1.08673 5.28907,0.933469 0.49515,-0.04026 1.25166,0.522864 1.96791,0.561495 0.84449,-0.337075 4.5865,-0.641651 3.83596,-0.600198 0.37015,0.007 0.83701,-0.226033 1.09094,-0.03707 0.11828,0.08802 0.12726,0.435864 0.1731,0.637268 z"
-       style="fill:#d40000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#660000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <path
        sodipodi:nodetypes="ccccc"
        inkscape:connector-curvature="0"
        id="path5353"
        d="m 109.56608,17.578823 c -1.32838,4.066443 -4.04985,6.321863 -6.6,8.8 -0.20576,0.304421 0.14574,0.397532 1,0.3 3.90473,-1.863513 6.85963,-4.360243 8.1,-8 -0.78642,-0.41302 -1.31194,-1.08384 -2.5,-1.1 z"
-       style="fill:#d40000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#660000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
   </g>
   <path
      style="fill:#ffffff;stroke:none;stroke-width:1.0975945px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"

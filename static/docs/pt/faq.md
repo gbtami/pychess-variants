@@ -34,11 +34,11 @@ Será necessário ir ao Github e adicionar uma issue tracker. Idealmente, tente 
 
 *Que jogos estão disponíveis?*
 
-Consulte a página de [Aprendizagem](https://www.pychess.org/variant).
+Consulte a página de [Aprendizagem](https://www.pychess.org/variants).
 
 *Como posso jogar XXX?*
 
-Consulte a página de [Aprendizagem](https://www.pychess.org/variant). Além disso dentro da página do jogo, pode clicar no nome da variante no canto superior esquerdo, isto irá redirecioná-lo para a página apropriada.
+Consulte a página de [Aprendizagem](https://www.pychess.org/variants). Além disso dentro da página do jogo, pode clicar no nome da variante no canto superior esquerdo, isto irá redirecioná-lo para a página apropriada.
 
 *Como escolhem as variantes a serem adicionadas?*
 

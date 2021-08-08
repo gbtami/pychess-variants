@@ -730,7 +730,7 @@ export function tournamentView(model): VNode[] {
                             h('a', {
                                 attrs: {
                                     target: '_blank',
-                                    href: '/variant/' + model["variant"] + (chess960 ? '960': ''),
+                                    href: '/variants/' + model["variant"] + (chess960 ? '960': ''),
                                 }
                             },
                             variant.displayName(chess960)),

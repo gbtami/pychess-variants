@@ -6,7 +6,7 @@
 }
 .highscore {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
     grid-gap: 6px;
     padding-left: 2px;
 }
