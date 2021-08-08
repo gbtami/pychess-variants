@@ -49,7 +49,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     orda: { pieceCSS: ["orda0", "orda1"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"] },
-    shinobi: { pieceCSS: ["shinobi0"] },
+    shinobi: { pieceCSS: ["shinobi0", "shinobi1"] },
     empire: { pieceCSS: ["empire0", "empire1"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
 };

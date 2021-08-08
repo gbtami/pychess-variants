@@ -475,5 +475,8 @@ label.piece.piece2.hoppel {
 }
 
 label.piece.piece0.shinobi {
-    background-image: url('images/pieces/shinobi/wJ.svg');
+    background-image: url('images/pieces/shinobi/merida/wJ.svg');
+}
+label.piece.piece1.shinobi {
+    background-image: url('images/pieces/shinobi/cburnett/wJ.svg');
 }
