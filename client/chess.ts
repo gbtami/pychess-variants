@@ -565,7 +565,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
-        pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "pl", "ph", "pm", "pp"],
+        pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "pl", "ph", "pm"],
         pieceRoles2: ["k", "q", "r", "b", "n", "p", "pp"],
         pocketRoles: ["l", "h", "m", "d", "j"],
         pocketRoles2: [],
