@@ -45,7 +45,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa", "xiangqiwikim"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2"] },
-    shogun: { pieceCSS: ["shogunb", "shogunr", "shogunw"] },
+    shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5"] },
     orda: { pieceCSS: ["orda0", "orda1"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2"] },

@@ -290,13 +290,22 @@ label.piece.piece2.shako {
 }
 
 label.piece.piece0.shogun {
-    background-image: url('images/pieces/shogun/blue/wC.svg');
+    background-image: url('images/pieces/shogun/merida/blue/wC.svg');
 }
 label.piece.piece1.shogun {
-    background-image: url('images/pieces/shogun/red/wC.svg');
+    background-image: url('images/pieces/shogun/merida/red/wC.svg');
 }
 label.piece.piece2.shogun {
-    background-image: url('images/pieces/shogun/white/wC.svg');
+    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+}
+label.piece.piece3.shogun {
+    background-image: url('images/pieces/shogun/cburnett/blue/wC.svg');
+}
+label.piece.piece4.shogun {
+    background-image: url('images/pieces/shogun/cburnett/red/wC.svg');
+}
+label.piece.piece5.shogun {
+    background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
 }
 
 label.board.board0.shogun8x8 {
