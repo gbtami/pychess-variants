@@ -2797,8 +2797,11 @@
         {
           "ligatures": "mic, microphone",
           "name": "mic",
-          "order": 0,
-          "id": 31
+          "order": 413,
+          "id": 31,
+          "prevSize": 32,
+          "code": 59678,
+          "tempChar": ""
         },
         {
           "ligatures": "book, read",
@@ -3635,7 +3638,7 @@
           "id": 170,
           "prevSize": 32,
           "code": 59817,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "lab, beta",
@@ -3698,7 +3701,7 @@
           "id": 180,
           "prevSize": 32,
           "code": 59827,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "shield, security",
@@ -4331,7 +4334,7 @@
           "id": 285,
           "prevSize": 32,
           "code": 59932,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
@@ -4340,7 +4343,7 @@
           "id": 286,
           "prevSize": 32,
           "code": 59933,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",
