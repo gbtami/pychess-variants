@@ -4,7 +4,6 @@ import logging
 import random
 from datetime import datetime, timezone
 from time import monotonic
-import traceback
 
 try:
     import pyffish as sf
@@ -195,15 +194,6 @@ class Game:
         return FairyBoard(variant, initial_fen, chess960, count_started)
 
     async def play_move(self, move, clocks=None, ply=None):
-
-        # log.info("self.board.ply=" + str(self.board.ply) + " param.ply=" + str(ply))
-        # log.info(move)
-        traceback.print_stack()
-
-        # if ply is not None and self.board.ply + 1 != ply:
-        #     log.info("invalid ply received - probably a re-sent move that has already been processed")
-        #     return # this would mean it is a resent move by client's browser that has already been processed once but browser is unaware of that
-
         self.stopwatch.stop()
         self.byo_correction = 0
 
@@ -226,7 +216,6 @@ class Game:
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
         if self.bot_game:
-
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
             # print(self.board.ply, move, movetime)
             if clocks is None:
@@ -295,9 +284,9 @@ class Game:
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
-                #result = "1-0" if self.board.color == BLACK else "0-1"
-                #self.update_status(INVALIDMOVE, result)
-                #await self.save_game()
+                result = "1-0" if self.board.color == BLACK else "0-1"
+                self.update_status(INVALIDMOVE, result)
+                await self.save_game()
 
             # TODO: this causes random game abort
             if False:  # not self.bot_game:

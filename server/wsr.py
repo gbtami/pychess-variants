@@ -61,13 +61,8 @@ async def round_socket_handler(request):
                         move = data["move"]
                         ply = data["ply"]
 
-                        log.info("game.board.ply=" + str(game.board.ply) + " param.ply=" + str(ply))
-                        log.info(move)
-                        #traceback.print_stack()
-
                         if game.board.ply + 1 != ply:
                             log.info("invalid ply received - probably a re-sent move that has already been processed")
-                            #return # this would mean it is a resent move by client's browser that has already been processed once but browser is unaware of that
                         else:
                             await play_move(request.app, user, game, move, data["clocks"], data["ply"])
 
