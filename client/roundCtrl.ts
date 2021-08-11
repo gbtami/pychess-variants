@@ -101,7 +101,11 @@ export default class RoundController {
     setupFen: string;
     prevPieces: Pieces;
     focus: boolean;
-    lastMaybeSentMsgMove;
+    lastMaybeSentMsgMove;// Always store the last "move" message that was passed for sending via websocket.
+                         // In case of bad connection, we are never sure if it was sent (thus the name)
+                         // until a "board" message from server is received from server that confirms it.
+                         // So if at any moment connection drops, after reconnect we always resend it
+                         // if server received it before, it will ignore it
 
     constructor(el, model) {
         this.focus = !document.hidden;
@@ -111,11 +115,9 @@ export default class RoundController {
 
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
-            console.log("this.unsentMsgMove=", this.lastMaybeSentMsgMove);
-            console.log("this.lastmove=", this.lastmove);
             if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
-                // const msg = this.unsentMoveMsg;
-                const msgMove = this.lastMaybeSentMsgMove;
+                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
+                // since they are not equal, but also one ply behind, means we should try to re-send it
                 try {
                     //do not clean up - we are never sure if sending succeeded so lets retry again always if (this.unsentMsgMove.ply === this.ply) condition is true
                     // this.unsentMsgMove=undefined;//clean up just in case, although the (this.unsentMsgMove.ply === this.ply) check should prevent unwanted resends
@@ -123,7 +125,6 @@ export default class RoundController {
                     this.doSend(this.lastMaybeSentMsgMove);
                 } catch (e) {
                     console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
-                    this.lastMaybeSentMsgMove = msgMove;//presumably connection dropped again - so we should expect another reconnect and onOpen
                 }
             }
 
@@ -133,7 +134,7 @@ export default class RoundController {
             const cl = document.body.classList;
             cl.remove('offline');
             cl.add('online');
-            cl.toggle('reconnected'/*, this.nbConnects > 1*/);
+            //cl.add('reconnected'/*, this.nbConnects > 1*/);
 
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
@@ -150,6 +151,7 @@ export default class RoundController {
 
                 document.body.classList.add('offline');
                 document.body.classList.remove('online');
+                document.body.classList.add('reconnected');
 
                 const container = document.getElementById('player1') as HTMLElement;
                 patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
@@ -617,11 +619,11 @@ export default class RoundController {
     private onMsgBoard = (msg) => {
         if (msg.gameId !== this.gameId) return;
         console.log("onMsgBoard");
-        console.log(msg);
+
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
-        const latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
+        const latestPly = (this.ply === -1 || msg.ply >= this.ply + 1);//curious in what case could a msg.ply be < this.ply?
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0 && this.variant.name !== 'janggi') {
@@ -674,10 +676,11 @@ export default class RoundController {
             msg.steps.forEach((step) => { 
                 this.steps.push(step);
                 });
+
             const full = true;
             const activate = true;
             const result = false;
-            updateMovelist(this, full, activate, result);
+            updateMovelist(this, full, activate, result);//when is such "board" message sent that has steps.len>1? also this message that contains full move list from beginng, messes up the moves list (i think it might depend on which turn it is receive though - but in any case it appends moves that are already there)
         } else {
             if (msg.ply === this.steps.length) {
                 const step = {
@@ -692,6 +695,8 @@ export default class RoundController {
                 const activate = !this.spectator || latestPly;
                 const result = false;
                 updateMovelist(this, full, activate, result);
+            } else {
+                console.log("Received move at ply=", msg.ply, "but expected ply is ", this.steps.length);
             }
         }
 
@@ -879,13 +884,10 @@ export default class RoundController {
 
         this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
         try {
-            console.log("sendMove");
-            console.log(this.lastMaybeSentMsgMove);
             this.doSend(this.lastMaybeSentMsgMove);
         } catch(e) {
             console.log("could not send move ", move);
             console.log(e);
-            // this.unsentMsgMove = msgMove;
             throw e;
         }
 
