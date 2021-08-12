@@ -31,6 +31,7 @@ from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNE
 from seek import Seek
 from user import User
 from tournaments import load_tournament
+from twitch import Twitch
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +88,9 @@ async def init_state(app):
 
     if "db" not in app:
         app["db"] = None
+
+    app["twitch"] = Twitch(app)
+    # await app["twitch"].init_subscriptions()
 
     app["users"] = {
         "Random-Mover": User(app, bot=True, username="Random-Mover"),

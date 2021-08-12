@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu shields">
+<aside class="flat-bg">
+    <h1>Tournament shields</h1>
+    <div class="shields">
+        {% for key in winners %}
+        <div class="card">
+        <h2><a href="{{ home }}/variants/{{ key }}"><span class="shield-trophy">{{ icons[key] }}</span>{{ variant_display_name(key) }}</a></h2>
+            {% for (user, date, tid) in winners[key] %}
+                <div class="player-data {{ loop.cycle('odd', 'even') }}">
+                    <player>
+                        <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
+                        <a class="user-link tourney-date" href="{{ home }}/tournament/{{ tid }}">{{ date }}</a>
+                    </player>
+                </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</aside>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
+

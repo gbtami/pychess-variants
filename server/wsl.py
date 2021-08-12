@@ -39,6 +39,7 @@ async def lobby_socket_handler(request):
     seeks = request.app["seeks"]
     db = request.app["db"]
     invites = request.app["invites"]
+    twitch = request.app["twitch"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -228,6 +229,10 @@ async def lobby_socket_handler(request):
                         spotlights = tournament_spotlights(request.app["tournaments"])
                         if len(spotlights) > 0:
                             await ws.send_json({"type": "spotlights", "items": spotlights})
+
+                        streams = twitch.live_streams()
+                        if len(streams) > 0:
+                            await ws.send_json({"type": "streams", "items": streams})
 
                     elif data["type"] == "lobbychat":
                         message = data["message"]

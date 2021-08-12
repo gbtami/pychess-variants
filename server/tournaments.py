@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, SHIELD
+from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, SHIELD, VARIANTS
 from newid import new_id
 from user import User
 
@@ -154,6 +154,32 @@ async def insert_tournament_to_db(tournament, app):
 
     result = await app["db"].tournament.insert_one(document)
     print("db insert tournament result %s" % repr(result.inserted_id))
+
+
+async def get_winners(app, shield):
+    wi = {}
+
+    for variant in VARIANTS:
+        if variant.endswith("960"):
+            v = variant[:-3]
+            z = 1
+        else:
+            v = variant
+            z = 0
+
+        filter_cond = {"v": V2C[v], "z": z}
+        if shield:
+            filter_cond["fr"] = SHIELD
+
+        winners = []
+        cursor = app["db"].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=5)
+        async for doc in cursor:
+            print("---", doc)
+            winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
+
+        wi[variant] = winners
+
+    return wi
 
 
 async def get_latest_tournaments(app):

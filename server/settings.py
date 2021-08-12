@@ -40,6 +40,9 @@ ADMINS = os.getenv("ADMINS", "")
 
 STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
 
+TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID", "")
+TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET", "")
+
 SOURCE_VERSION = os.getenv("SOURCE_VERSION", "")
 if SOURCE_VERSION != "":
     SOURCE_VERSION = "?v=%s" % SOURCE_VERSION

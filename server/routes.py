@@ -11,6 +11,7 @@ from index import index, robots, select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from wst import tournament_socket_handler
+from twitch import twitch
 
 
 get_routes = (
@@ -33,6 +34,8 @@ get_routes = (
     (r"/embed/{gameId:\w{8}}", index),
     ("/tournaments", index),
     ("/tournaments/new", index),
+    ("/tournaments/shields", index),
+    ("/tournaments/winners", index),
     (r"/tournament/{tournamentId:\w{8}}", index),
     (r"/tournament/{tournamentId:\w{8}}/pause", index),
     ("/@/{profileId}", index),
@@ -96,4 +99,5 @@ post_routes = (
     ("/translation/select", select_lang),
     ("/import", import_game),
     ("/tournaments/arena", index),
+    ("/twitch", twitch),
 )

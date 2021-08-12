@@ -4,29 +4,78 @@
 .allplayers-button {
     padding-top: 10px;
 }
-.highscore {
+.highscore, .shields, .winners {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
     grid-gap: 6px;
     padding-left: 2px;
 }
-
+.shields, .winners {
+    grid-gap: 0;
+    border: 1px solid var(--border-color);
+    padding: 0;
+}
 .card {
     border: 1px solid var(--leaderboard);
     border-radius: .25rem;
     background-color: var(--bg-color1);
+}
+.shields, .winners {
+    border-radius: none;
+}
+.shields h1, .winners h1 {
+    font-size: 2.5em;
+}
+.shields .card, .winners .card {
+    border: none;
+    border-right: 1px solid var(--border-color);
+    border-radius: none;
+    box-shadow: var(--base-shadow);
 }
 .card div.info0 {
     color: WhiteSmoke;
     background-color: var(--leaderboard);
     padding:0.2em;
 }
+div.info0.icon::before {
+    opacity: 0.9;
+}
+.shields .card h2, .winners .card div.info0 {
+    color: var(--font-color);
+    background: var(--button-new-game);
+    text-shadow: 0 1px 0 var(--text-shadow);
+}
+.shields .card h2 {
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    padding-left: 95px;
+    position: relative;
+    font-size: 1.45em;
+    line-height: 2.5em;
+}
+.card h2 a {
+    display: block;
+}
+.shield-trophy {
+    position: absolute;
+    top: -11px;
+    left: 15px;
+    width: 67px;
+    height: 80px;
+}
 .card .player-data {
     padding:.4rem .5rem .4rem .5rem;
+}
+.shields .player-data {
+    padding: 1.2rem 1.2rem 1.2rem 0.5rem;
 }
 .player-data.odd {
     background-color: var(--bg-color1);
 }
 .player-data.even {
     background-color: var(--bg-color2);
+}
+.tourney-date {
+    float: right;
+    font-size: 16px;
 }

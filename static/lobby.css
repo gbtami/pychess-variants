@@ -25,3 +25,19 @@
 .seeks [class*=" icon-"]:before {
     font-size: 18px;
 }
+
+.stream {
+    display: block;
+    line-height: 0.9;
+    margin-bottom: 0.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.stream .icon {
+    color: var(--gold);
+    margin-right: 0.2rem;
+}
+.stream .icon::before {
+    font-size: 1.5em;
+}

@@ -34,6 +34,7 @@ class LobbyController {
     validGameData: boolean;
     _ws;
     seeks;
+    streams;
     spotlights;
     minutesValues = [
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -90,6 +91,8 @@ class LobbyController {
         }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
+
+        this.streams = document.getElementById('streams') as HTMLElement;
 
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
 
@@ -581,6 +584,13 @@ class LobbyController {
             return _("Casual");
     }
 
+    private streamView(stream) {
+        return h('a.stream', { attrs: { "href": stream.url, "rel": "noopener nofollow", "target": "_blank" } }, [
+            h('strong.text', {class: {"icon": true, "icon-mic": true} }, stream.username),
+            stream.title,
+        ]);
+    }
+
     private spotlightView(spotlight) {
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
@@ -628,6 +638,9 @@ class LobbyController {
                 break;
             case "u_cnt":
                 this.onMsgUserCounter(msg);
+                break;
+            case "streams":
+                this.onMsgStreams(msg);
                 break;
             case "spotlights":
                 this.onMsgSpotlights(msg);
@@ -703,6 +716,11 @@ class LobbyController {
         const userCount = document.getElementById('u_cnt') as HTMLElement;
         patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
     }
+
+    private onMsgStreams(msg) {
+        this.streams = patch(this.streams, h('div#streams', msg.items.map(stream => this.streamView(stream))));
+    }
+
     private onMsgSpotlights(msg) {
         this.spotlights = patch(this.spotlights, h('div#spotlights', msg.items.map(spotlight => this.spotlightView(spotlight))));
     }
@@ -754,6 +772,7 @@ export function lobbyView(model): VNode[] {
 
     return [
         h('aside.sidebar-first', [
+            h('div#streams'),
             h('div#spotlights'),
             h('div#lobbychat')
         ]),

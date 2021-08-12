@@ -28,7 +28,7 @@
             <tr>
                 <td>
                     {% if tourney.frequency == "s" %}
-                    <a class="shield-trophy">{{ icons[tourney.variant + ('960' if tourney.chess960 else '')] }}</a>
+                    <span class="shield-trophy">{{ icons[tourney.variant + ('960' if tourney.chess960 else '')] }}</span>
                     {% else %}
                     <div class="icon" data-icon="{{ icons[tourney.variant + ('960' if tourney.chess960 else '')] }}">
                     {% endif %}

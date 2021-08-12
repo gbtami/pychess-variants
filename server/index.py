@@ -28,7 +28,7 @@ from misc import time_control_str
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
-from tournaments import get_latest_tournaments, load_tournament, create_tournament
+from tournaments import get_winners, get_latest_tournaments, load_tournament, create_tournament
 
 log = logging.getLogger(__name__)
 
@@ -121,6 +121,10 @@ async def index(request):
         view = "embed"
     elif request.path == "/paste":
         view = "paste"
+    elif request.path.endswith("/shields"):
+        view = "shields"
+    elif request.path.endswith("/winners"):
+        view = "winners"
     elif request.path.startswith("/tournaments"):
         view = "tournaments"
         if user.username in ADMINS:
@@ -205,6 +209,10 @@ async def index(request):
             template = get_template("profile.html")
     elif view == "players":
         template = get_template("players.html")
+    elif view == "shields":
+        template = get_template("shields.html")
+    elif view == "winners":
+        template = get_template("winners.html")
     elif view == "allplayers":
         template = get_template("allplayers.html")
     elif view == "tournaments":
@@ -288,6 +296,13 @@ async def index(request):
         # render["offline_users"] = offline_users
         hs = request.app["highscore"]
         render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
+
+    elif view in ("shields", "winners"):
+        wi = await get_winners(request.app, shield=(view == "shields"))
+        render["view_css"] = "players.css"
+        render["users"] = users
+        render["icons"] = VARIANT_ICONS
+        render["winners"] = wi
 
     elif view == "allplayers":
         allusers = [u for u in users.values() if not u.anon]
