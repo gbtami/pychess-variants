@@ -72,7 +72,7 @@ class Twitch:
         ]
         print("--- live_streams() ---")
         print(streams)
-        return streams
+        return []
 
     async def get_oauth_token(self):
         print("---- get_oauth_token() ----")
