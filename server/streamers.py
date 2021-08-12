@@ -1,5 +1,5 @@
 TWITCH_STREAMERS = {
-    "gbtami": "gbtami",
+    #    "gbtami": "gbtami",
     #    "pressive": "dragonb70",
     #    "liuweilieacademy": "liuweilieacademy",
     #    "abunickabhi": "abhijeetgo",
