@@ -59,7 +59,12 @@ async def round_socket_handler(request):
                         # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
                         game = await load_game(request.app, data["gameId"])
                         move = data["move"]
-                        await play_move(request.app, user, game, move, data["clocks"], data["ply"])
+                        ply = data["ply"]
+
+                        if game.board.ply + 1 != ply:
+                            log.info("invalid ply received - probably a re-sent move that has already been processed")
+                        else:
+                            await play_move(request.app, user, game, move, data["clocks"], data["ply"])
 
                     elif data["type"] == "analysis_move":
                         game = await load_game(request.app, data["gameId"])
@@ -181,6 +186,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "rematch":
                         game = await load_game(request.app, data["gameId"])
+                        rematch_id = None
 
                         if game is None:
                             log.debug("Requested game %s not found!")
@@ -223,6 +229,7 @@ async def round_socket_handler(request):
 
                             await engine.event_queue.put(challenge(seek, response))
                             gameId = response["gameId"]
+                            rematch_id = gameId
                             engine.game_queues[gameId] = asyncio.Queue()
                         else:
                             try:
@@ -248,6 +255,7 @@ async def round_socket_handler(request):
                                 seeks[seek.id] = seek
 
                                 response = await new_game(request.app, opp_player, seek.id)
+                                rematch_id = response["gameId"]
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                             else:
@@ -256,6 +264,8 @@ async def round_socket_handler(request):
                                 game.messages.append(response)
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
+                        if rematch_id:
+                            await round_broadcast(game, users, {"type": "view_rematch", "gameId": rematch_id})
 
                     elif data["type"] == "draw":
                         game = await load_game(request.app, data["gameId"])

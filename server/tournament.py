@@ -880,8 +880,8 @@ class Tournament(ABC):
     def discord_msg(self):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
-        return "%s: **%s%s** %s tournament created at UTC %s will start in **%s** minutes" % (
-            self.created_by, self.variant, tail960, tc, self.created_at.strftime("%Y.%m.%d %H:%M"), self.minutes)
+        return "%s: **%s%s** %s tournament starts at UTC %s, duration will be **%s** minutes" % (
+            self.created_by, self.variant, tail960, tc, self.starts_at.strftime("%Y.%m.%d %H:%M"), self.minutes)
 
 
 def tournament_spotlights(tournaments):

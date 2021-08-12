@@ -1,3 +1,4 @@
+
 .shogun .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/merida/bP.svg');
 }
@@ -11,25 +12,25 @@
     background-image: url('../../images/pieces/merida/bR.svg');
 }
 .shogun .cg-wrap piece.f-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bF.svg');
+    background-image: url('../../images/pieces/shogun/merida/blue/bF.svg');
 }
 .shogun .cg-wrap piece.k-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bK.svg');
+    background-image: url('../../images/pieces/merida/bK.svg');
 }
 .shogun .cg-wrap piece.pf-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bQ.svg');
+    background-image: url('../../images/pieces/merida/bQ.svg');
 }
 .shogun .cg-wrap piece.pn-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bG.svg');
+    background-image: url('../../images/pieces/shogun/merida/mono/bG.svg');
 }
 .shogun .cg-wrap piece.pr-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bM.svg');
+    background-image: url('../../images/pieces/shogun/merida/mono/bM.svg');
 }
 .shogun .cg-wrap piece.pb-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bA.svg');
+    background-image: url('../../images/pieces/merida/bAr.svg');
 }
 .shogun .cg-wrap piece.pp-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bC.svg');
+    background-image: url('../../images/pieces/shogun/merida/mono/bC.svg');
 }
 
 .shogun .cg-wrap piece.p-piece.white {
@@ -45,23 +46,23 @@
     background-image: url('../../images/pieces/merida/wR.svg');
 }
 .shogun .cg-wrap piece.f-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wF.svg');
+    background-image: url('../../images/pieces/shogun/merida/blue/wF.svg');
 }
 .shogun .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wK.svg');
+    background-image: url('../../images/pieces/merida/wK.svg');
 }
 .shogun .cg-wrap piece.pf-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wQ.svg');
+    background-image: url('../../images/pieces/merida/wQ.svg');
 }
 .shogun .cg-wrap piece.pn-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wG.svg');
+    background-image: url('../../images/pieces/shogun/merida/mono/wG.svg');
 }
 .shogun .cg-wrap piece.pr-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wM.svg');
+    background-image: url('../../images/pieces/shogun/merida/mono/wM.svg');
 }
 .shogun .cg-wrap piece.pb-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wA.svg');
+    background-image: url('../../images/pieces/merida/wAr.svg');
 }
 .shogun .cg-wrap piece.pp-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wC.svg');
+    background-image: url('../../images/pieces/shogun/merida/mono/wC.svg');
 }

@@ -1,0 +1,67 @@
+.shogun .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/green/bP.svg');
+}
+.shogun .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/green/bB.svg');
+}
+.shogun .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/green/bN.svg');
+}
+.shogun .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/green/bR.svg');
+}
+.shogun .cg-wrap piece.f-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/blue/bF.svg');
+}
+.shogun .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/red/bK.svg');
+}
+.shogun .cg-wrap piece.pf-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/red/bQ.svg');
+}
+.shogun .cg-wrap piece.pn-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/red/bG.svg');
+}
+.shogun .cg-wrap piece.pr-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/red/bM.svg');
+}
+.shogun .cg-wrap piece.pb-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/red/bA.svg');
+}
+.shogun .cg-wrap piece.pp-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/red/bC.svg');
+}
+
+.shogun .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/green/wP.svg');
+}
+.shogun .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/green/wB.svg');
+}
+.shogun .cg-wrap piece.n-piece.white {
+    background-image: url('../../images/pieces/green/wN.svg');
+}
+.shogun .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/green/wR.svg');
+}
+.shogun .cg-wrap piece.f-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/blue/wF.svg');
+}
+.shogun .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/red/wK.svg');
+}
+.shogun .cg-wrap piece.pf-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/red/wQ.svg');
+}
+.shogun .cg-wrap piece.pn-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/red/wG.svg');
+}
+.shogun .cg-wrap piece.pr-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/red/wM.svg');
+}
+.shogun .cg-wrap piece.pb-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/red/wA.svg');
+}
+.shogun .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/red/wC.svg');
+}

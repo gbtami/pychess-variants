@@ -64,9 +64,9 @@ Royal piece	| Value (Early / Late) | Imperial piece | Value (Early / Late)
 -- | -- | -- | --
 Pawn | 120 / 213	| Pawn | 120 / 213
 Queen | 2538 / 2682	| Duke | 1050 / 1150
-Bishop | 825 / 915	| Cardinal	| 1375 / 1480
+Bishop | 825 / 915	| Cardinal	| 1225 / 1420
 Knight | 781 / 854	| Eagle | 1000 / 1075
-Rook | 1276 / 1380	| Tower | 1225 / 1420
+Rook | 1276 / 1380	| Tower | 1375 / 1480
  | | | Soldier | 200 / 270
 ## Strategy
 The game is still young, so strategy is still being developed! 

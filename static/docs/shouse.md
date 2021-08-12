@@ -16,6 +16,26 @@ Drops can be performed with captured pieces, which would be done in lieu of movi
 
 The elephant and hawk are also counted as pieces in hand, so they are able to be dropped on the board starting from the beginning.
 
+## New Pieces
+
+### Hawk
+
+![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
+
+The hawk (H) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+
+The hawk is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+
+The value of a hawk is considered slightly better than a rook, but less than the elephant and queen.
+
+### Elephant
+
+![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ElephantSeirawan.png)
+
+The elephant (E) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+
+The value of an elephant is considered better than a hawk, but equivalent or slightly less than a queen.
+
 ## Strategy
 
 As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
