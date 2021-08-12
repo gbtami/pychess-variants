@@ -59,7 +59,12 @@ async def round_socket_handler(request):
                         # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
                         game = await load_game(request.app, data["gameId"])
                         move = data["move"]
-                        await play_move(request.app, user, game, move, data["clocks"], data["ply"])
+                        ply = data["ply"]
+
+                        if game.board.ply + 1 != ply:
+                            log.info("invalid ply received - probably a re-sent move that has already been processed")
+                        else:
+                            await play_move(request.app, user, game, move, data["clocks"], data["ply"])
 
                     elif data["type"] == "analysis_move":
                         game = await load_game(request.app, data["gameId"])

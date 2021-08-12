@@ -27,7 +27,7 @@ from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
+from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
 from seek import Seek
 from user import User
 from tournaments import load_tournament
@@ -258,8 +258,8 @@ async def shutdown(app):
     for game in app["games"].values():
         await round_broadcast(game, app["users"], response, full=True)
 
-    # No need to wait in unit tests
-    if app["db"] is not None:
+    # No need to wait in dev mode and in unit tests
+    if not DEV and app["db"] is not None:
         print('......WAIT 25')
         await asyncio.sleep(25)
 
