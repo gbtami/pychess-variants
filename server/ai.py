@@ -4,7 +4,6 @@ import logging
 import random
 import string
 from time import monotonic
-import time
 
 from const import MOVE, STARTED
 from utils import play_move
@@ -31,7 +30,6 @@ async def BOT_task(bot, app):
                 continue
             # print("   +++ game_queues get()", event)
             if random_mover:
-                time.sleep(5)
                 await play_move(app, bot, game, game.random_move)
             elif len(app["workers"]) > 0:
                 AI_move(game, level)
