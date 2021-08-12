@@ -101,6 +101,11 @@ export default class RoundController {
     setupFen: string;
     prevPieces: Pieces;
     focus: boolean;
+    lastMaybeSentMsgMove;// Always store the last "move" message that was passed for sending via websocket.
+                         // In case of bad connection, we are never sure if it was sent (thus the name)
+                         // until a "board" message from server is received from server that confirms it.
+                         // So if at any moment connection drops, after reconnect we always resend it.
+                         // If server received and processed it the first time, it will just ignore it
 
     constructor(el, model) {
         this.focus = !document.hidden;
@@ -110,8 +115,24 @@ export default class RoundController {
 
         const onOpen = (evt) => {
             console.log("ctrl.onOpen()", evt);
+            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
+                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
+                // since they are not equal, but also one ply behind, means we should try to re-send it
+                try {
+                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
+                    this.doSend(this.lastMaybeSentMsgMove);
+                } catch (e) {
+                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
+                }
+            }
+
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
+
+            const cl = document.body.classList;//removing the "reconnecting" message in lower left corner
+            cl.remove('offline');
+            cl.add('online');
+
             this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
         };
 
@@ -120,9 +141,15 @@ export default class RoundController {
             onopen: e => onOpen(e),
             onmessage: e => this.onMessage(e),
             onreconnect: e => {
+
                 this.clocks[0].connecting = true;
                 this.clocks[1].connecting = true;
                 console.log('Reconnecting in round...', e);
+
+                //relevant to the "reconnecting" message in lower left corner
+                document.body.classList.add('offline');
+                document.body.classList.remove('online');
+                document.body.classList.add('reconnected');//this will trigger the animation once we get "online" class added back on reconnect
 
                 const container = document.getElementById('player1') as HTMLElement;
                 patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
@@ -589,7 +616,10 @@ export default class RoundController {
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
-        const latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
+        const latestPly = (this.ply === -1 || msg.ply >= this.ply + 1);//when receiving a board msg with full list of moves (aka steps) after reconnecting
+                                                                       // its ply might be ahead with 2 ply - our move that failed to get confirmed
+                                                                       // because of disconnect and then also opp's reply to it, that we didn't
+                                                                       // receive while offline. Not sure if it could be ahead with more than 2 ply
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0 && this.variant.name !== 'janggi') {
@@ -844,7 +874,8 @@ export default class RoundController {
 
         clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.doSend({ type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 });
+        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
+        this.doSend(this.lastMaybeSentMsgMove);
 
         if (this.clockOn) this.clocks[oppclock].start();
     }
