@@ -104,8 +104,8 @@ export default class RoundController {
     lastMaybeSentMsgMove;// Always store the last "move" message that was passed for sending via websocket.
                          // In case of bad connection, we are never sure if it was sent (thus the name)
                          // until a "board" message from server is received from server that confirms it.
-                         // So if at any moment connection drops, after reconnect we always resend it
-                         // if server received it before, it will ignore it
+                         // So if at any moment connection drops, after reconnect we always resend it.
+                         // If server received and processed it the first time, it will just ignore it
 
     constructor(el, model) {
         this.focus = !document.hidden;

@@ -128,6 +128,11 @@ export function updateMovelist (ctrl, full = true, activate = true, needResult =
     }
 
     const container = document.getElementById('movelist') as HTMLElement;
+    if (full){
+        while (container.lastChild) {
+            container.removeChild(container.lastChild);
+        }
+    }
     ctrl.vmovelist = patch(container, h('div#movelist', moves));
 
     if (activate) {
