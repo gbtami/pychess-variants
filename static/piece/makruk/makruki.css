@@ -11,7 +11,7 @@
     background-image: url('../../images/pieces/merida/wR.svg');
 }
 .makruk .cg-wrap piece.m-piece.white {
-    background-image: url('../../images/pieces/shogun/blue/wF.svg');
+    background-image: url('../../images/pieces/shogun/merida/blue/wF.svg');
 }
 .makruk .cg-wrap piece.m-piece.promoted.white {
     background-image: url('../../images/pieces/merida/wF.svg');
@@ -32,7 +32,7 @@
     background-image: url('../../images/pieces/merida/bR.svg');
 }
 .makruk .cg-wrap piece.m-piece.black {
-    background-image: url('../../images/pieces/shogun/blue/bF.svg');
+    background-image: url('../../images/pieces/shogun/merida/blue/bF.svg');
 }
 .makruk .cg-wrap piece.m-piece.promoted.black {
     background-image: url('../../images/pieces/merida/bF.svg');
