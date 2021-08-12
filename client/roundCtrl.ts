@@ -512,6 +512,13 @@ export default class RoundController {
         window.location.assign(this.model["home"] + '/' + msg["gameId"]);
     }
 
+    private onMsgViewRematch = (msg) => {
+        const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
+        let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.model["home"] + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
+        let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
+        patch(rematch_button_location, rematch_button);
+    }
+
     private rematch = () => {
         this.doSend({ type: "rematch", gameId: this.gameId, handicap: this.handicap });
     }
@@ -1273,6 +1280,9 @@ export default class RoundController {
                 break;
             case "new_game":
                 this.onMsgNewGame(msg);
+                break;
+            case "view_rematch":
+                this.onMsgViewRematch(msg);
                 break;
             case "offer":
                 this.onMsgOffer(msg);
