@@ -186,6 +186,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "rematch":
                         game = await load_game(request.app, data["gameId"])
+                        rematch_id = None
 
                         if game is None:
                             log.debug("Requested game %s not found!")
@@ -228,6 +229,7 @@ async def round_socket_handler(request):
 
                             await engine.event_queue.put(challenge(seek, response))
                             gameId = response["gameId"]
+                            rematch_id = gameId
                             engine.game_queues[gameId] = asyncio.Queue()
                         else:
                             try:
@@ -253,6 +255,7 @@ async def round_socket_handler(request):
                                 seeks[seek.id] = seek
 
                                 response = await new_game(request.app, opp_player, seek.id)
+                                rematch_id = response["gameId"]
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                             else:
@@ -261,6 +264,8 @@ async def round_socket_handler(request):
                                 game.messages.append(response)
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
+                        if rematch_id:
+                            await round_broadcast(game, users, {"type": "view_rematch", "gameId" : rematch_id})
 
                     elif data["type"] == "draw":
                         game = await load_game(request.app, data["gameId"])
