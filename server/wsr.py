@@ -265,7 +265,7 @@ async def round_socket_handler(request):
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                         if rematch_id:
-                            await round_broadcast(game, users, {"type": "view_rematch", "gameId" : rematch_id})
+                            await round_broadcast(game, users, {"type": "view_rematch", "gameId": rematch_id})
 
                     elif data["type"] == "draw":
                         game = await load_game(request.app, data["gameId"])
