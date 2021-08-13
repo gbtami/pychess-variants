@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, SHIELD, VARIANTS
+from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, T_FINISHED, T_ARCHIVED, SHIELD, VARIANTS
 from newid import new_id
 from user import User
 
@@ -139,7 +139,6 @@ async def insert_tournament_to_db(tournament, app):
         "i": tournament.inc,
         "bp": tournament.byoyomi_period,
         "f": tournament.fen,
-        "s": tournament.status,
         "y": RATED if tournament.rated else CASUAL,
         "z": int(tournament.chess960),
         "system": tournament.system,
@@ -167,7 +166,7 @@ async def get_winners(app, shield):
             v = variant
             z = 0
 
-        filter_cond = {"v": V2C[v], "z": z}
+        filter_cond = {"v": V2C[v], "z": z, "status": {"$in": [T_FINISHED, T_ARCHIVED]}}
         if shield:
             filter_cond["fr"] = SHIELD
 

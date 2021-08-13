@@ -550,7 +550,10 @@ class Tournament(ABC):
                     "_id": game.id,
                     "tid": self.id,
                     "u": [game.wplayer.username, game.bplayer.username],
-                    "s": game.status,
+                    "r": "*",
+                    "d": game.date,
+                    "wr": game.wrating,
+                    "br": game.brating,
                 }
                 await self.app["db"].tournament_pairing.insert_one(doc)
 
@@ -724,6 +727,10 @@ class Tournament(ABC):
                 wplayer.paused = True
             elif game.board.ply == 1:
                 bplayer.paused = True
+
+        # TODO: save player points to db
+        # await self.db_update_player(wplayer, self.players[wplayer])
+        # await self.db_update_player(bplayer, self.players[bplayer])
 
         self.set_top_player()
 
