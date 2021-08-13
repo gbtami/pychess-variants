@@ -695,7 +695,7 @@ export default class RoundController {
                 // at the same time we are dragging a piece - either we are very fast and managed to grab another piece while
                 // waiting for server's message that confirm the move we just made, or the move we just made was a pre-move/pre-drop
                 // either way we have to init the predrop destinations so they can be highlighted
-                const dropDests = predrop(this.chessground.state.pieces, this.chessground.state.draggable.current.piece, this.chessground.state.variant);
+                const dropDests = predrop(this.chessground.state.pieces, this.chessground.state.draggable.current.piece, this.chessground.state.geometry, this.chessground.state.variant);
                 this.chessground.set({
                     predroppable: {
                         dropDests: dropDests
