@@ -89,9 +89,6 @@ async def init_state(app):
     if "db" not in app:
         app["db"] = None
 
-    app["twitch"] = Twitch(app)
-    # await app["twitch"].init_subscriptions()
-
     app["users"] = {
         "Random-Mover": User(app, bot=True, username="Random-Mover"),
         "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
@@ -122,6 +119,9 @@ async def init_state(app):
 
     # last game played
     app["tv"] = None
+
+    app["twitch"] = Twitch(app)
+    await app["twitch"].init_subscriptions()
 
     # fishnet active workers
     app["workers"] = set()

@@ -1,21 +1,25 @@
+# TODO: store in mongodb
 TWITCH_STREAMERS = {
-    #    "gbtami": "gbtami",
-    #    "pressive": "dragonb70",
-    #    "liuweilieacademy": "liuweilieacademy",
-    #    "abunickabhi": "abhijeetgo",
-    #    "pepellou": "pepellou",
-    #    "JoannaTries": "joannatries",
-    #    "ChessyClub": "wnmmadalinamaria",
-    #    "Toadofsky": "toadofsky",
-    #    "Bournbastic": "mr_bournbastic",
-    #    "JarlCarlander": "jarlcarlanderbughouse",
-    #    "Kleerkast": "kleerkast_chess",
-    #    "Mugwort": "mugwortcrazyhouse",
-    #    "JannLee": "jannleecrazyhouse",
-    #    "okei": "okeizh",
+    "chessbia": "WIM chessbia",
+    "chessdori": "WFM DemeterDorina",
+    "joannatries": "JoannaTries",
+    "wnmmadalinamaria": "WNM ChessyClub",
+    "dragonb70": "IM pressive",
+    "liuweilieacademy": "liuweilieacademy",
+    "abhijeetgo": "abunickabhi",
+    "pepellou": "pepellou",
+    "toadofsky": "Toadofsky",
+    "mr_bournbastic": "Bournbastic",
+    "jarlcarlanderbughouse": "JarlCarlander",
+    "Kleerkast": "kleerkast_chess",
+    "mugwortcrazyhouse": "Mugwort",
+    "jannleecrazyhouse": "NM JannLee",
+    "okeizh": "okei",
+    "gbtami": "gbtami",
 }
 
+# TODO
 YOUTUBE_STREAMERS = {
-    "Janggi-France": "UCksfz2MkgxAKNJDvzemO3iA",
-    "kalavas": "UCCeCZHAoTr4TGDt3hr_AQig",
+    "UCksfz2MkgxAKNJDvzemO3iA": "Janggi-France",
+    "UCCeCZHAoTr4TGDt3hr_AQig": "kalavas",
 }

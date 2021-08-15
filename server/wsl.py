@@ -230,7 +230,7 @@ async def lobby_socket_handler(request):
                         if len(spotlights) > 0:
                             await ws.send_json({"type": "spotlights", "items": spotlights})
 
-                        streams = twitch.live_streams()
+                        streams = twitch.live_streams
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
 
