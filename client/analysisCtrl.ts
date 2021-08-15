@@ -486,10 +486,12 @@ export default class AnalysisController {
             // so we remove from part to avoid that
             lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
         }
-        // save capture state before updating chessground
-        // 960 king takes rook castling is not capture
+
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove !== null) && ((this.chessground.state.pieces[lastMove[1]] && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x'));
+        let capture = false;
+        if (step.san !== undefined) {
+            capture = step.san.slice(1, 2) === 'x';
+        }
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
             sound.moveSound(this.variant, capture);
