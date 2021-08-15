@@ -11,9 +11,9 @@ TWITCH_STREAMERS = {
     "toadofsky": "Toadofsky",
     "mr_bournbastic": "Bournbastic",
     "jarlcarlanderbughouse": "JarlCarlander",
-    "Kleerkast": "kleerkast_chess",
+    "kleerkast_chess": "Kleerkast",
     "mugwortcrazyhouse": "Mugwort",
-    "jannleecrazyhouse": "NM JannLee",
+    "jannleecrazyhouse": "LM JannLee",
     "okeizh": "okei",
     "gbtami": "gbtami",
 }
