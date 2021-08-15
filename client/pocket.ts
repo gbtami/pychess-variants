@@ -132,7 +132,7 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
         setDropMode(ctrl.chessground.state, { color, role });
 
         // TODO:move below lines to drop.ts -> setDropMode
-        if ( ctrl.turnColor === ctrl.mycolor) {
+        if ( ctrl.dests/*very first move with white might be undef*/ && ctrl.turnColor === ctrl.mycolor) {
             const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]); // TODO:ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
             ctrl.chessground.set({
                 dropmode: {
@@ -141,7 +141,7 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
                 }
             });
         } else {
-            // premove logic already moved to setDropMode
+            // predrop logic already moved to setDropMode
         }
 
     } else {
@@ -181,12 +181,14 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
         }
     }
 
-    const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
-    ctrl.chessground.set({
-        dropmode: {
-            dropDests: dropDests,
-        }
-    });
+    if ( ctrl.dests/*very first move with white might be undef*/ && ctrl.turnColor === ctrl.mycolor) {
+        const dropDests = new Map([[role, ctrl.dests[role2san(role) + "@"]]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
+        ctrl.chessground.set({
+            dropmode: {
+                dropDests: dropDests,
+            }
+        });
+    }
 
     e.stopPropagation();
     e.preventDefault();

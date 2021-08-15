@@ -675,7 +675,7 @@ export default class RoundController {
             this.chessground.state.predroppable.dropDests=undefined; // always clean up predrop dests when my turn starts
 
             const pdrole : Role | undefined =
-                this.chessground.state.dropmode.piece?.role ?
+                this.chessground.state.dropmode.active ? // TODO: Sometimes dropmode.piece is not cleaned-up so best check if active==true. Maybe clean it in drop.cancelDropMode() together with everything else there?
                 this.chessground.state.dropmode.piece?.role :
                 this.chessground.state.draggable.current?.piece.role ?
                 this.chessground.state.draggable.current?.piece.role :
