@@ -1,27 +1,22 @@
-<style>
-
+div.guide {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}
 details > summary {
-  padding: 4px;
-  width: 300;
-  background-color: #eeeeee;
-  border: none;
-  box-shadow: 2px 2px 3px black;
-  cursor: pointer;
-  list-style: none;
+    list-style: none;
 }
-
 details > summary::-webkit-details-marker {
-  display: none;
+    display: none;
 }
-
-details > p {
-  border-radius: 0 0 10px 10px;
-  background-color: #eeeeee;
-  padding: 4px;
-  margin: 0;
-  box-shadow: 3px 3px 4px black;
+details[open] {
+    padding: 1em;
+    background-color: var(--bg-color2);
+    border: none;
+    box-shadow: var(--base-shadow);
+    cursor: pointer;
 }
 details[open] > summary {
-  color: #FF0000;
+    color: var(--ct-current);
+    padding-bottom: 1em;
 }
-</style>
