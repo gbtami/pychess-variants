@@ -1,0 +1,27 @@
+<style>
+
+details > summary {
+  padding: 4px;
+  width: 300;
+  background-color: #eeeeee;
+  border: none;
+  box-shadow: 2px 2px 3px black;
+  cursor: pointer;
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details > p {
+  border-radius: 0 0 10px 10px;
+  background-color: #eeeeee;
+  padding: 4px;
+  margin: 0;
+  box-shadow: 3px 3px 4px black;
+}
+details[open] > summary {
+  color: #FF0000;
+}
+</style>
