@@ -105,7 +105,7 @@ You need to have a Lichess account. If you don't already, please go to [Lichess]
 
 <details><summary>*Would logging in with my Lichess account compromise my account/password?*</summary>
 
-No! That is done via OAuth and your password isn't revealed to Pychess, just like how you can log in to third-party websites with your Google or Facebook accounts.</details>
+__No!__ That is done via OAuth and your password isn't revealed to Pychess, just like how you can log in to third-party websites with your Google or Facebook accounts.</details>
 
 <details><summary>*What's the best way to contact the developers?*</summary>
 
