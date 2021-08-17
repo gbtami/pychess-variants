@@ -21,4 +21,7 @@ details > p {
   margin: 0;
   box-shadow: 3px 3px 4px black;
 }
+details[open] > summary {
+  color: #FF0000;
+}
 </style>
