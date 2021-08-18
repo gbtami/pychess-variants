@@ -14,9 +14,12 @@ details[open] {
     background-color: var(--bg-color2);
     border: none;
     box-shadow: var(--base-shadow);
-    cursor: pointer;
 }
 details[open] > summary {
     color: var(--ct-current);
     padding-bottom: 1em;
+}
+summary {
+    color: var(--link-color-blue);
+    cursor: pointer;
 }
