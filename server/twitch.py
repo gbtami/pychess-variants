@@ -133,8 +133,11 @@ class Twitch:
         async with aiohttp.ClientSession() as client_session:
             async with client_session.post(TWITCH_EVENTSUB_API_URL, headers=self.headers, json=data) as resp:
                 response_data = await resp.json()
-                subs = response_data["data"][0]
-                self.subscriptions[subs["id"]] = subs
+                try:
+                    subs = response_data["data"][0]
+                    self.subscriptions[subs["id"]] = subs
+                except KeyError:
+                    log.error("No 'data' in twitch request_subscription() json response: %s", response_data)
 
     async def get_subscriptions(self):
         log.debug("--- get_subscriptions from twitch ---")
