@@ -2,7 +2,7 @@
 
 ![Empire](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empire.png)
 
-Empire Chess is a chess variant designed in 2020 by Couch Tomato with help from Fables, third in the series of asymmetric games (although available to play on Pychess later than the fourth game due to unique pieces that were not yet available). The mighty Empire (Gold army) has heard stories of the mighty queen of the Kingdom (Black army) and has proposed a marriage with its Duke. However, the Kingdom refused, leading to an Imperial invasion led by the Kaiser himself! 
+Empire Chess is a chess variant designed in 2020 by Couch Tomato, third in the series of asymmetric games (although available to play on Pychess later than the fourth game due to unique pieces that were not yet available). The mighty Empire (Gold army) has heard stories of the mighty queen of the Kingdom (Black army) and has proposed a marriage with its Duke. However, the Kingdom refused, leading to an Imperial invasion led by the Kaiser himself! 
 
 The Imperial army is incredibly powerful, with all its pieces stronger than the Royal counterpart as they can all move like queens, but attack like the standard Royal counterparts; the only exception is the counterpart to the Queen, the Duke, which can only attack like a King. For those who have played Orda Chess, this is similar except replace knight movement with Queen movement. 
 
