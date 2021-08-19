@@ -12,6 +12,8 @@ import { key2pos, pos2key } from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation, SetPremoveMetadata } from 'chessgroundx/types';
+import { cancelDropMode } from 'chessgroundx/drop';
+import predrop from 'chessgroundx/predrop';
 
 import { JSONObject } from './types';
 import { _ } from './i18n';
@@ -19,7 +21,7 @@ import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { dropIsValid, pocketView, updatePockets, Pockets } from './pocket';
+import { dropIsValid, pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
 import { sound } from './sound';
 import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
@@ -73,7 +75,7 @@ export default class RoundController {
     ctableContainer: VNode | HTMLElement;
     gating: Gating;
     promotion: Promotion;
-    dests: Dests;
+    dests: Dests; // stores all possible moves for all pieces of the player whose turn it is currently
     promotions: string[];
     lastmove: Key[];
     premove: {orig: Key, dest: Key, metadata?: SetPremoveMetadata} | null;
@@ -91,21 +93,19 @@ export default class RoundController {
     players: string[];
     titles: string[];
     ratings: string[];
-//    clickDrop: Piece | undefined;
-//    clickDropEnabled: boolean;
     animation: boolean;
-    showDests: boolean;
+    showDests: boolean; // TODO:not sure what is the point of this? doesn't chessground (especially now) have plenty of booleans like this for all kind of dests anyway?
     blindfold: boolean;
     handicap: boolean;
     autoqueen: boolean;
     setupFen: string;
     prevPieces: Pieces;
     focus: boolean;
-    lastMaybeSentMsgMove;// Always store the last "move" message that was passed for sending via websocket.
-                         // In case of bad connection, we are never sure if it was sent (thus the name)
-                         // until a "board" message from server is received from server that confirms it.
-                         // So if at any moment connection drops, after reconnect we always resend it.
-                         // If server received and processed it the first time, it will just ignore it
+    lastMaybeSentMsgMove; // Always store the last "move" message that was passed for sending via websocket.
+                          // In case of bad connection, we are never sure if it was sent (thus the name)
+                          // until a "board" message from server is received from server that confirms it.
+                          // So if at any moment connection drops, after reconnect we always resend it.
+                          // If server received and processed it the first time, it will just ignore it
 
     constructor(el, model) {
         this.focus = !document.hidden;
@@ -129,7 +129,7 @@ export default class RoundController {
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
 
-            const cl = document.body.classList;//removing the "reconnecting" message in lower left corner
+            const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
             cl.add('online');
 
@@ -146,10 +146,10 @@ export default class RoundController {
                 this.clocks[1].connecting = true;
                 console.log('Reconnecting in round...', e);
 
-                //relevant to the "reconnecting" message in lower left corner
+                // relevant to the "reconnecting" message in lower left corner
                 document.body.classList.add('offline');
                 document.body.classList.remove('online');
-                document.body.classList.add('reconnected');//this will trigger the animation once we get "online" class added back on reconnect
+                document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
 
                 const container = document.getElementById('player1') as HTMLElement;
                 patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
@@ -181,7 +181,6 @@ export default class RoundController {
 
         this.flip = false;
         this.settings = true;
-//        this.clickDropEnabled = true;
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
@@ -283,6 +282,11 @@ export default class RoundController {
                     move: this.onMove(),
                     dropNewPiece: this.onDrop(),
                     select: this.onSelect(),
+                },
+                dropmode: {
+                    events: {
+                        cancel: this.onCancelDropMode()
+                    }
                 }
             });
         }
@@ -623,10 +627,10 @@ export default class RoundController {
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
-        const latestPly = (this.ply === -1 || msg.ply >= this.ply + 1);//when receiving a board msg with full list of moves (aka steps) after reconnecting
-                                                                       // its ply might be ahead with 2 ply - our move that failed to get confirmed
-                                                                       // because of disconnect and then also opp's reply to it, that we didn't
-                                                                       // receive while offline. Not sure if it could be ahead with more than 2 ply
+        const latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
+                                                                        // its ply might be ahead with 2 ply - our move that failed to get confirmed
+                                                                        // because of disconnect and then also opp's reply to it, that we didn't
+                                                                        // receive while offline. Not sure if it could be ahead with more than 2 ply
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0 && this.variant.name !== 'janggi') {
@@ -659,14 +663,50 @@ export default class RoundController {
                 }
             }
         }
+        const parts = msg.fen.split(" ");
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+
         this.dests = (msg.status < 0) ? msg.dests : {};
+
+        // TODO: this logic ideally belongs in chessground somehow i feel - but where can i put it on turn change and also it depends now on this.dests
+        //       as far as i can tell the analogous logic for setting up move/pre-move destinations is in state.ts->configure->call to setSelected
+        if (this.mycolor === this.turnColor) {
+            // when turn gets mine, if a piece is being dragged or is selected, then pre-drop dests should be hidden and replaced by dests
+            this.chessground.state.predroppable.dropDests=undefined; // always clean up predrop dests when my turn starts
+
+            const pdrole : Role | undefined =
+                this.chessground.state.dropmode.active ? // TODO: Sometimes dropmode.piece is not cleaned-up so best check if active==true. Maybe clean it in drop.cancelDropMode() together with everything else there?
+                this.chessground.state.dropmode.piece?.role :
+                this.chessground.state.draggable.current?.piece.role ?
+                this.chessground.state.draggable.current?.piece.role :
+                undefined;
+
+            if (pdrole) { // is there a pocket piece that is being dragged or is selected for dropping
+              const dropDests = new Map([ [pdrole, this.dests[role2san(pdrole) + "@"] ] ]);
+              this.chessground.set({
+                dropmode: {
+                    dropDests: dropDests
+                    }
+                }); // if yes - show normal dests on turn start after the pre-drop dests were hidden
+            }
+        } else {
+            if (this.chessground.state.draggable.current){
+                // we have just received a message from the server confirming it is not our turn (i.e. we must have just moved a piece)
+                // at the same time we are dragging a piece - either we are very fast and managed to grab another piece while
+                // waiting for server's message that confirm the move we just made, or the move we just made was a pre-move/pre-drop
+                // either way we have to init the predrop destinations so they can be highlighted
+                const dropDests = predrop(this.chessground.state.pieces, this.chessground.state.draggable.current.piece, this.chessground.state.geometry, this.chessground.state.variant);
+                this.chessground.set({
+                    predroppable: {
+                        dropDests: dropDests
+                    }
+                });
+            }
+        }
 
         // list of legal promotion moves
         this.promotions = msg.promo;
         this.clocktimes = msg.clocks;
-
-        const parts = msg.fen.split(" ");
-        this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.result = msg.result;
         this.status = msg.status;
@@ -926,8 +966,6 @@ export default class RoundController {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
-//            } else if (this.clickDropEnabled) {
-//                this.clickDrop = piece;
             }
         }
     }
@@ -991,7 +1029,7 @@ export default class RoundController {
 
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
+            if (position === "top") { // TODO:this refreshes pockets similar to pocket.ts -> updatePockets() - consider moving all pocket related logic there maybe?
                 this.pockets[0][role]++;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
@@ -1010,6 +1048,8 @@ export default class RoundController {
     }
 
     private onUserDrop = (role, dest, meta) => {
+
+        cancelDropMode(this.chessground.state); // drop of new piece was actually performed - lets set dropmode to not active. Maybe this logic better belongs in chessgroudx?
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
@@ -1032,7 +1072,6 @@ export default class RoundController {
         } else {
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
-//            this.clickDrop = undefined;
             this.chessground.set({
                 fen: this.fullfen,
                 lastMove: this.lastmove,
@@ -1052,19 +1091,6 @@ export default class RoundController {
         return (key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
-/* Removed to fix https://github.com/gbtami/pychess-variants/issues/549
-
-            // If drop selection was set dropDests we have to restore dests here
-            if (key != 'a0' && 'a0' in this.chessground.state.movable.dests) {
-                if (this.clickDropEnabled && this.clickDrop !== undefined && dropIsValid(this.dests, this.clickDrop.role, key)) {
-                    this.chessground.newPiece(this.clickDrop, key);
-                    this.onUserDrop(this.clickDrop.role, key, {predrop: this.predrop});
-                }
-                this.clickDrop = undefined;
-                //cancelDropMode(this.chessground.state);
-                this.chessground.set({ movable: { dests: this.dests }});
-            }
-*/
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
@@ -1092,6 +1118,10 @@ export default class RoundController {
                 }
             }
         }
+    }
+
+    private onCancelDropMode = () => {
+        return () => { refreshPockets(this); }
     }
 
     private renderExpiration = () => {

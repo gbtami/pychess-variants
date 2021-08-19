@@ -108,6 +108,11 @@
   position: relative!important;
   background-position: center;
 }
+
+.pocket piece.selected-square{
+  background-color: #14551e80 !important;
+}
+
 .pocket .editor piece {
   flex: 0 0 calc(100% / var(--editorLength));
 }

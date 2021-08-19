@@ -19,3 +19,6 @@ yarn.lock
 *.txt
 *.mo
 .env
+yarn-error.log
+.idea/
+
