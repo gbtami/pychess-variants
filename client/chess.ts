@@ -6,6 +6,12 @@ import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
+const pieceSan = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'] as const;
+export type PieceSan = `${'+' | ''}${typeof pieceSan[number]}`;
+export type DropOrig = `${PieceSan}@`;
+export type UCIOrig = cg.Key | DropOrig;
+export type UCIMove = `${UCIOrig}${cg.Key}`;
+
 export interface BoardFamily {
     geometry: cg.Geometry;
     cg: string;
@@ -885,6 +891,47 @@ export function getJanggiPoints(board: string) {
     return [choPoint, hanPoint];
 }
 
+export function unpromotedRole(variant: IVariant, piece: cg.Piece): cg.Role {
+    if (piece.promoted) {
+        switch (variant.promotion) {
+            case 'shogi':
+            case 'kyoto':
+                return piece.role.slice(1) as cg.Role;
+            default:
+                return 'p-piece';
+        }
+    } else {
+        return piece.role;
+    }
+}
+
+export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
+    const drops = dests[role2san(role) + "@"];
+
+    if (drops === undefined || drops === null) return false;
+
+    return drops.includes(key);
+}
+
+// Convert a list of moves to chessground destination
+export function moveDests(legalMoves: UCIMove[]): cg.Dests {
+    const dests = {};
+    legalMoves.map(uci2cg).forEach(move => {
+        const orig = move.split(0, 2);
+        const dest = move.split(2, 4);
+        if (orig in dests)
+            dests[orig].push(dest);
+        else
+            dests[orig] = [ dest ];
+    });
+    return dests;
+}
+
+// Convert a move to array of squares for last move highlight
+export function uci2array(move: UCIMove): cg.Key[] {
+    const cgMove = uci2cg(move);
+    return cgMove.includes('@') ? [ cgMove.slice(2, 4) ] : [ cgMove.slice(0, 2), cgMove.slice(2, 4) ];
+}
 export function role2letter(role: cg.Role) {
     const letterPart = role.slice(0, role.indexOf('-'));
     return (letterPart.length > 1) ? letterPart.replace('p', '+') : letterPart;
