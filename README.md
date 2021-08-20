@@ -61,6 +61,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 ### Prerequisites
 * [Mongo daemon](https://docs.mongodb.com/manual/installation/) (You need mongodb up and running)
+* [Node](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions) (10.17.0 or later is supported)
 
 
 ### Project setup
