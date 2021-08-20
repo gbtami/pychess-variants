@@ -9,7 +9,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 
-import EditorController from './editor';
+import { EditorController}  from './editorCtrl';
 import { letter2role } from './chess';
 
 const patch = init([klass, attributes, properties, style, listeners]);
