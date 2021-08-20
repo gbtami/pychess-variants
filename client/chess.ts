@@ -1,13 +1,19 @@
 import { h } from 'snabbdom/h';
 
-import { Color, dimensions, Geometry, Role, Key } from 'chessgroundx/types';
-import { key2pos } from 'chessgroundx/util';
+import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
+const pieceSan = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'] as const;
+export type PieceSan = `${'+' | ''}${typeof pieceSan[number]}`;
+export type DropOrig = `${PieceSan}@`;
+export type UCIOrig = cg.Key | DropOrig;
+export type UCIMove = `${UCIOrig}${cg.Key}`;
+
 export interface BoardFamily {
-    geometry: Geometry;
+    geometry: cg.Geometry;
     cg: string;
     boardCSS: string[];
 }
@@ -17,20 +23,20 @@ export interface PieceFamily {
 }
 
 export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
-    standard8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png"] },
-    standard10x8: { geometry: Geometry.dim10x8, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
-    standard10x10: { geometry: Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
-    grand10x10: { geometry: Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
-    makruk8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"] },
-    sittuyin8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
-    shogi9x9: { geometry: Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", 'ShogiGrayTexture.png', "ShogiSpace1.png", "doubutsu.svg", "ShogiOak.png"] },
-    shogi5x5: { geometry: Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png", "MinishogiDobutsu.svg", "MinishogiDobutsu2.svg"] },
-    shogi5x6: { geometry: Geometry.dim5x6, cg: "cg-260-360", boardCSS: ["gorogoro.svg", "gorogoroboard.svg", "gorogoro2.svg"] },
-    shogi3x4: { geometry: Geometry.dim3x4, cg: "cg-156", boardCSS: ["doubutsuboard.svg", "dobutsu3x4.svg"] },
-    xiangqi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg", "xiangqiWikimedia.svg"] },
-    xiangqi7x7: { geometry: Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
-    janggi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
-    shogun8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
+    standard8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png"] },
+    standard10x8: { geometry: cg.Geometry.dim10x8, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
+    standard10x10: { geometry: cg.Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
+    grand10x10: { geometry: cg.Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
+    makruk8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"] },
+    sittuyin8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
+    shogi9x9: { geometry: cg.Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", 'ShogiGrayTexture.png', "ShogiSpace1.png", "doubutsu.svg", "ShogiOak.png"] },
+    shogi5x5: { geometry: cg.Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png", "MinishogiDobutsu.svg", "MinishogiDobutsu2.svg"] },
+    shogi5x6: { geometry: cg.Geometry.dim5x6, cg: "cg-260-360", boardCSS: ["gorogoro.svg", "gorogoroboard.svg", "gorogoro2.svg"] },
+    shogi3x4: { geometry: cg.Geometry.dim3x4, cg: "cg-156", boardCSS: ["doubutsuboard.svg", "dobutsu3x4.svg"] },
+    xiangqi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg", "xiangqiWikimedia.svg"] },
+    xiangqi7x7: { geometry: cg.Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
+    janggi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
+    shogun8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -54,7 +60,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
 };
 
-type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
+type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
 
 const alwaysMandatory: MandatoryPromotionPredicate = () => true;
 
@@ -65,8 +71,8 @@ function distanceBased(required: { [ letter: string ]: number }, boardHeight: nu
     };
 }
 
-function distFromLastRank(dest: Key, color: Color, boardHeight: number) {
-    const rank = key2pos(dest)[1];
+function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) {
+    const rank = util.key2pos(dest)[1];
     return (color === "white") ? boardHeight - rank : rank - 1;
 }
 
@@ -78,7 +84,7 @@ export interface IVariant {
     readonly startFen: string;
 
     readonly board: string;
-    readonly geometry: Geometry;
+    readonly geometry: cg.Geometry;
     readonly boardWidth: number;
     readonly boardHeight: number;
     readonly cg: string;
@@ -90,9 +96,9 @@ export interface IVariant {
     readonly firstColor: string;
     readonly secondColor: string;
 
-    readonly pieceRoles: (color: Color) => string[];
+    readonly pieceRoles: (color: cg.Color) => string[];
     readonly pocket: boolean;
-    readonly pocketRoles: (color: Color) => string[] | null;
+    readonly pocketRoles: (color: cg.Color) => string[] | null;
 
     readonly promotion: string;
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
@@ -125,8 +131,8 @@ class Variant implements IVariant {
     readonly board: string;
     private readonly boardFamily: BoardFamily;
     get geometry() { return this.boardFamily.geometry; }
-    get boardWidth() { return dimensions[this.geometry].width; }
-    get boardHeight() { return dimensions[this.geometry].height; }
+    get boardWidth() { return cg.dimensions[this.geometry].width; }
+    get boardHeight() { return cg.dimensions[this.geometry].height; }
     get cg() { return this.boardFamily.cg; }
     get boardCSS() { return this.boardFamily.boardCSS; }
 
@@ -138,10 +144,10 @@ class Variant implements IVariant {
     readonly secondColor: string;
 
     private readonly _pieceRoles: [ string[], string[] ];
-    pieceRoles(color: Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
+    pieceRoles(color: cg.Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
     readonly pocket: boolean;
     private readonly _pocketRoles: [ string[] | null, string[] | null ];
-    pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
+    pocketRoles(color: cg.Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
     readonly promotion: string;
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
@@ -304,7 +310,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         board: "shogi9x9", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "r", "b", "g", "s", "n", "l", "p", "pr", "pb", "ps", "pn", "pl", "pp"],
+        pieceRoles: ["k", "r", "b", "g", "s", "n", "l", "p", "+r", "+b", "+s", "+n", "+l", "+p"],
         pocketRoles: ["p", "l", "n", "s", "g", "b", "r"],
         promotion: "shogi",
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
@@ -333,7 +339,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         board: "shogi5x5", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "r", "b", "g", "s", "p", "pr", "pb", "ps", "pp"],
+        pieceRoles: ["k", "r", "b", "g", "s", "p", "+r", "+b", "+s", "+p"],
         pocketRoles: ["p", "s", "g", "b", "r"],
         promotion: "shogi",
         isMandatoryPromotion: distanceBased({ p: 1 }, 5),
@@ -349,7 +355,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         board: "shogi5x5", piece: "kyoto",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "pn", "n", "ps", "s", "pl", "l", "pp", "p"],
+        pieceRoles: ["k", "+n", "n", "+s", "s", "+l", "l", "+p", "p"],
         pocketRoles: ["p", "l", "n", "s"],
         promotion: "kyoto",
         isMandatoryPromotion: (_role, orig, _dest, _color) => orig !== 'a0',
@@ -365,7 +371,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         board: "shogi3x4", piece: "dobutsu",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["l", "g", "e", "c", "pc"],
+        pieceRoles: ["l", "g", "e", "c", "+c"],
         pocketRoles: ["e", "g", "c"],
         promotion: "shogi",
         timeControl: "byoyomi",
@@ -380,7 +386,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
         board: "shogi5x6", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "g", "s", "p", "ps", "pp"],
+        pieceRoles: ["k", "g", "s", "p", "+s", "+p"],
         pocketRoles: ["p", "s", "g"],
         promotion: "shogi",
         isMandatoryPromotion: distanceBased({ p: 1 }, 6),
@@ -519,7 +525,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "shogun", tooltip: () => _("Pieces promote and can be dropped, similar to Shogi"),
         startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
         board: "shogun8x8", piece: "shogun",
-        pieceRoles: ["k", "pf", "r", "b", "n", "p", "f", "pr", "pb", "pn", "pp"],
+        pieceRoles: ["k", "+f", "r", "b", "n", "p", "f", "+r", "+b", "+n", "+p"],
         pocketRoles: ["p", "n", "b", "r", "f"],
         promotion: "shogi",
         isMandatoryPromotion: distanceBased({ p: 1 }, 8),
@@ -565,8 +571,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
-        pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "pl", "ph", "pm"],
-        pieceRoles2: ["k", "q", "r", "b", "n", "p", "pp"],
+        pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "+l", "+h", "+m", "+p"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p", "+p"],
         pocketRoles: ["l", "h", "m", "d", "j"],
         pocketRoles2: [],
         promotion: "shogi",
@@ -676,7 +682,7 @@ export function isHandicap(name: string) {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
 }
 
-export function hasCastling(variant: IVariant, color: Color) {
+export function hasCastling(variant: IVariant, color: cg.Color) {
     if (variant.name === 'placement') return true;
     const castl = variant.startFen.split(' ')[2];
     if (color === 'white') {
@@ -758,8 +764,8 @@ export function validFen(variant: IVariant, fen: string) {
     //const startBoardArray = toBoardArray(startBoard);
 
     // Correct board size
-    const boardHeight = dimensions[variant.geometry].height;
-    const boardWidth = dimensions[variant.geometry].width;
+    const boardHeight = cg.dimensions[variant.geometry].height;
+    const boardWidth = cg.dimensions[variant.geometry].width;
 
     if (boardArray.length !== boardHeight) return false;
     if (boardArray.some(row => row.length !== boardWidth)) return false;
@@ -885,16 +891,57 @@ export function getJanggiPoints(board: string) {
     return [choPoint, hanPoint];
 }
 
-export function role2letter(role: Role) {
+export function unpromotedRole(variant: IVariant, piece: cg.Piece): cg.Role {
+    if (piece.promoted) {
+        switch (variant.promotion) {
+            case 'shogi':
+            case 'kyoto':
+                return piece.role.slice(1) as cg.Role;
+            default:
+                return 'p-piece';
+        }
+    } else {
+        return piece.role;
+    }
+}
+
+export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
+    const drops = dests[role2san(role) + "@"];
+
+    if (drops === undefined || drops === null) return false;
+
+    return drops.includes(key);
+}
+
+// Convert a list of moves to chessground destination
+export function moveDests(legalMoves: UCIMove[]): cg.Dests {
+    const dests = {};
+    legalMoves.map(uci2cg).forEach(move => {
+        const orig = move.split(0, 2);
+        const dest = move.split(2, 4);
+        if (orig in dests)
+            dests[orig].push(dest);
+        else
+            dests[orig] = [ dest ];
+    });
+    return dests;
+}
+
+// Convert a move to array of squares for last move highlight
+export function uci2array(move: UCIMove): cg.Key[] {
+    const cgMove = uci2cg(move);
+    return cgMove.includes('@') ? [ cgMove.slice(2, 4) ] : [ cgMove.slice(0, 2), cgMove.slice(2, 4) ];
+}
+export function role2letter(role: cg.Role) {
     const letterPart = role.slice(0, role.indexOf('-'));
     return (letterPart.length > 1) ? letterPart.replace('p', '+') : letterPart;
 }
 
 export function letter2role(letter: string) {
-    return (letter.replace('+', 'p') + '-piece') as Role;
+    return (letter.replace('+', 'p') + '-piece') as cg.Role;
 }
 
-export function role2san(role: Role) {
+export function role2san(role: cg.Role) {
     return role2letter(role).toUpperCase();
 }
 
