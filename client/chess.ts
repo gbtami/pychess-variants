@@ -1,13 +1,13 @@
 import { h } from 'snabbdom/h';
 
-import { Color, dimensions, Geometry, Role, Key } from 'chessgroundx/types';
-import { key2pos } from 'chessgroundx/util';
+import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
 export interface BoardFamily {
-    geometry: Geometry;
+    geometry: cg.Geometry;
     cg: string;
     boardCSS: string[];
 }
@@ -17,20 +17,20 @@ export interface PieceFamily {
 }
 
 export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
-    standard8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png"] },
-    standard10x8: { geometry: Geometry.dim10x8, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
-    standard10x10: { geometry: Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
-    grand10x10: { geometry: Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
-    makruk8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"] },
-    sittuyin8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
-    shogi9x9: { geometry: Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", 'ShogiGrayTexture.png', "ShogiSpace1.png", "doubutsu.svg", "ShogiOak.png"] },
-    shogi5x5: { geometry: Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png", "MinishogiDobutsu.svg", "MinishogiDobutsu2.svg"] },
-    shogi5x6: { geometry: Geometry.dim5x6, cg: "cg-260-360", boardCSS: ["gorogoro.svg", "gorogoroboard.svg", "gorogoro2.svg"] },
-    shogi3x4: { geometry: Geometry.dim3x4, cg: "cg-156", boardCSS: ["doubutsuboard.svg", "dobutsu3x4.svg"] },
-    xiangqi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg", "xiangqiWikimedia.svg"] },
-    xiangqi7x7: { geometry: Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
-    janggi9x10: { geometry: Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
-    shogun8x8: { geometry: Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
+    standard8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png"] },
+    standard10x8: { geometry: cg.Geometry.dim10x8, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
+    standard10x10: { geometry: cg.Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
+    grand10x10: { geometry: cg.Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
+    makruk8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg"] },
+    sittuyin8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg"] },
+    shogi9x9: { geometry: cg.Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", 'ShogiGrayTexture.png', "ShogiSpace1.png", "doubutsu.svg", "ShogiOak.png"] },
+    shogi5x5: { geometry: cg.Geometry.dim5x5, cg: "cg-260", boardCSS: ["minishogi.svg", "MiniboardWood1.png", "MiniboardWood2.png", "MinishogiDobutsu.svg", "MinishogiDobutsu2.svg"] },
+    shogi5x6: { geometry: cg.Geometry.dim5x6, cg: "cg-260-360", boardCSS: ["gorogoro.svg", "gorogoroboard.svg", "gorogoro2.svg"] },
+    shogi3x4: { geometry: cg.Geometry.dim3x4, cg: "cg-156", boardCSS: ["doubutsuboard.svg", "dobutsu3x4.svg"] },
+    xiangqi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg", "xiangqiWikimedia.svg"] },
+    xiangqi7x7: { geometry: cg.Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
+    janggi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
+    shogun8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -54,7 +54,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
 };
 
-type MandatoryPromotionPredicate = (role: Role, orig: Key, dest: Key, color: Color) => boolean;
+type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
 
 const alwaysMandatory: MandatoryPromotionPredicate = () => true;
 
@@ -65,8 +65,8 @@ function distanceBased(required: { [ letter: string ]: number }, boardHeight: nu
     };
 }
 
-function distFromLastRank(dest: Key, color: Color, boardHeight: number) {
-    const rank = key2pos(dest)[1];
+function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) {
+    const rank = util.key2pos(dest)[1];
     return (color === "white") ? boardHeight - rank : rank - 1;
 }
 
@@ -78,7 +78,7 @@ export interface IVariant {
     readonly startFen: string;
 
     readonly board: string;
-    readonly geometry: Geometry;
+    readonly geometry: cg.Geometry;
     readonly boardWidth: number;
     readonly boardHeight: number;
     readonly cg: string;
@@ -90,9 +90,9 @@ export interface IVariant {
     readonly firstColor: string;
     readonly secondColor: string;
 
-    readonly pieceRoles: (color: Color) => string[];
+    readonly pieceRoles: (color: cg.Color) => string[];
     readonly pocket: boolean;
-    readonly pocketRoles: (color: Color) => string[] | null;
+    readonly pocketRoles: (color: cg.Color) => string[] | null;
 
     readonly promotion: string;
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
@@ -125,8 +125,8 @@ class Variant implements IVariant {
     readonly board: string;
     private readonly boardFamily: BoardFamily;
     get geometry() { return this.boardFamily.geometry; }
-    get boardWidth() { return dimensions[this.geometry].width; }
-    get boardHeight() { return dimensions[this.geometry].height; }
+    get boardWidth() { return cg.dimensions[this.geometry].width; }
+    get boardHeight() { return cg.dimensions[this.geometry].height; }
     get cg() { return this.boardFamily.cg; }
     get boardCSS() { return this.boardFamily.boardCSS; }
 
@@ -138,10 +138,10 @@ class Variant implements IVariant {
     readonly secondColor: string;
 
     private readonly _pieceRoles: [ string[], string[] ];
-    pieceRoles(color: Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
+    pieceRoles(color: cg.Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
     readonly pocket: boolean;
     private readonly _pocketRoles: [ string[] | null, string[] | null ];
-    pocketRoles(color: Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
+    pocketRoles(color: cg.Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
     readonly promotion: string;
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
@@ -676,7 +676,7 @@ export function isHandicap(name: string) {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
 }
 
-export function hasCastling(variant: IVariant, color: Color) {
+export function hasCastling(variant: IVariant, color: cg.Color) {
     if (variant.name === 'placement') return true;
     const castl = variant.startFen.split(' ')[2];
     if (color === 'white') {
@@ -758,8 +758,8 @@ export function validFen(variant: IVariant, fen: string) {
     //const startBoardArray = toBoardArray(startBoard);
 
     // Correct board size
-    const boardHeight = dimensions[variant.geometry].height;
-    const boardWidth = dimensions[variant.geometry].width;
+    const boardHeight = cg.dimensions[variant.geometry].height;
+    const boardWidth = cg.dimensions[variant.geometry].width;
 
     if (boardArray.length !== boardHeight) return false;
     if (boardArray.some(row => row.length !== boardWidth)) return false;
@@ -885,16 +885,16 @@ export function getJanggiPoints(board: string) {
     return [choPoint, hanPoint];
 }
 
-export function role2letter(role: Role) {
+export function role2letter(role: cg.Role) {
     const letterPart = role.slice(0, role.indexOf('-'));
     return (letterPart.length > 1) ? letterPart.replace('p', '+') : letterPart;
 }
 
 export function letter2role(letter: string) {
-    return (letter.replace('+', 'p') + '-piece') as Role;
+    return (letter.replace('+', 'p') + '-piece') as cg.Role;
 }
 
-export function role2san(role: Role) {
+export function role2san(role: cg.Role) {
     return role2letter(role).toUpperCase();
 }
 
