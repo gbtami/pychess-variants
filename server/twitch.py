@@ -63,6 +63,9 @@ class Twitch:
         if self.token_valid_until <= datetime.now(timezone.utc):
             await self.get_oauth_token()
 
+        # TODO: if we make SECRET permanent (move it to env vars)
+        # we can call get_subscriptions(), delete_subscription(), request_subscription() on demand only
+        # It is rather time consuming and not necessary to recreate them on every server restart!
         await self.get_subscriptions()
 
         for subscription_id in self.subscriptions:
