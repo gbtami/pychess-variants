@@ -19,7 +19,7 @@ import { _ } from './i18n';
 import { getPockets, VARIANTS, validFen, IVariant, hasCastling } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
-import { updatePockets, Pockets } from './pocket';
+import { updatePockets, Pockets, pockets2str } from './pocket';
 import { copyBoardToPNG } from './png'; 
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
@@ -284,7 +284,7 @@ export class EditorController {
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
-    private setFen = (isInput) => {
+    setFen = (isInput) => {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
@@ -325,6 +325,7 @@ export class EditorController {
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
+        this.pocketsPart = pockets2str(this);
         this.parts[0] = this.chessground.getFen() + this.pocketsPart;
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');

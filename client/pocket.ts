@@ -11,7 +11,7 @@ import { dragNewPiece } from 'chessgroundx/drag';
 import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 import { Color, Role } from 'chessgroundx/types';
 
-import { role2san, letter2role, lc } from './chess';
+import { role2san, letter2role, lc, unpromotedRole } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { EditorController } from './editorCtrl';
@@ -26,6 +26,7 @@ export type Pockets = [Pocket, Pocket];
 // There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
 const eventsDragging = ['mousedown', 'touchmove'];
 const eventsClicking = ['click'];
+const eventsDropping = ['mouseup', 'touchend'];
 
 /**
  *
@@ -44,11 +45,18 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
                         drag(ctrl, e);
                     })
                 );
+                eventsDropping.forEach(name =>
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                        drop(ctrl, e);
+                    })
+                );
+                /* TODO editor clickdrop
                 eventsClicking.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
                         click(ctrl, e);
                     })
                 );
+                */
             }
         };
     } else if (ctrl instanceof AnalysisController) { // enabling both the pocket whose turn it is
@@ -176,14 +184,14 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
     color = el.getAttribute('data-color') as cg.Color,
-    number = el.getAttribute('data-nb');
+    n = Number(el.getAttribute('data-nb'));
     el.setAttribute("canceledDropMode", ""); // We want to know if later in this method cancelDropMode was called,
                                              // so right after mouse button is up and dragging is over if a click event is triggered
                                              // (which annoyingly does happen if mouse is still over same pocket element)
                                              // then we know not to call setDropMode selecting the piece we have just unselected.
                                              // Alternatively we might not cancelDropMode on drag of same piece but then after drag is over
                                              // the selected piece remains selected which is not how board pieces behave and more importantly is counter intuitive
-    if (!role || !color || number === '0') return;
+    if (!role || !color || n === 0) return;
 
     // always cancel drop mode if it is active
     if (ctrl.chessground.state.dropmode.active) {
@@ -193,6 +201,14 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
             // we mark it with this only if we are cancelling the same piece we "drag"
             el.setAttribute("canceledDropMode", "true");
         }
+    }
+
+    if (ctrl instanceof EditorController) { // immediately decrease piece count for editor
+        let index = color === 'white' ? 1 : 0;
+        if (ctrl.flip) index = 1 - index;
+        ctrl.pockets[index][role]!--;
+        refreshPockets(ctrl);
+        ctrl.onChange();
     }
 
     if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {
@@ -209,6 +225,29 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
     e.stopPropagation();
     e.preventDefault();
     dragNewPiece(ctrl.chessground.state, { color, role }, e);
+}
+
+export function drop(ctrl: EditorController, e: cg.MouchEvent): void {
+    console.log("pocket drop()");
+    const el = e.target as HTMLElement;
+    const piece = ctrl.chessground.state.draggable.current?.piece;
+    console.log(piece);
+    if (piece) {
+        const role = unpromotedRole(ctrl.variant, piece);
+        const color = el.getAttribute('data-color') as cg.Color;
+        let index = color === 'white' ? 1 : 0;
+        if (ctrl.flip) index = 1 - index;
+        const pocket = ctrl.pockets[index];
+        console.log(role);
+        console.log(color);
+        console.log(index);
+        console.log(pocket);
+        if (role in pocket) {
+            pocket[role]!++;
+            refreshPockets(ctrl);
+            ctrl.onChange();
+        }
+    }
 }
 
 export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
