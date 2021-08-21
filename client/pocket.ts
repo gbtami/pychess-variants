@@ -14,7 +14,7 @@ import { Color, Role } from 'chessgroundx/types';
 import { role2san, letter2role, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
-import EditorController from './editor';
+import { EditorController } from './editorCtrl';
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
@@ -35,19 +35,33 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     const roles = Object.keys(pocket); // contains the list of possible pieces/roles (i.e. for crazyhouse p-piece, n-piece, b-piece, r-piece, q-piece) in the order they will be displayed in the pocket
 
     let insertHook;
+    // TODO Checking for type here is a mess. Should probably move to their respective classes
     if (ctrl instanceof EditorController) {
-        insertHook = {}; // TODO:editor not implemented for zh. always enable both pockets all the time
+        insertHook = {
+            insert: vnode => {
+                eventsDragging.forEach(name =>
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                        drag(ctrl, e);
+                    })
+                );
+                eventsClicking.forEach(name =>
+                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                        click(ctrl, e);
+                    })
+                );
+            }
+        };
     } else if (ctrl instanceof AnalysisController) { // enabling both the pocket whose turn it is
         insertHook = {
             insert: vnode => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (color===ctrl.turnColor) drag((ctrl as RoundController | AnalysisController), e);
+                        if (color===ctrl.turnColor) drag(ctrl, e);
                     })
                 );
                 eventsClicking.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (color===ctrl.turnColor) click((ctrl as RoundController | AnalysisController), e);
+                        if (color===ctrl.turnColor) click(ctrl, e);
                     })
                 );
             }
@@ -57,12 +71,12 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
             insert: vnode => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (position === (ctrl.flip ? 'top' : 'bottom') ) drag((ctrl as RoundController | AnalysisController), e);
+                        if (position === (ctrl.flip ? 'top' : 'bottom') ) drag(ctrl, e);
                     })
                 );
                 eventsClicking.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (position === (ctrl.flip ? 'top' : 'bottom') ) click((ctrl as RoundController | AnalysisController), e);
+                        if (position === (ctrl.flip ? 'top' : 'bottom') ) click(ctrl, e);
                     })
                 );
             }
@@ -113,7 +127,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     } ) );
 }
 
-export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
+export function click(ctrl: EditorController | RoundController | AnalysisController, e: cg.MouchEvent): void {
 
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
 
@@ -132,16 +146,16 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
         setDropMode(ctrl.chessground.state, { color, role });
 
         // TODO:move below lines to drop.ts -> setDropMode
-        if ( ctrl.dests/*very first move with white might be undef*/ && ctrl.turnColor === ctrl.mycolor) {
-            const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]); // TODO:ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
-            ctrl.chessground.set({
-                dropmode: {
-                    active: true,
-                    dropDests: dropDests
-                }
-            });
-        } else {
-            // predrop logic already moved to setDropMode
+        if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {
+            if (ctrl.dests/*very first move with white might be undef*/) {
+                const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]); // TODO:ideally pocket.ts should move to chessgroundx so dests must be set directly in the controller
+                ctrl.chessground.set({
+                    dropmode: {
+                        active: true,
+                        dropDests: dropDests
+                    }
+                });
+            }
         }
 
     } else {
@@ -155,20 +169,20 @@ export function click(ctrl: RoundController | AnalysisController, e: cg.MouchEve
 /**
  *
  */
-export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEvent): void {
+export function drag(ctrl: EditorController | RoundController | AnalysisController, e: cg.MouchEvent): void {
 
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
-    if (ctrl.spectator && ctrl instanceof RoundController) return;
+    if (ctrl instanceof RoundController && ctrl.spectator) return;
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
     el.setAttribute("canceledDropMode", ""); // We want to know if later in this method cancelDropMode was called,
-                                                                // so right after mouse button is up and dragging is over if a click event is triggered
-                                                                // (which annoyingly does happen if mouse is still over same pocket element)
-                                                                // then we know not to call setDropMode selecting the piece we have just unselected.
-                                                                // Alternatively we might not cancelDropMode on drag of same piece but then after drag is over
-                                                                // the selected piece remains selected which is not how board pieces behave and more importantly is counter intuitive
+                                             // so right after mouse button is up and dragging is over if a click event is triggered
+                                             // (which annoyingly does happen if mouse is still over same pocket element)
+                                             // then we know not to call setDropMode selecting the piece we have just unselected.
+                                             // Alternatively we might not cancelDropMode on drag of same piece but then after drag is over
+                                             // the selected piece remains selected which is not how board pieces behave and more importantly is counter intuitive
     if (!role || !color || number === '0') return;
 
     // always cancel drop mode if it is active
@@ -181,13 +195,15 @@ export function drag(ctrl: RoundController | AnalysisController, e: cg.MouchEven
         }
     }
 
-    if ( ctrl.dests/*very first move with white might be undef*/ && ctrl.turnColor === ctrl.mycolor) {
-        const dropDests = new Map([[role, ctrl.dests[role2san(role) + "@"]]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
-        ctrl.chessground.set({
-            dropmode: {
-                dropDests: dropDests,
-            }
-        });
+    if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {
+        if (ctrl.dests/*very first move with white might be undef*/) {
+            const dropDests = new Map([[role, ctrl.dests[role2san(role) + "@"]]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
+            ctrl.chessground.set({
+                dropmode: {
+                    dropDests: dropDests,
+                }
+            });
+        }
     }
 
     e.stopPropagation();
