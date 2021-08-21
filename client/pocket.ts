@@ -250,12 +250,6 @@ export function drop(ctrl: EditorController, e: cg.MouchEvent): void {
     }
 }
 
-export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
-    const drops = dests[role2san(role) + "@"];
-    if (drops === undefined || drops === null) return false;
-    return drops.indexOf(key) !== -1;
-}
-
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
 export function refreshPockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement) : void {
     // update pockets from FEN
