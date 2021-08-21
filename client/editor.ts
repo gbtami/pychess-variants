@@ -55,7 +55,6 @@ export function editorView(model): VNode[] {
                 ]),
             ]),
 
-            h('div.editorhint', (variant.pocket) ? _('Click/Ctrl+click to increase/decrease number of pieces') : ''),
             h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
