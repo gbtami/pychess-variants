@@ -1,5 +1,4 @@
 import asyncio
-import uvloop
 
 import argparse
 import gettext
@@ -9,6 +8,12 @@ import os
 from operator import neg
 from urllib.parse import urlparse
 from datetime import datetime, timezone
+from sys import platform
+
+if platform != "win32":
+    import uvloop
+else:
+    print("uvloop not installed")
 
 import jinja2
 from aiohttp import web
@@ -35,7 +40,8 @@ from twitch import Twitch
 
 log = logging.getLogger(__name__)
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+if platform != "win32":
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 async def on_prepare(request, response):
