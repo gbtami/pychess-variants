@@ -1040,9 +1040,9 @@ export default class RoundController {
 
         //  gating elephant/hawk
         if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
             this.preaction = false;
         }
     }
