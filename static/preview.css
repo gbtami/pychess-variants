@@ -52,6 +52,9 @@ label.piece.piece1.kyoto {
 label.piece.piece2.kyoto {
     background-image: url('images/pieces/kyoto/Intl/0KA.svg');
 }
+label.piece.piece3.kyoto {
+    background-image: url('images/pieces/shogi/Ka/0KA.svg');
+}
 
 label.piece.piece0.shogi {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');

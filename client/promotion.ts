@@ -26,7 +26,7 @@ export class Promotion {
         this.choices = {};
     }
 
-    start(movingRole: Role, orig: Key, dest: Key) {
+    start(movingRole: Role, orig: Key, dest: Key, disableAutoqueen: boolean = false) {
         const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces[dest] === undefined) return false;
@@ -36,7 +36,7 @@ export class Promotion {
             const orientation = ground.state.orientation;
             const pchoices = this.promotionChoices(movingRole, orig, dest);
 
-            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && this.ctrl.variant.autoQueenable && 'q-piece' in pchoices)
+            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && !disableAutoqueen && this.ctrl.variant.autoQueenable && 'q-piece' in pchoices)
                 this.choices = { 'q-piece': 'q' };
             else
                 this.choices = pchoices;

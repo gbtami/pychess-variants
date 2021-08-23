@@ -46,7 +46,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"] },
     shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0p3d", "shogi0kw3d", "shogi0d", "shogi0im"] },
-    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i"] },
+    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i", "kyoto0d"] },
     dobutsu: { pieceCSS: ["dobutsu0"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa", "xiangqiwikim"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"] },

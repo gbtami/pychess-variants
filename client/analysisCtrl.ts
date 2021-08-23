@@ -768,7 +768,7 @@ export default class AnalysisController {
             }
 
             const tail = move.slice(-1);
-            if (tail > '9' || tail === '+') {
+            if (tail > '9' || tail === '+' || tail === '-') {
                 if (!(this.variant.gate && (move.slice(1, 2) === '1' || move.slice(1, 2) === '8'))) {
                     this.promotions.push(move);
                 }
