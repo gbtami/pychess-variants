@@ -718,16 +718,6 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
-        wplayer.free = True
-        bplayer.free = True
-
-        if game.status == FLAG:
-            # pause players when they don't start their game
-            if game.board.ply == 0:
-                wplayer.paused = True
-            elif game.board.ply == 1:
-                bplayer.paused = True
-
         # TODO: save player points to db
         # await self.db_update_player(wplayer, self.players[wplayer])
         # await self.db_update_player(bplayer, self.players[bplayer])
@@ -751,6 +741,21 @@ class Tournament(ABC):
                     if (self.top_game is not None) and (self.top_game.status <= STARTED):
                         tgj = self.top_game_json
                         await self.broadcast(tgj)
+
+        await self.delayed_free(game, wplayer, bplayer)
+
+    async def delayed_free(self, game, wplayer, bplayer):
+        asyncio.sleep(3)
+
+        wplayer.free = True
+        bplayer.free = True
+
+        if game.status == FLAG:
+            # pause players when they don't start their game
+            if game.board.ply == 0:
+                wplayer.paused = True
+            elif game.board.ply == 1:
+                bplayer.paused = True
 
     async def broadcast(self, response):
         for spectator in self.spectators:
