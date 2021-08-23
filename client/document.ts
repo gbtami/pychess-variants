@@ -8,6 +8,9 @@ export function getDocumentData(name: string) {
 }
 
 export function getPieceImageUrl (role, color) {
+    // Analysis drop move suggestion rendering needs piece images urls in chessground
+    // We can use current variant .css to find appropriate images.
+
     // console.log('getPieceImageUrl()', role, color);
     const el = document.querySelector(`piece.${role}.${color}`) as HTMLElement;
     if (el) {
@@ -16,6 +19,16 @@ export function getPieceImageUrl (role, color) {
             const url = image.split('"')[1];
             if (url) return url.slice(url.indexOf('/static'));
         }
+    }
+    // In Kyoto Shogi not all droppable pieces are rendered in the pockets
+    // because they may be dropped with flipped side as well. To solve this problem
+    // we will construct piece image url from unprotmoted piece urls here.
+    const kyotoPromotedPieceRoles = ['pp-piece', 'pl-piece', 'pn-piece', 'ps-piece'];
+    const idx = kyotoPromotedPieceRoles.indexOf(role);
+    if (idx !== -1) {
+        const unpromoted = getPieceImageUrl(role.slice(1), color);
+        const kyotoPromotedPieceNames = ['HI', 'NY', 'KI', 'KA'];
+        return unpromoted.slice(0, -6) + kyotoPromotedPieceNames[idx] + '.svg'
     }
     return '/static/images/pieces/merida/';
 }
