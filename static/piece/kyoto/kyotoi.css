@@ -22,8 +22,11 @@
 .kyoto .cg-wrap piece.ps-piece.ally {
     background-image: url('../../images/pieces/kyoto/Intl/0KA.svg');
 }
-.kyoto .cg-wrap piece.k-piece.ally {
+.kyoto .cg-wrap piece.k-piece.white.ally {
     background-image: url('../../images/pieces/shogi/ctp/0GY.svg');
+}
+.kyoto .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/shogi/ctp/0OU.svg');
 }
 .kyoto .cg-wrap piece.p-piece.enemy {
     background-image: url('../../images/pieces/kyoto/Intl/1FU.svg');
@@ -49,6 +52,9 @@
 .kyoto .cg-wrap piece.ps-piece.enemy {
     background-image: url('../../images/pieces/kyoto/Intl/1KA.svg');
 }
-.kyoto .cg-wrap piece.k-piece.enemy {
+.kyoto .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/shogi/ctp/1GY.svg');
+}
+.kyoto .cg-wrap piece.k-piece.black.enemy {
     background-image: url('../../images/pieces/shogi/ctp/1OU.svg');
 }

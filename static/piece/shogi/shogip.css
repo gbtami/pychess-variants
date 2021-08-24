@@ -37,8 +37,11 @@
 .shogi .cg-wrap piece.g-piece.ally {
     background-image: url('../../images/pieces/shogi/ctp/0KI.svg');
 }
-.shogi .cg-wrap piece.k-piece.ally {
+.shogi .cg-wrap piece.k-piece.white.ally {
     background-image: url('../../images/pieces/shogi/ctp/0GY.svg');
+}
+.shogi .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/shogi/ctp/0OU.svg');
 }
 .shogi .cg-wrap piece.p-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctp/1FU.svg');
@@ -79,6 +82,9 @@
 .shogi .cg-wrap piece.g-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctp/1KI.svg');
 }
-.shogi .cg-wrap piece.k-piece.enemy {
+.shogi .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/shogi/ctp/1GY.svg');
+}
+.shogi .cg-wrap piece.k-piece.black.enemy {
     background-image: url('../../images/pieces/shogi/ctp/1OU.svg');
 }
