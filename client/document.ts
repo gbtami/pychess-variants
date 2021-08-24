@@ -7,12 +7,11 @@ export function getDocumentData(name: string) {
     }
 }
 
-export function getPieceImageUrl (role, color) {
+export function getPieceImageUrl (role, color, side) {
     // Analysis drop move suggestion rendering needs piece images urls in chessground
     // We can use current variant .css to find appropriate images.
 
-    // console.log('getPieceImageUrl()', role, color);
-    const el = document.querySelector(`piece.${role}.${color}`) as HTMLElement;
+    const el = document.querySelector(`piece.${color}.${role}.${side}`) as HTMLElement;
     if (el) {
         const image = window.getComputedStyle(el, null).getPropertyValue("background-image");
         if (image) {
@@ -26,9 +25,9 @@ export function getPieceImageUrl (role, color) {
     const kyotoPromotedPieceRoles = ['pp-piece', 'pl-piece', 'pn-piece', 'ps-piece'];
     const idx = kyotoPromotedPieceRoles.indexOf(role);
     if (idx !== -1) {
-        const unpromoted = getPieceImageUrl(role.slice(1), color);
+        const unpromoted = getPieceImageUrl(role.slice(1), color, side);
         const kyotoPromotedPieceNames = ['HI', 'NY', 'KI', 'KA'];
-        return unpromoted.slice(0, -6) + kyotoPromotedPieceNames[idx] + '.svg'
+        return unpromoted.slice(0, unpromoted.lastIndexOf('/') + 2) + kyotoPromotedPieceNames[idx] + '.svg'
     }
     return '/static/images/pieces/merida/';
 }

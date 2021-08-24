@@ -73,7 +73,10 @@ class BoardSettings {
         const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
         changePieceCSS(model["asset-url"], family, css);
+        this.updateDropSuggestion();
+    }
 
+    updateDropSuggestion() {
         // Redraw the piece being suggested for dropping in the new piece style
         if (this.ctrl && this.ctrl.hasPockets) {
             const chessground = this.ctrl.chessground;
@@ -83,7 +86,9 @@ class BoardSettings {
                 const classNames = el.getAttribute('className')!.split(' ');
                 const role = classNames[0];
                 const color = classNames[1];
-                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color)! } } });
+                const orientation = this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor;
+                const side = color === orientation ? "ally" : "enemy";
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });
                 chessground.redrawAll();
             }
         }
@@ -158,6 +163,7 @@ class BoardSettings {
         if (this.ctrl) {
             this.ctrl.flip = !this.ctrl.flip;
             this.ctrl.chessground.toggleOrientation();
+            this.updateDropSuggestion();
 
             // console.log("FLIP");
             if (this.ctrl.hasPockets) {

@@ -653,7 +653,9 @@ export default class AnalysisController {
                     let color = turnColor;
 
                     const dropPieceRole = san2role(pv_move.slice(0, atPos));
-                    const url = getPieceImageUrl(dropPieceRole, color);
+                    const orientation = this.flip ? this.oppcolor : this.mycolor;
+                    const side = color === orientation ? "ally" : "enemy";
+                    const url = getPieceImageUrl(dropPieceRole, color, side);
                     this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
 
                     shapes0 = [{
