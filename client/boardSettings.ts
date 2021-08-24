@@ -72,14 +72,6 @@ class BoardSettings {
     updatePieceStyle(family: string) {
         const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        const variant = this.ctrl?.variant;
-        if (this.ctrl && variant && variant.piece === family) {
-            if (variant.sideDetermination === 'direction') {
-                // change piece orientation according to board orientation
-                if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
-                    css = css.replace('0', '1');
-            }
-        }
         changePieceCSS(model["asset-url"], family, css);
 
         // Redraw the piece being suggested for dropping in the new piece style
@@ -160,16 +152,12 @@ class BoardSettings {
         return h('div#board-settings', settingsList);
     }
 
-    // TODO This should be in the "BoardController" class,
-    // which is the common class between RoundController and AnalysisController
-    // (and maybe EditorController)
+    // TODO This should be in the theoretical "ChessgroundController" class,
+    // which is the common class between EditorController, RoundController, and AnalysisController
     toggleOrientation() {
         if (this.ctrl) {
             this.ctrl.flip = !this.ctrl.flip;
             this.ctrl.chessground.toggleOrientation();
-
-            if (this.ctrl.variant.sideDetermination === 'direction')
-                this.updatePieceStyle(this.ctrl.variant.piece);
 
             // console.log("FLIP");
             if (this.ctrl.hasPockets) {

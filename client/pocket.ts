@@ -99,10 +99,13 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
             '--ranks': String(ctrl.variant.boardHeight),
         },
         hook: insertHook
-      }, roles.map(role => {
+    }, roles.map(role => {
         const nb = pocket[role] || 0;
 
         let clazz;
+
+        const orientation = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
+        const side = color === orientation ? "ally" : "enemy";
 
         const dropMode = ctrl.chessground?.state.dropmode;
         const dropPiece = ctrl.chessground?.state.dropmode.piece;
@@ -123,7 +126,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
             };
         }
 
-        return h('piece.' + role + '.' + color, {
+        return h(`piece.${role}.${color}.${side}`, {
             class: clazz,
             attrs: {
                 'data-role': role,

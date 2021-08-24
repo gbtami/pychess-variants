@@ -45,9 +45,9 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"] },
-    shogi: { pieceCSS: ["shogi0k", "shogi0", "shogi0w", "shogi0p", "shogi0m", "shogi0p3d", "shogi0kw3d", "shogi0d", "shogi0im"] },
-    kyoto: { pieceCSS: ["kyoto0", "kyoto0k", "kyoto0i", "kyoto0d"] },
-    dobutsu: { pieceCSS: ["dobutsu0"] },
+    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim"] },
+    kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoi", "kyotod"] },
+    dobutsu: { pieceCSS: ["dobutsu"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa", "xiangqiwikim"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2"] },
@@ -105,7 +105,6 @@ export interface IVariant {
     readonly timeControl: string;
     readonly counting?: string;
     readonly materialPoint?: string;
-    readonly sideDetermination: string;
     readonly enPassant: boolean;
     readonly autoQueenable: boolean;
     readonly drop: boolean;
@@ -154,7 +153,6 @@ class Variant implements IVariant {
     readonly timeControl: string;
     readonly counting?: string;
     readonly materialPoint?: string;
-    readonly sideDetermination: string;
     readonly enPassant: boolean;
     readonly autoQueenable: boolean;
     readonly drop: boolean;
@@ -193,7 +191,6 @@ class Variant implements IVariant {
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
         this.materialPoint = data.materialPoint;
-        this.sideDetermination = data.sideDetermination ?? "color";
         this.enPassant = data.enPassant ?? false;
         this.autoQueenable = data.autoQueenable ?? false;
         this.drop = data.drop ?? false;
@@ -315,7 +312,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         promotion: "shogi",
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
         timeControl: "byoyomi",
-        sideDetermination: "direction",
         pieceSound: "shogi",
         drop: true,
         alternateStart: {
@@ -344,7 +340,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         promotion: "shogi",
         isMandatoryPromotion: distanceBased({ p: 1 }, 5),
         timeControl: "byoyomi",
-        sideDetermination: "direction",
         pieceSound: "shogi",
         drop: true,
         icon: "6",
@@ -360,7 +355,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         promotion: "kyoto",
         isMandatoryPromotion: (_role, orig, _dest, _color) => orig !== 'a0',
         timeControl: "byoyomi",
-        sideDetermination: "direction",
         pieceSound: "shogi",
         drop: true,
         icon: ")",
@@ -375,7 +369,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pocketRoles: ["e", "g", "c"],
         promotion: "shogi",
         timeControl: "byoyomi",
-        sideDetermination: "direction",
         pieceSound: "shogi",
         drop: true,
         icon: "8",
@@ -391,7 +384,6 @@ export const VARIANTS: { [name: string]: IVariant } = {
         promotion: "shogi",
         isMandatoryPromotion: distanceBased({ p: 1 }, 6),
         timeControl: "byoyomi",
-        sideDetermination: "direction",
         pieceSound: "shogi",
         drop: true,
         icon: "🐱",

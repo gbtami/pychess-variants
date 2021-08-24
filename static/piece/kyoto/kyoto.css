@@ -1,63 +1,69 @@
-.kyoto .cg-wrap piece.p-piece.white {
+.kyoto .cg-wrap piece.p-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0FUKyoto.svg');
 }
 /* rook */
-.kyoto .cg-wrap piece.pp-piece.white {
+.kyoto .cg-wrap piece.pp-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0HI.svg');
 }
-.kyoto .cg-wrap piece.n-piece.white {
+.kyoto .cg-wrap piece.n-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0KE.svg');
 }
 /* gold */
-.kyoto .cg-wrap piece.pn-piece.white {
+.kyoto .cg-wrap piece.pn-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0KI.svg');
 }
-.kyoto .cg-wrap piece.l-piece.white {
+.kyoto .cg-wrap piece.l-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0KY.svg');
 }
 /* tokin */
-.kyoto .cg-wrap piece.pl-piece.white {
+.kyoto .cg-wrap piece.pl-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0TOKyoto.svg');
 }
-.kyoto .cg-wrap piece.s-piece.white {
+.kyoto .cg-wrap piece.s-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0GI.svg');
 }
 /* bishop */
-.kyoto .cg-wrap piece.ps-piece.white {
+.kyoto .cg-wrap piece.ps-piece.ally {
     background-image: url('../../images/pieces/shogi/ctk/0KA.svg');
 }
-.kyoto .cg-wrap piece.k-piece.white {
+.kyoto .cg-wrap piece.k-piece.white.ally {
     background-image: url('../../images/pieces/shogi/ctk/0GY.svg');
 }
+.kyoto .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0OU.svg');
+}
 
-.kyoto .cg-wrap piece.p-piece.black {
+.kyoto .cg-wrap piece.p-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1FUKyoto.svg');
 }
 /* rook */
-.kyoto .cg-wrap piece.pp-piece.black {
+.kyoto .cg-wrap piece.pp-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1HI.svg');
 }
-.kyoto .cg-wrap piece.n-piece.black {
+.kyoto .cg-wrap piece.n-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1KE.svg');
 }
 /* gold */
-.kyoto .cg-wrap piece.pn-piece.black {
+.kyoto .cg-wrap piece.pn-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1KI.svg');
 }
-.kyoto .cg-wrap piece.l-piece.black {
+.kyoto .cg-wrap piece.l-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1KY.svg');
 }
 /* tokin */
-.kyoto .cg-wrap piece.pl-piece.black {
+.kyoto .cg-wrap piece.pl-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1TOKyoto.svg');
 }
-.kyoto .cg-wrap piece.s-piece.black {
+.kyoto .cg-wrap piece.s-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1GI.svg');
 }
 /* bishop */
-.kyoto .cg-wrap piece.ps-piece.black {
+.kyoto .cg-wrap piece.ps-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1KA.svg');
 }
-.kyoto .cg-wrap piece.k-piece.black {
+.kyoto .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1GY.svg');
+}
+.kyoto .cg-wrap piece.k-piece.black.enemy {
     background-image: url('../../images/pieces/shogi/ctk/1OU.svg');
 }

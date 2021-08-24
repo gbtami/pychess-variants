@@ -1,84 +1,90 @@
-.shogi .cg-wrap piece.p-piece.white {
+.shogi .cg-wrap piece.p-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0FU.svg');
 }
-.shogi .cg-wrap piece.pp-piece.white {
+.shogi .cg-wrap piece.pp-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0TO.svg');
 }
-.shogi .cg-wrap piece.b-piece.white {
+.shogi .cg-wrap piece.b-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0KA.svg');
 }
-.shogi .cg-wrap piece.pb-piece.white {
+.shogi .cg-wrap piece.pb-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0UM.svg');
 }
-.shogi .cg-wrap piece.n-piece.white {
+.shogi .cg-wrap piece.n-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0KE.svg');
 }
-.shogi .cg-wrap piece.pn-piece.white {
+.shogi .cg-wrap piece.pn-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0NK.svg');
 }
-.shogi .cg-wrap piece.r-piece.white {
+.shogi .cg-wrap piece.r-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0HI.svg');
 }
-.shogi .cg-wrap piece.pr-piece.white {
+.shogi .cg-wrap piece.pr-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0RY.svg');
 }
-.shogi .cg-wrap piece.l-piece.white {
+.shogi .cg-wrap piece.l-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0KY.svg');
 }
-.shogi .cg-wrap piece.pl-piece.white {
+.shogi .cg-wrap piece.pl-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0NY.svg');
 }
-.shogi .cg-wrap piece.s-piece.white {
+.shogi .cg-wrap piece.s-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0GI.svg');
 }
-.shogi .cg-wrap piece.ps-piece.white {
+.shogi .cg-wrap piece.ps-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0NG.svg');
 }
-.shogi .cg-wrap piece.g-piece.white {
+.shogi .cg-wrap piece.g-piece.ally {
     background-image: url('../../images/pieces/shogi/ctw/0KI.svg');
 }
-.shogi .cg-wrap piece.k-piece.white {
+.shogi .cg-wrap piece.k-piece.white.ally {
     background-image: url('../../images/pieces/shogi/ctw/0GY.svg');
 }
-.shogi .cg-wrap piece.p-piece.black {
+.shogi .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/shogi/ctw/0OU.svg');
+}
+.shogi .cg-wrap piece.p-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1FU.svg');
 }
-.shogi .cg-wrap piece.pp-piece.black {
+.shogi .cg-wrap piece.pp-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1TO.svg');
 }
-.shogi .cg-wrap piece.b-piece.black {
+.shogi .cg-wrap piece.b-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1KA.svg');
 }
-.shogi .cg-wrap piece.pb-piece.black {
+.shogi .cg-wrap piece.pb-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1UM.svg');
 }
-.shogi .cg-wrap piece.n-piece.black {
+.shogi .cg-wrap piece.n-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1KE.svg');
 }
-.shogi .cg-wrap piece.pn-piece.black {
+.shogi .cg-wrap piece.pn-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1NK.svg');
 }
-.shogi .cg-wrap piece.r-piece.black {
+.shogi .cg-wrap piece.r-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1HI.svg');
 }
-.shogi .cg-wrap piece.pr-piece.black {
+.shogi .cg-wrap piece.pr-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1RY.svg');
 }
-.shogi .cg-wrap piece.l-piece.black {
+.shogi .cg-wrap piece.l-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1KY.svg');
 }
-.shogi .cg-wrap piece.pl-piece.black {
+.shogi .cg-wrap piece.pl-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1NY.svg');
 }
-.shogi .cg-wrap piece.s-piece.black {
+.shogi .cg-wrap piece.s-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1GI.svg');
 }
-.shogi .cg-wrap piece.ps-piece.black {
+.shogi .cg-wrap piece.ps-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1NG.svg');
 }
-.shogi .cg-wrap piece.g-piece.black {
+.shogi .cg-wrap piece.g-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1KI.svg');
 }
-.shogi .cg-wrap piece.k-piece.black {
+.shogi .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/shogi/ctw/1GY.svg');
+}
+.shogi .cg-wrap piece.k-piece.black.enemy {
     background-image: url('../../images/pieces/shogi/ctw/1OU.svg');
 }
