@@ -156,6 +156,7 @@ export class Promotion {
         const left = leftFile * (100 / dim.width);
 
         const direction = color === orientation ? "top" : "bottom";
+        const side = color === orientation ? "ally" : "enemy";
 
         const choices = Object.keys(this.choices);
         const topRank = Math.max(0, (color === "white") ? dim.height - pos[1] + 1 - choices.length : pos[1] - choices.length);
@@ -172,16 +173,16 @@ export class Promotion {
                 }
             }
         },
-            choices.map((serverRole, i) => {
+            choices.map((role, i) => {
                 const top = (color === orientation ? topRank + i : dim.height - 1 - topRank - i) * (100 / dim.height);
                 return h("square", {
                     style: { top: top + "%", left: left + "%" },
                     hook: bind("click", e => {
                         e.stopPropagation();
-                        this.finish(serverRole);
+                        this.finish(role);
                     }, false)
                 },
-                    [ h("piece." + serverRole + "." + color) ]
+                    [ h(`piece.${role}.${color}.${side}`) ]
                 );
             })
         );
