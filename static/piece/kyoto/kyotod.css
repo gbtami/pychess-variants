@@ -14,7 +14,7 @@
     background-image: url('../../images/pieces/shogi/Ka/0KY.svg');
 }
 .kyoto .cg-wrap piece.pl-piece.ally {
-    background-image: url('../../images/pieces/shogi/Ka/0NY.svg');
+    background-image: url('../../images/pieces/shogi/Ka/0TO.svg');
 }
 .kyoto .cg-wrap piece.s-piece.ally {
     background-image: url('../../images/pieces/shogi/Ka/0GI.svg');
@@ -44,7 +44,7 @@
     background-image: url('../../images/pieces/shogi/Ka/1KY.svg');
 }
 .kyoto .cg-wrap piece.pl-piece.enemy {
-    background-image: url('../../images/pieces/shogi/Ka/1NY.svg');
+    background-image: url('../../images/pieces/shogi/Ka/1TO.svg');
 }
 .kyoto .cg-wrap piece.s-piece.enemy {
     background-image: url('../../images/pieces/shogi/Ka/1GI.svg');
