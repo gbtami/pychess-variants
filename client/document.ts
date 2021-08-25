@@ -26,7 +26,7 @@ export function getPieceImageUrl (role, color, side) {
     const idx = kyotoPromotedPieceRoles.indexOf(role);
     if (idx !== -1) {
         const unpromoted = getPieceImageUrl(role.slice(1), color, side);
-        const kyotoPromotedPieceNames = ['HI', 'NY', 'KI', 'KA'];
+        const kyotoPromotedPieceNames = ['HI', 'TO', 'KI', 'KA'];
         return unpromoted.slice(0, unpromoted.lastIndexOf('/') + 2) + kyotoPromotedPieceNames[idx] + '.svg'
     }
     return '/static/images/pieces/merida/';
