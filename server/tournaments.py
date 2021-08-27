@@ -17,7 +17,7 @@ from misc import time_control_str
 log = logging.getLogger(__name__)
 
 
-async def create_tournament(app, username, form):
+async def create_or_update_tournament(app, username, form, tournament=None):
     variant = form["variant"]
     variant960 = variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
@@ -49,7 +49,7 @@ then must defend it during the next %s Shield tournament!
     data = {
         "name": name,
         "createdBy": username,
-        "rated": form["rated"] == "true" and form["position"] == "",
+        "rated": form["rated"] == RATED and form["position"] == "",
         "variant": variant_name,
         "chess960": variant960,
         "base": base,
@@ -63,7 +63,12 @@ then must defend it during the next %s Shield tournament!
         "fen": form["position"],
         "description": description,
     }
-    tournament = await new_tournament(app, data)
+    if tournament is None:
+        tournament = await new_tournament(app, data)
+    else:
+        # We want to update some data of the tournament created by new_tournament() befor
+        # upsert=True will do this update at the end of upsert_tournament_to_db()
+        await upsert_tournament_to_db(tournament, app)
 
     await tournament.broadcast_spotlight()
 
@@ -118,18 +123,17 @@ async def new_tournament(app, data):
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)
 
-    await insert_tournament_to_db(tournament, app)
+    await upsert_tournament_to_db(tournament, app)
 
     return tournament
 
 
-async def insert_tournament_to_db(tournament, app):
+async def upsert_tournament_to_db(tournament, app):
     # unit test app may have no db
     if app["db"] is None:
         return
 
-    document = {
-        "_id": tournament.id,
+    new_data = {
         "name": tournament.name,
         "d": tournament.description,
         "fr": tournament.frequency,
@@ -151,8 +155,11 @@ async def insert_tournament_to_db(tournament, app):
         "status": tournament.status,
     }
 
-    result = await app["db"].tournament.insert_one(document)
-    print("db insert tournament result %s" % repr(result.inserted_id))
+    try:
+        await app["db"].tournament.find_one_and_update({"_id": tournament.id}, {"$set": new_data}, upsert=True)
+    except Exception:
+        if app["db"] is not None:
+            log.error("Failed to save tournament data to mongodb!")
 
 
 async def get_winners(app, shield):

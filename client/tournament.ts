@@ -751,7 +751,7 @@ export function tournamentView(model): VNode[] {
             h('div.box', [
                 h('div.tour-header', [
                     h('div#trophy'),
-                    h('h1', model["title"]),
+                    h('h1', model["tournamentname"]),
                     h('div#clockdiv'),
                 ]),
                 h('div#podium'),

@@ -19,7 +19,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name
+from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -28,7 +28,7 @@ from misc import time_control_str
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
-from tournaments import get_winners, get_latest_tournaments, load_tournament, create_tournament
+from tournaments import get_winners, get_latest_tournaments, load_tournament, create_or_update_tournament
 
 log = logging.getLogger(__name__)
 
@@ -130,15 +130,29 @@ async def index(request):
         if user.username in ADMINS:
             if request.path.endswith("/new"):
                 view = "arena-new"
+            elif request.path.endswith("/edit"):
+                view = "arena-new"
+                tournament = await load_tournament(request.app, tournamentId)
+                if tournament is None or tournament.status != T_CREATED:
+                    view = "tournaments"
             elif request.path.endswith("/arena"):
                 data = await request.post()
-                await create_tournament(request.app, user.username, data)
+                await create_or_update_tournament(request.app, user.username, data)
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
 
         if tournament is None:
             return web.HTTPFound("/")
+
+        if user.username in ADMINS and tournament.status == T_CREATED:
+            if request.path.endswith("/edit"):
+                data = await request.post()
+                await create_or_update_tournament(request.app, user.username, data, tournament=tournament)
+
+            elif request.path.endswith("/cancel"):
+                await tournament.abort()
+                return web.HTTPFound("/tournaments")
 
         if request.path.endswith("/pause") and user in tournament.players:
             await tournament.pause(user)
@@ -354,7 +368,8 @@ async def index(request):
 
     if tournamentId is not None:
         render["tournamentid"] = tournamentId
-        render["profile_title"] = tournament.name
+        render["tournamentname"] = tournament.name
+        render["description"] = tournament.description
         render["variant"] = tournament.variant
         render["chess960"] = tournament.chess960
         render["rated"] = RATED if tournament.rated else CASUAL
@@ -362,7 +377,11 @@ async def index(request):
         render["inc"] = tournament.inc
         render["byo"] = tournament.byoyomi_period
         render["fen"] = tournament.fen
+        render["before_start"] = tournament.before_start
+        render["minutes"] = tournament.minutes
         render["date"] = tournament.starts_at
+        render["rounds"] = tournament.rounds
+        render["frequency"] = tournament.frequency
         render["status"] = tournament.status
 
     if view == "level8win":
@@ -404,6 +423,9 @@ async def index(request):
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant
         render["fen"] = fen
+
+    elif view == "arena-new":
+        render["edit"] = tournamentId is not None
 
     try:
         text = await template.render_async(render)

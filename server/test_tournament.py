@@ -16,7 +16,7 @@ from newid import id8
 from server import make_app
 from user import User
 from tournament import Tournament
-from tournaments import insert_tournament_to_db, new_tournament
+from tournaments import upsert_tournament_to_db, new_tournament
 from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
@@ -141,7 +141,7 @@ async def create_arena_test(app):
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)
 
-    await insert_tournament_to_db(tournament, app)
+    await upsert_tournament_to_db(tournament, app)
 
 #    await tournament.join_players(6)
     await tournament.join_players(19)
