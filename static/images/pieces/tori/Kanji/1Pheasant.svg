@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="52.157"
+   height="60"
+   version="1.1"
+   id="svg1717"
+   sodipodi:docname="1Pheasant.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0FU.png"
+   inkscape:export-xdpi="394.90497"
+   inkscape:export-ydpi="394.90497">
+  <metadata
+     id="metadata1723">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1721" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     id="namedview1719"
+     showgrid="false"
+     inkscape:zoom="15.733334"
+     inkscape:cx="21.896245"
+     inkscape:cy="30.158296"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1717"
+     inkscape:document-rotation="0"
+     inkscape:snap-nodes="true" />
+  <!--
+Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
+See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyokusho(svg).svg
+-->
+  <filter
+     id="drop-shadow">
+    <feGaussianBlur
+       in="SourceAlpha"
+       result="blur"
+       stdDeviation="2"
+       id="feGaussianBlur1692" />
+    <feOffset
+       result="offsetBlur"
+       dx="2"
+       dy="2"
+       id="feOffset1694" />
+    <feBlend
+       in="SourceGraphic"
+       in2="offsetBlur"
+       mode="normal"
+       id="feBlend1696" />
+  </filter>
+  <g
+     transform="matrix(-0.69,0,0,-0.69,334.14449,58.734715)"
+     id="g4015"
+     style="opacity:0.99;stroke-width:1.44928;stroke-miterlimit:4;stroke-dasharray:none">
+    <g
+       id="g15629"
+       transform="matrix(1.05,0,0,1.05,-20.038637,-4.2262906)"
+       style="opacity:1;stroke-width:1.38026;stroke-miterlimit:4;stroke-dasharray:none">
+      <g
+         id="g8374-5"
+         style="display:inline;fill:url(#linearGradient65888);fill-opacity:1;stroke-width:0.892994;stroke-miterlimit:4;stroke-dasharray:none"
+         transform="matrix(1.5899868,0,0,1.5025623,-39.067767,-37.525531)">
+        <g
+           transform="matrix(0.91071172,0,0,0.91071172,314.41299,25.949093)"
+           id="g5079-1-9-6"
+           style="display:inline;fill:url(#linearGradient32927);fill-opacity:1;stroke-width:0.980545;stroke-miterlimit:4;stroke-dasharray:none">
+          <path
+             sodipodi:nodetypes="cccccc"
+             d="M -11.427438,7.4389654 -24.093477,11.5394 -30.848999,54.295684 7.9923047,54.295504 1.2450445,11.591512 Z"
+             id="path5063-7-5-8"
+             inkscape:connector-curvature="0"
+             style="fill:#fff6d5;fill-opacity:1;stroke:#000000;stroke-width:0.980545;stroke-miterlimit:4;stroke-dasharray:none" />
+        </g>
+      </g>
+    </g>
+  </g>
+  <g
+     id="g11614"
+     transform="rotate(-180,25.882462,29.459995)">
+    <g
+       aria-label="雉"
+       id="text6558"
+       style="font-size:32px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none">
+      <path
+         d="m 32.843083,35.163139 c -1.416667,0.166667 -2.416667,0.166667 -3,0 -0.583333,-0.25 -0.625,-0.416667 -0.125,-0.5 0.583333,-0.08333 1.625,-0.333333 3.125,-0.75 v -2.375 c -0.583333,0.08333 -1.166667,0.125 -1.75,0.125 -0.5,0 -0.916667,-0.08333 -1.25,-0.25 -0.25,-0.166667 -0.166667,-0.291667 0.25,-0.375 0.416667,-0.08333 1.333333,-0.375 2.75,-0.875 0,-0.75 -0.04167,-1.541667 -0.125,-2.375 -0.75,0.08333 -1.416667,0.125 -2,0.125 -0.583333,0 -1.083333,-0.08333 -1.5,-0.25 -0.333333,-0.25 -0.04167,-0.458333 0.875,-0.625 0.916667,-0.25 2,-0.583333 3.25,-1 1.25,-0.416667 2.208333,-0.75 2.875,-1 0.666667,-0.25 1.375,-0.25 2.125,0 0.75,0.25 0.666667,0.541667 -0.25,0.875 -0.833333,0.333333 -2.083333,0.791667 -3.75,1.375 0.166667,0.25 0.208333,1 0.125,2.25 l 1.5,-0.375 c 0.416667,-0.08333 0.75,-0.04167 1,0.125 0.25,0.08333 0.208333,0.291667 -0.125,0.625 -0.333333,0.25 -1.166667,0.625 -2.5,1.125 v 2.375 c 0.666667,-0.166667 1.208333,-0.291667 1.625,-0.375 0.5,-0.166667 1,-0.125 1.5,0.125 0.583333,0.166667 0.333333,0.5 -0.75,1 -1,0.416667 -1.791667,0.666667 -2.375,0.75 l -0.25,2.75 c 1.666667,-0.5 3.041667,-0.75 4.125,-0.75 1.083333,0 1.833333,0.333333 2.25,1 0.5,0.583333 0.125,0.833333 -1.125,0.75 -1.25,-0.166667 -2.791667,-0.125 -4.625,0.125 -1.833333,0.166667 -3.25,0.416667 -4.25,0.75 -1,0.25 -1.75,0.291667 -2.25,0.125 0,2.5 -0.166667,4.083333 -0.5,4.75 -0.333333,0.75 -0.75,0.541667 -1.25,-0.625 -0.416667,-1.166667 -0.5,-2.083333 -0.25,-2.75 0.333333,-0.75 0.541667,-2.541667 0.625,-5.375 0.166667,-2.833333 0.208333,-5 0.125,-6.5 -0.08333,-1.5 -0.333333,-2.458333 -0.75,-2.875 -0.916667,0.916667 -1.625,1.458333 -2.125,1.625 -0.5,0.08333 -0.458333,-0.166667 0.125,-0.75 0.583333,-0.583333 1.333333,-1.583333 2.25,-3 0.916667,-1.5 1.416667,-2.5 1.5,-3 0.08333,-0.583333 0.08333,-1.083333 0,-1.5 -0.08333,-0.416667 0.125,-0.541667 0.625,-0.375 0.5,0.166667 1,0.458333 1.5,0.875 0.5,0.333333 0.5,0.708333 0,1.125 -0.416667,0.416667 -1.583333,1.958333 -3.5,4.625 0.5,0.166667 0.875,0.458333 1.125,0.875 0.333333,0.333333 0.5,0.916667 0.5,1.75 v 10.25 l 2,-0.25 c 0.666667,-0.166667 1.541667,-0.375 2.625,-0.625 z m -16,-7.75 c 2,-0.583333 3.458333,-1.083333 4.375,-1.5 1,-0.416667 1.708333,-0.458333 2.125,-0.125 0.5,0.333333 0.291667,0.708333 -0.625,1.125 -0.833333,0.333333 -1.75,0.625 -2.75,0.875 0.333333,0.416667 0.458333,0.75 0.375,1 -0.08333,0.166667 -0.166667,0.833333 -0.25,2 0.833333,-0.333333 1.666667,-0.625 2.5,-0.875 0.833333,-0.333333 1.541667,-0.291667 2.125,0.125 0.666667,0.416667 0.333333,0.75 -1,1 -1.333333,0.25 -2.541667,0.541667 -3.625,0.875 -0.08333,0.583333 -0.166667,1.208333 -0.25,1.875 1.666667,0.5 2.791667,1.083333 3.375,1.75 0.666667,0.583333 0.875,1.291667 0.625,2.125 -0.166667,0.75 -0.708333,0.583333 -1.625,-0.5 -0.916667,-1.166667 -1.75,-2.083333 -2.5,-2.75 -0.166667,0.833333 -0.625,1.875 -1.375,3.125 -0.75,1.25 -1.708333,2.208333 -2.875,2.875 -1.166667,0.666667 -1.583333,0.875 -1.25,0.625 0.333333,-0.333333 0.833333,-0.916667 1.5,-1.75 0.75,-0.916667 1.375,-1.958333 1.875,-3.125 0.583333,-1.25 0.916667,-2.5 1,-3.75 -2.5,0.75 -3.854873,1.291667 -4.604873,1.625 -0.666667,0.25 -1.208333,0.25 -1.625,0 -0.333333,-0.333333 -0.708333,-0.666667 -1.125,-1 -0.333333,-0.333333 -0.125,-0.458333 0.625,-0.375 0.75,0 2.813206,-0.5 6.729873,-1.5 0.08333,-1 0.04167,-2 -0.125,-3 -0.75,0 -1.458333,-0.08333 -2.125,-0.25 -0.666667,0.5 -1.25,0.833333 -1.75,1 -0.416667,0.166667 -0.25,-0.208333 0.5,-1.125 0.75,-0.916667 1.5,-2.166667 2.25,-3.75 0.833333,-1.666667 1.166667,-2.833333 1,-3.5 -0.08333,-0.666667 0.166667,-0.916667 0.75,-0.75 0.583333,0.166667 1.125,0.416667 1.625,0.75 0.583333,0.333333 0.625,0.708333 0.125,1.125 -0.5,0.416667 -1.083333,1.208333 -1.75,2.375 -0.666667,1.166667 -1.416667,2.291667 -2.25,3.375 z m 16.25,-3.375 c -1.25,-1.083333 -1.791667,-1.708333 -1.625,-1.875 0.166667,-0.166667 0.833333,-0.125 2,0.125 1.166667,0.25 1.708333,0.875 1.625,1.875 0,1 -0.666667,0.958333 -2,-0.125 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;font-family:Kaiti;-inkscape-font-specification:Kaiti;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+         id="path6560"
+         sodipodi:nodetypes="cccccscsccsccssscccccccccccccscccccccccsccsccssccccscccccccccccccsccccccssccccccccccccsccscssccsscc" />
+    </g>
+  </g>
+</svg>
