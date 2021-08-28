@@ -1,13 +1,116 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 260 360">
-   <defs>
-      <pattern id="grid" width="52" height="60" patternUnits="userSpaceOnUse">
-        <rect width="52" height="60" style="fill:#FDD775;stroke-width:2;stroke:black"/>
-      </pattern>
-    </defs>
-    <rect width="260" height="360" fill="url(#grid)" />
-    <circle cx="52" cy="120" r="4"/>
-    <circle cx="52" cy="240" r="4"/>
-    <circle cx="208" cy="120" r="4"/>
-    <circle cx="208" cy="240" r="4"/>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 260 360"
+   id="svg851"
+   sodipodi:docname="GorogoroPlain.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   width="260"
+   height="360">
+  <metadata
+     id="metadata855">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     id="namedview853"
+     showgrid="false"
+     inkscape:zoom="2.220839"
+     inkscape:cx="8.8155515"
+     inkscape:cy="253.77484"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg851"
+     inkscape:document-rotation="0" />
+  <defs
+     id="defs839">
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern3317"
+       id="pattern3323" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#grid"
+       id="pattern3317" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern2153"
+       id="pattern2159" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#grid"
+       id="pattern2153" />
+    <pattern
+       id="grid"
+       width="52"
+       height="60"
+       patternUnits="userSpaceOnUse">
+      <rect
+         width="52"
+         height="60"
+         style="fill:#FFFFFF;fill-opacity:0.0;stroke-width:2;stroke:black"
+         id="rect836" />
+    </pattern>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath2155">
+      <rect
+         id="rect2157"
+         height="540"
+         width="468"
+         style="fill:url(#pattern2159)"
+         x="0"
+         y="0" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3319">
+      <rect
+         width="468"
+         height="540"
+         id="rect3321"
+         style="fill:url(#pattern3323)"
+         x="0"
+         y="0" />
+    </clipPath>
+  </defs>
+  <rect
+     style="opacity:1;fill:#fdd775;fill-opacity:1;stroke:none;stroke-width:19.4501;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+     id="rect14625"
+     width="260"
+     height="360"
+     x="0"
+     y="0" />
+  <path
+     inkscape:connector-curvature="0"
+     d="M 5.0000001e-7,1.25e-6 V 360.00046 M 52,1.25e-6 V 360.00046 M 104,1.25e-6 V 360.00046 M 156,1.25e-6 V 360.00046 M 208,1.25e-6 V 360.00046 M 260,1.25e-6 V 360.00046 M 5.0000001e-7,1.25e-6 H 259.97051 M 5.0000001e-7,60.000002 H 259.97051 M 5.0000001e-7,120 H 259.97051 M 5e-7,180 H 259.97051 M 5e-7,240 H 259.97051 M 5e-7,300 H 259.97051 M 5e-7,360 H 259.97051"
+     style="fill:none;stroke:#000000;stroke-width:1px"
+     id="path22173"
+     sodipodi:nodetypes="cccccccccccccccccccccccccc" />
 </svg>
