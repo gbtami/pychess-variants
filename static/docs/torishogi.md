@@ -8,19 +8,13 @@
 
 Tori Shogi rules are very similar to Shogi, so we will break it down to rules that are the same and rules that are different. The goal is to checkmate the opposing player's **Phoenix**, which is essentially the King.
 
-### Rules Modified from Shogi
-
-* Board size and pieces are almost completely different from Shogi (see Pieces below)
-* **Only two pieces promote. The promotion zone is the last two ranks of the board.** (In Shogi, almost all pieces promote, and the promotion zone is the last three ranks.) As in Shogi, pieces may promote by either moving (not dropping) into the promotion zone, or beginning a move from the promotion zone.
-* A swallow (equivalent of a pawn) cannot be dropped into a file containing ***two*** swallows of the same player. In Shogi, a pawn cannot be dropped when there is only one pawn in a file.
-* * **Repetition** - The rule for repetition (千日手 sennichite) in Tori Shogi is that if the same position occurs three times with the same player to play by repetition of moves, the player starting the sequence must vary the move. For two positions to be considered the same, the pieces in hand must be the same, as well as the position on the board. Note that in Shogi, repetition leads to a draw.
-
-### Rules Maintained from Shogi 
-
 * **Drops** - Captured pieces can be dropped back onto the board as your move.
-* **Dropped Swallows cannot immediately mate** - Dropping a Swallow to immediately mate the opposing Phoenix. Currently, this will act as an *illegal move* in Pychess, causing the player to lose.
-* You may not drop a piece where it can't move, such as a Swallow on the last rank.
-* A Swallow must promote if it moves to the last rank.
+* **Illegal drop - Dropped Swallows cannot immediately mate** - Dropping a Swallow to immediately mate the opposing Phoenix. Currently, this will act as an *illegal move* in Pychess, causing the player to lose. 
+* **Illegal drop - A swallow (equivalent of a pawn) cannot be dropped into a file containing *two* swallows of the same player**. This is different from Shogi, where the rule is only *one* pawn is allowed in each file.
+* **Illegal drop - You may not drop a piece where it can't move, such as a Swallow on the last rank.**
+* **Promotions** - Certain pieces can promote. This happens either moving (not dropping) into the promotion zone, or beginning a move from the promotion zone. The promotion zone is the last two ranks of the board. *Only two* pieces promote (unlike Shogi).
+* A Swallow *must* promote if it moves to the last rank.
+* **Repetition** - The rule for repetition (千日手 sennichite) in Tori Shogi is that if the same position occurs three times with the same player to play by repetition of moves, the player starting the sequence must vary the move. For two positions to be considered the same, the pieces in hand must be the same, as well as the position on the board. Note that in Shogi, repetition leads to a draw.
 * **Stalemate** is a loss for the player who cannot move their Phoenix. Note that this is technically not the actual rule: the real rule is an illegal move is a loss. Stalemate is a condition where the stalemated player can only make illegal moves.
 
 *Sente/Gote* - In Pychess, sente/gote correspond to black/white. *Sente* means the first player, and in the default set, is indicated by a dark-winged phoenix.
