@@ -209,6 +209,8 @@ header {
     position: relative;
     height: var(--site-header-height);
     z-index: 106;
+    max-width: 1800px;
+    margin: 0 auto;
 }
 
 iframe {
