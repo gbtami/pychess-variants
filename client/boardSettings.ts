@@ -15,7 +15,7 @@ import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
 import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
-import EditorController from './editor';
+import { EditorController } from './editorCtrl';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
@@ -72,16 +72,11 @@ class BoardSettings {
     updatePieceStyle(family: string) {
         const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        const variant = this.ctrl?.variant;
-        if (this.ctrl && variant && variant.piece === family) {
-            if (variant.sideDetermination === 'direction') {
-                // change piece orientation according to board orientation
-                if (this.ctrl.flip !== (this.ctrl.mycolor === "black")) // exclusive or
-                    css = css.replace('0', '1');
-            }
-        }
         changePieceCSS(model["asset-url"], family, css);
+        this.updateDropSuggestion();
+    }
 
+    updateDropSuggestion() {
         // Redraw the piece being suggested for dropping in the new piece style
         if (this.ctrl && this.ctrl.hasPockets) {
             const chessground = this.ctrl.chessground;
@@ -91,7 +86,9 @@ class BoardSettings {
                 const classNames = el.getAttribute('className')!.split(' ');
                 const role = classNames[0];
                 const color = classNames[1];
-                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color)! } } });
+                const orientation = this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor;
+                const side = color === orientation ? "ally" : "enemy";
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });
                 chessground.redrawAll();
             }
         }
@@ -160,16 +157,13 @@ class BoardSettings {
         return h('div#board-settings', settingsList);
     }
 
-    // TODO This should be in the "BoardController" class,
-    // which is the common class between RoundController and AnalysisController
-    // (and maybe EditorController)
+    // TODO This should be in the theoretical "ChessgroundController" class,
+    // which is the common class between EditorController, RoundController, and AnalysisController
     toggleOrientation() {
         if (this.ctrl) {
             this.ctrl.flip = !this.ctrl.flip;
             this.ctrl.chessground.toggleOrientation();
-
-            if (this.ctrl.variant.sideDetermination === 'direction')
-                this.updatePieceStyle(this.ctrl.variant.piece);
+            this.updateDropSuggestion();
 
             // console.log("FLIP");
             if (this.ctrl.hasPockets) {

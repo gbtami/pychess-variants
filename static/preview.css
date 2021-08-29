@@ -15,6 +15,100 @@ label.piece {
 label.board {
     background-size: 90%;
 }
+
+label.board.board0.standard8x8 {
+    background-image: url('images/board/8x8brown.svg');
+}
+label.board.board1.standard8x8 {
+    background-image: url('images/board/8x8blue.svg');
+}
+label.board.board2.standard8x8 {
+    background-image: url('images/board/8x8green.svg');
+}
+label.board.board3.standard8x8 {
+    background-image: url('images/board/8x8maple.jpg');
+}
+label.board.board4.standard8x8 {
+    background-image: url('images/board/8x8olive.jpg');
+}
+label.board.board5.standard8x8 {
+    background-image: url('images/board/8x8santa.png');
+}
+
+label.board.board0.standard10x8 {
+    background-image: url('images/board/10x8brown.svg');
+}
+label.board.board1.standard10x8 {
+    background-image: url('images/board/10x8blue.svg');
+}
+label.board.board2.standard10x8 {
+    background-image: url('images/board/10x8green.svg');
+}
+label.board.board3.standard10x8 {
+    background-image: url('images/board/10x8maple.jpg');
+}
+label.board.board4.standard10x8 {
+    background-image: url('images/board/10x8olive.jpg');
+}
+
+label.board.board0.standard10x10 {
+    background-image: url('images/board/10x10brown.svg');
+}
+label.board.board1.standard10x10 {
+    background-image: url('images/board/10x10blue.svg');
+}
+label.board.board2.standard10x10 {
+    background-image: url('images/board/10x10green.svg');
+}
+label.board.board3.standard10x10 {
+    background-image: url('images/board/10x10maple.jpg');
+}
+label.board.board4.standard10x10 {
+    background-image: url('images/board/10x10olive.jpg');
+}
+
+label.board.board0.grand10x10 {
+    background-image: url('images/board/Grandboard.svg');
+}
+label.board.board1.grand10x10 {
+    background-image: url('images/board/10x10brown.svg');
+}
+label.board.board2.grand10x10 {
+    background-image: url('images/board/10x10blue.svg');
+}
+label.board.board3.grand10x10 {
+    background-image: url('images/board/10x10green.svg');
+}
+label.board.board4.grand10x10 {
+    background-image: url('images/board/10x10maple.jpg');
+}
+label.board.board5.grand10x10 {
+    background-image: url('images/board/10x10mapleGrand.png');
+}
+
+label.board.board0.makruk8x8 {
+    background-image: url('images/board/makruk2.svg');
+}
+label.board.board1.makruk8x8 {
+    background-image: url('images/board/makruk.svg');
+}
+label.board.board2.makruk8x8 {
+    background-image: url('images/board/makruk.jpg');
+}
+
+label.board.board0.sittuyin8x8 {
+    background-image: url('images/board/sittuyin.svg');
+}
+label.board.board1.sittuyin8x8 {
+    background-image: url('images/board/sittuyin.jpg');
+}
+label.board.board2.sittuyin8x8 {
+    background-image: url('images/board/sittuyingreen.svg');
+}
+label.board.board3.sittuyin8x8 {
+    background-image: url('images/board/sittuyinGrainBrown.svg');
+}
+
 label.board.board0.shogi9x9 {
     background-image: url('images/board/shogi.svg');
 }
@@ -43,42 +137,17 @@ label.board.board8.shogi9x9 {
     background-image: url('images/board/ShogiOak.png');
 }
 
-label.piece.piece0.kyoto {
-    background-image: url('images/pieces/shogi/ctk/0KA.svg');
+label.board.board0.shogi7x7 {
+    background-image: url('images/board/ToriPlain.svg');
 }
-label.piece.piece1.kyoto {
-    background-image: url('images/pieces/kyoto/Kanji/0KA.svg');
+label.board.board1.shogi7x7 {
+    background-image: url('images/board/ToriWood.svg');
 }
-label.piece.piece2.kyoto {
-    background-image: url('images/pieces/kyoto/Intl/0KA.svg');
+label.board.board2.shogi7x7 {
+    background-image: url('images/board/ToriDaySky.svg');
 }
-
-label.piece.piece0.shogi {
-    background-image: url('images/pieces/shogi/ctk/0KA.svg');
-}
-label.piece.piece1.shogi {
-    background-image: url('images/pieces/shogi/2kanji/0KA.svg');
-}
-label.piece.piece2.shogi {
-    background-image: url('images/pieces/shogi/ctw/0KA.svg');
-}
-label.piece.piece3.shogi {
-    background-image: url('images/pieces/shogi/ctp/0KA.svg');
-}
-label.piece.piece4.shogi {
-    background-image: url('images/pieces/shogi/ctm/0KA.svg');
-}
-label.piece.piece5.shogi {
-    background-image: url('images/pieces/shogi/ctp3d/0KA.svg');
-}
-label.piece.piece6.shogi {
-    background-image: url('images/pieces/shogi/ctkw3d/0KA.svg');
-}
-label.piece.piece7.shogi {
-    background-image: url('images/pieces/shogi/Ka/0KA.svg');
-}
-label.piece.piece8.shogi {
-    background-image: url('images/pieces/shogi/ctim/0KA.svg');
+label.board.board3.shogi7x7 {
+    background-image: url('images/board/ToriNightSky.svg');
 }
 
 label.board.board0.shogi5x5 {
@@ -106,34 +175,15 @@ label.board.board1.shogi5x6 {
 label.board.board2.shogi5x6 {
     background-image: url('images/board/gorogoro2.svg');
 }
-
-label.piece.piece0.dobutsu {
-    background-image: url('images/pieces/shogi/Ka/0GY.svg');
+label.board.board3.shogi5x6 {
+    background-image: url('images/board/GorogoroWood.png');
 }
+
 label.board.board0.shogi3x4 {
     background-image: url('images/board/doubutsuboard.svg');
 }
 label.board.board1.shogi3x4 {
     background-image: url('images/board/dobutsu3x4.svg');
-}
-
-label.board.board0.janggi9x10 {
-    background-image: url('images/board/JanggiBrown.svg');
-}
-label.board.board1.janggi9x10 {
-    background-image: url('images/board/JanggiPaper.png');
-}
-label.board.board2.janggi9x10 {
-    background-image: url('images/board/JanggiWood.png');
-}
-label.board.board3.janggi9x10 {
-    background-image: url('images/board/JanggiDark.svg');
-}
-label.board.board4.janggi9x10 {
-    background-image: url('images/board/JanggiWoodDark.svg');
-}
-label.board.board5.janggi9x10 {
-    background-image: url('images/board/JanggiStone.svg');
 }
 
 label.board.board0.xiangqi9x10 {
@@ -168,144 +218,23 @@ label.board.board2.xiangqi7x7 {
     background-image: url('images/board/minixqlg.svg');
 }
 
-label.piece.piece0.janggi {
-    background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
+label.board.board0.janggi9x10 {
+    background-image: url('images/board/JanggiBrown.svg');
 }
-label.piece.piece1.janggi {
-    background-image: url('images/pieces/janggi/hanjagreen/blue_king.svg');
+label.board.board1.janggi9x10 {
+    background-image: url('images/board/JanggiPaper.png');
 }
-label.piece.piece2.janggi {
-    background-image: url('images/pieces/janggi/intlkakao/blue_king.svg');
+label.board.board2.janggi9x10 {
+    background-image: url('images/board/JanggiWood.png');
 }
-label.piece.piece3.janggi {
-    background-image: url('images/pieces/janggi/intlwooden/blue_king.svg');
+label.board.board3.janggi9x10 {
+    background-image: url('images/board/JanggiDark.svg');
 }
-label.piece.piece4.janggi {
-    background-image: url('images/pieces/janggi/Ka_kakao/blue_king.svg');
+label.board.board4.janggi9x10 {
+    background-image: url('images/board/JanggiWoodDark.svg');
 }
-label.piece.piece5.janggi {
-    background-image: url('images/pieces/janggi/Ka_wooden/blue_king.svg');
-}
-
-label.piece.piece0.xiangqi {
-    background-image: url('images/pieces/xiangqi/playok/red_king.svg');
-}
-label.piece.piece1.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct3/red_king.svg');
-}
-label.piece.piece2.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
-}
-label.piece.piece3.xiangqi {
-    background-image: url('images/pieces/xiangqi/hnz/red_king.svg');
-}
-label.piece.piece4.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
-}
-label.piece.piece5.xiangqi {
-    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
-}
-label.piece.piece6.xiangqi {
-    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
-}
-label.piece.piece7.xiangqi {
-    background-image: url('images/pieces/xiangqi/wikim/red_king.svg');
-}
-
-label.piece.piece0.seirawan {
-    background-image: url('images/pieces/merida/wH.svg');
-}
-label.piece.piece1.seirawan {
-    background-image: url('images/pieces/merida/wA.svg');
-}
-label.piece.piece2.seirawan {
-    background-image: url('images/pieces/green/wH.svg');
-}
-label.piece.piece3.seirawan {
-    background-image: url('images/pieces/merida/wAr.svg');
-}
-label.piece.piece4.seirawan {
-    background-image: url('images/pieces/kaneo/wH.svg');
-}
-
-label.board.board0.standard10x8 {
-    background-image: url('images/board/10x8brown.svg');
-}
-label.board.board1.standard10x8 {
-    background-image: url('images/board/10x8blue.svg');
-}
-label.board.board2.standard10x8 {
-    background-image: url('images/board/10x8green.svg');
-}
-label.board.board3.standard10x8 {
-    background-image: url('images/board/10x8maple.jpg');
-}
-label.board.board4.standard10x8 {
-    background-image: url('images/board/10x8olive.jpg');
-}
-
-label.board.board0.grand10x10 {
-    background-image: url('images/board/Grandboard.svg');
-}
-label.board.board1.grand10x10 {
-    background-image: url('images/board/10x10brown.svg');
-}
-label.board.board2.grand10x10 {
-    background-image: url('images/board/10x10blue.svg');
-}
-label.board.board3.grand10x10 {
-    background-image: url('images/board/10x10green.svg');
-}
-label.board.board4.grand10x10 {
-    background-image: url('images/board/10x10maple.jpg');
-}
-label.board.board5.grand10x10 {
-    background-image: url('images/board/10x10mapleGrand.png');
-}
-
-label.board.board0.standard10x10 {
-    background-image: url('images/board/10x10brown.svg');
-}
-label.board.board1.standard10x10 {
-    background-image: url('images/board/10x10blue.svg');
-}
-label.board.board2.standard10x10 {
-    background-image: url('images/board/10x10green.svg');
-}
-label.board.board3.standard10x10 {
-    background-image: url('images/board/10x10maple.jpg');
-}
-label.board.board4.standard10x10 {
-    background-image: url('images/board/10x10olive.jpg');
-}
-
-label.piece.piece0.shako {
-    background-image: url('images/pieces/merida/shako/wC.svg');
-}
-label.piece.piece1.shako {
-    background-image: url('images/pieces/kaneo/wC.svg');
-}
-label.piece.piece2.shako {
-    background-image: url('images/pieces/green/synoshako/wC.svg');
-}
-
-label.piece.piece0.shogun {
-    background-image: url('images/pieces/shogun/merida/blue/wC.svg');
-}
-label.piece.piece1.shogun {
-    background-image: url('images/pieces/shogun/merida/red/wC.svg');
-}
-label.piece.piece2.shogun {
-    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
-}
-label.piece.piece3.shogun {
-    background-image: url('images/pieces/shogun/cburnett/blue/wC.svg');
-}
-label.piece.piece4.shogun {
-    background-image: url('images/pieces/shogun/cburnett/red/wC.svg');
-}
-label.piece.piece5.shogun {
-    background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
+label.board.board5.janggi9x10 {
+    background-image: url('images/board/JanggiStone.svg');
 }
 
 label.board.board0.shogun8x8 {
@@ -327,6 +256,22 @@ label.board.board5.shogun8x8 {
     background-image: url('images/board/8x8maple.jpg');
 }
 
+label.piece.piece0.standard {
+    background-image: url('images/pieces/merida/wN.svg');
+}
+label.piece.piece1.standard {
+    background-image: url('images/pieces/green/wN.svg');
+}
+label.piece.piece2.standard {
+    background-image: url('images/pieces/alpha/wN.svg');
+}
+label.piece.piece3.standard {
+    background-image: url('images/pieces/kaneo/wN.svg');
+}
+label.piece.piece4.standard {
+    background-image: url('images/pieces/santa/wN.png');
+}
+
 label.piece.piece0.capa {
     background-image: url('images/pieces/merida/wA.svg');
 }
@@ -343,27 +288,20 @@ label.piece.piece4.capa {
     background-image: url('images/pieces/kaneo/wA.svg');
 }
 
-label.board.board0.sittuyin8x8 {
-    background-image: url('images/board/sittuyin.svg');
+label.piece.piece0.seirawan {
+    background-image: url('images/pieces/merida/wH.svg');
 }
-label.board.board1.sittuyin8x8 {
-    background-image: url('images/board/sittuyin.jpg');
+label.piece.piece1.seirawan {
+    background-image: url('images/pieces/merida/wA.svg');
 }
-label.board.board2.sittuyin8x8 {
-    background-image: url('images/board/sittuyingreen.svg');
+label.piece.piece2.seirawan {
+    background-image: url('images/pieces/green/wH.svg');
 }
-label.board.board3.sittuyin8x8 {
-    background-image: url('images/board/sittuyinGrainBrown.svg');
+label.piece.piece3.seirawan {
+    background-image: url('images/pieces/merida/wAr.svg');
 }
-
-label.board.board0.makruk8x8 {
-    background-image: url('images/board/makruk2.svg');
-}
-label.board.board1.makruk8x8 {
-    background-image: url('images/board/makruk.svg');
-}
-label.board.board2.makruk8x8 {
-    background-image: url('images/board/makruk.jpg');
+label.piece.piece4.seirawan {
+    background-image: url('images/pieces/kaneo/wH.svg');
 }
 
 label.piece.piece0.makruk {
@@ -398,39 +336,129 @@ label.piece.piece4.sittuyin  {
     background-image: url('images/pieces/merida/bS.svg');
 }
 
-label.board.board0.standard8x8 {
-    background-image: url('images/board/8x8brown.svg');
+label.piece.piece0.shogi {
+    background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
-label.board.board1.standard8x8 {
-    background-image: url('images/board/8x8blue.svg');
+label.piece.piece1.shogi {
+    background-image: url('images/pieces/shogi/2kanji/0KA.svg');
 }
-label.board.board2.standard8x8 {
-    background-image: url('images/board/8x8green.svg');
+label.piece.piece2.shogi {
+    background-image: url('images/pieces/shogi/ctw/0KA.svg');
 }
-label.board.board3.standard8x8 {
-    background-image: url('images/board/8x8maple.jpg');
+label.piece.piece3.shogi {
+    background-image: url('images/pieces/shogi/ctp/0KA.svg');
 }
-label.board.board4.standard8x8 {
-    background-image: url('images/board/8x8olive.jpg');
+label.piece.piece4.shogi {
+    background-image: url('images/pieces/shogi/ctm/0KA.svg');
 }
-label.board.board5.standard8x8 {
-    background-image: url('images/board/8x8santa.png');
+label.piece.piece5.shogi {
+    background-image: url('images/pieces/shogi/ctp3d/0KA.svg');
+}
+label.piece.piece6.shogi {
+    background-image: url('images/pieces/shogi/ctkw3d/0KA.svg');
+}
+label.piece.piece7.shogi {
+    background-image: url('images/pieces/shogi/Ka/0KA.svg');
+}
+label.piece.piece8.shogi {
+    background-image: url('images/pieces/shogi/ctim/0KA.svg');
 }
 
-label.piece.piece0.standard {
-    background-image: url('images/pieces/merida/wN.svg');
+label.piece.piece0.kyoto {
+    background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
-label.piece.piece1.standard {
-    background-image: url('images/pieces/green/wN.svg');
+label.piece.piece1.kyoto {
+    background-image: url('images/pieces/kyoto/Kanji/0KA.svg');
 }
-label.piece.piece2.standard {
-    background-image: url('images/pieces/alpha/wN.svg');
+label.piece.piece2.kyoto {
+    background-image: url('images/pieces/kyoto/Intl/0KA.svg');
 }
-label.piece.piece3.standard {
-    background-image: url('images/pieces/kaneo/wN.svg');
+label.piece.piece3.kyoto {
+    background-image: url('images/pieces/shogi/Ka/0KA.svg');
 }
-label.piece.piece4.standard {
-    background-image: url('images/pieces/santa/wN.png');
+
+label.piece.piece0.dobutsu {
+    background-image: url('images/pieces/shogi/Ka/0GY.svg');
+}
+
+label.piece.piece0.tori {
+    background-image: url('images/pieces/tori/Intl/0PhoenixBlack.svg');
+}
+label.piece.piece1.tori {
+    background-image: url('images/pieces/tori/Kanji/0Phoenix.svg');
+}
+
+label.piece.piece0.xiangqi {
+    background-image: url('images/pieces/xiangqi/playok/red_king.svg');
+}
+label.piece.piece1.xiangqi {
+    background-image: url('images/pieces/xiangqi/ct3/red_king.svg');
+}
+label.piece.piece2.xiangqi {
+    background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
+}
+label.piece.piece3.xiangqi {
+    background-image: url('images/pieces/xiangqi/hnz/red_king.svg');
+}
+label.piece.piece4.xiangqi {
+    background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
+}
+label.piece.piece5.xiangqi {
+    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+}
+label.piece.piece6.xiangqi {
+    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
+}
+label.piece.piece7.xiangqi {
+    background-image: url('images/pieces/xiangqi/wikim/red_king.svg');
+}
+
+label.piece.piece0.janggi {
+    background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
+}
+label.piece.piece1.janggi {
+    background-image: url('images/pieces/janggi/hanjagreen/blue_king.svg');
+}
+label.piece.piece2.janggi {
+    background-image: url('images/pieces/janggi/intlkakao/blue_king.svg');
+}
+label.piece.piece3.janggi {
+    background-image: url('images/pieces/janggi/intlwooden/blue_king.svg');
+}
+label.piece.piece4.janggi {
+    background-image: url('images/pieces/janggi/Ka_kakao/blue_king.svg');
+}
+label.piece.piece5.janggi {
+    background-image: url('images/pieces/janggi/Ka_wooden/blue_king.svg');
+}
+
+label.piece.piece0.shako {
+    background-image: url('images/pieces/merida/shako/wC.svg');
+}
+label.piece.piece1.shako {
+    background-image: url('images/pieces/kaneo/wC.svg');
+}
+label.piece.piece2.shako {
+    background-image: url('images/pieces/green/synoshako/wC.svg');
+}
+
+label.piece.piece0.shogun {
+    background-image: url('images/pieces/shogun/merida/blue/wC.svg');
+}
+label.piece.piece1.shogun {
+    background-image: url('images/pieces/shogun/merida/red/wC.svg');
+}
+label.piece.piece2.shogun {
+    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+}
+label.piece.piece3.shogun {
+    background-image: url('images/pieces/shogun/cburnett/blue/wC.svg');
+}
+label.piece.piece4.shogun {
+    background-image: url('images/pieces/shogun/cburnett/red/wC.svg');
+}
+label.piece.piece5.shogun {
+    background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
 }
 
 label.piece.piece0.orda {
@@ -438,20 +466,6 @@ label.piece.piece0.orda {
 }
 label.piece.piece1.orda {
     background-image: url('images/pieces/orda/cburnett/bH.svg');
-}
-
-label.piece.piece0.ordamirror {
-    background-image: url('images/pieces/orda/merida/bH.svg');
-}
-label.piece.piece1.ordamirror {
-    background-image: url('images/pieces/orda/cburnett/bH.svg');
-}
-
-label.piece.piece0.empire {
-    background-image: url('images/pieces/empire/merida/wC.svg');
-}
-label.piece.piece1.empire {
-    background-image: url('images/pieces/empire/cburnett/wC.svg');
 }
 
 label.piece.piece0.synochess {
@@ -488,4 +502,18 @@ label.piece.piece0.shinobi {
 }
 label.piece.piece1.shinobi {
     background-image: url('images/pieces/shinobi/cburnett/wJ.svg');
+}
+
+label.piece.piece0.empire {
+    background-image: url('images/pieces/empire/merida/wC.svg');
+}
+label.piece.piece1.empire {
+    background-image: url('images/pieces/empire/cburnett/wC.svg');
+}
+
+label.piece.piece0.ordamirror {
+    background-image: url('images/pieces/orda/merida/bH.svg');
+}
+label.piece.piece1.ordamirror {
+    background-image: url('images/pieces/orda/cburnett/bH.svg');
 }

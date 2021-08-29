@@ -21,9 +21,9 @@ import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { dropIsValid, pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
+import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, dropIsValid } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -236,6 +236,7 @@ export default class RoundController {
             fen: fen_placement,
             variant: this.variant.name as Variant,
             geometry: this.variant.geometry,
+            chess960: this.chess960,
             notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
             orientation: this.mycolor,
             turnColor: this.turnColor,
@@ -1040,9 +1041,9 @@ export default class RoundController {
 
         //  gating elephant/hawk
         if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
             this.preaction = false;
         }
     }

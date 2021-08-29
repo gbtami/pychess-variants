@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chatturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
+*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chaturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
 
 ## Why learn Shogi?
 
@@ -287,7 +287,7 @@ Not a castle per se, but a *static rook* opening. Both sides advance their rook 
 
 Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and the most common setups are described below.
 
-While normal games have black (*sente*) go first, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+While normal games have black (*sente*) starting, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
 
 Name | pieces omitted
 -- | --

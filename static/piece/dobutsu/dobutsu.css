@@ -1,0 +1,41 @@
+/* chick */
+.dobutsu .cg-wrap piece.c-piece.ally {
+    background-image: url('../../images/pieces/shogi/Ka/0FU.svg');
+}
+/* giraffe */
+.dobutsu .cg-wrap piece.g-piece.ally {
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0HI.svg');
+}
+/* hen */
+.dobutsu .cg-wrap piece.pc-piece.ally {
+    background-image: url('../../images/pieces/shogi/Ka/0TO.svg');
+}
+/* elephant */
+.dobutsu .cg-wrap piece.e-piece.ally {
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/0KA.svg');
+}
+/* lion */
+.dobutsu .cg-wrap piece.l-piece.ally {
+    background-image: url('../../images/pieces/shogi/Ka/0GY.svg');
+}
+
+/* chick */
+.dobutsu .cg-wrap piece.c-piece.enemy {
+    background-image: url('../../images/pieces/shogi/Ka/1FU.svg');
+}
+/* giraffe */
+.dobutsu .cg-wrap piece.g-piece.enemy {
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1HI.svg');
+}
+/* hen */
+.dobutsu .cg-wrap piece.pc-piece.enemy {
+    background-image: url('../../images/pieces/shogi/Ka/1TO.svg');
+}
+/* elephant */
+.dobutsu .cg-wrap piece.e-piece.enemy {
+    background-image: url('../../images/pieces/shogi/Ka/dobutsu/1KA.svg');
+}
+/* lion */
+.dobutsu .cg-wrap piece.l-piece.enemy {
+    background-image: url('../../images/pieces/shogi/Ka/1GY.svg');
+}

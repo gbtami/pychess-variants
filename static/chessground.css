@@ -39,6 +39,13 @@ cg-container {
 .cg-wrap.cg-576.mini {
   width: 304px;
 }
+/* 7x7 shogi */
+.cg-wrap.cg-448-516 {
+    padding-bottom: calc(420 * 100% / 364);
+}
+.cg-wrap.cg-448-516.mini {
+  width: 282px;
+}
 /* 5x6 */
 .cg-wrap.cg-260-360 {
     padding-bottom: calc(540 * 100% / 390);

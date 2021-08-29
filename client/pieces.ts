@@ -9,7 +9,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 
-import EditorController from './editor';
+import { EditorController}  from './editorCtrl';
 import { letter2role } from './chess';
 
 const patch = init([klass, attributes, properties, style, listeners]);
@@ -44,7 +44,9 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
             r = r.slice(0, -1);
         }
         const role = letter2role(r);
-        return h(`piece.${role}.${promoted ? "promoted." : ""}${color}`, {
+        const orientation = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
+        const side = color === orientation ? "ally" : "enemy";
+        return h(`piece.${role}.${promoted ? "promoted." : ""}${color}.${side}`, {
             attrs: {
                 'data-role': role,
                 'data-color': color,

@@ -1,0 +1,60 @@
+.kyoto .cg-wrap piece.p-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0FU.svg');
+}
+.kyoto .cg-wrap piece.pp-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0HI.svg');
+}
+.kyoto .cg-wrap piece.n-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0KE.svg');
+}
+.kyoto .cg-wrap piece.pn-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0KI.svg');
+}
+.kyoto .cg-wrap piece.l-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0KY.svg');
+}
+.kyoto .cg-wrap piece.pl-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0TO.svg');
+}
+.kyoto .cg-wrap piece.s-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0GI.svg');
+}
+.kyoto .cg-wrap piece.ps-piece.ally {
+    background-image: url('../../images/pieces/kyoto/Kanji/0KA.svg');
+}
+.kyoto .cg-wrap piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0GY.svg');
+}
+.kyoto .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0OU.svg');
+}
+.kyoto .cg-wrap piece.p-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1FU.svg');
+}
+.kyoto .cg-wrap piece.pp-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1HI.svg');
+}
+.kyoto .cg-wrap piece.n-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1KE.svg');
+}
+.kyoto .cg-wrap piece.pn-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1KI.svg');
+}
+.kyoto .cg-wrap piece.l-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1KY.svg');
+}
+.kyoto .cg-wrap piece.pl-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1TO.svg');
+}
+.kyoto .cg-wrap piece.s-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1GI.svg');
+}
+.kyoto .cg-wrap piece.ps-piece.enemy {
+    background-image: url('../../images/pieces/kyoto/Kanji/1KA.svg');
+}
+.kyoto .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1GY.svg');
+}
+.kyoto .cg-wrap piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1OU.svg');
+}

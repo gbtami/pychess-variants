@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="52.157"
+   height="60"
+   version="1.1"
+   id="svg1717"
+   sodipodi:docname="0Swallow.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0FU.png"
+   inkscape:export-xdpi="394.90497"
+   inkscape:export-ydpi="394.90497">
+  <metadata
+     id="metadata1723">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1721" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     id="namedview1719"
+     showgrid="false"
+     inkscape:zoom="7.8666667"
+     inkscape:cx="-117.43262"
+     inkscape:cy="32.857312"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1717"
+     inkscape:document-rotation="0" />
+  <!--
+Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
+See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyokusho(svg).svg
+-->
+  <filter
+     id="drop-shadow">
+    <feGaussianBlur
+       in="SourceAlpha"
+       result="blur"
+       stdDeviation="2"
+       id="feGaussianBlur1692" />
+    <feOffset
+       result="offsetBlur"
+       dx="2"
+       dy="2"
+       id="feOffset1694" />
+    <feBlend
+       in="SourceGraphic"
+       in2="offsetBlur"
+       mode="normal"
+       id="feBlend1696" />
+  </filter>
+  <g
+     transform="matrix(1.15,0,0,1.15,-392.76172,2.988423)"
+     style="opacity:1;stroke:#000000;fill:#fff6d5;stroke-width:0.86956522;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+     id="g4770">
+    <g
+       id="g4025"
+       transform="matrix(0.6,0,0,0.6,-0.24566948,-1.6351379)"
+       style="stroke:#000000;fill:#fff6d5;stroke-width:1.44927536;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1">
+      <g
+         id="g2088"
+         transform="matrix(1.0609933,0,0,1.0589056,-36.263265,-5.2580555)"
+         style="stroke:#000000;fill:#fff6d5;stroke-width:1.36730678;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1">
+        <g
+           style="display:inline;fill:#fff6d5;fill-opacity:1;stroke:#000000;stroke-width:1.08122963;stroke-miterlimit:4;stroke-dasharray:none"
+           id="g5079-1-9-2-9"
+           transform="matrix(1.264585,0,0,1.264585,620.64706,5.9788579)">
+          <path
+             style="fill:#fff6d5;fill-opacity:1;stroke:#000000;stroke-width:1.08122963;stroke-miterlimit:4;stroke-dasharray:none"
+             inkscape:connector-curvature="0"
+             id="path5063-7-5-0-3"
+             d="M -11.041804,6.6665435 -23.995815,10.887563 -30.848999,54.296044 8.76556,54.295504 1.9110537,10.887828 Z"
+             sodipodi:nodetypes="cccccc" />
+        </g>
+      </g>
+    </g>
+  </g>
+  <g
+     id="g8537"
+     transform="matrix(0.84550743,0,0,0.84550743,3.5410102,5.6536921)"
+     style="opacity:1">
+    <path
+       style="fill:#1c566a;fill-opacity:1;stroke:#000000;stroke-width:0.946177;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 22.899018,15.90341 -2.54237,-0.476695 1.49365,1.461865 c -1.8675,5.918039 -0.93668,11.581686 3.71822,16.906779 0.94935,4.84489 0.79084,9.430494 -2.22458,13.347458 3.886379,-2.539298 4.067774,-5.662667 4.13136,-8.961865 l -0.1589,1.811441 c 0.52966,0.791317 1.05932,0.948081 1.58898,0.985169 l -0.0636,-1.652542 c 1.20924,3.32833 0.7688,6.462581 0.60381,9.629237 1.620512,-4.12337 2.245732,-8.334916 -1.2394,-19.385593 0,0 0.88347,-3.690938 0.63559,-5.529661 -0.40579,-3.009996 -0.78295,-6.912744 -3.40042,-8.453389 -0.73601,-0.433216 -1.63159,-0.484521 -2.54234,0.317796 z"
+       id="path8506"
+       sodipodi:nodetypes="cccccccccccssc" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.814286;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="path8510"
+       cx="24.632143"
+       cy="17.126925"
+       rx="0.97041464"
+       ry="0.90572035" />
+    <path
+       style="fill:#ffffff;stroke:none;stroke-width:0.7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 26.008383,33.666478 2.243735,0.369539 c -1.3919,-4.29423 -3.840757,-12.405676 -6.64105,-13.979959 -0.941244,3.486693 0.431823,9.278502 4.397315,13.61042 z"
+       id="path8519"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:#1c566a;fill-opacity:1;stroke:#000000;stroke-width:0.946177;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 23.661733,22.291122 c 1.052431,7.163555 7.197142,17.00001 12.790299,19.273895 l -0.416718,-1.873675 1.545911,0.714186 C 36.999449,35.326221 32.076431,25.12476 28.36705,20.909505"
+       id="path8508"
+       sodipodi:nodetypes="ccccc" />
+  </g>
+</svg>

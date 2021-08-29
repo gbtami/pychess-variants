@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="52.157"
+   height="60"
+   version="1.1"
+   id="svg1717"
+   sodipodi:docname="1Swallow.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0FU.png"
+   inkscape:export-xdpi="394.90497"
+   inkscape:export-ydpi="394.90497">
+  <metadata
+     id="metadata1723">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1721" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     id="namedview1719"
+     showgrid="false"
+     inkscape:zoom="7.8666668"
+     inkscape:cx="-41.051828"
+     inkscape:cy="44.159653"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1717"
+     inkscape:document-rotation="0" />
+  <!--
+Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
+See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyokusho(svg).svg
+-->
+  <filter
+     id="drop-shadow">
+    <feGaussianBlur
+       in="SourceAlpha"
+       result="blur"
+       stdDeviation="2"
+       id="feGaussianBlur1692" />
+    <feOffset
+       result="offsetBlur"
+       dx="2"
+       dy="2"
+       id="feOffset1694" />
+    <feBlend
+       in="SourceGraphic"
+       in2="offsetBlur"
+       mode="normal"
+       id="feBlend1696" />
+  </filter>
+  <g
+     transform="matrix(-1.15,0,0,-1.15,444.91873,57.136753)"
+     style="opacity:1;fill:#fff6d5;fill-opacity:0.960784;stroke:#000000;stroke-width:0.869565;stroke-miterlimit:4;stroke-dasharray:none"
+     id="g4770">
+    <g
+       id="g4025"
+       transform="matrix(0.6,0,0,0.6,-0.24566948,-1.6351379)"
+       style="fill:#fff6d5;fill-opacity:0.960784;stroke:#000000;stroke-width:1.44928;stroke-miterlimit:4;stroke-dasharray:none">
+      <g
+         id="g2088"
+         transform="matrix(1.0609933,0,0,1.0589056,-36.263265,-5.2580555)"
+         style="fill:#fff6d5;fill-opacity:0.960784;stroke:#000000;stroke-width:1.36731;stroke-miterlimit:4;stroke-dasharray:none">
+        <g
+           style="display:inline;fill:#fff6d5;fill-opacity:0.960784;stroke:#000000;stroke-width:1.08123;stroke-miterlimit:4;stroke-dasharray:none"
+           id="g5079-1-9-2-9"
+           transform="matrix(1.264585,0,0,1.264585,620.64706,5.9788579)">
+          <path
+             style="fill:#fff6d5;fill-opacity:0.960784;stroke:#000000;stroke-width:1.08123;stroke-miterlimit:4;stroke-dasharray:none"
+             inkscape:connector-curvature="0"
+             id="path5063-7-5-0-3"
+             d="M -11.041804,6.6665435 -23.995815,10.887563 -30.848999,54.296044 8.76556,54.295504 1.9110537,10.887828 Z"
+             sodipodi:nodetypes="cccccc" />
+        </g>
+      </g>
+    </g>
+  </g>
+  <g
+     aria-label="燕"
+     id="text10932"
+     style="font-size:32px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;fill:#ff0000;stroke:#ff0000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+     transform="rotate(-180,25.887825,30.126147)">
+    <path
+       d="m 23.156781,24.099579 q 2,-0.25 4.25,-0.5 0.75,-4 0.25,-4.875 -0.5,-0.875 0.375,-0.625 1,0.25 1.875,0.75 0.875,0.375 0.25,1.125 -0.5,0.75 -1.25,3.5 2.5,-0.375 4,-0.625 1.625,-0.375 2.625,0.5 1,0.75 -0.875,0.875 -1.75,0 -6,0.5 -0.5,1.375 -1,2.875 1.25,1.5 -0.125,1.5 -1.375,-0.125 -3.875,0.125 0,0.375 -0.375,0.75 -0.375,0.375 -0.625,-0.625 -0.25,-1 -0.75,-3.875 -3.625,0.375 -4.5,0.625 -0.75,0.125 -1.875,-0.625 -1,-0.75 0.5,-0.625 1.625,0 5.75,-0.625 -0.375,-3 -1.125,-3.625 -0.625,-0.75 0.375,-0.75 1,0 1.625,0.25 0.75,0.25 0.625,1 -0.125,0.75 -0.125,3 z m 8.25,7.25 q 3.125,-1.75 3.125,-2.25 0,-0.625 0.75,-0.25 0.75,0.375 1.125,1.125 0.5,0.75 -0.625,0.875 -1,0 -4.375,1.25 0,1.125 0,1.875 0.125,0.625 0.625,1 0.625,0.25 1.875,0.25 1.375,-0.125 1.625,-1 0.25,-0.875 0.5,-1.875 0.25,-1.125 0.375,0.625 0.125,1.625 0.75,2.125 0.625,0.5 -0.25,1.125 -0.875,0.5 -2.875,0.625 -2,0 -3.125,-0.625 -1,-0.75 -0.875,-3.125 0.125,-2.375 0.125,-3.375 0,-1.125 -0.5,-2 -0.5,-1 0.5,-0.75 1,0.25 1.5,0.625 0.625,0.25 0.25,0.875 -0.25,0.5 -0.5,2.875 z m -4.125,4 q 0.875,1.125 -0.125,1.125 -1,-0.125 -4,0.125 -0.5,1.5 -0.875,-1 -0.375,-2.625 -0.875,-3.375 -0.375,-0.75 0.375,-0.5 0.875,0.125 2.125,0 1.375,-0.25 2,-0.625 0.75,-0.5 1.5,-0.125 0.875,0.375 1.375,0.75 0.5,0.375 -0.125,1 -0.5,0.625 -1.375,2.625 z m -9,0.5 q -2.625,2.125 -3,2.625 -0.375,0.375 -1.5,-0.375 -1.125,-0.875 0.125,-1 1.25,-0.25 4.375,-2 v -2.25 q -1.625,0.5 -2.5,0.875 -0.75,0.25 -1.625,-0.375 -0.875,-0.75 0.25,-0.75 1.25,-0.125 3.75,-0.75 0,-1.75 -0.5,-2.625 -0.5,-1 0.375,-0.75 0.875,0.25 1.5,0.625 0.625,0.375 0.375,0.875 -0.125,0.5 -0.25,1.625 0,1 0,2.625 0.125,1.5 -0.25,2.625 -0.25,1 -0.625,0.75 -0.375,-0.25 -0.5,-1.75 z m 17.75,4.125 q 2,1 2.375,2.5 0.5,1.375 -0.25,2 -0.625,0.625 -2.5,-1.5 -1.75,-2.25 -2.25,-2.75 -0.5,-0.5 -0.875,-1.125 -0.25,-0.625 0.625,-0.375 0.875,0.25 2.875,1.25 z m -21.125,1.375 q 0.5,-0.625 1,-1.75 0.5,-1.125 0.75,0.75 0.375,1.75 -1.125,3.875 -1.5,2.125 -2,0.875 -0.5,-1.125 0.25,-2.125 0.75,-1 1.125,-1.625 z m 8.625,-13.125 q 1.375,-0.125 2.875,-0.25 0.375,-1.875 0.75,-3.125 -1.75,0.125 -3.875,0.375 0,1.625 0.25,3 z m -0.25,7.5 q 1.875,-0.125 2.875,-0.375 0.625,-3 -0.125,-3 -0.625,-0.125 -2.875,0.25 0,1.625 0.125,3.125 z m 3.375,4.25 q -0.375,-0.75 -0.375,-1 0,-0.375 1,0 1,0.25 1.625,0.875 0.75,0.625 0.875,1.5 0.125,0.875 -0.375,1.5 -0.5,0.625 -1.5,-0.75 -0.875,-1.5 -1.25,-2.125 z m -5.75,0.625 q -0.75,-1.375 -0.375,-1.5 0.375,-0.125 1.75,0.75 1.5,0.75 1.5,1.875 0.125,1.125 -0.375,1.625 -0.5,0.5 -1.125,-0.5 -0.5,-1 -1.375,-2.25 z"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;font-family:KaiTi;-inkscape-font-specification:KaiTi;fill:#000000;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path10934" />
+  </g>
+</svg>

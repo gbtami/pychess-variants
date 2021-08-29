@@ -22,9 +22,9 @@ import { JSONObject } from './types';
 import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { dropIsValid, pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
+import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -241,6 +241,7 @@ export default class AnalysisController {
         this.chessground = Chessground(el, {
             fen: fen_placement,
             variant: this.variant.name as Variant,
+            chess960: this.chess960,
             geometry: this.variant.geometry,
             notation: this.notation,
             orientation: this.mycolor,
@@ -651,12 +652,11 @@ export default class AnalysisController {
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as Key;
                     let color = turnColor;
-                    if (this.variant.sideDetermination === "direction")
-                        if (this.flip !== (this.mycolor === "black"))
-                            color = (color === 'white') ? 'black' : 'white';
 
                     const dropPieceRole = san2role(pv_move.slice(0, atPos));
-                    const url = getPieceImageUrl(dropPieceRole, color);
+                    const orientation = this.flip ? this.oppcolor : this.mycolor;
+                    const side = color === orientation ? "ally" : "enemy";
+                    const url = getPieceImageUrl(dropPieceRole, color, side);
                     this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
 
                     shapes0 = [{
@@ -768,7 +768,7 @@ export default class AnalysisController {
             }
 
             const tail = move.slice(-1);
-            if (tail > '9' || tail === '+') {
+            if (tail > '9' || tail === '+' || tail === '-') {
                 if (!(this.variant.gate && (move.slice(1, 2) === '1' || move.slice(1, 2) === '8'))) {
                     this.promotions.push(move);
                 }

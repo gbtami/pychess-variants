@@ -7,7 +7,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    sodipodi:docname="960.svg"
    id="svg1579"
    version="1.1"
@@ -31,15 +31,15 @@
   <sodipodi:namedview
      inkscape:current-layer="layer1"
      inkscape:window-maximized="1"
-     inkscape:window-y="-8"
-     inkscape:window-x="-8"
-     inkscape:cy="25"
-     inkscape:cx="-73.093221"
-     inkscape:zoom="4.72"
+     inkscape:window-y="-12"
+     inkscape:window-x="-12"
+     inkscape:cy="27.023802"
+     inkscape:cx="-16.406354"
+     inkscape:zoom="9.44"
      showgrid="true"
      id="namedview10"
-     inkscape:window-height="1017"
-     inkscape:window-width="1920"
+     inkscape:window-height="2050"
+     inkscape:window-width="3840"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      guidetolerance="10"
@@ -47,7 +47,8 @@
      objecttolerance="10"
      borderopacity="1"
      bordercolor="#666666"
-     pagecolor="#ffffff">
+     pagecolor="#ffffff"
+     inkscape:document-rotation="0">
     <inkscape:grid
        type="xygrid"
        id="grid821" />
@@ -55,55 +56,10 @@
   <g
      id="layer1"
      transform="translate(0,-283.77082)">
-    <rect
-       style="opacity:1;fill:#88aa00;fill-opacity:1;stroke:none;stroke-width:1.00053215"
+    <path
        id="rect828"
-       width="10.583333"
-       height="10.583326"
-       x="1.3229166"
-       y="285.09375"
-       ry="1.9058969" />
-    <ellipse
-       ry="1.3229097"
-       rx="1.3229166"
-       cy="287.34717"
-       cx="9.3725271"
-       id="ellipse3753"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.02645833;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <ellipse
-       ry="1.3229097"
-       rx="1.3229166"
-       cy="290.25757"
-       cx="9.3725271"
-       id="ellipse3753-3"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.02645833;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <ellipse
-       ry="1.3229097"
-       rx="1.3229166"
-       cy="293.16797"
-       cx="9.3725271"
-       id="ellipse3753-3-6"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.02645833;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <ellipse
-       ry="1.3229097"
-       rx="1.3229166"
-       cy="287.41446"
-       cx="3.7557383"
-       id="ellipse3753-7"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.02645833;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <ellipse
-       ry="1.3229097"
-       rx="1.3229166"
-       cy="290.32486"
-       cx="3.7557383"
-       id="ellipse3753-3-5"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.02645833;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <ellipse
-       ry="1.3229097"
-       rx="1.3229166"
-       cy="293.23526"
-       cx="3.7557383"
-       id="ellipse3753-3-6-3"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.02645833;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="opacity:1;fill:#88aa00;fill-opacity:1;stroke:none;stroke-width:3.78153"
+       d="M 12.203125 5 C 8.2124469 5 5 8.2124352 5 12.203125 L 5 37.796875 C 5 41.787565 8.2124469 45 12.203125 45 L 37.796875 45 C 41.787553 45 45 41.787565 45 37.796875 L 45 12.203125 C 45 8.2124352 41.787553 5 37.796875 5 L 12.203125 5 z M 35.423828 8.5175781 A 4.9999998 4.9999737 0 0 1 40.423828 13.517578 A 4.9999998 4.9999737 0 0 1 35.423828 18.517578 A 4.9999998 4.9999737 0 0 1 30.423828 13.517578 A 4.9999998 4.9999737 0 0 1 35.423828 8.5175781 z M 14.195312 8.7714844 A 4.9999998 4.9999737 0 0 1 19.195312 13.771484 A 4.9999998 4.9999737 0 0 1 14.195312 18.771484 A 4.9999998 4.9999737 0 0 1 9.1953125 13.771484 A 4.9999998 4.9999737 0 0 1 14.195312 8.7714844 z M 35.423828 19.517578 A 4.9999998 4.9999737 0 0 1 40.423828 24.517578 A 4.9999998 4.9999737 0 0 1 35.423828 29.517578 A 4.9999998 4.9999737 0 0 1 30.423828 24.517578 A 4.9999998 4.9999737 0 0 1 35.423828 19.517578 z M 14.195312 19.771484 A 4.9999998 4.9999737 0 0 1 19.195312 24.771484 A 4.9999998 4.9999737 0 0 1 14.195312 29.771484 A 4.9999998 4.9999737 0 0 1 9.1953125 24.771484 A 4.9999998 4.9999737 0 0 1 14.195312 19.771484 z M 35.423828 30.517578 A 4.9999998 4.9999737 0 0 1 40.423828 35.517578 A 4.9999998 4.9999737 0 0 1 35.423828 40.517578 A 4.9999998 4.9999737 0 0 1 30.423828 35.517578 A 4.9999998 4.9999737 0 0 1 35.423828 30.517578 z M 14.195312 30.771484 A 4.9999998 4.9999737 0 0 1 19.195312 35.771484 A 4.9999998 4.9999737 0 0 1 14.195312 40.771484 A 4.9999998 4.9999737 0 0 1 9.1953125 35.771484 A 4.9999998 4.9999737 0 0 1 14.195312 30.771484 z "
+       transform="matrix(0.26458333,0,0,0.26458333,0,283.77082)" />
   </g>
 </svg>

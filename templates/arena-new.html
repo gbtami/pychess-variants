@@ -4,11 +4,15 @@
     <main class="page-small">
         <div class="tour__form box box-pad">
             <h1>Create a new tournament</h1>
+            {% if edit %}
+            <form method="post" class="form3" action="/tournament/{{ tournamentid }}/edit">
+            {% else %}
             <form method="post" class="form3" action="/tournaments/arena">
+            {% endif %}
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
-                        <input id="form3-name" name="name" value="gbtami" class="form-control" minlength="2" maxlength="30" /> Arena
+                        <input id="form3-name" name="name" value="{{ tournamentname }}" class="form-control" minlength="2" maxlength="30" /> Arena
                         <br />
                         <small class="form-help">Pick a very safe name for the tournament.
                             <br />Anything even slightly inappropriate could get your account closed.
@@ -21,7 +25,7 @@
                         <div>
                             <label class="form-label" for="form3-rated">Rated</label>
                             <span class="form-check-input">
-                                <input id="form3-rated" name="rated" value="true" type="checkbox" class="form-control cmn-toggle" checked="checked"/>
+                                <input id="form3-rated" name="rated" value="{{ rated }}" type="checkbox" class="form-control cmn-toggle" checked="checked"/>
                             </span>
                         </div>
                         <small class="form-help">Games are rated
@@ -33,7 +37,7 @@
                         <label class="form-label" for="form3-variant">Variant</label>
                         <select id="form3-variant" name="variant" class="form-control">
                             {% for key in variants %}
-                            <option value="{{ key }}"{% if key=="chess" %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                            <option value="{{ key }}"{% if key=="{{ variant }}" %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -187,8 +191,13 @@
                 </div>
 
                 <div class="form-actions">
+                {% if edit %}
+                    <a href="/tournament/{{ tid }}/cancel">Cancel tournament</a>
+                    <button type="submit" data-icon="x" class="submit button text">Save</button>
+                {% else %}
                     <a href="/tournaments">Cancel</a>
                     <button type="submit" data-icon="x" class="submit button text">Create a new tournament</button>
+                {% endif %}
                 </div>
             </form>
         </div>
@@ -204,7 +213,7 @@
                 <br />
                 <br />For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 × 1)
             </p>
-            <h2>Arena Berserk</h2>
+            <h2>Arena Berserk (Not implemented on pychess atm!)</h2>
             <p>When a player clicks the Berserk button at the beginning of the game, they lose half of their clock time, but the win is worth one extra tournament point.
                 <br />
                 <br />Going Berserk in time controls with an increment also cancels the increment. (1+2 is an exception, it gives 1+0)
