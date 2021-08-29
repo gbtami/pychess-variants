@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriShogi.png)
 
-*Tori Shogi* (禽将棋/鳥将棋), Japanese for Bird Chess, is a Shogi variant invented by Toyota Genryu in 1799. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity in the modern era, including English-language books and tournaments.
+*Tori Shogi* (禽将棋/鳥将棋), Japanese for Bird Chess/Shogi, is a Shogi variant invented by Toyota Genryu in 1799. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity to this day, including English-language books and tournaments.
 
 ## Rules
 
@@ -53,13 +53,13 @@ These are the only two pieces without mnemonic devices in the birds, and these a
 
 ![Phoenix](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Phoenix.png) 
 
-The Phoenix moves exactly like a chess king: one step in any direction. In the internationalized set, sente (marked as black) is the Phoenix with dark wings, while gote (marked as white) is the Phoenix with light wings.
+The Phoenix (鵬, *ootori*) moves exactly like a chess king: one step in any direction. In the internationalized set, sente (marked as black) is the Phoenix with dark wings, while gote (marked as white) is the Phoenix with light wings.
 
 ### Swallow
 
 ![Swallow](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Swallow.png)
 
-The Swallow is the same as the Shogi Pawn (but different than the Chess Pawn). It moves and captures by moving forward one square. This is the weakest piece in the game, just like any other pawn.
+The Swallow (燕, *tsubame*) is the same as the Shogi Pawn (but different than the Chess Pawn). It moves and captures by moving forward one square. This is the weakest piece in the game, just like any other pawn.
 
 (While there is no explicit mnemonic in the Swallow's design, the bird is oriented upwards.)
 
@@ -75,7 +75,7 @@ These pieces are like the generals from Shogi, but even stronger. Why are they "
 
 ![Falcon](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Falcon.png)
 
-The Falcon moves like a king except *it cannot move straight backwards* (on the picture, this is the empty space between the talons and tail at the bottom of the piece). This is the most powerful unpromoted piece in the game (tied with the quails), as its large coverage allows it to deliver checkmate very easily.
+The Falcon (鷹, *taka*) moves like a king except *it cannot move straight backwards* (on the picture, this is the empty space between the talons and tail at the bottom of the piece). This is the most powerful unpromoted piece in the game (tied with the quails), as its large coverage allows it to deliver checkmate very easily.
 
 The Falcon is the other of the two promotable pieces, and it promotes to the **Eagle**.
 
@@ -83,7 +83,7 @@ The Falcon is the other of the two promotable pieces, and it promotes to the **E
 
 ![Crane](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Crane.png)
 
-The Crane moves like a king except *it cannot move sideways (left or right)* (on the picture, this is the empty space between the crane and the water it's standing on -- yes, treat the water as part of the mnemonic). While not as strong as the Falcon, the Crane is also a very strong piece.
+The Crane (鶴, *tsuru*) moves like a king except *it cannot move sideways (left or right)* (on the picture, this is the empty space between the crane and the water it's standing on -- yes, treat the water as part of the mnemonic). While not as strong as the Falcon, the Crane is also a very strong piece.
 
 ## ⅄-shaped pieces
 
@@ -95,7 +95,7 @@ The main feature of these pieces is that their move patterns resemble an upside-
 
 ![Pheasant](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pheasant.png)
 
-The Pheasant moves either one space diagonally backward or can jump two spaces straight forward. *Jump* means that it can still go there even if there is a piece in the way (like a chess/shogi knight). Essentially, this piece is the Tori Shogi equivalent of the Shogi knight.
+The Pheasant (雉, *kiji*) moves either one space diagonally backward or can jump two spaces straight forward. *Jump* means that it can still go there even if there is a piece in the way (like a chess/shogi knight). Essentially, this piece is the Tori Shogi equivalent of the Shogi knight.
 
 FYI, the red circle above the pheasant is the "rising sun" -- the green pheasant depicted here is the national bird of Japan.
 
@@ -103,11 +103,11 @@ FYI, the red circle above the pheasant is the "rising sun" -- the green pheasant
 
 ![LeftQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/LeftQuail.png) ![RightQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/RightQuail.png)
 
-The Quails start in the corners of the board and are two separate pieces called the **Left Quail** and the **Right Quail**. Their movements are mirror images of each other. Both Quails can move any number of spaces forward (like a Rook or Lance), but they can also move backwards diagonally in the direction away from their starting side of the board. For example, the *Left* Quail can move diagonally *right* (in the direction of its talons). Finally, they can also move one space diagonally backwards on the opposite side, towards the bird's tail.
+The Quails (鶉, *uzura*) start in the corners of the board and are two separate pieces called the **Left Quail** and the **Right Quail**. Their movements are mirror images of each other. Both Quails can move any number of spaces forward (like a Rook or Lance), but they can also move backwards diagonally in the direction away from their starting side of the board. For example, the *Left* Quail can move diagonally *right* (in the direction of its talons). Finally, they can also move one space diagonally backwards on the opposite side, towards the bird's tail.
 
 The Quails are tied with the Falcon for being the strongest unpromoted piece in the game. However, unlike the Falcon, they cannot promote.
 
-A note on the kanji set: Traditional sets just use the character for quail on the front and "left" or "right" on the back. As players playing online cannot physically peek under the pieces, we put the kanji for left and right on top of the kanji for quail.
+A note on the kanji set: Traditional sets just use the character for quail on the front and "left" or "right" on the back. As players playing online cannot physically peek under the pieces, we put the kanji for left (左) and right (右) above the kanji for quail.
 
 ## Y-shaped pieces (Promoted pieces)
 
@@ -119,13 +119,13 @@ Finally, the last two pieces are the two promoted pieces, which also happen to s
 
 ![Goose](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Goose.png)
 
-The Wild Goose, or simply Goose, is the promoted form of the Swallow. It can jump two exactly two spaces diagonally forward (left or right), or exactly two spaces straight backwards. Because of this unique pattern, the Goose can only reach a very limited number of spaces on the board (about one quarter of the board). 
+The Wild Goose (鴈, *kari*), or simply Goose, is the promoted form of the Swallow. It can jump two exactly two spaces diagonally forward (left or right), or exactly two spaces straight backwards. Because of this unique pattern, the Goose can only reach a very limited number of spaces on the board (about one quarter of the board). 
 
 ### Mountain Hawk Eagle
 
 ![Eagle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Eagle.png) 
 
-The Mountain Hawk Eagle, or simply Eagle, is the promoted form of the Falcon. Its moves are broken down into three components:
+The Mountain Hawk Eagle (鵰, *kumataka*), or simply Eagle, is the promoted form of the Falcon. Its moves are broken down into three components:
 
 1. It ranges in a Y-shape (wings and tail) -- It can move any number of spaces diagonally forward or straight backwards.
 2. It can move like a king (one step in any of the 8 spaces around the piece) -- this technically makes it a "Y-shaped piece" AND a "king-like piece", but the Y-shape is the dominant part of this piece.
@@ -156,7 +156,7 @@ Right Quail | RQ | R
 *Goose* | +Sw | +S
 *Eagle* | +Fa | +F
 
-For the most part, the Pychess notation shoudl make sense, as we use the first letter of the piece names. The only problem is two pieces start with a P, the Phoenix, and Pheasant. Therefore, the Phoenix is assigned to K, as it function as the game's king. You may also think of it as a "Phoeni**K**s."
+For the most part, the Pychess notation should make sense, as we use the first letter of the piece names. The only problem is two pieces start with a P, the Phoenix, and Pheasant. Therefore, the Phoenix is assigned to K, as it functions as the game's king. You may also think of it as a "Phoeni**K**s."
 
 ### Symbols
 
