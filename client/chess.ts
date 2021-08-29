@@ -402,7 +402,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
-        icon: "K", // TODO This is placeholder since I don't know what the tori icon is
+        icon: "🐦",
     }),
 
     xiangqi: new Variant({
