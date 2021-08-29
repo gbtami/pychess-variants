@@ -236,6 +236,7 @@ export default class RoundController {
             fen: fen_placement,
             variant: this.variant.name as Variant,
             geometry: this.variant.geometry,
+            chess960: this.chess960,
             notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
             orientation: this.mycolor,
             turnColor: this.turnColor,

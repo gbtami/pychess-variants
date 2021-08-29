@@ -5,7 +5,7 @@ import trans from 'gettext.js';
 import { StringSettings } from './settings';
 import { radioList } from './view';
 
-export const i18n = trans();
+export const i18n = new trans();
 export function _(msgid, ...vars) { return i18n.gettext(msgid, vars); }
 export function ngettext(msgid, plural, ...vars) { return i18n.ngettext(msgid, plural, vars); }
 export function pgettext(msgctxt, msgid, ...vars) { return i18n.pgettext(msgctxt, msgid, vars); }
