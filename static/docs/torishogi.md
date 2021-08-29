@@ -14,7 +14,7 @@ Tori Shogi rules are very similar to Shogi, so we will break it down to rules th
   * **A swallow (equivalent of a pawn) cannot be dropped into a file containing *two* swallows of the same player**. This is different from Shogi, where the rule is only *one* pawn is allowed in each file.
   * **You may not drop a piece where it can't move, such as a Swallow on the last rank.**
 * **Promotions** - Certain pieces can promote. This happens either moving (not dropping) into the promotion zone, or beginning a move from the promotion zone. The promotion zone is the last two ranks of the board. *Only two* pieces promote (unlike Shogi).
-  * A Swallow *must* promote if it moves to the last rank.
+  * Promotions are compulsory, unlike in Shogi.
 * **Repetition** - The rule for repetition (千日手 sennichite) in Tori Shogi is that if the same position occurs three times with the same player to play by repetition of moves, the player starting the sequence must vary the move. For two positions to be considered the same, the pieces in hand must be the same, as well as the position on the board. Note that in Shogi, repetition leads to a draw.
 * **Stalemate** is a loss for the player who cannot move their Phoenix. Note that this is technically not the actual rule: the real rule is an illegal move is a loss. Stalemate is a condition where the stalemated player can only make illegal moves.
 
