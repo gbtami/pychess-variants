@@ -6,7 +6,7 @@
     grid-area: vpanel;
     /* border: 1px solid red; */
     flex: 1;
-    background-color: #3c3934;
+    background-color: var(--bg-color1);
     display: flex;
     align-items: center;
 }
