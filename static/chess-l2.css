@@ -1,0 +1,215 @@
+.layer-2-container {
+    grid-area: vpanel;
+    background-color: #3c3934;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+
+    padding: 10px;
+    gap: 10px;
+    /* border: 1px solid red; */
+}
+
+.generic-variant-info {
+    grid-column: 1/2;
+    grid-row: 1/5;
+}
+
+/* Preventing first column from hover changes  */
+
+.generic-variant-info:hover {
+    background-color: #464542 ;
+    color: #999;
+    transform: scale(1);
+    cursor: default;
+}
+
+/* Controls the container div of the first column (title, img, p, go back btn) */
+
+.layer-two-category-info {
+    /* border: 1px solid blue; */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 5px;
+}
+
+/* Image in the first column in Layer 2  */
+
+.generic-image-container {
+    display: flex;
+    /* border: 1px solid gold; */
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.generic img {
+    /* border: 1px solid purple; */
+    margin: 0 auto;
+    height: 100%;
+    width: 100%;
+}
+
+/* First Column Title  */
+
+.generic h4, .fairy-grid h4 {
+    /* border: 1px solid yellow; */  
+    font-size: 1.2rem;
+    padding:10px 5px;
+    color: rgb(160, 160, 160);
+}
+
+/* Paragraph(s) in the first column describing the variant category  */
+
+.variant-category-description {
+    /* border: 1px solid green; */
+    font-size: 0.80rem;
+    padding: 5px;
+    color: rgb(152, 151, 151);
+    text-transform: none;
+}
+
+/* Go back button  */
+
+.generic h5, .fairy-grid h5 {
+    /* border: 1px solid red; */
+    padding: 5px;
+    margin: 0;
+}
+
+.generic h5:hover, .fairy-grid h5:hover {
+    color: rgb(179, 179, 179);
+    cursor: pointer;
+}
+
+/* Assigning Elements (Variant Category Buttons) Grid Area  */
+
+.chess-l2 {
+    grid-column: 2/3;
+    grid-row: 1/2;
+}
+
+.chess960 {
+   grid-column: 2/3;
+   grid-row: 2/3;
+}
+
+.placement {
+    grid-column: 2/3;
+    grid-row: 3/4;
+}
+
+.crazyhouse {
+    grid-column: 2/3;
+    grid-row: 4/5;
+}
+
+.crazyhouse960 {
+    grid-column: 3/4;
+    grid-row: 1/2;
+}
+
+.atomic {
+   grid-column: 3/4;
+   grid-row: 2/3;
+}
+
+.atomic960 {
+ grid-column: 3/4;
+ grid-row: 3/4;
+}
+
+/* Variant Category Button Content  */
+
+.chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2
+{
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 0.8rem;
+    font-weight: 300;
+    width: 80%;
+}
+
+/* Icons next to Variant Category Title  */
+
+.icon-container {
+    /* border: 1px solid red; */
+    display: flex;
+    height: 25px;
+    width: 25px;
+    margin-right: 5px;
+}
+
+.chess960 img, .chess-l2 img, .placement img, .crazyhouse img, .crazyhouse960 img, .atomic img, .atomic960 img, .capablanca img, .shako img, .shogun img, .hoppelpoppel img, .grand img, .schess img {
+    /* border: 1px solid blue; */
+    /* height: 100%;
+    width: 100%; */
+    filter: saturate(0.1);
+    opacity: 1;
+}
+
+/* Desktop  */
+
+/* Prevents Info Panel stretching too much on big screens  */
+
+@media only screen and (min-width: 1100px) {
+.layer-2-container {
+    max-height: 450px;
+    xxxxmax-width: 650px;
+    margin: 0 auto;
+}
+}
+
+/* Tablet and makes the Chess Layer 2 Grid change to two columns */
+
+@media only screen and (max-width:1100px) {
+    .layer-2-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(6, 1fr);    
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .generic-variant-info {
+        grid-column: 1/2;
+        grid-row: 1/5;
+    }
+    
+    .crazyhouse960 {
+        grid-column: 1/3;
+        grid-row: 5/6;
+    }
+    
+    .atomic {
+       grid-column:1/2;
+       grid-row: 6/7;
+    }
+    
+    .atomic960 {
+     grid-column: 2/3;
+     grid-row: 6/7;
+    }
+}
+
+/* Mobile and makes it one column  */
+
+@media only screen and (max-width:720px) {
+    .layer-2-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+.variant-title-l2 {
+    padding: 15px 50px;
+    margin: 0 auto;
+}
+
+}

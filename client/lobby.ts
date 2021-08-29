@@ -22,6 +22,7 @@ import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
+import { variantPanels } from './lobby/layer1';
 
 
 class LobbyController {
@@ -782,6 +783,7 @@ export function lobbyView(model): VNode[] {
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
+        variantPanels(model["asset-url"]),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),

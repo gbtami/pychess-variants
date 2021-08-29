@@ -1053,14 +1053,16 @@ table#seeks-header, table#seeks {
 }
 #seeks-table {
     box-shadow: var(--base-shadow);
-    background-size: cover;
     background-position: center;
-    background-image: url('images/Background2.svg');
+    background-image: url('images/seek-bg.svg');
     background-color: var(--bg-seek);
     background-blend-mode: overlay;
+    background-size: 100% 100%;
+    width: 100%;
+    height: 100%;
 }
 #seeks-wrapper {
-    height: 550px;
+    height: 320px;
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
 }
@@ -1275,6 +1277,9 @@ div.btn-controls.after {
     cursor: pointer;
 }
 
+button {
+    cursor: pointer;
+}
 button:disabled {
     color: var(--bg-color1);
 }
