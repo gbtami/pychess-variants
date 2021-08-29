@@ -108,7 +108,7 @@ VARIANT_ICONS = {
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
-    "torishogi": "K",  # TODO This is placeholder
+    "torishogi": "🐦",
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",
