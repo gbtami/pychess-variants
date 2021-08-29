@@ -115,13 +115,13 @@ A note on the kanji set: Traditional sets just use the character for quail on th
 
 Finally, the last two pieces are the two promoted pieces, which also happen to share a similarity in that their move patterns resemble a Y. *One is weak and can jump (like a chess knight). The other is stronger and is a ranging piece (i.e. can move as many steps as it wants in that direction).* 
 
-### Wild Goose
+### Goose
 
 ![Goose](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Goose.png)
 
 The Wild Goose (鴈, *kari*), or simply Goose, is the promoted form of the Swallow. It can jump two exactly two spaces diagonally forward (left or right), or exactly two spaces straight backwards. Because of this unique pattern, the Goose can only reach a very limited number of spaces on the board (about one quarter of the board). 
 
-### Mountain Hawk Eagle
+### Eagle
 
 ![Eagle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Eagle.png) 
 
