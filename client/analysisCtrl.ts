@@ -241,6 +241,7 @@ export default class AnalysisController {
         this.chessground = Chessground(el, {
             fen: fen_placement,
             variant: this.variant.name as Variant,
+            chess960: this.chess960,
             geometry: this.variant.geometry,
             notation: this.notation,
             orientation: this.mycolor,

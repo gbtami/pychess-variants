@@ -10,7 +10,7 @@ Tori Shogi rules are very similar to Shogi, so we will break it down to rules th
 
 * **Drops** - Captured pieces can be dropped back onto the board as your move.
 * **Illegal drops** - The following drops are illegal:
-  * **Dropped Swallows cannot immediately mate** - Dropping a Swallow to immediately mate the opposing Phoenix. Currently, this will act as an *illegal move* in Pychess, causing the player to lose. 
+  * **Dropped Swallows cannot immediately mate** - Dropping a Swallow to immediately mate the opposing Phoenix. In Pychess, this will cause the player to lose. 
   * **A swallow (equivalent of a pawn) cannot be dropped into a file containing *two* swallows of the same player**. This is different from Shogi, where the rule is only *one* pawn is allowed in each file.
   * **You may not drop a piece where it can't move, such as a Swallow on the last rank.**
 * **Promotions** - Certain pieces can promote. This happens either moving (not dropping) into the promotion zone, or beginning a move from the promotion zone. The promotion zone is the last two ranks of the board. *Only two* pieces promote (unlike Shogi).
@@ -18,7 +18,7 @@ Tori Shogi rules are very similar to Shogi, so we will break it down to rules th
 * **Repetition** - The rule for repetition (千日手 sennichite) in Tori Shogi is that if the same position occurs three times with the same player to play by repetition of moves, the player starting the sequence must vary the move. For two positions to be considered the same, the pieces in hand must be the same, as well as the position on the board. Note that in Shogi, repetition leads to a draw.
 * **Stalemate** is a loss for the player who cannot move their Phoenix. Note that this is technically not the actual rule: the real rule is an illegal move is a loss. Stalemate is a condition where the stalemated player can only make illegal moves.
 
-*Sente/Gote* - In Pychess, sente/gote correspond to black/white. *Sente* means the first player, and in the default set, is indicated by a dark-winged phoenix.
+*Sente/Gote* - In Pychess, sente/gote correspond to black/white. *Sente* means the first player, and in the default set, is indicated by the Phoenix having dark wings.
 
 *Timer* - Tori Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
 
@@ -115,7 +115,7 @@ Finally, the last two pieces are the two promoted pieces, which also happen to s
 
 ![Goose](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Goose.png)
 
-The Wild Goose (鴈, *kari*), or simply Goose, is the promoted form of the Swallow. It can jump two exactly two spaces diagonally forward (left or right), or exactly two spaces straight backwards. Because of this unique pattern, the Goose can only reach a very limited number of spaces on the board (about one quarter of the board). 
+The Wild Goose (鴈, *kari*), or simply Goose, is the promoted form of the Swallow. It can jump exactly two spaces diagonally forward (left or right), or exactly two spaces straight backwards. Because of this unique pattern, the Goose can only reach a very limited number of spaces on the board (about one quarter of the board). 
 
 ### Eagle
 
@@ -135,9 +135,9 @@ George Hodges originally created a notation system in 1976 which uses two-letter
 
 ### Coordinates
 
-One noticeable difference is that the board coordinates are switched from chess. First is the file, then the rank. In traditional Hodges style, the first space is 1c. However, in modern days, international players prefer to use numbers (Hodgkin style), so the first space is "1-1". This is also how coordinates are described in Japanese (although with the second number written in kanji).
+One noticeable difference is that the board coordinates are switched from chess. First is the file, then the rank. In traditional Hodges style, the first space is 1a. However, in modern days, international players prefer to use numbers (Hodgkin style), so the first space is "1-1". This is also how coordinates are described in Japanese (although with the second number written in kanji).
 
-The origin is the bottom left for the white player/gote. However, since most diagrams are oriented for the black player (sente, first player), these will seem to originate from the top right. As an example, the white phoenix is on square 5-1.
+The origin is the bottom left for the white player/gote. However, since most diagrams are oriented for the black player (sente, first player), these will seem to originate from the top right. As an example, the white phoenix is on square 4-1.
 
 ### Piece Abbreviations
 Name | Hodges  | Pychess
@@ -158,7 +158,6 @@ For the most part, the Pychess notation should make sense, as we use the first l
 
 * Drops are indicated with a \*. For example, a Swallow drop on 3-3 is "S\*33"
 * Moves that end in promotion add a + at the end. A Swallow promoting on 1-1 would be S11+.
-* If you choose to not promote, instead an = goes at the end. A Swallow reaching 1-2 and not promoting would be S12=.
 * Checks and checkmates are not notated.
 
 ## Strategy
@@ -183,7 +182,7 @@ Pieces are worth slightly less in hand, except for the Swallow, which is slightl
 
 Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and Tori Shogi should be no different.
 
-While normal games have black (*sente*) starting, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+While normal games have black (*sente*) starting, **white is the handicap giver and therefore goes first**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
 
 Common handicaps are as follows:
 
