@@ -30,11 +30,11 @@ Tori Shogi rules are very similar to Shogi, so we will break it down to rules th
 
 All Tori Shogi pieces (except two) are new, and learning them may be daunting for new players. This guide will draw to simplify this as much as possible. For starters, we will use the internationalized set\*. The symbols used in the international set are unique in that nearly every piece has a *mnemonic device in the shape of the bird/picture on the piece*, where the birds point to where they move, so please take advantage of this when learning the game. How does this work? Take a look at this *fake piece* below:
 
-![A fake piece](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/FakePiece.png)
+![A fake piece](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/FakeBird.png)
 
 If you were to guess, how would this make-believe piece move?  Note how it has a *long beak pointing up, long wings pointing to the sides, and long talons pointing diagonally backwards*. A logical guess would be that it moves like a *rook* orthogonally left and right (wings) and up (beak), while moving like a *bishop* diagonally backwards (talons). It also has a *small little tail poking straight down*, so it's also a reasonable assumption that this piece can also go backwards just a little bit, likely one space. Now, on to the real pieces.
 
-To make things simple, the piece sets fall into two main types: 
+To make things simple, the piece movements fall into two main patterns: 
 
 1. **Pieces that move like a king**
 2. **Pieces whose moves resemble a Y-shape (right-side up or upside-down)**
