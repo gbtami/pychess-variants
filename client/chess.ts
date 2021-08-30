@@ -49,7 +49,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoi", "kyotod"] },
     dobutsu: { pieceCSS: ["dobutsu"] },
-    tori: { pieceCSS: ["torii", "torik"] },
+    tori: { pieceCSS: ["torii", "torik", "torim"] },
     xiangqi: { pieceCSS: ["xiangqi", "xiangqict3", "xiangqict2", "xiangqihnz", "xiangqict2w", "xiangqihnzw", "xiangqiKa", "xiangqiwikim"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2"] },
@@ -648,7 +648,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "ordamirror" ] },
     asymmetric: { variants: [ "orda", "synochess", "shinobi", "empire" ] },
