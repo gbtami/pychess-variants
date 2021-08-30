@@ -43,10 +43,10 @@
      inkscape:window-height="2050"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="5.5625736"
-     inkscape:cx="9.1690791"
-     inkscape:cy="102.37902"
-     inkscape:window-x="3828"
+     inkscape:zoom="2.7812868"
+     inkscape:cx="-268.75059"
+     inkscape:cy="137.3439"
+     inkscape:window-x="-12"
      inkscape:window-y="-12"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg1717"
@@ -130,18 +130,18 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
              ry="0.74682206" />
         </g>
         <path
-           style="fill:none;stroke:#000000;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="m 155.00875,24.414769 c 0.006,0.005 7.70172,-0.791334 9.87764,-2.852958 1.47852,-1.400857 6.05605,-5.460489 6.05605,-5.460489"
+           style="fill:none;stroke:#b3b3b3;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 160.0935,24.128752 c 0.006,0.005 2.61697,-0.505317 4.79289,-2.566941 1.47852,-1.400857 5.77003,-5.33337 5.77003,-5.33337"
            id="path13744"
            sodipodi:nodetypes="csc" />
         <path
-           style="fill:none;stroke:#000000;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           style="fill:none;stroke:#b3b3b3;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            d="m 157.48236,23.89951 c 1.40586,-1.82339 5.1495,-6.114184 7.0157,-7.554364"
            id="path13762"
            sodipodi:nodetypes="cc" />
         <path
-           style="fill:none;stroke:#000000;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="m 161.07478,23.004502 c 1.04037,-1.757359 5.11684,-5.346476 6.66481,-6.850035"
+           style="fill:none;stroke:#b3b3b3;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 159.86715,23.751324 c 1.53296,-1.725579 6.32447,-6.093298 7.87244,-7.596857"
            id="path13764"
            sodipodi:nodetypes="cc" />
       </g>
@@ -185,7 +185,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     </g>
     <path
        style="opacity:1;fill:#000000;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 34.089437,30.60713 c 0.419474,0.51768 1.037303,1.085682 1.033693,1.595485 2.200272,0.91302 4.013525,1.878486 6.426883,2.471878 0.333426,-0.238545 0.489449,-0.571008 0.314602,-1.078638 -0.382761,-0.797742 -0.629616,-1.595484 -1.227663,-2.393226 -2.316649,-0.278698 -3.943303,0.159963 -6.547515,-0.595499 z"
+       d="m 34.089437,30.438593 c 0.419474,0.51768 0.924945,1.259837 1.073018,1.814583 2.200272,0.91302 3.9742,1.827925 6.387558,2.421317 0.333426,-0.238545 0.489449,-0.571008 0.314602,-1.078638 -0.382761,-0.797742 -0.629616,-1.595484 -1.227663,-2.393226 -2.316649,-0.278698 -3.943303,-0.0086 -6.547515,-0.764036 z"
        id="path15696"
        sodipodi:nodetypes="cccccc" />
     <path
