@@ -8,7 +8,7 @@ Shinobi Chess is a chess variant designed in 2021 by Couch Tomato with help from
 1.	Setup is as above; the Clan player starts with additional pieces in hand.
 2.	The Clan (pink/sakura) always moves first.
 3.	Clan pieces in hand can only be dropped in the first four ranks (first half of the board).
-4.	All minor Clan pieces promote upon reaching the 7th or 8th rank. Similarly, Kingdom pawns now promote on the 7th rank instead of 8th.
+4.	All minor Clan pieces promote upon reaching the **7th or 8th rank**. Similarly, Kingdom pawns now promote on the 7th rank instead of 8th.
 5.	Pawns on either side can only promote to a Captain (see below).
 6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
 7.	Stalemate and repetition are both losses.
@@ -46,19 +46,19 @@ The Dragon does not promote.
 
 ![Lance](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Lance.png)
 
-The Lance is like a Rook but can only move straight forward. This is identical to the Lance in Shogi. One Lance starts in hand and can be thought of a droppable skewer. Because it can't retreat, make sure the drop counts! The Lances that start on the board are much less fiexible and serve to control the board. The Lance promotes to a Rook upon reaching the 7th (optional) or 8th (mandatory) ranks. The Lance is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to one of the strongest pieces in the game.
+The Lance is like a Rook but can only move straight forward. This is identical to the Lance in Shogi. One Lance starts in hand and can be thought of a droppable skewer. Because it can't retreat, make sure the drop counts! The Lances that start on the board are much less fiexible and serve to control the board. The **Lance promotes to a Rook** upon reaching the 7th (optional) or 8th (mandatory) ranks. The Lance is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to one of the strongest pieces in the game.
 
 ### Wooden Horse (H)
 
 ![Wooden Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Horse.png)
 
-The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The Knights that start on the board can exert pressure similarly, but must be moved carefully because they cannot retreat. The Horse promotes to a Knight upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
+The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The Knights that start on the board can exert pressure similarly, but must be moved carefully because they cannot retreat. The **Horse promotes to a Knight** upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
 
 ### Monk (M)
 
 ![Monk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Monk.png)
 
-The Monk moves one space diagonally, either forwards or backwards. In other variants, this is also known as a Ferz/Fers. Both Monks start in hand. Monks may promote into a Bishop upon reaching the 7th or 8th ranks. The Monk is weaker than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Bishop.
+The Monk moves one space diagonally, either forwards or backwards. In other variants, this is also known as a Ferz/Fers. Both Monks start in hand. **Monks may promote into a Bishop upon reaching the 7th or 8th ranks**. The Monk is weaker than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Bishop.
  
 ## Strategy
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
