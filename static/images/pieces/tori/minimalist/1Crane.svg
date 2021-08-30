@@ -11,7 +11,7 @@
    height="60"
    version="1.1"
    id="svg1717"
-   sodipodi:docname="0Crane.svg"
+   sodipodi:docname="1Crane.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    inkscape:export-filename="D:\Pictures\Chess Variants\Shogi\pieces\Plastic\0FU.png"
    inkscape:export-xdpi="394.90497"
@@ -43,9 +43,9 @@
      inkscape:window-height="2050"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="11.125147"
-     inkscape:cx="-8.0394961"
-     inkscape:cy="73.295954"
+     inkscape:zoom="2.7812868"
+     inkscape:cx="-268.75059"
+     inkscape:cy="137.3439"
      inkscape:window-x="-12"
      inkscape:window-y="-12"
      inkscape:window-maximized="1"
@@ -76,7 +76,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
        id="feBlend1696" />
   </filter>
   <g
-     transform="matrix(0.69,0,0,0.69,-168.99048,0.4506196)"
+     transform="matrix(-0.69,0,0,-0.69,221.14748,59.54938)"
      id="g4001">
     <g
        id="g4356"
@@ -88,7 +88,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          transform="matrix(1.4442394,0,0,1.4442394,297.90899,0.7763667)">
         <path
            sodipodi:nodetypes="cccccc"
-           style="fill:#fff6d5;fill-opacity:0.984314;stroke:#000000;stroke-width:1"
+           style="fill:#e09191;fill-opacity:0.99215686;stroke:#000000;stroke-width:1"
            inkscape:connector-curvature="0"
            id="path5063-6-56"
            d="M -10.911031,7.4113606 -23.918306,11.540721 -30.848999,54.295473 9.0243552,54.2955 2.0935203,11.539854 Z" />
@@ -97,9 +97,9 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
   </g>
   <g
      id="g2879"
-     transform="translate(0,-2.9213097)">
+     transform="rotate(-180,26.078498,31.460655)">
     <path
-       style="fill:#afdde9;stroke:#000000;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#31d0fa;fill-opacity:0.721044;stroke:none;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 19.693763,44.364407 c 6.1055,0.01857 22.88321,-1.679024 22.03779,4.940882 -0.45225,3.773888 -32.2409298,4.911775 -31.31745,-1.762916 0.69726,-3.194369 6.03738,-2.756322 9.27966,-3.177966 z"
        id="path13785"
        sodipodi:nodetypes="cccc" />
@@ -112,12 +112,12 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
            id="g13742"
            transform="translate(0.19067796,-1.9703389)">
           <path
-             style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             style="fill:#f2f2f2;fill-opacity:1;stroke:none;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
              d="m 177.90149,13.574112 c 0,0 -1.84718,-1.378005 -2.84476,-1.151449 -1.69872,0.385786 -3.59732,2.120388 -3.52209,3.860742 0.0792,1.831768 2.38599,3.16056 2.52595,3.816958 0.0594,0.278208 0.0504,0.89795 -0.37083,0.840844 -0.92055,-0.124799 -1.73201,-0.596632 -2.29058,-1.338917 -0.63384,-0.842306 -0.38736,-2.191222 -0.9729,-3.067794 -0.60884,-0.911462 -1.39611,-1.809908 -2.34598,-1.808934 -5.35625,0.0055 -12.21054,9.730597 -12.21054,9.730597 -2.09996,3.038597 -2.55464,4.334585 -2.1057,4.706979 0.83435,0.692095 4.29544,-1.716041 6.61103,-2.146673 0.18421,-0.03684 2.18449,-0.419946 2.33173,-0.30412 0.57257,0.450412 0.68387,0.282537 0.81326,0.253596 0.33443,-0.07481 0.45568,-0.289956 0.69813,-0.501184 0.61606,-0.536736 0.68619,-0.624255 1.46118,-0.719883 0.30736,-0.03793 1.05995,1.723456 1.35896,1.685862 1.02328,-0.128653 0.36642,-2.049315 1.23054,-2.343989 1.11494,-0.380204 4.66086,-0.350929 6.65238,-1.420518 0.93885,-0.504234 1.56314,-1.561614 1.8965,-2.573828 0.28988,-0.880204 0.26007,-1.816724 -0.51451,-3.067088 -0.3567,-0.575791 -1.72066,-0.454994 -1.72066,-0.454994 -1.20786,0 -1.2773,-2.344026 0.2032,-2.235166 l 3.86344,-0.09238 z"
              id="path13682"
              sodipodi:nodetypes="cssssssscscssssssssssscc" />
           <path
-             style="fill:#cccccc;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             style="fill:#999999;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
              d="m 177.94756,13.67692 5.36352,1.358814 c -1.68871,0.02406 -2.40085,0.23367 -4.4596,0.319398 -0.83698,-0.505836 -0.61233,-1.117836 -0.90392,-1.678211"
              id="path13690"
              sodipodi:nodetypes="cccc" />
@@ -130,18 +130,18 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
              ry="0.74682206" />
         </g>
         <path
-           style="fill:none;stroke:#000000;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="m 154.60426,24.324883 c 0.006,0.005 8.10621,-0.701448 10.28213,-2.763072 1.47852,-1.400857 6.05605,-5.460489 6.05605,-5.460489"
+           style="fill:none;stroke:#b3b3b3;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 160.0935,24.128752 c 0.006,0.005 2.61697,-0.505317 4.79289,-2.566941 1.47852,-1.400857 5.77003,-5.33337 5.77003,-5.33337"
            id="path13744"
            sodipodi:nodetypes="csc" />
         <path
-           style="fill:none;stroke:#000000;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           style="fill:none;stroke:#b3b3b3;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            d="m 157.48236,23.89951 c 1.40586,-1.82339 5.1495,-6.114184 7.0157,-7.554364"
            id="path13762"
            sodipodi:nodetypes="cc" />
         <path
-           style="fill:none;stroke:#000000;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="m 161.07478,23.004502 c 1.04037,-1.757359 5.11684,-5.346476 6.66481,-6.850035"
+           style="fill:none;stroke:#b3b3b3;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 159.86715,23.751324 c 1.53296,-1.725579 6.32447,-6.093298 7.87244,-7.596857"
            id="path13764"
            sodipodi:nodetypes="cc" />
       </g>
@@ -149,7 +149,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          id="g13775">
         <path
            style="fill:none;stroke:#000000;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="m 167.32645,25.402349 -0.98875,8.274165 1.49723,7.17075 -1.74562,2.424289"
+           d="m 167.29467,25.148112 -0.95697,8.528402 1.49723,7.17075 -1.74562,2.424289"
            id="path13766"
            sodipodi:nodetypes="cccc" />
         <path
@@ -185,7 +185,7 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
     </g>
     <path
        style="opacity:1;fill:#000000;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 33.977079,30.494772 c 0.419474,0.51768 1.217076,1.119389 0.943807,1.483127 l 6.629127,2.696594 0.314602,-1.078638 -1.04789,-2.224689 c -2.316649,-0.278698 -4.235434,-0.120932 -6.839646,-0.876394 z"
+       d="m 34.089437,30.438593 c 0.419474,0.51768 0.924945,1.259837 1.073018,1.814583 2.200272,0.91302 3.9742,1.827925 6.387558,2.421317 0.333426,-0.238545 0.489449,-0.571008 0.314602,-1.078638 -0.382761,-0.797742 -0.629616,-1.595484 -1.227663,-2.393226 -2.316649,-0.278698 -3.943303,-0.0086 -6.547515,-0.764036 z"
        id="path15696"
        sodipodi:nodetypes="cccccc" />
     <path
