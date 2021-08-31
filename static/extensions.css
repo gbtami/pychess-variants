@@ -166,7 +166,7 @@
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
 }
 
-.shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .dobutsu .cg-wrap coords.files {
+.shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .dobutsu .cg-wrap coords.files, .tori .cg-wrap coords.files {
   left: auto;
   right: var(--ranks-right);
   top: 0;
@@ -174,10 +174,10 @@
   height: 100%;
   width: 12px;
 }
-.shogi .cg-wrap coords.files.black, .kyoto .cg-wrap coords.files.black, .dobutsu .cg-wrap coords.files.black {
+.shogi .cg-wrap coords.files.black, .kyoto .cg-wrap coords.files.black, .dobutsu .cg-wrap coords.files.black, .tori .cg-wrap coords.files.black {
   flex-flow: column;
 }
-.shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks, .dobutsu .cg-wrap coords.ranks {
+.shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks, .dobutsu .cg-wrap coords.ranks, .tori .cg-wrap coords.ranks {
   top: var(--ranks-top-shogi);
   left: 0;
   flex-flow: row;
@@ -185,12 +185,12 @@
   height: 16px;
   text-align: center;
 }
-.shogi .cg-wrap coords.ranks.black, .kyoto .cg-wrap coords.ranks.black, .dobutsu .cg-wrap coords.ranks.black {
+.shogi .cg-wrap coords.ranks.black, .kyoto .cg-wrap coords.ranks.black, .dobutsu .cg-wrap coords.ranks.black, .tori .cg-wrap coords.ranks.black {
   flex-flow: row-reverse;
 }
-.shogi .cg-wrap coords coord, .kyoto .cg-wrap coords coord, .dobutsu .cg-wrap coords coord {
+.shogi .cg-wrap coords coord, .kyoto .cg-wrap coords coord, .dobutsu .cg-wrap coords coord, .tori .cg-wrap coords coord {
   flex: 1 1 auto;
 }
-.shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord {
+.shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord, .tori .cg-wrap coords.files coord {
   transform: translateY(39%);
 }
