@@ -21,6 +21,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
     variant = form["variant"]
     variant960 = variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
+    rated = form.get("rated", "") == "1" and form["position"] == ""
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
@@ -49,7 +50,7 @@ then must defend it during the next %s Shield tournament!
     data = {
         "name": name,
         "createdBy": username,
-        "rated": form["rated"] == RATED and form["position"] == "",
+        "rated": rated,
         "variant": variant_name,
         "chess960": variant960,
         "base": base,

@@ -1,6 +1,6 @@
 # ![Tori Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/ToriShogi.svg) Tori Shogi
 
-![Tori](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriBoard1.png) ![Tori](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriBoard2.png)
+![International Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriIntl.png)![Traditional Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriKanji.png)
 
 *Tori Shogi* (禽将棋/鳥将棋), Japanese for Bird Chess/Shogi, is a Shogi variant invented by Toyota Genryu in 1799, although traditionally attributed to his master Ōhashi Sōei. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity to this day, including English-language books and tournaments.
 
@@ -30,12 +30,10 @@ All Tori Shogi pieces (except two) are new, and learning them may be daunting fo
 
 If you were to guess, how would this make-believe piece move?  Note how it has a *long beak pointing up, long wings pointing to the sides, and long talons pointing diagonally backwards*. A logical guess would be that it moves like a *rook* orthogonally left and right (wings) and up (beak), while moving like a *bishop* diagonally backwards (talons). It also has a *small little tail poking straight down*, so it's also a reasonable assumption that this piece can also go backwards just a little bit, likely one space. Now, on to the real pieces.
 
-To make things simple, the piece movements fall into two main patterns: 
+Two pieces are very straightforward as they are just renamed versions of the king and pawn from Shogi. The rest of the pieces are all unique. To make things simple, these new pieces' movements fall into two main patterns: 
 
 1. **Pieces that move like a king**
 2. **Pieces whose moves resemble a Y-shape (right-side up or upside-down)**
-
-The only two exceptions are two easiest pieces, the Phoenix (Tori king) and Swallow (Tori pawn), so we will start with those first.
 
 As mentioned in the rules, **only two pieces promote**. The weakest piece in the game promotes to a very weak piece, while the strongest unpromoted piece in the game promotes into a far stronger piece. These two pieces will be discussed last, and both fall into the Y-shape class (both happen to be right-side up Y's).
 
@@ -61,7 +59,7 @@ The Swallow (燕, *tsubame*) is the same as the Shogi Pawn (but different than t
 
 The Swallow is one of the two promotable pieces, and it promotes to the **Goose**.
 
-## King-like pieces
+## King-like Pieces
 
 ![King-like pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KinglikePieces.png) 
 
@@ -81,7 +79,7 @@ The Falcon is the other of the two promotable pieces, and it promotes to the **E
 
 The Crane (鶴, *tsuru*) moves like a king except *it cannot move sideways (left or right)* (on the picture, this is the empty space between the crane and the water it's standing on -- yes, treat the water as part of the mnemonic). While not as strong as the Falcon, the Crane is also a very strong piece.
 
-## ⅄-shaped pieces
+## ⅄-shaped Pieces
 
 ![Upside-down Y pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/UpsidedownYPieces.png) 
 
@@ -105,7 +103,7 @@ The Quails are tied with the Falcon for being the strongest unpromoted piece in 
 
 A note on the kanji set: Traditional sets just use the character for quail on the front and "left" or "right" on the back. As players playing online cannot physically peek under the pieces, we put the kanji for left (左) and right (右) above the kanji for quail.
 
-## Y-shaped pieces (Promoted pieces)
+## Y-shaped Pieces (Promoted Pieces)
 
 ![Promoted pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PromotedPieces.png) 
 

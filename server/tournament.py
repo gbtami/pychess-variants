@@ -692,8 +692,8 @@ class Tournament(ABC):
         if bpoint[1] == STREAK:
             bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
 
-        wplayer.rating = game.white_rating.rating_prov[0] + int(game.wrdiff) if game.wrdiff else 0
-        bplayer.rating = game.black_rating.rating_prov[0] + int(game.brdiff) if game.brdiff else 0
+        wplayer.rating = game.white_rating.rating_prov[0] + (int(game.wrdiff) if game.wrdiff else 0)
+        bplayer.rating = game.black_rating.rating_prov[0] + (int(game.brdiff) if game.brdiff else 0)
 
         # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
         nb = wplayer.nb_games
