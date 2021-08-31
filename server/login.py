@@ -82,7 +82,7 @@ async def login(request):
 
     username = None
     title = ""
-    disabled = ""
+    closed = ""
     tosViolation = ""
 
     async with aiohttp.ClientSession() as client_session:
@@ -91,7 +91,7 @@ async def login(request):
             data = await resp.json()
             username = data.get("username")
             title = data.get("title", "")
-            disabled = data.get("disabled", "")
+            closed = data.get("closed", "")
             tosViolation = data.get("tosViolation", "")
             if username is None:
                 log.error("Failed to get lichess public user account data from %s", LICHESS_ACCOUNT_API_URL)
@@ -109,8 +109,8 @@ async def login(request):
         log.error("tosViolation user %s tried to log in.", username)
         return web.HTTPFound("/")
 
-    elif disabled == "true":
-        log.error("disabled user %s tried to log in.", username)
+    elif closed == "true":
+        log.error("closed user %s tried to log in.", username)
         return web.HTTPFound("/")
 
     log.info("+++ Lichess authenticated user: %s", username)

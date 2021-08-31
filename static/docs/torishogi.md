@@ -1,6 +1,6 @@
 # ![Tori Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/ToriShogi.svg) Tori Shogi
 
-![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriShogi.png)
+![Tori](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriBoard1.png) ![Tori](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriBoard2.png)
 
 *Tori Shogi* (禽将棋/鳥将棋), Japanese for Bird Chess/Shogi, is a Shogi variant invented by Toyota Genryu in 1799, although traditionally attributed to his master Ōhashi Sōei. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity to this day, including English-language books and tournaments.
 
