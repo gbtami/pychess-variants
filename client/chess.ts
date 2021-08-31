@@ -402,6 +402,13 @@ export const VARIANTS: { [name: string]: IVariant } = {
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
+        alternateStart: {
+            '': '',
+            'Left Quail HC': 'rpckcp1/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[] b 0 1',
+            'Falcon HC': 'rpckcpl/7/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[] b 0 1',
+            'Falcon + Left Quail HC': 'rpckcp1/7/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[] b 0 1',
+            'Falcon + Both Quails HC': '1pckcp1/7/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[] b 0 1',
+        },
         icon: "🐦",
     }),
 
