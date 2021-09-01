@@ -1,0 +1,108 @@
+
+/* Layer 3 - Three Column Layout Desktop */
+
+/* Main Container of all 3 columns  */
+
+.layer-3-container {
+    background-color: #3c3934;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+    padding: 10px;
+    gap: 10px;
+    /* border: 1px solid red; */
+}
+
+/* Columns  */
+
+.layer-3-container .layer-2-category {
+    display: flex;
+    justify-content: flex-start;
+    padding:15px;
+    /* border: 1px solid yellow; */
+}
+
+.layer-3-container .layer-2-category:hover {
+border: none;
+background-color: #464542 ;
+color: #999;
+transform: scale(1);
+cursor: default;
+}
+
+
+
+/* First Column  */
+
+.layer-3-container .l3v .variant-title-l2 {
+    /* border: 1px solid red; */
+ display: flex;
+ flex-direction: row;
+ width: 100%;
+ margin-bottom: 25px;
+ justify-content: center;
+ align-items: center;
+ font-size: 1.1rem;
+
+}
+
+.layer-3-container .l3links-cont {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* border: 1px solid yellow; */
+    text-transform: none;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.layer-3-container .l3links-cont .l3links {
+    /* border: 1px solid pink; */
+    display: flex;
+    justify-content: flex-start;
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.layer-3-container h5 {
+    /* border: 1px solid red; */
+    padding: 10px;
+}
+
+/* Second Column with Image */
+
+.layer-3-container .l3img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* border: 1px solid red; */
+    padding: 0;
+    width: 100%;
+}
+
+.layer-3-container .l3img .generic-shogi {
+    /* border: 1px solid blue; */
+    width: 100%;
+}
+
+/* Third Column with Text */
+
+.layer-3-container .l3t .variant-extra-info {
+    /* border: 1px solid red; */
+    padding: 0;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Setting max height for all columns  */
+
+.chess-l3 {
+    max-height: 300px;
+}
+
+#chess960l3cont .variant-extra-info, #capablancal3cont .variant-extra-info, #schessl3cont .variant-extra-info {
+    font-size: 0.8rem;
+}
+

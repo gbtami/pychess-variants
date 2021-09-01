@@ -12,7 +12,7 @@ import { h } from 'snabbdom/h';
 import { goBackToLayer1 } from './layer1';
 
 
-export function layer2army (assetUrl) {
+export function layer2army (assetUrl, containerId) {
     const layer2cont = h('div#layer2armycont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
             h('div.layer-two-category-info', [
@@ -59,6 +59,6 @@ export function layer2army (assetUrl) {
         ]),
     ]);
 
-    const container = document.getElementById('panel-container') as HTMLElement;
+    const container = document.getElementById(containerId) as HTMLElement;
     if (container) patch(container, layer2cont);
 }

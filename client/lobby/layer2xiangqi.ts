@@ -12,7 +12,7 @@ import { h } from 'snabbdom/h';
 import { goBackToLayer1 } from './layer1';
 
 
-export function layer2xiangqi (assetUrl) {
+export function layer2xiangqi (assetUrl, containerId) {
     const layer2cont = h('div#layer2xiangqicont.layer-2-container.fairy-grid.two-grid', [
         h('button.layer-2-category generic-variant-info.generic-makruk', [
             h('div.layer-two-category-info', [
@@ -52,6 +52,6 @@ export function layer2xiangqi (assetUrl) {
         ]),
     ]);
 
-    const container = document.getElementById('panel-container') as HTMLElement;
+    const container = document.getElementById(containerId) as HTMLElement;
     if (container) patch(container, layer2cont);
 }

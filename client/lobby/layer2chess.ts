@@ -10,9 +10,9 @@ const patch = init([klass, attributes, properties, listeners, style]);
 import { h } from 'snabbdom/h';
 
 import { goBackToLayer1 } from './layer1';
+import { layer3chess } from './layer3';
 
-
-export function layer2chess (assetUrl) {
+export function layer2chess (assetUrl, containerId) {
     const layer2cont = h('div#layer2chesscont.layer-2-container', [
         h('button.layer-2-category generic-variant-info.generic', [
             h('div.layer-two-category-info', [
@@ -22,7 +22,7 @@ export function layer2chess (assetUrl) {
                 h('h5#chessl2back', { on: { click: () => goBackToLayer1(assetUrl, 'layer2chesscont') } }, 'Go Back'),
             ]),
         ]),
-        h('button.layer-2-category.chess-l2', [
+        h('button.layer-2-category.chess-l2', { on: { click: () => layer3chess(assetUrl) } }, [
             h('div.variant-title-l2', [
                 h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/chess.svg" } } ) ]),
                 h('h3', 'Chess')
@@ -66,6 +66,6 @@ export function layer2chess (assetUrl) {
         ]),
     ]);
 
-    const container = document.getElementById('panel-container') as HTMLElement;
+    const container = document.getElementById(containerId) as HTMLElement;
     if (container) patch(container, layer2cont);
 }
