@@ -28,6 +28,6 @@ Additionally, all guides have been updated for clarification. Variants that are 
 
 As you've already seen, we've been adding arena tournaments regularly. We've already done our first shield tournament with Crazyhouse960, we'll have our first shield tournament with Shinobi on 9/2, and the second Crazyhouse960 after. With so many variants, we obviously will not be able to add tournaments for *everything*, but you can help by spreading the word to your friends and chess buddies. If you have specific requests for tournaments please let us know.
 
-We'll also have a new addition to our lobby page very soon. Thanks a lot to VisualDennis/Tasshaq for implementing it!
+We'll also have a new addition to our lobby page very soon. Thanks a lot to VisualDennis for implementing it!
 
 That's all for now. For all those going back to school, good luck, but always feel free to spend your break time in Pychess!
