@@ -1,4 +1,17 @@
+<h1 align="center">New variant, new engine and more</h1>
+
+<div class="meta-headline">
+    <div class= "meta">
+        <span class="text">2021.09.02</span>
+        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
+        <span class="text">Announcements</span>
+    </div>
+    <div class= "headline">Hot summer</div>
+</div>
+</br>
+
 ![Some Birds](https://github.com/gbtami/pychess-variants/blob/master/static/images/AngryBirds.png)
+</br>
 
 We got a bunch of updates coming in to finish off this summer!
 
@@ -11,7 +24,7 @@ We’re excited to announce a new variant at Pychess! This one involves taking y
 Tori Shogi is a three-centuries old variant that has similar to rules of Shogi but is played on a smaller board (7x7) and starts with immediate confrontation, also unlike Shogi. We’re now bringing it to the mainstream with piece symbols that should be more accessible to everyone. Please be sure to read [the rules](https://www.pychess.org/variants/torishogi) before you play because all the pieces are new and somewhat complex. It will be *much* faster to read about the game than *winging it*.
 
 Also, before anyone asks, no we will not add Atomic Tori Shogi. We might be in trouble with PETA if we had a game featuring exploding birds! On a similar note, there will no more planned for variants for a good while so that we can spend more attention on improving the site’s features. With nearly 40 variants available, we hope that’s enough to keep most people satisfied with a variety of selection!
-<iframe width="560" height="315" src="https://www.youtube.com/embed/2WNrx2jq184" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/uSlB4eznXoA" frameborder="0" allowfullscreen></iframe>
 
 
 **New Engine**
@@ -34,9 +47,9 @@ We'll also have a new addition to our lobby page very soon. Thanks a lot to Visu
 
 Special round of thanks to the following contributors!
 
-* **Diwaditya** - enhanced FAQ styling.
-* **pepellou** - implemented zen mode.
-* **e-pluszak** - bug fixes in chessgroundx and in Pychess
-* **blunderman1** - re-introduced click-click drop
+[@Diwaditya](https://www.pychess.org/@/Diwaditya) enhanced FAQ styling.
+[@pepellou](https://www.pychess.org/@/pepellou) implemented zen mode.
+[@e-pluszak](https://www.pychess.org/@/e-pluszak) fixed bugs in chessgroundx and in PyChess.
+[@blunderman1](https://www.pychess.org/@/blunderman1) re-introduced click-click drop.
 
-That's all for now. For all those going back to school, good luck, but always feel free to spend your break time in Pychess!
+That's all for now. For all those going back to school, good luck, but always feel free to spend your break time in PyChess!
