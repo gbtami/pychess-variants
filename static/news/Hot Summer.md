@@ -30,4 +30,13 @@ As you've already seen, we've been adding arena tournaments regularly. We've alr
 
 We'll also have a new addition to our lobby page very soon. Thanks a lot to VisualDennis for implementing it!
 
+**New Contributors**
+
+Special round of thanks to the following contributors!
+
+* **Diwaditya** - enhanced FAQ styling.
+* **pepellou** - implemented zen mode.
+* **e-pluszak** - bug fixes in chessgroundx and in Pychess
+* **blunderman1** - re-introduced click-click drop
+
 That's all for now. For all those going back to school, good luck, but always feel free to spend your break time in Pychess!
