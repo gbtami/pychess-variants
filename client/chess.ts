@@ -5,6 +5,8 @@ import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
+import {Color, Key, Pieces, Role} from "chessgroundx/types";
+import {InsertHook} from "snabbdom/src/hooks";
 
 const pieceSan = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'] as const;
 export type PieceSan = `${'+' | ''}${typeof pieceSan[number]}`;
@@ -67,7 +69,7 @@ type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, c
 const alwaysMandatory: MandatoryPromotionPredicate = () => true;
 
 function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) {
-    return (role, _orig, dest, color) => {
+    return (role: Role, _orig: Key, dest: Key, color: Color) => {
         const letter = role2letter(role);
         return (letter in required) ? distFromLastRank(dest, color, boardHeight) < required[letter] : false;
     };
@@ -170,7 +172,7 @@ class Variant implements IVariant {
     icon(chess960 = false) { return chess960 ? this._icon960 : this._icon; }
     readonly pieceSound: string;
 
-    constructor(data) {
+    constructor(data: any) {//TODO:niki:this seems a lot of work - or maybe it is just one type - postponed for when less tired
         this.name = data.name;
         this._displayName = (data.displayName ?? data.name).toUpperCase();
         this._tooltip = data.tooltip;
@@ -355,7 +357,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["k", "+n", "n", "+s", "s", "+l", "l", "+p", "p"],
         pocketRoles: ["p", "l", "n", "s"],
         promotion: "kyoto",
-        isMandatoryPromotion: (_role, orig, _dest, _color) => orig !== 'a0',
+        isMandatoryPromotion: (_role: Role, orig: Key, _dest: Key, _color: Color) => orig !== 'a0',
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -654,8 +656,8 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     asymmetric: { variants: [ "orda", "synochess", "shinobi", "empire" ] },
 };
 
-function variantGroupLabel(group) {
-    const groups = {
+function variantGroupLabel(group: string) {
+    const groups: {[index: string]:any} = {
         standard: _("Standard piece variants"),
         sea: _("Southeast Asian variants"),
         shogi: _("Shogi variants"),
@@ -666,7 +668,7 @@ function variantGroupLabel(group) {
     return groups[group];
 }
 
-export function selectVariant(id, selected, onChange, hookInsert) {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook) {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
@@ -700,11 +702,11 @@ export function hasCastling(variant: IVariant, color: cg.Color) {
     }
 }
 
-export function uci2cg(move) {
+export function uci2cg(move: string) {
     return move.replace(/10/g, ":");
 }
 
-export function cg2uci(move) {
+export function cg2uci(move: string) {
     return move.replace(/:/g, "10");
 }
 
@@ -726,7 +728,7 @@ export function validFen(variant: IVariant, fen: string) {
     const placement = parts[0];
     const startPlacement = start[0];
     let good = startPlacement + ((variantName === "orda") ? "Hq" : "") + ((variantName === "dobutsu") ? "Hh" : "") + "~+0123456789[]";
-    const alien = element => !good.includes(element);
+    const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
 
     // Brackets paired
@@ -741,9 +743,9 @@ export function validFen(variant: IVariant, fen: string) {
     //const startPocket = startPlacement.slice(startLeftBracketPos);
 
     // Convert FEN board to board array
-    const toBoardArray = board => {
-        const toRowArray = row => {
-            const stuffedRow = row.replace('10', '_'.repeat(10)).replace(/\d/g, x => '_'.repeat(parseInt(x)) );
+    const toBoardArray = (board: string) => {
+        const toRowArray = (row: string) => {
+            const stuffedRow = row.replace('10', '_'.repeat(10)).replace(/\d/g, (x: string) => '_'.repeat(parseInt(x)) );
             const rowArray : string[] = [];
             let promoted = false;
             for (const c of stuffedRow) {
@@ -776,14 +778,14 @@ export function validFen(variant: IVariant, fen: string) {
     const boardWidth = cg.dimensions[variant.geometry].width;
 
     if (boardArray.length !== boardHeight) return false;
-    if (boardArray.some(row => row.length !== boardWidth)) return false;
+    if (boardArray.some((row: string[]) => row.length !== boardWidth)) return false;
 
     // Starting colors
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
 
     // Castling rights (piece virginity)
     good = (variantName === 'seirawan' || variantName === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
-    const wrong = (element) => {good.indexOf(element) === -1;};
+    const wrong = (element: string) => {good.indexOf(element) === -1;};
     if (parts.length > 2 && variantName !== 'dobutsu') {
         if (parts[2].split('').some(wrong)) return false;
 
@@ -833,11 +835,11 @@ function diff(a: number, b:number):number {
     return Math.abs(a - b);
 }
 
-function touchingKings(pieces) {
+function touchingKings(pieces: Pieces) {
     let wk = 'xx', bk = 'zz';
-    Object.keys(pieces).filter(key => pieces[key].role === "king").forEach(key => {
-        if (pieces[key].color === 'white') wk = key;
-        if (pieces[key].color === 'black') bk = key;
+    Object.keys(pieces).filter(key => pieces[key]?.role === "k-piece"/*TODO:niki:"king" - this was the old value but it is not a valid role .. also should pk-piece be included */).forEach(key => {
+        if (pieces[key]?.color === 'white') wk = key;
+        if (pieces[key]?.color === 'black') bk = key;
     });
     const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) <= 1 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) <= 1;
     return touching;
@@ -923,10 +925,10 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
 
 // Convert a list of moves to chessground destination
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
-    const dests = {};
+    const dests: cg.Dests = {};
     legalMoves.map(uci2cg).forEach(move => {
-        const orig = move.split(0, 2);
-        const dest = move.split(2, 4);
+        const orig = move.slice(0, 2) as Key; // TODO:niki:i wonder how this worked before - seems to me split should be replaced by slice judging by logic
+        const dest = move.slice(2, 4) as Key;
         if (orig in dests)
             dests[orig].push(dest);
         else
@@ -938,7 +940,7 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
 // Convert a move to array of squares for last move highlight
 export function uci2array(move: UCIMove): cg.Key[] {
     const cgMove = uci2cg(move);
-    return cgMove.includes('@') ? [ cgMove.slice(2, 4) ] : [ cgMove.slice(0, 2), cgMove.slice(2, 4) ];
+    return cgMove.includes('@') ? [ cgMove.slice(2, 4) as cg.Key ] : [ cgMove.slice(0, 2) as cg.Key, cgMove.slice(2, 4) as cg.Key];
 }
 export function role2letter(role: cg.Role) {
     const letterPart = role.slice(0, role.indexOf('-'));

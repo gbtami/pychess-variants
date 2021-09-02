@@ -5,10 +5,10 @@ import trans from 'gettext.js';
 import { StringSettings } from './settings';
 import { radioList } from './view';
 
-export const i18n = new trans();
-export function _(msgid, ...vars) { return i18n.gettext(msgid, vars); }
-export function ngettext(msgid, plural, ...vars) { return i18n.ngettext(msgid, plural, vars); }
-export function pgettext(msgctxt, msgid, ...vars) { return i18n.pgettext(msgctxt, msgid, vars); }
+export const i18n = new (trans.i18n as any)();//simplest workaround i found for the Error TS7009 here: https://stackoverflow.com/a/51622913
+export function _(msgid: string, ...vars: any) { return i18n.gettext(msgid, vars); }
+export function ngettext(msgid: string, plural: string, ...vars: any) { return i18n.ngettext(msgid, plural, vars); }
+export function pgettext(msgctxt: string, msgid: string, ...vars: any) { return i18n.pgettext(msgctxt, msgid, vars); }
 
 export const LANGUAGES = {
     en: "English",
@@ -27,7 +27,7 @@ export const LANGUAGES = {
     zh: "简体中文",
 };
 
-const LANGUAGETEXT = {
+const LANGUAGETEXT: {[key:string]: string} = {
     en: "Language",
     de: "Sprache",
     es: "Idioma",

@@ -19,6 +19,8 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
+    "@types/gettext.js": "^0.8.2",
+    "@types/howler": "^2.2.4",
     "@types/mocha": "^8.0.1",
     "browserify": "^16",
     "chai": "^4.2.0",

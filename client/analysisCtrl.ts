@@ -2,6 +2,7 @@
 //TODO: importing from node-modules causes error while running gulp:
 //'import' and 'export' may appear only with 'sourceType: module'
 import Module from '../static/ffish.js';
+
 import Sockette from 'sockette';
 
 import { init } from 'snabbdom';
@@ -15,7 +16,20 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import { key2pos, pos2key } from 'chessgroundx/util';
-import { Color, Dests, Pieces, PiecesDiff, Role, Key, Pos, Piece, Variant, Notation, SetPremoveMetadata } from 'chessgroundx/types';
+import {
+    Color,
+    Dests,
+    Pieces,
+    PiecesDiff,
+    Role,
+    Key,
+    Pos,
+    Piece,
+    Variant,
+    Notation,
+    SetPremoveMetadata,
+    FEN, Geometry, MoveMetadata
+} from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from './types';
@@ -24,7 +38,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid, DropOrig } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -36,6 +50,9 @@ import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
 import { getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
+import { Chart } from "highcharts";
+import { PyChessModel } from "./main";
+import {Clocks} from "./roundCtrl";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -49,7 +66,7 @@ const EVAL_REGEX = new RegExp(''
 const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
-function download(filename, text) {
+function download(filename: string, text: string) {
   const element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
   element.setAttribute('download', filename);
@@ -62,6 +79,107 @@ function download(filename, text) {
   document.body.removeChild(element);
 }
 
+export interface Step{
+    fen: string;
+    move: string | undefined;
+    check: boolean;
+    turnColor: Color;
+
+    san?: string;
+    analysis?: Ceval;
+
+    ceval?: Ceval;//TODO:where did that boolean thing come from i dont remember
+    score?: string | undefined;//TODO:niki: why then also scoreStr - probably should not be string
+    scoreStr?: string;
+
+    vari?: Step[];//TODO:niki:if this is not optional a lot of ugly "if (vv) {}" will not be needed
+    sanSAN?: string;
+
+}
+
+export interface CT {//if used in other places - maybe belongs in another more general file
+    s1: number;
+    s2: number;
+    r: string[];
+    _id: string;
+
+}
+
+export interface MsgCtable{
+    ct: CT
+}
+export interface MsgGameNotFound{
+    gameId: string;
+}
+export interface MsgShutdown{
+    message: string;
+}
+
+export interface MsgChat {
+    room: string;
+    user: string;
+    message: string;
+}
+
+export interface MsgFullChat {
+    lines: MsgChat[];
+}
+
+export interface MsgBoard {
+    gameId: string;
+    fen: string;
+    ply: number;
+    lastMove: string;
+    dests: Dests;
+    promo: string[];
+    bikjang: boolean;
+    check: boolean;
+
+    status: number;
+    pgn: string;
+    uci_usi: string;
+    result: string;
+    steps: Step[];
+
+    byo?: number[];
+    clocks?: Clocks;
+}
+
+interface MsgAnalysisBoard {
+    gameId: string;
+    fen: string;
+    ply: number;
+    lastMove: string;
+    dests: Dests;
+    promo: string[];
+    bikjang: boolean;
+    check: boolean;
+}
+
+interface Ceval {
+    d: number;
+    m?: string;
+    p?: any;
+    s: { cp?: number ; mate?: number};
+    k?: number;
+}
+
+interface MsgAnalysis {
+    type: string;
+    ply: number;
+    ceval: Ceval;
+    color: string;
+}
+
+export interface MsgSpectators {
+    spectators: string;
+}
+
+export interface MsgUserConnected {
+    username: string;
+    ply?: number;//used only in roundctrl
+    firstmovetime?: number;//used only in roundctrl
+}
 
 export default class AnalysisController {
     model;
@@ -104,7 +222,7 @@ export default class AnalysisController {
     spectator: boolean;
     settings: boolean;
     status: number;
-    steps;
+    steps: Step[];
     pgn: string;
     uci_usi: string;
     ply: number;
@@ -114,24 +232,24 @@ export default class AnalysisController {
     ratings: string[];
     animation: boolean;
     showDests: boolean;
-    analysisChart;
+    analysisChart: Chart;
     ctableContainer: VNode | HTMLElement;
     localEngine: boolean;
     localAnalysis: boolean;
-    ffish;
-    ffishBoard;
+    ffish: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
+    ffishBoard: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
     notation: Notation;
-    notationAsObject;
+    notationAsObject: any;//TODO: niki:i think this looks more like someting that can be typed judging by its initializing - but not obvious at the moment what is going on.
     prevPieces: Pieces;
     arrow: boolean;
 
-    constructor(el, model) {
+    constructor(el: HTMLElement, model: PyChessModel) {
         this.isAnalysisBoard = model["gameId"] === "";
 
-        const onOpen = (evt) => {
+        const onOpen = (evt: Event) => {
             console.log("ctrl.onOpen()", evt);
             if (this.model['embed']) {
                 this.doSend({ type: "embed_user_connected", gameId: this.model["gameId"] });
@@ -142,12 +260,12 @@ export default class AnalysisController {
 
         const opts = {
             maxAttempts: 10,
-            onopen: e => onOpen(e),
-            onmessage: e => this.onMessage(e),
-            onreconnect: e => console.log('Reconnecting in round...', e),
-            onmaximum: e => console.log('Stop Attempting!', e),
-            onclose: e => console.log('Closed!', e),
-            onerror: e => console.log('Error:', e),
+            onopen: (e: Event) => onOpen(e),
+            onmessage: (e: MessageEvent) => this.onMessage(e),
+            onreconnect: (e: Event) => console.log('Reconnecting in round...', e),
+            onmaximum: (e: Event) => console.log('Stop Attempting!', e),
+            onclose: (e: Event) => console.log('Closed!', e),
+            onerror: (e: Event) => console.log('Error:', e),
             };
 
         const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
@@ -177,7 +295,7 @@ export default class AnalysisController {
         this.fullfen = model["fen"] as string;
         this.wplayer = model["wplayer"] as string;
         this.bplayer = model["bplayer"] as string;
-        this.base = model["base"] as number;
+        this.base = model["base"];
         this.inc = model["inc"] as number;
         this.status = model["status"] as number;
         this.steps = [];
@@ -228,7 +346,7 @@ export default class AnalysisController {
         this.result = "*";
         const parts = this.fullfen.split(" ");
 
-        const fen_placement = parts[0];
+        const fen_placement: FEN = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.steps.push({
@@ -239,14 +357,14 @@ export default class AnalysisController {
             });
 
         this.chessground = Chessground(el, {
-            fen: fen_placement,
-            variant: this.variant.name as Variant,
-            chess960: this.chess960,
-            geometry: this.variant.geometry,
-            notation: this.notation,
-            orientation: this.mycolor,
-            turnColor: this.turnColor,
-            animation: { enabled: this.animation },
+             fen: fen_placement as FEN,
+             variant: this.variant.name as Variant,
+             // chess960: this.chess960,//TODO:niki:i dont see such property in config.ts->Config
+             geometry: this.variant.geometry as Geometry,//TODO:niki:i dont understand why as Geometry is needed - but otherwise doesnt compile (or maybe it does and the IDE was complaining incorrectly not sure) - but it seems it is already this type so why "as"?
+             notation: this.notation,
+             orientation: this.mycolor,
+             turnColor: this.turnColor,
+             animation: { enabled: this.animation },
         });
 
         this.chessground.set({
@@ -300,7 +418,7 @@ export default class AnalysisController {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
             document.documentElement.style.setProperty('--toolsHeight', '136px');
         } else {
-            this.checkStatus({fen: this.fullfen});
+            // this.checkStatus({fen: this.fullfen});//TODO:niki:i dont get what is supposed to happen if such param value is passed
             document.documentElement.style.setProperty('--toolsHeight', '92px');
         }
 
@@ -352,7 +470,7 @@ export default class AnalysisController {
             this.chessground.state.movable.dests = undefined;
             this.chessground.selectSquare(passKey as Key);
             sound.moveSound(this.variant, false);
-            this.sendMove(passKey, passKey, '');
+            this.sendMove(passKey as Key, passKey as Key, '');
         }
     }
 
@@ -394,16 +512,16 @@ export default class AnalysisController {
         analysisChart(this);
     }
 
-    private checkStatus = (msg) => {
+    private checkStatus = (msg: MsgBoard | MsgAnalysisBoard) => {
         if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.model["embed"]) return;
-        if ((msg.status >= 0) || this.isAnalysisBoard) {
+        if (("status" in msg && msg.status >= 0) || this.isAnalysisBoard) {
 
             // Save finished game full pgn sent by server
-            if (msg.pgn !== undefined) this.pgn = msg.pgn;
+            if ("pgn" in msg && msg.pgn !== undefined) this.pgn = msg.pgn;
             // but on analysis page we always present pgn move list leading to current shown position!
             const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
 
-            this.uci_usi = msg.uci_usi;
+            if ("uci_usi" in msg) { this.uci_usi = msg.uci_usi; }
 
             let container = document.getElementById('copyfen') as HTMLElement;
             if (container !== null) {
@@ -433,7 +551,7 @@ export default class AnalysisController {
         }
     }
 
-    private onMsgBoard = (msg) => {
+    private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
 
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
@@ -456,9 +574,9 @@ export default class AnalysisController {
 
             msg.steps.forEach((step, ply) => {
                 if (step.analysis !== undefined) {
-                    step['ceval'] = step.analysis;
+                    step.ceval = step.analysis;
                     const scoreStr = this.buildScoreStr(ply % 2 === 0 ? "w" : "b", step.analysis);
-                    step['scoreStr'] = scoreStr;
+                    step.scoreStr = scoreStr;
                 }
                 this.steps.push(step);
                 });
@@ -470,7 +588,7 @@ export default class AnalysisController {
             }
         } else {
             if (msg.ply === this.steps.length) {
-                const step = {
+                const step: Step = {
                     'fen': msg.fen,
                     'move': msg.lastMove,
                     'check': msg.check,
@@ -482,12 +600,13 @@ export default class AnalysisController {
             }
         }
 
-        let lastMove = msg.lastMove;
-        if (lastMove !== null) {
-            lastMove = uci2cg(lastMove);
+        let lastMoveStr = msg.lastMove;
+        let lastMove: Key[] | null = null;
+        if (lastMoveStr !== null) {
+            lastMoveStr = uci2cg(lastMoveStr);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
+            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as Key] : [lastMoveStr.slice(0, 2) as Key, lastMoveStr.slice(2, 4) as Key];
         }
 
         const step = this.steps[this.steps.length - 1];
@@ -518,11 +637,11 @@ export default class AnalysisController {
         }
     }
 
-    moveIndex = (ply) => {
+    moveIndex = (ply: number) => {
       return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
     }
 
-    notation2ffishjs = (n) => {
+    notation2ffishjs = (n: Notation) => {
         switch (n) {
             case Notation.DEFAULT: return this.ffish.Notation.DEFAULT;
             case Notation.SAN: return this.ffish.Notation.SAN;
@@ -536,14 +655,14 @@ export default class AnalysisController {
         }
     }
 
-    onFSFline = (line) => {
+    onFSFline = (line: string) => {
         //console.log(line);
 
         if (line.includes('readyok')) this.isEngineReady = true;
 
         if (!this.localEngine) {
             if (line.includes('UCI_Variant')) {
-                new (Module as any)().then(loadedModule => {
+                new (Module as any)().then((loadedModule: any) => {//TODO:niki - i dont know what - putting any
                     this.ffish = loadedModule;
 
                     if (this.ffish !== null) {
@@ -579,7 +698,11 @@ export default class AnalysisController {
         const matches = line.match(EVAL_REGEX);
         if (!matches) {
             if (line.includes('mate 0')) {
-                const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};
+                const msg: MsgAnalysis = { type: 'local-analysis',
+                                           ply: this.ply,
+                                           color: this.turnColor.slice(0, 1),
+                                           ceval: {d: 0, s: {mate: 0}}
+                                         };
                 this.onMsgAnalysis(msg);
             }
             return;
@@ -612,7 +735,11 @@ export default class AnalysisController {
         }
         const knps = nodes / elapsedMs;
         const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-        const msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
+        const msg: MsgAnalysis = { type: 'local-analysis',
+                                   ply: this.ply,
+                                   color: this.turnColor.slice(0, 1),
+                                   ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}
+        };
         this.onMsgAnalysis(msg);
     };
 
@@ -623,7 +750,7 @@ export default class AnalysisController {
     }
 
     // Updates PV, score, gauge and the best move arrow
-    drawEval = (ceval, scoreStr, turnColor) => {
+    drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: Color) => {
         let shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
 
@@ -644,8 +771,8 @@ export default class AnalysisController {
             }
         }
 
-        if (ceval?.p !== undefined) {
-            const pv_move = uci2cg(ceval["m"].split(" ")[0]);
+        if (ceval?.p !== undefined && !!ceval.m) {//TODO:niki:why is m optional - maybe i should just make it mandatory. what about p also?
+            const pv_move = uci2cg(ceval.m.split(" ")[0]);
             console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
@@ -712,7 +839,7 @@ export default class AnalysisController {
     }
 
     // Updates chart and score in movelist
-    drawServerEval = (ply, scoreStr) => {
+    drawServerEval = (ply: number, scoreStr?: string) => {
         if (ply > 0) {
             const evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
@@ -757,14 +884,14 @@ export default class AnalysisController {
         // console.log(legalMoves);
         const dests: Dests = {};
         this.promotions = [];
-        legalMoves.forEach((move) => {
+        legalMoves.forEach((move: string) => {
             move = uci2cg(move);
             const source = move.slice(0, 2);
             const dest = move.slice(2, 4);
             if (source in dests) {
-                dests[source].push(dest);
+                dests[source].push(dest as Key);
             } else {
-                dests[source] = [dest];
+                dests[source] = [dest as Key];
             }
 
             const tail = move.slice(-1);
@@ -783,7 +910,7 @@ export default class AnalysisController {
 
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
-    goPly = (ply, plyVari = 0) => {
+    goPly = (ply: number, plyVari = 0) => {
         if (this.localAnalysis) {
             this.engineStop();
             // Go back to the main line
@@ -793,27 +920,28 @@ export default class AnalysisController {
             }
         }
 
-        const step = (plyVari > 0) ? this.steps[plyVari]['vari'][ply] : this.steps[ply];
-        let move = step.move;
+        const vv = this.steps[plyVari]?.vari;//TODO:niki:i dont know why i cant comile unless i use this const
+        const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
+        let moveStr = step.move;
+        let move : Key[];
         let capture = false;
-        if (move !== undefined) {
-            move = uci2cg(move);
-            move = move.indexOf('@') > -1 ? [move.slice(-2)] : [move.slice(0, 2), move.slice(2, 4)];
+        if (moveStr !== undefined) {
+            moveStr = uci2cg(moveStr);
+            move = moveStr.indexOf('@') > -1 ? [moveStr.slice(-2) as Key] : [moveStr.slice(0, 2) as Key, moveStr.slice(2, 4) as Key];
             // 960 king takes rook castling is not capture
-            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san.slice(0, 2) !== 'O-') || (step.san.slice(1, 2) === 'x');
+            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');//TODO:niki:ive put qusetionmarks here, but is san really optional? why?
+
+            this.chessground.set({
+                fen: step.fen,//TODO:niki:maybe use FEN in Step?
+                turnColor: step.turnColor,
+                movable: {
+                    color: step.turnColor,
+                    dests: this.dests,
+                    },
+                check: step.check,
+                lastMove: move,
+            });
         }
-
-        this.chessground.set({
-            fen: step.fen,
-            turnColor: step.turnColor,
-            movable: {
-                color: step.turnColor,
-                dests: this.dests,
-                },
-            check: step.check,
-            lastMove: move,
-        });
-
         this.fullfen = step.fen;
 
         updatePockets(this, this.vpocket0, this.vpocket1);
@@ -868,20 +996,20 @@ export default class AnalysisController {
         }
     }
 
-    private doSend = (message: JSONObject) => {
+    doSend = (message: JSONObject) => {
         // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
 
     private onMove = () => {
-        return (orig, dest, capturedPiece) => {
+        return (orig: Key, dest: Key, capturedPiece: Piece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
-            sound.moveSound(this.variant, capturedPiece);
+            sound.moveSound(this.variant, !!capturedPiece);
         }
     }
 
     private onDrop = () => {
-        return (piece, dest) => {
+        return (piece: Piece, dest: Key) => {
             // console.log("ground.onDrop()", piece, dest);
             if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
@@ -893,10 +1021,12 @@ export default class AnalysisController {
         const moves : string[] = [];
         for (let ply = 1; ply <= this.ply; ply++) {
             const moveCounter = (ply % 2 !== 0) ? (ply + 1) / 2 + '.' : '';
-            if (this.steps[ply]['vari'] !== undefined && this.plyVari > 0) {
-                const variMoves = this.steps[ply]['vari'];
-                for (let idx = 0; idx <= idxInVari; idx++) {
-                    moves.push(moveCounter + variMoves[idx]['sanSAN']);
+            if (this.steps[ply].vari !== undefined && this.plyVari > 0) {
+                const variMoves = this.steps[ply].vari;
+                if (variMoves) {
+                    for (let idx = 0; idx <= idxInVari; idx++) {
+                        moves.push(moveCounter + variMoves[idx].sanSAN);
+                    }
                 }
                 break;
             }
@@ -905,10 +1035,12 @@ export default class AnalysisController {
         return moves.join(' ');
     }
 
-    sendMove = (orig, dest, promo) => {
+    sendMove = (orig: Key | DropOrig, dest: Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
+        const vv = this.steps[this.plyVari]['vari'];
+
         // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
@@ -919,7 +1051,7 @@ export default class AnalysisController {
         const moves = this.ffishBoard.moveStack().split(' ');
         const newPly = moves.length;
 
-        const msg = {
+        const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
             fen: this.ffishBoard.fen(),
             ply: newPly,
@@ -929,6 +1061,7 @@ export default class AnalysisController {
             bikjang: this.ffishBoard.isBikjang(),
             check: this.ffishBoard.isCheck(),
         }
+
         this.onMsgAnalysisBoard(msg);
 
         const step = {
@@ -946,7 +1079,7 @@ export default class AnalysisController {
             this.ply = this.ffishBoard.gamePly()
             updateMovelist(this);
 
-            this.checkStatus(msg);
+            this.checkStatus(msg);//TODO:niki: what does this checkStatus thing is actually supposed to do - must read code more carefully.
         // variation move
         } else {
             // new variation starts
@@ -956,35 +1089,37 @@ export default class AnalysisController {
                     selectMove(this, this.ply);
                     return;
                 }
-                if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari]['vari'].length) {
+                if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari].vari?.length) {
                     // continuing the variation
                     this.plyVari = this.ffishBoard.gamePly();
                     this.steps[this.plyVari]['vari'] = [];
                 } else {
                     // variation in the variation: drop old moves
-                    this.steps[this.plyVari]['vari'] = this.steps[this.plyVari]['vari'].slice(0, this.ffishBoard.gamePly() - this.plyVari);    
+                    if ( vv ) {
+                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ffishBoard.gamePly() - this.plyVari);
+                    }
                 }
             }
-            this.steps[this.plyVari]['vari'].push(step);
+            if (vv) vv.push(step);
 
             const full = true;
             const activate = false;
             updateMovelist(this, full, activate);
-            activatePlyVari(this.plyVari + this.steps[this.plyVari]['vari'].length - 1);
+            if (vv) activatePlyVari(this.plyVari + vv.length - 1);
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;
         e.value = this.fullfen;
 
         if (this.isAnalysisBoard) {
-            const idxInVari = (this.plyVari > 0) ? this.steps[this.plyVari]['vari'].length - 1 : 0;
+            const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
             this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
         }
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
 
-    private onMsgAnalysisBoard = (msg) => {
+    private onMsgAnalysisBoard = (msg: MsgAnalysisBoard) => {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();
@@ -999,12 +1134,13 @@ export default class AnalysisController {
 
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
-        let lastMove = msg.lastMove;
-        if (lastMove !== null) {
-            lastMove = uci2cg(lastMove);
+        let lastMoveStr = msg.lastMove;
+        let lastMove: Key[] | undefined = undefined;//TODO:niki:on around line 598 duplicate/same code uses null isntead of undefined but doesnt get compiler errors?
+        if (lastMoveStr !== null) {
+            lastMoveStr = uci2cg(lastMoveStr);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMove.indexOf('@') > -1 ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
+            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as Key] : [lastMoveStr.slice(0, 2) as Key, lastMoveStr.slice(2, 4) as Key];
         }
 
         this.chessground.set({
@@ -1014,7 +1150,7 @@ export default class AnalysisController {
             check: msg.check,
             movable: {
                 color: this.turnColor,
-                dests: this.dests,
+                dests: this.dests /*as [key: string]: cg.Key[]*/,
             },
         });
 
@@ -1023,7 +1159,7 @@ export default class AnalysisController {
         if (this.localAnalysis) this.engineGo();
     }
 
-    private onUserMove = (orig, dest, meta) => {
+    private onUserMove = (orig: Key, dest: Key, meta: MoveMetadata) => {
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
@@ -1037,7 +1173,7 @@ export default class AnalysisController {
             const diff: PiecesDiff = {};
             diff[pos2key(pawnPos)] = undefined;
             this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece"};
+            meta.captured = {role: "p-piece", color: moved.color=== "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
         // increase pocket count
         if (this.variant.drop && meta.captured) {
@@ -1048,10 +1184,12 @@ export default class AnalysisController {
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
-                this.pockets[0][role]++;
+                const pr = this.pockets[0][role];//TODO:niki:there must a better way to avoid TS2532 but simple ifs just dont work for (2d) arrays for some reason
+                if ( pr ) this.pockets[0][role] = pr + 1;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
-                this.pockets[1][role]++;
+                const pr = this.pockets[1][role]
+                if ( pr ) this.pockets[1][role] = pr + 1;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
         }
@@ -1065,7 +1203,7 @@ export default class AnalysisController {
         }
     }
 
-    private onUserDrop = (role, dest, meta) => {
+    private onUserDrop = (role: Role, dest: Key, meta: MoveMetadata) => {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
@@ -1073,16 +1211,18 @@ export default class AnalysisController {
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
-                this.pockets[0][role]--;
+                const pr = this.pockets[0][role];
+                if ( pr ) this.pockets[0][role] = pr - 1;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
-                this.pockets[1][role]--;
+                const pr = this.pockets[1][role];
+                if ( pr ) this.pockets[1][role] = pr - 1;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@", dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
             } else {
-                this.sendMove(role2san(role) + "@", dest, '')
+                this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
             }
             // console.log("sent move", move);
         } else {
@@ -1104,7 +1244,7 @@ export default class AnalysisController {
     }
 
     private onSelect = () => {
-        return (key) => {
+        return (key: Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
@@ -1121,7 +1261,7 @@ export default class AnalysisController {
                 const piece = this.chessground.state.pieces[key];
                 if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
-                    const pieces = {};
+                    const pieces: PiecesDiff = {};
                     pieces[key] = {
                         color: piece!.color,
                         role: 'f-piece',
@@ -1136,15 +1276,15 @@ export default class AnalysisController {
         }
     }
 
-    private buildScoreStr = (color, analysis) => {
+    private buildScoreStr = (color: string, analysis: Ceval) => {
         const score = analysis['s'];
         let scoreStr = '';
-        let ceval = '';
+        let ceval : number;
         if (score['mate'] !== undefined) {
             ceval = score['mate']
             const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
             scoreStr = '#' + sign + Math.abs(Number(ceval));
-        } else {
+        } else if (score['cp'] !== undefined){
             ceval = score['cp']
             let nscore = Number(ceval) / 100.0;
             if (color === 'b') nscore = -nscore;
@@ -1153,7 +1293,7 @@ export default class AnalysisController {
         return scoreStr;
     }
 
-    private onMsgAnalysis = (msg) => {
+    private onMsgAnalysis = (msg: MsgAnalysis) => {
         // console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
 
@@ -1185,24 +1325,24 @@ export default class AnalysisController {
         this.drawAnalysisChart(true);
     }
 
-    private onMsgUserConnected = (msg) => {
+    private onMsgUserConnected = (msg: MsgUserConnected) => {
         this.model["username"] = msg["username"];
         // we want to know lastMove and check status
         this.doSend({ type: "board", gameId: this.gameId });
     }
 
-    private onMsgSpectators = (msg) => {
+    private onMsgSpectators = (msg: MsgSpectators) => {
         const container = document.getElementById('spectators') as HTMLElement;
         patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
     }
 
-    private onMsgChat = (msg) => {
+    private onMsgChat = (msg: MsgChat) => {
         if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
             chatMessage(msg.user, msg.message, "roundchat");
         }
     }
 
-    private onMsgFullChat = (msg) => {
+    private onMsgFullChat = (msg: MsgFullChat) => {
         // To prevent multiplication of messages we have to remove old messages div first
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
         // then create a new one
@@ -1214,23 +1354,23 @@ export default class AnalysisController {
         });
     }
 
-    private onMsgGameNotFound = (msg) => {
+    private onMsgGameNotFound = (msg: MsgGameNotFound) => {
         alert(_("Requested game %1 not found!", msg['gameId']));
         window.location.assign(this.model["home"]);
     }
 
-    private onMsgShutdown = (msg) => {
+    private onMsgShutdown = (msg: MsgShutdown) => {
         alert(msg.message);
     }
 
-    private onMsgCtable = (ct, gameId) => {
-        if (ct !== "") {
+    private onMsgCtable = (msg: MsgCtable, gameId: string) => {
+        // if (msg.ct !== undefined) {
             this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
-            this.ctableContainer = patch(this.ctableContainer, crosstableView(ct, gameId));
-        }
+            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
+        // }
     }
 
-    private onMessage = (evt) => {
+    private onMessage = (evt: MessageEvent) => {
         // console.log("<+++ onMessage():", evt.data);
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
@@ -1241,7 +1381,7 @@ export default class AnalysisController {
                 this.onMsgAnalysisBoard(msg);
                 break
             case "crosstable":
-                this.onMsgCtable(msg.ct, this.gameId);
+                this.onMsgCtable(msg, this.gameId);
                 break
             case "analysis":
                 this.onMsgAnalysis(msg);

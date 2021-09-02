@@ -1,7 +1,7 @@
 // Translated from Python code https://github.com/takaki/kif2pgn
 
 // mirror letters to digits
-function l2d(c) {
+function l2d(c: string) {
     switch (c) {
     case 'a': return '9';
     case 'b': return '8';
@@ -17,7 +17,7 @@ function l2d(c) {
 }
 
 // mirror digits to letters
-function d2l(c) {
+function d2l(c: string) {
     switch (c) {
     case '1': return 'i';
     case '2': return 'h';
@@ -32,11 +32,11 @@ function d2l(c) {
     }
 }
 
-function mirror(p) {
+function mirror(p: string) {
     return d2l(p[0]) + l2d(p[1]);
 }
 
-const dict = (keys, values) => keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
+const dict = (keys: string[], values: string[]) : {[key: string]: string} => keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
 
 // TODO: add missing handicap types to chess.ts
 // recognise more initial handicap positions
@@ -49,7 +49,7 @@ const alpha = 'abcdefghi'.split('');
 const zensuji = '１２３４５６７８９'.split('');
 const kansuji = '一二三四五六七八九'.split('');
 
-const zen_map = dict(zensuji, [1,2,3,4,5,6,7,8,9]);
+const zen_map: {[key: string]: string} = dict(zensuji, ['1','2','3','4','5','6','7','8','9']);
 const kan_map = dict(kansuji, alpha);
 
 const pieces = '歩香桂銀金角飛玉と馬龍竜';
@@ -65,17 +65,29 @@ export function resultString(movingPlayerWin: boolean, ply: number, isHandicap: 
     }
 }
 
-export function parseKif(text: string) {
-    let date, place, tc, sente, gote, handicap = '';
+export interface KIF{
+    date: string;
+    place: string;
+    tc: string;
+    handicap: string;
+    sente: string;
+    gote: string;
+    moves: string[];
+    status: number;
+    result: string;
+}
+
+export function parseKif(text: string): KIF {
+    let date: string = '', place: string = '', tc: string = '', sente: string = '', gote: string = '', handicap = '';
     let status = 11; // unknown
     let result = '*'; // unknown
     const move_list: string[] = [];
     let tagsProcessed = false;
     let isHandicap = false;
-    let movesStartLineNumber, ply;
+    let movesStartLineNumber: number = 0, ply: number;
 
-    const lines = text.split(/\r?\n/u);
-    let piace_name, prev_position, next_position, rest;
+    const lines: string[] = text.split(/\r?\n/u);
+    let piace_name: string, prev_position: string, next_position: string = '', rest: string;
     const WIN = true;
     const LOSS = false;
 
@@ -169,7 +181,7 @@ export function parseKif(text: string) {
                 break;
             } else {
                 console.log('Unknown Move', s[0], lines[i], res);
-                return [];
+                throw new Error('Unknown Move '+ s[0]);//return [];
             }
 
             if (pieces.includes(s[2])) {
@@ -180,7 +192,7 @@ export function parseKif(text: string) {
                 rest = s.slice(4);
             } else {
                 console.log('Unknown Piece', s[2], lines[i], res);
-                return [];
+                throw new Error('Unknown Piece '+ s[2]);//return [];
             }
 
             let promote = '';
@@ -193,7 +205,7 @@ export function parseKif(text: string) {
                 prev_position = rest[1] + alpha[parseInt(rest[2])-1];
             } else {
                 console.log('Unknown ???', rest[0], lines[i], res);
-                return [];
+                throw new Error('Unknown ??? '+ rest[0]);//return [];
             }
 
             //const num = parseInt(res[1]);

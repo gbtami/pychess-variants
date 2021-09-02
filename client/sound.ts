@@ -42,7 +42,7 @@ class Sounds {
     }
 
     updateSoundTheme() {
-        Object.keys(Sounds.trackNames).forEach(key => {
+        Object.keys(Sounds.trackNames).forEach( (key: keyof typeof Sounds.trackNames) => {
             this.tracks[key] = this.buildSound(Sounds.trackNames[key]);
         });
     }
@@ -85,14 +85,14 @@ class Sounds {
     tick()          { if (this.audio()) this.tracks.Tick.play(); }
     explosion()     { if (this.audio()) this.tracks.Explosion.play(); }
 
-    private moveSoundSet = {
+    private moveSoundSet: {[k:string]: { move: ()=> void; capture: ()=>void;}} = {
         regular: { move: () => this.move(), capture: () => this.capture() },
         shogi: { move: () => this.shogimove(), capture: () => this.shogicapture() },
         atomic: { move: () => this.move(), capture: () => this.explosion() },
     };
 
     moveSound(variant: IVariant, capture: boolean) {
-        const soundSet = this.moveSoundSet[variant.pieceSound];
+        const soundSet = variant.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.pieceSound] : this.moveSoundSet.regular ;
         if (capture)
             soundSet.capture();
         else

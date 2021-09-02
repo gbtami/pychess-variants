@@ -14,8 +14,23 @@ import { Chessground } from 'chessgroundx';
 import { VARIANTS, uci2cg } from './chess';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
+import {Api} from "chessgroundx/api";
+import {FEN, Geometry, Key} from "chessgroundx/types";
 
-function gameView(games, game, fen, lastMove) {
+export interface Game{
+    gameId: string;
+    variant: string;
+    chess960: boolean;
+    base: number;
+    inc: number;
+    byoyomi: number;
+    b: string;
+    w: string;
+    fen: FEN;
+    lastMove: Key[];
+}
+
+function gameView(games: {[gameId: string]: Api}, game: Game, fen: FEN, lastMove: Key[]) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
@@ -33,7 +48,7 @@ function gameView(games, game, fen, lastMove) {
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
-                        geometry: variant.geometry,
+                        geometry: variant.geometry as Geometry/*TODO:niki:i dont understand why i need to do as Geomtry - same in other places*/,
                         coordinates: false,
                         viewOnly: true
                     });
@@ -55,9 +70,9 @@ export function renderGames(): VNode[] {
         if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
             const oldVNode = document.getElementById('games');
-            const games = {};
+            const games: {[gameId: string]: Api} = {};
             if (oldVNode instanceof Element) {
-                patch(oldVNode as HTMLElement, h('grid-container#games', response.map(game => gameView(games, game, game.fen, game.lastMove))));
+                patch(oldVNode as HTMLElement, h('grid-container#games', response.map((game: Game) => gameView(games, game, game.fen, game.lastMove))));
 
                 const evtSource = new EventSource("/api/ongoing");
                 evtSource.onmessage = function(event) {

@@ -39,7 +39,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     // TODO Checking for type here is a mess. Should probably move to their respective classes
     if (ctrl instanceof EditorController) {
         insertHook = {
-            insert: vnode => {
+            insert: (vnode: VNode) => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
                         drag(ctrl, e);
@@ -61,7 +61,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         };
     } else if (ctrl instanceof AnalysisController) { // enabling both the pocket whose turn it is
         insertHook = {
-            insert: vnode => {
+            insert: (vnode: VNode) => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
                         if (color===ctrl.turnColor) drag(ctrl, e);
@@ -76,7 +76,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         }
     } else { // RoundController
         insertHook = { // always enabling only my pocket
-            insert: vnode => {
+            insert: (vnode: VNode) => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
                         if (position === (ctrl.flip ? 'top' : 'bottom') ) drag(ctrl, e);
@@ -99,7 +99,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
             '--ranks': String(ctrl.variant.boardHeight),
         },
         hook: insertHook
-    }, roles.map(role => {
+    }, roles.map( (role: Role) => {
         const nb = pocket[role] || 0;
 
         let clazz;
@@ -295,11 +295,11 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
     for (const role in pocket) {
-        letters.push(role2san(role as Role).repeat(pocket[role]));
+        letters.push(role2san(role as Role).repeat(pocket[role as Role] || 0));
     }
     return letters.join('');
 }
 
-export function pockets2str(ctrl) {
+export function pockets2str(ctrl: EditorController) {
     return '[' + pocket2str(ctrl.pockets[1]) + pocket2str(ctrl.pockets[0]).toLowerCase() + ']';
 }

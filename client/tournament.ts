@@ -23,6 +23,11 @@ import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
 import { gameType } from './profile';
 import { boardSettings } from './boardSettings';
+import {Api} from "chessgroundx/api";
+import {PyChessModel} from "./main";
+import {MsgBoard, MsgChat, MsgFullChat, MsgSpectators} from "./analysisCtrl";
+import {MsgGameEnd, MsgNewGame} from "./roundCtrl";
+import {FEN, Geometry, Key} from "chessgroundx/types";
 
 const T_STATUS = {
     0: "created",
@@ -38,24 +43,119 @@ const SCORE_SHIFT = 100000;
 
 const SHIELD = 's';
 
+interface MsgUserStatus{
+	ustatus: string;
+}
+
+interface MsgGetGames{
+    rank: number;
+    name: string;
+    title: string;
+	games: TournamentGame[];
+	perf: number;
+	nbWin: number;
+	nbGames: number;
+}
+
+interface TournamentGame{
+	gameId: string;
+	title: string;
+	name: string;
+	result: string;
+	color: string;
+	rating: number;
+}
+
+interface MsgTournamentStatus{
+	tstatus: number;
+	secondsToFinish: number;
+	nbPlayers: number;
+	sumRating: number;
+	nbGames: number;
+	wWin: number;
+	bWin: number;
+	draw: number;
+}
+
+interface MsgUserConnectedTournament{
+	tsystem: number;
+	tminutes: number;
+	frequency: string;
+	startsAt: string;
+	startFen: FEN;
+
+	username: string;
+	ustatus: string;
+	urating: number;
+	tstatus: number;
+	description: string;
+	secondsToStart: number;
+	secondsToFinish: number;
+}
+
+interface MsgGetPlayers{
+	page: number;
+	requestedBy: string;
+	nbPlayers: number;
+	nbGames: number;
+
+	players: TournamentPlayer[]
+}
+
+interface TournamentPlayer{
+	name: string;
+	score: number;
+	paused: boolean;
+	title: string;
+	rating: number;
+	points: any[];//TODO:niki:i am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or somthing). But i've seen also string '*' as well and there is that chck about isArray that might mean more cases with numeric scalars exist
+	fire: number;
+	perf: number;
+	nbGames: number;
+	nbWin: number;
+}
+
+interface MsgError{
+	message: string;
+}
+interface MsgPing{
+	timestamp: string;
+}
+
+interface TopGame{
+
+    // type: string;//"top_game",
+    gameId: string;//self.top_game.id,
+    variant: string;//self.top_game.variant,
+    fen: FEN;//self.top_game.board.fen,
+    w: string;//self.top_game.wplayer.username,
+    b: string;//self.top_game.bplayer.username,
+    wr: number;//self.leaderboard_keys_view.index(self.top_game.wplayer) + 1,
+    br: number;//self.leaderboard_keys_view.index(self.top_game.bplayer) + 1,
+    chess960: boolean;//self.top_game.chess960,
+    base: number;//self.top_game.base,
+    inc: number;//self.top_game.inc,
+    byoyomi: number;//self.top_game.byoyomi_period
+
+}
 
 export default class TournamentController {
-    model;
+    model: PyChessModel;
     sock;
-    _ws;
+    readyState: number;//seems unused
     buttons: VNode;
     system: number;
-    players: string[];
+    players: TournamentPlayer[];//seems unused
     nbPlayers: number;
     page: number;
     tournamentStatus: string;
     userStatus: string;
-    userRating: string;
+    userRating: number;//seems unused
     action: VNode;
     clockdiv: VNode;
-    topGame: any;
+    topGame: TopGame;
     topGameId: string;
-    topGameChessground;
+    topGameChessground: Api;
     playerGamesOn: boolean;
     fc: string;
     sc: string;
@@ -65,33 +165,33 @@ export default class TournamentController {
     secondsToFinish: number;
     
 
-    constructor(el, model) {
+    constructor(el: HTMLElement, model: PyChessModel) {
         console.log("TournamentController constructor", el, model);
         this.model = model;
         this.nbPlayers = 0;
         this.page = 1;
-        this.tournamentStatus = T_STATUS[model["status"]];
+        this.tournamentStatus = T_STATUS[model["status"] as keyof typeof T_STATUS];
         this.visitedPlayer = '';
         this.startsAt = model["date"];
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
 
-        const onOpen = (evt) => {
-            this._ws = evt.target;
+        const onOpen = (evt: Event) => {
+            this.readyState = (evt.target as EventSource).readyState;
             console.log('onOpen()');
             this.doSend({ type: "tournament_user_connected", username: this.model["username"], tournamentId: this.model["tournamentId"]});
             this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
         }
 
-        this._ws = { "readyState": -1 };
+        this.readyState = -1;
         const opts = {
             maxAttempts: 20,
-            onopen: e => onOpen(e),
-            onmessage: e => this.onMessage(e),
-            onreconnect: e => console.log('Reconnecting in tournament...', e),
-            onmaximum: e => console.log('Stop Attempting!', e),
-            onclose: e => {console.log('Closed!', e);},
-            onerror: e => console.log('Error:', e),
+            onopen: (e: Event) => onOpen(e),
+            onmessage: (e: MessageEvent) => this.onMessage(e),
+            onreconnect: (e: Event | CloseEvent) => console.log('Reconnecting in tournament...', e),
+            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
+            onclose: (e: CloseEvent) => {console.log('Closed!', e);},
+            onerror: (e: Event) => console.log('Error:', e),
         };
 
         const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
@@ -115,7 +215,7 @@ export default class TournamentController {
         this.sock.send(JSON.stringify(message));
     }
 
-    goToPage(page) {
+    goToPage(page: number) {
         let newPage = page;
         if (page < 1) {
             newPage = 1;
@@ -195,7 +295,7 @@ export default class TournamentController {
         return 'aborted|finished|archived'.includes(this.tournamentStatus);
     }
 
-    renderSummary(msg) {
+    renderSummary(msg: MsgTournamentStatus) {
         const summary = h('div#summary', {class: {"box": true}}, [
             h('h2', _('Tournament complete')),
             h('table', [
@@ -220,12 +320,12 @@ export default class TournamentController {
         if (el) patch(el, summary);
     }
 
-    renderPlayers(players) {
+    renderPlayers(players: TournamentPlayer[]) {
         const rows = players.map((player,index) => this.playerView(player, (this.page - 1) * 10 + index + 1));
         return rows;
     }
 
-    private playerView(player, index) {
+    private playerView(player: TournamentPlayer, index: number) {
         if (player.name === this.visitedPlayer) {
             this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: this.visitedPlayer });
         }
@@ -239,7 +339,7 @@ export default class TournamentController {
                 h('span.name', player.name),
                 h('span', player.rating),
             ]),
-            h('td.sheet', [h('div', player.points.map(s => {
+            h('td.sheet', [h('div', player.points.map( (s: any) => {
                 let score = Array.isArray(s) ? s[0] : s;
                 if (this.system > 0 && score !== '*' && score !== '-' && this.model["variant"] !== 'janggi') score = score / 2;
                 const pointKlass = this.system > 0 ? '.point' : '';
@@ -255,7 +355,7 @@ export default class TournamentController {
         ]);
     }
 
-    private onClickPlayer(player) {
+    private onClickPlayer(player: string) {
         console.log('onClickPlayer()', player);
         if (this.tournamentStatus === 'created') return;
 
@@ -287,12 +387,12 @@ export default class TournamentController {
         }
     }
 
-    renderGames(games) {
+    renderGames(games: TournamentGame[]) {
         const rows = games.reverse().map((game, index) => this.gameView(game, games.length - index));
         return rows;
     }
 
-    result(result, color) {
+    result(result: string, color: string) {
         let value = '*';
         switch (result) {
         case '1-0':
@@ -312,7 +412,7 @@ export default class TournamentController {
         return h(`td.result${klass}`, value);
     }
 
-    private gameView(game, index) {
+    private gameView(game: TournamentGame, index: number) {
         if (game.result === '-') {
             return h('tr', [
                 h('th', index),
@@ -345,8 +445,8 @@ export default class TournamentController {
         }
     }
 
-    private tSystem(system) {
-        switch (parseInt(system)) {
+    private tSystem(system: number) {
+        switch (system) {
         case 0:
             return "Arena";
         case 1:
@@ -356,7 +456,7 @@ export default class TournamentController {
         }
     }
 
-    renderStats(msg) {
+    renderStats(msg: MsgGetGames) {
         const games = msg.games.filter(game => game.result !== '-');
         const gamesLen = games.length;
         const avgOp = gamesLen
@@ -403,8 +503,8 @@ export default class TournamentController {
                     insert: vnode => {
                         const cg = Chessground(vnode.elm as HTMLElement, {
                             fen: game.fen,
-                            lastMove: game.lastMove,
-                            geometry: variant.geometry,
+                            // lastMove: game.lastMove,TODO:niki:i dont see such property in python searching for "top_game"
+                            geometry: variant.geometry as Geometry,
                             coordinates: false,
                             viewOnly: true
                         });
@@ -419,11 +519,11 @@ export default class TournamentController {
         patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', element));
     }
 
-    winRate(nbGames, nbWin) {
+    winRate(nbGames: number, nbWin: number) {
         return ((nbGames !== 0) ? Math.round(100 * (nbWin / nbGames)) : 0) + '%';
     }
 
-    renderPodium(players) {
+    renderPodium(players: TournamentPlayer[]) {
         return h('div.podium', [
             h('div.second', [
                 h('div.trophy'),
@@ -458,7 +558,7 @@ export default class TournamentController {
         ]);
     }
 
-    private onMsgGetGames(msg) {
+    private onMsgGetGames(msg: MsgGetGames) {
         const oldStats = document.getElementById('stats') as Element;
         oldStats.innerHTML = "";
         patch(oldStats, h('div#stats.box', [h('tbody', this.renderStats(msg))]));
@@ -468,7 +568,7 @@ export default class TournamentController {
         patch(oldGames, h('table#games.pairings.box', [h('tbody', this.renderGames(msg.games))]));
     }
 
-    private onMsgGetPlayers(msg) {
+    private onMsgGetPlayers(msg: MsgGetPlayers) {
         if (this.completed() && msg.players.length >= 3 && msg.nbGames > 0) {
             const podium = document.getElementById('podium') as HTMLElement;
             if (podium instanceof Element) {
@@ -476,7 +576,7 @@ export default class TournamentController {
             }
         }
 
-        if (this.page = msg.page || msg.requestedBy === this.model["username"]) {
+        if (this.page == msg.page || msg.requestedBy === this.model["username"]) {
             this.players = msg.players;
             this.page = msg.page;
             this.nbPlayers = msg.nbPlayers;
@@ -488,7 +588,7 @@ export default class TournamentController {
         }
     }
 
-    private onMsgNewGame(msg) {
+    private onMsgNewGame(msg: MsgNewGame) {
         window.location.assign('/' + msg.gameId);
     }
 
@@ -496,7 +596,7 @@ export default class TournamentController {
         this.doSend({ type: "get_players", tournamentId: this.model["tournamentId"], page: this.page });
     }
 
-    durationString(minutes) {
+    durationString(minutes: number) {
         if (minutes == 0) return '';
         if (minutes < 60) {
             return " • " + minutes + 'm';
@@ -505,7 +605,7 @@ export default class TournamentController {
         }
     }
 
-    renderDescription(text) {
+    renderDescription(text: string) {
         const parts = text.split(/(\[.*?\))/g);
         if (parts != null && parts.length > 0) {
             const newArr = parts.map(el => {
@@ -522,7 +622,7 @@ export default class TournamentController {
         return h('div.description', text);
     }
 
-    private onMsgUserConnected(msg) {
+    private onMsgUserConnected(msg: MsgUserConnectedTournament) {
         const variant = VARIANTS[this.model.variant];
         const chess960 = this.model.chess960 === 'True';
         const dataIcon = variant.icon(chess960);
@@ -553,7 +653,7 @@ export default class TournamentController {
         if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
 
         this.model.username = msg.username;
-        this.tournamentStatus = T_STATUS[msg.tstatus];
+        this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         this.userStatus = msg.ustatus;
         this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
@@ -565,19 +665,19 @@ export default class TournamentController {
         }
     }
 
-    private onMsgSpectators = (msg) => {
+    private onMsgSpectators = (msg: MsgSpectators) => {
         const container = document.getElementById('spectators') as HTMLElement;
         patch(container, h('under-chat#spectators', _('Spectators: ') + msg.spectators));
     }
 
-    private onMsgUserStatus(msg) {
+    private onMsgUserStatus(msg: MsgUserStatus) {
         this.userStatus = msg.ustatus;
         this.updateActionButton()
     }
 
-    private onMsgTournamentStatus(msg) {
+    private onMsgTournamentStatus(msg: MsgTournamentStatus) {
         const oldStatus = this.tournamentStatus;
-        this.tournamentStatus = T_STATUS[msg.tstatus];
+        this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         if (oldStatus !== this.tournamentStatus) {
             if (msg.secondsToFinish !== undefined) {
                 this.secondsToFinish = msg.secondsToFinish;
@@ -595,7 +695,7 @@ export default class TournamentController {
         }
     }
 
-    private onMsgTopGame(msg) {
+    private onMsgTopGame(msg: TopGame) {
         this.topGame = msg;
         if (this.tournamentStatus === 'started' && !this.playerGamesOn) {
             this.renderEmptyTopGame();
@@ -603,27 +703,28 @@ export default class TournamentController {
         }
     }
 
-    private onMsgBoard = (msg) => {
+    private onMsgBoard = (msg: MsgBoard) => {
         if (this.topGameChessground === undefined || this.topGameId !== msg.gameId) {
             return;
         };
 
-        let lastMove = msg.lastMove;
-        if (lastMove !== null) {
-            lastMove = uci2cg(lastMove);
+        let lastMoveStr = msg.lastMove;
+        let lastMove: Key[] | undefined;
+        if (lastMoveStr !== undefined) {
+            lastMoveStr = uci2cg(lastMoveStr);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMove.includes('@') ? [lastMove.slice(-2)] : [lastMove.slice(0, 2), lastMove.slice(2, 4)];
+            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as Key] : [lastMoveStr.slice(0, 2) as Key, lastMoveStr.slice(2, 4) as Key];
         }
         this.topGameChessground.set({
             fen: msg.fen,
-            turnColor: msg.fen.split(" ") === "w" ? "white" : "black",
+            turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
             check: msg.check,
             lastMove: lastMove,
         });
     }
 
-    private checkStatus = (msg) => {
+    private checkStatus = (msg: MsgGameEnd) => {
         if (this.topGameChessground === undefined || this.topGameId !== msg.gameId) {
             return;
         }
@@ -635,13 +736,13 @@ export default class TournamentController {
         }
     }
 
-    private onMsgChat(msg) {
+    private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat");
         // seems this is annoying for most of the users
         //if (msg.user.length !== 0 && msg.user !== '_server')
         //    sound.socialNotify();
     }
-    private onMsgFullChat(msg) {
+    private onMsgFullChat(msg: MsgFullChat) {
         // To prevent multiplication of messages we have to remove old messages div first
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
         // then create a new one
@@ -649,14 +750,14 @@ export default class TournamentController {
         msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat"));
     }
 
-    private onMsgPing(msg) {
-        this.doSend({ type: "pong", timestamp: msg.timestamp });
+    private onMsgPing(msg: MsgPing) {
+        this.doSend({ type: "pong", timestamp: msg.timestamp });//TODO:niki:what is this timestamp - do not find it in python either
     }
-    private onMsgError(msg) {
+    private onMsgError(msg: MsgError) {
         alert(msg.message);
     }
 
-    onMessage(evt) {
+    onMessage(evt: MessageEvent) {
         //console.log("<+++ tournament onMessage():", evt.data);
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
@@ -710,12 +811,12 @@ export default class TournamentController {
 
 }
 
-function runTournament(vnode: VNode, model) {
+function runTournament(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     new TournamentController(el, model);
 }
 
-export function tournamentView(model): VNode[] {
+export function tournamentView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
@@ -771,5 +872,5 @@ export function tournamentView(model): VNode[] {
     ];
 }
 
-function playerInfo(name, title) {
+function playerInfo(name: string, title: string) {
     return h('a.user-link', { attrs: { href: '/@/' + name } }, [h('player-title', " " + title + " "), name])}

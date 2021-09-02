@@ -1,4 +1,4 @@
-export function notify(title, options) {
+export function notify(title: string | null, options: NotificationOptions | undefined) {
     // Let's check whether notification permissions have already been granted
     if (title && Notification.permission === "granted") {
         // If it's okay let's create a notification

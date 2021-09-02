@@ -23,6 +23,7 @@ import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { model } from './main';
+import {Color, Role} from "chessgroundx/types";
 
 
 class BoardSettings {
@@ -66,13 +67,13 @@ class BoardSettings {
     updateBoardStyle(family: string) {
         const idx = this.getSettings("BoardStyle", family).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"], family, board);
+        changeBoardCSS(model["asset-url"] || 'unknown-asset-url', family, board);//TODO:niki:can't i make asset-url mandatory? see below same OR thing
     }
 
     updatePieceStyle(family: string) {
         const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model["asset-url"], family, css);
+        changePieceCSS(model["asset-url"] || 'unknown-asset-url', family, css);
         this.updateDropSuggestion();
     }
 
@@ -84,8 +85,8 @@ class BoardSettings {
             // if there is any
             if (el) {
                 const classNames = el.getAttribute('className')!.split(' ');
-                const role = classNames[0];
-                const color = classNames[1];
+                const role = classNames[0] as Role;
+                const color = classNames[1] as Color;
                 const orientation = this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor;
                 const side = color === orientation ? "ally" : "enemy";
                 chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });

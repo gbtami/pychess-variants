@@ -6,12 +6,13 @@ import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import { Key, Role } from 'chessgroundx/types';
+import {Color, Key, PiecesDiff, Role} from 'chessgroundx/types';
 
 import { san2role, role2san } from './chess';
 import { bind } from './document';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
+import {Api} from "chessgroundx/api";
 
 const patch = init([listeners, style]);
 
@@ -44,7 +45,7 @@ export class Promotion {
             if (Object.keys(this.choices).length === 1) {
                 const role = Object.keys(this.choices)[0];
                 const promo = this.choices[role];
-                this.promote(ground, dest, role);
+                this.promote(ground, dest, role as Role);
                 this.ctrl.sendMove(orig, dest, promo);
             } else {
                 this.drawPromo(dest, color, orientation);
@@ -60,21 +61,21 @@ export class Promotion {
         return false;
     }
 
-    private promotionFilter(move, role, orig, dest) {
+    private promotionFilter(move: string, role: Role, orig: Key, dest: Key) {
         if (this.ctrl.variant.promotion === 'kyoto')
             if (orig === "a0")
                 return move.startsWith("+" + role2san(role));
         return move.slice(0, -1) === orig + dest;
     }
 
-    private canPromote(role, orig, dest) {
+    private canPromote(role: Role, orig: Key, dest: Key) {
         return this.ctrl.promotions.some(move => this.promotionFilter(move, role, orig, dest));
     }
 
     private promotionChoices(role: Role, orig: Key, dest: Key) {
         const variant = this.ctrl.variant;
         const possiblePromotions = this.ctrl.promotions.filter(move => this.promotionFilter(move, role, orig, dest));
-        const choice = {};
+        const choice: { [ role: string ]: string } = {}; // TODO:niki: could use a named type - same as this.choices
         switch (variant.promotion) {
             case 'shogi':
                 choice["p" + role] = "+";
@@ -102,10 +103,10 @@ export class Promotion {
         return this.ctrl.variant.isMandatoryPromotion(role, orig, dest, this.ctrl.mycolor);
     }
 
-    private promote(g, key, role) {
-        const pieces = {};
+    private promote(g: Api, key: Key, role: Role) {
+        const pieces: PiecesDiff = {};
         const piece = g.state.pieces[key];
-        if (g.state.pieces[key].role !== role) {
+        if (piece && piece.role !== role) {
             pieces[key] = {
                 color: piece.color,
                 role: role,
@@ -115,7 +116,7 @@ export class Promotion {
         }
     }
 
-    private drawPromo(dest, color, orientation) {
+    private drawPromo(dest: Key, color: Color, orientation: Color) {
         const container = toVNode(document.querySelector('extension') as Node);
         patch(container, this.view(dest, color, orientation));
     }
@@ -125,14 +126,14 @@ export class Promotion {
         patch(container, h('extension'));
     }
 
-    private finish(role) {
+    private finish(role: Role) {
         if (this.promoting) {
             this.drawNoPromo();
             this.promote(this.ctrl.getGround(), this.promoting.dest, role);
             const promo = this.choices[role];
 
             if (this.ctrl.variant.promotion === 'kyoto') {
-                const droppedPiece = promo ? role2san(role.slice(1)) : role2san(role);
+                const droppedPiece = promo ? role2san(role.slice(1) as Role) : role2san(role);
                 if (this.promoting.callback) this.promoting.callback(promo + droppedPiece, "@", this.promoting.dest);
             } else {
                 if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo);
@@ -148,7 +149,7 @@ export class Promotion {
         return;
     }
 
-    private view(dest, color, orientation) {
+    private view(dest: Key, color: Color, orientation: Color) {
         const dim = this.ctrl.getGround().state.dimensions
         const pos = key2pos(dest);
 
@@ -179,8 +180,8 @@ export class Promotion {
                     style: { top: top + "%", left: left + "%" },
                     hook: bind("click", e => {
                         e.stopPropagation();
-                        this.finish(role);
-                    }, false)
+                        this.finish(role as Role);
+                    }, null)
                 },
                     [ h(`piece.${role}.${color}.${side}`) ]
                 );

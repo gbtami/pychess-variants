@@ -9,14 +9,18 @@ const patch = init([klass, attributes, properties, listeners]);
 import h from 'snabbdom/h';
 
 import { _ } from './i18n';
+import RoundController from "./roundCtrl";
+import AnalysisController from "./analysisCtrl";
+import TournamentController from "./tournament";
+import LobbyController from "./lobby";
 
-export function chatView (ctrl, chatType) {
-    function onKeyPress (e) {
+export function chatView (ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) {
+    function onKeyPress (e: KeyboardEvent) {
         if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
             return;
         const message = (e.target as HTMLInputElement).value;
         if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
-            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": (ctrl.spectator) ? "spectator": "player"});
+            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": ((ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
     }
@@ -30,7 +34,7 @@ export function chatView (ctrl, chatType) {
     const anon = ctrl.model["anon"] === 'True';
     return h(`div#${chatType}.${chatType}.chat`, [
         h('div.chatroom', [
-            ctrl.spectator ? _('Spectator room') : _('Chat room'),
+            ((ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? _('Spectator room') : _('Chat room'),
             h('input#checkbox', { props: { title: _("Toggle the chat"), name: "checkbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
         ]),
         // TODO: lock/unlock chat to spectators
@@ -51,7 +55,7 @@ export function chatView (ctrl, chatType) {
     ]);
 }
 
-export function chatMessage (user, message, chatType) {
+export function chatMessage (user: string, message: string, chatType: string) {
     const myDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
     const isScrolled = myDiv.scrollTop == myDiv.scrollHeight - myDiv.offsetHeight;

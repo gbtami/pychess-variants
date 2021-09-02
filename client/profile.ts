@@ -16,6 +16,8 @@ import { VARIANTS, IVariant } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
+import {PyChessModel} from "./main";
+import {FEN, Geometry} from "chessgroundx/types";
 
 
 export function colorNames(color: string) {
@@ -152,7 +154,37 @@ export function renderRdiff(rdiff: number) {
     }
 }
 
-function renderGames(model, games) {
+interface Game{
+    _id: string;
+    z: number;
+    v: string;
+    f: FEN;
+
+    b: number;
+    i: number;
+    bp: number;
+
+    y: string;
+    d: string;//TODO:niki:or some date?
+
+    us: string[];
+    wt: string;
+    bt: string;
+    x: number;
+    p0: Player;
+    p1: Player;
+    s: number;
+    r: string;
+    m: any[];//TODO:niki
+    a: any;//TODO:niki
+}
+
+interface Player{
+    e: string;
+    d: number;
+}
+
+function renderGames(model: PyChessModel, games: Game[]) {
     const rows = games.map(game => {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
@@ -165,7 +197,7 @@ function renderGames(model, games) {
                                 coordinates: false,
                                 viewOnly: true,
                                 fen: game["f"],
-                                geometry: variant.geometry,
+                                geometry: variant.geometry as Geometry,
                             })
                         }
                     }),
@@ -220,7 +252,7 @@ function renderGames(model, games) {
     return [h('tbody', rows)];
 }
 
-function loadGames(model, page) {
+function loadGames(model: PyChessModel, page: number) {
     const xmlhttp = new XMLHttpRequest();
     let url = "/api/" + model["profileid"]
     if (model.level) {
@@ -253,7 +285,7 @@ function loadGames(model, page) {
     xmlhttp.send();
 }
 
-function observeSentinel(vnode: VNode, model) {
+function observeSentinel(vnode: VNode, model: PyChessModel) {
     const sentinel = vnode.elm as HTMLElement;
     let page = 0;
     const options = {root: null, rootMargin: '44px', threshold: 1.0};
@@ -268,7 +300,7 @@ function observeSentinel(vnode: VNode, model) {
     intersectionObserver.observe(sentinel);
 }
 
-export function profileView(model) {
+export function profileView(model: PyChessModel) {
     boardSettings.updateBoardAndPieceStyles();
     return [
         h('div.filter-tabs', [

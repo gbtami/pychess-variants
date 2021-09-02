@@ -23,7 +23,7 @@ export class Clock {
     connecting: boolean;
     timeout: number | null;
     startTime: number;
-    tickCallbacks: (() => void)[];
+    tickCallbacks: ((diff: number) => void)[];
     flagCallback: (() => void) | null;
     byoyomiCallback: (() => void) | null;
     el: HTMLElement | VNode;
@@ -108,14 +108,14 @@ export class Clock {
         timer();
     }
 
-    onTick(callback) {
+    onTick(callback: (diff: number) => void) {
         if (typeof callback === 'function') {
             this.tickCallbacks.push(callback);
         }
         return this;
     }
 
-    onFlag(callback) {
+    onFlag(callback: () => void) {
         if (typeof callback === 'function') {
             this.pause(false);
             this.flagCallback = callback;
@@ -123,7 +123,7 @@ export class Clock {
         return this;
     }
 
-    onByoyomi(callback) {
+    onByoyomi(callback: () => void) {
         if (typeof callback === 'function') {
             this.byoyomiCallback = callback;
         }

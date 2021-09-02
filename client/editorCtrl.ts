@@ -23,6 +23,7 @@ import { updatePockets, Pockets, pockets2str } from './pocket';
 import { copyBoardToPNG } from './png'; 
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
+import {PyChessModel} from "./main";
 
 export class EditorController {
     model;
@@ -46,10 +47,10 @@ export class EditorController {
     vChallenge: VNode;
     anon: boolean;
     flip: boolean;
-    ffish;
-    ffishBoard;
+    ffish: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
+    ffishBoard: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
 
-    constructor(el, model) {
+    constructor(el: HTMLElement, model: PyChessModel) {
         this.model = model;
         this.variant = VARIANTS[model["variant"]];
         this.startfen = model["fen"] as string;
@@ -184,7 +185,7 @@ export class EditorController {
             ];
             patch(container, h('div.editor-button-container', buttons));
 
-            new (Module as any)().then(loadedModule => {
+            new (Module as any)().then((loadedModule: any) => {//TODO:niki - i dont know what - putting any
                 this.ffish = loadedModule;
 
                 if (this.ffish !== null) {
@@ -195,13 +196,13 @@ export class EditorController {
         }
     }
 
-    private onChangeTurn = (e) => {
-        this.parts[1] = (e.target.value === 'white') ? 'w' : 'b';
+    private onChangeTurn = (e: Event) => {
+        this.parts[1] = ((<HTMLSelectElement>e.target).value === 'white') ? 'w' : 'b';//TODO:niki:i think it is select based on the code where this is used - good to test this code
         this.onChange();
     }
 
     private onChangeCastl = () => {
-        const castlings = {
+        const castlings: {[key:string]:string} = {
             'wOO': 'K',
             'wOOO': 'Q',
             'bOO': 'k',
@@ -228,9 +229,9 @@ export class EditorController {
     }
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
-    private onPasteFen = (e) => {
-        const data = e.clipboardData.getData('text');
-        e.target.value = data.trim();
+    private onPasteFen = (e: ClipboardEvent) => {
+        const data = e.clipboardData?.getData('text') ?? "";
+        (<HTMLInputElement>e.target).value = data.trim();//TODO:niki:again casting to inputlement based on code that calls this thing - but good to test
         e.preventDefault();
         this.setFen(true);
     }
@@ -243,7 +244,7 @@ export class EditorController {
         return valid && ffValid;
     }
 
-    private setInvalid = (invalid) => {
+    private setInvalid = (invalid: boolean) => {
         const analysis = document.getElementById('analysis') as HTMLElement;
         analysis.classList.toggle('disabled', invalid);
 
@@ -284,7 +285,7 @@ export class EditorController {
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
-    setFen = (isInput) => {
+    setFen = (isInput: boolean) => {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
@@ -304,7 +305,7 @@ export class EditorController {
 
             if (hasCastling(this.variant, 'white')) {
                 if (this.parts.length >= 3) {
-                    const castlings = {
+                    const castlings: {[ket:string]: string} = {
                         'K': 'wOO',
                         'Q': 'wOOO',
                         'k': 'bOO',
