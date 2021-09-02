@@ -191,7 +191,7 @@ if (el instanceof Element) {
       .then(res => res.json())
       .then(translation => {
         i18n.loadJSON(translation, 'messages');
-        i18n.setLocale(lang);
+        i18n.setLocale(lang || "en");
         // console.log('Loaded translations for lang', lang);
         start();
       })
