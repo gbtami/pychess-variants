@@ -186,11 +186,11 @@ export class Gating {
         if (this.ctrl.flip) position = (position === "top") ? "bottom" : "top";
         if (position === "bottom") {//TODO:niki:code almost identical to several places in analysisCtrl.ts and roundCtrl.ts and other probably - move to pocket.ts or something like that maybe
             const pr = this.ctrl.pockets[1][role];
-            if ( pr ) this.ctrl.pockets[1][role] = pr - 1;
+            if ( pr != undefined ) this.ctrl.pockets[1][role] = pr - 1;
             this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, color, "bottom"));
         } else {
             const pr = this.ctrl.pockets[0][role];
-            if ( pr ) this.ctrl.pockets[0][role] = pr - 1;
+            if ( pr != undefined ) this.ctrl.pockets[0][role] = pr - 1;
             this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, color, "top"));
         }
     }

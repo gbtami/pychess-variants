@@ -1138,11 +1138,11 @@ export default class RoundController {
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") { // TODO:this refreshes pockets similar to pocket.ts -> updatePockets() - consider moving all pocket related logic there maybe?
                 const pr = this.pockets[0][role];
-                if ( pr ) this.pockets[0][role] = pr + 1;
+                if ( pr != undefined ) this.pockets[0][role] = pr + 1;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
                 const pr = this.pockets[1][role];
-                if ( pr ) this.pockets[1][role] = pr + 1;
+                if ( pr != undefined ) this.pockets[1][role] = pr + 1;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
         }
@@ -1167,11 +1167,11 @@ export default class RoundController {
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
                 const pr = this.pockets[0][role];
-                if ( pr ) this.pockets[0][role] = pr - 1;
+                if ( pr != undefined ) this.pockets[0][role] = pr - 1;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
                 const pr = this.pockets[1][role];
-                if ( pr ) this.pockets[1][role] = pr - 1;
+                if ( pr != undefined ) this.pockets[1][role] = pr - 1;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
