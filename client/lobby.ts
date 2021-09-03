@@ -25,7 +25,7 @@ import { notify } from './notification';
 import { variantPanels } from './lobby/layer1';
 
 
-class LobbyController {
+export class LobbyController {
     model;
     sock;
     player;
@@ -92,6 +92,8 @@ class LobbyController {
         }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
+
+        patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
 
         this.streams = document.getElementById('streams') as HTMLElement;
 
@@ -376,47 +378,55 @@ class LobbyController {
                     ]),
                 ]),
             ]),
-            h('button.lobby-button', {
-                on: {
-                    click: () => {
-                        this.challengeAI = false;
-                        this.inviteFriend = false;
-                        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
-                        document.getElementById('challenge-block')!.style.display = 'none';
-                        document.getElementById('ailevel')!.style.display = 'none';
-                        document.getElementById('id01')!.style.display = 'block';
-                    }
-                }
-            },
-                _("Create a game")
-            ),
-            h('button.lobby-button', {
-                on: {
-                    click: () => {
-                        this.challengeAI = false;
-                        this.inviteFriend = true;
-                        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
-                        document.getElementById('challenge-block')!.style.display = 'none';
-                        document.getElementById('ailevel')!.style.display = 'none';
-                        document.getElementById('id01')!.style.display = 'block';
-                    }
-                }
-            },
-                _("Play with a friend")
-            ),
-            h('button.lobby-button', {
-                on: {
-                    click: () => {
-                        this.challengeAI = true;
-                        this.inviteFriend = false;
-                        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
-                        document.getElementById('challenge-block')!.style.display = 'none';
-                        document.getElementById('ailevel')!.style.display = 'inline-block';
-                        document.getElementById('id01')!.style.display = 'block';
-                    }
-                }
-            }, _("Play with AI (Fairy-Stockfish)")),
+            h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create a game")),
+            h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
+            h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI (Fairy-Stockfish)")),
+            h('button.lobby-button', { on: { click: () => this.playRM() } }, _("Play with Random-Mover")),
         ];
+    }
+
+    createGame(variantName: string='', chess960: boolean=false) {
+        console.log(variantName, chess960);
+        const anon = this.model.anon === 'True';
+        this.challengeAI = false;
+        this.inviteFriend = false;
+        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('id01')!.style.display = 'block';
+    }
+
+    playFriend(variantName: string='', chess960: boolean=false) {
+        console.log(variantName, chess960);
+        const anon = this.model.anon === 'True';
+        this.challengeAI = false;
+        this.inviteFriend = true;
+        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('id01')!.style.display = 'block';
+    }
+
+    playAI(variantName: string='', chess960: boolean=false) {
+        console.log(variantName, chess960);
+        const anon = this.model.anon === 'True';
+        this.challengeAI = true;
+        this.inviteFriend = false;
+        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'inline-block';
+        document.getElementById('id01')!.style.display = 'block';
+    }
+
+    playRM(variantName: string='', chess960: boolean=false) {
+        console.log(variantName, chess960);
+        const anon = this.model.anon === 'True';
+        this.challengeAI = true;
+        this.inviteFriend = false;
+        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('id01')!.style.display = 'block';
     }
 
     private setVariant() {
@@ -783,7 +793,7 @@ export function lobbyView(model): VNode[] {
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
-        variantPanels(model),
+        h('div#variants-catalog'),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),
