@@ -19,7 +19,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, CASUAL, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
+from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -372,7 +372,7 @@ async def index(request):
         render["description"] = tournament.description
         render["variant"] = tournament.variant
         render["chess960"] = tournament.chess960
-        render["rated"] = RATED if tournament.rated else CASUAL
+        render["rated"] = tournament.rated
         render["base"] = tournament.base
         render["inc"] = tournament.inc
         render["byo"] = tournament.byoyomi_period
@@ -426,6 +426,8 @@ async def index(request):
 
     elif view == "arena-new":
         render["edit"] = tournamentId is not None
+        if tournamentId is None:
+            render["rated"] = True
 
     try:
         text = await template.render_async(render)

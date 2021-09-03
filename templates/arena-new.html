@@ -25,14 +25,13 @@
                         <div>
                             <label class="form-label" for="form3-rated">Rated</label>
                             <span class="form-check-input">
-                                <input id="form3-rated" name="rated" value="{{ rated }}" type="checkbox" class="form-control cmn-toggle" checked="checked"/>
+                                <input id="form3-rated" name="rated" value="1" type="checkbox" class="form-control cmn-toggle" {% if rated %}checked{% endif %}/>
                             </span>
                         </div>
                         <small class="form-help">Games are rated
                             <br />and impact players ratings
                         </small>
                     </div>
-                    <input type="hidden" name="rated" value="false" />
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-variant">Variant</label>
                         <select id="form3-variant" name="variant" class="form-control">
