@@ -120,6 +120,11 @@ cg-board square {
   width: 11.11%;
   height: 11.11%;
 }
+/* 7x7 shogi */
+.cg-448-516 cg-board square{
+  width: 14.2857%;
+  height: 14.2857%;
+}
 .cg-260-360 cg-board square{
   width: 20%;
   height: 16.66%;
@@ -198,6 +203,11 @@ cg-board square.current-premove {
 .cg-wrap.cg-576 piece {
   width: 11.11%;
   height: 11.11%;
+}
+/* 7x7 shogi */
+.cg-wrap.cg-448-516 piece{
+  width: 14.2857%;
+  height: 14.2857%;
 }
 .cg-wrap.cg-260-360 piece {
   width: 20%;

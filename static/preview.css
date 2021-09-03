@@ -387,6 +387,9 @@ label.piece.piece0.tori {
 label.piece.piece1.tori {
     background-image: url('images/pieces/tori/Kanji/0Phoenix.svg');
 }
+label.piece.piece2.tori {
+    background-image: url('images/pieces/tori/minimalist/0PhoenixBlack.svg');
+}
 
 label.piece.piece0.xiangqi {
     background-image: url('images/pieces/xiangqi/playok/red_king.svg');
