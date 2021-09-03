@@ -74,8 +74,15 @@ cursor: default;
 
 /* Second Column with Image */
 
+[data-icon]:before {
+    font-size: 1.8em;
+    vertical-align: middle;
+    opacity: 0.6;
+    padding-right: 4px;
+}
+
 .layer-3-container .l3img {
-    display: flex;
+    display: block;
     justify-content: center;
     align-items: center;
     /* border: 1px solid red; */
