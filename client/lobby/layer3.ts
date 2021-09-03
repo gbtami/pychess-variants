@@ -9,21 +9,58 @@ const patch = init([klass, attributes, properties, listeners, style]);
 
 import { h } from 'snabbdom/h';
 
+import { IVariant, VARIANTS } from '../chess';
+import { variantBoard } from './layer1';
 import { layer2chess } from './layer2chess';
+import { layer2fairy } from './layer2fairy';
+import { layer2army } from './layer2army';
+import { layer2makruk } from './layer2makruk';
+import { layer2shogi } from './layer2shogi';
+import { layer2xiangqi } from './layer2xiangqi';
 
-export function layer3chess (assetUrl) {
+export function layer3variant (containerId: string, model: string, variantName: string, chess960: boolean): void {
+    const variant: IVariant = VARIANTS[variantName];
+
+    let leve2func;
+    switch (containerId) {
+    case 'layer2chesscont':
+        leve2func = layer2chess; break;
+    case 'layer2fairycont':
+        leve2func = layer2fairy; break;
+    case 'layer2armycont':
+        leve2func = layer2army; break;
+    case 'layer2makrukcont':
+        leve2func = layer2makruk; break;
+    case 'layer2shogicont':
+        leve2func = layer2shogi; break;
+    case 'layer2xiangqicont':
+        leve2func = layer2xiangqi; break;
+    }
+
     const layer3cont = h('div#chessl3cont.layer-3-container.chess-l3', [
         h('button.layer-2-category lvl3', [
-            h('div.layer-two-category-info', [
-                h('h4', 'Chess Variants'),
-                h('div.generic-image-container', [ h('img', { attrs: { src: assetUrl + "/images/Chess.png" } }) ]),
-                h('p.variant-category-description', 'Variants using a basic chess set but with different rules'),
-                h('h5#chessl3back', { on: { click: () => layer2chess(assetUrl, 'chessl3cont') } }, 'Go Back'),
+            h('div.variant-title-l2', [
+                h('div.iconcontainer.icon', { attrs: { 'data-icon': variant.icon(chess960) } }, variant.displayName(chess960)),
             ]),
+            h('ul.l3links-cont', [
+                h('li.l3links', 'Create a game'),
+                h('li.l3links', 'Challenge a friend'),
+                h('li.l3links', 'Play against AI'),
+                h('li.l3links', 'Play against RM'),
+            ]),
+            h('h5#chessl3back', { on: { click: () => leve2func(model, 'chessl3cont') } }, 'Go Back'),
+        ]),
+        h('button.layer-2-category l3img', [
+            variantBoard(variant, variant.startFen),
+        ]),
+        h('button.layer-2-category l3t', [
+            h('p.variant-extra-info', variant.tooltip()),
+            h('a.variant-extra-info', { attrs: { href: model['home'] + '/variants/' + variant.name, target: '_blank' } }, 'Rules'),
+            h('p.variant-extra-info', 'Tip: You can play more at www.lichess.org'),
         ]),
     ]);
 
-    const container = document.getElementById('layer2chesscont') as HTMLElement;
+    const container = document.getElementById(containerId) as HTMLElement;
     if (container) patch(container, layer3cont);
 }
 

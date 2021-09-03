@@ -4,6 +4,7 @@
 /* Main Container of all 3 columns  */
 
 .layer-3-container {
+    grid-area: vpanel;
     background-color: #3c3934;
     width: 100%;
     height: 100%;
@@ -99,7 +100,7 @@ cursor: default;
 /* Setting max height for all columns  */
 
 .chess-l3 {
-    max-height: 300px;
+    max-height: 375px;
 }
 
 #chess960l3cont .variant-extra-info, #capablancal3cont .variant-extra-info, #schessl3cont .variant-extra-info {

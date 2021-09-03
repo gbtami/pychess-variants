@@ -617,7 +617,7 @@ export default class TournamentController {
         }
         this.topGameChessground.set({
             fen: msg.fen,
-            turnColor: msg.fen.split(" ") === "b" ? "white" : "black",
+            turnColor: msg.fen.split(" ")[1] === "b" ? "white" : "black",
             check: msg.check,
             lastMove: lastMove,
         });

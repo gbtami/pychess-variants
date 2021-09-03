@@ -1,6 +1,7 @@
-@import "layer1.css";
+@import "layer-1.css";
 @import "chess-l2.css";
 @import "fairy-l2.css";
+@import "layer-3.css";
 .lobby {
     grid-area: main;
     display: grid;
