@@ -23,7 +23,7 @@ We’re excited to announce a new variant at Pychess! This one involves taking y
 
 Tori Shogi is a three-centuries old variant that has similar to rules of Shogi but is played on a smaller board (7x7) and starts with immediate confrontation, also unlike Shogi. We’re now bringing it to the mainstream with piece symbols that should be more accessible to everyone. Please be sure to read [the rules](https://www.pychess.org/variants/torishogi) before you play because all the pieces are new and somewhat complex. It will be *much* faster to read about the game than *winging it*.
 
-Also, before anyone asks, no we will not add Atomic Tori Shogi. We might be in trouble with PETA if we had a game featuring exploding birds! On a similar note, there will no more planned for variants for a good while so that we can spend more attention on improving the site’s features. With nearly 40 variants available, we hope that’s enough to keep most people satisfied with a variety of selection!
+Also, before anyone asks, no we will not add Atomic Tori Shogi. We might be in trouble with PETA if we had a game featuring exploding birds! On a similar note, there won't be any plans for new variants for a good while so that we can spend more attention on improving the site’s features. With nearly 40 variants available, we hope that’s enough to keep most people satisfied with a variety of selection!
 <iframe width="560" height="315" src="https://www.youtube.com/embed/uSlB4eznXoA" frameborder="0" allowfullscreen></iframe>
 
 
