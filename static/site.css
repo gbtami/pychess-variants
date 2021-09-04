@@ -111,6 +111,7 @@
     --post-hover: #29353f;
     --vpanel-button: #3c3a35;
     --vpanel-button-hover: #464440;
+    --panel-link-hover: rgb(179, 179, 179);
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
