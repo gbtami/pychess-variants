@@ -33,7 +33,9 @@ transform: scale(1);
 cursor: default;
 }
 
-
+.layer-3-container a:hover {
+color: var(--blue-hover);
+}
 
 /* First Column  */
 
@@ -94,6 +96,9 @@ cursor: default;
     padding: 0;
     width: 100%;
 }
+
+.layer-3-container .l3img:hover {
+    pointer-events: none }
 
 .layer-3-container .l3img .generic-shogi {
     /* border: 1px solid blue; */
