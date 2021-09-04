@@ -27,7 +27,7 @@
 
 .variant-category, .layer-2-category {
 border: none;
-background-color: #464542 ;
+background-color: var(--vpanel-button) ;
 color: #999;
 display: flex;
 flex-direction: column;
@@ -149,7 +149,7 @@ max-height: 100%;
 }
 
 .variant-category:hover, .layer-2-category:hover {
-    background-color: #555451;
+    background-color: var(--vpanel-button-hover);
     color: rgb(160, 160, 160);
     transform: scale(1.015);
 }
