@@ -5,7 +5,7 @@
 
 .layer-3-container {
     grid-area: vpanel;
-    background-color: #3c3934;
+    background-color: var(--bg-color1);
     width: 100%;
     height: 100%;
     display: grid;
@@ -56,7 +56,11 @@ cursor: default;
     /* border: 1px solid yellow; */
     text-transform: none;
     width: 100%;
-    margin-bottom: 40px;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    text-align: left; 
+   
 }
 
 .layer-3-container .l3links-cont .l3links {
@@ -64,7 +68,8 @@ cursor: default;
     display: flex;
     justify-content: flex-start;
     font-size: 1rem;
-    margin-bottom: 2px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
 }
 
 .layer-3-container h5 {
