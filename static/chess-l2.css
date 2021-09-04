@@ -1,6 +1,6 @@
 .layer-2-container {
     grid-area: vpanel;
-    background-color: #3c3934;
+    background-color: var(--bg-color1);
     width: 100%;
     height: 100%;
     display: grid;
@@ -207,9 +207,15 @@
         flex-direction: column;
     }
 
-.variant-title-l2 {
-    padding: 15px 50px;
-    margin: 0 auto;
-}
+
+    .layer-2-container .chess-l2, .layer-2-container .chess960, .layer-2-container .placement, .layer-2-container .crazyhouse,
+    .layer-2-container .crazyhouse960, .layer-2-container .atomic, .layer-2-container .atomic960, #layer2chesscont .generic {
+        padding-top: 10px;
+        padding-bottom: 10px; }
+
+    .variant-title-l2 {
+        padding: 15px 50px;
+        margin: 0 auto;
+    }
 
 }
