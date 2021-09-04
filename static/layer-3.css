@@ -33,9 +33,7 @@ transform: scale(1);
 cursor: default;
 }
 
-.layer-3-container a:hover {
-color: var(--blue-hover);
-}
+
 
 /* First Column  */
 
@@ -72,6 +70,11 @@ color: var(--blue-hover);
     font-size: 1rem;
     margin-bottom: 10px;
     font-size: 1.2rem;
+}
+
+
+.layer-3-container .l3links-cont .l3links:hover {
+color: var(--blue-hover);
 }
 
 .layer-3-container h5 {
