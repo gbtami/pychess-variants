@@ -74,12 +74,18 @@ cursor: default;
 
 
 .layer-3-container .l3links-cont .l3links:hover {
-color: var(--blue-hover);
+    color: var(--blue-hover);
+    cursor: pointer; 
 }
 
 .layer-3-container h5 {
     /* border: 1px solid red; */
     padding: 10px;
+}
+
+.layer-3-container h5:hover {
+    color: var(--panel-link-hover);
+    cursor: pointer; 
 }
 
 /* Second Column with Image */
