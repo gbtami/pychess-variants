@@ -103,7 +103,7 @@ font-size: 1.3rem;
 }
 
 .layer-3-container .l3img {
-    display: block;
+    display: flex;
     justify-content: center;
     align-items: center;
     /* border: 1px solid red; */
@@ -116,6 +116,10 @@ font-size: 1.3rem;
 
 .layer-3-container .l3img .generic-shogi {
     /* border: 1px solid blue; */
+    width: 100%;
+}
+
+.layer-3-container .l3img selection#mainboard {
     width: 100%;
 }
 
