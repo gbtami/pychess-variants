@@ -82,7 +82,7 @@
 }
 
 .generic h5:hover, .fairy-grid h5:hover {
-    color: rgb(179, 179, 179);
+    color: var(--panel-link-hover);
     cursor: pointer;
 }
 
