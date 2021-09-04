@@ -45,8 +45,12 @@ cursor: default;
  margin-bottom: 25px;
  justify-content: center;
  align-items: center;
- font-size: 1.1rem;
+ font-size: 1.5rem;
 
+}
+
+#chessl3cont .variant-title-l2, #chatrangl3cont .variant-title-l2, #hoppelpoppell3cont .variant-title-l2  {
+font-size: 1.3rem;
 }
 
 .layer-3-container .l3links-cont {
