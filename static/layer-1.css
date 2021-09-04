@@ -86,7 +86,7 @@ border-radius: 3px;
     width: 3.5rem;
     height: 3.5rem;
     /* position: absolute; */
-    filter: saturate(0.1);
+    filter: saturate(0.05);
     opacity: 0.3;    
 }
 
@@ -118,6 +118,10 @@ border-radius: 3px;
 .variant-category .wB, .wD, .OKI, .jK, .sQ, .wE {
     transform: translateX(450%);
 }
+
+.variant-category .wR, .variant-category .wB {
+    width: 43px;
+    height: 43px; }
 
 
 /* ANIMATIONS */
