@@ -20,7 +20,7 @@
 /* Preventing first column from hover changes  */
 
 .generic-variant-info:hover {
-    background-color: #464542 ;
+    background-color: var(--vpanel-button);
     color: #999;
     transform: scale(1);
     cursor: default;
