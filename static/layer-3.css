@@ -60,10 +60,8 @@ font-size: 1.3rem;
     /* border: 1px solid yellow; */
     text-transform: none;
     width: 100%;
-
     margin-bottom: 40px;
-    font-size: 1rem;
-    text-align: left; 
+
    
 }
 
@@ -73,7 +71,7 @@ font-size: 1.3rem;
     justify-content: flex-start;
     font-size: 1rem;
     margin-bottom: 2px;
-    font-size: 1.2rem;
+ 
 }
 
 
