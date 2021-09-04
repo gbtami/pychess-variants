@@ -86,7 +86,7 @@ max-height: 100%;
     height: 3.5rem;
     /* position: absolute; */
     filter: saturate(0.1);
-    opacity: 0.15;    
+    opacity: 0.3;    
 }
 
 .variant-category img {
@@ -126,7 +126,7 @@ max-height: 100%;
 .variant-category:hover .mN, .variant-category:hover .wH
 {
     transform: translateX(-135%);
-    opacity: 0.2;
+    opacity: 0.4;
 }
 
 .variant-category:hover .wB,.variant-category:hover .wD, 
@@ -134,7 +134,7 @@ max-height: 100%;
 .variant-category:hover .sQ, .variant-category:hover .wE
 {
     transform: translateX(135%);
-    opacity: 0.2;
+    opacity: 0.4;
 }
 
 /* Xiangqi Side Pieces Size Adjustment */
@@ -145,7 +145,7 @@ max-height: 100%;
 }
 
 .variant-category:hover .sQ {
-        opacity: 0.3;
+        opacity: 0.4;
 }
 
 .variant-category:hover, .layer-2-category:hover {
@@ -159,12 +159,12 @@ max-height: 100%;
 .variant-category:hover .wC
  {
     transform: scale(1.15);
-    opacity: 0.3;
+    opacity: 0.4;
     }
 
     .variant-category:hover .mK {
         transform: scale(1.1);
-        opacity: 0.3;
+        opacity: 0.4;
     }
 
 
