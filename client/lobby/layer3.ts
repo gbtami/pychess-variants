@@ -56,7 +56,7 @@ export function layer3variant (containerId: string, lobbyCtrl: LobbyController, 
             variantBoard(variant, variant.startFen),
         ]),
         h('button.layer-2-category l3t', [
-            h('p.variant-extra-info', variant.tooltip()),
+            h('p.variant-extra-info', (chess960) ? chess960Tooltip(variant.name) : variant.tooltip()),
             h('a.variant-extra-info', { attrs: { href: lobbyCtrl.model['home'] + '/variants/' + variant.name, target: '_blank' } }, _('Rules')),
             h('p.variant-extra-info', 'Tip: ' + proTip(variant.name, chess960)),
         ]),
@@ -64,6 +64,19 @@ export function layer3variant (containerId: string, lobbyCtrl: LobbyController, 
 
     const container = document.getElementById(containerId) as HTMLElement;
     if (container) patch(container, layer3cont);
+}
+
+function chess960Tooltip(variant: string) {
+    switch (variant) {
+    case 'chess':
+        return _('Fischer\'s random chess where the back row are randomized. All "960" games on Pychess are launched from the base game and checking the "Chess960" box.');
+    case 'crazyhouse':
+        return _('Crazyhouse with random back row.');
+    case 'atomic':
+        return _('Atomic Chess with random back row.');
+    default:
+        return '';
+    }
 }
 
 function proTip (variant: string, chess960: boolean) {
@@ -101,13 +114,13 @@ function proTip (variant: string, chess960: boolean) {
         return _('Be aware of campmate - victory by moving your king into the 8th rank.');
 // makruk
     case 'makruk':
-        return _('TODO');
+        return _('It is important to know the counting rules in end games.');
     case 'makpong':
         return _('Watch out for knight checks, since they cannot be blocked.');
     case 'sittuyin':
         return _('Be sure to review the nuances of pawn promotion rules.');
     case 'cambodian':
-        return _('TODO');
+        return _('King safety is important. Use king leap move to save time.');
 // shogi
     case 'shogi':
     case 'minishogi':
