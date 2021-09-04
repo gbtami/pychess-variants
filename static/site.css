@@ -62,6 +62,9 @@
     --checkbox-border: #e3e3e3;
     --checkbox-checked: #7daa49;
     --post-hover: #ddebf8;
+    --vpanel-button: #fbfbfb;
+    --vpanel-button-hover: #fdfdfd;
+    --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -112,6 +115,7 @@
     --vpanel-button: #3c3a35;
     --vpanel-button-hover: #464440;
     --panel-link-hover: rgb(179, 179, 179);
+    --box-shadow-panel-btn: none; 
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
