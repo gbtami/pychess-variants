@@ -109,6 +109,8 @@
     --checkbox-bg: #3b5c16;
     --checkbox-border: #4f7a1d;
     --post-hover: #29353f;
+    --vpanel-button: #3c3a35;
+    --vpanel-button-hover: #464440;
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
