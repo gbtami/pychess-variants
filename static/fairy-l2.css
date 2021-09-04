@@ -223,6 +223,7 @@ padding: 10px;
 @media only screen and (min-width: 1100px) {
     #layer2fairycont .variant-category-description, #layer2armycont .variant-category-description {
         margin-top: -30px;
+        font-size: 1.1rem;
     }
 
     #layer2fairycont .generic-image-container, #layer2armycont .generic-image-container {
