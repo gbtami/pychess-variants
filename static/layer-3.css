@@ -27,7 +27,7 @@
 
 .layer-3-container .layer-2-category:hover {
 border: none;
-background-color: #464542 ;
+background-color: var(--vpanel-button) ;
 color: #999;
 transform: scale(1);
 cursor: default;
