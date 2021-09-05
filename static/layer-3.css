@@ -92,7 +92,10 @@ font-size: 1.3rem;
     color: var(--panel-link-hover);
     cursor: pointer; 
 }
-
+.layer-3-container .icon:before {
+    vertical-align: middle;
+    padding-right: 4px;
+}
 #layer2chesscont [data-icon], #chessl3cont [data-icon]:before {
     color: #b6b7ce;
 }
