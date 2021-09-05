@@ -21,7 +21,7 @@
 .layer-3-container .layer-2-category {
     display: flex;
     justify-content: flex-start;
-    padding:15px;
+    padding:25px;
     /* border: 1px solid yellow; */
 }
 
@@ -86,6 +86,7 @@ font-size: 1.3rem;
 .layer-3-container h5 {
     /* border: 1px solid red; */
     padding: 20px;
+    font-size: 1rem;
 }
 
 .layer-3-container h5:hover {
@@ -179,7 +180,7 @@ font-size: 1.3rem;
 .layer-3-container .l3t .variant-extra-info:nth-child(3) {
 position: absolute;
 bottom: 0;
-padding: 15px;
+padding: 25px;
 }
 
 }
@@ -207,6 +208,11 @@ padding: 15px;
 
 .chess-l3 {
     max-height: 100%
+    }
+
+.layer-3-container h5 {
+    
+    font-size: 1.1rem; 
     }
 
 
