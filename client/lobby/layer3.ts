@@ -20,26 +20,26 @@ import { layer2makruk } from './layer2makruk';
 import { layer2shogi } from './layer2shogi';
 import { layer2xiangqi } from './layer2xiangqi';
 
-export function layer3variant (containerId: string, lobbyCtrl: LobbyController, variantName: string, chess960: boolean): void {
+export function layer3variant (container2Id: string, lobbyCtrl: LobbyController, variantName: string, chess960: boolean): void {
     const variant: IVariant = VARIANTS[variantName];
 
-    let leve2func;
-    switch (containerId) {
+    let leve2func, container3Id;
+    switch (container2Id) {
     case 'layer2chesscont':
-        leve2func = layer2chess; break;
+        leve2func = layer2chess; container3Id = 'chessl3cont'; break;
     case 'layer2fairycont':
-        leve2func = layer2fairy; break;
+        leve2func = layer2fairy; container3Id = 'fairyl3cont';  break;
     case 'layer2armycont':
-        leve2func = layer2army; break;
+        leve2func = layer2army; container3Id = 'armyl3cont';  break;
     case 'layer2makrukcont':
-        leve2func = layer2makruk; break;
+        leve2func = layer2makruk; container3Id = 'makrukl3cont';  break;
     case 'layer2shogicont':
-        leve2func = layer2shogi; break;
+        leve2func = layer2shogi; container3Id = 'shogil3cont';  break;
     case 'layer2xiangqicont':
-        leve2func = layer2xiangqi; break;
+        leve2func = layer2xiangqi; container3Id = 'xiangqil3cont';  break;
     }
 
-    const layer3cont = h('div#chessl3cont.layer-3-container.chess-l3', [
+    const layer3cont = h(`div#${container3Id}.layer-3-container.chess-l3` , [
         h('button.layer-2-category l3v', [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': variant.icon(chess960) } }, variant.displayName(chess960)),
@@ -50,7 +50,7 @@ export function layer3variant (containerId: string, lobbyCtrl: LobbyController, 
                 h('li.l3links', { on: { click: () => lobbyCtrl.playAI(variantName, chess960) } }, _('Play with AI (Fairy-Stockfish)')),
                 h('li.l3links', { on: { click: () => lobbyCtrl.playRM(variantName, chess960) } }, _('Play with Random-Mover')),
             ]),
-            h('h5#chessl3back', { on: { click: () => leve2func(lobbyCtrl, 'chessl3cont') } }, _('Go Back')),
+            h('h5#chessl3back', { on: { click: () => leve2func(lobbyCtrl, container3Id) } }, _('Go Back')),
         ]),
         h('button.layer-2-category l3img', [
             variantBoard(variant, variant.startFen),
@@ -62,7 +62,7 @@ export function layer3variant (containerId: string, lobbyCtrl: LobbyController, 
         ]),
     ]);
 
-    const container = document.getElementById(containerId) as HTMLElement;
+    const container = document.getElementById(container2Id) as HTMLElement;
     if (container) patch(container, layer3cont);
 }
 
