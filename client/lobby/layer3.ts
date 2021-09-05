@@ -91,7 +91,7 @@ function proTip (variant: string, chess960: boolean) {
             return _('You can play more at www.lichess.org');
         }
     case 'placement':
-        return _('Castling only possible if king and rook are dropped to their usual places like in standard chess.');
+        return _('Castling is only possible if king and rook are dropped to their usual places like in standard chess.');
 // fairy
     case 'capablanca':
         return _('You can choose different starting setups including Embassy Chess and Gothic Chess. For a drop (+/- 960) version, choose CAPAHOUSE from the dropdown menu.');
