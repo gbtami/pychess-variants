@@ -35,7 +35,7 @@ export function variantPanels (lobbyCtrl: LobbyController): VNode {
             case 'shogi9x9': css = 'ShogiOak.png'; break;
             case 'shogi7x7': css = 'ToriWood.svg'; break;
             case 'shogi5x5': css = 'MiniboardWood1.png'; break;
-            case 'shogi5x6': css = 'gorogoro2.svg'; break;
+            case 'shogi5x6': css = 'GorogoroWood.png'; break;
             case 'xiangqi9x10': css = 'xiangqiWood.png'; break;
             case 'xiangqi7x7': css = 'minixiangqiw.png'; break;
             case 'janggi9x10': css = 'JanggiWoodDark.svg'; break;
@@ -50,9 +50,10 @@ export function variantPanels (lobbyCtrl: LobbyController): VNode {
             case 'standard': css = 'green'; break;
             case 'makruk': css = 'makrukwb'; break;
             case 'shogi': css = 'shogikw3d'; break;
-            case 'kyoto': css = 'kyotoi'; break;
+            case 'kyoto': css = 'kyotok'; break;
             case 'xiangqi': css = 'xiangqihnzw'; break;
             case 'xiangqi': css = 'xiangqihnzw'; break;
+            case 'janggi': css = 'janggikaw'; break;
             default: css = PIECE_FAMILIES[family].pieceCSS[0]; break;
         };
         changePieceCSS(assetUrl, family, css);
