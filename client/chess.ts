@@ -657,8 +657,8 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "ordamirror" ] },
-    asymmetric: { variants: [ "orda", "synochess", "shinobi", "empire" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
 };
 
 function variantGroupLabel(group) {
@@ -668,7 +668,7 @@ function variantGroupLabel(group) {
         shogi: _("Shogi variants"),
         xiangqi: _("Xiangqi variants"),
         fairy: _("Fairy piece variants"),
-        asymmetric: _("Asymmetric variants"),
+        army: _("New Army Variants"),
     }
     return groups[group];
 }
