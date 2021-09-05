@@ -134,6 +134,12 @@ font-size: 1.3rem;
     font-size: 1.2rem;
 }
 
+p.variant-extra-info:nth-child(3) {
+    
+    font-size: 1rem;
+
+   }
+
 /* Setting max height for all columns  */
 
 .chess-l3 {
@@ -144,6 +150,16 @@ font-size: 1.3rem;
     font-size: 0.8rem;
 }
 
+
+@media only screen and (min-width: 1100px) {
+
+p.variant-extra-info:nth-child(3) {
+position: absolute;
+bottom: 0;
+padding: 15px;
+}
+
+}
 
 @media only screen and (max-width: 500px) {
 
