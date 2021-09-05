@@ -109,10 +109,11 @@ font-size: 1.3rem;
     /* border: 1px solid red; */
     padding: 10px;
     width: 100%;
+    pointer-events: none;
 }
 
 .layer-3-container .l3img:hover {
-    pointer-events: none }
+    pointer-events: none; }
 
 .layer-3-container .l3img .generic-shogi {
     /* border: 1px solid blue; */
