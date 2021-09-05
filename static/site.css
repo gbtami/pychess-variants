@@ -65,6 +65,10 @@
     --vpanel-button: #fbfbfb;
     --vpanel-button-hover: #fdfdfd;
     --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
+    --panel-icon-chess: #b6b7ce; 
+    --panel-icon-fairy: #67bfea; 
+    --panel-icon-army: #b57dec;
+    --panel-icon-shogi: #ff9435; 
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -115,7 +119,11 @@
     --vpanel-button: #3c3a35;
     --vpanel-button-hover: #464440;
     --panel-link-hover: rgb(179, 179, 179);
-    --box-shadow-panel-btn: none; 
+    --box-shadow-panel-btn: none;
+    --panel-icon-chess: #b6b7ce; 
+    --panel-icon-fairy: #67bfea; 
+    --panel-icon-army: #b57dec;
+    --panel-icon-shogi: #ff9435;  
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
