@@ -93,6 +93,22 @@ font-size: 1.3rem;
     cursor: pointer; 
 }
 
+
+
+#chessl3cont .variant-title-l2 [data-icon]:before {
+    color: var(--panel-icon-chess);
+}
+
+#fairyl3cont .variant-title-l2 [data-icon]:before {
+    color: var(--panel-icon-fairy);
+}
+
+#armyl3cont .variant-title-l2 [data-icon]:before {
+    color: var(--panel-icon-army);
+}
+
+
+
 /* Second Column with Image */
 
 [data-icon]:before {
