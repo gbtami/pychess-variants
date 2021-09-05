@@ -38,7 +38,7 @@ export function variantPanels (lobbyCtrl: LobbyController): VNode {
             case 'shogi5x6': css = 'GorogoroWood.png'; break;
             case 'xiangqi9x10': css = 'xiangqiWood.png'; break;
             case 'xiangqi7x7': css = 'minixiangqiw.png'; break;
-            case 'janggi9x10': css = 'JanggiWoodDark.svg'; break;
+            case 'janggi9x10': css = 'JanggiWood.png'; break;
             default: css = BOARD_FAMILIES[family].boardCSS[0]; break;
         };
         changeBoardCSS(assetUrl, family, css);
