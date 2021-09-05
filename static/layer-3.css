@@ -96,22 +96,23 @@ font-size: 1.3rem;
     vertical-align: middle;
     padding-right: 4px;
 }
-#layer2chesscont [data-icon], #chessl3cont [data-icon]:before, .#chessl3cont .l3links-cont .l3links:hover, .#chessl3cont .variant-extra-info a:hover {
+
+#layer2chesscont [data-icon], #chessl3cont [data-icon]:before, #chessl3cont .l3links-cont .l3links:hover, #chessl3cont .variant-extra-info a:hover {
     color: #8FA2AD;
 }
-#layer2fairycont [data-icon],#fairyl3cont [data-icon]:before, .#layer2fairycont .l3links-cont .l3links:hover, .#layer2fairycont .variant-extra-info a:hover {
+#layer2fairycont [data-icon],#fairyl3cont [data-icon]:before, #layer2fairycont .l3links-cont .l3links:hover, #layer2fairycont .variant-extra-info a:hover {
     color: #62B956;
 }
-#layer2armycont [data-icon],#armyl3cont [data-icon]:before, .#layer2armycont .l3links-cont .l3links:hover, .#layer2armycont .variant-extra-info a:hover{
+#layer2armycont [data-icon],#armyl3cont [data-icon]:before, #layer2armycont .l3links-cont .l3links:hover, #layer2armycont .variant-extra-info a:hover{
     color: #7f8dff;
 }
-#layer2makrukcont [data-icon],#makrukl3cont [data-icon]:before, .#layer2makrukcont .l3links-cont .l3links:hover, .#layer2makrukcont .variant-extra-info a:hover {
+#layer2makrukcont [data-icon],#makrukl3cont [data-icon]:before, #layer2makrukcont .l3links-cont .l3links:hover, #layer2makrukcont .variant-extra-info a:hover {
     color: #d4aa00;
 }
-#layer2shogicont [data-icon],#shogil3cont [data-icon]:before, .#layer2shogicont .l3links-cont .l3links:hover, .#layer2shogicont .variant-extra-info a:hover {
+#layer2shogicont [data-icon],#shogil3cont [data-icon]:before, #layer2shogicont .l3links-cont .l3links:hover, #layer2shogicont .variant-extra-info a:hover {
     color: #c68948;
 }
-#layer2xiangqicont [data-icon],#xiangqil3cont [data-icon]:before, .#layer2xiangqicont .l3links-cont .l3links:hover, .#layer2xiangqicont .variant-extra-info a:hover{
+#layer2xiangqicont [data-icon],#xiangqil3cont [data-icon]:before, #layer2xiangqicont .l3links-cont .l3links:hover, #layer2xiangqicont .variant-extra-info a:hover{
     color: #ff5555;
 }
 
