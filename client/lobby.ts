@@ -31,6 +31,7 @@ export class LobbyController {
     player;
     logged_in;
     challengeAI: boolean;
+    challengeRM: boolean;
     inviteFriend: boolean;
     validGameData: boolean;
     _ws;
@@ -52,6 +53,7 @@ export class LobbyController {
 
         this.model = model;
         this.challengeAI = false;
+        this.challengeRM = false;
         this.inviteFriend = false;
         this.validGameData = false;
         this.seeks = [];
@@ -159,6 +161,7 @@ export class LobbyController {
     createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_ai_challenge",
+            rm: this.challengeRM,
             user: this.model.username,
             variant: variant,
             fen: fen,
@@ -401,6 +404,7 @@ export class LobbyController {
         this.preSelectVariant(variantName, chess960);
         const anon = this.model.anon === 'True';
         this.challengeAI = false;
+        this.challengeRM = false;
         this.inviteFriend = false;
         document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
@@ -412,6 +416,7 @@ export class LobbyController {
         this.preSelectVariant(variantName, chess960);
         const anon = this.model.anon === 'True';
         this.challengeAI = false;
+        this.challengeRM = false;
         this.inviteFriend = true;
         document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
@@ -422,6 +427,7 @@ export class LobbyController {
     playAI(variantName: string='', chess960: boolean=false) {
         this.preSelectVariant(variantName, chess960);
         this.challengeAI = true;
+        this.challengeRM = false;
         this.inviteFriend = false;
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
@@ -432,6 +438,7 @@ export class LobbyController {
     playRM(variantName: string='', chess960: boolean=false) {
         this.preSelectVariant(variantName, chess960);
         this.challengeAI = true;
+        this.challengeRM = true;
         this.inviteFriend = false;
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
