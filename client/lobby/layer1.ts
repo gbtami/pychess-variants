@@ -15,6 +15,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
+import { changeBoardCSS, changePieceCSS } from '../document';
 import { IVariant } from '../chess';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
@@ -26,6 +27,15 @@ import { layer2xiangqi } from './layer2xiangqi';
 
 export function variantPanels (lobbyCtrl: LobbyController): VNode {
     const assetUrl = lobbyCtrl.model['asset-url'];
+    changeBoardCSS(assetUrl, 'makruk8x8', 'makruk.jpg');
+    changePieceCSS(assetUrl, 'makruk', 'makrukwb');
+
+    changeBoardCSS(assetUrl, 'shogi9x9', 'ShogiOak.png');
+    changePieceCSS(assetUrl, 'shogi', 'shogikw3d');
+
+    changeBoardCSS(assetUrl, 'xiangqi9x10', 'xiangqiWood.png');
+    changePieceCSS(assetUrl, 'xiangqi', 'xiangqihnzw');
+
     return h('div#panel-container.panel-container', [
         h('div#variantcont.variants-container', [
             h('button#layer1chess.variant-category.chess', { on: { click: () => layer2chess(lobbyCtrl, 'panel-container') } }, [
