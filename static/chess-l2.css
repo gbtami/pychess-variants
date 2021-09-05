@@ -218,4 +218,32 @@
         margin: 0 auto;
     }
 
+
+    layer-two-category-info {
+    padding-top: 0px; 
+
+    }
+
+    .generic h4, .fairy-grid h4 {
+
+    font-size: 1.5rem; 
+    padding-top: 10px; 
+    padding-bottom: 20px;
+   
+    }
+
+    .variant-category-description {
+
+    font-size: 1.2rem;
+    padding: 10px;
+
+    }
+
+    .generic h5, .fairy-grid h5 {
+
+    padding: 10px; 
+    font-size: 1.1rem;
+
+    }
+
 }
