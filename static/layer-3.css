@@ -143,3 +143,33 @@ font-size: 1.3rem;
     font-size: 0.8rem;
 }
 
+
+@media only screen and (max-width: 500px) {
+
+.layer-3-container {
+    display: flex;
+    flex-direction: column;
+    }
+
+.layer-3-container .l3links-cont {
+    
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+
+    }
+
+.layer-3-container .l3links-cont .l3links {
+
+    font-size: 1.5rem;
+    justify-content: center;
+    }
+
+.chess-l3 {
+    max-height: 100%
+    }
+
+
+}
+
+
