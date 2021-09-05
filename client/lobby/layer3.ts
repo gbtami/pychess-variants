@@ -129,9 +129,9 @@ function proTip (variant: string, chess960: boolean) {
     case 'dobutsu':
         return _('Despite the simple appearance, there is still quite a bit of depth underlying this game.');
     case 'kyotoshogi':
-        return _('Sets that show both sides as available by going to settings.');
+        return _('Sets that show both sides are available by going to settings.');
     case 'torishogi':
-        return _('Reading the rules are a necessity to understanding the movements before playing.');
+        return _('Reading the rules are a necessity to understand the movements before playing.');
 // xiangqi
     case 'xiangqi':
     case 'janggi':
