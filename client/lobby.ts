@@ -385,8 +385,20 @@ export class LobbyController {
         ];
     }
 
+    preSelectVariant(variantName: string, chess960: boolean=false) {
+        if (variantName !== '') {
+            const select = document.getElementById("variant") as HTMLSelectElement;
+            const options = Array.from(select.options).map(o => o.value);
+            if (select) select.selectedIndex = options.indexOf(variantName);
+
+            this.setVariant();
+
+            const check = document.getElementById("chess960") as HTMLInputElement;
+            if (check) check.checked = chess960;
+        }
+    }
     createGame(variantName: string='', chess960: boolean=false) {
-        console.log(variantName, chess960);
+        this.preSelectVariant(variantName, chess960);
         const anon = this.model.anon === 'True';
         this.challengeAI = false;
         this.inviteFriend = false;
@@ -397,7 +409,7 @@ export class LobbyController {
     }
 
     playFriend(variantName: string='', chess960: boolean=false) {
-        console.log(variantName, chess960);
+        this.preSelectVariant(variantName, chess960);
         const anon = this.model.anon === 'True';
         this.challengeAI = false;
         this.inviteFriend = true;
@@ -408,22 +420,20 @@ export class LobbyController {
     }
 
     playAI(variantName: string='', chess960: boolean=false) {
-        console.log(variantName, chess960);
-        const anon = this.model.anon === 'True';
+        this.preSelectVariant(variantName, chess960);
         this.challengeAI = true;
         this.inviteFriend = false;
-        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
+        document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'inline-block';
         document.getElementById('id01')!.style.display = 'block';
     }
 
     playRM(variantName: string='', chess960: boolean=false) {
-        console.log(variantName, chess960);
-        const anon = this.model.anon === 'True';
+        this.preSelectVariant(variantName, chess960);
         this.challengeAI = true;
         this.inviteFriend = false;
-        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
+        document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
