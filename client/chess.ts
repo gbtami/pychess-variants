@@ -247,7 +247,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     placement: new Variant({
-        name: "placement", tooltip: () => _("Choose where your pieces start"),
+        name: "placement", tooltip: () => _("Choose where your pieces start in the back row"),
         startFen: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
@@ -392,7 +392,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     torishogi: new Variant({
-        name: "torishogi", tooltip: () => _("Shogi with birds"),
+        name: "torishogi", tooltip: () => _("A confrontational 7x7 board variant with unique pieces each named after different birds."),
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
         board: "shogi7x7", piece: "tori",
         firstColor: "Black", secondColor: "White",
@@ -582,7 +582,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     shinobi: new Variant({
-        name: "shinobi", tooltip: () => _("Western chess VS Ninja"),
+        name: "shinobi", tooltip: () => _("The pink Clan army features pieces that start in hand and can be dropped."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
@@ -607,7 +607,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     ordamirror: new Variant({
-        name: "ordamirror", displayName: "orda mirror", tooltip: () => _("Pieces move generally like a knight, and capture differently"),
+        name: "ordamirror", displayName: "orda mirror", tooltip: () => _("A variant of Orda Chess, where two Horde armies face each other. A new piece called the Falcon replaces the Yurt."),
         startFen: "lhafkahl/8/pppppppp/8/8/PPPPPPPP/8/LHAFKAHL w - - 0 1",
         board: "standard8x8", piece: "ordamirror",
         firstColor: "White", secondColor: "Gold",

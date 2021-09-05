@@ -69,7 +69,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
 function chess960Tooltip(variant: string) {
     switch (variant) {
     case 'chess':
-        return _('Fischer\'s random chess where the back row are randomized. All "960" games on Pychess are launched from the base game and checking the "Chess960" box.');
+        return _('Fischer\'s random chess where the back row are randomized.');
     case 'crazyhouse':
         return _('Crazyhouse with random back row.');
     case 'atomic':
@@ -94,7 +94,7 @@ function proTip (variant: string, chess960: boolean) {
         return _('Castling is only possible if king and rook are dropped to their usual places like in standard chess.');
 // fairy
     case 'capablanca':
-        return _('You can choose different starting setups including Embassy Chess and Gothic Chess. For a drop (+/- 960) version, choose CAPAHOUSE from the dropdown menu.');
+        return _('You can choose different starting setups including Embassy Chess and Gothic Chess.');
     case 'grand':
         return _('For a drop version, choose GRANDHOUSE from the dropdown menu.');
     case 'seirawan':
