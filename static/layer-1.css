@@ -65,7 +65,7 @@ box-shadow: var(--box-shadow-panel-btn);
 
  h3 {
      /* border: 1px solid yellow; */
-     font-size: 130%;
+     font-size: 1.3rem;
      /* height: 100%; aligns text start but too much space  */
      justify-self: center;
  }
