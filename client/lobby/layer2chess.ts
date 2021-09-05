@@ -16,56 +16,58 @@ import { goBackToLayer1, variantBoard } from './layer1';
 import { layer3variant } from './layer3';
 
 export function layer2chess (lobbyCtrl: LobbyController, containerId: string): void {
-    const assetUrl = lobbyCtrl.model['asset-url'];
-    const variant = VARIANTS['chess'];
+    const chess = VARIANTS['chess'];
+    const placement = VARIANTS['placement'];
+    const crazyhouse = VARIANTS['crazyhouse'];
+    const atomic = VARIANTS['atomic'];
     const layer2cont = h('div#layer2chesscont.layer-2-container', [
         h('button.layer-2-category generic-variant-info.generic', [
             h('div.layer-two-category-info', [
                 h('h4', 'Chess Variants'),
-                variantBoard(variant, variant.startFen),
+                variantBoard(chess, chess.startFen),
                 h('p.variant-category-description', _('Variants using a basic chess set but with different rules')),
                 h('h5#chessl2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),
             ]),
         ]),
         h('button.layer-2-category.chess-l2', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', false) } }, [
             h('div.variant-title-l2', [
-                h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/chess.svg" } } ) ]),
+                h('div.icon', { attrs: { 'data-icon': chess.icon(false) } }),
                 h('h3', 'Chess')
             ]),
         ]),
         h('button.layer-2-category.chess960', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', true) } }, [
             h('div.variant-title-l2', [
-                h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/960.svg" } } ) ]),
+                h('div.icon', { attrs: { 'data-icon': chess.icon(true) } }),
                 h('h3', 'Chess960')
             ]),
         ]),
         h('button.layer-2-category.placement', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'placement', false) } }, [
             h('div.variant-title-l2', [
-                h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/placement.svg" } } ) ]),
+                h('div.icon', { attrs: { 'data-icon': placement.icon(false) } }),
                 h('h3', 'Placement')
             ]),
         ]),
         h('button.layer-2-category.crazyhouse', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', false) } }, [
             h('div.variant-title-l2', [
-                h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/Crazyhouse.svg" } } ) ]),
+                h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(false) } }),
                 h('h3', 'Crazyhouse')
             ]),
         ]),
         h('button.layer-2-category.crazyhouse960', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', true) } }, [
             h('div.variant-title-l2', [
-                h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/Crazyhouse960.svg" } } ) ]),
+                h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(true) } }),
                 h('h3', 'Crazyhouse960')
             ]),
         ]),
         h('button.layer-2-category.atomic', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', false) } }, [
             h('div.variant-title-l2', [
-                h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/Atomic.svg" } } ) ]),
+                h('div.icon', { attrs: { 'data-icon': atomic.icon(false) } }),
                 h('h3', 'Atomic')
             ]),
         ]),
         h('button.layer-2-category.atomic960', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', true) } }, [
             h('div.variant-title-l2', [
-                h('div.icon-container', [ h('img', { attrs: {  src: assetUrl + "/icons/Atomic960.svg" } } ) ]),
+                h('div.icon', { attrs: { 'data-icon': atomic.icon(true) } }),
                 h('h3', 'Atomic960')
             ]),
         ]),

@@ -68,7 +68,9 @@
     --panel-icon-chess: #b6b7ce; 
     --panel-icon-fairy: #67bfea; 
     --panel-icon-army: #b57dec;
+    --panel-icon-makruk: #ff9435; 
     --panel-icon-shogi: #ff9435; 
+    --panel-icon-xiangqi: #ff9435; 
 }
 [data-theme="dark"] {
     --dark-mode: 1;

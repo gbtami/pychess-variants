@@ -39,14 +39,14 @@ cursor: default;
 
 .layer-3-container .l3v .variant-title-l2 {
     /* border: 1px solid red; */
- display: flex;
- flex-direction: row;
- width: 100%;
- margin-bottom: 25px;
- justify-content: center;
- align-items: center;
- font-size: 1.5rem;
-
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 25px;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    white-space: nowrap;
 }
 
 #chessl3cont .variant-title-l2, #chatrangl3cont .variant-title-l2, #hoppelpoppell3cont .variant-title-l2  {
@@ -95,18 +95,24 @@ font-size: 1.3rem;
 
 
 
-#chessl3cont .variant-title-l2 [data-icon]:before {
+#layer2chesscont [data-icon], #chessl3cont [data-icon]:before {
     color: var(--panel-icon-chess);
 }
-
-#fairyl3cont .variant-title-l2 [data-icon]:before {
+#layer2fairycont [data-icon],#fairyl3cont [data-icon]:before {
     color: var(--panel-icon-fairy);
 }
-
-#armyl3cont .variant-title-l2 [data-icon]:before {
+#layer2armycont [data-icon],#armyl3cont [data-icon]:before {
     color: var(--panel-icon-army);
 }
-
+#layer2makrukcont [data-icon],#makrukl3cont [data-icon]:before {
+    color: var(--panel-icon-makruk);
+}
+#layer2shogicont [data-icon],#shogil3cont [data-icon]:before {
+    color: var(--panel-icon-shogi);
+}
+#layer2xiangqicont [data-icon],#xiangqil3cont [data-icon]:before {
+    color: var(--panel-icon-xiangqi);
+}
 
 
 /* Second Column with Image */
