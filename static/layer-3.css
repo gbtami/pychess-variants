@@ -97,19 +97,19 @@ font-size: 1.3rem;
     padding-right: 4px;
 }
 #layer2chesscont [data-icon], #chessl3cont [data-icon]:before {
-    color: #77b878;
+    color: #8FA2AD;
 }
 #layer2fairycont [data-icon],#fairyl3cont [data-icon]:before {
-    color: #67bfea;
+    color: #62B956;
 }
 #layer2armycont [data-icon],#armyl3cont [data-icon]:before {
-    color: #b57dec;
+    color: #7f8dff;
 }
 #layer2makrukcont [data-icon],#makrukl3cont [data-icon]:before {
     color: #d4aa00;
 }
 #layer2shogicont [data-icon],#shogil3cont [data-icon]:before {
-    color: #ff9435;
+    color: #c68948;
 }
 #layer2xiangqicont [data-icon],#xiangqil3cont [data-icon]:before {
     color: #ff5555;
