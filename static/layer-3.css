@@ -93,25 +93,23 @@ font-size: 1.3rem;
     cursor: pointer; 
 }
 
-
-
 #layer2chesscont [data-icon], #chessl3cont [data-icon]:before {
-    color: var(--panel-icon-chess);
+    color: #b6b7ce;
 }
 #layer2fairycont [data-icon],#fairyl3cont [data-icon]:before {
-    color: var(--panel-icon-fairy);
+    color: #67bfea;
 }
 #layer2armycont [data-icon],#armyl3cont [data-icon]:before {
-    color: var(--panel-icon-army);
+    color: #b57dec;
 }
 #layer2makrukcont [data-icon],#makrukl3cont [data-icon]:before {
-    color: var(--panel-icon-makruk);
+    color: #d4aa00;
 }
 #layer2shogicont [data-icon],#shogil3cont [data-icon]:before {
-    color: var(--panel-icon-shogi);
+    color: #ff9435;
 }
 #layer2xiangqicont [data-icon],#xiangqil3cont [data-icon]:before {
-    color: var(--panel-icon-xiangqi);
+    color: #ff5555;
 }
 
 
