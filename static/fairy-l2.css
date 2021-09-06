@@ -261,8 +261,7 @@ padding: 10px;
     display: none;
 
     }
-    
-
+   
     .capablanca , .shako , .shogun , .schess , .hoppelpoppel , .grand {
         justify-content: flex-start;
         align-items: flex-start;
@@ -272,6 +271,28 @@ padding: 10px;
     .variant-title-l2 {
         padding: 0;
         margin: 0;
+    }
+
+    /* Individual Fixes */
+
+    /*  Shogi */
+
+    #layer2cont #mainboard {
+
+    display: none;
+
+    }
+    
+    #layer2cont h4 {
+
+    display: none;
+
+    }
+
+    #layer2cont .shogi-desc {
+
+    display: none
+
     }
 
 }
