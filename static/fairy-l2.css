@@ -279,7 +279,7 @@ padding: 10px;
 
     #layer2shogicont {
 
-    grid-template-rows: repeat(7, auto);
+    grid-template-rows: repeat(6, auto);
 
     }
 
@@ -306,7 +306,7 @@ padding: 10px;
 
     #layer2armycont {
 
-    grid-template-rows: repeat(7, auto); 
+    grid-template-rows: repeat(6, auto); 
 
     }
 
@@ -327,6 +327,73 @@ padding: 10px;
 
     justify-content: center;
 
+    }
+
+    /* Makruk */
+
+    .makrukl2 {
+
+    grid-column: 1/2;
+
+    }
+
+    .sittuyin {
+    
+    grid-column: 2/3;
+    grid-row: 1/2;
+
+    }
+
+    .makpong {
+    
+    grid-column: 1/2;
+    grid-row: 2/3;
+
+    }
+
+    .generic-makruk {
+
+    grid-column: 1/3;
+    grid-row: 3/4;
+
+    }
+
+    .two-grid .layer-2-category {
+   
+    padding: 10px;
+
+    }
+
+   .makrukl2, .sittuyin, .makpong, .chatrang {
+
+    padding: 0px;
+
+    }
+
+    #layer2makrukcont .variant-title-l2, #layer2xiangqicont .variant-title-l2 {
+
+    width: 100%;
+
+    }
+
+    
+    #layer2makrukcont .variant-extra-info, #layer2xiangqicont .variant-extra-info {
+
+    font-size: 1em;
+    width: 100%;
+    padding: 0;
+
+    }
+
+    #layer2makrukcont #mainboard, #layer2xiangqicont #mainboard {
+    
+    display: none;
+
+    }
+
+     #layer2makrukcont .layer-two-category-info, #layer2xiangqicont .layer-two-category-info {
+
+    justify-content: center; 
     }
 
 }
