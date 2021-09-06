@@ -203,10 +203,40 @@
 
 @media only screen and (max-width:799px) {
     .layer-2-container {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-rows: ;  
     }
 
+    .chess-l2 {
+
+        grid-column: 1/2;
+        grid-row: 1/2;
+    }
+
+    .crazyhouse {
+        grid-column: 2/3;
+        grid-row: 1/2;
+    }
+
+    .crazyhouse960 {
+        grid-column: 1/2;
+        grid-row: 2/3;
+    }
+
+    .atomic {
+       grid-column:1/2;
+       grid-row: 3/4;
+    }
+
+    .atomic960 {
+     grid-column: 1/2;
+     grid-row: 4/5;
+    }
+
+    .generic-variant-info {
+        grid-column: 2/3;
+        grid-row: 4/5;
+    }
 
     .layer-2-container .chess-l2, .layer-2-container .chess960, .layer-2-container .placement, .layer-2-container .crazyhouse,
     .layer-2-container .crazyhouse960, .layer-2-container .atomic, .layer-2-container .atomic960, #layer2chesscont .generic {
@@ -218,7 +248,6 @@
         margin: 0 auto;
     }
 
-
     layer-two-category-info {
     padding-top: 0px; 
 
@@ -226,24 +255,24 @@
 
     .generic h4, .fairy-grid h4 {
 
-    font-size: 1.5rem; 
-    padding-top: 10px; 
-    padding-bottom: 20px;
+    display: none; 
    
     }
 
     .variant-category-description {
 
-    font-size: 1.2rem;
-    padding: 10px;
+    display: none; 
 
     }
 
     .generic h5, .fairy-grid h5 {
 
-    padding: 10px; 
-    font-size: 1.1rem;
+    font-size: 1rem;
 
     }
+
+    
+
+
 
 }
