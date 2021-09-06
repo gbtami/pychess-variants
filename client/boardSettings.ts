@@ -67,13 +67,13 @@ class BoardSettings {
     updateBoardStyle(family: string) {
         const idx = this.getSettings("BoardStyle", family).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"] || 'unknown-asset-url', family, board);//TODO:niki:can't i make asset-url mandatory? see below same OR thing
+        changeBoardCSS(model["asset-url"] , family, board);
     }
 
     updatePieceStyle(family: string) {
         const idx = this.getSettings("PieceStyle", family).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model["asset-url"] || 'unknown-asset-url', family, css);
+        changePieceCSS(model["asset-url"], family, css);
         this.updateDropSuggestion();
     }
 

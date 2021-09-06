@@ -56,7 +56,7 @@ import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import {
-    CT,
+    CrossTable,
     MsgBoard,
     MsgChat, MsgCtable,
     MsgFullChat,
@@ -66,7 +66,7 @@ import {
     MsgUserConnected,
     Step
 } from "./analysisCtrl";
-import {PyChessModel} from "./main";
+import { PyChessModel } from "./main";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -91,7 +91,7 @@ export interface MsgGameEnd{
     result: string;
     gameId: string;
     pgn: string;
-    ct: CT;
+    ct: CrossTable;
     rdiffs: RDiffs;
 }
 
@@ -137,7 +137,7 @@ interface MsgUpdateTV{
 }
 
 export interface Clocks {
-    white: number; black: number;//TODO:niki: maybe some keyof kind of approach to base it on cg's Color type possible values instead of hardcoding them
+    white: number; black: number;
 }
 
 export default class RoundController {
@@ -340,7 +340,7 @@ export default class RoundController {
             fen: fen_placement,
             variant: this.variant.name as Variant,
             geometry: this.variant.geometry,
-            // chess960: this.chess960,
+            chess960: this.chess960,
             notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
             orientation: this.mycolor,
             turnColor: this.turnColor,

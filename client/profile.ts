@@ -16,8 +16,9 @@ import { VARIANTS, IVariant } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
-import {PyChessModel} from "./main";
-import {FEN, Geometry} from "chessgroundx/types";
+import { PyChessModel } from "./main";
+import { FEN, Geometry } from "chessgroundx/types";
+import { Ceval } from "./analysisCtrl";
 
 
 export function colorNames(color: string) {
@@ -165,7 +166,7 @@ interface Game{
     bp: number;
 
     y: string;
-    d: string;//TODO:niki:or some date?
+    d: string;
 
     us: string[];
     wt: string;
@@ -175,8 +176,8 @@ interface Game{
     p1: Player;
     s: number;
     r: string;
-    m: any[];//TODO:niki
-    a: any;//TODO:niki
+    m: string[]; // moves in compressed format as they are stored in mongo. Only used for count of moves here
+    a: Ceval[];
 }
 
 interface Player{

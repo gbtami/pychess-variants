@@ -52,7 +52,7 @@ import { getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
-import {Clocks} from "./roundCtrl";
+import { Clocks } from "./roundCtrl";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -80,7 +80,7 @@ function download(filename: string, text: string) {
 }
 
 export interface Step{
-    fen: string;
+    fen: FEN;
     move: string | undefined;
     check: boolean;
     turnColor: Color;
@@ -88,16 +88,15 @@ export interface Step{
     san?: string;
     analysis?: Ceval;
 
-    ceval?: Ceval;//TODO:where did that boolean thing come from i dont remember
-    score?: string | undefined;//TODO:niki: why then also scoreStr - probably should not be string
+    ceval?: Ceval;
     scoreStr?: string;
 
-    vari?: Step[];//TODO:niki:if this is not optional a lot of ugly "if (vv) {}" will not be needed
+    vari?: Step[];
     sanSAN?: string;
 
 }
 
-export interface CT {//if used in other places - maybe belongs in another more general file
+export interface CrossTable {
     s1: number;
     s2: number;
     r: string[];
@@ -106,7 +105,7 @@ export interface CT {//if used in other places - maybe belongs in another more g
 }
 
 export interface MsgCtable{
-    ct: CT
+    ct: CrossTable
 }
 export interface MsgGameNotFound{
     gameId: string;
@@ -116,7 +115,7 @@ export interface MsgShutdown{
 }
 
 export interface MsgChat {
-    room: string;
+    room?: string; // Unlike "roundchat", "lobbychat" messages don't have such property and currently re-using same interface for them as well.
     user: string;
     message: string;
 }
@@ -156,10 +155,10 @@ interface MsgAnalysisBoard {
     check: boolean;
 }
 
-interface Ceval {
+export interface Ceval {
     d: number;
     m?: string;
-    p?: any;
+    p?: string;
     s: { cp?: number ; mate?: number};
     k?: number;
 }
@@ -236,13 +235,13 @@ export default class AnalysisController {
     ctableContainer: VNode | HTMLElement;
     localEngine: boolean;
     localAnalysis: boolean;
-    ffish: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
-    ffishBoard: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
+    ffish: any;
+    ffishBoard: any;
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
     notation: Notation;
-    notationAsObject: any;//TODO: niki:i think this looks more like someting that can be typed judging by its initializing - but not obvious at the moment what is going on.
+    notationAsObject: any;
     prevPieces: Pieces;
     arrow: boolean;
 
@@ -359,8 +358,8 @@ export default class AnalysisController {
         this.chessground = Chessground(el, {
              fen: fen_placement as FEN,
              variant: this.variant.name as Variant,
-             // chess960: this.chess960,//TODO:niki:i dont see such property in config.ts->Config
-             geometry: this.variant.geometry as Geometry,//TODO:niki:i dont understand why as Geometry is needed - but otherwise doesnt compile (or maybe it does and the IDE was complaining incorrectly not sure) - but it seems it is already this type so why "as"?
+             chess960: this.chess960,
+             geometry: this.variant.geometry as Geometry,//TODO:niki:i dont understand why as Geometry is needed - but otherwise doesnt compile (or maybe it does and the IDE was complaining incorrectly not sure) - but it seems it is already this type so why "as"? there are other places also with same code/problem as well
              notation: this.notation,
              orientation: this.mycolor,
              turnColor: this.turnColor,
@@ -418,7 +417,7 @@ export default class AnalysisController {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
             document.documentElement.style.setProperty('--toolsHeight', '136px');
         } else {
-            // this.checkStatus({fen: this.fullfen});//TODO:niki:i dont get what is supposed to happen if such param value is passed
+            this.renderFENAndPGN( this.getPgn() );
             document.documentElement.style.setProperty('--toolsHeight', '92px');
         }
 
@@ -523,32 +522,36 @@ export default class AnalysisController {
 
             if ("uci_usi" in msg) { this.uci_usi = msg.uci_usi; }
 
-            let container = document.getElementById('copyfen') as HTMLElement;
-            if (container !== null) {
-                const buttons = [
-                    h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, pgn) } }, [
-                        h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
-                    h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
-                        h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
-                    h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
-                        h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
-                    ]
-                if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
-                    buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
-                        h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
-                    );
-                }
-                patch(container, h('div', buttons));
-            }
-
-            const e = document.getElementById('fullfen') as HTMLInputElement;
-            e.value = this.fullfen;
-
-            container = document.getElementById('pgntext') as HTMLElement;
-            this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
+            this.renderFENAndPGN( pgn );
 
             if (!this.isAnalysisBoard) selectMove(this, this.ply);
         }
+    }
+
+    private renderFENAndPGN(pgn: string) {
+        let container = document.getElementById('copyfen') as HTMLElement;
+        if (container !== null) {
+            const buttons = [
+                h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, pgn) } }, [
+                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
+                h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
+                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
+                h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
+                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
+                ]
+            if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
+                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
+                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
+                );
+            }
+            patch(container, h('div', buttons));
+        }
+
+        const e = document.getElementById('fullfen') as HTMLInputElement;
+        e.value = this.fullfen;
+
+        container = document.getElementById('pgntext') as HTMLElement;
+        this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
     }
 
     private onMsgBoard = (msg: MsgBoard) => {
@@ -662,7 +665,7 @@ export default class AnalysisController {
 
         if (!this.localEngine) {
             if (line.includes('UCI_Variant')) {
-                new (Module as any)().then((loadedModule: any) => {//TODO:niki - i dont know what - putting any
+                new (Module as any)().then((loadedModule: any) => {
                     this.ffish = loadedModule;
 
                     if (this.ffish !== null) {
@@ -698,11 +701,7 @@ export default class AnalysisController {
         const matches = line.match(EVAL_REGEX);
         if (!matches) {
             if (line.includes('mate 0')) {
-                const msg: MsgAnalysis = { type: 'local-analysis',
-                                           ply: this.ply,
-                                           color: this.turnColor.slice(0, 1),
-                                           ceval: {d: 0, s: {mate: 0}}
-                                         };
+                const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};
                 this.onMsgAnalysis(msg);
             }
             return;
@@ -735,11 +734,7 @@ export default class AnalysisController {
         }
         const knps = nodes / elapsedMs;
         const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-        const msg: MsgAnalysis = { type: 'local-analysis',
-                                   ply: this.ply,
-                                   color: this.turnColor.slice(0, 1),
-                                   ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}
-        };
+        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
 
@@ -771,7 +766,7 @@ export default class AnalysisController {
             }
         }
 
-        if (ceval?.p !== undefined && !!ceval.m) {//TODO:niki:why is m optional - maybe i should just make it mandatory. what about p also?
+        if (ceval?.p !== undefined && !!ceval.m) {
             const pv_move = uci2cg(ceval.m.split(" ")[0]);
             console.log("ARROW", this.arrow);
             if (this.arrow) {
@@ -920,7 +915,7 @@ export default class AnalysisController {
             }
         }
 
-        const vv = this.steps[plyVari]?.vari;//TODO:niki:i dont know why i cant comile unless i use this const
+        const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
         let moveStr = step.move;
         let move : Key[];
@@ -929,10 +924,10 @@ export default class AnalysisController {
             moveStr = uci2cg(moveStr);
             move = moveStr.indexOf('@') > -1 ? [moveStr.slice(-2) as Key] : [moveStr.slice(0, 2) as Key, moveStr.slice(2, 4) as Key];
             // 960 king takes rook castling is not capture
-            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');//TODO:niki:ive put qusetionmarks here, but is san really optional? why?
+            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
 
             this.chessground.set({
-                fen: step.fen,//TODO:niki:maybe use FEN in Step?
+                fen: step.fen,
                 turnColor: step.turnColor,
                 movable: {
                     color: step.turnColor,
@@ -1079,7 +1074,7 @@ export default class AnalysisController {
             this.ply = this.ffishBoard.gamePly()
             updateMovelist(this);
 
-            this.checkStatus(msg);//TODO:niki: what does this checkStatus thing is actually supposed to do - must read code more carefully.
+            this.checkStatus(msg);
         // variation move
         } else {
             // new variation starts
@@ -1135,7 +1130,7 @@ export default class AnalysisController {
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
         let lastMoveStr = msg.lastMove;
-        let lastMove: Key[] | undefined = undefined;//TODO:niki:on around line 598 duplicate/same code uses null isntead of undefined but doesnt get compiler errors?
+        let lastMove: Key[] = [];
         if (lastMoveStr !== null) {
             lastMoveStr = uci2cg(lastMoveStr);
             // drop lastMove causing scrollbar flicker,
@@ -1150,7 +1145,7 @@ export default class AnalysisController {
             check: msg.check,
             movable: {
                 color: this.turnColor,
-                dests: this.dests /*as [key: string]: cg.Key[]*/,
+                dests: this.dests,
             },
         });
 
@@ -1184,7 +1179,7 @@ export default class AnalysisController {
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
-                const pr = this.pockets[0][role];//TODO:niki:there must a better way to avoid TS2532 but simple ifs just dont work for (2d) arrays for some reason
+                const pr = this.pockets[0][role];
                 if ( pr != undefined ) this.pockets[0][role] = pr + 1;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
@@ -1320,7 +1315,7 @@ export default class AnalysisController {
         this.steps.forEach((step) => {
             step.analysis = undefined;
             step.ceval = undefined;
-            step.score = undefined;
+            step.scoreStr = undefined;
         });
         this.drawAnalysisChart(true);
     }
@@ -1364,10 +1359,8 @@ export default class AnalysisController {
     }
 
     private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-        // if (msg.ct !== undefined) {
-            this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
-            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
-        // }
+        this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+        this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
     }
 
     private onMessage = (evt: MessageEvent) => {

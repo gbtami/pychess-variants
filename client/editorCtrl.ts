@@ -23,7 +23,7 @@ import { updatePockets, Pockets, pockets2str } from './pocket';
 import { copyBoardToPNG } from './png'; 
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
-import {PyChessModel} from "./main";
+import { PyChessModel } from "./main";
 
 export class EditorController {
     model;
@@ -47,8 +47,8 @@ export class EditorController {
     vChallenge: VNode;
     anon: boolean;
     flip: boolean;
-    ffish: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
-    ffishBoard: any;//TODO: niki: not sure - maybe ffish needs some ts adapter or whatever those things are called
+    ffish: any;
+    ffishBoard: any;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         this.model = model;
@@ -185,7 +185,7 @@ export class EditorController {
             ];
             patch(container, h('div.editor-button-container', buttons));
 
-            new (Module as any)().then((loadedModule: any) => {//TODO:niki - i dont know what - putting any
+            new (Module as any)().then((loadedModule: any) => {
                 this.ffish = loadedModule;
 
                 if (this.ffish !== null) {
@@ -197,7 +197,7 @@ export class EditorController {
     }
 
     private onChangeTurn = (e: Event) => {
-        this.parts[1] = ((<HTMLSelectElement>e.target).value === 'white') ? 'w' : 'b';//TODO:niki:i think it is select based on the code where this is used - good to test this code
+        this.parts[1] = ((<HTMLSelectElement>e.target).value === 'white') ? 'w' : 'b';
         this.onChange();
     }
 
@@ -231,7 +231,7 @@ export class EditorController {
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
     private onPasteFen = (e: ClipboardEvent) => {
         const data = e.clipboardData?.getData('text') ?? "";
-        (<HTMLInputElement>e.target).value = data.trim();//TODO:niki:again casting to inputlement based on code that calls this thing - but good to test
+        (<HTMLInputElement>e.target).value = data.trim();
         e.preventDefault();
         this.setFen(true);
     }

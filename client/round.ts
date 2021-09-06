@@ -7,13 +7,20 @@ import { VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
 import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeControlStr } from "./view";
-import {PyChessModel} from "./main";
+import { PyChessModel } from "./main";
+import {Api} from "chessgroundx/api";
+
+declare global {
+    interface Window {
+        cg: Api;
+    }
+}
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new RoundController(el, model);
     const cg = ctrl.chessground;
-    (window as { [key: string]: any })['cg'] = cg;//TODO:niki:wonder if there is a less strange solution
+    window['cg'] = cg;
 }
 
 export function roundView(model: PyChessModel): VNode[] {

@@ -8,14 +8,14 @@ import { VNode } from 'snabbdom/vnode';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import {Color, FEN, Key, PiecesDiff, Role} from 'chessgroundx/types';
+import { Color, FEN, Key, PiecesDiff, Role } from 'chessgroundx/types';
 
 import { getPockets, lc, role2letter, letter2role  } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { bind } from './document';
 import { pocketView } from './pocket';
-import {Api} from "chessgroundx/api";
+import { Api } from "chessgroundx/api";
 
 const patch = init([attributes, event, style]);
 
@@ -184,7 +184,7 @@ export class Gating {
         g.newPiece({ "role": role, "color": color }, orig)
         let position = (this.ctrl.turnColor === this.ctrl.mycolor) ? "bottom": "top";
         if (this.ctrl.flip) position = (position === "top") ? "bottom" : "top";
-        if (position === "bottom") {//TODO:niki:code almost identical to several places in analysisCtrl.ts and roundCtrl.ts and other probably - move to pocket.ts or something like that maybe
+        if (position === "bottom") {
             const pr = this.ctrl.pockets[1][role];
             if ( pr != undefined ) this.ctrl.pockets[1][role] = pr - 1;
             this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, color, "bottom"));

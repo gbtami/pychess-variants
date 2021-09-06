@@ -102,7 +102,7 @@ export interface IVariant {
 
     readonly pieceRoles: (color: cg.Color) => string[];
     readonly pocket: boolean;
-    readonly pocketRoles: (color: cg.Color) => string[] | null;
+    readonly pocketRoles: (color: cg.Color) => string[] | undefined;
 
     readonly promotion: string;
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
@@ -149,7 +149,7 @@ class Variant implements IVariant {
     private readonly _pieceRoles: [ string[], string[] ];
     pieceRoles(color: cg.Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
     readonly pocket: boolean;
-    private readonly _pocketRoles: [ string[] | null, string[] | null ];
+    private readonly _pocketRoles: [ string[] | undefined, string[] | undefined ];
     pocketRoles(color: cg.Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
     readonly promotion: string;
@@ -172,7 +172,7 @@ class Variant implements IVariant {
     icon(chess960 = false) { return chess960 ? this._icon960 : this._icon; }
     readonly pieceSound: string;
 
-    constructor(data: any) {//TODO:niki:this seems a lot of work - or maybe it is just one type - postponed for when less tired
+    constructor(data: VariantConfig) {
         this.name = data.name;
         this._displayName = (data.displayName ?? data.name).toUpperCase();
         this._tooltip = data.tooltip;
@@ -210,6 +210,40 @@ class Variant implements IVariant {
         this.pieceSound = data.pieceSound ?? "regular";
     }
 
+}
+
+interface VariantConfig{
+    name: string;
+
+    displayName?: string;
+
+    tooltip: () => string;
+    startFen: string;
+    board: string;
+    piece: string;
+
+    firstColor?: string;
+    secondColor?: string;
+    pieceRoles: string[];
+    pieceRoles2?: string[];
+    pocketRoles?: string[];
+    pocketRoles2?: string[];
+    promotion?: string;
+    isMandatoryPromotion?: MandatoryPromotionPredicate;
+    timeControl?: string;
+    counting?: string;
+    materialPoint?: string;
+    drop?: boolean;
+    gate?: boolean;
+    pass?: boolean;
+    pieceSound?: string;
+
+    enPassant?: boolean;
+    autoQueenable?: boolean;
+    alternateStart?: {[key:string]: string};
+    chess960?: boolean;
+    icon: string;
+    icon960?: string;
 }
 
 export const VARIANTS: { [name: string]: IVariant } = {
@@ -664,7 +698,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
 };
 
 function variantGroupLabel(group: string) {
-    const groups: {[index: string]:any} = {
+    const groups: {[index: string]: string} = {
         standard: _("Standard piece variants"),
         sea: _("Southeast Asian variants"),
         shogi: _("Shogi variants"),
@@ -844,7 +878,7 @@ function diff(a: number, b:number):number {
 
 function touchingKings(pieces: Pieces) {
     let wk = 'xx', bk = 'zz';
-    Object.keys(pieces).filter(key => pieces[key]?.role === "k-piece"/*TODO:niki:"king" - this was the old value but it is not a valid role .. also should pk-piece be included */).forEach(key => {
+    Object.keys(pieces).filter(key => pieces[key]?.role === "k-piece").forEach(key => {
         if (pieces[key]?.color === 'white') wk = key;
         if (pieces[key]?.color === 'black') bk = key;
     });
@@ -934,7 +968,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     const dests: cg.Dests = {};
     legalMoves.map(uci2cg).forEach(move => {
-        const orig = move.slice(0, 2) as Key; // TODO:niki:i wonder how this worked before - seems to me split should be replaced by slice judging by logic
+        const orig = move.slice(0, 2) as Key;
         const dest = move.slice(2, 4) as Key;
         if (orig in dests)
             dests[orig].push(dest);

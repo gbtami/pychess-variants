@@ -7,7 +7,7 @@ import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
 import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeControlStr } from './view'
-import {PyChessModel} from "./main";
+import { PyChessModel } from "./main";
 
 declare global {
     interface Window {
@@ -231,7 +231,7 @@ export function analysisView(model: PyChessModel): VNode[] {
     ];
 }
 
-function playerInfo(username: string, title: string, level: number, rating: string/*TODO:niki - was number but what about questionmarks*/, rdiff: number | null) {
+function playerInfo(username: string, title: string, level: number, rating: string, rdiff: number | null) {
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
         username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),

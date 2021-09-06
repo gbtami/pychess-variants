@@ -1,11 +1,11 @@
 import { h } from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
+import trans from "gettext.js";
 
 import { StringSettings } from './settings';
 import { radioList } from './view';
-import trans from "gettext.js";
 
-export const i18n = new trans();;//simplest workaround i found for the Error TS7009 here: https://stackoverflow.com/a/51622913
+export const i18n = new trans();
 export function _(msgid: string, ...vars: any) { return (i18n as any).gettext(msgid, vars); }
 export function ngettext(msgid: string, plural: string, ...vars: any) { return (i18n as any).ngettext(msgid, plural, vars); }
 export function pgettext(msgctxt: string, msgid: string, ...vars: any) { return (i18n as any).pgettext(msgctxt, msgid, vars); }

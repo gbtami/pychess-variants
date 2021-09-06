@@ -5,12 +5,19 @@ import { _ } from './i18n';
 import { selectVariant, VARIANTS } from './chess';
 import { EditorController } from './editorCtrl';
 import { PyChessModel } from "./main";
+import { Api } from "chessgroundx/api";
+
+declare global {
+    interface Window {
+        cg: Api;
+    }
+}
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new EditorController(el, model);
     const cg = ctrl.chessground;
-    (window as { [key: string]: any })['cg'] = cg;//TODO:niki:wonder if there is a less strange solution
+    window['cg'] = cg;
 }
 
 export function editorView(model: PyChessModel): VNode[] {

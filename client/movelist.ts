@@ -10,7 +10,7 @@ import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import { boardSettings } from './boardSettings';
-import AnalysisController, {Step} from "./analysisCtrl";
+import AnalysisController, { Step } from "./analysisCtrl";
 import RoundController from "./roundCtrl";
 import { result } from './profile'
 

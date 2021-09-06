@@ -6,13 +6,13 @@ import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import {Color, Key, PiecesDiff, Role} from 'chessgroundx/types';
+import { Color, Key, PiecesDiff, Role } from 'chessgroundx/types';
 
 import { san2role, role2san } from './chess';
 import { bind } from './document';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
-import {Api} from "chessgroundx/api";
+import { Api } from "chessgroundx/api";
 
 const patch = init([listeners, style]);
 
@@ -75,7 +75,7 @@ export class Promotion {
     private promotionChoices(role: Role, orig: Key, dest: Key) {
         const variant = this.ctrl.variant;
         const possiblePromotions = this.ctrl.promotions.filter(move => this.promotionFilter(move, role, orig, dest));
-        const choice: { [ role: string ]: string } = {}; // TODO:niki: could use a named type - same as this.choices
+        const choice: { [ role: string ]: string } = {}; // TODO: same type as this.choices - maybe create a named type
         switch (variant.promotion) {
             case 'shogi':
                 choice["p" + role] = "+";

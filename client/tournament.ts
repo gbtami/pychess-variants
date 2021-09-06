@@ -23,11 +23,11 @@ import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
 import { gameType } from './profile';
 import { boardSettings } from './boardSettings';
-import {Api} from "chessgroundx/api";
-import {PyChessModel} from "./main";
-import {MsgBoard, MsgChat, MsgFullChat, MsgSpectators} from "./analysisCtrl";
-import {MsgGameEnd, MsgNewGame} from "./roundCtrl";
-import {FEN, Geometry, Key} from "chessgroundx/types";
+import { Api } from "chessgroundx/api";
+import { PyChessModel } from "./main";
+import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators } from "./analysisCtrl";
+import { MsgGameEnd, MsgNewGame } from "./roundCtrl";
+import { FEN, Geometry, Key } from "chessgroundx/types";
 
 const T_STATUS = {
     0: "created",
@@ -108,7 +108,7 @@ interface TournamentPlayer{
 	paused: boolean;
 	title: string;
 	rating: number;
-	points: any[];//TODO:niki:i am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or somthing). But i've seen also string '*' as well and there is that chck about isArray that might mean more cases with numeric scalars exist
+	points: any[]; // TODO:niki: I am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or somthing). But i've seen also string '*' as well and there is that chck about isArray that might mean more cases with numeric scalars exist
 	fire: number;
 	perf: number;
 	nbGames: number;
@@ -123,20 +123,17 @@ interface MsgPing{
 }
 
 interface TopGame{
-
-    // type: string;//"top_game",
-    gameId: string;//self.top_game.id,
-    variant: string;//self.top_game.variant,
-    fen: FEN;//self.top_game.board.fen,
-    w: string;//self.top_game.wplayer.username,
-    b: string;//self.top_game.bplayer.username,
-    wr: number;//self.leaderboard_keys_view.index(self.top_game.wplayer) + 1,
-    br: number;//self.leaderboard_keys_view.index(self.top_game.bplayer) + 1,
-    chess960: boolean;//self.top_game.chess960,
-    base: number;//self.top_game.base,
-    inc: number;//self.top_game.inc,
-    byoyomi: number;//self.top_game.byoyomi_period
-
+    gameId: string;
+    variant: string;
+    fen: FEN;
+    w: string;
+    b: string;
+    wr: number;
+    br: number;
+    chess960: boolean;
+    base: number;
+    inc: number;
+    byoyomi: number;
 }
 
 export default class TournamentController {
@@ -503,7 +500,7 @@ export default class TournamentController {
                     insert: vnode => {
                         const cg = Chessground(vnode.elm as HTMLElement, {
                             fen: game.fen,
-                            // lastMove: game.lastMove,TODO:niki:i dont see such property in python searching for "top_game"
+                            // lastMove: game.lastMove,// TODO:niki: i dont see such property in python searching for "top_game"
                             geometry: variant.geometry as Geometry,
                             coordinates: false,
                             viewOnly: true
@@ -709,7 +706,7 @@ export default class TournamentController {
         };
 
         let lastMoveStr = msg.lastMove;
-        let lastMove: Key[] | undefined;
+        let lastMove: Key[] = [];
         if (lastMoveStr !== undefined) {
             lastMoveStr = uci2cg(lastMoveStr);
             // drop lastMove causing scrollbar flicker,
@@ -718,7 +715,7 @@ export default class TournamentController {
         }
         this.topGameChessground.set({
             fen: msg.fen,
-            turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
+            turnColor: msg.fen.split(" ")[1] === "b" ? "white" : "black",
             check: msg.check,
             lastMove: lastMove,
         });
@@ -751,7 +748,7 @@ export default class TournamentController {
     }
 
     private onMsgPing(msg: MsgPing) {
-        this.doSend({ type: "pong", timestamp: msg.timestamp });//TODO:niki:what is this timestamp - do not find it in python either
+        this.doSend({ type: "pong", timestamp: msg.timestamp });
     }
     private onMsgError(msg: MsgError) {
         alert(msg.message);

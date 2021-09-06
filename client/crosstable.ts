@@ -1,8 +1,8 @@
 import h from 'snabbdom/h';
-import { CT } from "./analysisCtrl";
-import {VNode} from "snabbdom/vnode";
+import { CrossTable } from "./analysisCtrl";
+import { VNode } from "snabbdom/vnode";
 
-export function crosstableView (ctable: CT, gameId: string) {
+export function crosstableView (ctable: CrossTable, gameId: string) {
     const s1 = ctable.s1, s2 = ctable.s2, games = ctable.r;
     let rows : VNode[];
     if (games.length < 20) {

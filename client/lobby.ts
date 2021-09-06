@@ -22,7 +22,8 @@ import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
-import {PyChessModel} from "./main";
+import { PyChessModel } from "./main";
+import {MsgChat, MsgFullChat} from "./analysisCtrl";
 
 interface Stream {
     site: string;
@@ -36,7 +37,7 @@ interface Spotlight{
     chess960: boolean;
     nbPlayers: number;
     name: string;
-    startsAt: string;//TODO:niki:not sure
+    startsAt: string;
     tid: string;
 }
 
@@ -60,17 +61,8 @@ interface MsgUserConnected{
 	username: string;
 }
 
-interface MsgChat{//TODO:niki:same in analysisCtl i guess
-	user: string;
-	message: string;
-}
-
-interface MsgFullChat{//TODO:niki:same in analysisCtl i guess
-	lines: MsgChat[];
-}
-
 interface MsgPing{
-	timestamp: string;//TODO:niki:not sure string or number or other
+	timestamp: string;//TODO:niki:not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
 }
 
 interface MsgError{
@@ -168,9 +160,9 @@ export default class LobbyController {
             maxAttempts: 20,
             onopen: (e: Event) => onOpen(e),
             onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event) => console.log('Reconnecting in lobby...', e),
-            onmaximum: (e: Event) => console.log('Stop Attempting!', e),
-            onclose: (e: Event) => {console.log('Closed!', e);},
+            onreconnect: (e: Event | CloseEvent) => console.log('Reconnecting in lobby...', e),
+            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
+            onclose: (e: CloseEvent) => {console.log('Closed!', e);},
             onerror: (e: Event) => console.log('Error:', e),
         };
 

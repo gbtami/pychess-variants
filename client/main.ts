@@ -32,9 +32,6 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
     window.location.assign('https://www.pychess.org/');
 }
 
-//TODO: niki: what is export? what is interface - is it better than type? i have seen it used in types.ts for similar purposes (see Pieces)?
-//            maybe all properties should be listed with its types instead of dynamically like this
-//            - actually it needs to know for example if "variant" property is not of type boolean when doing VARIANTS[variant] so i guess all properties should be explicirtly typed
 export type PyChessModel = {
     username: string;
     home: string;
@@ -52,11 +49,11 @@ export type PyChessModel = {
     ply: string;
     wplayer: string;
     wtitle: string;
-    wrating: string;
+    wrating: string; // string, because can contain "?" suffix for provisional rating
     wrdiff: number;
     bplayer: string;
     btitle: string;
-    brating: string;
+    brating: string; // string, because can contain "?" suffix for provisional rating
     brdiff: number;
     fen: string;
     base: number;
@@ -68,7 +65,7 @@ export type PyChessModel = {
     tv: boolean;
     embed: boolean;
 
-    "asset-url": string | null;//TODO: niki: can it be undefinied or i should review initialization. whats the difference between null and undefinied?
+    "asset-url": string;
 };
 
 function initModel(el: HTMLElement) {

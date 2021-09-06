@@ -14,8 +14,8 @@ import { Chessground } from 'chessgroundx';
 import { VARIANTS, uci2cg } from './chess';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
-import {Api} from "chessgroundx/api";
-import {FEN, Geometry, Key} from "chessgroundx/types";
+import { Api } from "chessgroundx/api";
+import { FEN, Geometry, Key } from "chessgroundx/types";
 
 export interface Game{
     gameId: string;

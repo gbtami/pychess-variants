@@ -7,7 +7,7 @@ import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
 import { VARIANTS } from './chess';
 import { parseKif, resultString } from '../client/kif';
-import {PyChessModel} from "./main";
+import { PyChessModel } from "./main";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';

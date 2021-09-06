@@ -86,7 +86,7 @@ export function analysisChart(ctrl: AnalysisController) {
                 const step = ctrl.steps[self.x];
                 const ceval = step?.ceval?.s;
                 if (!ceval) return '';
-                else return format.replace('{point.y}', step.scoreStr || '');//TODO:niki:not sure if '' or something else or try making scoreStr mandatory
+                else return format.replace('{point.y}', step.scoreStr || '');
             } as Highcharts.FormatterCallbackFunction<Highcharts.Point>
         },
         xAxis: {

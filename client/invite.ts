@@ -15,7 +15,7 @@ import { VARIANTS } from './chess';
 import { gameType } from './profile';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
-import {PyChessModel} from "./main";
+import { PyChessModel } from "./main";
 
 export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
