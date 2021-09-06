@@ -9,8 +9,15 @@
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
-        grid-template-areas: 'app' 'vpanel' 'table' 'side' 'uleft' 'utable' 'blog';
+        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'uleft' 'utable' 'blog';
     }
+
+    .sidebar-second {
+
+    margin: 1em 0 1em 0;
+
+    }
+
 }
 @media (min-width: 800px) {
     .lobby {
