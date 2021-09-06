@@ -193,17 +193,14 @@ box-shadow: var(--box-shadow-panel-btn);
 @media only screen and (max-width: 799px)
 {
 
-
-
 .variants-container {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 1fr);
     grid-template-areas: 
     'chess fairy army'
     'makruk shogi xiangqi';
-
-    padding-top: 10px;
-    padding-bottom: 10px;
+    
+    height: 100%; 
 }
 
 .chess {
