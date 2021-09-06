@@ -173,7 +173,6 @@
     .layer-2-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(6, 1fr);    
         padding: 10px;
         gap: 10px;
     }
@@ -204,7 +203,7 @@
 @media only screen and (max-width:799px) {
     .layer-2-container {
         display: grid;
-        grid-template-rows: ;  
+
     }
 
     .chess-l2 {
@@ -238,10 +237,11 @@
         grid-row: 4/5;
     }
 
-    .layer-2-container .chess-l2, .layer-2-container .chess960, .layer-2-container .placement, .layer-2-container .crazyhouse,
-    .layer-2-container .crazyhouse960, .layer-2-container .atomic, .layer-2-container .atomic960, #layer2chesscont .generic {
-        padding-top: 10px;
-        padding-bottom: 10px; }
+
+    #layer2chesscont #mainboard {
+
+        display: none; 
+    }
 
     .variant-title-l2 {
         padding: 15px 50px;
@@ -273,6 +273,10 @@
 
     
 
+.chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2 {
 
+    justify-content: center;
+
+}
 
 }
