@@ -776,8 +776,9 @@ div#result {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby-button {
-        padding: 2px 2px;
-        margin: 2px 0 2px 0;
+        padding: 0.5em;
+        margin: 0.2em 0;
+    
     }
 }
 button#request-analysis, button#import, button.join, button.submit {
@@ -1095,14 +1096,14 @@ table#seeks-header, table#seeks {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     #seeks th, #seeks td {
-        padding: .5em 0 .5em 0;
+        font-weight: 300;
     }
 }
 #seeks thead th {
-    background: var(--bg-color2);
     position: sticky;
     top: 0;
     z-index: 2;
+    color: var(--button-text);
 }
 #seeks tbody tr {
     cursor: pointer;
@@ -1120,6 +1121,9 @@ table#seeks-header, table#seeks {
 #seekbuttons > button {
     color: var(--button-text);
     background: var(--button-new-game);
+    font-size: 1.1rem;
+    text-transform: uppercase; 
+    font-weight: 300;
 }
 #seekbuttons > button:hover {
     color: var(--button-text-hover);
