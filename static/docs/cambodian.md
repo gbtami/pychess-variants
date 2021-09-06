@@ -8,7 +8,7 @@ If you are not familiar with the rules of Makruk, please see that first.
 
 ## Rules
 
-The only difference from Makruk is that when no pieces have been captures, the payers have the following options:
+The only difference from Makruk is that when no pieces have been captures, the players have the following options:
 
 * on the king's first move, and only if not in check, of moving the king like a knight; and
 * on the queen's first move, of moving the queen two squares straight ahead
