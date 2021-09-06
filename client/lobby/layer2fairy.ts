@@ -27,9 +27,9 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
                 h('p.variant-category-description', [
                     'Several have random ',
                     h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
-                    'and drop ',
+                    ' and drop ',
                     h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
-                    'variants.'
+                    ' variants.'
                 ]),
                 h('h5#fairyl2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
             ]),
@@ -44,7 +44,7 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
                 h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
                 h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse960.svg' } }),
             ]),
-            h('p.variant-extra-info', 'Knight Hybrid Pieces'),
+            h('p.variant-extra-info', 'Knight hybrid pieces'),
         ]),
         h('button.layer-2-category.schess', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'seirawan', false) } }, [
             h('div.variant-title-l2', [
@@ -86,7 +86,7 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['hoppelpoppel'].icon(false) } }),
                 h('h3', 'Hoppel-poppel'),
             ]),
-            h('p.variant-extra-info', 'Bishops and Knights swap moves'),
+            h('p.variant-extra-info', 'Bishops and Knights swap their capture moves'),
         ]),
     ]);
 
