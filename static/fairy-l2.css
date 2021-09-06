@@ -204,12 +204,12 @@ padding: 10px;
     .fairy-grid {
         display: grid;
 
-        grid-template-columns: repeat(2,1fr);
-        grid-template-rows: repeat(8,fit-content);
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(8, auto);
     }
 
 
-    .capalanca {
+    .capablanca {
 
         grid-column: 1/2;
         grid-row: 1/3;
@@ -245,7 +245,7 @@ padding: 10px;
 
 
     .schess {
-
+    grid-column: 2/3;
     grid-row: 5/7;
 
     }
