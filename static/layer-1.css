@@ -180,7 +180,7 @@ box-shadow: var(--box-shadow-panel-btn);
 
 {
         .fairy img, .chess img, .army img, .makruk img, .shogi img, .xiangqi img {
-            display: none;
+            display: block;
         }
                     
     .variants-container {
@@ -190,7 +190,7 @@ box-shadow: var(--box-shadow-panel-btn);
 
 /* MOBILE  */
 
-@media only screen and (max-width: 650px)
+@media only screen and (max-width: 799px)
 {
 
 
@@ -240,9 +240,20 @@ box-shadow: var(--box-shadow-panel-btn);
 
 #variantcont h3 {
 
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding-top: 5px;
 }
+
+.fairy img, .chess img, .army img, .makruk img, .shogi img, .xiangqi img {
+    width: 35px;
+    height: 35px;
+ }
+
+
+.sliding-pieces {
+    display: none;
+
+    }
 
     
 
