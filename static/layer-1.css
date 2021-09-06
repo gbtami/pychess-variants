@@ -199,6 +199,9 @@ box-shadow: var(--box-shadow-panel-btn);
     grid-template-areas: 
     'chess fairy army'
     'makruk shogi xiangqi';
+
+    padding-top: 10px;
+    padding-bottom: 10px;
     
     height: 100%; 
 }
