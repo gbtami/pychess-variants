@@ -25,7 +25,7 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
             h('div.layer-two-category-info', [
                 h('h4', 'Chess Variants'),
                 variantBoard(chess, chess.startFen),
-                h('p.variant-category-description', _('Variants using a basic chess set but with different rules')),
+                h('p.variant-category-description', _('Variants using a basic chess set but with different rules.')),
                 h('h5#chessl2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),
             ]),
         ]),
