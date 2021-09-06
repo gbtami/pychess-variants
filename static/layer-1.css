@@ -201,6 +201,9 @@ box-shadow: var(--box-shadow-panel-btn);
     grid-template-areas: 
     'chess fairy army'
     'makruk shogi xiangqi';
+
+    padding-top: 10px;
+    padding-bottom: 15px;
 }
 
 .chess {
@@ -227,6 +230,21 @@ box-shadow: var(--box-shadow-panel-btn);
 .xiangqi {
     grid-area: xiangqi;
 }
+
+
+.variant-category {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+
+#variantcont h3 {
+
+    font-size: 1.1rem;
+    padding-top: 5px;
+}
+
+    
 
 }
 
