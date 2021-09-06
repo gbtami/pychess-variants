@@ -196,14 +196,14 @@ box-shadow: var(--box-shadow-panel-btn);
 
 
 .variants-container {
-    grid-template-columns: repeat(3,1fr);
-    grid-template-rows: repeat(2, 0.15fr);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     grid-template-areas: 
     'chess fairy army'
     'makruk shogi xiangqi';
 
     padding-top: 10px;
-    padding-bottom: 15px;
+    padding-bottom: 10px;
 }
 
 .chess {
