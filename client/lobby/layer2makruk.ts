@@ -23,7 +23,7 @@ export function layer2makruk (lobbyCtrl: LobbyController, containerId: string): 
             h('div.layer-two-category-info', [
                 h('h4', 'Makruk Variants'),
                 variantBoard(variant, variant.startFen),
-                h('p.variant-category-description.makruk-desc', _('Southeast Asian variants, closely related to western Chess.')),
+                h('p.variant-category-description.makruk-desc', _('Southeast Asian variants, closely related to Western Chess.')),
                 h('h5#makrukl2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2makrukcont') } }, _('Go Back')),
             ]),
         ]),
@@ -32,28 +32,28 @@ export function layer2makruk (lobbyCtrl: LobbyController, containerId: string): 
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['makruk'].icon(false) } }),
                 h('h3', 'Makruk'),
             ]),
-            h('p.variant-extra-info', 'Thai Chess. Similar to chess but with a different queen and bishop.'),
+            h('p.variant-extra-info', 'Thai Chess. Similar to Chess but with a different queen and bishop.'),
         ]),
         h('button.layer-2-category.makpong', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'makpong', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['makpong'].icon(false) } }),
                 h('h3', 'Makpong'),
             ]),
-            h('p.variant-extra-info', 'Kings cannot move when checked.'),
+            h('p.variant-extra-info', 'Makruk variant. Kings cannot move when checked.'),
         ]),
         h('button.layer-2-category.chatrang', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'cambodian', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['cambodian'].icon(false) } }),
                 h('h3', 'Ouk Chatrang'),
             ]),
-            h('p.variant-extra-info', 'Cambodian Chess. Makruk with an extra king starting move.'),
+            h('p.variant-extra-info', 'Cambodian Chess. Makruk with extra starting moves.'),
         ]),
         h('button.layer-2-category.sittuyin', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'sittuyin', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['sittuyin'].icon(false) } }),
                 h('h3', 'Sittuyin'),
             ]),
-            h('p.variant-extra-info', 'Burmese chess. You may place your starting pieces.'),
+            h('p.variant-extra-info', 'Burmese Chess. You may place your starting pieces.'),
         ]),
     ]);
 
