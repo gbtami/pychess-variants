@@ -21,7 +21,7 @@
 .layer-3-container .layer-2-category {
     display: flex;
     justify-content: flex-start;
-    padding:25px;
+    padding:20px;
     /* border: 1px solid yellow; */
 }
 
