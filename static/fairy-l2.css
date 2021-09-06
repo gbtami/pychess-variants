@@ -301,6 +301,34 @@ padding: 10px;
 
     }
 
+
+    /* Army */ 
+
+    #layer2armycont {
+
+    grid-template-rows: repeat(7, auto); 
+
+    }
+
+    #layer2armycont .schess {
+    
+    grid-column: 1/2;
+
+    }
+
+    #layer2armycont .generic-fairy {
+
+    grid-column: 2/3;
+    grid-row: 5/7;
+
+    }
+
+    #layer2armycont .layer-two-category-info {
+
+    justify-content: center;
+
+    }
+
 }
 
 
