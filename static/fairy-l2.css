@@ -329,7 +329,13 @@ padding: 10px;
 
     }
 
-    /* Makruk */
+    /* Makruk and Xiangqi*/
+
+    #layer2makrukcont, #layer2xiangqicont {
+
+    grid-template-rows: none; 
+
+    }
 
     .makrukl2 {
 
