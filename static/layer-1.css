@@ -250,12 +250,10 @@ box-shadow: var(--box-shadow-panel-btn);
  }
 
 
-.sliding-pieces {
+.variant-category:hover .sliding-pieces {
     display: none;
 
     }
-
-    
 
 }
 
