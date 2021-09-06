@@ -277,19 +277,25 @@ padding: 10px;
 
     /*  Shogi */
 
-    #layer2cont #mainboard {
+    #layer2shogicont {
+
+    grid-template-rows: repeat(7, auto);
+
+    }
+
+    #layer2shogicont #mainboard {
 
     display: none;
 
     }
     
-    #layer2cont h4 {
+    #layer2shogicont h4 {
 
     display: none;
 
     }
 
-    #layer2cont .shogi-desc {
+    #layer2shogicont .shogi-desc {
 
     display: none
 
