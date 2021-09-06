@@ -201,7 +201,7 @@
 
 /* Mobile and makes it one column  */
 
-@media only screen and (max-width:720px) {
+@media only screen and (max-width:799px) {
     .layer-2-container {
         display: flex;
         flex-direction: column;
