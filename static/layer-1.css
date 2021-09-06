@@ -174,40 +174,6 @@ box-shadow: var(--box-shadow-panel-btn);
     }
 
 
-/* TABLE  */
-
-.table {
-grid-area: table ;
-/* border: 1px solid #594b36; */
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-}
-
-.button-container {
-    display: flex;
-    flex-direction: column;
-    /* border: 1px solid red; */
-    width: 100%;
-}
-
-.table-button {
-    padding: 1rem;
-    background-color: #3c3934;
-    border: none;
-    color: #999;
-    margin: 10px 0px 10px 0px;
-    text-transform: uppercase;
-    transition: 200ms ease-in-out;
-}
-
-.table-button:hover {
-    background-color: #4a4946;
-    color: rgb(160, 160, 160);
-}
-
-
 /* TABLET  */
 
 @media only screen and (max-width: 1000px)
@@ -227,27 +193,14 @@ align-items: center;
 @media only screen and (max-width: 650px)
 {
 
-main {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 2.5fr 1fr;
-    height: auto;
-    grid-template-areas: 
-    'side'
-    'app'
-    'table';
-}
+
 
 .variants-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(2, 0.15fr);
     grid-template-areas: 
-    'chess'
-    'fairy'
-    'army'
-    'makruk'
-    'shogi'
-    'xiangqi';
+    'chess fairy army'
+    'makruk shogi xiangqi';
 }
 
 .chess {
@@ -283,16 +236,3 @@ main {
     display: none;
 }
 
-/* Desktop preventing Layer 1 Variant Panel Overstreching  */
-
-@media only screen and (min-width: 1100px) 
-
-{ 
-    .variants-container {
-        max-height: 375px;
-        max-width: 700px;
-        margin: 0 auto;
-        /* border: 1px solid blue; */
-    }
-
-}
