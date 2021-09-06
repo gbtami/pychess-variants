@@ -62,7 +62,7 @@ interface MsgUserConnected{
 }
 
 interface MsgPing{
-	timestamp: string;//TODO:niki:not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
+	timestamp: string;//TODO: not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
 }
 
 interface MsgError{

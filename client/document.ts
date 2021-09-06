@@ -35,7 +35,7 @@ export function getPieceImageUrl (role: Role, color: Color, side: string): strin
     return '/static/images/pieces/merida/';
 }
 
-export function debounce(callback: any/*TODO:niki:not sure what it should be - some kind of function but what - i see no usages of debounce to figure it from there*/, wait: number) {
+export function debounce(callback: any/*TODO: not sure what it should be - some kind of function but what - i see no usages of debounce to figure it from there*/, wait: number) {
     let timeout: number;
     return function() {
         const context = this, args = arguments;

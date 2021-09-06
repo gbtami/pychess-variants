@@ -17,7 +17,7 @@ import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { PyChessModel } from "./main";
-import { FEN, Geometry } from "chessgroundx/types";
+import { FEN } from "chessgroundx/types";
 import { Ceval } from "./analysisCtrl";
 
 
@@ -198,7 +198,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                                 coordinates: false,
                                 viewOnly: true,
                                 fen: game["f"],
-                                geometry: variant.geometry as Geometry,
+                                geometry: variant.geometry,
                             })
                         }
                     }),

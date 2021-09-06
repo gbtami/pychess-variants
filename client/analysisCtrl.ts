@@ -28,7 +28,7 @@ import {
     Variant,
     Notation,
     SetPremoveMetadata,
-    FEN, Geometry, MoveMetadata
+    FEN, MoveMetadata
 } from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
@@ -359,7 +359,7 @@ export default class AnalysisController {
              fen: fen_placement as FEN,
              variant: this.variant.name as Variant,
              chess960: this.chess960,
-             geometry: this.variant.geometry as Geometry,//TODO:niki:i dont understand why as Geometry is needed - but otherwise doesnt compile (or maybe it does and the IDE was complaining incorrectly not sure) - but it seems it is already this type so why "as"? there are other places also with same code/problem as well
+             geometry: this.variant.geometry,
              notation: this.notation,
              orientation: this.mycolor,
              turnColor: this.turnColor,

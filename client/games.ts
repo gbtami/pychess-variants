@@ -15,7 +15,7 @@ import { VARIANTS, uci2cg } from './chess';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { Api } from "chessgroundx/api";
-import { FEN, Geometry, Key } from "chessgroundx/types";
+import { FEN, Key } from "chessgroundx/types";
 
 export interface Game{
     gameId: string;
@@ -48,7 +48,7 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: FEN, lastMove
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
-                        geometry: variant.geometry as Geometry/*TODO:niki:i dont understand why i need to do as Geomtry - same in other places*/,
+                        geometry: variant.geometry,
                         coordinates: false,
                         viewOnly: true
                     });

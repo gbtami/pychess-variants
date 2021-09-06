@@ -12,7 +12,7 @@ import { PyChessModel } from "./main";
 declare global {
     interface Window {
         onFSFline: (arg0: string) => void;
-        fsf: any/*TODO:niki*/;
+        fsf: any;
     }
 }
 
