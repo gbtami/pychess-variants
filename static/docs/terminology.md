@@ -26,7 +26,9 @@ Because fairy pieces introduce dozens of possible pieces, there is a classificat
 
 **Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers. (Note that technically, the xiangqi cannon is technically a hybrid rider-hopper because of its rider movement and hopper capture, while the janggi cannon is a pure hopper) 
 
-Finally, **compound pieces** are pieces that combine the moves of two simple pieces. The chess queen, which combines the rook and bishop, is a classic example. Many fairy pieces are compound pieces.
+**Compound pieces** are pieces that combine the moves of two simple pieces. The chess queen, which combines the rook and bishop, is a classic example. Many fairy pieces are compound pieces.
+
+**Divergent pieces** are pieces that move in one way but attack differently. The chess pawn, which moves forward but attacks diagonally forward, is a classic example. Divergent pieces are especially prominent in Orda Chess/Mirror, Empire Chess, and Hoppel Poppel.
 
 # Time Control
 
