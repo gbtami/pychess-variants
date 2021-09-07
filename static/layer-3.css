@@ -166,9 +166,6 @@ font-size: 1.3rem;
 
 /* Setting max height for all columns  */
 
-.chess-l3 {
-    max-height: 375px;
-}
 
 #chess960l3cont .variant-extra-info, #capablancal3cont .variant-extra-info, #schessl3cont .variant-extra-info {
     font-size: 0.8rem;
