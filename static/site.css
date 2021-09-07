@@ -1510,6 +1510,12 @@ label {
     border-radius: 3px;
 }
 
+.chat .icon {
+    padding-right: 2px;
+}
+.chat .icon::before {
+    vertical-align: top;
+}
 user {
     padding-right: 6px;
     font-weight: bold;
