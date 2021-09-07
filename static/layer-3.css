@@ -185,28 +185,28 @@ padding: 25px;
 @media only screen and (max-width: 799px) {
 
 
-  #chessl3cont {
+  .layer-3-container  {
 
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: none;
 
     }
 
-    #chessl3cont .l3v {
+    .l3v {
 
     grid-column: 1/2;
     grid-row: 1/2;
 
     }
 
-    #chessl3cont .l3img {
+     .l3img {
 
     grid-column: 2/3;
     grid-row: 1/2;
 
     }
 
-    #chessl3cont .l3t {
+    .l3t {
 
     grid-column: 1/3;
     grid-row: 2/3;
