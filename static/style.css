@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'pychess';
-  src:  url('fonts/pychess.eot?sdn3ae');
-  src:  url('fonts/pychess.eot?sdn3ae#iefix') format('embedded-opentype'),
-    url('fonts/pychess.ttf?sdn3ae') format('truetype'),
-    url('fonts/pychess.woff?sdn3ae') format('woff'),
-    url('fonts/pychess.svg?sdn3ae#pychess') format('svg');
+  src:  url('fonts/pychess.eot?ws7oys');
+  src:  url('fonts/pychess.eot?ws7oys#iefix') format('embedded-opentype'),
+    url('fonts/pychess.ttf?ws7oys') format('truetype'),
+    url('fonts/pychess.woff?ws7oys') format('woff'),
+    url('fonts/pychess.svg?ws7oys#pychess') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -39,7 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+.icon-discord:before {
+  content: "\1f3ae";
+}
 .icon-ToriShogi:before {
   content: "\1f426";
 }
@@ -340,6 +342,9 @@
 }
 .icon-mic:before {
   content: "\e91e";
+}
+.icon-book:before {
+  content: "\e91f";
 }
 .icon-fire:before {
   content: "\e9a9";
