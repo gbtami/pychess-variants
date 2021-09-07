@@ -24,7 +24,7 @@ export function layer2xiangqi (lobbyCtrl: LobbyController, containerId: string):
                 h('h4', 'Xiangqi Variants'),
                 variantBoard(variant, variant.startFen),
                 h('p.variant-category-description.makruk-desc', _('The ancient game of Chinese Chess and its variants.')),
-                h('h5#xiangqil2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2xiangqicont') } }, _('Go Back')),
+                h('h5#xiangqil2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2xiangqicont') } }, _('Go Back')),
             ]),
         ]),
         h('button.layer-2-category.makrukl2', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'xiangqi', false) } }, [

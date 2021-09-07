@@ -50,7 +50,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
                 h('li.l3links', { class: {"icon": true, "icon-bot": true}, on: { click: () => lobbyCtrl.playAI(variantName, chess960) } }, _('Play with AI')),
                 h('li.l3links', { class: {"icon": true, "icon-droid": true}, on: { click: () => lobbyCtrl.playRM(variantName, chess960) } }, _('Practice with Random-Mover')),
             ]),
-            h('h5#chessl3back', { on: { click: () => leve2func(lobbyCtrl, container3Id) } }, _('Go Back')),
+            h('h5#chessl3back', { class: {"icon": true, "icon-reply": true}, on: { click: () => leve2func(lobbyCtrl, container3Id) } }, _('Go Back')),
         ]),
         h('button.layer-2-category l3img', [
             variantBoard(variant, variant.startFen),

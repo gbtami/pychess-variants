@@ -26,7 +26,7 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
                 h('h4', 'Chess Variants'),
                 variantBoard(chess, chess.startFen),
                 h('p.variant-category-description', _('Variants using a basic chess set but with different rules.')),
-                h('h5#chessl2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),
+                h('h5#chessl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),
             ]),
         ]),
         h('button.layer-2-category.chess-l2', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', false) } }, [

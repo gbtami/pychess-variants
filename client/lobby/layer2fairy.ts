@@ -31,7 +31,7 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
                     h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
                     ' variants.'
                 ]),
-                h('h5#fairyl2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
+                h('h5#fairyl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
             ]),
         ]),
         h('button.layer-2-category.capablanca', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capablanca', false) } }, [

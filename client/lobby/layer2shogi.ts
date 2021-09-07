@@ -24,7 +24,7 @@ export function layer2shogi (lobbyCtrl: LobbyController, containerId: string): v
                 h('h4', 'Shogi Variants'),
                 variantBoard(variant, variant.startFen),
                 h('p.variant-category-description.shogi-desc', _('The Japanese version of chess, which involves drops and promotions.')),
-                h('h5#shogil2back', { on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2shogicont') } }, _('Go Back')),
+                h('h5#shogil2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2shogicont') } }, _('Go Back')),
             ]),
         ]),
         h('button.layer-2-category.capablanca', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'shogi', false) } }, [
