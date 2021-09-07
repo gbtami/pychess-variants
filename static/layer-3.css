@@ -249,8 +249,11 @@ padding: 25px;
 }
 
 
-@media only screen and (min-width: 799px) {
+@media only screen (max-width: 1100px) and (min-width: 799px) {
+    .layer-3-container .l3links-cont .l3links {
 
+    font-size: max(1.3rem, 1.7vw);
+    }
 
 }
 
