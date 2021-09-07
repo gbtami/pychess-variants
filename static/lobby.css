@@ -1,3 +1,7 @@
+@import "layer-1.css";
+@import "chess-l2.css";
+@import "fairy-l2.css";
+@import "layer-3.css";
 .lobby {
     grid-area: main;
     display: grid;
@@ -5,14 +9,21 @@
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
-        grid-template-areas: 'app' 'table' 'side' 'uleft' 'utable' 'blog';
+        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'uleft' 'utable' 'blog';
     }
+
+    .sidebar-second {
+
+    margin: 1em 0 1em 0;
+
+    }
+
 }
 @media (min-width: 800px) {
     .lobby {
         grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(2, fit-content(0));
-        grid-template-areas: 'side app app table' 'uleft blog blog utable';
+        grid-template-rows: fit-content(0) minmax(375px, max-content) fit-content(0);
+        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'uleft blog blog utable';
     }
 }
 .seeks {
@@ -40,4 +51,12 @@
 }
 .stream .icon::before {
     font-size: 1.5em;
+}
+
+/* VARIANT INFO PANEL  */
+
+.generic-fairy p img {
+    height: 15px;
+    width: auto;
+    filter: saturate(0.1);
 }

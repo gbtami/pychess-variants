@@ -401,7 +401,7 @@ async def index(request):
         if variant == "terminology":
             render["variant"] = "docs/terminology%s.html" % locale
         else:
-            render["variant"] = "docs/" + ("intro" if variant is None else variant) + "%s.html" % locale
+            render["variant"] = "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
 
     elif view == "news":
         news_item = request.match_info.get("news_item")

@@ -22,14 +22,16 @@ import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
+import { variantPanels } from './lobby/layer1';
 
 
-class LobbyController {
+export class LobbyController {
     model;
     sock;
     player;
     logged_in;
     challengeAI: boolean;
+    challengeRM: boolean;
     inviteFriend: boolean;
     validGameData: boolean;
     _ws;
@@ -51,6 +53,7 @@ class LobbyController {
 
         this.model = model;
         this.challengeAI = false;
+        this.challengeRM = false;
         this.inviteFriend = false;
         this.validGameData = false;
         this.seeks = [];
@@ -91,6 +94,8 @@ class LobbyController {
         }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
+
+        patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
 
         this.streams = document.getElementById('streams') as HTMLElement;
 
@@ -156,6 +161,7 @@ class LobbyController {
     createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_ai_challenge",
+            rm: this.challengeRM,
             user: this.model.username,
             variant: variant,
             fen: fen,
@@ -375,47 +381,69 @@ class LobbyController {
                     ]),
                 ]),
             ]),
-            h('button.lobby-button', {
-                on: {
-                    click: () => {
-                        this.challengeAI = false;
-                        this.inviteFriend = false;
-                        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
-                        document.getElementById('challenge-block')!.style.display = 'none';
-                        document.getElementById('ailevel')!.style.display = 'none';
-                        document.getElementById('id01')!.style.display = 'block';
-                    }
-                }
-            },
-                _("Create a game")
-            ),
-            h('button.lobby-button', {
-                on: {
-                    click: () => {
-                        this.challengeAI = false;
-                        this.inviteFriend = true;
-                        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
-                        document.getElementById('challenge-block')!.style.display = 'none';
-                        document.getElementById('ailevel')!.style.display = 'none';
-                        document.getElementById('id01')!.style.display = 'block';
-                    }
-                }
-            },
-                _("Play with a friend")
-            ),
-            h('button.lobby-button', {
-                on: {
-                    click: () => {
-                        this.challengeAI = true;
-                        this.inviteFriend = false;
-                        document.getElementById('game-mode')!.style.display = (anon) ? 'none' : 'inline-flex';
-                        document.getElementById('challenge-block')!.style.display = 'none';
-                        document.getElementById('ailevel')!.style.display = 'inline-block';
-                        document.getElementById('id01')!.style.display = 'block';
-                    }
-                }
-            }, _("Play with AI (Fairy-Stockfish)")),
+            h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create a game")),
+            h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
+            h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
+            h('button.lobby-button', { on: { click: () => this.playRM() } }, _("Practice with Random-Mover")),
         ];
+    }
+
+    preSelectVariant(variantName: string, chess960: boolean=false) {
+        if (variantName !== '') {
+            const select = document.getElementById("variant") as HTMLSelectElement;
+            const options = Array.from(select.options).map(o => o.value);
+            if (select) select.selectedIndex = options.indexOf(variantName);
+
+            this.setVariant();
+
+            const check = document.getElementById("chess960") as HTMLInputElement;
+            if (check) check.checked = chess960;
+        }
+    }
+    createGame(variantName: string='', chess960: boolean=false) {
+        this.preSelectVariant(variantName, chess960);
+        const anon = this.model.anon === 'True';
+        this.challengeAI = false;
+        this.challengeRM = false;
+        this.inviteFriend = false;
+        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('id01')!.style.display = 'block';
+    }
+
+    playFriend(variantName: string='', chess960: boolean=false) {
+        this.preSelectVariant(variantName, chess960);
+        const anon = this.model.anon === 'True';
+        this.challengeAI = false;
+        this.challengeRM = false;
+        this.inviteFriend = true;
+        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('id01')!.style.display = 'block';
+    }
+
+    playAI(variantName: string='', chess960: boolean=false) {
+        this.preSelectVariant(variantName, chess960);
+        this.challengeAI = true;
+        this.challengeRM = false;
+        this.inviteFriend = false;
+        document.getElementById('game-mode')!.style.display = 'none';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'inline-block';
+        document.getElementById('id01')!.style.display = 'block';
+    }
+
+    playRM(variantName: string='', chess960: boolean=false) {
+        this.preSelectVariant(variantName, chess960);
+        this.challengeAI = true;
+        this.challengeRM = true;
+        this.inviteFriend = false;
+        document.getElementById('game-mode')!.style.display = 'none';
+        document.getElementById('challenge-block')!.style.display = 'none';
+        document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('id01')!.style.display = 'block';
     }
 
     private setVariant() {
@@ -782,6 +810,7 @@ export function lobbyView(model): VNode[] {
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
+        h('div#variants-catalog'),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),

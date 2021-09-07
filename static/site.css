@@ -62,6 +62,9 @@
     --checkbox-border: #e3e3e3;
     --checkbox-checked: #7daa49;
     --post-hover: #ddebf8;
+    --vpanel-button: #fbfbfb;
+    --vpanel-button-hover: #fdfdfd;
+    --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -109,6 +112,10 @@
     --checkbox-bg: #3b5c16;
     --checkbox-border: #4f7a1d;
     --post-hover: #29353f;
+    --vpanel-button: #3c3a35;
+    --vpanel-button-hover: #464440;
+    --panel-link-hover: rgb(179, 179, 179);
+    --box-shadow-panel-btn: none;
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
@@ -769,8 +776,9 @@ div#result {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby-button {
-        padding: 2px 2px;
-        margin: 2px 0 2px 0;
+        padding: 0.5em;
+        margin: 0.2em 0;
+    
     }
 }
 button#request-analysis, button#import, button.join, button.submit {
@@ -1055,14 +1063,16 @@ table#seeks-header, table#seeks {
 }
 #seeks-table {
     box-shadow: var(--base-shadow);
-    background-size: cover;
     background-position: center;
-    background-image: url('images/Background2.svg');
+    background-image: url('images/seek-bg.svg');
     background-color: var(--bg-seek);
     background-blend-mode: overlay;
+    background-size: 100% 100%;
+    width: 100%;
+    height: 100%;
 }
 #seeks-wrapper {
-    height: 550px;
+    height: 320px;
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
 }
@@ -1086,14 +1096,14 @@ table#seeks-header, table#seeks {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     #seeks th, #seeks td {
-        padding: .5em 0 .5em 0;
+        font-weight: 300;
     }
 }
 #seeks thead th {
-    background: var(--bg-color2);
     position: sticky;
     top: 0;
     z-index: 2;
+    color: var(--button-text);
 }
 #seeks tbody tr {
     cursor: pointer;
@@ -1111,6 +1121,9 @@ table#seeks-header, table#seeks {
 #seekbuttons > button {
     color: var(--button-text);
     background: var(--button-new-game);
+    font-size: 1.1rem;
+    text-transform: uppercase; 
+    font-weight: 300;
 }
 #seekbuttons > button:hover {
     color: var(--button-text-hover);
@@ -1277,6 +1290,9 @@ div.btn-controls.after {
     cursor: pointer;
 }
 
+button {
+    cursor: pointer;
+}
 button:disabled {
     color: var(--bg-color1);
 }
