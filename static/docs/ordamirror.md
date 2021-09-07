@@ -13,7 +13,7 @@ Orda Mirror is a chess variant designed in 2020 by Couch Tomato and is a derivat
 8.	Other rules, including stalemate and repetition are as in chess.
 
 ## Horde Pieces
-There are four new units unique to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Falcon (the Falcon being unique to Orda Mirror). The Kheshigs are the strongest piece (knight + king movement) and lead each flank. 
+There are four new units unique* to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Falcon (the Falcon being unique to Orda Mirror). The Kheshigs are the strongest piece (knight + king movement) and lead each flank. 
 The Horde’s "king" is called the Khan and has a different symbol, but is essentially the same as a classic King, also using the same abbreviation (K) – the change is purely aesthetic and thematic. 
 The Horde's Lancer and Horse Archer capture differently than movement ("divergent" pieces, like the pawn). Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Falcon replaces the Queen. Unlike the other two pieces, it retains the movement of the Queen, but instead *captures/checks* like a knight. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. 
 
