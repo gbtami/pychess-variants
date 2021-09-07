@@ -20,7 +20,7 @@ The game itself is incredibly balanced by engine evaluation (even more than stan
 7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
 8.	**Repetition** - loss for the player who repeats a board position 3 times. Typically this is done through chasing a king or piece.
 8.	The Empire cannot castle.
-9.	Other rules, including Kingdom moves and [en passant](https://en.m.wikipedia.org/wiki/En_passant), are same as in standard international chess.
+9.	Other rules, including Kingdom moves and [en passant](https://en.m.wikipedia.org/wiki/En_passant), are as in standard international chess.
 
 ## Imperial Pieces
 
