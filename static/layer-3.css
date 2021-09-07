@@ -92,7 +92,7 @@ font-size: 1.3rem;
     color: var(--panel-link-hover);
     cursor: pointer; 
 }
-.layer-3-container .icon:before, .layer-2-container .icon:before {
+.layer-3-container .icon:before {
     vertical-align: middle;
     padding-right: 4px;
 }
@@ -219,12 +219,6 @@ font-size: 1.3rem;
 
     }
 
-.layer-3-container .l3links-cont .l3links {
-
-    font-size: max(1.3rem, 2.3vw);
-    justify-content: flex-start;
-    }
-
 .layer-3-container h5 {
     
     font-size: 1.1rem;
@@ -258,3 +252,13 @@ padding: 25px;
 }
 
 
+
+@media only screen (max-width: 799px) {
+
+.layer-3-container .l3links-cont .l3links {
+
+    font-size: max(1.3rem, 2.3vw);
+    justify-content: flex-start;
+    }
+
+}
