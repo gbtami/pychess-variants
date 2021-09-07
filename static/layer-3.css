@@ -92,7 +92,7 @@ font-size: 1.3rem;
     color: var(--panel-link-hover);
     cursor: pointer; 
 }
-.layer-3-container .icon:before {
+.layer-3-container .icon:before, .layer-2-container .icon:before {
     vertical-align: middle;
     padding-right: 4px;
 }
