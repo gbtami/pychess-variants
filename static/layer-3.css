@@ -172,17 +172,7 @@ font-size: 1.3rem;
 }
 
 
-@media only screen and (min-width: 1100px) {
-
-.layer-3-container .l3t .variant-extra-info:nth-child(3) {
-position: absolute;
-bottom: 0;
-padding: 25px;
-}
-
-}
-
-@media only screen and (max-width: 799px) {
+@media only screen and (max-width: 1100px) {
 
 
   .layer-3-container  {
@@ -247,6 +237,19 @@ padding: 25px;
     max-width: 250px;
 
     }
+
+
+.layer-3-container .l3t .variant-extra-info:nth-child(3) {
+position: absolute;
+bottom: 0;
+padding: 25px;
+}
+
+
+}
+
+
+@media only screen and (min-width: 799px) {
 
 
 }
