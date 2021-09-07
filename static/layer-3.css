@@ -213,6 +213,11 @@ padding: 25px;
 
     }
 
+.layer-3-container .l3v .variant-title-l2 {
+
+   margin-bottom: 15px;
+
+    }
 
 
 .layer-3-container .l3links-cont {
@@ -225,13 +230,15 @@ padding: 25px;
 
 .layer-3-container .l3links-cont .l3links {
 
-    font-size: 1.5rem;
-    justify-content: center;
+    font-size: max(1.3rem, 2.3vw);
+    justify-content: flex-start;
     }
 
 .layer-3-container h5 {
     
-    font-size: 1.1rem; 
+    font-size: 1.1rem;
+    width: 100%;
+    padding: 10px; 
     }
 
 
