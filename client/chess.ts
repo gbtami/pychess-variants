@@ -333,7 +333,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     minishogi: new Variant({
-        name: "minishogi", tooltip: () => _("5x5 Shogi for more compact and faster games. There are no knights or lances.),
+        name: "minishogi", tooltip: () => _("5x5 Shogi for more compact and faster games. There are no knights or lances."),
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         board: "shogi5x5", piece: "shogi",
         firstColor: "Black", secondColor: "White",
@@ -363,7 +363,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     dobutsu: new Variant({
-        name: "dobutsu", tooltip: () => _("3x4 game with cute animals, designed to teach children how to play Shogi.),
+        name: "dobutsu", tooltip: () => _("3x4 game with cute animals, designed to teach children how to play Shogi."),
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         board: "shogi3x4", piece: "dobutsu",
         firstColor: "Black", secondColor: "White",
@@ -432,7 +432,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     janggi: new Variant({
-        name: "janggi", tooltip: () => _("Korean Chess, similar to Xiangqi but plays much differently. Tournament rules are used.),
+        name: "janggi", tooltip: () => _("Korean Chess, similar to Xiangqi but plays much differently. Tournament rules are used."),
         startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
