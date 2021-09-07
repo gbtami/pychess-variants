@@ -573,7 +573,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     hoppelpoppel: new Variant({
-        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: () => _("Knights are capturing as bishops, bishops are capturing as knights."),
+        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: () => _("Knights capture as bishops; bishops  capture as knights."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "hoppel",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
