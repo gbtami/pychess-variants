@@ -15,7 +15,7 @@ Currently supported games are:
 - [Kyoto shogi](https://www.pychess.org/variants/kyotoshogi)
 - [Dobutsu shogi](https://www.pychess.org/variants/dobutsu)
 - [Goro-Goro shogi](https://www.pychess.org/variants/gorogoro)
-- [Tori Dhogi](https://www.pychess.org/variants/torishogi)
+- [Tori Shogi](https://www.pychess.org/variants/torishogi)
 - [Xiangqi](https://www.pychess.org/variants/xiangqi)
 - [Manchu](https://www.pychess.org/variants/manchu)
 - [Janggi](https://www.pychess.org/variants/janggi)
