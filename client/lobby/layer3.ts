@@ -88,10 +88,10 @@ function proTip (variant: string, chess960: boolean) {
         if (chess960) {
             return _('Move the king on top of the rook to castle.');
         } else {
-            return _('You can play more at www.lichess.org');
+            return _('You can play more at www.lichess.org.');
         }
     case 'placement':
-        return _('Castling is only possible if king and rook are dropped to their usual places like in standard chess.');
+        return _('Castling is only possible if the king and rook are dropped to their usual places like in standard Chess.');
 // fairy
     case 'capablanca':
         return _('You can choose different starting setups including Embassy Chess and Gothic Chess.');
@@ -100,11 +100,11 @@ function proTip (variant: string, chess960: boolean) {
     case 'seirawan':
         return _('For a drop version, choose S-HOUSE from the dropdown menu.');
     case 'shogun':
-        return _('The Queen actually demotes upon capture, so it is not worth as much.');
+        return _('The queen actually demotes upon capture, so it is not worth as much.');
     case 'shako':
         return _('The cannon is a tricky piece that needs to be closely followed.');
     case 'hoppelpoppel':
-        return _('Other piece sets are available, which may help.');
+        return _('Other piece sets are available, which may help avoid confusion.');
 // army
     case 'orda':
     case 'shinobi':
@@ -114,13 +114,13 @@ function proTip (variant: string, chess960: boolean) {
         return _('Be aware of campmate - victory by moving your king into the 8th rank.');
 // makruk
     case 'makruk':
-        return _('It is important to know the counting rules in end games.');
+        return _('It is important to know the counting rules in endgames.');
     case 'makpong':
         return _('Watch out for knight checks, since they cannot be blocked.');
     case 'sittuyin':
         return _('Be sure to review the nuances of pawn promotion rules.');
     case 'cambodian':
-        return _('King safety is important. Use king leap move to save time.');
+        return _('King safety is important. Use the king leap move to save time.');
 // shogi
     case 'shogi':
     case 'minishogi':
