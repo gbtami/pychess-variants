@@ -225,6 +225,7 @@ padding: 25px;
     margin-top: 1rem;
     margin-bottom: 1rem;
     text-align: center;
+    max-width: 275px; 
 
     }
 
@@ -239,6 +240,12 @@ padding: 25px;
     font-size: 1.1rem;
     width: 100%;
     padding: 10px; 
+    }
+
+.layer-3-container .l3img #mainboard {
+
+    max-width: 250px;
+
     }
 
 
