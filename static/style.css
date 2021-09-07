@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'pychess';
-  src:  url('fonts/pychess.eot?n00io2');
-  src:  url('fonts/pychess.eot?n00io2#iefix') format('embedded-opentype'),
-    url('fonts/pychess.ttf?n00io2') format('truetype'),
-    url('fonts/pychess.woff?n00io2') format('woff'),
-    url('fonts/pychess.svg?n00io2#pychess') format('svg');
+  src:  url('fonts/pychess.eot?ws7oys');
+  src:  url('fonts/pychess.eot?ws7oys#iefix') format('embedded-opentype'),
+    url('fonts/pychess.ttf?ws7oys') format('truetype'),
+    url('fonts/pychess.woff?ws7oys') format('woff'),
+    url('fonts/pychess.svg?ws7oys#pychess') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -39,7 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+.icon-discord:before {
+  content: "\1f3ae";
+}
 .icon-ToriShogi:before {
   content: "\1f426";
 }

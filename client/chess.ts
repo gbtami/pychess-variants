@@ -333,7 +333,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     minishogi: new Variant({
-        name: "minishogi", tooltip: () => _('"5x5 Shogi for more compact and faster games. There are no knights or lances.'),
+        name: "minishogi", tooltip: () => _("5x5 Shogi for more compact and faster games. There are no knights or lances."),
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         board: "shogi5x5", piece: "shogi",
         firstColor: "Black", secondColor: "White",
