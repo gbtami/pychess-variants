@@ -17,7 +17,7 @@ Orda Chess is a chess variant designed in 2020 by Couch Tomato. The idea of the 
 8.	Other rules, including stalemate and repetition are as in chess.
 
 ## Horde Pieces
-There are four new units unique to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Yurt _(exception being that the Kingdom can still obtain a Kheshig by promotion)._ The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece unlike the Queen. 
+There are four new units unique* to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Yurt (* exception being that the Kingdom can still obtain a Kheshig by promotion). The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece unlike the Queen. 
 The Horde’s king is called the Khan and has a different symbol, but is essentially the same as the Kingdom’s King, also using the same abbreviation (K) – the change is purely aesthetic and thematic. 
 The Horde's Lancer and Horse Archer are unique in that they capture differently than movement ("divergent" pieces, like the pawn). Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. Similarly, the Yurt also captures the same way it moves, which is as the silver general in Shogi.
 
