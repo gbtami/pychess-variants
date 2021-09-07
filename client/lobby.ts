@@ -383,8 +383,8 @@ export class LobbyController {
             ]),
             h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create a game")),
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
-            h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI (Fairy-Stockfish)")),
-            h('button.lobby-button', { on: { click: () => this.playRM() } }, _("Play with Random-Mover")),
+            h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
+            h('button.lobby-button', { on: { click: () => this.playRM() } }, _("Practice with Random-Mover")),
         ];
     }
 
