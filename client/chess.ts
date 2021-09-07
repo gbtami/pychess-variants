@@ -618,7 +618,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
-        name: "embassy", tooltip: () => _("Like Capablanca Chess but with Grand starting setup"),
+        name: "embassy", tooltip: () => _("Like Capablanca Chess but with Grand starting setup."),
         startFen: "rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
@@ -628,7 +628,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     gothic: new Variant({
-        name: "gothic", tooltip: () => _("Like Capablanca Chess but with a different starting setup"),
+        name: "gothic", tooltip: () => _("Like Capablanca Chess but with a different starting setup."),
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
@@ -638,7 +638,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     gothhouse: new Variant({
-        name: "gothhouse", tooltip: () => _("Gothic with Crazyhouse drop rules"),
+        name: "gothhouse", tooltip: () => _("Gothic with Crazyhouse drop rules."),
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
@@ -657,8 +657,8 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "ordamirror" ] },
-    asymmetric: { variants: [ "orda", "synochess", "shinobi", "empire" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
 };
 
 function variantGroupLabel(group) {
@@ -668,7 +668,7 @@ function variantGroupLabel(group) {
         shogi: _("Shogi variants"),
         xiangqi: _("Xiangqi variants"),
         fairy: _("Fairy piece variants"),
-        asymmetric: _("Asymmetric variants"),
+        army: _("New Army Variants"),
     }
     return groups[group];
 }
