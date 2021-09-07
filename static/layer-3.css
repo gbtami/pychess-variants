@@ -182,12 +182,8 @@ padding: 25px;
 
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 799px) {
 
-.layer-3-container {
-    display: flex;
-    flex-direction: column;
-    }
 
 .layer-3-container .l3links-cont {
     
@@ -201,10 +197,6 @@ padding: 25px;
 
     font-size: 1.5rem;
     justify-content: center;
-    }
-
-.chess-l3 {
-    max-height: 100%
     }
 
 .layer-3-container h5 {
