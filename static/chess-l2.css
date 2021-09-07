@@ -270,6 +270,13 @@
 
     }
 
+
+    #layer2chesscont .generic-variant-info {
+
+    background: none;
+
+    }
+
     
 
 .chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2 {

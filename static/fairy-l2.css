@@ -402,6 +402,16 @@ padding: 10px;
     justify-content: center; 
     }
 
+
+
+    /* Go back button remove bg */ 
+
+    .fairy-grid .generic-variant-info {
+
+    background: none;
+
+    }
+
 }
 
 
