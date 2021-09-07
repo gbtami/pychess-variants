@@ -348,7 +348,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     kyotoshogi: new Variant({
-        name: "kyotoshogi", tooltip: () => _("A wild Shogi variant on a 5x5 board where pieces change sides after each move."),
+        name: "kyotoshogi", tooltip: () => _("A wild Shogi variant on a 5x5 board where pieces flip into a different piece after each move."),
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         board: "shogi5x5", piece: "kyoto",
         firstColor: "Black", secondColor: "White",
@@ -487,7 +487,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     seirawan: new Variant({
-        name: "seirawan", displayName: "s-chess", tooltip: () => _("Hybrid pieces, the hawk (B+N) and elephant (R+N) can enter the board after moving a back rank piece."),
+        name: "seirawan", displayName: "s-chess", tooltip: () => _("Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after moving a back rank piece."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
@@ -561,7 +561,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     synochess: new Variant({
-        name: "synochess", tooltip: () => _("Asymmetric East vs. West variant which pits the western chess army against a xiangqi and janggi-styled army."),
+        name: "synochess", tooltip: () => _("Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army."),
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
         board: "standard8x8", piece: "synochess",
         firstColor: "White", secondColor: "Red",
@@ -582,7 +582,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     shinobi: new Variant({
-        name: "shinobi", tooltip: () => _("Asymmetric variant which pits the western chess army against a shogi-styled army."),
+        name: "shinobi", tooltip: () => _("Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
