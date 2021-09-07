@@ -254,6 +254,13 @@ font-size: 1.3rem;
     bottom: 0;
     padding: 0px 20px 40px;
 }
+
+
+.layer-3-container .l3v .variant-title-l2 {
+    
+    font-size: min(1.4vw, 1.5rem);    
+    
+}
     
 }
 
