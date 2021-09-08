@@ -1,0 +1,430 @@
+
+/* This is 3x3 grid used by Layer 2 Fairy, Army and Shogi  */
+
+.fairy-grid {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+
+    padding: 10px;
+    gap: 10px;
+}
+
+.fairy-grid img {
+    max-width: 300px;
+}
+
+/* Assigning Elements (Variants Buttons) Grid Area  */
+
+.generic-fairy {
+    grid-column: 1/2;
+    grid-row: 1/4;
+}
+
+.capablanca {
+    grid-column: 2/3;
+    grid-row: 1/2;
+}
+
+.grand {
+    grid-column: 3/4;
+    grid-row: 1/2;
+}
+
+.schess {
+    grid-column: 2/3;
+    grid-row: 2/3;
+}
+
+.shogun {
+    grid-column: 3/4;
+    grid-row: 2/3;
+}
+
+.shako {
+    grid-column: 2/3;
+    grid-row: 3/4;
+}
+
+.hoppelpoppel {
+    grid-column: 3/4;
+    grid-row: 3/4;
+}
+
+/* Undoing the text transform uppercase for buttons  */
+
+.generic-fairy .variant-category-description {
+    text-transform: none;
+    }
+
+/* Variant Title and Logo next to it  */
+
+.capablanca .variant-title-l2, .shako .variant-title-l2, .shogun .variant-title-l2, .schess .variant-title-l2, .hoppelpoppel .variant-title-l2, .grand .variant-title-l2, .makrukl2 .variant-title-l2,
+.makpong .variant-title-l2, .sittuyin .variant-title-l2, .chatrang .variant-title-l2 {
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 0.80rem;
+    font-weight: 300;
+    width: 80%;
+    margin-bottom: 15px;
+}
+
+/* Icons of zh, 960 and zh960 options for some variants in Fairy  */
+
+.option-icon-container {
+    margin-left: 5px;
+    margin-top: -10px;
+    width: 80%;
+    display: flex;
+    /* border: 1px solid red; */
+    margin-bottom: 15px;
+    align-items: flex-end;
+}
+
+.option-icon-container img {
+    width: 15px;
+    height: 15px;
+    margin: 3px 2px 2px 2px;
+    filter: saturate(0.1);
+}
+
+/* Variant Button  */
+
+.capablanca , .shako , .shogun , .schess , .hoppelpoppel , .grand, 
+.makpong, .makrukl2, .sittuyin, .chatrang {
+    display: flex;
+    flex: column;
+    justify-content: flex-start;
+    padding: 10px 0;
+}
+
+/* Short text below Variant Titles in Layer 2  */
+
+.variant-extra-info {
+    font-size: 1.1em;
+    width: 80%;
+    padding: 5px 0;
+    text-align: left;
+    text-transform: none;
+}
+
+/* Shogi Board Image Container and Image  */
+
+.generic-shogi, .fourarmykings img { 
+display: flex;
+/* border: 1px solid gold; */
+justify-content: center;
+align-items: center;
+padding: 10px;
+}
+
+.fourarmykings img {
+    filter: saturate(0.9);
+    opacity: 0.7;
+    max-height: 80px;
+}
+
+.generic-shogi img, .fourarmykings img {
+    margin: 0 auto;
+    height: 100%;
+    width: 100%;
+}
+
+
+/* Undoing Button Text Uppercase  */
+
+.shogi-desc, .makruk-desc {
+    text-transform: none;
+}
+
+/* This is 2x2 grid used by Layer 2 Makruk and Xiangqi  */
+
+.two-grid {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+
+    padding: 10px;
+    gap: 10px;
+}
+
+/* Assigning Elements (Variants Buttons) Grid Area  */
+
+.generic-makruk {
+    grid-column: 1/2;
+    grid-row: 1/3; 
+}
+
+.makrukl2 {
+    grid-column: 2/3;
+    grid-row: 1/2;
+}
+
+.chatrang {
+    grid-column: 2/3;
+    grid-row: 2/3;
+}
+
+.makpong {
+    grid-column: 3/4;
+    grid-row: 1/2;
+}
+
+.sittuyin {
+    grid-column: 3/4;
+    grid-row: 2/3;
+}
+
+.two-grid .layer-2-category {
+    padding: 2em 0;
+}
+
+.two-grid .generic-makruk {
+    padding: 0;
+}
+
+/* .two-grid .variant-extra-info {
+  padding-bottom: 10px;
+}
+
+.two-grid .variant-title-l2 {
+    padding-top: 10px;
+} */
+
+/* TABLET AND MOBILE  */
+
+@media only screen and (max-width:1100px) {
+    .fairy-grid {
+        display: grid;
+
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(8, auto);
+    }
+
+
+    .capablanca {
+
+        grid-column: 1/2;
+        grid-row: 1/3;
+
+    }
+
+    .grand { 
+
+        grid-column: 2/3;
+        grid-row: 1/3;
+
+    }
+
+    .shogun {
+
+        grid-column: 1/2;
+        grid-row: 3/5;
+
+    }
+
+    .hoppelpoppel {
+
+        grid-column: 1/2;
+        grid-row: 5/7;
+
+    }
+
+    .shako {
+
+        grid-row: 3/5;
+
+    }
+
+
+    .schess {
+    grid-column: 2/3;
+    grid-row: 5/7;
+
+    }
+
+    .generic-fairy {
+        grid-column: 1/3;
+        grid-row: 7/8;
+
+    }
+
+    .generic-image-container {
+
+    display: none;
+
+    }
+   
+    .capablanca , .shako , .shogun , .schess , .hoppelpoppel , .grand {
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .variant-title-l2 {
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Individual Fixes */
+
+    /*  Shogi */
+
+    #layer2shogicont {
+
+    grid-template-rows: repeat(6, auto);
+
+    }
+
+    #layer2shogicont #mainboard {
+
+    display: none;
+
+    }
+    
+    #layer2shogicont h4 {
+
+    display: none;
+
+    }
+
+    #layer2shogicont .shogi-desc {
+
+    display: none
+
+    }
+
+
+    /* Army */ 
+
+    #layer2armycont {
+
+    grid-template-rows: repeat(6, auto); 
+
+    }
+
+    #layer2armycont .schess {
+    
+    grid-column: 1/2;
+
+    }
+
+    #layer2armycont .generic-fairy {
+
+    grid-column: 2/3;
+    grid-row: 5/7;
+
+    }
+
+    #layer2armycont .layer-two-category-info {
+
+    justify-content: center;
+
+    }
+
+    /* Makruk and Xiangqi*/
+
+    #layer2makrukcont, #layer2xiangqicont {
+
+    grid-template-rows: none; 
+
+    }
+
+    .makrukl2 {
+
+    grid-column: 1/2;
+
+    }
+
+    .sittuyin {
+    
+    grid-column: 2/3;
+    grid-row: 1/2;
+
+    }
+
+    .makpong {
+    
+    grid-column: 1/2;
+    grid-row: 2/3;
+
+    }
+
+    .generic-makruk {
+
+    grid-column: 1/3;
+    grid-row: 3/4;
+
+    }
+
+    .two-grid .layer-2-category {
+   
+    padding: 10px;
+
+    }
+
+   .makrukl2, .sittuyin, .makpong, .chatrang {
+
+    padding: 0px;
+
+    }
+
+    #layer2makrukcont .variant-title-l2, #layer2xiangqicont .variant-title-l2 {
+
+    width: 100%;
+
+    }
+
+    
+    #layer2makrukcont .variant-extra-info, #layer2xiangqicont .variant-extra-info {
+
+    font-size: 1em;
+    width: 100%;
+    padding: 0;
+
+    }
+
+    #layer2makrukcont #mainboard, #layer2xiangqicont #mainboard {
+    
+    display: none;
+
+    }
+
+     #layer2makrukcont .layer-two-category-info, #layer2xiangqicont .layer-two-category-info {
+
+    justify-content: center; 
+    }
+
+
+
+    /* Go back button remove bg */ 
+
+    .fairy-grid .generic-variant-info {
+
+    background: none;
+
+    }
+
+}
+
+
+
+@media only screen and (min-width: 1100px) {
+    #layer2fairycont .variant-category-description, #layer2armycont .variant-category-description {
+        margin-top: -30px;
+        font-size: 1.1rem;
+    }
+
+    #layer2fairycont .generic-image-container, #layer2armycont .generic-image-container {
+        margin-top: -45px;
+    }
+
+}
+

@@ -1,6 +1,6 @@
 # ![Atomic](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Atomic.svg) Atomic
 
-Nuke your opponent's king to win!
+_Nuke your opponent's king to win!_
 
 ## Rules
 

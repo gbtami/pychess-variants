@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 21:26+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,12 +58,40 @@ msgstr ""
 msgid "All players"
 msgstr ""
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr ""
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr ""
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] ""
 msgstr[1] ""
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr ""
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr ""
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr ""
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr ""
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr ""
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -90,7 +118,7 @@ msgid "Analysis"
 msgstr ""
 
 #: ../templates/template.html:23
-msgid "Learn"
+msgid "Variants"
 msgstr ""
 
 #: ../templates/template.html:29
