@@ -39,7 +39,7 @@ export function layer2xiangqi (lobbyCtrl: LobbyController, containerId: string):
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['janggi'].icon(false) } }),
                 h('h3', 'Janggi'),
             ]),
-            h('p.variant-extra-info', _('Korean Chess, based on Xiangqi but much different')),
+            h('p.variant-extra-info', _('Korean Chess, based on Xiangqi but very different')),
         ]),
         h('button.layer-2-category.makpong', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'minixiangqi', false) } }, [
             h('div.variant-title-l2', [

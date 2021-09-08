@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:14+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1184,7 +1184,7 @@ msgid "Chinese Chess, one of the most played games in the world"
 msgstr ""
 
 #: ../client/lobby/layer2xiangqi.ts:42
-msgid "Korean Chess, based on Xiangqi but much different"
+msgid "Korean Chess, based on Xiangqi but very different"
 msgstr ""
 
 #: ../client/lobby/layer2xiangqi.ts:49
