@@ -1147,7 +1147,7 @@ table#seeks-header, table#seeks {
 /* Input fields */
 select, input {
     padding: 12px 20px;
-    margin: 8px 0;
+    margin: 0px;
     display: inline;
     border: 1px solid var(--input-border);
     box-sizing: border-box;
@@ -1585,7 +1585,7 @@ li.message.server {
 #chat-entry {
     display: flex;
     order: 2;
-    border-top: 1px solid #404040);
+    border-top: 1px solid #404040;
     margin: 0;
     padding: 5px 20px 4px 4px;
     margin-top: auto;
