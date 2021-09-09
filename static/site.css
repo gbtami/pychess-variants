@@ -1585,12 +1585,15 @@ li.message.server {
 #chat-entry {
     display: flex;
     order: 2;
-    border: 1px solid var(--bg-color2);
+    border-top: 1px solid #404040);
     margin: 0;
-    padding: 3px;
+    padding: 5px 20px 4px 4px;
     margin-top: auto;
     color: var(--font-color);
     background: var(--bg-color0);
+    font-size: 13.6894; 
+    letter-spacing: 0.035em;
+    font-weight: 300;
 }
 #spectators {
     overflow-wrap: break-word
