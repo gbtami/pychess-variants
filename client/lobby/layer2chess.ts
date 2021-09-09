@@ -23,7 +23,7 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const layer2cont = h('div#layer2chesscont.layer-2-container', [
         h('button.layer-2-category generic-variant-info.generic', [
             h('div.layer-two-category-info', [
-                h('h4', 'Chess Variants'),
+                h('h4', _('Chess Variants')),
                 variantBoard(chess, chess.startFen),
                 h('p.variant-category-description', _('Variants using a basic chess set but with different rules.')),
                 h('h5#chessl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),

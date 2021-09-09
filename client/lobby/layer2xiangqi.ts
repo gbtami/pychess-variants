@@ -21,7 +21,7 @@ export function layer2xiangqi (lobbyCtrl: LobbyController, containerId: string):
     const layer2cont = h('div#layer2xiangqicont.layer-2-container.fairy-grid.two-grid', [
         h('button.layer-2-category generic-variant-info.generic-makruk', [
             h('div.layer-two-category-info', [
-                h('h4', 'Xiangqi Variants'),
+                h('h4', _('Xiangqi Variants')),
                 variantBoard(variant, variant.startFen),
                 h('p.variant-category-description.makruk-desc', _('The ancient game of Chinese Chess and its variants.')),
                 h('h5#xiangqil2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2xiangqicont') } }, _('Go Back')),

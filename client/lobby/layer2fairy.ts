@@ -21,15 +21,15 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
     const layer2cont = h('div#layer2fairycont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
             h('div.layer-two-category-info', [
-                h('h4', 'Fairy piece Variants'),
+                h('h4', _('Fairy piece Variants')),
                 h('div.generic-image-container.fourarmykings', [ h('img', { attrs: { src: assetUrl + "/images/4FairyPieces.svg" } }) ]),
                 h('p.variant-category-description', _('These variants have new pieces to try! Many of them have larger boards, and some also have new rules.')),
                 h('p.variant-category-description', [
-                    'Several have random ',
+                    _('Several have random '),
                     h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
-                    ' and drop ',
+                    _(' and drop '),
                     h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
-                    ' variants.'
+                    _(' variants.')
                 ]),
                 h('h5#fairyl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
             ]),

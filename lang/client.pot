@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -427,6 +427,7 @@ msgid "Fairy piece variants"
 msgstr ""
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
+#: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr ""
 
@@ -1040,7 +1041,7 @@ msgstr ""
 msgid "ZEN MODE"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr ""
 
@@ -1048,15 +1049,15 @@ msgstr ""
 msgid "Fairy Piece Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr ""
 
@@ -1097,10 +1098,26 @@ msgstr ""
 msgid "Variants using a basic chess set but with different rules."
 msgstr ""
 
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy piece Variants"
+msgstr ""
+
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, "
 "and some also have new rules."
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:28
+msgid "Several have random "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:30
+msgid " and drop "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:32
+msgid " variants."
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:47
