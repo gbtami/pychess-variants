@@ -337,12 +337,15 @@ msgstr ""
 #: ../client/chess.ts:380
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr ""
+"Shogi 5x6 zaprojektowane by wprowadzić kombinacje z udziałem generałów."
 
 #: ../client/chess.ts:395
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr ""
+"Konfrontacyjna odmiana 7x7 z unikalnymi figurami nazwanymi od gatunków "
+"ptaków."
 
 #: ../client/chess.ts:416
 msgid ""
@@ -372,6 +375,8 @@ msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr ""
+"Graj z figurami hybrydowymi, arcybiskupem (gońcoskoczek) i kanclerzem "
+"(wieżoskoczek) na planszy 10x8."
 
 #: ../client/chess.ts:473
 msgid "Capablanca with Crazyhouse drop rules."
@@ -382,6 +387,8 @@ msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
 msgstr ""
+"Hybrydowe figury: jastrząb (gońcoskoczek) i słoń (wieżoskoczek) mogą wejść "
+"na planszę po ruchu figurą z pierwszej linii. "
 
 #: ../client/chess.ts:500
 msgid "S-Chess with Crazyhouse drop rules."
@@ -474,7 +481,7 @@ msgstr "Warianty używające niestandardowych figur"
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
-msgstr ""
+msgstr "Odmiany używające niestandardowych armii"
 
 #: ../client/datetime.ts:37
 msgid "in %1 year"
@@ -1133,7 +1140,7 @@ msgstr "Odmiany z niestandardowymi figurami"
 
 #: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
-msgstr ""
+msgstr "Odmiany Makruka"
 
 #: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
@@ -1166,7 +1173,7 @@ msgstr ""
 
 #: ../client/lobby/layer2army.ts:49
 msgid "Horde vs Horde"
-msgstr ""
+msgstr "Horda przeciwko Hordzie"
 
 #: ../client/lobby/layer2army.ts:56
 msgid "Clan: Drop-based army"
@@ -1192,23 +1199,23 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:29
 msgid " = Random (960) variant available. "
-msgstr ""
+msgstr "= Dostępna odmiana Fischerowska (960)"
 
 #: ../client/lobby/layer2fairy.ts:32
 msgid " = Drop variant available."
-msgstr ""
+msgstr "= Dostępna odmiana z dostawianiem."
 
 #: ../client/lobby/layer2fairy.ts:47
 msgid "Knight hybrid pieces"
-msgstr ""
+msgstr "Skoczkowe figury hybrydowe"
 
 #: ../client/lobby/layer2fairy.ts:58
 msgid "8x8 with new pieces"
-msgstr ""
+msgstr "8x8 z nowymi figurami"
 
 #: ../client/lobby/layer2fairy.ts:65
 msgid "Cannon and Elephant from Xiangqi"
-msgstr ""
+msgstr "Działo i słoń z Xiangqi"
 
 #: ../client/lobby/layer2fairy.ts:75
 msgid "10x10 with new pieces"
@@ -1216,7 +1223,7 @@ msgstr "10x10 z nowymi figurami"
 
 #: ../client/lobby/layer2fairy.ts:82
 msgid "Crazyhouse with promotions"
-msgstr ""
+msgstr "Crazyhouse z promocjami"
 
 #: ../client/lobby/layer2fairy.ts:89
 msgid "Bishops and Knights swap their capture moves"
