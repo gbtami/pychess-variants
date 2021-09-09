@@ -12,7 +12,7 @@ import { _ } from './i18n';
 import RoundController from "./roundCtrl";
 import AnalysisController from "./analysisCtrl";
 import TournamentController from "./tournament";
-import LobbyController from "./lobby";
+import { LobbyController } from "./lobby";
 
 export function chatView (ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) {
     function onKeyPress (e: KeyboardEvent) {

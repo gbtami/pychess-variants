@@ -23,7 +23,7 @@ import { layer2xiangqi } from './layer2xiangqi';
 export function layer3variant (container2Id: string, lobbyCtrl: LobbyController, variantName: string, chess960: boolean): void {
     const variant: IVariant = VARIANTS[variantName];
 
-    let leve2func, container3Id;
+    let leve2func: (lobbyCtrl: LobbyController, containerId: string) => void, container3Id: string='';
     switch (container2Id) {
     case 'layer2chesscont':
         leve2func = layer2chess; container3Id = 'chessl3cont'; break;
