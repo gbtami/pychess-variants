@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 21:26+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -65,6 +65,14 @@ msgstr "Anonimowi"
 msgid "All players"
 msgstr "Wszyscy gracze"
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr "Zwycięzcy turniejów"
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr ""
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
@@ -73,6 +81,26 @@ msgstr[0] "%(count)spartia"
 msgstr[1] "%(count)spartie"
 msgstr[2] "%(count)spartii"
 msgstr[3] "%(count)spartii"
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr ""
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr ""
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr ""
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr ""
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr ""
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -99,8 +127,8 @@ msgid "Analysis"
 msgstr "Analiza"
 
 #: ../templates/template.html:23
-msgid "Learn"
-msgstr "Nauka"
+msgid "Variants"
+msgstr ""
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"
