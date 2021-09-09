@@ -1531,11 +1531,13 @@ user {
     font-weight: bold;
 }
 div.chatroom {
-    border-bottom: 1px solid var(--bg-color2);
+    border-bottom: none;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: .2em 10px;
+    padding: .5em 10px;
+    letter-spacing: 0.011em;
+    font-weight: 300;
 }
 
 #checkbox {
@@ -1544,7 +1546,7 @@ div.chatroom {
     background: var(--bg-color2);
     xfloat: right;
     xmargin: revert;
-    padding: 0.6em;
+    padding: 0.5em;
     border-radius: 3px;
     border: 1px solid var(--checkbox-border);
     cursor: pointer;
