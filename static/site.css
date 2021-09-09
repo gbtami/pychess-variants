@@ -945,7 +945,7 @@ player-title {
     margin-left:0.5em;
 }
 i-side, .icon-cloud-upload:before {
-    margin-right: .4em;
+    margin-right: 0px;
 }
 .icon-blue:before {
     content: "\62";
