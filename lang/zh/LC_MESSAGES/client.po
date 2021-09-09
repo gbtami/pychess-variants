@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 12:57+0200\n"
+"POT-Creation-Date: 2021-09-09 15:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -1040,7 +1040,7 @@ msgstr "禅意模式"
 msgid "Chess Variants"
 msgstr "国际象棋与变体"
 
-#: ../client/lobby/layer1.ts:73
+#: ../client/lobby/layer1.ts:73 ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
 msgstr "新棋子变体"
 
@@ -1092,10 +1092,6 @@ msgstr ""
 #: ../client/lobby/layer2chess.ts:28
 msgid "Variants using a basic chess set but with different rules."
 msgstr "使用正常国际象棋棋盘与棋子，但包含不同的变体棋规。"
-
-#: ../client/lobby/layer2fairy.ts:24
-msgid "Fairy piece Variants"
-msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""

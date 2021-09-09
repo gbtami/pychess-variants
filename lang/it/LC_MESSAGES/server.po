@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 18:42+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: renyhp r <renyhp@disroot.org>, 2020\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
@@ -64,12 +64,12 @@ msgstr "Anonimo"
 msgid "All players"
 msgstr "Tutti i giocatori"
 
-#: ../templates/players.html:36
+#: ../templates/players.html:36 ../templates/winners.html:6
 msgid "Tournament winners"
 msgstr ""
 
-#: ../templates/players.html:37
-msgid "Shields"
+#: ../templates/players.html:37 ../templates/shields.html:6
+msgid "Tournament shields"
 msgstr ""
 
 #: ../templates/profile.html:13
