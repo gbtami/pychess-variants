@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 18:42+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
 "Language-Team: Galician (Spain) (https://www.transifex.com/gbtami/teams/14790/gl_ES/)\n"
@@ -62,12 +62,12 @@ msgstr "Anónimo"
 msgid "All players"
 msgstr "Tódolos xogadores"
 
-#: ../templates/players.html:36
+#: ../templates/players.html:36 ../templates/winners.html:6
 msgid "Tournament winners"
 msgstr ""
 
-#: ../templates/players.html:37
-msgid "Shields"
+#: ../templates/players.html:37 ../templates/shields.html:6
+msgid "Tournament shields"
 msgstr ""
 
 #: ../templates/profile.html:13

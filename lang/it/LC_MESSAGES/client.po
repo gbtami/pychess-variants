@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 12:57+0200\n"
+"POT-Creation-Date: 2021-09-09 15:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Armando Gagliardi <armandogagliardi0@gmail.com>, 2021\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
@@ -1088,7 +1088,7 @@ msgstr ""
 msgid "Chess Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:73
+#: ../client/lobby/layer1.ts:73 ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
 msgstr ""
 
@@ -1139,10 +1139,6 @@ msgstr ""
 
 #: ../client/lobby/layer2chess.ts:28
 msgid "Variants using a basic chess set but with different rules."
-msgstr ""
-
-#: ../client/lobby/layer2fairy.ts:24
-msgid "Fairy piece Variants"
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:26
