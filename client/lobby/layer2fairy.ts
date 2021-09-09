@@ -25,11 +25,11 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
                 h('div.generic-image-container.fourarmykings', [ h('img', { attrs: { src: assetUrl + "/images/4FairyPieces.svg" } }) ]),
                 h('p.variant-category-description', _('These variants have new pieces to try! Many of them have larger boards, and some also have new rules.')),
                 h('p.variant-category-description', [
-                    _('Several have random '),
                     h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
-                    _(' and drop '),
+                    h('span', _(' = Random (960) variant available. ')),
+                    h('br'),
                     h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
-                    _(' variants.')
+                    h('span', _(' = Drop variant available.')),
                 ]),
                 h('h5#fairyl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
             ]),

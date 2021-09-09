@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 12:07+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1108,16 +1108,12 @@ msgid ""
 "and some also have new rules."
 msgstr ""
 
-#: ../client/lobby/layer2fairy.ts:28
-msgid "Several have random "
-msgstr ""
-
-#: ../client/lobby/layer2fairy.ts:30
-msgid " and drop "
+#: ../client/lobby/layer2fairy.ts:29
+msgid " = Random (960) variant available. "
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:32
-msgid " variants."
+msgid " = Drop variant available."
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:47
@@ -1218,6 +1214,10 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
+msgstr ""
+
+#: ../client/lobby/layer3.ts:61
+msgid "Tip: "
 msgstr ""
 
 #: ../client/lobby/layer3.ts:72
