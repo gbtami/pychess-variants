@@ -4,19 +4,19 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
-# Jonathan Kubik <j.kubik97@gmail.com>, 2020
 # ubdip <hsart.liam@gmail.com>, 2020
 # Lichess Chess960 <lichess960training@gmail.com>, 2021
 # Skeg Overren <skegoverren@posteo.de>, 2021
+# Jonathan Kubik <j.kubik97@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 21:26+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Skeg Overren <skegoverren@posteo.de>, 2021\n"
+"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -69,12 +69,40 @@ msgstr "Anonymous"
 msgid "All players"
 msgstr "Alle Spieler"
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr "Turnier Sieger"
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr "Schilder"
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)sSpiel"
 msgstr[1] "%(count)s Spiele"
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr "Partien zusehen"
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr "Zu einer Partie herausfordern"
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr "Spiel importieren"
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr "Partien exportieren"
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr "Lichess Profil"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -101,8 +129,8 @@ msgid "Analysis"
 msgstr "Analyse"
 
 #: ../templates/template.html:23
-msgid "Learn"
-msgstr "Lernen"
+msgid "Variants"
+msgstr "Varianten"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"

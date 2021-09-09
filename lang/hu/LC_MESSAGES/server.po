@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2021\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -65,12 +65,40 @@ msgstr "Vendég"
 msgid "All players"
 msgstr "Játékosok"
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr "Verseny győztesek"
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr "Shield győztesek"
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s játszma"
 msgstr[1] "%(count)s játszma"
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr "Játszmák figyelése"
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr "Kihívás"
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr "Játszma importálása"
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr "Játszmák exportálása"
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr "Lichess profil"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -97,8 +125,8 @@ msgid "Analysis"
 msgstr "Elemzés"
 
 #: ../templates/template.html:23
-msgid "Learn"
-msgstr "Tanulás"
+msgid "Variants"
+msgstr "Variánsok"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"

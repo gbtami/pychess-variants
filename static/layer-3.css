@@ -1,0 +1,290 @@
+
+/* Layer 3 - Three Column Layout Desktop */
+
+/* Main Container of all 3 columns  */
+
+.layer-3-container {
+    grid-area: vpanel;
+    background-color: var(--bg-color1);
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+    padding: 10px;
+    gap: 10px;
+    /* border: 1px solid red; */
+}
+
+/* Columns  */
+
+.layer-3-container .layer-2-category {
+    display: flex;
+    justify-content: flex-start;
+    padding:20px;
+    /* border: 1px solid yellow; */
+}
+
+.layer-3-container .layer-2-category:hover {
+border: none;
+background-color: var(--vpanel-button) ;
+color: #999;
+transform: scale(1);
+cursor: default;
+}
+
+
+
+/* First Column  */
+
+.layer-3-container .l3v .variant-title-l2 {
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 25px;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    white-space: nowrap;
+}
+
+#chessl3cont .variant-title-l2, #chatrangl3cont .variant-title-l2, #hoppelpoppell3cont .variant-title-l2  {
+font-size: 1.3rem;
+}
+
+.layer-3-container .l3links-cont {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* border: 1px solid yellow; */
+    text-transform: none;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    text-align: left;
+   
+}
+
+.layer-3-container .l3links-cont .l3links {
+    /* border: 1px solid pink; */
+    display: flex;
+    justify-content: flex-start;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+ 
+}
+
+
+.layer-3-container .l3links-cont .l3links:hover {
+    cursor: pointer; 
+}
+
+.layer-3-container h5 {
+    /* border: 1px solid red; */
+    padding: 20px;
+    font-size: 1rem;
+}
+
+.layer-3-container h5:hover {
+    color: var(--panel-link-hover);
+    cursor: pointer; 
+}
+.layer-3-container .icon:before, .layer-2-container .icon:before {
+    vertical-align: middle;
+    padding-right: 4px;
+}
+
+#layer2chesscont [data-icon],#chessl3cont [data-icon]:before,#chessl3cont .l3links:hover,#chessl3cont a:hover {
+    color: #8FA2AD;
+}
+#layer2fairycont [data-icon],#fairyl3cont [data-icon]:before,#fairyl3cont .l3links:hover,#fairyl3cont a:hover {
+    color: #62B956;
+}
+#layer2armycont [data-icon],#armyl3cont [data-icon]:before,#armyl3cont .l3links:hover,#armyl3cont a:hover{
+    color: #7f8dff;
+}
+#layer2makrukcont [data-icon],#makrukl3cont [data-icon]:before,#makrukl3cont .l3links:hover,#makrukl3cont a:hover {
+    color: #d4aa00;
+}
+#layer2shogicont [data-icon],#shogil3cont [data-icon]:before,#shogil3cont .l3links:hover,#shogil3cont a:hover {
+    color: #c68948;
+}
+#layer2xiangqicont [data-icon],#xiangqil3cont [data-icon]:before,#xiangqil3cont .l3links:hover,#xiangqil3cont a:hover{
+    color: #ff5555;
+}
+
+
+/* Second Column with Image */
+
+[data-icon]:before {
+    font-size: 1.8em;
+    vertical-align: middle;
+    opacity: 0.6;
+    padding-right: 4px;
+}
+
+.layer-3-container .l3img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* border: 1px solid red; */
+    padding: 10px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.layer-3-container .l3img:hover {
+    pointer-events: none; }
+
+.layer-3-container .l3img .generic-shogi {
+    /* border: 1px solid blue; */
+    width: 100%;
+}
+
+.layer-3-container .l3img selection#mainboard {
+    width: 100%;
+}
+
+/* Third Column with Text */
+
+.layer-3-container .l3t .variant-extra-info {
+    /* border: 1px solid red; */
+    padding: 0;
+    margin-bottom: 20px;
+    width: 100%;
+    font-size: 1.2rem;
+}
+
+.layer-3-container .l3t .variant-extra-info:nth-child(3) {
+    
+    font-size: 1rem;
+
+   }
+
+/* Setting max height for all columns  */
+
+
+#chess960l3cont .variant-extra-info, #capablancal3cont .variant-extra-info, #schessl3cont .variant-extra-info {
+    font-size: 0.8rem;
+}
+
+
+@media only screen and (max-width: 1100px) {
+
+
+  .layer-3-container  {
+
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: none;
+
+    }
+
+    .l3v {
+
+    grid-column: 1/2;
+    grid-row: 1/2;
+
+    }
+
+     .l3img {
+
+    grid-column: 2/3;
+    grid-row: 1/2;
+
+    }
+
+    .l3t {
+
+    grid-column: 1/3;
+    grid-row: 2/3;
+
+    }
+
+.layer-3-container .l3v .variant-title-l2 {
+
+   margin-bottom: 15px;
+
+    }
+
+
+.layer-3-container .l3links-cont {
+    
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    max-width: 275px; 
+
+    }
+
+.layer-3-container h5 {
+    
+    font-size: 1.1rem;
+    width: 100%;
+    padding: 10px; 
+    }
+
+.layer-3-container .l3img #mainboard {
+
+    max-width: 250px;
+
+    }
+
+}
+
+
+@media only screen (max-width: 1100px) and (min-width: 799px) {
+
+    .layer-3-container .l3links-cont .l3links {
+
+    font-size: max(1.3rem, 1.7vw);
+    }
+
+}
+
+
+@media only screen and (min-width: 1100px) {
+
+   .layer-3-container .l3t .variant-extra-info:nth-child(3) {
+
+    margin: 0;
+    position: absolute;
+    bottom: 0;
+    padding: 0px 20px 40px;
+}
+
+
+.layer-3-container .l3v .variant-title-l2 {
+    
+    font-size: min(1.4vw, 1.5rem);    
+    
+}
+    
+}
+
+
+
+@media only screen and (max-width: 1100px) and (min-width: 799px) {
+
+  .layer-3-container .l3v .variant-title-l2 {
+    
+    font-size: 1.8vw;    
+    
+}
+
+}
+
+
+
+
+@media only screen (max-width: 799px) {
+
+.layer-3-container .l3links-cont .l3links {
+
+    font-size: max(1.3rem, 2.3vw);
+    justify-content: flex-start;
+    }
+
+}

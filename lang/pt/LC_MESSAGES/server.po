@@ -5,17 +5,17 @@
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2020
-# fjscabral <fjscabral@gmail.com>, 2021
 # Jose Doval Gonzalez <pepellou@gmail.com>, 2021
+# fjscabral <fjscabral@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
+"Last-Translator: fjscabral <fjscabral@gmail.com>, 2021\n"
 "Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -65,12 +65,40 @@ msgstr "Anónimo"
 msgid "All players"
 msgstr "Todos os Jogadores"
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr "Vencedores de torneios"
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr "Escudos"
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partida"
 msgstr[1] "%(count)s partidas"
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr "Observar partidas"
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr "Desafiar para uma partida"
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr "Importar partida"
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr "Exportar partida"
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr "Perfil Lichess"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -97,8 +125,8 @@ msgid "Analysis"
 msgstr "Análise"
 
 #: ../templates/template.html:23
-msgid "Learn"
-msgstr "Aprende"
+msgid "Variants"
+msgstr "Variantes"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"

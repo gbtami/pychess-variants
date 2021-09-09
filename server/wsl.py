@@ -83,8 +83,8 @@ async def lobby_socket_handler(request):
                         variant = data["variant"]
                         engine = users.get("Fairy-Stockfish")
 
-                        if engine is None or not engine.online:
-                            # TODO: message that engine is offline, but capture BOT will play instead
+                        if data["rm"] or (engine is None) or (not engine.online):
+                            # TODO: message that engine is offline, but Random-Mover BOT will play instead
                             engine = users.get("Random-Mover")
 
                         seek = Seek(
@@ -94,8 +94,8 @@ async def lobby_socket_handler(request):
                             base=data["minutes"],
                             inc=data["increment"],
                             byoyomi_period=data["byoyomiPeriod"],
-                            level=data["level"],
-                            rated=data["rated"],
+                            level=0 if data["rm"] else data["level"],
+                            rated=False,
                             chess960=data["chess960"],
                             alternate_start=data["alternateStart"])
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])

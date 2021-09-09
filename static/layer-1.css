@@ -1,0 +1,265 @@
+/* VARIANT INFO PANEL  */
+
+/* Main Container that contains all layers  */
+
+.panel-container {
+    grid-area: vpanel;
+    /* border: 1px solid red; */
+    flex: 1;
+    background-color: var(--bg-color1);
+    display: flex;
+    align-items: center;
+}
+
+/* Container of Layer 1  */
+
+.variants-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding:0px 10px;
+    gap: 10px;
+    /* border: 1px solid yellow; */
+    width: 100%;
+    height: 95%;
+}
+
+/* Styling the individual Buttons in the Container  */
+
+.variant-category, .layer-2-category {
+border: none;
+background-color: var(--vpanel-button) ;
+color: #999;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+transition: 450ms ease-in-out;
+position: relative;
+overflow: hidden;
+text-transform: uppercase;
+max-height: 100%;
+border-radius: 3px;
+box-shadow: var(--box-shadow-panel-btn);
+}
+
+.variant-category {
+    padding-top: 15%;
+    padding-bottom: 15%;
+}
+
+/* Layer 1 Titles  */
+
+.variant-title
+ {
+   /* border: 1px solid red; */
+
+ /* Keeps the titles and icons aligned all the time  */
+ min-height: 40%;
+
+   width: 90%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   margin-bottom: 5px;
+ }
+
+ h3 {
+     /* border: 1px solid yellow; */
+     font-size: 1.3rem;
+     /* height: 100%; aligns text start but too much space  */
+     justify-self: center;
+ }
+
+ /* Contains all 3 pieces to be shown  */
+
+.piece-container {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-evenly;
+    position: relative;
+    /* border: 1px solid blue; */
+
+}
+
+/* Pieces shown in the center*/
+
+.fairy img, .chess img, .army img, .makruk img, .shogi img, .xiangqi img {   
+    width: 3.5rem;
+    height: 3.5rem;
+    /* position: absolute; */
+    filter: saturate(0.05);
+    opacity: 0.3;    
+}
+
+.variant-category img {
+    transition: 250ms ease-in-out;
+}
+
+/* Pieces on the left and right sides  */
+
+.variant-category .sliding-pieces {
+    width: 50px;
+    height: 50px;
+    opacity: 0;
+}
+
+/* Pre-animation state of the pieces */
+
+.variant-category .wR, .wB, .wJ, .wD, .ONG, .OKI, .xC, .jK, .mN, .sQ, .wH, .wE {
+    position: absolute;
+    bottom: 0;
+    transition: 400ms ease-out;
+    /* animation-delay: 350ms; */
+}
+
+.variant-category .wR, .wJ, .ONG, .xC, .mN, .wH {
+    transform: translateX(-450%);
+}
+
+.variant-category .wB, .wD, .OKI, .jK, .sQ, .wE {
+    transform: translateX(450%);
+}
+
+.variant-category .wR, .variant-category .wB {
+    width: 43px;
+    height: 43px; }
+
+
+/* ANIMATIONS */
+
+.variant-category:hover .wR,.variant-category:hover .wJ, 
+.variant-category:hover .ONG, .variant-category:hover .xC, 
+.variant-category:hover .mN, .variant-category:hover .wH
+{
+    transform: translateX(-135%);
+    opacity: 0.4;
+}
+
+.variant-category:hover .wB,.variant-category:hover .wD, 
+.variant-category:hover .OKI, .variant-category:hover .jK, 
+.variant-category:hover .sQ, .variant-category:hover .wE
+{
+    transform: translateX(135%);
+    opacity: 0.4;
+}
+
+/* Xiangqi Side Pieces Size Adjustment */
+
+.variant-category:hover .xC, .variant-category:hover .jK {
+    width: 45px;
+    height: 45px;
+}
+
+.variant-category:hover .sQ {
+        opacity: 0.4;
+}
+
+.variant-category:hover, .layer-2-category:hover {
+    background-color: var(--vpanel-button-hover);
+    color: rgb(160, 160, 160);
+    transform: scale(1.015);
+}
+
+.variant-category:hover .wK,.variant-category:hover .bK, 
+.variant-category:hover .OGY, .variant-category:hover .xK,
+.variant-category:hover .wC
+ {
+    transform: scale(1.15);
+    opacity: 0.4;
+    }
+
+    .variant-category:hover .mK {
+        transform: scale(1.1);
+        opacity: 0.4;
+    }
+
+
+/* TABLET  */
+
+@media only screen and (max-width: 1000px)
+
+{
+        .fairy img, .chess img, .army img, .makruk img, .shogi img, .xiangqi img {
+            display: block;
+        }
+                    
+    .variants-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* MOBILE  */
+
+@media only screen and (max-width: 799px)
+{
+
+.variants-container {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-areas: 
+    'chess fairy army'
+    'makruk shogi xiangqi';
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    
+    height: 100%; 
+}
+
+.chess {
+    grid-area: chess;
+
+}
+
+.fairy {
+    grid-area: fairy;
+}
+
+.army {
+    grid-area: army;
+}
+
+.makruk {
+    grid-area: makruk;
+}
+
+.shogi {
+    grid-area: shogi;
+}
+
+.xiangqi {
+    grid-area: xiangqi;
+}
+
+
+.variant-category {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+
+#variantcont h3 {
+
+    font-size: 1rem;
+    padding-top: 5px;
+}
+
+.fairy img, .chess img, .army img, .makruk img, .shogi img, .xiangqi img {
+    width: 35px;
+    height: 35px;
+ }
+
+
+.variant-category:hover .sliding-pieces {
+    display: none;
+
+    }
+
+}
+
+/* Hiding and Showing Containers - Important */
+
+.app .remove-btn {
+    display: none;
+}
+

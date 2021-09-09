@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Language-Team: Russian (https://www.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -56,6 +56,14 @@ msgstr ""
 msgid "All players"
 msgstr ""
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr ""
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr ""
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
@@ -64,6 +72,26 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 msgstr[3] ""
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr ""
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr ""
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr ""
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr ""
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr ""
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -90,7 +118,7 @@ msgid "Analysis"
 msgstr ""
 
 #: ../templates/template.html:23
-msgid "Learn"
+msgid "Variants"
 msgstr ""
 
 #: ../templates/template.html:29

@@ -52,7 +52,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Dobutsu** - Shogi on a 3x4 board, designed to introduce children to Shogi
 
-**Gorogoro Shogi** Shogi on a 5x6 board
+**Gorogoro Shogi** - Shogi on a 5x6 board
 
 ## Xiangqi variants
 
