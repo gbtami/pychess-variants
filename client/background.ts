@@ -5,10 +5,12 @@ import { _ } from './i18n';
 import { StringSettings } from './settings';
 import { radioList } from './view';
 
-const backgrounds = {
-    light: _("Light"),
-    dark: _("Dark"),
-};
+function backgrounds() {
+    return {
+        light: _("Light"),
+        dark: _("Dark"),
+    }
+}
 
 class BackgroundSettings extends StringSettings {
 
@@ -21,7 +23,7 @@ class BackgroundSettings extends StringSettings {
     }
 
     view(): VNode {
-        return h('div#settings-background', radioList(this, 'background', backgrounds, (_, key) => this.value = key));
+        return h('div#settings-background', radioList(this, 'background', backgrounds(), (_, key) => this.value = key));
     }
 
 }
