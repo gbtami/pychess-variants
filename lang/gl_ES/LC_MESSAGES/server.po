@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
 "Language-Team: Galician (Spain) (https://www.transifex.com/gbtami/teams/14790/gl_ES/)\n"
@@ -62,12 +62,40 @@ msgstr "Anónimo"
 msgid "All players"
 msgstr "Tódolos xogadores"
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr ""
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr ""
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partida"
 msgstr[1] "%(count)s partidas"
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr ""
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr ""
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr ""
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr ""
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr ""
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -94,8 +122,8 @@ msgid "Analysis"
 msgstr "Análise"
 
 #: ../templates/template.html:23
-msgid "Learn"
-msgstr "Aprender"
+msgid "Variants"
+msgstr ""
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"

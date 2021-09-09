@@ -21,7 +21,7 @@ export function layer2shogi (lobbyCtrl: LobbyController, containerId: string): v
     const layer2cont = h('div#layer2shogicont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
             h('div.layer-two-category-info', [
-                h('h4', 'Shogi Variants'),
+                h('h4', _('Shogi Variants')),
                 variantBoard(variant, variant.startFen),
                 h('p.variant-category-description.shogi-desc', _('The Japanese version of chess, which involves drops and promotions.')),
                 h('h5#shogil2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2shogicont') } }, _('Go Back')),

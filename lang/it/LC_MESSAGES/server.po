@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-16 13:23+0200\n"
+"POT-Creation-Date: 2021-09-08 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: renyhp r <renyhp@disroot.org>, 2020\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
@@ -64,12 +64,40 @@ msgstr "Anonimo"
 msgid "All players"
 msgstr "Tutti i giocatori"
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr ""
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr ""
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partita"
 msgstr[1] "%(count)s partite"
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr ""
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr ""
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr ""
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr ""
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr ""
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -96,8 +124,8 @@ msgid "Analysis"
 msgstr "Analisi"
 
 #: ../templates/template.html:23
-msgid "Learn"
-msgstr "Impara"
+msgid "Variants"
+msgstr ""
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"

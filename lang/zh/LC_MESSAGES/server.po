@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 21:26+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -29,7 +29,7 @@ msgstr "404 未查到棋局"
 
 #: ../templates/404.html:21
 msgid "Sorry, not all games are saved on the Pychess server."
-msgstr ""
+msgstr "抱歉，但并非所有棋局在Pychess服务器里保存。"
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
@@ -63,11 +63,39 @@ msgstr "匿名"
 msgid "All players"
 msgstr "棋手一览"
 
+#: ../templates/players.html:36
+msgid "Tournament winners"
+msgstr "锦标赛冠军"
+
+#: ../templates/players.html:37
+msgid "Shields"
+msgstr "盾牌赛持有者"
+
 #: ../templates/profile.html:13
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s 对局"
+
+#: ../templates/profile.html:40
+msgid "Watch games"
+msgstr "观看棋局"
+
+#: ../templates/profile.html:42
+msgid "Challenge to a game"
+msgstr "挑战"
+
+#: ../templates/profile.html:45
+msgid "Import game"
+msgstr "导入棋局"
+
+#: ../templates/profile.html:48
+msgid "Export games"
+msgstr "导出棋局"
+
+#: ../templates/profile.html:51
+msgid "Lichess profile"
+msgstr "Lichess个人资料"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -94,8 +122,8 @@ msgid "Analysis"
 msgstr "分析面板"
 
 #: ../templates/template.html:23
-msgid "Learn"
-msgstr "棋类介绍"
+msgid "Variants"
+msgstr "棋类"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"
@@ -111,12 +139,12 @@ msgstr "创建锦标赛"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr ""
+msgstr "正在进行"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr ""
+msgstr "即将开始"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr ""
+msgstr "已完毕"
