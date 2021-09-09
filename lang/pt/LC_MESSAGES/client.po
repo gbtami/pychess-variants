@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: fjscabral <fjscabral@gmail.com>, 2021\n"
 "Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
@@ -502,6 +502,7 @@ msgid "Fairy piece variants"
 msgstr "Variantes com peças não ortodoxas"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
+#: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr "Variantes com Novos Exércitos"
 
@@ -1119,7 +1120,7 @@ msgstr "Ativado"
 msgid "ZEN MODE"
 msgstr "MODO ZEN"
 
-#: ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr "Variantes de Xadrez"
 
@@ -1127,15 +1128,15 @@ msgstr "Variantes de Xadrez"
 msgid "Fairy Piece Variants"
 msgstr "Variantes com peças não ortodoxas"
 
-#: ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr "Variantes de Makruk"
 
-#: ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr "Variantes de Shogi"
 
-#: ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr "Variantes de Xiangqi"
 
@@ -1178,6 +1179,10 @@ msgstr "Dinastia: Exército baseado em Xiangqi"
 msgid "Variants using a basic chess set but with different rules."
 msgstr "Variantes que usam o xadrez tradicional mas com regras diferentes"
 
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy piece Variants"
+msgstr "Variantes com peças não ortodoxas"
+
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
@@ -1185,6 +1190,14 @@ msgid ""
 msgstr ""
 "Estas variantes têm novas peças! Em sua maioria são feitas em tabuleiros "
 "grandes e alguns com outras regras."
+
+#: ../client/lobby/layer2fairy.ts:29
+msgid " = Random (960) variant available. "
+msgstr "= Variante Aleatória (960) disponível"
+
+#: ../client/lobby/layer2fairy.ts:32
+msgid " = Drop variant available."
+msgstr "= Variante de colocação disponível"
 
 #: ../client/lobby/layer2fairy.ts:47
 msgid "Knight hybrid pieces"
@@ -1286,6 +1299,10 @@ msgstr "Desafie um amigo"
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
 msgstr "Regras"
+
+#: ../client/lobby/layer3.ts:61
+msgid "Tip: "
+msgstr "Sugestão:"
 
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."

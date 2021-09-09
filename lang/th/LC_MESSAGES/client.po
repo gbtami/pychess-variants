@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2021\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -467,6 +467,7 @@ msgid "Fairy piece variants"
 msgstr "เกมที่ใช้ตัวหมากพิเศษ"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
+#: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr ""
 
@@ -1066,7 +1067,7 @@ msgstr "เปิด"
 msgid "ZEN MODE"
 msgstr "โหมดสมาธิ"
 
-#: ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr ""
 
@@ -1074,15 +1075,15 @@ msgstr ""
 msgid "Fairy Piece Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr ""
 
@@ -1123,10 +1124,22 @@ msgstr ""
 msgid "Variants using a basic chess set but with different rules."
 msgstr ""
 
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy piece Variants"
+msgstr ""
+
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:29
+msgid " = Random (960) variant available. "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:32
+msgid " = Drop variant available."
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:47
@@ -1227,6 +1240,10 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
+msgstr ""
+
+#: ../client/lobby/layer3.ts:61
+msgid "Tip: "
 msgstr ""
 
 #: ../client/lobby/layer3.ts:72

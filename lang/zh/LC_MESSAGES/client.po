@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -436,6 +436,7 @@ msgid "Fairy piece variants"
 msgstr "国际象棋变体（运用变种棋子）"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
+#: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr "新棋阵变体"
 
@@ -571,7 +572,7 @@ msgstr "参入棋局"
 
 #: ../client/invite.ts:61
 msgid "To invite someone to play, give this URL:"
-msgstr ""
+msgstr "邀人下棋，请分享这个网址："
 
 #: ../client/invite.ts:66 ../client/invite.ts:68
 msgid "Copy URL"
@@ -627,11 +628,11 @@ msgstr "和朋友下棋"
 
 #: ../client/lobby.ts:402 ../client/lobby/layer3.ts:50
 msgid "Play with AI"
-msgstr ""
+msgstr "和电脑下棋"
 
 #: ../client/lobby.ts:403 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
-msgstr ""
+msgstr "和随机走子电脑下棋"
 
 #: ../client/lobby.ts:477
 msgid "Byoyomi in seconds:"
@@ -733,7 +734,7 @@ msgstr "金"
 
 #: ../client/profile.ts:36
 msgid "Pink"
-msgstr ""
+msgstr "粉红"
 
 #: ../client/profile.ts:50
 msgid "IMPORT"
@@ -877,7 +878,7 @@ msgstr "确定"
 
 #: ../client/roundCtrl.ts:554
 msgid "VIEW REMATCH"
-msgstr ""
+msgstr "观看重赛"
 
 #: ../client/roundCtrl.ts:599
 msgid "VIEW TOURNAMENT"
@@ -973,11 +974,11 @@ msgstr "锦标赛结束"
 
 #: ../client/tournament.ts:206
 msgid "Players"
-msgstr ""
+msgstr "棋手"
 
 #: ../client/tournament.ts:207
 msgid "Average rating"
-msgstr ""
+msgstr "平均积分"
 
 #: ../client/tournament.ts:208 ../client/tournament.ts:388
 #: ../client/tournament.ts:440 ../client/tournament.ts:451
@@ -987,19 +988,19 @@ msgstr "棋局"
 
 #: ../client/tournament.ts:209
 msgid "White wins"
-msgstr ""
+msgstr "白胜"
 
 #: ../client/tournament.ts:210
 msgid "Black wins"
-msgstr ""
+msgstr "黑胜"
 
 #: ../client/tournament.ts:211
 msgid "Draws"
-msgstr ""
+msgstr "和棋"
 
 #: ../client/tournament.ts:221
 msgid "Download all games"
-msgstr ""
+msgstr "下载所有棋局"
 
 #: ../client/tournament.ts:387 ../client/tournament.ts:439
 #: ../client/tournament.ts:450 ../client/tournament.ts:461
@@ -1035,7 +1036,7 @@ msgstr "开启"
 msgid "ZEN MODE"
 msgstr "禅意模式"
 
-#: ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr "国际象棋与变体"
 
@@ -1043,15 +1044,15 @@ msgstr "国际象棋与变体"
 msgid "Fairy Piece Variants"
 msgstr "新棋子变体"
 
-#: ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr "泰国象棋与变体"
 
-#: ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr "日本将棋与变体"
 
-#: ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr "中国象棋与变体"
 
@@ -1059,14 +1060,14 @@ msgstr "中国象棋与变体"
 msgid ""
 "These variants have new armies with completely new pieces! Most of these "
 "variants pit these armies against the standard Chess army."
-msgstr ""
+msgstr "这些变体包含由崭新的棋子构造而成的新棋阵！其中大半的变体是新棋阵对付正常的国际象棋棋阵。"
 
 #: ../client/lobby/layer2army.ts:27 ../client/lobby/layer2chess.ts:29
 #: ../client/lobby/layer2fairy.ts:34 ../client/lobby/layer2makruk.ts:27
 #: ../client/lobby/layer2shogi.ts:27 ../client/lobby/layer2xiangqi.ts:27
 #: ../client/lobby/layer3.ts:53
 msgid "Go Back"
-msgstr ""
+msgstr "返回"
 
 #: ../client/lobby/layer2army.ts:35
 msgid "Horde: Horse-based army"
@@ -1090,12 +1091,24 @@ msgstr ""
 
 #: ../client/lobby/layer2chess.ts:28
 msgid "Variants using a basic chess set but with different rules."
+msgstr "使用正常国际象棋棋盘与棋子，但包含不同的变体棋规。"
+
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy piece Variants"
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
+msgstr "试试这些变体包括的新棋子！其中几些也使用大型棋盘或新棋规。"
+
+#: ../client/lobby/layer2fairy.ts:29
+msgid " = Random (960) variant available. "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:32
+msgid " = Drop variant available."
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:47
@@ -1124,78 +1137,82 @@ msgstr ""
 
 #: ../client/lobby/layer2makruk.ts:26
 msgid "Southeast Asian variants, closely related to Western Chess."
-msgstr ""
+msgstr "东南亚棋类，与国际象棋相联。"
 
 #: ../client/lobby/layer2makruk.ts:35
 msgid "Thai Chess. Similar to Chess but with a different queen and bishop."
-msgstr ""
+msgstr "泰国象棋。与国际象棋相近，但皇后和象的走法不同。"
 
 #: ../client/lobby/layer2makruk.ts:42
 msgid "Makruk variant. Kings cannot move when checked."
-msgstr ""
+msgstr "泰国象棋变体。王被将时不能动。"
 
 #: ../client/lobby/layer2makruk.ts:49
 msgid "Cambodian Chess. Makruk with extra starting moves."
-msgstr ""
+msgstr "柬埔寨象棋，又称高棉象棋。相近泰国象棋但王和士走初步时可选特别走法。"
 
 #: ../client/lobby/layer2makruk.ts:56
 msgid "Burmese Chess. You may place your starting pieces."
-msgstr ""
+msgstr "缅甸象棋。任意摆出自己大子的起始棋形。"
 
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
-msgstr ""
+msgstr "日本将棋。其特征为被吃的子可打入回棋盘，各种棋子也能升变。"
 
 #: ../client/lobby/layer2shogi.ts:35
 msgid "Original Shogi"
-msgstr ""
+msgstr "正统将棋"
 
 #: ../client/lobby/layer2shogi.ts:42
 msgid "5x5 Shogi"
-msgstr ""
+msgstr "5x5棋盘的迷你将棋"
 
 #: ../client/lobby/layer2shogi.ts:49
 msgid "5x5, pieces flip each turn"
-msgstr ""
+msgstr "5x5将盘，棋子走步后便翻面"
 
 #: ../client/lobby/layer2shogi.ts:56
 msgid "3x4 game to teach Shogi"
-msgstr ""
+msgstr "3x4棋盘的指导用将棋"
 
 #: ../client/lobby/layer2shogi.ts:63
 msgid "5x6 with Generals"
-msgstr ""
+msgstr "五六将棋"
 
 #: ../client/lobby/layer2shogi.ts:70
 msgid "7x7, Bird Shogi"
-msgstr ""
+msgstr "7x7棋盘的禽将棋"
 
 #: ../client/lobby/layer2xiangqi.ts:26
 msgid "The ancient game of Chinese Chess and its variants."
-msgstr ""
+msgstr "中国象棋与其变体。"
 
 #: ../client/lobby/layer2xiangqi.ts:35
 msgid "Chinese Chess, one of the most played games in the world"
-msgstr ""
+msgstr "正统中国象棋，世界中最广泛的象棋类游戏之一"
 
 #: ../client/lobby/layer2xiangqi.ts:42
 msgid "Korean Chess, based on Xiangqi but very different"
-msgstr ""
+msgstr "韩国象棋，类似中国象棋却大致不同"
 
 #: ../client/lobby/layer2xiangqi.ts:49
 msgid "Compact Xiangqi on a 7x7 board"
-msgstr ""
+msgstr "7x7棋盘上的迷你中国象棋"
 
 #: ../client/lobby/layer2xiangqi.ts:56
 msgid "Asymmetric variant with one side having a super piece"
-msgstr ""
+msgstr "一方有一粒伟强棋子的不对称中国象棋变体"
 
 #: ../client/lobby/layer3.ts:49
 msgid "Challenge a friend"
-msgstr ""
+msgstr "和朋友下棋"
 
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
+msgstr "游戏规则"
+
+#: ../client/lobby/layer3.ts:61
+msgid "Tip: "
 msgstr ""
 
 #: ../client/lobby/layer3.ts:72
@@ -1216,7 +1233,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:91
 msgid "You can play more at www.lichess.org."
-msgstr ""
+msgstr "在 www.lichess.org 可以再下更多。"
 
 #: ../client/lobby/layer3.ts:94
 msgid ""

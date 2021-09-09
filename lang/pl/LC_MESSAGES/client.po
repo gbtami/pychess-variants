@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -274,7 +274,7 @@ msgstr "Serwer"
 
 #: ../client/chess.ts:215
 msgid "Chess, unmodified, as it's played by FIDE standards."
-msgstr ""
+msgstr "Szachy bez modyfikacji, według zasad FIDE."
 
 #: ../client/chess.ts:232
 msgid "Take captured pieces and drop them back on to the board as your own."
@@ -286,7 +286,7 @@ msgstr ""
 
 #: ../client/chess.ts:260
 msgid "Pieces explode upon capture."
-msgstr ""
+msgstr "Figury wybuchają podczas bicia."
 
 #: ../client/chess.ts:270
 msgid ""
@@ -297,6 +297,7 @@ msgstr ""
 #: ../client/chess.ts:279
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr ""
+"Odmiana Makruka, w której króle nie mogą się ruszyć odchodząc spod szacha."
 
 #: ../client/chess.ts:288
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
@@ -324,6 +325,8 @@ msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
+"Szalona odmiana Shogi na planszy 5x5, w której figury przemieniają się po "
+"każdym ruchu."
 
 #: ../client/chess.ts:366
 msgid ""
@@ -345,6 +348,8 @@ msgstr ""
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr ""
+"Szachy chińskie, jedna z najstarszych i najbardziej granych gier planszowych"
+" na świecie."
 
 #: ../client/chess.ts:425
 msgid ""
@@ -380,7 +385,7 @@ msgstr ""
 
 #: ../client/chess.ts:500
 msgid "S-Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "S-chess z zasadami dostawiania jak w Crazyhouse'ie."
 
 #: ../client/chess.ts:510
 msgid ""
@@ -390,7 +395,7 @@ msgstr ""
 
 #: ../client/chess.ts:520
 msgid "Grand Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "Grand z zasadami dostawiania jak w Crazyhouse'ie."
 
 #: ../client/chess.ts:531
 msgid ""
@@ -467,6 +472,7 @@ msgid "Fairy piece variants"
 msgstr "Warianty używające niestandardowych figur"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
+#: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr ""
 
@@ -700,11 +706,11 @@ msgstr "Zagraj ze znajomym"
 
 #: ../client/lobby.ts:402 ../client/lobby/layer3.ts:50
 msgid "Play with AI"
-msgstr ""
+msgstr "Zagraj z komputerem"
 
 #: ../client/lobby.ts:403 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
-msgstr ""
+msgstr "Poćwicz z Random-Moverem"
 
 #: ../client/lobby.ts:477
 msgid "Byoyomi in seconds:"
@@ -1055,7 +1061,7 @@ msgstr "Turniej zakończony"
 
 #: ../client/tournament.ts:206
 msgid "Players"
-msgstr ""
+msgstr "Graczy"
 
 #: ../client/tournament.ts:207
 msgid "Average rating"
@@ -1069,19 +1075,19 @@ msgstr "Partii rozegranych"
 
 #: ../client/tournament.ts:209
 msgid "White wins"
-msgstr ""
+msgstr "Wygrane białych"
 
 #: ../client/tournament.ts:210
 msgid "Black wins"
-msgstr ""
+msgstr "Wygrane czarnych"
 
 #: ../client/tournament.ts:211
 msgid "Draws"
-msgstr ""
+msgstr "Remisy"
 
 #: ../client/tournament.ts:221
 msgid "Download all games"
-msgstr ""
+msgstr "Pobierz wszystkie partie"
 
 #: ../client/tournament.ts:387 ../client/tournament.ts:439
 #: ../client/tournament.ts:450 ../client/tournament.ts:461
@@ -1117,25 +1123,25 @@ msgstr "Włączony"
 msgid "ZEN MODE"
 msgstr "TRYB ZEN"
 
-#: ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr ""
 
 #: ../client/lobby/layer1.ts:73
 msgid "Fairy Piece Variants"
-msgstr ""
+msgstr "Odmiany z niestandardowymi figurami"
 
-#: ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
-msgstr ""
+msgstr "Odmiany Shogi"
 
-#: ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
-msgstr ""
+msgstr "Odmiany Xiangqi"
 
 #: ../client/lobby/layer2army.ts:26
 msgid ""
@@ -1174,10 +1180,22 @@ msgstr ""
 msgid "Variants using a basic chess set but with different rules."
 msgstr "Warianty używające standardowych figur, ale z innymi zasadami"
 
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy piece Variants"
+msgstr ""
+
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:29
+msgid " = Random (960) variant available. "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:32
+msgid " = Drop variant available."
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:47
@@ -1194,7 +1212,7 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:75
 msgid "10x10 with new pieces"
-msgstr ""
+msgstr "10x10 z nowymi figurami"
 
 #: ../client/lobby/layer2fairy.ts:82
 msgid "Crazyhouse with promotions"
@@ -1211,6 +1229,7 @@ msgstr ""
 #: ../client/lobby/layer2makruk.ts:35
 msgid "Thai Chess. Similar to Chess but with a different queen and bishop."
 msgstr ""
+"Szachy tajskie. Podobne do zwykłych, ale z innymi hetmanami i gońcami."
 
 #: ../client/lobby/layer2makruk.ts:42
 msgid "Makruk variant. Kings cannot move when checked."
@@ -1222,7 +1241,7 @@ msgstr ""
 
 #: ../client/lobby/layer2makruk.ts:56
 msgid "Burmese Chess. You may place your starting pieces."
-msgstr ""
+msgstr "Szachy birmańskie. Możesz wybrać pozycje początkowe swoich figur."
 
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
@@ -1230,15 +1249,15 @@ msgstr ""
 
 #: ../client/lobby/layer2shogi.ts:35
 msgid "Original Shogi"
-msgstr ""
+msgstr "Standardowe Shogi"
 
 #: ../client/lobby/layer2shogi.ts:42
 msgid "5x5 Shogi"
-msgstr ""
+msgstr "Shogi 5x5"
 
 #: ../client/lobby/layer2shogi.ts:49
 msgid "5x5, pieces flip each turn"
-msgstr ""
+msgstr "Shogi 5x5, figury przemieniają się po każdym ruchu"
 
 #: ../client/lobby/layer2shogi.ts:56
 msgid "3x4 game to teach Shogi"
@@ -1278,7 +1297,11 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
-msgstr ""
+msgstr "Zasady"
+
+#: ../client/lobby/layer3.ts:61
+msgid "Tip: "
+msgstr "Wskazówka"
 
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."
