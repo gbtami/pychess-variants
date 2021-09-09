@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 12:57+0200\n"
+"POT-Creation-Date: 2021-09-09 15:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
@@ -1136,7 +1136,7 @@ msgstr "ZEN MODUS"
 msgid "Chess Variants"
 msgstr "Schach Varianten"
 
-#: ../client/lobby/layer1.ts:73
+#: ../client/lobby/layer1.ts:73 ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
 msgstr "Fairy Figuren Varianten"
 
@@ -1193,10 +1193,6 @@ msgid "Variants using a basic chess set but with different rules."
 msgstr ""
 "Varianten die normale Schachfiguren benützen, aber mit unterschiedlichen "
 "Regeln."
-
-#: ../client/lobby/layer2fairy.ts:24
-msgid "Fairy piece Variants"
-msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
