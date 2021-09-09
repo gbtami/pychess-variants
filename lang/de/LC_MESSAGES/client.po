@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
@@ -443,7 +443,7 @@ msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr ""
-"Asymmetrische Variante wo eine Seite Figuren hat die sich wie Springer "
+"Asymmetrische Variante wo eine Seite Figuren hat, die sich wie Springer "
 "bewegen, aber anders schlagen."
 
 #: ../client/chess.ts:564
@@ -463,7 +463,7 @@ msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr ""
-"Asymmetrische Variante wo sich eine Schach Armee einer Armee mit Einsetzen "
+"Asymmetrische Variante wo sich eine Schach Armee, einer Armee mit Einsetzen "
 "im Stil von Shogi stellt."
 
 #: ../client/chess.ts:599
@@ -471,8 +471,8 @@ msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
-"Asymmetrische Variante wo eine Seite Figuren hat die sich wie Damen bewegen,"
-" aber ansonsten normal schlagen."
+"Asymmetrische Variante wo eine Seite Figuren hat, die sich wie Damen "
+"bewegen, aber ansonsten normal schlagen."
 
 #: ../client/chess.ts:610
 msgid ""
@@ -502,17 +502,18 @@ msgstr "Südostasiatische Varianten"
 
 #: ../client/chess.ts:670
 msgid "Shogi variants"
-msgstr "Shogi Variante"
+msgstr "Shogi Varianten"
 
 #: ../client/chess.ts:671
 msgid "Xiangqi variants"
-msgstr " Xiangqi Variante"
+msgstr " Xiangqi Varianten"
 
 #: ../client/chess.ts:672
 msgid "Fairy piece variants"
 msgstr "Fairy Figuren Varianten"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
+#: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr "Varianten mit neuer Armee"
 
@@ -1131,7 +1132,7 @@ msgstr "An"
 msgid "ZEN MODE"
 msgstr "ZEN MODUS"
 
-#: ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr "Schach Varianten"
 
@@ -1139,15 +1140,15 @@ msgstr "Schach Varianten"
 msgid "Fairy Piece Variants"
 msgstr "Fairy Figuren Varianten"
 
-#: ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr "Makruk Varianten"
 
-#: ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr "Shogi Varianten"
 
-#: ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr "Xiangqi Varianten"
 
@@ -1193,6 +1194,10 @@ msgstr ""
 "Varianten die normale Schachfiguren benützen, aber mit unterschiedlichen "
 "Regeln."
 
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy piece Variants"
+msgstr ""
+
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
@@ -1200,6 +1205,14 @@ msgid ""
 msgstr ""
 "Diese Varianten haben neue Figuren! Viele haben größere Bretter, einige auch"
 " andere Regeln."
+
+#: ../client/lobby/layer2fairy.ts:29
+msgid " = Random (960) variant available. "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:32
+msgid " = Drop variant available."
+msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:47
 msgid "Knight hybrid pieces"
@@ -1303,6 +1316,10 @@ msgstr "Einen Freund herausfordern"
 msgid "Rules"
 msgstr "Regeln"
 
+#: ../client/lobby/layer3.ts:61
+msgid "Tip: "
+msgstr ""
+
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."
 msgstr ""
@@ -1362,8 +1379,8 @@ msgstr ""
 #: ../client/lobby/layer3.ts:107
 msgid "Other piece sets are available, which may help avoid confusion."
 msgstr ""
-"Andere Figurensets sind verfügbar, welche eventuell leichter zu erkennen "
-"sind."
+"Andere Figurensets sind verfügbar, welche eventuell helfen, Verwirrung zu "
+"vermeiden."
 
 #: ../client/lobby/layer3.ts:114
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."

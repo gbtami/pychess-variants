@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Japanese (https://www.transifex.com/gbtami/teams/14790/ja/)\n"
@@ -63,11 +63,11 @@ msgstr "プレイヤーの一覧"
 
 #: ../templates/players.html:36
 msgid "Tournament winners"
-msgstr ""
+msgstr "トーナメント優勝者"
 
 #: ../templates/players.html:37
 msgid "Shields"
-msgstr ""
+msgstr "シールド戦優勝者"
 
 #: ../templates/profile.html:13
 #, python-format
@@ -77,23 +77,23 @@ msgstr[0] "%(count)s 局対局"
 
 #: ../templates/profile.html:40
 msgid "Watch games"
-msgstr ""
+msgstr "観戦する"
 
 #: ../templates/profile.html:42
 msgid "Challenge to a game"
-msgstr ""
+msgstr "対戦を申し込む"
 
 #: ../templates/profile.html:45
 msgid "Import game"
-msgstr ""
+msgstr "対局を導入する"
 
 #: ../templates/profile.html:48
 msgid "Export games"
-msgstr ""
+msgstr "対局を導出する"
 
 #: ../templates/profile.html:51
 msgid "Lichess profile"
-msgstr ""
+msgstr "Lichess プロフィール"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -105,7 +105,7 @@ msgstr "現在対局中"
 
 #: ../templates/template.html:19 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "トーナメント"
 
 #: ../templates/template.html:20
 msgid "Players"
@@ -121,7 +121,7 @@ msgstr "棋譜解析"
 
 #: ../templates/template.html:23
 msgid "Variants"
-msgstr ""
+msgstr "将棋類"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"
@@ -137,12 +137,12 @@ msgstr "新しいトーナメントを作る"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr ""
+msgstr "進行中"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr ""
+msgstr "まだ始まっていない"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr ""
+msgstr "終了した"

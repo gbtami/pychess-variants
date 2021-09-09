@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 15:21+0200\n"
+"POT-Creation-Date: 2021-09-09 12:57+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
@@ -278,14 +278,18 @@ msgstr "Serveur"
 #: ../client/chess.ts:215
 msgid "Chess, unmodified, as it's played by FIDE standards."
 msgstr ""
+"Les échecs, sans modification, tels qu'ils sont joués sous les règles de la "
+"FIDÉ."
 
 #: ../client/chess.ts:232
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr ""
+"Prendre les pièces adversaires qui changent alors de camp, puis les "
+"parachuter sur l'échiquier."
 
 #: ../client/chess.ts:250
 msgid "Choose where your pieces start."
-msgstr ""
+msgstr "Choisir où vos pièces commencent la partie."
 
 #: ../client/chess.ts:260
 msgid "Pieces explode upon capture."
@@ -369,55 +373,70 @@ msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr ""
+"Jouez avec des pièce hybrides, la princesse (fou + cavalier) et "
+"l'impératrice (tour + cavalier), sur un échiquier 10x8."
 
 #: ../client/chess.ts:473
 msgid "Capablanca with Crazyhouse drop rules."
-msgstr ""
+msgstr "Les échecs Capablanca avec la règle de parachutage de Crazyhouse."
 
 #: ../client/chess.ts:490
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
 msgstr ""
+"Des pièces hybrides, le faucon (fou + cavalier) et l'éléphant (tour + "
+"cavalier) peuvent entrer en jeu lorsqu'une pièce de la première rangée se "
+"déplace."
 
 #: ../client/chess.ts:500
 msgid "S-Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "Le S-Chess avec la règle de parachutage de Crazyhouse."
 
 #: ../client/chess.ts:510
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr ""
+"Jouez avec des pièce hybrides, la princesse (fou + cavalier) et "
+"l'impératrice (tour + cavalier), sur un *grand* échiquier 10x10"
 
 #: ../client/chess.ts:520
 msgid "Grand Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "Le \"Grand Chess\" avec la règle de parachutage de Crazyhouse."
 
 #: ../client/chess.ts:531
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr ""
+"Deux pièces du Xiangqi, le canon et l'éléphant, sont introduites sur un "
+"échiquier 10x10."
 
 #: ../client/chess.ts:540
 msgid "Pieces promote and can be dropped, similar to Shogi."
-msgstr ""
+msgstr "Les pièces se promeuvent et peuvent être parachutées, comme au Shogi."
 
 #: ../client/chess.ts:553
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr ""
+"Une variante asymétrique où un camp dirige des pièces qui se déplacent comme"
+" des cavaliers mais capturent différemment."
 
 #: ../client/chess.ts:564
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
+"Une variante asymétrique, l'Est contre l'Ouest, où l'armée des échecs "
+"occidentaux se bat contre une armée dérivée du Xiangqi et du Janggi."
 
 #: ../client/chess.ts:576
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr ""
+"Les cavaliers capturent comme des fous, et les fous capturent comme des "
+"cavaliers."
 
 #: ../client/chess.ts:585
 msgid ""
@@ -430,6 +449,8 @@ msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
+"Une variante asymétrique où un camp dirige des pièces qui se déplacent comme"
+" des dames mais capturent normalement."
 
 #: ../client/chess.ts:610
 msgid ""
@@ -439,14 +460,16 @@ msgstr ""
 #: ../client/chess.ts:623
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr ""
+"Comme les échecs Capablanca mais avec la position de départ du Grand Chess."
 
 #: ../client/chess.ts:633
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr ""
+"Comme les échecs Capablanca mais avec une position de départ différente."
 
 #: ../client/chess.ts:643
 msgid "Gothic with Crazyhouse drop rules."
-msgstr ""
+msgstr "Les échecs Gothiques avec la règle de parachutage de Crazyhouse."
 
 #: ../client/chess.ts:668
 msgid "Standard piece variants"
@@ -469,6 +492,7 @@ msgid "Fairy piece variants"
 msgstr "Variantes avec des pièces féeriques"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
+#: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr ""
 
@@ -674,11 +698,11 @@ msgstr "Jouer contre un ami"
 
 #: ../client/lobby.ts:402 ../client/lobby/layer3.ts:50
 msgid "Play with AI"
-msgstr ""
+msgstr "Jouer contre IA"
 
 #: ../client/lobby.ts:403 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
-msgstr ""
+msgstr "Jouer contre Random-Mover"
 
 #: ../client/lobby.ts:477
 msgid "Byoyomi in seconds:"
@@ -929,7 +953,7 @@ msgstr "Prêt"
 
 #: ../client/roundCtrl.ts:554
 msgid "VIEW REMATCH"
-msgstr ""
+msgstr "VOIR LA REVANCHE"
 
 #: ../client/roundCtrl.ts:599
 msgid "VIEW TOURNAMENT"
@@ -1025,11 +1049,11 @@ msgstr "Tournoi complet"
 
 #: ../client/tournament.ts:206
 msgid "Players"
-msgstr ""
+msgstr "Joueurs"
 
 #: ../client/tournament.ts:207
 msgid "Average rating"
-msgstr ""
+msgstr "Classement moyen"
 
 #: ../client/tournament.ts:208 ../client/tournament.ts:388
 #: ../client/tournament.ts:440 ../client/tournament.ts:451
@@ -1039,19 +1063,19 @@ msgstr "Parties jouées"
 
 #: ../client/tournament.ts:209
 msgid "White wins"
-msgstr ""
+msgstr "Victoire des blancs"
 
 #: ../client/tournament.ts:210
 msgid "Black wins"
-msgstr ""
+msgstr "Victoire des noirs"
 
 #: ../client/tournament.ts:211
 msgid "Draws"
-msgstr ""
+msgstr "Nulles"
 
 #: ../client/tournament.ts:221
 msgid "Download all games"
-msgstr ""
+msgstr "Télécharger toutes les parties"
 
 #: ../client/tournament.ts:387 ../client/tournament.ts:439
 #: ../client/tournament.ts:450 ../client/tournament.ts:461
@@ -1087,7 +1111,7 @@ msgstr "Activer"
 msgid "ZEN MODE"
 msgstr "MODE ZEN"
 
-#: ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr ""
 
@@ -1095,15 +1119,15 @@ msgstr ""
 msgid "Fairy Piece Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr ""
 
-#: ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr ""
 
@@ -1144,10 +1168,22 @@ msgstr ""
 msgid "Variants using a basic chess set but with different rules."
 msgstr ""
 
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy piece Variants"
+msgstr ""
+
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:29
+msgid " = Random (960) variant available. "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:32
+msgid " = Drop variant available."
 msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:47
@@ -1248,6 +1284,10 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
+msgstr ""
+
+#: ../client/lobby/layer3.ts:61
+msgid "Tip: "
 msgstr ""
 
 #: ../client/lobby/layer3.ts:72
