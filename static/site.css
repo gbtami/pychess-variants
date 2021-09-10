@@ -1598,6 +1598,7 @@ li.message.server {
 #chat-entry {
     display: flex;
     order: 2;
+    border: none; 
     border-top: 1px solid #404040;
     margin: 0;
     padding: 5px 20px 4px 4px;
