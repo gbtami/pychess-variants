@@ -61,6 +61,11 @@ export function chatMessage (user, message, chatType) {
         patch(container, h('div#messages', [ h("li.message.offer", [h("t", message)]) ]));
     } else if (user === '_server') {
         patch(container, h('div#messages', [ h("li.message.server", [h("user", _('Server')), h("t", message)]) ]));
+    } else if (user === 'Discord-Relay') {
+        const colonIndex = message.indexOf(':'); // Discord doesn't allow colons in usernames so the first colon signifies the start of the message
+        const discordUser = message.substring(0, colonIndex);
+        const discordMessage = message.substring(colonIndex + 2);
+        patch(container, h('div#messages', [ h("li.message", [h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } })), h("user", discordUser), h("t", discordMessage)]) ]));
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
