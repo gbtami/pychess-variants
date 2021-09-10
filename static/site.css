@@ -65,6 +65,8 @@
     --vpanel-button: #fbfbfb;
     --vpanel-button-hover: #fdfdfd;
     --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
+    --chat-entry-border-top: #d9d9d9;
+    --chat-entry-bg: #fafaf9; 
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -116,6 +118,8 @@
     --vpanel-button-hover: #464440;
     --panel-link-hover: rgb(179, 179, 179);
     --box-shadow-panel-btn: none;
+    --chat-entry-border-top: #404040;
+    --chat-entry-bg: #262421; 
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
@@ -1599,12 +1603,12 @@ li.message.server {
     display: flex;
     order: 2;
     border: none; 
-    border-top: 1px solid #404040;
+    border-top: 1px solid var(--chat-entry-border-top);
     margin: 0;
     padding: 5px 20px 4px 4px;
     margin-top: auto;
     color: var(--font-color);
-    background: var(--bg-color0);
+    background: var(--chat-entry-bg);
     font-size: 13.6894; 
     letter-spacing: 0.035em;
     font-weight: 300;
