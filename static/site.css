@@ -351,6 +351,7 @@ iframe {
     flex-flow: column nowrap;
     justify-content: right;
     overflow: hidden;
+    box-shadow: var(--base-shadow);
 }
 .sidebar-second{
     grid-area: table;
@@ -1525,7 +1526,6 @@ label {
     flex-direction: column;
     justify-content: center;
     background: var(--bg-color0);
-    box-shadow: var(--base-shadow);
     min-height: 15em;
     border-radius: 3px;
 }
