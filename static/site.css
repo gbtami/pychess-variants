@@ -1526,12 +1526,19 @@ label {
     border-radius: 3px;
 }
 
-.chat .icon {
-    padding-right: 2px;
+.chat .discord-icon-container {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 3px;
+    width: 0.9em;
+    height: 0.6em;
+    background: white;
+    background-position: center;
 }
-.chat .icon::before {
-    vertical-align: top;
+.chat .discord-icon {
+    fill: #5865F2;
 }
+
 user {
     padding-right: 6px;
     font-weight: bold;
