@@ -1534,10 +1534,11 @@ label {
     display: inline-flex;
     align-items: center;
     margin-right: 3px;
-    width: 0.9em;
-    height: 0.6em;
+    width: 0.8em;
+    height: 0.55em;
     background: white;
     background-position: center;
+    transform: translateY(2px);
 }
 .chat .discord-icon {
     fill: #5865F2;
