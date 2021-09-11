@@ -1,5 +1,18 @@
-import {Color, Role} from "chessgroundx/types";
-import {VNode} from "snabbdom/vnode";
+import * as cg from "chessgroundx/types";
+import { VNode } from "snabbdom/vnode";
+
+export function download(filename: string, text: string) {
+  const element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
 
 export function getDocumentData(name: string) {
     const elm = document.getElementById('pychess-variants');
@@ -10,7 +23,7 @@ export function getDocumentData(name: string) {
     }
 }
 
-export function getPieceImageUrl (role: Role, color: Color, side: string): string {
+export function getPieceImageUrl (role: cg.Role, color: cg.Color, side: string): string {
     // Analysis drop move suggestion rendering needs piece images urls in chessground
     // We can use current variant .css to find appropriate images.
 
@@ -28,14 +41,14 @@ export function getPieceImageUrl (role: Role, color: Color, side: string): strin
     const kyotoPromotedPieceRoles = ['pp-piece', 'pl-piece', 'pn-piece', 'ps-piece'];
     const idx = kyotoPromotedPieceRoles.indexOf(role);
     if (idx !== -1) {
-        const unpromoted = getPieceImageUrl(role.slice(1) as Role, color, side);
+        const unpromoted = getPieceImageUrl(role.slice(1) as cg.Role, color, side);
         const kyotoPromotedPieceNames = ['HI', 'TO', 'KI', 'KA'];
         return unpromoted.slice(0, unpromoted.lastIndexOf('/') + 2) + kyotoPromotedPieceNames[idx] + '.svg'
     }
     return '/static/images/pieces/merida/';
 }
 
-export function debounce(callback: any/*TODO: not sure what it should be - some kind of function but what - i see no usages of debounce to figure it from there*/, wait: number) {
+export function debounce(callback: any, wait: number) {
     let timeout: number;
     return function() {
         const context = this, args = arguments;

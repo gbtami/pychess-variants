@@ -1,5 +1,5 @@
 import h from 'snabbdom/h';
-import { CrossTable } from "./analysisCtrl";
+import { CrossTable } from "./messages";
 import { VNode } from "snabbdom/vnode";
 
 export function crosstableView (ctable: CrossTable, gameId: string) {

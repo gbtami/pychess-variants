@@ -5,8 +5,7 @@ import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
-import {Color, Key, Pieces, Role} from "chessgroundx/types";
-import {InsertHook} from "snabbdom/src/hooks";
+import { InsertHook } from "snabbdom/src/hooks";
 
 const pieceSan = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'] as const;
 export type PieceSan = `${'+' | ''}${typeof pieceSan[number]}`;
@@ -68,14 +67,14 @@ type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, c
 
 const alwaysMandatory: MandatoryPromotionPredicate = () => true;
 
-function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) {
-    return (role: Role, _orig: Key, dest: Key, color: Color) => {
+function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) : MandatoryPromotionPredicate {
+    return (role: cg.Role, _orig: cg.Key, dest: cg.Key, color: cg.Color) => {
         const letter = role2letter(role);
         return (letter in required) ? distFromLastRank(dest, color, boardHeight) < required[letter] : false;
     };
 }
 
-function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) {
+function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) : number {
     const rank = util.key2pos(dest)[1];
     return (color === "white") ? boardHeight - rank : rank - 1;
 }
@@ -87,14 +86,14 @@ export interface IVariant {
 
     readonly startFen: string;
 
-    readonly board: string;
+    readonly board: keyof typeof BOARD_FAMILIES;
     readonly geometry: cg.Geometry;
     readonly boardWidth: number;
     readonly boardHeight: number;
     readonly cg: string;
     readonly boardCSS: string[];
 
-    readonly piece: string;
+    readonly piece: keyof typeof PIECE_FAMILIES;
     readonly pieceCSS: string[];
 
     readonly firstColor: string;
@@ -131,7 +130,7 @@ class Variant implements IVariant {
     tooltip() { return this._tooltip(); }
     readonly startFen: string;
 
-    readonly board: string;
+    readonly board: keyof typeof BOARD_FAMILIES;
     private readonly boardFamily: BoardFamily;
     get geometry() { return this.boardFamily.geometry; }
     get boardWidth() { return cg.dimensions[this.geometry].width; }
@@ -139,7 +138,7 @@ class Variant implements IVariant {
     get cg() { return this.boardFamily.cg; }
     get boardCSS() { return this.boardFamily.boardCSS; }
 
-    readonly piece: string;
+    readonly piece: keyof typeof PIECE_FAMILIES;
     private readonly pieceFamily: PieceFamily;
     get pieceCSS() { return this.pieceFamily.pieceCSS; }
 
@@ -212,15 +211,15 @@ class Variant implements IVariant {
 
 }
 
-interface VariantConfig{
+interface VariantConfig { // TODO explain what each parameter of the variant config means
     name: string;
 
     displayName?: string;
 
     tooltip: () => string;
     startFen: string;
-    board: string;
-    piece: string;
+    board: keyof typeof BOARD_FAMILIES;
+    piece: keyof typeof PIECE_FAMILIES;
 
     firstColor?: string;
     secondColor?: string;
@@ -391,7 +390,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["k", "+n", "n", "+s", "s", "+l", "l", "+p", "p"],
         pocketRoles: ["p", "l", "n", "s"],
         promotion: "kyoto",
-        isMandatoryPromotion: (_role: Role, orig: Key, _dest: Key, _color: Color) => orig !== 'a0',
+        isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -743,12 +742,12 @@ export function hasCastling(variant: IVariant, color: cg.Color) {
     }
 }
 
-export function uci2cg(move: string) {
+export function uci2cg(move: UCIMove) {
     return move.replace(/10/g, ":");
 }
 
-export function cg2uci(move: string) {
-    return move.replace(/:/g, "10");
+export function cg2uci(move: string) : UCIMove {
+    return move.replace(/:/g, "10") as UCIMove;
 }
 
 // TODO Will be deprecated after WASM Fairy integration
@@ -876,7 +875,7 @@ function diff(a: number, b:number):number {
     return Math.abs(a - b);
 }
 
-function touchingKings(pieces: Pieces) {
+function touchingKings(pieces: cg.Pieces) {
     let wk = 'xx', bk = 'zz';
     Object.keys(pieces).filter(key => pieces[key]?.role === "k-piece").forEach(key => {
         if (pieces[key]?.color === 'white') wk = key;
@@ -919,7 +918,7 @@ export function getCounting(fen: string): [number, number, string, string] {
 }
 
 // Get janggi material points
-export function getJanggiPoints(board: string) {
+export function getJanggiPoints(board: string): number[] {
     let choPoint = 0;
     let hanPoint = 1.5;
     for (const c of board) {
@@ -968,8 +967,8 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     const dests: cg.Dests = {};
     legalMoves.map(uci2cg).forEach(move => {
-        const orig = move.slice(0, 2) as Key;
-        const dest = move.slice(2, 4) as Key;
+        const orig = move.slice(0, 2) as cg.Key;
+        const dest = move.slice(2, 4) as cg.Key;
         if (orig in dests)
             dests[orig].push(dest);
         else
@@ -983,28 +982,28 @@ export function uci2array(move: UCIMove): cg.Key[] {
     const cgMove = uci2cg(move);
     return cgMove.includes('@') ? [ cgMove.slice(2, 4) as cg.Key ] : [ cgMove.slice(0, 2) as cg.Key, cgMove.slice(2, 4) as cg.Key];
 }
-export function role2letter(role: cg.Role) {
+export function role2letter(role: cg.Role): string {
     const letterPart = role.slice(0, role.indexOf('-'));
     return (letterPart.length > 1) ? letterPart.replace('p', '+') : letterPart;
 }
 
-export function letter2role(letter: string) {
+export function letter2role(letter: string): cg.Role {
     return (letter.replace('+', 'p') + '-piece') as cg.Role;
 }
 
-export function role2san(role: cg.Role) {
+export function role2san(role: cg.Role): string {
     return role2letter(role).toUpperCase();
 }
 
 // Use cases
 // 1. determine piece role from analysis suggested (SAN) drop moves
 // 2. determine promotion piece roles from possible (UCI) promotion moves in grand, grandhouse, shako
-export function san2role(letter: string) {
+export function san2role(letter: string): cg.Role {
     return letter2role(letter.toLowerCase());
 }
 
 // Count given letter occurences in a string
-export function lc(str: string, letter: string, uppercase: boolean) {
+export function lc(str: string, letter: string, uppercase: boolean): number {
     if (uppercase)
         letter = letter.toUpperCase();
     else

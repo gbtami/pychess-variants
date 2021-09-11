@@ -23,7 +23,7 @@ import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./main";
-import { MsgChat, MsgFullChat } from "./analysisCtrl";
+import { MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 
 interface Stream {

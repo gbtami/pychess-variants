@@ -18,7 +18,7 @@ import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { PyChessModel } from "./main";
 import { FEN } from "chessgroundx/types";
-import { Ceval } from "./analysisCtrl";
+import { Ceval } from "./messages";
 
 
 export function colorNames(color: string) {

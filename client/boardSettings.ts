@@ -64,16 +64,16 @@ class BoardSettings {
         Object.keys(PIECE_FAMILIES).forEach(family => this.updatePieceStyle(family));
     }
 
-    updateBoardStyle(family: string) {
-        const idx = this.getSettings("BoardStyle", family).value as number;
+    updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
+        const idx = this.getSettings("BoardStyle", family as string).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"] , family, board);
+        changeBoardCSS(model["asset-url"] , family as string, board);
     }
 
-    updatePieceStyle(family: string) {
-        const idx = this.getSettings("PieceStyle", family).value as number;
+    updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
+        const idx = this.getSettings("PieceStyle", family as string).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model["asset-url"], family, css);
+        changePieceCSS(model["asset-url"], family as string, css);
         this.updateDropSuggestion();
     }
 
@@ -95,10 +95,10 @@ class BoardSettings {
         }
     }
 
-    updateZoom(family: string) {
+    updateZoom(family: keyof typeof BOARD_FAMILIES) {
         const variant = this.ctrl?.variant;
         if (variant && variant.board === family) {
-            const zoomSettings = this.getSettings("Zoom", family) as ZoomSettings;
+            const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
             if (el) {
@@ -145,11 +145,11 @@ class BoardSettings {
         settingsList.push(this.settings["blindfold"].view());
 
         if (variantName === this.ctrl?.variant.name)
-            settingsList.push(this.getSettings("Zoom", boardFamily).view());
+            settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
 
         settingsList.push(h('div#style-settings', [
-            this.getSettings("BoardStyle", boardFamily).view(),
-            this.getSettings("PieceStyle", pieceFamily).view(),
+            this.getSettings("BoardStyle", boardFamily as string).view(),
+            this.getSettings("PieceStyle", pieceFamily as string).view(),
             ])
         );
 

@@ -25,8 +25,7 @@ import { gameType } from './profile';
 import { boardSettings } from './boardSettings';
 import { Api } from "chessgroundx/api";
 import { PyChessModel } from "./main";
-import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators } from "./analysisCtrl";
-import { MsgGameEnd, MsgNewGame } from "./roundCtrl";
+import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import { FEN, Key } from "chessgroundx/types";
 
 const T_STATUS = {
@@ -705,10 +704,9 @@ export default class TournamentController {
             return;
         };
 
-        let lastMoveStr = msg.lastMove;
         let lastMove: Key[] = [];
-        if (lastMoveStr !== undefined) {
-            lastMoveStr = uci2cg(lastMoveStr);
+        if (msg.lastMove !== undefined) {
+            const lastMoveStr = uci2cg(msg.lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
             lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as Key] : [lastMoveStr.slice(0, 2) as Key, lastMoveStr.slice(2, 4) as Key];

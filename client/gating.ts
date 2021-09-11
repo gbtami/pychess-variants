@@ -186,11 +186,11 @@ export class Gating {
         if (this.ctrl.flip) position = (position === "top") ? "bottom" : "top";
         if (position === "bottom") {
             const pr = this.ctrl.pockets[1][role];
-            if ( pr != undefined ) this.ctrl.pockets[1][role] = pr - 1;
+            if ( pr !== undefined ) this.ctrl.pockets[1][role] = pr - 1;
             this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, color, "bottom"));
         } else {
             const pr = this.ctrl.pockets[0][role];
-            if ( pr != undefined ) this.ctrl.pockets[0][role] = pr - 1;
+            if ( pr !== undefined ) this.ctrl.pockets[0][role] = pr - 1;
             this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, color, "top"));
         }
     }

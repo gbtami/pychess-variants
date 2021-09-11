@@ -14,13 +14,13 @@ import AnalysisController from "./analysisCtrl";
 import TournamentController from "./tournament";
 import { LobbyController } from "./lobby";
 
-export function chatView (ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) {
+export function chatView (ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) { // TODO: instead of | better have some IChatController interface implemented by these classes
     function onKeyPress (e: KeyboardEvent) {
         if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
             return;
         const message = (e.target as HTMLInputElement).value;
         if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
-            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": ((ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? "spectator": "player"});
+            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": (/*(ctrl instanceof RoundController || ctrl instanceof AnalysisController) &&*/ ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
     }

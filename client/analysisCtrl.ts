@@ -15,21 +15,8 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { key2pos, pos2key } from 'chessgroundx/util';
-import {
-    Color,
-    Dests,
-    Pieces,
-    PiecesDiff,
-    Role,
-    Key,
-    Pos,
-    Piece,
-    Variant,
-    Notation,
-    SetPremoveMetadata,
-    FEN, MoveMetadata
-} from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
+import * as cg from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from './types';
@@ -38,7 +25,18 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid, DropOrig } from './chess';
+import {
+    role2san,
+    uci2cg,
+    cg2uci,
+    VARIANTS,
+    IVariant,
+    getPockets,
+    san2role,
+    dropIsValid,
+    DropOrig,
+    UCIMove
+} from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -48,11 +46,11 @@ import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
-import { getPieceImageUrl } from './document';
+import { download, getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
-import { Clocks } from "./roundCtrl";
+import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -66,101 +64,15 @@ const EVAL_REGEX = new RegExp(''
 const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
-function download(filename: string, text: string) {
-  const element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-export interface Step{
-    fen: FEN;
-    move: string | undefined;
-    check: boolean;
-    turnColor: Color;
-
-    san?: string;
-    analysis?: Ceval;
-
-    ceval?: Ceval;
-    scoreStr?: string;
-
-    vari?: Step[];
-    sanSAN?: string;
-
-}
-
-export interface CrossTable {
-    s1: number;
-    s2: number;
-    r: string[];
-    _id: string;
-
-}
-
-export interface MsgCtable{
-    ct: CrossTable
-}
-export interface MsgGameNotFound{
-    gameId: string;
-}
-export interface MsgShutdown{
-    message: string;
-}
-
-export interface MsgChat {
-    room?: string; // Unlike "roundchat", "lobbychat" messages don't have such property and currently re-using same interface for them as well.
-    user: string;
-    message: string;
-}
-
-export interface MsgFullChat {
-    lines: MsgChat[];
-}
-
-export interface MsgBoard {
-    gameId: string;
-    fen: string;
-    ply: number;
-    lastMove: string;
-    dests: Dests;
-    promo: string[];
-    bikjang: boolean;
-    check: boolean;
-
-    status: number;
-    pgn: string;
-    uci_usi: string;
-    result: string;
-    steps: Step[];
-
-    byo?: number[];
-    clocks?: Clocks;
-}
-
 interface MsgAnalysisBoard {
     gameId: string;
     fen: string;
     ply: number;
-    lastMove: string;
-    dests: Dests;
+    lastMove: UCIMove;
+    dests: cg.Dests;
     promo: string[];
     bikjang: boolean;
     check: boolean;
-}
-
-export interface Ceval {
-    d: number;
-    m?: string;
-    p?: string;
-    s: { cp?: number ; mate?: number};
-    k?: number;
 }
 
 interface MsgAnalysis {
@@ -168,16 +80,6 @@ interface MsgAnalysis {
     ply: number;
     ceval: Ceval;
     color: string;
-}
-
-export interface MsgSpectators {
-    spectators: string;
-}
-
-export interface MsgUserConnected {
-    username: string;
-    ply?: number;//used only in roundctrl
-    firstmovetime?: number;//used only in roundctrl
 }
 
 export default class AnalysisController {
@@ -189,9 +91,9 @@ export default class AnalysisController {
     bplayer: string;
     base: number;
     inc: number;
-    mycolor: Color;
-    oppcolor: Color;
-    turnColor: Color;
+    mycolor: cg.Color;
+    oppcolor: cg.Color;
+    turnColor: cg.Color;
     gameId: string;
     variant: IVariant;
     chess960: boolean;
@@ -210,11 +112,11 @@ export default class AnalysisController {
     moveControls: VNode;
     gating: Gating;
     promotion: Promotion;
-    dests: Dests;
+    dests: cg.Dests;
     promotions: string[];
-    lastmove: Key[];
-    premove: {orig: Key, dest: Key, metadata?: SetPremoveMetadata} | null;
-    predrop: {role: Role, key: Key} | null;
+    lastmove: cg.Key[];
+    premove: {orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata} | null;
+    predrop: {role: cg.Role, key: cg.Key} | null;
     preaction: boolean;
     result: string;
     flip: boolean;
@@ -240,9 +142,9 @@ export default class AnalysisController {
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
-    notation: Notation;
+    notation: cg.Notation;
     notationAsObject: any;
-    prevPieces: Pieces;
+    prevPieces: cg.Pieces;
     arrow: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
@@ -310,12 +212,12 @@ export default class AnalysisController {
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
         if (this.variant.name === 'janggi') { // TODO make this more generic / customisable
-            this.notation = Notation.JANGGI;
+            this.notation = cg.Notation.JANGGI;
         } else {
             if (this.variant.name.endsWith("shogi") || this.variant.name === 'dobutsu' || this.variant.name === 'gorogoro') {
-                this.notation = Notation.SHOGI_HODGES_NUMBER;
+                this.notation = cg.Notation.SHOGI_HODGES_NUMBER;
             } else {
-                this.notation = Notation.SAN;
+                this.notation = cg.Notation.SAN;
             }
         }
 
@@ -345,7 +247,7 @@ export default class AnalysisController {
         this.result = "*";
         const parts = this.fullfen.split(" ");
 
-        const fen_placement: FEN = parts[0];
+        const fen_placement: cg.FEN = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.steps.push({
@@ -356,8 +258,8 @@ export default class AnalysisController {
             });
 
         this.chessground = Chessground(el, {
-             fen: fen_placement as FEN,
-             variant: this.variant.name as Variant,
+             fen: fen_placement as cg.FEN,
+             variant: this.variant.name as cg.Variant,
              chess960: this.chess960,
              geometry: this.variant.geometry,
              notation: this.notation,
@@ -461,15 +363,15 @@ export default class AnalysisController {
         const dests = this.chessground.state.movable.dests;
         for (const key in pieces) {
             if (pieces[key]!.role === 'k-piece' && pieces[key]!.color === this.turnColor) {
-                if ((key in dests!) && (dests![key].indexOf(key as Key) >= 0)) passKey = key;
+                if ((key in dests!) && (dests![key].indexOf(key as cg.Key) >= 0)) passKey = key;
             }
         }
         if (passKey !== 'a0') {
             // prevent calling pass() again by selectSquare() -> onSelect()
             this.chessground.state.movable.dests = undefined;
-            this.chessground.selectSquare(passKey as Key);
+            this.chessground.selectSquare(passKey as cg.Key);
             sound.moveSound(this.variant, false);
-            this.sendMove(passKey as Key, passKey as Key, '');
+            this.sendMove(passKey as cg.Key, passKey as cg.Key, '');
         }
     }
 
@@ -603,13 +505,12 @@ export default class AnalysisController {
             }
         }
 
-        let lastMoveStr = msg.lastMove;
-        let lastMove: Key[] | null = null;
-        if (lastMoveStr !== null) {
-            lastMoveStr = uci2cg(lastMoveStr);
+        let lastMove: cg.Key[] | null = null;
+        if (msg.lastMove !== null) {
+            const lastMoveStr = uci2cg(msg.lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as Key] : [lastMoveStr.slice(0, 2) as Key, lastMoveStr.slice(2, 4) as Key];
+            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
         }
 
         const step = this.steps[this.steps.length - 1];
@@ -644,16 +545,16 @@ export default class AnalysisController {
       return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
     }
 
-    notation2ffishjs = (n: Notation) => {
+    notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
-            case Notation.DEFAULT: return this.ffish.Notation.DEFAULT;
-            case Notation.SAN: return this.ffish.Notation.SAN;
-            case Notation.LAN: return this.ffish.Notation.LAN;
-            case Notation.SHOGI_HOSKING: return this.ffish.Notation.SHOGI_HOSKING;
-            case Notation.SHOGI_HODGES: return this.ffish.Notation.SHOGI_HODGES;
-            case Notation.SHOGI_HODGES_NUMBER: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
-            case Notation.JANGGI: return this.ffish.Notation.JANGGI;
-            case Notation.XIANGQI_WXF: return this.ffish.Notation.XIANGQI_WXF;
+            case cg.Notation.DEFAULT: return this.ffish.Notation.DEFAULT;
+            case cg.Notation.SAN: return this.ffish.Notation.SAN;
+            case cg.Notation.LAN: return this.ffish.Notation.LAN;
+            case cg.Notation.SHOGI_HOSKING: return this.ffish.Notation.SHOGI_HOSKING;
+            case cg.Notation.SHOGI_HODGES: return this.ffish.Notation.SHOGI_HODGES;
+            case cg.Notation.SHOGI_HODGES_NUMBER: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
+            case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
+            case cg.Notation.XIANGQI_WXF: return this.ffish.Notation.XIANGQI_WXF;
             default: return this.ffish.Notation.DEFAULT;
         }
     }
@@ -745,7 +646,7 @@ export default class AnalysisController {
     }
 
     // Updates PV, score, gauge and the best move arrow
-    drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: Color) => {
+    drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
         let shapes0: DrawShape[] = [];
         this.chessground.setAutoShapes(shapes0);
 
@@ -767,12 +668,12 @@ export default class AnalysisController {
         }
 
         if (ceval?.p !== undefined && !!ceval.m) {
-            const pv_move = uci2cg(ceval.m.split(" ")[0]);
+            const pv_move = uci2cg(ceval.m.split(" ")[0] as UCIMove);
             console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
-                    const d = pv_move.slice(atPos + 1, atPos + 3) as Key;
+                    const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
 
                     const dropPieceRole = san2role(pv_move.slice(0, atPos));
@@ -791,8 +692,8 @@ export default class AnalysisController {
                         { orig: d, brush: 'paleGreen'}
                     ];
                 } else {
-                    const o = pv_move.slice(0, 2) as Key;
-                    const d = pv_move.slice(2, 4) as Key;
+                    const o = pv_move.slice(0, 2) as cg.Key;
+                    const d = pv_move.slice(2, 4) as cg.Key;
                     shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
                 }
             }
@@ -877,26 +778,26 @@ export default class AnalysisController {
     getDests = () => {
         const legalMoves = this.ffishBoard.legalMoves().split(" ");
         // console.log(legalMoves);
-        const dests: Dests = {};
+        const dests: cg.Dests = {};
         this.promotions = [];
-        legalMoves.forEach((move: string) => {
-            move = uci2cg(move);
-            const source = move.slice(0, 2);
-            const dest = move.slice(2, 4);
+        legalMoves.forEach((move: UCIMove) => {
+            const moveStr = uci2cg(move);
+            const source = moveStr.slice(0, 2);
+            const dest = moveStr.slice(2, 4);
             if (source in dests) {
-                dests[source].push(dest as Key);
+                dests[source].push(dest as cg.Key);
             } else {
-                dests[source] = [dest as Key];
+                dests[source] = [dest as cg.Key];
             }
 
-            const tail = move.slice(-1);
+            const tail = moveStr.slice(-1);
             if (tail > '9' || tail === '+' || tail === '-') {
-                if (!(this.variant.gate && (move.slice(1, 2) === '1' || move.slice(1, 2) === '8'))) {
-                    this.promotions.push(move);
+                if (!(this.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
+                    this.promotions.push(moveStr);
                 }
             }
-            if (this.variant.promotion === 'kyoto' && move.slice(0, 1) === '+') {
-                this.promotions.push(move);
+            if (this.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
+                this.promotions.push(moveStr);
             }
         });
         this.chessground.set({ movable: { dests: dests }});
@@ -917,12 +818,12 @@ export default class AnalysisController {
 
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
-        let moveStr = step.move;
-        let move : Key[];
+
+        let move : cg.Key[];
         let capture = false;
-        if (moveStr !== undefined) {
-            moveStr = uci2cg(moveStr);
-            move = moveStr.indexOf('@') > -1 ? [moveStr.slice(-2) as Key] : [moveStr.slice(0, 2) as Key, moveStr.slice(2, 4) as Key];
+        if (step.move !== undefined) {
+            const moveStr = uci2cg(step.move);
+            move = moveStr.indexOf('@') > -1 ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
 
@@ -997,16 +898,16 @@ export default class AnalysisController {
     }
 
     private onMove = () => {
-        return (orig: Key, dest: Key, capturedPiece: Piece) => {
+        return (orig: cg.Key, dest: cg.Key, capturedPiece: cg.Piece) => {
             console.log("   ground.onMove()", orig, dest, capturedPiece);
             sound.moveSound(this.variant, !!capturedPiece);
         }
     }
 
     private onDrop = () => {
-        return (piece: Piece, dest: Key) => {
+        return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1030,7 +931,7 @@ export default class AnalysisController {
         return moves.join(' ');
     }
 
-    sendMove = (orig: Key | DropOrig, dest: Key, promo: string) => {
+    sendMove = (orig: cg.Key | DropOrig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
@@ -1129,13 +1030,13 @@ export default class AnalysisController {
 
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
-        let lastMoveStr = msg.lastMove;
-        let lastMove: Key[] = [];
-        if (lastMoveStr !== null) {
-            lastMoveStr = uci2cg(lastMoveStr);
+
+        let lastMove: cg.Key[] = [];
+        if (msg.lastMove !== null) {
+            const lastMoveStr = uci2cg(msg.lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as Key] : [lastMoveStr.slice(0, 2) as Key, lastMoveStr.slice(2, 4) as Key];
+            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
         }
 
         this.chessground.set({
@@ -1154,19 +1055,19 @@ export default class AnalysisController {
         if (this.localAnalysis) this.engineGo();
     }
 
-    private onUserMove = (orig: Key, dest: Key, meta: MoveMetadata) => {
+    private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
         this.preaction = meta.premove === true;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces[dest];
         // Fix king to rook 960 castling case
-        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as Piece;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] != dest[0] && this.variant.enPassant) {
-            const pos = key2pos(dest),
-            pawnPos: Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: PiecesDiff = {};
-            diff[pos2key(pawnPos)] = undefined;
+        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
+        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
+            const pos = util.key2pos(dest),
+            pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
+            const diff: cg.PiecesDiff = {};
+            diff[util.pos2key(pawnPos)] = undefined;
             this.chessground.setPieces(diff);
             meta.captured = {role: "p-piece", color: moved.color=== "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
@@ -1174,17 +1075,17 @@ export default class AnalysisController {
         if (this.variant.drop && meta.captured) {
             let role = meta.captured.role
             if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as Role : "p-piece";
+                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
 
             let position = (this.turnColor === this.mycolor) ? "bottom": "top";
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
                 const pr = this.pockets[0][role];
-                if ( pr != undefined ) this.pockets[0][role] = pr + 1;
+                if ( pr !== undefined ) this.pockets[0][role] = pr + 1;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
                 const pr = this.pockets[1][role]
-                if ( pr != undefined ) this.pockets[1][role] = pr + 1;
+                if ( pr !== undefined ) this.pockets[1][role] = pr + 1;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
         }
@@ -1198,7 +1099,7 @@ export default class AnalysisController {
         }
     }
 
-    private onUserDrop = (role: Role, dest: Key, meta: MoveMetadata) => {
+    private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
@@ -1207,11 +1108,11 @@ export default class AnalysisController {
             if (this.flip) position = (position === "top") ? "bottom" : "top";
             if (position === "top") {
                 const pr = this.pockets[0][role];
-                if ( pr != undefined ) this.pockets[0][role] = pr - 1;
+                if ( pr !== undefined ) this.pockets[0][role] = pr - 1;
                 this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
             } else {
                 const pr = this.pockets[1][role];
-                if ( pr != undefined ) this.pockets[1][role] = pr - 1;
+                if ( pr !== undefined ) this.pockets[1][role] = pr - 1;
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
@@ -1239,7 +1140,7 @@ export default class AnalysisController {
     }
 
     private onSelect = () => {
-        return (key: Key) => {
+        return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
@@ -1256,7 +1157,7 @@ export default class AnalysisController {
                 const piece = this.chessground.state.pieces[key];
                 if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
-                    const pieces: PiecesDiff = {};
+                    const pieces: cg.PiecesDiff = {};
                     pieces[key] = {
                         color: piece!.color,
                         role: 'f-piece',

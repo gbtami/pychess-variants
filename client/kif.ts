@@ -65,7 +65,7 @@ export function resultString(movingPlayerWin: boolean, ply: number, isHandicap: 
     }
 }
 
-export interface KIF{
+export interface KIF {
     date: string;
     place: string;
     tc: string;

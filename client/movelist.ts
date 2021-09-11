@@ -10,9 +10,10 @@ import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import { boardSettings } from './boardSettings';
-import AnalysisController, { Step } from "./analysisCtrl";
+import AnalysisController from "./analysisCtrl";
 import RoundController from "./roundCtrl";
 import { result } from './profile'
+import { Step } from "./messages";
 
 export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
     ctrl.goPly(ply, plyVari);
