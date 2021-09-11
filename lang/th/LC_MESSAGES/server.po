@@ -11,14 +11,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 18:42+0200\n"
+"POT-Creation-Date: 2021-09-11 13:06+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2021\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -64,11 +64,11 @@ msgstr "ผู้เล่นทั้งหมด"
 
 #: ../templates/players.html:36 ../templates/winners.html:6
 msgid "Tournament winners"
-msgstr ""
+msgstr "ผู้ชนะการแข่งขัน"
 
 #: ../templates/players.html:37 ../templates/shields.html:6
 msgid "Tournament shields"
-msgstr ""
+msgstr "ผู้ถือโล่รางวัล"
 
 #: ../templates/profile.html:13
 #, python-format
@@ -78,23 +78,23 @@ msgstr[0] "%(count)sเกมที่กำลังเล่น"
 
 #: ../templates/profile.html:40
 msgid "Watch games"
-msgstr ""
+msgstr "ดูเกม"
 
 #: ../templates/profile.html:42
 msgid "Challenge to a game"
-msgstr ""
+msgstr "่ชวนเล่นเกม"
 
 #: ../templates/profile.html:45
 msgid "Import game"
-msgstr ""
+msgstr "นำเข้าเกม"
 
 #: ../templates/profile.html:48
 msgid "Export games"
-msgstr ""
+msgstr "บันทึกไฟล์เกม"
 
 #: ../templates/profile.html:51
 msgid "Lichess profile"
-msgstr ""
+msgstr "หน้าบัญชี lichess"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -122,7 +122,7 @@ msgstr "ถอดหมาก"
 
 #: ../templates/template.html:23
 msgid "Variants"
-msgstr ""
+msgstr "ชนิดเกม"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"
@@ -146,4 +146,4 @@ msgstr "กำลังจะเริ่ม"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr "เสร็จสิ้นแล้ว"
+msgstr "เสร็จสิ้น"

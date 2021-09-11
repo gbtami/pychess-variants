@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 15:28+0200\n"
+"POT-Creation-Date: 2021-09-11 13:06+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: fjscabral <fjscabral@gmail.com>, 2021\n"
 "Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: pt\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -209,11 +209,11 @@ msgstr "Espetadores:"
 msgid "Requested game %1 not found!"
 msgstr "Partida solicitada %1 não encontrada!"
 
-#: ../client/background.ts:9
+#: ../client/background.ts:10
 msgid "Light"
 msgstr "Claro"
 
-#: ../client/background.ts:10
+#: ../client/background.ts:11
 msgid "Dark"
 msgstr "Escuro"
 
@@ -481,24 +481,29 @@ msgstr "Semelhante ao Xadrez Capablanca mas com posição inicial diferente."
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Xadrez Gótico com regras de Crazyhouse"
 
-#: ../client/chess.ts:668
-msgid "Standard piece variants"
-msgstr "Variantes com peças normais de Xadrez"
+#: ../client/chess.ts:668 ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer2chess.ts:26
+msgid "Chess Variants"
+msgstr "Variantes de Xadrez"
 
-#: ../client/chess.ts:669
-msgid "Southeast Asian variants"
-msgstr "Variantes do Sudeste Asiático"
+#: ../client/chess.ts:669 ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer2makruk.ts:24
+msgid "Makruk Variants"
+msgstr "Variantes de Makruk"
 
-#: ../client/chess.ts:670
-msgid "Shogi variants"
+#: ../client/chess.ts:670 ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer2shogi.ts:24
+msgid "Shogi Variants"
 msgstr "Variantes de Shogi"
 
-#: ../client/chess.ts:671
-msgid "Xiangqi variants"
+#: ../client/chess.ts:671 ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer2xiangqi.ts:24
+msgid "Xiangqi Variants"
 msgstr "Variantes de Xiangqi"
 
-#: ../client/chess.ts:672
-msgid "Fairy piece variants"
+#: ../client/chess.ts:672 ../client/lobby/layer1.ts:73
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy Piece Variants"
 msgstr "Variantes com peças não ortodoxas"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
@@ -1119,26 +1124,6 @@ msgstr "Ativado"
 #: ../client/zen.ts:50
 msgid "ZEN MODE"
 msgstr "MODO ZEN"
-
-#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
-msgid "Chess Variants"
-msgstr "Variantes de Xadrez"
-
-#: ../client/lobby/layer1.ts:73 ../client/lobby/layer2fairy.ts:24
-msgid "Fairy Piece Variants"
-msgstr "Variantes com peças não ortodoxas"
-
-#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
-msgid "Makruk Variants"
-msgstr "Variantes de Makruk"
-
-#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
-msgid "Shogi Variants"
-msgstr "Variantes de Shogi"
-
-#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
-msgid "Xiangqi Variants"
-msgstr "Variantes de Xiangqi"
 
 #: ../client/lobby/layer2army.ts:26
 msgid ""
