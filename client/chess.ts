@@ -663,11 +663,11 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
 
 function variantGroupLabel(group) {
     const groups = {
-        standard: _("Standard piece variants"),
-        sea: _("Southeast Asian variants"),
-        shogi: _("Shogi variants"),
-        xiangqi: _("Xiangqi variants"),
-        fairy: _("Fairy piece variants"),
+        standard: _("Chess Variants"),
+        sea: _("Makruk Variants"),
+        shogi: _("Shogi Variants"),
+        xiangqi: _("Xiangqi Variants"),
+        fairy: _("Fairy Piece Variants"),
         army: _("New Army Variants"),
     }
     return groups[group];
