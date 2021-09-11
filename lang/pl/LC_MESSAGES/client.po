@@ -11,14 +11,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 15:28+0200\n"
+"POT-Creation-Date: 2021-09-11 13:06+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
@@ -99,7 +99,7 @@ msgstr ""
 
 #: ../client/about.ts:23
 msgid "Currently supported games are "
-msgstr "Aktualnie dostępne są następujące warianty: "
+msgstr "Aktualnie dostępne są następujące odmiany: "
 
 #: ../client/about.ts:89
 msgid ""
@@ -144,7 +144,7 @@ msgstr "W trakcie gry"
 #: ../client/analysis.ts:94 ../client/editor.ts:32 ../client/lobby.ts:318
 #: ../client/lobby.ts:793 ../client/settingsView.ts:138
 msgid "Variant"
-msgstr "Wariant"
+msgstr "Odmiana"
 
 #: ../client/analysis.ts:181 ../client/analysisCtrl.ts:385
 #: ../client/analysisCtrl.ts:735
@@ -189,7 +189,7 @@ msgstr "Poproś o analizę"
 
 #: ../client/analysisCtrl.ts:594
 msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr "Wybrany wariant %1 nie jest obsługiwany przez stockfish.wasm"
+msgstr "Wybrana odmiana %1 nie jest obsługiwana przez stockfish.wasm"
 
 #: ../client/analysisCtrl.ts:709
 msgid "Depth"
@@ -208,11 +208,11 @@ msgstr "Widzowie: "
 msgid "Requested game %1 not found!"
 msgstr "Szukana partia %1 nie została znaleziona!"
 
-#: ../client/background.ts:9
+#: ../client/background.ts:10
 msgid "Light"
 msgstr "Jasne"
 
-#: ../client/background.ts:10
+#: ../client/background.ts:11
 msgid "Dark"
 msgstr "Ciemne"
 
@@ -482,30 +482,35 @@ msgstr "Podobne do szachów Capablanki, ale z inną pozycją początkową."
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Szachy gotyckie z zasadami dostawiania jak w Crazyhouse'ie."
 
-#: ../client/chess.ts:668
-msgid "Standard piece variants"
-msgstr "Warianty używające standardowych figur"
+#: ../client/chess.ts:668 ../client/lobby/layer1.ts:65
+#: ../client/lobby/layer2chess.ts:26
+msgid "Chess Variants"
+msgstr "Odmiany szachów"
 
-#: ../client/chess.ts:669
-msgid "Southeast Asian variants"
-msgstr "Warianty z Azji Południowo-Wschodniej"
+#: ../client/chess.ts:669 ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer2makruk.ts:24
+msgid "Makruk Variants"
+msgstr "Odmiany Makruka"
 
-#: ../client/chess.ts:670
-msgid "Shogi variants"
-msgstr "Warianty wzorowane na Shogi"
+#: ../client/chess.ts:670 ../client/lobby/layer1.ts:97
+#: ../client/lobby/layer2shogi.ts:24
+msgid "Shogi Variants"
+msgstr "Odmiany Shogi"
 
-#: ../client/chess.ts:671
-msgid "Xiangqi variants"
-msgstr "Warianty wzorowane na Xiangqi"
+#: ../client/chess.ts:671 ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer2xiangqi.ts:24
+msgid "Xiangqi Variants"
+msgstr "Odmiany Xiangqi"
 
-#: ../client/chess.ts:672
-msgid "Fairy piece variants"
-msgstr "Warianty używające niestandardowych figur"
+#: ../client/chess.ts:672 ../client/lobby/layer1.ts:73
+#: ../client/lobby/layer2fairy.ts:24
+msgid "Fairy Piece Variants"
+msgstr "Odmiany z niestandardowymi figurami"
 
 #: ../client/chess.ts:673 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
-msgstr "Odmiany używające niestandardowych armii"
+msgstr "Odmiany z niestandardowymi armiami"
 
 #: ../client/datetime.ts:37
 msgid "in %1 year"
@@ -885,7 +890,7 @@ msgstr "Remis"
 
 #: ../client/profile.ts:93
 msgid "%1 abandoned the game"
-msgstr "Partia porzucona przez %1"
+msgstr "%1 porzuciły partię"
 
 #: ../client/profile.ts:96
 msgid "Cheat detected"
@@ -959,7 +964,7 @@ msgstr "Przerwij grę"
 #: ../client/roundCtrl.ts:411 ../client/roundCtrl.ts:1017
 #: ../client/roundCtrl.ts:1019
 msgid "Count"
-msgstr "Licz"
+msgstr "Odliczaj"
 
 #: ../client/roundCtrl.ts:412
 msgid "Pass"
@@ -1154,26 +1159,6 @@ msgstr "Włączony"
 msgid "ZEN MODE"
 msgstr "TRYB ZEN"
 
-#: ../client/lobby/layer1.ts:65 ../client/lobby/layer2chess.ts:26
-msgid "Chess Variants"
-msgstr "Odmiany szachów"
-
-#: ../client/lobby/layer1.ts:73 ../client/lobby/layer2fairy.ts:24
-msgid "Fairy Piece Variants"
-msgstr "Odmiany z niestandardowymi figurami"
-
-#: ../client/lobby/layer1.ts:89 ../client/lobby/layer2makruk.ts:24
-msgid "Makruk Variants"
-msgstr "Odmiany Makruka"
-
-#: ../client/lobby/layer1.ts:97 ../client/lobby/layer2shogi.ts:24
-msgid "Shogi Variants"
-msgstr "Odmiany Shogi"
-
-#: ../client/lobby/layer1.ts:105 ../client/lobby/layer2xiangqi.ts:24
-msgid "Xiangqi Variants"
-msgstr "Odmiany Xiangqi"
-
 #: ../client/lobby/layer2army.ts:26
 msgid ""
 "These variants have new armies with completely new pieces! Most of these "
@@ -1336,7 +1321,7 @@ msgstr "Zasady"
 
 #: ../client/lobby/layer3.ts:61
 msgid "Tip: "
-msgstr "Wskazówka"
+msgstr "Wskazówka: "
 
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."
