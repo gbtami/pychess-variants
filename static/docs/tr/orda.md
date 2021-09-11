@@ -41,7 +41,7 @@ A yurt is a mobile home for Mongol and Turkic peoples in the steppes of Asia. Th
 
 ![Kheshig](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Kheshig.png)
  
-The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troop on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid game because of their extreme importance to the Horde in the endgame.
+The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troops on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid game because of their extreme importance to the Horde in the endgame.
 The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately, it is incredibly difficult for the Kingdom to checkmate the khan without at least eliminating one of his kheshigs first.
 
 ### Horse Archer (A)
@@ -84,7 +84,7 @@ Rook | 5 | Lancer | 4
 ## Strategy
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
 
-The Horde cannot castle. However, a very fundamental component of a majority Horde openings is to move the Khan to g7. Reaching this spot in within the first four moves is ideal – in fact, Fairy Stockfish opened up with Kf7 in 56% of its games. The rest is variable. 
+The Horde cannot castle. However, a very fundamental component of a majority of Horde openings is to move the Khan to g7. Reaching this spot in within the first four moves is ideal – in fact, Fairy Stockfish opened up with Kf7 in 56% of its games. The rest is variable. 
 For the Kingdom, d4, g3, and b3 are the most common openings in that order.
 
 A major Horde weakness is that the lancers and horse archers cannot sustain a threat on a piece. If you attack a lancer/archer, if they must retreat, they lose their attack. It's important for the Kingdom to take advantage of this.

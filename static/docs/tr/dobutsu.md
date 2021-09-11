@@ -9,7 +9,7 @@ Dobutsu Shogi  (どうぶつしょうぎ, "animal chess") is a small shogi varia
 
 The rules are simple, you must either capture the enemy Lion (King) or move your own Lion into the final rank. All piece moves are indicated on the pieces themselves (see the board above). There are no ranging pieces, so the Giraffe and Elephant only move one space each, despite being based on the Rook and Bishop.
 
-Like Shogi, pieces that are captured are sent to your own hand. In lieu of moving a piece, you can also drop these captured back on to the board as your own.
+Like Shogi, pieces that are captured are sent to your own hand. In lieu of moving a piece, you can also drop these captured pieces back on to the board as your own.
 
 Unlike Shogi, only one piece can promote: The Chick (Pawn) promotes to a Hen (Tokin) when it reaches the final rank. 
 

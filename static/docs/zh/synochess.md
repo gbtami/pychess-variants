@@ -26,13 +26,22 @@ There are five additional rules that new players must be especially aware of! (A
 
 ## Dynasty Pieces
 There are four new units unique to the Dynasty: 6 Soldiers (2 start in hand), 2 Cannons, 2 Elephants, and 1 Advisor. 
-The Chariots are equal to the Rooks and use the same abbreviation (R) – the difference is purely cosmetic. Similarly, the Kings are the same, but just appear different. Despite the Horse being different in Xiangqi and Janggi, the Dynasty’s version is also called a Knight and can leap the same way as the Kingdom’s. 
+The Chariots are equal to the Rooks and use the same abbreviation (R) – the difference is purely cosmetic. Similarly, the Kings are the same, but just appear different. Despite the Horse being different in Xiangqi and Janggi, the Dynasty’s version is no different than the Kingdom's Knight and has the same name, moves, and appearance. 
 The Dynasty does not have a piece as strong as the Queen; instead it has more minor pieces than the Kingdom.
-Details and diagrams of each piece are below.  
+Details and diagrams of each piece are below. 
+
+### King (K) and Chariot (R)
+![King and Chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/SynoRK.png)
+
+As above, these pieces are purely cosmetic changes. The Chariot is essentially a Rook and uses the same symbol (R).
+Keep in mind the King Faceoff rule above for the King.
+The Chariot is the strongest piece for the Dynasty.
+
 ### Soldier (S)
 
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Soldier.png)
-The Soldier can move either one space forward or one space sideways. It is the exact same a Xiangqi soldier that has crossed the river and the exact same as a Janggi soldier from the start. The soldier, unlike the pawn, cannot promote.
+
+The Soldier can move either one space forward or one space sideways. It is the exact same as a Xiangqi soldier that has crossed the river and the exact same as a Janggi soldier from the start. The soldier, unlike the pawn, cannot promote.
 Because the soldier cannot move backwards, it can only move sideways in the final rank. Avoid putting them in this situation unless it will lead to checkmate or campmate. Soldiers are strongest when paired side to side so that they can protect each other.
 
 ### Elephant (E)
@@ -45,7 +54,7 @@ The Elephant is a leaping piece that moves diagonally one or two spaces. Because
 
 ![Cannon](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/CannonDynasty.png)
  
-The Cannon is a hopping piece. It is essentially a rook that requires an intervening piece (often called a “screen”) to hop over before it can move or capture along that line. *****A cannon cannot hop over another cannon.***** This version of the cannon is the exact same as the one in Janggi. Because it requires another piece to move or capture, the cannon loses value in the endgame.
+The Cannon is a hopping piece. It is essentially a rook that requires an intervening piece (often called a “screen”) to hop over before it can move **or** capture along that line. *****A cannon cannot hop over another cannon.***** This version of the cannon is the exact same as the one in Janggi. Because it requires another piece to move or capture, the cannon loses value in the endgame.
  
 ### Advisor
 
@@ -137,7 +146,7 @@ This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. A
 
 **Queenslayer**
 
-This is an extremely deadly tactic that may end in an inevitable loss for white if not caught. The situation is where a chariot has an open file (which it already starts with), and the cannon has an open path to the first rank square (b1 or g1). That square may or may or not contain a knight, but if it's empty, the knight cannot cover it for this to work.
+This is an extremely deadly tactic that may end in an inevitable loss for white if not caught. The situation is where a chariot has an open file (which it already starts with), and the cannon has an open path to the first rank square (b1 or g1). That square may or may not contain a knight, but if it's empty, the knight cannot cover it for this to work.
 
 ![Queenslayer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Queenslayer.png)
 

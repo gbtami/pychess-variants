@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chatturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
+*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chaturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
 
 ## Why learn Shogi?
 
@@ -45,11 +45,11 @@ The rook moves exactly like a chess rook: any number of squares orthogonally. Th
 
 ### Bishop
 
-The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The is the second most valuable unpromoted piece in the game, excluding the king.
-
 ![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
 
 ![BishopDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishop.png)
+
+The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The bishop is the second most valuable unpromoted piece in the game, excluding the king.
 
 ### Dragon King (Dragon, Promoted Rook)
 
@@ -223,27 +223,27 @@ As above, castles depend on static / ranging rook matchup. In static rook openin
 
 ![Yagura](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Yagura.png)
 
-The Yagura castle is one of the most powerful *static rook* castles, used against static rook. A mnemonic that may be useful for remembering the positions of the generals is “S G | G B,” or perhaps remembering that the king is guarded by the gold general, a strong defensive piece. Yagura is strong at its front, but weak on its edge and side.
+The Yagura castle is one of the most powerful *static rook* castles, used against static rook. A mnemonic that may be useful for remembering the positions of the generals is “S G | G B”, or perhaps remembering that the king is guarded by the gold general, a strong defensive piece. Yagura is strong at its front, but weak on its edge and side.
 
-For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows:
+For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows (Source: Hidetchi):
 
 1. ☗P-7f
 2. ☖P-8d
 3. ☗S-6h
-4. ☖P-d3
+4. ☖P-3d
 5. ☗P-6f
 6. ☖S-6b
 7. ☗P-5f
 8. ☖P-5d
 9. ☗S-4h
 10. ☖S-4b
-11. ☗G-5h
+11. ☗G4i-5h
 12. ☖G-3b
 13. ☗G-7h
 14. ☖K-4a
 15. ☗K-6i
 16. ☖P-7d
-17. ☗G-6g
+17. ☗G5h-6g
 18. ☖G-5b 
 19. ☗S-7g
 20. ☖S-3c
@@ -287,7 +287,7 @@ Not a castle per se, but a *static rook* opening. Both sides advance their rook 
 
 Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and the most common setups are described below.
 
-While normal games have black (*gote*) go first, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+While normal games have black (*sente*) starting, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
 
 Name | pieces omitted
 -- | --

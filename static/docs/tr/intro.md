@@ -8,7 +8,7 @@ Many chess variants are available to play here. Available games range from tradi
 
 Each variant also has its own selection of piece sets and boards to choose from! Especially for the Asian variants that use Chinese characters, you can find internationalized pieces for those variants to use as well. To change the settings, click the gear button in the top right of the screen (next to login or your username), choose "Board Settings," and then choose the variant you would like to configure.
 
-If you need to practice with the piece moves and rules before diving into a real game, feel free to start a game against the *Random Mover* bot.
+If you need to practice with the piece moves and rules before diving into a real game, feel free to select a casual game against the *Random Mover* bot in the lobby.
 
 ## Chess variants using standard pieces
 
@@ -23,6 +23,10 @@ If you need to practice with the piece moves and rules before diving into a real
 **Placement Chess** - Choose where your pieces start
 
 **Crazyhouse 960** - Combines Crazyhouse and Chess 960
+
+**Atomic Chess** - Pieces explode upon capture!
+
+**Atomic 960** - Atomic chess with Chess 960 rules
 
 ## Southeast Asian variants
 
@@ -48,7 +52,7 @@ If you need to practice with the piece moves and rules before diving into a real
 
 **Dobutsu** - Shogi on a 3x4 board, designed to introduce children to Shogi
 
-**Gorogoro Shogi** Shogi on a 5x6 board
+**Gorogoro Shogi** - Shogi on a 5x6 board
 
 ## Xiangqi variants
 
@@ -93,7 +97,3 @@ If you need to practice with the piece moves and rules before diving into a real
 **Grandhouse** - Grand Chess with Crazyhouse drop rules
 
 **Hoppel-poppel** - Knights capture as bishops, bishops capture as knights
-
-**Atomic Chess** = Pieces explode upon capture!
-
-**Atomic 960** - Atomic chess with Chess 960 rules
