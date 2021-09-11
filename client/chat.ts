@@ -20,7 +20,7 @@ export function chatView (ctrl: RoundController | AnalysisController | Tournamen
             return;
         const message = (e.target as HTMLInputElement).value;
         if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
-            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": (/*(ctrl instanceof RoundController || ctrl instanceof AnalysisController) &&*/ ctrl.spectator) ? "spectator": "player"});
+            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": ( (ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
     }
