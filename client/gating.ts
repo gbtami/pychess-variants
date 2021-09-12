@@ -8,7 +8,7 @@ import { VNode } from 'snabbdom/vnode';
 import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
-import { Color, FEN, Key, PiecesDiff, Role } from 'chessgroundx/types';
+import * as cg from 'chessgroundx/types';
 
 import { getPockets, lc, role2letter, letter2role  } from './chess';
 import RoundController from './roundCtrl';
@@ -20,8 +20,8 @@ import { Api } from "chessgroundx/api";
 const patch = init([attributes, event, style]);
 
 export interface Moves {
-    normal?: Key[],
-    special?: Key[]
+    normal?: cg.Key[],
+    special?: cg.Key[]
 }
 
 export class Gating {
@@ -32,7 +32,7 @@ export class Gating {
                 callback: (orig: string, dest: string, promo: string) => void,
     };
 
-    private choices: (Role | "")[];
+    private choices: (cg.Role | "")[];
 
     constructor(ctrl: RoundController | AnalysisController) {
         this.ctrl = ctrl;
@@ -40,7 +40,7 @@ export class Gating {
         this.choices = [];
     }
 
-    start(fen: FEN, orig: Key, dest: Key) {
+    start(fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
         const ground = this.ctrl.getGround();
         if (this.canGate(ground, fen, orig, dest)) {
             const pocket = getPockets(fen);
@@ -57,16 +57,16 @@ export class Gating {
 
             const moves: Moves = {"normal": [orig, dest]};
             let castling = false;
-            let rookOrig: Key | null = null;
+            let rookOrig: cg.Key | null = null;
             const moveLength = dest.charCodeAt(0) - orig.charCodeAt(0);
 
             const pieceMoved = ground.state.pieces[dest];
-            const pieceMovedRole: Role = pieceMoved?.role ?? "k-piece";
+            const pieceMovedRole: cg.Role = pieceMoved?.role ?? "k-piece";
             if (pieceMovedRole === "k-piece") {
                 // King long move is always castling move
                 if (Math.abs(moveLength) > 1 ) {
                     castling = true;
-                    rookOrig = (((moveLength > 1) ? "h" : "a") + orig[1]) as Key;
+                    rookOrig = (((moveLength > 1) ? "h" : "a") + orig[1]) as cg.Key;
                 }
                 // King takes own Rook is always castling move in 960 games
                 if (this.ctrl.chess960 && this.ctrl.prevPieces !== undefined) {
@@ -87,7 +87,7 @@ export class Gating {
                 if (rookOrig!==null && !this.inCastlingTargets(rookOrig, color, moveLength)) {
                     moves["special"] = [rookOrig, orig, dest];
                 }
-                const pieces: PiecesDiff = {};
+                const pieces: cg.PiecesDiff = {};
                 pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'r-piece'};
                 pieces[((moveLength > 0) ? "g" : "c") + orig[1]] = {color: color, role: 'k-piece'};
                 ground.setPieces(pieces);
@@ -106,7 +106,7 @@ export class Gating {
         return false;
     }
 
-    private inCastlingTargets(key: Key, color: Color, moveLength: number) {
+    private inCastlingTargets(key: cg.Key, color: cg.Color, moveLength: number) {
         if (color === "white") {
             if (moveLength > 0) {
                 // O-O
@@ -124,7 +124,7 @@ export class Gating {
         }
     }
 
-    private canGate(ground: Api, fen: FEN, orig: Key, dest: Key) {
+    private canGate(ground: Api, fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
         // A move can be gating in two cases: 1. normal move of one virgin piece 2. castling
         // Determine that a move made was castling may be tricky in S-Chess960
         // because we use autocastle on in chessground and after castling
@@ -144,7 +144,7 @@ export class Gating {
         // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
 
         const pieceMoved = ground.state.pieces[dest];
-        const pieceMovedRole: Role = pieceMoved?.role ?? 'k-piece';
+        const pieceMovedRole: cg.Role = pieceMoved?.role ?? 'k-piece';
         if (pieceMovedRole === 'k-piece' || pieceMovedRole === 'r-piece') {
             if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
                 (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
@@ -179,7 +179,7 @@ export class Gating {
         }
     }
 
-    private gate(orig: Key, color: Color, role: Role) {
+    private gate(orig: cg.Key, color: cg.Color, role: cg.Role) {
         const g = this.ctrl.getGround();
         g.newPiece({ "role": role, "color": color }, orig)
         let position = (this.ctrl.turnColor === this.ctrl.mycolor) ? "bottom": "top";
@@ -195,7 +195,7 @@ export class Gating {
         }
     }
 
-    private drawGating(moves: Moves, color: Color, orientation: Color) {
+    private drawGating(moves: Moves, color: cg.Color, orientation: cg.Color) {
         const container = toVNode(document.querySelector('extension') as Node);
         patch(container, this.view(moves, color, orientation));
     }
@@ -205,7 +205,7 @@ export class Gating {
         patch(container, h('extension'));
     }
 
-    private finish(gatedPieceRole: Role|"", moveType: keyof Moves, color: Color) {
+    private finish(gatedPieceRole: cg.Role|"", moveType: keyof Moves, color: cg.Color) {
         if (this.gating) {
             this.drawNoGating();
 
@@ -236,7 +236,7 @@ export class Gating {
         return;
     }
 
-    private squareView(orig: Key, color: Color, orientation: Color, moveType: keyof Moves) {
+    private squareView(orig: cg.Key, color: cg.Color, orientation: cg.Color, moveType: keyof Moves) {
         let left = (8 - key2pos(orig)[0]) * 12.5;
         if (orientation === "white") left = 87.5 - left;
         return this.choices.map((gatedPieceRole, i) => {
@@ -253,7 +253,7 @@ export class Gating {
         })
     }
 
-    private view(moves: Moves, color: Color, orientation: Color) {
+    private view(moves: Moves, color: cg.Color, orientation: cg.Color) {
         const direction = color === orientation ? "top" : "bottom";
         let squares: VNode[] = [];
         if (moves.normal) squares = this.squareView(moves.normal[0], color, orientation, "normal");

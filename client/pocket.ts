@@ -9,7 +9,6 @@ import style from 'snabbdom/modules/style';
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
-import { Color, Role } from 'chessgroundx/types';
 
 import { role2san, letter2role, lc, unpromotedRole } from './chess';
 import RoundController from './roundCtrl';
@@ -20,7 +19,7 @@ const patch = init([klass, attributes, properties, style, listeners]);
 
 type Position = 'top' | 'bottom';
 
-type Pocket = Partial<Record<Role, number>>;
+type Pocket = Partial<Record<cg.Role, number>>;
 export type Pockets = [Pocket, Pocket];
 
 // There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
@@ -31,7 +30,7 @@ const eventsDropping = ['mouseup', 'touchend'];
 /**
  *
  */
-export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: Color, position: Position) {
+export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: cg.Color, position: Position) {
     const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
     const roles = Object.keys(pocket); // contains the list of possible pieces/roles (i.e. for crazyhouse p-piece, n-piece, b-piece, r-piece, q-piece) in the order they will be displayed in the pocket
 
@@ -99,7 +98,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
             '--ranks': String(ctrl.variant.boardHeight),
         },
         hook: insertHook
-    }, roles.map( (role: Role) => {
+    }, roles.map( (role: cg.Role) => {
         const nb = pocket[role] || 0;
 
         let clazz;
@@ -295,7 +294,7 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
     for (const role in pocket) {
-        letters.push(role2san(role as Role).repeat(pocket[role as Role] || 0));
+        letters.push(role2san(role as cg.Role).repeat(pocket[role as cg.Role] || 0));
     }
     return letters.join('');
 }

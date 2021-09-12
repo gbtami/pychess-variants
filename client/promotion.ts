@@ -5,8 +5,8 @@ import style from 'snabbdom/modules/style';
 import { h } from 'snabbdom/h';
 import { toVNode } from 'snabbdom/tovnode';
 
-import { key2pos } from 'chessgroundx/util';
-import { Color, Key, PiecesDiff, Role } from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
+import * as cg from 'chessgroundx/types';
 
 import { san2role, role2san } from './chess';
 import { bind } from './document';
@@ -18,7 +18,7 @@ const patch = init([listeners, style]);
 
 export class Promotion {
     ctrl: RoundController | AnalysisController;
-    promoting: {orig: Key, dest: Key, callback: (orig: string, dest: string, promo: string) => void} | null;
+    promoting: {orig: cg.Key, dest: cg.Key, callback: (orig: string, dest: string, promo: string) => void} | null;
     choices: { [ role: string ]: string };
 
     constructor(ctrl: RoundController | AnalysisController) {
@@ -27,7 +27,7 @@ export class Promotion {
         this.choices = {};
     }
 
-    start(movingRole: Role, orig: Key, dest: Key, disableAutoqueen: boolean = false) {
+    start(movingRole: cg.Role, orig: cg.Key, dest: cg.Key, disableAutoqueen: boolean = false) {
         const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces[dest] === undefined) return false;
@@ -45,7 +45,7 @@ export class Promotion {
             if (Object.keys(this.choices).length === 1) {
                 const role = Object.keys(this.choices)[0];
                 const promo = this.choices[role];
-                this.promote(ground, dest, role as Role);
+                this.promote(ground, dest, role as cg.Role);
                 this.ctrl.sendMove(orig, dest, promo);
             } else {
                 this.drawPromo(dest, color, orientation);
@@ -61,18 +61,18 @@ export class Promotion {
         return false;
     }
 
-    private promotionFilter(move: string, role: Role, orig: Key, dest: Key) {
+    private promotionFilter(move: string, role: cg.Role, orig: cg.Key, dest: cg.Key) {
         if (this.ctrl.variant.promotion === 'kyoto')
             if (orig === "a0")
                 return move.startsWith("+" + role2san(role));
         return move.slice(0, -1) === orig + dest;
     }
 
-    private canPromote(role: Role, orig: Key, dest: Key) {
+    private canPromote(role: cg.Role, orig: cg.Key, dest: cg.Key) {
         return this.ctrl.promotions.some(move => this.promotionFilter(move, role, orig, dest));
     }
 
-    private promotionChoices(role: Role, orig: Key, dest: Key) {
+    private promotionChoices(role: cg.Role, orig: cg.Key, dest: cg.Key) {
         const variant = this.ctrl.variant;
         const possiblePromotions = this.ctrl.promotions.filter(move => this.promotionFilter(move, role, orig, dest));
         const choice: { [ role: string ]: string } = {}; // TODO: same type as this.choices - maybe create a named type
@@ -99,12 +99,12 @@ export class Promotion {
         return choice;
     }
 
-    private isMandatoryPromotion(role: Role, orig: Key, dest: Key) {
+    private isMandatoryPromotion(role: cg.Role, orig: cg.Key, dest: cg.Key) {
         return this.ctrl.variant.isMandatoryPromotion(role, orig, dest, this.ctrl.mycolor);
     }
 
-    private promote(g: Api, key: Key, role: Role) {
-        const pieces: PiecesDiff = {};
+    private promote(g: Api, key: cg.Key, role: cg.Role) {
+        const pieces: cg.PiecesDiff = {};
         const piece = g.state.pieces[key];
         if (piece && piece.role !== role) {
             pieces[key] = {
@@ -116,7 +116,7 @@ export class Promotion {
         }
     }
 
-    private drawPromo(dest: Key, color: Color, orientation: Color) {
+    private drawPromo(dest: cg.Key, color: cg.Color, orientation: cg.Color) {
         const container = toVNode(document.querySelector('extension') as Node);
         patch(container, this.view(dest, color, orientation));
     }
@@ -126,14 +126,14 @@ export class Promotion {
         patch(container, h('extension'));
     }
 
-    private finish(role: Role) {
+    private finish(role: cg.Role) {
         if (this.promoting) {
             this.drawNoPromo();
             this.promote(this.ctrl.getGround(), this.promoting.dest, role);
             const promo = this.choices[role];
 
             if (this.ctrl.variant.promotion === 'kyoto') {
-                const droppedPiece = promo ? role2san(role.slice(1) as Role) : role2san(role);
+                const droppedPiece = promo ? role2san(role.slice(1) as cg.Role) : role2san(role);
                 if (this.promoting.callback) this.promoting.callback(promo + droppedPiece, "@", this.promoting.dest);
             } else {
                 if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo);
@@ -149,9 +149,9 @@ export class Promotion {
         return;
     }
 
-    private view(dest: Key, color: Color, orientation: Color) {
+    private view(dest: cg.Key, color: cg.Color, orientation: cg.Color) {
         const dim = this.ctrl.getGround().state.dimensions
-        const pos = key2pos(dest);
+        const pos = util.key2pos(dest);
 
         const leftFile = (orientation === "white") ? pos[0] - 1 : dim.width - pos[0];
         const left = leftFile * (100 / dim.width);
@@ -180,7 +180,7 @@ export class Promotion {
                     style: { top: top + "%", left: left + "%" },
                     hook: bind("click", e => {
                         e.stopPropagation();
-                        this.finish(role as Role);
+                        this.finish(role as cg.Role);
                     }, null)
                 },
                     [ h(`piece.${role}.${color}.${side}`) ]

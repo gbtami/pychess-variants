@@ -13,7 +13,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Variant, Notation } from 'chessgroundx/types';
+import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { getPockets, VARIANTS, validFen, IVariant, hasCastling } from './chess'
@@ -30,8 +30,8 @@ export class EditorController {
     chessground: Api;
     fullfen: string;
     startfen: string;
-    mycolor: Color;
-    oppcolor: Color;
+    mycolor: cg.Color;
+    oppcolor: cg.Color;
     parts: string[];
     castling: string;
     pocketsPart: string;
@@ -72,9 +72,9 @@ export class EditorController {
         this.chessground = Chessground(el, {
             fen: this.parts[0],
             autoCastle: false,
-            variant: this.variant.name as Variant,
+            variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
-            notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
+            notation: (this.variant.name === 'janggi') ? cg.Notation.JANGGI : cg.Notation.DEFAULT, // TODO make this more generic / customisable
             orientation: this.mycolor,
             movable: {
                 free: true,

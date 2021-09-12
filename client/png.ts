@@ -1,7 +1,7 @@
 import { toPng } from 'html-to-image';
-import {FEN} from "chessgroundx/types";
+import * as cg from 'chessgroundx/types';
 
-export function copyBoardToPNG(fen: FEN) {
+export function copyBoardToPNG(fen: cg.FEN) {
     const el = document.getElementById('mainboard') as HTMLElement;
     const style = getComputedStyle(document.body);
     const width = parseInt(style.getPropertyValue('--cgwrapwidth'));

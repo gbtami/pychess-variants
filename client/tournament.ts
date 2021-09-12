@@ -26,7 +26,7 @@ import { boardSettings } from './boardSettings';
 import { Api } from "chessgroundx/api";
 import { PyChessModel } from "./main";
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
-import { FEN, Key } from "chessgroundx/types";
+import * as cg from 'chessgroundx/types';
 
 const T_STATUS = {
     0: "created",
@@ -81,7 +81,7 @@ interface MsgUserConnectedTournament {
 	tminutes: number;
 	frequency: string;
 	startsAt: string;
-	startFen: FEN;
+	startFen: cg.FEN;
 
 	username: string;
 	ustatus: string;
@@ -124,7 +124,7 @@ interface MsgPing {
 interface TopGame {
     gameId: string;
     variant: string;
-    fen: FEN;
+    fen: cg.FEN;
     w: string;
     b: string;
     wr: number;
@@ -138,15 +138,15 @@ interface TopGame {
 export default class TournamentController {
     model: PyChessModel;
     sock;
-    readyState: number;//seems unused
+    readyState: number; // seems unused
     buttons: VNode;
     system: number;
-    players: TournamentPlayer[];//seems unused
+    players: TournamentPlayer[]; // seems unused
     nbPlayers: number;
     page: number;
     tournamentStatus: string;
     userStatus: string;
-    userRating: number;//seems unused
+    userRating: number; // seems unused
     action: VNode;
     clockdiv: VNode;
     topGame: TopGame;
@@ -704,12 +704,12 @@ export default class TournamentController {
             return;
         };
 
-        let lastMove: Key[] = [];
+        let lastMove: cg.Key[] = [];
         if (msg.lastMove !== undefined) {
             const lastMoveStr = uci2cg(msg.lastMove);
             // drop lastMove causing scrollbar flicker,
             // so we remove from part to avoid that
-            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as Key] : [lastMoveStr.slice(0, 2) as Key, lastMoveStr.slice(2, 4) as Key];
+            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
         }
         this.topGameChessground.set({
             fen: msg.fen,

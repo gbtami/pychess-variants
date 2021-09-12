@@ -84,8 +84,8 @@ export interface MsgSpectators {
 
 export interface MsgUserConnected {
     username: string;
-    ply?: number;//used only in roundctrl
-    firstmovetime?: number;//used only in roundctrl
+    ply?: number; // used only in roundctrl
+    firstmovetime?: number; // used only in roundctrl
 }
 
 export interface MsgGameEnd {
@@ -111,11 +111,11 @@ export interface RDiffs {
     wrdiff: number;
 }
 
-export type MsgMove = {// cannot be interface because canot be converted to an indexed type and JSONObject, which is used in doSend is such
+export type MsgMove = { // cannot be interface because canot be converted to an indexed type and JSONObject, which is used in doSend is such
      type: string;//"move"
      gameId: string;
      move: string;
-     clocks: { movetime: number; white: number; black: number; };//looks a lot like Clocks interface, but maybe overkil to reuse it - i dont know
+     clocks: { movetime: number; white: number; black: number; }; // looks a lot like Clocks interface, but maybe overkil to reuse it - i dont know
      ply: number;
 }
 

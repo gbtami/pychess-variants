@@ -17,7 +17,7 @@ import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { PyChessModel } from "./main";
-import { FEN } from "chessgroundx/types";
+import * as cg from "chessgroundx/types";
 import { Ceval } from "./messages";
 
 
@@ -159,7 +159,7 @@ interface Game {
     _id: string;
     z: number;
     v: string;
-    f: FEN;
+    f: cg.FEN;
 
     b: number;
     i: number;

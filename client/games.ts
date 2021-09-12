@@ -15,7 +15,7 @@ import { VARIANTS, uci2cg } from './chess';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { Api } from "chessgroundx/api";
-import { FEN, Key } from "chessgroundx/types";
+import * as cg from "chessgroundx/types";
 
 export interface Game {
     gameId: string;
@@ -26,11 +26,11 @@ export interface Game {
     byoyomi: number;
     b: string;
     w: string;
-    fen: FEN;
-    lastMove: Key[];
+    fen: cg.FEN;
+    lastMove: cg.Key[];
 }
 
-function gameView(games: {[gameId: string]: Api}, game: Game, fen: FEN, lastMove: Key[]) {
+function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
