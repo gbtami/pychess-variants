@@ -8,13 +8,6 @@ import { timeago, renderTimeago } from './datetime';
 import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeControlStr } from "./view";
 import { PyChessModel } from "./main";
-import {Api} from "chessgroundx/api";
-
-declare global {
-    interface Window {
-        cg: Api;
-    }
-}
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;

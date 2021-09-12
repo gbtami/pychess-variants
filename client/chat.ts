@@ -19,7 +19,7 @@ export function chatView (ctrl: RoundController | AnalysisController | Tournamen
         if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
             return;
         const message = (e.target as HTMLInputElement).value;
-        if ((e.keyCode == 13 || e.which == 13) && message.length > 0) {
+        if ((e.keyCode === 13 || e.which === 13) && message.length > 0) {
             ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": ( (ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? "spectator": "player"});
             (e.target as HTMLInputElement).value = "";
         }
@@ -58,7 +58,7 @@ export function chatView (ctrl: RoundController | AnalysisController | Tournamen
 export function chatMessage (user: string, message: string, chatType: string) {
     const myDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
-    const isScrolled = myDiv.scrollTop == myDiv.scrollHeight - myDiv.offsetHeight;
+    const isScrolled = myDiv.scrollTop === myDiv.scrollHeight - myDiv.offsetHeight;
 
     const container = document.getElementById('messages') as HTMLElement;
     if (user.length === 0) {

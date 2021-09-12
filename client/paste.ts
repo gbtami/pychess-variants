@@ -24,7 +24,7 @@ export function pasteView(model: PyChessModel): VNode[] {
         //console.log('PGN:', e.value);
         let pgn = e.value;
         // Add missing Variant tag and switch short/long castling notations
-        if (pgn.indexOf(BRAINKING_SITE) != -1 && pgn.indexOf(EMBASSY_FEN) != -1) {
+        if (pgn.indexOf(BRAINKING_SITE) !== -1 && pgn.indexOf(EMBASSY_FEN) !== -1) {
             const lines = pgn.split(/\n/);
             const fenIndex = lines.findIndex((elem) => {return elem.startsWith('[FEN ');});
             lines[fenIndex] = `[FEN "${VARIANTS['embassy'].startFen}"]`;
@@ -132,7 +132,7 @@ export function pasteView(model: PyChessModel): VNode[] {
             }
 
             XHR.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.readyState === 4 && this.status === 200) {
                     const response = JSON.parse(this.responseText);
                     if (response['gameId'] !== undefined) {
                         window.location.assign(model["home"] + '/' + response['gameId']);

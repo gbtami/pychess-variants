@@ -19,7 +19,7 @@ import { Api } from "chessgroundx/api";
 
 const patch = init([attributes, event, style]);
 
-export interface Moves{
+export interface Moves {
     normal?: Key[],
     special?: Key[]
 }
@@ -84,7 +84,7 @@ export class Gating {
 
             if (castling) {
                 // UCI move castling + gating to rook vacant square is rook takes king!
-                if (rookOrig!=null && !this.inCastlingTargets(rookOrig, color, moveLength)) {
+                if (rookOrig!==null && !this.inCastlingTargets(rookOrig, color, moveLength)) {
                     moves["special"] = [rookOrig, orig, dest];
                 }
                 const pieces: PiecesDiff = {};

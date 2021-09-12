@@ -23,7 +23,19 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, dropIsValid, DropOrig } from './chess';
+import {
+    role2san,
+    uci2cg,
+    cg2uci,
+    VARIANTS,
+    IVariant,
+    getPockets,
+    getCounting,
+    isHandicap,
+    dropIsValid,
+    DropOrig,
+    CGMove
+} from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -31,62 +43,47 @@ import { renderRdiff } from './profile'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
-import {
-    Clocks,
-    MsgBoard,
-    MsgChat,
-    MsgCtable,
-    MsgFullChat,
-    MsgGameEnd,
-    MsgGameNotFound,
-    MsgMove,
-    MsgNewGame,
-    MsgShutdown,
-    MsgSpectators,
-    MsgUserConnected,
-    RDiffs,
-    Step
-} from "./messages";
+import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
 
 const patch = init([klass, attributes, properties, listeners]);
 
 let rang = false;
 
-interface MsgUserDisconnected{
+interface MsgUserDisconnected {
     username: string;
 }
 
-interface MsgUserPresent{
+interface MsgUserPresent {
     username: string;
 }
 
-interface MsgMoreTime{
+interface MsgMoreTime {
     username: string;
 }
 
-interface MsgOffer{
+interface MsgOffer {
 	message: string;
 }
 
-interface MsgCount{
+interface MsgCount {
 	message: string;
 }
 
-interface MsgSetup{
+interface MsgSetup {
 	fen: cg.FEN;
 	color: cg.Color;
 }
 
-interface MsgGameStart{
+interface MsgGameStart {
 	gameId: string;
 }
 
-interface MsgViewRematch{
+interface MsgViewRematch {
 	gameId: string;
 }
 
-interface MsgUpdateTV{
+interface MsgUpdateTV {
 	gameId: string;
 }
 
@@ -385,7 +382,7 @@ export default class RoundController {
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
         }
 
-        if (!this.spectator && model["rated"] != '1' && this.model['wtitle'] !== 'BOT' && this.model['btitle'] !== 'BOT') {
+        if (!this.spectator && model["rated"] !== '1' && this.model['wtitle'] !== 'BOT' && this.model['btitle'] !== 'BOT') {
             const container = document.getElementById('more-time') as HTMLElement;
             patch(container, h('div#more-time', [
                 h('button.icon.icon-plus-square', {
@@ -617,7 +614,7 @@ export default class RoundController {
                 if (isOver) {
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("VIEW TOURNAMENT"))]));
-                } else{
+                } else {
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO TOURNAMENT"))]));
                     buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
@@ -745,7 +742,7 @@ export default class RoundController {
                 }); // if yes - show normal dests on turn start after the pre-drop dests were hidden
             }
         } else {
-            if (this.chessground.state.draggable.current){
+            if (this.chessground.state.draggable.current) {
                 // we have just received a message from the server confirming it is not our turn (i.e. we must have just moved a piece)
                 // at the same time we are dragging a piece - either we are very fast and managed to grab another piece while
                 // waiting for server's message that confirm the move we just made, or the move we just made was a pre-move/pre-drop
@@ -958,7 +955,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const move = cg2uci(orig + dest + promo);
+        const move = cg2uci(orig + dest + promo as CGMove);//TODO:niki:this promo thing doesnt fit. leaving temporary like this and will investigate later
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;
@@ -1020,7 +1017,7 @@ export default class RoundController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest != 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             }
         }

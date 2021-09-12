@@ -17,7 +17,7 @@ import { timeControlStr } from './view';
 import { Api } from "chessgroundx/api";
 import { FEN, Key } from "chessgroundx/types";
 
-export interface Game{
+export interface Game {
     gameId: string;
     variant: string;
     chess960: boolean;

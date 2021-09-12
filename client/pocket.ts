@@ -109,7 +109,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
 
         const dropMode = ctrl.chessground?.state.dropmode;
         const dropPiece = ctrl.chessground?.state.dropmode.piece;
-        const selectedSquare = dropMode?.active && dropPiece?.role == role && dropPiece?.color == color;
+        const selectedSquare = dropMode?.active && dropPiece?.role === role && dropPiece?.color === color;
 
         if (ctrl instanceof RoundController) {
             const preDropRole = ctrl.predrop?.role;
@@ -200,7 +200,7 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
     if (ctrl.chessground.state.dropmode.active) {
         cancelDropMode(ctrl.chessground.state);
 
-        if (ctrl.chessground.state.dropmode.piece?.role == role) {
+        if (ctrl.chessground.state.dropmode.piece?.role === role) {
             // we mark it with this only if we are cancelling the same piece we "drag"
             el.setAttribute("canceledDropMode", "true");
         }

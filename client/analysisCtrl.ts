@@ -35,7 +35,8 @@ import {
     san2role,
     dropIsValid,
     DropOrig,
-    UCIMove
+    UCIMove,
+    CGMove
 } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
@@ -932,7 +933,7 @@ export default class AnalysisController {
     }
 
     sendMove = (orig: cg.Key | DropOrig, dest: cg.Key, promo: string) => {
-        const move = cg2uci(orig + dest + promo);
+        const move = cg2uci(orig + dest + promo as CGMove);//TODO:niki:this promo thing doesnt fit. leaving temporary like this and will investigate later
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
@@ -1069,7 +1070,7 @@ export default class AnalysisController {
             const diff: cg.PiecesDiff = {};
             diff[util.pos2key(pawnPos)] = undefined;
             this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece", color: moved.color=== "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
+            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
         // increase pocket count
         if (this.variant.drop && meta.captured) {
@@ -1180,7 +1181,7 @@ export default class AnalysisController {
             ceval = score['mate']
             const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
             scoreStr = '#' + sign + Math.abs(Number(ceval));
-        } else if (score['cp'] !== undefined){
+        } else if (score['cp'] !== undefined) {
             ceval = score['cp']
             let nscore = Number(ceval) / 100.0;
             if (color === 'b') nscore = -nscore;

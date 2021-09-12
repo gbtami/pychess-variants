@@ -161,7 +161,7 @@ export class Clock {
         let minutes = Math.floor(millis / 60000);
         let seconds = (millis % 60000) / 1000;
         let secs, mins;
-        if (Math.floor(seconds) == 60) {
+        if (Math.floor(seconds) === 60) {
             minutes++;
             seconds = 0;
         }

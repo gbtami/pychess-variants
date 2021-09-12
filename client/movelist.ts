@@ -17,7 +17,7 @@ import { Step } from "./messages";
 
 export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
     ctrl.goPly(ply, plyVari);
-    if (plyVari == 0) {
+    if (plyVari === 0) {
         activatePly(ctrl);
         scrollToPly(ctrl);
     } else {
@@ -41,8 +41,8 @@ function scrollToPly (ctrl: AnalysisController | RoundController) {
 
     let st: number | undefined = undefined;
 
-    if (ctrl.ply == 0) st = 0;
-    else if (ctrl.ply == ctrl.steps.length - 1) st = 99999;
+    if (ctrl.ply === 0) st = 0;
+    else if (ctrl.ply === ctrl.steps.length - 1) st = 99999;
     else if (plyEl) st = plyEl.offsetTop - movelistEl.offsetHeight / 2 + plyEl.offsetHeight / 2;
 
     if (st !== undefined)
@@ -68,8 +68,8 @@ export function createMovelistButtons (ctrl: AnalysisController | RoundControlle
             // this line is necessary, but I don't understand why
             ctrl.ply = Math.min(ctrl.ply, "plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length - 1 : Number.MAX_VALUE);
             selectMove(ctrl, 
-                (ctrl.ply == 0 && "plyVari" in ctrl && ctrl.plyVari > 0) ? ctrl.plyVari : Math.max(ctrl.ply - 1, 0),
-                "plyVari" in ctrl ? (ctrl.ply == 0 && ctrl.plyVari > 0) ? 0 : ctrl.plyVari: 0 )
+                (ctrl.ply === 0 && "plyVari" in ctrl && ctrl.plyVari > 0) ? ctrl.plyVari : Math.max(ctrl.ply - 1, 0),
+                "plyVari" in ctrl ? (ctrl.ply === 0 && ctrl.plyVari > 0) ? 0 : ctrl.plyVari: 0 )
             } 
         } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ("plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length : ctrl.steps.length) - 1), "plyVari" in ctrl? ctrl.plyVari : 0) } }, [ h('i.icon.icon-step-forward') ]),
@@ -131,7 +131,7 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
     }
 
     const container = document.getElementById('movelist') as HTMLElement;
-    if (full){
+    if (full) {
         while (container.lastChild) {
             container.removeChild(container.lastChild);
         }

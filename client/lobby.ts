@@ -33,7 +33,7 @@ interface Stream {
     streamer: string;
 }
 
-interface Spotlight{
+interface Spotlight {
     variant: string;
     chess960: boolean;
     nbPlayers: number;
@@ -42,49 +42,49 @@ interface Spotlight{
     tid: string;
 }
 
-interface MsgInviteCreated{
+interface MsgInviteCreated {
 	gameId: string;
 }
 
-interface MsgGetSeeks{
+interface MsgGetSeeks {
 	seeks: Seek[]
 }
 
-interface MsgNewGame{
+interface MsgNewGame {
 	gameId: string;
 }
 
-interface MsgGameInProgress{
+interface MsgGameInProgress {
 	gameId: string;
 }
 
-interface MsgUserConnected{
+interface MsgUserConnected {
 	username: string;
 }
 
-interface MsgPing{
+interface MsgPing {
 	timestamp: string;//TODO: not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
 }
 
-interface MsgError{
+interface MsgError {
 	message: string;
 }
 
-interface MsgShutdown{
+interface MsgShutdown {
 	message: string;
 }
 
-interface MsgGameCounter{
+interface MsgGameCounter {
 	cnt: number;
 }
-interface MsgUserCounter{
+interface MsgUserCounter {
     cnt: number;
 }
-interface MsgStreams{
+interface MsgStreams {
 	items: Stream[];
 }
 
-interface MsgSpotlights{
+interface MsgSpotlights {
 	items: Spotlight[];
 }
 

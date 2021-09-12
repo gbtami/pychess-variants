@@ -6,12 +6,22 @@ import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 import { InsertHook } from "snabbdom/src/hooks";
+import {VNode} from "snabbdom/vnode";
 
 const pieceSan = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'] as const;
 export type PieceSan = `${'+' | ''}${typeof pieceSan[number]}`;
 export type DropOrig = `${PieceSan}@`;
-export type UCIOrig = cg.Key | DropOrig;
-export type UCIMove = `${UCIOrig}${cg.Key}`;
+
+export type CGOrig = cg.Key | DropOrig;
+
+export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
+export type UCIRank = typeof ranksUCI[number];
+export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
+
+export type UCIOrig = UCIKey | DropOrig;
+
+export type UCIMove = `${UCIOrig}${UCIKey}`;
+export type CGMove = `${CGOrig}${cg.Key}`;
 
 export interface BoardFamily {
     geometry: cg.Geometry;
@@ -696,7 +706,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
 };
 
-function variantGroupLabel(group: string) {
+function variantGroupLabel(group: string): string {
     const groups: {[index: string]: string} = {
         standard: _("Chess Variants"),
         sea: _("Makruk Variants"),
@@ -708,7 +718,7 @@ function variantGroupLabel(group: string) {
     return groups[group];
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook) {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook): VNode {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
@@ -728,11 +738,11 @@ export function selectVariant(id: string, selected: string, onChange: EventListe
 }
 
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
-export function isHandicap(name: string) {
+export function isHandicap(name: string): boolean {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
 }
 
-export function hasCastling(variant: IVariant, color: cg.Color) {
+export function hasCastling(variant: IVariant, color: cg.Color): boolean {
     if (variant.name === 'placement') return true;
     const castl = variant.startFen.split(' ')[2];
     if (color === 'white') {
@@ -742,16 +752,16 @@ export function hasCastling(variant: IVariant, color: cg.Color) {
     }
 }
 
-export function uci2cg(move: UCIMove) {
-    return move.replace(/10/g, ":");
+export function uci2cg(move: UCIMove): CGMove {
+    return move.replace(/10/g, ":") as CGMove;
 }
 
-export function cg2uci(move: string) : UCIMove {
+export function cg2uci(move: CGMove): UCIMove {
     return move.replace(/:/g, "10") as UCIMove;
 }
 
 // TODO Will be deprecated after WASM Fairy integration
-export function validFen(variant: IVariant, fen: string) {
+export function validFen(variant: IVariant, fen: string): boolean {
     const as = variant.alternateStart;
     if (as !== undefined) {
         if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
@@ -871,11 +881,11 @@ export function validFen(variant: IVariant, fen: string) {
     return true;
 }
 
-function diff(a: number, b:number):number {
+function diff(a: number, b:number): number {
     return Math.abs(a - b);
 }
 
-function touchingKings(pieces: cg.Pieces) {
+function touchingKings(pieces: cg.Pieces): boolean {
     let wk = 'xx', bk = 'zz';
     Object.keys(pieces).filter(key => pieces[key]?.role === "k-piece").forEach(key => {
         if (pieces[key]?.color === 'white') wk = key;
@@ -886,7 +896,7 @@ function touchingKings(pieces: cg.Pieces) {
 }
 
 // pocket part of the FEN (including brackets)
-export function getPockets(fen: string) {
+export function getPockets(fen: string): string {
     const placement = fen.split(" ")[0];
     let pockets = "";
     const bracketPos = placement.indexOf("[");

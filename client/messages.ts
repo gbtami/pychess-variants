@@ -1,7 +1,11 @@
+// TODO: This files contains types related almost entirely only to web socket messages, and ONLY those that are used in more than one different places (.ts files)
+//       Other such (message) types which are specific only to single file/page and never re-used in multiple places exist in their corresponding files.
+//       Would be good to review the types here and those other types in each specific file (e.g. roundCtrl.ts, analysisCtrl.ts, editorCtrl.ts, tournament.ts, lobby.ts)
+//       and see if there is any duplication or the ones that are here should be split or any other improvement that might be needed or better organization can be found
 import * as cg from "chessgroundx/types";
 import { UCIMove } from "./chess";
 
-export interface Step{
+export interface Step {
     fen: cg.FEN;
     move: UCIMove | undefined;
     check: boolean;
@@ -26,13 +30,13 @@ export interface CrossTable {
 
 }
 
-export interface MsgCtable{
+export interface MsgCtable {
     ct: CrossTable
 }
-export interface MsgGameNotFound{
+export interface MsgGameNotFound {
     gameId: string;
 }
-export interface MsgShutdown{
+export interface MsgShutdown {
     message: string;
 }
 
@@ -84,7 +88,7 @@ export interface MsgUserConnected {
     firstmovetime?: number;//used only in roundctrl
 }
 
-export interface MsgGameEnd{
+export interface MsgGameEnd {
     /*"type": "gameEnd"*/
     status: number;
     result: string;
@@ -94,7 +98,7 @@ export interface MsgGameEnd{
     rdiffs: RDiffs;
 }
 
-export interface MsgNewGame{
+export interface MsgNewGame {
 	gameId: string;
 }
 
@@ -102,7 +106,7 @@ export interface Clocks {
     white: number; black: number;
 }
 
-export interface RDiffs{
+export interface RDiffs {
     brdiff: number;
     wrdiff: number;
 }

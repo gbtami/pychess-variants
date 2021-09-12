@@ -9,13 +9,6 @@ import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeControlStr } from './view'
 import { PyChessModel } from "./main";
 
-declare global {
-    interface Window {
-        onFSFline: (arg0: string) => void;
-        fsf: any;
-    }
-}
-
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new AnalysisController(el, model);

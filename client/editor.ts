@@ -5,13 +5,6 @@ import { _ } from './i18n';
 import { selectVariant, VARIANTS } from './chess';
 import { EditorController } from './editorCtrl';
 import { PyChessModel } from "./main";
-import { Api } from "chessgroundx/api";
-
-declare global {
-    interface Window {
-        cg: Api;
-    }
-}
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;

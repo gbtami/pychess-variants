@@ -60,7 +60,7 @@ const line_re = /(\d+) +([^ ]+)/u;
 export function resultString(movingPlayerWin: boolean, ply: number, isHandicap: boolean) {
     if (ply % 2 === ((movingPlayerWin) ? 1 : 0)) {
         return (!isHandicap) ? '1-0' : '0-1';
-    } else{
+    } else {
         return (!isHandicap) ? '0-1' : '1-0';
     }
 }
@@ -140,11 +140,11 @@ export function parseKif(text: string): KIF {
 
             if (zensuji.includes(s[0])) {
                 next_position = zen_map[s[0]] + kan_map[s[1]];
-            } else if (s[0] == '同') {
+            } else if (s[0] === '同') {
                 // used when the destination coordinate is the same as that of the immediately preceding move
-            } else if (s[0] == '反') {
+            } else if (s[0] === '反') {
                 status = 10; // illegal move
-                if (s == '反則勝ち') {
+                if (s === '反則勝ち') {
                     // indicates that the immediately preceding move was illegal
                     result = resultString(WIN, ply, isHandicap);
                 } else {
@@ -152,31 +152,31 @@ export function parseKif(text: string): KIF {
                     result = resultString(LOSS, ply, isHandicap);
                 }
                 break;
-            } else if (s[0] == '切') {
+            } else if (s[0] === '切') {
                 status = 6; // time out/flag drop
                 result = resultString(LOSS, ply, isHandicap);
                 break;
-            } else if (s[0] == '投') {
+            } else if (s[0] === '投') {
                 status = 2; // resignation
                 result = resultString(LOSS, ply, isHandicap);
                 break;
-            } else if (s[0] == '詰') {
+            } else if (s[0] === '詰') {
                 status = 1; // checkmate
                 result = resultString(WIN, ply, isHandicap);
                 break;
-            } else if (s[0] == '入') {
+            } else if (s[0] === '入') {
                 status = 12; // entering king (campmate)
                 result = resultString(WIN, ply, isHandicap);
                 break;
-            } else if (s[0] == '千') {
+            } else if (s[0] === '千') {
                 status = 13; // repetition
                 result = '1/2-1/2';
                 break;
-            } else if (s[0] == '持') {
+            } else if (s[0] === '持') {
                 status = 5; // impasse
                 result = '1/2-1/2';
                 break;
-            } else if (s[0] == '中') {
+            } else if (s[0] === '中') {
                 status = 0; // aborted
                 break;
             } else {
@@ -187,7 +187,7 @@ export function parseKif(text: string): KIF {
             if (pieces.includes(s[2])) {
                 piace_name = piece_map[s[2]];
                 rest = s.slice(3);
-            } else if (s[2] == '成') {
+            } else if (s[2] === '成') {
                 piace_name = '+' + piece_map[s[3]];
                 rest = s.slice(4);
             } else {
@@ -196,12 +196,12 @@ export function parseKif(text: string): KIF {
             }
 
             let promote = '';
-            if (rest[0] == '成') {
+            if (rest[0] === '成') {
                 promote = '+';
                 prev_position = rest[2] + alpha[parseInt(rest[3])-1];
-            } else if (rest[0] == '打') {
+            } else if (rest[0] === '打') {
                 prev_position = '@';
-            } else if (rest[0] == '(') {
+            } else if (rest[0] === '(') {
                 prev_position = rest[1] + alpha[parseInt(rest[2])-1];
             } else {
                 console.log('Unknown ???', rest[0], lines[i], res);
@@ -211,7 +211,7 @@ export function parseKif(text: string): KIF {
             //const num = parseInt(res[1]);
             //console.log(num, ply, piace_name, prev_position, next_position, promote);
             let move;
-            if (prev_position == '@') {
+            if (prev_position === '@') {
                 move = piace_name + prev_position + mirror(next_position) + promote;
             } else {
                 move = mirror(prev_position) + mirror(next_position) + promote;

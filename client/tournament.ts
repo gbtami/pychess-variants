@@ -42,11 +42,11 @@ const SCORE_SHIFT = 100000;
 
 const SHIELD = 's';
 
-interface MsgUserStatus{
+interface MsgUserStatus {
 	ustatus: string;
 }
 
-interface MsgGetGames{
+interface MsgGetGames {
     rank: number;
     name: string;
     title: string;
@@ -56,7 +56,7 @@ interface MsgGetGames{
 	nbGames: number;
 }
 
-interface TournamentGame{
+interface TournamentGame {
 	gameId: string;
 	title: string;
 	name: string;
@@ -65,7 +65,7 @@ interface TournamentGame{
 	rating: number;
 }
 
-interface MsgTournamentStatus{
+interface MsgTournamentStatus {
 	tstatus: number;
 	secondsToFinish: number;
 	nbPlayers: number;
@@ -76,7 +76,7 @@ interface MsgTournamentStatus{
 	draw: number;
 }
 
-interface MsgUserConnectedTournament{
+interface MsgUserConnectedTournament {
 	tsystem: number;
 	tminutes: number;
 	frequency: string;
@@ -92,7 +92,7 @@ interface MsgUserConnectedTournament{
 	secondsToFinish: number;
 }
 
-interface MsgGetPlayers{
+interface MsgGetPlayers {
 	page: number;
 	requestedBy: string;
 	nbPlayers: number;
@@ -101,7 +101,7 @@ interface MsgGetPlayers{
 	players: TournamentPlayer[]
 }
 
-interface TournamentPlayer{
+interface TournamentPlayer {
 	name: string;
 	score: number;
 	paused: boolean;
@@ -114,14 +114,14 @@ interface TournamentPlayer{
 	nbWin: number;
 }
 
-interface MsgError{
+interface MsgError {
 	message: string;
 }
-interface MsgPing{
+interface MsgPing {
 	timestamp: string;
 }
 
-interface TopGame{
+interface TopGame {
     gameId: string;
     variant: string;
     fen: FEN;
@@ -572,7 +572,7 @@ export default class TournamentController {
             }
         }
 
-        if (this.page == msg.page || msg.requestedBy === this.model["username"]) {
+        if (this.page === msg.page || msg.requestedBy === this.model["username"]) {
             this.players = msg.players;
             this.page = msg.page;
             this.nbPlayers = msg.nbPlayers;
@@ -593,17 +593,17 @@ export default class TournamentController {
     }
 
     durationString(minutes: number) {
-        if (minutes == 0) return '';
+        if (minutes === 0) return '';
         if (minutes < 60) {
             return " • " + minutes + 'm';
         } else {
-            return " • " + Math.floor(minutes / 60) + 'h' + ((minutes % 60 != 0) ? ' ' + (minutes % 60) + 'm': '')
+            return " • " + Math.floor(minutes / 60) + 'h' + ((minutes % 60 !== 0) ? ' ' + (minutes % 60) + 'm': '')
         }
     }
 
     renderDescription(text: string) {
         const parts = text.split(/(\[.*?\))/g);
-        if (parts != null && parts.length > 0) {
+        if (parts !== null && parts.length > 0) {
             const newArr = parts.map(el => {
                 const txtPart = el.match(/\[(.+)\]/);  //get only the txt
                 const urlPart = el.match(/\((.+)\)/);  //get only the link

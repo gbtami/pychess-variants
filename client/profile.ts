@@ -155,7 +155,7 @@ export function renderRdiff(rdiff: number) {
     }
 }
 
-interface Game{
+interface Game {
     _id: string;
     z: number;
     v: string;
@@ -180,7 +180,7 @@ interface Game{
     a: Ceval[];
 }
 
-interface Player{
+interface Player {
     e: string;
     d: number;
 }
@@ -269,7 +269,7 @@ function loadGames(model: PyChessModel, page: number) {
     }
 
     xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
 
             // If empty JSON, exit the function

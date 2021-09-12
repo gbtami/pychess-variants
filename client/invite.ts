@@ -57,7 +57,7 @@ export function inviteView(model: PyChessModel): VNode[] {
                     h('div.rated', gameType(model["rated"])),
                 ]),
             ]),
-            (model["inviter"] == "") ?
+            (model["inviter"] === "") ?
             h('div.inviteinfo', [
                 h('div', _('To invite someone to play, give this URL:')),
                 h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: gameURL}}),
