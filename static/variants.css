@@ -2,6 +2,7 @@ iframe {
     display: block;
     margin: auto;
 }
+
 /* Variant category colors */
 .chess[data-icon] {
     color: #8FA2AD;
