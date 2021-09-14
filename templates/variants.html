@@ -11,7 +11,7 @@
     </li>
     {% for key in variants %}
     <li>
-    <div class="icon" data-icon="{{ icons[key] }}">
+    <div class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}">
         <a href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key).title() }}</a>
     </div>
     </li>

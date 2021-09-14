@@ -126,7 +126,8 @@ async def init_state(app):
     app["tv"] = None
 
     app["twitch"] = Twitch(app)
-    await app["twitch"].init_subscriptions()
+    if not DEV:
+        await app["twitch"].init_subscriptions()
 
     # fishnet active workers
     app["workers"] = set()

@@ -144,6 +144,20 @@ VARIANT_960_TO_PGN = {
     "grand": "Grand",
 }
 
+CATEGORIES = {
+    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
+    "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
+    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror"),
+    "makruk": ("makruk", "makpong", "cambodian", "sittuyin"),
+    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
+    "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
+}
+
+VARIANT_GROUPS = {}
+for categ in CATEGORIES:
+    for variant in CATEGORIES[categ]:
+        VARIANT_GROUPS[variant] = categ
+
 TROPHIES = {
     "top1": (static_url("images/trophy/Big-Gold-Cup.png"), "Champion!"),
     "top10": (static_url("images/trophy/Big-Silver-Cup.png"), "Top 10!"),
