@@ -3,6 +3,10 @@
     display: grid;
     grid-gap: 0.5rem;
 }
+.sidebar-first {
+    box-shadow: none;
+}
+
 @media (max-width: 799px) and (orientation: portrait) {
     .editor-app {
         grid-template-rows: auto;

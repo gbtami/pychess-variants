@@ -8,7 +8,9 @@
     grid-area: main;
     display: grid;
 }
-
+.sidebar-first {
+    box-shadow: none;
+}
 @media (max-width: 799px) and (orientation: portrait) {
     .analysis-app {
         grid-template-rows: auto;
