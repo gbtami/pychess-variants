@@ -20,8 +20,8 @@ export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
 
 export type UCIOrig = UCIKey | DropOrig;
 
-export type UCIMove = `${UCIOrig}${UCIKey}`;
-export type CGMove = `${CGOrig}${cg.Key}`;
+export type UCIMove = `${UCIOrig}${UCIKey}`; // TODO: this is missing suffix for promotion which is also part of the move
+export type CGMove = `${CGOrig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
 
 export interface BoardFamily {
     geometry: cg.Geometry;
@@ -752,12 +752,12 @@ export function hasCastling(variant: IVariant, color: cg.Color): boolean {
     }
 }
 
-export function uci2cg(move: UCIMove): CGMove {
-    return move.replace(/10/g, ":") as CGMove;
+export function uci2cg(move: string): string {
+    return move.replace(/10/g, ":");
 }
 
-export function cg2uci(move: CGMove): UCIMove {
-    return move.replace(/:/g, "10") as UCIMove;
+export function cg2uci(move: string): string {
+    return move.replace(/:/g, "10");
 }
 
 // TODO Will be deprecated after WASM Fairy integration
@@ -973,7 +973,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
     return drops.includes(key);
 }
 
-// Convert a list of moves to chessground destination
+// Convert a list of moves to chessground destination TODO: Not used anywhere (also UCIMove was changed meanwhile because it incorrectly represent CG moves before)
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     const dests: cg.Dests = {};
     legalMoves.map(uci2cg).forEach(move => {
@@ -987,7 +987,7 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     return dests;
 }
 
-// Convert a move to array of squares for last move highlight
+// Convert a move to array of squares for last move highlight. TODO: Not used anywhere (also UCIMove was changed meanwhile because it incorrectly represent CG moves before)
 export function uci2array(move: UCIMove): cg.Key[] {
     const cgMove = uci2cg(move);
     return cgMove.includes('@') ? [ cgMove.slice(2, 4) as cg.Key ] : [ cgMove.slice(0, 2) as cg.Key, cgMove.slice(2, 4) as cg.Key];

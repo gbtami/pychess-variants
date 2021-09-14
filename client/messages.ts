@@ -3,11 +3,10 @@
 //       Would be good to review the types here and those other types in each specific file (e.g. roundCtrl.ts, analysisCtrl.ts, editorCtrl.ts, tournament.ts, lobby.ts)
 //       and see if there is any duplication or the ones that are here should be split or any other improvement that might be needed or better organization can be found
 import * as cg from "chessgroundx/types";
-import { UCIMove } from "./chess";
 
 export interface Step {
     fen: cg.FEN;
-    move: UCIMove | undefined;
+    move: string | undefined;
     check: boolean;
     turnColor: cg.Color;
 
@@ -54,7 +53,7 @@ export interface MsgBoard {
     gameId: string;
     fen: string;
     ply: number;
-    lastMove: UCIMove;
+    lastMove: string;
     dests: cg.Dests;
     promo: string[];
     bikjang: boolean;

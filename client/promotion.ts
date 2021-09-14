@@ -134,7 +134,7 @@ export class Promotion {
 
             if (this.ctrl.variant.promotion === 'kyoto') {
                 const droppedPiece = promo ? role2san(role.slice(1) as cg.Role) : role2san(role);
-                if (this.promoting.callback) this.promoting.callback(promo + droppedPiece, "@", this.promoting.dest);
+                if (this.promoting.callback) this.promoting.callback(promo + droppedPiece + "@", this.promoting.dest, ""); // TODO: this callback is actually roundCtrl|analysisCtrl.sendMove where params are not string but exact types. Here "@" is not correct type so kinda hackish, but eventually all gets concatenated back to valid type, just intermediately a little shady business going on
             } else {
                 if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo);
             }

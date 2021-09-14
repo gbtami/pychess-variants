@@ -23,19 +23,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
 import { sound } from './sound';
-import {
-    role2san,
-    uci2cg,
-    cg2uci,
-    VARIANTS,
-    IVariant,
-    getPockets,
-    getCounting,
-    isHandicap,
-    dropIsValid,
-    DropOrig,
-    CGMove
-} from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, dropIsValid, DropOrig } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -955,7 +943,7 @@ export default class RoundController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const move = cg2uci(orig + dest + promo as CGMove);//TODO:niki:this promo thing doesnt fit. leaving temporary like this and will investigate later
+        const move = cg2uci(orig + dest + promo);
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;

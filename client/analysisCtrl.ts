@@ -25,19 +25,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
 import { sound } from './sound';
-import {
-    role2san,
-    uci2cg,
-    cg2uci,
-    VARIANTS,
-    IVariant,
-    getPockets,
-    san2role,
-    dropIsValid,
-    DropOrig,
-    UCIMove,
-    CGMove
-} from './chess';
+import {role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid, DropOrig} from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -69,7 +57,7 @@ interface MsgAnalysisBoard {
     gameId: string;
     fen: string;
     ply: number;
-    lastMove: UCIMove;
+    lastMove: string;
     dests: cg.Dests;
     promo: string[];
     bikjang: boolean;
@@ -669,7 +657,7 @@ export default class AnalysisController {
         }
 
         if (ceval?.p !== undefined && !!ceval.m) {
-            const pv_move = uci2cg(ceval.m.split(" ")[0] as UCIMove);
+            const pv_move = uci2cg(ceval.m.split(" ")[0]);
             console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
@@ -781,7 +769,7 @@ export default class AnalysisController {
         // console.log(legalMoves);
         const dests: cg.Dests = {};
         this.promotions = [];
-        legalMoves.forEach((move: UCIMove) => {
+        legalMoves.forEach((move: string) => {
             const moveStr = uci2cg(move);
             const source = moveStr.slice(0, 2);
             const dest = moveStr.slice(2, 4);
@@ -932,8 +920,8 @@ export default class AnalysisController {
         return moves.join(' ');
     }
 
-    sendMove = (orig: cg.Key | DropOrig, dest: cg.Key, promo: string) => {
-        const move = cg2uci(orig + dest + promo as CGMove);//TODO:niki:this promo thing doesnt fit. leaving temporary like this and will investigate later
+    sendMove = (orig: cg.Key | string, dest: cg.Key, promo: string) => {
+        const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
