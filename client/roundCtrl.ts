@@ -16,7 +16,7 @@ import { cancelDropMode } from 'chessgroundx/drop';
 import predrop from 'chessgroundx/predrop';
 
 import { JSONObject } from './types';
-import { _ } from './i18n';
+import { _, ngettext } from './i18n';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
@@ -1184,11 +1184,12 @@ export default class RoundController {
                 sound.lowTime();
                 rang = true;
             }
+            const secs: number = Math.floor(timeLeft / 1000);
             this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position + '.expiration',
                 {class:
                     {emerg, 'bar-glider': this.turnColor === this.mycolor}
                 },
-                [h('strong', Math.floor(timeLeft / 1000)), 'seconds to play the first move']
+                [h('strong', secs), ngettext('second to play the first move', 'seconds to play the first move', secs)]
             ));
         }
     }

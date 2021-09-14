@@ -262,12 +262,13 @@ class Game:
                 self.update_status()
 
                 # Stop manual counting when the king is bared
-                if self.board.count_started > 0:
+                if self.board.count_started != 0:
                     board_state = self.board.fen.split()[0]
                     white_pieces = sum(1 for c in board_state if c.isupper())
                     black_pieces = sum(1 for c in board_state if c.islower())
                     if white_pieces <= 1 or black_pieces <= 1:
-                        self.stop_manual_count()
+                        if self.board.count_started > 0:
+                            self.stop_manual_count()
                         self.board.count_started = 0
 
                 if self.status > STARTED:

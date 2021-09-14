@@ -195,6 +195,7 @@ cg-board square.current-premove {
 }
 .blindfold piece {
   opacity: 0;
+  position: relative;
 }
 .cg-wrap.cg-640 piece {
   width: 10%;

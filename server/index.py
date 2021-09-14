@@ -19,7 +19,7 @@ except ImportError:
     def html_minify(html):
         return html
 
-from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
+from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, VARIANT_GROUPS, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -390,6 +390,7 @@ async def index(request):
 
     elif view == "variants":
         render["icons"] = VARIANT_ICONS
+        render["groups"] = VARIANT_GROUPS
         # variant None indicates intro.md
         if lang in ("es", "hu", "it", "pt", "fr"):
             locale = ".%s" % lang

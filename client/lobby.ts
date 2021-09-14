@@ -714,7 +714,7 @@ export class LobbyController {
             h('span.content', [
                 h('span.name', spotlight.name),
                 h('span.more', [
-                    h('nb', spotlight.nbPlayers + ' players • '),
+                    h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
                     h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
                 ])
             ])

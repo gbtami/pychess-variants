@@ -65,6 +65,8 @@
     --vpanel-button: #fbfbfb;
     --vpanel-button-hover: #fdfdfd;
     --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
+    --chat-entry-border-top: #d9d9d9;
+    --chat-entry-bg: #fafaf9; 
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -75,7 +77,7 @@
     --bg-body: #161512 linear-gradient(to bottom, #2e2a24, #161512 116px) no-repeat;
     --bg-color0: #262421;
     --bg-color1: #2e2a24;
-    --bg-color2: #333333;
+    --bg-color2: #302e2c;
     --bg-seek: #2e2a24;
     --bg-meta: #302e2c;
     --bg-input: #24221e;
@@ -116,6 +118,8 @@
     --vpanel-button-hover: #464440;
     --panel-link-hover: rgb(179, 179, 179);
     --box-shadow-panel-btn: none;
+    --chat-entry-border-top: #404040;
+    --chat-entry-bg: #262421; 
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
@@ -347,6 +351,7 @@ iframe {
     flex-flow: column nowrap;
     justify-content: right;
     overflow: hidden;
+    box-shadow: var(--base-shadow);
 }
 .sidebar-second{
     grid-area: table;
@@ -945,7 +950,7 @@ player-title {
     margin-left:0.5em;
 }
 i-side, .icon-cloud-upload:before {
-    margin-right: .4em;
+    margin-right: 0px;
 }
 .icon-blue:before {
     content: "\62";
@@ -1147,7 +1152,7 @@ table#seeks-header, table#seeks {
 /* Input fields */
 select, input {
     padding: 12px 20px;
-    margin: 8px 0;
+    margin: 0px;
     display: inline;
     border: 1px solid var(--input-border);
     box-sizing: border-box;
@@ -1521,7 +1526,6 @@ label {
     flex-direction: column;
     justify-content: center;
     background: var(--bg-color0);
-    box-shadow: var(--base-shadow);
     min-height: 15em;
     border-radius: 3px;
 }
@@ -1530,10 +1534,11 @@ label {
     display: inline-flex;
     align-items: center;
     margin-right: 3px;
-    width: 0.9em;
-    height: 0.6em;
+    width: 0.8em;
+    height: 0.55em;
     background: white;
     background-position: center;
+    transform: translateY(2px);
 }
 .chat .discord-icon {
     fill: #5865F2;
@@ -1544,11 +1549,13 @@ user {
     font-weight: bold;
 }
 div.chatroom {
-    border-bottom: 1px solid var(--bg-color2);
+    border-bottom: none;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: .2em 10px;
+    padding: .5em 10px;
+    letter-spacing: 0.011em;
+    font-weight: 300;
 }
 
 #checkbox {
@@ -1557,7 +1564,7 @@ div.chatroom {
     background: var(--bg-color2);
     xfloat: right;
     xmargin: revert;
-    padding: 0.6em;
+    padding: 0.5em;
     border-radius: 3px;
     border: 1px solid var(--checkbox-border);
     cursor: pointer;
@@ -1596,12 +1603,16 @@ li.message.server {
 #chat-entry {
     display: flex;
     order: 2;
-    border: 1px solid var(--bg-color2);
+    border: none; 
+    border-top: 1px solid var(--chat-entry-border-top);
     margin: 0;
-    padding: 3px;
+    padding: 5px 20px 4px 4px;
     margin-top: auto;
     color: var(--font-color);
-    background: var(--bg-color0);
+    background: var(--chat-entry-bg);
+    font-size: 13.6894; 
+    letter-spacing: 0.035em;
+    font-weight: 300;
 }
 #spectators {
     overflow-wrap: break-word
