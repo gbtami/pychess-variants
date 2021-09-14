@@ -920,7 +920,7 @@ export default class AnalysisController {
         return moves.join(' ');
     }
 
-    sendMove = (orig: cg.Key | string, dest: cg.Key, promo: string) => {
+    sendMove = (orig: cg.Key | DropOrig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);

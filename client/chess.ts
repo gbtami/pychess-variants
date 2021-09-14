@@ -973,7 +973,7 @@ export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolea
     return drops.includes(key);
 }
 
-// Convert a list of moves to chessground destination TODO: Not used anywhere (also UCIMove was changed meanwhile because it incorrectly represent CG moves before)
+// Convert a list of moves to chessground destination
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     const dests: cg.Dests = {};
     legalMoves.map(uci2cg).forEach(move => {
@@ -987,7 +987,7 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     return dests;
 }
 
-// Convert a move to array of squares for last move highlight. TODO: Not used anywhere (also UCIMove was changed meanwhile because it incorrectly represent CG moves before)
+// Convert a move to array of squares for last move highlight
 export function uci2array(move: UCIMove): cg.Key[] {
     const cgMove = uci2cg(move);
     return cgMove.includes('@') ? [ cgMove.slice(2, 4) as cg.Key ] : [ cgMove.slice(0, 2) as cg.Key, cgMove.slice(2, 4) as cg.Key];
