@@ -1,3 +1,4 @@
+@import "group-colors.css";
 /* Layer 3 - Three Column Layout Desktop */
 
 /* Main Container of all 3 columns  */
@@ -95,26 +96,6 @@ font-size: 1.3rem;
     vertical-align: middle;
     padding-right: 4px;
 }
-
-#layer2chesscont [data-icon],#chessl3cont [data-icon]:before,#chessl3cont .l3links:hover,#chessl3cont a:hover {
-    color: #90bfd5;
-}
-#layer2fairycont [data-icon],#fairyl3cont [data-icon]:before,#fairyl3cont .l3links:hover,#fairyl3cont a:hover {
-    color: #62B956;
-}
-#layer2armycont [data-icon],#armyl3cont [data-icon]:before,#armyl3cont .l3links:hover,#armyl3cont a:hover{
-    color: #7f8dff;
-}
-#layer2makrukcont [data-icon],#makrukl3cont [data-icon]:before,#makrukl3cont .l3links:hover,#makrukl3cont a:hover {
-    color: #d4aa00;
-}
-#layer2shogicont [data-icon],#shogil3cont [data-icon]:before,#shogil3cont .l3links:hover,#shogil3cont a:hover {
-    color: #c68948;
-}
-#layer2xiangqicont [data-icon],#xiangqil3cont [data-icon]:before,#xiangqil3cont .l3links:hover,#xiangqil3cont a:hover{
-    color: #ff5555;
-}
-
 
 /* Second Column with Image */
 

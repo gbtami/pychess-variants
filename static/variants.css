@@ -1,23 +1,5 @@
+@import "group-colors.css";
 iframe {
     display: block;
     margin: auto;
-}
-/* Variant category colors */
-.chess[data-icon] {
-    color: #8FA2AD;
-}
-.fairy[data-icon] {
-    color: #62B956;
-}
-.army[data-icon] {
-    color: #7f8dff;
-}
-.makruk[data-icon] {
-    color: #d4aa00;
-}
-.shogi[data-icon] {
-    color: #c68948;
-}
-.xiangqi[data-icon] {
-    color: #ff5555;
 }
