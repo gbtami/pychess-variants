@@ -135,14 +135,14 @@
     "Increment in seconds:": "Incremento en segundos:",
     "Alternate Start": "Comienzo alternativo",
     "Custom": "Personalizado",
+    "%1 player": [
+        "%1 jugador",
+        "%1 jugadores"
+    ],
     "You have an unfinished game!\nPress OK to continue.": "¡Tiene un juego sin terminar!\nPresione OK para continuar.",
     "%1 game in play": [
         "%1 partida en juego",
         "%1 partidas en juego"
-    ],
-    "%1 player": [
-        "%1 jugador",
-        "%1 jugadores"
     ],
     "Player": "Jugador",
     "Rating": "Puntuación",

@@ -92,11 +92,11 @@
     "Byoyomi in seconds:": "秒読み：",
     "Increment in seconds:": "１手ごとに増える秒数：",
     "Custom": "カスタム",
-    "%1 game in play": [
-        "%1局対局中"
-    ],
     "%1 player": [
         "現在%1人連続中"
+    ],
+    "%1 game in play": [
+        "%1局対局中"
     ],
     "Player": "プレイヤー",
     "Rating": "レーティング",
@@ -142,6 +142,9 @@
     "NEW OPPONENT": "新しい相手",
     "Stop counting": "手数を数え止める",
     "Start counting": "手数を数え始める",
+    "second to play the first move": [
+        ""
+    ],
     "Log out": "ログアウト",
     "Are you sure you want to log out?": "本当にログアウトしますか？",
     "Sound": "音声",

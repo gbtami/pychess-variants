@@ -206,18 +206,18 @@
     "Increment in seconds:": "Czas doliczany w sekundach",
     "Alternate Start": "Inna pozycja początkowa",
     "Custom": "Niestandardowe",
+    "%1 player": [
+        "%1 gracz",
+        "%1 graczy",
+        "%1 graczy",
+        "%1 graczy"
+    ],
     "You have an unfinished game!\nPress OK to continue.": "Jesteś w trakcie innej partii.\nKliknij OK aby kontynuować",
     "%1 game in play": [
         "%1 partia w trakcie",
         "%1 partie w trakcie",
         "%1 partii w trakcie",
         "%1 partii w trakcie"
-    ],
-    "%1 player": [
-        "%1 gracz",
-        "%1 graczy",
-        "%1 graczy",
-        "%1 graczy"
     ],
     "Player": "Gracz",
     "Rating": "Ranking",
@@ -283,6 +283,12 @@
     "Stop counting": "Przerwij odliczanie",
     "Stop": "Przerwij",
     "Start counting": "Zacznij odliczać",
+    "second to play the first move": [
+        "%1 sekunda na wykonanie pierwszego ruchu",
+        "%1 sekundy na wykonanie pierwszego ruchu",
+        "%1 sekund na wykonanie pierwszego ruchu",
+        "%1 sekundy na wykonanie pierwszego ruchu"
+    ],
     "Log out": "Wyloguj się",
     "Are you sure you want to log out?": "Na pewno chcesz się wylogować?",
     "Sound": "Dźwięk",

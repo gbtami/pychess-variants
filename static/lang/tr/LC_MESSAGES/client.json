@@ -105,14 +105,14 @@
     "Increment in seconds:": "Saniye olarak ekleme süresi: ",
     "Alternate Start": "Alternatif başlangıç",
     "Custom": "Özel",
+    "%1 player": [
+        "%1 oyuncu",
+        "%1 oyuncu "
+    ],
     "You have an unfinished game!\nPress OK to continue.": "Henüz tamamlanmamış bir oyununuz var!\nDevam etmek için OK tuşuna basın.",
     "%1 game in play": [
         "%1 oyun şu anda oynanıyor",
         "%1 oyun şu anda oynanıyor"
-    ],
-    "%1 player": [
-        "%1 oyuncu",
-        "%1 oyuncu "
     ],
     "Player": "Oyuncu",
     "Rating": "Puan",

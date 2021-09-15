@@ -178,14 +178,14 @@
     "Increment in seconds:": "Plusz idő másodpercben",
     "Alternate Start": "Kezdőállás",
     "Custom": "Egyéni",
+    "%1 player": [
+        "%1 játékos",
+        "%1 játékos"
+    ],
     "You have an unfinished game!\nPress OK to continue.": "Van egy befejezetlen játszmád!\nOK a folytatáshoz",
     "%1 game in play": [
         "%1 játszma",
         "%1 játszma"
-    ],
-    "%1 player": [
-        "%1 játékos",
-        "%1 játékos"
     ],
     "Player": "Játékos",
     "Rating": "Értékszám",
@@ -249,6 +249,10 @@
     "Stop counting": "Számolás leállítása",
     "Stop": "Stop!",
     "Start counting": "számolás indítása",
+    "second to play the first move": [
+        "másodperc az első lépés megtételére",
+        "másodperc az első lépés megtételére"
+    ],
     "Log out": "Kijelentkezés",
     "Are you sure you want to log out?": "Biztosan ki akarsz jelentkezni?",
     "Sound": "Hang",

@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-11 13:06+0200\n"
+"POT-Creation-Date: 2021-09-14 10:02+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2021\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -196,12 +196,12 @@ msgstr "mélység"
 msgid "Go deeper"
 msgstr "Mélyebben"
 
-#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1282
+#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1283
 #: ../client/tournament.ts:582
 msgid "Spectators: "
 msgstr "Nézők: "
 
-#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1347
+#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1348
 msgid "Requested game %1 not found!"
 msgstr "A kért %1 játszma nem található!"
 
@@ -728,6 +728,12 @@ msgstr "Kezdőállás"
 msgid "Custom"
 msgstr "Egyéni"
 
+#: ../client/lobby.ts:650 ../client/lobby.ts:774
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] "%1 játékos"
+msgstr[1] "%1 játékos"
+
 #: ../client/lobby.ts:729
 msgid ""
 "You have an unfinished game!\n"
@@ -741,12 +747,6 @@ msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 játszma"
 msgstr[1] "%1 játszma"
-
-#: ../client/lobby.ts:774
-msgid "%1 player"
-msgid_plural "%1 players"
-msgstr[0] "%1 játékos"
-msgstr[1] "%1 játékos"
 
 #: ../client/lobby.ts:790
 msgid "Player"
@@ -907,7 +907,7 @@ msgstr "Értékelt"
 msgid "Imported"
 msgstr "Importált"
 
-#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1330
+#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1331
 msgid " +15 seconds"
 msgstr "+15 másodperc"
 
@@ -992,6 +992,12 @@ msgstr "Stop!"
 #: ../client/roundCtrl.ts:1017 ../client/roundCtrl.ts:1019
 msgid "Start counting"
 msgstr "számolás indítása"
+
+#: ../client/roundCtrl.ts:1243
+msgid "second to play the first move"
+msgid_plural "seconds to play the first move"
+msgstr[0] "másodperc az első lépés megtételére"
+msgstr[1] "másodperc az első lépés megtételére"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

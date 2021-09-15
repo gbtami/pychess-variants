@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-11 13:06+0200\n"
+"POT-Creation-Date: 2021-09-14 10:02+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2021\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -200,12 +200,12 @@ msgstr "ความลึก"
 msgid "Go deeper"
 msgstr "ลึกกว่านี้"
 
-#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1282
+#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1283
 #: ../client/tournament.ts:582
 msgid "Spectators: "
 msgstr "ผู้ชม: "
 
-#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1347
+#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1348
 msgid "Requested game %1 not found!"
 msgstr "หาเกม %1 ไม่พบ!"
 
@@ -409,7 +409,8 @@ msgstr "นำปืนใหญ่และช้างจากหมากร
 #: ../client/chess.ts:540
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
-"มีการเลื่อนยศหมาก และสามารถนำหมากที่กินกลับมาวางได้ คล้ายกับหมากรุกญี่ปุ่น"
+"มีการเลื่อนยศหมากใหญ่ และสามารถนำหมากที่กินกลับมาวางได้ "
+"คล้ายกับหมากรุกญี่ปุ่น"
 
 #: ../client/chess.ts:553
 msgid ""
@@ -702,6 +703,11 @@ msgstr "ตำแหน่งเริ่มต้นอื่น"
 msgid "Custom"
 msgstr "กำหนดเอง"
 
+#: ../client/lobby.ts:650 ../client/lobby.ts:774
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] "%1 คนออนไลน์"
+
 #: ../client/lobby.ts:729
 msgid ""
 "You have an unfinished game!\n"
@@ -714,11 +720,6 @@ msgstr ""
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 เกมที่กำลังเล่น"
-
-#: ../client/lobby.ts:774
-msgid "%1 player"
-msgid_plural "%1 players"
-msgstr[0] "%1 คนออนไลน์"
 
 #: ../client/lobby.ts:790
 msgid "Player"
@@ -878,7 +879,7 @@ msgstr "คิดคะแนน"
 msgid "Imported"
 msgstr "นำเข้ามา"
 
-#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1330
+#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1331
 msgid " +15 seconds"
 msgstr "+15 วินาที"
 
@@ -963,6 +964,11 @@ msgstr "หยุด"
 #: ../client/roundCtrl.ts:1017 ../client/roundCtrl.ts:1019
 msgid "Start counting"
 msgstr "เริ่มนับ"
+
+#: ../client/roundCtrl.ts:1243
+msgid "second to play the first move"
+msgid_plural "seconds to play the first move"
+msgstr[0] ""
 
 #: ../client/settingsView.ts:62
 msgid "Log out"
@@ -1105,7 +1111,7 @@ msgstr "กลับ"
 
 #: ../client/lobby/layer2army.ts:35
 msgid "Horde: Horse-based army"
-msgstr "Horde: กองทัพทหารม้า"
+msgstr "Horde: กองทัพม้า"
 
 #: ../client/lobby/layer2army.ts:42
 msgid "Empire: Queen-based army"
@@ -1117,7 +1123,7 @@ msgstr "Horde ปะทะ Horde"
 
 #: ../client/lobby/layer2army.ts:56
 msgid "Clan: Drop-based army"
-msgstr "Clan: กองทัพจากนอกกระดาน"
+msgstr "Clan: กองทัพนินจา"
 
 #: ../client/lobby/layer2army.ts:63
 msgid "Dynasty: Xiangqi-based army"
@@ -1125,7 +1131,7 @@ msgstr "Dynasty: กองทัพหมากรุกจีน"
 
 #: ../client/lobby/layer2chess.ts:28
 msgid "Variants using a basic chess set but with different rules."
-msgstr "เกมที่ใช้ตัวหมากรุกสากลธรรมดาแล้วมีกฎเพิ่มเติม"
+msgstr "เกมที่ใช้ตัวหมากรุกสากลธรรมดา แล้วมีกฎเพิ่มเติม"
 
 #: ../client/lobby/layer2fairy.ts:26
 msgid ""
@@ -1136,11 +1142,11 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:29
 msgid " = Random (960) variant available. "
-msgstr "= เล่นแบบสุ่มตำแหน่งเริ่มต้น (960) ได้"
+msgstr " = เล่นแบบสุ่มตำแหน่งเริ่มต้น (960) ได้"
 
 #: ../client/lobby/layer2fairy.ts:32
 msgid " = Drop variant available."
-msgstr "= เล่นแบบเอาตัวหมากที่กินกลับมาวางบนกระดานได้"
+msgstr " = เล่นแบบเอาตัวหมากที่กินกลับมาวางบนกระดานได้"
 
 #: ../client/lobby/layer2fairy.ts:47
 msgid "Knight hybrid pieces"
@@ -1190,8 +1196,7 @@ msgstr "หมากรุกพม่า เลือกวางหมาก�
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
 msgstr ""
-"เกมหมากรุกจากประเทศญี่ปุ่น "
-"หมากทรงห้าเหลี่ยมทำให้สามารถวางหมากที่กินกลับมาบนกระดาน "
+"เกมหมากรุกจากประเทศญี่ปุ่น สามารถวางหมากที่กินกลับมาบนกระดาน "
 "และหมากส่วนใหญ่เลื่อนยศได้"
 
 #: ../client/lobby/layer2shogi.ts:35
@@ -1200,7 +1205,7 @@ msgstr "หมากรุกญี่ปุ่นธรรมดา 9x9"
 
 #: ../client/lobby/layer2shogi.ts:42
 msgid "5x5 Shogi"
-msgstr "หมากรุกญี่ปุ่น 5x5"
+msgstr "หมากรุกญี่ปุ่นเล็ก 5x5"
 
 #: ../client/lobby/layer2shogi.ts:49
 msgid "5x5, pieces flip each turn"
@@ -1212,7 +1217,7 @@ msgstr "หมากรุกสัตว์สำหรับสอนเด็
 
 #: ../client/lobby/layer2shogi.ts:63
 msgid "5x6 with Generals"
-msgstr "สำหรับฝึกใช้เงินและทอง 5x6"
+msgstr "หมากรุกเล็กสำหรับฝึกใช้เงินและทอง 5x6"
 
 #: ../client/lobby/layer2shogi.ts:70
 msgid "7x7, Bird Shogi"
@@ -1220,7 +1225,7 @@ msgstr "หมากรุกนก 7x7"
 
 #: ../client/lobby/layer2xiangqi.ts:26
 msgid "The ancient game of Chinese Chess and its variants."
-msgstr "เกมหมากรุกจากประเทศจีนที่มีประวัติศาสตร์ยาวนานหลายพันปี"
+msgstr "เกมหมากรุกจากประเทศจีน มีประวัติศาสตร์ยาวนานหลายพันปี"
 
 #: ../client/lobby/layer2xiangqi.ts:35
 msgid "Chinese Chess, one of the most played games in the world"
@@ -1236,7 +1241,7 @@ msgstr "หมากรุกจีนขนาดเล็ก บนกระ�
 
 #: ../client/lobby/layer2xiangqi.ts:56
 msgid "Asymmetric variant with one side having a super piece"
-msgstr "เกมอสมมาตรที่ฝั่งหนึ่งมีแค่หมากระดับเทพตัวเดียว"
+msgstr "เกมอสมมาตรที่ฝั่งหนึ่งมีแค่หมากระดับเทพตัวเดียวเท่านั้น"
 
 #: ../client/lobby/layer3.ts:49
 msgid "Challenge a friend"
@@ -1248,7 +1253,7 @@ msgstr "กติกา"
 
 #: ../client/lobby/layer3.ts:61
 msgid "Tip: "
-msgstr "เคล็ดลับ:"
+msgstr "เคล็ดลับ: "
 
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."
@@ -1268,7 +1273,7 @@ msgstr "เข้าป้อมด้วยการเดินคิงใส
 
 #: ../client/lobby/layer3.ts:91
 msgid "You can play more at www.lichess.org."
-msgstr "สามารถเล่นที่ www.lichess.org ได้ด้วย"
+msgstr "เล่นได้ที่ www.lichess.org"
 
 #: ../client/lobby/layer3.ts:94
 msgid ""
@@ -1294,15 +1299,16 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:103
 msgid "The queen actually demotes upon capture, so it is not worth as much."
-msgstr "ควีนถูกกินแล้วจะอ่อนแอลง มันจึงไม่ได้มีค่ามากเท่าไร"
+msgstr "ควีนถูกกินแล้วจะอ่อนแอลง จึงไม่ได้มีค่ามากเท่าไร"
 
 #: ../client/lobby/layer3.ts:105
 msgid "The cannon is a tricky piece that needs to be closely followed."
-msgstr "ปืนใหญ่เป็นหมากที่ต้องจับตาดูให้ดี"
+msgstr "ปืนใหญ่เป็นหมากที่ป่วนพอสมควร ต้องจับตาดูมันให้ดี"
 
 #: ../client/lobby/layer3.ts:107
 msgid "Other piece sets are available, which may help avoid confusion."
-msgstr "มีตัวหมากแบบอื่นให้เลือกใช้ อาจจะช่วยให้ดูกระดานง่ายขึ้น"
+msgstr ""
+"มีตัวหมากแบบอื่นให้เลือกใช้ อาจจะช่วยให้แยกจากม้ากับบิชอปธรรมดาง่ายขึ้น"
 
 #: ../client/lobby/layer3.ts:114
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
@@ -1310,15 +1316,15 @@ msgstr "ระวังโดนยึดฐาน เกมนี้สาม�
 
 #: ../client/lobby/layer3.ts:117
 msgid "It is important to know the counting rules in endgames."
-msgstr "ควรศึกษากฎการนับศักดิ์กระดานและนับศักดิ์หมากให้ดี"
+msgstr "ควรศึกษากฎการนับศักดิ์กระดานและนับศักดิ์หมาก"
 
 #: ../client/lobby/layer3.ts:119
 msgid "Watch out for knight checks, since they cannot be blocked."
-msgstr "ระวังโดนม้ารุก มันป้องกันไม่ได้"
+msgstr "ม้าปิดรุกไม่ได้ ต้องระวังให้ดี"
 
 #: ../client/lobby/layer3.ts:121
 msgid "Be sure to review the nuances of pawn promotion rules."
-msgstr "ควรศึกษากฎการหงายเบี้ยให้ดี"
+msgstr "ควรศึกษากฎการหงายเบี้ย"
 
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."

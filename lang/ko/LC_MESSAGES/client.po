@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-11 13:06+0200\n"
+"POT-Creation-Date: 2021-09-14 10:02+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: 이상백 <esangbaek@ajou.ac.kr>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -181,12 +181,12 @@ msgstr "깊이"
 msgid "Go deeper"
 msgstr "더 알아보기"
 
-#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1282
+#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1283
 #: ../client/tournament.ts:582
 msgid "Spectators: "
 msgstr "관전자:"
 
-#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1347
+#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1348
 msgid "Requested game %1 not found!"
 msgstr "요청하신 %1 게임을 찾을 수 없습니다!"
 
@@ -667,6 +667,11 @@ msgstr "교대 시작"
 msgid "Custom"
 msgstr "임의 지정"
 
+#: ../client/lobby.ts:650 ../client/lobby.ts:774
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] "%1 명의 플레이어"
+
 #: ../client/lobby.ts:729
 msgid ""
 "You have an unfinished game!\n"
@@ -679,11 +684,6 @@ msgstr ""
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 개의 게임이 진행 중"
-
-#: ../client/lobby.ts:774
-msgid "%1 player"
-msgid_plural "%1 players"
-msgstr[0] "%1 명의 플레이어"
 
 #: ../client/lobby.ts:790
 msgid "Player"
@@ -843,7 +843,7 @@ msgstr ""
 msgid "Imported"
 msgstr "내보낸 파일"
 
-#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1330
+#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1331
 msgid " +15 seconds"
 msgstr "+15 초"
 
@@ -928,6 +928,11 @@ msgstr "중단하기"
 #: ../client/roundCtrl.ts:1017 ../client/roundCtrl.ts:1019
 msgid "Start counting"
 msgstr "계산 시작하기"
+
+#: ../client/roundCtrl.ts:1243
+msgid "second to play the first move"
+msgid_plural "seconds to play the first move"
+msgstr[0] ""
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

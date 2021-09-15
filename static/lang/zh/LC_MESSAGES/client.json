@@ -123,12 +123,12 @@
     "Practice with Random-Mover": "和随机走子电脑下棋",
     "Byoyomi in seconds:": "读秒：",
     "Increment in seconds:": "每步加时（秒）：",
+    "%1 player": [
+        "%1 在线棋手"
+    ],
     "You have an unfinished game!\nPress OK to continue.": "您正在下一局未结束的棋！\n请按确定以继续。",
     "%1 game in play": [
         "%1 对局进行中"
-    ],
-    "%1 player": [
-        "%1 在线棋手"
     ],
     "Player": "棋手",
     "Rating": "积分",
@@ -191,6 +191,9 @@
     "Stop counting": "停止数步",
     "Stop": "停",
     "Start counting": "开始数步",
+    "second to play the first move": [
+        ""
+    ],
     "Log out": "登出",
     "Are you sure you want to log out?": "您确定要登出吗？",
     "Sound": "声音",

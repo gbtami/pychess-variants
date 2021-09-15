@@ -11,14 +11,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-11 13:06+0200\n"
+"POT-Creation-Date: 2021-09-14 10:02+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: zh\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -169,12 +169,12 @@ msgstr "深度"
 msgid "Go deeper"
 msgstr "深入分析"
 
-#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1282
+#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1283
 #: ../client/tournament.ts:582
 msgid "Spectators: "
 msgstr "观众："
 
-#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1347
+#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1348
 msgid "Requested game %1 not found!"
 msgstr "未找到要求的棋局 %1 ！"
 
@@ -655,6 +655,11 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
+#: ../client/lobby.ts:650 ../client/lobby.ts:774
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] "%1 在线棋手"
+
 #: ../client/lobby.ts:729
 msgid ""
 "You have an unfinished game!\n"
@@ -667,11 +672,6 @@ msgstr ""
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 对局进行中"
-
-#: ../client/lobby.ts:774
-msgid "%1 player"
-msgid_plural "%1 players"
-msgstr[0] "%1 在线棋手"
 
 #: ../client/lobby.ts:790
 msgid "Player"
@@ -831,7 +831,7 @@ msgstr "积分"
 msgid "Imported"
 msgstr "导入的棋局"
 
-#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1330
+#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1331
 msgid " +15 seconds"
 msgstr "+15秒"
 
@@ -916,6 +916,11 @@ msgstr "停"
 #: ../client/roundCtrl.ts:1017 ../client/roundCtrl.ts:1019
 msgid "Start counting"
 msgstr "开始数步"
+
+#: ../client/roundCtrl.ts:1243
+msgid "second to play the first move"
+msgid_plural "seconds to play the first move"
+msgstr[0] ""
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

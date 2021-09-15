@@ -11,14 +11,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-11 13:06+0200\n"
+"POT-Creation-Date: 2021-09-14 10:02+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
@@ -199,12 +199,12 @@ msgstr "Głębokość"
 msgid "Go deeper"
 msgstr "Głębsza analiza"
 
-#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1282
+#: ../client/analysisCtrl.ts:1274 ../client/roundCtrl.ts:1283
 #: ../client/tournament.ts:582
 msgid "Spectators: "
 msgstr "Widzowie: "
 
-#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1347
+#: ../client/analysisCtrl.ts:1298 ../client/roundCtrl.ts:1348
 msgid "Requested game %1 not found!"
 msgstr "Szukana partia %1 nie została znaleziona!"
 
@@ -764,6 +764,14 @@ msgstr "Inna pozycja początkowa"
 msgid "Custom"
 msgstr "Niestandardowe"
 
+#: ../client/lobby.ts:650 ../client/lobby.ts:774
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] "%1 gracz"
+msgstr[1] "%1 graczy"
+msgstr[2] "%1 graczy"
+msgstr[3] "%1 graczy"
+
 #: ../client/lobby.ts:729
 msgid ""
 "You have an unfinished game!\n"
@@ -779,14 +787,6 @@ msgstr[0] "%1 partia w trakcie"
 msgstr[1] "%1 partie w trakcie"
 msgstr[2] "%1 partii w trakcie"
 msgstr[3] "%1 partii w trakcie"
-
-#: ../client/lobby.ts:774
-msgid "%1 player"
-msgid_plural "%1 players"
-msgstr[0] "%1 gracz"
-msgstr[1] "%1 graczy"
-msgstr[2] "%1 graczy"
-msgstr[3] "%1 graczy"
 
 #: ../client/lobby.ts:790
 msgid "Player"
@@ -949,7 +949,7 @@ msgstr "Rankingowe"
 msgid "Imported"
 msgstr "Wgrane"
 
-#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1330
+#: ../client/roundCtrl.ts:353 ../client/roundCtrl.ts:1331
 msgid " +15 seconds"
 msgstr "+15 sekund"
 
@@ -1034,6 +1034,14 @@ msgstr "Przerwij"
 #: ../client/roundCtrl.ts:1017 ../client/roundCtrl.ts:1019
 msgid "Start counting"
 msgstr "Zacznij odliczać"
+
+#: ../client/roundCtrl.ts:1243
+msgid "second to play the first move"
+msgid_plural "seconds to play the first move"
+msgstr[0] "%1 sekunda na wykonanie pierwszego ruchu"
+msgstr[1] "%1 sekundy na wykonanie pierwszego ruchu"
+msgstr[2] "%1 sekund na wykonanie pierwszego ruchu"
+msgstr[3] "%1 sekundy na wykonanie pierwszego ruchu"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

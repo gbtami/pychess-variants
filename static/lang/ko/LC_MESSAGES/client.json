@@ -117,12 +117,12 @@
     "Increment in seconds:": "초 증가",
     "Alternate Start": "교대 시작",
     "Custom": "임의 지정",
+    "%1 player": [
+        "%1 명의 플레이어"
+    ],
     "You have an unfinished game!\nPress OK to continue.": "아직 끝나지 않은 게임이 있습니다!\nOK 를 눌러 계속합니다.",
     "%1 game in play": [
         "%1 개의 게임이 진행 중"
-    ],
-    "%1 player": [
-        "%1 명의 플레이어"
     ],
     "Player": "플레이어",
     "Rating": "레이팅",
@@ -178,6 +178,9 @@
     "Stop counting": "계산 중단하기",
     "Stop": "중단하기",
     "Start counting": "계산 시작하기",
+    "second to play the first move": [
+        ""
+    ],
     "Log out": "로그아웃",
     "Are you sure you want to log out?": "정말 로그아웃 하시겠습니까?",
     "Sound": "음량",
