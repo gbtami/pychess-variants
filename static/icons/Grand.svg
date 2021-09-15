@@ -12,8 +12,11 @@
    viewBox="0 0 13.229166 13.229167"
    version="1.1"
    id="svg1579"
-   sodipodi:docname="Crazyhouse.svg"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+   sodipodi:docname="Grand.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="D:\Pictures\Chess Variants\Favicons\Grand.png"
+   inkscape:export-xdpi="365.56299"
+   inkscape:export-ydpi="365.56299">
   <defs
      id="defs1573">
     <inkscape:path-effect
@@ -82,6 +85,23 @@
        end_point="316.91112,96.060013"
        start_point="316.91112,90.060013"
        effect="mirror_symmetry" />
+    <linearGradient
+       gradientTransform="matrix(0.27867357,0,0,0.27867357,-0.3072497,283.2508)"
+       id="0"
+       x1="21.253"
+       y1="37.591999"
+       x2="77.639999"
+       y2="37.469002"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#fff"
+         id="stop15223" />
+      <stop
+         offset="1"
+         stop-color="#fff"
+         stop-opacity="0"
+         id="stop15225" />
+    </linearGradient>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -90,9 +110,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9195959"
-     inkscape:cx="33.163274"
-     inkscape:cy="1.9955312"
+     inkscape:zoom="7.919596"
+     inkscape:cx="24.151974"
+     inkscape:cy="4.0946846"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -124,9 +144,9 @@
      transform="translate(0,-283.77082)"
      style="opacity:0.98999999">
     <path
-       style="opacity:1;fill:#70787d;fill-opacity:0.99215686;stroke:none;stroke-width:3.34786987;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
-       d="M 25.03125 1.6171875 C 17.876001 6.8994553 -4.6789705 26.255859 4.2148438 26.255859 L 9.9726562 26.255859 L 9.9726562 47.367188 L 40.03125 47.367188 L 40.03125 26.255859 L 46.009766 26.255859 C 54.597937 25.999343 31.80769 6.8994553 25.03125 1.6171875 z M 30.857422 19.558594 A 3.1250003 3.1696429 0 0 1 33.982422 22.728516 A 3.1250003 3.1696429 0 0 1 30.857422 25.898438 A 3.1250003 3.1696429 0 0 1 27.732422 22.728516 A 3.1250003 3.1696429 0 0 1 30.857422 19.558594 z M 19.875 23.041016 A 3.1250003 3.1696429 0 0 1 23 26.210938 A 3.1250003 3.1696429 0 0 1 19.875 29.380859 A 3.1250003 3.1696429 0 0 1 16.75 26.210938 A 3.1250003 3.1696429 0 0 1 19.875 23.041016 z M 36.214844 33.666016 L 34.607422 36.523438 C 33.753866 38.04088 32.742528 40.769197 28.357422 38.933594 L 24.517578 37.326172 C 17.907219 34.558991 21.416985 42.510109 13.535156 37.058594 C 13.535156 37.058594 16.406632 37.770145 17.642578 37.683594 C 19.430116 37.558529 20.139463 35.253246 21.75 35.09375 C 24.98425 34.773662 27.755105 39.098087 30.857422 38.576172 C 33.246307 38.174295 36.214844 33.666016 36.214844 33.666016 z "
+       style="opacity:1;fill:#5e894f;fill-opacity:1;stroke:none;stroke-width:0.99999994;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       d="M 24.789062 2.5585938 L 19.300781 7.890625 L 11.722656 6.8359375 L 10.416016 14.375 L 3.6660156 17.976562 L 7.0410156 24.84375 L 3.6953125 31.726562 L 10.462891 35.296875 L 11.800781 42.832031 L 19.375 41.742188 L 24.886719 47.050781 L 30.375 41.71875 L 37.953125 42.773438 L 39.259766 35.234375 L 46.011719 31.632812 L 42.634766 24.765625 L 45.980469 17.884766 L 39.212891 14.3125 L 37.875 6.7792969 L 30.300781 7.8671875 L 24.789062 2.5585938 z M 24.837891 8.734375 A 16.071429 16.071429 0 0 1 40.910156 24.804688 A 16.071429 16.071429 0 0 1 24.837891 40.876953 A 16.071429 16.071429 0 0 1 8.765625 24.804688 A 16.071429 16.071429 0 0 1 24.837891 8.734375 z "
        transform="matrix(0.26458333,0,0,0.26458333,0,283.77082)"
-       id="rect7553" />
+       id="path13274" />
   </g>
 </svg>
