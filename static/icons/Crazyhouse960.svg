@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -15,7 +13,7 @@
    version="1.1"
    id="svg1579"
    sodipodi:docname="Crazyhouse960.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <defs
      id="defs1573">
     <inkscape:path-effect
@@ -100,12 +98,13 @@
      showgrid="false"
      units="px"
      showguides="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
      inkscape:window-maximized="1"
-     inkscape:lockguides="true" />
+     inkscape:lockguides="true"
+     inkscape:document-rotation="0" />
   <metadata
      id="metadata1576">
     <rdf:RDF>
@@ -114,7 +113,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -125,7 +124,7 @@
      transform="translate(0,-283.77082)"
      style="opacity:0.98999999">
     <path
-       style="opacity:1;fill:#88aa00;fill-opacity:1;stroke:none;stroke-width:3.34786987;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       style="opacity:1;fill:#70787d;fill-opacity:0.99215686;stroke:none;stroke-width:3.34786987;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        d="M 24.699219,1.6171875 C 17.922779,6.8994553 -4.220908,24.912964 4.3710938,24.912964 H 10.349609 V 47.367188 H 39.650391 V 24.912964 c 1.892132,0.464568 6.515625,0 6.515625,0 8.893814,0 -14.311548,-18.0135087 -21.466797,-23.2957765 z M 25.103516,20.21875 c 4.951704,0 9.902689,0.377297 10.65625,1.130859 1.507127,1.507163 1.507127,19.807367 0,21.314453 -1.507122,1.507125 -19.805374,1.507125 -21.3125,0 -1.507122,-1.507086 -1.507122,-19.80729 0,-21.314453 0.753565,-0.753335 5.704545,-1.130859 10.65625,-1.130859 z m -5.246094,2.314453 c -1.48648,-1.38e-4 -2.691544,1.204926 -2.691406,2.691406 -1.38e-4,1.48648 1.204926,2.691545 2.691406,2.691407 1.48648,1.38e-4 2.691544,-1.204927 2.691406,-2.691407 1.38e-4,-1.48648 -1.204926,-2.691544 -2.691406,-2.691406 z m 10.609375,0 c -1.48648,-1.38e-4 -2.691544,1.204926 -2.691406,2.691406 -1.38e-4,1.48648 1.204926,2.691545 2.691406,2.691407 1.485717,-9.4e-4 2.689592,-1.205689 2.689453,-2.691407 1.38e-4,-1.485717 -1.203736,-2.690466 -2.689453,-2.691406 z m -10.726563,6.824219 c -1.487243,-1.38e-4 -2.692623,1.206117 -2.691406,2.693359 -1.38e-4,1.48648 1.204926,2.691545 2.691406,2.691407 1.48648,1.38e-4 2.691545,-1.204927 2.691407,-2.691407 0.0012,-1.487243 -1.204164,-2.693498 -2.691407,-2.693359 z m 10.607422,0 c -1.48648,9.4e-4 -2.69067,1.206879 -2.689453,2.693359 -1.39e-4,1.485718 1.203736,2.690467 2.689453,2.691407 1.487243,0.0012 2.693499,-1.204163 2.69336,-2.691407 0.0012,-1.488006 -1.205354,-2.694578 -2.69336,-2.693359 z m -10.568359,6.826172 c -1.487243,-1.38e-4 -2.692623,1.206117 -2.691406,2.693359 9.4e-4,1.485717 1.205689,2.689591 2.691406,2.689453 1.485717,1.38e-4 2.690466,-1.203736 2.691406,-2.689453 0.0012,-1.487242 -1.204163,-2.693497 -2.691406,-2.693359 z m 10.607422,0 c -1.48648,9.4e-4 -2.69067,1.206879 -2.689453,2.693359 9.4e-4,1.484954 1.204499,2.688513 2.689453,2.689453 1.485717,1.38e-4 2.690466,-1.203736 2.691406,-2.689453 0.0012,-1.487242 -1.204163,-2.693497 -2.691406,-2.693359 z"
        transform="matrix(0.26458333,0,0,0.26458333,0,283.77082)"
        id="rect7553"
