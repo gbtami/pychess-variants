@@ -252,6 +252,13 @@ class Tournament(ABC):
             ]
         }
 
+        if self.status > T_STARTED:
+            page_json["podium"] = [
+                player_json(player, full_score) for
+                player, full_score in
+                self.leaderboard.items()[0:3]
+            ]
+
         self.leaderboard_cache[page] = page_json
         return page_json
 

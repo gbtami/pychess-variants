@@ -98,7 +98,8 @@ interface MsgGetPlayers {
 	nbPlayers: number;
 	nbGames: number;
 
-	players: TournamentPlayer[]
+	players: TournamentPlayer[];
+	podium?: TournamentPlayer[];
 }
 
 interface TournamentPlayer {
@@ -565,10 +566,10 @@ export default class TournamentController {
     }
 
     private onMsgGetPlayers(msg: MsgGetPlayers) {
-        if (this.completed() && msg.players.length >= 3 && msg.nbGames > 0) {
+        if (this.completed() && msg.podium && msg.players.length >= 3 && msg.nbGames > 0) {
             const podium = document.getElementById('podium') as HTMLElement;
             if (podium instanceof Element) {
-                patch(podium, this.renderPodium(msg.players));
+                patch(podium, this.renderPodium(msg.podium));
             }
         }
 
