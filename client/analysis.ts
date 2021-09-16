@@ -7,21 +7,15 @@ import { selectVariant, VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
 import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeControlStr } from './view'
+import { PyChessModel } from "./main";
 
-declare global {
-    interface Window {
-        onFSFline: (string) => void;
-        fsf;
-    }
-}
-
-function runGround(vnode: VNode, model) {
+function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new AnalysisController(el, model);
     window['onFSFline'] = ctrl.onFSFline;
 }
 
-function leftSide(model) {
+function leftSide(model: PyChessModel) {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
@@ -29,7 +23,7 @@ function leftSide(model) {
     const sc = variant.secondColor;
 
     if (model["gameId"] !== "") {
-        const tc = (model["base"] == "0" && model["inc"] == "0") ? "" : timeControlStr(model["base"], model["inc"], model["byo"]) + " • ";
+        const tc = (model["base"] === 0 && model["inc"] === 0) ? "" : timeControlStr(model["base"], model["inc"], model["byo"]) + " • ";
         return [
         h('div.game-info', [
             h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
@@ -80,7 +74,7 @@ function leftSide(model) {
 
     } else {
 
-        const setVariant = (isInput) => {
+        const setVariant = (isInput: boolean) => {
             let e;
             e = document.getElementById('variant') as HTMLSelectElement;
             const variant = e.options[e.selectedIndex].value;
@@ -98,7 +92,7 @@ function leftSide(model) {
     }
 }
 
-export function embedView(model): VNode[] {
+export function embedView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
 
@@ -145,7 +139,7 @@ export function embedView(model): VNode[] {
     ];
 }
 
-export function analysisView(model): VNode[] {
+export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
 
     renderTimeago();
@@ -230,7 +224,7 @@ export function analysisView(model): VNode[] {
     ];
 }
 
-function playerInfo(username: string, title: string, level: number, rating: number, rdiff: number | null) {
+function playerInfo(username: string, title: string, level: number, rating: string, rdiff: number | null) {
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
         username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),

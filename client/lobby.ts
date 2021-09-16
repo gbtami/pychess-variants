@@ -22,22 +22,106 @@ import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
+import { PyChessModel } from "./main";
+import { MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 
+interface Stream {
+    site: string;
+    title: string;
+    username: string;
+    streamer: string;
+}
+
+interface Spotlight {
+    variant: string;
+    chess960: boolean;
+    nbPlayers: number;
+    name: string;
+    startsAt: string;
+    tid: string;
+}
+
+interface MsgInviteCreated {
+	gameId: string;
+}
+
+interface MsgGetSeeks {
+	seeks: Seek[]
+}
+
+interface MsgNewGame {
+	gameId: string;
+}
+
+interface MsgGameInProgress {
+	gameId: string;
+}
+
+interface MsgUserConnected {
+	username: string;
+}
+
+interface MsgPing {
+	timestamp: string;//TODO: not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
+}
+
+interface MsgError {
+	message: string;
+}
+
+interface MsgShutdown {
+	message: string;
+}
+
+interface MsgGameCounter {
+	cnt: number;
+}
+interface MsgUserCounter {
+    cnt: number;
+}
+interface MsgStreams {
+	items: Stream[];
+}
+
+interface MsgSpotlights {
+	items: Spotlight[];
+}
+
+interface Seek {
+    user: string;
+    variant: string;
+    color: string;
+    fen: string;
+    base: number;
+    inc: number;
+    byoyomi: number;
+    chess960: boolean;
+    rated: boolean;
+    alternateStart: string;
+
+    bot: boolean;
+    rating: number;
+
+    seekID: string;
+
+    target: string;
+    title: string;
+}
 
 export class LobbyController {
-    model;
+    model: PyChessModel;
     sock;
-    player;
-    logged_in;
+    // player;
+    // logged_in;
     challengeAI: boolean;
     challengeRM: boolean;
     inviteFriend: boolean;
     validGameData: boolean;
-    _ws;
-    seeks;
-    streams;
-    spotlights;
+    readyState: number;
+    seeks: Seek[];
+    streams: VNode | HTMLElement;
+    spotlights: VNode | HTMLElement;
     minutesValues = [
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180
@@ -48,7 +132,7 @@ export class LobbyController {
     ];
     minutesStrings = ["0", "¼", "½", "¾"];
 
-    constructor(el, model) {
+    constructor(el: HTMLElement, model: PyChessModel) {
         console.log("LobbyController constructor", el, model);
 
         this.model = model;
@@ -58,13 +142,13 @@ export class LobbyController {
         this.validGameData = false;
         this.seeks = [];
 
-        const onOpen = (evt) => {
-            this._ws = evt.target;
+        const onOpen = (evt: Event) => {
+            this.readyState = (evt.target as EventSource).readyState;
             console.log('onOpen()');
             // console.log("---CONNECTED", evt);
             // prevent losing my seeks in case of websocket reconnections
             if (this.seeks !== undefined) {
-                this.seeks.forEach(s => {
+                this.seeks.forEach( (s: Seek) => {
                     if (s.user === this.model["username"]) {
                         this.createSeekMsg(s.variant, s.color, s.fen, s.base, s.inc, s.byoyomi, s.chess960, s.rated, s.alternateStart);
                     }
@@ -74,22 +158,22 @@ export class LobbyController {
             this.doSend({ type: "get_seeks" });
         }
 
-        this._ws = { "readyState": -1 };
+        this.readyState = -1;
         const opts = {
             maxAttempts: 20,
-            onopen: e => onOpen(e),
-            onmessage: e => this.onMessage(e),
-            onreconnect: e => console.log('Reconnecting in lobby...', e),
-            onmaximum: e => console.log('Stop Attempting!', e),
-            onclose: e => {console.log('Closed!', e);},
-            onerror: e => console.log('Error:', e),
+            onopen: (e: Event) => onOpen(e),
+            onmessage: (e: MessageEvent) => this.onMessage(e),
+            onreconnect: (e: Event | CloseEvent) => console.log('Reconnecting in lobby...', e),
+            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
+            onclose: (e: CloseEvent) => {console.log('Closed!', e);},
+            onerror: (e: Event) => console.log('Error:', e),
         };
 
         const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
         this.sock = new Sockette(ws + location.host + "/wsl", opts);
 
         // get seeks when we are coming back after a game
-        if (this._ws.readyState === 1) {
+        if (this.readyState === 1) {
             this.doSend({ type: "get_seeks" });
         }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
@@ -192,7 +276,7 @@ export class LobbyController {
         );
     }
 
-    createSeek(color) {
+    createSeek(color: string) {
         document.getElementById('id01')!.style.display='none';
         if (!this.validGameData) return;
 
@@ -267,7 +351,7 @@ export class LobbyController {
         window.history.replaceState({}, this.model.title, '/');
 
         // We need to ask the user for permission
-        notify(null, null);
+        notify(null, undefined);
     }
 
     renderSeekButtons() {
@@ -326,15 +410,15 @@ export class LobbyController {
                         h('span#minutes'),
                         h('input#min.slider', {
                             props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
-                            on: { input: e => this.setMinutes((e.target as HTMLInputElement).value) },
-                            hook: { insert: vnode => this.setMinutes((vnode.elm as HTMLInputElement).value) },
+                            on: { input: e => this.setMinutes(parseInt((e.target as HTMLInputElement).value)) },
+                            hook: { insert: vnode => this.setMinutes(parseInt((vnode.elm as HTMLInputElement).value)) },
                         }),
                         h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
                         h('span#increment'),
                         h('input#inc.slider', {
                             props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: vInc },
-                            on: { input: e => this.setIncrement(this.incrementValues[(e.target as HTMLInputElement).value]) },
-                            hook: { insert: vnode => this.setIncrement(this.incrementValues[(vnode.elm as HTMLInputElement).value]) },
+                            on: { input: e => this.setIncrement(this.incrementValues[parseInt((e.target as HTMLInputElement).value)]) },
+                            hook: { insert: vnode => this.setIncrement(this.incrementValues[parseInt((vnode.elm as HTMLInputElement).value)]) },
                         }),
                         h('div#byoyomi-period', [
                             h('label#byoyomiLabel', { attrs: { for: "byo" } }, _('Periods')),
@@ -485,13 +569,13 @@ export class LobbyController {
         (document.getElementById('chess960') as HTMLInputElement).disabled = alt !== "";
         this.setFen();
     }
-    private setMinutes(val) {
+    private setMinutes(val: number) {
         const minutes = val < this.minutesStrings.length ? this.minutesStrings[val] : String(this.minutesValues[val]);
         document.getElementById("minutes")!.innerHTML = minutes;
         this.setStartButtons();
     }
-    private setIncrement(increment) {
-        document.getElementById("increment")!.innerHTML = increment;
+    private setIncrement(increment: number) {
+        document.getElementById("increment")!.innerHTML = ""+increment;
         this.setStartButtons();
     }
     private setFen() {
@@ -499,11 +583,11 @@ export class LobbyController {
         e.setCustomValidity(this.validateFen() ? '' : _('Invalid FEN'));
         this.setStartButtons();
     }
-    private setCasual(casual) {
+    private setCasual(casual: string) {
         console.log("setCasual", casual);
         this.setStartButtons();
     }
-    private setRated(rated) {
+    private setRated(rated: string) {
         console.log("setRated", rated);
         this.setStartButtons();
     }
@@ -532,13 +616,13 @@ export class LobbyController {
         return fen === "" || validFen(VARIANTS[variant], fen);
     }
 
-    renderSeeks(seeks) {
+    renderSeeks(seeks: Seek[]) {
         seeks.sort((a, b) => (a.bot && !b.bot) ? 1 : -1);
         const rows = seeks.map(seek => this.seekView(seek));
         return [ seekHeader(), h('tbody', rows) ];
     }
 
-    private seekView(seek) {
+    private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
         const chess960 = seek.chess960;
 
@@ -548,21 +632,21 @@ export class LobbyController {
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
-            h('td', { class: { tooltip: seek.fen } }, [
+            h('td', { style: { tooltip: seek.fen } }, [
                 this.tooltip(seek, variant),
                 this.mode(seek),
             ]),
         ]);
     }
 
-    private onClickSeek(seek) {
+    private onClickSeek(seek: Seek) {
         if (seek["user"] === this.model["username"]) {
             this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.model["username"] });
         } else {
             this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.model["username"] });
         }
     }
-    private colorIcon(color) {
+    private colorIcon(color: string) {
         return h('i-side.icon', {
             class: {
                 "icon-adjust": color === "r",
@@ -571,24 +655,24 @@ export class LobbyController {
             }
         });
     }
-    private challengeIcon(seek) {
+    private challengeIcon(seek: Seek) {
         const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
     }
-    private title(seek) {
+    private title(seek: Seek) {
         return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
     }
-    private user(seek) {
+    private user(seek: Seek) {
         if (seek["target"] === '' || seek["target"] === this.model["username"])
             return seek["user"];
         else
             return seek["target"];
     }
-    private hide(seek) {
+    private hide(seek: Seek) {
         return ((this.model["anon"] === 'True' || this.model["title"] === 'BOT') && seek["rated"]) ||
             (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']);
     }
-    private tooltip(seek, variant) {
+    private tooltip(seek: Seek, variant: IVariant) {
         let tooltipImage;
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
@@ -601,7 +685,7 @@ export class LobbyController {
         }
         return h('span.tooltiptext', [ tooltipImage ]);
     }
-    private mode(seek) {
+    private mode(seek: Seek) {
         if (seek.alternateStart)
             return seek.alternateStart;
         else if (seek.fen)
@@ -612,7 +696,7 @@ export class LobbyController {
             return _("Casual");
     }
 
-    private streamView(stream) {
+    private streamView(stream: Stream) {
         const url = (stream.site === 'twitch') ? 'https://www.twitch.tv/' : 'https://www.youtube.com/channel/';
         return h('a.stream', { attrs: { "href": url + stream.streamer, "rel": "noopener nofollow", "target": "_blank" } }, [
             h('strong.text', {class: {"icon": true, "icon-mic": true} }, stream.username),
@@ -620,7 +704,7 @@ export class LobbyController {
         ]);
     }
 
-    private spotlightView(spotlight) {
+    private spotlightView(spotlight: Spotlight) {
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
         const dataIcon = variant.icon(chess960);
@@ -637,7 +721,7 @@ export class LobbyController {
         ]);
     }
 
-    onMessage(evt) {
+    onMessage(evt: MessageEvent) {
         // console.log("<+++ lobby onMessage():", evt.data);
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
@@ -689,11 +773,11 @@ export class LobbyController {
         }
     }
 
-    private onMsgInviteCreated(msg) {
+    private onMsgInviteCreated(msg: MsgInviteCreated) {
         window.location.assign('/' + msg.gameId);
     }
 
-    private onMsgGetSeeks(msg) {
+    private onMsgGetSeeks(msg: MsgGetSeeks) {
         this.seeks = msg.seeks;
         // console.log("!!!! got get_seeks msg:", msg);
 
@@ -701,24 +785,24 @@ export class LobbyController {
         oldSeeks.innerHTML = "";
         patch(oldSeeks, h('table#seeks', this.renderSeeks(msg.seeks)));
     }
-    private onMsgNewGame(msg) {
+    private onMsgNewGame(msg: MsgNewGame) {
         // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
         window.location.assign('/' + msg.gameId);
     }
-    private onMsgGameInProgress(msg) {
+    private onMsgGameInProgress(msg: MsgGameInProgress) {
         const response = confirm(_("You have an unfinished game!\nPress OK to continue."));
         if (response) window.location.assign('/' + msg.gameId);
     }
-    private onMsgUserConnected(msg) {
+    private onMsgUserConnected(msg: MsgUserConnected) {
         this.model.username = msg.username;
     }
-    private onMsgChat(msg) {
+    private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat");
         // seems this is annoying for most of the users
         //if (msg.user.length !== 0 && msg.user !== '_server')
         //    sound.socialNotify();
     }
-    private onMsgFullChat(msg) {
+    private onMsgFullChat(msg: MsgFullChat) {
         // To prevent multiplication of messages we have to remove old messages div first
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
         // then create a new one
@@ -726,31 +810,31 @@ export class LobbyController {
         // console.log("NEW FULL MESSAGES");
         msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat"));
     }
-    private onMsgPing(msg) {
+    private onMsgPing(msg: MsgPing) {
         this.doSend({ type: "pong", timestamp: msg.timestamp });
     }
-    private onMsgError(msg) {
+    private onMsgError(msg: MsgError) {
         alert(msg.message);
     }
-    private onMsgShutdown(msg) {
+    private onMsgShutdown(msg: MsgShutdown) {
         alert(msg.message);
     }
-    private onMsgGameCounter(msg) {
+    private onMsgGameCounter(msg: MsgGameCounter) {
         // console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
         patch(gameCount, h('counter#g_cnt', ngettext('%1 game in play', '%1 games in play', msg.cnt)));
     }
-    private onMsgUserCounter(msg) {
+    private onMsgUserCounter(msg: MsgUserCounter) {
         // console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
         patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
     }
 
-    private onMsgStreams(msg) {
+    private onMsgStreams(msg: MsgStreams) {
         this.streams = patch(this.streams, h('div#streams', msg.items.map(stream => this.streamView(stream))));
     }
 
-    private onMsgSpotlights(msg) {
+    private onMsgSpotlights(msg: MsgSpotlights) {
         this.spotlights = patch(this.spotlights, h('div#spotlights', msg.items.map(spotlight => this.spotlightView(spotlight))));
     }
 }
@@ -768,13 +852,13 @@ function seekHeader() {
     ]);
 }
 
-function runSeeks(vnode: VNode, model) {
+function runSeeks(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     new LobbyController(el, model);
     // console.log("lobbyView() -> runSeeks()", el, model, ctrl);
 }
 
-export function lobbyView(model): VNode[] {
+export function lobbyView(model: PyChessModel): VNode[] {
 
     /* TODO move this to appropriate place
     // Get the modal

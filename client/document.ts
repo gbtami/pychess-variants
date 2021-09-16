@@ -1,3 +1,19 @@
+import * as cg from "chessgroundx/types";
+import { VNode } from "snabbdom/vnode";
+
+export function download(filename: string, text: string) {
+  const element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
 export function getDocumentData(name: string) {
     const elm = document.getElementById('pychess-variants');
     if (elm) {
@@ -7,7 +23,7 @@ export function getDocumentData(name: string) {
     }
 }
 
-export function getPieceImageUrl (role, color, side) {
+export function getPieceImageUrl (role: cg.Role, color: cg.Color, side: string): string {
     // Analysis drop move suggestion rendering needs piece images urls in chessground
     // We can use current variant .css to find appropriate images.
 
@@ -25,15 +41,15 @@ export function getPieceImageUrl (role, color, side) {
     const kyotoPromotedPieceRoles = ['pp-piece', 'pl-piece', 'pn-piece', 'ps-piece'];
     const idx = kyotoPromotedPieceRoles.indexOf(role);
     if (idx !== -1) {
-        const unpromoted = getPieceImageUrl(role.slice(1), color, side);
+        const unpromoted = getPieceImageUrl(role.slice(1) as cg.Role, color, side);
         const kyotoPromotedPieceNames = ['HI', 'TO', 'KI', 'KA'];
         return unpromoted.slice(0, unpromoted.lastIndexOf('/') + 2) + kyotoPromotedPieceNames[idx] + '.svg'
     }
     return '/static/images/pieces/merida/';
 }
 
-export function debounce(callback, wait) {
-    let timeout;
+export function debounce(callback: any, wait: number) {
+    let timeout: number;
     return function() {
         const context = this, args = arguments;
         clearTimeout(timeout);
@@ -41,17 +57,17 @@ export function debounce(callback, wait) {
     };
 }
 
-export function getCookie(name) {
+export function getCookie(name: string) {
     const cookies = document.cookie.split(';');
     for(let i = 0; i < cookies.length; i++) {
         const pair = cookies[i].trim().split('=');
-        if(pair[0] == name)
+        if(pair[0] === name)
             return pair[1];
     }
     return "";
 }
 
-export function setCookie(cname, cvalue, exdays) {
+export function setCookie(cname: string, cvalue: string, exdays: number) {
     const d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     const expires = "expires=" + d.toUTCString();
@@ -114,10 +130,10 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
     changeCSS(cssLinkIndex, newUrl);
 }
 
-export function bind(eventName: string, f: (e: Event) => void, redraw) {
+export function bind(eventName: string, f: (e: Event) => void, redraw: null | (() => void)) {
     return {
-        insert(vnode) {
-            vnode.elm.addEventListener(eventName, e => {
+        insert(vnode: VNode) {
+            vnode.elm?.addEventListener(eventName, (e: Event) => {
                 const res = f(e);
                 if (redraw) redraw();
                 return res;

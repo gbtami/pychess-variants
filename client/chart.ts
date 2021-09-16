@@ -83,9 +83,10 @@ export function analysisChart(ctrl: AnalysisController) {
             pointFormatter: function(format: string) {
                 format = format.replace('{series.name}', _('Advantage'));
                 const self: Highcharts.Point = this;
-                const ceval = ctrl.steps[self.x].ceval.s;
+                const step = ctrl.steps[self.x];
+                const ceval = step?.ceval?.s;
                 if (!ceval) return '';
-                else return format.replace('{point.y}', ctrl.steps[self.x].scoreStr);
+                else return format.replace('{point.y}', step.scoreStr || '');
             } as Highcharts.FormatterCallbackFunction<Highcharts.Point>
         },
         xAxis: {

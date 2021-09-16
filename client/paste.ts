@@ -7,23 +7,24 @@ import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
 import { VARIANTS } from './chess';
 import { parseKif, resultString } from '../client/kif';
+import { PyChessModel } from "./main";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
 
 
-export function pasteView(model): VNode[] {
-    let ffish = null;
-    new (Module as any)().then(loadedModule => {
+export function pasteView(model: PyChessModel): VNode[] {
+    let ffish: any = null;
+    new (Module as any)().then((loadedModule: any) => {
         ffish = loadedModule;
     });
 
-    const importGame = (model, ffish) => {
+    const importGame = (model: PyChessModel, ffish: any) => {
         const e = document.getElementById("pgnpaste") as HTMLInputElement;
         //console.log('PGN:', e.value);
         let pgn = e.value;
         // Add missing Variant tag and switch short/long castling notations
-        if (pgn.indexOf(BRAINKING_SITE) != -1 && pgn.indexOf(EMBASSY_FEN) != -1) {
+        if (pgn.indexOf(BRAINKING_SITE) !== -1 && pgn.indexOf(EMBASSY_FEN) !== -1) {
             const lines = pgn.split(/\n/);
             const fenIndex = lines.findIndex((elem) => {return elem.startsWith('[FEN ');});
             lines[fenIndex] = `[FEN "${VARIANTS['embassy'].startFen}"]`;
@@ -83,7 +84,7 @@ export function pasteView(model): VNode[] {
                     FD.append('TimeControl', kif['tc']);
                     FD.append('moves', mainlineMoves.join(' '));
                     FD.append('Result', result);
-                    FD.append('Status', status);
+                    FD.append('Status', ""+status);
                     FD.append('final_fen', board.fen());
                     FD.append('username', model['username']);
 
@@ -112,7 +113,7 @@ export function pasteView(model): VNode[] {
                         board.push(mainlineMoves[idx]);
                     }
 
-                    const tags = game.headerKeys().split(' ');
+                    const tags = (game.headerKeys() as string).split(' ');
                     tags.forEach((tag) => {
                         FD.append( tag, game.headers(tag) );
                     });
@@ -131,7 +132,7 @@ export function pasteView(model): VNode[] {
             }
 
             XHR.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.readyState === 4 && this.status === 200) {
                     const response = JSON.parse(this.responseText);
                     if (response['gameId'] !== undefined) {
                         window.location.assign(model["home"] + '/' + response['gameId']);

@@ -15,8 +15,9 @@ import { VARIANTS } from './chess';
 import { gameType } from './profile';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
+import { PyChessModel } from "./main";
 
-export function inviteView(model): VNode[] {
+export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
@@ -56,7 +57,7 @@ export function inviteView(model): VNode[] {
                     h('div.rated', gameType(model["rated"])),
                 ]),
             ]),
-            (model["inviter"] == "") ?
+            (model["inviter"] === "") ?
             h('div.inviteinfo', [
                 h('div', _('To invite someone to play, give this URL:')),
                 h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: gameURL}}),

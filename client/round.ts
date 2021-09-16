@@ -7,15 +7,16 @@ import { VARIANTS } from './chess';
 import { timeago, renderTimeago } from './datetime';
 import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeControlStr } from "./view";
+import { PyChessModel } from "./main";
 
-function runGround(vnode: VNode, model) {
+function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new RoundController(el, model);
     const cg = ctrl.chessground;
-    window["cg"] = cg;
+    window['cg'] = cg;
 }
 
-export function roundView(model): VNode[] {
+export function roundView(model: PyChessModel): VNode[] {
     console.log("roundView model=", model);
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
@@ -122,11 +123,11 @@ export function roundView(model): VNode[] {
     ];
 }
 
-function playerInfo(model, color: string, rdiff: number | null) {
-    const username = model[color + "player"];
-    const title = model[color + "title"];
+function playerInfo(model: PyChessModel, color: string, rdiff: number | null) {
+    const username = model[color === "w"? "wplayer": "bplayer"];
+    const title = model[color === "w"? "wtitle": "btitle"];
     const level = model.level;
-    const rating = model[color + "rating"];
+    const rating = model[color === "w"? "wrating": "brating"];
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
