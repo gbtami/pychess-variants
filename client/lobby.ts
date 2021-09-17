@@ -604,7 +604,7 @@ export class LobbyController {
         const e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         const rated = e.value === "1";
 
-        const atLeast = (this.challengeAI) ? 4 : min + inc > 0;
+        const atLeast = (this.challengeAI) ? ((min > 0 && inc > 0) || (min >= 1 && inc === 0)) : (min + inc > 0);
         const tooFast = (minutes < 1 && inc === 0) || (minutes === 0 && inc === 1);
 
         return atLeast && !(tooFast && rated);
