@@ -159,7 +159,7 @@ class Game:
         self.byoyomi_period = byoyomi_period
 
         # Remaining byoyomi periods by players
-        self.byoyomi_periods = [byoyomi_period, byoyomi_period]
+        self.byoyomi_periods = {"white": byoyomi_period, "black": byoyomi_period}
 
         # On page refresh we have to add extra byoyomi times gained by current player to report correct clock time
         # We adjust this in "byoyomi" messages in wsr.py
