@@ -62,7 +62,7 @@ export function createMovelistButtons (ctrl: AnalysisController | RoundControlle
     const container = document.getElementById('move-controls') as HTMLElement;
     const vari = "plyVari" in ctrl? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
-        h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh', { props: { title: 'Flip board' } } ) ]),
+        h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => { 
             // this line is necessary, but I don't understand why

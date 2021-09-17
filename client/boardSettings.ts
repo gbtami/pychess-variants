@@ -16,6 +16,7 @@ import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { EditorController } from './editorCtrl';
+import { iniPieces } from './pieces';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
@@ -195,6 +196,10 @@ class BoardSettings {
 
                 if (this.ctrl.variant.materialPoint)
                     [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+            }
+
+            if (this.ctrl instanceof EditorController) {
+                iniPieces(this.ctrl, this.ctrl.vpieces0, this.ctrl.vpieces1);
             }
         }
     }

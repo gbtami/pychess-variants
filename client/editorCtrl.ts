@@ -167,20 +167,23 @@ export class EditorController {
                     ]),
                 ]),
 
+                h('a#flip.i-pgn', { on: { click: () => boardSettings.toggleOrientation() } }, [
+                    h('div.icon.icon-refresh', _('FLIP BOARD'))
+                ]),
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
-                    h('div', {class: {"icon": true, "icon-trash-o": true} }, _('CLEAR BOARD'))
+                    h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
-                    h('div', {class: {"icon": true, [dataIcon]: true} }, _('STARTING POSITION'))
+                    h('div.icon.' + dataIcon, _('STARTING POSITION'))
                 ]),
                 h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
-                    h('div', {class: {"icon": true, "icon-microscope": true} }, _('ANALYSIS BOARD'))
+                    h('div.icon.icon-microscope', _('ANALYSIS BOARD'))
                 ]),
                 h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
-                    h('div', {class: {"icon": true, "icon-bot": true} }, _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
+                    h('div.icon.icon-bot', _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
-                    h('div', {class: {"icon": true, "icon-download": true} }, _('EXPORT TO PNG'))
+                    h('div.icon.icon-download', _('EXPORT TO PNG'))
                 ])
             ];
             patch(container, h('div.editor-button-container', buttons));
