@@ -1,5 +1,8 @@
 from settings import static_url
 
+# Max number of lobby chat lines (deque limit)
+MAX_CHAT_LINES = 100
+
 # Minimum number of rated games needed
 HIGHSCORE_MIN_GAMES = 5
 

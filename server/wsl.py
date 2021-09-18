@@ -6,6 +6,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from admin import silence
 from broadcast import lobby_broadcast
 from const import STARTED
 from settings import ADMINS
@@ -40,6 +41,7 @@ async def lobby_socket_handler(request):
     db = request.app["db"]
     invites = request.app["invites"]
     twitch = request.app["twitch"]
+    lobbychat = request.app["lobbychat"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -212,7 +214,7 @@ async def lobby_socket_handler(request):
                         response = {"type": "lobby_user_connected", "username": user.username}
                         await ws.send_json(response)
 
-                        response = {"type": "fullchat", "lines": list(request.app["lobbychat"])}
+                        response = {"type": "fullchat", "lines": list("lobbychat")}
                         await ws.send_json(response)
 
                         # send game count
@@ -240,10 +242,7 @@ async def lobby_socket_handler(request):
 
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
-                                spammer = data["message"].split()[-1]
-                                if spammer in users:
-                                    users[spammer].set_silence()
-                                    response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
+                                response = silence(message, lobbychat, users)
                             elif message == "/growth":
                                 server_growth()
                             elif message == "/state":
@@ -258,7 +257,7 @@ async def lobby_socket_handler(request):
 
                         if response is not None:
                             await lobby_broadcast(sockets, response)
-                            request.app["lobbychat"].append(response)
+                            lobbychat.append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()

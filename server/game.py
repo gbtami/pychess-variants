@@ -16,7 +16,7 @@ from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
     INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, \
-    IMPORTED, HIGHSCORE_MIN_GAMES, variant_display_name
+    IMPORTED, HIGHSCORE_MIN_GAMES, variant_display_name, MAX_CHAT_LINES
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
@@ -84,7 +84,7 @@ class Game:
         self.spectators = set()
         self.draw_offers = set()
         self.rematch_offers = set()
-        self.messages = collections.deque([], 200)
+        self.messages = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
         self.ply_clocks = [{
