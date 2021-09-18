@@ -104,6 +104,7 @@ async def init_state(app):
     app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
 
     app["tourneysockets"] = {}  # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
+    app["tourneynames"] = {}    # cache for profile game list page {tournamentId: tournament.name, ...}
     app["tournaments"] = {}
     app["tourneychat"] = {}  # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
 

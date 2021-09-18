@@ -62,7 +62,7 @@ export function aiLevel(title: string, level: number) {
 export function result(variant: IVariant, status: number, result: string) {
     let text = '';
     const variantName = variant.name;
-    console.log("result()", variantName, status, result);
+    // console.log("result()", variantName, status, result);
     const first = colorNames(variant.firstColor);
     const second = colorNames(variant.secondColor);
     switch (status) {
@@ -168,6 +168,9 @@ interface Game {
     y: string;
     d: string;
 
+    tid?: string;
+    tn?: string;
+
     us: string[];
     wt: string;
     bt: string;
@@ -183,6 +186,15 @@ interface Game {
 interface Player {
     e: string;
     d: number;
+}
+
+function toutnamentInfo(game: Game) {
+    let elements = [h('info-date', { attrs: { timestamp: game["d"] } })];
+    if (game["tid"]) {
+        elements.push(h('span', " • "));
+        elements.push(h('a.icon.icon-trophy', { attrs: { href: '/tournament/' + game["tid"] } }, game["tn"]));
+    }
+    return elements;
 }
 
 function renderGames(model: PyChessModel, games: Game[]) {
@@ -209,7 +221,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
                         h('div.tc', timeControlStr(game["b"], game["i"], game["bp"]) + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
-                        h('info-date', { attrs: { timestamp: game["d"] } }),
+                        h('div', toutnamentInfo(game)),
                     ]),
                 ]),
                 h('div.info-middle', [
