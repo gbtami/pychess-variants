@@ -1,12 +1,10 @@
 import { h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 
-import { _ } from './i18n';
-import RoundController from './roundCtrl';
 import { VARIANTS } from './chess';
-import { timeago, renderTimeago } from './datetime';
-import { aiLevel, gameType, renderRdiff } from './profile';
-import { timeControlStr } from "./view";
+import RoundController from './roundCtrl';
+import { gameInfo } from './gameInfo';
+import { renderTimeago } from './datetime';
 import { PyChessModel } from "./main";
 
 function runGround(vnode: VNode, model: PyChessModel) {
@@ -17,59 +15,13 @@ function runGround(vnode: VNode, model: PyChessModel) {
 }
 
 export function roundView(model: PyChessModel): VNode[] {
-    console.log("roundView model=", model);
     const variant = VARIANTS[model.variant];
-    const chess960 = model.chess960 === 'True';
-    const dataIcon = variant.icon(chess960);
-    const fc = variant.firstColor;
-    const sc = variant.secondColor;
 
     renderTimeago();
 
-    return [h('aside.sidebar-first', [
-            h('div.game-info', [
-                h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
-                    h('div.info2', [
-                        h('div.tc', [
-                            timeControlStr(model["base"], model["inc"], model["byo"]) + " • " + gameType(model["rated"]) + " • ",
-                            h('a.user-link', {
-                                attrs: {
-                                    target: '_blank',
-                                    href: '/variants/' + model["variant"] + (chess960 ? '960': ''),
-                                }
-                            },
-                                variant.displayName(chess960)),
-                        ]),
-                        Number(model["status"]) >= 0 ? h('info-date', { attrs: { timestamp: model["date"] } }, timeago(model["date"])) : _("Playing right now"),
-                    ]),
-                ]),
-                h('div.player-data', [
-                    h('i-side.icon', {
-                        class: {
-                            "icon-white": fc === "White",
-                            "icon-black": fc === "Black",
-                            "icon-red":   fc === "Red",
-                            "icon-blue":  fc === "Blue",
-                            "icon-gold":  fc === "Gold",
-                            "icon-pink":  fc === "Pink",
-                        }
-                    }),
-                    h('player', playerInfo(model, 'w', null)),
-                ]),
-                h('div.player-data', [
-                    h('i-side.icon', {
-                        class: {
-                            "icon-white": sc === "White",
-                            "icon-black": sc === "Black",
-                            "icon-red":   sc === "Red",
-                            "icon-blue":  sc === "Blue",
-                            "icon-gold":  sc === "Gold",
-                            "icon-pink":  sc === "Pink",
-                        }
-                    }),
-                    h('player', playerInfo(model, 'b', null)),
-                ]),
-            ]),
+    return [
+        h('aside.sidebar-first', [
+            gameInfo(model),
             h('div#roundchat'),
         ]),
         h('div.round-app', [
@@ -121,17 +73,4 @@ export function roundView(model: PyChessModel): VNode[] {
             h('div#ctable-container'),
         ]),
     ];
-}
-
-function playerInfo(model: PyChessModel, color: string, rdiff: number | null) {
-    const username = model[color === "w"? "wplayer": "bplayer"];
-    const title = model[color === "w"? "wtitle": "btitle"];
-    const level = model.level;
-    const rating = model[color === "w"? "wrating": "brating"];
-
-    return h('a.user-link', { attrs: { href: '/@/' + username } }, [
-        h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
-        rdiff === null ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
-    ]);
 }

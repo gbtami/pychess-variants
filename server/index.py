@@ -28,7 +28,7 @@ from misc import time_control_str
 from news import NEWS
 from user import User
 from utils import load_game, tv_game, tv_game_user
-from tournaments import get_winners, get_latest_tournaments, load_tournament, create_or_update_tournament
+from tournaments import get_winners, get_latest_tournaments, load_tournament, create_or_update_tournament, get_tournament_name
 
 log = logging.getLogger(__name__)
 
@@ -216,6 +216,9 @@ async def index(request):
             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                 game.spectators.add(user)
 
+        if game.tournamentId is not None:
+            tournament_name = await get_tournament_name(request.app, game.tournamentId)
+
     if view in ("profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
             template = get_template("closed.html")
@@ -365,6 +368,7 @@ async def index(request):
                 render["ply"] = ply
             if game.tournamentId is not None:
                 render["tournamentid"] = game.tournamentId
+                render["tournamentname"] = tournament_name
 
     if tournamentId is not None:
         render["tournamentid"] = tournamentId

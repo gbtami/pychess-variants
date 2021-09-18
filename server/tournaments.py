@@ -243,6 +243,18 @@ async def get_latest_tournaments(app):
     return (started, scheduled, completed)
 
 
+async def get_tournament_name(app, tournament_id):
+    """ Return Tournament name from app cache or from database """
+    db = app["db"]
+    tournaments = app["tournaments"]
+    if tournament_id in tournaments:
+        return tournaments[tournament_id].name
+
+    doc = await db.tournament.find_one({"_id": tournament_id})
+
+    return "" if doc is None else doc["name"]
+
+
 async def load_tournament(app, tournament_id):
     """ Return Tournament object from app cache or from database """
     db = app["db"]

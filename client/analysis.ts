@@ -3,10 +3,9 @@ import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
+import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS } from './chess';
-import { timeago, renderTimeago } from './datetime';
-import { aiLevel, gameType, renderRdiff } from './profile';
-import { timeControlStr } from './view'
+import { renderTimeago } from './datetime';
 import { PyChessModel } from "./main";
 
 function runGround(vnode: VNode, model: PyChessModel) {
@@ -16,60 +15,11 @@ function runGround(vnode: VNode, model: PyChessModel) {
 }
 
 function leftSide(model: PyChessModel) {
-    const variant = VARIANTS[model.variant];
-    const chess960 = model.chess960 === 'True';
-    const dataIcon = variant.icon(chess960);
-    const fc = variant.firstColor;
-    const sc = variant.secondColor;
 
     if (model["gameId"] !== "") {
-        const tc = (model["base"] === 0 && model["inc"] === 0) ? "" : timeControlStr(model["base"], model["inc"], model["byo"]) + " • ";
         return [
-        h('div.game-info', [
-            h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
-                h('div.info2', [
-                    h('div.tc', [
-                        tc + gameType(model["rated"]) + " • ",
-                        h('a.user-link', {
-                            attrs: {
-                                target: '_blank',
-                                href: '/variants/' + model["variant"] + (chess960 ? '960': ''),
-                            }
-                        },
-                            variant.displayName(chess960),
-                        ),
-                    ]),
-                    Number(model["status"]) >= 0 ? h('info-date', { attrs: { timestamp: model["date"]} }, timeago(model["date"])) : _("Playing right now"),
-                ]),
-            ]),
-            h('div.player-data', [
-                h('i-side.icon', {
-                    class: {
-                        "icon-white": fc === "White",
-                        "icon-black": fc === "Black",
-                        "icon-red":   fc === "Red",
-                        "icon-blue":  fc === "Blue",
-                        "icon-gold":  fc === "Gold",
-                        "icon-pink":  fc === "Pink",
-                    }
-                }),
-                h('player', playerInfo(model.wplayer, model.wtitle, model.level, model.wrating, model.wrdiff)),
-            ]),
-            h('div.player-data', [
-                h('i-side.icon', {
-                    class: {
-                        "icon-white": sc === "White",
-                        "icon-black": sc === "Black",
-                        "icon-red":   sc === "Red",
-                        "icon-blue":  sc === "Blue",
-                        "icon-gold":  sc === "Gold",
-                        "icon-pink":  sc === "Pink",
-                    }
-                }),
-                h('player', playerInfo(model.bplayer, model.btitle, model.level, model.brating, model.brdiff)),
-            ]),
-        ]),
-        h('div#roundchat'),
+            gameInfo(model),
+            h('div#roundchat'),
         ];
 
     } else {
@@ -222,12 +172,4 @@ export function analysisView(model: PyChessModel): VNode[] {
             ]),
         ]),
     ];
-}
-
-function playerInfo(username: string, title: string, level: number, rating: string, rdiff: number | null) {
-    return h('a.user-link', { attrs: { href: '/@/' + username } }, [
-        h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
-        rdiff === null ? h('rdiff') : renderRdiff(rdiff),
-    ]);
 }
