@@ -80,7 +80,7 @@ function distanceBased(required: { [ letter: string ]: number }, boardHeight: nu
 
 function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) : number {
     const rank = util.key2pos(dest)[1];
-    return (color === "white") ? boardHeight - rank : rank - 1;
+    return (color === "white") ? boardHeight - rank - 1 : rank;
 }
 
 export interface IVariant {
