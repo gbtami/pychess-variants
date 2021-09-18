@@ -25,7 +25,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
 import { sound } from './sound';
-import {role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid, DropOrig} from './chess';
+import {role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid, moveDests} from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -349,10 +349,10 @@ export default class AnalysisController {
     private pass = () => {
         let passKey = 'a0';
         const pieces = this.chessground.state.pieces;
-        const dests = this.chessground.state.movable.dests;
-        for (const key in pieces) {
-            if (pieces[key]!.role === 'k-piece' && pieces[key]!.color === this.turnColor) {
-                if ((key in dests!) && (dests![key].indexOf(key as cg.Key) >= 0)) passKey = key;
+        const dests = this.chessground.state.movable.dests!;
+        for (const [k, p] of pieces) {
+            if (p.role === 'k-piece' && p.color === this.turnColor) {
+                if ((dests.get(k)?.includes(k))) passKey = k;
             }
         }
         if (passKey !== 'a0') {
@@ -767,18 +767,11 @@ export default class AnalysisController {
     getDests = () => {
         const legalMoves = this.ffishBoard.legalMoves().split(" ");
         // console.log(legalMoves);
-        const dests: cg.Dests = {};
+        const dests: cg.Dests = moveDests(legalMoves);
         this.promotions = [];
         legalMoves.forEach((move: string) => {
             const moveStr = uci2cg(move);
-            const source = moveStr.slice(0, 2);
-            const dest = moveStr.slice(2, 4);
-            if (source in dests) {
-                dests[source].push(dest as cg.Key);
-            } else {
-                dests[source] = [dest as cg.Key];
-            }
-
+            
             const tail = moveStr.slice(-1);
             if (tail > '9' || tail === '+' || tail === '-') {
                 if (!(this.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
@@ -814,7 +807,8 @@ export default class AnalysisController {
             const moveStr = uci2cg(step.move);
             move = moveStr.indexOf('@') > -1 ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
             // 960 king takes rook castling is not capture
-            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            // TODO defer this logic to ffish.js
+            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
 
             this.chessground.set({
                 fen: step.fen,
@@ -920,7 +914,7 @@ export default class AnalysisController {
         return moves.join(' ');
     }
 
-    sendMove = (orig: cg.Key | DropOrig, dest: cg.Key, promo: string) => {
+    sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
@@ -1049,14 +1043,14 @@ export default class AnalysisController {
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
-        let moved = pieces[dest];
+        let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
         if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
             const pos = util.key2pos(dest),
             pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = {};
-            diff[util.pos2key(pawnPos)] = undefined;
+            const diff: cg.PiecesDiff = new Map();
+            diff.set(util.pos2key(pawnPos), undefined);
             this.chessground.setPieces(diff);
             meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
@@ -1105,9 +1099,9 @@ export default class AnalysisController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
             } else {
-                this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
+                this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
             }
             // console.log("sent move", move);
         } else {
@@ -1140,18 +1134,17 @@ export default class AnalysisController {
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
             if (this.chessground.state.stats.ctrlKey && 
-                (key in this.chessground.state.movable.dests) &&
-                (this.chessground.state.movable.dests[key].indexOf(key) >= 0)
+                (this.chessground.state.movable.dests.get(key)?.includes(key))
                 ) {
-                const piece = this.chessground.state.pieces[key];
+                const piece = this.chessground.state.pieces.get(key);
                 if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
-                    const pieces: cg.PiecesDiff = {};
-                    pieces[key] = {
+                    const pieces: cg.PiecesDiff = new Map();
+                    pieces.set(key, {
                         color: piece!.color,
                         role: 'f-piece',
                         promoted: true
-                    };
+                    });
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
                 } else if (this.variant.pass && piece!.role === 'k-piece') {

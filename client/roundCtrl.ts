@@ -13,7 +13,7 @@ import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 import { cancelDropMode } from 'chessgroundx/drop';
-import predrop from 'chessgroundx/predrop';
+import { predrop } from 'chessgroundx/predrop';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
@@ -23,7 +23,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, dropIsValid, DropOrig } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, dropIsValid } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -470,11 +470,10 @@ export default class RoundController {
     private pass = () => {
         let passKey = 'a0';
         const pieces = this.chessground.state.pieces;
-        const dests = this.chessground.state.movable.dests;
-        for (const key in pieces) {
-            if (pieces[key]!.role === 'k-piece' && pieces[key]!.color === this.turnColor) {
-                if ((key in dests!) && (dests![key].indexOf(key as cg.Key) >= 0)) passKey = key;
-            }
+        const dests = this.chessground.state.movable.dests!;
+        for (const [k, p] of pieces) {
+            if (p.role === 'k-piece' && p.color === this.turnColor)
+                if (dests.get(k)?.includes(k)) passKey = k;
         }
         if (passKey !== 'a0') {
             // prevent calling pass() again by selectSquare() -> onSelect()
@@ -624,7 +623,7 @@ export default class RoundController {
             this.result = msg.result;
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-            this.dests = {};
+            this.dests = new Map();
 
             if (this.result !== "*" && !this.spectator)
                 sound.gameEndSound(msg.result, this.mycolor);
@@ -693,20 +692,22 @@ export default class RoundController {
             // When castling with gating is possible 
             // e1g1, e1g1h, e1g1e, h1e1h, h1e1e all will be offered by moving our king two squares
             // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
-            for (const orig of Object.keys(msg.dests)) {
-                const movingPiece = this.chessground.state.pieces[orig];
+            for (const [orig, _dest] of msg.dests) {
+                if (orig[1] !== '@') {
+                const movingPiece = this.chessground.state.pieces.get(orig as cg.Key);
                 if (movingPiece !== undefined && movingPiece.role === "r-piece") {
-                    msg.dests[orig] = msg.dests[orig].filter(x => {
-                        const destPiece = this.chessground.state.pieces[x];
+                    msg.dests.set(orig, msg.dests.get(orig)!.filter(x => {
+                        const destPiece = this.chessground.state.pieces.get(x);
                         return destPiece === undefined || destPiece.role !== 'k-piece';
-                    });
+                    }));
+                }
                 }
             }
         }
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        this.dests = (msg.status < 0) ? msg.dests : {};
+        this.dests = (msg.status < 0) ? msg.dests : new Map();
 
         // TODO: this logic ideally belongs in chessground somehow i feel - but where can i put it on turn change and also it depends now on this.dests
         //       as far as i can tell the analogous logic for setting up move/pre-move destinations is in state.ts->configure->call to setSelected
@@ -722,10 +723,10 @@ export default class RoundController {
                 undefined;
 
             if (pdrole) { // is there a pocket piece that is being dragged or is selected for dropping
-              const dropDests = new Map([ [pdrole, this.dests[role2san(pdrole) + "@"] ] ]);
-              this.chessground.set({
-                dropmode: {
-                    dropDests: dropDests
+                const dropDests = new Map([ [pdrole, this.dests.get(util.letterOf(pdrole, true) + "@" as cg.Orig)! ] ]);
+                this.chessground.set({
+                    dropmode: {
+                        dropDests: dropDests
                     }
                 }); // if yes - show normal dests on turn start after the pre-drop dests were hidden
             }
@@ -899,7 +900,8 @@ export default class RoundController {
             const moveStr = uci2cg(step['move']);
             move = moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
             // 960 king takes rook castling is not capture
-            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && !!step.san && step.san.slice(0, 2) !== 'O-') || (!!step.san && step.san.slice(1, 2) === 'x');
+            // TODO Defer this logic to ffish.js
+            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && !!step.san && step.san.slice(0, 2) !== 'O-') || (!!step.san && step.san.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
@@ -935,7 +937,7 @@ export default class RoundController {
         this.sock.send(JSON.stringify(message));
     }
 
-    sendMove = (orig: cg.Key | DropOrig, dest: cg.Key, promo: string) => {
+    sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         // pause() will add increment!
         const oppclock = !this.flip ? 0 : 1
         const myclock = 1 - oppclock;
@@ -1051,14 +1053,14 @@ export default class RoundController {
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
-        let moved = pieces[dest];
+        let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
         if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
             const pos = util.key2pos(dest),
             pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = {};
-            diff[util.pos2key(pawnPos)] = undefined;
+            const diff: cg.PiecesDiff = new Map();
+            diff.set(util.pos2key(pawnPos), undefined);
             this.chessground.setPieces(diff);
             meta.captured = {role: "p-piece", color: moved.color=== "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
@@ -1109,9 +1111,9 @@ export default class RoundController {
                 this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
             }
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
             } else {
-                this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
+                this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
             }
             // console.log("sent move", move);
         } else {
@@ -1145,17 +1147,17 @@ export default class RoundController {
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
             if (this.chessground.state.stats.ctrlKey && 
-                (this.chessground.state.movable.dests[key]?.includes(key))
+                (this.chessground.state.movable.dests.get(key)?.includes(key))
                 ) {
-                const piece = this.chessground.state.pieces[key];
+                const piece = this.chessground.state.pieces.get(key);
                 if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
-                    const pieces: cg.Pieces = {};
-                    pieces[key] = {
+                    const pieces: cg.Pieces = new Map();
+                    pieces.set(key, {
                         color: piece!.color,
                         role: 'f-piece',
                         promoted: true
-                    };
+                    });
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
                 } else if (this.variant.pass && piece!.role === 'k-piece') {
