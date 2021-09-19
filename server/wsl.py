@@ -242,7 +242,11 @@ async def lobby_socket_handler(request):
 
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
+                                print("BEFORE-----------")
+                                print(lobbychat)
                                 response = silence(message, lobbychat, users)
+                                print("AFTER-----------")
+                                print(lobbychat)
                             elif message == "/growth":
                                 server_growth()
                             elif message == "/state":
