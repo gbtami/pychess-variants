@@ -216,8 +216,8 @@ async def index(request):
             if user.username != game.wplayer.username and user.username != game.bplayer.username:
                 game.spectators.add(user)
 
-        if game.tournamentId is not None:
-            tournament_name = await get_tournament_name(request.app, game.tournamentId)
+            if game.tournamentId is not None:
+                tournament_name = await get_tournament_name(request.app, game.tournamentId)
 
     if view in ("profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
