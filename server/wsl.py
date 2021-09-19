@@ -9,7 +9,7 @@ import aiohttp_session
 from admin import silence
 from broadcast import lobby_broadcast
 from const import STARTED
-from settings import ADMINS
+from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
 from utils import new_game, load_game, online_count, MyWebSocketResponse
@@ -143,6 +143,17 @@ async def lobby_socket_handler(request):
                         seek = await create_seek(db, invites, seeks, user, data, ws)
 
                         response = {"type": "invite_created", "gameId": seek.game_id}
+                        await ws.send_json(response)
+
+                    elif data["type"] == "create_empty":
+                        no = user.username not in TOURNAMENT_DIRECTORS
+                        if no:
+                            continue
+
+                        print("create_empty", data)
+                        seek = await create_seek(db, invites, seeks, user, data, ws)
+
+                        response = {"type": "empty_game_created", "gameId": seek.game_id}
                         await ws.send_json(response)
 
                     elif data["type"] == "delete_seek":
