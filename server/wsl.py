@@ -242,26 +242,24 @@ async def lobby_socket_handler(request):
 
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
-                                print("BEFORE-----------")
-                                print(lobbychat)
                                 response = silence(message, lobbychat, users)
-                                print("AFTER-----------")
-                                print(lobbychat)
+                                # silence message was already added to lobbychat in silence()
                             elif message == "/growth":
                                 server_growth()
                             elif message == "/state":
                                 server_state(request.app)
                             else:
                                 response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                lobbychat.append(response)
                         elif user.anon and user.username != "Discord-Relay":
                             pass
                         else:
                             if user.silence == 0:
                                 response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                lobbychat.append(response)
 
                         if response is not None:
                             await lobby_broadcast(sockets, response)
-                            lobbychat.append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()
