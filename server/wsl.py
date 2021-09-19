@@ -145,15 +145,15 @@ async def lobby_socket_handler(request):
                         response = {"type": "invite_created", "gameId": seek.game_id}
                         await ws.send_json(response)
 
-                    elif data["type"] == "create_empty":
+                    elif data["type"] == "create_host":
                         no = user.username not in TOURNAMENT_DIRECTORS
                         if no:
                             continue
 
-                        print("create_empty", data)
+                        print("create_host", data)
                         seek = await create_seek(db, invites, seeks, user, data, ws)
 
-                        response = {"type": "empty_game_created", "gameId": seek.game_id}
+                        response = {"type": "host_created", "gameId": seek.game_id}
                         await ws.send_json(response)
 
                     elif data["type"] == "delete_seek":

@@ -46,7 +46,7 @@ interface MsgInviteCreated {
 	gameId: string;
 }
 
-interface MsgEmptyGameCreated {
+interface MsgHostCreated {
 	gameId: string;
 }
 
@@ -113,7 +113,7 @@ interface Seek {
     title: string;
 }
 
-type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'playRM' | 'createEmpty';
+type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'playRM' | 'createHost';
 
 export class LobbyController {
     model: PyChessModel;
@@ -262,9 +262,9 @@ export class LobbyController {
         });
     }
 
-    createEmptyGameMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
+    createHostMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
-            type: "create_empty",
+            type: "create_host",
             user: this.model.username,
             target: 'Invite-friend',
             variant: variant,
@@ -365,8 +365,8 @@ export class LobbyController {
             case 'playFriend':
                 this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
                 break;
-            case 'createEmpty':
-                this.createEmptyGameMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
+            case 'createHost':
+                this.createHostMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
                 break;
             default:
                 if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
@@ -495,7 +495,7 @@ export class LobbyController {
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
             h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
             h('button.lobby-button', { on: { click: () => this.playRM() } }, _("Practice with Random-Mover")),
-            h('button.lobby-button', { on: { click: () => this.createEmpty() } }, _("Host game for others")),
+            h('button.lobby-button', { on: { click: () => this.createHost() } }, _("Host game for others")),
         ];
     }
 
@@ -550,10 +550,10 @@ export class LobbyController {
         document.getElementById('id01')!.style.display = 'block';
     }
 
-    createEmpty(variantName: string = '', chess960: boolean = false) {
+    createHost(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         const anon = this.model.anon === 'True';
-        this.createMode = 'createEmpty';
+        this.createMode = 'createHost';
         document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
@@ -791,8 +791,8 @@ export class LobbyController {
             case "invite_created":
                 this.onMsgInviteCreated(msg);
                 break;
-            case "empty_game_created":
-                this.onMsgEmptyGameCreated(msg);
+            case "host_created":
+                this.onMsgHostCreated(msg);
                 break;
             case "shutdown":
                 this.onMsgShutdown(msg);
@@ -810,7 +810,7 @@ export class LobbyController {
         window.location.assign('/' + msg.gameId);
     }
 
-    private onMsgEmptyGameCreated(msg: MsgEmptyGameCreated) {
+    private onMsgHostCreated(msg: MsgHostCreated) {
         window.location.assign('/' + msg.gameId);
     }
 
