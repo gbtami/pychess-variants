@@ -453,7 +453,7 @@ export default class AnalysisController {
         // console.log("got board msg:", msg);
         this.ply = msg.ply
         this.fullfen = msg.fen;
-        this.dests = msg.dests;
+        this.dests = new Map(Object.entries(msg.dests)) as cg.Dests;
         // list of legal promotion moves
         this.promotions = msg.promo;
 

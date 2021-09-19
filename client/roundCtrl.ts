@@ -692,14 +692,14 @@ export default class RoundController {
             // When castling with gating is possible 
             // e1g1, e1g1h, e1g1e, h1e1h, h1e1e all will be offered by moving our king two squares
             // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
-            for (const [orig, _dest] of msg.dests) {
+            for (const orig in msg.dests) {
                 if (orig[1] !== '@') {
                 const movingPiece = this.chessground.state.pieces.get(orig as cg.Key);
                 if (movingPiece !== undefined && movingPiece.role === "r-piece") {
-                    msg.dests.set(orig, msg.dests.get(orig)!.filter(x => {
+                    msg.dests[orig] = msg.dests[orig].filter(x => {
                         const destPiece = this.chessground.state.pieces.get(x);
                         return destPiece === undefined || destPiece.role !== 'k-piece';
-                    }));
+                    });
                 }
                 }
             }
@@ -707,7 +707,7 @@ export default class RoundController {
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        this.dests = (msg.status < 0) ? msg.dests : new Map();
+        this.dests = (msg.status < 0) ? new Map(Object.entries(msg.dests)) : new Map();
 
         // TODO: this logic ideally belongs in chessground somehow i feel - but where can i put it on turn change and also it depends now on this.dests
         //       as far as i can tell the analogous logic for setting up move/pre-move destinations is in state.ts->configure->call to setSelected
