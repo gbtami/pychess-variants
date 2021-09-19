@@ -214,7 +214,7 @@ async def lobby_socket_handler(request):
                         response = {"type": "lobby_user_connected", "username": user.username}
                         await ws.send_json(response)
 
-                        response = {"type": "fullchat", "lines": list("lobbychat")}
+                        response = {"type": "fullchat", "lines": list(lobbychat)}
                         await ws.send_json(response)
 
                         # send game count
