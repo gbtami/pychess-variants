@@ -495,7 +495,7 @@ export class LobbyController {
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
             h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
             h('button.lobby-button', { on: { click: () => this.playRM() } }, _("Practice with Random-Mover")),
-            h('button.lobby-button', { on: { click: () => this.createEmpty() } }, _("Create empty game")),
+            h('button.lobby-button', { on: { click: () => this.createEmpty() } }, _("Host game for others")),
         ];
     }
 
