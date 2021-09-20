@@ -7,7 +7,7 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", ws=None, game_id=None):
+    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", ws=None, game_id=None, empty=False):
         self.user = user
         self.variant = variant
         self.color = color
@@ -22,6 +22,7 @@ class Seek:
         self.alternate_start = alternate_start
         self.target = target
         self.ws = ws
+        self.empty = empty
 
         Seek.gen_id += 1
         self.id = self.gen_id
@@ -44,6 +45,7 @@ class Seek:
             "inc": self.inc,
             "byoyomi": self.byoyomi_period,
             "gameId": self.game_id if self.game_id is not None else "",
+            "empty": self.empty,
         }
 
     @property
@@ -53,13 +55,17 @@ class Seek:
         return "%s: **%s%s** %s" % (self.user.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, ws=None):
+async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
     """ Seek can be
         - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
         - challenge (has another username as target)
         - normal seek (no target)
+
+        Empty seek is a seek where the seeker doesn't play
+        Currently there is no limit for them since they're used for tournament organisation purposes
+        They can only be created by trusted users
     """
-    if len(user.seeks) >= MAX_USER_SEEKS:
+    if len(user.seeks) >= MAX_USER_SEEKS and not empty:
         return
 
     target = data.get("target")
@@ -80,7 +86,8 @@ async def create_seek(db, invites, seeks, user, data, ws=None):
         alternate_start=data.get("alternateStart"),
         target=target,
         ws=ws,
-        game_id=game_id)
+        game_id=game_id,
+        empty=empty)
 
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
