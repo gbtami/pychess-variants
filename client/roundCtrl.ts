@@ -52,6 +52,7 @@ interface MsgMoreTime {
 
 interface MsgOffer {
 	message: string;
+    color: cg.Color;
 }
 
 interface MsgCount {
@@ -457,7 +458,20 @@ export default class RoundController {
 
     private draw = () => {
         // console.log("Draw");
-        this.doSend({ type: "draw", gameId: this.gameId });
+        if (confirm(_('Are you sure you want to draw?'))) {
+            this.doSend({ type: "draw", gameId: this.gameId });
+            this.closeDrawOffer();
+        }
+    }
+
+    private rejectDraw = () => {
+        // TODO Actually send reject draw message
+        this.closeDrawOffer();
+    }
+
+    private closeDrawOffer = () => {
+        const elem = document.getElementById('draw-offer-bottom')!;
+        patch(elem, h('div#draw-offer-bottom', ""));
     }
 
     private resign = () => {
@@ -1088,6 +1102,8 @@ export default class RoundController {
             if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
             this.preaction = false;
         }
+
+        this.rejectDraw();
     }
 
     private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
@@ -1200,6 +1216,15 @@ export default class RoundController {
         setTimeout(this.showExpiration, 250);
     }
 
+    private renderDrawOffer = () => {
+        const elem = document.getElementById('draw-offer-bottom')!;
+        patch(elem, h('div#draw-offer-bottom', [
+            h('i.icon.icon-abort', { on: { click: () => this.rejectDraw() } }),
+            h('div', _("Your opponent offers a draw")),
+            h('i.icon.icon-check', { on: { click: () => this.draw() } }),
+        ]));
+    }
+
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         this.model["username"] = msg["username"];
         if (this.spectator) {
@@ -1284,7 +1309,8 @@ export default class RoundController {
     }
 
     private onMsgOffer = (msg: MsgOffer) => {
-        chatMessage("", msg.message, "roundchat");
+        chatMessage("", _("%1 offers draw", msg.color === 'white' ? this.variant.firstColor : this.variant.secondColor), "roundchat");
+        if (msg.color !== this.mycolor) this.renderDrawOffer();
     }
 
     private onMsgGameNotFound = (msg: MsgGameNotFound) => {
