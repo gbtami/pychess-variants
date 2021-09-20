@@ -1216,12 +1216,12 @@ export default class RoundController {
         setTimeout(this.showExpiration, 250);
     }
 
-    private renderDrawOffer = () => {
+    private renderOffer = () => {
         const elem = document.getElementById('offer-dialog')!;
         patch(elem, h('div#offer-dialog', [
-            h('i.icon.icon-abort.reject', { on: { click: () => this.rejectDraw() } }),
-            h('div', _("Your opponent offers a draw")),
-            h('i.icon.icon-check.accept', { on: { click: () => this.draw() } }),
+            h('div.reject', { on: { click: () => this.rejectDraw() } }, h('i.icon.icon-abort.reject')),
+            h('div.text', _("Your opponent offers a draw")),
+            h('div.accept', { on: { click: () => this.draw() } }, h('i.icon.icon-check')),
         ]));
     }
 
@@ -1310,7 +1310,7 @@ export default class RoundController {
 
     private onMsgOffer = (msg: MsgOffer) => {
         chatMessage("", _("%1 offers draw", msg.color === 'white' ? this.variant.firstColor : this.variant.secondColor), "roundchat");
-        if (msg.color !== this.mycolor) this.renderDrawOffer();
+        if (msg.color !== this.mycolor) this.renderOffer();
     }
 
     private onMsgGameNotFound = (msg: MsgGameNotFound) => {

@@ -21,7 +21,7 @@
     .round-app {
         grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
         grid-template-rows: min-content auto min-content auto auto auto auto auto auto auto min-content auto min-content;
-        grid-template-areas: 'board .' 'board mat-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board game-controls' 'board offer' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board mat-bot' 'board .';
+        grid-template-areas: 'board .' 'board mat-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board mat-bot' 'board .';
     }
 }
 
@@ -56,13 +56,34 @@
 /* draw/rematch offer dialog */
 #offer-dialog {
     display: flex;
-    grid-area: 'offer';
+    grid-area: offer;
+    justify-content: space-between;
+    align-items: stretch;
+    background: var(--bg-color2);
+    border-bottom: 1px solid var(--border-color);
 }
 #offer-dialog .reject {
-    background-color: var(--bad);
+    color: var(--bad);
+    font-size: 1.5rem;
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-color0);
+}
+#offer-dialog .text {
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 #offer-dialog .accept {
-    background-color: var(--good);
+    color: var(--good);
+    font-size: 1.2rem;
+    width: 20%;
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-color0);
 }
 
 /* game start expiration */
