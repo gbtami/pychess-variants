@@ -342,6 +342,7 @@ async def index(request):
             render["inc"] = seek.inc
             render["byo"] = seek.byoyomi_period
             render["inviter"] = inviter
+            render["empty"] = seek.empty
         else:
             render["gameid"] = gameId
             render["variant"] = game.variant

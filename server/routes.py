@@ -89,6 +89,8 @@ post_routes = (
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),
     (r"/invite/accept/{gameId:\w{8}}", index),
+    (r"/invite/accept/{gameId:\w{8}}/player1", index),
+    (r"/invite/accept/{gameId:\w{8}}/player2", index),
     (r"/invite/cancel/{gameId:\w{8}}", cancel_invite),
     ("/api/challenge/{challengeId}/accept", challenge_accept),
     ("/api/challenge/{challengeId}/decline", challenge_decline),
