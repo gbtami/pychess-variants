@@ -470,8 +470,8 @@ export default class RoundController {
     }
 
     private closeDrawOffer = () => {
-        const elem = document.getElementById('draw-offer-bottom')!;
-        patch(elem, h('div#draw-offer-bottom', ""));
+        const elem = document.getElementById('offer-dialog')!;
+        patch(elem, h('div#offer-dialog', ""));
     }
 
     private resign = () => {
@@ -1217,11 +1217,11 @@ export default class RoundController {
     }
 
     private renderDrawOffer = () => {
-        const elem = document.getElementById('draw-offer-bottom')!;
-        patch(elem, h('div#draw-offer-bottom', [
-            h('i.icon.icon-abort', { on: { click: () => this.rejectDraw() } }),
+        const elem = document.getElementById('offer-dialog')!;
+        patch(elem, h('div#offer-dialog', [
+            h('i.icon.icon-abort.reject', { on: { click: () => this.rejectDraw() } }),
             h('div', _("Your opponent offers a draw")),
-            h('i.icon.icon-check', { on: { click: () => this.draw() } }),
+            h('i.icon.icon-check.accept', { on: { click: () => this.draw() } }),
         ]));
     }
 
