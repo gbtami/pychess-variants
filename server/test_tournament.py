@@ -74,7 +74,7 @@ class TestTournament(Tournament):
                 if game.board.ply == ply or game.board.ply > 60:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
                     if game.board.ply > 60:
-                        response = await draw(self.app["games"], {"gameId": game.id}, agreement=True)
+                        response = await draw(self.app["games"], {"gameId": game.id}, game.board.color, agreement=True)
                     else:
                         response = await game.game_ended(player, "resign")
                     if opp_player.title != "TEST":

@@ -269,10 +269,11 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "draw":
                         game = await load_game(request.app, data["gameId"])
-                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+                        color = WHITE if user.username == game.wplayer.username else BLACK
+                        opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
                         opp_player = users[opp_name]
 
-                        response = await draw(games, data, agreement=opp_name in game.draw_offers)
+                        response = await draw(games, data, color, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
                         if opp_player.bot:
                             if game.status > STARTED:
