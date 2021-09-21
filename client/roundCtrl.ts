@@ -1307,15 +1307,15 @@ export default class RoundController {
         chatMessage("", msg.message, "roundchat");
         if (msg.message.endsWith("started")) {
             if (this.turnColor === 'white')
-                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#count-white', '0/64'));
+                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#misc-infow', '0/64'));
             else
-                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#count-black', '0/64'));
+                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#misc-infob', '0/64'));
         }
         else if (msg.message.endsWith("stopped")) {
             if (this.turnColor === 'white')
-                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#count-white', ''));
+                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#misc-infow', ''));
             else
-                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#count-black', ''));
+                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#misc-infob', ''));
         }
     }
 
