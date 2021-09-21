@@ -52,6 +52,7 @@ export function roundView(model: PyChessModel): VNode[] {
             h('div.movelist-block', [
                 h('div#movelist'),
             ]),
+            h('div#offer-dialog'),
             h('div#game-controls'),
             h('round-player1#rplayer1'),
             h('div#expiration-bottom'),

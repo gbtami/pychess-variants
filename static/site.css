@@ -1280,7 +1280,6 @@ div.btn-controls {
     grid-area: game-controls;
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid var(--border-color);
 }
 div.btn-controls.after {
     grid-area: game-controls;
@@ -1644,7 +1643,7 @@ li.message.server {
     font-size:1.1em;
     align-items: center;
     align-content:flex-start;
-    background: var(--bg-color1);
+    background: var(--bg-color0);
 }
 move {
     line-height: 1.9em;
