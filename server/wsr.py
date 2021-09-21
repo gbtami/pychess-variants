@@ -13,7 +13,7 @@ from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
-from utils import analysis_move, play_move, draw, new_game, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
+from utils import analysis_move, play_move, draw, reject_draw, new_game, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 
@@ -260,12 +260,19 @@ async def round_socket_handler(request):
                                 await opp_ws.send_json(response)
                             else:
                                 game.rematch_offers.add(user.username)
-                                response = {"type": "offer", "message": "Rematch offer sent", "room": "player", "user": ""}
+                                response = {"type": "rematch_offer", "username": user.username, "message": "Rematch offer sent", "room": "player", "user": ""}
                                 game.messages.append(response)
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                         if rematch_id:
                             await round_broadcast(game, users, {"type": "view_rematch", "gameId": rematch_id})
+
+                    elif data["type"] == "reject_rematch":
+                        game = await load_game(request.app, data["gameId"])
+                        opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+
+                        if opp_name in game.rematch_offers:
+                            await round_broadcast(game, users, {"type": "rematch_rejected", "message": "Rematch offer rejected"}, full=True)
 
                     elif data["type"] == "draw":
                         game = await load_game(request.app, data["gameId"])
@@ -273,7 +280,7 @@ async def round_socket_handler(request):
                         opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
                         opp_player = users[opp_name]
 
-                        response = await draw(games, data, color, agreement=opp_name in game.draw_offers)
+                        response = await draw(games, data, user.username, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
                         if opp_player.bot:
                             if game.status > STARTED:
@@ -290,6 +297,16 @@ async def round_socket_handler(request):
                             game.draw_offers.add(user.username)
 
                         await round_broadcast(game, users, response)
+
+                    elif data["type"] == "reject_draw":
+                        game = await load_game(request.app, data["gameId"])
+                        color = WHITE if user.username == game.wplayer.username else BLACK
+                        opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
+
+                        response = await reject_draw(games, data, opp_name)
+
+                        if response is not None:
+                            await round_broadcast(game, users, response, full=True)
 
                     elif data["type"] == "logout":
                         await ws.close()

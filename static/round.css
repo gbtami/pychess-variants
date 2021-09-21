@@ -59,6 +59,7 @@
     grid-area: offer;
     justify-content: space-between;
     align-items: stretch;
+    align-content: center;
     background: var(--bg-color2);
     border-bottom: 1px solid var(--border-color);
 }
@@ -74,6 +75,7 @@
 #offer-dialog .text {
     padding-top: 15px;
     padding-bottom: 15px;
+    text-align: center;
 }
 #offer-dialog .accept {
     color: var(--good);

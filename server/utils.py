@@ -230,7 +230,7 @@ async def load_game(app, game_id, user=None):
     return game
 
 
-async def draw(games, data, color, agreement=False):
+async def draw(games, data, username, agreement=False):
     """ Draw or offer """
     game = games[data["gameId"]]
     if game.is_claimable_draw or agreement:
@@ -240,9 +240,18 @@ async def draw(games, data, color, agreement=False):
         return {
             "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
             "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated == RATED else ""}
-    response = {"type": "offer", "color": 'white' if color == WHITE else 'black', "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
+    response = {"type": "draw_offer", "username": username, "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
     game.messages.append(response)
     return response
+
+
+async def reject_draw(games, data, opp_name):
+    game = games[data["gameId"]]
+    if game.board.count_started <= 0:
+        if opp_name in game.draw_offers:
+            game.draw_offers.discard(opp_name)
+            return { "type": "draw_rejected", "message": "Draw offer rejected" }
+    return None
 
 
 async def import_game(request):
