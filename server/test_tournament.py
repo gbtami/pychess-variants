@@ -17,10 +17,11 @@ from server import make_app
 from user import User
 from tournament import Tournament
 from tournaments import upsert_tournament_to_db, new_tournament
+from draw import draw
 from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
-from utils import draw, play_move
+from utils import play_move
 # from misc import timeit
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
@@ -74,7 +75,7 @@ class TestTournament(Tournament):
                 if game.board.ply == ply or game.board.ply > 60:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
                     if game.board.ply > 60:
-                        response = await draw(self.app["games"], {"gameId": game.id}, cur_player.username, agreement=True)
+                        response = await draw(game, cur_player.username, agreement=True)
                     else:
                         response = await game.game_ended(player, "resign")
                     if opp_player.title != "TEST":

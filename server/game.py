@@ -20,6 +20,7 @@ from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM,
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
+from draw import reject_draw
 from settings import URI
 from spectators import spectators
 
@@ -209,11 +210,9 @@ class Game:
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
         # Move cancels draw offer
-        # Can't import reject_draw from utils because of circular import
-        if self.board.count_started <= 0:  # Don't send reject_draw message for Makruk BHC
-            if opp_player.username in self.draw_offers:
-                self.draw_offers.discard(opp_player.username)
-                await round_broadcast(self, self.app["users"], {"type": "draw_rejected", "message": "Draw offer rejected"}, full=True)
+        response = await reject_draw(self, opp_player.username)
+        if response is not None:
+            await round_broadcast(self, self.app["users"], response, full=True)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves

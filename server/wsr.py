@@ -13,7 +13,8 @@ from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
-from utils import analysis_move, play_move, draw, reject_draw, new_game, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
+from draw import draw, reject_draw
+from utils import analysis_move, play_move, new_game, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +26,6 @@ async def round_socket_handler(request):
     users = request.app["users"]
     sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
-    games = request.app["games"]
     db = request.app["db"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
@@ -280,7 +280,7 @@ async def round_socket_handler(request):
                         opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
                         opp_player = users[opp_name]
 
-                        response = await draw(games, data, user.username, agreement=opp_name in game.draw_offers)
+                        response = await draw(game, user.username, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
                         if opp_player.bot:
                             if game.status > STARTED:
@@ -303,8 +303,7 @@ async def round_socket_handler(request):
                         color = WHITE if user.username == game.wplayer.username else BLACK
                         opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
 
-                        response = await reject_draw(games, data, opp_name)
-
+                        response = await reject_draw(game, opp_name)
                         if response is not None:
                             await round_broadcast(game, users, response, full=True)
 
