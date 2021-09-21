@@ -14,7 +14,7 @@ except ImportError:
 
 from glicko2.glicko2 import gl2
 from broadcast import round_broadcast
-from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
+from const import STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
     UNKNOWNFINISH, CASUAL, RATED, IMPORTED, CONSERVATIVE_CAPA_FEN, T_STARTED
 from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
@@ -226,21 +226,6 @@ async def load_game(app, game_id, user=None):
         game.brdiff = ""
 
     return game
-
-
-async def draw(games, data, agreement=False):
-    """ Draw or offer """
-    game = games[data["gameId"]]
-    if game.is_claimable_draw or agreement:
-        result = "1/2-1/2"
-        game.update_status(DRAW, result)
-        await game.save_game()
-        return {
-            "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
-            "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated == RATED else ""}
-    response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
-    game.messages.append(response)
-    return response
 
 
 async def import_game(request):

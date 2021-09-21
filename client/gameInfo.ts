@@ -45,7 +45,7 @@ export function gameInfo(model: PyChessModel): VNode {
                     "icon-pink":  fc === "Pink",
                 }
             }),
-            h('player', playerInfo(model, 'w', null)),
+            h('player', playerInfo(model, 'w')),
         ]),
         h('div.player-data', [
             h('i-side.icon', {
@@ -58,7 +58,7 @@ export function gameInfo(model: PyChessModel): VNode {
                     "icon-pink":  sc === "Pink",
                 }
             }),
-            h('player', playerInfo(model, 'b', null)),
+            h('player', playerInfo(model, 'b')),
         ]),
         ]),
         h('section', [
@@ -69,15 +69,16 @@ export function gameInfo(model: PyChessModel): VNode {
     ])
 }
 
-function playerInfo(model: PyChessModel, color: string, rdiff: number | null) {
+function playerInfo(model: PyChessModel, color: string) {
     const username = model[color === "w"? "wplayer": "bplayer"];
     const title = model[color === "w"? "wtitle": "btitle"];
     const level = model.level;
     const rating = model[color === "w"? "wrating": "brating"];
+    const rdiff = model[color === "w"? "wrdiff": "brdiff"];
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
         username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
-        rdiff === null ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
+        model["status"] < 1 ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
     ]);
 }

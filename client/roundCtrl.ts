@@ -50,7 +50,21 @@ interface MsgMoreTime {
     username: string;
 }
 
-interface MsgOffer {
+interface MsgDrawOffer {
+	message: string;
+    username: string;
+}
+
+interface MsgDrawRejected {
+	message: string;
+}
+
+interface MsgRematchOffer {
+	message: string;
+    username: string;
+}
+
+interface MsgRematchRejected {
 	message: string;
 }
 
@@ -80,6 +94,7 @@ export default class RoundController {
     sock;
     chessground: Api;
     fullfen: string;
+    username: string;
     wplayer: string;
     bplayer: string;
     base: number;
@@ -109,6 +124,7 @@ export default class RoundController {
     vmiscInfoB: VNode;
     vpng: VNode;
     vmovelist: VNode | HTMLElement;
+    vdialog: VNode;
     gameControls: VNode;
     moveControls: VNode;
     ctableContainer: VNode | HTMLElement;
@@ -206,6 +222,7 @@ export default class RoundController {
         this.variant = VARIANTS[model["variant"]];
         this.chess960 = model["chess960"] === 'True';
         this.fullfen = model["fen"];
+        this.username = model["username"];
         this.wplayer = model["wplayer"];
         this.bplayer = model["bplayer"];
         this.base = Number(model["base"]);
@@ -225,7 +242,7 @@ export default class RoundController {
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
 
-        this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
+        this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
         this.hasPockets = this.variant.pocket;
         this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
 
@@ -234,8 +251,8 @@ export default class RoundController {
             this.mycolor = 'white';
             this.oppcolor = 'black';
         } else {
-            this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
-            this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
+            this.mycolor = this.username === this.wplayer ? 'white' : 'black';
+            this.oppcolor = this.username === this.wplayer ? 'black' : 'white';
         }
 
         // players[0] is top player, players[1] is bottom player
@@ -437,6 +454,8 @@ export default class RoundController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
+        this.vdialog = patch(document.getElementById('offer-dialog')!, h('div#offer-dialog', ""));
+
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         boardSettings.ctrl = this;
@@ -457,7 +476,35 @@ export default class RoundController {
 
     private draw = () => {
         // console.log("Draw");
-        this.doSend({ type: "draw", gameId: this.gameId });
+        if (confirm(_('Are you sure you want to draw?'))) {
+            this.doSend({ type: "draw", gameId: this.gameId });
+            this.setDialog(_("Draw offer sent"));
+        }
+    }
+
+    private rejectDrawOffer = () => {
+        this.doSend({ type: "reject_draw", gameId: this.gameId });
+        this.clearDialog();
+    }
+
+    private renderDrawOffer = () => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
+            h('div', { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } }, h('i.icon.icon-abort.reject')),
+            h('div.text', _("Your opponent offers a draw")),
+            h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
+        ]));
+    }
+
+    private setDialog = (message: string) => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
+            h('div', { class: { reject: false } }),
+            h('div.text', message),
+            h('div', { class: { accept: false } }),
+        ]));
+    }
+
+    private clearDialog = () => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', []));
     }
 
     private resign = () => {
@@ -565,6 +612,20 @@ export default class RoundController {
 
     private rematch = () => {
         this.doSend({ type: "rematch", gameId: this.gameId, handicap: this.handicap });
+        this.setDialog(_("Rematch offer sent"));
+    }
+
+    private rejectRematchOffer = () => {
+        this.doSend({ type: "reject_rematch", gameId: this.gameId });
+        this.clearDialog();
+    }
+
+    private renderRematchOffer = () => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
+            h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
+            h('div.text', _("Your opponent offers a rematch")),
+            h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+        ]));
     }
 
     private newOpponent = (home: string) => {
@@ -646,6 +707,8 @@ export default class RoundController {
             if (this.tv) {
                 setInterval(() => {this.doSend({ type: "updateTV", gameId: this.gameId, profileId: this.model["profileid"] });}, 2000);
             }
+
+            this.clearDialog();
         }
     }
 
@@ -1088,6 +1151,8 @@ export default class RoundController {
             if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
             this.preaction = false;
         }
+
+        this.clearDialog();
     }
 
     private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
@@ -1189,7 +1254,7 @@ export default class RoundController {
                 {class:
                     {emerg, 'bar-glider': this.turnColor === this.mycolor}
                 },
-                [h('strong', secs), ngettext('second to play the first move', 'seconds to play the first move', secs)]
+                [ngettext('%1 second to play the first move', '%1 seconds to play the first move', secs)]
             ));
         }
     }
@@ -1283,8 +1348,24 @@ export default class RoundController {
         }
     }
 
-    private onMsgOffer = (msg: MsgOffer) => {
+    private onMsgDrawOffer = (msg: MsgDrawOffer) => {
         chatMessage("", msg.message, "roundchat");
+        if (!this.spectator && msg.username !== this.username) this.renderDrawOffer();
+    }
+
+    private onMsgDrawRejected = (msg: MsgDrawRejected) => {
+        chatMessage("", msg.message, "roundchat");
+        this.clearDialog();
+    }
+
+    private onMsgRematchOffer = (msg: MsgRematchOffer) => {
+        chatMessage("", msg.message, "roundchat");
+        if (!this.spectator && msg.username !== this.username) this.renderRematchOffer();
+    }
+
+    private onMsgRematchRejected = (msg: MsgRematchRejected) => {
+        chatMessage("", msg.message, "roundchat");
+        this.clearDialog();
     }
 
     private onMsgGameNotFound = (msg: MsgGameNotFound) => {
@@ -1307,15 +1388,15 @@ export default class RoundController {
         chatMessage("", msg.message, "roundchat");
         if (msg.message.endsWith("started")) {
             if (this.turnColor === 'white')
-                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#count-white', '0/64'));
+                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#misc-infow', '0/64'));
             else
-                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#count-black', '0/64'));
+                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#misc-infob', '0/64'));
         }
         else if (msg.message.endsWith("stopped")) {
             if (this.turnColor === 'white')
-                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#count-white', ''));
+                this.vmiscInfoW = patch(this.vmiscInfoW, h('div#misc-infow', ''));
             else
-                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#count-black', ''));
+                this.vmiscInfoB = patch(this.vmiscInfoB, h('div#misc-infob', ''));
         }
     }
 
@@ -1359,8 +1440,17 @@ export default class RoundController {
             case "view_rematch":
                 this.onMsgViewRematch(msg);
                 break;
-            case "offer":
-                this.onMsgOffer(msg);
+            case "draw_offer":
+                this.onMsgDrawOffer(msg);
+                break;
+            case "draw_rejected":
+                this.onMsgDrawRejected(msg);
+                break;
+            case "rematch_offer":
+                this.onMsgRematchOffer(msg);
+                break;
+            case "rematch_rejected":
+                this.onMsgRematchRejected(msg);
                 break;
             case "moretime":
                 this.onMsgMoreTime(msg);
