@@ -247,10 +247,10 @@ async def draw(games, data, username, agreement=False):
 
 async def reject_draw(games, data, opp_name):
     game = games[data["gameId"]]
-    if game.board.count_started <= 0:
+    if game.board.count_started <= 0:  # Don't send reject_draw message for Makruk BHC
         if opp_name in game.draw_offers:
             game.draw_offers.discard(opp_name)
-            return { "type": "draw_rejected", "message": "Draw offer rejected" }
+            return {"type": "draw_rejected", "message": "Draw offer rejected"}
     return None
 
 

@@ -11,7 +11,7 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from broadcast import lobby_broadcast
+from broadcast import lobby_broadcast, round_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
@@ -208,10 +208,12 @@ class Game:
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
-        if self.board.count_started <= 0:
-            # Move cancels draw offer
-            # Except in manual counting, since it is a permanent draw offer
-            self.draw_offers.discard(opp_player.username)
+        # Move cancels draw offer
+        # Can't import reject_draw from utils because of circular import
+        if self.board.count_started <= 0:  # Don't send reject_draw message for Makruk BHC
+            if opp_player.username in self.draw_offers:
+                self.draw_offers.discard(opp_player.username)
+                await round_broadcast(self, self.app["users"], {"type": "draw_rejected", "message": "Draw offer rejected"}, full=True)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
