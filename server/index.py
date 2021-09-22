@@ -199,7 +199,7 @@ async def index(request):
                 seek_id = invites[gameId].id
                 seek = request.app["seeks"][seek_id]
                 view = "invite"
-                inviter = seek.user.username if user.username != seek.user.username else ""
+                inviter = seek.creator.username if user.username != seek.creator.username else ""
 
         if view != "invite":
             game = await load_game(request.app, gameId, user=user)

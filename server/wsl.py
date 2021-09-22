@@ -12,7 +12,7 @@ from const import STARTED
 from settings import ADMINS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import new_game, load_game, online_count, MyWebSocketResponse
+from utils import join_seek, load_game, online_count, MyWebSocketResponse
 from misc import server_growth, server_state
 from tournament import tournament_spotlights
 
@@ -97,13 +97,14 @@ async def lobby_socket_handler(request):
                             inc=data["increment"],
                             byoyomi_period=data["byoyomiPeriod"],
                             level=0 if data["rm"] else data["level"],
+                            player1=user,
                             rated=False,
                             chess960=data["chess960"],
                             alternate_start=data["alternateStart"])
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 
-                        response = await new_game(request.app, engine, seek.id)
+                        response = await join_seek(request.app, engine, seek.id)
                         await ws.send_json(response)
 
                         if response["type"] != "error":
@@ -168,13 +169,13 @@ async def lobby_socket_handler(request):
 
                         seek = seeks[data["seekID"]]
                         # print("accept_seek", seek.as_json)
-                        response = await new_game(request.app, user, data["seekID"])
+                        response = await join_seek(request.app, user, data["seekID"])
                         await ws.send_json(response)
 
-                        if seek.user.bot:
+                        if seek.creator.bot:
                             gameId = response["gameId"]
-                            seek.user.game_queues[gameId] = asyncio.Queue()
-                            await seek.user.event_queue.put(challenge(seek, response))
+                            seek.creator.game_queues[gameId] = asyncio.Queue()
+                            await seek.creator.event_queue.put(challenge(seek, response))
                         else:
                             await seek.ws.send_json(response)
 

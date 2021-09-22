@@ -7,35 +7,41 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, user, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", ws=None, game_id=None):
-        self.user = user
+    def __init__(self, creator, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target=None, player1=None, player2=None, ws=None, game_id=None):
+        self.creator = creator
         self.variant = variant
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
-        self.rating = user.get_rating(variant, chess960).rating_prov[0]
+        self.rating = creator.get_rating(variant, chess960).rating_prov[0]
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
-        self.level = 0 if user.username == "Random-Mover" else level
+        self.level = 0 if creator.username == "Random-Mover" else level
         self.chess960 = chess960
         self.alternate_start = alternate_start
         self.target = target
+        self.player1 = player1
+        self.player2 = player2
         self.ws = ws
 
         Seek.gen_id += 1
         self.id = self.gen_id
         self.game_id = game_id
 
-        self.as_json = {
+    @property
+    def as_json(self):
+        return {
             "seekID": self.id,
-            "user": self.user.username,
-            "bot": self.user.bot,
-            "title": self.user.title,
+            "user": self.creator.username,
+            "bot": self.creator.bot,
+            "title": self.creator.title,
             "variant": self.variant,
             "chess960": self.chess960,
             "alternateStart": self.alternate_start,
             "target": self.target,
+            "player1": self.player1,
+            "player2": self.player2,
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
@@ -50,16 +56,20 @@ class Seek:
     def discord_msg(self):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
-        return "%s: **%s%s** %s" % (self.user.username, self.variant, tail960, tc)
+        return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, ws=None):
+async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
     """ Seek can be
         - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
         - challenge (has another username as target)
         - normal seek (no target)
+
+        An empty seek is a seek where its creator doesn't play automatically
+        Since they're only used for tournament purposes, there is no limit for their creation
+        Empty seeks can only be created by a tournament director
     """
-    if len(user.seeks) >= MAX_USER_SEEKS:
+    if len(user.seeks) >= MAX_USER_SEEKS and not empty:
         return
 
     target = data.get("target")
@@ -79,6 +89,8 @@ async def create_seek(db, invites, seeks, user, data, ws=None):
         chess960=data.get("chess960"),
         alternate_start=data.get("alternateStart"),
         target=target,
+        player1=None if empty else user,
+        player2=None,
         ws=ws,
         game_id=game_id)
 
@@ -96,4 +108,4 @@ def get_seeks(seeks):
 
 
 def challenge(seek, gameId):
-    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n' % (gameId, seek.user.username, seek.variant, seek.level, str(seek.chess960).lower())
+    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n' % (gameId, seek.creator.username, seek.variant, seek.level, str(seek.chess960).lower())
