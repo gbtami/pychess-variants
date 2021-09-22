@@ -306,10 +306,6 @@ export default class AnalysisController {
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
-            document.documentElement.style.setProperty('--toolsHeight', '136px');
-        } else {
-            this.renderFENAndPGN( this.getPgn() );
-            document.documentElement.style.setProperty('--toolsHeight', '92px');
         }
 
         if (!this.model["embed"]) {
