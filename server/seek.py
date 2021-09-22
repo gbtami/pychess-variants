@@ -7,7 +7,7 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, creator, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target=None, player1=None, player2=None, ws=None, game_id=None):
+    def __init__(self, creator, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", player1=None, player2=None, ws=None, game_id=None):
         self.creator = creator
         self.variant = variant
         self.color = color
@@ -40,8 +40,8 @@ class Seek:
             "chess960": self.chess960,
             "alternateStart": self.alternate_start,
             "target": self.target,
-            "player1": self.player1,
-            "player2": self.player2,
+            "player1": self.player1.username if self.player1 is not None else "",
+            "player2": self.player2.username if self.player2 is not None else "",
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
