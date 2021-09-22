@@ -199,7 +199,7 @@ async def index(request):
                 seek_id = invites[gameId].id
                 seek = request.app["seeks"][seek_id]
                 view = "invite"
-                inviter = seek.user.username if user.username != seek.user.username else ""
+                inviter = seek.creator.username if user.username != seek.creator.username else ""
 
         if view != "invite":
             game = await load_game(request.app, gameId, user=user)
@@ -330,7 +330,7 @@ async def index(request):
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
         render["tables"] = await get_latest_tournaments(request.app)
-        render["admin"] = user.username in ADMINS.split(",")
+        render["admin"] = user.username in ADMINS
 
     if (gameId is not None) and gameId != "variants":
         if view == "invite":
