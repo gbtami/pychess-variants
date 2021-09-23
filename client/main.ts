@@ -14,8 +14,6 @@ import { settingsView } from './settingsView';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { inviteView } from './invite';
-import { hostView } from './host';
-import { waitView } from './wait';
 import { renderGames } from './games';
 import { editorView } from './editor';
 import { analysisView, embedView } from './analysis';
@@ -66,7 +64,8 @@ export type PyChessModel = {
     date: string;
     tv: boolean;
     embed: boolean;
-    empty: boolean;
+    seekEmpty: boolean;
+    td: boolean;
 
     "asset-url": string;
 };
@@ -105,7 +104,8 @@ function initModel(el: HTMLElement) {
         date : el.getAttribute("data-date") ?? "",
         tv : el.getAttribute("data-view") === 'tv',
         embed : el.getAttribute("data-view") === 'embed',
-        empty : el.getAttribute("data-empty") === "True",
+        seekEmpty : el.getAttribute("data-seekempty") === "True",
+        td: el.getAttribute("td") === "True",
 
         "asset-url": el.getAttribute("data-asset-url") ?? "",
     };
@@ -122,14 +122,12 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
     case 'tv':
     case 'round':
         return h('div#main-wrap', [h('main.round', roundView(model))]);
-    case 'wait':
-        return h('div#main-wrap', [h('main.round', waitView(model))]);
     case 'embed':
         return h('div', embedView(model));
     case 'analysis':
         return h('div#main-wrap', analysisView(model));
     case 'invite':
-        return h('div#main-wrap', model["empty"] ? hostView(model) : inviteView(model));
+        return h('div#main-wrap', inviteView(model));
     case 'editor':
         return h('div#main-wrap', editorView(model));
     case 'tournament':
