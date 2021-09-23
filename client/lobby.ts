@@ -196,6 +196,8 @@ export class LobbyController {
             document.getElementById('challenge-block')!.style.display = 'inline-flex';
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('id01')!.style.display = 'block';
+            document.getElementById('color-button-group')!.style.display = 'block';
+            document.getElementById('create-button')!.style.display = 'none';
         }
 
         const e = document.getElementById("fen") as HTMLInputElement;
