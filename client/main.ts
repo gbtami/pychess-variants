@@ -65,7 +65,7 @@ export type PyChessModel = {
     tv: boolean;
     embed: boolean;
     seekEmpty: boolean;
-    td: boolean;
+    tournamentDirector: boolean;
 
     "asset-url": string;
 };
@@ -105,7 +105,7 @@ function initModel(el: HTMLElement) {
         tv : el.getAttribute("data-view") === 'tv',
         embed : el.getAttribute("data-view") === 'embed',
         seekEmpty : el.getAttribute("data-seekempty") === "True",
-        td: el.getAttribute("td") === "True",
+        tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
 
         "asset-url": el.getAttribute("data-asset-url") ?? "",
     };

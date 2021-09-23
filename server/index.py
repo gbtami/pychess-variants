@@ -295,7 +295,7 @@ async def index(request):
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
         "variants": VARIANTS,
         "variant_display_name": variant_display_name,
-        "td": user.username in TOURNAMENT_DIRECTORS,
+        "tournamentdirector": user.username in TOURNAMENT_DIRECTORS,
     }
 
     if view in ("profile", "level8win"):
