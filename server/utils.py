@@ -1,7 +1,6 @@
 import logging
 import random
 from datetime import datetime, timezone
-import json
 
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
@@ -58,29 +57,15 @@ async def tv_game_user(db, users, profileId):
     return game_id
 
 
-async def load_game(app, game_id, user=None):
+async def load_game(app, game_id):
     """ Return Game object from app cache or from database """
     db = app["db"]
     games = app["games"]
     users = app["users"]
     if game_id in games:
         return games[game_id]
-
+    
     doc = await db.game.find_one({"_id": game_id})
-    if doc is None:
-        invites = app["invites"]
-        if game_id in invites:
-            seek_id = invites[game_id].id
-            await join_seek(app, user, seek_id, game_id)
-            try:
-                # Put response data to sse subscribers queue
-                channels = app["invite_channels"]
-                for queue in channels:
-                    await queue.put(json.dumps({"gameId": game_id}))
-                return games[game_id]
-            except ConnectionResetError:
-                pass
-        return None
 
     wp, bp = doc["us"]
     if wp in users:
@@ -343,23 +328,26 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
     seek = seeks[seek_id]
     log.info("+++ Seek %s joined by %s FEN:%s 960:%s", seek_id, user.username, seek.fen, seek.chess960)
 
+    if (user is seek.player1 or user is seek.player2):
+        return {"type":"seek_yourself", "seekID": seek_id}
+
     if join_as == "player1":
-        if seek.player1 == None:
+        if seek.player1 is None:
             seek.player1 = user
         else:
-            return {"type":"seek_occupied", "seekID": seek_id, "position": 1}
+            return {"type":"seek_occupied", "seekID": seek_id}
     elif join_as == "player2":
-        if seek.player2 == None:
+        if seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type":"seek_occupied", "seekID": seek_id, "position": 2}
+            return {"type":"seek_occupied", "seekID": seek_id}
     else:
-        if seek.player1 == None:
+        if seek.player1 is None:
             seek.player1 = user
-        elif seek.player2 == None:
+        elif seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type":"seek_occupied", "seekID": seek_id, "position": 0}
+            return {"type":"seek_occupied", "seekID": seek_id}
 
     if seek.player1 is not None and seek.player2 is not None:
         return await new_game(app, seek_id, game_id)
