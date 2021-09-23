@@ -773,7 +773,7 @@ class Game:
                 "check": self.check,
                 "ply": self.board.ply,
                 "clocks": {"black": clocks["black"], "white": clocks["white"]},
-                "byo": byoyomi_periods,
+                "byo": (byoyomi_periods["white"], byoyomi_periods["black"]),
                 "pgn": self.pgn if self.status > STARTED else "",
                 "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated == RATED else "",
                 "uci_usi": self.uci_usi if self.status > STARTED else "",
