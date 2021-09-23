@@ -15,7 +15,8 @@ import { VARIANTS } from './chess';
 import { gameType } from './profile';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
-import { PyChessModel } from "./main";
+import { PyChessModel } from './main';
+import { colorNames } from './profile';
 
 export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
@@ -24,6 +25,7 @@ export function inviteView(model: PyChessModel): VNode[] {
     const gameURL = '/' + gameId;
     const gameURLPlayer1 = gameURL + '/player1';
     const gameURLPlayer2 = gameURL + '/player2';
+    const seekEmpty = model["seekEmpty"];
 
     const evtSource = new EventSource("/api/invites");
     evtSource.onmessage = function(event) {
@@ -39,7 +41,7 @@ export function inviteView(model: PyChessModel): VNode[] {
 
     switch (model["inviter"]) {
         case "": 
-            title = _('Challenge to a game');
+            title = seekEmpty ? _('Host a game for others') : _('Challenge to a game');
             formAction = '/invite/cancel/' + gameId;
             buttonClass = {red: true};
             buttonText = _('CANCEL');
@@ -88,13 +90,13 @@ export function inviteView(model: PyChessModel): VNode[] {
                 ]),
             ]),
             (model["inviter"] === "") ?
-                ( (model["seekEmpty"]) ?
+                ( (seekEmpty) ?
                     h('div.inviteinfo', [
                         h('div', _('To invite someone to play, give them this URL:')),
                         h('div', [
-                            h('label', {attrs: {for: "invite-url-player1"}}, variant.firstColor),
+                            h('label', {attrs: {for: "invite-url-player1"}}, colorNames(variant.firstColor)),
                             h('input#invite-url-player1', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURLPlayer1}}),
-                            h('button#paste-url-player1', { on: { click: () => {
+                            h('button#paste-url-player1', { class: { "paste-url": true }, on: { click: () => {
                                 copyTextToClipboard(model["home"] + gameURLPlayer1);
                                 patch(document.getElementById('paste-icon-player1') as HTMLElement,
                                     h('i#paste-icon-player1', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
@@ -102,9 +104,9 @@ export function inviteView(model: PyChessModel): VNode[] {
                                 h('i#paste-icon-player1', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-clipboard": true} })])
                         ]),
                         h('div', [
-                            h('label', {attrs: {for: "invite-url-player2"}}, variant.secondColor),
+                            h('label', {attrs: {for: "invite-url-player2"}}, colorNames(variant.secondColor)),
                             h('input#invite-url-player2', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURLPlayer2}}),
-                            h('button#paste-url-player2', { on: { click: () => {
+                            h('button#paste-url-player2', { class: { "paste-url": true }, on: { click: () => {
                                 copyTextToClipboard(model["home"] + gameURLPlayer2);
                                 patch(document.getElementById('paste-icon-player2') as HTMLElement,
                                     h('i#paste-icon-player2', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
@@ -116,7 +118,7 @@ export function inviteView(model: PyChessModel): VNode[] {
                     h('div.inviteinfo', [
                         h('div', _('To invite someone to play, give them this URL:')),
                         h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURL}}),
-                        h('button#paste-url', { on: { click: () => {
+                        h('button#paste-url', { class: { "paste-url": true }, on: { click: () => {
                             copyTextToClipboard(model["home"] + gameURL);
                             patch(document.getElementById('paste-icon') as HTMLElement,
                                 h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
