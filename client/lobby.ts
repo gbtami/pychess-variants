@@ -488,6 +488,9 @@ export class LobbyController {
                             h('button.icon.icon-adjust', { props: { type: "button", title: _("Random") }, on: { click: () => this.createSeek('r') } }),
                             h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => this.createSeek('w') } }),
                         ]),
+                        h('div#create-button', [
+                            h('button', { props: { type: "button" }, on: { click: () => this.createSeek('w') } }, _("Create")),
+                        ]),
                     ]),
                 ]),
             ]),
@@ -520,6 +523,8 @@ export class LobbyController {
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('color-button-group')!.style.display = 'block';
+        document.getElementById('create-button')!.style.display = 'none';
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
@@ -530,6 +535,8 @@ export class LobbyController {
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('color-button-group')!.style.display = 'block';
+        document.getElementById('create-button')!.style.display = 'none';
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
@@ -539,6 +546,8 @@ export class LobbyController {
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'inline-block';
         document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('color-button-group')!.style.display = 'block';
+        document.getElementById('create-button')!.style.display = 'none';
     }
 
     playRM(variantName: string = '', chess960: boolean = false) {
@@ -548,6 +557,8 @@ export class LobbyController {
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('color-button-group')!.style.display = 'block';
+        document.getElementById('create-button')!.style.display = 'none';
     }
 
     createHost(variantName: string = '', chess960: boolean = false) {
@@ -558,6 +569,8 @@ export class LobbyController {
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('color-button-group')!.style.display = 'none';
+        document.getElementById('create-button')!.style.display = 'block';
     }
 
     private setVariant() {

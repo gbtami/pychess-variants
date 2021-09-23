@@ -1273,6 +1273,15 @@ select, input {
     color: var(--font-color);
     background: var(--button-new-game);
 }
+#create-button {
+    margin-top: 1.2em;
+}
+#create-button > button {
+    color: var(--font-color);
+    background: var(--button-new-game);
+    text-transform: uppercase;
+    padding: 0.3em;
+}
 #btn-controls-top {
     grid-area: move-controls;
 }
