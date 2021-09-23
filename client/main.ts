@@ -94,7 +94,7 @@ function initModel(el: HTMLElement) {
         brating : el.getAttribute("data-brating") ?? "",
         brdiff : parseInt(""+el.getAttribute("data-brdiff")),
         fen : el.getAttribute("data-fen") ?? "",
-        base : parseInt(""+el.getAttribute("data-base")),
+        base : parseFloat(""+el.getAttribute("data-base")),
         inc : parseInt(""+el.getAttribute("data-inc")),
         byo : parseInt(""+el.getAttribute("data-byo")),
         result : el.getAttribute("data-result") ?? "",
