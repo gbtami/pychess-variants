@@ -278,18 +278,20 @@ msgstr "Servidor"
 #: ../client/chess.ts:215
 msgid "Chess, unmodified, as it's played by FIDE standards."
 msgstr ""
+"Ajedrez, sin modificaciones, tal como se juega según los estándares de la "
+"FIDE."
 
 #: ../client/chess.ts:232
 msgid "Take captured pieces and drop them back on to the board as your own."
-msgstr ""
+msgstr "Suelta las piezas capturadas en el tablero como propias."
 
 #: ../client/chess.ts:250
 msgid "Choose where your pieces start."
-msgstr ""
+msgstr "Escoge dónde comienzan tus piezas."
 
 #: ../client/chess.ts:260
 msgid "Pieces explode upon capture."
-msgstr ""
+msgstr "Las piezas explotan con las capturas."
 
 #: ../client/chess.ts:270
 msgid ""
@@ -680,7 +682,7 @@ msgstr "Jugar con un amigo"
 
 #: ../client/lobby.ts:402 ../client/lobby/layer3.ts:50
 msgid "Play with AI"
-msgstr ""
+msgstr "Juega con la IA"
 
 #: ../client/lobby.ts:403 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
@@ -875,7 +877,7 @@ msgstr "Partidas"
 #: ../client/profile.ts:279
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
-msgstr ""
+msgstr "Por puntos"
 
 #: ../client/profile.ts:280
 msgid "Imported"
@@ -1037,11 +1039,11 @@ msgstr "Torneo completo"
 
 #: ../client/tournament.ts:206
 msgid "Players"
-msgstr ""
+msgstr "Jugadores"
 
 #: ../client/tournament.ts:207
 msgid "Average rating"
-msgstr ""
+msgstr "Rating medio"
 
 #: ../client/tournament.ts:208 ../client/tournament.ts:388
 #: ../client/tournament.ts:440 ../client/tournament.ts:451
@@ -1051,19 +1053,19 @@ msgstr "Partidas jugadas"
 
 #: ../client/tournament.ts:209
 msgid "White wins"
-msgstr ""
+msgstr "Blancas ganan"
 
 #: ../client/tournament.ts:210
 msgid "Black wins"
-msgstr ""
+msgstr "Negras ganan"
 
 #: ../client/tournament.ts:211
 msgid "Draws"
-msgstr ""
+msgstr "Tablas"
 
 #: ../client/tournament.ts:221
 msgid "Download all games"
-msgstr ""
+msgstr "Descargar todas las partidas"
 
 #: ../client/tournament.ts:387 ../client/tournament.ts:439
 #: ../client/tournament.ts:450 ../client/tournament.ts:461
@@ -1110,7 +1112,7 @@ msgstr ""
 #: ../client/lobby/layer2shogi.ts:27 ../client/lobby/layer2xiangqi.ts:27
 #: ../client/lobby/layer3.ts:53
 msgid "Go Back"
-msgstr ""
+msgstr "Volver"
 
 #: ../client/lobby/layer2army.ts:35
 msgid "Horde: Horse-based army"

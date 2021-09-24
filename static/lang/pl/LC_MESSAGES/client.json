@@ -284,10 +284,10 @@
     "Stop": "Przerwij",
     "Start counting": "Zacznij odliczać",
     "second to play the first move": [
-        "%1 sekunda na wykonanie pierwszego ruchu",
-        "%1 sekundy na wykonanie pierwszego ruchu",
-        "%1 sekund na wykonanie pierwszego ruchu",
-        "%1 sekundy na wykonanie pierwszego ruchu"
+        "sekunda na wykonanie pierwszego ruchu",
+        "sekundy na wykonanie pierwszego ruchu",
+        "sekund na wykonanie pierwszego ruchu",
+        "sekundy na wykonanie pierwszego ruchu"
     ],
     "Log out": "Wyloguj się",
     "Are you sure you want to log out?": "Na pewno chcesz się wylogować?",

@@ -1038,10 +1038,10 @@ msgstr "Zacznij odliczać"
 #: ../client/roundCtrl.ts:1243
 msgid "second to play the first move"
 msgid_plural "seconds to play the first move"
-msgstr[0] "%1 sekunda na wykonanie pierwszego ruchu"
-msgstr[1] "%1 sekundy na wykonanie pierwszego ruchu"
-msgstr[2] "%1 sekund na wykonanie pierwszego ruchu"
-msgstr[3] "%1 sekundy na wykonanie pierwszego ruchu"
+msgstr[0] "sekunda na wykonanie pierwszego ruchu"
+msgstr[1] "sekundy na wykonanie pierwszego ruchu"
+msgstr[2] "sekund na wykonanie pierwszego ruchu"
+msgstr[3] "sekundy na wykonanie pierwszego ruchu"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

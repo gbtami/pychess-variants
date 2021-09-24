@@ -46,6 +46,10 @@
     "Chat room": "Sala de chat",
     "Toggle the chat": "Activar/desactivar el chat",
     "Server": "Servidor",
+    "Chess, unmodified, as it's played by FIDE standards.": "Ajedrez, sin modificaciones, tal como se juega según los estándares de la FIDE.",
+    "Take captured pieces and drop them back on to the board as your own.": "Suelta las piezas capturadas en el tablero como propias.",
+    "Choose where your pieces start.": "Escoge dónde comienzan tus piezas.",
+    "Pieces explode upon capture.": "Las piezas explotan con las capturas.",
     "in %1 year": [
         "en %1 año",
         "en %1 años"
@@ -131,6 +135,7 @@
     "Random": "Aleatorio",
     "Create a game": "Crear una partida",
     "Play with a friend": "Jugar con un amigo",
+    "Play with AI": "Juega con la IA",
     "Byoyomi in seconds:": "Byoyomi en segundos:",
     "Increment in seconds:": "Incremento en segundos:",
     "Alternate Start": "Comienzo alternativo",
@@ -220,7 +225,13 @@
     "JOIN": "UNIRSE",
     "LOG IN": "IDENTIFICARSE",
     "Tournament complete": "Torneo completo",
+    "Players": "Jugadores",
+    "Average rating": "Rating medio",
     "Games played": "Partidas jugadas",
+    "White wins": "Blancas ganan",
+    "Black wins": "Negras ganan",
+    "Draws": "Tablas",
+    "Download all games": "Descargar todas las partidas",
     "Performance": "Rendimiento",
     "Win rate": "Porcentaje de victorias",
     "Average opponent": "Nivel medio rivales",
@@ -229,6 +240,8 @@
     "Off": "Desactivado",
     "On": "Activado",
     "ZEN MODE": "MODO ZEN",
+    "Go Back": "Volver",
+    "UsePluralFormIfNeeded\u0004Rated": "Por puntos",
     "": {
         "language": "es",
         "plural-forms": "nplurals=2; plural=(n != 1);"

@@ -706,7 +706,7 @@ msgstr "กำหนดเอง"
 #: ../client/lobby.ts:650 ../client/lobby.ts:774
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] "%1 คนออนไลน์"
+msgstr[0] "%1 คน"
 
 #: ../client/lobby.ts:729
 msgid ""

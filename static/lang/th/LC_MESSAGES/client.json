@@ -165,7 +165,7 @@
     "Alternate Start": "ตำแหน่งเริ่มต้นอื่น",
     "Custom": "กำหนดเอง",
     "%1 player": [
-        "%1 คนออนไลน์"
+        "%1 คน"
     ],
     "You have an unfinished game!\nPress OK to continue.": "คุณมีเกมที่ยังเล่นไม่จบอยู่!\nกด OK เพื่อไปต่อ",
     "%1 game in play": [
