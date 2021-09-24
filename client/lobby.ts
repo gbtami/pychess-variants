@@ -677,7 +677,7 @@ export class LobbyController {
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
-            h('td', { style: { tooltip: seek.fen } }, [
+            h('td', { class: { tooltip: seek.fen !== '' } }, [
                 this.tooltip(seek, variant),
                 this.mode(seek),
             ]),
