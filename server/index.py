@@ -4,6 +4,7 @@ import functools
 import logging
 from urllib.parse import urlparse
 import warnings
+import json
 
 from aiohttp import web
 import aiohttp_session
@@ -23,11 +24,11 @@ from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, VARIANT_GROUPS, 
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
-from settings import ADMINS, MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION, DEV
+from settings import ADMINS, TOURNAMENT_DIRECTORS, MAX_AGE, URI, STATIC_ROOT, BR_EXTENSION, SOURCE_VERSION, DEV
 from misc import time_control_str
 from news import NEWS
 from user import User
-from utils import load_game, tv_game, tv_game_user
+from utils import load_game, join_seek, tv_game, tv_game_user
 from tournaments import get_winners, get_latest_tournaments, load_tournament, create_or_update_tournament, get_tournament_name
 
 log = logging.getLogger(__name__)
@@ -195,14 +196,37 @@ async def index(request):
             view = "round"
         invites = request.app["invites"]
         if (gameId not in games) and (gameId in invites):
-            if not request.path.startswith("/invite/accept/"):
-                seek_id = invites[gameId].id
-                seek = request.app["seeks"][seek_id]
+            seek_id = invites[gameId].id
+            seek = request.app["seeks"][seek_id]
+            if request.path.startswith("/invite/accept/"):
+                player = request.match_info.get("player")
+                seek_status = await join_seek(request.app, user, seek_id, gameId, join_as=player)
+
+                if seek_status["type"] == "seek_joined":
+                    view = "invite"
+                    inviter = "wait"
+                elif seek_status["type"] == "seek_occupied":
+                    view = "invite"
+                    inviter = "occupied"
+                elif seek_status["type"] == "seek_yourself":
+                    view = "invite"
+                    inviter = "yourself"
+                elif seek_status["type"] == "new_game":
+                    try:
+                        # Put response data to sse subscribers queue
+                        channels = request.app["invite_channels"]
+                        for queue in channels:
+                            await queue.put(json.dumps({"gameId": gameId}))
+                        # return games[game_id]
+                    except ConnectionResetError:
+                        pass
+
+            else:
                 view = "invite"
-                inviter = seek.user.username if user.username != seek.user.username else ""
+                inviter = seek.creator.username if user.username != seek.creator.username else ""
 
         if view != "invite":
-            game = await load_game(request.app, gameId, user=user)
+            game = await load_game(request.app, gameId)
             if game is None:
                 log.debug("Requested game %s not in app['games']", gameId)
                 template = get_template("404.html")
@@ -271,6 +295,7 @@ async def index(request):
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
         "variants": VARIANTS,
         "variant_display_name": variant_display_name,
+        "tournamentdirector": user.username in TOURNAMENT_DIRECTORS,
     }
 
     if view in ("profile", "level8win"):
@@ -342,6 +367,7 @@ async def index(request):
             render["inc"] = seek.inc
             render["byo"] = seek.byoyomi_period
             render["inviter"] = inviter
+            render["seekempty"] = seek.player1 is None and seek.player2 is None
         else:
             render["gameid"] = gameId
             render["variant"] = game.variant

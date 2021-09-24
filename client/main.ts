@@ -64,6 +64,8 @@ export type PyChessModel = {
     date: string;
     tv: boolean;
     embed: boolean;
+    seekEmpty: boolean;
+    tournamentDirector: boolean;
 
     "asset-url": string;
 };
@@ -102,6 +104,8 @@ function initModel(el: HTMLElement) {
         date : el.getAttribute("data-date") ?? "",
         tv : el.getAttribute("data-view") === 'tv',
         embed : el.getAttribute("data-view") === 'embed',
+        seekEmpty : el.getAttribute("data-seekempty") === "True",
+        tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
 
         "asset-url": el.getAttribute("data-asset-url") ?? "",
     };

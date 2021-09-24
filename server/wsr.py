@@ -14,7 +14,7 @@ from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
 from draw import draw, reject_draw
-from utils import analysis_move, play_move, new_game, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
+from utils import analysis_move, play_move, join_seek, new_game, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 
@@ -221,10 +221,11 @@ async def round_socket_handler(request):
                                 byoyomi_period=game.byoyomi_period,
                                 level=game.level,
                                 rated=game.rated,
+                                player1=user,
                                 chess960=game.chess960)
                             seeks[seek.id] = seek
 
-                            response = await new_game(request.app, engine, seek.id)
+                            response = await join_seek(request.app, engine, seek.id)
                             await ws.send_json(response)
 
                             await engine.event_queue.put(challenge(seek, response))
@@ -251,10 +252,11 @@ async def round_socket_handler(request):
                                     byoyomi_period=game.byoyomi_period,
                                     level=game.level,
                                     rated=game.rated,
+                                    player1=user,
                                     chess960=game.chess960)
                                 seeks[seek.id] = seek
 
-                                response = await new_game(request.app, opp_player, seek.id)
+                                response = await join_seek(request.app, opp_player, seek.id)
                                 rematch_id = response["gameId"]
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)

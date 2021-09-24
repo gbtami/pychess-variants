@@ -762,7 +762,7 @@ div#result {
     border-top: 1px solid var(--bg-color2);
 }
 
-.lobby-button, .donate-button, button#request-analysis, button#import, button#paste-url {
+.lobby-button, .donate-button, button#request-analysis, button#import, button.paste-url {
     background-color: var(--bg-color2);
     border: none;
     color: var(--font-color);
@@ -794,9 +794,9 @@ button#request-analysis, button#import, button.join, button.submit {
     color: White;
     background-color: var(--blue-hover);
 }
-button#paste-url {
+button.paste-url {
     padding: 4px;
-    margin: 2px 2px;
+    margin: 5px 5px;
     border-radius: 4px;
     color: White;
     background-color: var(--blue-hover);
@@ -1272,6 +1272,15 @@ select, input {
 #color-button-group > button {
     color: var(--font-color);
     background: var(--button-new-game);
+}
+#create-button {
+    margin-top: 1.2em;
+}
+#create-button > button {
+    color: var(--font-color);
+    background: var(--button-new-game);
+    text-transform: uppercase;
+    padding: 0.3em;
 }
 #btn-controls-top {
     grid-area: move-controls;

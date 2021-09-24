@@ -154,12 +154,12 @@ async def cancel_invite(request):
 
     if gameId in invites:
         seek_id = invites[gameId].id
-        seek = request.app["seeks"][seek_id]
-        user = seek.user
+        seek = seeks[seek_id]
+        creator = seek.creator
         try:
             del invites[gameId]
             del seeks[seek_id]
-            del user.seeks[seek_id]
+            del creator.seeks[seek_id]
         except KeyError:
             # Seek was already deleted
             pass

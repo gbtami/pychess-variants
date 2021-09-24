@@ -37,6 +37,7 @@ BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS", "{}"))
 FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
 
 ADMINS = os.getenv("ADMINS", "").split(",")
+TOURNAMENT_DIRECTORS = os.getenv("TOURNAMENT_DIRECTORS", "").split(",")
 
 STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
 

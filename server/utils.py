@@ -1,7 +1,6 @@
 import logging
 import random
 from datetime import datetime, timezone
-import json
 
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
@@ -58,29 +57,15 @@ async def tv_game_user(db, users, profileId):
     return game_id
 
 
-async def load_game(app, game_id, user=None):
+async def load_game(app, game_id):
     """ Return Game object from app cache or from database """
     db = app["db"]
     games = app["games"]
     users = app["users"]
     if game_id in games:
         return games[game_id]
-
+    
     doc = await db.game.find_one({"_id": game_id})
-    if doc is None:
-        invites = app["invites"]
-        if game_id in invites:
-            seek_id = invites[game_id].id
-            await new_game(app, user, seek_id, game_id)
-            try:
-                # Put response data to sse subscribers queue
-                channels = app["invite_channels"]
-                for queue in channels:
-                    await queue.put(json.dumps({"gameId": game_id}))
-                return games[game_id]
-            except ConnectionResetError:
-                pass
-        return None
 
     wp, bp = doc["us"]
     if wp in users:
@@ -338,12 +323,43 @@ async def import_game(request):
     return web.json_response({"gameId": game_id})
 
 
-async def new_game(app, user, seek_id, game_id=None):
+async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
+    seeks = app["seeks"]
+    seek = seeks[seek_id]
+    log.info("+++ Seek %s joined by %s FEN:%s 960:%s", seek_id, user.username, seek.fen, seek.chess960)
+
+    if (user is seek.player1 or user is seek.player2):
+        return {"type":"seek_yourself", "seekID": seek_id}
+
+    if join_as == "player1":
+        if seek.player1 is None:
+            seek.player1 = user
+        else:
+            return {"type":"seek_occupied", "seekID": seek_id}
+    elif join_as == "player2":
+        if seek.player2 is None:
+            seek.player2 = user
+        else:
+            return {"type":"seek_occupied", "seekID": seek_id}
+    else:
+        if seek.player1 is None:
+            seek.player1 = user
+        elif seek.player2 is None:
+            seek.player2 = user
+        else:
+            return {"type":"seek_occupied", "seekID": seek_id}
+
+    if seek.player1 is not None and seek.player2 is not None:
+        return await new_game(app, seek_id, game_id)
+    else:
+        return {"type":"seek_joined", "seekID": seek_id}
+
+
+async def new_game(app, seek_id, game_id=None):
     db = app["db"]
     games = app["games"]
     seeks = app["seeks"]
     seek = seeks[seek_id]
-    log.info("+++ Seek %s accepted by %s FEN:%s 960:%s", seek_id, user.username, seek.fen, seek.chess960)
 
     fen_valid = True
     if seek.fen:
@@ -356,12 +372,9 @@ async def new_game(app, user, seek_id, game_id=None):
     else:
         sanitized_fen = ""
 
-    if seek.color == "r":
-        wplayer = random.choice((user, seek.user))
-        bplayer = user if wplayer.username == seek.user.username else seek.user
-    else:
-        wplayer = seek.user if seek.color == "w" else user
-        bplayer = seek.user if seek.color == "b" else user
+    color = random.choice(("w", "b")) if seek.color == "r" else seek.color
+    wplayer = seek.player1 if color == "w" else seek.player2
+    bplayer = seek.player1 if color == "b" else seek.player2
 
     if game_id is not None:
         # game invitation
@@ -436,10 +449,10 @@ async def insert_game_to_db(game, app):
 
 
 def remove_seek(seeks, seek):
-    if (not seek.user.bot) and seek.id in seeks:
+    if (not seek.creator.bot) and seek.id in seeks:
         del seeks[seek.id]
-        if seek.id in seek.user.seeks:
-            del seek.user.seeks[seek.id]
+        if seek.id in seek.creator.seeks:
+            del seek.creator.seeks[seek.id]
 
 
 # This will be removed when we can use ffishjs

@@ -8,7 +8,7 @@ from const import STARTED, RESIGN
 from broadcast import round_broadcast, lobby_broadcast
 from user import User
 from seek import challenge, get_seeks, Seek
-from utils import new_game, play_move
+from utils import join_seek, play_move
 from settings import BOT_TOKENS
 
 log = logging.getLogger(__name__)
@@ -110,7 +110,7 @@ async def create_bot_seek(request):
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
-            if seek.variant == data["variant"] and seek.user.bot and seek.user.online and seek.user.username != username and seek.level > 0:
+            if seek.variant == data["variant"] and seek.creator.bot and seek.creator.online and seek.creator.username != username and seek.level > 0:
                 log.debug("MATCHING BOT SEEK %s FOUND!", seek.id)
                 matching_seek = seek
                 break
@@ -118,11 +118,11 @@ async def create_bot_seek(request):
     if matching_seek is None:
         seek = None
         for existing_seek in seeks.values():
-            if existing_seek.user == bot_player and existing_seek.variant == data["variant"]:
+            if existing_seek.creator == bot_player and existing_seek.variant == data["variant"]:
                 seek = existing_seek
                 break
         if seek is None:
-            seek = Seek(bot_player, data["variant"])
+            seek = Seek(bot_player, data["variant"], player1=bot_player)
             seeks[seek.id] = seek
         bot_player.seeks[seek.id] = seek
 
@@ -130,20 +130,20 @@ async def create_bot_seek(request):
         await lobby_broadcast(sockets, get_seeks(seeks))
     else:
         games = request.app["games"]
-        response = await new_game(request.app, bot_player, matching_seek.id)
+        response = await join_seek(request.app, bot_player, matching_seek.id)
 
         gameId = response["gameId"]
         game = games[gameId]
 
         chall = challenge(seek, gameId)
 
-        await seek.user.event_queue.put(chall)
-        seek.user.game_queues[gameId] = asyncio.Queue()
+        await seek.creator.event_queue.put(chall)
+        seek.creator.game_queues[gameId] = asyncio.Queue()
 
         await bot_player.event_queue.put(chall)
         bot_player.game_queues[gameId] = asyncio.Queue()
 
-        await seek.user.event_queue.put(game.game_start)
+        await seek.creator.event_queue.put(game.game_start)
         await bot_player.event_queue.put(game.game_start)
 
     return web.json_response({"ok": True})
