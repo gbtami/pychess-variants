@@ -841,7 +841,9 @@ export function validFen(variant: IVariant, fen: string): boolean {
 
         // TODO: Checking S-chess960 FEN is tricky
         // Editor and Analysis board needs chess960 checkbox similar to new game dialog first
-        if (variantName !== 'seirawan' && variantName !== 'shouse') {
+
+        // It is better to enable castling right validation for seirawan and shouse as well to be safe
+        //if (variantName !== 'seirawan' && variantName !== 'shouse') {
             // Castling right need rooks and king placed in starting square
             // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
             // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
@@ -867,7 +869,7 @@ export function validFen(variant: IVariant, fen: string): boolean {
                         // TODO Column-based right
                 }
             }
-        }
+        //}
     }
 
     // Number of kings
