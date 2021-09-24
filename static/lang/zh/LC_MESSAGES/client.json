@@ -8,7 +8,6 @@
     "On client side, the user interface of the game board is based on ": "在客户端，棋盘的用户界面使用",
     "The source code of the server is available on ": "本服务器的源码投稿在",
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "关于隐私和服务条款，我们向lichess.org借之而行。",
-    "Playing right now": "正在进行",
     "Variant": "棋类",
     "in local browser": "在本地浏览器",
     "You need an account to do that.": "请登录以完成该操作。",
@@ -102,10 +101,10 @@
     " (must be signed in)": "（必须登录）",
     "EXPORT TO PNG": "导出PNG",
     "Invalid FEN": "无法识别FEN",
+    "Playing right now": "正在进行",
     "Challenge to a game": "挑战",
     "CANCEL": "取消",
     "JOIN THE GAME": "参入棋局",
-    "To invite someone to play, give this URL:": "邀人下棋，请分享这个网址：",
     "Copy URL": "复制URL",
     "The first person to come to this URL will play with you.": "您将和首先浏览此URL的人对弈。",
     "Cancel": "取消",
@@ -191,7 +190,7 @@
     "Stop counting": "停止数步",
     "Stop": "停",
     "Start counting": "开始数步",
-    "second to play the first move": [
+    "%1 second to play the first move": [
         ""
     ],
     "Log out": "登出",

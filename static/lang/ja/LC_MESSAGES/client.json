@@ -1,6 +1,5 @@
 {
     "About pychess": "PyChessについて",
-    "Playing right now": "対局中",
     "Variant": "将棋類",
     "You need an account to do that.": "アカウントが必要です",
     "Download game to PGN file": "ダウンロード（PGN形式）",
@@ -78,6 +77,7 @@
     " (must be signed in)": "（ログインが必要）",
     "EXPORT TO PNG": "PNG画像にエクスポートする",
     "Invalid FEN": "無効な FEN",
+    "Playing right now": "対局中",
     "Challenge to a game": "対戦を申し込む",
     "Cancel": "キャンセル",
     "Challenge %1 to a game": "%1 を対戦に申し込む",
@@ -142,7 +142,7 @@
     "NEW OPPONENT": "新しい相手",
     "Stop counting": "手数を数え止める",
     "Start counting": "手数を数え始める",
-    "second to play the first move": [
+    "%1 second to play the first move": [
         ""
     ],
     "Log out": "ログアウト",
