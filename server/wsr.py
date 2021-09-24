@@ -14,7 +14,7 @@ from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
 from draw import draw, reject_draw
-from utils import analysis_move, play_move, join_seek, new_game, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
+from utils import analysis_move, play_move, join_seek, load_game, tv_game, tv_game_user, online_count, MyWebSocketResponse
 
 log = logging.getLogger(__name__)
 
