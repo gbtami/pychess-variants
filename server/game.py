@@ -757,7 +757,7 @@ class Game:
             crosstable = self.crosstable if self.status > STARTED else ""
 
         if self.byoyomi:
-            byoyomi_periods = self.byoyomi_periods
+            byoyomi_periods = (self.byoyomi_periods["white"], self.byoyomi_periods["black"])
         else:
             byoyomi_periods = ""
 
@@ -773,7 +773,7 @@ class Game:
                 "check": self.check,
                 "ply": self.board.ply,
                 "clocks": {"black": clocks["black"], "white": clocks["white"]},
-                "byo": (byoyomi_periods["white"], byoyomi_periods["black"]),
+                "byo": byoyomi_periods,
                 "pgn": self.pgn if self.status > STARTED else "",
                 "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} if self.status > STARTED and self.rated == RATED else "",
                 "uci_usi": self.uci_usi if self.status > STARTED else "",
