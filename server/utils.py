@@ -67,6 +67,9 @@ async def load_game(app, game_id):
 
     doc = await db.game.find_one({"_id": game_id})
 
+    if doc is None:
+        return None
+
     wp, bp = doc["us"]
     if wp in users:
         wplayer = users[wp]
