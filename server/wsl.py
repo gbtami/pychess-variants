@@ -12,7 +12,7 @@ from const import STARTED
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import join_seek, load_game, online_count, MyWebSocketResponse
+from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
 from misc import server_growth, server_state
 from tournament import tournament_spotlights
 
@@ -187,8 +187,12 @@ async def lobby_socket_handler(request):
                             gameId = response["gameId"]
                             seek.creator.game_queues[gameId] = asyncio.Queue()
                             await seek.creator.event_queue.put(challenge(seek, response))
-                        elif seek.ws is not None:
-                            await seek.ws.send_json(response)
+                        else:
+                            if seek.ws is None:
+                                remove_seek(seeks, seek)
+                                await lobby_broadcast(sockets, get_seeks(seeks))
+                            else:
+                                await seek.ws.send_json(response)
 
                         # Inform others, new_game() deleted accepted seek allready.
                         await lobby_broadcast(sockets, get_seeks(seeks))
