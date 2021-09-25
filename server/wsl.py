@@ -187,7 +187,7 @@ async def lobby_socket_handler(request):
                             gameId = response["gameId"]
                             seek.creator.game_queues[gameId] = asyncio.Queue()
                             await seek.creator.event_queue.put(challenge(seek, response))
-                        else:
+                        elif seek.ws is not None:
                             await seek.ws.send_json(response)
 
                         # Inform others, new_game() deleted accepted seek allready.
