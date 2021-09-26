@@ -804,25 +804,26 @@ export default class AnalysisController {
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
 
-        let move : cg.Key[];
+        let move : cg.Key[] = [];
         let capture = false;
         if (step.move !== undefined) {
             const moveStr = uci2cg(step.move);
             move = moveStr.indexOf('@') > -1 ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
             // 960 king takes rook castling is not capture
             capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
-
-            this.chessground.set({
-                fen: step.fen,
-                turnColor: step.turnColor,
-                movable: {
-                    color: step.turnColor,
-                    dests: this.dests,
-                    },
-                check: step.check,
-                lastMove: move,
-            });
         }
+
+        this.chessground.set({
+            fen: step.fen,
+            turnColor: step.turnColor,
+            movable: {
+                color: step.turnColor,
+                dests: this.dests,
+                },
+            check: step.check,
+            lastMove: move,
+        });
+
         this.fullfen = step.fen;
 
         updatePockets(this, this.vpocket0, this.vpocket1);
