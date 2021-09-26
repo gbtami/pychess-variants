@@ -19,7 +19,7 @@ DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
 ARENA, RR, SWISS = range(3)
 
 # translations
-LANGUAGES = ["de", "en", "es", "gl_ES", "fr", "hu", "it", "ja", "ko", "pl", "pt", "th", "tr", "zh"]
+LANGUAGES = ["de", "en", "es", "gl_ES", "fr", "hu", "it", "ja", "ko", "pl", "pt", "ru", "th", "tr", "zh"]
 
 # fishnet work types
 MOVE, ANALYSIS = 0, 1

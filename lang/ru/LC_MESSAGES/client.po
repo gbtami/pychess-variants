@@ -3,6 +3,9 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
+# Translators:
+# Артем Артем, 2021
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -10,6 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-09-24 16:47+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Артем Артем, 2021\n"
 "Language-Team: Russian (https://www.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,6 +29,11 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
+"\"Для меня то, как мы оказались здесь сегодня, в значительной степени "
+"связано со Stockfish. Они объединили глобальных добровольцев, чтобы "
+"собраться вместе в духе открытого исходного кода и создать такой мощный "
+"движок БЕСПЛАТНО. Это много великих умов и вычислительных мощностей, которые"
+" им удалось использовать."
 
 #: ../client/about.ts:11
 msgid ""
@@ -32,6 +41,9 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
+"Тогда мы должны поблагодарить Lichess. Lichess также родился из того же духа"
+" открытого исходного кода, и он тоже привлекал великих людей. Как только "
+"Lichess включил в свой мозг Stockfish, остальное уже история."
 
 #: ../client/about.ts:12
 msgid ""
@@ -40,6 +52,11 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
+"Lichess обеспечивает онлайн, в режиме реального времени, и конкурентные "
+"аспекты игрового процесса. Они также приносят огромную мощь Stockfish в "
+"массы, которые теперь могут извлечь из этого выгоду без настройки локального"
+" графического интерфейса. Я считаю, что это развитие событий имеет большое "
+"значение и последствия."
 
 #: ../client/about.ts:13
 msgid ""
@@ -50,6 +67,12 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
+"Позже разработчики, близкие к проекту Lichess, в конечном итоге расширили "
+"Stockfish до Многовариантного-Stockfish, чтобы поддержать Crazyhouse и др. "
+"Отец Fairy-Stockfish, Фабиан, также является одним из тех разработчиков (все"
+" еще), которые работают над этой \"вилкой\", и позже он сделал еще несколько"
+" шагов в плане поддержки вариантов и расширяемости. Так родилась Фея-"
+"Стокфиш, такая мощная, потому что она основана на проекте Стокфиш."
 
 #: ../client/about.ts:14
 msgid ""
@@ -58,20 +81,26 @@ msgid ""
 "competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
 " power of Stockfish!\""
 msgstr ""
+"Затем идут наши любимые варианты pychess, которые снова очень умно "
+"используют основные сверх способности больших проектов. Те же аспекты "
+"онлайн, в реальном времени и соревнования. Тот же чистый и знакомый внешний "
+"вид Lichess. Плюс сила Stockfish! \""
 
 #: ../client/about.ts:19
 msgid "About pychess"
-msgstr ""
+msgstr "О pychess"
 
 #: ../client/about.ts:20
 msgid ""
 "Pychess is a free, open-source chess server designed to play several chess "
 "variants."
 msgstr ""
+"Pychess - это бесплатный шахматный сервер с открытым исходным кодом, "
+"предназначенный для игры в несколько вариантов шахмат."
 
 #: ../client/about.ts:23
 msgid "Currently supported games are "
-msgstr ""
+msgstr "В настоящее время поддерживаются игры"
 
 #: ../client/about.ts:89
 msgid ""
@@ -79,167 +108,175 @@ msgid ""
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
+"Кроме того, вы можете проверить опцию Chess960 для Chess, Crazyhouse, "
+"Atomic, S-chess, Capablanca и Capahouse, чтобы начать игры со случайных "
+"позиций с"
 
 #: ../client/about.ts:90
 msgid "Chess960 castling rules."
-msgstr ""
+msgstr "Правила рокировки Chess960."
 
 #: ../client/about.ts:93
 msgid "For move generation, validation, analysis, and engine play, we use "
-msgstr ""
+msgstr "Для генерации ходов, проверки, анализа и игры с движком мы используем"
 
 #: ../client/about.ts:101
 msgid "On client side, the user interface of the game board is based on "
 msgstr ""
+"На стороне клиента пользовательский интерфейс игровой доски основан на"
 
 #: ../client/about.ts:105
 msgid "The source code of the server is available on "
-msgstr ""
+msgstr "Исходный код сервера доступен на"
 
 #: ../client/about.ts:110
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
 msgstr ""
+"Что касается конфиденциальности и условий обслуживания, здесь также "
+"применяются правила lichess.org."
 
 #: ../client/analysis.ts:38 ../client/editor.ts:33 ../client/lobby.ts:433
 #: ../client/lobby.ts:932 ../client/settingsView.ts:138
 msgid "Variant"
-msgstr ""
+msgstr "Вариант"
 
 #: ../client/analysis.ts:125 ../client/analysisCtrl.ts:389
 #: ../client/analysisCtrl.ts:743
 msgid "in local browser"
-msgstr ""
+msgstr "в локальном браузере"
 
 #: ../client/analysisCtrl.ts:400
 msgid "You need an account to do that."
-msgstr ""
+msgstr "Для этого вам нужна учетная запись."
 
 #: ../client/analysisCtrl.ts:439
 msgid "Download game to PGN file"
-msgstr ""
+msgstr "Скачать игру в файле PGN"
 
 #: ../client/analysisCtrl.ts:439
 msgid " Download PGN"
-msgstr ""
+msgstr "Скачать PGN"
 
 #: ../client/analysisCtrl.ts:441
 msgid "Copy USI/UCI to clipboard"
-msgstr ""
+msgstr "Скопируйте USI / UCI в буфер обмена"
 
 #: ../client/analysisCtrl.ts:441
 msgid " Copy UCI/USI"
-msgstr ""
+msgstr "Копировать UCI / USI"
 
 #: ../client/analysisCtrl.ts:443
 msgid "Download position to PNG image file"
-msgstr ""
+msgstr "Загрузить позицию в файл изображения PNG"
 
 #: ../client/analysisCtrl.ts:443
 msgid " PNG image"
-msgstr ""
+msgstr "PNG изображение"
 
 #: ../client/analysisCtrl.ts:447
 msgid "Request Computer Analysis"
-msgstr ""
+msgstr "Запросить компьютерный анализ"
 
 #: ../client/analysisCtrl.ts:447
 msgid " Request Analysis"
-msgstr ""
+msgstr "Запросить анализ"
 
 #: ../client/analysisCtrl.ts:602
 msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr ""
+msgstr "Выбранный вариант % 1 не поддерживается stockfish.wasm"
 
 #: ../client/analysisCtrl.ts:717
 msgid "Depth"
-msgstr ""
+msgstr "Глубина"
 
 #: ../client/analysisCtrl.ts:722
 msgid "Go deeper"
-msgstr ""
+msgstr "Идти глубже"
 
 #: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
 #: ../client/tournament.ts:684
 msgid "Spectators: "
-msgstr ""
+msgstr "Зрители:"
 
 #: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
 msgid "Requested game %1 not found!"
-msgstr ""
+msgstr "Запрошенная игра % 1 не найдена!"
 
 #: ../client/background.ts:10
 msgid "Light"
-msgstr ""
+msgstr "Светлый"
 
 #: ../client/background.ts:11
 msgid "Dark"
-msgstr ""
+msgstr "Тёмный"
 
 #: ../client/boardSettings.ts:221
 msgid "Piece animation"
-msgstr ""
+msgstr "Фигурная анимация"
 
 #: ../client/boardSettings.ts:319
 msgid "Show piece destinations"
-msgstr ""
+msgstr "Показать пункты назначения"
 
 #: ../client/boardSettings.ts:337
 msgid "Promote to Queen automatically"
-msgstr ""
+msgstr "Автоматическое повышение до Ферзя"
 
 #: ../client/boardSettings.ts:355
 msgid "Best move arrow in analysis board"
-msgstr ""
+msgstr "Стрелка лучшего хода на доске анализа"
 
 #: ../client/boardSettings.ts:383
 msgid "Invisible pieces"
-msgstr ""
+msgstr "Невидимые фигуры"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
-msgstr ""
+msgstr "Исходное положение"
 
 #: ../client/chart.ts:84
 msgid "Advantage"
-msgstr ""
+msgstr "Преимущество"
 
 #: ../client/chat.ts:32 ../client/chat.ts:47
 msgid "Sign in to chat"
-msgstr ""
+msgstr "Войдите в чат"
 
 #: ../client/chat.ts:32 ../client/chat.ts:47
 msgid "Please be nice in the chat!"
-msgstr ""
+msgstr "Пожалуйста, будьте вежливы в чате!"
 
 #: ../client/chat.ts:32
 msgid "Chat is disabled"
-msgstr ""
+msgstr "Чат отключен"
 
 #: ../client/chat.ts:37
 msgid "Spectator room"
-msgstr ""
+msgstr "Зал для зрителей"
 
 #: ../client/chat.ts:37
 msgid "Chat room"
-msgstr ""
+msgstr "Чат-комната"
 
 #: ../client/chat.ts:38
 msgid "Toggle the chat"
-msgstr ""
+msgstr "Переключить чат"
 
 #: ../client/chat.ts:67
 msgid "Server"
-msgstr ""
+msgstr "Сервер"
 
 #: ../client/chess.ts:263
 msgid "Chess, unmodified, as it's played by FIDE standards."
-msgstr ""
+msgstr "Шахматы без изменений, так как в них играют по стандартам ФИДЕ."
 
 #: ../client/chess.ts:280
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr ""
+"Возьмите захваченные фигуры и возвращайте их обратно на доску как свои "
+"собственные."
 
 #: ../client/chess.ts:298
 msgid "Choose where your pieces start."
@@ -247,194 +284,229 @@ msgstr ""
 
 #: ../client/chess.ts:308
 msgid "Pieces explode upon capture."
-msgstr ""
+msgstr "При захвате фигуры взрываются."
 
 #: ../client/chess.ts:318
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr ""
+"Тайские шахматы. Игра очень похожа на оригинальную Чатурангу. Подобно "
+"шахматам, но с другими ферзем и слоном."
 
 #: ../client/chess.ts:327
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr ""
+"Вариант Макрука, при котором короли не могут двигаться, чтобы сбежать из-под"
+" шаха."
 
 #: ../client/chess.ts:336
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr ""
+"Камбоджийские шахматы. Макрук с несколькими дополнительными открывающими "
+"способностями."
 
 #: ../client/chess.ts:345
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
 msgstr ""
+"Бирманские шахматы. Подобно Макруку, но фигуры размещаются в начале матча."
 
 #: ../client/chess.ts:356
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
 msgstr ""
+"Японские шахматы и стандартная версия 9х9, сыгранная сегодня с выпадениями и"
+" акциями."
 
 #: ../client/chess.ts:384
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr ""
+"Сёги 5x5 для более компактных и быстрых игр. Нет ни рыцарей, ни копий."
 
 #: ../client/chess.ts:399
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
+"Вариант диких сёги на доске 5x5, где фигуры переворачиваются в разные фигуры"
+" после каждого хода."
 
 #: ../client/chess.ts:414
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
-msgstr ""
+msgstr "Игра 3х4 с милыми животными, призванная научить детей играть в сёги."
 
 #: ../client/chess.ts:428
 msgid "5x6 Shogi designed to introduce tactics with the generals."
-msgstr ""
+msgstr "Сёги 5х6 предназначены для ознакомления с тактикой генералов."
 
 #: ../client/chess.ts:443
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr ""
+"Конфронтационный вариант 7х7 с уникальными фигурами, каждая из которых "
+"названа в честь разных птиц."
 
 #: ../client/chess.ts:464
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr ""
+"Китайские шахматы - одна из старейших и наиболее популярных настольных игр в"
+" мире."
 
 #: ../client/chess.ts:473
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
 msgstr ""
+"Вариант Сянци, где с одной стороны есть колесница, которая также может "
+"двигаться как пушка или лошадь."
 
 #: ../client/chess.ts:483
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr ""
+"Корейские шахматы похожи на Сянци, но играют по-другому. Используются "
+"правила турнира."
 
 #: ../client/chess.ts:495
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
-msgstr ""
+msgstr "Компактная версия Сянци, играемая на доске 7x7 без реки."
 
 #: ../client/chess.ts:504
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr ""
+"Играйте с гибридными фигурами, архиепископом (B + N) и канцлером (R + N), на"
+" доске 10x8."
 
 #: ../client/chess.ts:521
 msgid "Capablanca with Crazyhouse drop rules."
-msgstr ""
+msgstr "Капабланка с правилами выставления как в Сумасшедший Дом."
 
 #: ../client/chess.ts:538
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
 msgstr ""
+"Гибридные фигуры, ястреб (B + N) и слон (R + N), могут попасть на доску "
+"после перемещения фигуры заднего ряда."
 
 #: ../client/chess.ts:548
 msgid "S-Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "С-Шахматы с правилами выставления как в Сумасшедший Дом."
 
 #: ../client/chess.ts:558
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr ""
+"Играйте гибридными фигурами, архиепископом (B + N) и канцлером (R + N), на "
+"большой доске 10x10."
 
 #: ../client/chess.ts:568
 msgid "Grand Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "Шахматы Гранд с правилами выставления как в Сумасшедший Дом."
 
 #: ../client/chess.ts:579
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
-msgstr ""
+msgstr "Представляет пушку и слона из Сянци на шахматной доске 10х10."
 
 #: ../client/chess.ts:588
 msgid "Pieces promote and can be dropped, similar to Shogi."
-msgstr ""
+msgstr "Фигуры продвигаются и могут быть отброшены, подобно Сеги."
 
 #: ../client/chess.ts:601
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr ""
+"Асимметричный вариант, когда у одной армии есть фигуры, которые движутся как"
+" конь, но захватывают по-разному."
 
 #: ../client/chess.ts:612
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
+"Асимметричный вариант Восток против Запада, который противопоставляет "
+"западную шахматную армию армии в стиле Сянци и Чанги."
 
 #: ../client/chess.ts:624
 msgid "Knights capture as bishops; bishops  capture as knights."
-msgstr ""
+msgstr "Кони захватывают как слоны; слоны захватывают как кони."
 
 #: ../client/chess.ts:633
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr ""
+"Асимметричный вариант, который противопоставляет западную шахматную армию "
+"армии, основанной на выставлении, в стиле Сёги."
 
 #: ../client/chess.ts:647
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
+"Асимметричный вариант, когда у одной армии есть фигуры, которые двигаются "
+"как ферзи, но захватывают, как обычно."
 
 #: ../client/chess.ts:658
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
+"Вариант Ордынских шахмат с двумя ордынскими армиями. Сокол заменяет Юрту."
 
 #: ../client/chess.ts:671
 msgid "Like Capablanca Chess but with Grand starting setup."
-msgstr ""
+msgstr "Как шахматы Капабланки, но с начальной установкой как в Гранд."
 
 #: ../client/chess.ts:681
 msgid "Like Capablanca Chess but with a different starting setup."
-msgstr ""
+msgstr "Как шахматы Капабланки, но с другой начальной установкой."
 
 #: ../client/chess.ts:691
 msgid "Gothic with Crazyhouse drop rules."
-msgstr ""
+msgstr "Готика с правилами выставления из Сумасшедшего Дома."
 
 #: ../client/chess.ts:716 ../client/lobby/layer1.ts:65
 #: ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
-msgstr ""
+msgstr "Шахматные варианты"
 
 #: ../client/chess.ts:717 ../client/lobby/layer1.ts:89
 #: ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
-msgstr ""
+msgstr "Макрук Варианты"
 
 #: ../client/chess.ts:718 ../client/lobby/layer1.ts:97
 #: ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
-msgstr ""
+msgstr "Сёги Варианты"
 
 #: ../client/chess.ts:719 ../client/lobby/layer1.ts:105
 #: ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
-msgstr ""
+msgstr "Сянци Варианты"
 
 #: ../client/chess.ts:720 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
-msgstr ""
+msgstr "Фигуры Феи Варианты"
 
 #: ../client/chess.ts:721 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
-msgstr ""
+msgstr "Новая Армия Варианты"
 
 #: ../client/datetime.ts:38
 msgid "in %1 year"
@@ -550,165 +622,167 @@ msgstr[3] ""
 
 #: ../client/datetime.ts:91
 msgid "STARTING IN"
-msgstr ""
+msgstr "НАЧАЛО"
 
 #: ../client/editorCtrl.ts:133 ../client/editorCtrl.ts:134
 msgid "%1 to play"
-msgstr ""
+msgstr "%1 играть"
 
 #: ../client/editorCtrl.ts:137
 msgid "Castling"
-msgstr ""
+msgstr "Рокировка"
 
 #: ../client/editorCtrl.ts:140 ../client/lobby.ts:510 ../client/profile.ts:29
 msgid "White"
-msgstr ""
+msgstr "Былые"
 
 #: ../client/editorCtrl.ts:155 ../client/lobby.ts:508 ../client/profile.ts:31
 msgid "Black"
-msgstr ""
+msgstr "Черные"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "ПОВЕРНУТЬ ДОСКУ"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
-msgstr ""
+msgstr "ОЧИСТИТЬ ДОСКУ"
 
 #: ../client/editorCtrl.ts:177
 msgid "STARTING POSITION"
-msgstr ""
+msgstr "НАЧАЛЬНАЯ ПОЗИЦИЯ"
 
 #: ../client/editorCtrl.ts:180 ../client/roundCtrl.ts:712
 msgid "ANALYSIS BOARD"
-msgstr ""
+msgstr "АНАЛИТИЧЕСКАЯ ДОСКА"
 
 #: ../client/editorCtrl.ts:183
 msgid "PLAY WITH MACHINE"
-msgstr ""
+msgstr "ИГРАТЬ С КОМПЬЮТЕРОМ"
 
 #: ../client/editorCtrl.ts:183 ../client/lobby.ts:437
 msgid " (must be signed in)"
-msgstr ""
+msgstr "(необходимо войти в систему)"
 
 #: ../client/editorCtrl.ts:186
 msgid "EXPORT TO PNG"
-msgstr ""
+msgstr "ЭКСПОРТ В PNG"
 
 #: ../client/editorCtrl.ts:258 ../client/lobby.ts:648
 msgid "Invalid FEN"
-msgstr ""
+msgstr "Недействительный FEN"
 
 #: ../client/gameInfo.ts:34 ../client/profile.ts:73
 msgid "Playing right now"
-msgstr ""
+msgstr "Играющие прямо сейчас"
 
 #: ../client/invite.ts:44
 msgid "Host a game for others"
-msgstr ""
+msgstr "Проведите игру для других"
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
-msgstr ""
+msgstr "Вызов на игру"
 
 #: ../client/invite.ts:47 ../client/invite.ts:53 ../client/invite.ts:59
 #: ../client/invite.ts:65
 msgid "CANCEL"
-msgstr ""
+msgstr "ОТМЕНА"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
-msgstr ""
+msgstr "Жду другого игрока"
 
 #: ../client/invite.ts:56
 msgid "Sorry, this seat is already occupied"
-msgstr ""
+msgstr "Извините, это место уже занято!"
 
 #: ../client/invite.ts:62
 msgid "Sorry, you cannot play with yourself"
-msgstr ""
+msgstr "Извините, вы не можете играть с собой!"
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
-msgstr ""
+msgstr "ПРИСОЕДИНЯЙТЕСЬ К ИГРЕ"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
-msgstr ""
+msgstr "Чтобы пригласить кого-нибудь поиграть, дайте ему этот URL:"
 
 #: ../client/invite.ts:102 ../client/invite.ts:104 ../client/invite.ts:112
 #: ../client/invite.ts:114 ../client/invite.ts:124 ../client/invite.ts:126
 msgid "Copy URL"
-msgstr ""
+msgstr "Копировать URL"
 
 #: ../client/invite.ts:116
 msgid "The first two people to come to this URL will play with each other."
 msgstr ""
+"Первые два человека, которые перейдут по этому URL-адресу, будут играть друг"
+" с другом."
 
 #: ../client/invite.ts:127
 msgid "The first person to come to this URL will play with you."
-msgstr ""
+msgstr "Первый, кто перейдет по этому URL-адресу, будет играть с вами."
 
 #: ../client/lobby.ts:425
 msgid "Cancel"
-msgstr ""
+msgstr "Отмена"
 
 #: ../client/lobby.ts:430
 msgid "Challenge %1 to a game"
-msgstr ""
+msgstr "Бросьте вызов % 1 в игру"
 
 #: ../client/lobby.ts:437
 msgid "Paste the FEN text here"
-msgstr ""
+msgstr "Вставьте сюда текст FEN"
 
 #: ../client/lobby.ts:453
 msgid "Minutes per side:"
-msgstr ""
+msgstr "Минут с каждой стороны:"
 
 #: ../client/lobby.ts:468
 msgid "Periods"
-msgstr ""
+msgstr "Периоды"
 
 #: ../client/lobby.ts:483 ../client/lobby.ts:761 ../client/profile.ts:55
 msgid "Casual"
-msgstr ""
+msgstr "Товарищеская"
 
 #: ../client/lobby.ts:490 ../client/lobby.ts:759 ../client/profile.ts:50
 msgid "Rated"
-msgstr ""
+msgstr "Рейтинговая"
 
 #: ../client/lobby.ts:498
 msgid "A.I. Level"
-msgstr ""
+msgstr "А.И. Уровень"
 
 #: ../client/lobby.ts:509
 msgid "Random"
-msgstr ""
+msgstr "Случайный"
 
 #: ../client/lobby.ts:513
 msgid "Create"
-msgstr ""
+msgstr "Создать"
 
 #: ../client/lobby.ts:518 ../client/lobby/layer3.ts:48
 msgid "Create a game"
-msgstr ""
+msgstr "Создать игру"
 
 #: ../client/lobby.ts:519
 msgid "Play with a friend"
-msgstr ""
+msgstr "Сыграть с другом"
 
 #: ../client/lobby.ts:520 ../client/lobby/layer3.ts:50
 msgid "Play with AI"
-msgstr ""
+msgstr "Сыграть с АИ"
 
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
-msgstr ""
+msgstr "Сыграть с Компьютером"
 
 #: ../client/lobby.ts:522
 msgid "Host game for others"
-msgstr ""
+msgstr "Хост-игра для других"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -716,15 +790,15 @@ msgstr ""
 
 #: ../client/lobby.ts:609
 msgid "Increment in seconds:"
-msgstr ""
+msgstr "Увеличение в секундах:"
 
 #: ../client/lobby.ts:614
 msgid "Alternate Start"
-msgstr ""
+msgstr "Альтернативный старт"
 
 #: ../client/lobby.ts:757
 msgid "Custom"
-msgstr ""
+msgstr "Своя игра"
 
 #: ../client/lobby.ts:782 ../client/lobby.ts:913
 msgid "%1 player"
