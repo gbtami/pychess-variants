@@ -13,7 +13,8 @@ from pymongo import ReturnDocument
 from broadcast import lobby_broadcast
 from compress import R2C
 from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
-    ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED, SHIELD
+    ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED, SHIELD,\
+    MAX_CHAT_LINES
 from game import Game
 from glicko2.glicko2 import gl2
 from misc import time_control_str
@@ -146,7 +147,7 @@ class Tournament(ABC):
         self.current_round = 0
         self.prev_pairing = None
 
-        self.messages = collections.deque([], 200)
+        self.messages = collections.deque([], MAX_CHAT_LINES)
         self.spectators = set()
         self.players = {}
         self.leaderboard = ValueSortedDict(neg)
@@ -251,6 +252,13 @@ class Tournament(ABC):
                 self.leaderboard.items()[start:end]
             ]
         }
+
+        if self.status > T_STARTED:
+            page_json["podium"] = [
+                player_json(player, full_score) for
+                player, full_score in
+                self.leaderboard.items()[0:3]
+            ]
 
         self.leaderboard_cache[page] = page_json
         return page_json

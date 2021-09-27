@@ -160,3 +160,10 @@ td.player-data {
     background-color: var(--game-hover);
     cursor: pointer;
 }
+#games tr a .icon-trophy {
+    display: contents;
+    color: var(--link-color-blue);
+}
+#games tr a .icon-trophy::before {
+    padding-right: 4px;
+}

@@ -13,7 +13,7 @@ const patch = init([klass, attributes, properties, listeners]);
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Variant, Notation } from 'chessgroundx/types';
+import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { getPockets, VARIANTS, validFen, IVariant, hasCastling } from './chess'
@@ -23,14 +23,15 @@ import { updatePockets, Pockets, pockets2str } from './pocket';
 import { copyBoardToPNG } from './png'; 
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
+import { PyChessModel } from "./main";
 
 export class EditorController {
     model;
     chessground: Api;
     fullfen: string;
     startfen: string;
-    mycolor: Color;
-    oppcolor: Color;
+    mycolor: cg.Color;
+    oppcolor: cg.Color;
     parts: string[];
     castling: string;
     pocketsPart: string;
@@ -46,10 +47,10 @@ export class EditorController {
     vChallenge: VNode;
     anon: boolean;
     flip: boolean;
-    ffish;
-    ffishBoard;
+    ffish: any;
+    ffishBoard: any;
 
-    constructor(el, model) {
+    constructor(el: HTMLElement, model: PyChessModel) {
         this.model = model;
         this.variant = VARIANTS[model["variant"]];
         this.startfen = model["fen"] as string;
@@ -71,9 +72,9 @@ export class EditorController {
         this.chessground = Chessground(el, {
             fen: this.parts[0],
             autoCastle: false,
-            variant: this.variant.name as Variant,
+            variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
-            notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
+            notation: (this.variant.name === 'janggi') ? cg.Notation.JANGGI : cg.Notation.DEFAULT, // TODO make this more generic / customisable
             orientation: this.mycolor,
             movable: {
                 free: true,
@@ -166,25 +167,28 @@ export class EditorController {
                     ]),
                 ]),
 
+                h('a#flip.i-pgn', { on: { click: () => boardSettings.toggleOrientation() } }, [
+                    h('div.icon.icon-refresh', _('FLIP BOARD'))
+                ]),
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
-                    h('div', {class: {"icon": true, "icon-trash-o": true} }, _('CLEAR BOARD'))
+                    h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
-                    h('div', {class: {"icon": true, [dataIcon]: true} }, _('STARTING POSITION'))
+                    h('div.icon.' + dataIcon, _('STARTING POSITION'))
                 ]),
                 h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
-                    h('div', {class: {"icon": true, "icon-microscope": true} }, _('ANALYSIS BOARD'))
+                    h('div.icon.icon-microscope', _('ANALYSIS BOARD'))
                 ]),
                 h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
-                    h('div', {class: {"icon": true, "icon-bot": true} }, _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
+                    h('div.icon.icon-bot', _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
-                    h('div', {class: {"icon": true, "icon-download": true} }, _('EXPORT TO PNG'))
+                    h('div.icon.icon-download', _('EXPORT TO PNG'))
                 ])
             ];
             patch(container, h('div.editor-button-container', buttons));
 
-            new (Module as any)().then(loadedModule => {
+            new (Module as any)().then((loadedModule: any) => {
                 this.ffish = loadedModule;
 
                 if (this.ffish !== null) {
@@ -195,13 +199,13 @@ export class EditorController {
         }
     }
 
-    private onChangeTurn = (e) => {
-        this.parts[1] = (e.target.value === 'white') ? 'w' : 'b';
+    private onChangeTurn = (e: Event) => {
+        this.parts[1] = ((<HTMLSelectElement>e.target).value === 'white') ? 'w' : 'b';
         this.onChange();
     }
 
     private onChangeCastl = () => {
-        const castlings = {
+        const castlings: {[key:string]:string} = {
             'wOO': 'K',
             'wOOO': 'Q',
             'bOO': 'k',
@@ -228,9 +232,9 @@ export class EditorController {
     }
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
-    private onPasteFen = (e) => {
-        const data = e.clipboardData.getData('text');
-        e.target.value = data.trim();
+    private onPasteFen = (e: ClipboardEvent) => {
+        const data = e.clipboardData?.getData('text') ?? "";
+        (<HTMLInputElement>e.target).value = data.trim();
         e.preventDefault();
         this.setFen(true);
     }
@@ -243,7 +247,7 @@ export class EditorController {
         return valid && ffValid;
     }
 
-    private setInvalid = (invalid) => {
+    private setInvalid = (invalid: boolean) => {
         const analysis = document.getElementById('analysis') as HTMLElement;
         analysis.classList.toggle('disabled', invalid);
 
@@ -284,7 +288,7 @@ export class EditorController {
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
-    setFen = (isInput) => {
+    setFen = (isInput: boolean) => {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
@@ -304,7 +308,7 @@ export class EditorController {
 
             if (hasCastling(this.variant, 'white')) {
                 if (this.parts.length >= 3) {
-                    const castlings = {
+                    const castlings: {[ket:string]: string} = {
                         'K': 'wOO',
                         'Q': 'wOOO',
                         'k': 'bOO',

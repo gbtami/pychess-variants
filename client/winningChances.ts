@@ -1,6 +1,6 @@
 // https://github.com/ornicar/lila/blob/master/ui/ceval/src/winningChances.ts
 
-import { Color } from 'chessgroundx/types';
+import * as cg from 'chessgroundx/types';
 
 interface Eval {
     cp?: number;
@@ -10,11 +10,11 @@ interface Eval {
 // winning chances for a color
 // 1  infinitely winning
 // -1 infinitely losing
-export function povChances(color: Color, ev: Eval) {
+export function povChances(color: cg.Color, ev: Eval) {
     return toPov(color, evalWinningChances(ev));
 }
 
-function toPov(color: Color, diff: number): number {
+function toPov(color: cg.Color, diff: number): number {
     return color === 'white' ? diff : -diff;
 }
 

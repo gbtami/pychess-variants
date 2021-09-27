@@ -9,7 +9,6 @@ import style from 'snabbdom/modules/style';
 import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
-import { Color, Role } from 'chessgroundx/types';
 
 import { role2san, letter2role, lc, unpromotedRole } from './chess';
 import RoundController from './roundCtrl';
@@ -20,7 +19,7 @@ const patch = init([klass, attributes, properties, style, listeners]);
 
 type Position = 'top' | 'bottom';
 
-type Pocket = Partial<Record<Role, number>>;
+type Pocket = Partial<Record<cg.Role, number>>;
 export type Pockets = [Pocket, Pocket];
 
 // There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
@@ -31,7 +30,7 @@ const eventsDropping = ['mouseup', 'touchend'];
 /**
  *
  */
-export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: Color, position: Position) {
+export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: cg.Color, position: Position) {
     const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
     const roles = Object.keys(pocket); // contains the list of possible pieces/roles (i.e. for crazyhouse p-piece, n-piece, b-piece, r-piece, q-piece) in the order they will be displayed in the pocket
 
@@ -39,7 +38,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     // TODO Checking for type here is a mess. Should probably move to their respective classes
     if (ctrl instanceof EditorController) {
         insertHook = {
-            insert: vnode => {
+            insert: (vnode: VNode) => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
                         drag(ctrl, e);
@@ -61,7 +60,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         };
     } else if (ctrl instanceof AnalysisController) { // enabling both the pocket whose turn it is
         insertHook = {
-            insert: vnode => {
+            insert: (vnode: VNode) => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
                         if (color===ctrl.turnColor) drag(ctrl, e);
@@ -76,7 +75,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
         }
     } else { // RoundController
         insertHook = { // always enabling only my pocket
-            insert: vnode => {
+            insert: (vnode: VNode) => {
                 eventsDragging.forEach(name =>
                     (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
                         if (position === (ctrl.flip ? 'top' : 'bottom') ) drag(ctrl, e);
@@ -99,7 +98,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
             '--ranks': String(ctrl.variant.boardHeight),
         },
         hook: insertHook
-    }, roles.map(role => {
+    }, roles.map( (role: cg.Role) => {
         const nb = pocket[role] || 0;
 
         let clazz;
@@ -109,7 +108,7 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
 
         const dropMode = ctrl.chessground?.state.dropmode;
         const dropPiece = ctrl.chessground?.state.dropmode.piece;
-        const selectedSquare = dropMode?.active && dropPiece?.role == role && dropPiece?.color == color;
+        const selectedSquare = dropMode?.active && dropPiece?.role === role && dropPiece?.color === color;
 
         if (ctrl instanceof RoundController) {
             const preDropRole = ctrl.predrop?.role;
@@ -200,7 +199,7 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
     if (ctrl.chessground.state.dropmode.active) {
         cancelDropMode(ctrl.chessground.state);
 
-        if (ctrl.chessground.state.dropmode.piece?.role == role) {
+        if (ctrl.chessground.state.dropmode.piece?.role === role) {
             // we mark it with this only if we are cancelling the same piece we "drag"
             el.setAttribute("canceledDropMode", "true");
         }
@@ -295,11 +294,11 @@ export function updatePockets(ctrl: RoundController | AnalysisController | Edito
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
     for (const role in pocket) {
-        letters.push(role2san(role as Role).repeat(pocket[role]));
+        letters.push(role2san(role as cg.Role).repeat(pocket[role as cg.Role] || 0));
     }
     return letters.join('');
 }
 
-export function pockets2str(ctrl) {
+export function pockets2str(ctrl: EditorController) {
     return '[' + pocket2str(ctrl.pockets[1]) + pocket2str(ctrl.pockets[0]).toLowerCase() + ']';
 }

@@ -23,7 +23,7 @@ function buildChart() {
     const url = "/api/stats"
 
     xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
 
             if (!response.length) {

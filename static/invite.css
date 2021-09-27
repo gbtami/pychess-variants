@@ -28,6 +28,14 @@ div.inviteinfo {
     padding: 30px;
     margin: 20px;
 }
+.inviteinfo label {
+    width: 15%;
+    text-align: right;
+}
+.inviteinfo input {
+    width: 70%;
+    margin: 6px;
+}
 form.invite {
     display: flex;
     justify-content: center;

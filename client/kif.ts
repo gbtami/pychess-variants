@@ -1,7 +1,7 @@
 // Translated from Python code https://github.com/takaki/kif2pgn
 
 // mirror letters to digits
-function l2d(c) {
+function l2d(c: string) {
     switch (c) {
     case 'a': return '9';
     case 'b': return '8';
@@ -17,7 +17,7 @@ function l2d(c) {
 }
 
 // mirror digits to letters
-function d2l(c) {
+function d2l(c: string) {
     switch (c) {
     case '1': return 'i';
     case '2': return 'h';
@@ -32,11 +32,11 @@ function d2l(c) {
     }
 }
 
-function mirror(p) {
+function mirror(p: string) {
     return d2l(p[0]) + l2d(p[1]);
 }
 
-const dict = (keys, values) => keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
+const dict = (keys: string[], values: string[]) : {[key: string]: string} => keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
 
 // TODO: add missing handicap types to chess.ts
 // recognise more initial handicap positions
@@ -49,7 +49,7 @@ const alpha = 'abcdefghi'.split('');
 const zensuji = '１２３４５６７８９'.split('');
 const kansuji = '一二三四五六七八九'.split('');
 
-const zen_map = dict(zensuji, [1,2,3,4,5,6,7,8,9]);
+const zen_map: {[key: string]: string} = dict(zensuji, ['1','2','3','4','5','6','7','8','9']);
 const kan_map = dict(kansuji, alpha);
 
 const pieces = '歩香桂銀金角飛玉と馬龍竜';
@@ -60,22 +60,34 @@ const line_re = /(\d+) +([^ ]+)/u;
 export function resultString(movingPlayerWin: boolean, ply: number, isHandicap: boolean) {
     if (ply % 2 === ((movingPlayerWin) ? 1 : 0)) {
         return (!isHandicap) ? '1-0' : '0-1';
-    } else{
+    } else {
         return (!isHandicap) ? '0-1' : '1-0';
     }
 }
 
-export function parseKif(text: string) {
-    let date, place, tc, sente, gote, handicap = '';
+export interface KIF {
+    date: string;
+    place: string;
+    tc: string;
+    handicap: string;
+    sente: string;
+    gote: string;
+    moves: string[];
+    status: number;
+    result: string;
+}
+
+export function parseKif(text: string): KIF {
+    let date: string = '', place: string = '', tc: string = '', sente: string = '', gote: string = '', handicap = '';
     let status = 11; // unknown
     let result = '*'; // unknown
     const move_list: string[] = [];
     let tagsProcessed = false;
     let isHandicap = false;
-    let movesStartLineNumber, ply;
+    let movesStartLineNumber: number = 0, ply: number;
 
-    const lines = text.split(/\r?\n/u);
-    let piace_name, prev_position, next_position, rest;
+    const lines: string[] = text.split(/\r?\n/u);
+    let piace_name: string, prev_position: string, next_position: string = '', rest: string;
     const WIN = true;
     const LOSS = false;
 
@@ -128,11 +140,11 @@ export function parseKif(text: string) {
 
             if (zensuji.includes(s[0])) {
                 next_position = zen_map[s[0]] + kan_map[s[1]];
-            } else if (s[0] == '同') {
+            } else if (s[0] === '同') {
                 // used when the destination coordinate is the same as that of the immediately preceding move
-            } else if (s[0] == '反') {
+            } else if (s[0] === '反') {
                 status = 10; // illegal move
-                if (s == '反則勝ち') {
+                if (s === '反則勝ち') {
                     // indicates that the immediately preceding move was illegal
                     result = resultString(WIN, ply, isHandicap);
                 } else {
@@ -140,66 +152,66 @@ export function parseKif(text: string) {
                     result = resultString(LOSS, ply, isHandicap);
                 }
                 break;
-            } else if (s[0] == '切') {
+            } else if (s[0] === '切') {
                 status = 6; // time out/flag drop
                 result = resultString(LOSS, ply, isHandicap);
                 break;
-            } else if (s[0] == '投') {
+            } else if (s[0] === '投') {
                 status = 2; // resignation
                 result = resultString(LOSS, ply, isHandicap);
                 break;
-            } else if (s[0] == '詰') {
+            } else if (s[0] === '詰') {
                 status = 1; // checkmate
                 result = resultString(WIN, ply, isHandicap);
                 break;
-            } else if (s[0] == '入') {
+            } else if (s[0] === '入') {
                 status = 12; // entering king (campmate)
                 result = resultString(WIN, ply, isHandicap);
                 break;
-            } else if (s[0] == '千') {
+            } else if (s[0] === '千') {
                 status = 13; // repetition
                 result = '1/2-1/2';
                 break;
-            } else if (s[0] == '持') {
+            } else if (s[0] === '持') {
                 status = 5; // impasse
                 result = '1/2-1/2';
                 break;
-            } else if (s[0] == '中') {
+            } else if (s[0] === '中') {
                 status = 0; // aborted
                 break;
             } else {
                 console.log('Unknown Move', s[0], lines[i], res);
-                return [];
+                throw new Error('Unknown Move '+ s[0]);//return [];
             }
 
             if (pieces.includes(s[2])) {
                 piace_name = piece_map[s[2]];
                 rest = s.slice(3);
-            } else if (s[2] == '成') {
+            } else if (s[2] === '成') {
                 piace_name = '+' + piece_map[s[3]];
                 rest = s.slice(4);
             } else {
                 console.log('Unknown Piece', s[2], lines[i], res);
-                return [];
+                throw new Error('Unknown Piece '+ s[2]);//return [];
             }
 
             let promote = '';
-            if (rest[0] == '成') {
+            if (rest[0] === '成') {
                 promote = '+';
                 prev_position = rest[2] + alpha[parseInt(rest[3])-1];
-            } else if (rest[0] == '打') {
+            } else if (rest[0] === '打') {
                 prev_position = '@';
-            } else if (rest[0] == '(') {
+            } else if (rest[0] === '(') {
                 prev_position = rest[1] + alpha[parseInt(rest[2])-1];
             } else {
                 console.log('Unknown ???', rest[0], lines[i], res);
-                return [];
+                throw new Error('Unknown ??? '+ rest[0]);//return [];
             }
 
             //const num = parseInt(res[1]);
             //console.log(num, ply, piace_name, prev_position, next_position, promote);
             let move;
-            if (prev_position == '@') {
+            if (prev_position === '@') {
                 move = piace_name + prev_position + mirror(next_position) + promote;
             } else {
                 move = mirror(prev_position) + mirror(next_position) + promote;

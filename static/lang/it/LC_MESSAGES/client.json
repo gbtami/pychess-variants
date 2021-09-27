@@ -12,7 +12,6 @@
     "On client side, the user interface of the game board is based on ": "Sul client-side, l'interfaccia utente della scacchiera è basata su",
     "The source code of the server is available on ": "Il codice sorgente del server è disponibile su",
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "Per quanto riguarda la Privacy ed i Termini di servizio, le regole di lichess.org si applicano anche qui.",
-    "Playing right now": "In corso",
     "Variant": "Variante",
     "in local browser": "nel browser locale",
     "You need an account to do that.": "Hai bisogno di un account per questo.",
@@ -84,10 +83,10 @@
     " (must be signed in)": "(necessario aver effettuato l'accesso)",
     "EXPORT TO PNG": "ESPORTA IN PGN",
     "Invalid FEN": "FEN invalido",
+    "Playing right now": "In corso",
     "Challenge to a game": "Sfida ad una partita",
     "CANCEL": "ANNULLA",
     "JOIN THE GAME": "UNISCITI ALLA PARTITA",
-    "To invite someone to play, give this URL:": "Per invitare qualcuno a giocare, invia questo URL:",
     "Copy URL": "Copia URL",
     "The first person to come to this URL will play with you.": "La prima persona che userà questo URL giocherà con te.",
     "Cancel": "Annulla",
@@ -105,14 +104,14 @@
     "Increment in seconds:": "Incremento in secondi:",
     "Alternate Start": "Inizio alternativo",
     "Custom": "Personalizzato",
+    "%1 player": [
+        "%1 giocatore",
+        "%1 giocatori"
+    ],
     "You have an unfinished game!\nPress OK to continue.": "Hai una partita in corso!\nClicca OK per continuarla.",
     "%1 game in play": [
         "%1 partita in corso",
         "%1 partite in corso"
-    ],
-    "%1 player": [
-        "%1 giocatore",
-        "%1 giocatori"
     ],
     "Player": "Giocatore",
     "Rating": "Punteggio",

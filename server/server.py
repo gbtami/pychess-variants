@@ -26,7 +26,7 @@ from pythongettext.msgfmt import PoSyntaxError
 
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
-from const import VARIANTS, STARTED, LANGUAGES, T_CREATED, T_STARTED
+from const import VARIANTS, STARTED, LANGUAGES, T_CREATED, T_STARTED, MAX_CHAT_LINES
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -101,11 +101,12 @@ async def init_state(app):
     }
     app["users"]["Random-Mover"].online = True
     app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
-    app["lobbychat"] = collections.deque([], 100)
+    app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
 
     app["tourneysockets"] = {}  # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
+    app["tourneynames"] = {}    # cache for profile game list page {tournamentId: tournament.name, ...}
     app["tournaments"] = {}
-    app["tourneychat"] = {}  # one deque per tournament! {tournamentId: collections.deque([], 100), ...}
+    app["tourneychat"] = {}  # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
 
     app["seeks"] = {}
     app["games"] = {}

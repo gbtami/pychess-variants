@@ -16,6 +16,7 @@ import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { EditorController } from './editorCtrl';
+import { iniPieces } from './pieces';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
@@ -23,6 +24,7 @@ import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { model } from './main';
+import * as cg from 'chessgroundx/types';
 
 
 class BoardSettings {
@@ -63,16 +65,16 @@ class BoardSettings {
         Object.keys(PIECE_FAMILIES).forEach(family => this.updatePieceStyle(family));
     }
 
-    updateBoardStyle(family: string) {
-        const idx = this.getSettings("BoardStyle", family).value as number;
+    updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
+        const idx = this.getSettings("BoardStyle", family as string).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"], family, board);
+        changeBoardCSS(model["asset-url"] , family as string, board);
     }
 
-    updatePieceStyle(family: string) {
-        const idx = this.getSettings("PieceStyle", family).value as number;
+    updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
+        const idx = this.getSettings("PieceStyle", family as string).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model["asset-url"], family, css);
+        changePieceCSS(model["asset-url"], family as string, css);
         this.updateDropSuggestion();
     }
 
@@ -84,8 +86,8 @@ class BoardSettings {
             // if there is any
             if (el) {
                 const classNames = el.getAttribute('className')!.split(' ');
-                const role = classNames[0];
-                const color = classNames[1];
+                const role = classNames[0] as cg.Role;
+                const color = classNames[1] as cg.Color;
                 const orientation = this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor;
                 const side = color === orientation ? "ally" : "enemy";
                 chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });
@@ -94,10 +96,10 @@ class BoardSettings {
         }
     }
 
-    updateZoom(family: string) {
+    updateZoom(family: keyof typeof BOARD_FAMILIES) {
         const variant = this.ctrl?.variant;
         if (variant && variant.board === family) {
-            const zoomSettings = this.getSettings("Zoom", family) as ZoomSettings;
+            const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
             if (el) {
@@ -144,11 +146,11 @@ class BoardSettings {
         settingsList.push(this.settings["blindfold"].view());
 
         if (variantName === this.ctrl?.variant.name)
-            settingsList.push(this.getSettings("Zoom", boardFamily).view());
+            settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
 
         settingsList.push(h('div#style-settings', [
-            this.getSettings("BoardStyle", boardFamily).view(),
-            this.getSettings("PieceStyle", pieceFamily).view(),
+            this.getSettings("BoardStyle", boardFamily as string).view(),
+            this.getSettings("PieceStyle", pieceFamily as string).view(),
             ])
         );
 
@@ -194,6 +196,10 @@ class BoardSettings {
 
                 if (this.ctrl.variant.materialPoint)
                     [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+            }
+
+            if (this.ctrl instanceof EditorController) {
+                iniPieces(this.ctrl, this.ctrl.vpieces0, this.ctrl.vpieces1);
             }
         }
     }

@@ -6,6 +6,7 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from admin import silence
 from const import STARTED
 from settings import ADMINS
 from utils import MyWebSocketResponse, online_count
@@ -23,6 +24,7 @@ async def tournament_socket_handler(request):
     users = request.app["users"]
     sockets = request.app["tourneysockets"]
     lobby_sockets = request.app["lobbysockets"]
+    tourneychat = request.app["tourneychat"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -162,7 +164,7 @@ async def tournament_socket_handler(request):
                         if tournament.status > T_STARTED:
                             await ws.send_json(tournament.summary)
 
-                        response = {"type": "fullchat", "lines": list(request.app["tourneychat"][tournamentId])}
+                        response = {"type": "fullchat", "lines": list(tourneychat[tournamentId])}
                         await ws.send_json(response)
 
                         if user.username not in tournament.spectators:
@@ -174,16 +176,14 @@ async def tournament_socket_handler(request):
                             await lobby_broadcast(lobby_sockets, response)
 
                     elif data["type"] == "lobbychat":
-                        tournament = await load_tournament(request.app, data["tournamentId"])
+                        tournamentId = data["tournamentId"]
+                        tournament = await load_tournament(request.app, tournamentId)
                         message = data["message"]
                         response = None
 
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
-                                spammer = data["message"].split()[-1]
-                                if spammer in users:
-                                    users[spammer].set_silence()
-                                    response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
+                                response = silence(message, tourneychat[tournamentId], users)
                             elif message.startswith("/abort"):
                                 if tournament.status in (T_CREATED, T_STARTED):
                                     await tournament.abort()
@@ -195,7 +195,7 @@ async def tournament_socket_handler(request):
 
                         if response is not None:
                             await tournament.broadcast(response)
-                            request.app["tourneychat"][tournamentId].append(response)
+                            tourneychat[tournamentId].append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()

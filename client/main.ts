@@ -32,43 +32,86 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
     window.location.assign('https://www.pychess.org/');
 }
 
-export const model = {};
+export type PyChessModel = {
+    username: string;
+    home: string;
+    anon: string;
+    profileid: string;
+    title: string;
+    variant: string;
+    chess960: string;
+    rated: string;
+    level: number;
+    gameId: string;
+    tournamentId: string;
+    tournamentname: string;
+    inviter: string;
+    ply: string;
+    wplayer: string;
+    wtitle: string;
+    wrating: string; // string, because can contain "?" suffix for provisional rating
+    wrdiff: number;
+    bplayer: string;
+    btitle: string;
+    brating: string; // string, because can contain "?" suffix for provisional rating
+    brdiff: number;
+    fen: string;
+    base: number;
+    inc: number;
+    byo: number;
+    result: string;
+    status: number;
+    date: string;
+    tv: boolean;
+    embed: boolean;
+    seekEmpty: boolean;
+    tournamentDirector: boolean;
 
-export function view(el, model): VNode {
+    "asset-url": string;
+};
+
+function initModel(el: HTMLElement) {
     const user = getCookie("user");
-    if (user !== "") model["username"] = user;
+    return {
+        home : el.getAttribute("data-home") ?? "",
+        anon : el.getAttribute("data-anon") ?? "",
+        profileid : el.getAttribute("data-profile") ?? "",
+        title : el.getAttribute("data-title") ?? "",
+        variant : el.getAttribute("data-variant") ?? "",
+        chess960 : el.getAttribute("data-chess960") ?? "",
+        rated : el.getAttribute("data-rated") ?? "",
+        level : parseInt(""+el.getAttribute("data-level")),
+        username : user !== "" ? user : el.getAttribute("data-user") ?? "",
+        gameId : el.getAttribute("data-gameid") ?? "",
+        tournamentId : el.getAttribute("data-tournamentid") ?? "",
+        tournamentname : el.getAttribute("data-tournamentname") ?? "",
+        inviter : el.getAttribute("data-inviter") ?? "",
+        ply : el.getAttribute("data-ply") ?? "",
+        wplayer : el.getAttribute("data-wplayer") ?? "",
+        wtitle : el.getAttribute("data-wtitle") ?? "",
+        wrating : el.getAttribute("data-wrating") ?? "",
+        wrdiff : parseInt(""+el.getAttribute("data-wrdiff")),
+        bplayer : el.getAttribute("data-bplayer") ?? "",
+        btitle : el.getAttribute("data-btitle") ?? "",
+        brating : el.getAttribute("data-brating") ?? "",
+        brdiff : parseInt(""+el.getAttribute("data-brdiff")),
+        fen : el.getAttribute("data-fen") ?? "",
+        base : parseFloat(""+el.getAttribute("data-base")),
+        inc : parseInt(""+el.getAttribute("data-inc")),
+        byo : parseInt(""+el.getAttribute("data-byo")),
+        result : el.getAttribute("data-result") ?? "",
+        status : parseInt(""+el.getAttribute("data-status")),
+        date : el.getAttribute("data-date") ?? "",
+        tv : el.getAttribute("data-view") === 'tv',
+        embed : el.getAttribute("data-view") === 'embed',
+        seekEmpty : el.getAttribute("data-seekempty") === "True",
+        tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
 
-    model["home"] = el.getAttribute("data-home");
-    model["anon"] = el.getAttribute("data-anon");
-    model["profileid"] = el.getAttribute("data-profile");
-    model["title"] = el.getAttribute("data-title");
-    model["variant"] = el.getAttribute("data-variant");
-    model["chess960"] = el.getAttribute("data-chess960");
-    model["rated"] = el.getAttribute("data-rated");
-    model["level"] = el.getAttribute("data-level");
-    model["username"] = user !== "" ? user : el.getAttribute("data-user");
-    model["gameId"] = el.getAttribute("data-gameid");
-    model["tournamentId"] = el.getAttribute("data-tournamentid");
-    model["tournamentname"] = el.getAttribute("data-tournamentname");
-    model["inviter"] = el.getAttribute("data-inviter");
-    model["ply"] = el.getAttribute("data-ply");
-    model["wplayer"] = el.getAttribute("data-wplayer");
-    model["wtitle"] = el.getAttribute("data-wtitle");
-    model["wrating"] = el.getAttribute("data-wrating");
-    model["wrdiff"] = el.getAttribute("data-wrdiff");
-    model["bplayer"] = el.getAttribute("data-bplayer");
-    model["btitle"] = el.getAttribute("data-btitle");
-    model["brating"] = el.getAttribute("data-brating");
-    model["brdiff"] = el.getAttribute("data-brdiff");
-    model["fen"] = el.getAttribute("data-fen");
-    model["base"] = el.getAttribute("data-base");
-    model["inc"] = el.getAttribute("data-inc");
-    model["byo"] = el.getAttribute("data-byo");
-    model["result"] = el.getAttribute("data-result");
-    model["status"] = parseInt(el.getAttribute("data-status"));
-    model["date"] = el.getAttribute("data-date");
-    model["tv"] = el.getAttribute("data-view") === 'tv';
-    model["embed"] = el.getAttribute("data-view") === 'embed';
+        "asset-url": el.getAttribute("data-asset-url") ?? "",
+    };
+}
+
+export function view(el: HTMLElement, model: PyChessModel): VNode {
 
     switch (el.getAttribute("data-view")) {
     case 'about':
@@ -104,7 +147,7 @@ export function view(el, model): VNode {
 
 function start() {
     const placeholder = document.getElementById('placeholder');
-    if (placeholder)
+    if (placeholder && el)
         patch(placeholder, view(el, model));
 
     if (model["embed"]) return;
@@ -134,8 +177,9 @@ backgroundSettings.update();
 zenModeSettings.update();
 
 const el = document.getElementById('pychess-variants');
+export const model: PyChessModel = el? initModel(el) : initModel(new HTMLElement());
+
 if (el instanceof Element) {
-    model["asset-url"] = el.getAttribute("data-asset-url");
 
     // Always update sound theme before volume
     // Updating sound theme requires reloading sound files,
@@ -148,7 +192,7 @@ if (el instanceof Element) {
       .then(res => res.json())
       .then(translation => {
         i18n.loadJSON(translation, 'messages');
-        i18n.setLocale(lang);
+        i18n.setLocale(lang ?? "en");
         // console.log('Loaded translations for lang', lang);
         start();
       })

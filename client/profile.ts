@@ -16,6 +16,9 @@ import { VARIANTS, IVariant } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
+import { PyChessModel } from "./main";
+import * as cg from "chessgroundx/types";
+import { Ceval } from "./messages";
 
 
 export function colorNames(color: string) {
@@ -59,7 +62,7 @@ export function aiLevel(title: string, level: number) {
 export function result(variant: IVariant, status: number, result: string) {
     let text = '';
     const variantName = variant.name;
-    console.log("result()", variantName, status, result);
+    // console.log("result()", variantName, status, result);
     const first = colorNames(variant.firstColor);
     const second = colorNames(variant.secondColor);
     switch (status) {
@@ -152,7 +155,49 @@ export function renderRdiff(rdiff: number) {
     }
 }
 
-function renderGames(model, games) {
+interface Game {
+    _id: string;
+    z: number;
+    v: string;
+    f: cg.FEN;
+
+    b: number;
+    i: number;
+    bp: number;
+
+    y: string;
+    d: string;
+
+    tid?: string;
+    tn?: string;
+
+    us: string[];
+    wt: string;
+    bt: string;
+    x: number;
+    p0: Player;
+    p1: Player;
+    s: number;
+    r: string;
+    m: string[]; // moves in compressed format as they are stored in mongo. Only used for count of moves here
+    a: Ceval[];
+}
+
+interface Player {
+    e: string;
+    d: number;
+}
+
+function toutnamentInfo(game: Game) {
+    let elements = [h('info-date', { attrs: { timestamp: game["d"] } })];
+    if (game["tid"]) {
+        elements.push(h('span', " • "));
+        elements.push(h('a.icon.icon-trophy', { attrs: { href: '/tournament/' + game["tid"] } }, game["tn"]));
+    }
+    return elements;
+}
+
+function renderGames(model: PyChessModel, games: Game[]) {
     const rows = games.map(game => {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
@@ -176,7 +221,7 @@ function renderGames(model, games) {
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
                         h('div.tc', timeControlStr(game["b"], game["i"], game["bp"]) + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
-                        h('info-date', { attrs: { timestamp: game["d"] } }),
+                        h('div', toutnamentInfo(game)),
                     ]),
                 ]),
                 h('div.info-middle', [
@@ -220,7 +265,7 @@ function renderGames(model, games) {
     return [h('tbody', rows)];
 }
 
-function loadGames(model, page) {
+function loadGames(model: PyChessModel, page: number) {
     const xmlhttp = new XMLHttpRequest();
     let url = "/api/" + model["profileid"]
     if (model.level) {
@@ -236,7 +281,7 @@ function loadGames(model, page) {
     }
 
     xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
 
             // If empty JSON, exit the function
@@ -253,7 +298,7 @@ function loadGames(model, page) {
     xmlhttp.send();
 }
 
-function observeSentinel(vnode: VNode, model) {
+function observeSentinel(vnode: VNode, model: PyChessModel) {
     const sentinel = vnode.elm as HTMLElement;
     let page = 0;
     const options = {root: null, rootMargin: '44px', threshold: 1.0};
@@ -268,7 +313,7 @@ function observeSentinel(vnode: VNode, model) {
     intersectionObserver.observe(sentinel);
 }
 
-export function profileView(model) {
+export function profileView(model: PyChessModel) {
     boardSettings.updateBoardAndPieceStyles();
     return [
         h('div.filter-tabs', [
