@@ -606,7 +606,7 @@ msgstr "Sötét"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "TÁBLA MEGFORDÍTÁSA"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
@@ -642,7 +642,7 @@ msgstr "Folyamatban lévő játszma"
 
 #: ../client/invite.ts:44
 msgid "Host a game for others"
-msgstr ""
+msgstr "Játszma létrehozása másoknak."
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
@@ -655,15 +655,15 @@ msgstr "MÉGSEM"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
-msgstr ""
+msgstr "Várakozás az ellenfélre."
 
 #: ../client/invite.ts:56
 msgid "Sorry, this seat is already occupied"
-msgstr ""
+msgstr "Ez a szín már foglalt!"
 
 #: ../client/invite.ts:62
 msgid "Sorry, you cannot play with yourself"
-msgstr ""
+msgstr "Nem játszhatsz önmagaddal!"
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
@@ -671,7 +671,7 @@ msgstr "CSATLAKOZÁS A JÁTSZMÁHOZ"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
-msgstr ""
+msgstr "Küldd el ezeket a linkeket a meghívottaknak:"
 
 #: ../client/invite.ts:102 ../client/invite.ts:104 ../client/invite.ts:112
 #: ../client/invite.ts:114 ../client/invite.ts:124 ../client/invite.ts:126
@@ -681,6 +681,7 @@ msgstr "URL másolása"
 #: ../client/invite.ts:116
 msgid "The first two people to come to this URL will play with each other."
 msgstr ""
+"Az első két ember aki ezeket a linkeket felkeresi fog egymással játszani."
 
 #: ../client/invite.ts:127
 msgid "The first person to come to this URL will play with you."
@@ -724,7 +725,7 @@ msgstr "Véletlen szín"
 
 #: ../client/lobby.ts:513
 msgid "Create"
-msgstr ""
+msgstr "Létrehozás"
 
 #: ../client/lobby.ts:518 ../client/lobby/layer3.ts:48
 msgid "Create a game"
@@ -744,7 +745,7 @@ msgstr "Gyakorlás a robottal"
 
 #: ../client/lobby.ts:522
 msgid "Host game for others"
-msgstr ""
+msgstr "Játszma létrehozása másoknak."
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -968,15 +969,15 @@ msgstr "Feladás"
 
 #: ../client/roundCtrl.ts:508
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "Biztosan döntetlent akarsz?"
 
 #: ../client/roundCtrl.ts:510
 msgid "Draw offer sent"
-msgstr ""
+msgstr "Döntetlen ajánlat elküldve."
 
 #: ../client/roundCtrl.ts:522
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "Az ellenfeled döntetlent ajánlott."
 
 #: ../client/roundCtrl.ts:542
 msgid "Are you sure you want to resign?"
@@ -1009,11 +1010,11 @@ msgstr "VISZZAVÁGÓ JÁTSZMA"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "Visszavágó ajánlat elküldve."
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "Az ellenfeled visszavágót ajánlott."
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -1050,8 +1051,8 @@ msgstr "számolás indítása"
 #: ../client/roundCtrl.ts:1353
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 másodperc az első lépésig"
+msgstr[1] "%1 másodperc az első lépésig"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

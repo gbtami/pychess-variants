@@ -74,10 +74,10 @@ msgstr "Щиты турниров"
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%(count)s игры"
+msgstr[1] "%(count)s игр"
+msgstr[2] "%(count)s игр"
+msgstr[3] "%(count)s игр"
 
 #: ../templates/profile.html:40
 msgid "Watch games"
@@ -141,12 +141,12 @@ msgstr "СОЗДАЙТЕ НОВЫЙ ТУРНИР"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr "Сейчас играют"
+msgstr "Сейчас идут"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr "Скоро начнем"
+msgstr "Скоро начнутся"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr "Законченный"
+msgstr "Законченные"
