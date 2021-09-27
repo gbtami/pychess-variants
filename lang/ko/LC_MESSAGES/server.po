@@ -6,15 +6,16 @@
 # Translators:
 # Leo Ha <yeoha123@gmail.com>, 2020
 # 이상백 <esangbaek@ajou.ac.kr>, 2020
+# 설월신서향雪月申瑞香, 2021
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 18:42+0200\n"
+"POT-Creation-Date: 2021-09-24 16:47+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: 이상백 <esangbaek@ajou.ac.kr>, 2020\n"
+"Last-Translator: 설월신서향雪月申瑞香, 2021\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -29,11 +30,11 @@ msgstr "404 게임을 찾을 수 없습니다"
 
 #: ../templates/404.html:21
 msgid "Sorry, not all games are saved on the Pychess server."
-msgstr ""
+msgstr "죄송합니다, 모든 게임이 Pychess 서버에 저장되지는 않습니다."
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr "3수 전에 중단 되었을 수 있습니다."
+msgstr "아마 3수 전에 포기되었거나 중지되었을 겁니다."
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
@@ -57,7 +58,7 @@ msgstr "온라인"
 
 #: ../templates/players.html:28
 msgid "Anonymous"
-msgstr "익명 사용자"
+msgstr "익명"
 
 #: ../templates/players.html:35
 msgid "All players"
@@ -65,11 +66,11 @@ msgstr "모든 대국자"
 
 #: ../templates/players.html:36 ../templates/winners.html:6
 msgid "Tournament winners"
-msgstr ""
+msgstr "토너먼트 우승자"
 
 #: ../templates/players.html:37 ../templates/shields.html:6
 msgid "Tournament shields"
-msgstr ""
+msgstr "토너먼트 쉴드"
 
 #: ../templates/profile.html:13
 #, python-format
@@ -79,11 +80,11 @@ msgstr[0] "%(count)s 개의 게임"
 
 #: ../templates/profile.html:40
 msgid "Watch games"
-msgstr ""
+msgstr "관전"
 
 #: ../templates/profile.html:42
 msgid "Challenge to a game"
-msgstr ""
+msgstr "대국 신청"
 
 #: ../templates/profile.html:45
 msgid "Import game"
@@ -95,7 +96,7 @@ msgstr ""
 
 #: ../templates/profile.html:51
 msgid "Lichess profile"
-msgstr ""
+msgstr "Lichess 프로필"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -103,11 +104,11 @@ msgstr "생중계"
 
 #: ../templates/template.html:18
 msgid "Current games"
-msgstr "현재 진행중인 게임"
+msgstr "현재 진행 중인 게임"
 
 #: ../templates/template.html:19 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "토너먼트"
 
 #: ../templates/template.html:20
 msgid "Players"
@@ -123,11 +124,11 @@ msgstr "분석하기"
 
 #: ../templates/template.html:23
 msgid "Variants"
-msgstr ""
+msgstr "변형"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"
-msgstr "Lichess 로 로그인 하기"
+msgstr "Lichess로 로그인"
 
 #: ../templates/template.html:29
 msgid "Log in"
@@ -135,16 +136,16 @@ msgstr "로그인"
 
 #: ../templates/tournaments.html:9
 msgid "CREATE A NEW TOURNAMENT"
-msgstr ""
+msgstr "새로운 토너먼트 생성"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr ""
+msgstr "지금 대국 중"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr ""
+msgstr "곧 시작"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr ""
+msgstr "끝남"

@@ -239,7 +239,7 @@ msgstr "サーバ"
 
 #: ../client/chess.ts:263
 msgid "Chess, unmodified, as it's played by FIDE standards."
-msgstr ""
+msgstr "普通のチェス。国際チェス連盟のルールを従っています。"
 
 #: ../client/chess.ts:280
 msgid "Take captured pieces and drop them back on to the board as your own."
@@ -413,32 +413,32 @@ msgstr ""
 #: ../client/chess.ts:716 ../client/lobby/layer1.ts:65
 #: ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
-msgstr ""
+msgstr "チェス類"
 
 #: ../client/chess.ts:717 ../client/lobby/layer1.ts:89
 #: ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
-msgstr ""
+msgstr "マークルック類"
 
 #: ../client/chess.ts:718 ../client/lobby/layer1.ts:97
 #: ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
-msgstr ""
+msgstr "日本将棋類"
 
 #: ../client/chess.ts:719 ../client/lobby/layer1.ts:105
 #: ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
-msgstr ""
+msgstr "シャンチー類"
 
 #: ../client/chess.ts:720 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
-msgstr ""
+msgstr "駒が異なるチェス類"
 
 #: ../client/chess.ts:721 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
-msgstr ""
+msgstr "斬新な軍陣のチェス類"
 
 #: ../client/datetime.ts:38
 msgid "in %1 year"
@@ -512,7 +512,7 @@ msgstr[0] "%1秒前"
 
 #: ../client/datetime.ts:91
 msgid "STARTING IN"
-msgstr ""
+msgstr "開始まで"
 
 #: ../client/editorCtrl.ts:133 ../client/editorCtrl.ts:134
 msgid "%1 to play"
@@ -532,7 +532,7 @@ msgstr "黒"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "盤の上下反転"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
@@ -577,7 +577,7 @@ msgstr "対戦を申し込む"
 #: ../client/invite.ts:47 ../client/invite.ts:53 ../client/invite.ts:59
 #: ../client/invite.ts:65
 msgid "CANCEL"
-msgstr ""
+msgstr "キャンセル"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
@@ -593,7 +593,7 @@ msgstr ""
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
-msgstr ""
+msgstr "対局に参加する"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
@@ -658,15 +658,15 @@ msgstr "対局を作成する"
 
 #: ../client/lobby.ts:519
 msgid "Play with a friend"
-msgstr ""
+msgstr "友達と対局する"
 
 #: ../client/lobby.ts:520 ../client/lobby/layer3.ts:50
 msgid "Play with AI"
-msgstr ""
+msgstr "AIと対局する"
 
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
-msgstr ""
+msgstr "ランダムボットと対局する"
 
 #: ../client/lobby.ts:522
 msgid "Host game for others"
@@ -730,11 +730,11 @@ msgstr "よくある質問"
 
 #: ../client/lobby.ts:989
 msgid "Stats"
-msgstr ""
+msgstr "統計データ"
 
 #: ../client/lobby.ts:990
 msgid "About"
-msgstr ""
+msgstr "PyChess について"
 
 #: ../client/lobby.ts:995
 msgid "Latest updates"
@@ -746,15 +746,15 @@ msgstr "いつも応援してくれてありがとうございます！"
 
 #: ../client/paste.ts:129
 msgid "Invalid PGN"
-msgstr ""
+msgstr "無効な PGN"
 
 #: ../client/paste.ts:153
 msgid "Paste the PGN text here"
-msgstr ""
+msgstr "ここにPGN形式の棋譜をペースト"
 
 #: ../client/paste.ts:157
 msgid "IMPORT GAME"
-msgstr ""
+msgstr "棋譜をインポート"
 
 #: ../client/profile.ts:33
 msgid "Red"
@@ -774,11 +774,11 @@ msgstr ""
 
 #: ../client/profile.ts:53
 msgid "IMPORT"
-msgstr ""
+msgstr "インポートする"
 
 #: ../client/profile.ts:60
 msgid "level %1"
-msgstr ""
+msgstr "レベル %1"
 
 #: ../client/profile.ts:76
 msgid "Game aborted"
@@ -830,7 +830,7 @@ msgstr "キャンプメイト"
 
 #: ../client/profile.ts:122
 msgid "Explosion of king"
-msgstr ""
+msgstr "王様爆発され"
 
 #: ../client/profile.ts:125 ../client/profile.ts:132
 msgid "Point counting"
@@ -843,7 +843,7 @@ msgstr "千日手"
 #: ../client/profile.ts:262
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] ""
+msgstr[0] "%1 手"
 
 #: ../client/profile.ts:263
 msgid "Computer analysis available"
@@ -851,16 +851,16 @@ msgstr "コンピュータ解析がされています"
 
 #: ../client/profile.ts:325
 msgid "Games"
-msgstr ""
+msgstr "対局"
 
 #: ../client/profile.ts:326
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
-msgstr ""
+msgstr "レート局"
 
 #: ../client/profile.ts:327
 msgid "Imported"
-msgstr ""
+msgstr "インポートした局"
 
 #: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1441
 msgid " +15 seconds"
@@ -889,15 +889,15 @@ msgstr "投了"
 
 #: ../client/roundCtrl.ts:508
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "本当にドロー（引き分け）を提案したいですか？"
 
 #: ../client/roundCtrl.ts:510
 msgid "Draw offer sent"
-msgstr ""
+msgstr "ドローの提案を送信しました"
 
 #: ../client/roundCtrl.ts:522
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "相手がドローを提案しました"
 
 #: ../client/roundCtrl.ts:542
 msgid "Are you sure you want to resign?"
@@ -926,15 +926,15 @@ msgstr "準備"
 
 #: ../client/roundCtrl.ts:641
 msgid "VIEW REMATCH"
-msgstr ""
+msgstr "再戦を観戦する"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "再対局の提案が来ました"
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "相手が再対局を提案しました"
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -971,7 +971,7 @@ msgstr "手数を数え始める"
 #: ../client/roundCtrl.ts:1353
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
+msgstr[0] "あと %1 秒以内に初手を指してください"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"
@@ -1035,11 +1035,11 @@ msgstr "トーナメント終了"
 
 #: ../client/tournament.ts:307
 msgid "Players"
-msgstr ""
+msgstr "参戦者"
 
 #: ../client/tournament.ts:308
 msgid "Average rating"
-msgstr ""
+msgstr "平均レイティング"
 
 #: ../client/tournament.ts:309 ../client/tournament.ts:489
 #: ../client/tournament.ts:542 ../client/tournament.ts:553
@@ -1049,19 +1049,19 @@ msgstr "対局数"
 
 #: ../client/tournament.ts:310
 msgid "White wins"
-msgstr ""
+msgstr "白勝ち"
 
 #: ../client/tournament.ts:311
 msgid "Black wins"
-msgstr ""
+msgstr "黒勝ち"
 
 #: ../client/tournament.ts:312
 msgid "Draws"
-msgstr ""
+msgstr "引き分け"
 
 #: ../client/tournament.ts:322
 msgid "Download all games"
-msgstr ""
+msgstr "すべての対局をダウンロードする"
 
 #: ../client/tournament.ts:488 ../client/tournament.ts:541
 #: ../client/tournament.ts:552 ../client/tournament.ts:563
@@ -1246,7 +1246,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
-msgstr ""
+msgstr "ルール"
 
 #: ../client/lobby/layer3.ts:61
 msgid "Tip: "

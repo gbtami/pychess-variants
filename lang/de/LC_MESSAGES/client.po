@@ -624,7 +624,7 @@ msgstr "Schwarz"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "BRETT DREHEN"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
@@ -660,7 +660,7 @@ msgstr "Partie läuft"
 
 #: ../client/invite.ts:44
 msgid "Host a game for others"
-msgstr ""
+msgstr "Eine Partie für andere erstellen"
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
@@ -673,15 +673,15 @@ msgstr "ABBRECHEN"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
-msgstr ""
+msgstr "Auf den Gegner warten"
 
 #: ../client/invite.ts:56
 msgid "Sorry, this seat is already occupied"
-msgstr ""
+msgstr "Sorry, dieser Platz ist schon besetzt"
 
 #: ../client/invite.ts:62
 msgid "Sorry, you cannot play with yourself"
-msgstr ""
+msgstr "Sorry, du kannst nicht gegen dich selbst spielen"
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
@@ -689,7 +689,7 @@ msgstr "AM SPIEL TEILNEHMEN"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
-msgstr ""
+msgstr "Um jemanden einzuladen, gib ihnen diesen Link:"
 
 #: ../client/invite.ts:102 ../client/invite.ts:104 ../client/invite.ts:112
 #: ../client/invite.ts:114 ../client/invite.ts:124 ../client/invite.ts:126
@@ -698,7 +698,7 @@ msgstr "URL kopieren"
 
 #: ../client/invite.ts:116
 msgid "The first two people to come to this URL will play with each other."
-msgstr ""
+msgstr "Die ersten zwei Spieler die den Link anklicken, spielen miteinander."
 
 #: ../client/invite.ts:127
 msgid "The first person to come to this URL will play with you."
@@ -742,7 +742,7 @@ msgstr "Zufällig"
 
 #: ../client/lobby.ts:513
 msgid "Create"
-msgstr ""
+msgstr "Erstellen"
 
 #: ../client/lobby.ts:518 ../client/lobby/layer3.ts:48
 msgid "Create a game"
@@ -762,7 +762,7 @@ msgstr "Übe mit dem Zufalls-Zieher"
 
 #: ../client/lobby.ts:522
 msgid "Host game for others"
-msgstr ""
+msgstr "Partie für andere erstellen"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -986,15 +986,15 @@ msgstr "Aufgeben"
 
 #: ../client/roundCtrl.ts:508
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "Bist du sicher, dass du Remis anbieten willst?"
 
 #: ../client/roundCtrl.ts:510
 msgid "Draw offer sent"
-msgstr ""
+msgstr "Remisangebot gesendet"
 
 #: ../client/roundCtrl.ts:522
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "Dein Gegner bietet Remis an"
 
 #: ../client/roundCtrl.ts:542
 msgid "Are you sure you want to resign?"
@@ -1029,11 +1029,11 @@ msgstr "REVANCHE ANSEHEN"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "Angebot zur Revanche gesendet"
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "Dein Gegner bietet eine Revanche an"
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -1070,8 +1070,8 @@ msgstr "Anfangen zu zählen"
 #: ../client/roundCtrl.ts:1353
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 Sekunde um den ersten Zug zu spielen"
+msgstr[1] "%1 Sekunden um den ersten Zug zu spielen"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"
@@ -1249,11 +1249,11 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:29
 msgid " = Random (960) variant available. "
-msgstr ""
+msgstr "= Zufalls (960) Variante verfügbar."
 
 #: ../client/lobby/layer2fairy.ts:32
 msgid " = Drop variant available."
-msgstr ""
+msgstr "= Einsetz-Variante verfügbar."
 
 #: ../client/lobby/layer2fairy.ts:47
 msgid "Knight hybrid pieces"
@@ -1359,7 +1359,7 @@ msgstr "Regeln"
 
 #: ../client/lobby/layer3.ts:61
 msgid "Tip: "
-msgstr ""
+msgstr "Tipp:"
 
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."

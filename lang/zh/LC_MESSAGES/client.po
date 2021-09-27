@@ -240,50 +240,50 @@ msgstr "服务器"
 
 #: ../client/chess.ts:263
 msgid "Chess, unmodified, as it's played by FIDE standards."
-msgstr "按照国际棋联规则的正统国际象棋"
+msgstr "按照国际棋联规则的正统国际象棋。"
 
 #: ../client/chess.ts:280
 msgid "Take captured pieces and drop them back on to the board as your own."
-msgstr ""
+msgstr "把己方吃掉的棋子放回棋盘成为己方的棋子。"
 
 #: ../client/chess.ts:298
 msgid "Choose where your pieces start."
-msgstr ""
+msgstr "选择您棋子的初始位置。"
 
 #: ../client/chess.ts:308
 msgid "Pieces explode upon capture."
-msgstr ""
+msgstr "吃子时被吃的子爆炸。"
 
 #: ../client/chess.ts:318
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
-msgstr ""
+msgstr "泰国象棋。相近古印度象棋。类似国际象棋但皇后和主教的走法不同。"
 
 #: ../client/chess.ts:327
 msgid "Makruk variant where kings cannot move to escape out of check."
-msgstr ""
+msgstr "泰国象棋，但不准动王逃出将军。"
 
 #: ../client/chess.ts:336
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
-msgstr ""
+msgstr "柬埔寨象棋，又称高棉象棋。相近泰国象棋但王和士走初步时可选特别走法。"
 
 #: ../client/chess.ts:345
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
-msgstr ""
+msgstr "缅甸象棋。相似泰国象棋，但大子在对局开始后一一排列。"
 
 #: ../client/chess.ts:356
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
-msgstr ""
+msgstr "日本将棋。现在广泛的9x9正统将棋，含有打入和升变的规则。"
 
 #: ../client/chess.ts:384
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
-msgstr ""
+msgstr "5x5盘上的将棋，更窄小更快节奏的游戏。无桂马也无香车。"
 
 #: ../client/chess.ts:399
 msgid ""
@@ -309,7 +309,7 @@ msgstr ""
 #: ../client/chess.ts:464
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
-msgstr ""
+msgstr "正统中国象棋，世界中最广泛的象棋类游戏之一。"
 
 #: ../client/chess.ts:473
 msgid ""
@@ -321,7 +321,7 @@ msgstr ""
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
-msgstr ""
+msgstr "朝鲜将棋。相似象棋，但玩法异同。本网站使用大赛规则。"
 
 #: ../client/chess.ts:495
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
@@ -331,46 +331,46 @@ msgstr ""
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
-msgstr ""
+msgstr "在10x8路的棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）。"
 
 #: ../client/chess.ts:521
 msgid "Capablanca with Crazyhouse drop rules."
-msgstr ""
+msgstr "在Capablanca上添加Crazyhouse的打入规则。"
 
 #: ../client/chess.ts:538
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
-msgstr ""
+msgstr "仙灵棋子大主教（马+象）和首相（马+车）能在棋子离开己方底线后降临参战。"
 
 #: ../client/chess.ts:548
 msgid "S-Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "在S-Chess上添加Crazyhouse的打入规则。"
 
 #: ../client/chess.ts:558
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
-msgstr ""
+msgstr "在10x10路的豪大棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）。"
 
 #: ../client/chess.ts:568
 msgid "Grand Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "在Grand Chess上添加Crazyhouse的打入规则。"
 
 #: ../client/chess.ts:579
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
-msgstr ""
+msgstr "来自象棋的“炮”和“象”进入10x10路棋盘上的国际象棋大战。"
 
 #: ../client/chess.ts:588
 msgid "Pieces promote and can be dropped, similar to Shogi."
-msgstr ""
+msgstr "棋子既可升变又能打入，如同日本将棋。"
 
 #: ../client/chess.ts:601
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
-msgstr ""
+msgstr "非对称棋类，单方指挥走法如马但吃法不一致的棋子。"
 
 #: ../client/chess.ts:612
 msgid ""
@@ -380,7 +380,7 @@ msgstr ""
 
 #: ../client/chess.ts:624
 msgid "Knights capture as bishops; bishops  capture as knights."
-msgstr ""
+msgstr "马行如马但吃如主教；主教行如主教但吃如马。"
 
 #: ../client/chess.ts:633
 msgid ""
@@ -392,7 +392,7 @@ msgstr ""
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
-msgstr ""
+msgstr "非对称棋类，单方指挥走法如皇后但吃法不一致的棋子。"
 
 #: ../client/chess.ts:658
 msgid ""
@@ -401,15 +401,15 @@ msgstr ""
 
 #: ../client/chess.ts:671
 msgid "Like Capablanca Chess but with Grand starting setup."
-msgstr ""
+msgstr "相似Capablanca但使用Grand的起始局面。"
 
 #: ../client/chess.ts:681
 msgid "Like Capablanca Chess but with a different starting setup."
-msgstr ""
+msgstr "相似Capablanca但起始局面不一致。"
 
 #: ../client/chess.ts:691
 msgid "Gothic with Crazyhouse drop rules."
-msgstr ""
+msgstr " 在Gothic上添加Crazyhouse的打入规则。"
 
 #: ../client/chess.ts:716 ../client/lobby/layer1.ts:65
 #: ../client/lobby/layer2chess.ts:26
@@ -533,7 +533,7 @@ msgstr "黑方"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "翻转棋盘"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
@@ -569,7 +569,7 @@ msgstr "正在进行"
 
 #: ../client/invite.ts:44
 msgid "Host a game for others"
-msgstr ""
+msgstr "为它人主持棋局"
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
@@ -582,15 +582,15 @@ msgstr "取消"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
-msgstr ""
+msgstr "等待对方"
 
 #: ../client/invite.ts:56
 msgid "Sorry, this seat is already occupied"
-msgstr ""
+msgstr "抱歉，此座位已被占用。"
 
 #: ../client/invite.ts:62
 msgid "Sorry, you cannot play with yourself"
-msgstr ""
+msgstr "抱歉，您不能与自己对弈"
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
@@ -598,7 +598,7 @@ msgstr "参入棋局"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
-msgstr ""
+msgstr "邀人下棋，请分享这个网址："
 
 #: ../client/invite.ts:102 ../client/invite.ts:104 ../client/invite.ts:112
 #: ../client/invite.ts:114 ../client/invite.ts:124 ../client/invite.ts:126
@@ -607,7 +607,7 @@ msgstr "复制URL"
 
 #: ../client/invite.ts:116
 msgid "The first two people to come to this URL will play with each other."
-msgstr ""
+msgstr "首先浏览此URL的两个人将互相对弈。"
 
 #: ../client/invite.ts:127
 msgid "The first person to come to this URL will play with you."
@@ -651,7 +651,7 @@ msgstr "随机"
 
 #: ../client/lobby.ts:513
 msgid "Create"
-msgstr ""
+msgstr "创建"
 
 #: ../client/lobby.ts:518 ../client/lobby/layer3.ts:48
 msgid "Create a game"
@@ -671,7 +671,7 @@ msgstr "和随机走子电脑下棋"
 
 #: ../client/lobby.ts:522
 msgid "Host game for others"
-msgstr ""
+msgstr "为它人主持棋局"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -761,19 +761,19 @@ msgstr "导入棋局"
 
 #: ../client/profile.ts:33
 msgid "Red"
-msgstr "红"
+msgstr "红方"
 
 #: ../client/profile.ts:35
 msgid "Blue"
-msgstr "青"
+msgstr "绿方"
 
 #: ../client/profile.ts:37
 msgid "Gold"
-msgstr "金"
+msgstr "金方"
 
 #: ../client/profile.ts:39
 msgid "Pink"
-msgstr "粉红"
+msgstr "粉红方"
 
 #: ../client/profile.ts:53
 msgid "IMPORT"
@@ -892,15 +892,15 @@ msgstr "认输"
 
 #: ../client/roundCtrl.ts:508
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "您确定要提和吗？"
 
 #: ../client/roundCtrl.ts:510
 msgid "Draw offer sent"
-msgstr ""
+msgstr "提和要求已发送"
 
 #: ../client/roundCtrl.ts:522
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "对方提和"
 
 #: ../client/roundCtrl.ts:542
 msgid "Are you sure you want to resign?"
@@ -933,11 +933,11 @@ msgstr "观看重赛"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "重赛请求已发送"
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "对方请求重赛"
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -974,7 +974,7 @@ msgstr "开始数步"
 #: ../client/roundCtrl.ts:1353
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
+msgstr[0] "剩 %1 秒下第一步棋"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"
@@ -1082,7 +1082,7 @@ msgstr "对手平均积分"
 
 #: ../client/tournament.ts:661
 msgid "Custom position"
-msgstr ""
+msgstr "定制局面"
 
 #: ../client/tournament.ts:662
 msgid "Analysis board"
@@ -1145,11 +1145,11 @@ msgstr "试试这些变体包括的新棋子！其中几些也使用大型棋盘
 
 #: ../client/lobby/layer2fairy.ts:29
 msgid " = Random (960) variant available. "
-msgstr ""
+msgstr "= 可选择任意制（960）初始局面"
 
 #: ../client/lobby/layer2fairy.ts:32
 msgid " = Drop variant available."
-msgstr ""
+msgstr "= 可添加打入规则。"
 
 #: ../client/lobby/layer2fairy.ts:47
 msgid "Knight hybrid pieces"
@@ -1253,7 +1253,7 @@ msgstr "游戏规则"
 
 #: ../client/lobby/layer3.ts:61
 msgid "Tip: "
-msgstr ""
+msgstr "提示："
 
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."

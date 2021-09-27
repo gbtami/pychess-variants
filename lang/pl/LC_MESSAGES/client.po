@@ -642,7 +642,7 @@ msgstr "Czarne"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "OBRÓĆ PLANSZĘ"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
@@ -678,7 +678,7 @@ msgstr "W trakcie gry"
 
 #: ../client/invite.ts:44
 msgid "Host a game for others"
-msgstr ""
+msgstr "Utwórz partię dla kogoś innego"
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
@@ -691,15 +691,15 @@ msgstr "ANULUJ"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
-msgstr ""
+msgstr "Oczekiwanie na przeciwnika"
 
 #: ../client/invite.ts:56
 msgid "Sorry, this seat is already occupied"
-msgstr ""
+msgstr "Niestety, to miejsce jest już zajęte"
 
 #: ../client/invite.ts:62
 msgid "Sorry, you cannot play with yourself"
-msgstr ""
+msgstr "Niestety nie możesz zagrać z samym(ą) sobą"
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
@@ -707,7 +707,7 @@ msgstr "DOŁĄCZ DO GRY"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
-msgstr ""
+msgstr "Zaproś kogoś do gry wysyłając tego linka:"
 
 #: ../client/invite.ts:102 ../client/invite.ts:104 ../client/invite.ts:112
 #: ../client/invite.ts:114 ../client/invite.ts:124 ../client/invite.ts:126
@@ -716,7 +716,7 @@ msgstr "Skopiuj URL"
 
 #: ../client/invite.ts:116
 msgid "The first two people to come to this URL will play with each other."
-msgstr ""
+msgstr "Pierwsze dwie osoby, które wejdą pod ten link zagrają ze sobą."
 
 #: ../client/invite.ts:127
 msgid "The first person to come to this URL will play with you."
@@ -760,7 +760,7 @@ msgstr "Losowo"
 
 #: ../client/lobby.ts:513
 msgid "Create"
-msgstr ""
+msgstr "Utwórz"
 
 #: ../client/lobby.ts:518 ../client/lobby/layer3.ts:48
 msgid "Create a game"
@@ -780,7 +780,7 @@ msgstr "Poćwicz z Random-Moverem"
 
 #: ../client/lobby.ts:522
 msgid "Host game for others"
-msgstr ""
+msgstr "Utwórz partię dla kogoś innego"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -892,7 +892,7 @@ msgstr "Różowe"
 
 #: ../client/profile.ts:53
 msgid "IMPORT"
-msgstr "WGRAJ"
+msgstr "WGRANA"
 
 #: ../client/profile.ts:60
 msgid "level %1"
@@ -1010,15 +1010,15 @@ msgstr "Poddaj się"
 
 #: ../client/roundCtrl.ts:508
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "Na pewno chcesz zaproponować remis?"
 
 #: ../client/roundCtrl.ts:510
 msgid "Draw offer sent"
-msgstr ""
+msgstr "Zaproponowałeś(aś) remis"
 
 #: ../client/roundCtrl.ts:522
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "Przeciwnik proponuje remis"
 
 #: ../client/roundCtrl.ts:542
 msgid "Are you sure you want to resign?"
@@ -1051,11 +1051,11 @@ msgstr "ZOBACZ REWANŻ"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "Wysłałaś(eś) propozycję rewanżu"
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "Przeciwnik proponuje rewanż"
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -1067,7 +1067,7 @@ msgstr "WRÓĆ DO TURNIEJU"
 
 #: ../client/roundCtrl.ts:705 ../client/tournament.ts:287
 msgid "PAUSE"
-msgstr "ZRÓB PRZERWĘ"
+msgstr "PAUZA"
 
 #: ../client/roundCtrl.ts:708
 msgid "REMATCH"
@@ -1092,10 +1092,10 @@ msgstr "Zacznij odliczać"
 #: ../client/roundCtrl.ts:1353
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%1 sekunda na wykonanie pierwszego ruchu"
+msgstr[1] "%1 sekundy na wykonanie pierwszego ruchu"
+msgstr[2] "%1 sekund na wykonanie pierwszego ruchu"
+msgstr[3] "%1 sekundy na wykonanie pierwszego ruchu"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

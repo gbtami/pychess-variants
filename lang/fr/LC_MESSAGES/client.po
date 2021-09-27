@@ -300,22 +300,30 @@ msgstr ""
 #: ../client/chess.ts:327
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr ""
+"Une variante de Makruk où les rois ne peuvent se déplacer lors d'un échec "
+"(sauf pour capturer la pièce donnant échec)."
 
 #: ../client/chess.ts:336
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr ""
+"Échecs cambodgiens. Makruk avec quelques options supplémentaires dans "
+"l'ouverture."
 
 #: ../client/chess.ts:345
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
 msgstr ""
+"Échecs birmans. Comme le Makruk, mais les pièces sont placées au début de la"
+" partie."
 
 #: ../client/chess.ts:356
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
 msgstr ""
+"Échecs japonais. La version standarde 9x9 jouée couramment aujourd'hui avec "
+"le parachutage et des promotions."
 
 #: ../client/chess.ts:384
 msgid ""
@@ -347,22 +355,27 @@ msgstr ""
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr ""
+"Échecs chinois, un des plus vieux et plus répandus jeux de société au monde."
 
 #: ../client/chess.ts:473
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
 msgstr ""
+"Une variante de Xiangqi où un côté a un chariot qui peut aussi se déplacer "
+"comme canon ou cheval."
 
 #: ../client/chess.ts:483
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr ""
+"Échecs coréens. Similaire au Xiangqi, mais se joue très différemment. On "
+"utilise les règles de tournoi."
 
 #: ../client/chess.ts:495
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
-msgstr ""
+msgstr "Une variante compacte de Xiangqi sur un plateau 7x7 sans rivière."
 
 #: ../client/chess.ts:504
 msgid ""
@@ -439,6 +452,8 @@ msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr ""
+"Une variante asymétrique où l'armée des échecs occidentaux se bat contre une"
+" armée avec le parachutage et dérivée du shogi."
 
 #: ../client/chess.ts:647
 msgid ""
@@ -470,32 +485,32 @@ msgstr "Les échecs Gothiques avec la règle de parachutage de Crazyhouse."
 #: ../client/chess.ts:716 ../client/lobby/layer1.ts:65
 #: ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
-msgstr ""
+msgstr "Variantes des échecs"
 
 #: ../client/chess.ts:717 ../client/lobby/layer1.ts:89
 #: ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
-msgstr ""
+msgstr "Variantes du Makruk"
 
 #: ../client/chess.ts:718 ../client/lobby/layer1.ts:97
 #: ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
-msgstr ""
+msgstr "Variantes du Shogi"
 
 #: ../client/chess.ts:719 ../client/lobby/layer1.ts:105
 #: ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
-msgstr ""
+msgstr "Variantes du Xiangqi"
 
 #: ../client/chess.ts:720 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
-msgstr ""
+msgstr "Variantes aux pièces féeriques"
 
 #: ../client/chess.ts:721 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
-msgstr ""
+msgstr "Variantes aux nouvelles armées"
 
 #: ../client/datetime.ts:38
 msgid "in %1 year"
@@ -603,7 +618,7 @@ msgstr "Les noirs"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "TOURNER L'ÉCHIQUIER"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
@@ -639,7 +654,7 @@ msgstr "En cours"
 
 #: ../client/invite.ts:44
 msgid "Host a game for others"
-msgstr ""
+msgstr "Héberger une partie pour autres joueurs"
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
@@ -652,15 +667,15 @@ msgstr "ANNULER"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
-msgstr ""
+msgstr "En attente de l'autre joueur"
 
 #: ../client/invite.ts:56
 msgid "Sorry, this seat is already occupied"
-msgstr ""
+msgstr "Désolé, cette siège a été déjà prise"
 
 #: ../client/invite.ts:62
 msgid "Sorry, you cannot play with yourself"
-msgstr ""
+msgstr "Désolé, vous ne pouvez pas jouer contre vous-même"
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
@@ -668,7 +683,7 @@ msgstr "REJOINDRE LA PARTIE"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
-msgstr ""
+msgstr "Pour inviter quelqu'un à jouer, partagez cette l'URL :"
 
 #: ../client/invite.ts:102 ../client/invite.ts:104 ../client/invite.ts:112
 #: ../client/invite.ts:114 ../client/invite.ts:124 ../client/invite.ts:126
@@ -678,6 +693,8 @@ msgstr "Copier l'URL"
 #: ../client/invite.ts:116
 msgid "The first two people to come to this URL will play with each other."
 msgstr ""
+"Les deux premières personnes accédant à cette URL joueront l'un contre "
+"l'autre."
 
 #: ../client/invite.ts:127
 msgid "The first person to come to this URL will play with you."
@@ -721,7 +738,7 @@ msgstr "Aléatoire"
 
 #: ../client/lobby.ts:513
 msgid "Create"
-msgstr ""
+msgstr "Créer"
 
 #: ../client/lobby.ts:518 ../client/lobby/layer3.ts:48
 msgid "Create a game"
@@ -741,7 +758,7 @@ msgstr "Jouer contre Random-Mover"
 
 #: ../client/lobby.ts:522
 msgid "Host game for others"
-msgstr ""
+msgstr "Héberger une partie pour autres joueurs"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -965,15 +982,15 @@ msgstr "Abandonner"
 
 #: ../client/roundCtrl.ts:508
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "Êtes-vous sûr de vouloir proposer la nulle ?"
 
 #: ../client/roundCtrl.ts:510
 msgid "Draw offer sent"
-msgstr ""
+msgstr "Proposition de nulle envoyée"
 
 #: ../client/roundCtrl.ts:522
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "Votre adversaire propose la nulle"
 
 #: ../client/roundCtrl.ts:542
 msgid "Are you sure you want to resign?"
@@ -1008,11 +1025,11 @@ msgstr "VOIR LA REVANCHE"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "Proposition de revanche envoyée"
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "Votre adversaire propose la revanche"
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -1128,11 +1145,11 @@ msgstr "Parties jouées"
 
 #: ../client/tournament.ts:310
 msgid "White wins"
-msgstr "Victoire des blancs"
+msgstr "Victoires des blancs"
 
 #: ../client/tournament.ts:311
 msgid "Black wins"
-msgstr "Victoire des noirs"
+msgstr "Victoires des noirs"
 
 #: ../client/tournament.ts:312
 msgid "Draws"
@@ -1221,11 +1238,11 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:29
 msgid " = Random (960) variant available. "
-msgstr ""
+msgstr "= Variante randomisée (960) disponible."
 
 #: ../client/lobby/layer2fairy.ts:32
 msgid " = Drop variant available."
-msgstr ""
+msgstr "= Variante avec parachutage disponible."
 
 #: ../client/lobby/layer2fairy.ts:47
 msgid "Knight hybrid pieces"
@@ -1325,11 +1342,11 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:60
 msgid "Rules"
-msgstr ""
+msgstr "Règles"
 
 #: ../client/lobby/layer3.ts:61
 msgid "Tip: "
-msgstr ""
+msgstr "Astuce :"
 
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."
