@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2021-09-27 21:43+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -195,12 +195,12 @@ msgstr "Głębokość"
 msgid "Go deeper"
 msgstr "Głębsza analiza"
 
-#: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1393
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "Widzowie: "
 
-#: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1474
 msgid "Requested game %1 not found!"
 msgstr "Szukana partia %1 nie została znaleziona!"
 
@@ -676,7 +676,7 @@ msgstr "Nieprawidłowy FEN"
 msgid "Playing right now"
 msgstr "W trakcie gry"
 
-#: ../client/invite.ts:44
+#: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
 msgstr "Utwórz partię dla kogoś innego"
 
@@ -777,10 +777,6 @@ msgstr "Zagraj z komputerem"
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
 msgstr "Poćwicz z Random-Moverem"
-
-#: ../client/lobby.ts:522
-msgid "Host game for others"
-msgstr "Utwórz partię dla kogoś innego"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"

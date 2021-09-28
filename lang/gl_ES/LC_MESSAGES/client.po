@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2021-09-27 21:43+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
 "Language-Team: Galician (Spain) (https://www.transifex.com/gbtami/teams/14790/gl_ES/)\n"
@@ -197,12 +197,12 @@ msgstr "Profundidade"
 msgid "Go deeper"
 msgstr "Ir a máis profundidade"
 
-#: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1393
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "Espectadores:"
 
-#: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1474
 msgid "Requested game %1 not found!"
 msgstr "A partida solicitada %1 non foi atopada!"
 
@@ -613,7 +613,7 @@ msgstr "FEN non válido"
 msgid "Playing right now"
 msgstr "Xogando agora mesmo"
 
-#: ../client/invite.ts:44
+#: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
 msgstr ""
 
@@ -713,10 +713,6 @@ msgstr ""
 
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
-msgstr ""
-
-#: ../client/lobby.ts:522
-msgid "Host game for others"
 msgstr ""
 
 #: ../client/lobby.ts:609

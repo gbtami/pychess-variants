@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2021-09-27 21:43+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -165,12 +165,12 @@ msgstr "深度"
 msgid "Go deeper"
 msgstr "深入分析"
 
-#: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1393
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "观众："
 
-#: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1474
 msgid "Requested game %1 not found!"
 msgstr "未找到要求的棋局 %1 ！"
 
@@ -567,7 +567,7 @@ msgstr "无法识别FEN"
 msgid "Playing right now"
 msgstr "正在进行"
 
-#: ../client/invite.ts:44
+#: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
 msgstr "为它人主持棋局"
 
@@ -668,10 +668,6 @@ msgstr "和电脑下棋"
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
 msgstr "和随机走子电脑下棋"
-
-#: ../client/lobby.ts:522
-msgid "Host game for others"
-msgstr "为它人主持棋局"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
