@@ -427,7 +427,14 @@ div.patron, div.invite {
 }
 div.guide, div.news {
   grid-area: content;
+  max-width: 800px;
+  padding: 20px 40px;
 }
+
+div.guide h2, div.guide p, div.news h2, div.news p {
+  line-height: 1.8;
+}
+
 div.closed {
     width: 610px;
 }
