@@ -32,6 +32,15 @@ cg-container {
 .cg-wrap.cg-640.mini {
   width: 320px;
 }
+
+/* 9x9 pandemonium */
+.cg-wrap.cg-540 {
+    padding-bottom: 100%;
+}
+.cg-wrap.cg-540.mini {
+  width: 270px;
+}
+
 /* 9x9 */
 .cg-wrap.cg-576 {
     padding-bottom: calc(540 * 100% / 468);
@@ -150,6 +159,12 @@ cg-board square {
   height: 10%;
 }
 
+/* 9x9 pandemonium */
+.cg-540 cg-board square{
+  width: 11.11%;
+  height: 11.11%;
+}
+
 cg-board square.move-dest {
   background: radial-gradient(rgba(20, 85, 30, 0.5) 22%, #208530 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
   pointer-events: auto;
@@ -233,6 +248,11 @@ cg-board square.current-premove {
 .cg-wrap.cg-640-640 piece{
   width: 10%;
   height: 10%;
+}
+/* 9x9 pandemonium */
+.cg-wrap.cg-540 piece{
+  width: 11.11%;
+  height: 11.11%;
 }
 
 cg-board piece.dragging {

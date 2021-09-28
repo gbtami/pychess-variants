@@ -86,6 +86,7 @@ VARIANTS = (
     "shinobi",
     "empire",
     "ordamirror",
+    "pandemonium",
 )
 
 VARIANT_ICONS = {
@@ -130,6 +131,7 @@ VARIANT_ICONS = {
     "shinobi": "🐢",
     "empire": "♚",
     "ordamirror": "◩",
+    "pandemonium": "F",
 }
 
 VARIANT_960_TO_PGN = {

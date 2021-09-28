@@ -1,0 +1,113 @@
+.pandemonium .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/merida/wP.svg');
+}
+.pandemonium .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/merida/wB.svg');
+}
+.pandemonium .cg-wrap piece.n-piece.white {
+    background-image: url('../../images/pieces/merida/wN.svg');
+}
+.pandemonium .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/merida/wR.svg');
+}
+.pandemonium .cg-wrap piece.pf-piece.white {
+    background-image: url('../../images/pieces/merida/wQ.svg');
+}
+.pandemonium .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/merida/wK.svg');
+}
+
+.pandemonium .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.pandemonium .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.pandemonium .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.pandemonium .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
+}
+.pandemonium .cg-wrap piece.pf-piece.black {
+    background-image: url('../../images/pieces/merida/bQ.svg');
+}
+.pandemonium .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
+}
+
+.pandemonium .cg-wrap piece.pn-piece.white {
+    background-image: url('../../images/pieces/hoppel/animal/wN.svg');
+}
+.pandemonium .cg-wrap piece.e-piece.white {
+    background-image: url('../../images/pieces/shogun/merida/mono/wC.svg');
+}
+.pandemonium .cg-wrap piece.u-piece.white {
+    background-image: url('../../images/pieces/merida/wS.svg');
+}
+.pandemonium .cg-wrap piece.v-piece.white {
+    background-image: url('../../images/pieces/merida/wF.svg');
+}
+
+.pandemonium .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/shogun/merida/mono/wC.svg');
+}
+.pandemonium .cg-wrap piece.pb-piece.white {
+    background-image: url('../../images/pieces/merida/wH.svg');
+}
+.pandemonium .cg-wrap piece.pr-piece.white {
+    background-image: url('../../images/pieces/merida/wE.svg');
+}
+.pandemonium .cg-wrap piece.a-piece.white {
+    background-image: url('../../images/pieces/merida/shako/wE.svg');
+}
+.pandemonium .cg-wrap piece.pa-piece.white {
+    background-image: url('../../images/pieces/merida/wAr.svg');
+}
+.pandemonium .cg-wrap piece.pv-piece.white {
+    background-image: url('../../images/pieces/merida/wCh.svg');
+}
+.pandemonium .cg-wrap piece.f-piece.white {
+    background-image: url('../../images/pieces/shogun/merida/blue/wF.svg');
+}
+.pandemonium .cg-wrap piece.pu-piece.white {
+    background-image: url('../../images/pieces/shogun/merida/mono/wG.svg');
+}
+
+.pandemonium .cg-wrap piece.pn-piece.black {
+    background-image: url('../../images/pieces/hoppel/animal/bN.svg');
+}
+.pandemonium .cg-wrap piece.e-piece.black {
+    background-image: url('../../images/pieces/shogun/merida/mono/bC.svg');
+}
+.pandemonium .cg-wrap piece.u-piece.black {
+    background-image: url('../../images/pieces/merida/bS.svg');
+}
+.pandemonium .cg-wrap piece.v-piece.black {
+    background-image: url('../../images/pieces/merida/bF.svg');
+}
+
+.pandemonium .cg-wrap piece.pp-piece.black {
+    background-image: url('../../images/pieces/shogun/merida/mono/bC.svg');
+}
+.pandemonium .cg-wrap piece.pb-piece.black {
+    background-image: url('../../images/pieces/merida/bH.svg');
+}
+.pandemonium .cg-wrap piece.pr-piece.black {
+    background-image: url('../../images/pieces/merida/bE.svg');
+}
+.pandemonium .cg-wrap piece.a-piece.black {
+    background-image: url('../../images/pieces/merida/shako/bE.svg');
+}
+.pandemonium .cg-wrap piece.pa-piece.black {
+    background-image: url('../../images/pieces/merida/bAr.svg');
+}
+.pandemonium .cg-wrap piece.pv-piece.black {
+    background-image: url('../../images/pieces/merida/bCh.svg');
+}
+.pandemonium .cg-wrap piece.f-piece.black {
+    background-image: url('../../images/pieces/shogun/merida/blue/bF.svg');
+}
+.pandemonium .cg-wrap piece.pu-piece.black {
+    background-image: url('../../images/pieces/shogun/merida/mono/bG.svg');
+}

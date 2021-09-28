@@ -49,6 +49,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     xiangqi7x7: { geometry: cg.Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
     janggi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
     shogun8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
+    pandemonium9x9: { geometry: cg.Geometry.dim9x9, cg: "cg-540", boardCSS: ["9x9pandemonium.svg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -71,6 +72,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1"] },
     empire: { pieceCSS: ["empire0", "empire1"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
+    pandemonium: { pieceCSS: ["pandemonium0"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
@@ -660,6 +662,18 @@ export const VARIANTS: { [name: string]: IVariant } = {
         icon: "◩",
     }),
 
+    pandemonium: new Variant({
+        name: "pandemonium", tooltip: () => _("https://www.chessvariants.com/rules/pandemonium"),
+        startFen: "rnbekebnr/2+a1+u1+f2/p1p1p1p1p/4v4/9/4V4/P1P1P1P1P/2+F1+U1+A2/RNBEKEBNR[] w - - 0 1",
+        board: "pandemonium9x9", piece: "pandemonium",
+        firstColor: "White", secondColor: "Black",
+        pieceRoles: ["k", "+f", "r", "n", "b", "p", "+n", "e", "u", "+p", "+b", "+r", "a", "+a", "+v", "f", "v", "+u"],
+        pocketRoles: ["p", "n", "b", "r", "a", "v", "f", "e", "u"],
+        promotion: "shogi",
+        drop: true,
+        icon: "F",
+    }),
+
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
@@ -702,7 +716,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "pandemonium" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
 };
 
@@ -770,6 +784,8 @@ export function validFen(variant: IVariant, fen: string): boolean {
     const startfen = variant.startFen;
     const start = startfen.split(' ');
     const parts = fen.split(' ');
+
+    if (variantName === 'pandemonium') return true;
 
     // Need starting color
     if (parts.length < 2) return false;

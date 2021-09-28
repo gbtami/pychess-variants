@@ -44,6 +44,7 @@ V2C = {
     "empire": "P",
     "ordamirror": "O",
     "torishogi": "T",
+    "pandemonium": "F",
 }
 C2V = {v: k for k, v in V2C.items()}
 
@@ -69,6 +70,12 @@ for piece in "PLNS":
 #   The variant that uses these pieces (shinobi) was added after kyotoshogi
 #   so these letters need to be here to be backward compatible
 PIECES = "MDJ"
+for piece in PIECES:
+    M2C["%s@" % piece] = m2c_len
+    m2c_len += 1
+
+# pandemonium pieces
+PIECES = "UV"
 for piece in PIECES:
     M2C["%s@" % piece] = m2c_len
     m2c_len += 1
