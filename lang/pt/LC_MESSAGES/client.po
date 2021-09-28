@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2021-09-27 21:43+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: fjscabral <fjscabral@gmail.com>, 2021\n"
 "Language-Team: Portuguese (https://www.transifex.com/gbtami/teams/14790/pt/)\n"
@@ -196,12 +196,12 @@ msgstr "Profundidade"
 msgid "Go deeper"
 msgstr "Mais profundidade"
 
-#: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1393
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "Espetadores:"
 
-#: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1474
 msgid "Requested game %1 not found!"
 msgstr "Partida solicitada %1 não encontrada!"
 
@@ -613,7 +613,7 @@ msgstr "Pretas"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
-msgstr ""
+msgstr "INVERTER TABULEIRO"
 
 #: ../client/editorCtrl.ts:174
 msgid "CLEAR BOARD"
@@ -647,9 +647,9 @@ msgstr "FEN Inválido"
 msgid "Playing right now"
 msgstr "Partida a decorrer"
 
-#: ../client/invite.ts:44
+#: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
-msgstr ""
+msgstr "Alojar uma partida para outros jogadores"
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
@@ -662,15 +662,15 @@ msgstr "CANCELAR"
 
 #: ../client/invite.ts:50
 msgid "Waiting for the other player"
-msgstr ""
+msgstr "Aguardando por adversário"
 
 #: ../client/invite.ts:56
 msgid "Sorry, this seat is already occupied"
-msgstr ""
+msgstr "Pedimos desculpa, este lugar já está ocupado"
 
 #: ../client/invite.ts:62
 msgid "Sorry, you cannot play with yourself"
-msgstr ""
+msgstr "Pedimos desculpa, mas não pode jogar contra si mesmo"
 
 #: ../client/invite.ts:71
 msgid "JOIN THE GAME"
@@ -678,7 +678,7 @@ msgstr "ENTRAR NA PARTIDA"
 
 #: ../client/invite.ts:95 ../client/invite.ts:119
 msgid "To invite someone to play, give them this URL:"
-msgstr ""
+msgstr "Para convidar alguém para jogar, partilhe esta ligação URL:"
 
 #: ../client/invite.ts:102 ../client/invite.ts:104 ../client/invite.ts:112
 #: ../client/invite.ts:114 ../client/invite.ts:124 ../client/invite.ts:126
@@ -688,6 +688,7 @@ msgstr "Copiar Ligação URL"
 #: ../client/invite.ts:116
 msgid "The first two people to come to this URL will play with each other."
 msgstr ""
+"As primeiras duas pessoas a entrarem nesta URL irão disputar uma partida"
 
 #: ../client/invite.ts:127
 msgid "The first person to come to this URL will play with you."
@@ -731,7 +732,7 @@ msgstr "Aleatório"
 
 #: ../client/lobby.ts:513
 msgid "Create"
-msgstr ""
+msgstr "Criar"
 
 #: ../client/lobby.ts:518 ../client/lobby/layer3.ts:48
 msgid "Create a game"
@@ -748,10 +749,6 @@ msgstr "Jogue contra o Computador"
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
 msgstr "Pratique contra o Bot Aleatório"
-
-#: ../client/lobby.ts:522
-msgid "Host game for others"
-msgstr ""
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -975,15 +972,15 @@ msgstr "Desistir"
 
 #: ../client/roundCtrl.ts:508
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "Tem a certeza que quer empatar?"
 
 #: ../client/roundCtrl.ts:510
 msgid "Draw offer sent"
-msgstr ""
+msgstr "Pedido de empate enviado"
 
 #: ../client/roundCtrl.ts:522
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "O seu adversário pede empate"
 
 #: ../client/roundCtrl.ts:542
 msgid "Are you sure you want to resign?"
@@ -1017,11 +1014,11 @@ msgstr "VER DESFORRA"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "Pedido de desforra enviado"
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "O seu adversário pede desforra"
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -1058,8 +1055,8 @@ msgstr "Começar contagem"
 #: ../client/roundCtrl.ts:1353
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 segundo para o primeiro lance"
+msgstr[1] "%1 segundos para o primeiro lance"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"

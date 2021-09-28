@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2021-09-27 21:43+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Артем Артем, 2021\n"
 "Language-Team: Russian (https://www.transifex.com/gbtami/teams/14790/ru/)\n"
@@ -30,10 +30,10 @@ msgid ""
 "computing power they've managed to harness."
 msgstr ""
 "\"Для меня то, как мы оказались здесь сегодня, в значительной степени "
-"связано с Рыбкой. Они объединили глобальных добровольцев, чтобы собраться "
-"вместе в духе открытого исходного кода и создать такой мощный движок "
-"БЕСПЛАТНО. Это много великих умов и вычислительных мощностей, которые им "
-"удалось использовать."
+"связано с Рыбкой. Они объединили добровольцев со всего мира, чтобы собраться"
+" вместе и, используя открытый исходный код, создать такой мощный движок "
+"БЕСПЛАТНО. Им удалось использовать для этого много великих умов и "
+"вычислительных мощностей."
 
 #: ../client/about.ts:11
 msgid ""
@@ -41,9 +41,10 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
-"Тогда мы должны поблагодарить Lichess. Lichess также родился из того же духа"
-" открытого исходного кода, и он тоже привлекал великих людей. Как только "
-"Lichess включил в свой мозг Рыбки, остальное уже история."
+"Тогда мы должны поблагодарить и Lichess, ведь он родился из той же "
+"возможности использовать открытый исходный код, на основе которого привлек "
+"также очень много людей. Как только Lichess включил в свой мозг Рыбку, "
+"остальное - это уже история."
 
 #: ../client/about.ts:12
 msgid ""
@@ -52,7 +53,7 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
-"Lichess обеспечивает онлайн, в режиме реального времени, и конкурентные "
+"Lichess обеспечивает Онлайн в режиме реального времени и конкурентные "
 "аспекты игрового процесса. Они также приносят огромную мощь Рыбки в массы, "
 "которые теперь могут извлечь из этого выгоду без настройки локального "
 "графического интерфейса. Я считаю, что это развитие событий имеет большое "
@@ -81,10 +82,10 @@ msgid ""
 "competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
 " power of Stockfish!\""
 msgstr ""
-"Затем идут наши любимые варианты pychess, которые снова очень умно "
-"используют основные сверх способности больших проектов. Те же аспекты "
-"онлайн, в реальном времени и соревнования. Тот же чистый и знакомый внешний "
-"вид Lichess. Плюс сила Рыбки! \""
+"Затем идут наши любимые pychess-варианты, которые очень умно используют "
+"основные сверх способности больших проектов. Те же аспекты онлайн, в "
+"реальном времени и соревнования. Тот же чистый и знакомый внешний вид "
+"Lichess. Плюс сила Рыбки!\""
 
 #: ../client/about.ts:19
 msgid "About pychess"
@@ -109,8 +110,8 @@ msgid ""
 "positions with "
 msgstr ""
 "Кроме того, вы можете проверить опцию Шахматы960 для Шахмат, Сумасшедшего "
-"Дома, Атомных шахмат, С-Шахмат, Шахмат Капабланки и Кейп-хауса, чтобы начать"
-" игры со случайных позиций с"
+"Дома, Атомных шахмат, С-Шахмат, Шахмат Капабланки и Кападома, чтобы начать "
+"игры со случайных позиций с"
 
 #: ../client/about.ts:90
 msgid "Chess960 castling rules."
@@ -185,7 +186,7 @@ msgstr "Запросить анализ"
 
 #: ../client/analysisCtrl.ts:602
 msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr "Выбранный вариант % 1 не поддерживается stockfish.wasm"
+msgstr "Выбранный вариант %1 не поддерживается stockfish.wasm"
 
 #: ../client/analysisCtrl.ts:717
 msgid "Depth"
@@ -195,14 +196,14 @@ msgstr "Глубина"
 msgid "Go deeper"
 msgstr "Идти глубже"
 
-#: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1393
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "Зрители:"
 
-#: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1474
 msgid "Requested game %1 not found!"
-msgstr "Запрошенная игра % 1 не найдена!"
+msgstr "Запрошенная игра %1 не найдена!"
 
 #: ../client/background.ts:10
 msgid "Light"
@@ -222,7 +223,7 @@ msgstr "Показать пункты назначения"
 
 #: ../client/boardSettings.ts:337
 msgid "Promote to Queen automatically"
-msgstr "Автоматическое повышение до Ферзя"
+msgstr "Автоматическое превращение в Ферзя"
 
 #: ../client/boardSettings.ts:355
 msgid "Best move arrow in analysis board"
@@ -275,7 +276,7 @@ msgstr "Шахматы без изменений, так как в них игр
 #: ../client/chess.ts:280
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr ""
-"Возьмите срубленные фигуры и ставьте их обратно на доску как свои "
+"Возьмите срубленные фигуры и выставляйте их обратно на доску как свои "
 "собственные."
 
 #: ../client/chess.ts:298
@@ -502,7 +503,7 @@ msgstr "Сянци Варианты"
 #: ../client/chess.ts:720 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
-msgstr "Фигуры Феи Варианты"
+msgstr "Сказочные Фигуры Варианты"
 
 #: ../client/chess.ts:721 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
@@ -512,114 +513,114 @@ msgstr "Новая Армия Варианты"
 #: ../client/datetime.ts:38
 msgid "in %1 year"
 msgid_plural "in %1 years"
-msgstr[0] "в% 1 год"
-msgstr[1] "в % 1 годов"
-msgstr[2] "в % 1 годов"
-msgstr[3] "в % 1 год"
+msgstr[0] "в %1 год"
+msgstr[1] "в %1 года"
+msgstr[2] "в %1 лет"
+msgstr[3] "в %1 лет"
 
 #: ../client/datetime.ts:38
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
-msgstr[0] "% 1 год назад"
-msgstr[1] "% 1 годов назад"
-msgstr[2] "% 1 годов назад"
-msgstr[3] "% 1 год назад"
+msgstr[0] "%1 год назад"
+msgstr[1] "%1 года назад"
+msgstr[2] "%1 лет назад"
+msgstr[3] "%1 лет назад"
 
 #: ../client/datetime.ts:40
 msgid "in %1 month"
 msgid_plural "in %1 months"
-msgstr[0] "в % 1 месяцев"
-msgstr[1] "в % 1 месяцев"
-msgstr[2] "в % 1 месяцев"
-msgstr[3] "в % 1 месяцев"
+msgstr[0] "в %1 месяц"
+msgstr[1] "в %1 месяца"
+msgstr[2] "в %1 месяцев"
+msgstr[3] "в %1 месяцев"
 
 #: ../client/datetime.ts:40
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
-msgstr[0] "% 1 месяц назад"
-msgstr[1] "% 1 месяцев назад"
-msgstr[2] "% 1 месяцев назад"
-msgstr[3] "% 1 месяц назад"
+msgstr[0] "%1 месяц назад"
+msgstr[1] "%1 месяцев назад"
+msgstr[2] "%1 месяцев назад"
+msgstr[3] "%1 месяцев назад"
 
 #: ../client/datetime.ts:42
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
-msgstr[0] "в % 1 недель"
-msgstr[1] "в % 1 недель"
-msgstr[2] "в % 1 недель"
-msgstr[3] "в % 1 недель"
+msgstr[0] "в %1 неделю"
+msgstr[1] "в %1 недель"
+msgstr[2] "в %1 недель"
+msgstr[3] "в %1 недель"
 
 #: ../client/datetime.ts:42
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] "% 1 недели назад"
-msgstr[1] "% 1 недель назад"
-msgstr[2] "% 1 недель назад"
-msgstr[3] "% 1 недели назад"
+msgstr[0] "%1 неделя назад"
+msgstr[1] "%1 недель назад"
+msgstr[2] "%1 недель назад"
+msgstr[3] "%1 недель назад"
 
 #: ../client/datetime.ts:44
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] "в % 1 дней"
-msgstr[1] "в % 1 дней"
-msgstr[2] "в % 1 дней"
-msgstr[3] "в % 1 дней"
+msgstr[0] "в %1 день"
+msgstr[1] "в %1 дней"
+msgstr[2] "в %1 дней"
+msgstr[3] "в %1 дней"
 
 #: ../client/datetime.ts:44
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
-msgstr[0] "% 1 дней назад"
-msgstr[1] "% 1 дней назад"
-msgstr[2] "% 1 дней назад"
-msgstr[3] "% 1 дней назад"
+msgstr[0] "%1 день назад"
+msgstr[1] "%1 дней назад"
+msgstr[2] "%1 дней назад"
+msgstr[3] "%1 дней назад"
 
 #: ../client/datetime.ts:46
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
-msgstr[0] "в % 1 часов"
-msgstr[1] "в % 1 часов"
-msgstr[2] "в % 1 часов"
-msgstr[3] "в % 1 часов"
+msgstr[0] "в %1 час"
+msgstr[1] "в %1 часов"
+msgstr[2] "в %1 часов"
+msgstr[3] "в %1 часов"
 
 #: ../client/datetime.ts:46
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
-msgstr[0] "% 1 час назад"
-msgstr[1] "% 1 часов назад"
-msgstr[2] "% 1 часов назад"
-msgstr[3] "% 1 час назад"
+msgstr[0] "%1 час назад"
+msgstr[1] "%1 часов назад"
+msgstr[2] "%1 часов назад"
+msgstr[3] "%1 часов назад"
 
 #: ../client/datetime.ts:48
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
-msgstr[0] "в % 1 минут"
-msgstr[1] "в % 1 минут"
-msgstr[2] "в % 1 минут"
-msgstr[3] "в % 1 минут"
+msgstr[0] "в %1 минуту"
+msgstr[1] "в %1 минут"
+msgstr[2] "в %1 минут"
+msgstr[3] "в %1 минут"
 
 #: ../client/datetime.ts:48
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
-msgstr[0] "% 1 минуту назад"
-msgstr[1] "% 1 минут назад"
-msgstr[2] "% 1 минут назад"
-msgstr[3] "% 1 минуту назад"
+msgstr[0] "%1 минуту назад"
+msgstr[1] "%1 минут назад"
+msgstr[2] "%1 минут назад"
+msgstr[3] "%1 минут назад"
 
 #: ../client/datetime.ts:50
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] "в % 1 секунды"
-msgstr[1] "в % 1 секунды"
-msgstr[2] "в % 1 секунды"
-msgstr[3] "в % 1 секунды"
+msgstr[0] "в %1 секунду"
+msgstr[1] "в %1 секунд"
+msgstr[2] "в %1 секунд"
+msgstr[3] "в %1 секунд"
 
 #: ../client/datetime.ts:50
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
-msgstr[0] "% 1 секунд назад"
-msgstr[1] "% 1 секунд назад"
-msgstr[2] "% 1 секунд назад"
-msgstr[3] "% 1 секунд назад"
+msgstr[0] "%1 секунду назад"
+msgstr[1] "%1 секунд назад"
+msgstr[2] "%1 секунд назад"
+msgstr[3] "%1 секунд назад"
 
 #: ../client/datetime.ts:91
 msgid "STARTING IN"
@@ -627,7 +628,7 @@ msgstr "НАЧАЛО"
 
 #: ../client/editorCtrl.ts:133 ../client/editorCtrl.ts:134
 msgid "%1 to play"
-msgstr "%1 играть"
+msgstr "%1 ходят"
 
 #: ../client/editorCtrl.ts:137
 msgid "Castling"
@@ -677,7 +678,7 @@ msgstr "Недействительный FEN"
 msgid "Playing right now"
 msgstr "Играющие прямо сейчас"
 
-#: ../client/invite.ts:44
+#: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
 msgstr "Проведите игру для других"
 
@@ -731,7 +732,7 @@ msgstr "Отмена"
 
 #: ../client/lobby.ts:430
 msgid "Challenge %1 to a game"
-msgstr "Бросьте вызов % 1 в игру"
+msgstr "Бросьте вызов %1 в игру"
 
 #: ../client/lobby.ts:437
 msgid "Paste the FEN text here"
@@ -755,7 +756,7 @@ msgstr "Рейтинговая"
 
 #: ../client/lobby.ts:498
 msgid "A.I. Level"
-msgstr "А.И. Уровень"
+msgstr "Уровень"
 
 #: ../client/lobby.ts:509
 msgid "Random"
@@ -775,15 +776,11 @@ msgstr "Сыграть с другом"
 
 #: ../client/lobby.ts:520 ../client/lobby/layer3.ts:50
 msgid "Play with AI"
-msgstr "Сыграть с АИ"
+msgstr "Сыграть с Компьютером"
 
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
-msgstr "Сыграть с Компьютером"
-
-#: ../client/lobby.ts:522
-msgid "Host game for others"
-msgstr "Хост-игра для других"
+msgstr "Практика со Случайным Движителем"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -804,10 +801,10 @@ msgstr "Своя игра"
 #: ../client/lobby.ts:782 ../client/lobby.ts:913
 msgid "%1 player"
 msgid_plural "%1 players"
-msgstr[0] "% 1 игроков"
-msgstr[1] "% 1 игроков"
-msgstr[2] "% 1 игроков"
-msgstr[3] "% 1 игроков"
+msgstr[0] "%1 игрок"
+msgstr[1] "%1 игрока"
+msgstr[2] "%1 игроков"
+msgstr[3] "%1 игроков"
 
 #: ../client/lobby.ts:868
 msgid ""
@@ -820,10 +817,10 @@ msgstr ""
 #: ../client/lobby.ts:907
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
-msgstr[0] "% 1 игры в игре"
-msgstr[1] "% 1 игры в игре"
-msgstr[2] "% 1 игры в игре"
-msgstr[3] "% 1 игры в игре"
+msgstr[0] "%1 партия в игре"
+msgstr[1] "%1 партии в игре"
+msgstr[2] "%1 партий в игре"
+msgstr[3] "%1 партий в игре"
 
 #: ../client/lobby.ts:929
 msgid "Player"
@@ -847,7 +844,7 @@ msgstr "Донаты"
 
 #: ../client/lobby.ts:988
 msgid "FAQ"
-msgstr "FAQ"
+msgstr "Вопросы"
 
 #: ../client/lobby.ts:989
 msgid "Stats"
@@ -855,7 +852,7 @@ msgstr "Статистика"
 
 #: ../client/lobby.ts:990
 msgid "About"
-msgstr "О"
+msgstr "Об"
 
 #: ../client/lobby.ts:995
 msgid "Latest updates"
@@ -879,19 +876,19 @@ msgstr "ИМПОРТ ИГРЫ"
 
 #: ../client/profile.ts:33
 msgid "Red"
-msgstr "Красный"
+msgstr "Красные"
 
 #: ../client/profile.ts:35
 msgid "Blue"
-msgstr "Голубой"
+msgstr "Голубые"
 
 #: ../client/profile.ts:37
 msgid "Gold"
-msgstr "Золотой"
+msgstr "Золотые"
 
 #: ../client/profile.ts:39
 msgid "Pink"
-msgstr "Розовый"
+msgstr "Розовые"
 
 #: ../client/profile.ts:53
 msgid "IMPORT"
@@ -899,7 +896,7 @@ msgstr "ИМПОРТИРОВАТЬ"
 
 #: ../client/profile.ts:60
 msgid "level %1"
-msgstr "уровень % 1"
+msgstr "уровень %1"
 
 #: ../client/profile.ts:76
 msgid "Game aborted"
@@ -919,7 +916,7 @@ msgstr "Пат"
 
 #: ../client/profile.ts:88 ../client/profile.ts:94
 msgid "Time out"
-msgstr "Перерыв"
+msgstr "Время истекло"
 
 #: ../client/profile.ts:91 ../client/roundCtrl.ts:469
 msgid "Draw"
@@ -927,7 +924,7 @@ msgstr "Ничья"
 
 #: ../client/profile.ts:97
 msgid "%1 abandoned the game"
-msgstr "% 1 покинул игру"
+msgstr "%1 покинул игру"
 
 #: ../client/profile.ts:100
 msgid "Cheat detected"
@@ -964,10 +961,10 @@ msgstr "Повторение"
 #: ../client/profile.ts:262
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] "% 1 ходов"
-msgstr[1] "% 1 ходов"
-msgstr[2] "% 1 ходов"
-msgstr[3] "% 1 ходов"
+msgstr[0] "%1 ход"
+msgstr[1] "%1 хода"
+msgstr[2] "%1 ходов"
+msgstr[3] "%1 ходов"
 
 #: ../client/profile.ts:263
 msgid "Computer analysis available"
@@ -980,11 +977,11 @@ msgstr "Игры"
 #: ../client/profile.ts:326
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
-msgstr "Рейтинговый"
+msgstr "Рейтинговые"
 
 #: ../client/profile.ts:327
 msgid "Imported"
-msgstr "Импортированный"
+msgstr "Импортированные"
 
 #: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1441
 msgid " +15 seconds"
@@ -1038,7 +1035,7 @@ msgstr "Красный (Han)"
 #: ../client/roundCtrl.ts:573
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr "Ждем, пока % 1 выберет исходные позиции коней и слонов..."
+msgstr "Ждем, пока %1 выберет исходные позиции коней и слонов..."
 
 #: ../client/roundCtrl.ts:613 ../client/roundCtrl.ts:615
 msgid "Switch pieces"
@@ -1050,15 +1047,15 @@ msgstr "Готов"
 
 #: ../client/roundCtrl.ts:641
 msgid "VIEW REMATCH"
-msgstr "ПОСМОТРЕТЬ МАТЧ-РЕВАНШ"
+msgstr "ПОСМОТРЕТЬ РЕВАНШ"
 
 #: ../client/roundCtrl.ts:648
 msgid "Rematch offer sent"
-msgstr "Отправлено предложение о матче-реванше"
+msgstr "Отправлено предложение о реванше"
 
 #: ../client/roundCtrl.ts:659
 msgid "Your opponent offers a rematch"
-msgstr "Ваш соперник предлагает матч-реванш"
+msgstr "Ваш соперник предлагает реванш"
 
 #: ../client/roundCtrl.ts:700
 msgid "VIEW TOURNAMENT"
@@ -1074,11 +1071,11 @@ msgstr "ПАУЗА"
 
 #: ../client/roundCtrl.ts:708
 msgid "REMATCH"
-msgstr "МАТЧ-РЕВАНШ"
+msgstr "РЕВАНШ"
 
 #: ../client/roundCtrl.ts:709
 msgid "NEW OPPONENT"
-msgstr "НОВЫЙ ПРОТИВНИК"
+msgstr "НАЙТИ ДРУГОГО СОПЕРНИКА"
 
 #: ../client/roundCtrl.ts:1119
 msgid "Stop counting"
@@ -1095,10 +1092,10 @@ msgstr "Начинайте считать!"
 #: ../client/roundCtrl.ts:1353
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] "% 1 секунда до первого хода"
-msgstr[1] "% 1 секунд до первого хода"
-msgstr[2] "% 1 секунд до первого хода"
-msgstr[3] "% 1 секунда до первого хода"
+msgstr[0] "%1 секунда до первого хода"
+msgstr[1] "%1 секунды до первого хода"
+msgstr[2] "%1 секунд до первого хода"
+msgstr[3] "%1 секунд до первого хода"
 
 #: ../client/settingsView.ts:62
 msgid "Log out"
@@ -1397,7 +1394,7 @@ msgstr "Сумасшедший Дом со случайным задним ря�
 
 #: ../client/lobby/layer3.ts:76
 msgid "Atomic Chess with random back row."
-msgstr "Атомные шахматы со случайным задним рядом."
+msgstr "Атомные Шахматы со случайным задним рядом."
 
 #: ../client/lobby/layer3.ts:89
 msgid "Move the king on top of the rook to castle."
@@ -1449,7 +1446,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:114
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
-msgstr "Будьте в курсе победы, переместив своего короля в 8-й ранг."
+msgstr "Будьте в курсе победы, переходом своего короля на 8-ю горизонталь."
 
 #: ../client/lobby/layer3.ts:117
 msgid "It is important to know the counting rules in endgames."
