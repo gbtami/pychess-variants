@@ -425,10 +425,11 @@ div.about, div.paste, div.news {
 div.patron, div.invite {
     width: 50%;
 }
-div.guide, div.news {
+div.guide, div.news, div.about {
   grid-area: content;
   max-width: 800px;
   padding: 20px 40px;
+  font-size: 1.2em; 
 }
 
 div.guide h2, div.guide p, div.news h2, div.news p {
