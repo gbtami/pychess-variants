@@ -457,6 +457,7 @@ posts {
     display: flex;
     flex-direction:column;
     background-color: var(--bg-color0);
+    line-height: 1.5; 
 }
 a.post {
     display: grid;
