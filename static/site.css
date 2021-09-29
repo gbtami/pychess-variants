@@ -586,7 +586,7 @@ ul.guide li {
 
 .hamburger {
     display: none;
-    width: 32px;
+    width: 100%;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
