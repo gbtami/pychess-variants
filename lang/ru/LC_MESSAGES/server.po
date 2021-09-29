@@ -56,7 +56,7 @@ msgstr "Онлайн"
 
 #: ../templates/players.html:28
 msgid "Anonymous"
-msgstr "Анонимный"
+msgstr "Анонимный "
 
 #: ../templates/players.html:35
 msgid "All players"

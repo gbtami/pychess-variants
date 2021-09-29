@@ -1,0 +1,43 @@
+.xiangqi .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dintl/RP.svg');
+}
+.xiangqi .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dintl/RE.svg');
+}
+.xiangqi .cg-wrap piece.n-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dintl/RH.svg');
+}
+.xiangqi .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dintl/RR.svg');
+}
+.xiangqi .cg-wrap piece.a-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dintl/RA.svg');
+}
+.xiangqi .cg-wrap piece.c-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dintl/RC.svg');
+}
+.xiangqi .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dintl/RK.svg');
+}
+
+.xiangqi .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/xiangqi/2dintl/BP.svg');
+}
+.xiangqi .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/xiangqi/2dintl/BE.svg');
+}
+.xiangqi .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/xiangqi/2dintl/BH.svg');
+}
+.xiangqi .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/xiangqi/2dintl/BR.svg');
+}
+.xiangqi .cg-wrap piece.a-piece.black {
+    background-image: url('../../images/pieces/xiangqi/2dintl/BA.svg');
+}
+.xiangqi .cg-wrap piece.c-piece.black {
+    background-image: url('../../images/pieces/xiangqi/2dintl/BC.svg');
+}
+.xiangqi .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/xiangqi/2dintl/BK.svg');
+}
