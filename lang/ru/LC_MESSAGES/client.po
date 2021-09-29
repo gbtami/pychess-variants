@@ -281,7 +281,7 @@ msgstr ""
 
 #: ../client/chess.ts:298
 msgid "Choose where your pieces start."
-msgstr "Выставите ваши фигуры на любые поля 1 или 8 горизонтали."
+msgstr "Выставите ваши фигуры на любые поля задней горизонтали."
 
 #: ../client/chess.ts:308
 msgid "Pieces explode upon capture."
@@ -512,10 +512,10 @@ msgstr "Новая Армия Варианты"
 #: ../client/datetime.ts:38
 msgid "in %1 year"
 msgid_plural "in %1 years"
-msgstr[0] "в %1 год"
-msgstr[1] "в %1 года"
-msgstr[2] "в %1 лет"
-msgstr[3] "в %1 лет"
+msgstr[0] "через %1 год"
+msgstr[1] "через %1 года"
+msgstr[2] "через %1 лет"
+msgstr[3] "через %1 лет"
 
 #: ../client/datetime.ts:38
 msgid "%1 year ago"
@@ -528,96 +528,96 @@ msgstr[3] "%1 лет назад"
 #: ../client/datetime.ts:40
 msgid "in %1 month"
 msgid_plural "in %1 months"
-msgstr[0] "в %1 месяц"
-msgstr[1] "в %1 месяца"
-msgstr[2] "в %1 месяцев"
-msgstr[3] "в %1 месяцев"
+msgstr[0] "через %1 месяц"
+msgstr[1] "через %1 месяца"
+msgstr[2] "через %1 месяцев"
+msgstr[3] "через %1 месяцев"
 
 #: ../client/datetime.ts:40
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
 msgstr[0] "%1 месяц назад"
-msgstr[1] "%1 месяцев назад"
+msgstr[1] "%1 месяца назад"
 msgstr[2] "%1 месяцев назад"
 msgstr[3] "%1 месяцев назад"
 
 #: ../client/datetime.ts:42
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
-msgstr[0] "в %1 неделю"
-msgstr[1] "в %1 недель"
-msgstr[2] "в %1 недель"
-msgstr[3] "в %1 недель"
+msgstr[0] "через %1 неделю"
+msgstr[1] "через %1 недели"
+msgstr[2] "через %1 недель"
+msgstr[3] "через %1 недель"
 
 #: ../client/datetime.ts:42
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
-msgstr[0] "%1 неделя назад"
-msgstr[1] "%1 недель назад"
+msgstr[0] "%1 неделю назад"
+msgstr[1] "%1 недели назад"
 msgstr[2] "%1 недель назад"
 msgstr[3] "%1 недель назад"
 
 #: ../client/datetime.ts:44
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] "в %1 день"
-msgstr[1] "в %1 дней"
-msgstr[2] "в %1 дней"
-msgstr[3] "в %1 дней"
+msgstr[0] "через %1 день"
+msgstr[1] "через %1 дня"
+msgstr[2] "через %1 дней"
+msgstr[3] "через %1 дней"
 
 #: ../client/datetime.ts:44
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
 msgstr[0] "%1 день назад"
-msgstr[1] "%1 дней назад"
+msgstr[1] "%1 дня назад"
 msgstr[2] "%1 дней назад"
 msgstr[3] "%1 дней назад"
 
 #: ../client/datetime.ts:46
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
-msgstr[0] "в %1 час"
-msgstr[1] "в %1 часов"
-msgstr[2] "в %1 часов"
-msgstr[3] "в %1 часов"
+msgstr[0] "через %1 час"
+msgstr[1] "через %1 часа"
+msgstr[2] "через %1 часов"
+msgstr[3] "через %1 часов"
 
 #: ../client/datetime.ts:46
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
 msgstr[0] "%1 час назад"
-msgstr[1] "%1 часов назад"
+msgstr[1] "%1 часа назад"
 msgstr[2] "%1 часов назад"
 msgstr[3] "%1 часов назад"
 
 #: ../client/datetime.ts:48
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
-msgstr[0] "в %1 минуту"
-msgstr[1] "в %1 минут"
-msgstr[2] "в %1 минут"
-msgstr[3] "в %1 минут"
+msgstr[0] "через %1 минуту"
+msgstr[1] "через %1 минуты"
+msgstr[2] "через %1 минут"
+msgstr[3] "через %1 минут"
 
 #: ../client/datetime.ts:48
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
 msgstr[0] "%1 минуту назад"
-msgstr[1] "%1 минут назад"
+msgstr[1] "%1 минуты назад"
 msgstr[2] "%1 минут назад"
 msgstr[3] "%1 минут назад"
 
 #: ../client/datetime.ts:50
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] "в %1 секунду"
-msgstr[1] "в %1 секунд"
-msgstr[2] "в %1 секунд"
-msgstr[3] "в %1 секунд"
+msgstr[0] "через %1 секунду"
+msgstr[1] "через %1 секунды"
+msgstr[2] "через %1 секунд"
+msgstr[3] "через %1 секунд"
 
 #: ../client/datetime.ts:50
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
 msgstr[0] "%1 секунду назад"
-msgstr[1] "%1 секунд назад"
+msgstr[1] "%1 секунды назад"
 msgstr[2] "%1 секунд назад"
 msgstr[3] "%1 секунд назад"
 
@@ -907,7 +907,7 @@ msgstr "Мат"
 
 #: ../client/profile.ts:82
 msgid "%1 resigned"
-msgstr "%1 проигранных"
+msgstr "%1 сдались"
 
 #: ../client/profile.ts:85
 msgid "Stalemate"
@@ -923,7 +923,7 @@ msgstr "Ничья"
 
 #: ../client/profile.ts:97
 msgid "%1 abandoned the game"
-msgstr "%1 покинул игру"
+msgstr "%1 покинули игру"
 
 #: ../client/profile.ts:100
 msgid "Cheat detected"
@@ -1465,8 +1465,8 @@ msgstr "Обязательно ознакомьтесь с нюансами пр
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."
 msgstr ""
-"Безопасность короля очень важна. Используйте прыжок короля, чтобы сэкономить"
-" время."
+"Безопасность короля очень важна. На своем первом ходу король и ферзь могут "
+"сделать прыжок, используйте это, чтобы сэкономить время."
 
 #: ../client/lobby/layer3.ts:128 ../client/lobby/layer3.ts:140
 msgid "Internationalized sets are available by going to settings."
@@ -1489,5 +1489,4 @@ msgstr "Наборы, отображающие обе стороны, досту
 msgid ""
 "Reading the rules are a necessity to understand the movements before "
 "playing."
-msgstr ""
-"Чтение правил необходимо для понимания передвижений фигур перед игрой."
+msgstr "Чтение правил перед игрой необходимо для понимания как ходят фигуры."
