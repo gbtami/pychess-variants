@@ -34,6 +34,12 @@ label.board.board4.standard8x8 {
 label.board.board5.standard8x8 {
     background-image: url('images/board/8x8santa.png');
 }
+label.board.board6.standard8x8 {
+    background-image: url('images/board/8x8wood2.jpg');
+}
+label.board.board7.standard8x8 {
+    background-image: url('images/board/8x8wood4.jpg');
+}
 
 label.board.board0.standard10x8 {
     background-image: url('images/board/10x8brown.svg');
@@ -94,6 +100,9 @@ label.board.board1.makruk8x8 {
 }
 label.board.board2.makruk8x8 {
     background-image: url('images/board/makruk.jpg');
+}
+label.board.board3.makruk8x8 {
+    background-image: url('images/board/makrukWood.png');
 }
 
 label.board.board0.sittuyin8x8 {
@@ -206,6 +215,9 @@ label.board.board5.xiangqi9x10 {
 }
 label.board.board6.xiangqi9x10 {
     background-image: url('images/board/xiangqiWikimedia.svg');
+}
+label.board.board7.xiangqi9x10 {
+    background-image: url('images/board/xiangqiLightWood.png');
 }
 
 label.board.board0.xiangqi7x7 {
