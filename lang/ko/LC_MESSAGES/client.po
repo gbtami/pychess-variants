@@ -98,6 +98,8 @@ msgid ""
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
+"또한, 체스, 크레이지하우스, 아토믹, S-체스, 카파블랑카 및 카파하우스에 대한 체스960 옵션을 확인하여 무작위 위치에서 대국을 "
+"시작할 수 있습니다."
 
 #: ../client/about.ts:90
 msgid "Chess960 castling rules."
@@ -262,7 +264,7 @@ msgstr "포획한 기물을 가져와서 자신의 것으로 반상에 다시 �
 
 #: ../client/chess.ts:298
 msgid "Choose where your pieces start."
-msgstr ""
+msgstr "당신의 기물이 시작하는 곳을 고르세요."
 
 #: ../client/chess.ts:308
 msgid "Pieces explode upon capture."
@@ -583,7 +585,7 @@ msgstr "지금 플레이하기"
 
 #: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
-msgstr ""
+msgstr "다른 사람들을 위해 게임을 주최하기"
 
 #: ../client/invite.ts:44
 msgid "Challenge to a game"
@@ -1096,25 +1098,27 @@ msgstr "위치 수정"
 
 #: ../client/tournament.ts:662
 msgid "Analysis board"
-msgstr ""
+msgstr "분석판"
 
 #: ../client/zen.ts:17
 msgid "Off"
-msgstr ""
+msgstr "끄기"
 
 #: ../client/zen.ts:18
 msgid "On"
-msgstr ""
+msgstr "켜기"
 
 #: ../client/zen.ts:50
 msgid "ZEN MODE"
-msgstr ""
+msgstr "Zen 모드"
 
 #: ../client/lobby/layer2army.ts:26
 msgid ""
 "These variants have new armies with completely new pieces! Most of these "
 "variants pit these armies against the standard Chess army."
 msgstr ""
+"이러한 변형들에는 완전히 새로운 기물들이 포함된 새로운 군대가 있습니다! 이러한 변형들의 대부분은 그들의 기물을 표준 체스 군대와 맞붙게"
+" 합니다."
 
 #: ../client/lobby/layer2army.ts:27 ../client/lobby/layer2chess.ts:29
 #: ../client/lobby/layer2fairy.ts:34 ../client/lobby/layer2makruk.ts:27
