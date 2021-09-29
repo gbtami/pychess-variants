@@ -404,22 +404,22 @@ label.piece.piece3.xiangqi {
     background-image: url('images/pieces/xiangqi/ct3/red_king.svg');
 }
 label.piece.piece4.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
-}
-label.piece.piece5.xiangqi {
     background-image: url('images/pieces/xiangqi/hnz/red_king.svg');
 }
-label.piece.piece6.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
+label.piece.piece5.xiangqi {
+    background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
 }
-label.piece.piece7.xiangqi {
+label.piece.piece6.xiangqi {
     background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
 }
+label.piece.piece7.xiangqi {
+    background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
+}
 label.piece.piece8.xiangqi {
-    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
+    background-image: url('images/pieces/xiangqi/wikim/red_king.svg');
 }
 label.piece.piece9.xiangqi {
-    background-image: url('images/pieces/xiangqi/wikim/red_king.svg');
+    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
 }
 
 label.piece.piece0.janggi {
