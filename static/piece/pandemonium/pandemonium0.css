@@ -42,6 +42,9 @@
 .pandemonium .cg-wrap piece.e-piece.white {
     background-image: url('../../images/pieces/shogun/merida/mono/wC.svg');
 }
+.pandemonium .cg-wrap piece.pe-piece.white {
+    background-image: url('../../images/pieces/merida/wT.svg');
+}
 .pandemonium .cg-wrap piece.u-piece.white {
     background-image: url('../../images/pieces/merida/wS.svg');
 }
@@ -79,6 +82,9 @@
 }
 .pandemonium .cg-wrap piece.e-piece.black {
     background-image: url('../../images/pieces/shogun/merida/mono/bC.svg');
+}
+.pandemonium .cg-wrap piece.pe-piece.black {
+    background-image: url('../../images/pieces/merida/bT.svg');
 }
 .pandemonium .cg-wrap piece.u-piece.black {
     background-image: url('../../images/pieces/merida/bS.svg');
