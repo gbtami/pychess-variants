@@ -8,7 +8,7 @@
     background-image: url('../../images/pieces/xiangqi/2dintl/RH.svg');
 }
 .xiangqi .cg-wrap piece.r-piece.white {
-    background-image: url('../../images/pieces/xiangqi/2dintl/RC.svg');
+    background-image: url('../../images/pieces/xiangqi/2dintl/RR.svg');
 }
 .xiangqi .cg-wrap piece.a-piece.white {
     background-image: url('../../images/pieces/xiangqi/2dintl/RA.svg');
@@ -30,7 +30,7 @@
     background-image: url('../../images/pieces/xiangqi/2dintl/BH.svg');
 }
 .xiangqi .cg-wrap piece.r-piece.black {
-    background-image: url('../../images/pieces/xiangqi/2dintl/BC.svg');
+    background-image: url('../../images/pieces/xiangqi/2dintl/BR.svg');
 }
 .xiangqi .cg-wrap piece.a-piece.black {
     background-image: url('../../images/pieces/xiangqi/2dintl/BA.svg');
