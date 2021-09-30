@@ -117,6 +117,9 @@ label.board.board2.sittuyin8x8 {
 label.board.board3.sittuyin8x8 {
     background-image: url('images/board/sittuyinGrainBrown.svg');
 }
+label.board.board4.sittuyin8x8 {
+    background-image: url('images/board/sittuyinWood.png');
+}
 
 label.board.board0.shogi9x9 {
     background-image: url('images/board/shogi.svg');
