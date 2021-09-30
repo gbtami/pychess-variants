@@ -393,7 +393,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     kyotoshogi: new Variant({
-        name: "kyotoshogi", tooltip: () => _("A wild Shogi variant on a 5x5 board where pieces flip into a different piece after each move."),
+        name: "kyotoshogi", displayName: "kyoto shogi", tooltip: () => _("A wild Shogi variant on a 5x5 board where pieces flip into a different piece after each move."),
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         board: "shogi5x5", piece: "kyoto",
         firstColor: "Black", secondColor: "White",
@@ -437,7 +437,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
     }),
 
     torishogi: new Variant({
-        name: "torishogi", tooltip: () => _("A confrontational 7x7 variant with unique pieces each named after different birds."),
+        name: "torishogi", displayName: "tori shogi", tooltip: () => _("A confrontational 7x7 variant with unique pieces each named after different birds."),
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
         board: "shogi7x7", piece: "tori",
         firstColor: "Black", secondColor: "White",

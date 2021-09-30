@@ -181,6 +181,10 @@ def variant_display_name(variant):
         return "OUK CHATRANG"
     elif variant == "ordamirror":
         return "ORDA MIRROR"
+    elif variant == "kyotoshogi":
+        return "KYOTO SHOGI"
+    elif variant == "torishogi":
+        return "TORI SHOGI"
     else:
         return variant.upper()
 
