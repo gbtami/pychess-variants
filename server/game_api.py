@@ -12,6 +12,7 @@ from const import STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from compress import C2V, V2C, C2R
 from utils import pgn
 from settings import ADMINS
+from tournaments import get_tournament_name
 
 log = logging.getLogger(__name__)
 
@@ -136,9 +137,13 @@ async def get_user_games(request):
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
+
+            tournament_id = doc.get("tid")
+            if tournament_id is not None:
+                doc["tn"] = await get_tournament_name(request.app, tournament_id)
+
             game_doc_list.append(doc)
 
-    # print("GAMES:", game_doc_list)
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
@@ -149,12 +154,12 @@ async def cancel_invite(request):
 
     if gameId in invites:
         seek_id = invites[gameId].id
-        seek = request.app["seeks"][seek_id]
-        user = seek.user
+        seek = seeks[seek_id]
+        creator = seek.creator
         try:
             del invites[gameId]
             del seeks[seek_id]
-            del user.seeks[seek_id]
+            del creator.seeks[seek_id]
         except KeyError:
             # Seek was already deleted
             pass

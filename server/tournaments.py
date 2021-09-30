@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, T_FINISHED, T_ARCHIVED, SHIELD, VARIANTS
+from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, T_FINISHED, T_ARCHIVED, SHIELD, VARIANTS, MAX_CHAT_LINES
 from newid import new_id
 from user import User
 
@@ -122,7 +122,7 @@ async def new_tournament(app, data):
 
     app["tournaments"][tid] = tournament
     app["tourneysockets"][tid] = {}
-    app["tourneychat"][tid] = collections.deque([], 100)
+    app["tourneychat"][tid] = collections.deque([], MAX_CHAT_LINES)
 
     await upsert_tournament_to_db(tournament, app)
 
@@ -243,6 +243,26 @@ async def get_latest_tournaments(app):
     return (started, scheduled, completed)
 
 
+async def get_tournament_name(app, tournament_id):
+    """ Return Tournament name from app cache or from database """
+    if tournament_id in app["tourneynames"]:
+        return app["tourneynames"][tournament_id]
+
+    tournaments = app["tournaments"]
+    name = ""
+
+    if tournament_id in tournaments:
+        name = tournaments[tournament_id].name
+    else:
+        db = app["db"]
+        doc = await db.tournament.find_one({"_id": tournament_id})
+        if doc is not None:
+            name = doc["name"]
+
+    app["tourneynames"][tournament_id] = name
+    return name
+
+
 async def load_tournament(app, tournament_id):
     """ Return Tournament object from app cache or from database """
     db = app["db"]
@@ -285,7 +305,7 @@ async def load_tournament(app, tournament_id):
 
     tournaments[tournament_id] = tournament
     app["tourneysockets"][tournament_id] = {}
-    app["tourneychat"][tournament_id] = collections.deque([], 100)
+    app["tourneychat"][tournament_id] = collections.deque([], MAX_CHAT_LINES)
 
     tournament.nb_games_finished = doc.get("nbGames", 0)
     tournament.winner = doc.get("winner", "")

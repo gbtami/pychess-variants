@@ -6,12 +6,13 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from admin import silence
 from broadcast import lobby_broadcast
 from const import STARTED
-from settings import ADMINS
+from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import new_game, load_game, online_count, MyWebSocketResponse
+from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
 from misc import server_growth, server_state
 from tournament import tournament_spotlights
 
@@ -40,6 +41,7 @@ async def lobby_socket_handler(request):
     db = request.app["db"]
     invites = request.app["invites"]
     twitch = request.app["twitch"]
+    lobbychat = request.app["lobbychat"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -95,13 +97,14 @@ async def lobby_socket_handler(request):
                             inc=data["increment"],
                             byoyomi_period=data["byoyomiPeriod"],
                             level=0 if data["rm"] else data["level"],
+                            player1=user,
                             rated=False,
                             chess960=data["chess960"],
                             alternate_start=data["alternateStart"])
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 
-                        response = await new_game(request.app, engine, seek.id)
+                        response = await join_seek(request.app, engine, seek.id)
                         await ws.send_json(response)
 
                         if response["type"] != "error":
@@ -143,6 +146,17 @@ async def lobby_socket_handler(request):
                         response = {"type": "invite_created", "gameId": seek.game_id}
                         await ws.send_json(response)
 
+                    elif data["type"] == "create_host":
+                        no = user.username not in TOURNAMENT_DIRECTORS
+                        if no:
+                            continue
+
+                        print("create_host", data)
+                        seek = await create_seek(db, invites, seeks, user, data, ws, True)
+
+                        response = {"type": "host_created", "gameId": seek.game_id}
+                        await ws.send_json(response)
+
                     elif data["type"] == "delete_seek":
                         try:
                             seek = seeks[data["seekID"]]
@@ -166,15 +180,19 @@ async def lobby_socket_handler(request):
 
                         seek = seeks[data["seekID"]]
                         # print("accept_seek", seek.as_json)
-                        response = await new_game(request.app, user, data["seekID"])
+                        response = await join_seek(request.app, user, data["seekID"])
                         await ws.send_json(response)
 
-                        if seek.user.bot:
+                        if seek.creator.bot:
                             gameId = response["gameId"]
-                            seek.user.game_queues[gameId] = asyncio.Queue()
-                            await seek.user.event_queue.put(challenge(seek, response))
+                            seek.creator.game_queues[gameId] = asyncio.Queue()
+                            await seek.creator.event_queue.put(challenge(seek, response))
                         else:
-                            await seek.ws.send_json(response)
+                            if seek.ws is None:
+                                remove_seek(seeks, seek)
+                                await lobby_broadcast(sockets, get_seeks(seeks))
+                            else:
+                                await seek.ws.send_json(response)
 
                         # Inform others, new_game() deleted accepted seek allready.
                         await lobby_broadcast(sockets, get_seeks(seeks))
@@ -212,7 +230,7 @@ async def lobby_socket_handler(request):
                         response = {"type": "lobby_user_connected", "username": user.username}
                         await ws.send_json(response)
 
-                        response = {"type": "fullchat", "lines": list(request.app["lobbychat"])}
+                        response = {"type": "fullchat", "lines": list(lobbychat)}
                         await ws.send_json(response)
 
                         # send game count
@@ -240,25 +258,24 @@ async def lobby_socket_handler(request):
 
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
-                                spammer = data["message"].split()[-1]
-                                if spammer in users:
-                                    users[spammer].set_silence()
-                                    response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
+                                response = silence(message, lobbychat, users)
+                                # silence message was already added to lobbychat in silence()
                             elif message == "/growth":
                                 server_growth()
                             elif message == "/state":
                                 server_state(request.app)
                             else:
                                 response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                lobbychat.append(response)
                         elif user.anon and user.username != "Discord-Relay":
                             pass
                         else:
                             if user.silence == 0:
                                 response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                lobbychat.append(response)
 
                         if response is not None:
                             await lobby_broadcast(sockets, response)
-                            request.app["lobbychat"].append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()

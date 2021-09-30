@@ -47,9 +47,10 @@ async def get_work(request, data):
                     del step["analysis"]
 
             users = request.app["users"]
-            user_ws = users[work["username"]].game_sockets[work["game_id"]]
-            response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Work for fishnet sent..."}
-            await user_ws.send_json(response)
+            if "username" in work:
+                user_ws = users[work["username"]].game_sockets[work["game_id"]]
+                response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Work for fishnet sent..."}
+                await user_ws.send_json(response)
         else:
             fm[worker].append("%s %s %s %s for level %s" % (datetime.now(timezone.utc), work_id, "request", "move", work["work"]["level"]))
 

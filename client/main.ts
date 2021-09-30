@@ -64,6 +64,8 @@ export type PyChessModel = {
     date: string;
     tv: boolean;
     embed: boolean;
+    seekEmpty: boolean;
+    tournamentDirector: boolean;
 
     "asset-url": string;
 };
@@ -94,7 +96,7 @@ function initModel(el: HTMLElement) {
         brating : el.getAttribute("data-brating") ?? "",
         brdiff : parseInt(""+el.getAttribute("data-brdiff")),
         fen : el.getAttribute("data-fen") ?? "",
-        base : parseInt(""+el.getAttribute("data-base")),
+        base : parseFloat(""+el.getAttribute("data-base")),
         inc : parseInt(""+el.getAttribute("data-inc")),
         byo : parseInt(""+el.getAttribute("data-byo")),
         result : el.getAttribute("data-result") ?? "",
@@ -102,6 +104,8 @@ function initModel(el: HTMLElement) {
         date : el.getAttribute("data-date") ?? "",
         tv : el.getAttribute("data-view") === 'tv',
         embed : el.getAttribute("data-view") === 'embed',
+        seekEmpty : el.getAttribute("data-seekempty") === "True",
+        tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
 
         "asset-url": el.getAttribute("data-asset-url") ?? "",
     };

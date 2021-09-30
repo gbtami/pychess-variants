@@ -16,246 +16,6 @@ label.board {
     background-size: 90%;
 }
 
-label.board.board0.standard8x8 {
-    background-image: url('images/board/8x8brown.svg');
-}
-label.board.board1.standard8x8 {
-    background-image: url('images/board/8x8blue.svg');
-}
-label.board.board2.standard8x8 {
-    background-image: url('images/board/8x8green.svg');
-}
-label.board.board3.standard8x8 {
-    background-image: url('images/board/8x8maple.jpg');
-}
-label.board.board4.standard8x8 {
-    background-image: url('images/board/8x8olive.jpg');
-}
-label.board.board5.standard8x8 {
-    background-image: url('images/board/8x8santa.png');
-}
-
-label.board.board0.standard10x8 {
-    background-image: url('images/board/10x8brown.svg');
-}
-label.board.board1.standard10x8 {
-    background-image: url('images/board/10x8blue.svg');
-}
-label.board.board2.standard10x8 {
-    background-image: url('images/board/10x8green.svg');
-}
-label.board.board3.standard10x8 {
-    background-image: url('images/board/10x8maple.jpg');
-}
-label.board.board4.standard10x8 {
-    background-image: url('images/board/10x8olive.jpg');
-}
-
-label.board.board0.standard10x10 {
-    background-image: url('images/board/10x10brown.svg');
-}
-label.board.board1.standard10x10 {
-    background-image: url('images/board/10x10blue.svg');
-}
-label.board.board2.standard10x10 {
-    background-image: url('images/board/10x10green.svg');
-}
-label.board.board3.standard10x10 {
-    background-image: url('images/board/10x10maple.jpg');
-}
-label.board.board4.standard10x10 {
-    background-image: url('images/board/10x10olive.jpg');
-}
-
-label.board.board0.grand10x10 {
-    background-image: url('images/board/Grandboard.svg');
-}
-label.board.board1.grand10x10 {
-    background-image: url('images/board/10x10brown.svg');
-}
-label.board.board2.grand10x10 {
-    background-image: url('images/board/10x10blue.svg');
-}
-label.board.board3.grand10x10 {
-    background-image: url('images/board/10x10green.svg');
-}
-label.board.board4.grand10x10 {
-    background-image: url('images/board/10x10maple.jpg');
-}
-label.board.board5.grand10x10 {
-    background-image: url('images/board/10x10mapleGrand.png');
-}
-
-label.board.board0.makruk8x8 {
-    background-image: url('images/board/makruk2.svg');
-}
-label.board.board1.makruk8x8 {
-    background-image: url('images/board/makruk.svg');
-}
-label.board.board2.makruk8x8 {
-    background-image: url('images/board/makruk.jpg');
-}
-
-label.board.board0.sittuyin8x8 {
-    background-image: url('images/board/sittuyin.svg');
-}
-label.board.board1.sittuyin8x8 {
-    background-image: url('images/board/sittuyin.jpg');
-}
-label.board.board2.sittuyin8x8 {
-    background-image: url('images/board/sittuyingreen.svg');
-}
-label.board.board3.sittuyin8x8 {
-    background-image: url('images/board/sittuyinGrainBrown.svg');
-}
-
-label.board.board0.shogi9x9 {
-    background-image: url('images/board/shogi.svg');
-}
-label.board.board1.shogi9x9 {
-    background-image: url('images/board/Shogiban1.png');
-}
-label.board.board2.shogi9x9 {
-    background-image: url('images/board/Shogiban2.png');
-}
-label.board.board3.shogi9x9 {
-    background-image: url('images/board/shogic.svg');
-}
-label.board.board4.shogi9x9 {
-    background-image: url('images/board/ShogiMaple.png');
-}
-label.board.board5.shogi9x9 {
-    background-image: url('images/board/ShogiGrayTexture.png');
-}
-label.board.board6.shogi9x9 {
-    background-image: url('images/board/ShogiSpace1.png');
-}
-label.board.board7.shogi9x9 {
-    background-image: url('images/board/doubutsu.svg');
-}
-label.board.board8.shogi9x9 {
-    background-image: url('images/board/ShogiOak.png');
-}
-
-label.board.board0.shogi7x7 {
-    background-image: url('images/board/ToriPlain.svg');
-}
-label.board.board1.shogi7x7 {
-    background-image: url('images/board/ToriWood.svg');
-}
-label.board.board2.shogi7x7 {
-    background-image: url('images/board/ToriDaySky.svg');
-}
-label.board.board3.shogi7x7 {
-    background-image: url('images/board/ToriNightSky.svg');
-}
-
-label.board.board0.shogi5x5 {
-    background-image: url('images/board/minishogi.svg');
-}
-label.board.board1.shogi5x5 {
-    background-image: url('images/board/MiniboardWood1.png');
-}
-label.board.board2.shogi5x5 {
-    background-image: url('images/board/MiniboardWood2.png');
-}
-label.board.board3.shogi5x5 {
-    background-image: url('images/board/MinishogiDobutsu.svg');
-}
-label.board.board4.shogi5x5 {
-    background-image: url('images/board/MinishogiDobutsu2.svg');
-}
-
-label.board.board0.shogi5x6 {
-    background-image: url('images/board/gorogoro.svg');
-}
-label.board.board1.shogi5x6 {
-    background-image: url('images/board/gorogoroboard.svg');
-}
-label.board.board2.shogi5x6 {
-    background-image: url('images/board/gorogoro2.svg');
-}
-label.board.board3.shogi5x6 {
-    background-image: url('images/board/GorogoroWood.png');
-}
-
-label.board.board0.shogi3x4 {
-    background-image: url('images/board/doubutsuboard.svg');
-}
-label.board.board1.shogi3x4 {
-    background-image: url('images/board/dobutsu3x4.svg');
-}
-
-label.board.board0.xiangqi9x10 {
-    background-image: url('images/board/xiangqi.svg');
-}
-label.board.board1.xiangqi9x10 {
-    background-image: url('images/board/xiangqic.svg');
-}
-label.board.board2.xiangqi9x10 {
-    background-image: url('images/board/xiangqiCTexture.png');
-}
-label.board.board3.xiangqi9x10 {
-    background-image: url('images/board/xiangqiPaper.png');
-}
-label.board.board4.xiangqi9x10 {
-    background-image: url('images/board/xiangqiWood.png');
-}
-label.board.board5.xiangqi9x10 {
-    background-image: url('images/board/xiangqiDark.svg');
-}
-label.board.board6.xiangqi9x10 {
-    background-image: url('images/board/xiangqiWikimedia.svg');
-}
-
-label.board.board0.xiangqi7x7 {
-    background-image: url('images/board/minixiangqi.svg');
-}
-label.board.board1.xiangqi7x7 {
-    background-image: url('images/board/minixiangqiw.png');
-}
-label.board.board2.xiangqi7x7 {
-    background-image: url('images/board/minixqlg.svg');
-}
-
-label.board.board0.janggi9x10 {
-    background-image: url('images/board/JanggiBrown.svg');
-}
-label.board.board1.janggi9x10 {
-    background-image: url('images/board/JanggiPaper.png');
-}
-label.board.board2.janggi9x10 {
-    background-image: url('images/board/JanggiWood.png');
-}
-label.board.board3.janggi9x10 {
-    background-image: url('images/board/JanggiDark.svg');
-}
-label.board.board4.janggi9x10 {
-    background-image: url('images/board/JanggiWoodDark.svg');
-}
-label.board.board5.janggi9x10 {
-    background-image: url('images/board/JanggiStone.svg');
-}
-
-label.board.board0.shogun8x8 {
-    background-image: url('images/board/ShogunPlain.svg');
-}
-label.board.board1.shogun8x8 {
-    background-image: url('images/board/ShogunMaple.png');
-}
-label.board.board2.shogun8x8 {
-    background-image: url('images/board/ShogunMaple2.png');
-}
-label.board.board3.shogun8x8 {
-    background-image: url('images/board/ShogunBlue.svg');
-}
-label.board.board4.shogun8x8 {
-    background-image: url('images/board/8x8brown.svg');
-}
-label.board.board5.shogun8x8 {
-    background-image: url('images/board/8x8maple.jpg');
-}
-
 label.piece.piece0.standard {
     background-image: url('images/pieces/merida/wN.svg');
 }
@@ -392,28 +152,34 @@ label.piece.piece2.tori {
 }
 
 label.piece.piece0.xiangqi {
-    background-image: url('images/pieces/xiangqi/playok/red_king.svg');
+    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
 }
 label.piece.piece1.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct3/red_king.svg');
+    background-image: url('images/pieces/xiangqi/2dintl/RK.svg');
 }
 label.piece.piece2.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
+    background-image: url('images/pieces/xiangqi/playok/red_king.svg');
 }
 label.piece.piece3.xiangqi {
-    background-image: url('images/pieces/xiangqi/hnz/red_king.svg');
+    background-image: url('images/pieces/xiangqi/ct3/red_king.svg');
 }
 label.piece.piece4.xiangqi {
-    background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
+    background-image: url('images/pieces/xiangqi/hnz/red_king.svg');
 }
 label.piece.piece5.xiangqi {
-    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+    background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
 }
 label.piece.piece6.xiangqi {
-    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
+    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
 }
 label.piece.piece7.xiangqi {
+    background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
+}
+label.piece.piece8.xiangqi {
     background-image: url('images/pieces/xiangqi/wikim/red_king.svg');
+}
+label.piece.piece9.xiangqi {
+    background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
 }
 
 label.piece.piece0.janggi {

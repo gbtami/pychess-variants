@@ -67,6 +67,7 @@ div.editorhint {
 }
 .editor-button-container .icon:before{
     font-size: 18px;
+    padding-right: 4px;
 }
 
 #turn-block {

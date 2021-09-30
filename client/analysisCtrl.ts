@@ -306,10 +306,6 @@ export default class AnalysisController {
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
-            document.documentElement.style.setProperty('--toolsHeight', '136px');
-        } else {
-            this.renderFENAndPGN( this.getPgn() );
-            document.documentElement.style.setProperty('--toolsHeight', '92px');
         }
 
         if (!this.model["embed"]) {
@@ -801,7 +797,7 @@ export default class AnalysisController {
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
 
-        let move : cg.Key[];
+        let move : cg.Key[] = [];
         let capture = false;
         if (step.move !== undefined) {
             const moveStr = uci2cg(step.move);
@@ -809,18 +805,19 @@ export default class AnalysisController {
             // 960 king takes rook castling is not capture
             // TODO defer this logic to ffish.js
             capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
-
-            this.chessground.set({
-                fen: step.fen,
-                turnColor: step.turnColor,
-                movable: {
-                    color: step.turnColor,
-                    dests: this.dests,
-                    },
-                check: step.check,
-                lastMove: move,
-            });
         }
+
+        this.chessground.set({
+            fen: step.fen,
+            turnColor: step.turnColor,
+            movable: {
+                color: step.turnColor,
+                dests: this.dests,
+                },
+            check: step.check,
+            lastMove: move,
+        });
+
         this.fullfen = step.fen;
 
         updatePockets(this, this.vpocket0, this.vpocket1);

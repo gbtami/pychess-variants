@@ -11,15 +11,16 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from broadcast import lobby_broadcast
+from broadcast import lobby_broadcast, round_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import CREATED, STARTED, ABORTED, MATE, STALEMATE, DRAW, FLAG, CLAIM, \
     INVALIDMOVE, VARIANT_960_TO_PGN, LOSERS, VARIANTEND, GRANDS, CASUAL, RATED, \
-    IMPORTED, HIGHSCORE_MIN_GAMES, variant_display_name
+    IMPORTED, HIGHSCORE_MIN_GAMES, variant_display_name, MAX_CHAT_LINES
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
+from draw import reject_draw
 from settings import URI
 from spectators import spectators
 
@@ -84,7 +85,7 @@ class Game:
         self.spectators = set()
         self.draw_offers = set()
         self.rematch_offers = set()
-        self.messages = collections.deque([], 200)
+        self.messages = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
         self.ply_clocks = [{
@@ -208,10 +209,10 @@ class Game:
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
-        if self.board.count_started <= 0:
-            # Move cancels draw offer
-            # Except in manual counting, since it is a permanent draw offer
-            self.draw_offers.discard(opp_player.username)
+        # Move cancels draw offer
+        response = await reject_draw(self, opp_player.username)
+        if response is not None:
+            await round_broadcast(self, self.app["users"], response, full=True)
 
         cur_time = monotonic()
         # BOT players doesn't send times used for moves
@@ -756,7 +757,7 @@ class Game:
             crosstable = self.crosstable if self.status > STARTED else ""
 
         if self.byoyomi:
-            byoyomi_periods = self.byoyomi_periods
+            byoyomi_periods = (self.byoyomi_periods["white"], self.byoyomi_periods["black"])
         else:
             byoyomi_periods = ""
 

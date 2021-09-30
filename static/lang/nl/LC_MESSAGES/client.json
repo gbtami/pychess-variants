@@ -1,0 +1,180 @@
+{
+    "About pychess": "Over pychess",
+    "Variant": "Variant",
+    "in local browser": "in lokale browser",
+    "You need an account to do that.": "Je hebt hier een account voor nodig.",
+    "Download game to PGN file": "Download partij naar PGN file",
+    " Download PGN": "Download PGN",
+    " Copy UCI/USI": "Kopieer UCI/USI",
+    " PNG image": "PGN afbeelding",
+    "Request Computer Analysis": "Verzoek Een Computeranalyse",
+    " Request Analysis": "Verzoek Analyse",
+    "Depth": "Diepte",
+    "Go deeper": "Ga dieper",
+    "Spectators: ": "Toeschouwers:",
+    "Light": "Licht",
+    "Dark": "Donker",
+    "Piece animation": "Stukanimatie",
+    "Show piece destinations": "Bestemming van het stuk",
+    "Promote to Queen automatically": "Promoveer automatisch naar een Dame",
+    "Best move arrow in analysis board": "Beste zet-pijl op analysebord",
+    "Invisible pieces": "Onzichtbare stukken",
+    "Advantage": "Voordeel",
+    "Sign in to chat": "Log in om te chatten",
+    "Please be nice in the chat!": "Wees a.u.b. vriendelijk in de chat!",
+    "Server": "Server",
+    "in %1 year": [
+        "binnen %1 jaar",
+        "binnen %1 jaren"
+    ],
+    "%1 year ago": [
+        "%1 jaar geleden",
+        "%1 jaren geleden"
+    ],
+    "in %1 month": [
+        "binnen %1 maand",
+        "binnen %1 maanden"
+    ],
+    "%1 month ago": [
+        "%1 maand geleden",
+        "%1 maanden geleden"
+    ],
+    "in %1 week": [
+        "binnen %1 week",
+        "binnen %1 weken"
+    ],
+    "%1 week ago": [
+        "%1 week geleden",
+        "%1 weken geleden"
+    ],
+    "in %1 day": [
+        "binnen %1 dag",
+        "binnen %1 dagen"
+    ],
+    "%1 day ago": [
+        "%1 dag geleden",
+        "%1 dagen geleden"
+    ],
+    "in %1 hour": [
+        "binnen %1 uur",
+        "binnen %1 uren"
+    ],
+    "%1 hour ago": [
+        "%1 uur geleden",
+        "%1 uren geleden"
+    ],
+    "in %1 minute": [
+        "binnen %1 minuut",
+        "binnen %1 minuten"
+    ],
+    "%1 minute ago": [
+        "%1 minuut geleden",
+        "%1 minuten geleden"
+    ],
+    "in %1 second": [
+        "binnen %1 seconde",
+        "binnen %1 seconden"
+    ],
+    "%1 second ago": [
+        "%1 seconde geleden",
+        "%1 seconden geleden"
+    ],
+    "STARTING IN": "START IN",
+    "Castling": "Rokeren",
+    "White": "Wit",
+    "Black": "Zwart",
+    "ANALYSIS BOARD": "ANALYSE BORD",
+    "PLAY WITH MACHINE": "SPEEL MET DE MACHINE",
+    " (must be signed in)": "(moet ingelogd zijn)",
+    "Invalid FEN": "Ongeldige FEN",
+    "Playing right now": "Nu aan het spelen",
+    "Challenge to a game": "Uitdagen voor een partij",
+    "CANCEL": "ANNULEER",
+    "Cancel": "Annuleer",
+    "Challenge %1 to a game": "Daag %1 uit voor een partij",
+    "Casual": "Vrijblijvend",
+    "Rated": "Met rating",
+    "Random": "Willekeurig",
+    "Play with a friend": "Speel met een vriend",
+    "Byoyomi in seconds:": "Byoyomi in seconden",
+    "Custom": "Aangepast",
+    "%1 player": [
+        "%1 speler",
+        "%1 spelers"
+    ],
+    "%1 game in play": [
+        "%1 partij aan het spelen",
+        "%1 partijen aan het spelen"
+    ],
+    "Player": "Speler",
+    "Rating": "Rating",
+    "Time": "Tijd",
+    "Donate": "Doneer",
+    "FAQ": "FAQ",
+    "Stats": "Statistieken",
+    "About": "Over",
+    "Latest updates": "Laatste updates",
+    "Thank you for your support!": "Bedankt voor uw ondersteuning!",
+    "Invalid PGN": "Ongeldige PGN",
+    "Paste the PGN text here": "Plak de PGN text hier",
+    "IMPORT GAME": "IMPORTEER PARTIJ",
+    "Red": "Rood",
+    "Blue": "Blauw",
+    "Gold": "Goud",
+    "Pink": "Roze",
+    "IMPORT": "IMPORTEER",
+    "level %1": "level %1",
+    "Checkmate": "Schaakmat",
+    "%1 resigned": "%1 heeft opgegeven",
+    "Stalemate": "Pat",
+    "Draw": "Remise",
+    "%1 abandoned the game": "%1 heeft de partij verlaten",
+    "Not started": "Niet gestart",
+    "Invalid move": "Ongeldige zet",
+    "Repetition": "Herhaling",
+    "%1 move": [
+        "%1 zet",
+        "%1 zetten"
+    ],
+    "Computer analysis available": "Computer analyse is beschikbaar",
+    "Games": "Partijen",
+    "Imported": "Geïmporteerd",
+    " +15 seconds": "+15 seconden",
+    "Give 15 seconds": "Geef 15 seconden",
+    "Pass": "Pas",
+    "Resign": "Geef op",
+    "Are you sure you want to resign?": "Weet je zeker dat je op wil geven?",
+    "Blue (Cho)": "Blauw (Cho)",
+    "Red (Han)": "Rood (Han)",
+    "Switch pieces": "Verander stukken",
+    "Ready": "Gereed",
+    "VIEW TOURNAMENT": "LAAT TOERNOOI ZIEN",
+    "BACK TO TOURNAMENT": "TERUG NAAR TOERNOOI",
+    "PAUSE": "PAUSE",
+    "NEW OPPONENT": "NIEUWE TEGENSTANDER",
+    "Stop": "Stop",
+    "Log out": "Uitloggen",
+    "Are you sure you want to log out?": "Weet je zeker dat je uit wil loggen?",
+    "Sound": "Geluid",
+    "Background": "Achtergrond",
+    "Board Settings": "Bord Instellingen",
+    "Zen Mode": "Zen Modus",
+    "First": "Eerste",
+    "Prev": "Vorige",
+    "Next": "Volgende",
+    "Last": "Laatste",
+    "LOG IN": "LOG IN",
+    "Tournament complete": "Toernooi afgelopen",
+    "Games played": "Gespeelde partijen",
+    "Performance": "Voorkeur",
+    "Average opponent": "Gemiddelde tegenstander",
+    "Custom position": "Aangepaste positie",
+    "Analysis board": "Analyse bord",
+    "Off": "Uit",
+    "On": "Aan",
+    "ZEN MODE": "ZEN MODUS",
+    "": {
+        "language": "nl",
+        "plural-forms": "nplurals=2; plural=(n != 1);"
+    }
+}
