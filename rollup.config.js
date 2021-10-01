@@ -1,11 +1,12 @@
 import typescript from '@rollup/plugin-typescript';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default {
     input: "client/main.ts",
     output: {
         file: "static/pychess-variants.js",
-        format: "cjs"
+        format: "iife"
     },
-    plugins: [typescript(), nodeResolve()],
+    plugins: [nodeResolve(), commonjs(), typescript()],
 }

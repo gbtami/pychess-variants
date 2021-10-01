@@ -1,4 +1,4 @@
-import Module from 'ffish.js';
+import Module from 'ffish';
 
 import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
