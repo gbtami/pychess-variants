@@ -10,7 +10,7 @@
 @media (max-width: 799px) and (orientation: portrait) {
     .editor-app {
         grid-template-rows: auto;
-        grid-template-areas: 'poc-top' 'board' 'poc-bot' 'hint' 'mat-top' 'mat-bot' 'tools' 'uboard' 'side';
+        grid-template-areas: 'poc-top' 'board' 'poc-bot' 'hint' 'pocket-top' 'pocket-bot' 'tools' 'uboard' 'side';
     }
     input#fen {
         padding: 4px 0 4px 0;
@@ -27,7 +27,7 @@
     .editor-app {
         grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);
         grid-template-rows: auto;
-        grid-template-areas: 'side . poc-top . hint' 'side . board . mat-top' 'side . board . tools' 'side . poc-bot . mat-bot' 'uleft . uboard . .';
+        grid-template-areas: 'side . poc-top . hint' 'side . board . pocket-top' 'side . board . tools' 'side . poc-bot . pocket-bot' 'uleft . uboard . .';
     }
 }
 boardeditor {

@@ -14,7 +14,7 @@
 @media (max-width: 799px) and (orientation: portrait) {
     .analysis-app {
         grid-template-rows: auto;
-        grid-template-areas: 'mat-top' 'board' 'mat-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
+        grid-template-areas: 'pocket-top' 'board' 'pocket-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
     }
     under-left {
         display: none;
@@ -30,7 +30,7 @@
     .analysis-app {
         grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);
         grid-template-rows: min-content 1fr;
-        grid-template-areas: 'side . board gauge mat-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge mat-bot' 'uleft . uboard . move-controls';
+        grid-template-areas: 'side . board gauge pocket-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge pocket-bot' 'uleft . uboard . move-controls';
     }
     /* move rank numbers to the left side of the board */
     .cg-wrap coords.ranks {

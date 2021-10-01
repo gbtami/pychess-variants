@@ -20,6 +20,7 @@ import { iniPieces } from './pieces';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
+import { updateMaterial } from './material';
 import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
@@ -166,6 +167,9 @@ class BoardSettings {
                 this.ctrl.pockets[1] = tmp_pocket;
                 this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
                 this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
+            }
+            if (this.ctrl instanceof RoundController && !this.ctrl.variant.drop) {
+                updateMaterial(this.ctrl);
             }
 
             // TODO: moretime button

@@ -1542,6 +1542,35 @@ button.icon::-moz-focus-inner {
     display: none;
 }
 
+/* Material */
+.material {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    align-self: center;
+    height: 40px;
+    line-height: 0;
+    white-space: nowrap;
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+.material-top {
+    grid-area: mat-top;
+}
+.material-bottom {
+    grid-area: mat-bot;
+}
+/*
+mpiece {
+    margin-left: 10px;
+    width: 32px;
+    height: 32px;
+    background-size: cover;
+    display: inline-block;
+}
+*/
+
 /* Playing color */
 button.icon {
     margin: 5px;
@@ -1878,10 +1907,10 @@ div#ctable-container {
     display: flex;
 }
 .pocket-top {
-    grid-area: mat-top;
+    grid-area: pocket-top;
 }
 .pocket-bot {
-    grid-area: mat-bot;
+    grid-area: pocket-bot;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .pocket.top {

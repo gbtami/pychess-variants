@@ -16,7 +16,7 @@ body {
 .embed-app {
     grid-template-columns: minmax(200px, calc(100vh - 2.5rem)) minmax(200px, 1fr);
     grid-template-rows: min-content 1fr;
-    grid-template-areas: 'board mat-top' 'board tools' 'board tools' 'board mat-bot' 'board move-controls';
+    grid-template-areas: 'board pocket-top' 'board tools' 'board tools' 'board pocket-bot' 'board move-controls';
 }
 .cg-wrap coords.ranks, .cg-wrap coords.files {
     display: none;
