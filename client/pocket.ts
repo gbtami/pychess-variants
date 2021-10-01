@@ -1,4 +1,4 @@
-import { h, init } from "snabbdom";
+import { init, h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';

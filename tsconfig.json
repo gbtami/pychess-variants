@@ -3,7 +3,6 @@
     "client/*.ts"
   ],
    "compilerOptions": {
-    "outDir": "./static",
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
@@ -13,8 +12,9 @@
     "noUnusedParameters": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "module": "commonjs",
-    "lib": ["DOM", "ES2016"],
-    "target": "ES2016"
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["DOM", "ES2017"],
+    "target": "ES2017"
   }
 }

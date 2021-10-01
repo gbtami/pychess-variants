@@ -1,5 +1,6 @@
-import * as cg from "chessgroundx/types";
 import { VNode } from "snabbdom/vnode";
+
+import * as cg from "chessgroundx/types";
 
 export function download(filename: string, text: string) {
   const element = document.createElement('a');
