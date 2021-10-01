@@ -1,12 +1,12 @@
-import { h } from 'snabbdom/h';
+import { h } from 'snabbdom';
+import { VNode } from "snabbdom/vnode";
+import { InsertHook } from "snabbdom/hooks";
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
-import { InsertHook } from "snabbdom/src/hooks";
-import { VNode } from "snabbdom/vnode";
 
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];

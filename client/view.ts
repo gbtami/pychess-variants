@@ -1,5 +1,5 @@
+import { h } from 'snabbdom';
 import { VNode } from "snabbdom/vnode";
-import { h } from 'snabbdom/h';
 
 import { ISettings } from "./settings";
 

@@ -1,4 +1,4 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -6,7 +6,6 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-import h from 'snabbdom/h';
 import { _, ngettext } from './i18n';
 import TournamentController from "./tournament";
 

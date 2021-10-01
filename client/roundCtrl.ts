@@ -1,7 +1,6 @@
 import Sockette from 'sockette';
 
-import { init } from 'snabbdom';
-import { h } from 'snabbdom/h';
+import { init, h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';

@@ -1,11 +1,9 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
+import { toVNode } from 'snabbdom/tovnode';
 import attributes from 'snabbdom/modules/attributes';
 import event from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
-
-import { h } from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
-import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';

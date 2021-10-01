@@ -1,9 +1,7 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { toVNode } from 'snabbdom/tovnode';
 import listeners from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
-
-import { h } from 'snabbdom/h';
-import { toVNode } from 'snabbdom/tovnode';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';

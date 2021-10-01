@@ -1,12 +1,11 @@
 //import Module from 'ffish-es6';
 //TODO: importing from node-modules causes error while running gulp:
 //'import' and 'export' may appear only with 'sourceType: module'
-import Module from '../static/ffish.js';
+import Module from 'ffish.js';
 
 import Sockette from 'sockette';
 
-import { init } from 'snabbdom';
-import { h } from 'snabbdom/h';
+import { init, h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';

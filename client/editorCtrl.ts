@@ -1,9 +1,7 @@
-import Module from '../static/ffish.js';
+import Module from 'ffish.js';
 
-import h from 'snabbdom/h';
+import { init, h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-
-import { init } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';

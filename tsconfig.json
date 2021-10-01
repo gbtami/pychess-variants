@@ -3,7 +3,6 @@
     "client/*.ts"
   ],
    "compilerOptions": {
-    "outDir": "./static",
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
