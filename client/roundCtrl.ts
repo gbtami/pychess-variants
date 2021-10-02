@@ -370,8 +370,8 @@ export default class RoundController {
         }
 
         if (!this.variant.drop) {
-            const material0 = document.querySelector('.material-top div') as HTMLElement;
-            const material1 = document.querySelector('.material-bottom div') as HTMLElement;
+            const material0 = document.querySelector('.material-top') as HTMLElement;
+            const material1 = document.querySelector('.material-bottom') as HTMLElement;
             updateMaterial(this, material0, material1);
         }
 

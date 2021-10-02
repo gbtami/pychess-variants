@@ -59,8 +59,8 @@ function calculateImbalance(ctrl: RoundController) : {[index: string]:number} {
 export function updateMaterial (ctrl: RoundController, vmaterial0?: VNode | HTMLElement, vmaterial1?: VNode | HTMLElement) {
 	if (ctrl.variant.drop) return;
     if (!ctrl.materialDifference) {
-        ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, h('div'));
-        ctrl.vmaterial1 = patch(vmaterial1? vmaterial1 : ctrl.vmaterial1, h('div'));
+        ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, h('div.material.material-top'));
+        ctrl.vmaterial1 = patch(vmaterial1? vmaterial1 : ctrl.vmaterial1, h('div.material.material-bottom'));
         return;
     }
 	var white_material_content : VNode[] = [], black_material_content : VNode[] = [];
@@ -69,23 +69,27 @@ export function updateMaterial (ctrl: RoundController, vmaterial0?: VNode | HTML
 	for (var piece of ctrl.variant.pieceRoles('white')) {
 		var mappedPiece = mapPiece(piece, ctrl.variant.name);
 		var difference = imbalances[mappedPiece];
-		for (var i = 0; i < difference; ++i) {
-			white_material_content.push(h('mpiece.' + mappedPiece))
-		}
 		if (difference > 0) {
 			imbalances[mappedPiece] = 0;
+			var current_div : VNode[] = [];
+			for (var i = 0; i < difference; ++i) {
+				current_div.push(h('mpiece.' + mappedPiece))
+			}
+			white_material_content.push(h('div', current_div));
 		}
 	}
 	for (var piece of ctrl.variant.pieceRoles('black')) {
 		var mappedPiece = mapPiece(piece, ctrl.variant.name);
 		var difference = imbalances[mappedPiece];
-		for (var i = 0; i < -difference; ++i) {
-			black_material_content.push(h('mpiece.' + mappedPiece));
-		}
 		if (difference < 0) {
 			imbalances[mappedPiece] = 0;
+			var current_div : VNode[] = [];
+			for (var i = 0; i < -difference; ++i) {
+				current_div.push(h('mpiece.' + mappedPiece));
+			}
+			black_material_content.push(h('div', current_div));
 		}
 	}
-	ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, h('div.' + top_material_color, top_material_color == 'white' ? white_material_content : black_material_content));
-	ctrl.vmaterial1 = patch(vmaterial1? vmaterial1 : ctrl.vmaterial1, h('div.' + bottom_material_color, bottom_material_color == 'white' ? white_material_content : black_material_content));
+	ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, h('div.material.material-top.' + top_material_color + '.' + ctrl.variant.piece, top_material_color == 'white' ? white_material_content : black_material_content));
+	ctrl.vmaterial1 = patch(vmaterial1? vmaterial1 : ctrl.vmaterial1, h('div.material.material-bottom.' + bottom_material_color + '.' + ctrl.variant.piece, bottom_material_color == 'white' ? white_material_content : black_material_content));
 }

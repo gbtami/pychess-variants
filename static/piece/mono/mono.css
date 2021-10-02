@@ -5,6 +5,13 @@ mpiece {
     background-size: cover;
     display: inline-block;
 }
+mpiece.p {
+    margin-left: -15px;
+}
+.material div {
+    display: inline-block;
+    margin-left: 10px;
+}
 mpiece.k {
     background-image: url('../../images/pieces/mono/king.svg');
 }
@@ -106,7 +113,7 @@ mpiece.p {
 .synochess mpiece.c {
     background-image: url('../../images/pieces/mono/synochess-cannon.svg');
 }
-.synochess .black mpiece.r {
+.synochess.black mpiece.r {
     background-image: url('../../images/pieces/mono/synochess-rook.svg');
 }
 
@@ -128,7 +135,7 @@ mpiece.p {
 .shinobi mpiece.j {
     background-image: url('../../images/pieces/mono/ninja.svg');
 }
-.shinobi .white mpiece.r {
+.shinobi.white mpiece.r {
     background-image: url('../../images/pieces/mono/shinobi-rook.svg');
 }
 
