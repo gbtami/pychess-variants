@@ -24,10 +24,10 @@ mpiece.p {
     background-image: url('../../images/pieces/mono/pawn.svg');
 }
 
-.makruk mpiece.s, .sittuyin mpiece.s {
+.makruk mpiece.s, .sittuyin mpiece.s, .asean mpiece.b {
     background-image: url('../../images/pieces/mono/makruk-bishop.svg');
 }
-.makruk mpiece.m, .sittuyin mpiece.f {
+.makruk mpiece.m, .sittuyin mpiece.f, .asean mpiece.q {
     background-image: url('../../images/pieces/mono/makruk-promoted-pawn.svg');
 }
 
