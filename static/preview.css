@@ -96,6 +96,19 @@ label.piece.piece4.sittuyin  {
     background-image: url('images/pieces/merida/bS.svg');
 }
 
+label.piece.piece0.asean {
+    background-image: url('images/pieces/merida/bS.svg');
+}
+label.piece.piece1.asean {
+    background-image: url('images/pieces/makruk/ada/bB.svg');
+}
+label.piece.piece2.asean {
+    background-image: url('images/pieces/makruk/cambodian/bB.svg');
+}
+label.piece.piece3.asean {
+    background-image: url('images/pieces/sittuyin/original/bB.svg');
+}
+
 label.piece.piece0.shogi {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');
 }
