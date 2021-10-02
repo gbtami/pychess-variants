@@ -39,6 +39,7 @@ class BoardSettings {
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
         this.settings["blindfold"] = new BlindfoldSettings(this);
+        this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
     getSettings(settingsType: string, family: string) {
@@ -138,6 +139,8 @@ class BoardSettings {
 
         settingsList.push(this.settings["blindfold"].view());
 
+        settingsList.push(this.settings["materialDifference"].view());
+
         if (variantName === this.ctrl?.variant.name)
             settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
 
@@ -146,7 +149,7 @@ class BoardSettings {
             this.getSettings("PieceStyle", pieceFamily as string).view(),
             ])
         );
-
+        
         settingsList.push();
 
         return h('div#board-settings', settingsList);
@@ -383,4 +386,23 @@ class BlindfoldSettings extends BooleanSettings {
     }
 }
 
+class MaterialDifferenceSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('materialDifference', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl instanceof RoundController) {
+            this.boardSettings.ctrl.materialDifference = this.value;
+            updateMaterial(this.boardSettings.ctrl);
+        }
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'captured', _("Show material difference")));
+    }
+}
 export const boardSettings = new BoardSettings();

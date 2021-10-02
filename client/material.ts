@@ -58,6 +58,11 @@ function calculateImbalance(ctrl: RoundController) : {[index: string]:number} {
 
 export function updateMaterial (ctrl: RoundController, vmaterial0?: VNode | HTMLElement, vmaterial1?: VNode | HTMLElement) {
 	if (ctrl.variant.drop) return;
+    if (!ctrl.materialDifference) {
+        ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, h('div'));
+        ctrl.vmaterial1 = patch(vmaterial1? vmaterial1 : ctrl.vmaterial1, h('div'));
+        return;
+    }
 	var white_material_content : VNode[] = [], black_material_content : VNode[] = [];
 	var imbalances = calculateImbalance(ctrl);
 	var top_material_color = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, bottom_material_color = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;

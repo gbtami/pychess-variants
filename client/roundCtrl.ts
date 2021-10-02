@@ -155,6 +155,7 @@ export default class RoundController {
     blindfold: boolean;
     handicap: boolean;
     autoPromote: boolean;
+    materialDifference: boolean;
     setupFen: string;
     prevPieces: cg.Pieces;
     focus: boolean;
@@ -243,6 +244,7 @@ export default class RoundController {
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
+        this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
         this.hasPockets = this.variant.pocket;
