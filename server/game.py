@@ -552,7 +552,7 @@ class Game:
                     self.status = STALEMATE
                     # print(self.result, "stalemate")
 
-        elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin'):
+        elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin', 'asean'):
             parts = self.board.fen.split()
             if parts[3].isdigit():
                 counting_limit = int(parts[3])
