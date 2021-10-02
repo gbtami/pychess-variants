@@ -357,7 +357,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "White", secondColor: "Black",
         pieceRoles: ["k", "q", "b", "n", "r", "p"],
         counting: "asean",
-        icon: "Q",
+        icon: "♻",
     }),
 
     shogi: new Variant({

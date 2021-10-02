@@ -131,7 +131,7 @@ VARIANT_ICONS = {
     "shinobi": "🐢",
     "empire": "♚",
     "ordamirror": "◩",
-    "asean": "Q",
+    "asean": "♻",
 }
 
 VARIANT_960_TO_PGN = {
