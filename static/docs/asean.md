@@ -1,6 +1,6 @@
 # ![ASEAN](https://github.com/gbtami/pychess-variants/blob/master/static/icons/ASEAN.svg) ASEAN
 
-*ASEAN Chess* is a Southeast Asian variant developed by the at the ASEAN-Chess Council at Bangkok on March 14, 2011. The game is a variant of Makruk (Thai Chess) and essentially adopts the imagery as well as some rules to the standards of Western Chess and FIDE. As the game is closely related to International Chess, this guide will assume knowledge of the pieces of that game and will describe the pieces that are changed.
+*ASEAN Chess* is a Southeast Asian variant developed by the at the ASEAN-Chess Council at Bangkok on March 14, 2011 (ASEAN is the Association of Southeast Asian Nations, a regional economic union). The game is a variant of Makruk (Thai Chess) and essentially adopts the imagery as well as some rules to the standards of Western Chess and FIDE. As the game is closely related to International Chess, this guide will assume knowledge of the pieces of that game and will describe the pieces that are changed.
 
 ## Rules
 
