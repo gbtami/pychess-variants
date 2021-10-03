@@ -23,16 +23,16 @@ import { JSONObject } from './types';
 import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
+import { refreshPockets } from './pocket';
 import { sound } from './sound';
-import {role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid, DropOrig} from './chess';
+import { uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, DropOrig } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from './winningChances';
 import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
-import { copyBoardToPNG } from './png'; 
+import { copyBoardToPNG } from './png';
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
 import { download, getPieceImageUrl } from './document';
@@ -40,6 +40,7 @@ import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
 import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
+import PocketTempStuff, {PocketStateStuff} from "./pocketTempStuff";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -87,9 +88,6 @@ export default class AnalysisController {
     variant: IVariant;
     chess960: boolean;
     hasPockets: boolean;
-    pockets: Pockets;
-    vpocket0: VNode;
-    vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
     vpgn: VNode;
@@ -135,6 +133,9 @@ export default class AnalysisController {
     notationAsObject: any;
     prevPieces: cg.Pieces;
     arrow: boolean;
+
+    pocketTempStuff: PocketTempStuff;
+    pocketStateStuff: PocketStateStuff;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         this.isAnalysisBoard = model["gameId"] === "";
@@ -287,7 +288,9 @@ export default class AnalysisController {
         if (this.hasPockets) {
             const pocket0 = document.getElementById('pocket0') as HTMLElement;
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            updatePockets(this, pocket0, pocket1);
+            this.pocketStateStuff = new PocketStateStuff(pocket0, pocket1, this);
+            this.pocketTempStuff = new PocketTempStuff(this);
+            this.pocketStateStuff.updatePockets();
         }
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
@@ -518,7 +521,7 @@ export default class AnalysisController {
                 check: msg.check,
                 lastMove: lastMove,
             });
-            if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+            if (pocketsChanged) this.pocketStateStuff.updatePockets();
         }
         if (this.model["ply"]) {
             this.ply = parseInt(this.model["ply"])
@@ -826,7 +829,7 @@ export default class AnalysisController {
 
         this.fullfen = step.fen;
 
-        updatePockets(this, this.vpocket0, this.vpocket1);
+        this.pocketStateStuff.updatePockets();
 
         if (this.variant.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
@@ -893,7 +896,7 @@ export default class AnalysisController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role && this.pocketTempStuff.dropIsValid(piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1036,7 +1039,7 @@ export default class AnalysisController {
             },
         });
 
-        if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+        if (pocketsChanged) this.pocketStateStuff.updatePockets();
 
         if (this.localAnalysis) this.engineGo();
     }
@@ -1059,21 +1062,7 @@ export default class AnalysisController {
         }
         // increase pocket count
         if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr + 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role]
-                if ( pr !== undefined ) this.pockets[1][role] = pr + 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
+            this.pocketTempStuff.handleCapture(meta.captured);
         }
 
         //  gating elephant/hawk
@@ -1089,23 +1078,8 @@ export default class AnalysisController {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
-        if (dropIsValid(this.dests, role, dest)) {
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr - 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role];
-                if ( pr !== undefined ) this.pockets[1][role] = pr - 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
-            if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
-            } else {
-                this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
-            }
+        if (this.pocketTempStuff.dropIsValid(role, dest)) {
+            this.pocketTempStuff.handleDrop(role, dest);
             // console.log("sent move", move);
         } else {
             // console.log("!!! invalid move !!!", role, dest);
@@ -1136,7 +1110,7 @@ export default class AnalysisController {
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
-            if (this.chessground.state.stats.ctrlKey && 
+            if (this.chessground.state.stats.ctrlKey &&
                 (key in this.chessground.state.movable.dests) &&
                 (this.chessground.state.movable.dests[key].indexOf(key) >= 0)
                 ) {
@@ -1295,7 +1269,7 @@ export default class AnalysisController {
     }
 
     private onCancelDropMode = () => {
-        return () => { refreshPockets(this); }
+        return () => { refreshPockets(this.pocketStateStuff, this); }
     }
 
 }

@@ -10,16 +10,17 @@ import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import { role2san, letter2role, lc, unpromotedRole } from './chess';
+import { role2san, unpromotedRole } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { EditorController } from './editorCtrl';
+import {PocketStateStuff} from "./pocketTempStuff";
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
 type Position = 'top' | 'bottom';
 
-type Pocket = Partial<Record<cg.Role, number>>;
+export type Pocket = Partial<Record<cg.Role, number>>;
 export type Pockets = [Pocket, Pocket];
 
 // There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
@@ -31,7 +32,7 @@ const eventsDropping = ['mouseup', 'touchend'];
  *
  */
 export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: cg.Color, position: Position) {
-    const pocket = ctrl.pockets[position === 'top' ? 0 : 1];
+    const pocket = ctrl.pocketStateStuff.pockets[position === 'top' ? 0 : 1];
     const roles = Object.keys(pocket); // contains the list of possible pieces/roles (i.e. for crazyhouse p-piece, n-piece, b-piece, r-piece, q-piece) in the order they will be displayed in the pocket
 
     let insertHook;
@@ -173,7 +174,7 @@ export function click(ctrl: EditorController | RoundController | AnalysisControl
     }
     e.stopPropagation();
     e.preventDefault();
-    refreshPockets(ctrl);
+    refreshPockets(ctrl.pocketStateStuff, ctrl);
 }
 
 /**
@@ -208,8 +209,8 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
     if (ctrl instanceof EditorController) { // immediately decrease piece count for editor
         let index = color === 'white' ? 1 : 0;
         if (ctrl.flip) index = 1 - index;
-        ctrl.pockets[index][role]!--;
-        refreshPockets(ctrl);
+        ctrl.pocketStateStuff.pockets[index][role]!--;
+        refreshPockets(ctrl.pocketStateStuff, ctrl);
         ctrl.onChange();
     }
 
@@ -239,57 +240,57 @@ export function drop(ctrl: EditorController, e: cg.MouchEvent): void {
         const color = el.getAttribute('data-color') as cg.Color;
         let index = color === 'white' ? 1 : 0;
         if (ctrl.flip) index = 1 - index;
-        const pocket = ctrl.pockets[index];
+        const pocket = ctrl.pocketStateStuff.pockets[index];
         console.log(role);
         console.log(color);
         console.log(index);
         console.log(pocket);
         if (role in pocket) {
             pocket[role]!++;
-            refreshPockets(ctrl);
+            refreshPockets(ctrl.pocketStateStuff, ctrl);
             ctrl.onChange();
         }
     }
 }
 
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
-export function refreshPockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement) : void {
+export function refreshPockets(state: PocketStateStuff, ctrl: RoundController | AnalysisController | EditorController/*, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement*/) : void {
     // update pockets from FEN
     if (ctrl.hasPockets) {
         // console.log(o,c,po,pc);
-        ctrl.vpocket0 = patch(vpocket0? vpocket0 : ctrl.vpocket0, pocketView(ctrl, (ctrl.flip) ? ctrl.mycolor : ctrl.oppcolor, "top"));
-        ctrl.vpocket1 = patch(vpocket1? vpocket1 : ctrl.vpocket1, pocketView(ctrl, (ctrl.flip) ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+        state.vpocket0 = patch(/*vpocket0? vpocket0 :*/ state.vpocket0, pocketView(ctrl, (ctrl.flip) ? ctrl.mycolor : ctrl.oppcolor, "top"));
+        state.vpocket1 = patch(/*vpocket1? vpocket1 :*/ state.vpocket1, pocketView(ctrl, (ctrl.flip) ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
     }
 }
 
-export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement): void {
-    // update pockets from FEN
-    if (ctrl.hasPockets) {
-        const parts = ctrl.fullfen.split(" ");
-        const fen_placement = parts[0];
-        let pockets = "";
-        const bracketPos = fen_placement.indexOf("[");
-        if (bracketPos !== -1) {
-            pockets = fen_placement.slice(bracketPos);
-        }
-
-        const c = ctrl.mycolor;
-        const o = ctrl.oppcolor;
-        const rc = ctrl.variant.pocketRoles(c) ?? [];
-        const ro = ctrl.variant.pocketRoles(o) ?? [];
-        const pc: Pocket = {};
-        const po: Pocket = {};
-        rc.forEach(r => pc[letter2role(r)] = lc(pockets, r, c==='white'));
-        ro.forEach(r => po[letter2role(r)] = lc(pockets, r, o==='white'));
-        if (ctrl.flip) {
-            ctrl.pockets = [pc, po];
-        } else {
-            ctrl.pockets = [po, pc];
-        }
-        // console.log(o,c,po,pc);
-        refreshPockets(ctrl, vpocket0, vpocket1);
-    }
-}
+// export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement): void {
+//     // update pockets from FEN
+//     if (ctrl.hasPockets) {
+//         const parts = ctrl.fullfen.split(" ");
+//         const fen_placement = parts[0];
+//         let pockets = "";
+//         const bracketPos = fen_placement.indexOf("[");
+//         if (bracketPos !== -1) {
+//             pockets = fen_placement.slice(bracketPos);
+//         }
+//
+//         const c = ctrl.mycolor;
+//         const o = ctrl.oppcolor;
+//         const rc = ctrl.variant.pocketRoles(c) ?? [];
+//         const ro = ctrl.variant.pocketRoles(o) ?? [];
+//         const pc: Pocket = {};
+//         const po: Pocket = {};
+//         rc.forEach(r => pc[letter2role(r)] = lc(pockets, r, c==='white'));
+//         ro.forEach(r => po[letter2role(r)] = lc(pockets, r, o==='white'));
+//         if (ctrl.flip) {
+//             ctrl.pockets = [pc, po];
+//         } else {
+//             ctrl.pockets = [po, pc];
+//         }
+//         // console.log(o,c,po,pc);
+//         refreshPockets(ctrl, vpocket0, vpocket1);
+//     }
+// }
 
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
@@ -300,5 +301,5 @@ function pocket2str(pocket: Pocket) {
 }
 
 export function pockets2str(ctrl: EditorController) {
-    return '[' + pocket2str(ctrl.pockets[1]) + pocket2str(ctrl.pockets[0]).toLowerCase() + ']';
+    return '[' + pocket2str(ctrl.pocketStateStuff.pockets[1]) + pocket2str(ctrl.pocketStateStuff.pockets[0]).toLowerCase() + ']';
 }

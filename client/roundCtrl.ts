@@ -13,7 +13,6 @@ import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 import { cancelDropMode } from 'chessgroundx/drop';
-import predrop from 'chessgroundx/predrop';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
@@ -21,9 +20,9 @@ import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
+import { refreshPockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, dropIsValid, DropOrig } from './chess';
+import { uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, DropOrig } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -33,6 +32,7 @@ import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
+import PocketTempStuff, {PocketStateStuff} from "./pocketTempStuff";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -115,9 +115,9 @@ export default class RoundController {
     variant: IVariant;
     chess960: boolean;
     hasPockets: boolean;
-    pockets: Pockets;
-    vpocket0: VNode;
-    vpocket1: VNode;
+    // pockets: Pockets;
+    // vpocket0: VNode;
+    // vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
     vmiscInfoW: VNode;
@@ -161,6 +161,9 @@ export default class RoundController {
                           // until a "board" message from server is received from server that confirms it.
                           // So if at any moment connection drops, after reconnect we always resend it.
                           // If server received and processed it the first time, it will just ignore it
+
+    pocketTempStuff: PocketTempStuff;
+    pocketStateStuff: PocketStateStuff;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         this.focus = !document.hidden;
@@ -361,7 +364,9 @@ export default class RoundController {
         if (this.hasPockets) {
             const pocket0 = document.getElementById('pocket0') as HTMLElement;
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            updatePockets(this, pocket0, pocket1);
+            this.pocketStateStuff = new PocketStateStuff(pocket0, pocket1, this);
+            this.pocketTempStuff = new PocketTempStuff(this);
+            this.pocketStateStuff.updatePockets();
         }
 
         // initialize expirations
@@ -465,6 +470,9 @@ export default class RoundController {
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
         boardSettings.updateBlindfold();
+
+        this.pocketTempStuff = new PocketTempStuff(this);
+        this.pocketStateStuff = this.pocketTempStuff.state;
     }
 
     getGround = () => this.chessground;
@@ -771,41 +779,7 @@ export default class RoundController {
 
         this.dests = (msg.status < 0) ? msg.dests : {};
 
-        // TODO: this logic ideally belongs in chessground somehow i feel - but where can i put it on turn change and also it depends now on this.dests
-        //       as far as i can tell the analogous logic for setting up move/pre-move destinations is in state.ts->configure->call to setSelected
-        if (this.mycolor === this.turnColor) {
-            // when turn gets mine, if a piece is being dragged or is selected, then pre-drop dests should be hidden and replaced by dests
-            this.chessground.state.predroppable.dropDests=undefined; // always clean up predrop dests when my turn starts
-
-            const pdrole : cg.Role | undefined =
-                this.chessground.state.dropmode.active ? // TODO: Sometimes dropmode.piece is not cleaned-up so best check if active==true. Maybe clean it in drop.cancelDropMode() together with everything else there?
-                this.chessground.state.dropmode.piece?.role :
-                this.chessground.state.draggable.current?.piece.role ?
-                this.chessground.state.draggable.current?.piece.role :
-                undefined;
-
-            if (pdrole) { // is there a pocket piece that is being dragged or is selected for dropping
-              const dropDests = new Map([ [pdrole, this.dests[role2san(pdrole) + "@"] ] ]);
-              this.chessground.set({
-                dropmode: {
-                    dropDests: dropDests
-                    }
-                }); // if yes - show normal dests on turn start after the pre-drop dests were hidden
-            }
-        } else {
-            if (this.chessground.state.draggable.current) {
-                // we have just received a message from the server confirming it is not our turn (i.e. we must have just moved a piece)
-                // at the same time we are dragging a piece - either we are very fast and managed to grab another piece while
-                // waiting for server's message that confirm the move we just made, or the move we just made was a pre-move/pre-drop
-                // either way we have to init the predrop destinations so they can be highlighted
-                const dropDests = predrop(this.chessground.state.pieces, this.chessground.state.draggable.current.piece, this.chessground.state.geometry, this.chessground.state.variant);
-                this.chessground.set({
-                    predroppable: {
-                        dropDests: dropDests
-                    }
-                });
-            }
-        }
+        this.pocketTempStuff.handleTurnChange();
 
         // list of legal promotion moves
         this.promotions = msg.promo;
@@ -901,7 +875,7 @@ export default class RoundController {
                     check: msg.check,
                     lastMove: lastMove,
                 });
-                if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+                if (pocketsChanged) this.pocketStateStuff.updatePockets();
             }
             if (this.clockOn && msg.status < 0) {
                 if (this.turnColor === this.mycolor) {
@@ -924,7 +898,7 @@ export default class RoundController {
                         check: msg.check,
                         lastMove: lastMove,
                     });
-                    if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
+                    if (pocketsChanged) this.pocketStateStuff.updatePockets();
 
                     if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
@@ -977,7 +951,7 @@ export default class RoundController {
             lastMove: move,
         });
         this.fullfen = step.fen;
-        updatePockets(this, this.vpocket0, this.vpocket1);
+        this.pocketStateStuff.updatePockets();
 
         if (this.variant.counting) {
             this.updateCount(step.fen);
@@ -1068,7 +1042,7 @@ export default class RoundController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role && this.pocketTempStuff.dropIsValid(piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1105,7 +1079,7 @@ export default class RoundController {
     private performPredrop = () => {
         // const { role, key } = this.predrop;
         // console.log("performPredrop()", role, key);
-        this.chessground.playPredrop(drop => { return dropIsValid(this.dests, drop.role, drop.key); });
+        this.chessground.playPredrop(drop => { return this.pocketTempStuff.dropIsValid(drop.role, drop.key); });
         this.predrop = null;
     }
 
@@ -1127,21 +1101,7 @@ export default class RoundController {
         }
         // increase pocket count
         if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") { // TODO:this refreshes pockets similar to pocket.ts -> updatePockets() - consider moving all pocket related logic there maybe?
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr + 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role];
-                if ( pr !== undefined ) this.pockets[1][role] = pr + 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
+            this.pocketTempStuff.handleCapture(meta.captured);
         }
 
         //  gating elephant/hawk
@@ -1161,24 +1121,8 @@ export default class RoundController {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
-        if (dropIsValid(this.dests, role, dest)) {
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr - 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role];
-                if ( pr !== undefined ) this.pockets[1][role] = pr - 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
-            if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
-            } else {
-                this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
-            }
-            // console.log("sent move", move);
+        if (this.pocketTempStuff.dropIsValid(role, dest)) {
+            this.pocketTempStuff.handleDrop(role, dest);
         } else {
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
@@ -1231,7 +1175,7 @@ export default class RoundController {
     }
 
     private onCancelDropMode = () => {
-        return () => { refreshPockets(this); }
+        return () => { refreshPockets(this.pocketStateStuff, this); }
     }
 
     private renderExpiration = () => {

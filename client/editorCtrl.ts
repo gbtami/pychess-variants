@@ -19,11 +19,12 @@ import { _ } from './i18n';
 import { getPockets, VARIANTS, validFen, IVariant, hasCastling } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
-import { updatePockets, Pockets, pockets2str } from './pocket';
+import { pockets2str } from './pocket';
 import { copyBoardToPNG } from './png'; 
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
 import { PyChessModel } from "./main";
+import { PocketStateStuff } from "./pocketTempStuff";
 
 export class EditorController {
     model;
@@ -35,13 +36,13 @@ export class EditorController {
     parts: string[];
     castling: string;
     pocketsPart: string;
-    pockets: Pockets;
+    // pockets: Pockets;
     variant: IVariant;
     hasPockets: boolean;
     vpieces0: VNode;
     vpieces1: VNode;
-    vpocket0: VNode;
-    vpocket1: VNode;
+    // vpocket0: VNode;
+    // vpocket1: VNode;
     vfen: VNode;
     vAnalysis: VNode;
     vChallenge: VNode;
@@ -49,6 +50,8 @@ export class EditorController {
     flip: boolean;
     ffish: any;
     ffishBoard: any;
+
+    pocketStateStuff: PocketStateStuff;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         this.model = model;
@@ -102,11 +105,13 @@ export class EditorController {
         const pieces1 = document.getElementById('pieces1') as HTMLElement;
         iniPieces(this, pieces0, pieces1);
 
+
         // initialize pockets
         if (this.hasPockets) {
             const pocket0 = document.getElementById('pocket0') as HTMLElement;
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            updatePockets(this, pocket0, pocket1);
+            this.pocketStateStuff = new PocketStateStuff(pocket0, pocket1, this);
+            this.pocketStateStuff.updatePockets();
         }
 
         const e = document.getElementById('fen') as HTMLElement;
@@ -197,6 +202,7 @@ export class EditorController {
                 }
             });
         }
+
     }
 
     private onChangeTurn = (e: Event) => {
@@ -303,7 +309,7 @@ export class EditorController {
 
             this.fullfen = fen.value;
             if (this.hasPockets) {
-                updatePockets(this, this.vpocket0, this.vpocket1);
+                this.pocketStateStuff.updatePockets();
             }
 
             if (hasCastling(this.variant, 'white')) {

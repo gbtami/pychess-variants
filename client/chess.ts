@@ -967,14 +967,6 @@ export function unpromotedRole(variant: IVariant, piece: cg.Piece): cg.Role {
     }
 }
 
-export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean {
-    const drops = dests[role2san(role) + "@"];
-
-    if (drops === undefined || drops === null) return false;
-
-    return drops.includes(key);
-}
-
 // Convert a list of moves to chessground destination
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     const dests: cg.Dests = {};
