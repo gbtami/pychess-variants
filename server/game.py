@@ -699,7 +699,7 @@ class Game:
         if self.result == "*":
             if reason == "abort":
                 result = "*"
-            elif self.wsetup and reason == "flag":
+            elif self.variant == "janggi" and self.wsetup and reason == "flag":
                 # In Janggi game the second player (red) failed to do the setup phase in time
                 result = "1-0"
             else:
