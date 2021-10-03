@@ -699,6 +699,9 @@ class Game:
         if self.result == "*":
             if reason == "abort":
                 result = "*"
+            elif self.wsetup and reason == "flag":
+                # In Janggi game the second player (red) failed to do the setup phase in time
+                result = "1-0"
             else:
                 if reason == "flag":
                     w, b = self.board.insufficient_material()
