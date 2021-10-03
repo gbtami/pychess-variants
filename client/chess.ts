@@ -51,6 +51,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"] },
+    asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans"] },
     shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoi", "kyotod"] },
     dobutsu: { pieceCSS: ["dobutsu"] },
@@ -341,6 +342,16 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pocketRoles: ["r", "n", "s", "f", "k"],
         counting: "asean",
         icon: ":",
+    }),
+
+    asean: new Variant({
+        name: "asean", tooltip: () => _("ASEAN Chess"),
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSMKSNR w - - 0 1",
+        board: "standard8x8", piece: "asean",
+        firstColor: "White", secondColor: "Black",
+        pieceRoles: ["k", "q", "b", "n", "r", "p"],
+        counting: "asean",
+        icon: "♻",
     }),
 
     shogi: new Variant({
@@ -693,7 +704,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
-    sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin" ] },
+    sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
