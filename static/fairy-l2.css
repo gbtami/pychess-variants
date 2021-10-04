@@ -96,7 +96,7 @@
 /* Variant Button  */
 
 .capablanca , .shako , .shogun , .schess , .hoppelpoppel , .grand, 
-.makpong, .makrukl2, .sittuyin, .chatrang {
+.makpong, .makrukl2, .sittuyin, .chatrang, .asean {
     display: flex;
     flex: column;
     justify-content: flex-start;
