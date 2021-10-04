@@ -362,10 +362,17 @@ padding: 10px;
 
     }
 
-    .generic-makruk {
+    #layer2makrukcont .generic-makruk {
+
+    grid-column: 2/3;
+    grid-row: 3/4;
+
+    }
+    
+    #layer2xiangqicont .generic-makruk {
 
     grid-column: 1/3;
-    grid-row: 1/4;
+    grid-row: 3/4;
 
     }
     
@@ -373,6 +380,10 @@ padding: 10px;
    
     padding: 10px;
 
+    }
+    
+    .asean {
+    grid-column: 1/2;
     }
 
    .makrukl2, .sittuyin, .makpong, .chatrang, .asean {
