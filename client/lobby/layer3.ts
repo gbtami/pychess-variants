@@ -121,6 +121,8 @@ function proTip (variant: string, chess960: boolean) {
         return _('Be sure to review the nuances of pawn promotion rules.');
     case 'cambodian':
         return _('King safety is important. Use the king leap move to save time.');
+    case 'asean':
+        return _("Makruk using the board/pieces from International Chess as well as pawn promotion rules.");
 // shogi
     case 'shogi':
     case 'minishogi':

@@ -19,6 +19,9 @@
 .xiangqi .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/xiangqi/2dhanzi/RK.svg');
 }
+.xiangqi .cg-wrap piece.m-piece.white {
+    background-image: url('../../images/pieces/xiangqi/2dhanzi/RR.svg');
+}
 
 .xiangqi .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/xiangqi/2dhanzi/BP.svg');

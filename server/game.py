@@ -552,7 +552,7 @@ class Game:
                     self.status = STALEMATE
                     # print(self.result, "stalemate")
 
-        elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin'):
+        elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin', 'asean'):
             parts = self.board.fen.split()
             if parts[3].isdigit():
                 counting_limit = int(parts[3])
@@ -699,6 +699,9 @@ class Game:
         if self.result == "*":
             if reason == "abort":
                 result = "*"
+            elif self.variant == "janggi" and self.wsetup and reason == "flag":
+                # In Janggi game the second player (red) failed to do the setup phase in time
+                result = "1-0"
             else:
                 if reason == "flag":
                     w, b = self.board.insufficient_material()

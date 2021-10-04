@@ -4,6 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
+# Roman Fighter2021, 2021
 # Артем Артем, 2021
 # 
 #, fuzzy
@@ -32,7 +33,7 @@ msgstr "К сожалению, не все игры сохраняются на 
 
 #: ../templates/404.html:22
 msgid "Probably it was abandoned or stopped before the third move."
-msgstr "Вероятно, она была заброшена или остановлена перед третьим ходом"
+msgstr "Вероятно, она была заброшена или остановлена до третьего хода"
 
 #: ../templates/404.html:23
 msgid "Return to the main page"
@@ -47,8 +48,8 @@ msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
-"Как вы знаете, pychess-variations - это бесплатный сервер, и он останется бесплатным навсегда. Однако обслуживание и улучшение сервера требует времени и денег.\n"
-"Если вам нравится наша работа и вы находите наш сервер полезным, пожалуйста, сделайте пожертвование через Patron или PayPal."
+"Как вы знаете, pychess-variants - это бесплатный сервер, и он останется бесплатным навсегда. Однако обслуживание и улучшение сервера стоит времени и денег.\n"
+"Если вам нравится наша работа и вы находите наш сервер полезным, пожалуйста, сделайте пожертвование через Patreon или PayPal."
 
 #: ../templates/players.html:9
 msgid "Online"
@@ -56,7 +57,7 @@ msgstr "Онлайн"
 
 #: ../templates/players.html:28
 msgid "Anonymous"
-msgstr "Анонимный "
+msgstr " Аноним"
 
 #: ../templates/players.html:35
 msgid "All players"
@@ -85,7 +86,7 @@ msgstr "Смотреть игры"
 
 #: ../templates/profile.html:42
 msgid "Challenge to a game"
-msgstr "Вызов на игру"
+msgstr "Вызвать на игру"
 
 #: ../templates/profile.html:45
 msgid "Import game"
@@ -97,7 +98,7 @@ msgstr "Экспорт игр"
 
 #: ../templates/profile.html:51
 msgid "Lichess profile"
-msgstr "Профиль на Lichess"
+msgstr "Lichess профиль"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -133,15 +134,15 @@ msgstr "Войти через Lichess"
 
 #: ../templates/template.html:29
 msgid "Log in"
-msgstr "Логин"
+msgstr "Войти"
 
 #: ../templates/tournaments.html:9
 msgid "CREATE A NEW TOURNAMENT"
-msgstr "СОЗДАЙТЕ НОВЫЙ ТУРНИР"
+msgstr "СОЗДАТЬ НОВЫЙ ТУРНИР"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr "Сейчас идут"
+msgstr "Сейчас играются"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"

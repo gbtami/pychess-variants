@@ -247,7 +247,10 @@ class BoardStyleSettings extends NumberSettings {
                 props: { type: "radio", name: "board", value: i },
                 attrs: { checked: vboard === i },
             }));
-            boards.push(h('label.board.board' + i + '.' + this.boardFamily, { attrs: { for: "board" + i } }, ""));
+            boards.push(h('label.board.board' + i + '.' + this.boardFamily, {
+                attrs: { for: "board" + i },
+                style: { backgroundImage: `url('/static/images/board/${boardCSS[i]}')` },
+            }, ""));
         }
         return h('settings-board', boards);
     }
