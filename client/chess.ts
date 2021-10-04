@@ -352,9 +352,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
 
     asean: new Variant({
         name: "asean", tooltip: () => _("Makruk with International Chess influence."),
-        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSMKSNR w - - 0 1",
+        startFen: "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w - - 0 1",
         board: "standard8x8", piece: "asean",
-        firstColor: "White", secondColor: "Black",
         pieceRoles: ["k", "q", "b", "n", "r", "p"],
         counting: "asean",
         icon: "♻",
