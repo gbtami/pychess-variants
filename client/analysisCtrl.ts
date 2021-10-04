@@ -1,7 +1,7 @@
 //import Module from 'ffish-es6';
 //TODO: importing from node-modules causes error while running gulp:
 //'import' and 'export' may appear only with 'sourceType: module'
-import Module from 'ffish';
+import Module from 'ffish-es6';
 
 import Sockette from 'sockette';
 

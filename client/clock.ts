@@ -19,7 +19,7 @@ export class Clock {
     granularity: number;
     running: boolean;
     connecting: boolean;
-    timeout: number | null;
+    timeout: ReturnType<typeof setTimeout> | null;
     startTime: number;
     tickCallbacks: ((diff: number) => void)[];
     flagCallback: (() => void) | null;

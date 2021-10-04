@@ -50,7 +50,7 @@ export function getPieceImageUrl (role: cg.Role, color: cg.Color, side: string):
 }
 
 export function debounce(callback: any, wait: number) {
-    let timeout: number;
+    let timeout: ReturnType<typeof setTimeout>;
     return function() {
         const context = this, args = arguments;
         clearTimeout(timeout);
