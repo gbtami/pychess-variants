@@ -425,10 +425,11 @@ div.about, div.paste, div.news {
 div.patron, div.invite {
     width: 50%;
 }
-div.guide, div.news {
+div.guide, div.news, div.about {
   grid-area: content;
   max-width: 800px;
   padding: 20px 40px;
+  font-size: 1.2em; 
 }
 
 div.guide h2, div.guide p, div.news h2, div.news p {
@@ -456,6 +457,7 @@ posts {
     display: flex;
     flex-direction:column;
     background-color: var(--bg-color0);
+    line-height: 1.5; 
 }
 a.post {
     display: grid;
@@ -511,7 +513,7 @@ ul.guide li {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     ul.guide {
-        margin-left: 4px;
+        margin: 4vmin;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         padding: 0;
@@ -585,7 +587,7 @@ ul.guide li {
 
 .hamburger {
     display: none;
-    width: 32px;
+    width: 100%;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
