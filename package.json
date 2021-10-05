@@ -41,10 +41,11 @@
     "zlib": "^1.0.5"
   },
   "scripts": {
-    "dev": "rollup -c && ./md2html.sh",
-    "dev-mac": "rollup -c && ./md2html-mac.sh",
-    "dev-win": "rollup -c",
-    "heroku-postbuild": "rollup -c && ./md2html.sh",
+    "dev": "rollup -c",
+    "prod": "rollup -c",
+    "md": "./md2html.sh",
+    "md-mac": "./md2html-mac.sh",
+    "heroku-postbuild": "yarn run prod && yarn run md",
     "test": "export TS_NODE_FILES=true; mocha -r ts-node/register -r jsdom-global/register 'tests/**/*.test.ts'"
   }
 }
