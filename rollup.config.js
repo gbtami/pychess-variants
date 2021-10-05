@@ -6,8 +6,9 @@ import { wasm } from '@rollup/plugin-wasm';
 export default {
     input: "client/main.ts",
     output: {
+        name: "PychessVariants",
         file: "static/pychess-variants.js",
-        format: "iife"
+        format: "iife",
     },
     plugins: [nodeResolve(), commonjs(), typescript(), wasm()],
 }
