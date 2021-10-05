@@ -1,7 +1,7 @@
 //import Module from 'ffish-es6';
 //TODO: importing from node-modules causes error while running gulp:
 //'import' and 'export' may appear only with 'sourceType: module'
-import Module from 'ffish-es6';
+import ffishModule from 'ffish-es6';
 
 import Sockette from 'sockette';
 
@@ -550,7 +550,7 @@ export default class AnalysisController {
 
         if (!this.localEngine) {
             if (line.includes('UCI_Variant')) {
-                new (Module as any)().then((loadedModule: any) => {
+                ffishModule().then((loadedModule: any) => {
                     this.ffish = loadedModule;
 
                     if (this.ffish !== null) {

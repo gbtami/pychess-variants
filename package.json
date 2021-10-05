@@ -7,7 +7,6 @@
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
   "dependencies": {
-    "@rollup/plugin-wasm": "^5.1.2",
     "chessgroundx": "^8.3.1",
     "ffish": "^0.6.2",
     "ffish-es6": "^0.6.2",
@@ -22,6 +21,7 @@
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-typescript": "^8.2.5",
+    "@rollup/plugin-wasm": "^5.1.2",
     "@types/chai": "^4.2.12",
     "@types/gettext.js": "^0.8.2",
     "@types/howler": "^2.2.4",

@@ -1,4 +1,4 @@
-import Module from 'ffish-es6';
+import ffishModule from 'ffish-es6';
 
 import { init, h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
@@ -186,7 +186,7 @@ export class EditorController {
             ];
             patch(container, h('div.editor-button-container', buttons));
 
-            new (Module as any)().then((loadedModule: any) => {
+            ffishModule().then((loadedModule: any) => {
                 this.ffish = loadedModule;
 
                 if (this.ffish !== null) {
