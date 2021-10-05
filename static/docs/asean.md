@@ -1,4 +1,4 @@
-# ![ASEAN](https://github.com/gbtami/pychess-variants/blob/master/static/icons/ASEAN.svg) ASEAN
+# ![ASEAN](https://github.com/gbtami/pychess-variants/blob/master/static/icons/ASEAN.svg) ASEAN Chess
 
 ![ASEAN Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/ASEAN.png?raw=true)
 
