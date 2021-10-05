@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-04 22:03+0200\n"
+"POT-Creation-Date: 2021-10-05 14:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 #: ../client/about.ts:10
 msgid ""
@@ -268,7 +268,7 @@ msgid ""
 "the match."
 msgstr ""
 
-#: ../client/chess.ts:357 ../client/lobby/layer3.ts:125
+#: ../client/chess.ts:357
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
@@ -1324,7 +1324,7 @@ msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:117
-msgid "It is important to know the counting rules in endgames."
+msgid "Maximizing khon and met's effectiveness is the key."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:119
@@ -1332,11 +1332,15 @@ msgid "Watch out for knight checks, since they cannot be blocked."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:121
-msgid "Be sure to review the nuances of pawn promotion rules."
+msgid "You can use placement to utilize your bigger pieces since the start."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:125
+msgid "The ability to promote to rook makes for a dynamic endgame."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:130 ../client/lobby/layer3.ts:142
