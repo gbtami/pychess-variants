@@ -94,7 +94,7 @@ You can try the lobby chat, although the developers might not be on to answer. M
 
 <details><summary>How is the site supported?</summary>
 
-Purely through donations. You can [become a patron](https://www.pychess.org/patron) to help us make this site better!</details>
+Purely through donations. You can [become a patron](https://www.pychess.org/patron) or directly through [paypal](https://www.paypal.me/gbtami) to help us make this site better!</details>
 
 <details><summary>Can I contribute?</summary>
 
