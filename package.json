@@ -11,9 +11,9 @@
     "ffish": "^0.6.2",
     "ffish-es6": "^0.6.2",
     "gettext.js": "^1.0.0",
-    "highcharts": "9.1.0",
+    "highcharts": "^9.1.0",
     "howler": "^2.1.3",
-    "html-to-image": "^0.1.1",
+    "html-to-image": "^1.8.5",
     "snabbdom": "^0.7",
     "sockette": "^2.0"
   },
