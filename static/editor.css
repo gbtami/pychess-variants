@@ -39,8 +39,8 @@ boardeditor {
     justify-content: initial;
 }
 .pocket-wrapper .editor {
-    width: var(--cgwrapwidth);
-    height: calc(var(--piecerows) * var(--cgwrapheight) / var(--ranks));
+    width: var(--cg-width);
+    height: calc(var(--piecerows) * var(--cg-height) / var(--ranks));
     display: flex;
     flex-wrap: wrap;
 }

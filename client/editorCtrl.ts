@@ -86,6 +86,7 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
+            addDimensionsCssVars: true,
         });
 
         boardSettings.ctrl = this;

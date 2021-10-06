@@ -297,6 +297,7 @@ export default class RoundController {
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
             animation: { enabled: this.animation },
+            addDimensionsCssVars: true,
         });
 
         if (this.spectator) {

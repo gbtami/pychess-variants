@@ -246,14 +246,15 @@ export default class AnalysisController {
             });
 
         this.chessground = Chessground(el, {
-             fen: fen_placement as cg.FEN,
-             variant: this.variant.name as cg.Variant,
-             chess960: this.chess960,
-             geometry: this.variant.geometry,
-             notation: this.notation,
-             orientation: this.mycolor,
-             turnColor: this.turnColor,
-             animation: { enabled: this.animation },
+            fen: fen_placement as cg.FEN,
+            variant: this.variant.name as cg.Variant,
+            chess960: this.chess960,
+            geometry: this.variant.geometry,
+            notation: this.notation,
+            orientation: this.mycolor,
+            turnColor: this.turnColor,
+            animation: { enabled: this.animation },
+            addDimensionsCssVars: true,
         });
 
         this.chessground.set({
