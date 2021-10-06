@@ -44,7 +44,6 @@
     "dev": "rollup --config rollup.config.dev.js",
     "prod": "rollup --config rollup.config.prod.js",
     "md": "./md2html.sh",
-    "md-mac": "./md2html-mac.sh",
     "heroku-postbuild": "yarn run prod && yarn run md",
     "test": "export TS_NODE_FILES=true; mocha -r ts-node/register -r jsdom-global/register 'tests/**/*.test.ts'"
   }
