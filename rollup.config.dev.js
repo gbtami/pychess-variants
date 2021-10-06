@@ -9,6 +9,7 @@ export default {
         name: "PychessVariants",
         file: "static/pychess-variants.js",
         format: "iife",
+        sourcemap: "inline",
     },
     plugins: [nodeResolve(), commonjs(), typescript(), wasm()],
 }
