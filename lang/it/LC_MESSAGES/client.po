@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-27 21:43+0200\n"
+"POT-Creation-Date: 2021-10-05 14:39+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Armando Gagliardi <armandogagliardi0@gmail.com>, 2021\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -137,7 +137,7 @@ msgstr ""
 "lichess.org si applicano anche qui."
 
 #: ../client/analysis.ts:38 ../client/editor.ts:33 ../client/lobby.ts:433
-#: ../client/lobby.ts:932 ../client/settingsView.ts:138
+#: ../client/lobby.ts:932 ../client/settingsView.ts:139
 msgid "Variant"
 msgstr "Variante"
 
@@ -194,12 +194,12 @@ msgstr "Profondità"
 msgid "Go deeper"
 msgstr "Aumenta la profondità"
 
-#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1395
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "Spettatori:"
 
-#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1476
 msgid "Requested game %1 not found!"
 msgstr "Partita richiesta %1 non trovata!"
 
@@ -215,19 +215,19 @@ msgstr "Scuro"
 msgid "Piece animation"
 msgstr "Animazione pezzi"
 
-#: ../client/boardSettings.ts:319
+#: ../client/boardSettings.ts:322
 msgid "Show piece destinations"
 msgstr "Mostra le mosse possibili"
 
-#: ../client/boardSettings.ts:337
+#: ../client/boardSettings.ts:340
 msgid "Promote to Queen automatically"
 msgstr "Promuovi a Donna automaticamente"
 
-#: ../client/boardSettings.ts:355
+#: ../client/boardSettings.ts:358
 msgid "Best move arrow in analysis board"
 msgstr "Freccia della mossa migliore in scacchiera d'analisi"
 
-#: ../client/boardSettings.ts:383
+#: ../client/boardSettings.ts:386
 msgid "Invisible pieces"
 msgstr "Pezzi invisibili"
 
@@ -267,205 +267,211 @@ msgstr "Attiva/disattiva la chat"
 msgid "Server"
 msgstr "Server"
 
-#: ../client/chess.ts:263
+#: ../client/chess.ts:264
 msgid "Chess, unmodified, as it's played by FIDE standards."
 msgstr ""
 
-#: ../client/chess.ts:280
+#: ../client/chess.ts:281
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr ""
 
-#: ../client/chess.ts:298
+#: ../client/chess.ts:299
 msgid "Choose where your pieces start."
 msgstr ""
 
-#: ../client/chess.ts:308
+#: ../client/chess.ts:309
 msgid "Pieces explode upon capture."
 msgstr ""
 
-#: ../client/chess.ts:318
+#: ../client/chess.ts:319
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr ""
 
-#: ../client/chess.ts:327
+#: ../client/chess.ts:328
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr ""
 
-#: ../client/chess.ts:336
+#: ../client/chess.ts:337
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr ""
 
-#: ../client/chess.ts:345
+#: ../client/chess.ts:346
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
 msgstr ""
 
-#: ../client/chess.ts:356
+#: ../client/chess.ts:357
+msgid ""
+"Makruk using the board/pieces from International Chess as well as pawn "
+"promotion rules."
+msgstr ""
+
+#: ../client/chess.ts:366
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
 msgstr ""
 
-#: ../client/chess.ts:384
+#: ../client/chess.ts:394
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr ""
 
-#: ../client/chess.ts:399
+#: ../client/chess.ts:409
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
 
-#: ../client/chess.ts:414
+#: ../client/chess.ts:424
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
 
-#: ../client/chess.ts:428
+#: ../client/chess.ts:438
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr ""
 
-#: ../client/chess.ts:443
+#: ../client/chess.ts:453
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr ""
 
-#: ../client/chess.ts:464
+#: ../client/chess.ts:474
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr ""
 
-#: ../client/chess.ts:473
+#: ../client/chess.ts:483
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
 msgstr ""
 
-#: ../client/chess.ts:483
+#: ../client/chess.ts:493
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr ""
 
-#: ../client/chess.ts:495
+#: ../client/chess.ts:505
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr ""
 
-#: ../client/chess.ts:504
+#: ../client/chess.ts:514
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr ""
 
-#: ../client/chess.ts:521
+#: ../client/chess.ts:531
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:538
+#: ../client/chess.ts:548
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
 msgstr ""
 
-#: ../client/chess.ts:548
+#: ../client/chess.ts:558
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:558
+#: ../client/chess.ts:568
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr ""
 
-#: ../client/chess.ts:568
+#: ../client/chess.ts:578
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:579
+#: ../client/chess.ts:589
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr ""
 
-#: ../client/chess.ts:588
+#: ../client/chess.ts:598
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
 
-#: ../client/chess.ts:601
+#: ../client/chess.ts:611
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr ""
 
-#: ../client/chess.ts:612
+#: ../client/chess.ts:622
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
 
-#: ../client/chess.ts:624
+#: ../client/chess.ts:634
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr ""
 
-#: ../client/chess.ts:633
+#: ../client/chess.ts:643
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr ""
 
-#: ../client/chess.ts:647
+#: ../client/chess.ts:657
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
 
-#: ../client/chess.ts:658
+#: ../client/chess.ts:668
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
 
-#: ../client/chess.ts:671
+#: ../client/chess.ts:681
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr ""
 
-#: ../client/chess.ts:681
+#: ../client/chess.ts:691
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr ""
 
-#: ../client/chess.ts:691
+#: ../client/chess.ts:701
 msgid "Gothic with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:716 ../client/lobby/layer1.ts:65
+#: ../client/chess.ts:726 ../client/lobby/layer1.ts:65
 #: ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr ""
 
-#: ../client/chess.ts:717 ../client/lobby/layer1.ts:89
+#: ../client/chess.ts:727 ../client/lobby/layer1.ts:89
 #: ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr ""
 
-#: ../client/chess.ts:718 ../client/lobby/layer1.ts:97
+#: ../client/chess.ts:728 ../client/lobby/layer1.ts:97
 #: ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr ""
 
-#: ../client/chess.ts:719 ../client/lobby/layer1.ts:105
+#: ../client/chess.ts:729 ../client/lobby/layer1.ts:105
 #: ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr ""
 
-#: ../client/chess.ts:720 ../client/lobby/layer1.ts:73
+#: ../client/chess.ts:730 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
 msgstr ""
 
-#: ../client/chess.ts:721 ../client/lobby/layer1.ts:81
+#: ../client/chess.ts:731 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr ""
@@ -586,7 +592,7 @@ msgstr "SVUOTA LA SCACCHIERA"
 msgid "STARTING POSITION"
 msgstr "POSIZIONE DI PARTENZA"
 
-#: ../client/editorCtrl.ts:180 ../client/roundCtrl.ts:712
+#: ../client/editorCtrl.ts:180 ../client/roundCtrl.ts:714
 msgid "ANALYSIS BOARD"
 msgstr "SCACCHIERA DI ANALISI"
 
@@ -907,7 +913,7 @@ msgstr ""
 msgid "Imported"
 msgstr "Importate"
 
-#: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1441
+#: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1443
 msgid " +15 seconds"
 msgstr "+15 secondi"
 
@@ -919,8 +925,8 @@ msgstr "Concedi 15 secondi"
 msgid "Abort"
 msgstr "Annulla "
 
-#: ../client/roundCtrl.ts:468 ../client/roundCtrl.ts:1121
-#: ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:468 ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:1125
 msgid "Count"
 msgstr "Conta"
 
@@ -971,77 +977,77 @@ msgstr "Cambia pezzi"
 msgid "Ready"
 msgstr "Pronto"
 
-#: ../client/roundCtrl.ts:641
+#: ../client/roundCtrl.ts:643
 msgid "VIEW REMATCH"
 msgstr ""
 
-#: ../client/roundCtrl.ts:648
+#: ../client/roundCtrl.ts:650
 msgid "Rematch offer sent"
 msgstr ""
 
-#: ../client/roundCtrl.ts:659
+#: ../client/roundCtrl.ts:661
 msgid "Your opponent offers a rematch"
 msgstr ""
 
-#: ../client/roundCtrl.ts:700
+#: ../client/roundCtrl.ts:702
 msgid "VIEW TOURNAMENT"
 msgstr ""
 
-#: ../client/roundCtrl.ts:703
+#: ../client/roundCtrl.ts:705
 msgid "BACK TO TOURNAMENT"
 msgstr ""
 
-#: ../client/roundCtrl.ts:705 ../client/tournament.ts:287
+#: ../client/roundCtrl.ts:707 ../client/tournament.ts:287
 msgid "PAUSE"
 msgstr ""
 
-#: ../client/roundCtrl.ts:708
+#: ../client/roundCtrl.ts:710
 msgid "REMATCH"
 msgstr "RIVINCITA"
 
-#: ../client/roundCtrl.ts:709
+#: ../client/roundCtrl.ts:711
 msgid "NEW OPPONENT"
 msgstr "NUOVO AVVERSARIO"
 
-#: ../client/roundCtrl.ts:1119
+#: ../client/roundCtrl.ts:1121
 msgid "Stop counting"
 msgstr "Ferma il conteggio"
 
-#: ../client/roundCtrl.ts:1119
+#: ../client/roundCtrl.ts:1121
 msgid "Stop"
 msgstr "Stop"
 
-#: ../client/roundCtrl.ts:1121 ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:1123 ../client/roundCtrl.ts:1125
 msgid "Start counting"
 msgstr "Comincia il conteggio"
 
-#: ../client/roundCtrl.ts:1353
+#: ../client/roundCtrl.ts:1355
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../client/settingsView.ts:62
+#: ../client/settingsView.ts:63
 msgid "Log out"
 msgstr "Esci"
 
-#: ../client/settingsView.ts:67
+#: ../client/settingsView.ts:68
 msgid "Are you sure you want to log out?"
 msgstr "Sei sicuro di volerti disconnettere?"
 
-#: ../client/settingsView.ts:74 ../client/settingsView.ts:110
+#: ../client/settingsView.ts:75 ../client/settingsView.ts:111
 msgid "Sound"
 msgstr "Suono"
 
-#: ../client/settingsView.ts:75 ../client/settingsView.ts:120
+#: ../client/settingsView.ts:76 ../client/settingsView.ts:121
 msgid "Background"
 msgstr "Sfondo"
 
-#: ../client/settingsView.ts:76 ../client/settingsView.ts:135
+#: ../client/settingsView.ts:77 ../client/settingsView.ts:136
 msgid "Board Settings"
 msgstr "Impostazioni scacchiera"
 
-#: ../client/settingsView.ts:77 ../client/settingsView.ts:127
+#: ../client/settingsView.ts:78 ../client/settingsView.ts:128
 msgid "Zen Mode"
 msgstr ""
 
@@ -1240,6 +1246,10 @@ msgstr ""
 msgid "Burmese Chess. You may place your starting pieces."
 msgstr ""
 
+#: ../client/lobby/layer2makruk.ts:63
+msgid "Makruk with International Chess influence."
+msgstr ""
+
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
 msgstr ""
@@ -1357,7 +1367,7 @@ msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:117
-msgid "It is important to know the counting rules in endgames."
+msgid "Maximizing khon and met's effectiveness is the key."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:119
@@ -1365,28 +1375,32 @@ msgid "Watch out for knight checks, since they cannot be blocked."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:121
-msgid "Be sure to review the nuances of pawn promotion rules."
+msgid "You can use placement to utilize your bigger pieces since the start."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:128 ../client/lobby/layer3.ts:140
+#: ../client/lobby/layer3.ts:125
+msgid "The ability to promote to rook makes for a dynamic endgame."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:130 ../client/lobby/layer3.ts:142
 msgid "Internationalized sets are available by going to settings."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:130
+#: ../client/lobby/layer3.ts:132
 msgid ""
 "Despite the simple appearance, there is still quite a bit of depth "
 "underlying this game."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:132
+#: ../client/lobby/layer3.ts:134
 msgid "Sets that show both sides are available by going to settings."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:134
+#: ../client/lobby/layer3.ts:136
 msgid ""
 "Reading the rules are a necessity to understand the movements before "
 "playing."
