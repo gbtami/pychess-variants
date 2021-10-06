@@ -41,8 +41,8 @@
     "zlib": "^1.0.5"
   },
   "scripts": {
-    "dev": "rollup -c",
-    "prod": "rollup -c",
+    "dev": "rollup --config rollup.config.dev.js",
+    "prod": "rollup --config rollup.config.prod.js",
     "md": "./md2html.sh",
     "md-mac": "./md2html-mac.sh",
     "heroku-postbuild": "yarn run prod && yarn run md",
