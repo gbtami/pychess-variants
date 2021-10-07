@@ -316,6 +316,7 @@ msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
 msgstr ""
+"Makruk z figurami planszą i zasadami promocji jak w standardowych szachach."
 
 #: ../client/chess.ts:366
 msgid ""
@@ -1329,7 +1330,7 @@ msgstr "Szachy birmańskie. Możesz wybrać pozycje początkowe swoich figur."
 
 #: ../client/lobby/layer2makruk.ts:63
 msgid "Makruk with International Chess influence."
-msgstr ""
+msgstr "Makruk z modyfikacjami na wzór standardowych szachów."
 
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
@@ -1454,7 +1455,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:117
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr ""
+msgstr "Maksymalizowanie aktywności hetmanów i gońców jest kluczowe."
 
 #: ../client/lobby/layer3.ts:119
 msgid "Watch out for knight checks, since they cannot be blocked."
@@ -1463,6 +1464,8 @@ msgstr "Uważaj na szachy skoczkiem, ponieważ nie da się przed nimi zasłonić
 #: ../client/lobby/layer3.ts:121
 msgid "You can use placement to utilize your bigger pieces since the start."
 msgstr ""
+"Możesz ustawić swoje najsilniejsze figury tak, aby wykorzystać je już od "
+"pierwszych posunięć."
 
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."
@@ -1472,7 +1475,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:125
 msgid "The ability to promote to rook makes for a dynamic endgame."
-msgstr ""
+msgstr "Możliwość promocji na wieżę czyni grę bardziej dynamiczną."
 
 #: ../client/lobby/layer3.ts:130 ../client/lobby/layer3.ts:142
 msgid "Internationalized sets are available by going to settings."
