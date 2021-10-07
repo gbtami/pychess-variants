@@ -1,10 +1,10 @@
 import random
 import string
 
-ID_CHARS = string.ascii_letters + string.digits
+ID_CHARS: str = string.ascii_letters + string.digits
 
 
-def id8():
+def id8() -> str:
     return "".join(random.choice(ID_CHARS) for x in range(8))
 
 
