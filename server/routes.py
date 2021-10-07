@@ -41,7 +41,7 @@ from wst import tournament_socket_handler
 from twitch import twitch
 
 
-get_routes = (
+get_routes: tuple[tuple] = (
     ("/login", login),
     ("/oauth", oauth),
     ("/logout", logout),
@@ -109,7 +109,7 @@ get_routes = (
     ("/robots.txt", robots),
 )
 
-post_routes = (
+post_routes: tuple[tuple] = (
     ("/api/bot/game/{gameId}/abort", bot_abort),
     ("/api/bot/game/{gameId}/resign", bot_resign),
     ("/api/bot/game/{gameId}/analysis", bot_analysis),
