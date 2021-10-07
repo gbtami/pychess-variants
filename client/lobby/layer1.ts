@@ -52,7 +52,6 @@ export function variantPanels (lobbyCtrl: LobbyController): VNode {
             case 'shogi': css = 'shogikw3d'; break;
             case 'kyoto': css = 'kyotok'; break;
             case 'xiangqi': css = 'xiangqihnzw'; break;
-            case 'xiangqi': css = 'xiangqihnzw'; break;
             case 'janggi': css = 'janggikaw'; break;
             default: css = PIECE_FAMILIES[family].pieceCSS[0]; break;
         };

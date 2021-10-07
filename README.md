@@ -10,6 +10,7 @@ Currently supported games are:
 - [Makpong](https://www.pychess.org/variants/makpong)
 - [Ouk Chatrang](https://www.pychess.org/variants/cambodian)
 - [Sittuyin](https://www.pychess.org/variants/sittuyin)
+- [ASEAN Chess](https://www.pychess.org/variants/asean)
 - [Shogi](https://www.pychess.org/variants/shogi)
 - [Minishogi](https://www.pychess.org/variants/minishogi)
 - [Kyoto shogi](https://www.pychess.org/variants/kyotoshogi)

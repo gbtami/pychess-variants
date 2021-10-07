@@ -29,6 +29,8 @@ export function aboutView(): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/sittuyin' } }, 'Sittuyin'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/asean' } }, 'ASEAN Chess'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/shogi' } }, 'Shogi'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/minishogi' } }, 'Minishogi'),
