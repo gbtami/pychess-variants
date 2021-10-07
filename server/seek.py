@@ -123,11 +123,11 @@ async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
     return seek
 
 
-def get_seeks(seeks):
+def get_seeks(seeks) -> dict:
     return {"type": "get_seeks", "seeks": [seek.as_json for seek in seeks.values()]}
 
 
-def challenge(seek, gameId):
+def challenge(seek, gameId) -> str:
     return (
         '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'
         % (
