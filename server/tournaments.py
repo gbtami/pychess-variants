@@ -3,7 +3,21 @@ import logging
 from datetime import datetime, timezone
 
 from compress import C2V, V2C, C2R
-from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, T_FINISHED, T_ARCHIVED, SHIELD, VARIANTS, MAX_CHAT_LINES
+from const import (
+    CASUAL,
+    RATED,
+    ARENA,
+    RR,
+    SWISS,
+    variant_display_name,
+    T_STARTED,
+    T_CREATED,
+    T_FINISHED,
+    T_ARCHIVED,
+    SHIELD,
+    VARIANTS,
+    MAX_CHAT_LINES,
+)
 from newid import new_id
 from user import User
 
@@ -28,22 +42,30 @@ async def create_or_update_tournament(app, username, form, tournament=None):
     frequency = SHIELD if form["shield"] == "true" else ""
 
     if form["startDate"]:
-        start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(tzinfo=timezone.utc)
+        start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(
+            tzinfo=timezone.utc
+        )
     else:
         start_date = None
 
     name = form["name"]
     # Create meningful tournament name in case we forget to change it :)
     if name in ADMINS:
-        name = "%s %s Arena" % (variant_display_name(variant).title(), time_control_str(base, inc, bp))
+        name = "%s %s Arena" % (
+            variant_display_name(variant).title(),
+            time_control_str(base, inc, bp),
+        )
 
     if frequency == SHIELD:
         name = "%s Shield Arena" % variant_display_name(variant).title()
-        description = """
+        description = (
+            """
 This Shield trophy is unique.
 The winner keeps it for one month,
 then must defend it during the next %s Shield tournament!
-""" % variant_display_name(variant).title()
+"""
+            % variant_display_name(variant).title()
+        )
     else:
         description = form["description"]
 
@@ -99,7 +121,8 @@ async def new_tournament(app, data):
         tournament_class = RRTournament
 
     tournament = tournament_class(
-        app, tid,
+        app,
+        tid,
         variant=data["variant"],
         base=data["base"],
         inc=data["inc"],
@@ -117,7 +140,7 @@ async def new_tournament(app, data):
         description=data["description"],
         created_at=data.get("createdAt"),
         status=data.get("status"),
-        with_clock=data.get("with_clock", True)
+        with_clock=data.get("with_clock", True),
     )
 
     app["tournaments"][tid] = tournament
@@ -157,7 +180,9 @@ async def upsert_tournament_to_db(tournament, app):
     }
 
     try:
-        await app["db"].tournament.find_one_and_update({"_id": tournament.id}, {"$set": new_data}, upsert=True)
+        await app["db"].tournament.find_one_and_update(
+            {"_id": tournament.id}, {"$set": new_data}, upsert=True
+        )
     except Exception:
         if app["db"] is not None:
             log.error("Failed to save tournament data to mongodb!")
@@ -179,10 +204,14 @@ async def get_winners(app, shield):
             filter_cond["fr"] = SHIELD
 
         winners = []
-        cursor = app["db"].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=5)
+        cursor = app["db"].tournament.find(
+            filter_cond, sort=[("startsAt", -1)], limit=5
+        )
         async for doc in cursor:
             print("---", doc)
-            winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
+            winners.append(
+                (doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"])
+            )
 
         wi[variant] = winners
 
@@ -194,7 +223,7 @@ async def get_latest_tournaments(app):
     started, scheduled, completed = [], [], []
 
     cursor = app["db"].tournament.find()
-    cursor.sort('startsAt', -1)
+    cursor.sort("startsAt", -1)
     nb_tournament = 0
     async for doc in cursor:
         nb_tournament += 1
@@ -213,7 +242,9 @@ async def get_latest_tournaments(app):
                 tournament_class = RRTournament
 
             tournament = tournament_class(
-                app, tid, C2V[doc["v"]],
+                app,
+                tid,
+                C2V[doc["v"]],
                 base=doc["b"],
                 inc=doc["i"],
                 byoyomi_period=int(bool(doc.get("bp"))),
@@ -229,7 +260,7 @@ async def get_latest_tournaments(app):
                 description=doc.get("d", ""),
                 frequency=doc.get("fr", ""),
                 status=doc["status"],
-                with_clock=False
+                with_clock=False,
             )
             tournament.nb_players = doc["nbPlayers"]
 
@@ -244,7 +275,7 @@ async def get_latest_tournaments(app):
 
 
 async def get_tournament_name(app, tournament_id):
-    """ Return Tournament name from app cache or from database """
+    """Return Tournament name from app cache or from database"""
     if tournament_id in app["tourneynames"]:
         return app["tourneynames"][tournament_id]
 
@@ -264,7 +295,7 @@ async def get_tournament_name(app, tournament_id):
 
 
 async def load_tournament(app, tournament_id):
-    """ Return Tournament object from app cache or from database """
+    """Return Tournament object from app cache or from database"""
     db = app["db"]
     users = app["users"]
     tournaments = app["tournaments"]
@@ -284,7 +315,9 @@ async def load_tournament(app, tournament_id):
         tournament_class = RRTournament
 
     tournament = tournament_class(
-        app, doc["_id"], C2V[doc["v"]],
+        app,
+        doc["_id"],
+        C2V[doc["v"]],
         base=doc["b"],
         inc=doc["i"],
         byoyomi_period=int(bool(doc.get("bp"))),
@@ -315,14 +348,16 @@ async def load_tournament(app, tournament_id):
     nb_players = 0
 
     if tournament.status == T_CREATED:
-        cursor.sort('r', -1)
+        cursor.sort("r", -1)
 
     async for doc in cursor:
         uid = doc["uid"]
         if uid in users:
             user = users[uid]
         else:
-            user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
+            user = User(
+                app, username=uid, title="TEST" if tournament_id == "12345678" else ""
+            )
             users[uid] = user
 
         withdrawn = doc.get("wd", False)
@@ -346,7 +381,7 @@ async def load_tournament(app, tournament_id):
 
     pairing_table = app["db"].tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})
-    cursor.sort('d', 1)
+    cursor.sort("d", 1)
 
     w_win, b_win, draw = 0, 0, 0
     async for doc in cursor:

@@ -1,13 +1,13 @@
 from settings import static_url
 
 # Max number of lobby chat lines (deque limit)
-MAX_CHAT_LINES = 100
+MAX_CHAT_LINES: int = 100
 
 # Minimum number of rated games needed
-HIGHSCORE_MIN_GAMES = 5
+HIGHSCORE_MIN_GAMES: int = 5
 
 # Show the number of spectators only after this limit
-MAX_NAMED_SPECTATORS = 20
+MAX_NAMED_SPECTATORS: int = 20
 
 # tournament status
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
@@ -19,7 +19,24 @@ DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
 ARENA, RR, SWISS = range(3)
 
 # translations
-LANGUAGES = ["de", "en", "es", "gl_ES", "fr", "hu", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "zh"]
+LANGUAGES: list = [
+    "de",
+    "en",
+    "es",
+    "gl_ES",
+    "fr",
+    "hu",
+    "it",
+    "ja",
+    "ko",
+    "nl",
+    "pl",
+    "pt",
+    "ru",
+    "th",
+    "tr",
+    "zh",
+]
 
 # fishnet work types
 MOVE, ANALYSIS = 0, 1
@@ -28,21 +45,39 @@ MOVE, ANALYSIS = 0, 1
 CASUAL, RATED, IMPORTED = 0, 1, 2
 
 # game status
-CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
-    ABANDONE, CHEAT, BYEGAME, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND, CLAIM = range(-2, 14)
+(
+    CREATED,
+    STARTED,
+    ABORTED,
+    MATE,
+    RESIGN,
+    STALEMATE,
+    TIMEOUT,
+    DRAW,
+    FLAG,
+    ABANDONE,
+    CHEAT,
+    BYEGAME,
+    INVALIDMOVE,
+    UNKNOWNFINISH,
+    VARIANTEND,
+    CLAIM,
+) = range(-2, 14)
 
-LOSERS = {
+LOSERS: dict = {
     "abandone": ABANDONE,
     "abort": ABORTED,
     "resign": RESIGN,
     "flag": FLAG,
 }
 
-GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
+GRANDS: tuple = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 
-CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
+CONSERVATIVE_CAPA_FEN: tuple = (
+    "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
+)
 
-VARIANTS = (
+VARIANTS: tuple = (
     "chess",
     "chess960",
     "crazyhouse",
@@ -89,7 +124,7 @@ VARIANTS = (
     "ordamirror",
 )
 
-VARIANT_ICONS = {
+VARIANT_ICONS: tuple = {
     "makruk": "Q",
     "makpong": "O",
     "sittuyin": ":",
@@ -134,12 +169,12 @@ VARIANT_ICONS = {
     "asean": "♻",
 }
 
-VARIANT_960_TO_PGN = {
+VARIANT_960_TO_PGN: dict = {
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
-    "atomic": "Atomic",          # to let lichess import work
+    "atomic": "Atomic",  # to let lichess import work
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -149,21 +184,42 @@ VARIANT_960_TO_PGN = {
     "grand": "Grand",
 }
 
-CATEGORIES = {
-    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
-    "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
+CATEGORIES: dict = {
+    "chess": (
+        "chess",
+        "chess960",
+        "crazyhouse",
+        "crazyhouse960",
+        "placement",
+        "atomic",
+        "atomic960",
+    ),
+    "fairy": (
+        "capablanca",
+        "capablanca960",
+        "capahouse",
+        "capahouse960",
+        "seirawan",
+        "seirawan960",
+        "shouse",
+        "grand",
+        "grandhouse",
+        "shako",
+        "shogun",
+        "hoppelpoppel",
+    ),
     "army": ("orda", "synochess", "shinobi", "empire", "ordamirror"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 
-VARIANT_GROUPS = {}
+VARIANT_GROUPS: dict = {}
 for categ in CATEGORIES:
     for variant in CATEGORIES[categ]:
         VARIANT_GROUPS[variant] = categ
 
-TROPHIES = {
+TROPHIES: dict = {
     "top1": (static_url("images/trophy/Big-Gold-Cup.png"), "Champion!"),
     "top10": (static_url("images/trophy/Big-Silver-Cup.png"), "Top 10!"),
     "top50": (static_url("images/trophy/Fancy-Gold-Cup.png"), "Top 50!"),
@@ -172,7 +228,7 @@ TROPHIES = {
 }
 
 
-def variant_display_name(variant):
+def variant_display_name(variant: str) -> str:
     if variant == "seirawan":
         return "S-CHESS"
     elif variant == "seirawan960":
@@ -191,7 +247,7 @@ def variant_display_name(variant):
         return variant.upper()
 
 
-def pairing_system_name(system):
+def pairing_system_name(system: int) -> str:
     if system == 0:
         return "Arena"
     elif system == 1:

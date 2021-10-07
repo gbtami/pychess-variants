@@ -1,5 +1,5 @@
 # TODO: store in mongodb
-TWITCH_STREAMERS = {
+TWITCH_STREAMERS: dict[str] = {
     "chessbia": "WIM chessbia",
     "chessdori": "WFM DemeterDorina",
     "joannatries": "JoannaTries",

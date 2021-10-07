@@ -2,13 +2,14 @@ import random
 
 from const import SWISS
 from tournament import Tournament, ByeGame
+from server.types import TournamentTye, TournamentType
 
 
 class SwissTournament(Tournament):
     system = SWISS
 
-    def create_pairing(self, waiting_players):
-        pairing = []
+    def create_pairing(self, waiting_players: list):
+        pairing: list = []
 
         # TODO: use bbpPairings instead of random pairings
         while len(waiting_players) > 1:

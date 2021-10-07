@@ -10,21 +10,28 @@ from utils import load_game
 def performance(user, games):
     perf = 0
     for game in games:
-        print("   ", game.wplayer.username, game.bplayer.username, game.result, game.white_rating.rating_prov[0], game.black_rating.rating_prov[0])
+        print(
+            "   ",
+            game.wplayer.username,
+            game.bplayer.username,
+            game.result,
+            game.white_rating.rating_prov[0],
+            game.black_rating.rating_prov[0],
+        )
         if game.wplayer.username == user.username:
             if game.result == "1-0":
                 print("WIN  +", game.black_rating.rating_prov[0] + 500)
-                perf += (game.black_rating.rating_prov[0] + 500)
+                perf += game.black_rating.rating_prov[0] + 500
             else:
                 print("LOSE +", game.black_rating.rating_prov[0] + 500)
-                perf += (game.black_rating.rating_prov[0] - 500)
+                perf += game.black_rating.rating_prov[0] - 500
         else:
             if game.result == "0-1":
                 print("WIN  +", game.white_rating.rating_prov[0] + 500)
-                perf += (game.white_rating.rating_prov[0] + 500)
+                perf += game.white_rating.rating_prov[0] + 500
             else:
                 print("LOSE +", game.white_rating.rating_prov[0] + 500)
-                perf += (game.white_rating.rating_prov[0] - 500)
+                perf += game.white_rating.rating_prov[0] - 500
         print("   ", perf)
     return perf
 
@@ -95,7 +102,17 @@ async def fix_first_minishogi_arena(app):
     await t.db_update_player(Diwaditya, t.players[Diwaditya])
 
     # fix game
-    await db.game.find_one_and_update({"_id": game_id}, {"$set": {"s": MATE, "r": R2C["1-0"], "p0": {"e": "1823?", "d": 0}, "p1": {"e": "1382", "d": 0}}})
+    await db.game.find_one_and_update(
+        {"_id": game_id},
+        {
+            "$set": {
+                "s": MATE,
+                "r": R2C["1-0"],
+                "p0": {"e": "1823?", "d": 0},
+                "p1": {"e": "1382", "d": 0},
+            }
+        },
+    )
 
     # fix ubdip
     doc = await db.user.find_one({"_id": "ubdip"})
@@ -103,15 +120,7 @@ async def fix_first_minishogi_arena(app):
 
     la = "2021-07-17T16:07:59.405Z"
     la = datetime.fromisoformat(la[:-1]).replace(tzinfo=timezone.utc)
-    minishogi = {
-        "la": la,
-        "nb": 13,
-        "gl": {
-            "r": 1501 + 322,
-            "d": 315,
-            "v": 0.06
-        }
-    }
+    minishogi = {"la": la, "nb": 13, "gl": {"r": 1501 + 322, "d": 315, "v": 0.06}}
     perfs["minishogi"] = minishogi
     users["ubdip"].perfs = perfs
     await db.user.find_one_and_update({"_id": "ubdip"}, {"$set": {"perfs": perfs}})
@@ -121,15 +130,7 @@ async def fix_first_minishogi_arena(app):
     perfs = doc.get("perfs")
     la = "2021-07-17T16:10:37.330Z"
     la = datetime.fromisoformat(la[:-1]).replace(tzinfo=timezone.utc)
-    minishogi = {
-        "la": la,
-        "nb": 35,
-        "gl": {
-            "r": 1367 - 209,
-            "d": 252,
-            "v": 0.06
-        }
-    }
+    minishogi = {"la": la, "nb": 35, "gl": {"r": 1367 - 209, "d": 252, "v": 0.06}}
     perfs["minishogi"] = minishogi
     users["Diwaditya"].perfs = perfs
     await db.user.find_one_and_update({"_id": "Diwaditya"}, {"$set": {"perfs": perfs}})

@@ -1,4 +1,4 @@
-NEWS = {
+NEWS: dict = {
     "Hot_Summer": "2021-09-02",
     "Empire_Chess_and_Orda_Mirror_Have_Arrived": "2021-07-30",
     "Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms": "2021-04-21",

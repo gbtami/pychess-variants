@@ -1,4 +1,7 @@
-def silence(message, lobbychat, users):
+import typing as t
+
+
+def silence(message: str, lobbychat: list, users: dict) -> dict:
     response = None
     spammer = message.split()[-1]
     if spammer in users:
@@ -11,6 +14,14 @@ def silence(message, lobbychat, users):
                 del lobbychat[i - 1]
             i -= 1
 
-        lobbychat.append({"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer})
+        lobbychat.append(
+            {
+                "type": "lobbychat",
+                "user": "",
+                "message": "%s was timed out 10 minutes for spamming the chat."
+                % spammer,
+            }
+        )
         response = {"type": "fullchat", "lines": list(lobbychat)}
+    print(type(users))
     return response

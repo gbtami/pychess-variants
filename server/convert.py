@@ -1,10 +1,21 @@
-def usi2uci(move):
-    """ Used to read USI format moves from old db games """
+def usi2uci(move: list) -> str:
+    """Used to read USI format moves from old db games"""
     if move[1] == "*":
         return "%s@%s%s" % (move[0], chr(ord(move[2]) + 48), chr(ord(move[3]) - 48))
     if move[2] == "*":
-        return "%s%s@%s%s" % (move[0], move[1], chr(ord(move[3]) + 48), chr(ord(move[4]) - 48))
-    return "%s%s%s%s%s" % (chr(ord(move[0]) + 48), chr(ord(move[1]) - 48), chr(ord(move[2]) + 48), chr(ord(move[3]) - 48), move[4] if len(move) == 5 else "")
+        return "%s%s@%s%s" % (
+            move[0],
+            move[1],
+            chr(ord(move[3]) + 48),
+            chr(ord(move[4]) - 48),
+        )
+    return "%s%s%s%s%s" % (
+        chr(ord(move[0]) + 48),
+        chr(ord(move[1]) - 48),
+        chr(ord(move[2]) + 48),
+        chr(ord(move[3]) - 48),
+        move[4] if len(move) == 5 else "",
+    )
 
 
 # reversed letters
@@ -16,33 +27,66 @@ D5 = str.maketrans("12345", "54321")
 D9 = str.maketrans("123456789", "987654321")
 
 
-def mirror5(move):
+def mirror5(move: list) -> str:
     if move[1] == "@":
         return "%s@%s%s" % (move[0], move[2].translate(L5), move[3].translate(D5))
     if move[2] == "@":
-        return "%s%s@%s%s" % (move[0], move[1], move[3].translate(L5), move[4].translate(D5))
-    return "%s%s%s%s%s" % (move[0].translate(L5), move[1].translate(D5), move[2].translate(L5), move[3].translate(D5), move[4] if len(move) == 5 else "")
+        return "%s%s@%s%s" % (
+            move[0],
+            move[1],
+            move[3].translate(L5),
+            move[4].translate(D5),
+        )
+    return "%s%s%s%s%s" % (
+        move[0].translate(L5),
+        move[1].translate(D5),
+        move[2].translate(L5),
+        move[3].translate(D5),
+        move[4] if len(move) == 5 else "",
+    )
 
 
-def mirror9(move):
+def mirror9(move: list) -> str:
     if move[1] == "@":
         return "%s@%s%s" % (move[0], move[2].translate(L9), move[3].translate(D9))
     if move[2] == "@":
-        return "%s%s@%s%s" % (move[0], move[1], move[3].translate(L9), move[4].translate(D9))
-    return "%s%s%s%s%s" % (move[0].translate(L9), move[1].translate(D9), move[2].translate(L9), move[3].translate(D9), move[4] if len(move) == 5 else "")
+        return "%s%s@%s%s" % (
+            move[0],
+            move[1],
+            move[3].translate(L9),
+            move[4].translate(D9),
+        )
+    return "%s%s%s%s%s" % (
+        move[0].translate(L9),
+        move[1].translate(D9),
+        move[2].translate(L9),
+        move[3].translate(D9),
+        move[4] if len(move) == 5 else "",
+    )
 
 
-def uci2usi(move):
+def uci2usi(move: list) -> str:
     if move[1] == "@":
         return "%s*%s%s" % (move[0], chr(ord(move[2]) - 48), chr(ord(move[3]) + 48))
     if move[2] == "@":
-        return "%s%s*%s%s" % (move[0], move[1], chr(ord(move[3]) - 48), chr(ord(move[4]) + 48))
-    return "%s%s%s%s%s" % (chr(ord(move[0]) - 48), chr(ord(move[1]) + 48), chr(ord(move[2]) - 48), chr(ord(move[3]) + 48), move[4] if len(move) == 5 else "")
+        return "%s%s*%s%s" % (
+            move[0],
+            move[1],
+            chr(ord(move[3]) - 48),
+            chr(ord(move[4]) + 48),
+        )
+    return "%s%s%s%s%s" % (
+        chr(ord(move[0]) - 48),
+        chr(ord(move[1]) + 48),
+        chr(ord(move[2]) - 48),
+        chr(ord(move[3]) + 48),
+        move[4] if len(move) == 5 else "",
+    )
 
 
-def grand2zero(move):
-    """ Converts 1 based UCI move ranks (1-10) to be 0 based (0-9)
-        This step is needed to use compress.py (store 2 byte moves on 1 byte)"""
+def grand2zero(move: list) -> str:
+    """Converts 1 based UCI move ranks (1-10) to be 0 based (0-9)
+    This step is needed to use compress.py (store 2 byte moves on 1 byte)"""
 
     if move[1] == "@":
         return "%s@%s%s" % (move[0], move[2], int(move[3:]) - 1)
@@ -50,18 +94,41 @@ def grand2zero(move):
     if move[-1].isdigit():
         # normal move
         if move[2].isdigit():
-            return "%s%s%s%s" % (move[0], int(move[1:3]) - 1, move[3], int(move[4:]) - 1)
+            return "%s%s%s%s" % (
+                move[0],
+                int(move[1:3]) - 1,
+                move[3],
+                int(move[4:]) - 1,
+            )
         return "%s%s%s%s" % (move[0], int(move[1]) - 1, move[2], int(move[3:]) - 1)
     else:
         # promotion
         promo = move[-1]
         move = move[:-1]
         if move[2].isdigit():
-            return "%s%s%s%s%s" % (move[0], int(move[1:3]) - 1, move[3], int(move[4:]) - 1, promo)
-        return "%s%s%s%s%s" % (move[0], int(move[1]) - 1, move[2], int(move[3:]) - 1, promo)
+            return "%s%s%s%s%s" % (
+                move[0],
+                int(move[1:3]) - 1,
+                move[3],
+                int(move[4:]) - 1,
+                promo,
+            )
+        return "%s%s%s%s%s" % (
+            move[0],
+            int(move[1]) - 1,
+            move[2],
+            int(move[3:]) - 1,
+            promo,
+        )
 
 
-def zero2grand(move):
+def zero2grand(move: list) -> str:
     if move[1] == "@":
         return "%s@%s%s" % (move[0], move[2], int(move[3:]) + 1)
-    return "%s%s%s%s%s" % (move[0], int(move[1]) + 1, move[2], int(move[3]) + 1, move[4] if len(move) == 5 else "")
+    return "%s%s%s%s%s" % (
+        move[0],
+        int(move[1]) + 1,
+        move[2],
+        int(move[3]) + 1,
+        move[4] if len(move) == 5 else "",
+    )

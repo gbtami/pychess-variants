@@ -1,23 +1,24 @@
 import time
-
+import typing as t
 from const import ARENA
+from server.types import NullType, PlayerDataType, Time
 from tournament import Tournament
 
 
 class ArenaTournament(Tournament):
     system = ARENA
 
-    def create_pairing(self, waiting_players):
-        start = time.time()
-        pairing = []
+    def create_pairing(self, waiting_players: list[PlayerDataType]) -> list:
+        start: Time = time.time()
+        pairing: list = []
 
         print("=== WAITING PLAYERS ===", len(waiting_players))
         for p in waiting_players:
             print("%20s %s" % (p.username, self.leaderboard[p]))
         print("======================")
 
-        failed = 0
-        failed_limit = len(waiting_players)
+        failed: int = 0
+        failed_limit: int = len(waiting_players)
         while True:
             if len(waiting_players) <= 1:
                 if len(waiting_players) == 1:
@@ -30,7 +31,7 @@ class ArenaTournament(Tournament):
             x = waiting_players[0]
             print("pairing...", x.username)
 
-            def find_opp(max_color_diff):
+            def find_opp(max_color_diff) -> bool:
                 find = False
 
                 if len(waiting_players) == 3:
@@ -42,7 +43,10 @@ class ArenaTournament(Tournament):
                     else:
                         y = a if b.username == x.username else b
 
-                    if not (y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp):
+                    if not (
+                        y.username == self.players[x].prev_opp
+                        or x.username == self.players[y].prev_opp
+                    ):
                         if self.players[x].color_diff < self.players[y].color_diff:
                             wp, bp = x, y
                         else:
@@ -61,7 +65,10 @@ class ArenaTournament(Tournament):
                     if y.username == x.username:
                         print("   SKIP the same")
                         continue
-                    if y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp:
+                    if (
+                        y.username == self.players[x].prev_opp
+                        or x.username == self.players[y].prev_opp
+                    ):
                         print("   FAIL, same prev_opp")
                         continue
 
@@ -73,7 +80,11 @@ class ArenaTournament(Tournament):
                     elif self.players[x].color_diff < max_color_diff:
                         # player x played more black games
                         if self.players[x].color_diff >= self.players[y].color_diff:
-                            print("   FAILED color_diff x vs y", self.players[x].color_diff, self.players[y].color_diff)
+                            print(
+                                "   FAILED color_diff x vs y",
+                                self.players[x].color_diff,
+                                self.players[y].color_diff,
+                            )
                             continue
                         else:
                             find = True

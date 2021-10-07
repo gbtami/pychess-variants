@@ -7,7 +7,25 @@ MAX_USER_SEEKS = 10
 class Seek:
     gen_id = 0
 
-    def __init__(self, creator, variant, fen="", color="r", base=5, inc=3, byoyomi_period=0, level=6, rated=False, chess960=False, alternate_start="", target="", player1=None, player2=None, ws=None, game_id=None):
+    def __init__(
+        self,
+        creator,
+        variant,
+        fen="",
+        color="r",
+        base=5,
+        inc=3,
+        byoyomi_period=0,
+        level=6,
+        rated=False,
+        chess960=False,
+        alternate_start="",
+        target="",
+        player1=None,
+        player2=None,
+        ws=None,
+        game_id=None,
+    ):
         self.creator = creator
         self.variant = variant
         self.color = color
@@ -60,14 +78,14 @@ class Seek:
 
 
 async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
-    """ Seek can be
-        - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
-        - challenge (has another username as target)
-        - normal seek (no target)
+    """Seek can be
+    - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
+    - challenge (has another username as target)
+    - normal seek (no target)
 
-        Empty seek is a seek where the seeker doesn't play
-        Currently there is no limit for them since they're used for tournament organisation purposes
-        They can only be created by trusted users
+    Empty seek is a seek where the seeker doesn't play
+    Currently there is no limit for them since they're used for tournament organisation purposes
+    They can only be created by trusted users
     """
     if len(user.seeks) >= MAX_USER_SEEKS and not empty:
         return
@@ -79,7 +97,8 @@ async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
         game_id = None
 
     seek = Seek(
-        user, data["variant"],
+        user,
+        data["variant"],
         fen=data["fen"],
         color=data["color"],
         base=data["minutes"],
@@ -92,7 +111,8 @@ async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
         player1=None if empty else user,
         player2=None,
         ws=ws,
-        game_id=game_id)
+        game_id=game_id,
+    )
 
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
@@ -108,4 +128,13 @@ def get_seeks(seeks):
 
 
 def challenge(seek, gameId):
-    return '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n' % (gameId, seek.creator.username, seek.variant, seek.level, str(seek.chess960).lower())
+    return (
+        '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'
+        % (
+            gameId,
+            seek.creator.username,
+            seek.variant,
+            seek.level,
+            str(seek.chess960).lower(),
+        )
+    )

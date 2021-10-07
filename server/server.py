@@ -32,7 +32,16 @@ from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
-from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
+from settings import (
+    DEV,
+    MAX_AGE,
+    SECRET_KEY,
+    MONGO_HOST,
+    MONGO_DB_NAME,
+    FISHNET_KEYS,
+    URI,
+    static_url,
+)
 from user import User
 from tournaments import load_tournament
 from twitch import Twitch
@@ -61,7 +70,12 @@ async def on_prepare(request, response):
 def make_app(with_db=True):
     app = web.Application()
     parts = urlparse(URI)
-    setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"))
+    setup(
+        app,
+        EncryptedCookieStorage(
+            SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"
+        ),
+    )
 
     if with_db:
         app.on_startup.append(init_db)
@@ -81,7 +95,10 @@ def make_app(with_db=True):
 
 
 async def init_db(app):
-    app["client"] = ma.AsyncIOMotorClient(MONGO_HOST, tz_aware=True,)
+    app["client"] = ma.AsyncIOMotorClient(
+        MONGO_HOST,
+        tz_aware=True,
+    )
     app["db"] = app["client"][MONGO_DB_NAME]
 
 
@@ -100,13 +117,25 @@ async def init_state(app):
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
     app["users"]["Random-Mover"].online = True
-    app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
+    app[
+        "lobbysockets"
+    ] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
     app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
 
-    app["tourneysockets"] = {}  # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-    app["tourneynames"] = {}    # cache for profile game list page {tournamentId: tournament.name, ...}
+    app[
+        "tourneysockets"
+    ] = (
+        {}
+    )  # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
+    app[
+        "tourneynames"
+    ] = {}  # cache for profile game list page {tournamentId: tournament.name, ...}
     app["tournaments"] = {}
-    app["tourneychat"] = {}  # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
+    app[
+        "tourneychat"
+    ] = (
+        {}
+    )  # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
 
     app["seeks"] = {}
     app["games"] = {}
@@ -157,26 +186,29 @@ async def init_state(app):
         poname = os.path.join(folder, "server.po")
         moname = os.path.join(folder, "server.mo")
         try:
-            with open(poname, 'rb') as po_file:
+            with open(poname, "rb") as po_file:
                 po_lines = [line for line in po_file if line[:8] != b"#, fuzzy"]
                 mo = Msgfmt(po_lines).get()
-                with open(moname, 'wb') as mo_file:
+                with open(moname, "wb") as mo_file:
                     mo_file.write(mo)
         except PoSyntaxError:
             log.error("PoSyntaxError in %s", poname)
 
         # Create translation class
         try:
-            translation = gettext.translation("server", localedir="lang", languages=[lang])
+            translation = gettext.translation(
+                "server", localedir="lang", languages=[lang]
+            )
         except FileNotFoundError:
             log.warning("Missing translations file for lang %s", lang)
             translation = gettext.NullTranslations()
 
         env = jinja2.Environment(
             enable_async=True,
-            extensions=['jinja2.ext.i18n'],
+            extensions=["jinja2.ext.i18n"],
             loader=jinja2.FileSystemLoader("templates"),
-            autoescape=jinja2.select_autoescape(["html"]))
+            autoescape=jinja2.select_autoescape(["html"]),
+        )
         env.install_gettext_translations(translation, newstyle=True)
         env.globals["static"] = static_url
 
@@ -200,11 +232,11 @@ async def init_state(app):
                     title=doc.get("title"),
                     bot=doc.get("title") == "BOT",
                     perfs=perfs,
-                    enabled=doc.get("enabled", True)
+                    enabled=doc.get("enabled", True),
                 )
 
         cursor = app["db"].tournament.find()
-        cursor.sort('startsAt', -1)
+        cursor.sort("startsAt", -1)
         counter = 0
         async for doc in cursor:
             if doc["status"] in (T_CREATED, T_STARTED):
@@ -263,7 +295,7 @@ async def shutdown(app):
 
     # No need to wait in dev mode and in unit tests
     if not DEV and app["db"] is not None:
-        print('......WAIT 25')
+        print("......WAIT 25")
         await asyncio.sleep(25)
 
     for user in app["users"].values():
@@ -280,7 +312,10 @@ async def shutdown(app):
                     try:
                         await ws.send_json(response)
                     except Exception:
-                        print("Failed to send game %s abort to %s" % (game.id, player.username))
+                        print(
+                            "Failed to send game %s abort to %s"
+                            % (game.id, player.username)
+                        )
 
     # close lobbysockets
     for user in app["users"].values():
@@ -291,7 +326,7 @@ async def shutdown(app):
                 except Exception:
                     pass
 
-    for ws_set in app['lobbysockets'].values():
+    for ws_set in app["lobbysockets"].values():
         for ws in list(ws_set):
             await ws.close()
 
@@ -300,13 +335,23 @@ async def shutdown(app):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='PyChess chess variants server')
-    parser.add_argument('-v', action='store_true', help='Verbose output. Changes log level from INFO to DEBUG.')
-    parser.add_argument('-w', action='store_true', help='Less verbose output. Changes log level from INFO to WARNING.')
+    parser = argparse.ArgumentParser(description="PyChess chess variants server")
+    parser.add_argument(
+        "-v",
+        action="store_true",
+        help="Verbose output. Changes log level from INFO to DEBUG.",
+    )
+    parser.add_argument(
+        "-w",
+        action="store_true",
+        help="Less verbose output. Changes log level from INFO to WARNING.",
+    )
     args = parser.parse_args()
 
     logging.basicConfig()
-    logging.getLogger().setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
+    logging.getLogger().setLevel(
+        level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
+    )
 
     app = make_app()
 

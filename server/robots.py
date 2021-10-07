@@ -1,4 +1,5 @@
-ROBOTS_TXT = """User-agent: *
+ROBOTS_TXT: str = """
+User-agent: *
 Disallow: /@/
 Disallow: /tv/
 Disallow: /api/

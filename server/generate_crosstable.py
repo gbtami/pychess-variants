@@ -1,6 +1,6 @@
-async def generate_crosstable(db):
-    ct = {}
-    cursor = db.game.find().sort('d')
+async def generate_crosstable(db) -> None:
+    ct: dict = {}
+    cursor = db.game.find().sort("d")
     async for doc in cursor:
         game_id = doc["_id"]
         wp, bp = doc["us"]
@@ -15,15 +15,23 @@ async def generate_crosstable(db):
         ct_id = s1p + "/" + s2p
 
         # R2C = {"1-0": "a", "0-1": "b", "1/2-1/2": "c", "*": "d"}
-        if result == "d" or wp.startswith("Anon ") or bp.startswith("Anon ") or wp == "Random-Mover" or wp == "Fairy-Stockfish" or bp == "Random-Mover" or bp == "Fairy-Stockfish":
+        if (
+            result == "d"
+            or wp.startswith("Anon ")
+            or bp.startswith("Anon ")
+            or wp == "Random-Mover"
+            or wp == "Fairy-Stockfish"
+            or bp == "Random-Mover"
+            or bp == "Fairy-Stockfish"
+        ):
             continue
 
         if result == "c":
             s1 = s2 = 5
-            tail = "="
+            tail: str = "="
         elif (result == "a" and s1p == wp) or (result == "b" and s1p == bp):
             s1 = 10
-            s2 = 0
+            s2: int = 0
             tail = "+"
         else:
             s1 = 0
@@ -35,7 +43,7 @@ async def generate_crosstable(db):
                 "_id": ct_id,
                 "s1": s1,
                 "s2": s2,
-                "r": ["%s%s" % (game_id, tail)]
+                "r": ["%s%s" % (game_id, tail)],
             }
         else:
             ct[ct_id]["s1"] += s1

@@ -1,7 +1,8 @@
 import json
+from types import JsonType
 
 
-async def lobby_broadcast(sockets, response):
+async def lobby_broadcast(sockets, response) -> JsonType or None:
     for ws_set in sockets.values():
         for ws in ws_set:
             try:
@@ -11,12 +12,14 @@ async def lobby_broadcast(sockets, response):
 
 
 # TODO: do we really need users parameter here ???
-async def round_broadcast(game, users, response, full=False, channels=None):
+async def round_broadcast(game, users, response, full=False, channels=None) -> None:
     if game.spectators:
         for spectator in game.spectators:
             try:
                 if game.id in users[spectator.username].game_sockets:
-                    await users[spectator.username].game_sockets[game.id].send_json(response)
+                    await users[spectator.username].game_sockets[game.id].send_json(
+                        response
+                    )
             except (KeyError, ConnectionResetError):
                 # spectator was removed from users
                 pass

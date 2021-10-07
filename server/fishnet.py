@@ -29,12 +29,23 @@ async def get_work(request, data):
         try:
             fishnet_work_queue.task_done()
         except ValueError:
-            log.error("task_done() called more times than there were items placed in the queue in fishnet.py get_work()")
+            log.error(
+                "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
+            )
 
         work = request.app["works"][work_id]
         # print("FISHNET ACQUIRE we have work for you:", work)
         if priority == ANALYSIS:
-            fm[worker].append("%s %s %s %s of %s moves" % (datetime.now(timezone.utc), work_id, "request", "analysis", work["moves"].count(" ") + 1))
+            fm[worker].append(
+                "%s %s %s %s of %s moves"
+                % (
+                    datetime.now(timezone.utc),
+                    work_id,
+                    "request",
+                    "analysis",
+                    work["moves"].count(" ") + 1,
+                )
+            )
 
             # delete previous analysis
             gameId = work["game_id"]
@@ -49,10 +60,24 @@ async def get_work(request, data):
             users = request.app["users"]
             if "username" in work:
                 user_ws = users[work["username"]].game_sockets[work["game_id"]]
-                response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Work for fishnet sent..."}
+                response = {
+                    "type": "roundchat",
+                    "user": "",
+                    "room": "spectator",
+                    "message": "Work for fishnet sent...",
+                }
                 await user_ws.send_json(response)
         else:
-            fm[worker].append("%s %s %s %s for level %s" % (datetime.now(timezone.utc), work_id, "request", "move", work["work"]["level"]))
+            fm[worker].append(
+                "%s %s %s %s for level %s"
+                % (
+                    datetime.now(timezone.utc),
+                    work_id,
+                    "request",
+                    "move",
+                    work["work"]["level"],
+                )
+            )
 
         return web.json_response(work, status=202)
     except asyncio.QueueEmpty:
@@ -63,8 +88,19 @@ async def get_work(request, data):
         now = monotonic()
         for work_id in pending_works:
             work = pending_works[work_id]
-            if work["work"]["type"] == "move" and (now - work["time"] > MOVE_WORK_TIME_OUT):
-                fm[worker].append("%s %s %s %s for level %s" % (datetime.now(timezone.utc), work_id, "request", "move AGAIN", work["work"]["level"]))
+            if work["work"]["type"] == "move" and (
+                now - work["time"] > MOVE_WORK_TIME_OUT
+            ):
+                fm[worker].append(
+                    "%s %s %s %s for level %s"
+                    % (
+                        datetime.now(timezone.utc),
+                        work_id,
+                        "request",
+                        "move AGAIN",
+                        work["work"]["level"],
+                    )
+                )
                 return web.json_response(work, status=202)
         return web.Response(status=204)
 
@@ -120,7 +156,11 @@ async def fishnet_analysis(request):
     try:
         user_ws = users[username].game_sockets[gameId]
     except KeyError:
-        log.error("Can't send analysis to %s. Game %s was removed from game_sockets !!!", username, gameId)
+        log.error(
+            "Can't send analysis to %s. Game %s was removed from game_sockets !!!",
+            username,
+            gameId,
+        )
         return web.Response(status=204)
 
     length = len(data["analysis"])
@@ -136,7 +176,9 @@ async def fishnet_analysis(request):
                         "s": analysis["score"],
                         "d": analysis["depth"],
                         "p": analysis["pv_san"] if vp_in_san else analysis["pv"],
-                        "m": analysis["pv"].partition(" ")[0]  # save first PV move to draw advice arrow
+                        "m": analysis["pv"].partition(" ")[
+                            0
+                        ],  # save first PV move to draw advice arrow
                     }
                 else:
                     continue
@@ -149,7 +191,12 @@ async def fishnet_analysis(request):
             # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
             # await user_ws.send_json(response)
 
-            response = {"type": "analysis", "ply": ply, "color": "w" if i % 2 == 0 else "b", "ceval": game.steps[i]["analysis"]}
+            response = {
+                "type": "analysis",
+                "ply": ply,
+                "color": "w" if i % 2 == 0 else "b",
+                "ceval": game.steps[i]["analysis"],
+            }
             try:
                 await user_ws.send_json(response)
             except ConnectionResetError:
@@ -159,7 +206,9 @@ async def fishnet_analysis(request):
     if all(data["analysis"]):
         del request.app["works"][work_id]
         new_data = {"a": [step["analysis"] for step in game.steps]}
-        await request.app["db"].game.find_one_and_update({"_id": game.id}, {"$set": new_data})
+        await request.app["db"].game.find_one_and_update(
+            {"_id": game.id}, {"$set": new_data}
+        )
 
     return web.Response(status=204)
 
@@ -241,5 +290,9 @@ async def fishnet_key(request):
 async def fishnet_monitor(request):
     fm = request.app["fishnet_monitor"]
     fv = request.app["fishnet_versions"]
-    workers = {worker + " v" + fv[worker]: list(fm[worker]) for worker in fm if fm[worker]}
-    return web.json_response(workers, dumps=partial(json.dumps, default=datetime.isoformat))
+    workers = {
+        worker + " v" + fv[worker]: list(fm[worker]) for worker in fm if fm[worker]
+    }
+    return web.json_response(
+        workers, dumps=partial(json.dumps, default=datetime.isoformat)
+    )

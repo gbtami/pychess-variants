@@ -8,7 +8,17 @@ from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 
-from const import BYEGAME, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
+from const import (
+    BYEGAME,
+    STARTED,
+    VARIANTS,
+    ARENA,
+    RR,
+    SWISS,
+    T_CREATED,
+    T_STARTED,
+    T_FINISHED,
+)
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
@@ -22,18 +32,18 @@ from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
 from utils import play_move
+
 # from misc import timeit
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
 
 class TestTournament(Tournament):
-
     async def join_players(self, nb_players):
         self.game_tasks = set()
 
         for i in range(nb_players):
-            name = (id8() + id8())[:random.randint(1, 16)]
+            name = (id8() + id8())[: random.randint(1, 16)]
             player = User(self.app, username=name, title="TEST", perfs=PERFS)
             self.app["users"][player.username] = player
             player.tournament_sockets[self.id] = set((None,))
@@ -59,7 +69,7 @@ class TestTournament(Tournament):
 
     # @timeit
     async def play_random(self, game):
-        """ Play random moves for TEST players """
+        """Play random moves for TEST players"""
         if game.status == BYEGAME:  # ByeGame
             return
 
@@ -87,7 +97,7 @@ class TestTournament(Tournament):
                     clocks = {
                         "white": game.ply_clocks[-1]["white"],
                         "black": game.ply_clocks[-1]["black"],
-                        "movetime": 0
+                        "movetime": 0,
                     }
                     await play_move(self.app, cur_player, game, move, clocks=clocks)
             await asyncio.sleep(0.1)
@@ -135,21 +145,29 @@ async def create_arena_test(app):
     await app["db"].tournament_player.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = ArenaTestTournament(app, tid, variant="crazyhouse", name="First zh960 Arena", chess960=True, before_start=5, minutes=20, created_by="PyChess")
-#    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
-#    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
+    tournament = ArenaTestTournament(
+        app,
+        tid,
+        variant="crazyhouse",
+        name="First zh960 Arena",
+        chess960=True,
+        before_start=5,
+        minutes=20,
+        created_by="PyChess",
+    )
+    #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
+    #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
     app["tournaments"][tid] = tournament
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)
 
     await upsert_tournament_to_db(tournament, app)
 
-#    await tournament.join_players(6)
+    #    await tournament.join_players(6)
     await tournament.join_players(19)
 
 
 class TournamentTestCase(AioHTTPTestCase):
-
     async def tearDownAsync(self):
         has_games = len(self.app["games"]) > 0
 
@@ -178,7 +196,9 @@ class TournamentTestCase(AioHTTPTestCase):
     async def test_tournament_without_players(self):
         self.app["db"] = None
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
+        self.tournament = ArenaTestTournament(
+            self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
+        )
         self.app["tournaments"][tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)
@@ -219,21 +239,28 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
-        self.tournament = SwissTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
+        self.tournament = SwissTestTournament(
+            self.app, tid, before_start=0, rounds=NB_ROUNDS
+        )
         self.app["tournaments"][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
 
         self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
 
     @unittest_run_loop
     async def test_tournament_pairing_1_min_ARENA(self):
         self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
+        self.tournament = ArenaTestTournament(
+            self.app, tid, before_start=0.1, minutes=1
+        )
         self.app["tournaments"][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -242,7 +269,9 @@ class TournamentTestCase(AioHTTPTestCase):
         self.assertEqual(self.tournament.nb_players, NB_PLAYERS - 1)
 
         # make the first player leave the tournament lobby
-        del list(self.tournament.players.keys())[0].tournament_sockets[self.tournament.id]
+        del list(self.tournament.players.keys())[0].tournament_sockets[
+            self.tournament.id
+        ]
 
         self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 2)
 
@@ -257,15 +286,20 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_ROUNDS = 5
 
         tid = id8()
-        self.tournament = RRTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
+        self.tournament = RRTestTournament(
+            self.app, tid, before_start=0, rounds=NB_ROUNDS
+        )
         self.app["tournaments"][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
 
         self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main(verbosity=2)
