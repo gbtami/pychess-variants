@@ -4,7 +4,7 @@ import logging
 import random
 import string
 import typing as t
-from types import *
+from server.types import *
 from time import monotonic
 
 from const import MOVE, STARTED
