@@ -1,11 +1,11 @@
 from misc import time_control_str
 from newid import new_id
 
-MAX_USER_SEEKS = 10
+MAX_USER_SEEKS: int = 10
 
 
 class Seek:
-    gen_id = 0
+    gen_id: int = 0
 
     def __init__(
         self,
@@ -71,13 +71,13 @@ class Seek:
         }
 
     @property
-    def discord_msg(self):
+    def discord_msg(self) -> str:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
+async def create_seek(db, invites, seeks, user, data: dict, ws:None =None, empty: bool =False):
     """Seek can be
     - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
     - challenge (has another username as target)
