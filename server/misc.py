@@ -7,7 +7,7 @@ from timeit import default_timer
 import objgraph
 
 
-def timeit(func):
+def timeit(func: function) :
     async def process(func, *args, **params):
         if asyncio.iscoroutinefunction(func):
             # print('this function is a coroutine: {}'.format(func.__name__))
@@ -43,7 +43,7 @@ class OnDemand:
         return repr(self.callable())
 
 
-def profile_me(fn):
+def profile_me(fn: function):
     def profiled_fn(*args, **kwargs):
         prof = cProfile.Profile()
         ret = prof.runcall(fn, *args, **kwargs)
@@ -56,7 +56,7 @@ def profile_me(fn):
 
 
 class Timer:
-    def __init__(self, text):
+    def __init__(self, text: str):
         self.text = text
         self.timer = default_timer
 
@@ -71,7 +71,7 @@ class Timer:
         print("---- elapsed time: %f ms - %s" % (self.elapsed, self.text))
 
 
-def time_control_str(base, inc, byo):
+def time_control_str(base, inc: str, byo: int):
     if base == 1 / 4:
         base = "¼"
     elif base == 1 / 2:
@@ -89,7 +89,7 @@ def time_control_str(base, inc, byo):
     return base + "+" + inc_str
 
 
-def server_state(app, amount=3):
+def server_state(app: list, amount=3):
     print("=" * 40)
     for akey in app:
         length = len(app[akey]) if hasattr(app[akey], "__len__") else 1

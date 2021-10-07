@@ -2,7 +2,7 @@ from const import RR
 from tournament import Tournament, ByeGame
 
 
-BERGER_TABLES = (
+BERGER_TABLES: tuple[tuple] = (
     (
         ((1, 4), (2, 3)),
         ((4, 3), (1, 2)),
@@ -86,12 +86,12 @@ BERGER_TABLES = (
 class RRTournament(Tournament):
     system = RR
 
-    def create_pairing(self, waiting_players):
-        pairing = []
-        players = list(self.players.keys())
+    def create_pairing(self, waiting_players) -> list:
+        pairing: list = []
+        players: list = list(self.players.keys())
 
-        n = len(self.players)
-        odd = n % 2 == 1
+        n: int = len(self.players)
+        odd: int = n % 2 == 1
         if odd:
             n += 1
 
