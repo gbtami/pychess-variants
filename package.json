@@ -23,6 +23,7 @@
     "@rollup/plugin-typescript": "^8.2.5",
     "@rollup/plugin-wasm": "^5.1.2",
     "@types/chai": "^4.2.12",
+    "@types/gettext.js": "^1.0.0",
     "@types/howler": "^2.2.4",
     "@types/mocha": "^8.0.1",
     "@types/node": "*",
