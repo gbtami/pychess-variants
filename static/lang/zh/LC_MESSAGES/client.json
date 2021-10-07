@@ -262,6 +262,7 @@
     "These variants have new pieces to try! Many of them have larger boards, and some also have new rules.": "试试这些变体包括的新棋子！其中几些也使用大型棋盘或新棋规。",
     " = Random (960) variant available. ": "= 可选择任意制（960）初始局面",
     " = Drop variant available.": "= 可添加打入规则。",
+    "Bishops and Knights swap their capture moves": "马和主教互相交换他们的吃法",
     "Southeast Asian variants, closely related to Western Chess.": "东南亚棋类，与国际象棋相联。",
     "Thai Chess. Similar to Chess but with a different queen and bishop.": "泰国象棋。与国际象棋相近，但皇后和象的走法不同。",
     "Makruk variant. Kings cannot move when checked.": "泰国象棋变体。王被将时不能动。",
@@ -283,6 +284,9 @@
     "Rules": "游戏规则",
     "Tip: ": "提示：",
     "You can play more at www.lichess.org.": "在 www.lichess.org 可以再下更多。",
+    "Castling is only possible if the king and rook are dropped to their usual places like in standard Chess.": "只有把王和车打入它们在国际象棋的普通位置时才能王车易位。",
+    "Watch out for knight checks, since they cannot be blocked.": "要留意马叫将，无法挡。",
+    "Internationalized sets are available by going to settings.": "在设置中可选择使用国际化棋子。",
     "UsePluralFormIfNeeded\u0004Rated": "积分",
     "": {
         "language": "zh",
