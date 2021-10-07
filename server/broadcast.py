@@ -1,5 +1,5 @@
 import json
-from types import JsonType
+from server.types import JsonType
 
 
 async def lobby_broadcast(sockets, response) -> JsonType or None:
