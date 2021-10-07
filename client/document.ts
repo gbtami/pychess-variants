@@ -91,10 +91,10 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
         if (!( rule instanceof CSSStyleRule)) {
             continue;
         }
-        if (rule.selectorText === `.${family} .cg-wrap`) {
+        if (rule.selectorText === `.${family} cg-board`) {
             // console.log("changeBoardCSS", family, cssFile, i)
             sheet.deleteRule(i)
-            const newRule = `.${family} .cg-wrap {background-image: url(${assetUrl}/images/board/${cssFile})}`;
+            const newRule = `.${family} cg-board {background-image: url(${assetUrl}/images/board/${cssFile})}`;
             // console.log(newRule);
             sheet.insertRule(newRule, i);
             break;
