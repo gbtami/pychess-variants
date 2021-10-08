@@ -305,7 +305,7 @@ export default class RoundController {
             animation: { enabled: this.animation },
 
             mycolor: this.mycolor,
-            pocketRoles: this.variant.pocketRoles
+            pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
         });
 
         if (this.spectator) {
@@ -1029,7 +1029,7 @@ export default class RoundController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.chessground, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1066,7 +1066,7 @@ export default class RoundController {
     private performPredrop = () => {
         // const { role, key } = this.predrop;
         // console.log("performPredrop()", role, key);
-        this.chessground.playPredrop(drop => { return dropIsValid(this.chessground, drop.role, drop.key); });
+        this.chessground.playPredrop(drop => { return dropIsValid(this.dests, drop.role, drop.key); });
         this.predrop = null;
     }
 
@@ -1104,14 +1104,14 @@ export default class RoundController {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
-        if (dropIsValid(this.chessground, role, dest)) {
+        if (dropIsValid(this.dests, role, dest)) {
             // this.pockTempStuff.handleDrop(role);//todo:niki:this is supposed to decrese count in pocket for given role. from code below follows, there is a case where we can cancel the drop, with that promotion stuff for kyoto. if i understand correctly then somewhere the count decrese should be reverted - where?
             if (this.variant.promotion === 'kyoto') {
                 if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
             } else {
                 this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
             }
-        } else {//todo:niki:in what cases do we end up in this else?
+        } else {//todo:niki:in what cases do we end up in this else? answer: when dropping a pawn on last/first rank is one such case. I wonder if also when canceling to choose a gating or promotion there isn't something like that somewhere reseting the board
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
             this.chessground.set({

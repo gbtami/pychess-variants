@@ -87,7 +87,7 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
-            pocketRoles: this.variant.pocketRoles,
+            pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
             mycolor: this.mycolor
         });
 

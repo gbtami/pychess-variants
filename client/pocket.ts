@@ -12,6 +12,7 @@ import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 import {role2san, unpromotedRole, VARIANTS} from './chess';
 import {PockStateStuff} from "./pockTempStuff";
 import {VNode} from "snabbdom/vnode";
+import {opposite} from "chessgroundx/util";
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
@@ -225,8 +226,8 @@ export function drop(pockStateStuff: PockStateStuff, e: cg.MouchEvent): void {
 export function refreshPockets(state: PockStateStuff/*ctrl: RoundController | AnalysisController | EditorController*//*, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement*/) : void {
     // update pockets from FEN
         // console.log(o,c,po,pc);
-    const topColor = this.chessground.state.orientation==="white"?"black":"white";
-    const bottomColor = this.chessground.state.orientation;
+    const topColor = opposite(state.chessground.state.orientation);
+    const bottomColor = state.chessground.state.orientation;
 
     state.vpocket0 = patch(/*vpocket0? vpocket0 :*/ state.vpocket0, pocketView(state, topColor, "top"));
     state.vpocket1 = patch(/*vpocket1? vpocket1 :*/ state.vpocket1, pocketView(state, bottomColor, "bottom"));

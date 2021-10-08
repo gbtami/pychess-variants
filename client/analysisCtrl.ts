@@ -256,7 +256,7 @@ export default class AnalysisController {
              turnColor: this.turnColor,
              animation: { enabled: this.animation },
 
-             pocketRoles: this.variant.pocketRoles,
+             pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
              mycolor: this.mycolor
         });
 
@@ -891,7 +891,7 @@ export default class AnalysisController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.chessground, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1075,7 +1075,7 @@ export default class AnalysisController {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
-        if (dropIsValid(this.chessground, role, dest)) {
+        if (dropIsValid(this.dests, role, dest)) {
             // this.pockTempStuff.handleDrop(role);//todo:niki:this is supposed to decrese count in pocket for given role. from code below follows, there is a case where we can cancel the drop, with that promotion stuff for kyoto. if i understand correctly then somewhere the count decrese should be reverted - where?
             if (this.variant.promotion === 'kyoto') {
                 if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
