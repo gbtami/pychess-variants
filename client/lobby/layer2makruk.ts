@@ -18,7 +18,7 @@ import { layer3variant } from './layer3';
 
 export function layer2makruk (lobbyCtrl: LobbyController, containerId: string): void {
     const variant = VARIANTS['makruk'];
-    const layer2cont = h('div#layer2makrukcont.layer-2-container.fairy-grid.two-grid', [
+    const layer2cont = h('div#layer2makrukcont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-makruk', [
             h('div.layer-two-category-info', [
                 h('h4', _('Makruk Variants')),
@@ -54,6 +54,13 @@ export function layer2makruk (lobbyCtrl: LobbyController, containerId: string): 
                 h('h3', 'Sittuyin'),
             ]),
             h('p.variant-extra-info', _('Burmese Chess. You may place your starting pieces.')),
+        ]),
+        h('button.layer-2-category.asean', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'asean', false) } }, [
+            h('div.variant-title-l2', [
+                h('div.icon', { attrs: { 'data-icon': VARIANTS['asean'].icon(false) } }),
+                h('h3', 'ASEAN'),
+            ]),
+            h('p.variant-extra-info', _('Makruk with International Chess influence.')),
         ]),
     ]);
 

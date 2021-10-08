@@ -69,6 +69,10 @@ class Clock:
 
     @property
     def time_for_first_move(self):
+        # Fix 30s for janggi becuse it has setup phase
+        if self.game.variant == "janggi":
+            return 30 * 1000
+
         egt = self.estimate_game_time
         base = 0
         if self.game.tournamentId != "":

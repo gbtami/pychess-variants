@@ -23,7 +23,7 @@ export const LANGUAGES = {
     nl: "Nederlands",
     pl: "Polskie",
     pt: "Português",
-    ru: "Pусский язык",
+    ru: "Pусский",
     th: "ไทย",
     tr: "Türkçe",
     zh: "简体中文",

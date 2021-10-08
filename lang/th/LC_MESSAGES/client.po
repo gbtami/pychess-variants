@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2021-10-05 14:39+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2021\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -139,7 +139,7 @@ msgstr ""
 "lichess.org"
 
 #: ../client/analysis.ts:38 ../client/editor.ts:33 ../client/lobby.ts:433
-#: ../client/lobby.ts:932 ../client/settingsView.ts:138
+#: ../client/lobby.ts:932 ../client/settingsView.ts:139
 msgid "Variant"
 msgstr "ชนิดเกม"
 
@@ -196,12 +196,12 @@ msgstr "ความลึก"
 msgid "Go deeper"
 msgstr "ลึกกว่านี้"
 
-#: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1395
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "ผู้ชม: "
 
-#: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1476
 msgid "Requested game %1 not found!"
 msgstr "หาเกม %1 ไม่พบ!"
 
@@ -217,19 +217,19 @@ msgstr "มืด"
 msgid "Piece animation"
 msgstr "การเคลื่อนไหวตัวหมาก"
 
-#: ../client/boardSettings.ts:319
+#: ../client/boardSettings.ts:322
 msgid "Show piece destinations"
 msgstr "แสดงตาที่สามารถเดินได้"
 
-#: ../client/boardSettings.ts:337
+#: ../client/boardSettings.ts:340
 msgid "Promote to Queen automatically"
 msgstr "เลื่อนยศเป็นควีนอัตโนมัติ"
 
-#: ../client/boardSettings.ts:355
+#: ../client/boardSettings.ts:358
 msgid "Best move arrow in analysis board"
 msgstr "แสดงลูกศรแนะนำตาเดินในกระดานวิเคราะห์"
 
-#: ../client/boardSettings.ts:383
+#: ../client/boardSettings.ts:386
 msgid "Invisible pieces"
 msgstr "ตัวหมากล่องหน"
 
@@ -269,43 +269,49 @@ msgstr "เปิด/ปิดแชต"
 msgid "Server"
 msgstr "เซิร์ฟเวอร์"
 
-#: ../client/chess.ts:263
+#: ../client/chess.ts:264
 msgid "Chess, unmodified, as it's played by FIDE standards."
 msgstr "หมากรุกสากล ตามมาตรฐานของ FIDE"
 
-#: ../client/chess.ts:280
+#: ../client/chess.ts:281
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr "นำหมากที่กินได้กลับมาวางบนกระดานเป็นฝ่ายตัวเอง"
 
-#: ../client/chess.ts:298
+#: ../client/chess.ts:299
 msgid "Choose where your pieces start."
 msgstr "เลือกตำแหน่งเริ่มต้นของตัวหมากได้เอง"
 
-#: ../client/chess.ts:308
+#: ../client/chess.ts:309
 msgid "Pieces explode upon capture."
 msgstr "ตัวหมากกินกันแล้วระเบิดได้"
 
-#: ../client/chess.ts:318
+#: ../client/chess.ts:319
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr "หมากรุกไทย เกมที่มีความคล้ายคลึงกับจตุรงค์ดั้งเดิม"
 
-#: ../client/chess.ts:327
+#: ../client/chess.ts:328
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr "หมากป้อง รูปแบบหนึ่งของหมากรุกไทยที่ห้ามขยับขุนหนีเมื่อโดนรุก"
 
-#: ../client/chess.ts:336
+#: ../client/chess.ts:337
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr "หมากรุกกัมพูชา คล้ายหมากรุกไทย มีสูตรขุนและสูตรเม็ดตอนต้นกระดาน"
 
-#: ../client/chess.ts:345
+#: ../client/chess.ts:346
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
 msgstr "หมากรุกพม่า คล้ายหมากรุกไทย สามารถเลือกตำแหน่งหมากตอนเริ่มเกมได้"
 
-#: ../client/chess.ts:356
+#: ../client/chess.ts:357
+msgid ""
+"Makruk using the board/pieces from International Chess as well as pawn "
+"promotion rules."
+msgstr ""
+
+#: ../client/chess.ts:366
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
@@ -313,28 +319,28 @@ msgstr ""
 "หมากรุกญี่ปุ่น เล่นบนกระดาน 9x9 มีการนำหมากที่ถูกกินกลับมาวางใหม่ "
 "และเกือบทุกตัวสามารถเลื่อนยศได้"
 
-#: ../client/chess.ts:384
+#: ../client/chess.ts:394
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr "หมากรุกญี่ปุ่นขนาดเล็ก เล่นบนกระดาน 5x5 เพื่อให้เกมรวดเร็วยิ่งขึ้น"
 
-#: ../client/chess.ts:399
+#: ../client/chess.ts:409
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
 "หมากรุกญี่ปุ่นรูปแบบใหม่ กระดาน 5x5 แต่ตัวหมากพลิกไปพลิกมาทุกครั้งที่เดิน"
 
-#: ../client/chess.ts:414
+#: ../client/chess.ts:424
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr "เกมหมากรุกสัตว์โลกน่ารักบนกระดาน 3x4 สำหรับสอนเด็กเล็ก"
 
-#: ../client/chess.ts:428
+#: ../client/chess.ts:438
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr "หมากรุกญี่ปุ่นบนกระดาน 5x6 สำหรับฝึกสอนการใช้ขุนพลเงินและขุนพลทอง"
 
-#: ../client/chess.ts:443
+#: ../client/chess.ts:453
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
@@ -342,12 +348,12 @@ msgstr ""
 "หมากรุกญี่ปุ่นขนาด 7x7 ที่หมากบนกระดานหนาแน่น พร้อมฟาดฟันตลอดเวลา "
 "วิธีเดินพิสดารและตัวหมากมีชื่อเป็นนกชนิดต่างๆ"
 
-#: ../client/chess.ts:464
+#: ../client/chess.ts:474
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr "หมากรุกจีน หนึ่งในเกมกระดานที่เก่าแก่และยอดนิยมที่สุดในโลก"
 
-#: ../client/chess.ts:473
+#: ../client/chess.ts:483
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
@@ -355,27 +361,27 @@ msgstr ""
 "หมากรุกจีนรูปแบบหนึ่งที่ฝ่ายสีแดงมีเรือตัวเดียว "
 "แต่เดินเป็นม้ากับปืนใหญ่ได้ด้วย"
 
-#: ../client/chess.ts:483
+#: ../client/chess.ts:493
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr "หมากรุกเกาหลี พัฒนาจากหมากรุกจีนแต่เล่นต่างกันมาก"
 
-#: ../client/chess.ts:495
+#: ../client/chess.ts:505
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr "หมากรุกจีนขนาดเล็ก เล่นบนกระดาน 7x7 และไม่มีแม่น้ำ"
 
-#: ../client/chess.ts:504
+#: ../client/chess.ts:514
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr "เล่นตัวหมากผสม อาร์คบิชอบ (B+N) และชานซเลอร์ (R+N) บนกระดาน 10x8"
 
-#: ../client/chess.ts:521
+#: ../client/chess.ts:531
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr "Capablanca ที่ใช้กฎการวางหมากแบบ Crazyhouse "
 
-#: ../client/chess.ts:538
+#: ../client/chess.ts:548
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
@@ -383,32 +389,32 @@ msgstr ""
 "หมากผสม เหยี่ยว (B+N) และ ช้าง (R+N) "
 "สามารถเข้าสู่กระดานได้หลังจากหมากแถวหลังเดินออกไป"
 
-#: ../client/chess.ts:548
+#: ../client/chess.ts:558
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr "S-Chess ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
-#: ../client/chess.ts:558
+#: ../client/chess.ts:568
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr "เล่นตัวหมากผสม อาร์คบิชอบ (B+N) และชานซเลอร์ (R+N) บนกระดาน 10x10"
 
-#: ../client/chess.ts:568
+#: ../client/chess.ts:578
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr "Grand Chess ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
-#: ../client/chess.ts:579
+#: ../client/chess.ts:589
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr "นำปืนใหญ่และช้างจากหมากรุกจีน มาเล่นในกระดานขนาด 10x10"
 
-#: ../client/chess.ts:588
+#: ../client/chess.ts:598
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
 "มีการเลื่อนยศหมากใหญ่ และสามารถนำหมากที่กินกลับมาวางได้ "
 "คล้ายกับหมากรุกญี่ปุ่น"
 
-#: ../client/chess.ts:601
+#: ../client/chess.ts:611
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
@@ -416,17 +422,17 @@ msgstr ""
 "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ กองทัพมองโกล มีแต่หมากที่เดินเหมือนม้า "
 "แต่กินต่างกันออกไป"
 
-#: ../client/chess.ts:612
+#: ../client/chess.ts:622
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ กองทัพหมากรุกจีนและเกาหลี"
 
-#: ../client/chess.ts:624
+#: ../client/chess.ts:634
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr "ม้ากินเหมือนบิชอป บิชอปกินเหมือนม้า"
 
-#: ../client/chess.ts:633
+#: ../client/chess.ts:643
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
@@ -434,7 +440,7 @@ msgstr ""
 "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ "
 "กองทัพนินจาที่หมากกระโดดลงมาจากนอกกระดานได้"
 
-#: ../client/chess.ts:647
+#: ../client/chess.ts:657
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -442,49 +448,49 @@ msgstr ""
 "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ กองทัพจักรวรรดิ หมากทุกตัวเดินเหมือนควีน "
 "แต่กินเหมือนหมากปกติ"
 
-#: ../client/chess.ts:658
+#: ../client/chess.ts:668
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr "รูปแบบของ Orda ที่เป็นกองทัพมองโกลทั้งสองฝ่าย"
 
-#: ../client/chess.ts:671
+#: ../client/chess.ts:681
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr "คล้าย Capablanca แต่ใช้ตำแหน่งเริ่มต้นแบบ Grand"
 
-#: ../client/chess.ts:681
+#: ../client/chess.ts:691
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "คล้าย Capablanca แต่ตำแหน่งเริ่มต้นต่างกัน"
 
-#: ../client/chess.ts:691
+#: ../client/chess.ts:701
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Gothic ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
-#: ../client/chess.ts:716 ../client/lobby/layer1.ts:65
+#: ../client/chess.ts:726 ../client/lobby/layer1.ts:65
 #: ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr "เกมหมากรุกสากล"
 
-#: ../client/chess.ts:717 ../client/lobby/layer1.ts:89
+#: ../client/chess.ts:727 ../client/lobby/layer1.ts:89
 #: ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr "เกมหมากรุกเอเชียอาคเนย์"
 
-#: ../client/chess.ts:718 ../client/lobby/layer1.ts:97
+#: ../client/chess.ts:728 ../client/lobby/layer1.ts:97
 #: ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr "เกมหมากรุกญี่ปุ่น"
 
-#: ../client/chess.ts:719 ../client/lobby/layer1.ts:105
+#: ../client/chess.ts:729 ../client/lobby/layer1.ts:105
 #: ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr "เกมหมากรุกจีน"
 
-#: ../client/chess.ts:720 ../client/lobby/layer1.ts:73
+#: ../client/chess.ts:730 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
 msgstr "เกมที่ใช้ตัวหมากพิเศษ"
 
-#: ../client/chess.ts:721 ../client/lobby/layer1.ts:81
+#: ../client/chess.ts:731 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr "เกมที่มีกองทัพใหม่"
@@ -591,7 +597,7 @@ msgstr "ล้างกระดาน"
 msgid "STARTING POSITION"
 msgstr "ตำแหน่งเริ่มต้น"
 
-#: ../client/editorCtrl.ts:180 ../client/roundCtrl.ts:712
+#: ../client/editorCtrl.ts:180 ../client/roundCtrl.ts:714
 msgid "ANALYSIS BOARD"
 msgstr "วิเคราะห์เกม"
 
@@ -615,7 +621,7 @@ msgstr "FEN ไม่ถูกต้อง"
 msgid "Playing right now"
 msgstr "กำลังเล่นอยู่"
 
-#: ../client/invite.ts:44
+#: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
 msgstr "เปิดห้องให้ผู้อื่นเล่น"
 
@@ -716,10 +722,6 @@ msgstr "เล่นกับ AI"
 #: ../client/lobby.ts:521 ../client/lobby/layer3.ts:51
 msgid "Practice with Random-Mover"
 msgstr "หัดเล่นกับ Random-Mover"
-
-#: ../client/lobby.ts:522
-msgid "Host game for others"
-msgstr "เปิดห้องให้ผู้อื่น"
 
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
@@ -913,7 +915,7 @@ msgstr "คิดคะแนน"
 msgid "Imported"
 msgstr "นำเข้ามา"
 
-#: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1441
+#: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1443
 msgid " +15 seconds"
 msgstr "+15 วินาที"
 
@@ -925,8 +927,8 @@ msgstr "เพิ่มให้ 15 วินาที"
 msgid "Abort"
 msgstr "ยกเลิก"
 
-#: ../client/roundCtrl.ts:468 ../client/roundCtrl.ts:1121
-#: ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:468 ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:1125
 msgid "Count"
 msgstr "นับ"
 
@@ -975,76 +977,76 @@ msgstr "สลับตัวหมาก"
 msgid "Ready"
 msgstr "พร้อม"
 
-#: ../client/roundCtrl.ts:641
+#: ../client/roundCtrl.ts:643
 msgid "VIEW REMATCH"
 msgstr "ดูเกมที่เล่นอีก"
 
-#: ../client/roundCtrl.ts:648
+#: ../client/roundCtrl.ts:650
 msgid "Rematch offer sent"
 msgstr "ส่งคำขอเล่นอีกแล้ว"
 
-#: ../client/roundCtrl.ts:659
+#: ../client/roundCtrl.ts:661
 msgid "Your opponent offers a rematch"
 msgstr "ฝ่ายตรงข้ามขอเล่นกับคุณอีกครั้ง"
 
-#: ../client/roundCtrl.ts:700
+#: ../client/roundCtrl.ts:702
 msgid "VIEW TOURNAMENT"
 msgstr "ดูหน้าการแข่งขัน"
 
-#: ../client/roundCtrl.ts:703
+#: ../client/roundCtrl.ts:705
 msgid "BACK TO TOURNAMENT"
 msgstr "กลับสู่หน้าการแข่งขัน"
 
-#: ../client/roundCtrl.ts:705 ../client/tournament.ts:287
+#: ../client/roundCtrl.ts:707 ../client/tournament.ts:287
 msgid "PAUSE"
 msgstr "หยุดชั่วคราว"
 
-#: ../client/roundCtrl.ts:708
+#: ../client/roundCtrl.ts:710
 msgid "REMATCH"
 msgstr "ขอเล่นอีก"
 
-#: ../client/roundCtrl.ts:709
+#: ../client/roundCtrl.ts:711
 msgid "NEW OPPONENT"
 msgstr "หาคู่ต่อสู้ใหม่"
 
-#: ../client/roundCtrl.ts:1119
+#: ../client/roundCtrl.ts:1121
 msgid "Stop counting"
 msgstr "หยุดนับ"
 
-#: ../client/roundCtrl.ts:1119
+#: ../client/roundCtrl.ts:1121
 msgid "Stop"
 msgstr "หยุด"
 
-#: ../client/roundCtrl.ts:1121 ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:1123 ../client/roundCtrl.ts:1125
 msgid "Start counting"
 msgstr "เริ่มนับ"
 
-#: ../client/roundCtrl.ts:1353
+#: ../client/roundCtrl.ts:1355
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "มีเวลาอีก %1 วินาทีสำหรับเดินตาแรก"
 
-#: ../client/settingsView.ts:62
+#: ../client/settingsView.ts:63
 msgid "Log out"
 msgstr "ออกจากระบบ"
 
-#: ../client/settingsView.ts:67
+#: ../client/settingsView.ts:68
 msgid "Are you sure you want to log out?"
 msgstr "ต้องการออกจากระบบจริงหรือไม่?"
 
-#: ../client/settingsView.ts:74 ../client/settingsView.ts:110
+#: ../client/settingsView.ts:75 ../client/settingsView.ts:111
 msgid "Sound"
 msgstr "เสียง"
 
-#: ../client/settingsView.ts:75 ../client/settingsView.ts:120
+#: ../client/settingsView.ts:76 ../client/settingsView.ts:121
 msgid "Background"
 msgstr "พื้นหลัง"
 
-#: ../client/settingsView.ts:76 ../client/settingsView.ts:135
+#: ../client/settingsView.ts:77 ../client/settingsView.ts:136
 msgid "Board Settings"
 msgstr "ตั้งค่ากระดาน"
 
-#: ../client/settingsView.ts:77 ../client/settingsView.ts:127
+#: ../client/settingsView.ts:78 ../client/settingsView.ts:128
 msgid "Zen Mode"
 msgstr "โหมดสมาธิ"
 
@@ -1247,6 +1249,10 @@ msgstr "หมากรุกกัมพูชา มีสูตรขุน�
 msgid "Burmese Chess. You may place your starting pieces."
 msgstr "หมากรุกพม่า เลือกวางหมากตอนเริ่มเกม"
 
+#: ../client/lobby/layer2makruk.ts:63
+msgid "Makruk with International Chess influence."
+msgstr ""
+
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
 msgstr ""
@@ -1369,36 +1375,40 @@ msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr "ระวังโดนยึดฐาน เกมนี้สามารถชนะได้ด้วยการเดินคิงไปถึงแถวสุดท้าย"
 
 #: ../client/lobby/layer3.ts:117
-msgid "It is important to know the counting rules in endgames."
-msgstr "ควรศึกษากฎการนับศักดิ์กระดานและนับศักดิ์หมาก"
+msgid "Maximizing khon and met's effectiveness is the key."
+msgstr ""
 
 #: ../client/lobby/layer3.ts:119
 msgid "Watch out for knight checks, since they cannot be blocked."
 msgstr "ม้าปิดรุกไม่ได้ ต้องระวังให้ดี"
 
 #: ../client/lobby/layer3.ts:121
-msgid "Be sure to review the nuances of pawn promotion rules."
-msgstr "ควรศึกษากฎการหงายเบี้ย"
+msgid "You can use placement to utilize your bigger pieces since the start."
+msgstr ""
 
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."
 msgstr "ความปลอดภัยของขุนนั้นสำคัญ ใช้สูตรขุนเพื่อประหยัดเวลาได้"
 
-#: ../client/lobby/layer3.ts:128 ../client/lobby/layer3.ts:140
+#: ../client/lobby/layer3.ts:125
+msgid "The ability to promote to rook makes for a dynamic endgame."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:130 ../client/lobby/layer3.ts:142
 msgid "Internationalized sets are available by going to settings."
 msgstr "มีตัวหมากแบบรูปภาพให้เลือกในการตั้งค่า"
 
-#: ../client/lobby/layer3.ts:130
+#: ../client/lobby/layer3.ts:132
 msgid ""
 "Despite the simple appearance, there is still quite a bit of depth "
 "underlying this game."
 msgstr "ถึงแม้จะดูเรียบง่าย แต่เกมนี้มีแต้มเดินที่ลึกพอสมควร"
 
-#: ../client/lobby/layer3.ts:132
+#: ../client/lobby/layer3.ts:134
 msgid "Sets that show both sides are available by going to settings."
 msgstr "มีตัวหมากแบบเห็นด้านหลังให้เลือกในการตั้งค่า"
 
-#: ../client/lobby/layer3.ts:134
+#: ../client/lobby/layer3.ts:136
 msgid ""
 "Reading the rules are a necessity to understand the movements before "
 "playing."
