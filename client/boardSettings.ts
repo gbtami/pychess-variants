@@ -106,14 +106,6 @@ class BoardSettings {
                 document.body.setAttribute('style', '--zoom:' + zoom);
                 document.body.dispatchEvent(new Event('chessground.resize'));
 
-                const baseWidth = el.getBoundingClientRect()['width'];
-                const baseHeight = el.getBoundingClientRect()['height'];
-
-                const pxw = `${baseWidth}px`;
-                const pxh = `${baseHeight}px`;
-
-                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --zoom:' + zoom);
-
                 if (this.ctrl instanceof AnalysisController && !this.ctrl.model["embed"]) {
                     analysisChart(this.ctrl);
                 }

@@ -1,4 +1,4 @@
-import { h, init } from "snabbdom";
+import { init, h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -25,7 +25,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
     return h('div.pocket.' + position + '.editor.usable', {
         style: {
             '--editorLength': String(roles.length),
-            '--piecerows': String((roles.length > width) ? 2 : 1),
+            '--piecerows': String(Math.ceil(roles.length / width)),
             '--files': String(width),
             '--ranks': String(height),
         },

@@ -1,11 +1,9 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
+import { toVNode } from 'snabbdom/tovnode';
 import attributes from 'snabbdom/modules/attributes';
 import event from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
-
-import { h } from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
-import { toVNode } from 'snabbdom/tovnode';
 
 import { key2pos } from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
@@ -60,7 +58,7 @@ export class Gating {
             let rookOrig: cg.Key | null = null;
             const moveLength = dest.charCodeAt(0) - orig.charCodeAt(0);
 
-            const pieceMoved = ground.state.pieces[dest];
+            const pieceMoved = ground.state.pieces.get(dest);
             const pieceMovedRole: cg.Role = pieceMoved?.role ?? "k-piece";
             if (pieceMovedRole === "k-piece") {
                 // King long move is always castling move
@@ -70,7 +68,7 @@ export class Gating {
                 }
                 // King takes own Rook is always castling move in 960 games
                 if (this.ctrl.chess960 && this.ctrl.prevPieces !== undefined) {
-                    const prevPiece = this.ctrl.prevPieces[dest];
+                    const prevPiece = this.ctrl.prevPieces.get(dest);
                     if (prevPiece !== undefined && prevPiece.role === "r-piece" && prevPiece.color === color) {
                         castling = true;
                         rookOrig = dest;
@@ -87,9 +85,9 @@ export class Gating {
                 if (rookOrig!==null && !this.inCastlingTargets(rookOrig, color, moveLength)) {
                     moves["special"] = [rookOrig, orig, dest];
                 }
-                const pieces: cg.PiecesDiff = {};
-                pieces[((moveLength > 0) ? "f" : "d") + orig[1]] = {color: color, role: 'r-piece'};
-                pieces[((moveLength > 0) ? "g" : "c") + orig[1]] = {color: color, role: 'k-piece'};
+                const pieces: cg.PiecesDiff = new Map();
+                pieces.set(((moveLength > 0) ? "f" : "d") + orig[1] as cg.Key, {color: color, role: 'r-piece'});
+                pieces.set(((moveLength > 0) ? "g" : "c") + orig[1] as cg.Key, {color: color, role: 'k-piece'});
                 ground.setPieces(pieces);
             }
 
@@ -143,12 +141,12 @@ export class Gating {
 
         // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
 
-        const pieceMoved = ground.state.pieces[dest];
+        const pieceMoved = ground.state.pieces.get(dest);
         const pieceMovedRole: cg.Role = pieceMoved?.role ?? 'k-piece';
         if (pieceMovedRole === 'k-piece' || pieceMovedRole === 'r-piece') {
             if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
                 (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
-                const inverseDests = this.ctrl.dests[dest];
+                const inverseDests = this.ctrl.dests.get(dest);
                 if (inverseDests !== undefined && inverseDests.includes(orig)) return true;
             }
         }

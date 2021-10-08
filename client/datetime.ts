@@ -1,4 +1,4 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -6,7 +6,6 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-import h from 'snabbdom/h';
 import { _, ngettext } from './i18n';
 import TournamentController from "./tournament";
 
@@ -77,7 +76,7 @@ export function initializeClock(ctrl: TournamentController) {
     // console.log('initializeClock', ctrl.tournamentStatus, ctrl.secondsToStart, ctrl.secondsToFinish);
     if ('finished|archived'.includes(ctrl.tournamentStatus)) return;
 
-    let endtime: number, timeinterval: number;
+    let endtime: number, timeinterval: ReturnType<typeof setInterval>;
     if (ctrl.secondsToFinish > 0) {
         endtime = Date.now() + ctrl.secondsToFinish * 1000;
         ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span#clock')]));
