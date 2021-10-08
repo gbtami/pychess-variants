@@ -171,7 +171,7 @@ class BoardSettings {
                 this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
                 this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
             }
-            if (this.ctrl instanceof RoundController && !this.ctrl.variant.drop) {
+            if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
                 updateMaterial(this.ctrl);
             }
 

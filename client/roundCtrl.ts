@@ -369,7 +369,7 @@ export default class RoundController {
             updatePockets(this, pocket0, pocket1);
         }
 
-        if (!this.variant.drop) {
+        if (this.variant.materialDifference) {
             const material0 = document.querySelector('.material-top') as HTMLElement;
             const material1 = document.querySelector('.material-bottom') as HTMLElement;
             updateMaterial(this, material0, material1);

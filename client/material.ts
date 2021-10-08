@@ -78,7 +78,7 @@ function makeMaterialVNode(ctrl: RoundController, which: string, color: cg.Color
 }
 
 export function updateMaterial (ctrl: RoundController, vmaterial0?: VNode | HTMLElement, vmaterial1?: VNode | HTMLElement) {
-    if (ctrl.variant.drop) return;
+    if (!ctrl.variant.materialDifference) return;
     var topMaterialColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, bottomMaterialColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
     if (!ctrl.materialDifference) {
         ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, makeMaterialVNode(ctrl, 'top', topMaterialColor, []));

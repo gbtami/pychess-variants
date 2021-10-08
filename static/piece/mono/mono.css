@@ -85,72 +85,15 @@ mpiece.p {
     background-image: url('../../images/pieces/mono/soldier.svg');
 }
 
-.orda mpiece.l, .ordamirror mpiece.l {
+.ordamirror mpiece.l {
     background-image: url('../../images/pieces/mono/lancer.svg');
 }
-.orda mpiece.h, .ordamirror mpiece.h {
+.ordamirror mpiece.h {
     background-image: url('../../images/pieces/mono/kheshig.svg');
 }
-.orda mpiece.a, .ordamirror mpiece.a {
+.ordamirror mpiece.a {
     background-image: url('../../images/pieces/mono/archer.svg');
-}
-.orda mpiece.y {
-    background-image: url('../../images/pieces/mono/yurt.svg');
 }
 .ordamirror mpiece.f {
     background-image: url('../../images/pieces/mono/falcon.svg');
-}
-
-.synochess mpiece.e {
-    background-image: url('../../images/pieces/mono/shako-elephant.svg');
-}
-.synochess mpiece.a {
-    background-image: url('../../images/pieces/mono/advisor.svg');
-}
-.synochess mpiece.s {
-    background-image: url('../../images/pieces/mono/soldier.svg');
-}
-.synochess mpiece.c {
-    background-image: url('../../images/pieces/mono/synochess-cannon.svg');
-}
-.synochess.black mpiece.r {
-    background-image: url('../../images/pieces/mono/synochess-rook.svg');
-}
-
-.shinobi mpiece.l {
-    background-image: url('../../images/pieces/mono/lance.svg');
-}
-.shinobi mpiece.h {
-    background-image: url('../../images/pieces/mono/wooden-horse.svg');
-}
-.shinobi mpiece.m {
-    background-image: url('../../images/pieces/mono/monk.svg');
-}
-.shinobi mpiece.c {
-    background-image: url('../../images/pieces/mono/captain.svg');
-}
-.shinobi mpiece.d {
-    background-image: url('../../images/pieces/mono/dragon.svg');
-}
-.shinobi mpiece.j {
-    background-image: url('../../images/pieces/mono/ninja.svg');
-}
-.shinobi.white mpiece.r {
-    background-image: url('../../images/pieces/mono/shinobi-rook.svg');
-}
-
-.empire mpiece.d {
-    background-image: url('../../images/pieces/mono/duke.svg');
-}
-.empire mpiece.t {
-    background-image: url('../../images/pieces/mono/tower.svg');
-}
-.empire mpiece.c {
-    background-image: url('../../images/pieces/mono/cardinal.svg');
-}
-.empire mpiece.e {
-    background-image: url('../../images/pieces/mono/eagle.svg');
-}
-.empire mpiece.s {
-    background-image: url('../../images/pieces/mono/soldier.svg');
 }

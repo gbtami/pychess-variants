@@ -129,6 +129,7 @@ export class Variant {
     readonly gate: boolean;
     readonly pass: boolean;
     readonly showPromoted: boolean;
+    readonly materialDifference : boolean;
 
     readonly alternateStart?: { [ name: string ]: string };
 
@@ -169,6 +170,7 @@ export class Variant {
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
         this.showPromoted = data.showPromoted ?? false;
+        this.materialDifference = data.materialDifference ?? !this.drop;
 
         this.alternateStart = data.alternateStart;
 
@@ -207,6 +209,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     drop?: boolean;
     gate?: boolean;
     pass?: boolean;
+    materialDifference?: boolean;
     pieceSound?: string;
     showPromoted?: boolean;
 
@@ -583,6 +586,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles2: ["k", "y", "l", "a", "h", "p", "q"],
         promotionOrder: ["q", "h"],
         enPassant: true,
+        materialDifference: false,
         icon: "R",
     }),
 
@@ -594,6 +598,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
         pocketRoles: [], pocketRoles2: ["s"],
+        materialDifference: false,
         icon: "_",
     }),
 
@@ -617,6 +622,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pocketRoles2: [],
         promotion: "shogi",
         enPassant: true,
+        materialDifference: false,
         icon: "🐢",
     }),
 
@@ -628,6 +634,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "d", "t", "c", "e", "p", "s", "q"],
         pieceRoles2: ["k", "q", "r", "b", "n", "p"],
         enPassant: true,
+        materialDifference: false,
         icon: "♚",
     }),
 
