@@ -1,6 +1,3 @@
-//import Module from 'ffish-es6';
-//TODO: importing from node-modules causes error while running gulp:
-//'import' and 'export' may appear only with 'sourceType: module'
 import ffishModule from 'ffish-es6';
 
 import Sockette from 'sockette';
@@ -567,6 +564,8 @@ export default class AnalysisController {
                             console.log("Selected variant is not supported by ffish.js");
                         }
                     }
+
+                    window.addEventListener("beforeunload", () => this.ffishBoard.delete());
                 });
 
                 // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
