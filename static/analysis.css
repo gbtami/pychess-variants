@@ -51,6 +51,13 @@
         transform: translate(-15px, 39%);
     }
 }
+
+/* .round-app grid has 2vmin grid-gap, but .analysis-app doesn't.
+   Because of this the cross table needs extra top padding */
+div#ctable-container {
+    padding-top: 3vmin;
+}
+
 #gauge {
     grid-area: gauge;
     display: block;

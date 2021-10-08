@@ -114,13 +114,15 @@ function proTip (variant: string, chess960: boolean) {
         return _('Be aware of campmate - victory by moving your king into the 8th rank.');
 // makruk
     case 'makruk':
-        return _('It is important to know the counting rules in endgames.');
+        return _('Maximizing khon and met\'s effectiveness is the key.');
     case 'makpong':
         return _('Watch out for knight checks, since they cannot be blocked.');
     case 'sittuyin':
-        return _('Be sure to review the nuances of pawn promotion rules.');
+        return _('You can use placement to utilize your bigger pieces since the start.');
     case 'cambodian':
         return _('King safety is important. Use the king leap move to save time.');
+    case 'asean':
+        return _('The ability to promote to rook makes for a dynamic endgame.');
 // shogi
     case 'shogi':
     case 'minishogi':
