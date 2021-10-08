@@ -11,20 +11,18 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-import { Chessground } from 'chessgroundx';
+import { Chessground } from './chessgroundxWithPockets';// from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { getPockets, VARIANTS, validFen, IVariant, hasCastling } from './chess'
+import { VARIANTS, validFen, IVariant, hasCastling } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
-import { pockets2str } from './pocket';
-import { copyBoardToPNG } from './png'; 
+import { copyBoardToPNG } from './png';
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
 import { PyChessModel } from "./main";
-import { PocketStateStuff } from "./pocketTempStuff";
 
 export class EditorController {
     model;
@@ -35,14 +33,11 @@ export class EditorController {
     oppcolor: cg.Color;
     parts: string[];
     castling: string;
-    pocketsPart: string;
-    // pockets: Pockets;
+    // pocketsPart: string;
     variant: IVariant;
     hasPockets: boolean;
     vpieces0: VNode;
     vpieces1: VNode;
-    // vpocket0: VNode;
-    // vpocket1: VNode;
     vfen: VNode;
     vAnalysis: VNode;
     vChallenge: VNode;
@@ -50,8 +45,6 @@ export class EditorController {
     flip: boolean;
     ffish: any;
     ffishBoard: any;
-
-    pocketStateStuff: PocketStateStuff;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         this.model = model;
@@ -67,12 +60,15 @@ export class EditorController {
         this.hasPockets = this.variant.pocket;
 
         // pocket part of the FEN (including brackets)
-        this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
+        // this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
 
         this.mycolor = 'white';
         this.oppcolor = 'black';
 
-        this.chessground = Chessground(el, {
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+
+        this.chessground = Chessground(el, pocket0, pocket1, {
             fen: this.parts[0],
             autoCastle: false,
             variant: this.variant.name as cg.Variant,
@@ -91,6 +87,8 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
+            pocketRoles: this.variant.pocketRoles,
+            mycolor: this.mycolor
         });
 
         boardSettings.ctrl = this;
@@ -104,15 +102,6 @@ export class EditorController {
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
         const pieces1 = document.getElementById('pieces1') as HTMLElement;
         iniPieces(this, pieces0, pieces1);
-
-
-        // initialize pockets
-        if (this.hasPockets) {
-            const pocket0 = document.getElementById('pocket0') as HTMLElement;
-            const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            this.pocketStateStuff = new PocketStateStuff(pocket0, pocket1, this);
-            this.pocketStateStuff.updatePockets();
-        }
 
         const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
@@ -275,8 +264,8 @@ export class EditorController {
         const h = this.variant.boardHeight;
         const empty_fen = (String(w) + '/').repeat(h);
 
-        this.pocketsPart = (this.hasPockets) ? '[]' : '';
-        this.parts[0] = empty_fen + this.pocketsPart;
+        const pocketsPart = (this.hasPockets) ? '[]' : '';
+        this.parts[0] = empty_fen + pocketsPart;
         this.parts[1] = 'w'
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
@@ -298,7 +287,7 @@ export class EditorController {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
-            this.pocketsPart = (this.hasPockets) ? getPockets(fen.value) : '';
+            // this.pocketsPart = (this.hasPockets) ? getPockets(fen.value) : '';
             this.chessground.set({ fen: fen.value });
             this.setInvalid(!this.validFen());
 
@@ -308,9 +297,7 @@ export class EditorController {
             }
 
             this.fullfen = fen.value;
-            if (this.hasPockets) {
-                this.pocketStateStuff.updatePockets();
-            }
+            // this.pockStateStuff?.updatePocks(this.fullfen);
 
             if (hasCastling(this.variant, 'white')) {
                 if (this.parts.length >= 3) {
@@ -335,8 +322,8 @@ export class EditorController {
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
-        this.pocketsPart = this.hasPockets ? pockets2str(this) : "";
-        this.parts[0] = this.chessground.getFen() + this.pocketsPart;
+        //this.pocketsPart = this.hasPockets ? pockets2str(this) : "";
+        this.parts[0] = this.chessground.getFen() ;//+ this.pocketsPart;
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());

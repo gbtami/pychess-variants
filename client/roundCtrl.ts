@@ -9,7 +9,7 @@ import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
 
 import * as util from 'chessgroundx/util';
-import { Chessground } from 'chessgroundx';
+import { Chessground } from './chessgroundxWithPockets';// from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 import { cancelDropMode } from 'chessgroundx/drop';
@@ -20,9 +20,8 @@ import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { refreshPockets } from './pocket';
 import { sound } from './sound';
-import { uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, DropOrig } from './chess';
+import {uci2cg, cg2uci, VARIANTS, IVariant, getCounting, isHandicap, DropOrig, role2san} from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -32,7 +31,7 @@ import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
-import PocketTempStuff, {PocketStateStuff} from "./pocketTempStuff";
+import {dropIsValid} from "./pockTempStuff";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -162,9 +161,6 @@ export default class RoundController {
                           // So if at any moment connection drops, after reconnect we always resend it.
                           // If server received and processed it the first time, it will just ignore it
 
-    pocketTempStuff: PocketTempStuff;
-    pocketStateStuff: PocketStateStuff;
-
     constructor(el: HTMLElement, model: PyChessModel) {
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
@@ -291,7 +287,13 @@ export default class RoundController {
             'turnColor': this.turnColor,
             });
 
-        this.chessground = Chessground(el, {
+        // initialize pockets
+        // if (this.hasPockets) {
+            const pocket0 = document.getElementById('pocket0') as HTMLElement;
+            const pocket1 = document.getElementById('pocket1') as HTMLElement;
+        // }
+
+        this.chessground = Chessground(el, pocket0, pocket1,{
             fen: fen_placement,
             variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
@@ -301,6 +303,9 @@ export default class RoundController {
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
             animation: { enabled: this.animation },
+
+            mycolor: this.mycolor,
+            pocketRoles: this.variant.pocketRoles
         });
 
         if (this.spectator) {
@@ -343,11 +348,6 @@ export default class RoundController {
                     dropNewPiece: this.onDrop(),
                     select: this.onSelect(),
                 },
-                dropmode: {
-                    events: {
-                        cancel: this.onCancelDropMode()
-                    }
-                }
             });
         }
 
@@ -359,15 +359,6 @@ export default class RoundController {
         const player1 = document.getElementById('rplayer1') as HTMLElement;
         this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], model["level"]));
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
-
-        // initialize pockets
-        if (this.hasPockets) {
-            const pocket0 = document.getElementById('pocket0') as HTMLElement;
-            const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            this.pocketStateStuff = new PocketStateStuff(pocket0, pocket1, this);
-            this.pocketTempStuff = new PocketTempStuff(this);
-            this.pocketStateStuff.updatePockets();
-        }
 
         // initialize expirations
         this.expirations = [
@@ -470,9 +461,6 @@ export default class RoundController {
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
         boardSettings.updateBlindfold();
-
-        this.pocketTempStuff = new PocketTempStuff(this);
-        this.pocketStateStuff = this.pocketTempStuff.state;
     }
 
     getGround = () => this.chessground;
@@ -735,8 +723,6 @@ export default class RoundController {
     private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
 
-        const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
-
         // console.log("got board msg:", msg);
         const latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
                                                                         // its ply might be ahead with 2 ply - our move that failed to get confirmed
@@ -779,7 +765,7 @@ export default class RoundController {
 
         this.dests = (msg.status < 0) ? msg.dests : {};
 
-        this.pocketTempStuff.handleTurnChange();
+        // this.pockTempStuff.handleTurnChange();todo:niki:gonna try putting this right after chessground.set(fen)
 
         // list of legal promotion moves
         this.promotions = msg.promo;
@@ -870,12 +856,12 @@ export default class RoundController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: parts[0],
+                    fen: this.fullfen/*parts[0]*/,
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: lastMove,
                 });
-                if (pocketsChanged) this.pocketStateStuff.updatePockets();
+                // this.pockStateStuff?.updatePocks(this.fullfen);
             }
             if (this.clockOn && msg.status < 0) {
                 if (this.turnColor === this.mycolor) {
@@ -888,7 +874,7 @@ export default class RoundController {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: parts[0],
+                        fen: this.fullfen,
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
@@ -898,7 +884,7 @@ export default class RoundController {
                         check: msg.check,
                         lastMove: lastMove,
                     });
-                    if (pocketsChanged) this.pocketStateStuff.updatePockets();
+                    // this.pockStateStuff?.updatePocks(this.fullfen);
 
                     if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
@@ -918,6 +904,7 @@ export default class RoundController {
                     turnColor: this.turnColor,
                     check: msg.check,
                 });
+                //TODO:niki:why was there no pocket update here - what case is this?
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     // console.log('OPP CLOCK  STARTED');
@@ -940,7 +927,7 @@ export default class RoundController {
         }
 
         this.chessground.set({
-            fen: step.fen,
+            fen: step.fen,//TODO:niki:was this fullfen before? did it work? or is step.fen split/trimmed somewhere else (doubtful)?
             turnColor: step.turnColor,
             movable: {
                 free: false,
@@ -951,7 +938,7 @@ export default class RoundController {
             lastMove: move,
         });
         this.fullfen = step.fen;
-        this.pocketStateStuff.updatePockets();
+        // this.pockStateStuff.updatePocks(this.fullfen);
 
         if (this.variant.counting) {
             this.updateCount(step.fen);
@@ -1042,7 +1029,7 @@ export default class RoundController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && this.pocketTempStuff.dropIsValid(piece.role, dest)) {
+            if (dest !== 'a0' && piece.role && dropIsValid(this.chessground, piece.role, dest)) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1079,7 +1066,7 @@ export default class RoundController {
     private performPredrop = () => {
         // const { role, key } = this.predrop;
         // console.log("performPredrop()", role, key);
-        this.chessground.playPredrop(drop => { return this.pocketTempStuff.dropIsValid(drop.role, drop.key); });
+        this.chessground.playPredrop(drop => { return dropIsValid(this.chessground, drop.role, drop.key); });
         this.predrop = null;
     }
 
@@ -1099,10 +1086,6 @@ export default class RoundController {
             this.chessground.setPieces(diff);
             meta.captured = {role: "p-piece", color: moved.color=== "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
-        // increase pocket count
-        if (this.variant.drop && meta.captured) {
-            this.pocketTempStuff.handleCapture(meta.captured);
-        }
 
         //  gating elephant/hawk
         if (this.variant.gate) {
@@ -1121,9 +1104,14 @@ export default class RoundController {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
-        if (this.pocketTempStuff.dropIsValid(role, dest)) {
-            this.pocketTempStuff.handleDrop(role, dest);
-        } else {
+        if (dropIsValid(this.chessground, role, dest)) {
+            // this.pockTempStuff.handleDrop(role);//todo:niki:this is supposed to decrese count in pocket for given role. from code below follows, there is a case where we can cancel the drop, with that promotion stuff for kyoto. if i understand correctly then somewhere the count decrese should be reverted - where?
+            if (this.variant.promotion === 'kyoto') {
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
+            } else {
+                this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
+            }
+        } else {//todo:niki:in what cases do we end up in this else?
             // console.log("!!! invalid move !!!", role, dest);
             // restore board
             this.chessground.set({
@@ -1172,10 +1160,6 @@ export default class RoundController {
                 }
             }
         }
-    }
-
-    private onCancelDropMode = () => {
-        return () => { refreshPockets(this.pocketStateStuff, this); }
     }
 
     private renderExpiration = () => {

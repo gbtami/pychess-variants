@@ -19,7 +19,6 @@ import { EditorController } from './editorCtrl';
 import { iniPieces } from './pieces';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
-import { pocketView } from './pocket';
 import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
@@ -168,13 +167,7 @@ class BoardSettings {
             this.updateDropSuggestion();
 
             // console.log("FLIP");
-            if (this.ctrl.hasPockets) {
-                const tmp_pocket = this.ctrl.pocketStateStuff.pockets[0];
-                this.ctrl.pocketStateStuff.pockets[0] = this.ctrl.pocketStateStuff.pockets[1];
-                this.ctrl.pocketStateStuff.pockets[1] = tmp_pocket;
-                this.ctrl.pocketStateStuff.vpocket0 = patch(this.ctrl.pocketStateStuff.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
-                this.ctrl.pocketStateStuff.vpocket1 = patch(this.ctrl.pocketStateStuff.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
-            }
+            // this.ctrl.pockStateStuff?.flip();
 
             // TODO: moretime button
             if (this.ctrl instanceof RoundController) {

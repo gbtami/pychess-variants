@@ -14,7 +14,6 @@ import { getPockets, lc, role2letter, letter2role  } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { bind } from './document';
-import { pocketView } from './pocket';
 import { Api } from "chessgroundx/api";
 
 const patch = init([attributes, event, style]);
@@ -182,17 +181,7 @@ export class Gating {
     private gate(orig: cg.Key, color: cg.Color, role: cg.Role) {
         const g = this.ctrl.getGround();
         g.newPiece({ "role": role, "color": color }, orig)
-        let position = (this.ctrl.turnColor === this.ctrl.mycolor) ? "bottom": "top";
-        if (this.ctrl.flip) position = (position === "top") ? "bottom" : "top";
-        if (position === "bottom") {
-            const pr = this.ctrl.pocketStateStuff.pockets[1][role];
-            if ( pr !== undefined ) this.ctrl.pocketStateStuff.pockets[1][role] = pr - 1;
-            this.ctrl.pocketStateStuff.vpocket1 = patch(this.ctrl.pocketStateStuff.vpocket1, pocketView(this.ctrl, color, "bottom"));
-        } else {
-            const pr = this.ctrl.pocketStateStuff.pockets[0][role];
-            if ( pr !== undefined ) this.ctrl.pocketStateStuff.pockets[0][role] = pr - 1;
-            this.ctrl.pocketStateStuff.vpocket0 = patch(this.ctrl.pocketStateStuff.vpocket0, pocketView(this.ctrl, color, "top"));
-        }
+        // this.ctrl.pockTempStuff.handleDrop(role);//todo;Niki:i have the feeling this is already covered in onNewPiece event
     }
 
     private drawGating(moves: Moves, color: cg.Color, orientation: cg.Color) {

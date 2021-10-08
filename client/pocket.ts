@@ -1,5 +1,4 @@
 import { h, init } from "snabbdom";
-import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -10,11 +9,9 @@ import * as cg from 'chessgroundx/types';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
-import { role2san, unpromotedRole } from './chess';
-import RoundController from './roundCtrl';
-import AnalysisController from './analysisCtrl';
-import { EditorController } from './editorCtrl';
-import {PocketStateStuff} from "./pocketTempStuff";
+import {role2san, unpromotedRole, VARIANTS} from './chess';
+import {PockStateStuff} from "./pockTempStuff";
+import {VNode} from "snabbdom/vnode";
 
 const patch = init([klass, attributes, properties, style, listeners]);
 
@@ -23,80 +20,48 @@ type Position = 'top' | 'bottom';
 export type Pocket = Partial<Record<cg.Role, number>>;
 export type Pockets = [Pocket, Pocket];
 
-// There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
-const eventsDragging = ['mousedown', 'touchmove'];
-const eventsClicking = ['click'];
-const eventsDropping = ['mouseup', 'touchend'];
+// TODO:niki: update comment: There are 2 kind of mechanics for moving a piece from pocket to the board - 1.dragging it and 2.click to select and click to drop on target square
+export const eventsDragging = ['mousedown', 'touchmove'];
+export const eventsClicking = ['click'];
+export const eventsDropping = ['mouseup', 'touchend'];
 
 /**
  *
  */
-export function pocketView(ctrl: RoundController | AnalysisController | EditorController, color: cg.Color, position: Position) {
-    const pocket = ctrl.pocketStateStuff.pockets[position === 'top' ? 0 : 1];
+export function pocketView(pockStateStuff: PockStateStuff,/*ctrl: RoundController | AnalysisController | EditorController,*/ color: cg.Color, position: Position) {
+    const chessground = pockStateStuff.chessground;
+    const pocket = pockStateStuff.pockets[position === 'top' ? 0 : 1];
     const roles = Object.keys(pocket); // contains the list of possible pieces/roles (i.e. for crazyhouse p-piece, n-piece, b-piece, r-piece, q-piece) in the order they will be displayed in the pocket
 
-    let insertHook;
     // TODO Checking for type here is a mess. Should probably move to their respective classes
-    if (ctrl instanceof EditorController) {
-        insertHook = {
-            insert: (vnode: VNode) => {
-                eventsDragging.forEach(name =>
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        drag(ctrl, e);
-                    })
-                );
-                eventsDropping.forEach(name =>
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        drop(ctrl, e);
-                    })
-                );
-                /* TODO editor clickdrop
-                eventsClicking.forEach(name =>
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        click(ctrl, e);
-                    })
-                );
-                */
-            }
-        };
-    } else if (ctrl instanceof AnalysisController) { // enabling both the pocket whose turn it is
-        insertHook = {
-            insert: (vnode: VNode) => {
-                eventsDragging.forEach(name =>
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (color===ctrl.turnColor) drag(ctrl, e);
-                    })
-                );
-                eventsClicking.forEach(name =>
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (color===ctrl.turnColor) click(ctrl, e);
-                    })
-                );
-            }
+    const insertHook = {
+        insert: (vnode: VNode) => {
+            eventsDragging.forEach(name =>
+                (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                    if (chessground.state.movable.free || chessground.state.movable.color === color) drag(pockStateStuff, e);
+                })
+            );
+            eventsDropping.forEach(name =>
+                (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                    if (chessground.state.movable.free) drop(pockStateStuff, e);
+                })
+            );
+            eventsClicking.forEach(name =>
+                (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
+                    if (chessground.state.movable.free || chessground.state.movable.color === color) click(pockStateStuff, e);
+                })
+            );
+            /* TODO editor clickdrop - NIKI:i don't think click drop makes sense - there is no click-move for board pieces either - should discuss in discord
+            */
         }
-    } else { // RoundController
-        insertHook = { // always enabling only my pocket
-            insert: (vnode: VNode) => {
-                eventsDragging.forEach(name =>
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (position === (ctrl.flip ? 'top' : 'bottom') ) drag(ctrl, e);
-                    })
-                );
-                eventsClicking.forEach(name =>
-                    (vnode.elm as HTMLElement).addEventListener(name, (e: cg.MouchEvent) => {
-                        if (position === (ctrl.flip ? 'top' : 'bottom') ) click(ctrl, e);
-                    })
-                );
-            }
-        }
-    }
+    };
 
     return h('div.pocket.' + position, {
         class: { usable: true },
         style: {
             '--pocketLength': String(roles!.length),
-            '--files': String(ctrl.variant.boardWidth),
-            '--ranks': String(ctrl.variant.boardHeight),
+            '--files': String(chessground.state.dimensions.width),
+            '--ranks': String(chessground.state.dimensions.height),
         },
         hook: insertHook
     }, roles.map( (role: cg.Role) => {
@@ -104,27 +69,27 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
 
         let clazz;
 
-        const orientation = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
+        const orientation = chessground.state.orientation;//ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
         const side = color === orientation ? "ally" : "enemy";
 
-        const dropMode = ctrl.chessground?.state.dropmode;
-        const dropPiece = ctrl.chessground?.state.dropmode.piece;
+        const dropMode = chessground?.state.dropmode;
+        const dropPiece = chessground?.state.dropmode.piece;
         const selectedSquare = dropMode?.active && dropPiece?.role === role && dropPiece?.color === color;
 
-        if (ctrl instanceof RoundController) {
-            const preDropRole = ctrl.predrop?.role;
-            const activeColor = color === ctrl.turnColor;
+        // if (ctrl instanceof RoundController) { TODO:niki:in what cases is this check really needed ? can this code actually run and something appear as predrop without actually having to?
+            const preDropRole = chessground.state.predroppable.current?.role;//ctrl.predrop?.role;TODO:niki:test this! not sure about it
+            const activeColor = color === chessground.state.movable.color;//ctrl.turnColor;
 
             clazz = {
                 premove: activeColor && preDropRole === role,
                 'selected-square': selectedSquare,
             };
-        } else {
-            clazz = {
-                premove: false,
-                'selected-square': selectedSquare,
-            };
-        }
+        // } else {
+        //     clazz = {
+        //         premove: false,
+        //         'selected-square': selectedSquare,
+        //     };
+        // }
 
         return h(`piece.${role}.${color}.${side}`, {
             class: clazz,
@@ -138,7 +103,8 @@ export function pocketView(ctrl: RoundController | AnalysisController | EditorCo
     } ) );
 }
 
-export function click(ctrl: EditorController | RoundController | AnalysisController, e: cg.MouchEvent): void {
+export function click(pockStateStuff: PockStateStuff/*ctrl: EditorController | RoundController | AnalysisController*/, e: cg.MouchEvent): void {
+    const chessground = pockStateStuff.chessground;
 
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
 
@@ -147,43 +113,44 @@ export function click(ctrl: EditorController | RoundController | AnalysisControl
     color = el.getAttribute('data-color') as cg.Color,
     number = el.getAttribute('data-nb');
     if (!role || !color || number === '0') return;
-    const dropMode = ctrl.chessground?.state.dropmode;
-    const dropPiece = ctrl.chessground?.state.dropmode.piece;
+    const dropMode = chessground?.state.dropmode;
+    const dropPiece = chessground?.state.dropmode.piece;
 
     const canceledDropMode = el.getAttribute("canceledDropMode");
     el.setAttribute("canceledDropMode", "");
 
     if ((!dropMode.active || dropPiece?.role !== role ) && canceledDropMode!=="true") {
-        setDropMode(ctrl.chessground.state, { color, role });
+        setDropMode(chessground.state, { color, role });
 
         // TODO:move below lines to drop.ts -> setDropMode
-        if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {
-            if (ctrl.dests/*very first move with white might be undef*/) {
-                const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]); // TODO:ideally pocket.ts should move to chessgroundx so dests must be set directly in the controller
-                ctrl.chessground.set({
+        // if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {TODO:niki:see same commented if in drag()
+            if (chessground.state.movable.dests/*very first move with white might be undef*/) {
+                const dropDests = new Map([ [role, chessground.state.movable.dests[role2san(role) + "@"] ] ]); // TODO:ideally pocket.ts should move to chessgroundx so dests must be set directly in the controller
+                chessground.set({
                     dropmode: {
                         active: true,
                         dropDests: dropDests
                     }
                 });
             }
-        }
+        // }
 
     } else {
-        cancelDropMode(ctrl.chessground.state);
+        cancelDropMode(chessground.state);
     }
     e.stopPropagation();
     e.preventDefault();
-    refreshPockets(ctrl.pocketStateStuff, ctrl);
+    refreshPockets(pockStateStuff);
 }
 
 /**
  *
  */
-export function drag(ctrl: EditorController | RoundController | AnalysisController, e: cg.MouchEvent): void {
+export function drag(pockStateStuff: PockStateStuff/*EditorController | RoundController | AnalysisController*/, e: cg.MouchEvent): void {
+    const chessground = pockStateStuff.chessground;
 
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
-    if (ctrl instanceof RoundController && ctrl.spectator) return;
+    // if (ctrl instanceof RoundController && ctrl.spectator) return;TODO:niki:move to the canDragFromIt boolean
     const el = e.target as HTMLElement,
     role = el.getAttribute('data-role') as cg.Role,
     color = el.getAttribute('data-color') as cg.Color,
@@ -197,100 +164,73 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
     if (!role || !color || n === 0) return;
 
     // always cancel drop mode if it is active
-    if (ctrl.chessground.state.dropmode.active) {
-        cancelDropMode(ctrl.chessground.state);
+    if (chessground.state.dropmode.active) {
+        cancelDropMode(chessground.state);
 
-        if (ctrl.chessground.state.dropmode.piece?.role === role) {
+        if (chessground.state.dropmode.piece?.role === role) {
             // we mark it with this only if we are cancelling the same piece we "drag"
             el.setAttribute("canceledDropMode", "true");
         }
     }
 
-    if (ctrl instanceof EditorController) { // immediately decrease piece count for editor
-        let index = color === 'white' ? 1 : 0;
-        if (ctrl.flip) index = 1 - index;
-        ctrl.pocketStateStuff.pockets[index][role]!--;
-        refreshPockets(ctrl.pocketStateStuff, ctrl);
-        ctrl.onChange();
-    }
+    //TODO:niki: hmm? is this even a good idea? does drag always result in deleting no matter what?
+    // if (ctrl instanceof EditorController) { // immediately decrease piece count for editor
+    //     let index = color === 'white' ? 1 : 0;
+    //     if (ctrl.flip) index = 1 - index;
+    //     ctrl.pockStateStuff.pockets[index][role]!--;
+    //     refreshPockets(ctrl.pockStateStuff);
+    //     ctrl.onChange();
+    // }
 
-    if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {
-        if (ctrl.dests/*very first move with white might be undef*/) {
-            const dropDests = new Map([[role, ctrl.dests[role2san(role) + "@"]]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
-            ctrl.chessground.set({
+    // if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {//TODO:niki:maybe checking for chessground.movable.dests is enough - maybe editor does not init that ever
+        if (chessground.state.movable.dests/*very first move with white might be undef - also editor probably always undef?*/) {
+            const dropDests = new Map([[role, chessground.state.movable.dests[role2san(role) + "@"]]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
+            chessground.set({
                 dropmode: {
                     dropDests: dropDests,
                 }
             });
         }
-    }
+    // }
 
     e.stopPropagation();
     e.preventDefault();
-    dragNewPiece(ctrl.chessground.state, { color, role }, e);
+    dragNewPiece(chessground.state, { color, role }, e);
 }
 
-export function drop(ctrl: EditorController, e: cg.MouchEvent): void {
+export function drop(pockStateStuff: PockStateStuff, e: cg.MouchEvent): void {
     console.log("pocket drop()");
     const el = e.target as HTMLElement;
-    const piece = ctrl.chessground.state.draggable.current?.piece;
+    const piece = pockStateStuff.chessground.state.draggable.current?.piece;
     console.log(piece);
     if (piece) {
-        const role = unpromotedRole(ctrl.variant, piece);
+        const role = unpromotedRole(/*pockStateStuff.variant TODO:niki:what about this?*/VARIANTS.chess, piece);
         const color = el.getAttribute('data-color') as cg.Color;
         let index = color === 'white' ? 1 : 0;
-        if (ctrl.flip) index = 1 - index;
-        const pocket = ctrl.pocketStateStuff.pockets[index];
+        if (pockStateStuff.isFlipped()) index = 1 - index;
+        const pocket = pockStateStuff.pockets[index];
         console.log(role);
         console.log(color);
         console.log(index);
         console.log(pocket);
         if (role in pocket) {
             pocket[role]!++;
-            refreshPockets(ctrl.pocketStateStuff, ctrl);
-            ctrl.onChange();
+            refreshPockets(pockStateStuff);
+            // ctrl.onChange();//TODO:niki:what to do with this - call somehow via chessground
         }
     }
 }
 
 // TODO: after 1 move made only 1 pocket update needed at once, no need to update both
-export function refreshPockets(state: PocketStateStuff, ctrl: RoundController | AnalysisController | EditorController/*, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement*/) : void {
+export function refreshPockets(state: PockStateStuff/*ctrl: RoundController | AnalysisController | EditorController*//*, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement*/) : void {
     // update pockets from FEN
-    if (ctrl.hasPockets) {
         // console.log(o,c,po,pc);
-        state.vpocket0 = patch(/*vpocket0? vpocket0 :*/ state.vpocket0, pocketView(ctrl, (ctrl.flip) ? ctrl.mycolor : ctrl.oppcolor, "top"));
-        state.vpocket1 = patch(/*vpocket1? vpocket1 :*/ state.vpocket1, pocketView(ctrl, (ctrl.flip) ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
-    }
-}
+    const topColor = this.chessground.state.orientation==="white"?"black":"white";
+    const bottomColor = this.chessground.state.orientation;
 
-// export function updatePockets(ctrl: RoundController | AnalysisController | EditorController, vpocket0?: VNode | HTMLElement, vpocket1?: VNode | HTMLElement): void {
-//     // update pockets from FEN
-//     if (ctrl.hasPockets) {
-//         const parts = ctrl.fullfen.split(" ");
-//         const fen_placement = parts[0];
-//         let pockets = "";
-//         const bracketPos = fen_placement.indexOf("[");
-//         if (bracketPos !== -1) {
-//             pockets = fen_placement.slice(bracketPos);
-//         }
-//
-//         const c = ctrl.mycolor;
-//         const o = ctrl.oppcolor;
-//         const rc = ctrl.variant.pocketRoles(c) ?? [];
-//         const ro = ctrl.variant.pocketRoles(o) ?? [];
-//         const pc: Pocket = {};
-//         const po: Pocket = {};
-//         rc.forEach(r => pc[letter2role(r)] = lc(pockets, r, c==='white'));
-//         ro.forEach(r => po[letter2role(r)] = lc(pockets, r, o==='white'));
-//         if (ctrl.flip) {
-//             ctrl.pockets = [pc, po];
-//         } else {
-//             ctrl.pockets = [po, pc];
-//         }
-//         // console.log(o,c,po,pc);
-//         refreshPockets(ctrl, vpocket0, vpocket1);
-//     }
-// }
+    state.vpocket0 = patch(/*vpocket0? vpocket0 :*/ state.vpocket0, pocketView(state, topColor, "top"));
+    state.vpocket1 = patch(/*vpocket1? vpocket1 :*/ state.vpocket1, pocketView(state, bottomColor, "bottom"));
+}
 
 function pocket2str(pocket: Pocket) {
     const letters: string[] = [];
@@ -300,6 +240,6 @@ function pocket2str(pocket: Pocket) {
     return letters.join('');
 }
 
-export function pockets2str(ctrl: EditorController) {
-    return '[' + pocket2str(ctrl.pocketStateStuff.pockets[1]) + pocket2str(ctrl.pocketStateStuff.pockets[0]).toLowerCase() + ']';
+export function pockets2str(pockStateStuff: PockStateStuff) {
+    return '[' + pocket2str(pockStateStuff.pockets[1]) + pocket2str(pockStateStuff.pockets[0]).toLowerCase() + ']';
 }
