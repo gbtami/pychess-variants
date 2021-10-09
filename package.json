@@ -21,7 +21,6 @@
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-typescript": "^8.2.5",
-    "@rollup/plugin-wasm": "^5.1.2",
     "@types/chai": "^4.2.12",
     "@types/gettext.js": "^1.0.0",
     "@types/howler": "^2.2.4",
