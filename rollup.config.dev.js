@@ -1,7 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import { wasm } from '@rollup/plugin-wasm';
 
 export default {
     input: "client/main.ts",
@@ -11,5 +10,9 @@ export default {
         format: "iife",
         sourcemap: "inline",
     },
-    plugins: [nodeResolve(), commonjs(), typescript(), wasm()],
+    plugins: [
+        nodeResolve(),
+        commonjs(),
+        typescript(),
+    ],
 }
