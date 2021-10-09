@@ -21,7 +21,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
 import { sound } from './sound';
-import {role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, san2role, dropIsValid, moveDests} from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getPockets, san2role, dropIsValid, moveDests } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -80,7 +80,7 @@ export default class AnalysisController {
     oppcolor: cg.Color;
     turnColor: cg.Color;
     gameId: string;
-    variant: IVariant;
+    variant: Variant;
     chess960: boolean;
     hasPockets: boolean;
     pockets: Pockets;

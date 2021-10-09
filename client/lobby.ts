@@ -15,7 +15,7 @@ import { Chessground } from 'chessgroundx';
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
+import { validFen, VARIANTS, selectVariant, Variant } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
@@ -603,7 +603,7 @@ export class LobbyController {
         }
         this.setStartButtons();
     }
-    private setAlternateStart(variant: IVariant) {
+    private setAlternateStart(variant: Variant) {
         let e: HTMLSelectElement;
         e = document.getElementById('alternate-start') as HTMLSelectElement;
         const alt = e.options[e.selectedIndex].value;
@@ -715,7 +715,7 @@ export class LobbyController {
         return ((this.model["anon"] === 'True' || this.model["title"] === 'BOT') && seek["rated"]) ||
             (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']);
     }
-    private tooltip(seek: Seek, variant: IVariant) {
+    private tooltip(seek: Seek, variant: Variant) {
         let tooltipImage;
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [

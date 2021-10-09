@@ -11,7 +11,7 @@ import { h } from 'snabbdom/h';
 
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
-import { IVariant, VARIANTS } from '../chess';
+import { Variant, VARIANTS } from '../chess';
 import { variantBoard } from './layer1';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
@@ -21,7 +21,7 @@ import { layer2shogi } from './layer2shogi';
 import { layer2xiangqi } from './layer2xiangqi';
 
 export function layer3variant (container2Id: string, lobbyCtrl: LobbyController, variantName: string, chess960: boolean): void {
-    const variant: IVariant = VARIANTS[variantName];
+    const variant: Variant = VARIANTS[variantName];
 
     let leve2func: (lobbyCtrl: LobbyController, containerId: string) => void, container3Id: string='';
     switch (container2Id) {

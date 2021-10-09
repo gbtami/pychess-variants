@@ -22,7 +22,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getPockets, getCounting, isHandicap, dropIsValid } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getPockets, getCounting, isHandicap, dropIsValid } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -111,7 +111,7 @@ export default class RoundController {
     tournamentGame: boolean;
     clockOn: boolean;
     gameId: string;
-    variant: IVariant;
+    variant: Variant;
     chess960: boolean;
     hasPockets: boolean;
     pockets: Pockets;

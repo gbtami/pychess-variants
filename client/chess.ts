@@ -84,50 +84,7 @@ function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) : 
     return (color === "white") ? boardHeight - rank - 1 : rank;
 }
 
-export interface IVariant {
-    readonly name: string;
-    readonly displayName: (chess960: boolean) => string;
-    readonly tooltip: () => string;
-
-    readonly startFen: string;
-
-    readonly board: keyof typeof BOARD_FAMILIES;
-    readonly geometry: cg.Geometry;
-    readonly boardWidth: number;
-    readonly boardHeight: number;
-    readonly cg: string;
-    readonly boardCSS: string[];
-
-    readonly piece: keyof typeof PIECE_FAMILIES;
-    readonly pieceCSS: string[];
-
-    readonly firstColor: string;
-    readonly secondColor: string;
-
-    readonly pieceRoles: (color: cg.Color) => string[];
-    readonly pocket: boolean;
-    readonly pocketRoles: (color: cg.Color) => string[] | undefined;
-
-    readonly promotion: string;
-    readonly isMandatoryPromotion: MandatoryPromotionPredicate;
-    readonly timeControl: string;
-    readonly counting?: string;
-    readonly materialPoint?: string;
-    readonly enPassant: boolean;
-    readonly autoQueenable: boolean;
-    readonly drop: boolean;
-    readonly gate: boolean;
-    readonly pass: boolean;
-
-    readonly alternateStart?: { [ name: string ]: string };
-
-    readonly chess960: boolean;
-
-    readonly icon: (chess960: boolean) => string;
-    readonly pieceSound: string;
-}
-
-class Variant implements IVariant {
+export class Variant {
     readonly name: string;
     private readonly _displayName: string;
     displayName(chess960 = false) { return this._displayName + (chess960 ? "960" : ""); }
@@ -250,7 +207,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     icon960?: string;
 }
 
-export const VARIANTS: { [name: string]: IVariant } = {
+export const VARIANTS: { [name: string]: Variant } = {
     chess: new Variant({
         name: "chess", tooltip: () => _("Chess, unmodified, as it's played by FIDE standards."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -746,7 +703,7 @@ export function isHandicap(name: string): boolean {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
 }
 
-export function hasCastling(variant: IVariant, color: cg.Color): boolean {
+export function hasCastling(variant: Variant, color: cg.Color): boolean {
     if (variant.name === 'placement') return true;
     const castl = variant.startFen.split(' ')[2];
     if (color === 'white') {
@@ -765,7 +722,7 @@ export function cg2uci(move: string): string {
 }
 
 // TODO Will be deprecated after WASM Fairy integration
-export function validFen(variant: IVariant, fen: string): boolean {
+export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;
     if (as !== undefined) {
         if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
@@ -959,7 +916,7 @@ export function getJanggiPoints(board: string): number[] {
     return [choPoint, hanPoint];
 }
 
-export function unpromotedRole(variant: IVariant, piece: cg.Piece): cg.Role {
+export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     if (piece.promoted) {
         switch (variant.promotion) {
             case 'shogi':
