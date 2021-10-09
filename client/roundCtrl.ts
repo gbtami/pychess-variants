@@ -515,19 +515,22 @@ export default class RoundController {
     }
 
     private pass = () => {
-        let passKey = 'a0';
+        let passKey: cg.Key = 'a0';
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests!;
         for (const [k, p] of pieces) {
             if (p.role === 'k-piece' && p.color === this.turnColor)
-                if (dests.get(k)?.includes(k)) passKey = k;
+                if (dests.get(k)?.includes(k)) {
+                    passKey = k;
+                    break;
+                }
         }
         if (passKey !== 'a0') {
             // prevent calling pass() again by selectSquare() -> onSelect()
             this.chessground.state.movable.dests = undefined;
-            this.chessground.selectSquare(passKey as cg.Key);
+            this.chessground.selectSquare(passKey);
             sound.moveSound(this.variant, false);
-            this.sendMove(passKey as cg.Key, passKey as cg.Key, '');
+            this.sendMove(passKey, passKey, '');
         }
     }
 
@@ -1202,9 +1205,13 @@ export default class RoundController {
     }
 
     private onSelect = () => {
+        let lastTime = performance.now();
+        let lastKey: cg.Key = 'a0';
+        let timeout: ReturnType<typeof setTimeout>;
         return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
+            const curTime = performance.now();
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
@@ -1213,23 +1220,30 @@ export default class RoundController {
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
-            if (this.chessground.state.stats.ctrlKey && 
-                (this.chessground.state.movable.dests.get(key)?.includes(key))
-                ) {
-                const piece = this.chessground.state.pieces.get(key);
-                if (this.variant.name === 'sittuyin') { // TODO make this more generic
-                    // console.log("Ctrl in place promotion", key);
-                    const pieces: cg.Pieces = new Map();
-                    pieces.set(key, {
-                        color: piece!.color,
-                        role: 'f-piece',
-                        promoted: true
-                    });
-                    this.chessground.setPieces(pieces);
-                    this.sendMove(key, key, 'f');
-                } else if (this.variant.pass && piece!.role === 'k-piece') {
-                    this.pass();
+            if (timeout && lastKey === key && curTime - lastTime < 500) {
+                if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
+                    const piece = this.chessground.state.pieces.get(key);
+                    if (this.variant.name === 'sittuyin') { // TODO make this more generic
+                        // console.log("Ctrl in place promotion", key);
+                        const pieces: cg.Pieces = new Map();
+                        pieces.set(key, {
+                            color: piece!.color,
+                            role: 'f-piece',
+                            promoted: true
+                        });
+                        this.chessground.setPieces(pieces);
+                        this.sendMove(key, key, 'f');
+                    } else if (this.variant.pass && piece!.role === 'k-piece') {
+                        this.pass();
+                    }
                 }
+                clearTimeout(timeout);
+            } else {
+                timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                }, 500);
+                lastKey = key;
+                lastTime = curTime;
             }
         }
     }
