@@ -42,6 +42,7 @@
     "zlib": "^1.0.5"
   },
   "scripts": {
+    "postinstall": "cp ./node_modules/ffish-es6/ffish.wasm static/ffish.wasm",
     "dev": "rollup --config rollup.config.dev.js",
     "prod": "rollup --config rollup.config.prod.js",
     "md": "./md2html.sh",
