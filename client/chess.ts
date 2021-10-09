@@ -156,7 +156,7 @@ export class Variant {
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
         this.promotion = data.promotion ?? "regular";
-        this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "a", "n", "r", "b"]);
+        this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b"]);
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
@@ -510,7 +510,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocketRoles: ["h", "e"],
-        promotionOrder: ["q", "e", "h", "n", "r", "b"],
         enPassant: true, autoQueenable: true, gate: true,
         icon: "L",  chess960: true, icon960: "}",
     }),
@@ -521,7 +520,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "h", "e", "q"],
-        promotionOrder: ["q", "e", "h", "n", "r", "b"],
         enPassant: true, autoQueenable: true, drop: true, gate: true,
         icon: "$",
     }),
