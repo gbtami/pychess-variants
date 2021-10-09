@@ -16,7 +16,6 @@ export default {
         nodeResolve(),
         commonjs(),
         typescript(),
-        wasm(),
         brotli({
             params: {
                 [zlib.constants.BROTLI_PARAM_QUALITY]: zlib.constants.BROTLI_MAX_QUALITY,

@@ -148,19 +148,20 @@ export class Promotion {
     }
 
     private view(dest: cg.Key, color: cg.Color, orientation: cg.Color) {
-        const dim = this.ctrl.getGround().state.dimensions
+        const width = this.ctrl.variant.boardWidth;
+        const height = this.ctrl.variant.boardHeight;
         const pos = util.key2pos(dest);
 
-        const leftFile = (orientation === "white") ? pos[0] - 1 : dim.width - pos[0];
-        const left = leftFile * (100 / dim.width);
+        const choices = Object.keys(this.choices);
 
-        const direction = color === orientation ? "top" : "bottom";
+        const direction = color === orientation ? "bottom" : "top";
+        const leftFile = (orientation === "white") ? pos[0] : width - 1 - pos[0];
+        const left = leftFile * (100 / width);
+        const topRank = (orientation === "white") ? height - 1 - pos[1] : pos[1];
+
         const side = color === orientation ? "ally" : "enemy";
 
-        const choices = Object.keys(this.choices);
-        const topRank = Math.max(0, (color === "white") ? dim.height - pos[1] + 1 - choices.length : pos[1] - choices.length);
-
-        return h("div#extension_choice." + direction, {
+        return h("div#extension_choice", {
             hook: {
                 insert: vnode => {
                     const el = vnode.elm as HTMLElement;
@@ -173,7 +174,8 @@ export class Promotion {
             }
         },
             choices.map((role, i) => {
-                const top = (color === orientation ? topRank + i : dim.height - 1 - topRank - i) * (100 / dim.height);
+                const rank = topRank + (direction === "bottom" ? i : -i);
+                const top = rank * (100 / height);
                 return h("square", {
                     style: { top: top + "%", left: left + "%" },
                     hook: bind("click", e => {
