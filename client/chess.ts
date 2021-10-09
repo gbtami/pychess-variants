@@ -1,27 +1,21 @@
-import { h } from 'snabbdom/h';
+import { h } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
+import { InsertHook } from 'snabbdom/hooks';
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
-import { InsertHook } from "snabbdom/src/hooks";
-import { VNode } from "snabbdom/vnode";
-
-const pieceSan = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'] as const;
-export type PieceSan = `${'+' | ''}${typeof pieceSan[number]}`;
-export type DropOrig = `${PieceSan}@`;
-
-export type CGOrig = cg.Key | DropOrig;
 
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
 export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
 
-export type UCIOrig = UCIKey | DropOrig;
+export type UCIOrig = UCIKey | cg.DropOrig;
 
 export type UCIMove = `${UCIOrig}${UCIKey}`; // TODO: this is missing suffix for promotion which is also part of the move
-export type CGMove = `${CGOrig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
+export type CGMove = `${cg.Orig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
 
 export interface BoardFamily {
     geometry: cg.Geometry;
@@ -87,7 +81,7 @@ function distanceBased(required: { [ letter: string ]: number }, boardHeight: nu
 
 function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) : number {
     const rank = util.key2pos(dest)[1];
-    return (color === "white") ? boardHeight - rank : rank - 1;
+    return (color === "white") ? boardHeight - rank - 1 : rank;
 }
 
 export interface IVariant {
@@ -899,10 +893,12 @@ function diff(a: number, b:number): number {
 
 function touchingKings(pieces: cg.Pieces): boolean {
     let wk = 'xx', bk = 'zz';
-    Object.keys(pieces).filter(key => pieces[key]?.role === "k-piece").forEach(key => {
-        if (pieces[key]?.color === 'white') wk = key;
-        if (pieces[key]?.color === 'black') bk = key;
-    });
+    for (const [k, p] of pieces) {
+        if (p.role === "k-piece") {
+            if (p.color === 'white') wk = k;
+            if (p.color === 'black') bk = k;
+        }
+    }
     const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) <= 1 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) <= 1;
     return touching;
 }
@@ -979,14 +975,14 @@ export function unpromotedRole(variant: IVariant, piece: cg.Piece): cg.Role {
 
 // Convert a list of moves to chessground destination
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
-    const dests: cg.Dests = {};
+    const dests: cg.Dests = new Map();
     legalMoves.map(uci2cg).forEach(move => {
         const orig = move.slice(0, 2) as cg.Key;
         const dest = move.slice(2, 4) as cg.Key;
-        if (orig in dests)
-            dests[orig].push(dest);
+        if (dests.has(orig))
+            dests.get(orig)!.push(dest);
         else
-            dests[orig] = [ dest ];
+            dests.set(orig, [ dest ]);
     });
     return dests;
 }

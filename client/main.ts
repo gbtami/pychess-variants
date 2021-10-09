@@ -1,10 +1,9 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
-import h from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
 
 const patch = init([klass, attributes, properties, listeners]);
 

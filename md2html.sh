@@ -35,10 +35,10 @@ showdown makehtml -i "zh/intro.md" -o "intro.zh.html" --flavor github
 SRC='https://github.com/gbtami/pychess-variants/blob/master'; 
 #DST='https://www.pychess.org';
 DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants@1.6.42';
-find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',g' {} \;
+find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 
 mkdir -p ../../templates/docs
-mv -t ../../templates/docs *.html
+mv *.html ../../templates/docs
 
 # News
 cd ../news
@@ -47,7 +47,7 @@ for f in *.md; do
 showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
 done
 
-find . -type f -name "*.html" -exec sed -i 's,'"$SRC"','"$DST"',' {} \;
+find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 
 mkdir -p ../../templates/news
-mv -t ../../templates/news *.html
+mv *.html ../../templates/news

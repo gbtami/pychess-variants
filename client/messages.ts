@@ -54,7 +54,7 @@ export interface MsgBoard {
     fen: string;
     ply: number;
     lastMove: string;
-    dests: cg.Dests;
+    dests: { [orig: string]: cg.Key[] };
     promo: string[];
     bikjang: boolean;
     check: boolean;

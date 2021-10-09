@@ -1,9 +1,7 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { toVNode } from 'snabbdom/tovnode';
 import listeners from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
-
-import { h } from 'snabbdom/h';
-import { toVNode } from 'snabbdom/tovnode';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
@@ -30,7 +28,7 @@ export class Promotion {
     start(movingRole: cg.Role, orig: cg.Key, dest: cg.Key, disableAutoqueen: boolean = false) {
         const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
-        if (ground.state.pieces[dest] === undefined) return false;
+        if (ground.state.pieces.get(dest) === undefined) return false;
 
         if (this.canPromote(movingRole, orig, dest)) {
             const color = this.ctrl.turnColor;
@@ -104,14 +102,14 @@ export class Promotion {
     }
 
     private promote(g: Api, key: cg.Key, role: cg.Role) {
-        const pieces: cg.PiecesDiff = {};
-        const piece = g.state.pieces[key];
+        const pieces: cg.PiecesDiff = new Map();
+        const piece = g.state.pieces.get(key);
         if (piece && piece.role !== role) {
-            pieces[key] = {
+            pieces.set(key, {
                 color: piece.color,
                 role: role,
                 promoted: true
-            };
+            });
             g.setPieces(pieces);
         }
     }

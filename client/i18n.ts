@@ -1,14 +1,14 @@
-import { h } from 'snabbdom/h';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import trans from "gettext.js";
+import gettext from 'gettext.js';
 
 import { StringSettings } from './settings';
 import { radioList } from './view';
 
-export const i18n = new trans();
-export function _(msgid: string, ...vars: any) { return (i18n as any).gettext(msgid, vars); }
-export function ngettext(msgid: string, plural: string, ...vars: any) { return (i18n as any).ngettext(msgid, plural, vars); }
-export function pgettext(msgctxt: string, msgid: string, ...vars: any) { return (i18n as any).pgettext(msgctxt, msgid, vars); }
+export const i18n = gettext();
+export function _(msgid: string, ...vars: any) { return i18n.gettext(msgid, vars); }
+export function ngettext(msgid: string, plural: string, ...vars: any) { return i18n.ngettext(msgid, plural, vars); }
+export function pgettext(msgctxt: string, msgid: string, ...vars: any) { return i18n.pgettext(msgctxt, msgid, vars); }
 
 export const LANGUAGES = {
     en: "English",

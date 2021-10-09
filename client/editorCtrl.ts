@@ -1,9 +1,7 @@
-import Module from '../static/ffish.js';
+import ffishModule from 'ffish-es6';
 
-import h from 'snabbdom/h';
+import { init, h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-
-import { init } from 'snabbdom';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -87,6 +85,9 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
+
+            addDimensionsCssVars: true,
+
             pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
             mycolor: this.mycolor
         });
@@ -182,7 +183,7 @@ export class EditorController {
             ];
             patch(container, h('div.editor-button-container', buttons));
 
-            new (Module as any)().then((loadedModule: any) => {
+            ffishModule().then((loadedModule: any) => {
                 this.ffish = loadedModule;
 
                 if (this.ffish !== null) {
