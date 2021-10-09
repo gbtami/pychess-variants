@@ -1,4 +1,5 @@
-import { h, init } from "snabbdom";
+import { init, h } from "snabbdom";
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -6,12 +7,12 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
 
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
 import {role2san, unpromotedRole, VARIANTS} from './chess';
 import {PockStateStuff} from "./pockTempStuff";
-import {VNode} from "snabbdom/vnode";
 import {opposite} from "chessgroundx/util";
 
 const patch = init([klass, attributes, properties, style, listeners]);
@@ -126,7 +127,7 @@ export function click(pockStateStuff: PockStateStuff/*ctrl: EditorController | R
         // TODO:move below lines to drop.ts -> setDropMode
         // if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {TODO:niki:see same commented if in drag()
             if (chessground.state.movable.dests/*very first move with white might be undef*/) {
-                const dropDests = new Map([ [role, chessground.state.movable.dests[role2san(role) + "@"] ] ]); // TODO:ideally pocket.ts should move to chessgroundx so dests must be set directly in the controller
+                const dropDests = new Map([ [role, chessground.state.movable.dests.get(util.letterOf(role, true) + "@" as cg.Orig)! ] ]); // TODO:ideally pocket.ts should move to chessgroundx so dests must be set directly in the controller
                 chessground.set({
                     dropmode: {
                         active: true,
@@ -185,7 +186,7 @@ export function drag(pockStateStuff: PockStateStuff/*EditorController | RoundCon
 
     // if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {//TODO:niki:maybe checking for chessground.movable.dests is enough - maybe editor does not init that ever
         if (chessground.state.movable.dests/*very first move with white might be undef - also editor probably always undef?*/) {
-            const dropDests = new Map([[role, chessground.state.movable.dests[role2san(role) + "@"]]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
+            const dropDests = new Map([[role, chessground.state.movable.dests.get(util.letterOf(role, true) + "@" as cg.Orig)!]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
             chessground.set({
                 dropmode: {
                     dropDests: dropDests,

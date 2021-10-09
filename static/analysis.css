@@ -162,7 +162,7 @@ pvline {
     overflow: hidden;
     white-space: nowrap;
     min-width: 0;
-    max-width: var(--cgwrapwidth);
+    max-width: var(--cg-width);
     height: 28px;
     line-height: 28px;
     padding-left: 6px;

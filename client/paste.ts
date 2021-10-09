@@ -1,6 +1,6 @@
-import Module from '../static/ffish.js';
+import ffishModule from 'ffish-es6';
 
-import h from 'snabbdom/h';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
@@ -15,7 +15,7 @@ const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCB
 
 export function pasteView(model: PyChessModel): VNode[] {
     let ffish: any = null;
-    new (Module as any)().then((loadedModule: any) => {
+    ffishModule().then((loadedModule: any) => {
         ffish = loadedModule;
     });
 

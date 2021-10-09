@@ -1,7 +1,6 @@
 import Sockette from 'sockette';
 
-import { init } from 'snabbdom';
-import { h } from 'snabbdom/h';
+import { init, h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -21,7 +20,7 @@ import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import {uci2cg, cg2uci, VARIANTS, IVariant, getCounting, isHandicap, DropOrig, role2san} from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -304,6 +303,8 @@ export default class RoundController {
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
             animation: { enabled: this.animation },
 
+            addDimensionsCssVars: true,
+
             mycolor: this.mycolor,
             pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
         });
@@ -513,11 +514,10 @@ export default class RoundController {
     private pass = () => {
         let passKey = 'a0';
         const pieces = this.chessground.state.pieces;
-        const dests = this.chessground.state.movable.dests;
-        for (const key in pieces) {
-            if (pieces[key]!.role === 'k-piece' && pieces[key]!.color === this.turnColor) {
-                if ((key in dests!) && (dests![key].indexOf(key as cg.Key) >= 0)) passKey = key;
-            }
+        const dests = this.chessground.state.movable.dests!;
+        for (const [k, p] of pieces) {
+            if (p.role === 'k-piece' && p.color === this.turnColor)
+                if (dests.get(k)?.includes(k)) passKey = k;
         }
         if (passKey !== 'a0') {
             // prevent calling pass() again by selectSquare() -> onSelect()
@@ -683,7 +683,7 @@ export default class RoundController {
             this.result = msg.result;
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-            this.dests = {};
+            this.dests = new Map();
 
             if (this.result !== "*" && !this.spectator)
                 sound.gameEndSound(msg.result, this.mycolor);
@@ -752,22 +752,22 @@ export default class RoundController {
             // When castling with gating is possible 
             // e1g1, e1g1h, e1g1e, h1e1h, h1e1e all will be offered by moving our king two squares
             // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
-            for (const orig of Object.keys(msg.dests)) {
-                const movingPiece = this.chessground.state.pieces[orig];
+            for (const orig in msg.dests) {
+                if (orig[1] !== '@') {
+                const movingPiece = this.chessground.state.pieces.get(orig as cg.Key);
                 if (movingPiece !== undefined && movingPiece.role === "r-piece") {
                     msg.dests[orig] = msg.dests[orig].filter(x => {
-                        const destPiece = this.chessground.state.pieces[x];
+                        const destPiece = this.chessground.state.pieces.get(x);
                         return destPiece === undefined || destPiece.role !== 'k-piece';
                     });
+                }
                 }
             }
         }
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        this.dests = (msg.status < 0) ? msg.dests : {};
-
-        // this.pockTempStuff.handleTurnChange();todo:niki:gonna try putting this right after chessground.set(fen)
+        this.dests = (msg.status < 0) ? new Map(Object.entries(msg.dests)) : new Map();
 
         // list of legal promotion moves
         this.promotions = msg.promo;
@@ -925,7 +925,8 @@ export default class RoundController {
             const moveStr = uci2cg(step['move']);
             move = moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
             // 960 king takes rook castling is not capture
-            capture = (this.chessground.state.pieces[move[move.length - 1]] !== undefined && !!step.san && step.san.slice(0, 2) !== 'O-') || (!!step.san && step.san.slice(1, 2) === 'x');
+            // TODO Defer this logic to ffish.js
+            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && !!step.san && step.san.slice(0, 2) !== 'O-') || (!!step.san && step.san.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
@@ -961,7 +962,7 @@ export default class RoundController {
         this.sock.send(JSON.stringify(message));
     }
 
-    sendMove = (orig: cg.Key | DropOrig, dest: cg.Key, promo: string) => {
+    sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         // pause() will add increment!
         const oppclock = !this.flip ? 0 : 1
         const myclock = 1 - oppclock;
@@ -1077,14 +1078,14 @@ export default class RoundController {
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
-        let moved = pieces[dest];
+        let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
         if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
             const pos = util.key2pos(dest),
             pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = {};
-            diff[util.pos2key(pawnPos)] = undefined;
+            const diff: cg.PiecesDiff = new Map();
+            diff.set(util.pos2key(pawnPos), undefined);
             this.chessground.setPieces(diff);
             meta.captured = {role: "p-piece", color: moved.color=== "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
@@ -1109,9 +1110,9 @@ export default class RoundController {
         if (dropIsValid(this.dests, role, dest)) {
             // this.pockTempStuff.handleDrop(role);//todo:niki:this is supposed to decrese count in pocket for given role. from code below follows, there is a case where we can cancel the drop, with that promotion stuff for kyoto. if i understand correctly then somewhere the count decrese should be reverted - where?
             if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as DropOrig, dest, '');
+                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
             } else {
-                this.sendMove(role2san(role) + "@" as DropOrig, dest, '')
+                this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
             }
         } else {//todo:niki:in what cases do we end up in this else? answer: when dropping a pawn on last/first rank is one such case. I wonder if also when canceling to choose a gating or promotion there isn't something like that somewhere reseting the board
             // console.log("!!! invalid move !!!", role, dest);
@@ -1144,17 +1145,17 @@ export default class RoundController {
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
             if (this.chessground.state.stats.ctrlKey && 
-                (this.chessground.state.movable.dests[key]?.includes(key))
+                (this.chessground.state.movable.dests.get(key)?.includes(key))
                 ) {
-                const piece = this.chessground.state.pieces[key];
+                const piece = this.chessground.state.pieces.get(key);
                 if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
-                    const pieces: cg.Pieces = {};
-                    pieces[key] = {
+                    const pieces: cg.Pieces = new Map();
+                    pieces.set(key, {
                         color: piece!.color,
                         role: 'f-piece',
                         promoted: true
-                    };
+                    });
                     this.chessground.setPieces(pieces);
                     this.sendMove(key, key, 'f');
                 } else if (this.variant.pass && piece!.role === 'k-piece') {

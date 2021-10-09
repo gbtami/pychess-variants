@@ -82,8 +82,8 @@
 }
 
 .pocket {
-  width: calc(var(--pocketLength) * (var(--cgwrapwidth) / var(--files)));
-  height: calc(var(--cgwrapheight) / var(--ranks));
+  width: calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
+  height: calc(var(--cg-height) / var(--ranks));
   border-radius: 3px;
   box-shadow: 0 2px 3px rgba(0,0,0,0.3) inset;
   background: #888;
@@ -103,7 +103,7 @@
   margin-top: 18px;
 }
 .pocket .editor{
-  width: calc(var(--editorLength) * (var(--cgwrapwidth) / var(--files)));
+  width: calc(var(--editorLength) * (var(--cg-width) / var(--files)));
 }
 .pocket piece {
   flex: 0 0 calc(100% / var(--pocketLength));

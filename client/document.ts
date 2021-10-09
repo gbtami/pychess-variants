@@ -1,5 +1,6 @@
-import * as cg from "chessgroundx/types";
 import { VNode } from "snabbdom/vnode";
+
+import * as cg from "chessgroundx/types";
 
 export function download(filename: string, text: string) {
   const element = document.createElement('a');
@@ -49,7 +50,7 @@ export function getPieceImageUrl (role: cg.Role, color: cg.Color, side: string):
 }
 
 export function debounce(callback: any, wait: number) {
-    let timeout: number;
+    let timeout: ReturnType<typeof setTimeout>;
     return function() {
         const context = this, args = arguments;
         clearTimeout(timeout);
@@ -90,10 +91,10 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
         if (!( rule instanceof CSSStyleRule)) {
             continue;
         }
-        if (rule.selectorText === `.${family} .cg-wrap`) {
+        if (rule.selectorText === `.${family} cg-board`) {
             // console.log("changeBoardCSS", family, cssFile, i)
             sheet.deleteRule(i)
-            const newRule = `.${family} .cg-wrap {background-image: url(${assetUrl}/images/board/${cssFile})}`;
+            const newRule = `.${family} cg-board {background-image: url(${assetUrl}/images/board/${cssFile})}`;
             // console.log(newRule);
             sheet.insertRule(newRule, i);
             break;

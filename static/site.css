@@ -395,7 +395,7 @@ textarea {
     resize: none;
 }
 div.pgn {
-    width: calc(var(--cgwrapwidth));
+    width: calc(var(--cg-width));
 }
 #pgnpaste {
     width: 90%;
