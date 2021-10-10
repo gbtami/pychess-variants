@@ -98,8 +98,9 @@ export class Variant {
     readonly board: keyof typeof BOARD_FAMILIES;
     private readonly boardFamily: BoardFamily;
     get geometry() { return this.boardFamily.geometry; }
-    get boardWidth() { return cg.dimensions[this.geometry].width; }
-    get boardHeight() { return cg.dimensions[this.geometry].height; }
+    get boardDimensions() { return cg.dimensions[this.geometry]; }
+    get boardWidth() { return this.boardDimensions.width; }
+    get boardHeight() { return this.boardDimensions.height; }
     get cg() { return this.boardFamily.cg; }
     get boardCSS() { return this.boardFamily.boardCSS; }
 
@@ -163,7 +164,7 @@ export class Variant {
         this.counting = data.counting;
         this.materialPoint = data.materialPoint;
         this.enPassant = data.enPassant ?? false;
-        this.autoQueenable = data.autoQueenable ?? false;
+        this.autoQueenable = this.promotionOrder.length > 2 && this.promotionOrder[0] === 'q';
         this.drop = data.drop ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
@@ -210,7 +211,6 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     showPromoted?: boolean;
 
     enPassant?: boolean;
-    autoQueenable?: boolean;
     alternateStart?: {[key:string]: string};
     chess960?: boolean;
     icon: string;
@@ -223,7 +223,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         alternateStart: {
             '': '',
             'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w KQkq - 0 1",
@@ -241,7 +241,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "q"],
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         alternateStart: {
             '': '',
             'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
@@ -259,7 +259,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pocketRoles: ["n", "b", "r", "q", "k"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "S",
     }),
 
@@ -268,7 +268,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "\\",
     }),
@@ -279,8 +279,8 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
         promotionOrder: ["m"],
-        showPromoted: true,
         counting: "makruk",
+        showPromoted: true,
         icon: "Q",
     }),
 
@@ -290,8 +290,8 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
         promotionOrder: ["m"],
-        showPromoted: true,
         counting: "makruk",
+        showPromoted: true,
         icon: "O",
     }),
 
@@ -301,8 +301,8 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
         promotionOrder: ["m"],
-        showPromoted: true,
         counting: "makruk",
+        showPromoted: true,
         icon: "!",
     }),
 
@@ -481,7 +481,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
@@ -499,7 +499,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
@@ -516,7 +516,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocketRoles: ["h", "e"],
-        enPassant: true, autoQueenable: true, gate: true,
+        enPassant: true, gate: true,
         icon: "L",  chess960: true, icon960: "}",
     }),
 
@@ -526,7 +526,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "h", "e", "q"],
-        enPassant: true, autoQueenable: true, drop: true, gate: true,
+        enPassant: true, drop: true, gate: true,
         icon: "$",
     }),
 
@@ -537,7 +537,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         promotionOrder: ["q", "c", "a", "r", "n", "b", "p"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "(",
     }),
 
@@ -549,7 +549,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
         promotionOrder: ["q", "c", "a", "r", "n", "b", "p"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         icon: "*",
     }),
 
@@ -559,7 +559,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard10x10", piece: "shako",
         pieceRoles: ["k", "q", "e", "c", "r", "b", "n", "p"],
         promotionOrder: ["q", "n", "c", "r", "e", "b"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "9",
     }),
 
@@ -596,7 +596,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
         pocketRoles: [], pocketRoles2: ["s"],
-        autoQueenable: true,
         icon: "_",
     }),
 
@@ -605,7 +604,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "hoppel",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "`",
     }),
 
@@ -652,7 +651,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "P",
     }),
 
@@ -662,7 +661,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "P",
     }),
 
@@ -672,7 +671,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         icon: "P",
     }),
 };
