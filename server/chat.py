@@ -1,9 +1,9 @@
 from time import time
 
 
-def chat_response(type: str, username: str, message: str, room: str = "") -> dict:
+def chat_response(msg_type: str, username: str, message: str, room: str = "") -> dict:
     return {
-        "type": type,
+        "type": msg_type,
         "user": username,
         "message": message,
         "room": room,
