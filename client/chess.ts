@@ -158,7 +158,7 @@ export class Variant {
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
         this.promotion = data.promotion ?? "regular";
-        this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b"]);
+        this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
@@ -535,7 +535,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         board: "grand10x10", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
-        promotionOrder: ["q", "c", "a", "r", "n", "b", "p"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true,
         icon: "(",
@@ -547,7 +546,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "grand10x10", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        promotionOrder: ["q", "c", "a", "r", "n", "b", "p"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true, drop: true,
         icon: "*",
