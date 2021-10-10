@@ -847,7 +847,7 @@ export class LobbyController {
         this.model.username = msg.username;
     }
     private onMsgChat(msg: MsgChat) {
-        chatMessage(msg.user, msg.message, "lobbychat");
+        chatMessage(msg.user, msg.message, "lobbychat", msg.time);
         // seems this is annoying for most of the users
         //if (msg.user.length !== 0 && msg.user !== '_server')
         //    sound.socialNotify();
@@ -858,7 +858,7 @@ export class LobbyController {
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         // console.log("NEW FULL MESSAGES");
-        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat"));
+        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat", line.time));
     }
     private onMsgPing(msg: MsgPing) {
         this.doSend({ type: "pong", timestamp: msg.timestamp });

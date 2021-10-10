@@ -731,7 +731,7 @@ export default class TournamentController {
     }
 
     private onMsgChat(msg: MsgChat) {
-        chatMessage(msg.user, msg.message, "lobbychat");
+        chatMessage(msg.user, msg.message, "lobbychat", msg.time);
         // seems this is annoying for most of the users
         //if (msg.user.length !== 0 && msg.user !== '_server')
         //    sound.socialNotify();
@@ -741,7 +741,7 @@ export default class TournamentController {
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat"));
+        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat", line.time));
     }
 
     private onMsgPing(msg: MsgPing) {
