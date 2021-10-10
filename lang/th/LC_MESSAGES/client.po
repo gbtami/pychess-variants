@@ -309,7 +309,7 @@ msgstr "หมากรุกพม่า คล้ายหมากรุก�
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
-msgstr ""
+msgstr "คล้ายหมากรุกไทย แต่ใช้กระดาน ตัวหมาก และการเลื่อนยศแบบหมากรุกสากล"
 
 #: ../client/chess.ts:366
 msgid ""
@@ -1068,7 +1068,7 @@ msgstr "หน้าสุดท้าย"
 
 #: ../client/tournament.ts:267
 msgid "Scroll to your player"
-msgstr "เลื่อนไปหาคู่แข่ง"
+msgstr "เลื่อนไปหาตัวเอง"
 
 #: ../client/tournament.ts:278
 msgid "WITHDRAW"
@@ -1251,7 +1251,7 @@ msgstr "หมากรุกพม่า เลือกวางหมาก�
 
 #: ../client/lobby/layer2makruk.ts:63
 msgid "Makruk with International Chess influence."
-msgstr ""
+msgstr "หมากรุกเอเชียอาคเนย์ที่ได้รับอิทธิพลจากหมากรุกสากล"
 
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
@@ -1376,7 +1376,7 @@ msgstr "ระวังโดนยึดฐาน เกมนี้สาม�
 
 #: ../client/lobby/layer3.ts:117
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr ""
+msgstr "ใช้โคนและเม็ดให้เกิดประสิทธิภาพสูงสุด"
 
 #: ../client/lobby/layer3.ts:119
 msgid "Watch out for knight checks, since they cannot be blocked."
@@ -1384,7 +1384,7 @@ msgstr "ม้าปิดรุกไม่ได้ ต้องระวั�
 
 #: ../client/lobby/layer3.ts:121
 msgid "You can use placement to utilize your bigger pieces since the start."
-msgstr ""
+msgstr "การวางหมากในตำแหน่งใดก็ได้ทำให้หมากใหญ่ขึ้นได้เร็วมาก"
 
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."
@@ -1392,7 +1392,7 @@ msgstr "ความปลอดภัยของขุนนั้นสำค
 
 #: ../client/lobby/layer3.ts:125
 msgid "The ability to promote to rook makes for a dynamic endgame."
-msgstr ""
+msgstr "การเลื่อนยศเป็นเรือได้ทำให้หมากปลายกระดานเด็ดขาดมากขึ้น"
 
 #: ../client/lobby/layer3.ts:130 ../client/lobby/layer3.ts:142
 msgid "Internationalized sets are available by going to settings."
