@@ -127,6 +127,7 @@ export class Variant {
     readonly drop: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
+    readonly showPromoted: boolean;
 
     readonly alternateStart?: { [ name: string ]: string };
 
@@ -166,6 +167,7 @@ export class Variant {
         this.drop = data.drop ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
+        this.showPromoted = data.showPromoted ?? false;
 
         this.alternateStart = data.alternateStart;
 
@@ -205,6 +207,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     gate?: boolean;
     pass?: boolean;
     pieceSound?: string;
+    showPromoted?: boolean;
 
     enPassant?: boolean;
     autoQueenable?: boolean;
@@ -276,6 +279,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
         promotionOrder: ["m"],
+        showPromoted: true,
         counting: "makruk",
         icon: "Q",
     }),
@@ -286,6 +290,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
         promotionOrder: ["m"],
+        showPromoted: true,
         counting: "makruk",
         icon: "O",
     }),
@@ -296,6 +301,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "makruk8x8", piece: "makruk",
         pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
         promotionOrder: ["m"],
+        showPromoted: true,
         counting: "makruk",
         icon: "!",
     }),

@@ -928,7 +928,7 @@ export default class AnalysisController {
 
         const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
-            fen: this.ffishBoard.fen(),
+            fen: this.ffishBoard.fen(this.variant.showPromoted, 0),
             ply: newPly,
             lastMove: move,
             dests: this.dests,
