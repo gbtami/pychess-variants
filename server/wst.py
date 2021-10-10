@@ -7,6 +7,7 @@ from aiohttp import web
 import aiohttp_session
 
 from admin import silence
+from chat import chat_response
 from const import STARTED
 from settings import ADMINS
 from utils import MyWebSocketResponse, online_count
@@ -188,10 +189,10 @@ async def tournament_socket_handler(request):
                                 if tournament.status in (T_CREATED, T_STARTED):
                                     await tournament.abort()
                             else:
-                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                response = chat_response("lobbychat", user.username, data["message"])
                         else:
                             if user.silence == 0:
-                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                response = chat_response("lobbychat", user.username, data["message"])
 
                         if response is not None:
                             await tournament.broadcast(response)
