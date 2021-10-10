@@ -151,7 +151,7 @@ export default class RoundController {
     showDests: boolean; // TODO:not sure what is the point of this? doesn't chessground (especially now) have plenty of booleans like this for all kind of dests anyway?
     blindfold: boolean;
     handicap: boolean;
-    autoqueen: boolean;
+    autoPromote: boolean;
     setupFen: string;
     prevPieces: cg.Pieces;
     focus: boolean;
@@ -239,7 +239,7 @@ export default class RoundController {
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
-        this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
+        this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
         this.hasPockets = this.variant.pocket;

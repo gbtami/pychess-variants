@@ -124,7 +124,7 @@ export class Variant {
     readonly counting?: string;
     readonly materialPoint?: string;
     readonly enPassant: boolean;
-    readonly autoQueenable: boolean;
+    readonly autoPromoteable: boolean;
     readonly drop: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
@@ -164,7 +164,7 @@ export class Variant {
         this.counting = data.counting;
         this.materialPoint = data.materialPoint;
         this.enPassant = data.enPassant ?? false;
-        this.autoQueenable = this.promotionOrder.length > 2 && this.promotionOrder[0] === 'q';
+        this.autoPromoteable = this.promotionOrder.length > 2;
         this.drop = data.drop ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;

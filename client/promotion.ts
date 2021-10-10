@@ -27,7 +27,7 @@ export class Promotion {
         this.choices = {};
     }
 
-    start(movingRole: cg.Role, orig: cg.Key, dest: cg.Key, disableAutoqueen: boolean = false) {
+    start(movingRole: cg.Role, orig: cg.Key, dest: cg.Key, disableAutoPromote: boolean = false) {
         const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.pieces.get(dest) === undefined) return false;
@@ -36,9 +36,18 @@ export class Promotion {
             const color = this.ctrl.turnColor;
             const orientation = ground.state.orientation;
             const pchoices = this.promotionChoices(movingRole, orig, dest);
+            const autoSuffix = this.ctrl.variant.promotionOrder[0];
+            const autoRole = ["shogi", "kyoto"].includes(this.ctrl.variant.promotion) ?
+                undefined :
+                util.roleOf(autoSuffix as cg.PieceLetter);
 
-            if (this.ctrl instanceof RoundController && this.ctrl.autoqueen && !disableAutoqueen && this.ctrl.variant.autoQueenable && 'q-piece' in pchoices)
-                this.choices = { 'q-piece': 'q' };
+            if (this.ctrl instanceof RoundController &&
+                this.ctrl.variant.autoPromoteable &&
+                this.ctrl.autoPromote &&
+                !disableAutoPromote &&
+                autoRole &&
+                autoRole in pchoices)
+                this.choices = { [autoRole]: autoSuffix };
             else
                 this.choices = pchoices;
 
