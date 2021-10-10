@@ -12,17 +12,6 @@ The general rules are extremely similar to Chess, so this guide will focus on th
 * To start the game, the players (starting with the red player) alternate back and forth placing the remainder of their pieces on their halves of the boards.
 * Pawn (feudal lord) promotion works much differently. See the movement section below. 
 
-Additional conditions for draws: 
-
-* The game is drawn when the player to move has no legal move and his king is not in check. The game is said to end in 'stalemate'. This immediately ends the game, provided that the move producing the stalemate position was legal.
-* The game is drawn when a position has arisen in which neither player can checkmate the opponent's king with any series of legal moves. The game is said to end in a ‘dead position’. This immediately ends the game, provided that the move producing the position was legal. 
-* The game is drawn upon agreement between the two players during the game. This immediately ends the game. 
-* The game may be drawn if each player has made at least the last 50 consecutive moves without the movement of any pawn and without any capture.
-* As soon as a player has only a king left on his side, the number of pieces belong to the opponent shall be observed. The game may be drawn if the player having only a king (lone king) left on his side can manage to escape in a number of fixed moves (move count shall be done starting from the very first move of lonely king) against the opponent of having particular pieces shown below:
-  * Lone King vs. King & A Rook	- 16 moves
-  * Lone King vs. King & An Elephant & A General	- 44 moves 
-  * Lone King vs. King & A Knight & A General	- 64 moves
-
 ## The Pieces
 
 ### King
@@ -77,9 +66,31 @@ In the absence of mighty chess queens, the chariots dominate the board. Lateral 
 
 The pawn, or feudal lord, moves and attacks the same as a pawn in chess. However, there is no double-step first move. 
 
-**Promotion**: After a feudal lord reaches the diagonal line on the opponent's side of the board, the player can choose to promote that piece into a general instead of moving. This can only occur *if* their general has already been captured. Promotion does not happen on the move where the feudal lord reaches the promotion square, but rather any move after that. In the act of promotion, the feudal lord can promote in place, or it can promote in any one of the adjacent diagonal squares. However, promotion cannot be made in a square in which the new general will be in an attacking position (threatening an enemy piece). If there is one feudal lord left on the board, then it has the ability to promote on its turn.
+#### Promotion
+After a feudal lord reaches the diagonal line on the opponent's side of the board, the player can choose to promote that piece into a general instead of moving. Each side can only has *one* general at any given time, so this can only occur if their general has already been captured. Promotion does not happen on the move where the feudal lord reaches the promotion square, but rather any move after that.
 
-Finally, you may opt not to promote a feudal lord that reaches the final rank, which would result in stalemate if this is the last piece left.
+In the act of promotion, the feudal lord can promote on the same square it is on (in-place), or any one of the adjacent diagonal squares. On pychess, **in-place promotion** is performed by a **double-click** on the feudal lord, and **diagonal promotion** is performed by **moving** it to the desired square.
+
+However, there are some more restrictions. Promotion cannot be made such that the new general will capture an enemy piece, attack an enemy piece, attack the enemy king, or put the enemy king in a discovery check.
+
+If you have only one feudal lord left on the board, then it has the ability to promote on any square.
+
+Finally, if your only legal moves are promotion, you may opt not to promote and claim stalemate. On pychess, you can do so by **pressing the draw button** on the right side.
+
+## Other Rules
+
+*Stalemate* - Draw, as in International Chess
+
+*Dead Position* - When checkmate is not possible with the remaining pieces, the game is a draw.
+
+*Repetition* - The game may be drawn if the same position has occurred at least three times.
+
+*50 Move Rule* - The game may be drawn if each player has made at least 50 consecutive moves without the movement of any pawn and without any capture.
+
+*Counting Rule* - As soon as a player has only a king left on his side, the number of pieces belonging to the opponent shall be observed. If the opponent has no pawns, the game is drawn when the player having only a king (lone king) manages to escape in a number of fixed moves against an opponent having particular pieces shown below:
+- If the opponent has at least one **rook**: 16 moves
+- If the opponent has at least one **bishop**: 44 moves
+- If the opponent has at least one **knight**: 64 moves
 
 ## Makruk vs Sittuyin
  
