@@ -1559,6 +1559,11 @@ label {
     border-radius: 3px;
 }
 
+.chat .time {
+    display: inline-flex;
+    margin-right: 3px;
+}
+
 .chat .discord-icon-container {
     display: inline-flex;
     align-items: center;
