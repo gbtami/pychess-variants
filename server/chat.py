@@ -1,14 +1,7 @@
 from time import time
-from typing import TypedDict
 
-class ChatResponse(TypedDict):
-    type: str
-    user: str
-    message: str
-    room: str
-    time: int
 
-def chat_response(type: str, username: str, message: str, room: str = "") -> ChatResponse:
+def chat_response(type: str, username: str, message: str, room: str = "") -> dict:
     return {
         "type": type,
         "user": username,
