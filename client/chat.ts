@@ -12,7 +12,7 @@ import AnalysisController from "./analysisCtrl";
 import TournamentController from "./tournament";
 import { LobbyController } from "./lobby";
 
-export function chatView (ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) { // TODO: instead of | better have some IChatController interface implemented by these classes
+export function chatView(ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) { // TODO: instead of | better have some IChatController interface implemented by these classes
     function onKeyPress (e: KeyboardEvent) {
         if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
             return;
@@ -57,7 +57,7 @@ export function chatMessage (user: string, message: string, chatType: string, ti
     const myDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
     const isScrolled = myDiv.scrollTop === myDiv.scrollHeight - myDiv.offsetHeight;
-    const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit" }) : "";
+    const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
 
     const container = document.getElementById('messages') as HTMLElement;
     if (user.length === 0) {
