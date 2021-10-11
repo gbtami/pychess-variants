@@ -395,7 +395,7 @@ textarea {
     resize: none;
 }
 div.pgn {
-    width: calc(var(--cgwrapwidth));
+    width: calc(var(--cg-width));
 }
 #pgnpaste {
     width: 90%;
@@ -1557,6 +1557,11 @@ label {
     background: var(--bg-color0);
     min-height: 15em;
     border-radius: 3px;
+}
+
+.chat .time {
+    display: inline-flex;
+    margin-right: 3px;
 }
 
 .chat .discord-icon-container {

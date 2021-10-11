@@ -1,4 +1,4 @@
-import { h } from 'snabbdom/h';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';

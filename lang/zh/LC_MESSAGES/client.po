@@ -531,11 +531,11 @@ msgstr "王车易位权"
 
 #: ../client/editorCtrl.ts:140 ../client/lobby.ts:510 ../client/profile.ts:29
 msgid "White"
-msgstr "白方"
+msgstr "白棋"
 
 #: ../client/editorCtrl.ts:155 ../client/lobby.ts:508 ../client/profile.ts:31
 msgid "Black"
-msgstr "黑方"
+msgstr "黑棋"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
@@ -763,19 +763,19 @@ msgstr "导入棋局"
 
 #: ../client/profile.ts:33
 msgid "Red"
-msgstr "红方"
+msgstr "红棋"
 
 #: ../client/profile.ts:35
 msgid "Blue"
-msgstr "绿方"
+msgstr "蓝棋"
 
 #: ../client/profile.ts:37
 msgid "Gold"
-msgstr "金方"
+msgstr "金棋"
 
 #: ../client/profile.ts:39
 msgid "Pink"
-msgstr "粉红方"
+msgstr "粉红棋"
 
 #: ../client/profile.ts:53
 msgid "IMPORT"
@@ -1117,23 +1117,23 @@ msgstr "返回"
 
 #: ../client/lobby/layer2army.ts:35
 msgid "Horde: Horse-based army"
-msgstr ""
+msgstr "汗国：其棋子基于的马走法"
 
 #: ../client/lobby/layer2army.ts:42
 msgid "Empire: Queen-based army"
-msgstr ""
+msgstr "帝国：其棋子基于皇后的走法"
 
 #: ../client/lobby/layer2army.ts:49
 msgid "Horde vs Horde"
-msgstr ""
+msgstr "汗国 VS 汗国"
 
 #: ../client/lobby/layer2army.ts:56
 msgid "Clan: Drop-based army"
-msgstr ""
+msgstr "樱流派：持有打入权利"
 
 #: ../client/lobby/layer2army.ts:63
 msgid "Dynasty: Xiangqi-based army"
-msgstr ""
+msgstr "皇朝：其棋子基于中国象棋"
 
 #: ../client/lobby/layer2chess.ts:28
 msgid "Variants using a basic chess set but with different rules."
@@ -1199,7 +1199,7 @@ msgstr "缅甸象棋。任意摆出自己大子的起始棋形。"
 
 #: ../client/lobby/layer2makruk.ts:63
 msgid "Makruk with International Chess influence."
-msgstr ""
+msgstr "受到国际象棋影响的泰国象棋。"
 
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."

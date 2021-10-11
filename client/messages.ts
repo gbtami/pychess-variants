@@ -43,6 +43,7 @@ export interface MsgChat {
     room?: string; // Unlike "roundchat", "lobbychat" messages don't have such property and currently re-using same interface for them as well.
     user: string;
     message: string;
+    time?: number;
 }
 
 export interface MsgFullChat {
@@ -54,7 +55,7 @@ export interface MsgBoard {
     fen: string;
     ply: number;
     lastMove: string;
-    dests: cg.Dests;
+    dests: { [orig: string]: cg.Key[] };
     promo: string[];
     bikjang: boolean;
     check: boolean;

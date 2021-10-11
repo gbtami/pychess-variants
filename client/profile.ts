@@ -1,4 +1,5 @@
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -6,13 +7,10 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-import h from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
-
 import { Chessground } from 'chessgroundx';
 
 import { _, ngettext, pgettext } from './i18n';
-import { VARIANTS, IVariant } from './chess';
+import { VARIANTS, Variant } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
@@ -59,7 +57,7 @@ export function aiLevel(title: string, level: number) {
     return (title === 'BOT' && level >= 0) ? ' ' + _('level %1', level): '';
 }
 
-export function result(variant: IVariant, status: number, result: string) {
+export function result(variant: Variant, status: number, result: string) {
     let text = '';
     const variantName = variant.name;
     // console.log("result()", variantName, status, result);

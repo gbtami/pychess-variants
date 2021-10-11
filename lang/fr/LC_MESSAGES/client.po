@@ -296,6 +296,8 @@ msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr ""
+"Échecs thaïlandais. Un jeu qui ressemble au Chaturanga. Comme les échecs "
+"occidentaux mais la dame et le fou sont différents."
 
 #: ../client/chess.ts:328
 msgid "Makruk variant where kings cannot move to escape out of check."
@@ -322,6 +324,8 @@ msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
 msgstr ""
+"Makruk mais utilisant l'échiquier et les pièces physiques des échecs "
+"occidentaux, ainsi que ses règles de promotion."
 
 #: ../client/chess.ts:366
 msgid ""
@@ -335,6 +339,8 @@ msgstr ""
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr ""
+"Le shogi 5x5 pour des parties plus rapides. Il n'y a pas de cavaliers ni de "
+"lanciers."
 
 #: ../client/chess.ts:409
 msgid ""
@@ -346,16 +352,20 @@ msgstr ""
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
+"Jeu 3x4 avec des animaux mignons, conçu afin d'apprendre aux enfants comment"
+" jouer au shogi."
 
 #: ../client/chess.ts:438
 msgid "5x6 Shogi designed to introduce tactics with the generals."
-msgstr ""
+msgstr "Le shogi 5x6 qui introduit les tactiques avec des généraux."
 
 #: ../client/chess.ts:453
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr ""
+"La confrontation sur un plateau 7x7 avec des pièces uniques, leurs nommes "
+"tirés de différents oiseaux."
 
 #: ../client/chess.ts:474
 msgid ""
@@ -473,6 +483,8 @@ msgstr ""
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
+"La variante Orda mais tous les deux côtés sont la Horde. Le Faucon remplace "
+"le Yurt."
 
 #: ../client/chess.ts:681
 msgid "Like Capablanca Chess but with Grand starting setup."
@@ -852,19 +864,19 @@ msgstr "IMPORTER LA PARTIE"
 
 #: ../client/profile.ts:33
 msgid "Red"
-msgstr "Rouge"
+msgstr "Les rouges"
 
 #: ../client/profile.ts:35
 msgid "Blue"
-msgstr "Bleu"
+msgstr "Les bleus"
 
 #: ../client/profile.ts:37
 msgid "Gold"
-msgstr "Or"
+msgstr "Les ors"
 
 #: ../client/profile.ts:39
 msgid "Pink"
-msgstr "Roses"
+msgstr "Les roses"
 
 #: ../client/profile.ts:53
 msgid "IMPORT"
@@ -1068,8 +1080,8 @@ msgstr "Commencer à compter les coups"
 #: ../client/roundCtrl.ts:1355
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 seconde pour jouer le premier coup"
+msgstr[1] "%1 secondes pour jouer le premier coup"
 
 #: ../client/settingsView.ts:63
 msgid "Log out"
@@ -1372,42 +1384,51 @@ msgstr "Astuce :"
 #: ../client/lobby/layer3.ts:72
 msgid "Fischer's random chess where the back row are randomized."
 msgstr ""
+"Échecs aléatoires Fischer où la dernière rangée de pièces est randomisée."
 
 #: ../client/lobby/layer3.ts:74
 msgid "Crazyhouse with random back row."
-msgstr ""
+msgstr "Le crazyhouse avec la dernière rangée randomisée."
 
 #: ../client/lobby/layer3.ts:76
 msgid "Atomic Chess with random back row."
-msgstr ""
+msgstr "Les échecs atomic avec la dernière rangée randomisée."
 
 #: ../client/lobby/layer3.ts:89
 msgid "Move the king on top of the rook to castle."
-msgstr ""
+msgstr "Pour roquer, jouez le roi sur la tour."
 
 #: ../client/lobby/layer3.ts:91
 msgid "You can play more at www.lichess.org."
-msgstr ""
+msgstr "Vous pouvez jouer davantage à www.lichess.org."
 
 #: ../client/lobby/layer3.ts:94
 msgid ""
 "Castling is only possible if the king and rook are dropped to their usual "
 "places like in standard Chess."
 msgstr ""
+"Le roque n'est possible que si le roi et la tour sont placés sur leurs "
+"positions normales aux échecs standards."
 
 #: ../client/lobby/layer3.ts:97
 msgid ""
 "You can choose different starting setups including Embassy Chess and Gothic "
 "Chess."
 msgstr ""
+"Vous pouvez choisir entre plusieurs positions de départs, comme celles de "
+"Embassy Chess ou des échecs gothiques."
 
 #: ../client/lobby/layer3.ts:99
 msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
 msgstr ""
+"Pour la variante avec le parachutage, choisir GRANDHOUSE depuis le menu "
+"déroulant."
 
 #: ../client/lobby/layer3.ts:101
 msgid "For a drop version, choose S-HOUSE from the dropdown menu."
 msgstr ""
+"Pour la variante avec le parachutage, choisir S-HOUSE depuis le menu "
+"déroulant."
 
 #: ../client/lobby/layer3.ts:103
 msgid "The queen actually demotes upon capture, so it is not worth as much."
@@ -1477,3 +1498,4 @@ msgid ""
 "Reading the rules are a necessity to understand the movements before "
 "playing."
 msgstr ""
+"Lisez les règles pour comprendre les mouvements des pièces avant de jouer."

@@ -1,8 +1,8 @@
-import { h } from 'snabbdom/h';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 import { Howl } from 'howler';
 
-import { IVariant } from './chess';
+import { Variant } from './chess';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
 import { model } from './main';
@@ -91,7 +91,7 @@ class Sounds {
         atomic: { move: () => this.move(), capture: () => this.explosion() },
     };
 
-    moveSound(variant: IVariant, capture: boolean) {
+    moveSound(variant: Variant, capture: boolean) {
         const soundSet = variant.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.pieceSound] : this.moveSoundSet.regular ;
         if (capture)
             soundSet.capture();

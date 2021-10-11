@@ -1,45 +1,45 @@
-.standard8x8 .cg-wrap {
+.standard8x8 cg-board {
     background-image: url('images/board/8x8brown.svg');
 }
-.standard10x8 .cg-wrap {
+.standard10x8 cg-board {
     background-image: url('images/board/10x8brown.svg');
 }
-.standard10x10 .cg-wrap {
+.standard10x10 cg-board {
     background-image: url('images/board/10x10brown.svg');
 }
-.grand10x10 .cg-wrap {
+.grand10x10 cg-board {
     background-image: url('images/board/Grandboard.svg');
 }
-.makruk8x8 .cg-wrap {
+.makruk8x8 cg-board {
     background-image: url('images/board/makruk2.svg');
 }
-.sittuyin8x8 .cg-wrap {
+.sittuyin8x8 cg-board {
     background-image: url('images/board/sittuyin.svg');
 }
-.shogi9x9 .cg-wrap {
+.shogi9x9 cg-board {
     background-image: url('images/board/shogi.svg');
 }
-.shogi7x7 .cg-wrap {
+.shogi7x7 cg-board {
     background-image: url('images/board/ToriPlain.svg');
 }
-.shogi5x6 .cg-wrap {
+.shogi5x6 cg-board {
     background-image: url('images/board/gorogoroboard.svg');
 }
-.shogi5x5 .cg-wrap {
+.shogi5x5 cg-board {
     background-image: url('images/board/minishogi.svg');
 }
-.shogi3x4 .cg-wrap {
+.shogi3x4 cg-board {
     background-image: url('images/board/dobutsuboard.svg');
 }
-.xiangqi9x10 .cg-wrap {
+.xiangqi9x10 cg-board {
     background-image: url('images/board/xiangqi.svg');
 }
-.xiangqi7x7 .cg-wrap {
+.xiangqi7x7 cg-board {
     background-image: url('images/board/minixiangqi.svg');
 }
-.janggi9x10 .cg-wrap {
+.janggi9x10 cg-board {
     background-image: url('images/board/JanggiBrown.svg');
 }
-.shogun8x8 .cg-wrap {
+.shogun8x8 cg-board {
     background-image: url('images/board/ShogunPlain.svg');
 }
