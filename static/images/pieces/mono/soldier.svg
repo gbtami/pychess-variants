@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -59,8 +59,8 @@
      inkscape:window-maximized="1"
      inkscape:window-y="27"
      inkscape:window-x="72"
-     inkscape:cy="17.65551"
-     inkscape:cx="-71.544182"
+     inkscape:cy="1.0656482"
+     inkscape:cx="-38.261463"
      inkscape:zoom="4.8222222"
      showgrid="false"
      id="namedview3847"
@@ -77,9 +77,10 @@
   <path
      inkscape:path-effect="#path-effect4448"
      inkscape:original-d="M -99.745078,-1.3007197 C -105.01077,33.87678 -149.43162,66.260788 -162.80489,77.273131 c 23.39443,-1.486303 41.84318,-5.969219 49.87893,-5.905687 -3.78985,50.016626 -46.94654,39.365156 -46.95985,71.818166 33.16237,0 80.332875,-0.35352 115.78722,-0.35352 -0.006,-11.54918 -5.174356,-28.25734 -18.099609,-30.09179 -44.142831,-81.107313 6.642805,-43.090295 -37.546879,-114.0410197 z"
-     transform="matrix(0.21423887,0,0,0.21423887,44.697499,8.8984368)"
+     transform="matrix(0.28036018,0,0,0.28036018,51.548393,1.687821)"
      id="path2176-6"
-     style="fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:7.00153;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+     style="fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:7.00153017;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
      d="m -103.61098,12.19137 c -12.38926,29.718231 -47.55333,55.496217 -59.19391,65.081761 23.39443,-1.486303 41.84318,-5.969219 49.87893,-5.905687 -3.78985,50.016626 -46.94654,39.365156 -46.95985,71.818166 16.37512,0 36.16578,-0.0862 56.27483,-0.17347 20.10905,0.0873 39.899706,0.17347 56.27483,0.17347 -0.01331,-32.45301 -43.17,-21.80154 -46.95985,-71.818166 8.03575,-0.06353 26.4845,4.419384 49.87893,5.905687 -11.64058,-9.585544 -46.804652,-35.36353 -59.19391,-65.081761 z"
-     sodipodi:nodetypes="ccccccc" />
+     sodipodi:nodetypes="ccccccc"
+     inkscape:connector-curvature="0" />
 </svg>
