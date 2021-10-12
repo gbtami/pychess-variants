@@ -455,6 +455,15 @@ div.guide h2, div.guide p, div.news h2, div.news p {
     line-height: 1.8;
 }
 
+div.guide h2 {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+div.guide h2, div.guide p {
+    padding: 1.2rem;
+}
+
 div.closed {
     width: 610px;
 }
