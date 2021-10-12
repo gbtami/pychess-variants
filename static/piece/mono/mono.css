@@ -66,7 +66,7 @@ mpiece.p {
     background-image: url('../../images/pieces/mono/snake.svg');
 }
 
-.xiangqi mpiece.r, .janggi mpiece.r {
+.xiangqi mpiece.r, .janggi mpiece.r, .xiangqi mpiece.m {
     background-image: url('../../images/pieces/mono/chariot.svg');
 }
 .xiangqi mpiece.b, .janggi mpiece.b {
