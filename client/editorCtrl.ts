@@ -9,7 +9,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
 
-import { Chessground } from './chessgroundxWithPockets';// from 'chessgroundx';
+import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 

@@ -8,7 +8,7 @@ import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
 
 import * as util from 'chessgroundx/util';
-import { Chessground } from './chessgroundxWithPockets';// from 'chessgroundx';
+import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 import { cancelDropMode } from 'chessgroundx/drop';
@@ -30,7 +30,7 @@ import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
-import {dropIsValid} from "./pockTempStuff";
+import {dropIsValid} from "chessgroundx/pockTempStuff";
 
 const patch = init([klass, attributes, properties, listeners]);
 

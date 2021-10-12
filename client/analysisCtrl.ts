@@ -9,7 +9,7 @@ import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
 
-import { Chessground } from './chessgroundxWithPockets';//'chessgroundx';
+import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
@@ -35,7 +35,7 @@ import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
 import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
-import {dropIsValid} from "./pockTempStuff";
+import {dropIsValid} from "chessgroundx/pockTempStuff";
 
 const patch = init([klass, attributes, properties, listeners]);
 

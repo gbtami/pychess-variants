@@ -496,7 +496,7 @@ export default class TournamentController {
             h(`div.cg-wrap.${variant.cg}`, {
                 hook: {
                     insert: vnode => {
-                        const cg = Chessground(vnode.elm as HTMLElement, {
+                        const cg = Chessground(vnode.elm as HTMLElement, undefined, undefined,  {
                             fen: game.fen,
                             // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
                             geometry: variant.geometry,

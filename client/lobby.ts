@@ -720,7 +720,7 @@ export class LobbyController {
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg + '.mini',
-                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, { coordinates: false, fen: seek.fen, geometry: variant.geometry }) } }
+                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, undefined, undefined,{ coordinates: false, fen: seek.fen, geometry: variant.geometry }) } }
                 ),
             ]);
         } else {
