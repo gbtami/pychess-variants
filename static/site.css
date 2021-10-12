@@ -432,13 +432,27 @@ div.guide, div.news {
 }
 
 div.guide, div.news, div.about {
-  max-width: 800px;
-  padding: 20px 40px;
-  font-size: 1.2em; 
+    max-width: 800px;
+    padding: 20px 40px;
+    font-size: 1.2em; 
 }
 
+div.guide h1, div.guide h2, div.guide h3 {
+    text-align: center; 
+}
+
+div.guide h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+div.guide h1 img {
+    margin-right: 10px;
+}
+  
 div.guide h2, div.guide p, div.news h2, div.news p {
-  line-height: 1.8;
+    line-height: 1.8;
 }
 
 div.closed {
