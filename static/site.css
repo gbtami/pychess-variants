@@ -464,6 +464,14 @@ div.guide h2, div.guide p {
     padding: 1.2rem;
 }
 
+div.guide ul {
+    margin-left: 15px;
+}
+
+div.guide li {
+    margin: 5px 0px;
+}
+
 div.closed {
     width: 610px;
 }
