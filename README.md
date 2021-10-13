@@ -10,6 +10,7 @@ Currently supported games are:
 - [Makpong](https://www.pychess.org/variants/makpong)
 - [Ouk Chatrang](https://www.pychess.org/variants/cambodian)
 - [Sittuyin](https://www.pychess.org/variants/sittuyin)
+- [ASEAN Chess](https://www.pychess.org/variants/asean)
 - [Shogi](https://www.pychess.org/variants/shogi)
 - [Minishogi](https://www.pychess.org/variants/minishogi)
 - [Kyoto shogi](https://www.pychess.org/variants/kyotoshogi)
@@ -61,19 +62,15 @@ Your contribution will be greatly appreciated and help me continue to develop th
 ## Installation
 
 ### Prerequisites
-* [Mongo daemon](https://docs.mongodb.com/manual/installation/) (You need mongodb up and running)
+* You need mongodb up and running. [Mongo daemon](https://docs.mongodb.com/manual/installation/)
 
 
 ### Project setup
 ```
-pip3 install -r requirements.txt --user
-yarn install
-yarn dev
-```
-
-For MacOS, replace the last command with:
-```
-yarn dev-mac
+pip3 install -r requirements.txt --user // Install python requirements
+yarn install                            // Install node requirements
+yarn dev                                // Compile typescript files to javascript
+yarn md                                 // Compile md files to html
 ```
 
 ### Start server

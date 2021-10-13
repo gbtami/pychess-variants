@@ -9,6 +9,7 @@ from aiohttp import web
 import aiohttp_session
 
 from broadcast import lobby_broadcast, round_broadcast
+from chat import chat_response
 from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
@@ -181,7 +182,7 @@ async def round_socket_handler(request):
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
                                 await engine.event_queue.put(game.analysis_start(data["username"]))
 
-                        response = {"type": "roundchat", "user": "", "room": "spectator", "message": "Analysis request sent..."}
+                        response = chat_response("roundchat", "", "Analysis request sent...", room="spectator")
                         await ws.send_json(response)
 
                     elif data["type"] == "rematch":
@@ -458,7 +459,7 @@ async def round_socket_handler(request):
                             await ws.send_json({"type": "request_analysis"})
                             continue
 
-                        response = {"type": "roundchat", "user": user.username, "message": data["message"], "room": data["room"]}
+                        response = chat_response("roundchat", user.username, data["message"], room=data["room"])
                         game.messages.append(response)
 
                         for name in (game.wplayer.username, game.bplayer.username):
@@ -474,7 +475,7 @@ async def round_socket_handler(request):
                         await round_broadcast(game, users, response)
 
                     elif data["type"] == "leave":
-                        response = {"type": "roundchat", "user": "", "message": "%s left the game" % user.username, "room": "player"}
+                        response = chat_response("roundchat", "", "%s left the game" % user.username, room="player")
                         gameId = data["gameId"]
                         game = await load_game(request.app, gameId)
                         if game is not None:

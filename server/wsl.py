@@ -8,6 +8,7 @@ import aiohttp_session
 
 from admin import silence
 from broadcast import lobby_broadcast
+from chat import chat_response
 from const import STARTED
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
@@ -265,13 +266,13 @@ async def lobby_socket_handler(request):
                             elif message == "/state":
                                 server_state(request.app)
                             else:
-                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                response = chat_response("lobbychat", user.username, data["message"])
                                 lobbychat.append(response)
                         elif user.anon and user.username != "Discord-Relay":
                             pass
                         else:
                             if user.silence == 0:
-                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                response = chat_response("lobbychat", user.username, data["message"])
                                 lobbychat.append(response)
 
                         if response is not None:

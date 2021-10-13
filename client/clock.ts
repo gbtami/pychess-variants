@@ -1,15 +1,13 @@
 // https://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
 
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
 
 const patch = init([klass, attributes, properties, listeners]);
-
-import { h } from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
 
 import { sound } from './sound';
 
@@ -21,7 +19,7 @@ export class Clock {
     granularity: number;
     running: boolean;
     connecting: boolean;
-    timeout: number | null;
+    timeout: ReturnType<typeof setTimeout> | null;
     startTime: number;
     tickCallbacks: ((diff: number) => void)[];
     flagCallback: (() => void) | null;

@@ -1,6 +1,7 @@
 import Sockette from 'sockette';
 
-import { init } from 'snabbdom';
+import { init, h } from 'snabbdom';
+import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
@@ -9,15 +10,12 @@ import style from 'snabbdom/modules/style';
 
 const patch = init([klass, attributes, properties, listeners, style]);
 
-import { h } from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
-
 import { Chessground } from 'chessgroundx';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { chatMessage, chatView } from './chat';
-import { validFen, VARIANTS, selectVariant, IVariant } from './chess';
+import { validFen, VARIANTS, selectVariant, Variant } from './chess';
 import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
@@ -605,7 +603,7 @@ export class LobbyController {
         }
         this.setStartButtons();
     }
-    private setAlternateStart(variant: IVariant) {
+    private setAlternateStart(variant: Variant) {
         let e: HTMLSelectElement;
         e = document.getElementById('alternate-start') as HTMLSelectElement;
         const alt = e.options[e.selectedIndex].value;
@@ -717,7 +715,7 @@ export class LobbyController {
         return ((this.model["anon"] === 'True' || this.model["title"] === 'BOT') && seek["rated"]) ||
             (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']);
     }
-    private tooltip(seek: Seek, variant: IVariant) {
+    private tooltip(seek: Seek, variant: Variant) {
         let tooltipImage;
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
@@ -849,7 +847,7 @@ export class LobbyController {
         this.model.username = msg.username;
     }
     private onMsgChat(msg: MsgChat) {
-        chatMessage(msg.user, msg.message, "lobbychat");
+        chatMessage(msg.user, msg.message, "lobbychat", msg.time);
         // seems this is annoying for most of the users
         //if (msg.user.length !== 0 && msg.user !== '_server')
         //    sound.socialNotify();
@@ -860,7 +858,7 @@ export class LobbyController {
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         // console.log("NEW FULL MESSAGES");
-        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat"));
+        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat", line.time));
     }
     private onMsgPing(msg: MsgPing) {
         this.doSend({ type: "pong", timestamp: msg.timestamp });

@@ -1,4 +1,4 @@
-import { h, init } from "snabbdom";
+import { init, h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
@@ -7,6 +7,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
 
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { dragNewPiece } from 'chessgroundx/drag';
 import { setDropMode, cancelDropMode } from 'chessgroundx/drop';
 
@@ -158,7 +159,7 @@ export function click(ctrl: EditorController | RoundController | AnalysisControl
         // TODO:move below lines to drop.ts -> setDropMode
         if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {
             if (ctrl.dests/*very first move with white might be undef*/) {
-                const dropDests = new Map([ [role, ctrl.dests[role2san(role) + "@"] ] ]); // TODO:ideally pocket.ts should move to chessgroundx so dests must be set directly in the controller
+                const dropDests = new Map([ [role, ctrl.dests.get(util.letterOf(role, true) + "@" as cg.Orig)! ] ]); // TODO:ideally pocket.ts should move to chessgroundx so dests must be set directly in the controller
                 ctrl.chessground.set({
                     dropmode: {
                         active: true,
@@ -215,7 +216,7 @@ export function drag(ctrl: EditorController | RoundController | AnalysisControll
 
     if (ctrl instanceof RoundController || ctrl instanceof AnalysisController) {
         if (ctrl.dests/*very first move with white might be undef*/) {
-            const dropDests = new Map([[role, ctrl.dests[role2san(role) + "@"]]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
+            const dropDests = new Map([[role, ctrl.dests.get(util.letterOf(role, true) + "@" as cg.Orig)!]]); // TODO:imho ideally pocket.ts should move to chessgroundx - this (ctrl.dests) then might not be accessible - is it?
             ctrl.chessground.set({
                 dropmode: {
                     dropDests: dropDests,

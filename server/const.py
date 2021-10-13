@@ -54,6 +54,7 @@ VARIANTS = (
     "makpong",
     "cambodian",
     "sittuyin",
+    "asean",
     "shogi",
     "minishogi",
     "kyotoshogi",
@@ -132,6 +133,7 @@ VARIANT_ICONS = {
     "empire": "♚",
     "ordamirror": "◩",
     "pandemonium": "F",
+    "asean": "♻",
 }
 
 VARIANT_960_TO_PGN = {
@@ -153,7 +155,7 @@ CATEGORIES = {
     "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("orda", "synochess", "shinobi", "empire", "ordamirror"),
-    "makruk": ("makruk", "makpong", "cambodian", "sittuyin"),
+    "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
@@ -183,6 +185,10 @@ def variant_display_name(variant):
         return "OUK CHATRANG"
     elif variant == "ordamirror":
         return "ORDA MIRROR"
+    elif variant == "kyotoshogi":
+        return "KYOTO SHOGI"
+    elif variant == "torishogi":
+        return "TORI SHOGI"
     else:
         return variant.upper()
 

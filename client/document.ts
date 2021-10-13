@@ -1,5 +1,6 @@
-import * as cg from "chessgroundx/types";
 import { VNode } from "snabbdom/vnode";
+
+import * as cg from "chessgroundx/types";
 
 export function download(filename: string, text: string) {
   const element = document.createElement('a');
@@ -49,7 +50,7 @@ export function getPieceImageUrl (role: cg.Role, color: cg.Color, side: string):
 }
 
 export function debounce(callback: any, wait: number) {
-    let timeout: number;
+    let timeout: ReturnType<typeof setTimeout>;
     return function() {
         const context = this, args = arguments;
         clearTimeout(timeout);
@@ -90,10 +91,10 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
         if (!( rule instanceof CSSStyleRule)) {
             continue;
         }
-        if (rule.selectorText === `.${family} .cg-wrap`) {
+        if (rule.selectorText === `.${family} cg-board`) {
             // console.log("changeBoardCSS", family, cssFile, i)
             sheet.deleteRule(i)
-            const newRule = `.${family} .cg-wrap {background-image: url(${assetUrl}/images/board/${cssFile})}`;
+            const newRule = `.${family} cg-board {background-image: url(${assetUrl}/images/board/${cssFile})}`;
             // console.log(newRule);
             sheet.insertRule(newRule, i);
             break;
@@ -108,22 +109,23 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         case "seirawan": cssLinkIndex += 1; break;
         case "makruk": cssLinkIndex += 2; break;
         case "sittuyin": cssLinkIndex += 3; break;
-        case "shogi": cssLinkIndex += 4; break;
-        case "kyoto": cssLinkIndex += 5; break;
-        case "tori": cssLinkIndex += 6; break;
-        case "xiangqi": cssLinkIndex += 7; break;
-        case "capa": cssLinkIndex += 8; break;
-        case "shako": cssLinkIndex += 9; break;
-        case "shogun": cssLinkIndex += 10; break;
-        case "janggi": cssLinkIndex += 11; break;
-        case "orda": cssLinkIndex += 12; break;
-        case "synochess": cssLinkIndex += 13; break;
-        case "hoppel": cssLinkIndex += 14; break;
-        case "dobutsu": cssLinkIndex += 15; break;
-        case "shinobi": cssLinkIndex += 16; break;
-        case "empire": cssLinkIndex += 17; break;
-        case "ordamirror": cssLinkIndex += 18; break;
-        case "pandemonium": cssLinkIndex += 19; break;
+        case "asean": cssLinkIndex += 4; break;
+        case "shogi": cssLinkIndex += 5; break;
+        case "kyoto": cssLinkIndex += 6; break;
+        case "tori": cssLinkIndex += 7; break;
+        case "xiangqi": cssLinkIndex += 8; break;
+        case "capa": cssLinkIndex += 9; break;
+        case "shako": cssLinkIndex += 10; break;
+        case "shogun": cssLinkIndex += 11; break;
+        case "janggi": cssLinkIndex += 12; break;
+        case "orda": cssLinkIndex += 13; break;
+        case "synochess": cssLinkIndex += 14; break;
+        case "hoppel": cssLinkIndex += 15; break;
+        case "dobutsu": cssLinkIndex += 16; break;
+        case "shinobi": cssLinkIndex += 17; break;
+        case "empire": cssLinkIndex += 18; break;
+        case "ordamirror": cssLinkIndex += 19; break;
+        case "pandemonium": cssLinkIndex += 20; break;
         default: throw "Unknown piece family " + family;
     }
     const newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;

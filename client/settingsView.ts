@@ -1,12 +1,11 @@
-import { init } from "snabbdom";
+import { init, h } from "snabbdom";
 import klass from 'snabbdom/modules/class';
 import attributes from 'snabbdom/modules/attributes';
 import properties from 'snabbdom/modules/props';
 import listeners from 'snabbdom/modules/eventlisteners';
+import style from 'snabbdom/modules/style';
 
-const patch = init([klass, attributes, properties, listeners]);
-
-import { h } from 'snabbdom/h';
+const patch = init([klass, attributes, properties, listeners, style]);
 
 import { backgroundSettings } from './background';
 import { boardSettings } from './boardSettings';

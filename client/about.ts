@@ -1,4 +1,4 @@
-import h from 'snabbdom/h';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 
 import { _ } from './i18n';
@@ -28,6 +28,8 @@ export function aboutView(): VNode[] {
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/cambodian' } }, 'Ouk Chatrang'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/sittuyin' } }, 'Sittuyin'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/asean' } }, 'ASEAN Chess'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/shogi' } }, 'Shogi'),
                 ", ",

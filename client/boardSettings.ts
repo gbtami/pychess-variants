@@ -35,7 +35,7 @@ class BoardSettings {
         this.settings = {};
         this.settings["animation"] = new AnimationSettings(this);
         this.settings["showDests"] = new ShowDestsSettings(this);
-        this.settings["autoQueen"] = new AutoQueenSettings(this);
+        this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
         this.settings["blindfold"] = new BlindfoldSettings(this);
     }
@@ -106,14 +106,6 @@ class BoardSettings {
                 document.body.setAttribute('style', '--zoom:' + zoom);
                 document.body.dispatchEvent(new Event('chessground.resize'));
 
-                const baseWidth = el.getBoundingClientRect()['width'];
-                const baseHeight = el.getBoundingClientRect()['height'];
-
-                const pxw = `${baseWidth}px`;
-                const pxh = `${baseHeight}px`;
-
-                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --zoom:' + zoom);
-
                 if (this.ctrl instanceof AnalysisController && !this.ctrl.model["embed"]) {
                     analysisChart(this.ctrl);
                 }
@@ -138,8 +130,8 @@ class BoardSettings {
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (variant.autoQueenable)
-            settingsList.push(this.settings["autoQueen"].view());
+        if (variant.autoPromoteable)
+            settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["arrow"].view());
 
@@ -247,7 +239,10 @@ class BoardStyleSettings extends NumberSettings {
                 props: { type: "radio", name: "board", value: i },
                 attrs: { checked: vboard === i },
             }));
-            boards.push(h('label.board.board' + i + '.' + this.boardFamily, { attrs: { for: "board" + i } }, ""));
+            boards.push(h('label.board.board' + i + '.' + this.boardFamily, {
+                attrs: { for: "board" + i },
+                style: { backgroundImage: `url('/static/images/board/${boardCSS[i]}')` },
+            }, ""));
         }
         return h('settings-board', boards);
     }
@@ -320,21 +315,21 @@ class ShowDestsSettings extends BooleanSettings {
     }
 }
 
-class AutoQueenSettings extends BooleanSettings {
+class AutoPromoteSettings extends BooleanSettings {
     readonly boardSettings: BoardSettings;
 
     constructor(boardSettings: BoardSettings) {
-        super('autoqueen', false);
+        super('autoPromote', false);
         this.boardSettings = boardSettings;
     }
 
     update(): void {
         if (this.boardSettings.ctrl instanceof RoundController)
-            this.boardSettings.ctrl.autoqueen = this.value;
+            this.boardSettings.ctrl.autoPromote = this.value;
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'autoqueen', _("Promote to Queen automatically")));
+        return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
     }
 }
 

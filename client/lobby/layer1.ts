@@ -16,7 +16,7 @@ import { Chessground } from 'chessgroundx';
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
 import { changeBoardCSS, changePieceCSS } from '../document';
-import { BOARD_FAMILIES, PIECE_FAMILIES, IVariant } from '../chess';
+import { BOARD_FAMILIES, PIECE_FAMILIES, Variant } from '../chess';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
 import { layer2army } from './layer2army';
@@ -51,7 +51,6 @@ export function variantPanels (lobbyCtrl: LobbyController): VNode {
             case 'makruk': css = 'makrukwb'; break;
             case 'shogi': css = 'shogikw3d'; break;
             case 'kyoto': css = 'kyotok'; break;
-            case 'xiangqi': css = 'xiangqihnzw'; break;
             case 'xiangqi': css = 'xiangqihnzw'; break;
             case 'janggi': css = 'janggikaw'; break;
             default: css = PIECE_FAMILIES[family].pieceCSS[0]; break;
@@ -118,7 +117,7 @@ export function goBackToLayer1(lobbyCtrl: LobbyController, containerId: string):
     if (container) patch(container, variantPanels(lobbyCtrl));
 }
 
-export function variantBoard(variant: IVariant, fen: string, check: boolean=false, lastMove: cg.Key[] | undefined=undefined): VNode {
+export function variantBoard(variant: Variant, fen: string, check: boolean=false, lastMove: cg.Key[] | undefined=undefined): VNode {
     return h(`selection#mainboard.${variant.board}.${variant.piece}`, [
         h(`div.cg-wrap.${variant.cg}`, {
             hook: {

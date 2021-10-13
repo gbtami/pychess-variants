@@ -11,14 +11,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2021-10-05 14:39+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: zh\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -108,7 +108,7 @@ msgid ""
 msgstr "关于隐私和服务条款，我们向lichess.org借之而行。"
 
 #: ../client/analysis.ts:38 ../client/editor.ts:33 ../client/lobby.ts:433
-#: ../client/lobby.ts:932 ../client/settingsView.ts:138
+#: ../client/lobby.ts:932 ../client/settingsView.ts:139
 msgid "Variant"
 msgstr "棋类"
 
@@ -165,12 +165,12 @@ msgstr "深度"
 msgid "Go deeper"
 msgstr "深入分析"
 
-#: ../client/analysisCtrl.ts:1295 ../client/roundCtrl.ts:1393
+#: ../client/analysisCtrl.ts:1296 ../client/roundCtrl.ts:1395
 #: ../client/tournament.ts:684
 msgid "Spectators: "
 msgstr "观众："
 
-#: ../client/analysisCtrl.ts:1319 ../client/roundCtrl.ts:1474
+#: ../client/analysisCtrl.ts:1320 ../client/roundCtrl.ts:1476
 msgid "Requested game %1 not found!"
 msgstr "未找到要求的棋局 %1 ！"
 
@@ -186,19 +186,19 @@ msgstr "暗"
 msgid "Piece animation"
 msgstr "棋子动画"
 
-#: ../client/boardSettings.ts:319
+#: ../client/boardSettings.ts:322
 msgid "Show piece destinations"
 msgstr "表示棋子走到位置"
 
-#: ../client/boardSettings.ts:337
+#: ../client/boardSettings.ts:340
 msgid "Promote to Queen automatically"
 msgstr "兵自动升变为皇后"
 
-#: ../client/boardSettings.ts:355
+#: ../client/boardSettings.ts:358
 msgid "Best move arrow in analysis board"
 msgstr "箭头指示最佳着"
 
-#: ../client/boardSettings.ts:383
+#: ../client/boardSettings.ts:386
 msgid "Invisible pieces"
 msgstr "隐形棋子"
 
@@ -238,205 +238,211 @@ msgstr "聊天开关"
 msgid "Server"
 msgstr "服务器"
 
-#: ../client/chess.ts:263
+#: ../client/chess.ts:264
 msgid "Chess, unmodified, as it's played by FIDE standards."
 msgstr "按照国际棋联规则的正统国际象棋。"
 
-#: ../client/chess.ts:280
+#: ../client/chess.ts:281
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr "把己方吃掉的棋子放回棋盘成为己方的棋子。"
 
-#: ../client/chess.ts:298
+#: ../client/chess.ts:299
 msgid "Choose where your pieces start."
 msgstr "选择您棋子的初始位置。"
 
-#: ../client/chess.ts:308
+#: ../client/chess.ts:309
 msgid "Pieces explode upon capture."
 msgstr "吃子时被吃的子爆炸。"
 
-#: ../client/chess.ts:318
+#: ../client/chess.ts:319
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr "泰国象棋。相近古印度象棋。类似国际象棋但皇后和主教的走法不同。"
 
-#: ../client/chess.ts:327
+#: ../client/chess.ts:328
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr "泰国象棋，但不准动王逃出将军。"
 
-#: ../client/chess.ts:336
+#: ../client/chess.ts:337
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr "柬埔寨象棋，又称高棉象棋。相近泰国象棋但王和士走初步时可选特别走法。"
 
-#: ../client/chess.ts:345
+#: ../client/chess.ts:346
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
 msgstr "缅甸象棋。相似泰国象棋，但大子在对局开始后一一排列。"
 
-#: ../client/chess.ts:356
+#: ../client/chess.ts:357
+msgid ""
+"Makruk using the board/pieces from International Chess as well as pawn "
+"promotion rules."
+msgstr ""
+
+#: ../client/chess.ts:366
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
 msgstr "日本将棋。现在广泛的9x9正统将棋，含有打入和升变的规则。"
 
-#: ../client/chess.ts:384
+#: ../client/chess.ts:394
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr "5x5盘上的将棋，更窄小更快节奏的游戏。无桂马也无香车。"
 
-#: ../client/chess.ts:399
+#: ../client/chess.ts:409
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
 
-#: ../client/chess.ts:414
+#: ../client/chess.ts:424
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
 
-#: ../client/chess.ts:428
+#: ../client/chess.ts:438
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr ""
 
-#: ../client/chess.ts:443
+#: ../client/chess.ts:453
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr ""
 
-#: ../client/chess.ts:464
+#: ../client/chess.ts:474
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr "正统中国象棋，世界中最广泛的象棋类游戏之一。"
 
-#: ../client/chess.ts:473
+#: ../client/chess.ts:483
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
 msgstr ""
 
-#: ../client/chess.ts:483
+#: ../client/chess.ts:493
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr "朝鲜将棋。相似象棋，但玩法异同。本网站使用大赛规则。"
 
-#: ../client/chess.ts:495
+#: ../client/chess.ts:505
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr ""
 
-#: ../client/chess.ts:504
+#: ../client/chess.ts:514
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr "在10x8路的棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）。"
 
-#: ../client/chess.ts:521
+#: ../client/chess.ts:531
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr "在Capablanca上添加Crazyhouse的打入规则。"
 
-#: ../client/chess.ts:538
+#: ../client/chess.ts:548
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
 msgstr "仙灵棋子大主教（马+象）和首相（马+车）能在棋子离开己方底线后降临参战。"
 
-#: ../client/chess.ts:548
+#: ../client/chess.ts:558
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr "在S-Chess上添加Crazyhouse的打入规则。"
 
-#: ../client/chess.ts:558
+#: ../client/chess.ts:568
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr "在10x10路的豪大棋盘上使用仙灵棋子，大主教（马+象）和首相（马+车）。"
 
-#: ../client/chess.ts:568
+#: ../client/chess.ts:578
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr "在Grand Chess上添加Crazyhouse的打入规则。"
 
-#: ../client/chess.ts:579
+#: ../client/chess.ts:589
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr "来自象棋的“炮”和“象”进入10x10路棋盘上的国际象棋大战。"
 
-#: ../client/chess.ts:588
+#: ../client/chess.ts:598
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr "棋子既可升变又能打入，如同日本将棋。"
 
-#: ../client/chess.ts:601
+#: ../client/chess.ts:611
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr "非对称棋类，单方指挥走法如马但吃法不一致的棋子。"
 
-#: ../client/chess.ts:612
+#: ../client/chess.ts:622
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
 
-#: ../client/chess.ts:624
+#: ../client/chess.ts:634
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr "马行如马但吃如主教；主教行如主教但吃如马。"
 
-#: ../client/chess.ts:633
+#: ../client/chess.ts:643
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr ""
 
-#: ../client/chess.ts:647
+#: ../client/chess.ts:657
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr "非对称棋类，单方指挥走法如皇后但吃法不一致的棋子。"
 
-#: ../client/chess.ts:658
+#: ../client/chess.ts:668
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
 
-#: ../client/chess.ts:671
+#: ../client/chess.ts:681
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr "相似Capablanca但使用Grand的起始局面。"
 
-#: ../client/chess.ts:681
+#: ../client/chess.ts:691
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "相似Capablanca但起始局面不一致。"
 
-#: ../client/chess.ts:691
+#: ../client/chess.ts:701
 msgid "Gothic with Crazyhouse drop rules."
 msgstr " 在Gothic上添加Crazyhouse的打入规则。"
 
-#: ../client/chess.ts:716 ../client/lobby/layer1.ts:65
+#: ../client/chess.ts:726 ../client/lobby/layer1.ts:65
 #: ../client/lobby/layer2chess.ts:26
 msgid "Chess Variants"
 msgstr "国际象棋与变体"
 
-#: ../client/chess.ts:717 ../client/lobby/layer1.ts:89
+#: ../client/chess.ts:727 ../client/lobby/layer1.ts:89
 #: ../client/lobby/layer2makruk.ts:24
 msgid "Makruk Variants"
 msgstr "泰国象棋与变体"
 
-#: ../client/chess.ts:718 ../client/lobby/layer1.ts:97
+#: ../client/chess.ts:728 ../client/lobby/layer1.ts:97
 #: ../client/lobby/layer2shogi.ts:24
 msgid "Shogi Variants"
 msgstr "日本将棋与变体"
 
-#: ../client/chess.ts:719 ../client/lobby/layer1.ts:105
+#: ../client/chess.ts:729 ../client/lobby/layer1.ts:105
 #: ../client/lobby/layer2xiangqi.ts:24
 msgid "Xiangqi Variants"
 msgstr "中国象棋与变体"
 
-#: ../client/chess.ts:720 ../client/lobby/layer1.ts:73
+#: ../client/chess.ts:730 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2fairy.ts:24
 msgid "Fairy Piece Variants"
 msgstr "新棋子变体"
 
-#: ../client/chess.ts:721 ../client/lobby/layer1.ts:81
+#: ../client/chess.ts:731 ../client/lobby/layer1.ts:81
 #: ../client/lobby/layer2army.ts:24
 msgid "New Army Variants"
 msgstr "新棋阵变体"
@@ -525,11 +531,11 @@ msgstr "王车易位权"
 
 #: ../client/editorCtrl.ts:140 ../client/lobby.ts:510 ../client/profile.ts:29
 msgid "White"
-msgstr "白方"
+msgstr "白棋"
 
 #: ../client/editorCtrl.ts:155 ../client/lobby.ts:508 ../client/profile.ts:31
 msgid "Black"
-msgstr "黑方"
+msgstr "黑棋"
 
 #: ../client/editorCtrl.ts:171
 msgid "FLIP BOARD"
@@ -543,7 +549,7 @@ msgstr "清空棋盘"
 msgid "STARTING POSITION"
 msgstr "起始局面"
 
-#: ../client/editorCtrl.ts:180 ../client/roundCtrl.ts:712
+#: ../client/editorCtrl.ts:180 ../client/roundCtrl.ts:714
 msgid "ANALYSIS BOARD"
 msgstr "拆棋"
 
@@ -567,7 +573,7 @@ msgstr "无法识别FEN"
 msgid "Playing right now"
 msgstr "正在进行"
 
-#: ../client/invite.ts:44
+#: ../client/invite.ts:44 ../client/lobby.ts:522
 msgid "Host a game for others"
 msgstr "为它人主持棋局"
 
@@ -669,10 +675,6 @@ msgstr "和电脑下棋"
 msgid "Practice with Random-Mover"
 msgstr "和随机走子电脑下棋"
 
-#: ../client/lobby.ts:522
-msgid "Host game for others"
-msgstr "为它人主持棋局"
-
 #: ../client/lobby.ts:609
 msgid "Byoyomi in seconds:"
 msgstr "读秒："
@@ -761,19 +763,19 @@ msgstr "导入棋局"
 
 #: ../client/profile.ts:33
 msgid "Red"
-msgstr "红方"
+msgstr "红棋"
 
 #: ../client/profile.ts:35
 msgid "Blue"
-msgstr "绿方"
+msgstr "蓝棋"
 
 #: ../client/profile.ts:37
 msgid "Gold"
-msgstr "金方"
+msgstr "金棋"
 
 #: ../client/profile.ts:39
 msgid "Pink"
-msgstr "粉红方"
+msgstr "粉红棋"
 
 #: ../client/profile.ts:53
 msgid "IMPORT"
@@ -865,7 +867,7 @@ msgstr "积分"
 msgid "Imported"
 msgstr "导入的棋局"
 
-#: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1441
+#: ../client/roundCtrl.ts:410 ../client/roundCtrl.ts:1443
 msgid " +15 seconds"
 msgstr "+15秒"
 
@@ -877,8 +879,8 @@ msgstr "添加15秒"
 msgid "Abort"
 msgstr "中止本局"
 
-#: ../client/roundCtrl.ts:468 ../client/roundCtrl.ts:1121
-#: ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:468 ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:1125
 msgid "Count"
 msgstr "数"
 
@@ -927,76 +929,76 @@ msgstr "易位"
 msgid "Ready"
 msgstr "确定"
 
-#: ../client/roundCtrl.ts:641
+#: ../client/roundCtrl.ts:643
 msgid "VIEW REMATCH"
 msgstr "观看重赛"
 
-#: ../client/roundCtrl.ts:648
+#: ../client/roundCtrl.ts:650
 msgid "Rematch offer sent"
 msgstr "重赛请求已发送"
 
-#: ../client/roundCtrl.ts:659
+#: ../client/roundCtrl.ts:661
 msgid "Your opponent offers a rematch"
 msgstr "对方请求重赛"
 
-#: ../client/roundCtrl.ts:700
+#: ../client/roundCtrl.ts:702
 msgid "VIEW TOURNAMENT"
 msgstr "观看锦标赛"
 
-#: ../client/roundCtrl.ts:703
+#: ../client/roundCtrl.ts:705
 msgid "BACK TO TOURNAMENT"
 msgstr "返回锦标赛"
 
-#: ../client/roundCtrl.ts:705 ../client/tournament.ts:287
+#: ../client/roundCtrl.ts:707 ../client/tournament.ts:287
 msgid "PAUSE"
 msgstr "暂停"
 
-#: ../client/roundCtrl.ts:708
+#: ../client/roundCtrl.ts:710
 msgid "REMATCH"
 msgstr "重赛"
 
-#: ../client/roundCtrl.ts:709
+#: ../client/roundCtrl.ts:711
 msgid "NEW OPPONENT"
 msgstr "新对手"
 
-#: ../client/roundCtrl.ts:1119
+#: ../client/roundCtrl.ts:1121
 msgid "Stop counting"
 msgstr "停止数步"
 
-#: ../client/roundCtrl.ts:1119
+#: ../client/roundCtrl.ts:1121
 msgid "Stop"
 msgstr "停"
 
-#: ../client/roundCtrl.ts:1121 ../client/roundCtrl.ts:1123
+#: ../client/roundCtrl.ts:1123 ../client/roundCtrl.ts:1125
 msgid "Start counting"
 msgstr "开始数步"
 
-#: ../client/roundCtrl.ts:1353
+#: ../client/roundCtrl.ts:1355
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "剩 %1 秒下第一步棋"
 
-#: ../client/settingsView.ts:62
+#: ../client/settingsView.ts:63
 msgid "Log out"
 msgstr "登出"
 
-#: ../client/settingsView.ts:67
+#: ../client/settingsView.ts:68
 msgid "Are you sure you want to log out?"
 msgstr "您确定要登出吗？"
 
-#: ../client/settingsView.ts:74 ../client/settingsView.ts:110
+#: ../client/settingsView.ts:75 ../client/settingsView.ts:111
 msgid "Sound"
 msgstr "声音"
 
-#: ../client/settingsView.ts:75 ../client/settingsView.ts:120
+#: ../client/settingsView.ts:76 ../client/settingsView.ts:121
 msgid "Background"
 msgstr "背景"
 
-#: ../client/settingsView.ts:76 ../client/settingsView.ts:135
+#: ../client/settingsView.ts:77 ../client/settingsView.ts:136
 msgid "Board Settings"
 msgstr "棋盘设定"
 
-#: ../client/settingsView.ts:77 ../client/settingsView.ts:127
+#: ../client/settingsView.ts:78 ../client/settingsView.ts:128
 msgid "Zen Mode"
 msgstr "禅意模式"
 
@@ -1115,23 +1117,23 @@ msgstr "返回"
 
 #: ../client/lobby/layer2army.ts:35
 msgid "Horde: Horse-based army"
-msgstr ""
+msgstr "汗国：其棋子基于的马走法"
 
 #: ../client/lobby/layer2army.ts:42
 msgid "Empire: Queen-based army"
-msgstr ""
+msgstr "帝国：其棋子基于皇后的走法"
 
 #: ../client/lobby/layer2army.ts:49
 msgid "Horde vs Horde"
-msgstr ""
+msgstr "汗国 VS 汗国"
 
 #: ../client/lobby/layer2army.ts:56
 msgid "Clan: Drop-based army"
-msgstr ""
+msgstr "樱流派：持有打入权利"
 
 #: ../client/lobby/layer2army.ts:63
 msgid "Dynasty: Xiangqi-based army"
-msgstr ""
+msgstr "皇朝：其棋子基于中国象棋"
 
 #: ../client/lobby/layer2chess.ts:28
 msgid "Variants using a basic chess set but with different rules."
@@ -1173,7 +1175,7 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:89
 msgid "Bishops and Knights swap their capture moves"
-msgstr ""
+msgstr "马和主教互相交换他们的吃法"
 
 #: ../client/lobby/layer2makruk.ts:26
 msgid "Southeast Asian variants, closely related to Western Chess."
@@ -1194,6 +1196,10 @@ msgstr "柬埔寨象棋，又称高棉象棋。相近泰国象棋但王和士走
 #: ../client/lobby/layer2makruk.ts:56
 msgid "Burmese Chess. You may place your starting pieces."
 msgstr "缅甸象棋。任意摆出自己大子的起始棋形。"
+
+#: ../client/lobby/layer2makruk.ts:63
+msgid "Makruk with International Chess influence."
+msgstr "受到国际象棋影响的泰国象棋。"
 
 #: ../client/lobby/layer2shogi.ts:26
 msgid "The Japanese version of chess, which involves drops and promotions."
@@ -1279,7 +1285,7 @@ msgstr "在 www.lichess.org 可以再下更多。"
 msgid ""
 "Castling is only possible if the king and rook are dropped to their usual "
 "places like in standard Chess."
-msgstr ""
+msgstr "只有把王和车打入它们在国际象棋的普通位置时才能王车易位。"
 
 #: ../client/lobby/layer3.ts:97
 msgid ""
@@ -1312,36 +1318,40 @@ msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:117
-msgid "It is important to know the counting rules in endgames."
+msgid "Maximizing khon and met's effectiveness is the key."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:119
 msgid "Watch out for knight checks, since they cannot be blocked."
-msgstr ""
+msgstr "要留意马叫将，无法挡。"
 
 #: ../client/lobby/layer3.ts:121
-msgid "Be sure to review the nuances of pawn promotion rules."
+msgid "You can use placement to utilize your bigger pieces since the start."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:123
 msgid "King safety is important. Use the king leap move to save time."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:128 ../client/lobby/layer3.ts:140
-msgid "Internationalized sets are available by going to settings."
+#: ../client/lobby/layer3.ts:125
+msgid "The ability to promote to rook makes for a dynamic endgame."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:130
+#: ../client/lobby/layer3.ts:130 ../client/lobby/layer3.ts:142
+msgid "Internationalized sets are available by going to settings."
+msgstr "在设置中可选择使用国际化棋子。"
+
+#: ../client/lobby/layer3.ts:132
 msgid ""
 "Despite the simple appearance, there is still quite a bit of depth "
 "underlying this game."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:132
+#: ../client/lobby/layer3.ts:134
 msgid "Sets that show both sides are available by going to settings."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:134
+#: ../client/lobby/layer3.ts:136
 msgid ""
 "Reading the rules are a necessity to understand the movements before "
 "playing."
