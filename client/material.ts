@@ -1,4 +1,5 @@
 import * as cg from 'chessgroundx/types';
+import { read } from 'chessgroundx/fen';
 
 import { init } from "snabbdom";
 import klass from 'snabbdom/modules/class';
@@ -13,6 +14,9 @@ import h from 'snabbdom/h';
 import { VNode } from 'snabbdom/vnode';
 
 import RoundController from "./roundCtrl";
+import { Variant } from "./chess";
+
+export type MaterialImbalance = {[index: string]:number};
 
 function mapPiece(piece: string, variant: string): string {
     piece = piece.split('-')[0];
@@ -30,11 +34,25 @@ function mapPiece(piece: string, variant: string): string {
     return piece;
 }
 
-function calculateImbalance(ctrl: RoundController): {[index: string]:number} {
-    let imbalances : {[index: string]:number} = {};
+export function calculateInitialImbalance(variant: Variant): MaterialImbalance {
+    let imbalances : MaterialImbalance = {};
+    for (let piece of variant.pieceRoles('white')) imbalances[mapPiece(piece, variant.name)] = 0;
+    for (let piece of variant.pieceRoles('black')) imbalances[mapPiece(piece, variant.name)] = 0;
+    for (let [_, piece] of read(variant.startFen)) {
+        imbalances[mapPiece(piece.role, variant.name)] += (piece.color === 'white') ? -1 : 1;
+    }
+    if (variant.pocket && variant.startFen.indexOf('[') != -1) {// TODO use chessgroundx mechanism for it when the pocket is incorporated into chessgroundx
+        let pocketContent = variant.startFen.slice(variant.startFen.indexOf('[') + 1, variant.startFen.indexOf(']'));
+        for (let piece of pocketContent) {
+            imbalances[mapPiece(piece.toLowerCase(), variant.name)] += (piece.toLowerCase() == piece ? 1 : -1);
+        }
+    }
+    return imbalances;
+}
+
+function calculateImbalance(ctrl: RoundController): MaterialImbalance {
+    let imbalances = Object.assign({}, ctrl.variant.initialMaterialImbalance);
     let topMaterialColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, bottomMaterialColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
-    for (let piece of ctrl.variant.pieceRoles('white')) imbalances[mapPiece(piece, ctrl.variant.name)] = 0;
-    for (let piece of ctrl.variant.pieceRoles('black')) imbalances[mapPiece(piece, ctrl.variant.name)] = 0;
     for (let piece of ctrl.chessground.state.pieces) {
         let pieceObject = piece[1];
         let mappedPiece = mapPiece(pieceObject!.role, ctrl.variant.name);
@@ -56,18 +74,20 @@ function calculateImbalance(ctrl: RoundController): {[index: string]:number} {
     return imbalances;
 }
 
-function generateContent(ctrl: RoundController, imbalances: {[index: string]:number}, color: cg.Color): VNode[] {
+function generateContent(ctrl: RoundController, imbalances: MaterialImbalance, color: cg.Color): VNode[] {
     let result : VNode[] = [];
-    for (let piece of ctrl.variant.pieceRoles(color)) {
-        let mappedPiece = mapPiece(piece, ctrl.variant.name);
-        let difference = imbalances[mappedPiece] * (color === 'white' ? 1 : -1);
-        if (difference > 0) {
-            imbalances[mappedPiece] = 0;
-            let current_div : VNode[] = [];
-            for (let i = 0; i < difference; ++i) {
-                current_div.push(h('mpiece.' + mappedPiece))
+    for (let whose of [color === 'white' ? 'black' : 'white', color] as cg.Color[]) {
+        for (let piece of ctrl.variant.pieceRoles(whose)) {
+            let mappedPiece = mapPiece(piece, ctrl.variant.name);
+            let difference = imbalances[mappedPiece] * (color === 'white' ? 1 : -1);
+            if (difference > 0) {
+                imbalances[mappedPiece] = 0;
+                let current_div : VNode[] = [];
+                for (let i = 0; i < difference; ++i) {
+                    current_div.push(h('mpiece.' + mappedPiece))
+                }
+                result.push(h('div', current_div));
             }
-            result.push(h('div', current_div));
         }
     }
     return result;

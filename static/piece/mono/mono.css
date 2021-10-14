@@ -85,15 +85,56 @@ mpiece.p {
     background-image: url('../../images/pieces/mono/soldier.svg');
 }
 
-.ordamirror mpiece.l {
+.orda mpiece.l, .ordamirror mpiece.l {
     background-image: url('../../images/pieces/mono/lancer.svg');
 }
-.ordamirror mpiece.h {
+.orda mpiece.h, .ordamirror mpiece.h {
     background-image: url('../../images/pieces/mono/kheshig.svg');
 }
-.ordamirror mpiece.a {
+.orda mpiece.a, .ordamirror mpiece.a {
     background-image: url('../../images/pieces/mono/archer.svg');
+}
+.orda mpiece.y {
+    background-image: url('../../images/pieces/mono/yurt.svg');
 }
 .ordamirror mpiece.f {
     background-image: url('../../images/pieces/mono/falcon.svg');
+}
+
+.shinobi mpiece.l {
+    background-image: url('../../images/pieces/mono/lance.svg');
+}
+.shinobi mpiece.h {
+    background-image: url('../../images/pieces/mono/wooden-horse.svg');
+}
+.shinobi mpiece.m {
+    background-image: url('../../images/pieces/mono/monk.svg');
+}
+.shinobi mpiece.c {
+    background-image: url('../../images/pieces/mono/captain.svg');
+}
+.shinobi mpiece.d {
+    background-image: url('../../images/pieces/mono/dragon.svg');
+}
+.shinobi mpiece.j {
+    background-image: url('../../images/pieces/mono/ninja.svg');
+}
+.shinobi.white mpiece.r {
+    background-image: url('../../images/pieces/mono/shinobi-rook.svg');
+}
+
+.empire mpiece.d {
+    background-image: url('../../images/pieces/mono/duke.svg');
+}
+.empire mpiece.t {
+    background-image: url('../../images/pieces/mono/tower.svg');
+}
+.empire mpiece.c {
+    background-image: url('../../images/pieces/mono/cardinal.svg');
+}
+.empire mpiece.e {
+    background-image: url('../../images/pieces/mono/eagle.svg');
+}
+.empire mpiece.s {
+    background-image: url('../../images/pieces/mono/soldier.svg');
 }
