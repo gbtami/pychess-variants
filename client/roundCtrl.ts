@@ -20,7 +20,7 @@ import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getCounting, isHandicap } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getCounting, isHandicap, dropIsValid } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -30,7 +30,6 @@ import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
-import {dropIsValid} from "chessgroundx/pockTempStuff";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -113,9 +112,6 @@ export default class RoundController {
     variant: IVariant;
     chess960: boolean;
     hasPockets: boolean;
-    // pockets: Pockets;
-    // vpocket0: VNode;
-    // vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
     vmiscInfoW: VNode;
@@ -286,11 +282,8 @@ export default class RoundController {
             'turnColor': this.turnColor,
             });
 
-        // initialize pockets
-        // if (this.hasPockets) {
-            const pocket0 = document.getElementById('pocket0') as HTMLElement;
-            const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        // }
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
 
         this.chessground = Chessground(el, pocket0, pocket1,{
             fen: fen_placement,
@@ -305,7 +298,6 @@ export default class RoundController {
 
             addDimensionsCssVars: true,
 
-            mycolor: this.mycolor,
             pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
         });
 

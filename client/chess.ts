@@ -973,6 +973,28 @@ export function unpromotedRole(variant: IVariant, piece: cg.Piece): cg.Role {
     }
 }
 
+export function dropIsValid(dests: cg.Dests, role: cg.Role, key: cg.Key): boolean{
+    //TODO:ideally it should use state.movable.dests, but at the moment not possible, because it is always being reset in board.ts->baseNewPiece (and maybe baseUserMove) when drop finishes, just before this is called
+    //     Even more ideally we need some callback where to plug variant specific logic that checks for valid drops, or even directly code that checks for movable.dests in baseNewPiece
+    //     plugging variant specifric logic would make sense if we plan to make special logic that is not just checking the movable.dests, but if we commit on only this way of validating drops
+    //     then just should go to chessgroundx and not do post-factum validation like we do now in roundCtrl->onUserDrop, where the invalid drop has already been performed, but only then
+    //     we check if it is valid and in that else there we reset to current fen effectivelt discarding the successful drop on an invalid square which should not have had happened in the first
+    //     place if validation was happening in the right place in chessgroundx->board.ts and not as a even handler.
+
+    /*if (chessground.state.movable.dests === undefined) return false; // TODO:niki:when is movable.dest undefined? That was not possible with ctrl.dests
+
+    const drops = chessground.state.movable.dests[role2san(role) + "@"];
+    if (drops === undefined || drops === null) return false;
+
+    return drops.includes(key);*/
+
+    const drops = dests.get(util.letterOf(role, true) + '@' as cg.DropOrig);
+
+    if (drops === undefined || drops === null) return false;
+
+    return drops.includes(key);
+}
+
 // Convert a list of moves to chessground destination
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     const dests: cg.Dests = new Map();

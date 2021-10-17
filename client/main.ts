@@ -197,7 +197,7 @@ if (el instanceof Element) {
       })
       .catch((error) => {
         console.error('Could not load translations for lang', lang);
-        console.log(error);
+        console.error(error);
         i18n.setLocale('');
         start();
       });

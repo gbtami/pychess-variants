@@ -20,7 +20,7 @@ import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import {role2san, uci2cg, cg2uci, VARIANTS, IVariant, san2role , moveDests} from './chess';
+import { dropIsValid, role2san, uci2cg, cg2uci, VARIANTS, IVariant, san2role, moveDests } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -35,7 +35,6 @@ import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
 import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
-import {dropIsValid} from "chessgroundx/pockTempStuff";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -254,7 +253,6 @@ export default class AnalysisController {
              addDimensionsCssVars: true,
 
              pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
-             mycolor: this.mycolor
         });
 
         this.chessground.set({

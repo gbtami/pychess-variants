@@ -89,7 +89,6 @@ export class EditorController {
             addDimensionsCssVars: true,
 
             pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
-            mycolor: this.mycolor
         });
 
         boardSettings.ctrl = this;
