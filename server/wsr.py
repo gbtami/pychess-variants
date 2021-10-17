@@ -58,8 +58,8 @@ async def round_socket_handler(request):
 
                     if game is None:
                         game = await load_game(request.app, data["gameId"])
-                    if game is None:
-                        continue
+                        if game is None:
+                            continue
 
                     if data["type"] == "move":
                         # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
@@ -523,8 +523,8 @@ async def round_socket_handler(request):
                 log.debug("--- Round ws other msg.type %s %s", msg.type, msg)
 
     except OSError:
-        # disconnected
-        pass
+        # disconnected?
+        log.exception("ERROR: OSError in round_socket_handler() owned by %s ", session_user)
 
     except Exception:
         log.exception("ERROR: Exception in round_socket_handler() owned by %s ", session_user)
