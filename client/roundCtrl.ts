@@ -21,6 +21,7 @@ import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
+import { updateMaterial } from './material';
 import { sound } from './sound';
 import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getPockets, getCounting, isHandicap, dropIsValid } from './chess';
 import { crosstableView } from './crosstable';
@@ -119,6 +120,8 @@ export default class RoundController {
     vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
+    vmaterial0: VNode;
+    vmaterial1: VNode;
     vmiscInfoW: VNode;
     vmiscInfoB: VNode;
     vpng: VNode;
@@ -152,6 +155,7 @@ export default class RoundController {
     blindfold: boolean;
     handicap: boolean;
     autoPromote: boolean;
+    materialDifference: boolean;
     setupFen: string;
     prevPieces: cg.Pieces;
     focus: boolean;
@@ -240,6 +244,7 @@ export default class RoundController {
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
+        this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
         this.hasPockets = this.variant.pocket;
@@ -363,6 +368,13 @@ export default class RoundController {
             const pocket1 = document.getElementById('pocket1') as HTMLElement;
             updatePockets(this, pocket0, pocket1);
         }
+
+        if (this.variant.materialDifference) {
+            const material0 = document.querySelector('.material-top') as HTMLElement;
+            const material1 = document.querySelector('.material-bottom') as HTMLElement;
+            updateMaterial(this, material0, material1);
+        }
+
 
         // initialize expirations
         this.expirations = [
@@ -956,6 +968,7 @@ export default class RoundController {
                 }
             }
         }
+        updateMaterial(this, this.vmaterial0, this.vmaterial1);
     }
 
     goPly = (ply: number) => {
@@ -985,6 +998,7 @@ export default class RoundController {
         });
         this.fullfen = step.fen;
         updatePockets(this, this.vpocket0, this.vpocket1);
+        updateMaterial(this, this.vmaterial0, this.vmaterial1);
 
         if (this.variant.counting) {
             this.updateCount(step.fen);

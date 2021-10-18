@@ -88,6 +88,8 @@ export default class AnalysisController {
     vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
+    vmaterial0: VNode;
+    vmaterial1: VNode;
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;

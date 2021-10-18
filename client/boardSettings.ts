@@ -20,6 +20,7 @@ import { iniPieces } from './pieces';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
 import { pocketView } from './pocket';
+import { updateMaterial } from './material';
 import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
@@ -38,6 +39,7 @@ class BoardSettings {
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
         this.settings["blindfold"] = new BlindfoldSettings(this);
+        this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
     getSettings(settingsType: string, family: string) {
@@ -137,6 +139,8 @@ class BoardSettings {
 
         settingsList.push(this.settings["blindfold"].view());
 
+        settingsList.push(this.settings["materialDifference"].view());
+
         if (variantName === this.ctrl?.variant.name)
             settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
 
@@ -145,7 +149,7 @@ class BoardSettings {
             this.getSettings("PieceStyle", pieceFamily as string).view(),
             ])
         );
-
+        
         settingsList.push();
 
         return h('div#board-settings', settingsList);
@@ -166,6 +170,9 @@ class BoardSettings {
                 this.ctrl.pockets[1] = tmp_pocket;
                 this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
                 this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
+            }
+            if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
+                updateMaterial(this.ctrl);
             }
 
             // TODO: moretime button
@@ -379,4 +386,23 @@ class BlindfoldSettings extends BooleanSettings {
     }
 }
 
+class MaterialDifferenceSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('materialDifference', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl instanceof RoundController) {
+            this.boardSettings.ctrl.materialDifference = this.value;
+            updateMaterial(this.boardSettings.ctrl);
+        }
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'captured', _("Show material difference")));
+    }
+}
 export const boardSettings = new BoardSettings();
