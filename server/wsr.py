@@ -66,7 +66,10 @@ async def round_socket_handler(request):
 
                         lock = asyncio.Lock()
                         async with lock:
-                            await play_move(request.app, user, game, data["move"], data["clocks"], data["ply"])
+                            try:
+                                await play_move(request.app, user, game, data["move"], data["clocks"], data["ply"])
+                            except Exception:
+                                log.exception("ERROR: Exception in play_move() in %s by %s ", data["gameId"], session_user)
 
                     elif data["type"] == "analysis_move":
 
@@ -232,7 +235,7 @@ async def round_socket_handler(request):
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             except KeyError:
                                 # opp disconnected
-                                pass
+                                continue
 
                             if opp_name in game.rematch_offers:
                                 color = "w" if game.wplayer.username == opp_name else "b"
@@ -280,7 +283,7 @@ async def round_socket_handler(request):
                         response = await draw(game, user.username, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
                         if opp_player.bot:
-                            if game.status > STARTED:
+                            if game.status > STARTED and data["gameId"] in opp_player.game_queues:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             try:
@@ -332,7 +335,8 @@ async def round_socket_handler(request):
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
                         opp_player = users[opp_name]
                         if opp_player.bot:
-                            await opp_player.game_queues[data["gameId"]].put(game.game_end)
+                            if data["gameId"] in opp_player.game_queues:
+                                await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             if data["gameId"] in users[opp_name].game_sockets:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
