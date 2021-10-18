@@ -159,6 +159,7 @@ export default class RoundController {
     setupFen: string;
     prevPieces: cg.Pieces;
     focus: boolean;
+    finishedGame: boolean;
     lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
                           // In case of bad connection, we are never sure if it was sent (thus the name)
                           // until a "board" message from server is received from server that confirms it.
@@ -233,6 +234,7 @@ export default class RoundController {
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.timeControl === 'byoyomi';
         this.status = Number(model["status"]);
+        this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
         this.steps = [];
         this.pgn = "";
@@ -703,7 +705,7 @@ export default class RoundController {
             this.clocks[1].pause(false);
             this.dests = new Map();
 
-            if (this.result !== "*" && !this.spectator)
+            if (this.result !== "*" && !this.spectator && !this.finishedGame)
                 sound.gameEndSound(msg.result, this.mycolor);
 
             if ("rdiffs" in msg) this.gameOver(msg.rdiffs);
@@ -882,12 +884,12 @@ export default class RoundController {
         }
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            sound.moveSound(this.variant, capture);
+            if (!this.finishedGame) sound.moveSound(this.variant, capture);
         } else {
             lastMove = [];
         }
         this.checkStatus(msg);
-        if (!this.spectator && msg.check) {
+        if (!this.spectator && msg.check && !this.finishedGame) {
             sound.check();
         }
 
