@@ -1232,7 +1232,7 @@ export default class RoundController {
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
             if (this.chess960 && this.variant.gate) {
-                this.prevPieces = Object.assign({}, this.chessground.state.pieces);
+                this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
