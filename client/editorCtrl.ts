@@ -14,7 +14,7 @@ import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { VARIANTS, validFen, IVariant, hasCastling, unpromotedRole } from './chess'
+import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
@@ -33,8 +33,7 @@ export class EditorController {
     oppcolor: cg.Color;
     parts: string[];
     castling: string;
-    // pocketsPart: string;
-    variant: IVariant;
+    variant: Variant;
     hasPockets: boolean;
     vpieces0: VNode;
     vpieces1: VNode;

@@ -41,6 +41,7 @@
     --red-text: Crimson;
     --gold-text: GoldenRod;
     --pink-text: Pink;
+    --gray-text: #808080;
     --modal-bg: #fff;
     --box-header: #f5f5f5;
     --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
@@ -425,15 +426,50 @@ div.about, div.paste, div.news {
 div.patron, div.invite {
     width: 50%;
 }
-div.guide, div.news, div.about {
-  grid-area: content;
-  max-width: 800px;
-  padding: 20px 40px;
-  font-size: 1.2em; 
+
+div.guide, div.news {
+    grid-area: content; 
 }
 
+div.guide, div.news, div.about {
+    max-width: 800px;
+    padding: 20px 40px;
+    font-size: 1.2em; 
+}
+
+div.guide h1, div.guide h2, div.guide h3 {
+    text-align: center; 
+}
+
+div.guide h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+div.guide h1 img {
+    margin-right: 10px;
+}
+  
 div.guide h2, div.guide p, div.news h2, div.news p {
-  line-height: 1.8;
+    line-height: 1.8;
+}
+
+div.guide h2 {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+div.guide h2, div.guide p {
+    padding: 1.2rem;
+}
+
+div.guide ul {
+    margin-left: 15px;
+}
+
+div.guide li {
+    margin: 5px 0px;
 }
 
 div.closed {
@@ -1376,11 +1412,11 @@ button:disabled {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .info-wrap0 {
-        grid-area: 3 / 1 / 3 / 2;
+        grid-area: 4 / 1 / 4 / 2;
         justify-self: flex-end;
     }
     .info-wrap1  {
-        grid-area: 7 / 1 / 7 / 2;
+        grid-area: 8 / 1 / 8 / 2;
         justify-self: flex-end;
     }
 }
@@ -1506,6 +1542,35 @@ button.icon::-moz-focus-inner {
     display: none;
 }
 
+/* Material */
+.material {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    align-self: center;
+    height: 40px;
+    line-height: 0;
+    white-space: nowrap;
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+.material-top {
+    grid-area: mat-top;
+}
+.material-bottom {
+    grid-area: mat-bot;
+}
+/*
+mpiece {
+    margin-left: 10px;
+    width: 32px;
+    height: 32px;
+    background-size: cover;
+    display: inline-block;
+}
+*/
+
 /* Playing color */
 button.icon {
     margin: 5px;
@@ -1557,6 +1622,12 @@ label {
     background: var(--bg-color0);
     min-height: 15em;
     border-radius: 3px;
+}
+
+.chat .time {
+    display: inline-flex;
+    margin-right: 3px;
+    color: var(--gray-text);
 }
 
 .chat .discord-icon-container {
@@ -1617,7 +1688,10 @@ li.message {
     overflow-wrap: word-break;
     word-break: break-word;
     padding-left: 6px;
+    padding-right: 6px;
     padding-bottom: 6px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     font-size: .9em;
 }
 
@@ -1833,10 +1907,10 @@ div#ctable-container {
     display: flex;
 }
 .pocket-top {
-    grid-area: mat-top;
+    grid-area: pocket-top;
 }
 .pocket-bot {
-    grid-area: mat-bot;
+    grid-area: pocket-bot;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .pocket.top {

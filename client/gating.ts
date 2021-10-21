@@ -224,8 +224,8 @@ export class Gating {
     }
 
     private squareView(orig: cg.Key, color: cg.Color, orientation: cg.Color, moveType: keyof Moves) {
-        let left = (8 - key2pos(orig)[0]) * 12.5;
-        if (orientation === "white") left = 87.5 - left;
+        const leftFile = key2pos(orig)[0];
+        const left = (orientation === "white" ? leftFile : 7 - leftFile) * 12.5;
         return this.choices.map((gatedPieceRole, i) => {
             const top = (color === orientation ? 7 - i : i) * 12.5;
             return h("square", {

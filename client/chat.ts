@@ -12,7 +12,7 @@ import AnalysisController from "./analysisCtrl";
 import TournamentController from "./tournament";
 import { LobbyController } from "./lobby";
 
-export function chatView (ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) { // TODO: instead of | better have some IChatController interface implemented by these classes
+export function chatView(ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) { // TODO: instead of | better have some IChatController interface implemented by these classes
     function onKeyPress (e: KeyboardEvent) {
         if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
             return;
@@ -53,23 +53,24 @@ export function chatView (ctrl: RoundController | AnalysisController | Tournamen
     ]);
 }
 
-export function chatMessage (user: string, message: string, chatType: string) {
+export function chatMessage (user: string, message: string, chatType: string, time?: number) {
     const myDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
     const isScrolled = myDiv.scrollTop === myDiv.scrollHeight - myDiv.offsetHeight;
+    const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
 
     const container = document.getElementById('messages') as HTMLElement;
     if (user.length === 0) {
         patch(container, h('div#messages', [ h("li.message.offer", [h("t", message)]) ]));
     } else if (user === '_server') {
-        patch(container, h('div#messages', [ h("li.message.server", [h("user", _('Server')), h("t", message)]) ]));
+        patch(container, h('div#messages', [ h("li.message.server", [h("div.time", localTime), h("user", _('Server')), h("t", message)]) ]));
     } else if (user === 'Discord-Relay') {
         const colonIndex = message.indexOf(':'); // Discord doesn't allow colons in usernames so the first colon signifies the start of the message
         const discordUser = message.substring(0, colonIndex);
         const discordMessage = message.substring(colonIndex + 2);
-        patch(container, h('div#messages', [ h("li.message", [h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } })), h("user", discordUser), h("t", discordMessage)]) ]));
+        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } })), h("user", discordUser), h("t", discordMessage)]) ]));
     } else {
-        patch(container, h('div#messages', [ h("li.message", [h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
+        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
 
     if (isScrolled) setTimeout(() => {myDiv.scrollTop = myDiv.scrollHeight;}, 200);

@@ -194,3 +194,17 @@
 .shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord, .tori .cg-wrap coords.files coord {
   transform: translateY(39%);
 }
+.xiangqi .cg-wrap coords.ranks, .minixiangqi .cg-wrap coords.ranks, .manchu .cg-wrap coords.ranks {
+    top: -22px;
+    right: auto;
+    flex-flow: row;
+    height: 12px;
+    width: 100%;
+    text-align: center;
+}
+.xiangqi .cg-wrap coords.ranks coord, .minixiangqi .cg-wrap coords.ranks coord, .manchu .cg-wrap coords.ranks coord {
+  transform: translateY(39%);
+}
+.xiangqi .cg-wrap coords.files, .minixiangqi .cg-wrap coords.files, .manchu .cg-wrap coords.files {
+    flex-flow: row-reverse;
+}

@@ -19,6 +19,7 @@ import { EditorController } from './editorCtrl';
 import { iniPieces } from './pieces';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';
+import { updateMaterial } from './material';
 import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
@@ -34,9 +35,10 @@ class BoardSettings {
         this.settings = {};
         this.settings["animation"] = new AnimationSettings(this);
         this.settings["showDests"] = new ShowDestsSettings(this);
-        this.settings["autoQueen"] = new AutoQueenSettings(this);
+        this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
         this.settings["blindfold"] = new BlindfoldSettings(this);
+        this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
     getSettings(settingsType: string, family: string) {
@@ -129,12 +131,14 @@ class BoardSettings {
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (variant.autoQueenable)
-            settingsList.push(this.settings["autoQueen"].view());
+        if (variant.autoPromoteable)
+            settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["arrow"].view());
 
         settingsList.push(this.settings["blindfold"].view());
+
+        settingsList.push(this.settings["materialDifference"].view());
 
         if (variantName === this.ctrl?.variant.name)
             settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
@@ -144,7 +148,7 @@ class BoardSettings {
             this.getSettings("PieceStyle", pieceFamily as string).view(),
             ])
         );
-
+        
         settingsList.push();
 
         return h('div#board-settings', settingsList);
@@ -159,7 +163,9 @@ class BoardSettings {
             this.updateDropSuggestion();
 
             // console.log("FLIP");
-            // this.ctrl.pockStateStuff?.flip();
+            if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
+                updateMaterial(this.ctrl);
+            }
 
             // TODO: moretime button
             if (this.ctrl instanceof RoundController) {
@@ -308,21 +314,21 @@ class ShowDestsSettings extends BooleanSettings {
     }
 }
 
-class AutoQueenSettings extends BooleanSettings {
+class AutoPromoteSettings extends BooleanSettings {
     readonly boardSettings: BoardSettings;
 
     constructor(boardSettings: BoardSettings) {
-        super('autoqueen', false);
+        super('autoPromote', false);
         this.boardSettings = boardSettings;
     }
 
     update(): void {
         if (this.boardSettings.ctrl instanceof RoundController)
-            this.boardSettings.ctrl.autoqueen = this.value;
+            this.boardSettings.ctrl.autoPromote = this.value;
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'autoqueen', _("Promote to Queen automatically")));
+        return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
     }
 }
 
@@ -372,4 +378,23 @@ class BlindfoldSettings extends BooleanSettings {
     }
 }
 
+class MaterialDifferenceSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('materialDifference', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl instanceof RoundController) {
+            this.boardSettings.ctrl.materialDifference = this.value;
+            updateMaterial(this.boardSettings.ctrl);
+        }
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'captured', _("Show material difference")));
+    }
+}
 export const boardSettings = new BoardSettings();

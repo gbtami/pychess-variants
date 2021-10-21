@@ -20,7 +20,7 @@ import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import { dropIsValid, role2san, uci2cg, cg2uci, VARIANTS, IVariant, san2role, moveDests } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, Variant, san2role, dropIsValid, moveDests } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -79,11 +79,13 @@ export default class AnalysisController {
     oppcolor: cg.Color;
     turnColor: cg.Color;
     gameId: string;
-    variant: IVariant;
+    variant: Variant;
     chess960: boolean;
     hasPockets: boolean;
     vplayer0: VNode;
     vplayer1: VNode;
+    vmaterial0: VNode;
+    vmaterial1: VNode;
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;
@@ -192,14 +194,23 @@ export default class AnalysisController {
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
-        if (this.variant.name === 'janggi') { // TODO make this more generic / customisable
-            this.notation = cg.Notation.JANGGI;
-        } else {
-            if (this.variant.name.endsWith("shogi") || this.variant.name === 'dobutsu' || this.variant.name === 'gorogoro') {
-                this.notation = cg.Notation.SHOGI_HODGES_NUMBER;
-            } else {
+
+        // TODO make this more generic / customisable
+        switch (this.variant.name) {
+            case 'janggi': this.notation = cg.Notation.JANGGI; break;
+            case 'shogi':
+            case 'minishogi':
+            case 'kyotoshogi':
+            case 'dobutsu':
+            case 'gorogoro':
+            case 'torishogi':
+                this.notation = cg.Notation.SHOGI_HODGES_NUMBER; break;
+            case 'xiangqi':
+            case 'minixiangqi':
+            case 'manchu':
+                this.notation = cg.Notation.XIANGQI_WXF; break;
+            default:
                 this.notation = cg.Notation.SAN;
-            }
         }
 
         // orientation = this.mycolor
@@ -924,7 +935,7 @@ export default class AnalysisController {
 
         const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
-            fen: this.ffishBoard.fen(),
+            fen: this.ffishBoard.fen(this.variant.showPromoted, 0),
             ply: newPly,
             lastMove: move,
             dests: this.dests,
@@ -1110,7 +1121,7 @@ export default class AnalysisController {
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
             if (this.chess960 && this.variant.gate) {
-                this.prevPieces = Object.assign({}, this.chessground.state.pieces);
+                this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
@@ -1197,7 +1208,7 @@ export default class AnalysisController {
 
     private onMsgChat = (msg: MsgChat) => {
         if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "roundchat");
+            chatMessage(msg.user, msg.message, "roundchat", msg.time);
         }
     }
 
@@ -1208,7 +1219,7 @@ export default class AnalysisController {
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         msg.lines.forEach((line) => {
             if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "roundchat");
+                chatMessage(line.user, line.message, "roundchat", line.time);
             }
         });
     }

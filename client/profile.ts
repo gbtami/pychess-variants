@@ -10,7 +10,7 @@ const patch = init([klass, attributes, properties, listeners]);
 import { Chessground } from 'chessgroundx';
 
 import { _, ngettext, pgettext } from './i18n';
-import { VARIANTS, IVariant } from './chess';
+import { VARIANTS, Variant } from './chess';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
@@ -57,7 +57,7 @@ export function aiLevel(title: string, level: number) {
     return (title === 'BOT' && level >= 0) ? ' ' + _('level %1', level): '';
 }
 
-export function result(variant: IVariant, status: number, result: string) {
+export function result(variant: Variant, status: number, result: string) {
     let text = '';
     const variantName = variant.name;
     // console.log("result()", variantName, status, result);

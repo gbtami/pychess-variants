@@ -41,7 +41,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
     }, roles.map(r => {
         const promoted = r.length > 1;
         if (r.endsWith('~')) {
-            r = r.slice(0, -1);
+            r = r.slice(0, -1) as cg.PieceLetter;
         }
         const role = letter2role(r);
         const orientation = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;

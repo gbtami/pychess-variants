@@ -8,14 +8,19 @@ import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
+import { MaterialImbalance, calculateInitialImbalance } from './material'
+
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
 export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
-
 export type UCIOrig = UCIKey | cg.DropOrig;
+export type PromotionSuffix = cg.PieceLetter | "+" | "-" | "";
 
 export type UCIMove = `${UCIOrig}${UCIKey}`; // TODO: this is missing suffix for promotion which is also part of the move
 export type CGMove = `${cg.Orig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
+
+export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink";
+export type PromotionType = "regular" | "shogi" | "kyoto";
 
 export interface BoardFamily {
     geometry: cg.Geometry;
@@ -84,50 +89,7 @@ function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) : 
     return (color === "white") ? boardHeight - rank - 1 : rank;
 }
 
-export interface IVariant {
-    readonly name: string;
-    readonly displayName: (chess960: boolean) => string;
-    readonly tooltip: () => string;
-
-    readonly startFen: string;
-
-    readonly board: keyof typeof BOARD_FAMILIES;
-    readonly geometry: cg.Geometry;
-    readonly boardWidth: number;
-    readonly boardHeight: number;
-    readonly cg: string;
-    readonly boardCSS: string[];
-
-    readonly piece: keyof typeof PIECE_FAMILIES;
-    readonly pieceCSS: string[];
-
-    readonly firstColor: string;
-    readonly secondColor: string;
-
-    readonly pieceRoles: (color: cg.Color) => string[];
-    readonly pocket: boolean;
-    readonly pocketRoles: (color: cg.Color) => string[] | undefined;
-
-    readonly promotion: string;
-    readonly isMandatoryPromotion: MandatoryPromotionPredicate;
-    readonly timeControl: string;
-    readonly counting?: string;
-    readonly materialPoint?: string;
-    readonly enPassant: boolean;
-    readonly autoQueenable: boolean;
-    readonly drop: boolean;
-    readonly gate: boolean;
-    readonly pass: boolean;
-
-    readonly alternateStart?: { [ name: string ]: string };
-
-    readonly chess960: boolean;
-
-    readonly icon: (chess960: boolean) => string;
-    readonly pieceSound: string;
-}
-
-class Variant implements IVariant {
+export class Variant {
     readonly name: string;
     private readonly _displayName: string;
     displayName(chess960 = false) { return this._displayName + (chess960 ? "960" : ""); }
@@ -138,8 +100,9 @@ class Variant implements IVariant {
     readonly board: keyof typeof BOARD_FAMILIES;
     private readonly boardFamily: BoardFamily;
     get geometry() { return this.boardFamily.geometry; }
-    get boardWidth() { return cg.dimensions[this.geometry].width; }
-    get boardHeight() { return cg.dimensions[this.geometry].height; }
+    get boardDimensions() { return cg.dimensions[this.geometry]; }
+    get boardWidth() { return this.boardDimensions.width; }
+    get boardHeight() { return this.boardDimensions.height; }
     get cg() { return this.boardFamily.cg; }
     get boardCSS() { return this.boardFamily.boardCSS; }
 
@@ -147,25 +110,29 @@ class Variant implements IVariant {
     private readonly pieceFamily: PieceFamily;
     get pieceCSS() { return this.pieceFamily.pieceCSS; }
 
-    readonly firstColor: string;
-    readonly secondColor: string;
+    readonly firstColor: ColorName;
+    readonly secondColor: ColorName;
 
-    private readonly _pieceRoles: [ string[], string[] ];
+    private readonly _pieceRoles: [ cg.PieceLetter[], cg.PieceLetter[] ];
     pieceRoles(color: cg.Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
     readonly pocket: boolean;
-    private readonly _pocketRoles: [ string[] | undefined, string[] | undefined ];
+    private readonly _pocketRoles: [ cg.PieceLetter[] | undefined, cg.PieceLetter[] | undefined ];
     pocketRoles(color: cg.Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
 
-    readonly promotion: string;
+    readonly promotion: PromotionType;
+    readonly promotionOrder: PromotionSuffix[];
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
     readonly materialPoint?: string;
     readonly enPassant: boolean;
-    readonly autoQueenable: boolean;
+    readonly autoPromoteable: boolean;
     readonly drop: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
+    readonly showPromoted: boolean;
+    readonly materialDifference : boolean;
+    readonly initialMaterialImbalance : MaterialImbalance;
 
     readonly alternateStart?: { [ name: string ]: string };
 
@@ -191,19 +158,23 @@ class Variant implements IVariant {
         this.firstColor = data.firstColor ?? "White";
         this.secondColor = data.secondColor ?? "Black";
         this._pieceRoles = [ data.pieceRoles, data.pieceRoles2 ?? data.pieceRoles ];
-        this.pocket = Boolean(data.pocketRoles || data.pocketRoles2);
+        this.pocket = !!(data.pocketRoles || data.pocketRoles2);
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
         this.promotion = data.promotion ?? "regular";
+        this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
         this.materialPoint = data.materialPoint;
         this.enPassant = data.enPassant ?? false;
-        this.autoQueenable = data.autoQueenable ?? false;
+        this.autoPromoteable = this.promotionOrder.length > 2;
         this.drop = data.drop ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
+        this.showPromoted = data.showPromoted ?? false;
+        this.materialDifference = data.materialDifference ?? !this.drop;
+        this.initialMaterialImbalance = this.materialDifference ? calculateInitialImbalance(this) : {};
 
         this.alternateStart = data.alternateStart;
 
@@ -226,13 +197,15 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     board: keyof typeof BOARD_FAMILIES;
     piece: keyof typeof PIECE_FAMILIES;
 
-    firstColor?: string;
-    secondColor?: string;
-    pieceRoles: string[];
-    pieceRoles2?: string[];
-    pocketRoles?: string[];
-    pocketRoles2?: string[];
-    promotion?: string;
+    firstColor?: ColorName;
+    secondColor?: ColorName;
+    pieceRoles: cg.PieceLetter[];
+    pieceRoles2?: cg.PieceLetter[];
+    pocketRoles?: cg.PieceLetter[];
+    pocketRoles2?: cg.PieceLetter[];
+
+    promotion?: PromotionType;
+    promotionOrder?: PromotionSuffix[];
     isMandatoryPromotion?: MandatoryPromotionPredicate;
     timeControl?: string;
     counting?: string;
@@ -240,23 +213,24 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     drop?: boolean;
     gate?: boolean;
     pass?: boolean;
+    materialDifference?: boolean;
     pieceSound?: string;
+    showPromoted?: boolean;
 
     enPassant?: boolean;
-    autoQueenable?: boolean;
     alternateStart?: {[key:string]: string};
     chess960?: boolean;
     icon: string;
     icon960?: string;
 }
 
-export const VARIANTS: { [name: string]: IVariant } = {
+export const VARIANTS: { [name: string]: Variant } = {
     chess: new Variant({
         name: "chess", tooltip: () => _("Chess, unmodified, as it's played by FIDE standards."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         alternateStart: {
             '': '',
             'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w KQkq - 0 1",
@@ -274,7 +248,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "q"],
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         alternateStart: {
             '': '',
             'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
@@ -292,7 +266,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pocketRoles: ["n", "b", "r", "q", "k"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "S",
     }),
 
@@ -301,7 +275,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "\\",
     }),
@@ -310,8 +284,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "makruk", tooltip: () => _("Thai Chess. A game closely resembling the original Chaturanga. Similar to Chess but with a different queen and bishop."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
+        promotionOrder: ["m"],
         counting: "makruk",
+        showPromoted: true,
         icon: "Q",
     }),
 
@@ -319,8 +295,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "makpong", tooltip: () => _("Makruk variant where kings cannot move to escape out of check."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
+        promotionOrder: ["m"],
         counting: "makruk",
+        showPromoted: true,
         icon: "O",
     }),
 
@@ -328,8 +306,10 @@ export const VARIANTS: { [name: string]: IVariant } = {
         name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~"],
+        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
+        promotionOrder: ["m"],
         counting: "makruk",
+        showPromoted: true,
         icon: "!",
     }),
 
@@ -340,6 +320,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "f", "s", "n", "r", "p"],
         pocketRoles: ["r", "n", "s", "f", "k"],
+        promotionOrder: ["f"],
         counting: "asean",
         icon: ":",
     }),
@@ -349,6 +330,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w - - 0 1",
         board: "standard8x8", piece: "asean",
         pieceRoles: ["k", "q", "b", "n", "r", "p"],
+        promotionOrder: ["r", "n", "b", "q"],
         counting: "asean",
         icon: "♻",
     }),
@@ -506,7 +488,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
@@ -524,7 +506,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
@@ -541,7 +523,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocketRoles: ["h", "e"],
-        enPassant: true, autoQueenable: true, gate: true,
+        enPassant: true, gate: true,
         icon: "L",  chess960: true, icon960: "}",
     }),
 
@@ -551,7 +533,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "seirawan",
         pieceRoles: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "h", "e", "q"],
-        enPassant: true, autoQueenable: true, drop: true, gate: true,
+        enPassant: true, drop: true, gate: true,
         icon: "$",
     }),
 
@@ -561,7 +543,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "grand10x10", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "(",
     }),
 
@@ -572,7 +554,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         icon: "*",
     }),
 
@@ -581,7 +563,8 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
         board: "standard10x10", piece: "shako",
         pieceRoles: ["k", "q", "e", "c", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        promotionOrder: ["q", "n", "c", "r", "e", "b"],
+        enPassant: true,
         icon: "9",
     }),
 
@@ -605,7 +588,9 @@ export const VARIANTS: { [name: string]: IVariant } = {
         firstColor: "White", secondColor: "Gold",
         pieceRoles: ["k", "q", "r", "b", "n", "p", "h"],
         pieceRoles2: ["k", "y", "l", "a", "h", "p", "q"],
+        promotionOrder: ["q", "h"],
         enPassant: true,
+        //materialDifference: false,
         icon: "R",
     }),
 
@@ -617,7 +602,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
         pocketRoles: [], pocketRoles2: ["s"],
-        autoQueenable: true,
+        materialDifference: false,
         icon: "_",
     }),
 
@@ -626,7 +611,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "hoppel",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "`",
     }),
 
@@ -641,6 +626,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pocketRoles2: [],
         promotion: "shogi",
         enPassant: true,
+        //materialDifference: false,
         icon: "🐢",
     }),
 
@@ -652,6 +638,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         pieceRoles: ["k", "d", "t", "c", "e", "p", "s", "q"],
         pieceRoles2: ["k", "q", "r", "b", "n", "p"],
         enPassant: true,
+        //materialDifference: false,
         icon: "♚",
     }),
 
@@ -661,6 +648,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard8x8", piece: "ordamirror",
         firstColor: "White", secondColor: "Gold",
         pieceRoles: ["k", "f", "l", "a", "h", "p"],
+        promotionOrder: ["h", "l", "f", "a"],
         icon: "◩",
     }),
 
@@ -672,7 +660,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "P",
     }),
 
@@ -682,7 +670,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true,
+        enPassant: true,
         icon: "P",
     }),
 
@@ -692,7 +680,7 @@ export const VARIANTS: { [name: string]: IVariant } = {
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, autoQueenable: true, drop: true,
+        enPassant: true, drop: true,
         icon: "P",
     }),
 };
@@ -746,7 +734,7 @@ export function isHandicap(name: string): boolean {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
 }
 
-export function hasCastling(variant: IVariant, color: cg.Color): boolean {
+export function hasCastling(variant: Variant, color: cg.Color): boolean {
     if (variant.name === 'placement') return true;
     const castl = variant.startFen.split(' ')[2];
     if (color === 'white') {
@@ -765,7 +753,7 @@ export function cg2uci(move: string): string {
 }
 
 // TODO Will be deprecated after WASM Fairy integration
-export function validFen(variant: IVariant, fen: string): boolean {
+export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;
     if (as !== undefined) {
         if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
@@ -959,7 +947,7 @@ export function getJanggiPoints(board: string): number[] {
     return [choPoint, hanPoint];
 }
 
-export function unpromotedRole(variant: IVariant, piece: cg.Piece): cg.Role {
+export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     if (piece.promoted) {
         switch (variant.promotion) {
             case 'shogi':

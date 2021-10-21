@@ -17,7 +17,7 @@ async def draw(game, username, agreement=False):
     return response
 
 
-async def reject_draw(game, opp_name):
+def reject_draw(game, opp_name):
     response = None
 
     if game.board.count_started <= 0:  # Don't send reject_draw message for Makruk BHC

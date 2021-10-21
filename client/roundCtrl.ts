@@ -19,8 +19,9 @@ import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
+import { updateMaterial } from './material';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, IVariant, getCounting, isHandicap, dropIsValid } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap, dropIsValid } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -109,11 +110,13 @@ export default class RoundController {
     tournamentGame: boolean;
     clockOn: boolean;
     gameId: string;
-    variant: IVariant;
+    variant: Variant;
     chess960: boolean;
     hasPockets: boolean;
     vplayer0: VNode;
     vplayer1: VNode;
+    vmaterial0: VNode;
+    vmaterial1: VNode;
     vmiscInfoW: VNode;
     vmiscInfoB: VNode;
     vpng: VNode;
@@ -146,10 +149,12 @@ export default class RoundController {
     showDests: boolean; // TODO:not sure what is the point of this? doesn't chessground (especially now) have plenty of booleans like this for all kind of dests anyway?
     blindfold: boolean;
     handicap: boolean;
-    autoqueen: boolean;
+    autoPromote: boolean;
+    materialDifference: boolean;
     setupFen: string;
     prevPieces: cg.Pieces;
     focus: boolean;
+    finishedGame: boolean;
     lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
                           // In case of bad connection, we are never sure if it was sent (thus the name)
                           // until a "board" message from server is received from server that confirms it.
@@ -224,6 +229,7 @@ export default class RoundController {
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.timeControl === 'byoyomi';
         this.status = Number(model["status"]);
+        this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
         this.steps = [];
         this.pgn = "";
@@ -234,7 +240,8 @@ export default class RoundController {
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
-        this.autoqueen = localStorage.autoqueen === undefined ? false : localStorage.autoqueen === "true";
+        this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
+        this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
         this.hasPockets = this.variant.pocket;
@@ -352,6 +359,12 @@ export default class RoundController {
         const player1 = document.getElementById('rplayer1') as HTMLElement;
         this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], model["level"]));
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
+
+        if (this.variant.materialDifference) {
+            const material0 = document.querySelector('.material-top') as HTMLElement;
+            const material1 = document.querySelector('.material-bottom') as HTMLElement;
+            updateMaterial(this, material0, material1);
+        }
 
         // initialize expirations
         this.expirations = [
@@ -504,19 +517,22 @@ export default class RoundController {
     }
 
     private pass = () => {
-        let passKey = 'a0';
+        let passKey: cg.Key = 'a0';
         const pieces = this.chessground.state.pieces;
         const dests = this.chessground.state.movable.dests!;
         for (const [k, p] of pieces) {
             if (p.role === 'k-piece' && p.color === this.turnColor)
-                if (dests.get(k)?.includes(k)) passKey = k;
+                if (dests.get(k)?.includes(k)) {
+                    passKey = k;
+                    break;
+                }
         }
         if (passKey !== 'a0') {
             // prevent calling pass() again by selectSquare() -> onSelect()
             this.chessground.state.movable.dests = undefined;
-            this.chessground.selectSquare(passKey as cg.Key);
+            this.chessground.selectSquare(passKey);
             sound.moveSound(this.variant, false);
-            this.sendMove(passKey as cg.Key, passKey as cg.Key, '');
+            this.sendMove(passKey, passKey, '');
         }
     }
 
@@ -677,7 +693,7 @@ export default class RoundController {
             this.clocks[1].pause(false);
             this.dests = new Map();
 
-            if (this.result !== "*" && !this.spectator)
+            if (this.result !== "*" && !this.spectator && !this.finishedGame)
                 sound.gameEndSound(msg.result, this.mycolor);
 
             if ("rdiffs" in msg) this.gameOver(msg.rdiffs);
@@ -818,12 +834,12 @@ export default class RoundController {
         }
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
-            sound.moveSound(this.variant, capture);
+            if (!this.finishedGame) sound.moveSound(this.variant, capture);
         } else {
             lastMove = [];
         }
         this.checkStatus(msg);
-        if (!this.spectator && msg.check) {
+        if (!this.spectator && msg.check && !this.finishedGame) {
             sound.check();
         }
 
@@ -905,6 +921,7 @@ export default class RoundController {
                 }
             }
         }
+        updateMaterial(this, this.vmaterial0, this.vmaterial1);
     }
 
     goPly = (ply: number) => {
@@ -933,7 +950,7 @@ export default class RoundController {
             lastMove: move,
         });
         this.fullfen = step.fen;
-        // this.pockStateStuff.updatePocks(this.fullfen);
+        updateMaterial(this, this.vmaterial0, this.vmaterial1);
 
         if (this.variant.counting) {
             this.updateCount(step.fen);
@@ -1142,34 +1159,45 @@ export default class RoundController {
     }
 
     private onSelect = () => {
+        let lastTime = performance.now();
+        let lastKey: cg.Key = 'a0';
+        let timeout: ReturnType<typeof setTimeout>;
         return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
+            const curTime = performance.now();
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
             if (this.chess960 && this.variant.gate) {
-                this.prevPieces = Object.assign({}, this.chessground.state.pieces);
+                this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
-            if (this.chessground.state.stats.ctrlKey && 
-                (this.chessground.state.movable.dests.get(key)?.includes(key))
-                ) {
-                const piece = this.chessground.state.pieces.get(key);
-                if (this.variant.name === 'sittuyin') { // TODO make this more generic
-                    // console.log("Ctrl in place promotion", key);
-                    const pieces: cg.Pieces = new Map();
-                    pieces.set(key, {
-                        color: piece!.color,
-                        role: 'f-piece',
-                        promoted: true
-                    });
-                    this.chessground.setPieces(pieces);
-                    this.sendMove(key, key, 'f');
-                } else if (this.variant.pass && piece!.role === 'k-piece') {
-                    this.pass();
+            if (timeout && lastKey === key && curTime - lastTime < 500) {
+                if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
+                    const piece = this.chessground.state.pieces.get(key);
+                    if (this.variant.name === 'sittuyin') { // TODO make this more generic
+                        // console.log("Ctrl in place promotion", key);
+                        const pieces: cg.Pieces = new Map();
+                        pieces.set(key, {
+                            color: piece!.color,
+                            role: 'f-piece',
+                            promoted: true
+                        });
+                        this.chessground.setPieces(pieces);
+                        this.sendMove(key, key, 'f');
+                    } else if (this.variant.pass && piece!.role === 'k-piece') {
+                        this.pass();
+                    }
                 }
+                clearTimeout(timeout);
+            } else {
+                timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                }, 500);
+                lastKey = key;
+                lastTime = curTime;
             }
         }
     }
@@ -1259,7 +1287,7 @@ export default class RoundController {
 
     private onMsgChat = (msg: MsgChat) => {
         if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "roundchat");
+            chatMessage(msg.user, msg.message, "roundchat", msg.time);
         }
     }
 
@@ -1270,7 +1298,7 @@ export default class RoundController {
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         msg.lines.forEach((line) => {
             if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "roundchat");
+                chatMessage(line.user, line.message, "roundchat", line.time);
             }
         });
     }

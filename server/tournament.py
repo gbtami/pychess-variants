@@ -58,7 +58,7 @@ class ByeGame:
 class PlayerData:
     """ Used to save/load tournament players to/from mongodb tournament-player documents """
 
-    __slots__ = "id", "rating", "provisional", "free", "paused", "withdrawn", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_diff", "page"
+    __slots__ = "id", "rating", "provisional", "free", "paused", "withdrawn", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_balance", "page"
 
     def __init__(self, rating, provisional):
         self.id = None
@@ -75,7 +75,7 @@ class PlayerData:
         self.nb_not_paired = 0
         self.performance = 0
         self.prev_opp = ""
-        self.color_diff = 0
+        self.color_balance = 0  # +1 when played as white, -1 when played as black
         self.page = 0
 
     def __str__(self):
@@ -340,12 +340,13 @@ class Tournament(ABC):
 
                         if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
                             waiting_players = self.waiting_players()
-                            if len(waiting_players) >= (4 if len(self.players) > 4 else 3):
-                                log.debug("Enough player (%s), do pairing", len(waiting_players))
+                            nb_waiting_players = len(waiting_players)
+                            if nb_waiting_players == 2 or nb_waiting_players >= (4 if len(self.players) > 20 else 3):
+                                log.debug("Enough player (%s), do pairing", nb_waiting_players)
                                 await self.create_new_pairings(waiting_players)
                                 self.prev_pairing = now
                             else:
-                                log.debug("Too few player (%s) to make pairing", len(waiting_players))
+                                log.debug("Too few player (%s) to make pairing", nb_waiting_players)
                         else:
                             log.debug("Waiting for new pairing wave...")
 
@@ -582,8 +583,8 @@ class Tournament(ABC):
             self.players[wp].prev_opp = game.bplayer.username
             self.players[bp].prev_opp = game.wplayer.username
 
-            self.players[wp].color_diff += 1
-            self.players[bp].color_diff -= 1
+            self.players[wp].color_balance += 1
+            self.players[bp].color_balance -= 1
 
             self.players[wp].nb_not_paired = 0
             self.players[bp].nb_not_paired = 0

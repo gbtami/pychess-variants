@@ -43,6 +43,7 @@ export interface MsgChat {
     room?: string; // Unlike "roundchat", "lobbychat" messages don't have such property and currently re-using same interface for them as well.
     user: string;
     message: string;
+    time?: number;
 }
 
 export interface MsgFullChat {
