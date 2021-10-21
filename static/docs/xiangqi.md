@@ -133,7 +133,7 @@ Notation for these pieces is simple + or - and their *new file destination*.
 
 For example, from the starting position, red's right horse on file 2 moving forward and to the left of the cannon would be H2+3. Moving to the edge instead is H2+1. If the elephant moved and did not block the horse, then moving sideways towards the palace is H2+4.
 
-Advisors and elephants work the same day.
+Advisors and elephants work the same way.
 
 ### Orthogonal movement
 
