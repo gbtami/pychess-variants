@@ -57,6 +57,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
     }));
 }
 
+//todo:niki: one possible hack is to set state.deleteOnDropOff=false here. then end() will work fine and not decrease pocket. Also can check for it in onUserDrop to figure out if the dropped pieces comes from pallette or board pocket. Only remaining thing is to have some hook to set state.deleteOnDropOff=true on start of dragging from board pockets
 export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
     const el = e.target as HTMLElement,

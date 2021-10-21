@@ -1029,7 +1029,7 @@ export default class AnalysisController {
     }
 
     private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
-        this.preaction = meta.premove === true;
+        this.preaction = meta.premove;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
@@ -1045,20 +1045,30 @@ export default class AnalysisController {
             meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
         // increase pocket count
-        // if (this.variant.drop && meta.captured) {
-        //     let role = meta.captured.role
-        //     if (meta.captured.promoted)
-        //         role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-        //
-        //     this.pockTempStuff.handleCapture(role);
-        // }
+        if (this.variant.drop && meta.captured) {
+            let role = meta.captured.role;
+            if (meta.captured.promoted)
+                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
+
+            // todo:niki: (edit:actually analysis doesn't communicate with server for this - but still it uses local ffish apparently and proabably still fen. ) i am having doubts how needed this is, if it all gets overriden from fen with server's response anyway.
+            // todo:niki: code below maybe belongs in Api->incPocket(color, role) or something like that?
+            // todo:niki: or use api.set() so we make sure redraw is triggered. or call redraw manually after. Currently not needed because it seems that luckily there is other stuff happening that call set anyway which adds redraw call, but just because luck
+            if (this.chessground.state.movable.free) return; // when in editor capturing is not real capturing and pockets should be increase
+            const pocket = this.chessground.state.pockets ? this.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
+            if (pocket) {
+                const nb = pocket[role];
+                if (nb !=undefined) { // if there is no slot for this role, we should not add one here
+                    pocket[role]=nb+1;
+                }
+            }
+        }
 
         //  gating elephant/hawk
         if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest              ) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
-        this.preaction = false;
+            if (!this.promotion.start(moved.role, orig, dest              )) this.sendMove(orig, dest, '');
+            this.preaction = false;
         }
     }
 
@@ -1066,7 +1076,8 @@ export default class AnalysisController {
         this.preaction = meta.predrop === true;
         // console.log("ground.onUserDrop()", role, dest, meta);
         // decrease pocket count
-        if (dropIsValid(this.dests, role, dest)) {
+        if (dropIsValid(this.dests, role, dest)) {//todo:niki:why check - is this event triggered in case of invalid drops as well?
+            this.chessground.state.pockets![this.chessground.state.turnColor]![role]! --;//todo:niki:manual call of refresh probably needed
             // this.pockTempStuff.handleDrop(role);//todo:niki:this is supposed to decrese count in pocket for given role. from code below follows, there is a case where we can cancel the drop, with that promotion stuff for kyoto. if i understand correctly then somewhere the count decrese should be reverted - where?
             if (this.variant.promotion === 'kyoto') {
                 if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');

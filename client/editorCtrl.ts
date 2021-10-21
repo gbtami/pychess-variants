@@ -14,13 +14,15 @@ import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { VARIANTS, validFen, IVariant, hasCastling } from './chess'
+import { VARIANTS, validFen, IVariant, hasCastling, unpromotedRole } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
 import { PyChessModel } from "./main";
+import { HeadlessState, State } from "chessgroundx/state";
+import { renderPockets } from "chessgroundx/pocket";
 
 export class EditorController {
     model;
@@ -75,6 +77,9 @@ export class EditorController {
             orientation: this.mycolor,
             movable: {
                 free: true,
+                events: {
+                     afterNewPiece: this.onUserDrop,
+                }
             },
             events: {
                 change: this.onChange,
@@ -85,12 +90,21 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
-
             addDimensionsCssVars: true,
 
             pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
         });
 
+        //
+        ['mouseup', 'touchend'].forEach(name =>
+            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
+                if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
+                    this.dropOnPocket(this.chessground.state, e);
+                } )
+            })
+        );
+
+        //
         boardSettings.ctrl = this;
         const boardFamily = this.variant.board;
         const pieceFamily = this.variant.piece;
@@ -319,6 +333,12 @@ export class EditorController {
         }
     }
 
+    onUserDrop = (role: cg.Role, dest: cg.Key/*, meta: cg.MoveMetadata*/) => {
+        const color = this.chessground.state.pieces.get(dest)!.color;
+        this.chessground.state.pockets![color]![role]! --;//todo:niki:manual call of refresh probably needed
+
+    }
+
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
@@ -327,5 +347,20 @@ export class EditorController {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());
+    }
+
+    dropOnPocket = (state: HeadlessState, e: cg.MouchEvent): void => {
+        const el = e.target as HTMLElement;
+        const piece = state.draggable.current?.piece;
+        if (piece) {
+            const role = unpromotedRole(this.variant , piece);
+            const color = el.getAttribute('data-color') as cg.Color;
+            const pocket = state.pockets![color];
+            if (role in pocket!) {
+                pocket![role]!++;
+                renderPockets(state as State); //todo:niki:not needed as long as we have renderPockets call already in redrawNow, which seems to get called anyway on drop
+                this.onChange();
+            }
+        }
     }
 }
