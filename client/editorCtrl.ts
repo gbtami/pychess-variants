@@ -22,7 +22,7 @@ import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
 import { PyChessModel } from "./main";
 import { HeadlessState, State } from "chessgroundx/state";
-import { renderPockets } from "chessgroundx/pocket";
+import {eventsDragging, renderPockets} from "chessgroundx/pocket";
 
 export class EditorController {
     model;
@@ -101,6 +101,14 @@ export class EditorController {
                 if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
                     this.dropOnPocket(this.chessground.state, e);
                 } )
+            })
+        );
+        eventsDragging.forEach(name =>
+            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
+                if (pocketEl) pocketEl?.childNodes.forEach(p => {
+                    p.addEventListener(name, (e: cg.MouchEvent) => {
+                    this.drag(this.chessground.state, e);
+                } ) });
             })
         );
 
@@ -333,9 +341,9 @@ export class EditorController {
         }
     }
 
-    onUserDrop = (role: cg.Role, dest: cg.Key/*, meta: cg.MoveMetadata*/) => {
-        const color = this.chessground.state.pieces.get(dest)!.color;
-        this.chessground.state.pockets![color]![role]! --;//todo:niki:manual call of refresh probably needed
+    onUserDrop = (/*role: cg.Role, dest: cg.Key*//*, meta: cg.MoveMetadata*/) => {
+        // const color = this.chessground.state.pieces.get(dest)!.color; // todo:niki:this is not good at the moment when say white piece is dropped on top of a black piece. it does not replace it so we end up using wrong color of existing piece
+        // this.chessground.state.pockets![color]![role]! --;//todo:niki:manual call of refresh probably needed
 
     }
 
@@ -363,4 +371,16 @@ export class EditorController {
             }
         }
     }
+
+    drag = (state: HeadlessState, e: cg.MouchEvent): void => {
+        const el = e.target as HTMLElement;
+        const piece = state.draggable.current?.piece;
+        if (piece) {
+            this.chessground.state.pockets![piece.color]![piece.role]! --;
+            console.log(el);
+            console.log(piece);
+            console.log("editor");
+        }
+    }
+
 }
