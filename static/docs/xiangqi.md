@@ -123,7 +123,7 @@ Files are described differently in WXF notation.
 
 **Files are numbered 1 to 9, from right to left.**
 
-**Your opponent's files are also numbered from 1 to 9 from their viewpoint as well. Therefore, your cannon in file 2 faces the opponent's chariot in file 8.**
+**Your opponent's files are also numbered from 1 to 9 from their viewpoint as well. Therefore, your cannon in file 2 faces the opponent's cannon in file 8.**
 
 Pieces are described by their file and how they move. Either they move forward (+) or backwards (-). Again, this is relative to the player. Your opponent moving towards you is still + because they are advancing.
 
