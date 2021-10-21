@@ -411,6 +411,23 @@ export default class RoundController {
             ]));
         }
 
+        const onBerserk = () => {
+            this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+            this.clocks[1].increment = 0;
+            this.clocks[1].setTime(this.clocks[1].duration / 2);
+            sound.berserk();
+        }
+
+        if (!this.spectator && this.tournamentGame) {
+            const container = document.getElementById('berserk') as HTMLElement;
+            patch(container, h('div#berserk', [
+                h('button.icon.icon-berserk', {
+                    props: {type: "button", title: _("Berserk")},
+                    on: { click: () => onBerserk() }
+                })
+            ]));
+        }
+
         // initialize crosstable
         this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
 

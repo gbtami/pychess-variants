@@ -71,6 +71,14 @@ async def round_socket_handler(request):
                             except Exception:
                                 log.exception("ERROR: Exception in play_move() in %s by %s ", data["gameId"], session_user)
 
+                    elif data["type"] == "berserk":
+                        if data["color"] == "white":
+                            game.wberserk = True
+                            game.ply_clocks[0]["white"] = game.base * 1000 * 30
+                        else:
+                            game.bberserk = True
+                            game.ply_clocks[0]["black"] = game.base * 1000 * 30
+
                     elif data["type"] == "analysis_move":
 
                         await analysis_move(request.app, user, game, data["move"], data["fen"], data["ply"])

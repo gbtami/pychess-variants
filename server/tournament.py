@@ -658,6 +658,9 @@ class Tournament(ABC):
                 else:
                     wpoint = (2, SCORE)
 
+            if game.wberserk and game.board.ply >= 14:
+                wpoint = (wpoint[0] + 1, wpoint[1])
+
             wperf += 500
             bperf -= 500
 
@@ -678,6 +681,9 @@ class Tournament(ABC):
                     bpoint = (4 if game.status == VARIANTEND else 7, SCORE)
                 else:
                     bpoint = (2, SCORE)
+
+            if game.bberserk and game.board.ply >= 14:
+                bpoint = (bpoint[0] + 1, bpoint[1])
 
             wperf -= 500
             bperf += 500

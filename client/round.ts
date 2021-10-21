@@ -58,7 +58,10 @@ export function roundView(model: PyChessModel): VNode[] {
             h('round-player1#rplayer1'),
             h('div#expiration-bottom'),
             h('div.info-wrap1', [
-                h('div#clock1'),
+                h('div.clock-wrap', [
+                    h('div#clock1'),
+                    h('div#berserk'),
+                ]),
                 h('div#misc-info1'),
             ]),
             h('div.pocket-bot', [

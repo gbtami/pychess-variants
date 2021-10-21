@@ -190,6 +190,10 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
+        if self.tournamentId is not None:
+            self.wberserk = False
+            self.bberserk = False
+
     @staticmethod
     def create_board(variant, initial_fen, chess960, count_started):
         return FairyBoard(variant, initial_fen, chess960, count_started)
