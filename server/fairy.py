@@ -8,6 +8,8 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
+from const import CATEGORIES
+
 WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
@@ -34,6 +36,15 @@ class FairyBoard:
         self.manual_count = count_started != 0
         self.count_started = count_started
 
+        if self.variant == "janggi":
+            self.notation = sf.NOTATION_JANGGI
+        elif self.variant in CATEGORIES["shogi"]:
+            self.notation = sf.NOTATION_SHOGI_HODGES_NUMBER
+        elif self.variant in CATEGORIES["xiangqi"]:
+            self.notation = sf.NOTATION_XIANGQI_WXF
+        else:
+            self.notation = sf.NOTATION_SAN
+
     def start_fen(self, variant, chess960=False):
         if chess960:
             return self.shuffle_start()
@@ -57,7 +68,7 @@ class FairyBoard:
             raise
 
     def get_san(self, move):
-        return sf.get_san(self.variant, self.fen, move, self.chess960, sf.NOTATION_JANGGI if self.variant == "janggi" else sf.NOTATION_DEFAULT)
+        return sf.get_san(self.variant, self.fen, move, self.chess960, self.notation)
 
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang
