@@ -1561,15 +1561,9 @@ button.icon::-moz-focus-inner {
 .material-bottom {
     grid-area: mat-bot;
 }
-/*
-mpiece {
-    margin-left: 10px;
-    width: 32px;
-    height: 32px;
-    background-size: cover;
-    display: inline-block;
+.material.disabled {
+    height: 0px;
 }
-*/
 
 /* Playing color */
 button.icon {
