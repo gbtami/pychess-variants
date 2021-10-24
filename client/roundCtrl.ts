@@ -89,6 +89,10 @@ interface MsgUpdateTV {
 	gameId: string;
 }
 
+interface MsgBerserk {
+	color: string;
+}
+
 export default class RoundController {
     model;
     sock;
@@ -393,9 +397,9 @@ export default class RoundController {
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
         const onMoreTime = () => {
-            // TODO: enable when this.flip is true
             if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
-            this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
+            const clockIdx = (this.flip) ? 1 : 0;
+            this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.gameId });
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
@@ -413,14 +417,13 @@ export default class RoundController {
 
         const onBerserk = () => {
             this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
-            this.clocks[1].increment = 0;
-            this.clocks[1].setTime(this.clocks[1].duration / 2);
-            sound.berserk();
+            const clockIdx = (this.flip) ? 0 : 1;
+            this.berserk(clockIdx);
         }
 
-        if (!this.spectator && this.tournamentGame) {
-            const container = document.getElementById('berserk') as HTMLElement;
-            patch(container, h('div#berserk', [
+        if (!this.spectator && this.tournamentGame && this.status < 0 && this.ply < 2) {
+            const container = document.getElementById('berserk1') as HTMLElement;
+            patch(container, h('div#berserk1', [
                 h('button.icon.icon-berserk', {
                     props: {type: "button", title: _("Berserk")},
                     on: { click: () => onBerserk() }
@@ -499,6 +502,17 @@ export default class RoundController {
     }
 
     getGround = () => this.chessground;
+
+    private berserk = (clockIdx: number) => {
+        this.clocks[clockIdx].increment = 0;
+        this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration / 2);
+        sound.berserk();
+
+        const container = document.getElementById(`berserk${clockIdx}`) as HTMLElement;
+        patch(container, h(`div#berserk${clockIdx}.berserked`, [
+            h('button.icon.icon-berserk')
+        ]));
+    }
 
     private abort = () => {
         // console.log("Abort");
@@ -623,6 +637,21 @@ export default class RoundController {
         const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
         const logoUrl = `${this.model["asset-url"]}/favicon/android-icon-192x192.png`;
         notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
+    }
+
+    private onMsgBerserk = (msg: MsgBerserk) => {
+        if (!this.spectator && msg['color'] === this.mycolor) return;
+
+        let bclock;
+        if (!this.flip) {
+            bclock = this.mycolor === "black" ? 1 : 0;
+        } else {
+            bclock = this.mycolor === "black" ? 0 : 1;
+        }
+        const wclock = 1 - bclock
+        const clockIdx = (msg['color'] === 'white') ? wclock : bclock;
+
+        this.berserk(clockIdx)
     }
 
     private onMsgGameStart = (msg: MsgGameStart) => {
@@ -1523,6 +1552,9 @@ export default class RoundController {
                 break;
             case "count":
                 this.onMsgCount(msg);
+                break;
+            case "berserk":
+                this.onMsgBerserk(msg);
                 break;
         }
     }

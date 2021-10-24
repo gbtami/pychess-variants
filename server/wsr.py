@@ -79,6 +79,9 @@ async def round_socket_handler(request):
                             game.bberserk = True
                             game.ply_clocks[0]["black"] = game.base * 1000 * 30
 
+                        response = {"type": "berserk", "color": data["color"]}
+                        await round_broadcast(game, users, response, full=True)
+
                     elif data["type"] == "analysis_move":
 
                         await analysis_move(request.app, user, game, data["move"], data["fen"], data["ply"])

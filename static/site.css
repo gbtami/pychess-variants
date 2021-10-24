@@ -1445,6 +1445,7 @@ round-player1 {
 .clock-wrap {
     display: flex;
     flex-direction: row;
+    flex-grow: 1;
 }
 #more-time {
     float: right;
