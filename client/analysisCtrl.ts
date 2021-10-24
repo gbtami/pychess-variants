@@ -198,14 +198,23 @@ export default class AnalysisController {
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
-        if (this.variant.name === 'janggi') { // TODO make this more generic / customisable
-            this.notation = cg.Notation.JANGGI;
-        } else {
-            if (this.variant.name.endsWith("shogi") || this.variant.name === 'dobutsu' || this.variant.name === 'gorogoro') {
-                this.notation = cg.Notation.SHOGI_HODGES_NUMBER;
-            } else {
+
+        // TODO make this more generic / customisable
+        switch (this.variant.name) {
+            case 'janggi': this.notation = cg.Notation.JANGGI; break;
+            case 'shogi':
+            case 'minishogi':
+            case 'kyotoshogi':
+            case 'dobutsu':
+            case 'gorogoro':
+            case 'torishogi':
+                this.notation = cg.Notation.SHOGI_HODGES_NUMBER; break;
+            case 'xiangqi':
+            case 'minixiangqi':
+            case 'manchu':
+                this.notation = cg.Notation.XIANGQI_WXF; break;
+            default:
                 this.notation = cg.Notation.SAN;
-            }
         }
 
         // orientation = this.mycolor
