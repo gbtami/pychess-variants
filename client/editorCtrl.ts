@@ -21,8 +21,8 @@ import { copyBoardToPNG } from './png';
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
 import { PyChessModel } from "./main";
-import { HeadlessState, State } from "chessgroundx/state";
-import {eventsDragging, renderPockets} from "chessgroundx/pocket";
+import { HeadlessState } from "chessgroundx/state";
+import { eventsDragging } from "chessgroundx/pocket";
 
 export class EditorController {
     model;
@@ -76,9 +76,6 @@ export class EditorController {
             orientation: this.mycolor,
             movable: {
                 free: true,
-                events: {
-                     afterNewPiece: this.onUserDrop,
-                }
             },
             events: {
                 change: this.onChange,
@@ -318,7 +315,6 @@ export class EditorController {
             }
 
             this.fullfen = fen.value;
-            // this.pockStateStuff?.updatePocks(this.fullfen);
 
             if (hasCastling(this.variant, 'white')) {
                 if (this.parts.length >= 3) {
@@ -340,12 +336,6 @@ export class EditorController {
         }
     }
 
-    onUserDrop = (/*role: cg.Role, dest: cg.Key*//*, meta: cg.MoveMetadata*/) => {
-        // const color = this.chessground.state.pieces.get(dest)!.color; // todo:niki:this is not good at the moment when say white piece is dropped on top of a black piece. it does not replace it so we end up using wrong color of existing piece
-        // this.chessground.state.pockets![color]![role]! --;//todo:niki:manual call of refresh probably needed
-
-    }
-
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
@@ -365,7 +355,6 @@ export class EditorController {
             const pocket = state.pockets![color];
             if (role in pocket!) {
                 pocket![role]!++;
-                renderPockets(state as State); //todo:niki:not needed as long as we have renderPockets call already in redrawNow, which seems to get called anyway on drop
                 this.onChange();
             }
         }

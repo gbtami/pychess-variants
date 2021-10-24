@@ -11,7 +11,6 @@ import * as util from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
-import { cancelDropMode } from 'chessgroundx/drop';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
@@ -31,6 +30,7 @@ import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
+import AnalysisController from "./analysisCtrl";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -871,7 +871,6 @@ export default class RoundController {
                     check: msg.check,
                     lastMove: lastMove,
                 });
-                // this.pockStateStuff?.updatePocks(this.fullfen);
             }
             if (this.clockOn && msg.status < 0) {
                 if (this.turnColor === this.mycolor) {
@@ -894,7 +893,6 @@ export default class RoundController {
                         check: msg.check,
                         lastMove: lastMove,
                     });
-                    // this.pockStateStuff?.updatePocks(this.fullfen);
 
                     if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
@@ -914,7 +912,6 @@ export default class RoundController {
                     turnColor: this.turnColor,
                     check: msg.check,
                 });
-                //TODO:niki:why was there no pocket update here - what case is this?
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     // console.log('OPP CLOCK  STARTED');
@@ -939,7 +936,7 @@ export default class RoundController {
         }
 
         this.chessground.set({
-            fen: step.fen,//TODO:niki:was this fullfen before? did it work? or is step.fen split/trimmed somewhere else (doubtful)?
+            fen: step.fen,
             turnColor: step.turnColor,
             movable: {
                 free: false,
@@ -1083,79 +1080,12 @@ export default class RoundController {
     }
 
     private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
-        this.preaction = meta.premove;
-        // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = this.chessground.state.pieces;
-        // console.log("ground.onUserMove()", orig, dest, meta);
-        let moved = pieces.get(dest);
-        // Fix king to rook 960 castling case
-        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
-            const pos = util.key2pos(dest),
-            pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = new Map();
-            diff.set(util.pos2key(pawnPos), undefined);
-            this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
-        }
-        // increase pocket count
-        if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role;
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-
-             // todo:niki: (edit:actually analysis doesn't communicate with server for this. ) i am having doubts how needed this is, if it all gets overriden from fen with server's response anyway.
-            if (this.chessground.state.movable.free) return; // when in editor capturing is not real capturing and pockets should be increase
-            const pocket = this.chessground.state.pockets ? this.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
-            if (pocket) {
-                const nb = pocket[role];
-                if (nb !=undefined) { // if there is no slot for this role, we should not add one here
-                    pocket[role]=nb+1;
-                }
-            }
-        }
-
-        //  gating elephant/hawk
-        if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
-        } else {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
-            this.preaction = false;
-        }
-
+        onUserMove(this, orig, dest, meta);
         this.clearDialog();
     }
 
     private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
-
-        cancelDropMode(this.chessground.state); // drop of new piece was actually performed - lets set dropmode to not active. Maybe this logic better belongs in chessgroudx?
-        this.preaction = meta.predrop === true;
-        // console.log("ground.onUserDrop()", role, dest, meta);
-        // decrease pocket count
-        if (dropIsValid(this.dests, role, dest)) {
-            this.chessground.state.pockets![this.chessground.state.turnColor]![role]! --;//todo:niki:manual call of refresh probably needed
-            // this.pockTempStuff.handleDrop(role);//todo:niki:this is supposed to decrese count in pocket for given role. from code below follows, there is a case where we can cancel the drop, with that promotion stuff for kyoto. if i understand correctly then somewhere the count decrese should be reverted - where?
-            if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
-            } else {
-                this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
-            }
-        } else {//todo:niki:in what cases do we end up in this else? answer: when dropping a pawn on last/first rank is one such case. I wonder if also when canceling to choose a gating or promotion there isn't something like that somewhere reseting the board
-            // console.log("!!! invalid move !!!", role, dest);
-            // restore board
-            this.chessground.set({
-                fen: this.fullfen,
-                lastMove: this.lastmove,
-                turnColor: this.mycolor,
-                animation: { enabled: this.animation },
-                movable: {
-                    dests: this.dests,
-                    showDests: this.showDests,
-                    },
-                }
-            );
-        }
-        this.preaction = false;
+        onUserDrop(this, role, dest, meta);
     }
 
     private onSelect = () => {
@@ -1443,4 +1373,69 @@ export default class RoundController {
                 break;
         }
     }
+}
+
+/**
+ * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
+ * todo: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
+ *       from rendering dialogs and
+ * */
+export function onUserMove(ctrl: RoundController | AnalysisController, orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
+        ctrl.preaction = meta.premove;
+        // chessground doesn't knows about ep, so we have to remove ep captured pawn
+        const pieces = ctrl.chessground.state.pieces;
+        // console.log("ground.onUserMove()", orig, dest, meta);
+        let moved = pieces.get(dest);
+        // Fix king to rook 960 castling case
+        if (moved === undefined) moved = {role: 'k-piece', color: ctrl.mycolor} as cg.Piece;
+        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && ctrl.variant.enPassant) {
+            const pos = util.key2pos(dest),
+            pawnPos: cg.Pos = [pos[0], pos[1] + (ctrl.mycolor === 'white' ? -1 : 1)];
+            const diff: cg.PiecesDiff = new Map();
+            diff.set(util.pos2key(pawnPos), undefined);
+            ctrl.chessground.setPieces(diff);
+            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
+        }
+        // increase pocket count
+        // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
+        if (ctrl.variant.drop && meta.captured) {
+            let role = meta.captured.role;
+            if (meta.captured.promoted)
+                role = (ctrl.variant.promotion === 'shogi' || ctrl.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
+
+            const pocket = ctrl.chessground.state.pockets ? ctrl.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
+            if (pocket && role && role in pocket) {
+                pocket[role]!++;
+                ctrl.chessground.state.dom.redraw(); // todo: see todo comment also at same line in onUserDrop.
+            }
+        }
+
+        //  gating elephant/hawk
+        if (ctrl.variant.gate) {
+            if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !ctrl.gating.start(ctrl.fullfen, orig, dest)) ctrl.sendMove(orig, dest, '');
+        } else {
+            if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
+            ctrl.preaction = false;
+        }
+}
+
+/**
+ * Variant specific logic for when dropping a piece from pocket is performed
+ * todo: decreasing of pocket happens here as well even though virtually no variant ever has a drop rule that doesn't decrease pocket.
+ *       Only reason currently this is not in chessground is editor where we have a second "pocket" that serves as a palette
+ *       Also maybe nice ot think if ui+communication logic can be split out of here (same for onUserMove) so only chess rules remain?
+ * */
+export function onUserDrop(ctrl: RoundController | AnalysisController, role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
+    ctrl.preaction = meta.predrop === true;
+    // decrease pocket count - todo: covers the gap before we receive board message confirming the move - then FEN is set
+    //                               and overwrites whole board+pocket and refreshes.
+    //                               Maybe consider decrease count on start of drag (like in editor mode)?
+    ctrl.chessground.state.pockets![ctrl.chessground.state.turnColor]![role]! --;
+    ctrl.chessground.state.dom.redraw();
+    if (ctrl.variant.promotion === 'kyoto') {
+        if (!ctrl.promotion.start(role, 'a0', dest)) ctrl.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
+    } else {
+        ctrl.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
+    }
+    ctrl.preaction = false;
 }

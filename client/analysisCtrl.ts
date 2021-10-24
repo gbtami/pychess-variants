@@ -11,7 +11,6 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 import { DrawShape } from 'chessgroundx/draw';
 
@@ -20,7 +19,7 @@ import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, Variant, san2role, dropIsValid, moveDests } from './chess';
+import { uci2cg, cg2uci, VARIANTS, Variant, san2role, dropIsValid, moveDests } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -35,6 +34,7 @@ import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
 import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
+import {onUserDrop, onUserMove} from "./roundCtrl";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -286,15 +286,6 @@ export default class AnalysisController {
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
-
-        // initialize pockets
-        // if (this.hasPockets) {
-        //     const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        //     const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        //     this.pockStateStuff = new PockStateStuff(pocket0, pocket1, this);
-        //     this.pockTempStuff = new PockTempStuff(this);
-        //     this.pockStateStuff.updatePocks(this.fullfen);
-        // }
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
             this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
@@ -814,7 +805,7 @@ export default class AnalysisController {
         }
 
         this.chessground.set({
-            fen: step.fen,//todo:niki:so how did old chessground worked with fullfen - does it trim it itself ?
+            fen: step.fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
@@ -825,8 +816,6 @@ export default class AnalysisController {
         });
 
         this.fullfen = step.fen;
-
-        // this.pockStateStuff?.updatePocks(step.fen);
 
         if (this.variant.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
@@ -1040,78 +1029,11 @@ export default class AnalysisController {
     }
 
     private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
-        this.preaction = meta.premove;
-        // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = this.chessground.state.pieces;
-        // console.log("ground.onUserMove()", orig, dest, meta);
-        let moved = pieces.get(dest);
-        // Fix king to rook 960 castling case
-        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
-            const pos = util.key2pos(dest),
-            pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = new Map();
-            diff.set(util.pos2key(pawnPos), undefined);
-            this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
-        }
-        // increase pocket count
-        if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role;
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-
-            // todo:niki: (edit:actually analysis doesn't communicate with server for this - but still it uses local ffish apparently and proabably still fen. ) i am having doubts how needed this is, if it all gets overriden from fen with server's response anyway.
-            // todo:niki: code below maybe belongs in Api->incPocket(color, role) or something like that?
-            // todo:niki: or use api.set() so we make sure redraw is triggered. or call redraw manually after. Currently not needed because it seems that luckily there is other stuff happening that call set anyway which adds redraw call, but just because luck
-            if (this.chessground.state.movable.free) return; // when in editor capturing is not real capturing and pockets should be increase
-            const pocket = this.chessground.state.pockets ? this.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
-            if (pocket) {
-                const nb = pocket[role];
-                if (nb !=undefined) { // if there is no slot for this role, we should not add one here
-                    pocket[role]=nb+1;
-                }
-            }
-        }
-
-        //  gating elephant/hawk
-        if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest              ) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
-        } else {
-            if (!this.promotion.start(moved.role, orig, dest              )) this.sendMove(orig, dest, '');
-            this.preaction = false;
-        }
+        onUserMove(this, orig, dest, meta);
     }
 
     private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
-        this.preaction = meta.predrop === true;
-        // console.log("ground.onUserDrop()", role, dest, meta);
-        // decrease pocket count
-        if (dropIsValid(this.dests, role, dest)) {//todo:niki:why check - is this event triggered in case of invalid drops as well?
-            this.chessground.state.pockets![this.chessground.state.turnColor]![role]! --;//todo:niki:manual call of refresh probably needed
-            // this.pockTempStuff.handleDrop(role);//todo:niki:this is supposed to decrese count in pocket for given role. from code below follows, there is a case where we can cancel the drop, with that promotion stuff for kyoto. if i understand correctly then somewhere the count decrese should be reverted - where?
-            if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
-            } else {
-                this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
-            }
-            // console.log("sent move", move);
-        } else {
-            // console.log("!!! invalid move !!!", role, dest);
-            // restore board
-            this.chessground.set({
-                fen: this.fullfen,
-                lastMove: this.lastmove,
-                turnColor: this.mycolor,
-                animation: { enabled: this.animation },
-                movable: {
-                    dests: this.dests,
-                    showDests: this.showDests,
-                    },
-                }
-            );
-        }
-        this.preaction = false;
+        onUserDrop(this, role, dest, meta);
     }
 
     private onSelect = () => {

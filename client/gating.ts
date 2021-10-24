@@ -179,7 +179,6 @@ export class Gating {
     private gate(orig: cg.Key, color: cg.Color, role: cg.Role) {
         const g = this.ctrl.getGround();
         g.newPiece({ "role": role, "color": color }, orig)
-        // this.ctrl.pockTempStuff.handleDrop(role);//todo;Niki:i have the feeling this is already covered in onNewPiece event
     }
 
     private drawGating(moves: Moves, color: cg.Color, orientation: cg.Color) {
