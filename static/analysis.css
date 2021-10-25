@@ -222,11 +222,11 @@ border-radius: 50%;
 transition: .1s
 }
 
-input:checked + sw.slider {
+input:checked + .sw-slider {
 background-color: #629924;
 }
 
-input:focus + sw.slider {
+input:focus + .sw-slider {
 box-shadow: 0 0 2px #808080;
 }
 
