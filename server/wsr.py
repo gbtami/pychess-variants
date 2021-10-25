@@ -72,13 +72,7 @@ async def round_socket_handler(request):
                                 log.exception("ERROR: Exception in play_move() in %s by %s ", data["gameId"], session_user)
 
                     elif data["type"] == "berserk":
-                        if data["color"] == "white":
-                            game.wberserk = True
-                            game.ply_clocks[0]["white"] = game.base * 1000 * 30
-                        else:
-                            game.bberserk = True
-                            game.ply_clocks[0]["black"] = game.base * 1000 * 30
-
+                        game.berserk(data["color"])
                         response = {"type": "berserk", "color": data["color"]}
                         await round_broadcast(game, users, response, full=True)
 
