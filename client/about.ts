@@ -109,6 +109,7 @@ export function aboutView(): VNode[] {
             ]),
             h('hr'),
             h('p', [
+                _('To play on PyChess, you need to have an open and unmarked account on Lichess. '),
                 _('Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. '),
                 h('a', { attrs: { href: 'https://lichess.org/privacy' } }, 'Privacy'),
                 ", ",

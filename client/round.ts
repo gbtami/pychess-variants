@@ -32,7 +32,7 @@ export function roundView(model: PyChessModel): VNode[] {
                     },
                 }),
             ]),
-            h('div.material.material-top.' + variant.piece),
+            h('div.material.material-top.' + variant.piece + '.disabled'),
             h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
@@ -72,7 +72,7 @@ export function roundView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
             ]),
-            h('div.material.material-bottom.' + variant.piece),
+            h('div.material.material-bottom.' + variant.piece + '.disabled'),
         ]),
         h('under-left#spectators'),
         h('under-board', [
