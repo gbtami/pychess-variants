@@ -1,0 +1,140 @@
+mpiece {
+    margin-left: -10px;
+    width: 32px;
+    height: 32px;
+    background-size: cover;
+    display: inline-block;
+}
+mpiece.p {
+    margin-left: -15px;
+}
+.material div {
+    display: inline-block;
+    margin-left: 10px;
+}
+mpiece.k {
+    background-image: url('../../images/pieces/mono/king.svg');
+}
+mpiece.q {
+    background-image: url('../../images/pieces/mono/queen.svg');
+}
+mpiece.r {
+    background-image: url('../../images/pieces/mono/rook.svg');
+}
+mpiece.b {
+    background-image: url('../../images/pieces/mono/bishop.svg');
+}
+mpiece.n {
+    background-image: url('../../images/pieces/mono/knight.svg');
+}
+mpiece.p {
+    background-image: url('../../images/pieces/mono/pawn.svg');
+}
+
+.makruk mpiece.s, .sittuyin mpiece.s, .asean mpiece.b {
+    background-image: url('../../images/pieces/mono/makruk-bishop.svg');
+}
+.makruk mpiece.m, .sittuyin mpiece.f, .asean mpiece.q {
+    background-image: url('../../images/pieces/mono/makruk-promoted-pawn.svg');
+}
+
+.capa mpiece.c, .grand mpiece.c {
+    background-image: url('../../images/pieces/mono/chancellor.svg');
+}
+.capa mpiece.a, .grand mpiece.a {
+    background-image: url('../../images/pieces/mono/archbishop.svg');
+}
+
+.seirawan mpiece.e {
+    background-image: url('../../images/pieces/mono/seirawan-elephant.svg');
+}
+.seirawan mpiece.h {
+    background-image: url('../../images/pieces/mono/hawk.svg');
+}
+
+.shako mpiece.c {
+    background-image: url('../../images/pieces/mono/shako-cannon.svg');
+}
+.shako mpiece.e {
+    background-image: url('../../images/pieces/mono/shako-elephant.svg');
+}
+
+.hoppel mpiece.n {
+    background-image: url('../../images/pieces/mono/kangaroo.svg');
+}
+.hoppel mpiece.b {
+    background-image: url('../../images/pieces/mono/snake.svg');
+}
+
+.xiangqi mpiece.r, .janggi mpiece.r, .xiangqi mpiece.m {
+    background-image: url('../../images/pieces/mono/chariot.svg');
+}
+.xiangqi mpiece.b, .janggi mpiece.b {
+    background-image: url('../../images/pieces/mono/shako-elephant.svg');
+}
+.xiangqi mpiece.a, .janggi mpiece.a {
+    background-image: url('../../images/pieces/mono/advisor.svg');
+}
+.xiangqi mpiece.c {
+    background-image: url('../../images/pieces/mono/xiangqi-cannon.svg');
+}
+.janggi mpiece.c {
+    background-image: url('../../images/pieces/mono/janggi-cannon.svg');
+}
+.xiangqi mpiece.p, .janggi mpiece.p {
+    background-image: url('../../images/pieces/mono/soldier.svg');
+}
+
+.orda mpiece.l, .ordamirror mpiece.l {
+    background-image: url('../../images/pieces/mono/lancer.svg');
+}
+.orda mpiece.h, .ordamirror mpiece.h {
+    background-image: url('../../images/pieces/mono/kheshig.svg');
+}
+.orda mpiece.a, .ordamirror mpiece.a {
+    background-image: url('../../images/pieces/mono/archer.svg');
+}
+.orda mpiece.y {
+    background-image: url('../../images/pieces/mono/yurt.svg');
+}
+.ordamirror mpiece.f {
+    background-image: url('../../images/pieces/mono/falcon.svg');
+}
+
+.shinobi mpiece.l {
+    background-image: url('../../images/pieces/mono/lance.svg');
+}
+.shinobi mpiece.h {
+    background-image: url('../../images/pieces/mono/wooden-horse.svg');
+}
+.shinobi mpiece.m {
+    background-image: url('../../images/pieces/mono/monk.svg');
+}
+.shinobi mpiece.c {
+    background-image: url('../../images/pieces/mono/captain.svg');
+}
+.shinobi mpiece.d {
+    background-image: url('../../images/pieces/mono/dragon.svg');
+}
+.shinobi mpiece.j {
+    background-image: url('../../images/pieces/mono/ninja.svg');
+}
+.shinobi.white mpiece.r {
+    background-image: url('../../images/pieces/mono/shinobi-rook.svg');
+}
+
+.empire mpiece.d {
+    background-image: url('../../images/pieces/mono/duke.svg');
+}
+.empire mpiece.t {
+    background-image: url('../../images/pieces/mono/tower.svg');
+}
+.empire mpiece.c {
+    background-image: url('../../images/pieces/mono/cardinal.svg');
+}
+.empire mpiece.e {
+    background-image: url('../../images/pieces/mono/eagle.svg');
+}
+.empire mpiece.s {
+    background-image: url('../../images/pieces/mono/soldier.svg');
+}

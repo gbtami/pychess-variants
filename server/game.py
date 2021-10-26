@@ -210,7 +210,7 @@ class Game:
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
         # Move cancels draw offer
-        response = await reject_draw(self, opp_player.username)
+        response = reject_draw(self, opp_player.username)
         if response is not None:
             await round_broadcast(self, self.app["users"], response, full=True)
 

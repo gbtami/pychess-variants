@@ -93,7 +93,13 @@ The pawn (also called by its Chinese name, the **soldier**) moves and captures b
 
 ## Notation
 
-Pychess currently uses the same algebraic notation as in chess. A more commonly used notation system is not currently implemented in Pychess.
+As of October 2021, Pychess uses the World Xiangqi Federation (WXF) notation, which is the most commonly used notation internationally. This is much different than the Standard Algebraic Notation (SAN) used in Chess. The standard format is as follows:
+
+[single-letter piece abbreviation][former *file*][operator indicating direction of movement][new file, or in the case of purely vertical movement, number of ranks traversed]
+
+For comparison, the SAN used in chess is:
+
+[single-letter piece abbreviation][former *position*][capture indication][new position][check indication][analysis]
 
 ### Symbols
 
@@ -111,6 +117,41 @@ R = Cha**R**iot
 
 P = **P**awn
 
+## WXF Notation
+
+Files are described differently in WXF notation. 
+
+**Files are numbered 1 to 9, from right to left.**
+
+**Your opponent's files are also numbered from 1 to 9 from their viewpoint as well. Therefore, your cannon in file 2 faces the opponent's cannon in file 8.**
+
+Pieces are described by their file and how they move. Either they move forward (+) or backwards (-). Again, this is relative to the player. Your opponent moving towards you is still + because they are advancing.
+
+### Diagonal pieces and horses
+
+Notation for these pieces is simple + or - and their *new file destination*.
+
+For example, from the starting position, red's right horse on file 2 moving forward and to the left of the cannon would be H2+3. Moving to the edge instead is H2+1. If the elephant moved and did not block the horse, then moving sideways towards the palace is H2+4.
+
+Advisors and elephants work the same way.
+
+### Orthogonal movement
+
+Moving forwards and backwards is **+ or -** followed by *the number of spaces*.
+
+Red pawn on file 5 moving forward = P5+1.
+
+Red chariot on file 1 moving 5 spaces backward is R1-5.
+
+Moving *sideways* is **=** followed by *new file destination*. The typical starting move of moving your right cannon to the center would be 1. C2=5. Moving the left cannon to the center would be 1. C8=5.
+
+Sometimes, some players would use a "." instead of "=".
+
+### Disambiguation
+
+If two of the same piece are in the same file, then a + or - to specify if it's the more advanced piece (+) or the piece that's at a lower rank (-). For example, if two chariots are on the same file but on opposite sides of the river, and you wanted to move to the farther one to the center, that would be R+=5.
+
+Finally, if there are 3 or more pawns in the same file, then the pawns are numbered in order, with the pawn closest to you being numbered 1 and so forth. Then instead of using "P", pawns are referred to by their number. So if three pawns are all on file 5, and you wanted to advance the furthest pawn forwards, that would be "35+1".
 
 ## Where are resources where I can learn Xiangqi?
 

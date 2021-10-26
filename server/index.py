@@ -421,14 +421,13 @@ async def index(request):
     elif view == "variants":
         render["icons"] = VARIANT_ICONS
         render["groups"] = VARIANT_GROUPS
+
         # variant None indicates intro.md
         if lang in ("es", "hu", "it", "pt", "fr"):
             locale = ".%s" % lang
-        elif lang == "zh":
-            # Only intro.md
-            locale = ".%s" % lang if variant in (None,) else ""
         else:
             locale = ""
+
         if variant == "terminology":
             render["variant"] = "docs/terminology%s.html" % locale
         else:

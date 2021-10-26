@@ -31,7 +31,7 @@ import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png'; 
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
-import { download, getPieceImageUrl } from './document';
+import { downloadPgnText, getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
@@ -48,6 +48,8 @@ const EVAL_REGEX = new RegExp(''
 
 const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
+
+function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
 interface MsgAnalysisBoard {
     gameId: string;
@@ -88,6 +90,8 @@ export default class AnalysisController {
     vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
+    vmaterial0: VNode;
+    vmaterial1: VNode;
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;
@@ -196,14 +200,23 @@ export default class AnalysisController {
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
-        if (this.variant.name === 'janggi') { // TODO make this more generic / customisable
-            this.notation = cg.Notation.JANGGI;
-        } else {
-            if (this.variant.name.endsWith("shogi") || this.variant.name === 'dobutsu' || this.variant.name === 'gorogoro') {
-                this.notation = cg.Notation.SHOGI_HODGES_NUMBER;
-            } else {
+
+        // TODO make this more generic / customisable
+        switch (this.variant.name) {
+            case 'janggi': this.notation = cg.Notation.JANGGI; break;
+            case 'shogi':
+            case 'minishogi':
+            case 'kyotoshogi':
+            case 'dobutsu':
+            case 'gorogoro':
+            case 'torishogi':
+                this.notation = cg.Notation.SHOGI_HODGES_NUMBER; break;
+            case 'xiangqi':
+            case 'minixiangqi':
+            case 'manchu':
+                this.notation = cg.Notation.XIANGQI_WXF; break;
+            default:
                 this.notation = cg.Notation.SAN;
-            }
         }
 
         // orientation = this.mycolor
@@ -416,7 +429,7 @@ export default class AnalysisController {
         let container = document.getElementById('copyfen') as HTMLElement;
         if (container !== null) {
             const buttons = [
-                h('a.i-pgn', { on: { click: () => download("pychess-variants_" + this.gameId, pgn) } }, [
+                h('a.i-pgn', { on: { click: () => downloadPgnText("pychess-variants_" + this.gameId) } }, [
                     h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
                     h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
@@ -907,7 +920,21 @@ export default class AnalysisController {
             }
             moves.push(moveCounter + this.steps[ply]['sanSAN']);
         }
-        return moves.join(' ');
+        const moveText = moves.join(' ');
+
+        const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
+
+        const event = '[Event "?"]';
+        const site = `[Site "${this.model['home']}/analysis/${this.variant.name}"]`;
+        const date = `[Date "${today}"]`;
+        const white = '[White "?"]';
+        const black = '[Black "?"]';
+        const result = '[Result "*"]';
+        const variant = `[Variant "${titleCase(this.variant.displayName())}"]`;
+        const fen = `[FEN "${this.steps[0].fen}"]`;
+        const setup = '[SetUp "1"]';
+
+        return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
     sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
@@ -1125,7 +1152,7 @@ export default class AnalysisController {
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
             if (this.chess960 && this.variant.gate) {
-                this.prevPieces = Object.assign({}, this.chessground.state.pieces);
+                this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click

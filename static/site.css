@@ -1412,11 +1412,11 @@ button:disabled {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .info-wrap0 {
-        grid-area: 3 / 1 / 3 / 2;
+        grid-area: 4 / 1 / 4 / 2;
         justify-self: flex-end;
     }
     .info-wrap1  {
-        grid-area: 7 / 1 / 7 / 2;
+        grid-area: 8 / 1 / 8 / 2;
         justify-self: flex-end;
     }
 }
@@ -1540,6 +1540,29 @@ button.icon::-moz-focus-inner {
 
 .clock-time.byo:not(.byoyomi) {
     display: none;
+}
+
+/* Material */
+.material {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    align-self: center;
+    height: 40px;
+    line-height: 0;
+    white-space: nowrap;
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+.material-top {
+    grid-area: mat-top;
+}
+.material-bottom {
+    grid-area: mat-bot;
+}
+.material.disabled {
+    height: 0px;
 }
 
 /* Playing color */
@@ -1878,10 +1901,10 @@ div#ctable-container {
     display: flex;
 }
 .pocket-top {
-    grid-area: mat-top;
+    grid-area: pocket-top;
 }
 .pocket-bot {
-    grid-area: mat-bot;
+    grid-area: pocket-bot;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .pocket.top {

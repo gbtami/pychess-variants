@@ -523,6 +523,9 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
+        if ply is not None and game.board.ply + 1 != ply:
+            log.info("invalid ply received - probably a re-sent move that has already been processed")
+            return
         try:
             await game.play_move(move, clocks, ply)
         except SystemError:
@@ -530,6 +533,9 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             log.exception("Game %s aborted because invalid move %s by %s !!!", gameId, move, user.username)
             game.status = INVALIDMOVE
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
+    else:
+        # never play moves in finished games!
+        return
 
     if not invalid_move:
         board_response = game.get_board(full=game.board.ply == 1)

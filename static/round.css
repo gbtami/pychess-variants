@@ -9,8 +9,8 @@
 
 @media (max-width: 799px) and (orientation: portrait) {
     .round-app {
-        grid-template-rows: auto auto 36px auto auto min-content 36px auto auto auto auto auto auto auto;
-        grid-template-areas: 'move-controls' 'mat-top' 'user-top' 'clock-top' 'expi-top' 'board' 'user-bot' 'offer' 'expi-bot' 'clock-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';
+        grid-template-rows: auto auto auto 36px auto auto min-content 36px auto auto auto auto auto auto auto auto;
+        grid-template-areas: 'move-controls' 'mat-top' 'pocket-top' 'user-top' 'clock-top' 'expi-top' 'board' 'user-bot' 'offer' 'expi-bot' 'clock-bot' 'pocket-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';
     }
     under-left {
         display: none;
@@ -20,8 +20,8 @@
 @media (min-width: 800px) {
     .round-app {
         grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
-        grid-template-rows: min-content auto min-content auto auto auto auto auto auto auto min-content auto min-content;
-        grid-template-areas: 'board .' 'board mat-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board mat-bot' 'board .';
+        grid-template-rows: min-content auto auto min-content auto auto auto auto auto auto auto min-content auto auto min-content;
+        grid-template-areas: 'board .' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
     }
 }
 

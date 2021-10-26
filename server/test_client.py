@@ -7,13 +7,14 @@ import cProfile
 
 import aiohttp
 
+from const import VARIANTS
 from newid import id8
 from settings import URI
 
 
 LOBBY_URL = f'{URI}/wsl'
 ROUND_URL = f'{URI}/wsr'
-URLS = ("about", "players", "games", "tv", "variant")
+URLS = ("about", "players", "games", "tv", "variants")
 
 
 def profile_me(fn):
@@ -68,17 +69,6 @@ class TestUser:
                         if data["type"] == "ping":
                             await wsl.send_json({"type": "pong"})
 
-                        elif data["type"] == "get_seeks":
-                            self.seeks = data["seeks"]
-                            if len(self.seeks) > 0 and not self.playing:
-                                self.playing = True
-                                idx = random.choice(range(len(self.seeks)))
-                                await wsl.send_json({
-                                    "type": "accept_seek",
-                                    "seekID": self.seeks[idx]["seekID"],
-                                    "player": self.username
-                                })
-
                         elif data["type"] == "new_game":
                             self.spectators = await spectators(data["gameId"])
 
@@ -86,6 +76,21 @@ class TestUser:
 
                         elif data["type"] == "lobby_user_connected":
                             print("Connected as %s" % data["username"])
+                            variant = random.choice(VARIANTS).rstrip("960")
+                            data = {
+                                "type": "create_ai_challenge",
+                                "variant": variant,
+                                "rm": True,
+                                "fen": "",
+                                "color": "r",
+                                "minutes": 1,
+                                "increment": 0,
+                                "byoyomiPeriod": 0,
+                                "level": 0,
+                                "chess960": False,
+                                "alternateStart": "",
+                            }
+                            await wsl.send_json(data)
 
                     elif msg.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
                         break
