@@ -38,12 +38,12 @@
     grid-row: 2/3;
 }
 
-.shogun {
+.shogun :not(settings-pieces) {
     grid-column: 3/4;
     grid-row: 2/3;
 }
 
-.shako {
+.shako :not(settings-pieces) {
     grid-column: 2/3;
     grid-row: 3/4;
 }
@@ -94,9 +94,10 @@
 }
 
 /* Variant Button  */
+/* :not(selection) is needed to prevent chessground boards being flex */
 
-.capablanca , .shako , .shogun , .schess , .hoppelpoppel , .grand, 
-.makpong, .makrukl2, .sittuyin, .chatrang, .asean {
+.capablanca , .shako:not(selection) :not(settings-pieces), .shogun:not(selection) :not(settings-pieces) , .schess , .hoppelpoppel , .grand, 
+.makpong, .makrukl2, .sittuyin:not(selection) :not(settings-pieces), .chatrang, .asean:not(selection) :not(settings-pieces) {
     display: flex;
     flex: column;
     justify-content: flex-start;
@@ -187,7 +188,7 @@ padding: 10px;
     grid-row: 1/2;
 }
 
-.sittuyin {
+.sittuyin :not(settings-pieces) {
     grid-column: 3/4;
     grid-row: 2/3;
 }
@@ -196,7 +197,7 @@ padding: 10px;
     padding: 2em 0;
 }
 
-.asean {
+.asean :not(settings-pieces) {
         
     grid-column: 2/3;
     grid-row: 3/4; }
@@ -238,7 +239,7 @@ padding: 10px;
 
     }
 
-    .shogun {
+    .shogun :not(settings-pieces) {
 
         grid-column: 1/2;
         grid-row: 3/5;
@@ -252,7 +253,7 @@ padding: 10px;
 
     }
 
-    .shako {
+    .shako :not(settings-pieces) {
 
         grid-row: 3/5;
 
@@ -358,7 +359,7 @@ padding: 10px;
 
     }
 
-    .sittuyin {
+    .sittuyin :not(settings-pieces) {
     
     grid-column: 2/3;
     grid-row: 1/2;
@@ -392,7 +393,7 @@ padding: 10px;
 
     }
     
-    .asean {
+    .asean :not(settings-pieces) {
     grid-column: 1/2;
     }
 
