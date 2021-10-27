@@ -24,5 +24,5 @@ Se la stessa posizione si ripropone per tre turni di fila, la partita è patta. 
 ## Strategia
 
 Il Dobutsu è un gioco risolto (a favore del secondo giocatore). Tuttavia, imparare le mosse per una partita perfetta è oltre le capacità della maggior parte degli esseri umani.
-[https://variantslove.netlify.app/](https://variantslove.netlify.app/) by Tasshaq is recommended for everyone.
+[https://variantslove.netlify.app/](https://variantslove.netlify.app/) by visualdennis is recommended for everyone.
 In conclusione: godetevi il gioco :)

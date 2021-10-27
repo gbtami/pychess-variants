@@ -18,4 +18,4 @@ Le altre regole non cambiano.
 ## Strategia
 
 Si applicano le normali strategie e tattiche scacchistiche, tranne che per le aperture! Poiché la posizione di partenza è casuale, le linee di apertura standard non funzionano.
-[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by Tasshaq is recommended for everyone.
+[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by visualdennis is recommended for everyone.
