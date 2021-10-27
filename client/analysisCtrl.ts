@@ -19,7 +19,7 @@ import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import { uci2cg, cg2uci, VARIANTS, Variant, san2role, dropIsValid, moveDests } from './chess';
+import { uci2cg, cg2uci, VARIANTS, Variant, san2role, moveDests } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -34,7 +34,7 @@ import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
 import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
-import {onUserDrop, onUserMove} from "./roundCtrl";
+import { onUserDrop, onUserMove } from "./roundCtrl";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -882,7 +882,7 @@ export default class AnalysisController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role) {
                 sound.moveSound(this.variant, false);
             }
         }

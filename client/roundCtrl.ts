@@ -20,7 +20,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { updateMaterial } from './material';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap, dropIsValid } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -1038,7 +1038,7 @@ export default class RoundController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1075,7 +1075,7 @@ export default class RoundController {
     private performPredrop = () => {
         // const { role, key } = this.predrop;
         // console.log("performPredrop()", role, key);
-        this.chessground.playPredrop(drop => { return dropIsValid(this.dests, drop.role, drop.key); });
+        this.chessground.playPredrop();
         this.predrop = null;
     }
 
