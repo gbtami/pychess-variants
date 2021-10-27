@@ -24,5 +24,5 @@ Si los jugadores repiten la misma posición tres veces seguidas, la partida son 
 ## Estrategia
 
 El Dobutsu es un juego resuelto (a favor del segundo jugador). Sin embargo, aprender los movimientos para una partida perfecta está más allá de la capacidad de la mayoría de los humanos.
-Recomendamos [https://variantslove.netlify.app/](https://variantslove.netlify.app/) por Tasshaq a todo el mundo.
+Recomendamos [https://variantslove.netlify.app/](https://variantslove.netlify.app/) por visualdennis a todo el mundo.
 En conclusión, disfruta del juego. :)
