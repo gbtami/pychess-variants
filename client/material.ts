@@ -1,4 +1,5 @@
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { init } from "snabbdom";
@@ -15,7 +16,6 @@ import { VNode } from 'snabbdom/vnode';
 
 import RoundController from "./roundCtrl";
 import { Variant } from "./chess";
-import {opposite} from "chessgroundx/util";
 
 export type MaterialImbalance = {[index: string]:number};
 
@@ -65,7 +65,7 @@ function calculateImbalance(ctrl: RoundController): MaterialImbalance {
         }
     }
     if (ctrl.chessground.state.pockets) {
-        const pocketTop = ctrl.chessground.state.pockets[opposite(ctrl.chessground.state.orientation)];
+        const pocketTop = ctrl.chessground.state.pockets[util.opposite(ctrl.chessground.state.orientation)];
         const pocketBottom = ctrl.chessground.state.pockets[ctrl.chessground.state.orientation];
         for (let piece in pocketTop) {
             imbalances[mapPiece(piece, ctrl.variant.name)] += (topMaterialColor === 'white' ? 1 : -1) * pocketTop[piece as cg.Role]!;

@@ -513,7 +513,6 @@ export default class AnalysisController {
                 check: msg.check,
                 lastMove: lastMove,
             });
-            // this.pockStateStuff?.updatePocks(msg.fen);
         }
         if (this.model["ply"]) {
             this.ply = parseInt(this.model["ply"])
@@ -1022,8 +1021,6 @@ export default class AnalysisController {
                 dests: this.dests,
             },
         });
-
-        // this.pockStateStuff?.updatePocks(msg.fen);
 
         if (this.localAnalysis) this.engineGo();
     }

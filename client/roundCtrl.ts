@@ -866,7 +866,7 @@ export default class RoundController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: this.fullfen/*parts[0]*/,
+                    fen: this.fullfen,
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: lastMove,
