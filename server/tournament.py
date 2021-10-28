@@ -664,7 +664,7 @@ class Tournament(ABC):
                 else:
                     wpoint = (2, SCORE)
 
-            if game.wberserk and game.board.ply >= 14:
+            if game.wberserk and game.board.ply >= 13:
                 wpoint = (wpoint[0] + 1, wpoint[1])
 
             wperf += 500

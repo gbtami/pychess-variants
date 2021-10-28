@@ -517,7 +517,7 @@ export default class RoundController {
         this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration / 2);
         sound.berserk();
 
-        const berserkId = this.model[color === "w" ? "wberserk": "bberserk"];
+        const berserkId = (color === "white") ? "wberserk" : "bberserk";
         const infoContainer = document.getElementById(berserkId) as HTMLElement;
         if (infoContainer) patch(infoContainer, h('icon.icon-berserk'));
 
@@ -804,6 +804,14 @@ export default class RoundController {
         if (this.ply === 0 && this.variant.name !== 'janggi') {
             this.expiStart = Date.now();
             setTimeout(this.showExpiration, 350);
+        }
+
+        if (this.ply >= 2) {
+            const container0 = document.getElementById('berserk0') as HTMLElement;
+            if (container0) patch(container0, h('div#berserk0', ''));
+
+            const container1 = document.getElementById('berserk1') as HTMLElement;
+            if (container1) patch(container1, h('div#berserk1', ''));
         }
 
         if (this.ply === 1 || this.ply === 2) {
