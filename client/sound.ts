@@ -26,6 +26,7 @@ class Sounds {
         LowTime: 'LowTime',
         Tick: 'Tick',
         Explosion: 'Explosion',
+        Berserk: 'Berserk',
     };
 
     tracks: { [key: string]: Howl };
@@ -84,6 +85,7 @@ class Sounds {
     lowTime()       { if (this.audio()) this.tracks.LowTime.play(); }
     tick()          { if (this.audio()) this.tracks.Tick.play(); }
     explosion()     { if (this.audio()) this.tracks.Explosion.play(); }
+    berserk()       { if (this.audio()) this.tracks.Berserk.play(); }
 
     private moveSoundSet: {[k:string]: { move: ()=> void; capture: ()=>void;}} = {
         regular: { move: () => this.move(), capture: () => this.capture() },

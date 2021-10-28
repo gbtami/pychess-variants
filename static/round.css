@@ -196,3 +196,17 @@ a#zen-button:hover {
 [data-zen="on"] #username {
     display: none;
 }
+
+button.icon.icon-berserk {
+    border: none;
+    background-color: var(--bg-body);
+    font-size: 32px;
+    margin: 0;
+    padding: 0 0 0 4px;
+}
+.berserked {
+    display: flex;
+    margin-left: auto;
+}
+.berserked button.icon.icon-berserk {
+    color: var(--bad);

@@ -89,6 +89,10 @@ interface MsgUpdateTV {
 	gameId: string;
 }
 
+interface MsgBerserk {
+	color: string;
+}
+
 export default class RoundController {
     model;
     sock;
@@ -393,9 +397,9 @@ export default class RoundController {
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
         const onMoreTime = () => {
-            // TODO: enable when this.flip is true
             if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
-            this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
+            const clockIdx = (this.flip) ? 1 : 0;
+            this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.gameId });
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
@@ -407,6 +411,21 @@ export default class RoundController {
                 h('button.icon.icon-plus-square', {
                     props: {type: "button", title: _("Give 15 seconds")},
                     on: { click: () => onMoreTime() }
+                })
+            ]));
+        }
+
+        const onBerserk = () => {
+            this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+            this.berserk(this.mycolor);
+        }
+
+        if (!this.spectator && this.tournamentGame && this.status < 0 && this.ply < 2) {
+            const container = document.getElementById('berserk1') as HTMLElement;
+            patch(container, h('div#berserk1', [
+                h('button.icon.icon-berserk', {
+                    props: {type: "button", title: _("Berserk")},
+                    on: { click: () => onBerserk() }
                 })
             ]));
         }
@@ -482,6 +501,29 @@ export default class RoundController {
     }
 
     getGround = () => this.chessground;
+
+    private berserk = (color: string) => {
+        let bclock;
+        if (!this.flip) {
+            bclock = this.mycolor === "black" ? 1 : 0;
+        } else {
+            bclock = this.mycolor === "black" ? 0 : 1;
+        }
+        const wclock = 1 - bclock
+        const clockIdx = (color === 'white') ? wclock : bclock;
+
+
+        this.clocks[clockIdx].increment = 0;
+        this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration / 2);
+        sound.berserk();
+
+        const berserkId = (color === "white") ? "wberserk" : "bberserk";
+        const infoContainer = document.getElementById(berserkId) as HTMLElement;
+        if (infoContainer) patch(infoContainer, h('icon.icon-berserk'));
+
+        const container = document.getElementById(`berserk${clockIdx}`) as HTMLElement;
+        patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
+    }
 
     private abort = () => {
         // console.log("Abort");
@@ -606,6 +648,11 @@ export default class RoundController {
         const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
         const logoUrl = `${this.model["asset-url"]}/favicon/android-icon-192x192.png`;
         notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
+    }
+
+    private onMsgBerserk = (msg: MsgBerserk) => {
+        if (!this.spectator && msg['color'] === this.mycolor) return;
+        this.berserk(msg['color'])
     }
 
     private onMsgGameStart = (msg: MsgGameStart) => {
@@ -757,6 +804,14 @@ export default class RoundController {
         if (this.ply === 0 && this.variant.name !== 'janggi') {
             this.expiStart = Date.now();
             setTimeout(this.showExpiration, 350);
+        }
+
+        if (this.ply >= 2) {
+            const container0 = document.getElementById('berserk0') as HTMLElement;
+            if (container0) patch(container0, h('div#berserk0', ''));
+
+            const container1 = document.getElementById('berserk1') as HTMLElement;
+            if (container1) patch(container1, h('div#berserk1', ''));
         }
 
         if (this.ply === 1 || this.ply === 2) {
@@ -1506,6 +1561,9 @@ export default class RoundController {
                 break;
             case "count":
                 this.onMsgCount(msg);
+                break;
+            case "berserk":
+                this.onMsgBerserk(msg);
                 break;
         }
     }

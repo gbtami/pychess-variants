@@ -41,83 +41,85 @@ const SCORE_SHIFT = 100000;
 const SHIELD = 's';
 
 interface MsgUserStatus {
-	ustatus: string;
+    ustatus: string;
 }
 
 interface MsgGetGames {
     rank: number;
     name: string;
     title: string;
-	games: TournamentGame[];
-	perf: number;
-	nbWin: number;
-	nbGames: number;
+    games: TournamentGame[];
+    perf: number;
+    nbWin: number;
+    nbGames: number;
 }
 
 interface TournamentGame {
-	gameId: string;
-	title: string;
-	name: string;
-	result: string;
-	color: string;
-	rating: number;
+    gameId: string;
+    title: string;
+    name: string;
+    result: string;
+    color: string;
+    rating: number;
 }
 
 interface MsgTournamentStatus {
-	tstatus: number;
-	secondsToFinish: number;
-	nbPlayers: number;
-	sumRating: number;
-	nbGames: number;
-	wWin: number;
-	bWin: number;
-	draw: number;
+    tstatus: number;
+    secondsToFinish: number;
+    nbPlayers: number;
+    sumRating: number;
+    nbGames: number;
+    wWin: number;
+    bWin: number;
+    draw: number;
+    berserk: number;
 }
 
 interface MsgUserConnectedTournament {
-	tsystem: number;
-	tminutes: number;
-	frequency: string;
-	startsAt: string;
-	startFen: cg.FEN;
+    tsystem: number;
+    tminutes: number;
+    frequency: string;
+    startsAt: string;
+    startFen: cg.FEN;
 
-	username: string;
-	ustatus: string;
-	urating: number;
-	tstatus: number;
-	description: string;
-	secondsToStart: number;
-	secondsToFinish: number;
+    username: string;
+    ustatus: string;
+    urating: number;
+    tstatus: number;
+    description: string;
+    secondsToStart: number;
+    secondsToFinish: number;
 }
 
 interface MsgGetPlayers {
-	page: number;
-	requestedBy: string;
-	nbPlayers: number;
-	nbGames: number;
+    page: number;
+    requestedBy: string;
+    nbPlayers: number;
+    nbGames: number;
 
-	players: TournamentPlayer[];
-	podium?: TournamentPlayer[];
+    players: TournamentPlayer[];
+    podium?: TournamentPlayer[];
 }
 
 interface TournamentPlayer {
-	name: string;
-	score: number;
-	paused: boolean;
-	title: string;
-	rating: number;
-	points: any[]; // TODO: I am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or somthing). But i've seen also string '*' as well and there is that chck about isArray that might mean more cases with numeric scalars exist
-	fire: number;
-	perf: number;
-	nbGames: number;
-	nbWin: number;
+    name: string;
+    score: number;
+    paused: boolean;
+    title: string;
+    rating: number;
+    points: any[]; // TODO: I am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or somthing). But i've seen also string '*' as well and there is that chck about isArray that might mean more cases with numeric scalars exist
+    fire: number;
+    perf: number;
+    nbGames: number;
+    nbWin: number;
+    nbBerserk: number;
 }
 
 interface MsgError {
-	message: string;
+    message: string;
 }
 interface MsgPing {
-	timestamp: string;
+    timestamp: string;
 }
 
 interface TopGame {
@@ -300,7 +302,7 @@ export default class TournamentController {
                 h('tr', [h('th', _('White wins')), h('td', this.winRate(msg.nbGames, msg.wWin))]),
                 h('tr', [h('th', _('Black wins')), h('td', this.winRate(msg.nbGames, msg.bWin))]),
                 h('tr', [h('th', _('Draws')), h('td', this.winRate(msg.nbGames, msg.draw))]),
-                //h('tr', [h('div', _('Berserk rate')), h('td', 0)]),
+                h('tr', [h('div', _('Berserk rate')), h('td', this.winRate(msg.nbGames * 2, msg.berserk))]),
             ]),
             h('table.tour-stats-links', [
                 h('a.i-dl.icon.icon-download', {
@@ -527,7 +529,7 @@ export default class TournamentController {
                     h('tr', [h('th', _('Performance')), h('td', players[1].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[1].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[1].nbGames, players[1].nbWin))]),
-                    //h('tr', [h('th', _('Berserk rate')), h('td', players[1].???)])
+                    h('tr', [h('th', _('Berserk rate')), h('td', this.winRate(players[1].nbGames, players[1].nbBerserk))])
                 ])
             ]),
             h('div.first', [
@@ -537,7 +539,7 @@ export default class TournamentController {
                     h('tr', [h('th', _('Performance')), h('td', players[0].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[0].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[0].nbGames, players[0].nbWin))]),
-                    //h('tr', [h('th', _('Berserk rate')), h('td', players[0].???)])
+                    h('tr', [h('th', _('Berserk rate')), h('td', this.winRate(players[0].nbGames, players[0].nbBerserk))])
                 ])
             ]),
             h('div.third', [
@@ -547,7 +549,7 @@ export default class TournamentController {
                     h('tr', [h('th', _('Performance')), h('td', players[2].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[2].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[2].nbGames, players[2].nbWin))]),
-                    //h('tr', [h('th', _('Berserk rate')), h('td', players[2].???)])
+                    h('tr', [h('th', _('Berserk rate')), h('td', this.winRate(players[2].nbGames, players[2].nbBerserk))])
                 ])
             ])
         ]);

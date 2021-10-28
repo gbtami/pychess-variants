@@ -395,6 +395,8 @@ async def index(request):
             if game.tournamentId is not None:
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name
+                render["wberserk"] = game.wberserk
+                render["bberserk"] = game.bberserk
 
     if tournamentId is not None:
         render["tournamentid"] = tournamentId

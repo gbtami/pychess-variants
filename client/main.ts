@@ -50,10 +50,12 @@ export type PyChessModel = {
     wtitle: string;
     wrating: string; // string, because can contain "?" suffix for provisional rating
     wrdiff: number;
+    wberserk: string;
     bplayer: string;
     btitle: string;
     brating: string; // string, because can contain "?" suffix for provisional rating
     brdiff: number;
+    bberserk: string;
     fen: string;
     base: number;
     inc: number;
@@ -90,10 +92,12 @@ function initModel(el: HTMLElement) {
         wtitle : el.getAttribute("data-wtitle") ?? "",
         wrating : el.getAttribute("data-wrating") ?? "",
         wrdiff : parseInt(""+el.getAttribute("data-wrdiff")),
+        wberserk : el.getAttribute("data-wberserk") ?? "",
         bplayer : el.getAttribute("data-bplayer") ?? "",
         btitle : el.getAttribute("data-btitle") ?? "",
         brating : el.getAttribute("data-brating") ?? "",
         brdiff : parseInt(""+el.getAttribute("data-brdiff")),
+        bberserk : el.getAttribute("data-bberserk") ?? "",
         fen : el.getAttribute("data-fen") ?? "",
         base : parseFloat(""+el.getAttribute("data-base")),
         inc : parseInt(""+el.getAttribute("data-inc")),
