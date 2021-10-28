@@ -199,12 +199,12 @@ class Game:
         return FairyBoard(variant, initial_fen, chess960, count_started)
 
     def berserk(self, color):
-        if color == "white":
+        if color == "white" and not self.wberserk:
             self.wberserk = True
             self.ply_clocks[0]["white"] = self.base * 1000 * 30
-        else:
+        elif color == "black" and not self.bberserk:
             self.bberserk = True
-            self.ply_clocks[0]["white"] = self.base * 1000 * 30
+            self.ply_clocks[0]["black"] = self.base * 1000 * 30
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
