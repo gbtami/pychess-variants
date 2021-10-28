@@ -154,7 +154,12 @@ td.player-data {
     width:100%;
     background-color: var(--bg-color1);
 }
-
+#games tr player {
+    font-size: 1.3em;
+}
+#games tr player a {
+    display: contents;
+}
 #games tbody tr:hover {
     width:100%;
     background-color: var(--game-hover);

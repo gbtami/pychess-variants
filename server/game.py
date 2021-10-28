@@ -190,9 +190,21 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
+        if self.tournamentId is not None:
+            self.wberserk = False
+            self.bberserk = False
+
     @staticmethod
     def create_board(variant, initial_fen, chess960, count_started):
         return FairyBoard(variant, initial_fen, chess960, count_started)
+
+    def berserk(self, color):
+        if color == "white":
+            self.wberserk = True
+            self.ply_clocks[0]["white"] = self.base * 1000 * 30
+        else:
+            self.bberserk = True
+            self.ply_clocks[0]["white"] = self.base * 1000 * 30
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
@@ -375,6 +387,10 @@ class Game:
 
             if with_clocks:
                 new_data["clocks"] = self.ply_clocks
+
+            if self.tournamentId is not None:
+                new_data["wb"] = self.wberserk
+                new_data["bb"] = self.bberserk
 
             if self.manual_count:
                 if self.board.count_started > 0:
