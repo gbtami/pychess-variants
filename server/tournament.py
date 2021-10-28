@@ -279,6 +279,7 @@ class Tournament(ABC):
             "perf": self.players[player].performance,
             "nbGames": self.players[player].nb_games,
             "nbWin": self.players[player].nb_win,
+            "nbBerserk": self.players[player].nb_berserk,
             "games": [
                 game.game_json(player) for
                 game in

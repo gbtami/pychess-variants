@@ -15,7 +15,7 @@
 </p>
 Everything started with Lichess. We all love how Lichess has grown and gives us everything that chess players can imagine. However, some people still want more. There were requests to add [S-chess](https://lichess.org/forum/lichess-feedback/seirawan-chess), [Bughouse](https://lichess.org/forum/lichess-feedback/bughouse-team-up-with-a-friend), [Placement chess](https://lichess.org/forum/lichess-feedback/placement-chess-varient) and countless other chess variants to the site.
 
-Around 2018-2019 several people started to work independently on interesting projects, and they all inspired the birth of the Pychess-Variant server.<br>
+Around 2018-2019 several people started to work independently on interesting projects, and they all inspired the birth of the Pychess-Variants server.<br>
 
  - Igor Perelyotov created a [chessground fork](https://github.com/IgorPerelyotov/chessground/tree/dev/capablanca) to support Capablanca chess</br>
 
