@@ -145,6 +145,7 @@ export default class RoundController {
     result: string;
     flip: boolean;
     spectator: boolean;
+    berserkable: boolean;
     settings: boolean;
     tv: boolean;
     status: number;
@@ -288,6 +289,10 @@ export default class RoundController {
         this.tournamentGame = this.model["tournamentId"] !== '';
         this.clockOn = (Number(parts[parts.length - 1]) >= 2);
 
+        const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
+        // Not berserked yet, but allowed to do it
+        this.berserkable = !this.spectator && this.tournamentGame && this.model[berserkId] !== 'True';
+
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
@@ -416,11 +421,14 @@ export default class RoundController {
         }
 
         const onBerserk = () => {
-            this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
-            this.berserk(this.mycolor);
+            if (this.berserkable) {
+                this.berserkable = false;
+                this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+                this.berserk(this.mycolor);
+            }
         }
 
-        if (!this.spectator && this.tournamentGame && this.status < 0 && this.ply < 2) {
+        if (this.berserkable && this.status < 0 && this.ply < 2) {
             const container = document.getElementById('berserk1') as HTMLElement;
             patch(container, h('div#berserk1', [
                 h('button.icon.icon-berserk', {
