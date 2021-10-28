@@ -25,7 +25,7 @@ export function roundView(model: PyChessModel): VNode[] {
             h('div#roundchat'),
         ]),
         h('div.round-app', [
-            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
+            h('selection#mainboard.' + variant.board + '.' + variant.piece + '.' + variant.name, [
                 h('div.cg-wrap.' + variant.cg, {
                     hook: {
                         insert: (vnode) => runGround(vnode, model)
