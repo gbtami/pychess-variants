@@ -206,28 +206,28 @@ box-shadow: var(--box-shadow-panel-btn);
     height: 100%; 
 }
 
-.chess {
+.chess :not(settings-pieces) {
     grid-area: chess;
 
 }
 
-.fairy {
+.fairy :not(settings-pieces) {
     grid-area: fairy;
 }
 
-.army {
+.army :not(settings-pieces) {
     grid-area: army;
 }
 
-.makruk {
+.makruk :not(settings-pieces) {
     grid-area: makruk;
 }
 
-.shogi {
+.shogi :not(settings-pieces) {
     grid-area: shogi;
 }
 
-.xiangqi {
+.xiangqi :not(settings-pieces) {
     grid-area: xiangqi;
 }
 
