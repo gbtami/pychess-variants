@@ -52,6 +52,7 @@ interface MsgGetGames {
     perf: number;
     nbWin: number;
     nbGames: number;
+    nbBerserk: number;
 }
 
 interface TournamentGame {
@@ -299,10 +300,10 @@ export default class TournamentController {
                 h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
                 h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
                 h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
-                h('tr', [h('th', _('White wins')), h('td', this.winRate(msg.nbGames, msg.wWin))]),
-                h('tr', [h('th', _('Black wins')), h('td', this.winRate(msg.nbGames, msg.bWin))]),
-                h('tr', [h('th', _('Draws')), h('td', this.winRate(msg.nbGames, msg.draw))]),
-                h('tr', [h('div', _('Berserk rate')), h('td', this.winRate(msg.nbGames * 2, msg.berserk))]),
+                h('tr', [h('th', _('White wins')), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+                h('tr', [h('th', _('Black wins')), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+                h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
+                h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
             ]),
             h('table.tour-stats-links', [
                 h('a.i-dl.icon.icon-download', {
@@ -476,8 +477,9 @@ export default class TournamentController {
             h('table.stats', [
                 h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
                 h('tr', [h('th', _('Games played')), h('td', gamesLen)]),
-                h('tr', [h('th', _('Win rate')), h('td', this.winRate(msg.nbGames, msg.nbWin))]),
+                h('tr', [h('th', _('Win rate')), h('td', this.calcRate(msg.nbGames, msg.nbWin))]),
                 h('tr', [h('th', _('Average opponent')), h('td', avgOp)]),
+                h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(msg.nbGames, msg.nbBerserk))])
             ]),
         ];
     }
@@ -516,7 +518,7 @@ export default class TournamentController {
         patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', element));
     }
 
-    winRate(nbGames: number, nbWin: number) {
+    calcRate(nbGames: number, nbWin: number) {
         return ((nbGames !== 0) ? Math.round(100 * (nbWin / nbGames)) : 0) + '%';
     }
 
@@ -528,8 +530,8 @@ export default class TournamentController {
                 h('table.stats', [
                     h('tr', [h('th', _('Performance')), h('td', players[1].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[1].nbGames)]),
-                    h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[1].nbGames, players[1].nbWin))]),
-                    h('tr', [h('th', _('Berserk rate')), h('td', this.winRate(players[1].nbGames, players[1].nbBerserk))])
+                    h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[1].nbGames, players[1].nbWin))]),
+                    h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[1].nbGames, players[1].nbBerserk))])
                 ])
             ]),
             h('div.first', [
@@ -538,8 +540,8 @@ export default class TournamentController {
                 h('table.stats', [
                     h('tr', [h('th', _('Performance')), h('td', players[0].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[0].nbGames)]),
-                    h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[0].nbGames, players[0].nbWin))]),
-                    h('tr', [h('th', _('Berserk rate')), h('td', this.winRate(players[0].nbGames, players[0].nbBerserk))])
+                    h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[0].nbGames, players[0].nbWin))]),
+                    h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[0].nbGames, players[0].nbBerserk))])
                 ])
             ]),
             h('div.third', [
@@ -548,8 +550,8 @@ export default class TournamentController {
                 h('table.stats', [
                     h('tr', [h('th', _('Performance')), h('td', players[2].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[2].nbGames)]),
-                    h('tr', [h('th', _('Win rate')), h('td', this.winRate(players[2].nbGames, players[2].nbWin))]),
-                    h('tr', [h('th', _('Berserk rate')), h('td', this.winRate(players[2].nbGames, players[2].nbBerserk))])
+                    h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[2].nbGames, players[2].nbWin))]),
+                    h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[2].nbGames, players[2].nbBerserk))])
                 ])
             ])
         ]);
