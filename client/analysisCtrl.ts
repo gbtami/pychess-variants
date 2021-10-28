@@ -213,7 +213,7 @@ export default class AnalysisController {
                 this.notation = cg.Notation.SHOGI_HODGES_NUMBER; break;
             case 'xiangqi':
             case 'minixiangqi':
-            case 'manchu':
+            // XIANGQI_WXF can't handle Mmanchu banner piece!
                 this.notation = cg.Notation.XIANGQI_WXF; break;
             default:
                 this.notation = cg.Notation.SAN;
