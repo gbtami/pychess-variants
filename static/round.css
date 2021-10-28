@@ -190,6 +190,13 @@ a#zen-button:hover {
 [data-zen="on"] a#zen-button {
     display: flex;
 }
+[data-zen="on"] #btn-settings {
+    display: none;
+}
+[data-zen="on"] #username {
+    display: none;
+}
+
 button.icon.icon-berserk {
     border: none;
     background-color: var(--bg-body);
@@ -203,4 +210,3 @@ button.icon.icon-berserk {
 }
 .berserked button.icon.icon-berserk {
     color: var(--bad);
-}
