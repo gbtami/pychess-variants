@@ -417,8 +417,7 @@ export default class RoundController {
 
         const onBerserk = () => {
             this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
-            const clockIdx = (this.flip) ? 0 : 1;
-            this.berserk(clockIdx);
+            this.berserk(this.mycolor);
         }
 
         if (!this.spectator && this.tournamentGame && this.status < 0 && this.ply < 2) {
@@ -503,15 +502,27 @@ export default class RoundController {
 
     getGround = () => this.chessground;
 
-    private berserk = (clockIdx: number) => {
+    private berserk = (color: string) => {
+        let bclock;
+        if (!this.flip) {
+            bclock = this.mycolor === "black" ? 1 : 0;
+        } else {
+            bclock = this.mycolor === "black" ? 0 : 1;
+        }
+        const wclock = 1 - bclock
+        const clockIdx = (color === 'white') ? wclock : bclock;
+
+
         this.clocks[clockIdx].increment = 0;
         this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration / 2);
         sound.berserk();
 
+        const berserkId = this.model[color === "w" ? "wberserk": "bberserk"];
+        const infoContainer = document.getElementById(berserkId) as HTMLElement;
+        if (infoContainer) patch(infoContainer, h('icon.icon-berserk'));
+
         const container = document.getElementById(`berserk${clockIdx}`) as HTMLElement;
-        patch(container, h(`div#berserk${clockIdx}.berserked`, [
-            h('button.icon.icon-berserk')
-        ]));
+        patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
     }
 
     private abort = () => {
@@ -641,17 +652,7 @@ export default class RoundController {
 
     private onMsgBerserk = (msg: MsgBerserk) => {
         if (!this.spectator && msg['color'] === this.mycolor) return;
-
-        let bclock;
-        if (!this.flip) {
-            bclock = this.mycolor === "black" ? 1 : 0;
-        } else {
-            bclock = this.mycolor === "black" ? 0 : 1;
-        }
-        const wclock = 1 - bclock
-        const clockIdx = (msg['color'] === 'white') ? wclock : bclock;
-
-        this.berserk(clockIdx)
+        this.berserk(msg['color'])
     }
 
     private onMsgGameStart = (msg: MsgGameStart) => {
