@@ -190,3 +190,9 @@ a#zen-button:hover {
 [data-zen="on"] a#zen-button {
     display: flex;
 }
+[data-zen="on"] #btn-settings {
+    display: none;
+}
+[data-zen="on"] #username {
+    display: none;
+}
