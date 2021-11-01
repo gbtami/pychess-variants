@@ -291,7 +291,7 @@ export default class RoundController {
 
         const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
         // Not berserked yet, but allowed to do it
-        this.berserkable = !this.spectator && this.tournamentGame && this.model[berserkId] !== 'True';
+        this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && this.model[berserkId] !== 'True';
 
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
@@ -423,8 +423,8 @@ export default class RoundController {
         const onBerserk = () => {
             if (this.berserkable) {
                 this.berserkable = false;
-                this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
                 this.berserk(this.mycolor);
+                this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
             }
         }
 
@@ -1103,7 +1103,10 @@ export default class RoundController {
         }
         const wclock = 1 - bclock
 
-        const increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
+        let increment = 0;
+        if (this.model[(this.mycolor === "white") ? "wberserk" : "bberserk"] !== 'True') {
+            increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
+        }
 
         const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
         const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
