@@ -53,6 +53,8 @@ class Game:
         self.chess960 = chess960
         self.create = create
 
+        self.berserk_time = self.base * 1000 * 30
+
         self.browser_title = "%s • %s vs %s" % (
             variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
             self.wplayer.username,
@@ -201,10 +203,10 @@ class Game:
     def berserk(self, color):
         if color == "white" and not self.wberserk:
             self.wberserk = True
-            self.ply_clocks[0]["white"] = self.base * 1000 * 30
+            self.ply_clocks[0]["white"] = self.berserk_time
         elif color == "black" and not self.bberserk:
             self.bberserk = True
-            self.ply_clocks[0]["black"] = self.base * 1000 * 30
+            self.ply_clocks[0]["black"] = self.berserk_time
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
@@ -227,6 +229,7 @@ class Game:
             await round_broadcast(self, self.app["users"], response, full=True)
 
         cur_time = monotonic()
+
         # BOT players doesn't send times used for moves
         if self.bot_game:
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
@@ -262,6 +265,13 @@ class Game:
                         self.update_status(FLAG, result)
                         print(self.result, "flag")
                         await self.save_game()
+        else:
+            if ply <= 2:
+                # Just in case for move and berserk messages race
+                if self.wberserk and clocks["white"] > self.berserk_time:
+                    clocks["white"] = self.berserk_time
+                if self.bberserk and clocks["black"] > self.berserk_time:
+                    clocks["black"] = self.berserk_time
 
         self.last_server_clock = cur_time
 

@@ -90,7 +90,7 @@ interface MsgUpdateTV {
 }
 
 interface MsgBerserk {
-	color: string;
+	color: cg.Color;
 }
 
 export default class RoundController {
@@ -510,7 +510,7 @@ export default class RoundController {
 
     getGround = () => this.chessground;
 
-    private berserk = (color: string) => {
+    private berserk = (color: cg.Color) => {
         let bclock;
         if (!this.flip) {
             bclock = this.mycolor === "black" ? 1 : 0;
@@ -520,9 +520,9 @@ export default class RoundController {
         const wclock = 1 - bclock
         const clockIdx = (color === 'white') ? wclock : bclock;
 
-
         this.clocks[clockIdx].increment = 0;
-        this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration / 2);
+        this.clocks[clockIdx].setTime(this.base * 1000 * 30);
+        this.clocktimes[color] = this.base * 1000 * 30;
         sound.berserk();
 
         const berserkId = (color === "white") ? "wberserk" : "bberserk";
@@ -803,10 +803,16 @@ export default class RoundController {
         const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
 
         // console.log("got board msg:", msg);
-        const latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
+        let latestPly;
+        if (this.spectator) {
+            // Fix https://github.com/gbtami/pychess-variants/issues/687
+            latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
+        } else {
+            latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
                                                                         // its ply might be ahead with 2 ply - our move that failed to get confirmed
                                                                         // because of disconnect and then also opp's reply to it, that we didn't
                                                                         // receive while offline. Not sure if it could be ahead with more than 2 ply
+        }
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0 && this.variant.name !== 'janggi') {
@@ -974,9 +980,9 @@ export default class RoundController {
             this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
         }
         this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
 
         if (this.spectator) {
+            this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
             if (latestPly) {
                 this.chessground.set({
                     fen: parts[0],
@@ -1116,6 +1122,9 @@ export default class RoundController {
         this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
         this.doSend(this.lastMaybeSentMsgMove as JSONObject);
 
+        if (this.preaction) {
+            this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
+        }
         if (this.clockOn) this.clocks[oppclock].start();
     }
 
