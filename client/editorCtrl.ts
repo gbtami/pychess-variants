@@ -339,8 +339,7 @@ export class EditorController {
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
-        //this.pocketsPart = this.hasPockets ? pockets2str(this) : "";
-        this.parts[0] = this.chessground.getFen() ;//+ this.pocketsPart;
+        this.parts[0] = this.chessground.getFen();
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());
