@@ -301,7 +301,7 @@ export default class RoundController {
         const pocket0 = document.getElementById('pocket0') as HTMLElement;
         const pocket1 = document.getElementById('pocket1') as HTMLElement;
 
-        this.chessground = Chessground(el, pocket0, pocket1,{
+        this.chessground = Chessground(el, {
             fen: fen_placement,
             variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
@@ -314,8 +314,8 @@ export default class RoundController {
 
             addDimensionsCssVars: true,
 
-            pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
-        });
+            pocketRoles: this.variant.pocketRoles.bind(this.variant),
+        }, pocket0, pocket1);
 
         if (this.spectator) {
             this.chessground.set({
@@ -1455,8 +1455,9 @@ export default class RoundController {
 
 /**
  * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
- * todo: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
+ * TODO: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
  *       from rendering dialogs and
+ * TODO: Unify this with analysisCtrl
  * */
 export function onUserMove(ctrl: RoundController | AnalysisController, orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         ctrl.preaction = meta.premove;
@@ -1484,7 +1485,7 @@ export function onUserMove(ctrl: RoundController | AnalysisController, orig: cg.
             const pocket = ctrl.chessground.state.pockets ? ctrl.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
             if (pocket && role && role in pocket) {
                 pocket[role]!++;
-                ctrl.chessground.state.dom.redraw(); // todo: see todo comment also at same line in onUserDrop.
+                ctrl.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
         }
 

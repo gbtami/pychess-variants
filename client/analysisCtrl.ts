@@ -254,7 +254,7 @@ export default class AnalysisController {
         const pocket0 = this.hasPockets? document.getElementById('pocket0') as HTMLElement: undefined;
         const pocket1 = this.hasPockets? document.getElementById('pocket1') as HTMLElement: undefined;
 
-        this.chessground = Chessground(el, pocket0, pocket1, {
+        this.chessground = Chessground(el, {
              fen: fen_placement as cg.FEN,
              variant: this.variant.name as cg.Variant,
              chess960: this.chess960,
@@ -265,8 +265,8 @@ export default class AnalysisController {
              animation: { enabled: this.animation },
              addDimensionsCssVars: true,
 
-             pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
-        });
+             pocketRoles: this.variant.pocketRoles.bind(this.variant),
+        }, pocket0, pocket1);
 
         this.chessground.set({
             animation: { enabled: this.animation },

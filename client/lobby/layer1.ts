@@ -122,7 +122,7 @@ export function variantBoard(variant: Variant, fen: string, check: boolean=false
         h(`div.cg-wrap.${variant.cg}`, {
             hook: {
                 insert: vnode => {
-                    Chessground(vnode.elm as HTMLElement, undefined, undefined,  {
+                    Chessground(vnode.elm as HTMLElement,  {
                         fen: fen,
                         turnColor: fen.split(" ")[1] === "b" ? "white" : "black",
                         check: check,

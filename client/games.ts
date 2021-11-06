@@ -43,7 +43,8 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
         h(`div.cg-wrap.${variant.cg}.mini`, {
             hook: {
                 insert: vnode => {
-                    const cg = Chessground(vnode.elm as HTMLElement, undefined, undefined, {
+                    // TODO Add pockets to game preview
+                    const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
                         geometry: variant.geometry,

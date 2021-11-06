@@ -21,8 +21,6 @@ import { copyBoardToPNG } from './png';
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
 import { PyChessModel } from "./main";
-import { HeadlessState } from "chessgroundx/state";
-import { eventsDragging } from "chessgroundx/pocket";
 
 export class EditorController {
     model;
@@ -67,7 +65,7 @@ export class EditorController {
         const pocket0 = document.getElementById('pocket0') as HTMLElement;
         const pocket1 = document.getElementById('pocket1') as HTMLElement;
 
-        this.chessground = Chessground(el, pocket0, pocket1, {
+        this.chessground = Chessground(el, {
             fen: this.parts[0],
             autoCastle: false,
             variant: this.variant.name as cg.Variant,
@@ -88,22 +86,22 @@ export class EditorController {
             },
             addDimensionsCssVars: true,
 
-            pocketRoles: (color: cg.Color):string[] | undefined=>{return this.variant.pocketRoles(color);},
-        });
+            pocketRoles: this.variant.pocketRoles.bind(this.variant),
+        }, pocket0, pocket1);
 
         //
         ['mouseup', 'touchend'].forEach(name =>
             [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
                 if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
-                    this.dropOnPocket(this.chessground.state, e);
+                    this.dropOnPocket(e);
                 } )
             })
         );
-        eventsDragging.forEach(name =>
+        cg.eventsDragging.forEach(name =>
             [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
                 if (pocketEl) pocketEl?.childNodes.forEach(p => {
                     p.addEventListener(name, (e: cg.MouchEvent) => {
-                    this.drag(this.chessground.state, e);
+                    this.drag(e);
                 } ) });
             })
         );
@@ -345,13 +343,13 @@ export class EditorController {
         this.setInvalid(!this.validFen());
     }
 
-    dropOnPocket = (state: HeadlessState, e: cg.MouchEvent): void => {
+    dropOnPocket = (e: cg.MouchEvent): void => {
         const el = e.target as HTMLElement;
-        const piece = state.draggable.current?.piece;
+        const piece = this.chessground.state.draggable.current?.piece;
         if (piece) {
             const role = unpromotedRole(this.variant , piece);
             const color = el.getAttribute('data-color') as cg.Color;
-            const pocket = state.pockets![color];
+            const pocket = this.chessground.state.pockets![color];
             if (role in pocket!) {
                 pocket![role]!++;
                 this.onChange();
@@ -359,9 +357,9 @@ export class EditorController {
         }
     }
 
-    drag = (state: HeadlessState, e: cg.MouchEvent): void => {
+    drag = (e: cg.MouchEvent): void => {
         const el = e.target as HTMLElement;
-        const piece = state.draggable.current?.piece;
+        const piece = this.chessground.state.draggable.current?.piece;
         if (piece) {
             this.chessground.state.pockets![piece.color]![piece.role]! --;
             console.log(el);
