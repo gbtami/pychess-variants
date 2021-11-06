@@ -18,4 +18,4 @@ All other rules are the same.
 ## Strategy
 
 Normal chess strategy and tactics apply, except for openings! Since the starting position is random, standard opening lines don’t apply.
-[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by Tasshaq is recommended for everyone.
+[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by visualdennis is recommended for everyone.

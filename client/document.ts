@@ -2,17 +2,19 @@ import { VNode } from "snabbdom/vnode";
 
 import * as cg from "chessgroundx/types";
 
-export function download(filename: string, text: string) {
-  const element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
+export function downloadPgnText(filename: string) {
+    const text = (document.getElementById('pgntext') as HTMLInputElement).value;
 
-  element.style.display = 'none';
-  document.body.appendChild(element);
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
 
-  element.click();
+    element.style.display = 'none';
+    document.body.appendChild(element);
 
-  document.body.removeChild(element);
+    element.click();
+
+    document.body.removeChild(element);
 }
 
 export function getDocumentData(name: string) {

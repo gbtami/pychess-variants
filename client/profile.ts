@@ -169,6 +169,9 @@ interface Game {
     tid?: string;
     tn?: string;
 
+    wb?: boolean;
+    bb?: boolean;
+
     us: string[];
     wt: string;
     bt: string;
@@ -228,20 +231,22 @@ function renderGames(model: PyChessModel, games: Game[]) {
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
                                 h('player-title', " " + game["wt"] + " "),
                                 game["us"][0] + aiLevel(game["wt"], game['x']),
-                                h('br'),
-                                (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
-                                (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                             ]),
+                            h('br'),
+                            (game["wb"] === true) ? h('icon.icon-berserk') : '',
+                            (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
+                            (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                         ]),
                         h('vs-swords.icon', { attrs: { "data-icon": '"' } }),
                         h('player', [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
                                 h('player-title', " " + game["bt"] + " "),
                                 game["us"][1] + aiLevel(game["bt"], game['x']),
-                                h('br'),
-                                (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
-                                (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
                             ]),
+                            h('br'),
+                            (game["bb"] === true) ? h('icon.icon-berserk') : '',
+                            (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
+                            (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
                         ]),
                     ]),
                     h('div.info-result', {

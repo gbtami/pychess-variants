@@ -58,7 +58,7 @@ class ByeGame:
 class PlayerData:
     """ Used to save/load tournament players to/from mongodb tournament-player documents """
 
-    __slots__ = "id", "rating", "provisional", "free", "paused", "withdrawn", "win_streak", "games", "points", "nb_games", "nb_win", "nb_not_paired", "performance", "prev_opp", "color_balance", "page"
+    __slots__ = "id", "rating", "provisional", "free", "paused", "withdrawn", "win_streak", "games", "points", "nb_games", "nb_win", "nb_berserk", "nb_not_paired", "performance", "prev_opp", "color_balance", "page"
 
     def __init__(self, rating, provisional):
         self.id = None
@@ -72,6 +72,7 @@ class PlayerData:
         self.points = []
         self.nb_games = 0
         self.nb_win = 0
+        self.nb_berserk = 0
         self.nb_not_paired = 0
         self.performance = 0
         self.prev_opp = ""
@@ -85,9 +86,9 @@ class PlayerData:
 class GameData:
     """ Used to save/load tournament games to/from mongodb tournament-pairing documents """
 
-    __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "date"
+    __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "date", "wberserk", "bberserk"
 
-    def __init__(self, _id, wplayer, wrating, bplayer, brating, result, date):
+    def __init__(self, _id, wplayer, wrating, bplayer, brating, result, date, wberserk, bberserk):
         self.id = _id
         self.wplayer = wplayer
         self.bplayer = bplayer
@@ -95,6 +96,8 @@ class GameData:
         self.date = date
         self.white_rating = gl2.create_rating(int(wrating.rstrip("?")))
         self.black_rating = gl2.create_rating(int(brating.rstrip("?")))
+        self.wberserk = wberserk
+        self.bberserk = bberserk
 
     def game_json(self, player):
         color = "w" if self.wplayer == player else "b"
@@ -160,6 +163,7 @@ class Tournament(ABC):
         self.w_win = 0
         self.b_win = 0
         self.draw = 0
+        self.nb_berserk = 0
 
         self.nb_games_cached = -1
         self.leaderboard_cache = {}
@@ -235,6 +239,7 @@ class Tournament(ABC):
                 "perf": self.players[player].performance,
                 "nbGames": self.players[player].nb_games,
                 "nbWin": self.players[player].nb_win,
+                "nbBerserk": self.players[player].nb_berserk,
             }
 
         start = (page - 1) * 10
@@ -274,6 +279,7 @@ class Tournament(ABC):
             "perf": self.players[player].performance,
             "nbGames": self.players[player].nb_games,
             "nbWin": self.players[player].nb_win,
+            "nbBerserk": self.players[player].nb_berserk,
             "games": [
                 game.game_json(player) for
                 game in
@@ -398,6 +404,7 @@ class Tournament(ABC):
             "wWin": self.w_win,
             "bWin": self.b_win,
             "draw": self.draw,
+            "berserk": self.nb_berserk,
             "sumRating": sum(self.players[player].rating for player in self.players if not self.players[player].withdrawn),
         }
 
@@ -658,6 +665,9 @@ class Tournament(ABC):
                 else:
                     wpoint = (2, SCORE)
 
+            if game.wberserk and game.board.ply >= 13:
+                wpoint = (wpoint[0] + 1, wpoint[1])
+
             wperf += 500
             bperf -= 500
 
@@ -679,6 +689,9 @@ class Tournament(ABC):
                 else:
                     bpoint = (2, SCORE)
 
+            if game.bberserk and game.board.ply >= 14:
+                bpoint = (bpoint[0] + 1, bpoint[1])
+
             wperf -= 500
             bperf += 500
 
@@ -691,6 +704,14 @@ class Tournament(ABC):
 
         wplayer = self.players[game.wplayer]
         bplayer = self.players[game.bplayer]
+
+        if game.wberserk:
+            wplayer.nb_berserk += 1
+            self.nb_berserk += 1
+
+        if game.bberserk:
+            bplayer.nb_berserk += 1
+            self.nb_berserk += 1
 
         wpoint, bpoint, wperf, bperf = self.points_perfs(game)
 
@@ -807,6 +828,7 @@ class Tournament(ABC):
                 "s": int(full_score / SCORE_SHIFT),
                 "g": player_data.nb_games,
                 "w": player_data.nb_win,
+                "b": player_data.nb_berserk,
                 "e": player_data.performance,
                 "p": player_data.points,
                 "wd": False,
@@ -824,7 +846,8 @@ class Tournament(ABC):
                 log.error("db find_one_and_update tournament_player %s into %s failed !!!", player_id, self.id)
 
         new_data = {
-            "nbPlayers": self.nb_players
+            "nbPlayers": self.nb_players,
+            "nbBerserk": self.nb_berserk
         }
         print(await self.app["db"].tournament.find_one_and_update(
             {"_id": self.id},
@@ -873,6 +896,8 @@ class Tournament(ABC):
                         "d": game.date,
                         "wr": game.wrating,
                         "br": game.brating,
+                        "wb": game.wberserk,
+                        "bb": game.bberserk,
                     })
                 processed_games.add(game.id)
 

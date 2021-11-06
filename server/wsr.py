@@ -71,6 +71,11 @@ async def round_socket_handler(request):
                             except Exception:
                                 log.exception("ERROR: Exception in play_move() in %s by %s ", data["gameId"], session_user)
 
+                    elif data["type"] == "berserk":
+                        game.berserk(data["color"])
+                        response = {"type": "berserk", "color": data["color"]}
+                        await round_broadcast(game, users, response, full=True)
+
                     elif data["type"] == "analysis_move":
 
                         await analysis_move(request.app, user, game, data["move"], data["fen"], data["ply"])

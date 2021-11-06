@@ -87,6 +87,10 @@ interface MsgUpdateTV {
 	gameId: string;
 }
 
+interface MsgBerserk {
+	color: cg.Color;
+}
+
 export default class RoundController {
     model;
     sock;
@@ -136,6 +140,7 @@ export default class RoundController {
     result: string;
     flip: boolean;
     spectator: boolean;
+    berserkable: boolean;
     settings: boolean;
     tv: boolean;
     status: number;
@@ -279,6 +284,10 @@ export default class RoundController {
         this.tournamentGame = this.model["tournamentId"] !== '';
         this.clockOn = (Number(parts[parts.length - 1]) >= 2);
 
+        const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
+        // Not berserked yet, but allowed to do it
+        this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && this.model[berserkId] !== 'True';
+
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
@@ -381,9 +390,9 @@ export default class RoundController {
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
         const onMoreTime = () => {
-            // TODO: enable when this.flip is true
             if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
-            this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
+            const clockIdx = (this.flip) ? 1 : 0;
+            this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.gameId });
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
@@ -395,6 +404,24 @@ export default class RoundController {
                 h('button.icon.icon-plus-square', {
                     props: {type: "button", title: _("Give 15 seconds")},
                     on: { click: () => onMoreTime() }
+                })
+            ]));
+        }
+
+        const onBerserk = () => {
+            if (this.berserkable) {
+                this.berserkable = false;
+                this.berserk(this.mycolor);
+                this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+            }
+        }
+
+        if (this.berserkable && this.status < 0 && this.ply < 2) {
+            const container = document.getElementById('berserk1') as HTMLElement;
+            patch(container, h('div#berserk1', [
+                h('button.icon.icon-berserk', {
+                    props: {type: "button", title: _("Berserk")},
+                    on: { click: () => onBerserk() }
                 })
             ]));
         }
@@ -470,6 +497,29 @@ export default class RoundController {
     }
 
     getGround = () => this.chessground;
+
+    private berserk = (color: cg.Color) => {
+        let bclock;
+        if (!this.flip) {
+            bclock = this.mycolor === "black" ? 1 : 0;
+        } else {
+            bclock = this.mycolor === "black" ? 0 : 1;
+        }
+        const wclock = 1 - bclock
+        const clockIdx = (color === 'white') ? wclock : bclock;
+
+        this.clocks[clockIdx].increment = 0;
+        this.clocks[clockIdx].setTime(this.base * 1000 * 30);
+        this.clocktimes[color] = this.base * 1000 * 30;
+        sound.berserk();
+
+        const berserkId = (color === "white") ? "wberserk" : "bberserk";
+        const infoContainer = document.getElementById(berserkId) as HTMLElement;
+        if (infoContainer) patch(infoContainer, h('icon.icon-berserk'));
+
+        const container = document.getElementById(`berserk${clockIdx}`) as HTMLElement;
+        patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
+    }
 
     private abort = () => {
         // console.log("Abort");
@@ -594,6 +644,11 @@ export default class RoundController {
         const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
         const logoUrl = `${this.model["asset-url"]}/favicon/android-icon-192x192.png`;
         notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
+    }
+
+    private onMsgBerserk = (msg: MsgBerserk) => {
+        if (!this.spectator && msg['color'] === this.mycolor) return;
+        this.berserk(msg['color'])
     }
 
     private onMsgGameStart = (msg: MsgGameStart) => {
@@ -734,15 +789,29 @@ export default class RoundController {
         if (msg.gameId !== this.gameId) return;
 
         // console.log("got board msg:", msg);
-        const latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
+        let latestPly;
+        if (this.spectator) {
+            // Fix https://github.com/gbtami/pychess-variants/issues/687
+            latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
+        } else {
+            latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
                                                                         // its ply might be ahead with 2 ply - our move that failed to get confirmed
                                                                         // because of disconnect and then also opp's reply to it, that we didn't
                                                                         // receive while offline. Not sure if it could be ahead with more than 2 ply
+        }
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0 && this.variant.name !== 'janggi') {
             this.expiStart = Date.now();
             setTimeout(this.showExpiration, 350);
+        }
+
+        if (this.ply >= 2) {
+            const container0 = document.getElementById('berserk0') as HTMLElement;
+            if (container0) patch(container0, h('div#berserk0', ''));
+
+            const container1 = document.getElementById('berserk1') as HTMLElement;
+            if (container1) patch(container1, h('div#berserk1', ''));
         }
 
         if (this.ply === 1 || this.ply === 2) {
@@ -861,9 +930,9 @@ export default class RoundController {
             this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
         }
         this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
 
         if (this.spectator) {
+            this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
             if (latestPly) {
                 this.chessground.set({
                     fen: this.fullfen,
@@ -987,7 +1056,10 @@ export default class RoundController {
         }
         const wclock = 1 - bclock
 
-        const increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
+        let increment = 0;
+        if (this.model[(this.mycolor === "white") ? "wberserk" : "bberserk"] !== 'True') {
+            increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
+        }
 
         const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
         const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
@@ -997,6 +1069,9 @@ export default class RoundController {
         this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
         this.doSend(this.lastMaybeSentMsgMove as JSONObject);
 
+        if (this.preaction) {
+            this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
+        }
         if (this.clockOn) this.clocks[oppclock].start();
     }
 
@@ -1370,6 +1445,9 @@ export default class RoundController {
                 break;
             case "count":
                 this.onMsgCount(msg);
+                break;
+            case "berserk":
+                this.onMsgBerserk(msg);
                 break;
         }
     }

@@ -334,6 +334,7 @@ async def load_tournament(app, tournament_id):
         tournament.players[user].points = doc["p"]
         tournament.players[user].nb_games = doc["g"]
         tournament.players[user].nb_win = doc["w"]
+        tournament.players[user].nb_berserk = doc.get("b", 0),
         tournament.players[user].performance = doc["e"]
 
         if not withdrawn:
@@ -348,7 +349,7 @@ async def load_tournament(app, tournament_id):
     cursor = pairing_table.find({"tid": tournament_id})
     cursor.sort('d', 1)
 
-    w_win, b_win, draw = 0, 0, 0
+    w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:
         res = doc["r"]
         _id = doc["_id"]
@@ -357,8 +358,10 @@ async def load_tournament(app, tournament_id):
         wrating = doc["wr"]
         brating = doc["br"]
         date = doc["d"]
+        wberserk = doc.get("wb", False)
+        bberserk = doc.get("bb", False)
 
-        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result, date)
+        game_data = GameData(_id, users[wp], wrating, users[bp], brating, result, date, wberserk, bberserk)
 
         tournament.players[users[wp]].games.append(game_data)
         tournament.players[users[bp]].games.append(game_data)
@@ -370,8 +373,14 @@ async def load_tournament(app, tournament_id):
         elif res == "c":
             draw += 1
 
+        if wberserk:
+            berserk += 1
+        if bberserk:
+            berserk += 1
+
     tournament.w_win = w_win
     tournament.b_win = b_win
     tournament.draw = draw
+    tournament.nb_berserk = berserk
 
     return tournament

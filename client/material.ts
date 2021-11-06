@@ -96,16 +96,16 @@ function generateContent(ctrl: RoundController, imbalances: MaterialImbalance, c
     return result;
 }
 
-function makeMaterialVNode(ctrl: RoundController, which: string, color: cg.Color, content: VNode[]): VNode {
-    return h('div.material.material-' + which + '.' + color + '.' + ctrl.variant.piece, content);
+function makeMaterialVNode(ctrl: RoundController, which: string, color: cg.Color, content: VNode[], disabled = false): VNode {
+    return h('div.material.material-' + which + '.' + color + '.' + ctrl.variant.piece + (disabled ? '.disabled' : ''), content);
 }
 
 export function updateMaterial (ctrl: RoundController, vmaterial0?: VNode | HTMLElement, vmaterial1?: VNode | HTMLElement) {
     if (!ctrl.variant.materialDifference) return;
     let topMaterialColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, bottomMaterialColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
     if (!ctrl.materialDifference) {
-        ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, makeMaterialVNode(ctrl, 'top', topMaterialColor, []));
-        ctrl.vmaterial1 = patch(vmaterial1? vmaterial1 : ctrl.vmaterial1, makeMaterialVNode(ctrl, 'bottom', bottomMaterialColor, []));
+        ctrl.vmaterial0 = patch(vmaterial0? vmaterial0 : ctrl.vmaterial0, makeMaterialVNode(ctrl, 'top', topMaterialColor, [], true));
+        ctrl.vmaterial1 = patch(vmaterial1? vmaterial1 : ctrl.vmaterial1, makeMaterialVNode(ctrl, 'bottom', bottomMaterialColor, [], true));
         return;
     }
     let imbalances = calculateImbalance(ctrl);

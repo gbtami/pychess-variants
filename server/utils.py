@@ -213,6 +213,10 @@ async def load_game(app, game_id):
         game.wrdiff = ""
         game.brdiff = ""
 
+    if game.tournamentId is not None:
+        game.wberserk = doc.get("wb", False)
+        game.bberserk = doc.get("bb", False)
+
     return game
 
 
