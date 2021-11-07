@@ -398,6 +398,13 @@ export default class RoundController {
         const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
         const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
         this.clocks = [c0, c1];
+
+        // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
+        const bclock = this.mycolor === "black" ? 1 : 0;
+        const wclock = 1 - bclock;
+        if (this.model['wberserk'] === 'True') this.clocks[wclock].increment = 0;
+        if (this.model['bberserk'] === 'True') this.clocks[bclock].increment = 0;
+
         this.clocks[0].onTick(this.clocks[0].renderTime);
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
@@ -979,10 +986,27 @@ export default class RoundController {
             this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
             this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
         }
+
         this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
+        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+
+        if (msg.ply <= 2) {
+            let bclock;
+            if (!this.flip) {
+                bclock = this.mycolor === "black" ? 1 : 0;
+            } else {
+                bclock = this.mycolor === "black" ? 0 : 1;
+            }
+            const wclock = 1 - bclock
+            if (this.model['wberserk'] && this.clocktimes["white"] > this.base * 1000 * 30) {
+                this.clocks[wclock].setTime(this.base * 1000 * 30);
+            }
+            if (this.model['bberserk'] && this.clocktimes["black"] > this.base * 1000 * 30) {
+                this.clocks[wclock].setTime(this.base * 1000 * 30);
+            }
+        }
 
         if (this.spectator) {
-            this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
             if (latestPly) {
                 this.chessground.set({
                     fen: parts[0],
