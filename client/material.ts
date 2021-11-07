@@ -1,4 +1,5 @@
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
 import { init } from "snabbdom";
@@ -63,12 +64,14 @@ function calculateImbalance(ctrl: RoundController): MaterialImbalance {
             imbalances[mappedPiece]--;
         }
     }
-    if (ctrl.hasPockets) {
-        for (let piece in ctrl.pockets[0]) {
-            imbalances[mapPiece(piece, ctrl.variant.name)] += (topMaterialColor === 'white' ? 1 : -1) * ctrl.pockets[0][piece as cg.Role]!;
+    if (ctrl.chessground.state.pockets) {
+        const pocketTop = ctrl.chessground.state.pockets[util.opposite(ctrl.chessground.state.orientation)];
+        const pocketBottom = ctrl.chessground.state.pockets[ctrl.chessground.state.orientation];
+        for (let piece in pocketTop) {
+            imbalances[mapPiece(piece, ctrl.variant.name)] += (topMaterialColor === 'white' ? 1 : -1) * pocketTop[piece as cg.Role]!;
         }
-        for (let piece in ctrl.pockets[1]) {
-            imbalances[mapPiece(piece, ctrl.variant.name)] += (bottomMaterialColor === 'white' ? 1 : -1) * ctrl.pockets[1][piece as cg.Role]!;
+        for (let piece in pocketBottom) {
+            imbalances[mapPiece(piece, ctrl.variant.name)] += (bottomMaterialColor === 'white' ? 1 : -1) * pocketBottom[piece as cg.Role]!;
         }
     }
     return imbalances;

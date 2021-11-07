@@ -207,7 +207,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                 h(`selection.${variant.board}.${variant.piece}`, [
                     h(`div.cg-wrap.${variant.cg}.mini`, {
                         hook: {
-                            insert: vnode => Chessground(vnode.elm as HTMLElement, {
+                            insert: vnode => Chessground(vnode.elm as HTMLElement,  {
                                 coordinates: false,
                                 viewOnly: true,
                                 fen: game["f"],

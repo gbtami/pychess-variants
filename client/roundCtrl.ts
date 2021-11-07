@@ -11,8 +11,6 @@ import * as util from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
-import { cancelDropMode } from 'chessgroundx/drop';
-import { predrop } from 'chessgroundx/predrop';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
@@ -20,10 +18,9 @@ import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { pocketView, updatePockets, refreshPockets, Pockets } from './pocket';
 import { updateMaterial } from './material';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getPockets, getCounting, isHandicap, dropIsValid } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -33,6 +30,7 @@ import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
+import AnalysisController from "./analysisCtrl";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -119,9 +117,6 @@ export default class RoundController {
     variant: Variant;
     chess960: boolean;
     hasPockets: boolean;
-    pockets: Pockets;
-    vpocket0: VNode;
-    vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
     vmaterial0: VNode;
@@ -303,6 +298,9 @@ export default class RoundController {
             'turnColor': this.turnColor,
             });
 
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+
         this.chessground = Chessground(el, {
             fen: fen_placement,
             variant: this.variant.name as cg.Variant,
@@ -313,8 +311,11 @@ export default class RoundController {
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
             animation: { enabled: this.animation },
+
             addDimensionsCssVars: true,
-        });
+
+            pocketRoles: this.variant.pocketRoles.bind(this.variant),
+        }, pocket0, pocket1);
 
         if (this.spectator) {
             this.chessground.set({
@@ -356,11 +357,6 @@ export default class RoundController {
                     dropNewPiece: this.onDrop(),
                     select: this.onSelect(),
                 },
-                dropmode: {
-                    events: {
-                        cancel: this.onCancelDropMode()
-                    }
-                }
             });
         }
 
@@ -373,19 +369,11 @@ export default class RoundController {
         this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], model["level"]));
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
 
-        // initialize pockets
-        if (this.hasPockets) {
-            const pocket0 = document.getElementById('pocket0') as HTMLElement;
-            const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            updatePockets(this, pocket0, pocket1);
-        }
-
         if (this.variant.materialDifference) {
             const material0 = document.querySelector('.material-top') as HTMLElement;
             const material1 = document.querySelector('.material-bottom') as HTMLElement;
             updateMaterial(this, material0, material1);
         }
-
 
         // initialize expirations
         this.expirations = [
@@ -807,8 +795,6 @@ export default class RoundController {
     private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
 
-        const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
-
         // console.log("got board msg:", msg);
         let latestPly;
         if (this.spectator) {
@@ -866,42 +852,6 @@ export default class RoundController {
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.dests = (msg.status < 0) ? new Map(Object.entries(msg.dests)) : new Map();
-
-        // TODO: this logic ideally belongs in chessground somehow i feel - but where can i put it on turn change and also it depends now on this.dests
-        //       as far as i can tell the analogous logic for setting up move/pre-move destinations is in state.ts->configure->call to setSelected
-        if (this.mycolor === this.turnColor) {
-            // when turn gets mine, if a piece is being dragged or is selected, then pre-drop dests should be hidden and replaced by dests
-            this.chessground.state.predroppable.dropDests=undefined; // always clean up predrop dests when my turn starts
-
-            const pdrole : cg.Role | undefined =
-                this.chessground.state.dropmode.active ? // TODO: Sometimes dropmode.piece is not cleaned-up so best check if active==true. Maybe clean it in drop.cancelDropMode() together with everything else there?
-                this.chessground.state.dropmode.piece?.role :
-                this.chessground.state.draggable.current?.piece.role ?
-                this.chessground.state.draggable.current?.piece.role :
-                undefined;
-
-            if (pdrole) { // is there a pocket piece that is being dragged or is selected for dropping
-                const dropDests = new Map([ [pdrole, this.dests.get(util.letterOf(pdrole, true) + "@" as cg.Orig)! ] ]);
-                this.chessground.set({
-                    dropmode: {
-                        dropDests: dropDests
-                    }
-                }); // if yes - show normal dests on turn start after the pre-drop dests were hidden
-            }
-        } else {
-            if (this.chessground.state.draggable.current) {
-                // we have just received a message from the server confirming it is not our turn (i.e. we must have just moved a piece)
-                // at the same time we are dragging a piece - either we are very fast and managed to grab another piece while
-                // waiting for server's message that confirm the move we just made, or the move we just made was a pre-move/pre-drop
-                // either way we have to init the predrop destinations so they can be highlighted
-                const dropDests = predrop(this.chessground.state.pieces, this.chessground.state.draggable.current.piece, this.chessground.state.geometry, this.chessground.state.variant);
-                this.chessground.set({
-                    predroppable: {
-                        dropDests: dropDests
-                    }
-                });
-            }
-        }
 
         // list of legal promotion moves
         this.promotions = msg.promo;
@@ -1009,12 +959,11 @@ export default class RoundController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: parts[0],
+                    fen: this.fullfen,
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: lastMove,
                 });
-                if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
             }
             if (this.clockOn && msg.status < 0) {
                 if (this.turnColor === this.mycolor) {
@@ -1027,7 +976,7 @@ export default class RoundController {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: parts[0],
+                        fen: this.fullfen,
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
@@ -1037,7 +986,6 @@ export default class RoundController {
                         check: msg.check,
                         lastMove: lastMove,
                     });
-                    if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
 
                     if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
@@ -1092,7 +1040,6 @@ export default class RoundController {
             lastMove: move,
         });
         this.fullfen = step.fen;
-        updatePockets(this, this.vpocket0, this.vpocket1);
         updateMaterial(this, this.vmaterial0, this.vmaterial1);
 
         if (this.variant.counting) {
@@ -1190,7 +1137,7 @@ export default class RoundController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1227,96 +1174,17 @@ export default class RoundController {
     private performPredrop = () => {
         // const { role, key } = this.predrop;
         // console.log("performPredrop()", role, key);
-        this.chessground.playPredrop(drop => { return dropIsValid(this.dests, drop.role, drop.key); });
+        this.chessground.playPredrop();
         this.predrop = null;
     }
 
     private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
-        this.preaction = meta.premove === true;
-        // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = this.chessground.state.pieces;
-        // console.log("ground.onUserMove()", orig, dest, meta);
-        let moved = pieces.get(dest);
-        // Fix king to rook 960 castling case
-        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
-            const pos = util.key2pos(dest),
-            pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = new Map();
-            diff.set(util.pos2key(pawnPos), undefined);
-            this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece", color: moved.color=== "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
-        }
-        // increase pocket count
-        if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") { // TODO:this refreshes pockets similar to pocket.ts -> updatePockets() - consider moving all pocket related logic there maybe?
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr + 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role];
-                if ( pr !== undefined ) this.pockets[1][role] = pr + 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
-        }
-
-        //  gating elephant/hawk
-        if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
-        } else {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
-            this.preaction = false;
-        }
-
+        onUserMove(this, orig, dest, meta);
         this.clearDialog();
     }
 
     private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
-
-        cancelDropMode(this.chessground.state); // drop of new piece was actually performed - lets set dropmode to not active. Maybe this logic better belongs in chessgroudx?
-        this.preaction = meta.predrop === true;
-        // console.log("ground.onUserDrop()", role, dest, meta);
-        // decrease pocket count
-        if (dropIsValid(this.dests, role, dest)) {
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr - 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role];
-                if ( pr !== undefined ) this.pockets[1][role] = pr - 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
-            if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
-            } else {
-                this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
-            }
-            // console.log("sent move", move);
-        } else {
-            // console.log("!!! invalid move !!!", role, dest);
-            // restore board
-            this.chessground.set({
-                fen: this.fullfen,
-                lastMove: this.lastmove,
-                turnColor: this.mycolor,
-                animation: { enabled: this.animation },
-                movable: {
-                    dests: this.dests,
-                    showDests: this.showDests,
-                    },
-                }
-            );
-        }
-        this.preaction = false;
+        onUserDrop(this, role, dest, meta);
     }
 
     private onSelect = () => {
@@ -1361,10 +1229,6 @@ export default class RoundController {
                 lastTime = curTime;
             }
         }
-    }
-
-    private onCancelDropMode = () => {
-        return () => { refreshPockets(this); }
     }
 
     private renderExpiration = () => {
@@ -1611,4 +1475,70 @@ export default class RoundController {
                 break;
         }
     }
+}
+
+/**
+ * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
+ * TODO: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
+ *       from rendering dialogs and
+ * TODO: Unify this with analysisCtrl
+ * */
+export function onUserMove(ctrl: RoundController | AnalysisController, orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
+        ctrl.preaction = meta.premove;
+        // chessground doesn't knows about ep, so we have to remove ep captured pawn
+        const pieces = ctrl.chessground.state.pieces;
+        // console.log("ground.onUserMove()", orig, dest, meta);
+        let moved = pieces.get(dest);
+        // Fix king to rook 960 castling case
+        if (moved === undefined) moved = {role: 'k-piece', color: ctrl.mycolor} as cg.Piece;
+        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && ctrl.variant.enPassant) {
+            const pos = util.key2pos(dest),
+            pawnPos: cg.Pos = [pos[0], pos[1] + (ctrl.mycolor === 'white' ? -1 : 1)];
+            const diff: cg.PiecesDiff = new Map();
+            diff.set(util.pos2key(pawnPos), undefined);
+            ctrl.chessground.setPieces(diff);
+            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
+        }
+        // increase pocket count
+        // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
+        if (ctrl.variant.drop && meta.captured) {
+            let role = meta.captured.role;
+            if (meta.captured.promoted)
+                role = (ctrl.variant.promotion === 'shogi' || ctrl.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
+
+            const pocket = ctrl.chessground.state.pockets ? ctrl.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
+            if (pocket && role && role in pocket) {
+                pocket[role]!++;
+                ctrl.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
+            }
+        }
+
+        //  gating elephant/hawk
+        if (ctrl.variant.gate) {
+            if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !ctrl.gating.start(ctrl.fullfen, orig, dest)) ctrl.sendMove(orig, dest, '');
+        } else {
+            if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
+            ctrl.preaction = false;
+        }
+}
+
+/**
+ * Variant specific logic for when dropping a piece from pocket is performed
+ * todo: decreasing of pocket happens here as well even though virtually no variant ever has a drop rule that doesn't decrease pocket.
+ *       Only reason currently this is not in chessground is editor where we have a second "pocket" that serves as a palette
+ *       Also maybe nice ot think if ui+communication logic can be split out of here (same for onUserMove) so only chess rules remain?
+ * */
+export function onUserDrop(ctrl: RoundController | AnalysisController, role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
+    ctrl.preaction = meta.predrop === true;
+    // decrease pocket count - todo: covers the gap before we receive board message confirming the move - then FEN is set
+    //                               and overwrites whole board+pocket and refreshes.
+    //                               Maybe consider decrease count on start of drag (like in editor mode)?
+    ctrl.chessground.state.pockets![ctrl.chessground.state.turnColor]![role]! --;
+    ctrl.chessground.state.dom.redraw();
+    if (ctrl.variant.promotion === 'kyoto') {
+        if (!ctrl.promotion.start(role, 'a0', dest)) ctrl.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
+    } else {
+        ctrl.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
+    }
+    ctrl.preaction = false;
 }
