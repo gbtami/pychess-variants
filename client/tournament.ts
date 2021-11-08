@@ -1,19 +1,13 @@
 import Sockette from 'sockette';
 
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-const patch = init([klass, attributes, properties, listeners, style]);
 
 import { Chessground } from 'chessgroundx';
 
 import { JSONObject } from './types';
 import { _ } from './i18n';
+import { patch } from './document';
 import { chatMessage, chatView } from './chat';
 //import { sound } from './sound';
 import { VARIANTS, uci2cg } from './chess';

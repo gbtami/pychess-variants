@@ -1,13 +1,7 @@
 import ffishModule from 'ffish-es6';
 
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
@@ -20,6 +14,7 @@ import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
 import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
+import { patch } from './document';
 import { PyChessModel } from "./main";
 
 export class EditorController {

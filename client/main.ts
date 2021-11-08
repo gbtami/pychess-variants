@@ -1,11 +1,5 @@
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
@@ -21,7 +15,7 @@ import { tournamentView } from './tournament';
 import { pasteView } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
-import { getCookie } from './document';
+import { patch, getCookie } from './document';
 import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';

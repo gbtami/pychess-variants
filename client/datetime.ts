@@ -1,13 +1,8 @@
-import { init, h } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
+import { h } from 'snabbdom';
 
 import { _, ngettext } from './i18n';
 import TournamentController from "./tournament";
+import { patch } from './document';
 
 export const localeOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',

@@ -1,18 +1,14 @@
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { toVNode } from 'snabbdom/tovnode';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 
 import { PromotionSuffix } from './chess';
-import { bind } from './document';
+import { patch, bind } from './document';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { Api } from "chessgroundx/api";
-
-const patch = init([listeners, style]);
 
 type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 

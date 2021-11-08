@@ -1,17 +1,12 @@
-import { init, h } from "snabbdom";
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
 
 import { boardSettings } from './boardSettings';
-import AnalysisController from "./analysisCtrl";
-import RoundController from "./roundCtrl";
+import AnalysisController from './analysisCtrl';
+import RoundController from './roundCtrl';
 import { result } from './profile'
-import { Step } from "./messages";
+import { Step } from './messages';
+import { patch } from './document';
 
 export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
     ctrl.goPly(ply, plyVari);

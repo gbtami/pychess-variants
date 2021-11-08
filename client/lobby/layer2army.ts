@@ -1,17 +1,9 @@
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-const patch = init([klass, attributes, properties, listeners, style]);
-
-import { h } from 'snabbdom/h';
+import { h } from 'snabbdom';
 
 import { _ } from '../i18n';
 import { VARIANTS } from '../chess';
 import { LobbyController } from '../lobby';
+import { patch } from '../document';
 import { goBackToLayer1 } from './layer1';
 import { layer3variant } from './layer3';
 

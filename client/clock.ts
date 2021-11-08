@@ -1,15 +1,10 @@
 // https://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
 
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
 
 import { sound } from './sound';
+import { patch } from './document';
 
 const HURRY = 10000;
 

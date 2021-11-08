@@ -1,13 +1,4 @@
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-const patch = init([klass, attributes, properties, listeners, style]);
-
-import { h } from 'snabbdom/h';
+import { h } from 'snabbdom';
 import { VNode } from "snabbdom/vnode";
 
 import * as cg from 'chessgroundx/types';
@@ -15,7 +6,7 @@ import { Chessground } from 'chessgroundx';
 
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
-import { changeBoardCSS, changePieceCSS } from '../document';
+import { patch, changeBoardCSS, changePieceCSS } from '../document';
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant } from '../chess';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';

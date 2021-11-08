@@ -1,16 +1,11 @@
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
 
 import { Chessground } from 'chessgroundx';
 
 import { _, ngettext, pgettext } from './i18n';
 import { VARIANTS, Variant } from './chess';
+import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';

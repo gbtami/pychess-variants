@@ -1,18 +1,12 @@
-import { init, h } from "snabbdom";
+import { h } from "snabbdom";
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import style from 'snabbdom/modules/style';
-import listeners from 'snabbdom/modules/eventlisteners';
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { dragNewPiece } from 'chessgroundx/drag';
 
 import { EditorController }  from './editorCtrl';
-
-const patch = init([klass, attributes, properties, style, listeners]);
+import { patch } from './document';
 
 type Position = 'top' | 'bottom';
 

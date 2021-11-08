@@ -2,12 +2,8 @@ import ffishModule from 'ffish-es6';
 
 import Sockette from 'sockette';
 
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
@@ -30,14 +26,12 @@ import { analysisChart } from './chart';
 import { copyBoardToPNG } from './png';
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
-import { downloadPgnText, getPieceImageUrl } from './document';
+import { patch, downloadPgnText, getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
 import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
 import { onUserDrop, onUserMove } from "./roundCtrl";
-
-const patch = init([klass, attributes, properties, listeners]);
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
