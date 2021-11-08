@@ -306,7 +306,7 @@ export default class RoundController {
             variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
             chess960: this.chess960,
-            notation: (this.variant.name === 'janggi') ? cg.Notation.JANGGI : cg.Notation.DEFAULT, // TODO make this more generic / customisable
+            notation: (this.variant.name === 'janggi') ? cg.Notation.JANGGI : cg.Notation.ALGEBRAIC, // TODO make this more generic / customisable
             orientation: this.mycolor,
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic

@@ -206,13 +206,13 @@ export default class AnalysisController {
             case 'dobutsu':
             case 'gorogoro':
             case 'torishogi':
-                this.notation = cg.Notation.SHOGI_HODGES_NUMBER; break;
+                this.notation = cg.Notation.SHOGI_ARBNUM; break;
             case 'xiangqi':
             case 'minixiangqi':
             // XIANGQI_WXF can't handle Mmanchu banner piece!
-                this.notation = cg.Notation.XIANGQI_WXF; break;
+                this.notation = cg.Notation.XIANGQI_ARBNUM; break;
             default:
-                this.notation = cg.Notation.SAN;
+                this.notation = cg.Notation.ALGEBRAIC;
         }
 
         // orientation = this.mycolor
@@ -528,14 +528,10 @@ export default class AnalysisController {
 
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
-            case cg.Notation.DEFAULT: return this.ffish.Notation.DEFAULT;
-            case cg.Notation.SAN: return this.ffish.Notation.SAN;
-            case cg.Notation.LAN: return this.ffish.Notation.LAN;
-            case cg.Notation.SHOGI_HOSKING: return this.ffish.Notation.SHOGI_HOSKING;
-            case cg.Notation.SHOGI_HODGES: return this.ffish.Notation.SHOGI_HODGES;
-            case cg.Notation.SHOGI_HODGES_NUMBER: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
+            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.DEFAULT;
+            case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
             case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
-            case cg.Notation.XIANGQI_WXF: return this.ffish.Notation.XIANGQI_WXF;
+            case cg.Notation.XIANGQI_ARBNUM: return this.ffish.Notation.XIANGQI_WXF;
             default: return this.ffish.Notation.DEFAULT;
         }
     }
