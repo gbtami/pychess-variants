@@ -266,7 +266,7 @@ class Game:
                         print(self.result, "flag")
                         await self.save_game()
         else:
-            if ply <= 2 and self.tournamentId is not None:
+            if (ply is not None) and ply <= 2 and self.tournamentId is not None:
                 # Just in case for move and berserk messages race
                 if self.wberserk and clocks["white"] > self.berserk_time:
                     clocks["white"] = self.berserk_time

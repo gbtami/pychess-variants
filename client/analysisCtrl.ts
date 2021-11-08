@@ -11,24 +11,23 @@ import listeners from 'snabbdom/modules/eventlisteners';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from './types';
 import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
-import { pocketView, updatePockets, Pockets, refreshPockets } from './pocket';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getPockets, san2role, dropIsValid, moveDests } from './chess';
+import { uci2cg, cg2uci, VARIANTS, Variant, moveDests, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from './winningChances';
 import { copyTextToClipboard } from './clipboard';
 import { analysisChart } from './chart';
-import { copyBoardToPNG } from './png'; 
+import { copyBoardToPNG } from './png';
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
 import { downloadPgnText, getPieceImageUrl } from './document';
@@ -36,6 +35,7 @@ import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
 import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
+import { onUserDrop, onUserMove } from "./roundCtrl";
 
 const patch = init([klass, attributes, properties, listeners]);
 
@@ -85,9 +85,6 @@ export default class AnalysisController {
     variant: Variant;
     chess960: boolean;
     hasPockets: boolean;
-    pockets: Pockets;
-    vpocket0: VNode;
-    vpocket1: VNode;
     vplayer0: VNode;
     vplayer1: VNode;
     vmaterial0: VNode;
@@ -201,23 +198,7 @@ export default class AnalysisController {
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
 
-        // TODO make this more generic / customisable
-        switch (this.variant.name) {
-            case 'janggi': this.notation = cg.Notation.JANGGI; break;
-            case 'shogi':
-            case 'minishogi':
-            case 'kyotoshogi':
-            case 'dobutsu':
-            case 'gorogoro':
-            case 'torishogi':
-                this.notation = cg.Notation.SHOGI_HODGES_NUMBER; break;
-            case 'xiangqi':
-            case 'minixiangqi':
-            // XIANGQI_WXF can't handle Mmanchu banner piece!
-                this.notation = cg.Notation.XIANGQI_WXF; break;
-            default:
-                this.notation = cg.Notation.SAN;
-        }
+        this.notation = notation(this.variant);
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -255,17 +236,22 @@ export default class AnalysisController {
             'turnColor': this.turnColor,
             });
 
+        const pocket0 = this.hasPockets? document.getElementById('pocket0') as HTMLElement: undefined;
+        const pocket1 = this.hasPockets? document.getElementById('pocket1') as HTMLElement: undefined;
+
         this.chessground = Chessground(el, {
-            fen: fen_placement as cg.FEN,
-            variant: this.variant.name as cg.Variant,
-            chess960: this.chess960,
-            geometry: this.variant.geometry,
-            notation: this.notation,
-            orientation: this.mycolor,
-            turnColor: this.turnColor,
-            animation: { enabled: this.animation },
-            addDimensionsCssVars: true,
-        });
+             fen: fen_placement as cg.FEN,
+             variant: this.variant.name as cg.Variant,
+             chess960: this.chess960,
+             geometry: this.variant.geometry,
+             notation: this.notation,
+             orientation: this.mycolor,
+             turnColor: this.turnColor,
+             animation: { enabled: this.animation },
+             addDimensionsCssVars: true,
+
+             pocketRoles: this.variant.pocketRoles.bind(this.variant),
+        }, pocket0, pocket1);
 
         this.chessground.set({
             animation: { enabled: this.animation },
@@ -283,22 +269,10 @@ export default class AnalysisController {
                 dropNewPiece: this.onDrop(),
                 select: this.onSelect(),
             },
-            dropmode: {
-                events: {
-                    cancel: this.onCancelDropMode()
-                }
-            }
         });
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
-
-        // initialize pockets
-        if (this.hasPockets) {
-            const pocket0 = document.getElementById('pocket0') as HTMLElement;
-            const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            updatePockets(this, pocket0, pocket1);
-        }
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
             this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
@@ -454,8 +428,6 @@ export default class AnalysisController {
     private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
 
-        const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
-
         // console.log("got board msg:", msg);
         this.ply = msg.ply
         this.fullfen = msg.fen;
@@ -523,12 +495,11 @@ export default class AnalysisController {
 
         if (this.spectator) {
             this.chessground.set({
-                fen: parts[0],
+                fen: this.fullfen,
                 turnColor: this.turnColor,
                 check: msg.check,
                 lastMove: lastMove,
             });
-            if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
         }
         if (this.model["ply"]) {
             this.ply = parseInt(this.model["ply"])
@@ -542,14 +513,10 @@ export default class AnalysisController {
 
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
-            case cg.Notation.DEFAULT: return this.ffish.Notation.DEFAULT;
-            case cg.Notation.SAN: return this.ffish.Notation.SAN;
-            case cg.Notation.LAN: return this.ffish.Notation.LAN;
-            case cg.Notation.SHOGI_HOSKING: return this.ffish.Notation.SHOGI_HOSKING;
-            case cg.Notation.SHOGI_HODGES: return this.ffish.Notation.SHOGI_HODGES;
-            case cg.Notation.SHOGI_HODGES_NUMBER: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
+            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.DEFAULT;
+            case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
             case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
-            case cg.Notation.XIANGQI_WXF: return this.ffish.Notation.XIANGQI_WXF;
+            case cg.Notation.XIANGQI_ARBNUM: return this.ffish.Notation.XIANGQI_WXF;
             default: return this.ffish.Notation.DEFAULT;
         }
     }
@@ -673,7 +640,7 @@ export default class AnalysisController {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
 
-                    const dropPieceRole = san2role(pv_move.slice(0, atPos));
+                    const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
                     const orientation = this.flip ? this.oppcolor : this.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
                     const url = getPieceImageUrl(dropPieceRole, color, side);
@@ -832,8 +799,6 @@ export default class AnalysisController {
 
         this.fullfen = step.fen;
 
-        updatePockets(this, this.vpocket0, this.vpocket1);
-
         if (this.variant.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
@@ -899,7 +864,7 @@ export default class AnalysisController {
     private onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
             // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role && dropIsValid(this.dests, piece.role, dest)) {
+            if (dest !== 'a0' && piece.role) {
                 sound.moveSound(this.variant, false);
             }
         }
@@ -1026,8 +991,6 @@ export default class AnalysisController {
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();
 
-        const pocketsChanged = this.hasPockets && (getPockets(this.fullfen) !== getPockets(msg.fen));
-
         this.fullfen = msg.fen;
         this.dests = msg.dests;
         // list of legal promotion moves
@@ -1056,93 +1019,15 @@ export default class AnalysisController {
             },
         });
 
-        if (pocketsChanged) updatePockets(this, this.vpocket0, this.vpocket1);
-
         if (this.localAnalysis) this.engineGo();
     }
 
     private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
-        this.preaction = meta.premove === true;
-        // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = this.chessground.state.pieces;
-        // console.log("ground.onUserMove()", orig, dest, meta);
-        let moved = pieces.get(dest);
-        // Fix king to rook 960 castling case
-        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
-            const pos = util.key2pos(dest),
-            pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = new Map();
-            diff.set(util.pos2key(pawnPos), undefined);
-            this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
-        }
-        // increase pocket count
-        if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr + 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role]
-                if ( pr !== undefined ) this.pockets[1][role] = pr + 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
-        }
-
-        //  gating elephant/hawk
-        if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
-        } else {
-            if (!this.promotion.start(moved.role, orig, dest)) this.sendMove(orig, dest, '');
-        this.preaction = false;
-        }
+        onUserMove(this, orig, dest, meta);
     }
 
     private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
-        this.preaction = meta.predrop === true;
-        // console.log("ground.onUserDrop()", role, dest, meta);
-        // decrease pocket count
-        if (dropIsValid(this.dests, role, dest)) {
-            let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-            if (this.flip) position = (position === "top") ? "bottom" : "top";
-            if (position === "top") {
-                const pr = this.pockets[0][role];
-                if ( pr !== undefined ) this.pockets[0][role] = pr - 1;
-                this.vpocket0 = patch(this.vpocket0, pocketView(this, this.turnColor, "top"));
-            } else {
-                const pr = this.pockets[1][role];
-                if ( pr !== undefined ) this.pockets[1][role] = pr - 1;
-                this.vpocket1 = patch(this.vpocket1, pocketView(this, this.turnColor, "bottom"));
-            }
-            if (this.variant.promotion === 'kyoto') {
-                if (!this.promotion.start(role, 'a0', dest)) this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
-            } else {
-                this.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
-            }
-            // console.log("sent move", move);
-        } else {
-            // console.log("!!! invalid move !!!", role, dest);
-            // restore board
-            this.chessground.set({
-                fen: this.fullfen,
-                lastMove: this.lastmove,
-                turnColor: this.mycolor,
-                animation: { enabled: this.animation },
-                movable: {
-                    dests: this.dests,
-                    showDests: this.showDests,
-                    },
-                }
-            );
-        }
-        this.preaction = false;
+        onUserDrop(this, role, dest, meta);
     }
 
     private onSelect = () => {
@@ -1156,7 +1041,7 @@ export default class AnalysisController {
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
-            if (this.chessground.state.stats.ctrlKey && 
+            if (this.chessground.state.stats.ctrlKey &&
                 (this.chessground.state.movable.dests.get(key)?.includes(key))
                 ) {
                 const piece = this.chessground.state.pieces.get(key);
@@ -1311,10 +1196,6 @@ export default class AnalysisController {
                 this.onMsgRequestAnalysis()
                 break;
         }
-    }
-
-    private onCancelDropMode = () => {
-        return () => { refreshPockets(this); }
     }
 
 }
