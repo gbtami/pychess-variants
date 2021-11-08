@@ -1,6 +1,8 @@
 :root {
-  --ranks-right: -15px;
   --ranks-top: 0px;
+  --ranks-right: -15px;
+  --ranks-left: -8px;
+  --files-top: -15px;
   --files-bottom: -16px;
   --files-left: 0px;
   --ranks-top-shogi: -25px;
@@ -164,47 +166,4 @@
   text-shadow: 0 1px 0 #000 !important;
   background: #d85000 !important;
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
-}
-
-.shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .dobutsu .cg-wrap coords.files, .tori .cg-wrap coords.files {
-  left: auto;
-  right: var(--ranks-right);
-  top: 0;
-  flex-flow: column-reverse;
-  height: 100%;
-  width: 12px;
-}
-.shogi .cg-wrap coords.files.black, .kyoto .cg-wrap coords.files.black, .dobutsu .cg-wrap coords.files.black, .tori .cg-wrap coords.files.black {
-  flex-flow: column;
-}
-.shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks, .dobutsu .cg-wrap coords.ranks, .tori .cg-wrap coords.ranks {
-  top: var(--ranks-top-shogi);
-  left: 0;
-  flex-flow: row;
-  width: 100%;
-  height: 16px;
-  text-align: center;
-}
-.shogi .cg-wrap coords.ranks.black, .kyoto .cg-wrap coords.ranks.black, .dobutsu .cg-wrap coords.ranks.black, .tori .cg-wrap coords.ranks.black {
-  flex-flow: row-reverse;
-}
-.shogi .cg-wrap coords coord, .kyoto .cg-wrap coords coord, .dobutsu .cg-wrap coords coord, .tori .cg-wrap coords coord {
-  flex: 1 1 auto;
-}
-.shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord, .tori .cg-wrap coords.files coord {
-  transform: translateY(39%);
-}
-.xiangqi:not(.manchu) .cg-wrap coords.ranks, .minixiangqi .cg-wrap coords.ranks {
-    top: -22px;
-    right: auto;
-    flex-flow: row;
-    height: 12px;
-    width: 100%;
-    text-align: center;
-}
-.xiangqi:not(.manchu) .cg-wrap coords.ranks coord, .minixiangqi .cg-wrap coords.ranks coord {
-  transform: translateY(39%);
-}
-.xiangqi:not(.manchu) .cg-wrap coords.files, .minixiangqi .cg-wrap coords.files {
-    flex-flow: row-reverse;
 }

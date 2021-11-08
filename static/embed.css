@@ -18,7 +18,7 @@ body {
     grid-template-rows: min-content 1fr;
     grid-template-areas: 'board pocket-top' 'board tools' 'board tools' 'board pocket-bot' 'board move-controls';
 }
-.cg-wrap coords.ranks, .cg-wrap coords.files {
+.cg-wrap coords.side, .cg-wrap coords.bottom, .cg-wrap coords.top {
     display: none;
 }
 #result {

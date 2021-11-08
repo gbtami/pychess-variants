@@ -33,22 +33,11 @@
         grid-template-areas: 'side . board gauge pocket-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge pocket-bot' 'uleft . uboard . move-controls';
     }
     /* move rank numbers to the left side of the board */
-    .cg-wrap coords.ranks {
+    .cg-wrap coords.side {
         right: auto;
     }
-    .cg-wrap coords.ranks coord {
-        transform: translate(var(--ranks-right), 39%);
-    }
-    /* shogi family */
-    .shogi .cg-wrap coords.ranks coord, .kyoto .cg-wrap coords.ranks coord, .dobutsu .cg-wrap coords.ranks coord {
-        transform: translate(0, 39%);
-    }
-    .shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .dobutsu .cg-wrap coords.files {
-        left: 0;
-        right: 0;
-    }
-    .shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord {
-        transform: translate(-15px, 39%);
+    .cg-wrap coords.side coord {
+        transform: translate(var(--ranks-left), 39%);
     }
 }
 

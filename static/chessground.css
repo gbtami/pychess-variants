@@ -299,32 +299,43 @@ piece.fading {
         display: none;
     }
 }
-.cg-wrap coords.ranks {
+.cg-wrap coords.side {
   right: var(--ranks-right);
   top: var(--ranks-top);
-  flex-flow: column-reverse;
   height: 100%;
   width: 12px;
 }
-.cg-wrap coords.ranks.black {
+.cg-wrap coords.side.forward, .cg-wrap coords.side.backward.black {
+  flex-flow: column-reverse;
+}
+.cg-wrap coords.side.backward, .cg-wrap coords.side.forward.black {
   flex-flow: column;
 }
-.cg-wrap coords.files {
+.cg-wrap coords.bottom {
   bottom: var(--files-bottom);
   left: var(--files-left);
-  flex-flow: row;
   width: 100%;
   height: 16px;
   text-align: center;
 }
-.cg-wrap coords.files.black {
+.cg-wrap coords.top {
+  top: var(--files-top);
+  left: var(--files-left);
+  width: 100%;
+  height: 16px;
+  text-align: center;
+}
+.cg-wrap coords.bottom.forward, .cg-wrap coords.bottom.backward.black, .cg-wrap coords.top.forward, .cg-wrap coords.top.backward.black {
+  flex-flow: row;
+}
+.cg-wrap coords.bottom.backward, .cg-wrap coords.bottom.forward.black, .cg-wrap coords.top.backward, .cg-wrap coords.top.forward.black {
   flex-flow: row-reverse;
 }
 .cg-wrap coords coord {
   flex: 1 1 auto;
 }
 @media (min-width: 800px) and (min-height: 500px) {
-    .cg-wrap coords.ranks coord {
+    .cg-wrap coords.side coord {
       transform: translateY(39%);
     }
 }
