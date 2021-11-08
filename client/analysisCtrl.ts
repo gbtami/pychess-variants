@@ -19,7 +19,7 @@ import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import { uci2cg, cg2uci, VARIANTS, Variant, san2role, moveDests } from './chess';
+import { uci2cg, cg2uci, VARIANTS, Variant, san2role, moveDests, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -197,23 +197,7 @@ export default class AnalysisController {
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
 
-        // TODO make this more generic / customisable
-        switch (this.variant.name) {
-            case 'janggi': this.notation = cg.Notation.JANGGI; break;
-            case 'shogi':
-            case 'minishogi':
-            case 'kyotoshogi':
-            case 'dobutsu':
-            case 'gorogoro':
-            case 'torishogi':
-                this.notation = cg.Notation.SHOGI_ARBNUM; break;
-            case 'xiangqi':
-            case 'minixiangqi':
-            // XIANGQI_WXF can't handle Mmanchu banner piece!
-                this.notation = cg.Notation.XIANGQI_ARBNUM; break;
-            default:
-                this.notation = cg.Notation.ALGEBRAIC;
-        }
+        this.notation = notation(this.variant);
 
         // orientation = this.mycolor
         if (this.spectator) {

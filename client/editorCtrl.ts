@@ -14,7 +14,7 @@ import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole } from './chess'
+import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, notation } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
@@ -25,6 +25,7 @@ import { PyChessModel } from "./main";
 export class EditorController {
     model;
     chessground: Api;
+    notation: cg.Notation;
     fullfen: string;
     startfen: string;
     mycolor: cg.Color;
@@ -59,6 +60,8 @@ export class EditorController {
         // pocket part of the FEN (including brackets)
         // this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
 
+        this.notation = notation(this.variant);
+
         this.mycolor = 'white';
         this.oppcolor = 'black';
 
@@ -70,7 +73,7 @@ export class EditorController {
             autoCastle: false,
             variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
-            notation: (this.variant.name === 'janggi') ? cg.Notation.JANGGI : cg.Notation.ALGEBRAIC, // TODO make this more generic / customisable
+            notation: this.notation,
             orientation: this.mycolor,
             movable: {
                 free: true,

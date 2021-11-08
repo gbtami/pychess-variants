@@ -20,7 +20,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { updateMaterial } from './material';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap } from './chess';
+import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -95,6 +95,7 @@ export default class RoundController {
     model;
     sock;
     chessground: Api;
+    notation: cg.Notation;
     fullfen: string;
     username: string;
     wplayer: string;
@@ -252,6 +253,8 @@ export default class RoundController {
         this.hasPockets = this.variant.pocket;
         this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
 
+        this.notation = notation(this.variant);
+
         // orientation = this.mycolor
         if (this.spectator) {
             this.mycolor = 'white';
@@ -306,7 +309,7 @@ export default class RoundController {
             variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
             chess960: this.chess960,
-            notation: (this.variant.name === 'janggi') ? cg.Notation.JANGGI : cg.Notation.ALGEBRAIC, // TODO make this more generic / customisable
+            notation: this.notation,
             orientation: this.mycolor,
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic

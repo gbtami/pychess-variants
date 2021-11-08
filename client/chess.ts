@@ -1012,3 +1012,27 @@ export function lc(str: string, letter: string, uppercase: boolean): number {
             letterCount += 1;
     return letterCount;
 }
+
+export function notation(variant: Variant): cg.Notation {
+    let cgNotation = cg.Notation.ALGEBRAIC;
+
+    switch (variant.name) {
+        case 'janggi':
+            cgNotation = cg.Notation.JANGGI;
+            break;
+        case 'shogi':
+        case 'minishogi':
+        case 'kyotoshogi':
+        case 'dobutsu':
+        case 'gorogoro':
+        case 'torishogi':
+            cgNotation = cg.Notation.SHOGI_ARBNUM;
+            break;
+        case 'xiangqi':
+        case 'minixiangqi':
+        // XIANGQI_WXF can't handle Mmanchu banner piece!
+            cgNotation = cg.Notation.XIANGQI_ARBNUM;
+            break;
+    }
+    return cgNotation;
+}
