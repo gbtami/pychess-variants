@@ -12,6 +12,7 @@ import listeners from 'snabbdom/modules/eventlisteners';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from './types';
@@ -19,7 +20,7 @@ import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import { uci2cg, cg2uci, VARIANTS, Variant, san2role, moveDests, notation } from './chess';
+import { uci2cg, cg2uci, VARIANTS, Variant, moveDests, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -639,7 +640,7 @@ export default class AnalysisController {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
 
-                    const dropPieceRole = san2role(pv_move.slice(0, atPos));
+                    const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
                     const orientation = this.flip ? this.oppcolor : this.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
                     const url = getPieceImageUrl(dropPieceRole, color, side);

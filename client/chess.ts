@@ -79,7 +79,7 @@ const alwaysMandatory: MandatoryPromotionPredicate = () => true;
 
 function distanceBased(required: { [ letter: string ]: number }, boardHeight: number) : MandatoryPromotionPredicate {
     return (role: cg.Role, _orig: cg.Key, dest: cg.Key, color: cg.Color) => {
-        const letter = role2letter(role);
+        const letter = util.letterOf(role);
         return (letter in required) ? distFromLastRank(dest, color, boardHeight) < required[letter] : false;
     };
 }
@@ -973,31 +973,6 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
             dests.set(orig, [ dest ]);
     });
     return dests;
-}
-
-// Convert a move to array of squares for last move highlight
-export function uci2array(move: UCIMove): cg.Key[] {
-    const cgMove = uci2cg(move);
-    return cgMove.includes('@') ? [ cgMove.slice(2, 4) as cg.Key ] : [ cgMove.slice(0, 2) as cg.Key, cgMove.slice(2, 4) as cg.Key];
-}
-export function role2letter(role: cg.Role): string {
-    const letterPart = role.slice(0, role.indexOf('-'));
-    return (letterPart.length > 1) ? letterPart.replace('p', '+') : letterPart;
-}
-
-export function letter2role(letter: string): cg.Role {
-    return (letter.replace('+', 'p') + '-piece') as cg.Role;
-}
-
-export function role2san(role: cg.Role): string {
-    return role2letter(role).toUpperCase();
-}
-
-// Use cases
-// 1. determine piece role from analysis suggested (SAN) drop moves
-// 2. determine promotion piece roles from possible (UCI) promotion moves in grand, grandhouse, shako
-export function san2role(letter: string): cg.Role {
-    return letter2role(letter.toLowerCase());
 }
 
 // Count given letter occurences in a string

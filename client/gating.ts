@@ -5,10 +5,10 @@ import attributes from 'snabbdom/modules/attributes';
 import event from 'snabbdom/modules/eventlisteners';
 import style from 'snabbdom/modules/style';
 
-import { key2pos } from 'chessgroundx/util';
+import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 
-import { getPockets, lc, role2letter, letter2role  } from './chess';
+import { getPockets, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { bind } from './document';
@@ -42,7 +42,7 @@ export class Gating {
         if (this.canGate(ground, fen, orig, dest)) {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
-            this.choices = ['h', 'e', 'q', 'r', 'b', 'n'].filter(letter => lc(pocket, letter, color === "white") > 0).map(letter2role);
+            this.choices = ['h', 'e', 'q', 'r', 'b', 'n'].filter(letter => lc(pocket, letter, color === "white") > 0).map(util.roleOf);
 
             // prevent empty only choices in s-house (when H and E dropped before any gating move)
             if (this.choices.length === 0) return false;
@@ -198,7 +198,7 @@ export class Gating {
             const move = this.gating.moves[moveType];
             if (gatedPieceRole && move) this.gate(move[0], color, gatedPieceRole);
 
-            const gatedPieceLetter = gatedPieceRole ? role2letter(gatedPieceRole) : "";
+            const gatedPieceLetter = gatedPieceRole ? util.letterOf(gatedPieceRole) : "";
             if (move && this.gating.callback) {
                 if (moveType === "special") {
                     if (gatedPieceLetter === "") {
@@ -223,7 +223,7 @@ export class Gating {
     }
 
     private squareView(orig: cg.Key, color: cg.Color, orientation: cg.Color, moveType: keyof Moves) {
-        const leftFile = key2pos(orig)[0];
+        const leftFile = util.key2pos(orig)[0];
         const left = (orientation === "white" ? leftFile : 7 - leftFile) * 12.5;
         return this.choices.map((gatedPieceRole, i) => {
             const top = (color === orientation ? 7 - i : i) * 12.5;

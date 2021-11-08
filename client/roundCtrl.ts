@@ -20,7 +20,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { updateMaterial } from './material';
 import { sound } from './sound';
-import { role2san, uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap, notation } from './chess';
+import { uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -1539,9 +1539,9 @@ export function onUserDrop(ctrl: RoundController | AnalysisController, role: cg.
     ctrl.chessground.state.pockets![ctrl.chessground.state.turnColor]![role]! --;
     ctrl.chessground.state.dom.redraw();
     if (ctrl.variant.promotion === 'kyoto') {
-        if (!ctrl.promotion.start(role, 'a0', dest)) ctrl.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '');
+        if (!ctrl.promotion.start(role, 'a0', dest)) ctrl.sendMove(util.dropOrigOf(role), dest, '');
     } else {
-        ctrl.sendMove(role2san(role) + "@" as cg.DropOrig, dest, '')
+        ctrl.sendMove(util.dropOrigOf(role), dest, '')
     }
     ctrl.preaction = false;
 }
