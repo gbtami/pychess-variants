@@ -12,7 +12,6 @@ import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, notation } fr
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
-import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
 import { patch } from './document';
 import { PyChessModel } from "./main";
@@ -129,8 +128,8 @@ export class EditorController {
         //const dataIcon = VARIANTS[this.variant].icon(false);
         const dataIcon = 'icon-' + this.variant.name;
         const container = document.getElementById('editor-button-container') as HTMLElement;
-        const firstColor = colorNames(this.variant.firstColor);
-        const secondColor = colorNames(this.variant.secondColor);
+        const firstColor = _(this.variant.firstColor);
+        const secondColor = _(this.variant.secondColor);
         if (container !== null) {
             const buttons = [
                 h('div#turn-block', [
