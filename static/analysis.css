@@ -216,7 +216,7 @@ background-color: #629924;
 }
 
 input:focus + .sw-slider {
-box-shadow: 0 0 2px #808080;
+box-shadow: 0 0 8px #808080;
 }
 
 input:checked + .sw-slider:before {
@@ -225,6 +225,9 @@ input:checked + .sw-slider:before {
   transform: translateX(18px);
 }
 
+.sw-slider:hover {
+box-shadow: 0 0 8px #808080;
+}
 
 /* loader */
 #loader-wrapper {
