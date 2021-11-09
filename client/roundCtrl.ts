@@ -285,9 +285,6 @@ export default class RoundController {
         const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
         // Not berserked yet, but allowed to do it
         this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && this.model[berserkId] !== 'True';
-        console.log("berserkId", berserkId);
-        console.log("this.model[berserkId]", this.model[berserkId]);
-        console.log("this.berserkable", this.berserkable);
 
         const fen_placement = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
@@ -382,6 +379,8 @@ export default class RoundController {
             document.getElementById('expiration-bottom') as HTMLElement
         ];
 
+        this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
+
         // initialize clocks
         // this.clocktimes = {};
         const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
@@ -417,7 +416,6 @@ export default class RoundController {
         }
 
         const onBerserk = () => {
-            console.log("onBerserk", this.berserkable);
             if (this.berserkable) {
                 this.berserkable = false;
                 this.berserk(this.mycolor);
@@ -427,7 +425,6 @@ export default class RoundController {
 
         if (this.berserkable && this.status < 0 && this.ply < 2) {
             const container = document.getElementById('berserk1') as HTMLElement;
-            console.log("ADD BERSERK ICON", this.ply);
             patch(container, h('div#berserk1', [
                 h('button.icon.icon-berserk', {
                     props: {type: "button", title: _("Berserk")},
@@ -799,7 +796,7 @@ export default class RoundController {
     private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
 
-        console.log("got board msg:", msg);
+        // console.log("got board msg:", msg);
         let latestPly;
         if (this.spectator) {
             // Fix https://github.com/gbtami/pychess-variants/issues/687
@@ -818,7 +815,6 @@ export default class RoundController {
         }
 
         if (this.ply >= 2) {
-            console.log("REMOVE BERSERK ICON", this.ply);
             const container0 = document.getElementById('berserk0') as HTMLElement;
             if (container0) patch(container0, h('div#berserk0', ''));
 
