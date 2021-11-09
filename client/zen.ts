@@ -4,14 +4,7 @@ import { VNode } from 'snabbdom/vnode';
 import { _ } from './i18n';
 import { StringSettings } from './settings';
 import { radioList } from './view';
-
-import { init } from "snabbdom";
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
+import { patch } from './document';
 
 const zenModeOptions = {
     off: _("Off"),

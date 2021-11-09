@@ -1,9 +1,6 @@
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 import { toVNode } from 'snabbdom/tovnode';
-import attributes from 'snabbdom/modules/attributes';
-import event from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
@@ -11,10 +8,8 @@ import * as cg from 'chessgroundx/types';
 import { getPockets, lc } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
-import { bind } from './document';
+import { patch, bind } from './document';
 import { Api } from "chessgroundx/api";
-
-const patch = init([attributes, event, style]);
 
 export interface Moves {
     normal?: cg.Key[],

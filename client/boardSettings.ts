@@ -1,14 +1,5 @@
-import { init } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-const patch = init([klass, attributes, properties, listeners, style]);
-
-import h from 'snabbdom/h';
 
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
@@ -16,6 +7,7 @@ import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { EditorController } from './editorCtrl';
+import { patch } from './document';
 import { iniPieces } from './pieces';
 import { analysisChart } from './chart';
 import { updateCount, updatePoint } from './info';

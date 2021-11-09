@@ -1,20 +1,13 @@
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-const patch = init([klass, attributes, properties, listeners, style]);
 
 import { _ } from './i18n';
 import { VARIANTS } from './chess';
+import { patch } from './document';
 import { gameType } from './profile';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
 import { PyChessModel } from './main';
-import { colorNames } from './profile';
 
 export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
@@ -92,7 +85,7 @@ export function inviteView(model: PyChessModel): VNode[] {
                     h('div.inviteinfo', [
                         h('div', _('To invite someone to play, give them this URL:')),
                         h('div', [
-                            h('label', {attrs: {for: "invite-url-player1"}}, colorNames(variant.firstColor)),
+                            h('label', {attrs: {for: "invite-url-player1"}}, _(variant.firstColor)),
                             h('input#invite-url-player1', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURLPlayer1}}),
                             h('button#paste-url-player1', { class: { "paste-url": true }, on: { click: () => {
                                 copyTextToClipboard(model["home"] + gameURLPlayer1);
@@ -102,7 +95,7 @@ export function inviteView(model: PyChessModel): VNode[] {
                                 h('i#paste-icon-player1', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-clipboard": true} })])
                         ]),
                         h('div', [
-                            h('label', {attrs: {for: "invite-url-player2"}}, colorNames(variant.secondColor)),
+                            h('label', {attrs: {for: "invite-url-player2"}}, _(variant.secondColor)),
                             h('input#invite-url-player2', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURLPlayer2}}),
                             h('button#paste-url-player2', { class: { "paste-url": true }, on: { click: () => {
                                 copyTextToClipboard(model["home"] + gameURLPlayer2);

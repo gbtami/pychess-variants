@@ -92,7 +92,7 @@ function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) : 
 export class Variant {
     readonly name: string;
     private readonly _displayName: string;
-    displayName(chess960 = false) { return this._displayName + (chess960 ? "960" : ""); }
+    displayName(chess960 = false) { return _(this._displayName) + (chess960 ? "960" : ""); }
     private readonly _tooltip: () => string;
     tooltip() { return this._tooltip(); }
     readonly startFen: string;
@@ -581,6 +581,15 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "-",
     }),
 
+    hoppelpoppel: new Variant({
+        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: () => _("Knights capture as bishops; bishops  capture as knights."),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "hoppel",
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true,
+        icon: "`",
+    }),
+
     orda: new Variant({
         name: "orda", tooltip: () => _("Asymmetric variant where one army has pieces that move like knights but capture differently."),
         startFen: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
@@ -604,15 +613,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         pocketRoles: [], pocketRoles2: ["s"],
         materialDifference: false,
         icon: "_",
-    }),
-
-    hoppelpoppel: new Variant({
-        name: "hoppelpoppel", displayName: "hoppel-poppel", tooltip: () => _("Knights capture as bishops; bishops  capture as knights."),
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        board: "standard8x8", piece: "hoppel",
-        pieceRoles: ["k", "q", "r", "b", "n", "p"],
-        enPassant: true,
-        icon: "`",
     }),
 
     shinobi: new Variant({

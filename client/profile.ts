@@ -1,43 +1,17 @@
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
 
 import { Chessground } from 'chessgroundx';
 
 import { _, ngettext, pgettext } from './i18n';
 import { VARIANTS, Variant } from './chess';
+import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { PyChessModel } from "./main";
 import * as cg from "chessgroundx/types";
 import { Ceval } from "./messages";
-
-
-export function colorNames(color: string) {
-    // We need color name tranlations in run time
-    switch (color) {
-    case "White":
-        return _("White");
-    case "Black":
-        return  _("Black");
-    case "Red":
-        return  _("Red");
-    case "Blue":
-        return  _("Blue");
-    case "Gold":
-        return  _("Gold");
-    case "Pink":
-        return  _("Pink");
-    default:
-        return color;
-    }
-}
 
 export function gameType(rated: string | number) {
     switch (rated) {
@@ -61,8 +35,8 @@ export function result(variant: Variant, status: number, result: string) {
     let text = '';
     const variantName = variant.name;
     // console.log("result()", variantName, status, result);
-    const first = colorNames(variant.firstColor);
-    const second = colorNames(variant.secondColor);
+    const first = _(variant.firstColor);
+    const second = _(variant.secondColor);
     switch (status) {
         case -2:
         case -1:

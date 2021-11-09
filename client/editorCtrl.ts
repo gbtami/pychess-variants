@@ -1,13 +1,7 @@
 import ffishModule from 'ffish-es6';
 
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
@@ -18,8 +12,8 @@ import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, notation } fr
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
-import { colorNames } from './profile';
 import { variantsIni } from './variantsIni';
+import { patch } from './document';
 import { PyChessModel } from "./main";
 
 export class EditorController {
@@ -134,8 +128,8 @@ export class EditorController {
         //const dataIcon = VARIANTS[this.variant].icon(false);
         const dataIcon = 'icon-' + this.variant.name;
         const container = document.getElementById('editor-button-container') as HTMLElement;
-        const firstColor = colorNames(this.variant.firstColor);
-        const secondColor = colorNames(this.variant.secondColor);
+        const firstColor = _(this.variant.firstColor);
+        const secondColor = _(this.variant.secondColor);
         if (container !== null) {
             const buttons = [
                 h('div#turn-block', [

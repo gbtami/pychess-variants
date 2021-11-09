@@ -51,6 +51,30 @@ const LANGUAGETEXT: {[key:string]: string} = {
 const preferredLang = window.navigator.language.slice(0, 2);
 export const translatedLanguage = LANGUAGETEXT[preferredLang] ?? 'Language';
 
+// Do not use
+// These lists are only here to mark these texts translatable
+// Use the regular translate functions if these words are determined at runtime
+export const translatedColorNames = [
+    _("White"), _("Black"), _("Red"),
+    _("Blue"), _("Gold"), _("Pink"),
+];
+
+export const translatedVariantDisplayNames = [
+    _("chess"), _("crazyhouse"), _("placement"), _("atomic"),
+
+    _("makruk"), _("makpong"), _("ouk chatrang"), _("sittuyin"), _("asean"),
+
+    _("shogi"), _("minishogi"), _("kyoto shogi"),
+    _("dobutsu"), _("gorogoro"), _("tori shogi"),
+
+    _("xiangqi"), _("manchu"), _("janggi"), _("minixiangqi"),
+
+    _("capablanca"), _("capahouse"), _("s-chess"), _("s-house"),
+    _("grand"), _("grandhouse"), _("shako"), _("shogun"), _("hoppel-poppel"),
+
+    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"),
+];
+
 class LanguageSettings extends StringSettings {
     constructor() {
         super('lang', 'en');

@@ -1,16 +1,11 @@
-import { init, h } from "snabbdom";
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
+import { h } from "snabbdom";
 
 import { _ } from './i18n';
-import RoundController from "./roundCtrl";
-import AnalysisController from "./analysisCtrl";
-import TournamentController from "./tournament";
-import { LobbyController } from "./lobby";
+import RoundController from './roundCtrl';
+import AnalysisController from './analysisCtrl';
+import TournamentController from './tournament';
+import { LobbyController } from './lobby';
+import { patch } from './document';
 
 export function chatView(ctrl: RoundController | AnalysisController | TournamentController | LobbyController, chatType: string) { // TODO: instead of | better have some IChatController interface implemented by these classes
     function onKeyPress (e: KeyboardEvent) {

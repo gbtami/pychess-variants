@@ -2,20 +2,12 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
-import { init } from "snabbdom";
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-const patch = init([klass, attributes, properties, listeners, style]);
-
-import h from 'snabbdom/h';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
 
-import RoundController from "./roundCtrl";
-import { Variant } from "./chess";
+import RoundController from './roundCtrl';
+import { Variant } from './chess';
+import { patch } from './document';
 
 export type MaterialImbalance = {[index: string]:number};
 

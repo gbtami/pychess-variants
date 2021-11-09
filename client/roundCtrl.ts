@@ -1,11 +1,7 @@
 import Sockette from 'sockette';
 
-import { init, h } from 'snabbdom';
+import { h } from 'snabbdom';
 import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
 
 import * as util from 'chessgroundx/util';
 import { Chessground } from 'chessgroundx';
@@ -14,6 +10,7 @@ import * as cg from 'chessgroundx/types';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
+import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { Gating } from './gating';
@@ -31,8 +28,6 @@ import { notify } from './notification';
 import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
 import { PyChessModel } from "./main";
 import AnalysisController from "./analysisCtrl";
-
-const patch = init([klass, attributes, properties, listeners]);
 
 let rang = false;
 
