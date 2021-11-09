@@ -160,6 +160,8 @@ class TournamentTestCase(AioHTTPTestCase):
         has_games = len(self.app["games"]) > 0
 
         for game in self.app["games"].values():
+            if game.status == BYEGAME:  # ByeGame
+                continue
             if game.status <= STARTED:
                 await game.abort()
             game.remove_task.cancel()
