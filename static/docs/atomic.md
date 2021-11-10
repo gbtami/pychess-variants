@@ -13,3 +13,7 @@ This lichess study explains the rules of atomic chess in detail: [https://liches
 ## Clarification
 
 In Atomic the kings can be connected by moving one into the adjacent squares of the other side’s king. **When the kings are connected, checks do not apply.** As it is illegal for a capture to blow up your own king, it is not possible to capture the other king directly. To win such an endgame, it is necessary to cause the kings to detach by zugzwang or explode a piece of the opposite color while the king is next to it.
+
+## Strategy
+
+[https://illion-atomic.netlify.app/](https://illion-atomic.netlify.app/) by Illion is recommended for everyone.
