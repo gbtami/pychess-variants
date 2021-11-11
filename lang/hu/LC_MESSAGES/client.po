@@ -682,131 +682,131 @@ msgstr "Sakk"
 
 #: ../client/i18n.ts:63
 msgid "crazyhouse"
-msgstr ""
+msgstr "crazyhouse"
 
 #: ../client/i18n.ts:63
 msgid "placement"
-msgstr ""
+msgstr "placement"
 
 #: ../client/i18n.ts:63
 msgid "atomic"
-msgstr ""
+msgstr "atom"
 
 #: ../client/i18n.ts:65
 msgid "makruk"
-msgstr ""
+msgstr "makruk"
 
 #: ../client/i18n.ts:65
 msgid "makpong"
-msgstr ""
+msgstr "makpong"
 
 #: ../client/i18n.ts:65
 msgid "ouk chatrang"
-msgstr ""
+msgstr "ouk chatrang"
 
 #: ../client/i18n.ts:65
 msgid "sittuyin"
-msgstr ""
+msgstr "sittuyin"
 
 #: ../client/i18n.ts:65
 msgid "asean"
-msgstr ""
+msgstr "asean"
 
 #: ../client/i18n.ts:67
 msgid "shogi"
-msgstr ""
+msgstr "sógi"
 
 #: ../client/i18n.ts:67
 msgid "minishogi"
-msgstr ""
+msgstr "mini sógi"
 
 #: ../client/i18n.ts:67
 msgid "kyoto shogi"
-msgstr ""
+msgstr "kyoto sógi"
 
 #: ../client/i18n.ts:68
 msgid "dobutsu"
-msgstr ""
+msgstr "dobutsu"
 
 #: ../client/i18n.ts:68
 msgid "gorogoro"
-msgstr ""
+msgstr "gorogoro"
 
 #: ../client/i18n.ts:68
 msgid "tori shogi"
-msgstr ""
+msgstr "tori sógi"
 
 #: ../client/i18n.ts:70
 msgid "xiangqi"
-msgstr ""
+msgstr "xiangqi"
 
 #: ../client/i18n.ts:70
 msgid "manchu"
-msgstr ""
+msgstr "manchu"
 
 #: ../client/i18n.ts:70
 msgid "janggi"
-msgstr ""
+msgstr "janggi"
 
 #: ../client/i18n.ts:70
 msgid "minixiangqi"
-msgstr ""
+msgstr "minixiangqi"
 
 #: ../client/i18n.ts:72
 msgid "capablanca"
-msgstr ""
+msgstr "capablanca"
 
 #: ../client/i18n.ts:72
 msgid "capahouse"
-msgstr ""
+msgstr "capahouse"
 
 #: ../client/i18n.ts:72
 msgid "s-chess"
-msgstr ""
+msgstr "s-chess"
 
 #: ../client/i18n.ts:72
 msgid "s-house"
-msgstr ""
+msgstr "s-house"
 
 #: ../client/i18n.ts:73
 msgid "grand"
-msgstr ""
+msgstr "grand"
 
 #: ../client/i18n.ts:73
 msgid "grandhouse"
-msgstr ""
+msgstr "grandhouse"
 
 #: ../client/i18n.ts:73
 msgid "shako"
-msgstr ""
+msgstr "shako"
 
 #: ../client/i18n.ts:73
 msgid "shogun"
-msgstr ""
+msgstr "shogun"
 
 #: ../client/i18n.ts:73
 msgid "hoppel-poppel"
-msgstr ""
+msgstr "hoppel-poppel"
 
 #: ../client/i18n.ts:75
 msgid "orda"
-msgstr ""
+msgstr "orda"
 
 #: ../client/i18n.ts:75
 msgid "synochess"
-msgstr ""
+msgstr "synochess"
 
 #: ../client/i18n.ts:75
 msgid "shinobi"
-msgstr ""
+msgstr "shinobi"
 
 #: ../client/i18n.ts:75
 msgid "empire"
-msgstr ""
+msgstr "empire"
 
 #: ../client/i18n.ts:75
 msgid "orda mirror"
-msgstr ""
+msgstr "orda mirror"
 
 #: ../client/invite.ts:35 ../client/lobby.ts:514
 msgid "Host a game for others"
@@ -1100,7 +1100,7 @@ msgstr "+15 másodperc az ellenfélnek"
 
 #: ../client/roundCtrl.ts:450
 msgid "Berserk"
-msgstr ""
+msgstr "Berserk"
 
 #: ../client/roundCtrl.ts:500
 msgid "Abort"

@@ -134,6 +134,8 @@ msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
 msgstr ""
+"Żeby grać na PyChessie musisz mieć otwarte i nieoznaczone konto na "
+"Lichessie."
 
 #: ../client/about.ts:113
 msgid ""
@@ -228,7 +230,7 @@ msgstr "Pokazuj możliwe ruchy"
 
 #: ../client/boardSettings.ts:323
 msgid "Promote to the top choice automatically"
-msgstr ""
+msgstr "Automatyczna promocja na najsilniejszą figurę"
 
 #: ../client/boardSettings.ts:341
 msgid "Best move arrow in analysis board"
@@ -240,7 +242,7 @@ msgstr "Niewidoczne bierki"
 
 #: ../client/boardSettings.ts:389
 msgid "Show material difference"
-msgstr ""
+msgstr "Pokazuj przewagę materialną"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -711,135 +713,135 @@ msgstr "Różowe"
 
 #: ../client/i18n.ts:63
 msgid "chess"
-msgstr ""
+msgstr "szachy"
 
 #: ../client/i18n.ts:63
 msgid "crazyhouse"
-msgstr ""
+msgstr "crazyhouse"
 
 #: ../client/i18n.ts:63
 msgid "placement"
-msgstr ""
+msgstr "dostawianka"
 
 #: ../client/i18n.ts:63
 msgid "atomic"
-msgstr ""
+msgstr "atomowe"
 
 #: ../client/i18n.ts:65
 msgid "makruk"
-msgstr ""
+msgstr "makruk"
 
 #: ../client/i18n.ts:65
 msgid "makpong"
-msgstr ""
+msgstr "makpong"
 
 #: ../client/i18n.ts:65
 msgid "ouk chatrang"
-msgstr ""
+msgstr "ouk chatrang"
 
 #: ../client/i18n.ts:65
 msgid "sittuyin"
-msgstr ""
+msgstr "sittuyin"
 
 #: ../client/i18n.ts:65
 msgid "asean"
-msgstr ""
+msgstr "asean"
 
 #: ../client/i18n.ts:67
 msgid "shogi"
-msgstr ""
+msgstr "szogi"
 
 #: ../client/i18n.ts:67
 msgid "minishogi"
-msgstr ""
+msgstr "miniszogi"
 
 #: ../client/i18n.ts:67
 msgid "kyoto shogi"
-msgstr ""
+msgstr "kioto szogi"
 
 #: ../client/i18n.ts:68
 msgid "dobutsu"
-msgstr ""
+msgstr "dobutsu"
 
 #: ../client/i18n.ts:68
 msgid "gorogoro"
-msgstr ""
+msgstr "gorogoro"
 
 #: ../client/i18n.ts:68
 msgid "tori shogi"
-msgstr ""
+msgstr "tori szogi"
 
 #: ../client/i18n.ts:70
 msgid "xiangqi"
-msgstr ""
+msgstr "xiangqi"
 
 #: ../client/i18n.ts:70
 msgid "manchu"
-msgstr ""
+msgstr "manchu"
 
 #: ../client/i18n.ts:70
 msgid "janggi"
-msgstr ""
+msgstr "janggi"
 
 #: ../client/i18n.ts:70
 msgid "minixiangqi"
-msgstr ""
+msgstr "minixiangqi"
 
 #: ../client/i18n.ts:72
 msgid "capablanca"
-msgstr ""
+msgstr "capablanca"
 
 #: ../client/i18n.ts:72
 msgid "capahouse"
-msgstr ""
+msgstr "capahouse"
 
 #: ../client/i18n.ts:72
 msgid "s-chess"
-msgstr ""
+msgstr "s-szachy"
 
 #: ../client/i18n.ts:72
 msgid "s-house"
-msgstr ""
+msgstr "s-house"
 
 #: ../client/i18n.ts:73
 msgid "grand"
-msgstr ""
+msgstr "grand"
 
 #: ../client/i18n.ts:73
 msgid "grandhouse"
-msgstr ""
+msgstr "grandhouse"
 
 #: ../client/i18n.ts:73
 msgid "shako"
-msgstr ""
+msgstr "shako"
 
 #: ../client/i18n.ts:73
 msgid "shogun"
-msgstr ""
+msgstr "szogun"
 
 #: ../client/i18n.ts:73
 msgid "hoppel-poppel"
-msgstr ""
+msgstr "hoppel-poppel"
 
 #: ../client/i18n.ts:75
 msgid "orda"
-msgstr ""
+msgstr "orda"
 
 #: ../client/i18n.ts:75
 msgid "synochess"
-msgstr ""
+msgstr "synoszachy"
 
 #: ../client/i18n.ts:75
 msgid "shinobi"
-msgstr ""
+msgstr "shinobi"
 
 #: ../client/i18n.ts:75
 msgid "empire"
-msgstr ""
+msgstr "imperium"
 
 #: ../client/i18n.ts:75
 msgid "orda mirror"
-msgstr ""
+msgstr "symetryczna orda"
 
 #: ../client/invite.ts:35 ../client/lobby.ts:514
 msgid "Host a game for others"
@@ -1138,7 +1140,7 @@ msgstr "Dodaj 15 sekund"
 
 #: ../client/roundCtrl.ts:450
 msgid "Berserk"
-msgstr ""
+msgstr "Berserk"
 
 #: ../client/roundCtrl.ts:500
 msgid "Abort"
@@ -1336,7 +1338,7 @@ msgstr "Remisy"
 #: ../client/tournament.ts:539 ../client/tournament.ts:549
 #: ../client/tournament.ts:559
 msgid "Berserk rate"
-msgstr ""
+msgstr "Procent berserków"
 
 #: ../client/tournament.ts:316
 msgid "Download all games"
