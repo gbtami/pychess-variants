@@ -192,9 +192,8 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
-        if self.tournamentId is not None:
-            self.wberserk = False
-            self.bberserk = False
+        self.wberserk = False
+        self.bberserk = False
 
     @staticmethod
     def create_board(variant, initial_fen, chess960, count_started):
@@ -268,9 +267,9 @@ class Game:
         else:
             if (ply is not None) and ply <= 2 and self.tournamentId is not None:
                 # Just in case for move and berserk messages race
-                if self.wberserk and clocks["white"] > self.berserk_time:
+                if self.wberserk:
                     clocks["white"] = self.berserk_time
-                if self.bberserk and clocks["black"] > self.berserk_time:
+                if self.bberserk:
                     clocks["black"] = self.berserk_time
 
         self.last_server_clock = cur_time
@@ -808,6 +807,7 @@ class Game:
                 "uci_usi": self.uci_usi if self.status > STARTED else "",
                 "rm": self.random_move if self.status <= STARTED else "",
                 "ct": crosstable,
+                "berserk": {"w": self.wberserk, "b": self.bberserk},
                 }
 
     def game_json(self, player):
