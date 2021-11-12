@@ -542,7 +542,7 @@ async def round_socket_handler(request):
         log.debug("--- wsr.py fianlly: await ws.close() %s", session_user)
         await ws.close()
 
-        if game is not None and not user.bot:
+        if game is not None and user is not None and not user.bot:
             if game.id in user.game_sockets:
                 del user.game_sockets[game.id]
                 user.update_online()
@@ -556,7 +556,7 @@ async def round_socket_handler(request):
                 response = {"type": "u_cnt", "cnt": online_count(users)}
                 await lobby_broadcast(sockets, response)
 
-        if game is not None:
+        if game is not None and user is not None:
             response = {"type": "user_disconnected", "username": user.username}
             await round_broadcast(game, users, response, full=True)
 
