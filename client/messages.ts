@@ -65,6 +65,7 @@ export interface MsgBoard {
     uci_usi: string;
     result: string;
     steps: Step[];
+    berserk: { w: boolean, b: boolean };
 
     byo?: number[];
     clocks?: Clocks;

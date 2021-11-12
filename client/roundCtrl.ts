@@ -949,13 +949,16 @@ export default class RoundController {
                 bclock = this.mycolor === "black" ? 0 : 1;
             }
             const wclock = 1 - bclock
-            if (this.model['wberserk'] === 'True' && this.clocktimes["white"] > this.base * 1000 * 30) {
+            if (this.model['wberserk'] === 'True' || msg.berserk.w) {
+                this.clocks[wclock].increment = 0;
                 this.clocks[wclock].setTime(this.base * 1000 * 30);
             }
-            if (this.model['bberserk'] === 'True' && this.clocktimes["black"] > this.base * 1000 * 30) {
+            if (this.model['bberserk'] === 'True' || msg.berserk.b) {
+                this.clocks[bclock].increment = 0;
                 this.clocks[bclock].setTime(this.base * 1000 * 30);
             }
         }
+
 
         if (this.spectator) {
             if (latestPly) {
