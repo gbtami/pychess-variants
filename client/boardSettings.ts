@@ -150,6 +150,9 @@ class BoardSettings {
     // which is the common class between EditorController, RoundController, and AnalysisController
     toggleOrientation() {
         if (this.ctrl) {
+            // TODO: handle berserk
+            if (this.ctrl instanceof RoundController && this.ctrl.tournamentGame && this.ctrl.ply < 2 && !this.ctrl.spectator) return;
+
             this.ctrl.flip = !this.ctrl.flip;
             this.ctrl.chessground.toggleOrientation();
             this.updateDropSuggestion();
