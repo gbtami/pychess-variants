@@ -348,42 +348,59 @@ export class EditorController {
         return (key: cg.Key) => {
             const curTime = performance.now();
             if (lastKey === key && curTime - lastTime < 500) {
-                const piece = this.chessground.state.pieces.get(key);
-                if (piece) {
-                    const newColor = this.variant.drop ? util.opposite(piece.color) : piece.color;
-                    let newPiece: cg.Piece;
-                    if (piece.promoted) {
-                        newPiece = {
-                            color: newColor,
-                            role: unpromotedRole(this.variant, piece),
-                            promoted: false,
-                        };
-                    } else {
-                        const newRole = promotedRole(this.variant, piece);
-                        if (newRole) { // The piece can be promoted
-                            newPiece = {
-                                color: piece.color,
-                                role: newRole,
-                                promoted: true,
-                            };
-                        } else {
-                            newPiece = {
-                                color: newColor,
-                                role: piece.role,
-                                promoted: false,
-                            };
-                        }
-                    }
-                    const pieces = new Map([[key, newPiece]]);
-                    this.chessground.setPieces(pieces);
-                    this.onChange();
-                }
+                this.promotePieceAt(key);
                 lastKey = 'a0';
             } else {
                 lastKey = key;
                 lastTime = curTime;
             }
         }
+    }
+
+    private promotePieceAt = (key: cg.Key) => {
+        const piece = this.chessground.state.pieces.get(key);
+        if (piece) {
+            let newPiece: cg.Piece;
+            const oppositeColor = util.opposite(piece.color);
+            if (piece.promoted) {
+                switch (this.variant.promotion) {
+                    case 'shogi':
+                    case 'kyoto':
+                        newPiece = {
+                            role: unpromotedRole(this.variant, piece),
+                            color: oppositeColor,
+                            promoted: false,
+                        };
+                        break;
+                    default:
+                        if (this.variant.drop) {
+                            const index = 1 + this.variant.promotionOrder.indexOf(util.letterOf(piece.role));
+                            const newRole = index === this.variant.promotionOrder.length ? 'p-piece' : util.roleOf(this.variant.promotionOrder[index] as cg.PieceLetter);
+                            newPiece = {
+                                role: newRole,
+                                color: newRole === 'p-piece' ? oppositeColor : piece.color,
+                                promoted: newRole !== 'p-piece',
+                            };
+                        } else {
+                            newPiece = {
+                                role: 'p-piece',
+                                color: piece.color,
+                            };
+                        }
+                }
+            } else {
+                const newRole = promotedRole(this.variant, piece);
+                newPiece = {
+                    role: newRole ?? piece.role,
+                    color: this.variant.drop && !newRole ? oppositeColor : piece.color,
+                    promoted: !!newRole,
+                };
+            }
+
+                const pieces = new Map([[key, newPiece]]);
+                this.chessground.setPieces(pieces);
+                this.onChange();
+            }
     }
 
     dropOnPocket = (e: cg.MouchEvent): void => {
