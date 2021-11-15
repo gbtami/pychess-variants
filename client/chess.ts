@@ -20,7 +20,7 @@ export type UCIMove = `${UCIOrig}${UCIKey}`; // TODO: this is missing suffix for
 export type CGMove = `${cg.Orig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
 
 export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink";
-export type PromotionType = "regular" | "shogi" | "kyoto";
+export type PromotionType = "regular" | "shogi" | "kyoto" | "none";
 
 export interface BoardFamily {
     geometry: cg.Geometry;
@@ -162,7 +162,13 @@ export class Variant {
         this._pocketRoles = [ data.pocketRoles, data.pocketRoles2 ?? data.pocketRoles ];
 
         this.promotion = data.promotion ?? "regular";
-        this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
+        this.promotionOrder = data.promotionOrder ??
+            ((this.promotion === "none") ?
+                [] :
+            (this.promotion === "shogi" || this.promotion === "kyoto" ?
+                ["+", ""] :
+                (["q", "c", "e", "a", "h", "n", "r", "b"] as cg.PieceLetter[]).filter(l => this.pieceRoles('white').includes(l) || this.pieceRoles('black').includes(l)))
+            );
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
@@ -449,6 +455,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: "none",
         icon: "|",
     }),
 
@@ -459,6 +466,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "a", "m", "b", "p"],
         pieceRoles2: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: "none",
         icon: "{",
     }),
 
@@ -468,6 +476,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
         pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: "none",
         timeControl: "byoyomi",
         materialPoint: "janggi",
         pass: true,
@@ -478,6 +487,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         name: "minixiangqi", tooltip: () => _("Compact version of Xiangqi played on a 7x7 board without a river."),
         startFen: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
         board: "xiangqi7x7", piece: "xiangqi",
+        promotion: "none",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "c", "r", "n", "p"],
         icon: "7",
@@ -542,6 +552,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         board: "grand10x10", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        promotionOrder: ["q", "c", "a", "n", "r", "b", "p"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true,
         icon: "(",
@@ -553,6 +564,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "grand10x10", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "a", "c", "q"],
+        promotionOrder: ["q", "c", "a", "n", "r", "b", "p"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
         enPassant: true, drop: true,
         icon: "*",
@@ -964,6 +976,7 @@ export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
 export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role | undefined {
     if (piece.promoted) return undefined;
     switch (variant.promotion) {
+        case 'none': return undefined;
         case 'shogi':
         case 'kyoto':
             const role = 'p' + piece.role as cg.Role;
