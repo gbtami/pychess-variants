@@ -6,9 +6,10 @@ import { VNode } from 'snabbdom/vnode';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
-import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, notation } from './chess'
+import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
@@ -74,6 +75,7 @@ export class EditorController {
             },
             events: {
                 change: this.onChange,
+                select: this.onSelect(),
             },
             selectable: {
                 enabled: false
@@ -83,7 +85,7 @@ export class EditorController {
             },
             addDimensionsCssVars: true,
 
-            pocketRoles: this.variant.pocketRoles.bind(this.variant),
+            pocketRoles: color => this.variant.pocketRoles(color),
         }, pocket0, pocket1);
 
         //
@@ -338,6 +340,50 @@ export class EditorController {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());
+    }
+
+    onSelect = () => {
+        let lastTime = performance.now();
+        let lastKey: cg.Key = 'a0';
+        return (key: cg.Key) => {
+            const curTime = performance.now();
+            if (lastKey === key && curTime - lastTime < 500) {
+                const piece = this.chessground.state.pieces.get(key);
+                if (piece) {
+                    const newColor = this.variant.drop ? util.opposite(piece.color) : piece.color;
+                    let newPiece: cg.Piece;
+                    if (piece.promoted) {
+                        newPiece = {
+                            color: newColor,
+                            role: unpromotedRole(this.variant, piece),
+                            promoted: false,
+                        };
+                    } else {
+                        const newRole = promotedRole(this.variant, piece);
+                        if (newRole) { // The piece can be promoted
+                            newPiece = {
+                                color: piece.color,
+                                role: newRole,
+                                promoted: true,
+                            };
+                        } else {
+                            newPiece = {
+                                color: newColor,
+                                role: piece.role,
+                                promoted: false,
+                            };
+                        }
+                    }
+                    const pieces = new Map([[key, newPiece]]);
+                    this.chessground.setPieces(pieces);
+                    this.onChange();
+                }
+                lastKey = 'a0';
+            } else {
+                lastKey = key;
+                lastTime = curTime;
+            }
+        }
     }
 
     dropOnPocket = (e: cg.MouchEvent): void => {

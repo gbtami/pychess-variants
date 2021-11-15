@@ -961,6 +961,18 @@ export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     }
 }
 
+export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role | undefined {
+    if (piece.promoted) return undefined;
+    switch (variant.promotion) {
+        case 'shogi':
+        case 'kyoto':
+            const role = 'p' + piece.role as cg.Role;
+            return variant.pieceRoles('white').includes(util.letterOf(role)) ? role : undefined;
+        default:
+            return piece.role === 'p-piece' ? util.roleOf(variant.promotionOrder[0] as cg.PieceLetter) : undefined;
+    }
+}
+
 // Convert a list of moves to chessground destination
 export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     const dests: cg.Dests = new Map();
