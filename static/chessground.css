@@ -75,6 +75,10 @@
 .cg-wrap.cg-640-640.mini {
   width: 320px;
 }
+/* tooltip board in seek table */
+.cg-wrap.minitooltip {
+  width: 200px;
+}
 
 cg-container {
     position: absolute;

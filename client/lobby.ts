@@ -713,7 +713,7 @@ export class LobbyController {
         let tooltipImage;
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
-                h('div.cg-wrap.' + variant.cg + '.mini',
+                h('div.cg-wrap.' + variant.cg + '.minitooltip',
                     { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement,{ coordinates: false, fen: seek.fen, geometry: variant.geometry }) } }
                 ),
             ]);
