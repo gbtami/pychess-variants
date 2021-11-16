@@ -48,6 +48,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     xiangqi7x7: { geometry: cg.Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
     janggi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
     shogun8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
+    chak9x9:{ geometry: cg.Geometry.dim9x9, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -71,6 +72,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1"] },
     empire: { pieceCSS: ["empire0", "empire1"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
+    chak: { pieceCSS: ["chak0"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
@@ -652,6 +654,15 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "◩",
     }),
 
+    chak: new Variant({
+        name: "chak", tooltip: () => _("https://www.chessvariants.com/rules/chak"),
+        startFen: "rvbqkjbvr/4o4/p1p1p1p1p/9/9/9/P1P1P1P1P/4O4/RVBJKQBVR w - - 0 1",
+        board: "chak9x9", piece: "chak",
+        firstColor: "White", secondColor: "Black",
+        pieceRoles: ["r", "v", "b", "q", "k", "j", "o", "p", "+p", "+k"],
+        icon: "C",
+    }),
+
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
@@ -695,7 +706,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak" ] },
 };
 
 function variantGroupLabel(group: string): string {

@@ -87,6 +87,7 @@ VARIANTS = (
     "shinobi",
     "empire",
     "ordamirror",
+    "chak"
 )
 
 VARIANT_ICONS = {
@@ -132,6 +133,7 @@ VARIANT_ICONS = {
     "empire": "♚",
     "ordamirror": "◩",
     "asean": "♻",
+    "chak": "C",
 }
 
 VARIANT_960_TO_PGN = {
@@ -152,7 +154,7 @@ VARIANT_960_TO_PGN = {
 CATEGORIES = {
     "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
-    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror"),
+    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),

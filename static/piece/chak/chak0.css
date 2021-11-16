@@ -1,0 +1,62 @@
+.chak .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/chak/WB.svg');
+}
+.chak .cg-wrap piece.pk-piece.white {
+    background-image: url('../../images/pieces/chak/WD.svg');
+}
+.chak .cg-wrap piece.j-piece.white {
+    background-image: url('../../images/pieces/chak/WJ.svg');
+}
+.chak .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/chak/WK.svg');
+}
+.chak .cg-wrap piece.o-piece.white {
+    background-image: url('../../images/pieces/chak/WO.svg');
+}
+.chak .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/chak/WP.svg');
+}
+
+.chak .cg-wrap piece.q-piece.white {
+    background-image: url('../../images/pieces/chak/WQ.svg');
+}
+.chak .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/chak/WR.svg');
+}
+.chak .cg-wrap piece.v-piece.white {
+    background-image: url('../../images/pieces/chak/WV.svg');
+}
+.chak .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/chak/WW.svg');
+}
+
+.chak .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/chak/GB.svg');
+}
+.chak .cg-wrap piece.pk-piece.black {
+    background-image: url('../../images/pieces/chak/GD.svg');
+}
+.chak .cg-wrap piece.j-piece.black {
+    background-image: url('../../images/pieces/chak/GJ.svg');
+}
+.chak .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/chak/GK.svg');
+}
+.chak .cg-wrap piece.o-piece.black {
+    background-image: url('../../images/pieces/chak/GO.svg');
+}
+.chak .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/chak/GP.svg');
+}
+.chak .cg-wrap piece.q-piece.black {
+    background-image: url('../../images/pieces/chak/GQ.svg');
+}
+.chak .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/chak/GR.svg');
+}
+.chak .cg-wrap piece.v-piece.black {
+    background-image: url('../../images/pieces/chak/GV.svg');
+}
+.chak .cg-wrap piece.pp-piece.black {
+    background-image: url('../../images/pieces/chak/GW.svg');
+}

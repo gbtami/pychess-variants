@@ -136,6 +136,7 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         case "shinobi": cssLinkIndex += 17; break;
         case "empire": cssLinkIndex += 18; break;
         case "ordamirror": cssLinkIndex += 19; break;
+        case "chak": cssLinkIndex += 20; break;
         default: throw "Unknown piece family " + family;
     }
     const newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;
