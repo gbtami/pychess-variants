@@ -92,7 +92,7 @@ function distFromLastRank(dest: cg.Key, color: cg.Color, boardHeight: number) : 
 export class Variant {
     readonly name: string;
     private readonly _displayName: string;
-    displayName(chess960 = false) { return _(this._displayName) + (chess960 ? "960" : ""); }
+    displayName(chess960 = false) { return _(this._displayName).toUpperCase() + (chess960 ? "960" : ""); }
     private readonly _tooltip: () => string;
     tooltip() { return this._tooltip(); }
     readonly startFen: string;
@@ -145,7 +145,7 @@ export class Variant {
 
     constructor(data: VariantConfig) {
         this.name = data.name;
-        this._displayName = (data.displayName ?? data.name).toUpperCase();
+        this._displayName = data.displayName ?? data.name;
         this._tooltip = data.tooltip;
         this.startFen = data.startFen;
 
