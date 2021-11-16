@@ -704,14 +704,14 @@ class Tournament(ABC):
             if self.system == ARENA:
                 if wplayer.win_streak == 2:
                     if game.status == VARIANTEND:
-                        bpoint = (2, SCORE)
+                        bpoint = (2 * 2 if bplayer.win_streak == 2 else 2, SCORE)
                         wpoint = (4 * 2, SCORE)
                         wplayer.win_streak = 0
                     else:
                         wpoint = (7 * 2, DOUBLE)
                 else:
                     if game.status == VARIANTEND:
-                        bpoint = (2, SCORE)
+                        bpoint = (2 * 2 if bplayer.win_streak == 2 else 2, SCORE)
                         wpoint = (4, SCORE)
                         wplayer.win_streak = 0
                     else:
@@ -735,14 +735,14 @@ class Tournament(ABC):
             if self.system == ARENA:
                 if bplayer.win_streak == 2:
                     if game.status == VARIANTEND:
-                        wpoint = (2, SCORE)
+                        wpoint = (2 * 2 if wplayer.win_streak == 2 else 2, SCORE)
                         bpoint = (4 * 2, SCORE)
                         bplayer.win_streak = 0
                     else:
                         bpoint = (7 * 2, DOUBLE)
                 else:
                     if game.status == VARIANTEND:
-                        wpoint = (2, SCORE)
+                        wpoint = (2 * 2 if wplayer.win_streak == 2 else 2, SCORE)
                         bpoint = (4, SCORE)
                         bplayer.win_streak = 0
                     else:
