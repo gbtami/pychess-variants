@@ -299,3 +299,6 @@ label.piece.piece0.ordamirror {
 label.piece.piece1.ordamirror {
     background-image: url('images/pieces/orda/cburnett/bH.svg');
 }
+label.piece.piece0.chak {
+    background-image: url('images/pieces/chak/WK.svg');
+}

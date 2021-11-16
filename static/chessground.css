@@ -75,6 +75,14 @@
 .cg-wrap.cg-640-640.mini {
   width: 320px;
 }
+/* 9x9 chak */
+.cg-wrap.cg-540 {
+    padding-bottom: 100%;
+}
+.cg-wrap.cg-540.mini {
+  width: 270px;
+}
+
 /* tooltip board in seek table */
 .cg-wrap.minitooltip {
   width: 200px;
@@ -147,6 +155,11 @@ cg-board square {
 .cg-640-640 cg-board square{
   width: 10%;
   height: 10%;
+}
+/* 9x9 chak */
+.cg-540 cg-board square{
+  width: 11.11%;
+  height: 11.11%;
 }
 
 cg-board square.move-dest {
@@ -232,6 +245,10 @@ cg-board square.current-premove {
 .cg-wrap.cg-640-640 piece{
   width: 10%;
   height: 10%;
+}
+.cg-wrap.cg-540 piece{
+  width: 11.11%;
+  height: 11.11%;
 }
 
 cg-board piece.dragging {
