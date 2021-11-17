@@ -1194,7 +1194,6 @@ export default class RoundController {
     private onSelect = () => {
         let lastTime = performance.now();
         let lastKey: cg.Key = 'a0';
-        let timeout: ReturnType<typeof setTimeout>;
         return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
@@ -1207,7 +1206,7 @@ export default class RoundController {
             }
 
             // Janggi pass and Sittuyin in place promotion on Ctrl+click
-            if (timeout && lastKey === key && curTime - lastTime < 500) {
+            if (lastKey === key && curTime - lastTime < 500) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
                     const piece = this.chessground.state.pieces.get(key);
                     if (this.variant.name === 'sittuyin') { // TODO make this more generic
@@ -1224,11 +1223,8 @@ export default class RoundController {
                         this.pass();
                     }
                 }
-                clearTimeout(timeout);
+                lastKey = 'a0';
             } else {
-                timeout = setTimeout(() => {
-                    clearTimeout(timeout);
-                }, 500);
                 lastKey = key;
                 lastTime = curTime;
             }

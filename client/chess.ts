@@ -123,6 +123,7 @@ export class Variant {
 
     readonly promotion: PromotionType;
     readonly promotionOrder: PromotionSuffix[];
+    readonly promoteablePieces: cg.PieceLetter[];
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
@@ -165,6 +166,7 @@ export class Variant {
 
         this.promotion = data.promotion ?? "regular";
         this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
+        this.promoteablePieces = data.promoteablePieces ?? ["p"];
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
@@ -208,6 +210,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
 
     promotion?: PromotionType;
     promotionOrder?: PromotionSuffix[];
+    promoteablePieces?: cg.PieceLetter[];
     isMandatoryPromotion?: MandatoryPromotionPredicate;
     timeControl?: string;
     counting?: string;
@@ -342,9 +345,10 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         board: "shogi9x9", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "r", "b", "g", "s", "n", "l", "p", "+r", "+b", "+s", "+n", "+l", "+p"],
+        pieceRoles: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocketRoles: ["p", "l", "n", "s", "g", "b", "r"],
         promotion: "shogi",
+        promoteablePieces: ["p", "l", "n", "s", "r", "b"],
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -370,9 +374,10 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         board: "shogi5x5", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "r", "b", "g", "s", "p", "+r", "+b", "+s", "+p"],
+        pieceRoles: ["k", "g", "r", "b", "s", "p"],
         pocketRoles: ["p", "s", "g", "b", "r"],
         promotion: "shogi",
+        promoteablePieces: ["p", "s", "r", "b"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 5),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -385,9 +390,10 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         board: "shogi5x5", piece: "kyoto",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "+n", "n", "+s", "s", "+l", "l", "+p", "p"],
+        pieceRoles: ["k", "l", "s", "n", "p"],
         pocketRoles: ["p", "l", "n", "s"],
         promotion: "kyoto",
+        promoteablePieces: ["p", "l", "n", "s"],
         isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -400,9 +406,10 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         board: "shogi3x4", piece: "dobutsu",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["l", "g", "e", "c", "+c"],
+        pieceRoles: ["l", "g", "e", "c"],
         pocketRoles: ["e", "g", "c"],
         promotion: "shogi",
+        promoteablePieces: ["c"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -414,9 +421,10 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
         board: "shogi5x6", piece: "shogi",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "g", "s", "p", "+s", "+p"],
+        pieceRoles: ["k", "g", "s", "p"],
         pocketRoles: ["p", "s", "g"],
         promotion: "shogi",
+        promoteablePieces: ["p", "s"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 6),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -429,9 +437,10 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
         board: "shogi7x7", piece: "tori",
         firstColor: "Black", secondColor: "White",
-        pieceRoles: ["k", "f", "c", "p", "l", "r", "s", "+f", "+s"],
+        pieceRoles: ["k", "c", "p", "l", "r", "f", "s"],
         pocketRoles: ["s", "p", "l", "r", "c", "f"],
         promotion: "shogi",
+        promoteablePieces: ["s", "f"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -451,6 +460,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
+        promoteablePieces: [],
         icon: "|",
     }),
 
@@ -461,6 +471,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "a", "m", "b", "p"],
         pieceRoles2: ["k", "a", "c", "r", "b", "n", "p"],
+        promoteablePieces: [],
         icon: "{",
     }),
 
@@ -470,6 +481,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
         pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
+        promoteablePieces: [],
         timeControl: "byoyomi",
         materialPoint: "janggi",
         pass: true,
@@ -482,6 +494,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "xiangqi7x7", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "c", "r", "n", "p"],
+        promoteablePieces: [],
         icon: "7",
     }),
 
@@ -574,9 +587,10 @@ export const VARIANTS: { [name: string]: Variant } = {
         name: "shogun", tooltip: () => _("Pieces promote and can be dropped, similar to Shogi."),
         startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
         board: "shogun8x8", piece: "shogun",
-        pieceRoles: ["k", "+f", "r", "b", "n", "p", "f", "+r", "+b", "+n", "+p"],
+        pieceRoles: ["k", "f", "r", "b", "n", "p"],
         pocketRoles: ["p", "n", "b", "r", "f"],
         promotion: "shogi",
+        promoteablePieces: ["p", "f", "r", "b", "n"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 8),
         timeControl: "byoyomi",
         enPassant: true, drop: true,
@@ -622,11 +636,12 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
-        pieceRoles: ["k", "c", "l", "h", "m", "d", "j", "p", "+l", "+h", "+m", "+p"],
-        pieceRoles2: ["k", "q", "r", "b", "n", "p", "+p"],
+        pieceRoles: ["k", "d", "j", "c", "l", "h", "m", "p"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p"],
         pocketRoles: ["l", "h", "m", "d", "j"],
         pocketRoles2: [],
         promotion: "shogi",
+        promoteablePieces: ["p", "l", "h", "m"],
         enPassant: true,
         //materialDifference: false,
         icon: "🐢",
@@ -966,6 +981,20 @@ export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
                 return piece.role.slice(1) as cg.Role;
             default:
                 return 'p-piece';
+        }
+    } else {
+        return piece.role;
+    }
+}
+
+export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
+    if (!piece.promoted && variant.promoteablePieces.includes(util.letterOf(piece.role))) {
+        switch (variant.promotion) {
+            case 'shogi':
+            case 'kyoto':
+                return 'p' + piece.role as cg.Role;
+            default:
+                return util.roleOf(variant.promotionOrder[0] as cg.PieceLetter);
         }
     } else {
         return piece.role;
