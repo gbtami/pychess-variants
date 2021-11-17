@@ -97,6 +97,7 @@
 }
 .pocket.top.editor {
   margin-bottom: 18px;
+  flex-wrap: wrap-reverse;
 }
 .pocket.bottom {
   margin-top: var(--pocketMargin);
