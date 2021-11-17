@@ -15,7 +15,22 @@ const eventNames = ['mousedown', 'touchstart'];
 export function piecesView(ctrl: EditorController, color: cg.Color, position: Position) {
     const width = ctrl.variant.boardWidth;
     const height = ctrl.variant.boardHeight;
-    const roles = ctrl.variant.pieceRoles(color);
+    const roles: (cg.PieceLetter | '')[] = [...ctrl.variant.pieceRoles(color)];
+    if (['shogi', 'kyoto'].includes(ctrl.variant.promotion)) {
+        const len = roles.length;
+        const width = ctrl.variant.boardWidth;
+        if (len <= width) {
+            for (let i = len; i < width; i++)
+                roles.push('');
+            for (let i = 0; i < len; i++)
+                if (ctrl.variant.promoteablePieces.includes(roles[i] as cg.PieceLetter))
+                    roles.push('+' + roles[i] as cg.PieceLetter);
+                else
+                    roles.push('');
+        } else {
+            roles.push(...ctrl.variant.promoteablePieces.map(p => '+' + p as cg.PieceLetter));
+        }
+    }
     return h('div.pocket.' + position + '.editor.usable', {
         style: {
             '--editorLength': String(roles.length),
@@ -33,6 +48,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
             }
         }
     }, roles.map(r => {
+        if (r === '') return h('piece', { attrs: { 'data-nb': -1 } });
         const promoted = r.length > 1;
         if (r.endsWith('~')) {
             r = r.slice(0, -1) as cg.PieceLetter;
@@ -58,9 +74,11 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
         color = el.getAttribute('data-color') as cg.Color,
         promoted = el.getAttribute('data-promoted') === 'true';
 
-    e.stopPropagation();
-    e.preventDefault();
-    dragNewPiece(ctrl.chessground.state, { color, role, promoted }, e);
+    if (role) {
+        e.stopPropagation();
+        e.preventDefault();
+        dragNewPiece(ctrl.chessground.state, { color, role, promoted }, e);
+    }
 }
 
 export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
