@@ -19,16 +19,21 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
     if (['shogi', 'kyoto'].includes(ctrl.variant.promotion)) {
         const len = roles.length;
         const width = ctrl.variant.boardWidth;
-        if (len <= width) {
+        const extraRoles = roles.filter(p => ctrl.variant.promoteablePieces.includes(p as cg.PieceLetter)).map(p => '+' + p as cg.PieceLetter);
+        if (len <= width && len + extraRoles.length > width) {
             for (let i = len; i < width; i++)
                 roles.push('');
-            for (let i = 0; i < len; i++)
-                if (ctrl.variant.promoteablePieces.includes(roles[i] as cg.PieceLetter))
+            let j = 0;
+            for (let i = 0; i < len; i++) {
+                if (roles[i][0] === extraRoles[j][1]) {
                     roles.push('+' + roles[i] as cg.PieceLetter);
-                else
+                    j++;
+                } else {
                     roles.push('');
+                }
+            }
         } else {
-            roles.push(...ctrl.variant.promoteablePieces.map(p => '+' + p as cg.PieceLetter));
+            roles.push(...extraRoles);
         }
     }
     return h('div.pocket.' + position + '.editor.usable', {
