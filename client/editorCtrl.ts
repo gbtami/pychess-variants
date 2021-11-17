@@ -360,7 +360,7 @@ export class EditorController {
                         };
                     } else {
                         const newRole = promotedRole(this.variant, piece);
-                        if (newRole) { // The piece can be promoted
+                        if (newRole !== piece.role) { // The piece can be promoted
                             newPiece = {
                                 color: piece.color,
                                 role: newRole,

@@ -121,6 +121,7 @@ export class Variant {
 
     readonly promotion: PromotionType;
     readonly promotionOrder: PromotionSuffix[];
+    readonly promoteablePieces: cg.PieceLetter[];
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
@@ -163,6 +164,7 @@ export class Variant {
 
         this.promotion = data.promotion ?? "regular";
         this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
+        this.promoteablePieces = data.promoteablePieces ?? ["p"];
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
@@ -206,6 +208,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
 
     promotion?: PromotionType;
     promotionOrder?: PromotionSuffix[];
+    promoteablePieces?: cg.PieceLetter[];
     isMandatoryPromotion?: MandatoryPromotionPredicate;
     timeControl?: string;
     counting?: string;
@@ -343,6 +346,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "r", "b", "g", "s", "n", "l", "p", "+r", "+b", "+s", "+n", "+l", "+p"],
         pocketRoles: ["p", "l", "n", "s", "g", "b", "r"],
         promotion: "shogi",
+        promoteablePieces: ["p", "l", "n", "s", "r", "b"],
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -371,6 +375,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "r", "b", "g", "s", "p", "+r", "+b", "+s", "+p"],
         pocketRoles: ["p", "s", "g", "b", "r"],
         promotion: "shogi",
+        promoteablePieces: ["p", "s", "r", "b"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 5),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -386,6 +391,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "+n", "n", "+s", "s", "+l", "l", "+p", "p"],
         pocketRoles: ["p", "l", "n", "s"],
         promotion: "kyoto",
+        promoteablePieces: ["p", "l", "n", "s"],
         isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -401,6 +407,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["l", "g", "e", "c", "+c"],
         pocketRoles: ["e", "g", "c"],
         promotion: "shogi",
+        promoteablePieces: ["c"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -415,6 +422,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "g", "s", "p", "+s", "+p"],
         pocketRoles: ["p", "s", "g"],
         promotion: "shogi",
+        promoteablePieces: ["p", "s"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 6),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -430,6 +438,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "f", "c", "p", "l", "r", "s", "+f", "+s"],
         pocketRoles: ["s", "p", "l", "r", "c", "f"],
         promotion: "shogi",
+        promoteablePieces: ["s", "f"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -449,6 +458,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
+        promoteablePieces: [],
         icon: "|",
     }),
 
@@ -459,6 +469,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "a", "m", "b", "p"],
         pieceRoles2: ["k", "a", "c", "r", "b", "n", "p"],
+        promoteablePieces: [],
         icon: "{",
     }),
 
@@ -468,6 +479,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
         pieceRoles: ["k", "a", "c", "r", "b", "n", "p"],
+        promoteablePieces: [],
         timeControl: "byoyomi",
         materialPoint: "janggi",
         pass: true,
@@ -480,6 +492,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "xiangqi7x7", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceRoles: ["k", "c", "r", "n", "p"],
+        promoteablePieces: [],
         icon: "7",
     }),
 
@@ -961,15 +974,17 @@ export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     }
 }
 
-export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role | undefined {
-    if (piece.promoted) return undefined;
-    switch (variant.promotion) {
-        case 'shogi':
-        case 'kyoto':
-            const role = 'p' + piece.role as cg.Role;
-            return variant.pieceRoles('white').includes(util.letterOf(role)) ? role : undefined;
-        default:
-            return piece.role === 'p-piece' ? util.roleOf(variant.promotionOrder[0] as cg.PieceLetter) : undefined;
+export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
+    if (!piece.promoted && variant.promoteablePieces.includes(util.letterOf(piece.role))) {
+        switch (variant.promotion) {
+            case 'shogi':
+            case 'kyoto':
+                return 'p' + piece.role as cg.Role;
+            default:
+                return util.roleOf(variant.promotionOrder[0] as cg.PieceLetter);
+        }
+    } else {
+        return piece.role;
     }
 }
 
