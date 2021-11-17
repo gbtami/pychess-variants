@@ -125,11 +125,11 @@
 .pocket.usable piece:first-child:hover {
   border-radius: 3px 0 0 3px;
 }
-.pocket.usable piece {
+.pocket.usable piece:not(.no-piece) {
   cursor: pointer;
   pointer-events: auto;
 }
-.pocket.usable piece:hover {
+.pocket.usable piece:not(.no-piece):hover {
   background-color: #999;
   transition: background-color 0.13s;
 }

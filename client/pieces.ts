@@ -48,7 +48,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
             }
         }
     }, roles.map(r => {
-        if (r === '') return h('piece', { attrs: { 'data-nb': -1 } });
+        if (r === '') return h('piece.no-piece', { attrs: { 'data-nb': -1 } });
         const promoted = r.length > 1;
         if (r.endsWith('~')) {
             r = r.slice(0, -1) as cg.PieceLetter;
