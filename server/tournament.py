@@ -648,6 +648,7 @@ class Tournament(ABC):
                 wpoint, bpoint = (1, SCORE), (1, SCORE)
 
         elif game.result == "1-0":
+            wplayer.nb_win += 1
             if self.system == ARENA:
                 if wplayer.win_streak == 2:
                     wpoint = (4, DOUBLE)
@@ -666,6 +667,7 @@ class Tournament(ABC):
             bperf -= 500
 
         elif game.result == "0-1":
+            bplayer.nb_win += 1
             if self.system == ARENA:
                 if bplayer.win_streak == 2:
                     bpoint = (4, DOUBLE)
@@ -695,41 +697,27 @@ class Tournament(ABC):
         bperf = game.white_rating.rating_prov[0]
 
         if game.status == VARIANTEND:
+            wplayer.win_streak = 0
+            bplayer.win_streak = 0
+
             if game.result == "1-0":
                 if self.system == ARENA:
                     wpoint = (4 * 2 if wplayer.win_streak == 2 else 4, SCORE)
                     bpoint = (2 * 2 if bplayer.win_streak == 2 else 2, SCORE)
-
-                    wplayer.win_streak = 0
-                    bplayer.win_streak = 0
-
-                    if game.wberserk and game.board.ply >= 13:
-                        wpoint = (wpoint[0] + 3, wpoint[1])
                 else:
                     wpoint = (4, SCORE)
                     bpoint = (2, SCORE)
-
-                wperf += 500
-                bperf -= 500
 
             elif game.result == "0-1":
                 if self.system == ARENA:
                     bpoint = (4 * 2 if bplayer.win_streak == 2 else 4, SCORE)
                     wpoint = (2 * 2 if wplayer.win_streak == 2 else 2, SCORE)
-
-                    bplayer.win_streak = 0
-                    wplayer.win_streak = 0
-
-                    if game.bberserk and game.board.ply >= 14:
-                        bpoint = (bpoint[0] + 3, bpoint[1])
                 else:
                     bpoint = (4, SCORE)
                     wpoint = (2, SCORE)
 
-                bperf += 500
-                wperf -= 500
-
         elif game.result == "1-0":
+            wplayer.nb_win += 1
             if self.system == ARENA:
                 if wplayer.win_streak == 2:
                     wpoint = (7 * 2, DOUBLE)
@@ -749,6 +737,7 @@ class Tournament(ABC):
             bperf -= 500
 
         elif game.result == "0-1":
+            bplayer.nb_win += 1
             if self.system == ARENA:
                 if bplayer.win_streak == 2:
                     bpoint = (7 * 2, DOUBLE)
@@ -784,11 +773,6 @@ class Tournament(ABC):
         if game.bberserk:
             bplayer.nb_berserk += 1
             self.nb_berserk += 1
-
-        if game.result == "1-0":
-            wplayer.nb_win += 1
-        elif game.result == "0-1":
-            bplayer.nb_win += 1
 
         if game.variant == "janggi":
             wpoint, bpoint, wperf, bperf = self.points_perfs_janggi(game)
