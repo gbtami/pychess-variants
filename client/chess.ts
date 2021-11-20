@@ -57,7 +57,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"] },
     asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans"] },
-    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim"] },
+    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoi", "kyotod"] },
     dobutsu: { pieceCSS: ["dobutsu"] },
     tori: { pieceCSS: ["torii", "torik", "torim"] },
