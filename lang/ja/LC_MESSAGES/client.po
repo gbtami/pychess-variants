@@ -600,11 +600,11 @@ msgstr ""
 
 #: ../client/i18n.ts:63
 msgid "chess"
-msgstr ""
+msgstr "チェス"
 
 #: ../client/i18n.ts:63
 msgid "crazyhouse"
-msgstr ""
+msgstr "クレイジーハウス"
 
 #: ../client/i18n.ts:63
 msgid "placement"
@@ -612,7 +612,7 @@ msgstr ""
 
 #: ../client/i18n.ts:63
 msgid "atomic"
-msgstr ""
+msgstr "アトミック"
 
 #: ../client/i18n.ts:65
 msgid "makruk"
@@ -636,31 +636,31 @@ msgstr ""
 
 #: ../client/i18n.ts:67
 msgid "shogi"
-msgstr ""
+msgstr "将棋"
 
 #: ../client/i18n.ts:67
 msgid "minishogi"
-msgstr ""
+msgstr "５五将棋"
 
 #: ../client/i18n.ts:67
 msgid "kyoto shogi"
-msgstr ""
+msgstr "京都将棋"
 
 #: ../client/i18n.ts:68
 msgid "dobutsu"
-msgstr ""
+msgstr "動物将棋"
 
 #: ../client/i18n.ts:68
 msgid "gorogoro"
-msgstr ""
+msgstr "ゴロゴロ将棋"
 
 #: ../client/i18n.ts:68
 msgid "tori shogi"
-msgstr ""
+msgstr "禽将棋"
 
 #: ../client/i18n.ts:70
 msgid "xiangqi"
-msgstr ""
+msgstr "シャンチー"
 
 #: ../client/i18n.ts:70
 msgid "manchu"

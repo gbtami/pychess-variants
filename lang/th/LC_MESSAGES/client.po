@@ -1069,7 +1069,7 @@ msgstr "เพิ่มให้ 15 วินาที"
 
 #: ../client/roundCtrl.ts:450
 msgid "Berserk"
-msgstr "บ้าเลือด"
+msgstr "เบอร์เซิร์ก"
 
 #: ../client/roundCtrl.ts:500
 msgid "Abort"
@@ -1264,7 +1264,7 @@ msgstr "เสมอ"
 #: ../client/tournament.ts:539 ../client/tournament.ts:549
 #: ../client/tournament.ts:559
 msgid "Berserk rate"
-msgstr "อัตรากดบ้าเลือด"
+msgstr "อัตราเบอร์เซิร์ก"
 
 #: ../client/tournament.ts:316
 msgid "Download all games"
