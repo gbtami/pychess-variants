@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
-# Артем Артем, 2021
 # Roman Fighter2021, 2021
+# Артем Артем, 2021
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-11-09 10:47+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Roman Fighter2021, 2021\n"
+"Last-Translator: Артем Артем, 2021\n"
 "Language-Team: Russian (https://www.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -136,6 +136,8 @@ msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
 msgstr ""
+"Чтобы играть на PyChess, необходимо иметь открытую и не помеченную учетную "
+"запись на Lichess."
 
 #: ../client/about.ts:113
 msgid ""
@@ -230,7 +232,7 @@ msgstr "Показать пункты назначения"
 
 #: ../client/boardSettings.ts:323
 msgid "Promote to the top choice automatically"
-msgstr ""
+msgstr "Автоматическое превращение в сильнейшую фигуру"
 
 #: ../client/boardSettings.ts:341
 msgid "Best move arrow in analysis board"
@@ -242,7 +244,7 @@ msgstr "Невидимые фигуры"
 
 #: ../client/boardSettings.ts:389
 msgid "Show material difference"
-msgstr ""
+msgstr "Показывать материальную разницу"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -716,135 +718,135 @@ msgstr "Розовые"
 
 #: ../client/i18n.ts:63
 msgid "chess"
-msgstr ""
+msgstr "шахматы"
 
 #: ../client/i18n.ts:63
 msgid "crazyhouse"
-msgstr ""
+msgstr "сумасшедший дом"
 
 #: ../client/i18n.ts:63
 msgid "placement"
-msgstr ""
+msgstr "расстановка"
 
 #: ../client/i18n.ts:63
 msgid "atomic"
-msgstr ""
+msgstr "атомные"
 
 #: ../client/i18n.ts:65
 msgid "makruk"
-msgstr ""
+msgstr "макрук"
 
 #: ../client/i18n.ts:65
 msgid "makpong"
-msgstr ""
+msgstr "макпонг"
 
 #: ../client/i18n.ts:65
 msgid "ouk chatrang"
-msgstr ""
+msgstr "оук чатранг"
 
 #: ../client/i18n.ts:65
 msgid "sittuyin"
-msgstr ""
+msgstr "ситтуйин"
 
 #: ../client/i18n.ts:65
 msgid "asean"
-msgstr ""
+msgstr "асеан"
 
 #: ../client/i18n.ts:67
 msgid "shogi"
-msgstr ""
+msgstr "сёги"
 
 #: ../client/i18n.ts:67
 msgid "minishogi"
-msgstr ""
+msgstr "минисёги"
 
 #: ../client/i18n.ts:67
 msgid "kyoto shogi"
-msgstr ""
+msgstr "киото сёги"
 
 #: ../client/i18n.ts:68
 msgid "dobutsu"
-msgstr ""
+msgstr "добуцу"
 
 #: ../client/i18n.ts:68
 msgid "gorogoro"
-msgstr ""
+msgstr "горогоро "
 
 #: ../client/i18n.ts:68
 msgid "tori shogi"
-msgstr ""
+msgstr "тори сёги"
 
 #: ../client/i18n.ts:70
 msgid "xiangqi"
-msgstr ""
+msgstr "сянци"
 
 #: ../client/i18n.ts:70
 msgid "manchu"
-msgstr ""
+msgstr "маньчжурские"
 
 #: ../client/i18n.ts:70
 msgid "janggi"
-msgstr ""
+msgstr "чанги"
 
 #: ../client/i18n.ts:70
 msgid "minixiangqi"
-msgstr ""
+msgstr "минисянци"
 
 #: ../client/i18n.ts:72
 msgid "capablanca"
-msgstr ""
+msgstr "Капабланка"
 
 #: ../client/i18n.ts:72
 msgid "capahouse"
-msgstr ""
+msgstr "Капахаус"
 
 #: ../client/i18n.ts:72
 msgid "s-chess"
-msgstr ""
+msgstr "S-шахматы"
 
 #: ../client/i18n.ts:72
 msgid "s-house"
-msgstr ""
+msgstr "S-хаус"
 
 #: ../client/i18n.ts:73
 msgid "grand"
-msgstr ""
+msgstr "гранд"
 
 #: ../client/i18n.ts:73
 msgid "grandhouse"
-msgstr ""
+msgstr "грандхаус"
 
 #: ../client/i18n.ts:73
 msgid "shako"
-msgstr ""
+msgstr "кивер"
 
 #: ../client/i18n.ts:73
 msgid "shogun"
-msgstr ""
+msgstr "сёгун"
 
 #: ../client/i18n.ts:73
 msgid "hoppel-poppel"
-msgstr ""
+msgstr "хоппель-поппель"
 
 #: ../client/i18n.ts:75
 msgid "orda"
-msgstr ""
+msgstr "орда"
 
 #: ../client/i18n.ts:75
 msgid "synochess"
-msgstr ""
+msgstr "синочесс"
 
 #: ../client/i18n.ts:75
 msgid "shinobi"
-msgstr ""
+msgstr "шиноби"
 
 #: ../client/i18n.ts:75
 msgid "empire"
-msgstr ""
+msgstr "империя"
 
 #: ../client/i18n.ts:75
 msgid "orda mirror"
-msgstr ""
+msgstr "зеркальная орда"
 
 #: ../client/invite.ts:35 ../client/lobby.ts:514
 msgid "Host a game for others"
@@ -1145,7 +1147,7 @@ msgstr "Дать 15 секунд"
 
 #: ../client/roundCtrl.ts:450
 msgid "Berserk"
-msgstr ""
+msgstr "Берсерк"
 
 #: ../client/roundCtrl.ts:500
 msgid "Abort"
@@ -1343,7 +1345,7 @@ msgstr "Ничьих"
 #: ../client/tournament.ts:539 ../client/tournament.ts:549
 #: ../client/tournament.ts:559
 msgid "Berserk rate"
-msgstr ""
+msgstr "Процент берсерка"
 
 #: ../client/tournament.ts:316
 msgid "Download all games"

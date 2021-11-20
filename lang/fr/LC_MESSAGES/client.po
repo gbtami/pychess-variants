@@ -137,6 +137,7 @@ msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
 msgstr ""
+"Pour jouer sur PyChess, il faut un compte sur Lichess ouvert et non-marqué"
 
 #: ../client/about.ts:113
 msgid ""
@@ -231,7 +232,7 @@ msgstr "Mettre en évidence les cases de destination"
 
 #: ../client/boardSettings.ts:323
 msgid "Promote to the top choice automatically"
-msgstr ""
+msgstr "Promouvoir au premier choix automatiquement"
 
 #: ../client/boardSettings.ts:341
 msgid "Best move arrow in analysis board"
@@ -243,7 +244,7 @@ msgstr "Pièces invisibles"
 
 #: ../client/boardSettings.ts:389
 msgid "Show material difference"
-msgstr ""
+msgstr "Afficher la différence de matériel"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -698,7 +699,7 @@ msgstr "Les roses"
 
 #: ../client/i18n.ts:63
 msgid "chess"
-msgstr ""
+msgstr "échecs"
 
 #: ../client/i18n.ts:63
 msgid "crazyhouse"

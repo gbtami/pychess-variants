@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
 # 
 # Translators:
-# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # Li Yao'an, 2021
+# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-11-09 10:47+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Li Yao'an, 2021\n"
+"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -30,6 +30,7 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
+"\"对于我来说，我们能走到今天，在很大程度上要归功于Stockfish。他们召集了全球的志愿者，本着开源的精神，共同创造了一个如此强大的免费引擎。他们这可是聚集了很多优秀的人才和计算能力。"
 
 #: ../client/about.ts:11
 msgid ""
@@ -37,6 +38,7 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
+"接下来我们还须感谢Lichess。Lichess同样是开源精神的产物，也同样吸引了大批人才。自从Lichess将Stockfish作为其思维主脑，剩下的就人尽皆知了。"
 
 #: ../client/about.ts:12
 msgid ""
@@ -45,6 +47,7 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
+"Lichess实现了游戏的线上、实时和竞争几个方面。他们同时还将Stockfish的巨大力量带给了大众，使得大众现在无须配置本地GUI也可从中受益。我认为这一发展产生了巨大的影响和意义。"
 
 #: ../client/about.ts:13
 msgid ""
@@ -55,6 +58,10 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
+"后来，熟悉Lichess项目的开发者最终将Stockfish扩展为Multivariant-"
+"Stockfish（即多变体Stockfish），以支持Crazyhouse等。Fairy-"
+"Stockfish之父Fabian也是那些（仍然）致力于该多变体Stockfish的开发者之一，而他后来在变体支持和扩展性方面又迈出了几步。就此"
+"，Fairy-Stockfish诞生了，其作为建立在Stockfish基础上的项目，是如此的强大。"
 
 #: ../client/about.ts:14
 msgid ""
@@ -63,6 +70,8 @@ msgid ""
 "competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
 " power of Stockfish!\""
 msgstr ""
+"最后是我们心爱的pychess-"
+"variants，它再次非常聪明地利用了之前大项目的潜在超级力量。其有着同样的线上、实时和竞争的方面；同样干净和熟悉的Lichess外观和感觉；但额外加上了Stockfish的力量！\""
 
 #: ../client/about.ts:19
 msgid "About pychess"
@@ -199,7 +208,7 @@ msgstr "表示棋子走到位置"
 
 #: ../client/boardSettings.ts:323
 msgid "Promote to the top choice automatically"
-msgstr ""
+msgstr "自动升变为第一选择"
 
 #: ../client/boardSettings.ts:341
 msgid "Best move arrow in analysis board"
@@ -211,7 +220,7 @@ msgstr "隐形棋子"
 
 #: ../client/boardSettings.ts:389
 msgid "Show material difference"
-msgstr ""
+msgstr "显示子力差别"
 
 #: ../client/chart.ts:21
 msgid "Initial position"
@@ -602,7 +611,7 @@ msgstr "粉红棋"
 
 #: ../client/i18n.ts:63
 msgid "chess"
-msgstr ""
+msgstr "国际象棋"
 
 #: ../client/i18n.ts:63
 msgid "crazyhouse"
@@ -618,7 +627,7 @@ msgstr ""
 
 #: ../client/i18n.ts:65
 msgid "makruk"
-msgstr ""
+msgstr "泰国象棋"
 
 #: ../client/i18n.ts:65
 msgid "makpong"
@@ -626,55 +635,55 @@ msgstr ""
 
 #: ../client/i18n.ts:65
 msgid "ouk chatrang"
-msgstr ""
+msgstr "柬埔寨象棋"
 
 #: ../client/i18n.ts:65
 msgid "sittuyin"
-msgstr ""
+msgstr "缅甸象棋"
 
 #: ../client/i18n.ts:65
 msgid "asean"
-msgstr ""
+msgstr "亚细安象棋"
 
 #: ../client/i18n.ts:67
 msgid "shogi"
-msgstr ""
+msgstr "日本将棋"
 
 #: ../client/i18n.ts:67
 msgid "minishogi"
-msgstr ""
+msgstr "5五将棋"
 
 #: ../client/i18n.ts:67
 msgid "kyoto shogi"
-msgstr ""
+msgstr "京都将棋"
 
 #: ../client/i18n.ts:68
 msgid "dobutsu"
-msgstr ""
+msgstr "动物将棋"
 
 #: ../client/i18n.ts:68
 msgid "gorogoro"
-msgstr ""
+msgstr "五六将棋"
 
 #: ../client/i18n.ts:68
 msgid "tori shogi"
-msgstr ""
+msgstr "禽将棋"
 
 #: ../client/i18n.ts:70
 msgid "xiangqi"
-msgstr ""
+msgstr "象棋"
 
 #: ../client/i18n.ts:70
 msgid "manchu"
-msgstr ""
+msgstr "满族"
 
 #: ../client/i18n.ts:70
 msgid "janggi"
-msgstr ""
+msgstr "韩国将棋"
 
 #: ../client/i18n.ts:70
 msgid "minixiangqi"
-msgstr ""
+msgstr "迷你象棋"
 
 #: ../client/i18n.ts:72
 msgid "capablanca"
@@ -1215,7 +1224,7 @@ msgstr "和棋"
 #: ../client/tournament.ts:539 ../client/tournament.ts:549
 #: ../client/tournament.ts:559
 msgid "Berserk rate"
-msgstr ""
+msgstr "快棋率"
 
 #: ../client/tournament.ts:316
 msgid "Download all games"
