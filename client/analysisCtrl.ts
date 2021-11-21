@@ -181,7 +181,7 @@ export default class AnalysisController {
         this.status = model["status"] as number;
         this.steps = [];
         this.pgn = "";
-        this.ply = 0;
+        this.ply = model["ply"];
 
         this.flip = false;
         this.settings = true;
@@ -495,8 +495,8 @@ export default class AnalysisController {
                 lastMove: lastMove,
             });
         }
-        if (this.model["ply"]) {
-            this.ply = parseInt(this.model["ply"])
+        if (this.model["ply"] > 0) {
+            this.ply = this.model["ply"]
             selectMove(this, this.ply);
         }
     }
