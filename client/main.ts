@@ -39,7 +39,7 @@ export type PyChessModel = {
     tournamentId: string;
     tournamentname: string;
     inviter: string;
-    ply: string;
+    ply: number;
     wplayer: string;
     wtitle: string;
     wrating: string; // string, because can contain "?" suffix for provisional rating
@@ -81,7 +81,7 @@ function initModel(el: HTMLElement) {
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
-        ply : el.getAttribute("data-ply") ?? "",
+        ply : parseInt(""+el.getAttribute("data-ply")),
         wplayer : el.getAttribute("data-wplayer") ?? "",
         wtitle : el.getAttribute("data-wtitle") ?? "",
         wrating : el.getAttribute("data-wrating") ?? "",

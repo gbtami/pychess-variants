@@ -234,7 +234,7 @@ export default class RoundController {
         this.tv = model["tv"];
         this.steps = [];
         this.pgn = "";
-        this.ply = -1;
+        this.ply = model["ply"];
 
         this.flip = false;
         this.settings = true;
@@ -800,9 +800,9 @@ export default class RoundController {
         let latestPly;
         if (this.spectator) {
             // Fix https://github.com/gbtami/pychess-variants/issues/687
-            latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
+            latestPly = (this.ply === 0 || msg.ply === this.ply + 1);
         } else {
-            latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
+            latestPly = (this.ply === 0 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
                                                                         // its ply might be ahead with 2 ply - our move that failed to get confirmed
                                                                         // because of disconnect and then also opp's reply to it, that we didn't
                                                                         // receive while offline. Not sure if it could be ahead with more than 2 ply

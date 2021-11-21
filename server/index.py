@@ -390,8 +390,8 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
-            if ply is not None:
-                render["ply"] = ply
+            # if ply is not None:
+            render["ply"] = ply if ply is not None else game.board.ply
             if game.tournamentId is not None:
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name
