@@ -507,11 +507,11 @@ export default class AnalysisController {
 
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
-            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.DEFAULT;
+            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
             case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
             case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
             case cg.Notation.XIANGQI_ARBNUM: return this.ffish.Notation.XIANGQI_WXF;
-            default: return this.ffish.Notation.DEFAULT;
+            default: return this.ffish.Notation.SAN;
         }
     }
 
