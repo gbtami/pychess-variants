@@ -1205,21 +1205,24 @@ export default class RoundController {
                 this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
-            // Janggi pass and Sittuyin in place promotion on Ctrl+click
+            // Janggi pass and Sittuyin in place promotion on double click
             if (lastKey === key && curTime - lastTime < 500) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
-                    const piece = this.chessground.state.pieces.get(key);
+                    const piece = this.chessground.state.pieces.get(key)!;
                     if (this.variant.name === 'sittuyin') { // TODO make this more generic
                         // console.log("Ctrl in place promotion", key);
                         const pieces: cg.Pieces = new Map();
                         pieces.set(key, {
-                            color: piece!.color,
+                            color: piece.color,
                             role: 'f-piece',
                             promoted: true
                         });
                         this.chessground.setPieces(pieces);
+                        this.chessground.state.movable.dests = undefined;
+                        this.chessground.selectSquare(key);
+                        sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
-                    } else if (this.variant.pass && piece!.role === 'k-piece') {
+                    } else if (this.variant.pass && piece.role === 'k-piece') {
                         this.pass();
                     }
                 }
