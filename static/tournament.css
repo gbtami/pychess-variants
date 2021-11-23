@@ -113,6 +113,10 @@ button#action {
 button#action::before {
     margin-right: 0.4em;
 }
+button#action:action {
+top: 5px;
+border-bottom: none;
+}
 
 .players {
     grid-area: main;
