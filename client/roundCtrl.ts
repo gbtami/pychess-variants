@@ -905,10 +905,7 @@ export default class RoundController {
         }
 
         const step = this.steps[this.steps.length - 1];
-        let capture = false;
-        if (step.san !== undefined) {
-            capture = step.san.slice(1, 2) === 'x';
-        }
+        const capture = (lastMove !== null) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
         if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
@@ -1029,7 +1026,7 @@ export default class RoundController {
             move = moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
-            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && !!step.san && step.san.slice(0, 2) !== 'O-') || (!!step.san && step.san.slice(1, 2) === 'x');
+            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
@@ -1205,21 +1202,24 @@ export default class RoundController {
                 this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
-            // Janggi pass and Sittuyin in place promotion on Ctrl+click
+            // Janggi pass and Sittuyin in place promotion on double click
             if (lastKey === key && curTime - lastTime < 500) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
-                    const piece = this.chessground.state.pieces.get(key);
+                    const piece = this.chessground.state.pieces.get(key)!;
                     if (this.variant.name === 'sittuyin') { // TODO make this more generic
                         // console.log("Ctrl in place promotion", key);
                         const pieces: cg.Pieces = new Map();
                         pieces.set(key, {
-                            color: piece!.color,
+                            color: piece.color,
                             role: 'f-piece',
                             promoted: true
                         });
                         this.chessground.setPieces(pieces);
+                        this.chessground.state.movable.dests = undefined;
+                        this.chessground.selectSquare(key);
+                        sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
-                    } else if (this.variant.pass && piece!.role === 'k-piece') {
+                    } else if (this.variant.pass && piece.role === 'k-piece') {
                         this.pass();
                     }
                 }
