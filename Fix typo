@@ -113,7 +113,7 @@ button#action {
 button#action::before {
     margin-right: 0.4em;
 }
-button#action:action {
+button#action:active {
 top: 5px;
 border-bottom: none;
 }
