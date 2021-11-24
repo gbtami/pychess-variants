@@ -108,10 +108,22 @@ button#action {
     border-bottom: 5px solid #759900;
     color: white;
     background-color: var(--green-hover);
-    font-size:1.6em;
+    font-size:1.2em;
+    text-shadow: 0 -1px #759900;
+    transform: translate(0px, 0px);
 }
 button#action::before {
     margin-right: 0.4em;
+}
+button#action:hover {
+    filter: brightness(1.06);
+    background-color: var(--tour-btn-hover);
+}
+button#action:active {
+    transform:translate(0px, 5px);
+    border-bottom-width:1px;
+    text-shadow:0 0 #759900;
+    filter:brightness(1);
 }
 
 .players {
