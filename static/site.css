@@ -68,7 +68,6 @@
     --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
     --chat-entry-border-top: #d9d9d9;
     --chat-entry-bg: #fafaf9; 
-    --tour-btn-hover: #89b25b;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -122,7 +121,6 @@
     --box-shadow-panel-btn: none;
     --chat-entry-border-top: #404040;
     --chat-entry-bg: #262421; 
-    --tour-btn-hover: #537c23;
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
