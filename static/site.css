@@ -560,7 +560,20 @@ ul.guide li {
     margin: 0;
 }
 }
-
+.login.nav-link {
+    align-self: center;
+    display: inline-block;
+    font-size: 1.2em;
+    border-radius: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 5px;
+    line-height: normal;
+}
+.login.nav-link:hover{
+    background-color: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+}
 .nav-link {
     line-height: var(--site-header-height);
 }
