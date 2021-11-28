@@ -839,7 +839,8 @@ class Tournament(ABC):
         await self.delayed_free(game, wplayer, bplayer)
 
     async def delayed_free(self, game, wplayer, bplayer):
-        await asyncio.sleep(3)
+        if self.system == ARENA:
+            await asyncio.sleep(3)
 
         wplayer.free = True
         bplayer.free = True

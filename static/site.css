@@ -560,7 +560,20 @@ ul.guide li {
     margin: 0;
 }
 }
-
+.login.nav-link {
+    align-self: center;
+    display: inline-block;
+    font-size: 1.2em;
+    border-radius: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 5px;
+    line-height: normal;
+}
+.login.nav-link:hover{
+    background-color: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+}
 .nav-link {
     line-height: var(--site-header-height);
 }
@@ -1592,19 +1605,26 @@ label {
 }
 
 .radio-group input[type=radio]:checked + label {
+    box-shadow: inset 0 2px 5px #537c23;
     color: White;
-    background: DimGray;
+    background: #629924;
+    text-shadow: 0 1px 1px #003d00;
 }
 
 .radio-group label + input[type=radio] + label {
-    border-left: solid 1px #675f6b;
+    border-left: 1px solid var(--border-color);
 }
 
 .radio-group {
-    border: solid 1px #675f6b;
+    border: 1px solid var(--border-color);
+    box-shadow:  var(--base-shadow);
     display: inline-block;
     margin: 12px;
     overflow: hidden;
+    border-radius: 4px;
+    color: var(--font-color);
+    background-color: var(--bg-color2);
+    text-shadow: 0 1px 0 var(--text-shadow);
 }
 
 /* Chat */
