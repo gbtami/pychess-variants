@@ -186,13 +186,13 @@ height: 24px;
 .sw-slider {
 position: absolute;
 cursor: pointer;
-border: 1px solid #D3D3D3;
+border: 1px solid var(--border-color);
 border-radius: 24px;
 top: 0;
 left: 0;
 right: 0;
 bottom: 0;
-background-color: #C0C0C0;
+background-color: var(--toggle-bg);
 -webkit-transition: .1s;
 transition: .1s;
 }
@@ -205,7 +205,7 @@ width: 22px;
 left: 0px;
 bottom: 0px;
 box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
-background-color: #F5F5F5;
+background-color: var(--bg-color2);
 border-radius: 50%;
 -webkit-transition: .1s;
 transition: .1s
