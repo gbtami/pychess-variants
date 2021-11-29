@@ -1201,10 +1201,16 @@ table#seeks-header, table#seeks {
     font-size: 1.1rem;
     text-transform: uppercase; 
     font-weight: 300;
+    text-shadow: 0 1px 0 var(--text-shadow);
 }
 #seekbuttons > button:hover {
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
+}
+#seekbuttons > button:focus {
+    background: #ff4f00;
+    color: #fff;
+    text-shadow: 0 1px 1px #000000;
 }
 /* The Modal (background) */
 .modal {
