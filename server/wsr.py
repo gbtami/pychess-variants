@@ -29,7 +29,7 @@ async def round_socket_handler(request):
     seeks = request.app["seeks"]
     db = request.app["db"]
 
-    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
+    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=15.0)
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -64,8 +64,7 @@ async def round_socket_handler(request):
                     if data["type"] == "move":
                         # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
 
-                        lock = asyncio.Lock()
-                        async with lock:
+                        async with game.move_lock:
                             try:
                                 await play_move(request.app, user, game, data["move"], data["clocks"], data["ply"])
                             except Exception:
@@ -331,8 +330,7 @@ async def round_socket_handler(request):
                             # see  https://github.com/gbtami/pychess-variants/issues/675
                             continue
 
-                        lock = asyncio.Lock()
-                        async with lock:
+                        async with game.move_lock:
                             response = await game.game_ended(user, data["type"])
 
                         await ws.send_json(response)

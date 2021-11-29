@@ -68,6 +68,7 @@
     --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
     --chat-entry-border-top: #d9d9d9;
     --chat-entry-bg: #fafaf9; 
+    --toggle-bg: #c0c0c0;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -121,6 +122,7 @@
     --box-shadow-panel-btn: none;
     --chat-entry-border-top: #404040;
     --chat-entry-bg: #262421; 
+    --toggle-bg: #696969;
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
@@ -1199,10 +1201,16 @@ table#seeks-header, table#seeks {
     font-size: 1.1rem;
     text-transform: uppercase; 
     font-weight: 300;
+    text-shadow: 0 1px 0 var(--text-shadow);
 }
 #seekbuttons > button:hover {
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
+}
+#seekbuttons > button:focus {
+    background: #ff4f00;
+    color: #fff;
+    text-shadow: 0 1px 1px #000000;
 }
 /* The Modal (background) */
 .modal {

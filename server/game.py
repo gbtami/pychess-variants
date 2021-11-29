@@ -195,6 +195,8 @@ class Game:
         self.wberserk = False
         self.bberserk = False
 
+        self.move_lock = asyncio.Lock()
+
     @staticmethod
     def create_board(variant, initial_fen, chess960, count_started):
         return FairyBoard(variant, initial_fen, chess960, count_started)
