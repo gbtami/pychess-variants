@@ -781,9 +781,9 @@ class Tournament(ABC):
 
         wplayer.points[-1] = wpoint
         bplayer.points[-1] = bpoint
-        if wpoint[1] == STREAK:
+        if wpoint[1] == STREAK and len(wplayer.points) >= 2:
             wplayer.points[-2] = (wplayer.points[-2][0], STREAK)
-        if bpoint[1] == STREAK:
+        if bpoint[1] == STREAK and len(bplayer.points) >= 2:
             bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
 
         wplayer.rating = game.white_rating.rating_prov[0] + (int(game.wrdiff) if game.wrdiff else 0)
@@ -812,6 +812,8 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
+        self.delayed_free(game, wplayer, bplayer)
+
         # TODO: save player points to db
         # await self.db_update_player(wplayer, self.players[wplayer])
         # await self.db_update_player(bplayer, self.players[bplayer])
@@ -836,11 +838,10 @@ class Tournament(ABC):
                         tgj = self.top_game_json
                         await self.broadcast(tgj)
 
-        await self.delayed_free(game, wplayer, bplayer)
-
-    async def delayed_free(self, game, wplayer, bplayer):
-        if self.system == ARENA:
-            await asyncio.sleep(3)
+    def delayed_free(self, game, wplayer, bplayer):
+        # TODO: this should be a task, unless it slows down to send response to game end messages !!!
+        # if self.system == ARENA:
+        #     await asyncio.sleep(3)
 
         wplayer.free = True
         bplayer.free = True
