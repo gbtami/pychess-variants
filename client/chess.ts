@@ -48,7 +48,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     xiangqi7x7: { geometry: cg.Geometry.dim7x7, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
     janggi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
     shogun8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
-    chak9x9:{ geometry: cg.Geometry.dim9x9, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg"] },
+    chak9x9:{ geometry: cg.Geometry.dim9x9, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
