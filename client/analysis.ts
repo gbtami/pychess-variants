@@ -6,6 +6,7 @@ import AnalysisController from './analysisCtrl';
 import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS } from './chess';
 import { renderTimeago } from './datetime';
+import { spinner } from './spinner';
 import { PyChessModel } from "./main";
 
 function runGround(vnode: VNode, model: PyChessModel) {
@@ -160,7 +161,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                     h('div#ctable-container'),
                     h('div.chart-container', [
                         h('div#chart'),
-                        h('div#loader-wrapper', [h('div#loader')])
+                        h('div#loader-wrapper', [spinner()])
                     ]),
                     h('div#fentext', [
                         h('strong', 'FEN'),
