@@ -706,6 +706,17 @@ ul.guide li {
 
 #settings-buttons button {
     text-align: left;
+    padding-left: 1rem;
+    padding-right: 2rem;
+}
+#settings-buttons button:hover {
+    color: #fff;
+}
+button#btn-logout:hover {
+    background-color: #c33;
+}
+button#btn-lang:hover, button#btn-sound:hover, button#btn-background:hover, button#btn-board:hover, button#btn-zen:hover {
+    background-color: var(--green-hover);
 }
 
 #settings input[type="radio"]:checked+label {
