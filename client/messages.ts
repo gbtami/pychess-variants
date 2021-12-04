@@ -59,7 +59,7 @@ export interface MsgBoard {
     promo: string[];
     bikjang: boolean;
     check: boolean;
-
+    by: string;
     status: number;
     pgn: string;
     uci_usi: string;

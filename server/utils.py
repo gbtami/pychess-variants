@@ -217,6 +217,9 @@ async def load_game(app, game_id):
         game.wberserk = doc.get("wb", False)
         game.bberserk = doc.get("bb", False)
 
+    if doc.get("by") is not None:
+        game.imported_by = doc.get("by")
+
     return game
 
 
