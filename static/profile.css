@@ -1,6 +1,16 @@
 @media (max-width: 799px) and (orientation: portrait) {
-    .page-menu {
+    ul.perfs {
+        margin: 4vmin;
         display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        padding: 0;
+        grid-gap: 6px;
+    }
+    .sub-ratings a span rating {
+        display: flex;
+    }
+    .sub-ratings h3, rating span, .sub-ratings a span rating span {
+        display: none;
     }
 }
 
