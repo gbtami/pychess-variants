@@ -126,6 +126,7 @@ export default class AnalysisController {
     notationAsObject: any;
     prevPieces: cg.Pieces;
     arrow: boolean;
+    importedBy: string;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         this.isAnalysisBoard = model["gameId"] === "";
@@ -188,6 +189,7 @@ export default class AnalysisController {
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
+        this.importedBy = '';
 
         this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
         this.hasPockets = this.variant.pocket;
@@ -404,6 +406,15 @@ export default class AnalysisController {
                 h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
                     h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
                 ]
+
+            // Enable to delete imported games
+            if (this.model["rated"] === '2' && this.importedBy === this.model["username"]) {
+                buttons.push(
+                    h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
+                        h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _(' Delete game'))])
+                );
+            }
+
             if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
                 buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
                     h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
@@ -419,8 +430,14 @@ export default class AnalysisController {
         this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
     }
 
+    private deleteGame() {
+        this.doSend({ type: "delete", gameId: this.gameId });
+    }
+
     private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
+
+        this.importedBy = msg.by;
 
         // console.log("got board msg:", msg);
         this.ply = msg.ply
@@ -1141,8 +1158,15 @@ export default class AnalysisController {
     }
 
     private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-        this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
-        this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
+        // imported games has no crosstable
+        if (this.model["rated"] !== '2') {
+            this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
+        }
+    }
+
+    private onMsgDeleted = () => {
+        window.location.assign(this.model["home"] + "/@/" + this.model["username"] + '/import');
     }
 
     private onMessage = (evt: MessageEvent) => {
@@ -1185,6 +1209,9 @@ export default class AnalysisController {
                 break;
             case "request_analysis":
                 this.onMsgRequestAnalysis()
+                break;
+            case "deleted":
+                this.onMsgDeleted();
                 break;
         }
     }

@@ -52,6 +52,7 @@ class Game:
         self.tournamentId = tournamentId
         self.chess960 = chess960
         self.create = create
+        self.imported_by = ""
 
         self.berserk_time = self.base * 1000 * 30
 
@@ -810,6 +811,7 @@ class Game:
                 "rm": self.random_move if self.status <= STARTED else "",
                 "ct": crosstable,
                 "berserk": {"w": self.wberserk, "b": self.bberserk},
+                "by": self.imported_by,
                 }
 
     def game_json(self, player):

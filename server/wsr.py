@@ -518,6 +518,11 @@ async def round_socket_handler(request):
                             response = {"type": "count", "message": "You can only start/stop board's honor counting on your own turn!", "room": "player", "user": ""}
                             await ws.send_json(response)
 
+                    elif data["type"] == "delete":
+                        await db.game.delete_one({"_id": data["gameId"]})
+                        response = {"type": "deleted"}
+                        await ws.send_json(response)
+
             elif msg.type == aiohttp.WSMsgType.CLOSED:
                 log.debug("--- Round websocket %s msg.type == aiohttp.WSMsgType.CLOSED", id(ws))
                 break
