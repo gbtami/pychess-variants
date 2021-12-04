@@ -163,6 +163,7 @@ span.title {
 }
 span.name {
     padding-right: 5px;
+    white-space: nowrap;
 }
 td.sheet {
     text-align: right;
