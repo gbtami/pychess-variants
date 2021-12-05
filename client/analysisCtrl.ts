@@ -431,7 +431,9 @@ export default class AnalysisController {
     }
 
     private deleteGame() {
-        this.doSend({ type: "delete", gameId: this.gameId });
+        if (confirm(_('Are you sure you want to delete this game?'))) {
+            this.doSend({ type: "delete", gameId: this.gameId });
+        }
     }
 
     private onMsgBoard = (msg: MsgBoard) => {
