@@ -23,7 +23,6 @@ class User:
     def __init__(self, app, bot=False, username=None, anon=False, title="", perfs=None, enabled=True):
         self.app = app
         self.db = app["db"] if "db" in app else None
-        self.notify_queue = None
         self.bot = bot
         self.anon = anon
         if username is None:

@@ -4,7 +4,7 @@ from bot_api import account, playing, event_stream, game_stream, bot_abort,\
 from fishnet import fishnet_monitor, fishnet_key, fishnet_acquire,\
     fishnet_abort, fishnet_analysis, fishnet_move
 from game_api import export, get_games, get_user_games, subscribe_games,\
-    subscribe_notify, subscribe_invites, get_variant_stats, cancel_invite
+    subscribe_invites, get_variant_stats, cancel_invite
 from utils import import_game
 from login import login, logout, oauth
 from index import index, robots, select_lang
@@ -72,7 +72,6 @@ get_routes = (
     ("/api/games", get_games),
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),
-    ("/api/notify", subscribe_notify),
     ("/paste", index),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
     ("/games/export/{profileId}", export),
