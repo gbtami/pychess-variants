@@ -905,7 +905,7 @@ export default class AnalysisController {
         const white = '[White "?"]';
         const black = '[Black "?"]';
         const result = '[Result "*"]';
-        const variant = `[Variant "${titleCase(this.variant.displayName())}"]`;
+        const variant = `[Variant "${titleCase(this.variant.name)}"]`;
         const fen = `[FEN "${this.steps[0].fen}"]`;
         const setup = '[SetUp "1"]';
 
