@@ -201,28 +201,6 @@ async def subscribe_games(request):
     return response
 
 
-async def subscribe_notify(request):
-    async with sse_response(request) as response:
-        session = await aiohttp_session.get_session(request)
-        session_user = session.get("user_name")
-
-        user = request.app["users"].get(session_user)
-        if user is None:
-            return response
-
-        user.notify_queue = asyncio.Queue()
-        try:
-            while not response.task.done():
-                payload = await user.notify_queue.get()
-                await response.send(payload)
-                user.notify_queue.task_done()
-        except ConnectionResetError:
-            pass
-        finally:
-            user.notify_queue = None
-    return response
-
-
 async def get_games(request):
     games = request.app["games"]
     # TODO: filter last 10 by variant

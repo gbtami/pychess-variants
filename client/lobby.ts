@@ -10,7 +10,6 @@ import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView } from './chat';
 import { validFen, VARIANTS, selectVariant, Variant } from './chess';
-import { sound } from './sound';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
@@ -842,9 +841,6 @@ export class LobbyController {
     }
     private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat", msg.time);
-        // seems this is annoying for most of the users
-        //if (msg.user.length !== 0 && msg.user !== '_server')
-        //    sound.socialNotify();
     }
     private onMsgFullChat(msg: MsgFullChat) {
         // To prevent multiplication of messages we have to remove old messages div first
@@ -916,16 +912,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
     */
 
     boardSettings.updateBoardAndPieceStyles();
-
-    if (model['anon'] === 'False') {
-        const evtSource = new EventSource(model["home"] + "/api/notify");
-        // console.log("new EventSource" + model["home"] + "/api/notify");
-        evtSource.onmessage = e => {
-            const message = JSON.parse(e.data);
-            console.log(message);
-            sound.socialNotify();
-        };
-    }
 
     return [
         h('aside.sidebar-first', [

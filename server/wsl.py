@@ -122,11 +122,6 @@ async def lobby_socket_handler(request):
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
-                        if data.get("target"):
-                            queue = users[data["target"]].notify_queue
-                            if queue is not None:
-                                await queue.put(json.dumps({"notify": "new_challenge"}))
-
                         # Send msg to discord-relay BOT
                         try:
                             for dr_ws in sockets["Discord-Relay"]:
