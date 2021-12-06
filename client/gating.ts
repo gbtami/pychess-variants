@@ -5,7 +5,7 @@ import { toVNode } from 'snabbdom/tovnode';
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 
-import { getPockets, lc } from './chess';
+import { getPockets, lc, colorCase } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { patch, bind } from './document';
@@ -52,9 +52,9 @@ export class Gating {
             let rookOrig: cg.Key | null = null;
             const moveLength = dest.charCodeAt(0) - orig.charCodeAt(0);
 
-            const pieceMoved = ground.state.pieces.get(dest);
-            const pieceMovedRole: cg.Role = pieceMoved?.role ?? "k-piece";
-            if (pieceMovedRole === "k-piece") {
+            const movedPiece = ground.state.pieces.get(dest);
+            const movedRole: cg.Role = movedPiece?.role ?? "k-piece";
+            if (movedRole === "k-piece") {
                 // King long move is always castling move
                 if (Math.abs(moveLength) > 1 ) {
                     castling = true;
@@ -126,7 +126,7 @@ export class Gating {
 
         const parts = fen.split(" ");
         const castling = parts[2];
-        const color = parts[1];
+        const color = parts[1] === 'w' ? 'white' : 'black';
         // At the starting position, the virginities of both king AND rooks are encoded in KQkq
         // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
 
@@ -135,40 +135,19 @@ export class Gating {
 
         // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
 
-        const pieceMoved = ground.state.pieces.get(dest);
-        const pieceMovedRole: cg.Role = pieceMoved?.role ?? 'k-piece';
-        if (pieceMovedRole === 'k-piece' || pieceMovedRole === 'r-piece') {
-            if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
-                (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
-                const inverseDests = this.ctrl.dests.get(dest);
-                if (inverseDests !== undefined && inverseDests.includes(orig)) return true;
-            }
+        const movedPiece = ground.state.pieces.get(dest);
+        const movedRole: cg.Role = movedPiece?.role ?? 'k-piece';
+
+        const cc = (str: string) => colorCase(color, str);
+        const gateRank = color === 'white' ? '1' : '8';
+
+        if (orig[1] === gateRank) {
+            if (castling.includes(cc(orig[0])))
+                return true;
+            if (movedRole === 'k-piece' || movedRole === 'r-piece')
+                return castling.includes(cc("K")) || castling.includes(cc("Q"));
         }
-        if (color === 'w') {
-            switch (orig) {
-            case "a1": return castling.includes("A");
-            case "b1": return castling.includes("B");
-            case "c1": return castling.includes("C");
-            case "d1": return castling.includes("D");
-            case "e1": return castling.includes("E");
-            case "f1": return castling.includes("F");
-            case "g1": return castling.includes("G");
-            case "h1": return castling.includes("H");
-            default: return false;
-            }
-        } else {
-            switch (orig) {
-            case "a8": return castling.includes("a");
-            case "b8": return castling.includes("b");
-            case "c8": return castling.includes("c");
-            case "d8": return castling.includes("d");
-            case "e8": return castling.includes("e");
-            case "f8": return castling.includes("f");
-            case "g8": return castling.includes("g");
-            case "h8": return castling.includes("h");
-            default: return false;
-            }
-        }
+        return false;
     }
 
     private gate(orig: cg.Key, color: cg.Color, role: cg.Role) {

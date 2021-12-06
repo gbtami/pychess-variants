@@ -1030,6 +1030,15 @@ export function lc(str: string, letter: string, uppercase: boolean): number {
     return letterCount;
 }
 
+// Convert the string to uppercase if color is white,
+// or convert it to lowercase if color is black
+export function colorCase(color: cg.Color, str: string): string {
+    if (color === 'white')
+        return str.toUpperCase();
+    else
+        return str.toLowerCase();
+}
+
 export function notation(variant: Variant): cg.Notation {
     let cgNotation = cg.Notation.ALGEBRAIC;
 
