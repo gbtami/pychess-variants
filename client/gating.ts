@@ -116,36 +116,28 @@ export class Gating {
         }
     }
 
-    private canGate(ground: Api, fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
-        // A move can be gating in two cases: 1. normal move of one virgin piece 2. castling
-        // Determine that a move made was castling may be tricky in S-Chess960
-        // because we use autocastle on in chessground and after castling
-        // chessground pieces on dest square can be empty, rook or king.
-        // But when castling with gating possible, inverse move (rook takes king) also have to be in dests.
-        // So we will use this info to figure out wether castling+gating is possible or not.
-
+    private canGate(_ground: Api, fen: cg.FEN, orig: cg.Key, _dest: cg.Key) {
         const parts = fen.split(" ");
         const castling = parts[2];
         const color = parts[1] === 'w' ? 'white' : 'black';
-        // At the starting position, the virginities of both king AND rooks are encoded in KQkq
-        // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
-
-        // but after the king moves, rook virginity is encoded in AHah
-        // rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR[HEhe] w ABCDFGHabcdfgh - 2 3
-
-        // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
-
-        const movedPiece = ground.state.pieces.get(dest);
-        const movedRole: cg.Role = movedPiece?.role ?? 'k-piece';
 
         const cc = (str: string) => colorCase(color, str);
         const gateRank = color === 'white' ? '1' : '8';
 
         if (orig[1] === gateRank) {
-            if (castling.includes(cc(orig[0])))
+            if (castling.includes(cc(orig[0]))) {
                 return true;
-            if (movedRole === 'k-piece' || movedRole === 'r-piece')
-                return castling.includes(cc("K")) || castling.includes(cc("Q"));
+            }
+            if (!this.ctrl.chess960) {
+                // In non-960, if both the king and the corresponding rook haven't moved,
+                // the virginity of BOTH pieces will be encoded in the castling right
+                if (orig[0] === 'e' || orig[0] === 'h')
+                    if (castling.includes(cc('K')))
+                        return true;
+                if (orig[0] === 'e' || orig[0] === 'a')
+                    if (castling.includes(cc('Q')))
+                        return true;
+            }
         }
         return false;
     }
