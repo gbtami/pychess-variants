@@ -47,6 +47,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     janggi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
     shogun8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ geometry: cg.Geometry.dim9x9, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
+    chennis7x7:{ geometry: cg.Geometry.dim7x7, cg: "cg-448", boardCSS: ["chennis.png"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -71,6 +72,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     empire: { pieceCSS: ["empire0", "empire1"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
     chak: { pieceCSS: ["chak0"] },
+    chennis: { pieceCSS: ["chennis0"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
@@ -678,6 +680,19 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "C",
     }),
 
+    chennis: new Variant({
+        name: "chennis", tooltip: () => _("https://www.chessvariants.com/rules/chennis"),
+        startFen: "p1m1s1f/1k5/7/7/7/5K1/F1S1M1P[] w - 0 1",
+        board: "chennis7x7", piece: "chennis",
+        pieceRoles: ["k", "p", "m", "s", "f"],
+        pocketRoles: ["p", "m", "s", "f"],
+        promotion: "kyoto",
+        promoteablePieces: ["p", "m", "s", "f"],
+        isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
+        drop: true,
+        icon: "D",
+    }),
+
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
@@ -721,7 +736,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chennis" ] },
 };
 
 function variantGroupLabel(group: string): string {
