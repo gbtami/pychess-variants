@@ -9,7 +9,6 @@ import { getPockets, lc, colorCase } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { patch, bind } from './document';
-import { Api } from "chessgroundx/api";
 
 export interface Moves {
     normal?: cg.Key[],
@@ -34,7 +33,7 @@ export class Gating {
 
     start(fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
         const ground = this.ctrl.getGround();
-        if (this.canGate(ground, fen, orig, dest)) {
+        if (this.canGate(fen, orig)) {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
             this.choices = ['h', 'e', 'q', 'r', 'b', 'n'].filter(letter => lc(pocket, letter, color === "white") > 0).map(util.roleOf);
@@ -116,7 +115,7 @@ export class Gating {
         }
     }
 
-    private canGate(_ground: Api, fen: cg.FEN, orig: cg.Key, _dest: cg.Key) {
+    private canGate(fen: cg.FEN, orig: cg.Key) {
         const parts = fen.split(" ");
         const castling = parts[2];
         const color = parts[1] === 'w' ? 'white' : 'black';
