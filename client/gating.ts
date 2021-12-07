@@ -5,11 +5,10 @@ import { toVNode } from 'snabbdom/tovnode';
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 
-import { getPockets, lc } from './chess';
+import { getPockets, lc, colorCase } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { patch, bind } from './document';
-import { Api } from "chessgroundx/api";
 
 export interface Moves {
     normal?: cg.Key[],
@@ -34,7 +33,7 @@ export class Gating {
 
     start(fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
         const ground = this.ctrl.getGround();
-        if (this.canGate(ground, fen, orig, dest)) {
+        if (this.canGate(fen, orig)) {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
             this.choices = ['h', 'e', 'q', 'r', 'b', 'n'].filter(letter => lc(pocket, letter, color === "white") > 0).map(util.roleOf);
@@ -52,9 +51,9 @@ export class Gating {
             let rookOrig: cg.Key | null = null;
             const moveLength = dest.charCodeAt(0) - orig.charCodeAt(0);
 
-            const pieceMoved = ground.state.pieces.get(dest);
-            const pieceMovedRole: cg.Role = pieceMoved?.role ?? "k-piece";
-            if (pieceMovedRole === "k-piece") {
+            const movedPiece = ground.state.pieces.get(dest);
+            const movedRole: cg.Role = movedPiece?.role ?? "k-piece";
+            if (movedRole === "k-piece") {
                 // King long move is always castling move
                 if (Math.abs(moveLength) > 1 ) {
                     castling = true;
@@ -116,59 +115,30 @@ export class Gating {
         }
     }
 
-    private canGate(ground: Api, fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
-        // A move can be gating in two cases: 1. normal move of one virgin piece 2. castling
-        // Determine that a move made was castling may be tricky in S-Chess960
-        // because we use autocastle on in chessground and after castling
-        // chessground pieces on dest square can be empty, rook or king.
-        // But when castling with gating possible, inverse move (rook takes king) also have to be in dests.
-        // So we will use this info to figure out wether castling+gating is possible or not.
-
+    private canGate(fen: cg.FEN, orig: cg.Key) {
         const parts = fen.split(" ");
         const castling = parts[2];
-        const color = parts[1];
-        // At the starting position, the virginities of both king AND rooks are encoded in KQkq
-        // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1"
+        const color = parts[1] === 'w' ? 'white' : 'black';
 
-        // but after the king moves, rook virginity is encoded in AHah
-        // rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR[HEhe] w ABCDFGHabcdfgh - 2 3
+        const cc = (str: string) => colorCase(color, str);
+        const gateRank = color === 'white' ? '1' : '8';
 
-        // King virginity is encoded in Ee after either of the rooks move, but the king hasn't
-
-        const pieceMoved = ground.state.pieces.get(dest);
-        const pieceMovedRole: cg.Role = pieceMoved?.role ?? 'k-piece';
-        if (pieceMovedRole === 'k-piece' || pieceMovedRole === 'r-piece') {
-            if ((color === 'w' && orig[1] === "1" && (castling.includes("K") || castling.includes("Q"))) ||
-                (color === 'b' && orig[1] === "8" && (castling.includes("k") || castling.includes("q")))) {
-                const inverseDests = this.ctrl.dests.get(dest);
-                if (inverseDests !== undefined && inverseDests.includes(orig)) return true;
+        if (orig[1] === gateRank) {
+            if (castling.includes(cc(orig[0]))) {
+                return true;
+            }
+            if (!this.ctrl.chess960) {
+                // In non-960, if both the king and the corresponding rook haven't moved,
+                // the virginity of BOTH pieces will be encoded in the castling right
+                if (orig[0] === 'e' || orig[0] === 'h')
+                    if (castling.includes(cc('K')))
+                        return true;
+                if (orig[0] === 'e' || orig[0] === 'a')
+                    if (castling.includes(cc('Q')))
+                        return true;
             }
         }
-        if (color === 'w') {
-            switch (orig) {
-            case "a1": return castling.includes("A");
-            case "b1": return castling.includes("B");
-            case "c1": return castling.includes("C");
-            case "d1": return castling.includes("D");
-            case "e1": return castling.includes("E");
-            case "f1": return castling.includes("F");
-            case "g1": return castling.includes("G");
-            case "h1": return castling.includes("H");
-            default: return false;
-            }
-        } else {
-            switch (orig) {
-            case "a8": return castling.includes("a");
-            case "b8": return castling.includes("b");
-            case "c8": return castling.includes("c");
-            case "d8": return castling.includes("d");
-            case "e8": return castling.includes("e");
-            case "f8": return castling.includes("f");
-            case "g8": return castling.includes("g");
-            case "h8": return castling.includes("h");
-            default: return false;
-            }
-        }
+        return false;
     }
 
     private gate(orig: cg.Key, color: cg.Color, role: cg.Role) {
