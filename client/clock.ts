@@ -1,7 +1,6 @@
 // https://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
 
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 import { sound } from './sound';
 import { patch } from './document';

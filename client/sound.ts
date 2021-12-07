@@ -1,5 +1,5 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
+
 import { Howl } from 'howler';
 
 import { Variant } from './chess';

@@ -2,8 +2,7 @@ import ffishModule from 'ffish-es6';
 
 import Sockette from 'sockette';
 
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';

@@ -1,7 +1,6 @@
 import Highcharts from "highcharts";
 
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 function createPeriods() {
     const periodList: string[] = [];

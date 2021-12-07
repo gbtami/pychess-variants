@@ -1,6 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
-import { InsertHook } from 'snabbdom/hooks';
+import { h, VNode, InsertHook } from 'snabbdom';
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
