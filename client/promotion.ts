@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { toVNode } from 'snabbdom/tovnode';
+import { h, toVNode } from 'snabbdom';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';

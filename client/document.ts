@@ -1,15 +1,8 @@
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-import { VNode } from "snabbdom/vnode";
+import { VNode, init, classModule, attributesModule, propsModule, eventListenersModule, styleModule } from 'snabbdom';
 
 import * as cg from "chessgroundx/types";
 
-export const patch = init([klass, attributes, properties, listeners, style]);
+export const patch = init([classModule, attributesModule, propsModule, eventListenersModule, styleModule]);
 
 export function downloadPgnText(filename: string) {
     const text = (document.getElementById('pgntext') as HTMLInputElement).value;
