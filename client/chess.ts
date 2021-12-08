@@ -17,7 +17,7 @@ export type PromotionSuffix = cg.PieceLetter | "+" | "-" | "";
 export type UCIMove = `${UCIOrig}${UCIKey}`; // TODO: this is missing suffix for promotion which is also part of the move
 export type CGMove = `${cg.Orig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
 
-export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink";
+export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink" | "Green";
 export type PromotionType = "regular" | "shogi" | "kyoto";
 
 export interface BoardFamily {
@@ -671,7 +671,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         name: "chak", tooltip: () => _("https://www.chessvariants.com/rules/chak"),
         startFen: "rvsqkjsvr/4o4/p1p1p1p1p/9/9/9/P1P1P1P1P/4O4/RVSJKQSVR w - - 0 1",
         board: "chak9x9", piece: "chak",
-        firstColor: "White", secondColor: "Black",
+        firstColor: "White", secondColor: "Green",
         pieceRoles: ["r", "v", "s", "q", "k", "j", "o", "p"],
         promotion: "shogi",
         promoteablePieces: ["p", "k"],
