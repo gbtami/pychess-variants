@@ -57,6 +57,7 @@ export const translatedLanguage = LANGUAGETEXT[preferredLang] ?? 'Language';
 export const translatedColorNames = [
     _("White"), _("Black"), _("Red"),
     _("Blue"), _("Gold"), _("Pink"),
+    _("Green"),
 ];
 
 export const translatedVariantDisplayNames = [
@@ -72,7 +73,7 @@ export const translatedVariantDisplayNames = [
     _("capablanca"), _("capahouse"), _("s-chess"), _("s-house"),
     _("grand"), _("grandhouse"), _("shako"), _("shogun"), _("hoppel-poppel"),
 
-    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"),
+    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"), _("chak"),
 ];
 
 class LanguageSettings extends StringSettings {
