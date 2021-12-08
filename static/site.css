@@ -708,6 +708,7 @@ ul.guide li {
     text-align: left;
     padding-left: 1rem;
     padding-right: 2rem;
+    user-select: none;
 }
 #settings-buttons button:hover {
     color: #fff;
