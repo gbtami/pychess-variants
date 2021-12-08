@@ -87,7 +87,7 @@ The Shaman moves one space diagonally or one space orthogonally forward or backw
 
 The Shaman is one of the weakest pieces and is typically used more defensively due to its slow movement.
 
-Note that the piece symbol also helps to remind you of its movement.
+Note that the piece symbol is shaped to help remind you of its movement.
 
 ### Vulture (V)
 ![Vulture](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Vulture.png)
@@ -98,6 +98,7 @@ The Vulture is identical to the Chess Knight:  a leaping movement going two spac
 ![Serpent](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Serpent.png)
 
 The Serpent is identical to the Chess Rook:  orthogonal movement any number of spaces. This is the third strongest piece, after the Jaguar and Quetzal.
+
 ### Pawn (P)
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakPawn.png)
 
