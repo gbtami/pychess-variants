@@ -669,10 +669,10 @@ export const VARIANTS: { [name: string]: Variant } = {
 
     chak: new Variant({
         name: "chak", tooltip: () => _("https://www.chessvariants.com/rules/chak"),
-        startFen: "rvbqkjbvr/4o4/p1p1p1p1p/9/9/9/P1P1P1P1P/4O4/RVBJKQBVR w - - 0 1",
+        startFen: "rvsqkjsvr/4o4/p1p1p1p1p/9/9/9/P1P1P1P1P/4O4/RVSJKQSVR w - - 0 1",
         board: "chak9x9", piece: "chak",
         firstColor: "White", secondColor: "Black",
-        pieceRoles: ["r", "v", "b", "q", "k", "j", "o", "p"],
+        pieceRoles: ["r", "v", "s", "q", "k", "j", "o", "p"],
         promotion: "shogi",
         promoteablePieces: ["p", "k"],
         icon: "🐬",
