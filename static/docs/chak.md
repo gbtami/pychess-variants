@@ -60,20 +60,20 @@ The King (*Ajaw*, which rhymes with Dachau) moves like a king in most classic fo
 ### Divine King (D)
 ![Divine King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/DivineKing.png)
 
-The Divine King moves up to *two* squares in any direction. It can also pass through squares that are threatened by the opponent’s pieces (in other words, it is not like the western Chess king that cannot castle through check). Remember that as a promoted piece, it cannot go back beyond the river! The Diving King has the ability to end the game by reaching the altar without moving into check. Because of its range, the Divine King has the ability to deliver checkmate on an unpromoted king.
+The Divine King moves up to *two* squares in any direction. It can also pass through squares that are threatened by the opponent’s pieces (in other words, it is not like the Western Chess king that cannot castle through check). Remember that as a promoted piece, it cannot go back beyond the river! The divine king has the ability to end the game by reaching the altar without moving into check. Because of its range, the divine king has the ability to deliver checkmate on an unpromoted king.
 
 Note that the symbol used only differs slightly from the king’s. They are meant to be the same, but the slight difference is to help players see the promotion and also for the two types of king to be distinct on the board editor.
 
 ### Jaguar (J)
 ![Jaguar](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Jaguar.png)
 
-The Jaguar moves like a hybrid knight and king: in detail, that is either 1) a leaping movement going two spaces in one direction and then one perpendicular to make an L shape, or 2) moving one step forward in any direction. This is generically also referred to as a “centaur” piece, and is the same as the Kheshig from Orda Chess. 
+The Jaguar moves like a hybrid knight and king: in detail, that is either 1) a leaping movement going two spaces in one direction and then one perpendicular to make an L shape, or 2) moving one step forward in any direction. This is generically also referred to as a “centaur” piece, and is the same as the General from Shogun Chess and Kheshig from Orda Chess. 
 
 The Jaguar is the most powerful piece in Chak, and its ability to fork multiple pieces make it incredibly dangerous.
 
 ### Quetzal (Q)
 ![Quetzal range](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalRange.png)
-The Quetzal is a tricky piece; it is similar to the Chess queen in that it can move any number of squares in any direction (orthogonally or diagonally)… *However*, it needs to jump over an intervening piece first to do so. For those familiar with Janggi, this is similar to the cannon in that game, but with the addition of diagonal movement.
+The Quetzal is a tricky piece; it is similar to the Chess queen in that it can move any number of squares in any direction (orthogonally or diagonally)… *However*, it needs to hop over an intervening piece first to do so. For those familiar with Janggi, this is similar to the cannon in that game, but with the addition of diagonal movement and without the restrictions of being unable to interact with another cannon.
 
 The Quetzal is the second most powerful piece in Chak, but loses value significantly in the endgame.
 ![Quetzal example](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalLegal.png)
@@ -125,8 +125,10 @@ Accurate piece values are unknown.  However, the following piece ranking is gene
 
 ## Strategy
 
-One primary tip for beginners is always pay attention to the lines of sight for the quetzal. Specifically, at the beginning of the game, any piece that moves in front of the quetzal opens it up to an attack on the opposing jaguar, which is a slightly favorable move.
+**Quetzal**: One primary tip for beginners is always pay attention to the lines of sight for the quetzal. Specifically, at the beginning of the game, any piece that moves in front of the quetzal opens it up to an attack on the opposing jaguar, which is a slightly favorable move.
 
-Regarding the jaguar, build defenses and prevent the jaguar from crossing the river. If the jaguar crosses before your pieces are coordinated, it can singlehandedly capture multiple pieces with ease.
+**Jaguar**: Regarding the jaguar, build defenses and prevent the jaguar from crossing the river. If the jaguar crosses before your pieces are coordinated, it can singlehandedly capture multiple pieces with ease.
+
+**Pawns**: Pawns in Chak are actually quite flexible and strong and also threaten promotion very early. Because of all this, they are not as "expendable" as pawns in other games; make sure to get good value if you are wiling to trade off your pawns, as a one pawn difference at the end of the game could make the difference between a victory and loss.
 
 Tempo is very, very important in Chak, as it ultimately boils down to a race to get your king to the other side. Positional play is also very important. 
