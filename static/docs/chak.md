@@ -60,7 +60,7 @@ The King (*Ajaw*, which rhymes with Dachau) moves like a king in most classic fo
 ### Divine King (D)
 ![Divine King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/DivineKing.png)
 
-The Divine King moves up to *two* squares in any direction. It can also pass through squares that are threatened by the opponent’s pieces (in other words, it is not like the western Chess king that cannot castle through check). Remember that as a promoted piece, it cannot go back beyond the river! The Diving King has the ability to end the game by reaching the altar without moving into check. Because of its range, the Divine King has the ability to deliver checkmate on an unpromoted king.
+The Divine King moves up to *two* squares in any direction. It can also pass through squares that are threatened by the opponent’s pieces (in other words, it is not like the Western Chess king that cannot castle through check). Remember that as a promoted piece, it cannot go back beyond the river! The divine king has the ability to end the game by reaching the altar without moving into check. Because of its range, the divine king has the ability to deliver checkmate on an unpromoted king.
 
 Note that the symbol used only differs slightly from the king’s. They are meant to be the same, but the slight difference is to help players see the promotion and also for the two types of king to be distinct on the board editor.
 
@@ -73,7 +73,7 @@ The Jaguar is the most powerful piece in Chak, and its ability to fork multiple 
 
 ### Quetzal (Q)
 ![Quetzal range](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalRange.png)
-The Quetzal is a tricky piece; it is similar to the Chess queen in that it can move any number of squares in any direction (orthogonally or diagonally)… *However*, it needs to jump over an intervening piece first to do so. For those familiar with Janggi, this is similar to the cannon in that game, but with the addition of diagonal movement.
+The Quetzal is a tricky piece; it is similar to the Chess queen in that it can move any number of squares in any direction (orthogonally or diagonally)… *However*, it needs to hop over an intervening piece first to do so. For those familiar with Janggi, this is similar to the cannon in that game, but with the addition of diagonal movement and without the restrictions of being unable to interact with another cannon.
 
 The Quetzal is the second most powerful piece in Chak, but loses value significantly in the endgame.
 ![Quetzal example](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalLegal.png)
