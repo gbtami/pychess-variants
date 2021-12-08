@@ -67,7 +67,7 @@ Note that the symbol used only differs slightly from the king’s. They are mean
 ### Jaguar (J)
 ![Jaguar](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Jaguar.png)
 
-The Jaguar moves like a hybrid knight and king: in detail, that is either 1) a leaping movement going two spaces in one direction and then one perpendicular to make an L shape, or 2) moving one step forward in any direction. This is generically also referred to as a “centaur” piece, and is the same as the Kheshig from Orda Chess. 
+The Jaguar moves like a hybrid knight and king: in detail, that is either 1) a leaping movement going two spaces in one direction and then one perpendicular to make an L shape, or 2) moving one step forward in any direction. This is generically also referred to as a “centaur” piece, and is the same as the General from Shogun Chess and Kheshig from Orda Chess. 
 
 The Jaguar is the most powerful piece in Chak, and its ability to fork multiple pieces make it incredibly dangerous.
 
