@@ -675,7 +675,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["r", "v", "b", "q", "k", "j", "o", "p"],
         promotion: "shogi",
         promoteablePieces: ["p", "k"],
-        icon: "C",
+        icon: "🐬",
     }),
 
     // We support to import/store/analyze some variants
