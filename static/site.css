@@ -1241,7 +1241,7 @@ table#seeks-header, table#seeks {
 /* Input fields */
 select, input {
     padding: 0.6em 1em;
-    border: 3px;
+    border-radius: 3px;
     margin: 0px;
     display: inline;
     border: 1px solid var(--input-border);
