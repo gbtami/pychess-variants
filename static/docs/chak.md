@@ -87,6 +87,8 @@ The Shaman moves one space diagonally or one space orthogonally forward or backw
 
 The Shaman is one of the weakest pieces and is typically used more defensively due to its slow movement.
 
+Note that the piece symbol also helps to remind you of its movement.
+
 ### Vulture (V)
 ![Vulture](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Vulture.png)
 
