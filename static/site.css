@@ -1638,7 +1638,6 @@ label {
 }
 
 .radio-group {
-    border: 1px solid var(--border-color);
     box-shadow:  var(--base-shadow);
     display: inline-block;
     margin: 12px;
