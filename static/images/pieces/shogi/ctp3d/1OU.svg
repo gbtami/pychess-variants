@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -72,17 +72,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
      id="namedview1719"
      showgrid="false"
-     inkscape:zoom="3.9333334"
-     inkscape:cx="19.208622"
-     inkscape:cy="31.046444"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:zoom="7.8666668"
+     inkscape:cx="-17.354673"
+     inkscape:cy="14.996679"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1717"
+     inkscape:current-layer="g4324"
      inkscape:document-rotation="0" />
   <!--
 Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
@@ -154,17 +154,11 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          id="path9418-4-6-3-8-9-6-5-5"
          inkscape:connector-curvature="0" />
     </g>
-    <g
-       id="g2680"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.072px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.423169;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       transform="matrix(-1.1958245,0,0,-1.075834,71.167291,187.7081)"
-       aria-label="王">
-      <path
-         sodipodi:nodetypes="ccccccccccccccccccccc"
-         inkscape:connector-curvature="0"
-         id="path2678"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.453493;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 41.364137,42.418759 v 8.086113 h 6.078562 v 2.478001 h -6.078562 v 9.129483 h 10.901985 v 2.869265 H 27.96378 v -2.869265 h 10.788423 v -9.129483 h -6.237311 v -2.478001 h 6.237311 V 42.418759 H 30.77997 v -2.869265 h 18.596713 v 2.869265 z" />
-    </g>
+    <path
+       sodipodi:nodetypes="ccccccccccccccccccccc"
+       inkscape:connector-curvature="0"
+       id="path1630"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.072px;line-height:1.25;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;letter-spacing:0px;word-spacing:0px;display:inline;opacity:0.99;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.514;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 21.703045,142.05975 v -8.69932 h -6.268694 l -1.000199,-2.66591 h 7.268893 v -9.82181 H 9.6663503 l -1.000166,-3.08686 H 37.72752 l -1.00017,3.08686 H 24.82646 v 9.82181 h 7.45873 l -0.99984,2.66591 h -6.45889 v 8.69932 h 8.53389 l 0.9995,3.08685 H 12.121446 l 0.999904,-3.08685 z" />
   </g>
 </svg>
