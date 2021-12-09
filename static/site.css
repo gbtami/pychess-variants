@@ -69,6 +69,7 @@
     --chat-entry-border-top: #d9d9d9;
     --chat-entry-bg: #fafaf9; 
     --toggle-bg: #c0c0c0;
+    --slider-border: #a9a9a9;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -123,6 +124,7 @@
     --chat-entry-border-top: #404040;
     --chat-entry-bg: #262421; 
     --toggle-bg: #696969;
+    --slider-border: #7a7a7a;
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
@@ -1822,34 +1824,31 @@ vari-move {
     -webkit-appearance: none;
     width: 98%;
     margin: 2px auto;
-    height: 25px;
-    border-radius: 5px;
-    background: LightGray;
+    height: 15px;
+    border-radius: 10px;
+    background: var(--toggle-bg);
     outline: none;
-    opacity: 0.7;
     /*  -webkit-transition: .2s;*/
     /*transition: opacity .2s;*/
-}
-
-.slider:hover {
-    opacity: 1;
 }
 
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background: DimGray;
+    width: 26px;
+    height: 15px;
+    border: 1px solid var(--slider-border);
+    border-radius: 10px;
+    background: var(--bg-color1);
     cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background: DimGray;
+    width: 26px;
+    height: 15px;
+    border: 1px solid var(--slider-border);
+    border-radius: 10px;
+    background: var(--bg-color1);
     cursor: pointer;
 }
 
