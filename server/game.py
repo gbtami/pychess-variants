@@ -41,6 +41,8 @@ class Game:
         self.db_crosstable = app["crosstable"]
 
         self.saved = False
+        self.remove_task = None
+
         self.variant = variant
         self.initial_fen = initial_fen
         self.wplayer = wplayer
