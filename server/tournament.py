@@ -864,6 +864,8 @@ class Tournament(ABC):
             except KeyError:
                 # spectator was removed
                 pass
+            except Exception:
+                log.exception("Exception in tournament broadcast()")
 
     async def db_update_player(self, user, player_data):
         if self.app["db"] is None:
