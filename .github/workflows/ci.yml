@@ -35,3 +35,4 @@ jobs:
       run: |
         python server/test.py
         python server/test_tournament.py
+        python server/test_disaster.py

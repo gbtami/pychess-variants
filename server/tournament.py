@@ -910,7 +910,7 @@ class Tournament(ABC):
                 return_document=ReturnDocument.AFTER)
             )
         except Exception:
-            if self.db is not None:
+            if self.app["db"] is not None:
                 log.error("db find_one_and_update tournament_player %s into %s failed !!!", player_id, self.id)
 
         new_data = {

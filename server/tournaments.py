@@ -263,7 +263,7 @@ async def get_tournament_name(app, tournament_id):
     return name
 
 
-async def load_tournament(app, tournament_id):
+async def load_tournament(app, tournament_id, tournament_klass=None):
     """ Return Tournament object from app cache or from database """
     db = app["db"]
     users = app["users"]
@@ -282,6 +282,8 @@ async def load_tournament(app, tournament_id):
         tournament_class = SwissTournament
     elif doc["system"] == RR:
         tournament_class = RRTournament
+    elif tournament_klass is not None:
+        tournament_class = tournament_klass
 
     tournament = tournament_class(
         app, doc["_id"], C2V[doc["v"]],
@@ -315,7 +317,10 @@ async def load_tournament(app, tournament_id):
     nb_players = 0
 
     if tournament.status == T_CREATED:
-        cursor.sort('r', -1)
+        try:
+            cursor.sort('r', -1)
+        except AttributeError:
+            print("A unittest MagickMock cursor object")
 
     async for doc in cursor:
         uid = doc["uid"]
@@ -334,7 +339,7 @@ async def load_tournament(app, tournament_id):
         tournament.players[user].points = doc["p"]
         tournament.players[user].nb_games = doc["g"]
         tournament.players[user].nb_win = doc["w"]
-        tournament.players[user].nb_berserk = doc.get("b", 0),
+        tournament.players[user].nb_berserk = doc.get("b", 0)
         tournament.players[user].performance = doc["e"]
 
         if not withdrawn:
@@ -347,7 +352,10 @@ async def load_tournament(app, tournament_id):
 
     pairing_table = app["db"].tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})
-    cursor.sort('d', 1)
+    try:
+        cursor.sort('d', 1)
+    except AttributeError:
+        print("A unittest MagickMock cursor object")
 
     w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:
