@@ -101,7 +101,7 @@ VARIANT_ICONS = {
     "chess": "M",
     "crazyhouse": "+",
     "placement": "S",
-    "antichess": "A", 
+    "antichess": "A",
     "capablanca": "P",
     "capahouse": "&",
     "seirawan": "L",
