@@ -1,6 +1,7 @@
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
+import { readPockets } from 'chessgroundx/pocket';
 
 import { h, VNode } from 'snabbdom';
 
@@ -42,10 +43,13 @@ export function calculateInitialImbalance(variant: Variant): MaterialImbalance {
     for (let [_, piece] of read(variant.startFen)) {
         imbalances[mapPiece(piece.role, variant.name)] += (piece.color === 'white') ? -1 : 1;
     }
-    if (variant.pocket && variant.startFen.indexOf('[') != -1) {// TODO use chessgroundx mechanism for it when the pocket is incorporated into chessgroundx
-        let pocketContent = variant.startFen.slice(variant.startFen.indexOf('[') + 1, variant.startFen.indexOf(']'));
-        for (let piece of pocketContent) {
-            imbalances[mapPiece(piece.toLowerCase(), variant.name)] += (piece.toLowerCase() == piece ? 1 : -1);
+    if (variant.pocket) {
+        let initialPockets = readPockets(variant.startFen, variant.pocketRoles.bind(variant));
+        for (let [piece, count] of Object.entries(initialPockets.white!)) {
+            imbalances[mapPiece(piece, variant.name)] -= count;
+        }
+        for (let [piece, count] of Object.entries(initialPockets.black!)) {
+            imbalances[mapPiece(piece, variant.name)] += count;
         }
     }
     return imbalances;
