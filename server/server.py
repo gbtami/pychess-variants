@@ -17,6 +17,7 @@ else:
 
 import jinja2
 from aiohttp import web
+from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 from motor import motor_asyncio as ma
@@ -58,7 +59,7 @@ async def on_prepare(request, response):
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
 
-def make_app(with_db=True):
+def make_app(with_db=True) -> Application:
     app = web.Application()
     parts = urlparse(URI)
     setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"))
@@ -310,4 +311,4 @@ if __name__ == "__main__":
 
     app = make_app()
 
-    web.run_app(app, port=os.environ.get("PORT", 8080))
+    web.run_app(app, port=int(os.environ.get("PORT", 8080)))

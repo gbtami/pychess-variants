@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from collections import namedtuple
 from datetime import datetime, timezone
 
@@ -8,7 +10,9 @@ from utils import load_game
 
 GameRecord = namedtuple('GameRecord', 'color, result, id, oppname')
 
-pairings = {}
+Pairings = dict[str, Tuple[GameRecord, ...]]
+
+pairings: Pairings = {}
 
 pairings["borjigin"] = (
     GameRecord("w", "1-0", "wkqJzfGX", "Fairy-Stockfish"),

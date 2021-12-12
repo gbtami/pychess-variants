@@ -33,6 +33,7 @@ jobs:
         flake8 server/ --count --show-source --statistics
     - name: Run unit tests
       run: |
+        mypy server/
         python server/test.py
         python server/test_tournament.py
         python server/test_disaster.py

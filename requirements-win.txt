@@ -12,3 +12,4 @@ pyffish==0.0.67
 sortedcollections==1.2.1
 python-gettext==4.0
 objgraph==3.5.0
+mypy
