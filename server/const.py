@@ -100,7 +100,7 @@ VARIANT_ICONS = {
     "xiangqi": "|",
     "chess": "M",
     "crazyhouse": "+",
-    "kingofthehill" :"🏳️",
+    "kingofthehill": "🏳️",
     "placement": "S",
     "capablanca": "P",
     "capahouse": "&",
