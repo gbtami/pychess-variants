@@ -14,6 +14,7 @@ V2C = {
     "capahouse": "i",
     "crazyhouse": "h",
     "atomic": "A",
+    "kingofthehill": "L",
     "makruk": "m",
     "placement": "p",
     "seirawan": "s",
