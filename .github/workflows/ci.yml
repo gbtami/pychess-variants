@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.9]
 
     steps:
     - uses: actions/checkout@v2
@@ -33,6 +33,7 @@ jobs:
         flake8 server/ --count --show-source --statistics
     - name: Run unit tests
       run: |
+        mypy server/
         python server/test.py
         python server/test_tournament.py
         python server/test_disaster.py

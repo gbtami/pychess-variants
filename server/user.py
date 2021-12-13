@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from const import VARIANTS
 from broadcast import lobby_broadcast
-from glicko2.glicko2 import gl2, DEFAULT_PERF
+from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8
 from seek import get_seeks
@@ -80,7 +80,7 @@ class User:
     def update_online(self):
         self.online = len(self.game_sockets) > 0 or len(self.lobby_sockets) > 0 or len(self.tournament_sockets) > 0
 
-    def get_rating(self, variant, chess960):
+    def get_rating(self, variant: str, chess960: bool) -> Rating:
         if variant in self.perfs:
             gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.perfs[variant + ("960" if chess960 else "")]["la"]

@@ -5,6 +5,7 @@ import logging
 from urllib.parse import urlparse
 import warnings
 import json
+import sys
 
 from aiohttp import web
 import aiohttp_session
@@ -16,9 +17,7 @@ try:
         htmlmin.minify, remove_optional_attribute_quotes=False)
 except ImportError:
     warnings.warn("Not using HTML minification, htmlmin not imported.")
-
-    def html_minify(html):
-        return html
+    sys.exit(0)
 
 from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, VARIANT_GROUPS, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
 from fairy import FairyBoard

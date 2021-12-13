@@ -1,3 +1,4 @@
+from typing import ClassVar, Tuple
 import asyncio
 import collections
 import logging
@@ -16,6 +17,7 @@ from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
     ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED, SHIELD,\
     MAX_CHAT_LINES
 from game import Game
+from user import User
 from glicko2.glicko2 import gl2
 from misc import time_control_str
 from newid import new_id
@@ -28,6 +30,8 @@ log = logging.getLogger(__name__)
 SCORE, STREAK, DOUBLE = range(1, 4)
 
 SCORE_SHIFT = 100000
+
+Point = Tuple[int, int]
 
 
 class EnoughPlayer(Exception):
@@ -60,7 +64,7 @@ class PlayerData:
 
     __slots__ = "id", "rating", "provisional", "free", "paused", "withdrawn", "win_streak", "games", "points", "nb_games", "nb_win", "nb_berserk", "nb_not_paired", "performance", "prev_opp", "color_balance", "page"
 
-    def __init__(self, rating, provisional):
+    def __init__(self, rating: int, provisional: str):
         self.id = None
         self.rating = rating
         self.provisional = provisional
@@ -68,8 +72,8 @@ class PlayerData:
         self.paused = False
         self.withdrawn = False
         self.win_streak = 0
-        self.games = []
-        self.points = []
+        self.games: list[Game] = []
+        self.points: list[Point] = []
         self.nb_games = 0
         self.nb_win = 0
         self.nb_berserk = 0
@@ -88,7 +92,7 @@ class GameData:
 
     __slots__ = "id", "wplayer", "white_rating", "bplayer", "black_rating", "result", "date", "wberserk", "bberserk"
 
-    def __init__(self, _id, wplayer, wrating, bplayer, brating, result, date, wberserk, bberserk):
+    def __init__(self, _id: str, wplayer: User, wrating: str, bplayer: User, brating: str, result: str, date: datetime, wberserk: bool, bberserk: bool):
         self.id = _id
         self.wplayer = wplayer
         self.bplayer = bplayer
@@ -99,7 +103,7 @@ class GameData:
         self.wberserk = wberserk
         self.bberserk = bberserk
 
-    def game_json(self, player):
+    def game_json(self, player: User) -> dict:
         color = "w" if self.wplayer == player else "b"
         opp_player = self.bplayer if color == "w" else self.wplayer
         opp_rating = self.black_rating if color == "w" else self.white_rating
@@ -118,6 +122,8 @@ class GameData:
 class Tournament(ABC):
     """ Abstract base class for Arena/Swisss/RR Tournament classes
         They have to implement create_pairing() for waiting_players """
+
+    system: ClassVar[int] = ARENA
 
     def __init__(self, app, tournamentId, variant="chess", chess960=False, rated=True, before_start=5, minutes=45, name="", description="",
                  fen="", base=1, inc=0, byoyomi_period=0, rounds=0, created_by="", created_at=None, starts_at=None, status=None, with_clock=True, frequency=""):
@@ -152,7 +158,7 @@ class Tournament(ABC):
 
         self.messages = collections.deque([], MAX_CHAT_LINES)
         self.spectators = set()
-        self.players = {}
+        self.players: dict[User, PlayerData] = {}
         self.leaderboard = ValueSortedDict(neg)
         self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
         self.status = T_CREATED if status is None else status
@@ -627,7 +633,7 @@ class Tournament(ABC):
 
         return games
 
-    def points_perfs(self, game):
+    def points_perfs(self, game: Game) -> Tuple[Point, Point, int, int]:
         wplayer = self.players[game.wplayer]
         bplayer = self.players[game.bplayer]
 
