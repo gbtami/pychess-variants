@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import unittest
 from unittest.mock import AsyncMock, MagicMock
 
-from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
+from aiohttp.test_utils import AioHTTPTestCase
 
 from const import ARENA, T_FINISHED
 from fairy import BLACK
@@ -184,7 +184,6 @@ class GamePlayTestCase(AioHTTPTestCase):
                 except asyncio.CancelledError:
                     pass
 
-    @unittest_run_loop
     async def test_tournament_disaster(self):
 
         await self.tournament.clock_task
