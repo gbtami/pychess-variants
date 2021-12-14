@@ -34,6 +34,6 @@ jobs:
     - name: Run unit tests
       run: |
         mypy server/
-        python server/test.py
-        python server/test_tournament.py
-        python server/test_disaster.py
+        PYTHONPATH=server python server/test.py
+        PYTHONPATH=server python server/test_tournament.py
+        PYTHONPATH=server python server/test_disaster.py
