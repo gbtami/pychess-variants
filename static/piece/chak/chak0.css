@@ -1,5 +1,5 @@
-.chak .cg-wrap piece.b-piece.white {
-    background-image: url('../../images/pieces/chak/WB.svg');
+.chak .cg-wrap piece.s-piece.white {
+    background-image: url('../../images/pieces/chak/WS.svg');
 }
 .chak .cg-wrap piece.pk-piece.white {
     background-image: url('../../images/pieces/chak/WD.svg');
@@ -30,8 +30,8 @@
     background-image: url('../../images/pieces/chak/WW.svg');
 }
 
-.chak .cg-wrap piece.b-piece.black {
-    background-image: url('../../images/pieces/chak/GB.svg');
+.chak .cg-wrap piece.s-piece.black {
+    background-image: url('../../images/pieces/chak/GS.svg');
 }
 .chak .cg-wrap piece.pk-piece.black {
     background-image: url('../../images/pieces/chak/GD.svg');

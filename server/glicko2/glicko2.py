@@ -9,6 +9,7 @@
     :Modified by Bajusz Tamás
     :license: BSD, see LICENSE for more details.
 """
+from typing import Tuple
 import math
 from calendar import timegm
 from datetime import datetime, timezone
@@ -47,7 +48,7 @@ class Rating:
         self.ltime = ltime
 
     @property
-    def rating_prov(self):
+    def rating_prov(self) -> Tuple[int, str]:
         return (int(round(self.mu, 0)), "?" if self.phi > PROVISIONAL_PHI else "")
 
     def __repr__(self):

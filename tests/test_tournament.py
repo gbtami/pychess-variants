@@ -6,7 +6,7 @@ import random
 import unittest
 from datetime import datetime, timezone
 
-from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
+from aiohttp.test_utils import AioHTTPTestCase
 
 from const import BYEGAME, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
 from fairy import BLACK
@@ -164,11 +164,13 @@ class TournamentTestCase(AioHTTPTestCase):
                 continue
             if game.status <= STARTED:
                 await game.abort()
-            game.remove_task.cancel()
-            try:
-                await game.remove_task
-            except asyncio.CancelledError:
-                pass
+
+            if game.remove_task is not None:
+                game.remove_task.cancel()
+                try:
+                    await game.remove_task
+                except asyncio.CancelledError:
+                    pass
 
         if has_games:
             for task in self.tournament.game_tasks:
@@ -182,7 +184,6 @@ class TournamentTestCase(AioHTTPTestCase):
         app = make_app(with_db=False)
         return app
 
-    @unittest_run_loop
     async def test_tournament_without_players(self):
         self.app["db"] = None
         tid = id8()
@@ -199,7 +200,6 @@ class TournamentTestCase(AioHTTPTestCase):
 
         await self.tournament.clock_task
 
-    @unittest_run_loop
     async def test_tournament_players(self):
         self.app["db"] = None
         NB_PLAYERS = 15
@@ -221,7 +221,6 @@ class TournamentTestCase(AioHTTPTestCase):
 
         self.assertEqual(self.tournament.status, T_FINISHED)
 
-    @unittest_run_loop
     async def test_tournament_pairing_5_round_SWISS(self):
         self.app["db"] = None
         NB_PLAYERS = 15
@@ -236,7 +235,6 @@ class TournamentTestCase(AioHTTPTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
 
-    @unittest_run_loop
     async def test_tournament_pairing_1_min_ARENA(self):
         self.app["db"] = None
         NB_PLAYERS = 15
@@ -258,7 +256,6 @@ class TournamentTestCase(AioHTTPTestCase):
 
         self.assertEqual(self.tournament.status, T_FINISHED)
 
-    @unittest_run_loop
     async def test_tournament_pairing_5_round_RR(self):
         self.app["db"] = None
         NB_PLAYERS = 5

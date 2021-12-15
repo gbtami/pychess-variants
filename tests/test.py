@@ -8,7 +8,7 @@ from operator import neg
 
 from sortedcollections import ValueSortedDict
 
-from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
+from aiohttp.test_utils import AioHTTPTestCase
 
 from const import CREATED, STARTED, VARIANTS
 from fairy import FairyBoard
@@ -148,7 +148,6 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         app = make_app(with_db=False)
         return app
 
-    @unittest_run_loop
     async def test_example(self):
         resp = await self.client.request("GET", "/")
         assert resp.status == 200
@@ -172,7 +171,6 @@ class GamePlayTestCase(AioHTTPTestCase):
             move = game.random_move
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
-    @unittest_run_loop
     async def test_game_play(self):
         """ Playtest test_player vs Random-Mover """
         for i, variant in enumerate(VARIANTS):
@@ -224,7 +222,6 @@ class HighscoreTestCase(AioHTTPTestCase):
             await game.play_move(move, clocks={"white": clock, "black": clock}, ply=i)
         await game.game_ended(player, "resign")
 
-    @unittest_run_loop
     async def test_lost_but_still_there(self):
         game_id = id8()
         game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.bplayer, rated=True, chess960=True, create=True)
@@ -245,7 +242,6 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertNotEqual(highscore0, highscore1)
         self.assertTrue(self.wplayer.username in game.highscore["crazyhouse960"])
 
-    @unittest_run_loop
     async def test_lost_and_out(self):
         game_id = id8()
         game = Game(self.app, game_id, "crazyhouse", "", self.wplayer, self.strong_player, rated=True, chess960=True, create=True)
@@ -266,7 +262,6 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertNotEqual(highscore0, highscore1)
         self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"].keys()[:10])
 
-    @unittest_run_loop
     async def test_win_and_in_then_lost_and_out(self):
         game_id = id8()
         game = Game(self.app, game_id, "crazyhouse", "", self.strong_player, self.weak_player, rated=True, chess960=True, create=True)
@@ -305,14 +300,14 @@ class HighscoreTestCase(AioHTTPTestCase):
 
 class RatingTestCase(AioHTTPTestCase):
 
-    async def get_application(self):
-        app = make_app(with_db=False)
-        return app
-
-    async def setUpAsync(self):
+    async def startup(self, app):
         self.gl2 = Glicko2(tau=0.5)
 
-    @unittest_run_loop
+    async def get_application(self):
+        app = make_app(with_db=False)
+        app.on_startup.append(self.startup)
+        return app
+
     async def test_new_rating(self):
         # New User ratings are equals to default
 
@@ -323,7 +318,6 @@ class RatingTestCase(AioHTTPTestCase):
 
         self.assertEqual(result.mu, default_rating.mu)
 
-    @unittest_run_loop
     async def test_rating(self):
         # New Glicko2 rating calculation example from original paper
 

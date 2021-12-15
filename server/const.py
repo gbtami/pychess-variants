@@ -134,8 +134,8 @@ VARIANT_ICONS = {
     "empire": "♚",
     "ordamirror": "◩",
     "asean": "♻",
-    "chak": "C",
-    "chennis": "D",
+    "chak": "🐬",
+    "chennis": "🎾",
 }
 
 VARIANT_960_TO_PGN = {

@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 600
-KEEP_TIME = 600  # keep game in app["games"] for KEEP_TIME secs
+KEEP_TIME = 1800  # keep game in app["games"] for KEEP_TIME secs
 
 
 class Game:
@@ -41,6 +41,8 @@ class Game:
         self.db_crosstable = app["crosstable"]
 
         self.saved = False
+        self.remove_task = None
+
         self.variant = variant
         self.initial_fen = initial_fen
         self.wplayer = wplayer
@@ -375,7 +377,10 @@ class Game:
                     await self.save_crosstable()
 
             if self.tournamentId is not None:
-                await self.app["tournaments"][self.tournamentId].game_update(self)
+                try:
+                    await self.app["tournaments"][self.tournamentId].game_update(self)
+                except Exception:
+                    log.exception("Exception in tournament game_update()")
 
             # self.print_game()
 
