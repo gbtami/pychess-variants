@@ -87,7 +87,8 @@ VARIANTS = (
     "shinobi",
     "empire",
     "ordamirror",
-    # "chak"
+    # "chak",
+    "chennis"
 )
 
 VARIANT_ICONS = {
@@ -134,6 +135,7 @@ VARIANT_ICONS = {
     "ordamirror": "◩",
     "asean": "♻",
     "chak": "🐬",
+    "chennis": "🎾",
 }
 
 VARIANT_960_TO_PGN = {
