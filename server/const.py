@@ -87,8 +87,8 @@ VARIANTS = (
     "shinobi",
     "empire",
     "ordamirror",
-    "chak"
-    "chennis"
+    "chak",
+    "chennis",
 )
 
 VARIANT_ICONS = {
