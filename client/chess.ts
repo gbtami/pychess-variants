@@ -690,7 +690,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promoteablePieces: ["p", "m", "s", "f"],
         isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
         drop: true,
-        icon: "D",
+        icon: "🎾",
     }),
 
     // We support to import/store/analyze some variants
