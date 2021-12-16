@@ -640,7 +640,7 @@ class Game:
                 if not (self.variant in ("seirawan", "shouse") and (move[1] == '1' or move[1] == '8')):
                     promotions.append(move)
 
-            if self.variant == "kyotoshogi" and move[0] == "+":
+            if self.variant in ("kyotoshogi", "chennis") and move[0] == "+":
                 promotions.append(move)
 
         self.dests = dests
