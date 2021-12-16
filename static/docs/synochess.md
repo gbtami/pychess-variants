@@ -142,6 +142,8 @@ If you are white, avoid this situation. Always eye the cannons.
 
 ![Fool's Mate](https://github.com/kezsulap/pychess-variants/blob/synochess-blog-fix/static/images/CVariantsGuide/FoolsMate.png)
 
+In this position Ce6+ forces Be5 which leads to Ce4#, in others it could be just mate, or at least force white to block the check with a piece and lose it.
+
 This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. Afterwards, if a cannon does attack, it can be blocked by a bishop or knight, which will remain pinned for a while. 1. e4 is not recommended because it's actually an empty threat (the pawn is pinned from attacking because of facing kings).
 
 **Queenslayer**
@@ -150,8 +152,9 @@ This is an extremely deadly tactic that may end in an inevitable loss for white 
 
 ![Queenslayer](https://github.com/kezsulap/pychess-variants/blob/synochess-blog-fix/static/images/CVariantsGuide/Queenslayer.png)
 
-Once this position happens, the chariot can take the pawn, forcing the rook to retake the chariot. This now exposes the b1/g1 square to the cannon, which will either threaten AND pin the queen if attacking queenside (b1), or skewer the queen by check on the kingside (g1). Either way, the queen is lost.
-However this trap can go wrong in 2 ways.
+Once this position happens, the chariot can take the pawn, forcing the rook to retake the chariot. This now exposes the b1/g1 square to the cannon, which will either threaten AND pin the queen if attacking queenside (b1), or skewer the queen by check on the kingside (g1). Either way, the queen is lost. It should noted that the Queenslayer is not an opening line. It's a *tactic* for a certain situation when red's soldiers are shifted to open up the chariot and cannon files. Intentionally aiming to recreate this position by shifting soldiers open will likely be counterproductive for red.
+
+Moveover this trap can go wrong in 2 ways.
 
 ![QueenslayerGoneWrongb1](https://github.com/kezsulap/pychess-variants/blob/synochess-blog-fix/static/images/CVariantsGuide/QueenslayerGoneWrongb1.png)
 
