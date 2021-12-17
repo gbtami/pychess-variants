@@ -1084,6 +1084,7 @@ export function notation(variant: Variant): cg.Notation {
         case 'kyotoshogi':
         case 'dobutsu':
         case 'gorogoro':
+        case 'gorogoroplus':
         case 'torishogi':
             cgNotation = cg.Notation.SHOGI_ARBNUM;
             break;
