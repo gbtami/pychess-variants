@@ -446,8 +446,8 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceSound: "shogi",
         drop: true,
         alternateStart: {
-            '': '',
-            'No Knight and Lance': 'sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1'
+            'Gorogoro Plus N+L': '',
+            'Original (No N+L)': 'sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1'
         },
         icon: "🐱",
     }),
