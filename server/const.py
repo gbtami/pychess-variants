@@ -43,50 +43,17 @@ GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
 
 VARIANTS = (
-    "chess",
-    "chess960",
-    "crazyhouse",
-    "crazyhouse960",
-    "placement",
-    "atomic",
-    "atomic960",
-    "makruk",
-    "makpong",
-    "cambodian",
-    "sittuyin",
-    "asean",
-    "shogi",
-    "minishogi",
-    "kyotoshogi",
-    "dobutsu",
-    "gorogoro",
-    "torishogi",
-    "xiangqi",
-    "manchu",
-    "janggi",
-    "minixiangqi",
-    "capablanca",
-    "capablanca960",
-    "capahouse",
-    "capahouse960",
+#    "chess",
+#   "chess960",
+    "antichess",
+    "antichess960",
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
     # "gothic",
     # "gothhouse",
     # "embassy",
-    "seirawan",
-    "seirawan960",
-    "shouse",
-    "grand",
-    "grandhouse",
-    "shogun",
-    "shako",
-    "hoppelpoppel",
-    "orda",
-    "synochess",
-    "shinobi",
-    "empire",
-    "ordamirror",
+#    "orda",
+#    "ordamirror",
     # "chak"
 )
 
@@ -100,6 +67,12 @@ VARIANT_ICONS = {
     "chess": "M",
     "crazyhouse": "+",
     "placement": "S",
+    "kingofthehill": "🏳️",
+    "racingkings": "♔",
+    "antichess": "♔",
+    "antichess960": "♔",
+    "horde": "♟",
+    "threecheck": "♟",
     "capablanca": "P",
     "capahouse": "&",
     "seirawan": "L",
@@ -123,7 +96,7 @@ VARIANT_ICONS = {
     "crazyhouse960": "%",
     "kyotoshogi": ")",
     "shogun": "-",
-    "orda": "R",
+#    "orda": "R",
     "synochess": "_",
     "hoppelpoppel": "`",
     "manchu": "{",
@@ -131,7 +104,7 @@ VARIANT_ICONS = {
     "atomic960": "\\",
     "shinobi": "🐢",
     "empire": "♚",
-    "ordamirror": "◩",
+#    "ordamirror": "◩",
     "asean": "♻",
     "chak": "🐬",
 }
@@ -142,6 +115,7 @@ VARIANT_960_TO_PGN = {
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "atomic": "Atomic",          # to let lichess import work
+    "antichess": "Antichess",          # to let lichess import work    
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -152,9 +126,9 @@ VARIANT_960_TO_PGN = {
 }
 
 CATEGORIES = {
-    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
+    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
-    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak"),
+    "army": ("synochess", "shinobi", "empire", "chak"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
@@ -183,8 +157,8 @@ def variant_display_name(variant):
         return "S-HOUSE"
     elif variant == "cambodian":
         return "OUK CHATRANG"
-    elif variant == "ordamirror":
-        return "ORDA MIRROR"
+#    elif variant == "ordamirror":
+ #       return "ORDA MIRROR"
     elif variant == "kyotoshogi":
         return "KYOTO SHOGI"
     elif variant == "torishogi":

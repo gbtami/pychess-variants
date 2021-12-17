@@ -161,7 +161,8 @@ export class LobbyController {
             onerror: (e: Event) => console.log('Error:', e),
         };
 
-        const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
+        //const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
+        const ws = (location.host.indexOf('0.0.0.0') === -1) ? 'wss://' : 'ws://'
         this.sock = new Sockette(ws + location.host + "/wsl", opts);
 
         // get seeks when we are coming back after a game
@@ -171,7 +172,7 @@ export class LobbyController {
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
-        patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
+//        patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
 
         this.streams = document.getElementById('streams') as HTMLElement;
 
@@ -923,15 +924,18 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
-        h('div#variants-catalog'),
+//        h('div#variants-catalog'),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),
         h('under-left', [
-            h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),
-            h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants' } }, 'Github'),
-            h('a.reflist', { attrs: { href: '/patron' } }, _("Donate")),
+            h('a.reflist', { attrs: { href: 'https://discord.gg/yv8YEhyFUg' } }, 'Discord'),
+            h('a.reflist', { attrs: { href: 'https://github.com/' } }, 'Github'),
             h('a.reflist', { attrs: { href: '/faq' } }, _("FAQ")),
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
+        ]),
+        h('under-right', [
+            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
+            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
         h('under-lobby', [
             h('news-latest', [
@@ -940,13 +944,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
-                h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/AngryBirds.png'} }),
+                h('a.post', { attrs: {href: '/news/Nookie_wins_the_First_Antichess960_Shield_Arena'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/titled_arena.png'} }),
                     h('span.text', [
-                        h('strong', "New variant, new engine and more"),
-                        h('span', 'Hot summer'),
+                        h('strong', "Nookie wins the First Antichess960 Shield Arena"),
+                        h('span', 'First Antichess960 Shield Arena'),
                     ]),
-                    h('time', '2021.09.02'),
+                    h('time', '2021.12.17'),
+                /*
                 ]),
                 h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/Darth-Vader-Comic.jpg'} }),
@@ -964,7 +969,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.04.21'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
                     h('span.text', [
@@ -999,10 +1003,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ]),
                 */ 
             ]),
-        ]),
-        h('under-right', [
-            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
-            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
     ];
 }

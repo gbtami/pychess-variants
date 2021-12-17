@@ -282,6 +282,51 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "\\",
     }),
+    
+    kingofthehill: new Variant({
+            name: "kingofthehill", tooltip: () => _("bring king to center."),
+            startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            board: "standard8x8", piece: "standard",
+            pieceRoles: ["k", "q", "r", "b", "n", "p"],
+            enPassant: true,
+            icon: "🏳️",
+          }),
+    
+    horde: new Variant({
+            name: "horde", tooltip: () => _("Horde Chess."),
+            startFen: "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1",
+            board: "standard8x8", piece: "standard",
+            pieceRoles: ["k", "q", "r", "b", "n", "p"],
+            enPassant: true,
+            icon: "♟",
+          }),
+            
+    threecheck: new Variant({
+            name: "threecheck", tooltip: () => _("Keep Threechecks."),
+            startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0",
+            board: "standard8x8", piece: "standard",
+            pieceRoles: ["k", "q", "r", "b", "n", "p"],
+            enPassant: true,
+            icon: "♟",
+          }),
+          
+    antichess: new Variant({
+      name: "antichess", tooltip: () => _("capture all pieces."),
+      startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
+      board: "standard8x8", piece: "standard",
+      pieceRoles: ["k", "q", "r", "b", "n", "p"],
+      enPassant: true,
+      chess960: true, icon: "♔", icon960: "♔",
+    }),
+    
+    racingkings: new Variant({
+      name: "racingkings", tooltip: () => _("Bring your king to other side."),
+      startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
+      board: "standard8x8", piece: "standard",
+      pieceRoles: ["k", "q", "r", "b", "n", "p"],
+      enPassant: true,
+      icon: "♔",
+    }),
 
     makruk: new Variant({
         name: "makruk", tooltip: () => _("Thai Chess. A game closely resembling the original Chaturanga. Similar to Chess but with a different queen and bishop."),
@@ -716,22 +761,22 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
-    sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
-    xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
+    standard: { variants: [ "antichess"] },
+    //sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
+    //shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
+    //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
+    //fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    //army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
 };
 
 function variantGroupLabel(group: string): string {
     const groups: {[index: string]: string} = {
-        standard: _("Chess Variants"),
-        sea: _("Makruk Variants"),
-        shogi: _("Shogi Variants"),
-        xiangqi: _("Xiangqi Variants"),
-        fairy: _("Fairy Piece Variants"),
-        army: _("New Army Variants"),
+        //standard: _("Chess Variants"),
+        //sea: _("Makruk Variants"),
+        //shogi: _("Shogi Variants"),
+        //xiangqi: _("Xiangqi Variants"),
+        //fairy: _("Fairy Piece Variants"),
+        //army: _("New Army Variants"),
     }
     return groups[group];
 }
