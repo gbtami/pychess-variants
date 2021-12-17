@@ -441,7 +441,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pocketRoles: ["p", "l", "n", "s", "g"],
         promotion: "shogi",
         promoteablePieces: ["p", "s", "n", "l"],
-        isMandatoryPromotion: distanceBased({ p: 1 }, 6),
+        isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 6),
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
