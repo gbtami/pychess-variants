@@ -118,7 +118,7 @@ function proTip (variant: string, chess960: boolean) {
 // shogi
     case 'shogi':
     case 'minishogi':
-    case 'gorogoro':
+    case 'gorogoroplus':
         return _('Internationalized sets are available by going to settings.');
     case 'dobutsu':
         return _('Despite the simple appearance, there is still quite a bit of depth underlying this game.');

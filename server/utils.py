@@ -316,7 +316,7 @@ async def import_game(request):
     if initial_fen or new_game.chess960:
         document["if"] = new_game.initial_fen
 
-    if variant.endswith("shogi") or variant in ("dobutsu", "gorogoro"):
+    if variant.endswith("shogi") or variant in ("dobutsu", "gorogoro", "gorogoroplus"):
         document["uci"] = 1
 
     wrating = data.get("WhiteElo")
@@ -446,7 +446,7 @@ async def insert_game_to_db(game, app):
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen
 
-    if game.variant.endswith("shogi") or game.variant in ("dobutsu", "gorogoro"):
+    if game.variant.endswith("shogi") or game.variant in ("dobutsu", "gorogoro", "gorogoroplus"):
         document["uci"] = 1
 
     result = await app["db"].game.insert_one(document)
@@ -711,7 +711,7 @@ def sanitize_fen(variant, initial_fen, chess960):
                 chess960 = False
             else:
                 invalid4 = any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
-        elif variant[-5:] != "shogi" and variant not in ("dobutsu", "gorogoro"):
+        elif variant[-5:] != "shogi" and variant not in ("dobutsu", "gorogoro", "gorogoroplus"):
             invalid4 = any((c not in start[2] + "-" for c in init[2]))
 
         # Castling right need rooks and king placed in starting square

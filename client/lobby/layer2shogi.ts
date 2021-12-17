@@ -48,9 +48,9 @@ export function layer2shogi (lobbyCtrl: LobbyController, containerId: string): v
             ]),
             h('p.variant-extra-info', _('3x4 game to teach Shogi')),
         ]),
-        h('button.layer-2-category.shogun', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'gorogoro', false) } }, [
+        h('button.layer-2-category.shogun', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'gorogoroplus', false) } }, [
             h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['gorogoro'].icon(false) } }),
+                h('div.icon', { attrs: { 'data-icon': VARIANTS['gorogoroplus'].icon(false) } }),
                 h('h3', 'Gorogoro'),
             ]),
             h('p.variant-extra-info', _('5x6 with Generals')),
