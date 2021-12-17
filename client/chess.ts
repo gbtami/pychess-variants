@@ -432,6 +432,26 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐱",
     }),
 
+    gorogoroplus: new Variant({
+        name: "gorogoroplus", displayName: "gorogoro plus", tooltip: () => _("5x6 Shogi designed to introduce tactics with the generals."),
+        startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1",
+        board: "shogi5x6", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["k", "g", "s", "n", "l", "p"],
+        pocketRoles: ["p", "l", "n", "s", "g"],
+        promotion: "shogi",
+        promoteablePieces: ["p", "s", "n", "l"],
+        isMandatoryPromotion: distanceBased({ p: 1 }, 6),
+        timeControl: "byoyomi",
+        pieceSound: "shogi",
+        drop: true,
+        alternateStart: {
+            '': '',
+            'Gorogoro': 'sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1'
+        },
+        icon: "🐱",
+    }),
+
     torishogi: new Variant({
         name: "torishogi", displayName: "tori shogi", tooltip: () => _("A confrontational 7x7 variant with unique pieces each named after different birds."),
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
@@ -727,13 +747,13 @@ export const VARIANTS: { [name: string]: Variant } = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },

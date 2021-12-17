@@ -571,8 +571,9 @@ class Game:
                         self.status = DRAW
                         self.result = "1/2-1/2"
 
+                # Pawn drop mate
                 # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
-                if self.board.move_stack[-1][0:2] == "P@" and self.variant in ("shogi", "minishogi", "gorogoro"):
+                if self.board.move_stack[-1][0:2] == "P@" and self.variant in ("shogi", "minishogi", "gorogoro", "gorogoroplus"):
                     self.status = INVALIDMOVE
                 # print(self.result, "checkmate")
             else:

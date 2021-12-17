@@ -40,6 +40,7 @@ V2C = {
     "manchu": "M",
     "dobutsu": "D",
     "gorogoro": "G",
+    "gorogoroplus": "+",
     "shinobi": "J",
     "empire": "P",
     "ordamirror": "O",

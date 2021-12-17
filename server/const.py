@@ -59,7 +59,9 @@ VARIANTS = (
     "minishogi",
     "kyotoshogi",
     "dobutsu",
-    "gorogoro",
+    # Gorogoro is superseded by Gorogoro Plus
+    # "gorogoro",
+    "gorogoroplus",
     "torishogi",
     "xiangqi",
     "manchu",
@@ -114,6 +116,7 @@ VARIANT_ICONS = {
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
+    "gorogoroplus": "🐱",
     "torishogi": "🐦",
     "cambodian": "!",
     "shako": "9",
@@ -158,7 +161,7 @@ CATEGORIES = {
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
+    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 
