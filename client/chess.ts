@@ -447,7 +447,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         drop: true,
         alternateStart: {
             '': '',
-            'Gorogoro': 'sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1'
+            'No Knight and Lance': 'sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1'
         },
         icon: "🐱",
     }),
