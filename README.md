@@ -1,5 +1,3 @@
-[![Python-CI](https://github.com/srimethan/pychess-variants/actions/workflows/ci.yml/badge.svg)](https://github.com/srimethan/pychess-variants/actions/workflows/ci.yml)
-[![Nodejs-CI](https://github.com/srimethan/pychess-variants/actions/workflows/nodejs.yml/badge.svg)](https://github.com/srimethan/pychess-variants/actions/workflows/nodejs.yml)
 ## Liantichess
 
 Liantichess is a free, open-source antichess server designed to play antichess variants.
