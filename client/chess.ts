@@ -433,7 +433,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),
 
     gorogoroplus: new Variant({
-        name: "gorogoroplus", displayName: "gorogoro plus", tooltip: () => _("5x6 Shogi designed to introduce tactics with the generals."),
+        name: "gorogoroplus", displayName: "gorogoro", tooltip: () => _("5x6 Shogi designed to introduce tactics with the generals."),
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1",
         board: "shogi5x6", piece: "shogi",
         firstColor: "Black", secondColor: "White",
