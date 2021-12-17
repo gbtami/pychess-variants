@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime
 
 from motor import motor_asyncio as ma
 from settings import MONGO_HOST, MONGO_DB_NAME
