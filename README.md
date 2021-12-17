@@ -1,3 +1,5 @@
+[![Nodejs-CI](https://github.com/SriMethan/Liantichess/actions/workflows/nodejs.yml/badge.svg)](https://github.com/SriMethan/Liantichess/actions/workflows/nodejs.yml)
+
 ## Liantichess
 
 Liantichess is a free, open-source antichess server designed to play antichess variants.
