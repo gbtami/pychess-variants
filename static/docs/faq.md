@@ -4,7 +4,7 @@
 
 <details><summary>What is Liantichess?</summary>
 
-Liantichess is a website dedicated to to play antichess and antichess960 and interesting chess variants (both regional and more modern chess variants). Derived From Pychess and Credits to Gbtami .</details>
+Liantichess is a website dedicated to to play antichess and antichess960. Derived From Pychess and Credits to Gbtami .</details>
 
 <details><summary>Why is it called Liantichess?</summary>
 
@@ -24,7 +24,7 @@ It is the strongest available on this site, but does not represent Fairy-Stockfi
 
 <details><summary>I found a bug! Where do I report it?</summary>
 
-mention it on Discord, and someone can file it.</details>
+[Make an issue](https://github.com/SriMethan/Liantichess/issues/new). Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.</details>
 
 ## Variants
 
@@ -59,7 +59,7 @@ You need to have a Lichess account. If you don't already, please go to [Lichess]
 
 <details><summary>Would logging in with my Lichess account compromise my account/password?</summary>
 
-No! That is done via OAuth and your password isn't revealed to Pychess, just like how you can log in to third-party websites with your Google or Facebook accounts.</details>
+No! That is done via OAuth and your password isn't revealed to LiAntichess, just like how you can log in to third-party websites with your Google or Facebook accounts.</details>
 
 <details><summary>What's the best way to contact the developers?</summary>
 
