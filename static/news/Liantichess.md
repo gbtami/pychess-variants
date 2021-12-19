@@ -10,7 +10,7 @@
 </div>
 </br>
 
-![Trafic](https://imgur.com/38L8Iy0)
+![Trafic](https://imgur.com/38L8Iy0.png)
 
 
 Hello guys,
