@@ -6,7 +6,7 @@
         <span class="text"><a href="/@/cFlour">@cFlour</a></span>
         <span class="text">Liantichess</span>
     </div>
-    <div class= "headline">Liantichess</div>
+    <div class= "headline">I really appreciate everyone who offered to help, donated, reported a bug or made me aware of some possible improvements.</div>
 </div>
 </br>
 
