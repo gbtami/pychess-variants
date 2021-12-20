@@ -22,8 +22,13 @@ GAME_PAGE_SIZE = 12
 async def get_variant_stats(request):
     cur_period = datetime.now().isoformat()[:7]
 
-    if cur_period in request.app["stats"]:
-        series = request.app["stats"][cur_period]
+    if "/humans" in request.path:
+        stats = "stats_humans"
+    else:
+        stats = "stats"
+
+    if cur_period in request.app[stats]:
+        series = request.app[stats][cur_period]
     else:
         db = request.app["db"]
 
@@ -41,6 +46,14 @@ async def get_variant_stats(request):
             },
             {"$sort": {"_id": 1}}
         ]
+        if "/humans" in request.path:
+            pipeline.insert(0, {"$match": {
+                "us": {
+                    "$all": [{"$not": "Fairy-Stockfish"}, {"$not": "Random-Mover"}]
+                }
+            }
+            })
+        print(pipeline)
         cursor = db.game.aggregate(pipeline)
 
         variant_counts = {variant: [] for variant in VARIANTS}
@@ -67,7 +80,7 @@ async def get_variant_stats(request):
                 pass
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
-        request.app["stats"][cur_period] = series
+        request.app[stats][cur_period] = series
 
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
 
