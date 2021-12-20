@@ -191,7 +191,7 @@ def variant_display_name(variant):
     elif variant == "ordamirror":
         return "ORDA MIRROR"
     elif variant == "gorogoroplus":
-        return "GOROGORO"
+        return "GOROGORO+"
     elif variant == "kyotoshogi":
         return "KYOTO SHOGI"
     elif variant == "torishogi":
