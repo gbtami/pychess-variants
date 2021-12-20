@@ -49,11 +49,10 @@ async def get_variant_stats(request):
         if "/humans" in request.path:
             pipeline.insert(0, {"$match": {
                 "us": {
-                    "$all": [{"$not": "Fairy-Stockfish"}, {"$not": "Random-Mover"}]
+                    "$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}
                 }
             }
             })
-        print(pipeline)
         cursor = db.game.aggregate(pipeline)
 
         variant_counts = {variant: [] for variant in VARIANTS}
