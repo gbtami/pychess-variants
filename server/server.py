@@ -120,6 +120,7 @@ async def init_state(app):
     app["shield_owners"] = {}  # {variant: username, ...}
 
     app["stats"] = {}
+    app["stats_humans"] = {}
 
     # counters for games
     app["g_cnt"] = [0]
