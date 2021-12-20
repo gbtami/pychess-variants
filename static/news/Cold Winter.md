@@ -1,19 +1,22 @@
-<h1 align="center">Gorogoro PLUS</h1>
+<h1 align="center">Summary of latest changes</h1>
 
 <div class="meta-headline">
     <div class= "meta">
-        <span class="text">2021.12.18</span>
+        <span class="text">2021.12.21</span>
         <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
         <span class="text">Announcements</span>
     </div>
-    <div class= "headline">Lance plus knight</div>
+    <div class= "headline">Cold Winter</div>
 </div>
 </br>
 
-Hi everyone, and congratulations for making it through yet another challenging year! We apologize for the lack of posts recently, but rest assured, the team is constantly working in the background to continually improve the site. Some things that you may have seen since the last post are the following:
+![ChakArt](https://github.com/gbtami/pychess-variants/blob/master/static/images/board/ChakArt.jpg)
+</br>
+
+Hi everyone, and congratulations for making it through yet another challenging year! Some things that you may have seen since the last post are the following:
 
 * New variant: ASEAN chess, a Makruk variant more styled like western Chess
-* New tournament feature: Berserk (read more about how it works [here](https://lichess.org/tournament/help?system=arena)
+* New tournament feature: Berserk. Read more about how it works [here](https://lichess.org/tournament/help?system=arena)
 * Regular updates with arenas and shield arenas. For example, we've started a regular SEAturday arena for the Southeast Asian variant players.
 
 Finally, to round out the end of the year, we have an update for one of our variants: Gorogoro Shogi (special thanks to Ada!). You can now play the Gorogoro PLUS version, which is a version where players start with a knight and lance in hand. Hopefully this should add more variety to the Gorogoro games by having a greater range of pieces! The original Gorogoro is available to play as an alternate FEN, selectable through the game creation screen as usual.

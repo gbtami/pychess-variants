@@ -940,6 +940,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/board/ChakArt.jpg'} }),
+                    h('span.text', [
+                        h('strong', "Summary of latest changes"),
+                        h('span', 'Cold winter'),
+                    ]),
+                    h('time', '2021.09.02'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/AngryBirds.png'} }),
                     h('span.text', [
@@ -956,6 +964,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.07.30'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/shinobi.svg'} }),
                     h('span.text', [
@@ -964,7 +973,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.04.21'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
                     h('span.text', [
