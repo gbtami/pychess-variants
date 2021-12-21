@@ -946,7 +946,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         h('strong', "Summary of latest changes"),
                         h('span', 'Cold winter'),
                     ]),
-                    h('time', '2021.09.02'),
+                    h('time', '2021.12.21'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/AngryBirds.png'} }),
