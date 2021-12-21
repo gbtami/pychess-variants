@@ -1,7 +1,7 @@
 @import "hamburger.css";
 :root {
     --main-margin: 0;
-    --main-max-width: 1400px;
+    --main-max-width: 1300px;
     --gauge-gap: 17px;
     --site-header-height: 60px;
     --site-header-margin: 0px;
@@ -424,9 +424,6 @@ div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news {
     background-color: var(--bg-color0);
     padding: 2rem;
 }
-div.about, div.paste, div.news {
-    width: 75%;
-}
 div.patron, div.invite {
     width: 50%;
 }
@@ -436,7 +433,6 @@ div.guide, div.news {
 }
 
 div.guide, div.news, div.about {
-    max-width: 800px;
     padding: 20px 40px;
     font-size: 1.2em; 
 }

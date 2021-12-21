@@ -9,8 +9,9 @@
     <div class= "headline">Cold Winter</div>
 </div>
 </br>
-
-![ChakArt](https://github.com/gbtami/pychess-variants/blob/master/static/images/board/ChakArt.jpg)
+<p align="center">
+    <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/board/ChakArt.jpg" width="300" height="150">
+</p>
 </br>
 
 Hi everyone, and congratulations for making it through yet another challenging year! Some things that you may have seen since the last post are the following:
@@ -26,3 +27,7 @@ As the winter rolls by, some players have noted how it can be difficult to find 
 Going forward into the new year , we will have some new variants planned, which we will be releasing over the next few months. Stay tuned for those! The first will be a unique variant by Couch Tomato called Chak. To get excited, maybe watch Apocalypto!
 
 Anyways, we wish you all a merry Christmas and a happy New Year!
+
+<p align="center">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/icons/Gorogoro.svg" width="25" height="25">
+</p>
