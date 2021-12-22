@@ -1,0 +1,98 @@
+div.not-found {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    max-width: 1000px;
+    align-items: center;
+    padding: 0 0 50px 0;
+}
+.not-found .header {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+.not-found .header h1 {
+    font-size: 7em;
+    color: #b3b3b3;
+    margin: 0 2rem 0 0;
+}
+.not-found .header p {
+    padding: 0;
+}
+.not-found .header strong {
+    text-transform: uppercase;
+    color: #b3b3b3;
+    font-size: 2em;
+    margin: 10px 0;
+    display: block;
+}
+not-found .memory-game {
+    display: block;
+}
+
+#replay {
+  margin: auto;
+  text-transform: uppercase;
+  padding: 15px 2px;
+  font-size: 1.1rem;
+  background: linear-gradient(to bottom, #3c3934, #33312e 100%);
+  color: #999;
+  border: none;
+  border-radius: 3px;
+  width: 200px;
+  cursor: pointer;
+  margin-top: 50px;
+}
+
+#replay:hover {
+  background: linear-gradient(rgb(68, 65, 59), rgb(59, 57, 53) 100%);
+  color: #ccc;
+}
+
+#replay:active {
+  transform: scale(0.97);
+}
+
+.memory-game {
+  width: 350px;
+  height: 350px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+  perspective: 1000px;
+  background: url(images/zen.png);
+  background-size: cover;
+  border-radius: 3px;
+}
+
+.memory-card {
+  width: calc(25% - 10px);
+  height: calc(25% - 10px);
+  position: relative;
+  margin: 5px;
+  transform: scale(1);
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
+}
+
+.memory-card:active {
+  transform: scale(0.97);
+  transition: transform 0.2s;
+}
+
+.memory-card.flip {
+  transform: rotateY(180deg);
+}
+
+.front-face,
+.back-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  backface-visibility: hidden;
+}
+
+.front-face {
+  transform: rotateY(180deg);
+}
