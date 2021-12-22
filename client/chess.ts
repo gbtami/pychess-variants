@@ -135,6 +135,7 @@ export class Variant {
     readonly pass: boolean;
     readonly boardMark: 'campmate' | 'none';
     readonly showPromoted: boolean;
+    readonly pseudoRoyal: boolean;
     readonly materialDifference : boolean;
     readonly initialMaterialImbalance : MaterialImbalance;
 
@@ -179,6 +180,7 @@ export class Variant {
         this.pass = data.pass ?? false;
         this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
+        this.pseudoRoyal = data.pseudoRoyal ?? false;
         this.materialDifference = data.materialDifference ?? !this.drop;
         this.initialMaterialImbalance = this.materialDifference ? calculateInitialImbalance(this) : {};
 
@@ -224,6 +226,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     materialDifference?: boolean;
     pieceSound?: string;
     showPromoted?: boolean;
+    pseudoRoyal?: boolean;
 
     enPassant?: boolean;
     alternateStart?: {[key:string]: string};
@@ -284,6 +287,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         enPassant: true,
+        pseudoRoyal: true,
         pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "\\",
     }),
@@ -704,6 +708,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "White", secondColor: "Green",
         pieceRoles: ["r", "v", "s", "q", "k", "j", "o", "p"],
         promotion: "shogi",
+        pseudoRoyal: true,
         promoteablePieces: ["p", "k"],
         icon: "🐬",
     }),

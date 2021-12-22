@@ -935,7 +935,7 @@ export default class AnalysisController {
             dests: this.dests,
             promo: this.promotions,
             bikjang: this.ffishBoard.isBikjang(),
-            check: this.ffishBoard.isCheck(),
+            check: this.ffishBoard.isCheck(this.variant.pseudoRoyal),
         }
 
         this.onMsgAnalysisBoard(msg);
