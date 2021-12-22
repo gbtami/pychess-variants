@@ -35,6 +35,7 @@ class FairyBoard:
             self.chess960 = False
         self.manual_count = count_started != 0
         self.count_started = count_started
+        self.pseudo_royal = variant in ("atomic", "chak")
 
         if self.variant == "janggi":
             self.notation = sf.NOTATION_JANGGI
@@ -75,7 +76,7 @@ class FairyBoard:
         return sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def is_checked(self):
-        return sf.gives_check(self.variant, self.fen, [], self.chess960)
+        return sf.gives_check(self.variant, self.fen, [], self.chess960, self.pseudo_royal)
 
     def insufficient_material(self):
         return sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
