@@ -415,7 +415,7 @@ under-right {
     flex-flow: column nowrap;
 }
 
-div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news {
+div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news, div.not-found {
     grid-area: main;
     margin: 0 auto;
     border-radius: 3px;
