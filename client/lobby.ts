@@ -742,6 +742,7 @@ export class LobbyController {
     private spotlightView(spotlight: Spotlight) {
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
+        const variantName = variant.displayName(chess960);
         const dataIcon = variant.icon(chess960);
 
         return h('a.tour-spotlight', { attrs: { "href": "/tournament/" + spotlight.tid } }, [
@@ -749,6 +750,7 @@ export class LobbyController {
             h('span.content', [
                 h('span.name', spotlight.name),
                 h('span.more', [
+                    h('variant', variantName + ' • '),
                     h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
                     h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
                 ])
