@@ -169,7 +169,7 @@
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
 }
 
-.lastrow .cg-512 cg-container::before {
+.campmate .cg-512 cg-container::before {
   width: 100%;
   height: 12.5%;
   top: 0%;
@@ -182,7 +182,7 @@
   pointer-events: none;
 }
 
-.lastrow .cg-512 cg-container::after {
+.campmate .cg-512 cg-container::after {
   width: 100%;
   height: 12.5%;
   top: 87.5%;

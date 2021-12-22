@@ -133,7 +133,7 @@ export class Variant {
     readonly drop: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
-    readonly campmate: 'lastrow' | 'none';
+    readonly boardMark: 'campmate' | 'none';
     readonly showPromoted: boolean;
     readonly materialDifference : boolean;
     readonly initialMaterialImbalance : MaterialImbalance;
@@ -177,7 +177,7 @@ export class Variant {
         this.drop = data.drop ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
-        this.campmate = data.campmate ?? 'none';
+        this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
         this.materialDifference = data.materialDifference ?? !this.drop;
         this.initialMaterialImbalance = this.materialDifference ? calculateInitialImbalance(this) : {};
@@ -220,7 +220,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     drop?: boolean;
     gate?: boolean;
     pass?: boolean;
-    campmate?: 'lastrow' | 'none';
+    boardMark?: 'campmate' | 'none';
     materialDifference?: boolean;
     pieceSound?: string;
     showPromoted?: boolean;
@@ -638,7 +638,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles2: ["k", "y", "l", "a", "h", "p", "q"],
         promotionOrder: ["q", "h"],
         enPassant: true,
-        campmate: 'lastrow',
+        boardMark: 'campmate',
         //materialDifference: false,
         icon: "R",
     }),
@@ -651,7 +651,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
         pocketRoles: [], pocketRoles2: ["s"],
-        campmate: 'lastrow',
+        boardMark: 'campmate',
         //materialDifference: false,
         icon: "_",
     }),
@@ -668,7 +668,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promotion: "shogi",
         promoteablePieces: ["p", "l", "h", "m"],
         enPassant: true,
-        campmate: 'lastrow',
+        boardMark: 'campmate',
         //materialDifference: false,
         icon: "🐢",
     }),
@@ -681,7 +681,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "d", "t", "c", "e", "p", "s", "q"],
         pieceRoles2: ["k", "q", "r", "b", "n", "p"],
         enPassant: true,
-        campmate: 'lastrow',
+        boardMark: 'campmate',
         //materialDifference: false,
         icon: "♚",
     }),
@@ -693,7 +693,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "White", secondColor: "Gold",
         pieceRoles: ["k", "f", "l", "a", "h", "p"],
         promotionOrder: ["h", "l", "f", "a"],
-        campmate: 'lastrow',
+        boardMark: 'campmate',
         icon: "◩",
     }),
 
