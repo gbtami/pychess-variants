@@ -8,6 +8,6 @@ Hey everyone, Couch Tomato here! Remember how I said Shinobi was my last variant
 
 Anyways, for more details, please check out the guide (**LINK HERE ONCE AVAILABLE HINT HINT WINK WINK**) for the rules and give it a shot! Big tips for beginners are in the guide, but to summarize, always keep your eye on the quetzal moves, and make sure to setup defenses so that the opponent's jaguar does not cross the river. Unlike other variants, every one will be at the same level as this is not directly derivative of any other chess variant, so we're excited to see how players adapt their basic chess knowledge and instincts.
 
-Special thanks to Fables who spent an incredible amount of time assisting me in testing and making this a reality. Additional thanks to E-pluszak and Untitled Entity for balance testing. Oh, and for those who are wondering, Chak's symbol is the Mayan glyph for "ajaw," or king/lord.
+Special thanks to Fables who spent an incredible amount of time assisting me in testing and making this a reality. Additional thanks to E-pluszak and Untitled Entity for balance testing. And of course, Gbtami and Ada for Pychess implementation. Oh, and for those who are wondering, Chak's symbol is the Mayan glyph for "ajaw," or king/lord.
 
 -Couch Tomato
