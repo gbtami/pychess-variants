@@ -180,6 +180,8 @@ class TournamentTestCase(AioHTTPTestCase):
                 except asyncio.CancelledError:
                     pass
 
+        await self.client.close()
+
     async def get_application(self):
         app = make_app(with_db=False)
         return app
