@@ -499,11 +499,11 @@ class Game:
             (white_score, black_score) = (0.0, 1.0)
         else:
             raise RuntimeError('game.result: unexpected result code')
-        wr, br = self.white_rating, self.black_rating
-        # print("ratings before updated:", wr, br)
-        wr = gl2.rate(self.white_rating, [(white_score, br)])
-        br = gl2.rate(self.black_rating, [(black_score, wr)])
+
+        wr = gl2.rate(self.white_rating, [(white_score, self.black_rating)])
+        br = gl2.rate(self.black_rating, [(black_score, self.white_rating)])
         # print("ratings after updated:", wr, br)
+
         await self.wplayer.set_rating(self.variant, self.chess960, wr)
         await self.bplayer.set_rating(self.variant, self.chess960, br)
 
