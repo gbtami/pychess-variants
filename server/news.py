@@ -1,4 +1,5 @@
 NEWS = {
+    "Merry_Chakmas": "2021-12-24",
     "Cold_Winter": "2021-12-21",
     "Hot_Summer": "2021-09-02",
     "Empire_Chess_and_Orda_Mirror_Have_Arrived": "2021-07-30",
