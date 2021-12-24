@@ -41,6 +41,7 @@
     --red-text: Crimson;
     --gold-text: GoldenRod;
     --pink-text: Pink;
+    --green-text: Green;
     --gray-text: #808080;
     --modal-bg: #fff;
     --box-header: #f5f5f5;
@@ -1048,6 +1049,10 @@ i-side, .icon-cloud-upload:before {
 .icon-pink:before {
     content: "\62";
     color: var(--pink-text);
+}
+.icon-green:before {
+    content: "\62";
+    color: var(--green-text);
 }
 .icon-online::before {
     color: var(--good);
