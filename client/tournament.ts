@@ -428,6 +428,7 @@ export default class TournamentController {
                             "icon-blue":  color === "Blue",
                             "icon-gold":  color === "Gold",
                             "icon-pink":  color === "Pink",
+                            "icon-green": color === "Green",
                         }
                     }),
                 ]),
