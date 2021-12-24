@@ -90,7 +90,11 @@ VARIANTS = (
     "empire",
     "ordamirror",
     "chak",
+<<<<<<< HEAD
     "chennis",
+=======
+    # "chennis"
+>>>>>>> 164603ffe611b0eece63eb50f2f26e871eccd475
 )
 
 VARIANT_ICONS = {
