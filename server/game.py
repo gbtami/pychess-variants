@@ -564,6 +564,11 @@ class Game:
                 # print(self.result, "variant end")
             elif self.check:
                 self.status = MATE
+
+                if self.variant == 'atomic' and game_result_value == 0:
+                    # If Fairy game_result() is 0 it is not mate but stalemate
+                    self.status = STALEMATE
+
                 # Draw if the checkmating player is the one counting
                 if self.board.count_started > 0:
                     counting_side = 'b' if self.board.count_started % 2 == 0 else 'w'
@@ -577,14 +582,8 @@ class Game:
                     self.status = INVALIDMOVE
                 # print(self.result, "checkmate")
             else:
-                # being in stalemate loses in xiangqi and shogi variants
-                # Atomic checkmate is internally a stalemate so we need to change it here. Remove when pyffish is fixed.
-                if self.variant == 'atomic' and self.result != "1/2-1/2":
-                    self.status = MATE
-                    # print(self.result, "checkmate")
-                else:
-                    self.status = STALEMATE
-                    # print(self.result, "stalemate")
+                self.status = STALEMATE
+                # print(self.result, "stalemate")
 
         elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin', 'asean'):
             parts = self.board.fen.split()
