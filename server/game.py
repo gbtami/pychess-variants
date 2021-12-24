@@ -353,7 +353,7 @@ class Game:
             try:
                 del self.games[self.id]
             except KeyError:
-                log.error("Failed to del %s from games", self.id)
+                log.info("Failed to del %s from games", self.id)
 
             if self.bot_game:
                 try:
@@ -362,7 +362,7 @@ class Game:
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
-                    log.error("Failed to del %s from game_queues", self.id)
+                    log.info("Failed to del %s from game_queues", self.id)
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
@@ -422,7 +422,7 @@ class Game:
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
-            print("Crosstable was already updated with %s result" % self.id)
+            log.info("Crosstable was already updated with %s result", self.id)
             return
 
         if self.result == "1/2-1/2":
@@ -454,7 +454,7 @@ class Game:
 
     async def save_crosstable(self):
         if not self.need_crosstable_save:
-            print("Crosstable update for %s was already saved to mongodb" % self.id)
+            log.info("Crosstable update for %s was already saved to mongodb", self.id)
             return
 
         new_data = {
@@ -499,11 +499,11 @@ class Game:
             (white_score, black_score) = (0.0, 1.0)
         else:
             raise RuntimeError('game.result: unexpected result code')
-        wr, br = self.white_rating, self.black_rating
-        # print("ratings before updated:", wr, br)
-        wr = gl2.rate(self.white_rating, [(white_score, br)])
-        br = gl2.rate(self.black_rating, [(black_score, wr)])
+
+        wr = gl2.rate(self.white_rating, [(white_score, self.black_rating)])
+        br = gl2.rate(self.black_rating, [(black_score, self.white_rating)])
         # print("ratings after updated:", wr, br)
+
         await self.wplayer.set_rating(self.variant, self.chess960, wr)
         await self.bplayer.set_rating(self.variant, self.chess960, br)
 

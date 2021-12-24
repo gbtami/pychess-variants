@@ -184,6 +184,8 @@ class GamePlayTestCase(AioHTTPTestCase):
                 except asyncio.CancelledError:
                     pass
 
+        await self.client.close()
+
     async def test_tournament_disaster(self):
 
         await self.tournament.clock_task

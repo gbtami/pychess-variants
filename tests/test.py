@@ -98,6 +98,9 @@ class GameResultTestCase(AioHTTPTestCase):
         app.on_startup.append(self.startup)
         return app
 
+    async def tearDownAsync(self):
+        await self.client.close()
+
     async def test_atomic_stalemate(self):
         FEN = "K7/Rk6/2B5/8/8/8/7Q/8 w - - 0 1"
         game = Game(self.app, "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
@@ -172,6 +175,8 @@ class RequestLobbyTestCase(AioHTTPTestCase):
                 except asyncio.CancelledError:
                     pass
 
+        await self.client.close()
+
     async def get_application(self):
         app = make_app(with_db=False)
         return app
@@ -194,12 +199,15 @@ class GamePlayTestCase(AioHTTPTestCase):
         app.on_startup.append(self.startup)
         return app
 
+    async def tearDownAsync(self):
+        await self.client.close()
+
     async def play_random(self, game):
         while game.status <= STARTED:
             move = game.random_move
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
-    async def xxxtest_game_play(self):
+    async def test_game_play(self):
         """ Playtest test_player vs Random-Mover """
         for i, variant in enumerate(VARIANTS):
             print(i, variant)
@@ -234,6 +242,9 @@ class HighscoreTestCase(AioHTTPTestCase):
         app = make_app(with_db=False)
         app.on_startup.append(self.startup)
         return app
+
+    async def tearDownAsync(self):
+        await self.client.close()
 
     @staticmethod
     def print_game_highscore(game):
@@ -336,6 +347,9 @@ class RatingTestCase(AioHTTPTestCase):
         app.on_startup.append(self.startup)
         return app
 
+    async def tearDownAsync(self):
+        await self.client.close()
+
     async def test_new_rating(self):
         # New User ratings are equals to default
 
@@ -381,6 +395,45 @@ class RatingTestCase(AioHTTPTestCase):
         self.assertEqual(round(r1.mu, 3), 1464.051)
         self.assertEqual(round(r1.phi, 3), 151.515)
         self.assertEqual(round(r1.sigma, 6), 0.059996)
+
+
+class FirstRatedGameTestCase(AioHTTPTestCase):
+
+    async def startup(self, app):
+        self.bplayer1 = User(self.app, username="bplayer", perfs=PERFS["newplayer"])
+        self.wplayer1 = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
+
+        self.bplayer2 = User(self.app, username="bplayer", perfs=PERFS["newplayer"])
+        self.wplayer2 = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
+
+    async def get_application(self):
+        app = make_app(with_db=False)
+        app.on_startup.append(self.startup)
+        return app
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    async def test_ratings(self):
+        game = Game(self.app, "12345678", "chess", "", self.wplayer1, self.bplayer1, rated=True)
+        game.board.ply = 3
+        await game.game_ended(self.bplayer1, "flag")
+
+        rw = self.wplayer1.get_rating("chess", False)
+        rb = self.bplayer1.get_rating("chess", False)
+
+        self.assertEqual(round(rw.mu, 3), 1662.212)
+        self.assertEqual(round(rb.mu, 3), 1337.788)
+
+        game = Game(self.app, "12345678", "chess", "", self.wplayer2, self.bplayer2, rated=True)
+        game.board.ply = 3
+        await game.game_ended(self.wplayer2, "flag")
+
+        rw = self.wplayer2.get_rating("chess", False)
+        rb = self.bplayer2.get_rating("chess", False)
+
+        self.assertEqual(round(rb.mu, 3), 1662.212)
+        self.assertEqual(round(rw.mu, 3), 1337.788)
 
 
 if __name__ == '__main__':
