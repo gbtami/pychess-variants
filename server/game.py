@@ -353,7 +353,7 @@ class Game:
             try:
                 del self.games[self.id]
             except KeyError:
-                log.error("Failed to del %s from games", self.id)
+                log.info("Failed to del %s from games", self.id)
 
             if self.bot_game:
                 try:
@@ -362,7 +362,7 @@ class Game:
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
-                    log.error("Failed to del %s from game_queues", self.id)
+                    log.info("Failed to del %s from game_queues", self.id)
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
@@ -422,7 +422,7 @@ class Game:
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
-            print("Crosstable was already updated with %s result" % self.id)
+            log.info("Crosstable was already updated with %s result", self.id)
             return
 
         if self.result == "1/2-1/2":
@@ -454,7 +454,7 @@ class Game:
 
     async def save_crosstable(self):
         if not self.need_crosstable_save:
-            print("Crosstable update for %s was already saved to mongodb" % self.id)
+            log.info("Crosstable update for %s was already saved to mongodb", self.id)
             return
 
         new_data = {
