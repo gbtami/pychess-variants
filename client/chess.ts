@@ -698,7 +698,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),
 
     chak: new Variant({
-        name: "chak", tooltip: () => _("https://www.chessvariants.com/rules/chak"),
+        name: "chak", tooltip: () => _("Mayan chess. Inspired by cultural elements of Mesoamerica."),
         startFen: "rvsqkjsvr/4o4/p1p1p1p1p/9/9/9/P1P1P1P1P/4O4/RVSJKQSVR w - - 0 1",
         board: "chak9x9", piece: "chak",
         firstColor: "White", secondColor: "Green",
