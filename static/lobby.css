@@ -5,10 +5,9 @@
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
-        grid-template-areas: 'app' 'table' 'side' 'uleft' 'utable' 'blog';
+        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'uleft' 'utable' 'blog';
     }
 
-    
 }
 @media (min-width: 800px) {
     .lobby {
@@ -43,4 +42,3 @@
 .stream .icon::before {
     font-size: 1.5em;
 }
-
