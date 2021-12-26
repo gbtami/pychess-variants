@@ -1169,7 +1169,6 @@ table#seeks-header, table#seeks {
 #seeks thead {
     background: var(--bg-color2);
 }
-
 #santa {
     display: inline-block;
     width: 28px;
@@ -1178,7 +1177,6 @@ table#seeks-header, table#seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
-
 #seeks th, #seeks td {
     white-space: nowrap;
     font-weight: inherit;
