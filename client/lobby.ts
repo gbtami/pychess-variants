@@ -933,6 +933,10 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
         ]),
+        h('under-right', [
+            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
+            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
+        ]),
         h('under-lobby', [
             h('news-latest', [
                 h('icon', { attrs: {"data-icon": '2'} }),
@@ -1002,10 +1006,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ]),
                 */ 
             ]),
-        ]),
-        h('under-right', [
-            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
-            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
     ];
 }
