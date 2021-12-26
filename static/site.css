@@ -1145,11 +1145,12 @@ li.header {
 }
 
 table#seeks-header, table#seeks {
+    width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
     border-radius: 3px;
     font-size: 14px;
-    width:100%;
+    table-layout: fixed;
 }
 #seeks-table {
     min-width: 400px;
@@ -1162,14 +1163,13 @@ table#seeks-header, table#seeks {
     background-blend-mode: overlay;
 }
 #seeks-wrapper {
-    height: 320px;
+    height: 550px;
     overflow-y: scroll;
     -ms-overflow-style: scrollbar;
 }
 #seeks thead {
-    background: var(--bg-color2);
+    display: none;
 }
-/*
 #santa {
     display: inline-block;
     width: 28px;
@@ -1178,52 +1178,53 @@ table#seeks-header, table#seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
-*/
-#seeks th, #seeks td {
+#seeks-header th, #seeks td {
+    padding: 10 0 10 6;
     white-space: nowrap;
     font-weight: inherit;
-    padding: .5em 0.7em .5em 0.7em;
 }
-@media (max-width: 799px) and (orientation: portrait) {
-    #seeks th, #seeks td {
-        font-weight: 300;
-    }
+#seeks-header th {
+    text-align: center;
 }
-#seeks thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    color: var(--button-text);
+#seeks-header > thead > tr {
+    border: none;
+    cursor: default;
 }
-#seeks tbody tr {
+#seeks tr {
     cursor: pointer;
     border-bottom: 1px solid var(--bg-color2);
-    z-index: 1;
 }
 #seeks tbody tr:hover {
     background-color: var(--rusty);
 }
-#seekbuttons {
-    display: flex;
-    flex-flow: column;
-    margin: 0 1em 0 1em;
+#seeks-header tr > :nth-child(1), #seeks tr > :nth-child(1) {
+    width: 4%;
+    text-align: center;
+}
+#seeks-header tr > :nth-child(2), #seeks tr > :nth-child(2) {
+    width: 25%;
+}
+#seeks-header tr > :nth-child(3), #seeks tr > :nth-child(3) {
+    width: 14%;
+    text-align: center;
+}
+#seeks-header tr > :nth-child(4), #seeks tr > :nth-child(4) {
+    width: 15%;
+}
+#seeks-header tr > :nth-child(5), #seeks tr > :nth-child(5) {
+    width: 25%;
+}
+#seeks-header tr > :nth-child(6), #seeks tr > :nth-child(6) {
+    width: 18%;
+    text-align: center;
 }
 #seekbuttons > button {
     color: var(--button-text);
     background: var(--button-new-game);
-    font-size: 1.1rem;
-    text-transform: uppercase; 
-    font-weight: 300;
-    text-shadow: 0 1px 0 var(--text-shadow);
 }
 #seekbuttons > button:hover {
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
-}
-#seekbuttons > button:focus {
-    background: #ff4f00;
-    color: #fff;
-    text-shadow: 0 1px 1px #000000;
 }
 /* The Modal (background) */
 .modal {
