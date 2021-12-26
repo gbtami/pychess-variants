@@ -63,9 +63,6 @@
     --checkbox-border: #e3e3e3;
     --checkbox-checked: #7daa49;
     --post-hover: #ddebf8;
-    --vpanel-button: #fbfbfb;
-    --vpanel-button-hover: #fdfdfd;
-    --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85; 
     --chat-entry-border-top: #d9d9d9;
     --chat-entry-bg: #fafaf9; 
     --toggle-bg: #c0c0c0;
@@ -116,11 +113,6 @@
     --border-color: #404040;
     --checkbox-bg: #3b5c16;
     --checkbox-border: #4f7a1d;
-    --post-hover: #29353f;
-    --vpanel-button: #3c3a35;
-    --vpanel-button-hover: #464440;
-    --panel-link-hover: rgb(179, 179, 179);
-    --box-shadow-panel-btn: none;
     --chat-entry-border-top: #404040;
     --chat-entry-bg: #262421; 
     --toggle-bg: #696969;
@@ -853,8 +845,8 @@ div#result {
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby-button {
-        padding: 0.5em;
-        margin: 0.2em 0;
+        padding: 2px 2px;
+        margin: 2px 0 2px 0;
     
     }
 }
