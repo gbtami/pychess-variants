@@ -139,7 +139,7 @@ blackFlag = e2
 nMoveRule = 50
 nFoldRule = 3
 nFoldValue = draw
-stalemateValue = win
+stalemateValue = loss
 
 [chennis]
 maxRank = 7
