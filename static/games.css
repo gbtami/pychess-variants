@@ -31,6 +31,7 @@ minigame .row {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
+    padding-bottom: 44px;
 }
 minigame .variant-info {
     display: inline-flex;
@@ -45,7 +46,16 @@ minigame .tc {
 }
 minigame .name {
     text-align: right;
+    padding-top: 32px;
 }
+
+minigame.no-pockets .row {
+    padding-bottom: 4px;
+}
+minigame.no-pockets .name {
+    padding-top: 4px;
+}
+
 /* Dobutsu needs wider board for long usernames */
 .cg-wrap.cg-156.mini {
   width: 240px;
