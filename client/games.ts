@@ -24,8 +24,8 @@ export interface Game {
 
 function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
     const variant = VARIANTS[game.variant];
-    const pockets = variant.pocketRoles('white') ? '' : 'no-pockets';
-    return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}.${pockets}`, {
+    return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
+        class: { "no-pockets": !variant.pocketRoles('white') },
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, h('div', [
         h('div.row', [
