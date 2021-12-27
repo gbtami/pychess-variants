@@ -46,7 +46,7 @@ minigame .tc {
 }
 minigame .name {
     text-align: right;
-    padding-top: 32px;
+    padding-top: 44px;
 }
 
 minigame.no-pockets .row {
@@ -54,9 +54,4 @@ minigame.no-pockets .row {
 }
 minigame.no-pockets .name {
     padding-top: 4px;
-}
-
-/* Dobutsu needs wider board for long usernames */
-.cg-wrap.cg-156.mini {
-  width: 240px;
 }
