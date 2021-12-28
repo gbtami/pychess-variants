@@ -1,7 +1,7 @@
 @import "hamburger.css";
 :root {
     --main-margin: 0;
-    --main-max-width: 1300px;
+    --main-max-width: 1400px;
     --gauge-gap: 17px;
     --site-header-height: 60px;
     --site-header-margin: 0px;
@@ -41,7 +41,6 @@
     --red-text: Crimson;
     --gold-text: GoldenRod;
     --pink-text: Pink;
-    --green-text: Green;
     --gray-text: #808080;
     --modal-bg: #fff;
     --box-header: #f5f5f5;
@@ -416,7 +415,7 @@ under-right {
     flex-flow: column nowrap;
 }
 
-div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news, div.not-found {
+div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news {
     grid-area: main;
     margin: 0 auto;
     border-radius: 3px;
@@ -424,6 +423,9 @@ div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news, d
     box-shadow: var(--base-shadow);
     background-color: var(--bg-color0);
     padding: 2rem;
+}
+div.about, div.paste, div.news {
+    width: 75%;
 }
 div.patron, div.invite {
     width: 50%;
@@ -434,6 +436,7 @@ div.guide, div.news {
 }
 
 div.guide, div.news, div.about {
+    max-width: 800px;
     padding: 20px 40px;
     font-size: 1.2em; 
 }
@@ -1049,10 +1052,6 @@ i-side, .icon-cloud-upload:before {
 .icon-pink:before {
     content: "\62";
     color: var(--pink-text);
-}
-.icon-green:before {
-    content: "\62";
-    color: var(--green-text);
 }
 .icon-online::before {
     color: var(--good);

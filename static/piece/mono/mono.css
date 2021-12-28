@@ -138,28 +138,3 @@ mpiece.p {
 .empire mpiece.s {
     background-image: url('../../images/pieces/mono/soldier.svg');
 }
-
-.chak mpiece.p {
-    background-image: url('../../images/pieces/mono/chak-pawn.svg');
-}
-.chak mpiece.r {
-    background-image: url('../../images/pieces/mono/serpent.svg');
-}
-.chak mpiece.v {
-    background-image: url('../../images/pieces/mono/vulture.svg');
-}
-.chak mpiece.s {
-    background-image: url('../../images/pieces/mono/shaman.svg');
-}
-.chak mpiece.q {
-    background-image: url('../../images/pieces/mono/quetzal.svg');
-}
-.chak mpiece.j {
-    background-image: url('../../images/pieces/mono/jaguar.svg');
-}
-.chak mpiece.o {
-    background-image: url('../../images/pieces/mono/offering.svg');
-}
-.chak mpiece.pp {
-    background-image: url('../../images/pieces/mono/warrior.svg');
-}

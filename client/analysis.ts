@@ -48,7 +48,7 @@ export function embedView(model: PyChessModel): VNode[] {
 
     return [
         h('div.embed-app', [
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
             ]),
 
@@ -97,7 +97,7 @@ export function analysisView(model: PyChessModel): VNode[] {
     return [
         h('div.analysis-app', [
             h('aside.sidebar-first', leftSide(model)),
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
             ]),
             h('div#gauge', [

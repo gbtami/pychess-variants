@@ -1144,7 +1144,7 @@ msgstr "Berserk"
 
 #: ../client/roundCtrl.ts:500
 msgid "Abort"
-msgstr "Przerwij partię"
+msgstr "Przerwij grę"
 
 #: ../client/roundCtrl.ts:501 ../client/roundCtrl.ts:1178
 #: ../client/roundCtrl.ts:1180

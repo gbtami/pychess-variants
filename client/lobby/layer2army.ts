@@ -54,13 +54,6 @@ export function layer2army (lobbyCtrl: LobbyController, containerId: string): vo
             ]),
             h('p.variant-extra-info', _('Dynasty: Xiangqi-based army')),
         ]),
-        h('button.layer-2-category.hoppelpoppel', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'chak', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['chak'].icon(false) } }),
-                h('h3', 'Chak'),
-            ]),
-            h('p.variant-extra-info', _('Mayan chess')),
-        ]),
     ]);
 
     const container = document.getElementById(containerId) as HTMLElement;

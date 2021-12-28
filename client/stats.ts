@@ -1,4 +1,4 @@
-import Highcharts from 'highcharts';
+import Highcharts from "highcharts";
 
 import { h, VNode } from 'snabbdom';
 
@@ -18,11 +18,8 @@ function createPeriods() {
 }
 
 function buildChart() {
-    const axisTypeEl = document.getElementById("linear") as HTMLInputElement;
-    const humanGamesEl = document.getElementById("humans") as HTMLInputElement;
-
     const xmlhttp = new XMLHttpRequest();
-    const url = humanGamesEl.checked ? "/api/stats/humans" : "/api/stats";
+    const url = "/api/stats"
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
@@ -44,7 +41,7 @@ function buildChart() {
                     categories: createPeriods(),  
                 },
                 yAxis: {
-                    type: axisTypeEl.checked ? 'linear' : 'logarithmic',
+                    type: 'logarithmic',
                 },
                 responsive: {
                     rules: [{
@@ -69,11 +66,5 @@ function buildChart() {
 }
 
 export function statsView(): VNode[] {
-    return [
-        h('div#stats-chart', { hook: { insert: () => buildChart() } }),
-        h('input#linear', { props: { type: 'checkbox' }, on: { change: () => buildChart() } }),
-        h('label', { attrs: { for: 'linear' } }, 'Linear scale'),
-        h('input#humans', { props: { type: 'checkbox' }, on: { change: () => buildChart() } }),
-        h('label', { attrs: { for: 'humans' } }, 'Human games'),
-    ];
+    return [ h('div#stats-chart', { hook: { insert: () => buildChart() } }) ];
 }

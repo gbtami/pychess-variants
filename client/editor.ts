@@ -42,7 +42,7 @@ export function editorView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
             ]),
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg,
                     { hook: { insert: (vnode) => runEditor(vnode, model)},
                 }),

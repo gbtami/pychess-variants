@@ -104,8 +104,6 @@ function proTip (variant: string, chess960: boolean) {
     case 'synochess':
     case 'ordamirror':
         return _('Be aware of campmate - victory by moving your king into the 8th rank.');
-    case 'chak':
-        return _('Promotion is a double-edged sword.');
 // makruk
     case 'makruk':
         return _('Maximizing khon and met\'s effectiveness is the key.');
@@ -120,7 +118,7 @@ function proTip (variant: string, chess960: boolean) {
 // shogi
     case 'shogi':
     case 'minishogi':
-    case 'gorogoroplus':
+    case 'gorogoro':
         return _('Internationalized sets are available by going to settings.');
     case 'dobutsu':
         return _('Despite the simple appearance, there is still quite a bit of depth underlying this game.');

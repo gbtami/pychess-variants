@@ -69,7 +69,6 @@ get_routes = (
     ("/api/{profileId}/import", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
     ("/api/stats", get_variant_stats),
-    ("/api/stats/humans", get_variant_stats),
     ("/api/games", get_games),
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),

@@ -85,10 +85,8 @@ export function result(variant: Variant, status: number, result: string) {
                 case 'shinobi':
                 case 'empire':
                 case 'ordamirror':
-                    text = _('Campmate');
-                    break;
                 case 'chak':
-                    text = _('Altar mate');
+                    text = _('Campmate');
                     break;
                 case 'atomic':
                     text = _('Explosion of king');

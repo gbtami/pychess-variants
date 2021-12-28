@@ -86,7 +86,6 @@ VARIANT_ICONS = {
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
-    "gorogoroplus": "🐱",
     "torishogi": "🐦",
     "cambodian": "!",
     "shako": "9",
@@ -108,7 +107,6 @@ VARIANT_ICONS = {
 #    "ordamirror": "◩",
     "asean": "♻",
     "chak": "🐬",
-    # "chennis": "🎾",
 }
 
 VARIANT_960_TO_PGN = {
@@ -130,9 +128,9 @@ VARIANT_960_TO_PGN = {
 CATEGORIES = {
     "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
-    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
+    "army": ("synochess", "shinobi", "empire", "chak"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi"),
+    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 

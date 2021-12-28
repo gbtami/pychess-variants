@@ -15,7 +15,7 @@ from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, \
 
 log = logging.getLogger(__name__)
 
-RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-friend", "PyChess")
+RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-friend")
 
 
 async def oauth(request):
@@ -97,7 +97,7 @@ async def login(request):
                 log.error("Failed to get lichess public user account data from %s", LICHESS_ACCOUNT_API_URL)
                 return web.HTTPFound("/")
 
-    if username.upper() in RESERVED_USERS:
+    if username in RESERVED_USERS:
         log.error("User %s tried to log in.", username)
         return web.HTTPFound("/")
 
