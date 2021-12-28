@@ -33,6 +33,25 @@ from tournaments import get_winners, get_latest_tournaments, load_tournament, cr
 log = logging.getLogger(__name__)
 
 
+@web.middleware
+async def handle_404(request, handler):
+    try:
+        return await handler(request)
+    except web.HTTPException as ex:
+        if ex.status == 404:
+            template = request.app["jinja"]["en"].get_template("404.html")
+            text = await template.render_async({
+                "dev": DEV,
+                "home": URI,
+                "view_css": "404.css",
+                "asseturl": STATIC_ROOT,
+                "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
+            })
+            return web.Response(text=html_minify(text), content_type="text/html")
+        else:
+            return web.Response(ex.status)
+
+
 async def index(request):
     """ Create home html. """
 
@@ -160,19 +179,19 @@ async def index(request):
     profileId = request.match_info.get("profileId")
     if profileId is not None and profileId not in users:
         await asyncio.sleep(3)
-        return web.Response(status=404)
+        raise web.HTTPNotFound()
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
         log.debug("Invalid variant %s in request", variant)
-        return web.Response(status=404)
+        raise web.HTTPNotFound()
 
     fen = request.rel_url.query.get("fen")
     rated = None
 
     if (fen is not None) and "//" in fen:
         log.debug("Invelid FEN %s in request", fen)
-        return web.Response(status=404)
+        raise web.HTTPNotFound()
 
     if profileId is not None:
         view = "profile"
@@ -227,11 +246,7 @@ async def index(request):
         if view != "invite":
             game = await load_game(request.app, gameId)
             if game is None:
-                log.debug("Requested game %s not in app['games']", gameId)
-                template = get_template("404.html")
-                text = await template.render_async({"home": URI})
-                return web.Response(
-                    text=html_minify(text), content_type="text/html")
+                raise web.HTTPNotFound()
 
             if (ply is not None) and (view != "embed"):
                 view = "analysis"
@@ -485,4 +500,4 @@ async def select_lang(request):
         session["lang"] = lang
         return web.HTTPFound(referer)
     else:
-        return web.Response(status=404)
+        raise web.HTTPNotFound()

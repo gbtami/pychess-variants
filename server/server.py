@@ -32,6 +32,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
+from index import handle_404
 from routes import get_routes, post_routes
 from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
 from user import User
@@ -77,6 +78,7 @@ def make_app(with_db=True) -> Application:
     for route in post_routes:
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
+    app.middlewares.append(handle_404)
 
     return app
 
@@ -120,6 +122,7 @@ async def init_state(app):
     app["shield_owners"] = {}  # {variant: username, ...}
 
     app["stats"] = {}
+    app["stats_humans"] = {}
 
     # counters for games
     app["g_cnt"] = [0]

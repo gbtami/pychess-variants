@@ -74,7 +74,7 @@ class User:
                     try:
                         del self.app["users"][self.username]
                     except KeyError:
-                        log.error("Failed to del %s from users", self.username)
+                        log.info("Failed to del %s from users", self.username)
                     break
 
     def update_online(self):

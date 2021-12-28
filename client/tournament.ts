@@ -429,6 +429,7 @@ export default class TournamentController {
                             "icon-blue":  color === "Blue",
                             "icon-gold":  color === "Gold",
                             "icon-pink":  color === "Pink",
+                            "icon-green": color === "Green",
                         }
                     }),
                 ]),
@@ -487,7 +488,7 @@ export default class TournamentController {
 
         const game = this.topGame;
         const variant = VARIANTS[game.variant];
-        const element = h(`selection#mainboard.${variant.board}.${variant.piece}`, {
+        const element = h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
             on: { click: () => window.location.assign('/' + game.gameId) }
         }, h('div', [
             h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),

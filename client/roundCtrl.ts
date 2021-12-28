@@ -938,24 +938,21 @@ export default class RoundController {
         this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
         this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
 
-        if (msg.ply <= 2) {
-            let bclock;
-            if (!this.flip) {
-                bclock = this.mycolor === "black" ? 1 : 0;
-            } else {
-                bclock = this.mycolor === "black" ? 0 : 1;
-            }
-            const wclock = 1 - bclock
-            if (this.model['wberserk'] === 'True' || msg.berserk.w) {
-                this.clocks[wclock].increment = 0;
-                this.clocks[wclock].setTime(this.base * 1000 * 30);
-            }
-            if (this.model['bberserk'] === 'True' || msg.berserk.b) {
-                this.clocks[bclock].increment = 0;
-                this.clocks[bclock].setTime(this.base * 1000 * 30);
-            }
+        let bclock;
+        if (!this.flip) {
+            bclock = this.mycolor === "black" ? 1 : 0;
+        } else {
+            bclock = this.mycolor === "black" ? 0 : 1;
         }
-
+        const wclock = 1 - bclock
+        if (this.model['wberserk'] === 'True' || msg.berserk.w) {
+            this.clocks[wclock].increment = 0;
+            if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
+        }
+        if (this.model['bberserk'] === 'True' || msg.berserk.b) {
+            this.clocks[bclock].increment = 0;
+            if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
+        }
 
         if (this.spectator) {
             if (latestPly) {
