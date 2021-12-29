@@ -68,7 +68,7 @@ Use the right click. Clicking gives you a circle, and dragging gives you an arro
 
 <details><summary>What does "5+3" mean for time?</summary>
 
-Those are the time controls for the game. By default we use an increment system. "5+3" means each player has 5 *minutes*, and after each move adds 3 *seconds* to the clock. You can set the time control to be whatever you want when creating the game. The 5+3 is just the default for random mover.</details>
+Those are the time controls for the game. By default we use an increment system. "5+3" means each player has 5 *minutes*, and after each move adds 3 *seconds* to the clock. You can set the time control to be whatever you want when creating the game.</details>
 
 <details><summary>Okay, what about the (b) in "5+3(b)"?</summary>
 
