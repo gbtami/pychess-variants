@@ -51,6 +51,7 @@ get_routes = (
     ("/level8win", index),
     ("/patron", index),
     ("/patron/thanks", index),
+    ("/titled-players", index),    
     ("/news", index),
     ("/news/{news_item}", index),
     ("/variants", index),

@@ -108,6 +108,8 @@ async def index(request):
         view = "patron"
     elif request.path == "/patron/thanks":
         view = "thanks"
+    elif request.path == "/titled-players":
+        view = "titled-players"
     elif request.path == "/level8win":
         view = "level8win"
     elif request.path == "/tv":
@@ -265,6 +267,8 @@ async def index(request):
         template = get_template("variants.html")
     elif view == "patron":
         template = get_template("patron.html")
+    elif view == "titled-players":
+        template = get_template("titled-players.html")        
     elif view == "faq":
         template = get_template("FAQ.html")
     elif view == "analysis":
