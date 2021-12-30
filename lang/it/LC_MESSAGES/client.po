@@ -110,6 +110,9 @@ msgid ""
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
+"In più, puoi spuntare l'opzione Scacchi960 per gli Scacchi standard, "
+"Crazyhouse, S-chess, Capablanca e Capahouse per fare in modo che le partite "
+"comincino da posizioni casuali"
 
 #: ../client/about.ts:92
 msgid "Chess960 castling rules."
@@ -227,7 +230,7 @@ msgstr "Mostra le mosse possibili"
 
 #: ../client/boardSettings.ts:323
 msgid "Promote to the top choice automatically"
-msgstr ""
+msgstr "Promuovi a pezzo \"di prima scelta\" automaticamente"
 
 #: ../client/boardSettings.ts:341
 msgid "Best move arrow in analysis board"
@@ -279,7 +282,7 @@ msgstr "Server"
 
 #: ../client/chess.ts:232
 msgid "Chess, unmodified, as it's played by FIDE standards."
-msgstr ""
+msgstr "Scacchi non modificati, come giocati secondo regolamento FIDE"
 
 #: ../client/chess.ts:249
 msgid "Take captured pieces and drop them back on to the board as your own."
@@ -298,58 +301,74 @@ msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr ""
+"Scacchi thailandesi. Un gioco molto simile al Chaturanga originale. Simile "
+"agli scacchi ma con donna e alfiere diversi."
 
 #: ../client/chess.ts:298
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr ""
+"Variante del Makruk in cui i re non possono muovere per scansarsi dallo "
+"scacco."
 
 #: ../client/chess.ts:309
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr ""
+"Scacchi cambogiani. Makruk con qualche possibilità aggiuntiva in apertura."
 
 #: ../client/chess.ts:320
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
 msgstr ""
+"Scacchi birmani. Simili al Makruk, ma i pezzi vengono posizionati all'inizio"
+" della partita."
 
 #: ../client/chess.ts:332
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
 msgstr ""
+"Simile al Makruk ma usa scacchiera, pezzi e regole di promozione degli "
+"scacchi internazionali."
 
 #: ../client/chess.ts:342
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
-msgstr ""
+msgstr "Scacchi giapponesi, versione standard 9x9 contemporanea."
 
 #: ../client/chess.ts:370
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr ""
+"Shogi 5x5 più compatto e con partite più veloci. Non ci sono Cavalli o "
+"Lance."
 
 #: ../client/chess.ts:385
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
+"Una variante dinamica dello Shogi in cui i pezzi si trasformano dopo ogni "
+"mossa, giocata su scacchiera 5x5."
 
 #: ../client/chess.ts:400
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
+"Gioco 3x4 con animaletti carini, con lo scopo di insegnare ai bambini lo "
+"Shogi."
 
 #: ../client/chess.ts:414
 msgid "5x6 Shogi designed to introduce tactics with the generals."
-msgstr ""
+msgstr "Shogi 5x6 concepito per introdurre alle tattiche con i generali."
 
 #: ../client/chess.ts:429
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr ""
+"Una variante movimentata 7x7 con pezzi unici con nomi ispirati ad uccelli."
 
 #: ../client/chess.ts:450
 msgid ""
@@ -361,100 +380,123 @@ msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
 msgstr ""
+"Variante dello Xiangqi in cui un giocatore ha una torre che può anche "
+"muovere come cannone o cavallo."
 
 #: ../client/chess.ts:469
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr ""
+"Scacchi coreani. Simile allo Xiangqi, ma le partite sono molto diverse. Si "
+"usano regole da torneo."
 
 #: ../client/chess.ts:481
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr ""
+"Versione compatta dello Xiangqi giocata su una scacchiera 7x7 senza fiume."
 
 #: ../client/chess.ts:490
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr ""
+"Gioca con pezzi ibridi, il Cardinale (A+C) e il Maresciallo (T+C), su una "
+"scacchiera 10x8."
 
 #: ../client/chess.ts:507
 msgid "Capablanca with Crazyhouse drop rules."
-msgstr ""
+msgstr "Capablanca con regole Crazyhouse."
 
 #: ../client/chess.ts:524
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
 msgstr ""
+"Pezzi ibridi, il Falco (A+C) e l'Elefante (T+C), possono entrare in gioco "
+"dopo aver mosso un pezzo dalle traverse di promozione."
 
 #: ../client/chess.ts:534
 msgid "S-Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "Scacchi-S con regole Crazyhouse."
 
 #: ../client/chess.ts:544
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr ""
+"Gioca con pezzi ibridi, il Cardinale (A+C) e il Maresciallo (T+C), su una "
+"grande scacchiera 10x10."
 
 #: ../client/chess.ts:554
 msgid "Grand Chess with Crazyhouse drop rules."
-msgstr ""
+msgstr "Grand Chess con regole Crazyhouse."
 
 #: ../client/chess.ts:565
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr ""
+"Introduce il Cannone e l'Elefante dallo Xiangqi su una scacchiera 10x10."
 
 #: ../client/chess.ts:575
 msgid "Pieces promote and can be dropped, similar to Shogi."
-msgstr ""
+msgstr "I pezzi promuovono e possono essere paracadutati, come nello Shogi."
 
 #: ../client/chess.ts:588
 msgid "Knights capture as bishops; bishops  capture as knights."
-msgstr ""
+msgstr "I cavalli catturano come alfieri, gli alfieri catturano come cavalli."
 
 #: ../client/chess.ts:597
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr ""
+"Variante asimmetrica in cui uno schieramento ha pezzi che muovono come "
+"Cavalli ma catturano diversamente."
 
 #: ../client/chess.ts:611
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
+"Variante asimmetrica \"Est contro Ovest\" nella quale l'esercito occidentale"
+" combatte contro un esercito basato sullo Xiangqi e lo Janggi."
 
 #: ../client/chess.ts:623
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr ""
+"Variante asimmetrica che fa scontrare uno schieramento degli scacchi "
+"occidentali contro uno schieramento basato sullo Shogi e che può "
+"paracadutare."
 
 #: ../client/chess.ts:639
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
+"Variante asimmetrica in cui uno schieramento ha pezzi che muovono come Donne"
+" ma catturano normalmente."
 
 #: ../client/chess.ts:652
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
+"Variante Orda con due schieramenti eterodossi. Il Falco rimpiazza la Iurta."
 
 #: ../client/chess.ts:666
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr ""
+"Come gli Scacchi Capablanca ma con la posizione iniziale del Grand Chess."
 
 #: ../client/chess.ts:676
 msgid "Like Capablanca Chess but with a different starting setup."
-msgstr ""
+msgstr "Come gli Scacchi Capablanca ma con una posizione iniziale differente."
 
 #: ../client/chess.ts:686
 msgid "Gothic with Crazyhouse drop rules."
-msgstr ""
+msgstr "Scacchi gotici con regole di paracadutaggio Crazyhouse."
 
 #: ../client/chess.ts:711 ../client/lobby/layer1.ts:55
 #: ../client/lobby/layer2chess.ts:18
@@ -776,7 +818,7 @@ msgstr "orda mirror"
 
 #: ../client/invite.ts:35 ../client/lobby.ts:514
 msgid "Host a game for others"
-msgstr ""
+msgstr "Hosta una partita per altri"
 
 #: ../client/invite.ts:35
 msgid "Challenge to a game"
@@ -1309,6 +1351,9 @@ msgid ""
 "These variants have new armies with completely new pieces! Most of these "
 "variants pit these armies against the standard Chess army."
 msgstr ""
+"Queste varianti hanno nuovi eserciti con pezzi completamente nuovi! Molte di"
+" queste varianti fanno scontrare questi nuovi schieramenti contro quello "
+"degli scacchi standard."
 
 #: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:21
 #: ../client/lobby/layer2fairy.ts:26 ../client/lobby/layer2makruk.ts:19
@@ -1319,53 +1364,55 @@ msgstr "Torna indietro"
 
 #: ../client/lobby/layer2army.ts:27
 msgid "Horde: Horse-based army"
-msgstr ""
+msgstr "Horde: esercito basato sui cavalli"
 
 #: ../client/lobby/layer2army.ts:34
 msgid "Empire: Queen-based army"
-msgstr ""
+msgstr "Empire: esercito basato sulle Donne"
 
 #: ../client/lobby/layer2army.ts:41
 msgid "Horde vs Horde"
-msgstr ""
+msgstr "Horde vs Horde"
 
 #: ../client/lobby/layer2army.ts:48
 msgid "Clan: Drop-based army"
-msgstr ""
+msgstr "Clan: esercito con paracadutaggi"
 
 #: ../client/lobby/layer2army.ts:55
 msgid "Dynasty: Xiangqi-based army"
-msgstr ""
+msgstr "Dynasty: esercito basato sullo Xiangqi"
 
 #: ../client/lobby/layer2chess.ts:20
 msgid "Variants using a basic chess set but with different rules."
-msgstr ""
+msgstr "Varianti che usano un set di scacchi classico, ma con regole diverse."
 
 #: ../client/lobby/layer2fairy.ts:18
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
 msgstr ""
+"Queste varianti hanno nuovi pezzi da provare! Molte hanno scacchiere più "
+"grandi, altre hanno nuove regole."
 
 #: ../client/lobby/layer2fairy.ts:21
 msgid " = Random (960) variant available. "
-msgstr ""
+msgstr "= Variante 960 disponibile."
 
 #: ../client/lobby/layer2fairy.ts:24
 msgid " = Drop variant available."
-msgstr ""
+msgstr "= Variante con paracadutaggio disponibile."
 
 #: ../client/lobby/layer2fairy.ts:39
 msgid "Knight hybrid pieces"
-msgstr ""
+msgstr "Pezzi ibridi col Cavallo"
 
 #: ../client/lobby/layer2fairy.ts:50
 msgid "8x8 with new pieces"
-msgstr ""
+msgstr "8x8 con nuovi pezzi"
 
 #: ../client/lobby/layer2fairy.ts:57
 msgid "Cannon and Elephant from Xiangqi"
-msgstr ""
+msgstr "Cannone ed Elefante dallo Xiangqi"
 
 #: ../client/lobby/layer2fairy.ts:67
 msgid "10x10 with new pieces"
@@ -1373,35 +1420,40 @@ msgstr "Scacchi 10x10 con nuovi pezzi"
 
 #: ../client/lobby/layer2fairy.ts:74
 msgid "Crazyhouse with promotions"
-msgstr ""
+msgstr "Crazyhouse con promozioni"
 
 #: ../client/lobby/layer2fairy.ts:81
 msgid "Bishops and Knights swap their capture moves"
-msgstr ""
+msgstr "Alfieri e Cavalli scambiano i movimenti di cattura"
 
 #: ../client/lobby/layer2makruk.ts:18
 msgid "Southeast Asian variants, closely related to Western Chess."
 msgstr ""
+"Varianti del Sud-est asiatico, strettamente imparentate con gli scacchi "
+"occidentali."
 
 #: ../client/lobby/layer2makruk.ts:27
 msgid "Thai Chess. Similar to Chess but with a different queen and bishop."
 msgstr ""
+"Scacchi thailandesi. Simili agli scacchi occidentali ma con Donna e Alfiere "
+"diversi."
 
 #: ../client/lobby/layer2makruk.ts:34
 msgid "Makruk variant. Kings cannot move when checked."
-msgstr ""
+msgstr "Variante del Makruk. I Re non possono muoversi quando sotto scacco."
 
 #: ../client/lobby/layer2makruk.ts:41
 msgid "Cambodian Chess. Makruk with extra starting moves."
 msgstr ""
+"Scacchi cambogiani. Makruk con qualche possibilità aggiuntiva in apertura."
 
 #: ../client/lobby/layer2makruk.ts:48
 msgid "Burmese Chess. You may place your starting pieces."
-msgstr ""
+msgstr "Scacchi birmani. Piazza i tuoi pezzi all'inizio della partita."
 
 #: ../client/lobby/layer2makruk.ts:55
 msgid "Makruk with International Chess influence."
-msgstr ""
+msgstr "Makruk con influenze dagli scacchi internazionali."
 
 #: ../client/lobby/layer2shogi.ts:19
 msgid "The Japanese version of chess, which involves drops and promotions."
@@ -1409,7 +1461,7 @@ msgstr "La versione giapponese degli scacchi, con paracadutaggi e promozioni."
 
 #: ../client/lobby/layer2shogi.ts:28
 msgid "Original Shogi"
-msgstr ""
+msgstr "Shogi originale."
 
 #: ../client/lobby/layer2shogi.ts:35
 msgid "5x5 Shogi"
@@ -1417,23 +1469,23 @@ msgstr "Shogi 5x5 "
 
 #: ../client/lobby/layer2shogi.ts:42
 msgid "5x5, pieces flip each turn"
-msgstr ""
+msgstr "5x5, i pezzi si trasformano dopo ogni turno"
 
 #: ../client/lobby/layer2shogi.ts:49
 msgid "3x4 game to teach Shogi"
-msgstr ""
+msgstr "Gioco 3x4 per insegnare lo Shogi"
 
 #: ../client/lobby/layer2shogi.ts:56
 msgid "5x6 with Generals"
-msgstr ""
+msgstr "5x6 con Generali"
 
 #: ../client/lobby/layer2shogi.ts:63
 msgid "7x7, Bird Shogi"
-msgstr ""
+msgstr "7x7, Tori Shogi"
 
 #: ../client/lobby/layer2xiangqi.ts:18
 msgid "The ancient game of Chinese Chess and its variants."
-msgstr ""
+msgstr "L'antico gioco degli scacchi cinesi e le sue varianti."
 
 #: ../client/lobby/layer2xiangqi.ts:27
 msgid "Chinese Chess, one of the most played games in the world"
@@ -1441,15 +1493,15 @@ msgstr "Scacchi cinesi, uno dei giochi più giocati al mondo"
 
 #: ../client/lobby/layer2xiangqi.ts:34
 msgid "Korean Chess, based on Xiangqi but very different"
-msgstr ""
+msgstr "Scacchi coreani, basati sullo Xiangqi ma molto differenti"
 
 #: ../client/lobby/layer2xiangqi.ts:41
 msgid "Compact Xiangqi on a 7x7 board"
-msgstr ""
+msgstr "Xiangqi compatto su una scacchiera 7x7"
 
 #: ../client/lobby/layer2xiangqi.ts:48
 msgid "Asymmetric variant with one side having a super piece"
-msgstr ""
+msgstr "Variante asimmetrica con un lato che possiede un pezzo molto potente"
 
 #: ../client/lobby/layer3.ts:41
 msgid "Challenge a friend"
@@ -1466,18 +1518,20 @@ msgstr "Consiglio:"
 #: ../client/lobby/layer3.ts:64
 msgid "Fischer's random chess where the back row are randomized."
 msgstr ""
+"Scacchi Fischer Random in cui i pezzi nelle traverse di partenza sono sempre"
+" in posizione differente."
 
 #: ../client/lobby/layer3.ts:66
 msgid "Crazyhouse with random back row."
-msgstr ""
+msgstr "Crazyhouse con prima e ottava traversa randomizzate."
 
 #: ../client/lobby/layer3.ts:68
 msgid "Atomic Chess with random back row."
-msgstr ""
+msgstr "Atomic con prima e ottava traversa randomizzate."
 
 #: ../client/lobby/layer3.ts:81
 msgid "Move the king on top of the rook to castle."
-msgstr ""
+msgstr "Muovi il re sulla torre per arroccare."
 
 #: ../client/lobby/layer3.ts:83
 msgid "You can play more at www.lichess.org."
@@ -1488,28 +1542,37 @@ msgid ""
 "Castling is only possible if the king and rook are dropped to their usual "
 "places like in standard Chess."
 msgstr ""
+"L'arrocco è possibile solo se il re e la torre sono stati piazzati nelle "
+"case in cui si troverebbero negli scacchi standard."
 
 #: ../client/lobby/layer3.ts:89
 msgid ""
 "You can choose different starting setups including Embassy Chess and Gothic "
 "Chess."
 msgstr ""
+"Puoi scegliere diverse posizioni iniziali, incluso gli scacchi gotici ed "
+"Embassy Chess."
 
 #: ../client/lobby/layer3.ts:91
 msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
 msgstr ""
+"Per una versione con paracadutaggi, seleziona GRANDHOUSE dal menu a tendina."
 
 #: ../client/lobby/layer3.ts:93
 msgid "For a drop version, choose S-HOUSE from the dropdown menu."
 msgstr ""
+"Per una versione con paracadutaggi, seleziona S-HOUSE dal menu a tendina."
 
 #: ../client/lobby/layer3.ts:95
 msgid "The queen actually demotes upon capture, so it is not worth as much."
 msgstr ""
+"La Donna viene declassata in un pezzo meno potente dopo aver catturato, "
+"dunque non vale quanto negli scacchi standard."
 
 #: ../client/lobby/layer3.ts:97
 msgid "The cannon is a tricky piece that needs to be closely followed."
 msgstr ""
+"Il cannone è un pezzo insidioso che deve essere controllato con attenzione."
 
 #: ../client/lobby/layer3.ts:99
 msgid "Other piece sets are available, which may help avoid confusion."
@@ -1520,40 +1583,49 @@ msgstr ""
 #: ../client/lobby/layer3.ts:106
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr ""
+"Attento al campomatto - ovvero la vittoria ottenuta muovendo il tuo re "
+"nell'ottava traversa."
 
 #: ../client/lobby/layer3.ts:109
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr ""
+msgstr "Massimizzare l'efficace di Khon e Met è essenziale."
 
 #: ../client/lobby/layer3.ts:111
 msgid "Watch out for knight checks, since they cannot be blocked."
 msgstr ""
+"Fai attenzione agli scacchi di cavallo, dato che non possono essere "
+"bloccati."
 
 #: ../client/lobby/layer3.ts:113
 msgid "You can use placement to utilize your bigger pieces since the start."
 msgstr ""
+"Puoi usare la fase di piazzamento per posizionare i tuoi pezzi più potenti "
+"sin dall'inizio."
 
 #: ../client/lobby/layer3.ts:115
 msgid "King safety is important. Use the king leap move to save time."
 msgstr ""
+"La sicurezza del re è importante. Usa la mossa di salto del re per "
+"risparmiare tempo."
 
 #: ../client/lobby/layer3.ts:117
 msgid "The ability to promote to rook makes for a dynamic endgame."
-msgstr ""
+msgstr "L'abilità di promuovere a torre permette finali dinamici."
 
 #: ../client/lobby/layer3.ts:122 ../client/lobby/layer3.ts:134
 msgid "Internationalized sets are available by going to settings."
-msgstr ""
+msgstr "Dei set di pezzi internazionali sono disponibili nelle impostazioni."
 
 #: ../client/lobby/layer3.ts:124
 msgid ""
 "Despite the simple appearance, there is still quite a bit of depth "
 "underlying this game."
 msgstr ""
+"Nonostante l'apparenza semplice, si tratta di un gioco abbastanza complesso."
 
 #: ../client/lobby/layer3.ts:126
 msgid "Sets that show both sides are available by going to settings."
-msgstr ""
+msgstr "Set che mostrano entrambi i lati sono disponibili nelle impostazioni."
 
 #: ../client/lobby/layer3.ts:128
 msgid ""
