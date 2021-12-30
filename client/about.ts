@@ -78,6 +78,8 @@ export function aboutView(): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/ordamirror' } }, 'Orda Mirror'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/chak' } }, 'Chak'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/shouse' } }, 'S-house (S-chess+Crazyhouse)'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/capahouse' } }, 'Capahouse (Capablanca+Crazyhouse)'),

@@ -36,6 +36,7 @@ Currently supported games are:
 - [Shinobi](https://www.pychess.org/variants/shinobi)
 - [Empire Chess](https://www.pychess.org/variants/empire)
 - [Orda Mirror](https://www.pychess.org/variants/ordamirror)
+- [Chak](https://www.pychess.org/variants/chak)
 - [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variants/shouse)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variants/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
