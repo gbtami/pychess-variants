@@ -9,7 +9,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView } from './chat';
 //import { sound } from './sound';
-import { VARIANTS, uci2cg } from './chess';
+import { VARIANTS, uci2LastMove } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
 import { gameType } from './profile';
@@ -706,18 +706,11 @@ export default class TournamentController {
             return;
         };
 
-        let lastMove: cg.Key[] = [];
-        if (msg.lastMove !== undefined) {
-            const lastMoveStr = uci2cg(msg.lastMove);
-            // drop lastMove causing scrollbar flicker,
-            // so we remove from part to avoid that
-            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
-        }
         this.topGameChessground.set({
             fen: msg.fen,
             turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
             check: msg.check,
-            lastMove: lastMove,
+            lastMove: uci2LastMove(msg.lastMove),
         });
     }
 
