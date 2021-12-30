@@ -9,7 +9,7 @@ import aiohttp_session
 from aiohttp_sse import sse_response
 
 from const import STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
-from compress import C2V, V2C, C2R
+from compress import decode_moves, C2V, V2C, C2R
 from utils import pgn
 from settings import ADMINS
 from tournaments import get_tournament_name
@@ -149,6 +149,7 @@ async def get_user_games(request):
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
+            doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
 
             tournament_id = doc.get("tid")
             if tournament_id is not None:

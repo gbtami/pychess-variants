@@ -817,6 +817,12 @@ export function uci2cg(move: string): string {
     return move.replace(/10/g, ":");
 }
 
+export function uci2LastMove(move: string | undefined): cg.Key[] {
+    if (!move) return [];
+    const moveStr = uci2cg(move!);
+    return moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
+}
+
 export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
