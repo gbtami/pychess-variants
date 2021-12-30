@@ -13,6 +13,26 @@
   --pocketMargin: 10px;
   --movelist-max-height: 8rem;
 }
+.mini .pocket {
+    width: 100%;
+    justify-content: center;
+}
+.mini .pocket piece {
+    flex: 0 0 calc(100% / var(--files));
+}
+.mini .pocket.top {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    top: calc(-100% / var(--ranks));
+}
+.mini .pocket.bottom {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    bottom: calc(-100% / var(--ranks));
+}
+.mini .pocket piece::after {
+    padding: 1px 0.1em;
+}
 #extension_choice {
   position: absolute;
   top: 0;
