@@ -937,7 +937,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
             h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
-	    /*
         h('under-lobby', [
             h('news-latest', [
                 h('icon', { attrs: {"data-icon": '2'} }),
@@ -963,7 +962,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                             h('span', 'First Antichess960 Shield Arena'),
                         ]),
                         h('time', '2021.12.17'),
-                    
+                 	    /*   
                 ]),
                 h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/shinobi.svg'} }),
