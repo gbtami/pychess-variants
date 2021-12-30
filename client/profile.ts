@@ -180,7 +180,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
 
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', { class: { "no-pockets": !variant.pocketRoles('white') } }, [
+            h('td.board', { class: { "with-pockets": variant.pocketRoles('white') !== undefined } }, [
                 h(`selection.${variant.board}.${variant.piece}`, [
                     h(`div.cg-wrap.${variant.cg}.mini`, {
                         hook: {

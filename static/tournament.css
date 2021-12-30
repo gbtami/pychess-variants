@@ -13,7 +13,7 @@
 }
 @media (min-width: 800px) {
     .tour {
-        grid-template-columns: minmax(230px, 20vw) minmax(500px, calc( 100vh * .9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
+        grid-template-columns: minmax(230px, 20vw) minmax(500px, calc( 100vh * .9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, calc(350px * (var(--files) / var(--ranks))));
         grid-template-rows: calc(100vh - calc(var(--site-header-height) + var(--site-header-margin)) - 2vmin - 3rem) auto;
         grid-template-areas: 'side main table' 'uchat players table';
     }
@@ -414,4 +414,18 @@ td.bye {
     text-align: center;
     color: #333 !important;
     text-shadow: 0 0 6px #fff;
+}
+div.cg-wrap.mini {
+    width: auto!important;
+}
+div.with-pockets div.cg-wrap.mini {
+    position: relative;
+    top: calc(var(--cg-height) / var(--ranks));
+}
+#top-game {
+    display: flex;
+    flex-flow: column;
+}
+#mainboard.with-pockets {
+    padding-bottom: calc(var(--cg-height) / var(--ranks) * 2);
 }

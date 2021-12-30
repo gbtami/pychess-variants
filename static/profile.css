@@ -149,12 +149,12 @@ td.player-data {
 }
 
 #games td.board {
-    padding: 44px 12px 44px 12px;
-}
-
-#games td.board.no-pockets {
     padding: 6px 12px 6px 12px;
     align-self: center;
+}
+
+#games td.board.with-pockets {
+    padding: 44px 12px 44px 12px;
 }
 
 #games tr {

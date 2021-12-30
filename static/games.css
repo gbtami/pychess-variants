@@ -31,7 +31,7 @@ minigame .row {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
-    padding-bottom: 44px;
+    padding-bottom: 4px;
 }
 minigame .variant-info {
     display: inline-flex;
@@ -46,12 +46,12 @@ minigame .tc {
 }
 minigame .name {
     text-align: right;
-    padding-top: 44px;
+    padding-top: 4px;
 }
 
-minigame.no-pockets .row {
-    padding-bottom: 4px;
+minigame.with-pockets .row {
+    padding-bottom: 44px;
 }
-minigame.no-pockets .name {
-    padding-top: 4px;
+minigame.with-pockets .name {
+    padding-top: 44px;
 }
