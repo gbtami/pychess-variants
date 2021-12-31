@@ -43,10 +43,10 @@ GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
 
 VARIANTS = (
-#    "chess",
-#   "chess960",
     "antichess",
     "antichess960",
+    "losers",
+    "losers960"
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
     # "gothic",
@@ -71,7 +71,8 @@ VARIANT_ICONS = {
     "racingkings": "♔",
     "antichess": "♔",
     "antichess960": "♔",
-    "horde": "♟",
+    "losers": "♔",
+    "losers960": "♔",
     "threecheck": "♟",
     "capablanca": "P",
     "capahouse": "&",
@@ -116,6 +117,7 @@ VARIANT_960_TO_PGN = {
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "atomic": "Atomic",          # to let lichess import work
     "antichess": "Antichess",          # to let lichess import work    
+    "losers": "Losers960",     
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
