@@ -132,3 +132,72 @@ Accurate piece values are unknown.  However, the following piece ranking is gene
 **Pawns**: Pawns in Chak are actually quite flexible and strong and also threaten promotion very early. Because of all this, they are not as "expendable" as pawns in other games; make sure to get good value if you are wiling to trade off your pawns, as a one pawn difference at the end of the game could make the difference between a victory and loss.
 
 Tempo is very, very important in Chak, as it ultimately boils down to a race to get your king to the other side. Positional play is also very important. 
+
+## Endgames
+
+Endgames often boil down to getting the king to the Altar faster then our opponent. In this section we'll focus mostly on endgames where Divine King is the only attacking piece.
+
+### King vs King
+![KvsKzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKzugzwang.png)
+
+With the king being the only defender's piece the win is pretty easy. Attacker only needs to reach a position with their king on the side of the altar, enemy king in the corner with enemy to move. Then defender is forced to move the king away from the temple and attacker can move the king to the altar. 
+
+With the offering still there attacker still can win, but it's much more tricky. What attacker should be aiming for is not altar mate, but rather this stalemate
+
+![KvsKStalemate](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKStalemate.png)
+
+Example line how to force this position goes like this
+
+![KvsKO](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKO.png)
+
+1. Dd6+ 2. Kf7 Dd7+ 3. Kf2 De8 4. Kf9 Df7+ 5. Ke9 De7! and we've reached the following position
+
+![KvsKOzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKOzugzwang.png)
+
+where green is in zugzwang, moving the king to either side allows white to respond with a stalemate.
+
+![KvsKdraw](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKdraw.png)
+
+However if defender has one more piece (except for an immobile Quetzal) things change dramatically. No matter if the offering is still there or not there is no way for the Divine King to  check defender's king and cut off all squares within the temple it could go in one move, so green can always either move their other piece, or move the king within the temple. The only thing to be concerned about is blundering the other piece, so it's recommended to keep it on last 4 ranks as divine king can never get there, once it's there defender can just move (and safely premove) either moving the piece around last 4 ranks, or the king within the temple and attacker is helpless.
+
+### Fortresses 
+
+Fortress is setup with a piece defending the altar and every piece being defended. Against such a setup lone king is helpless. 
+
+![Fortresses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Fortresses.png)
+
+All those example are minimal in a sense that if either side decided to move any of their pieces away from around the temple they can no longer form a fortress. If both sides have a minimal fortress like in above diagrams the game is a dead draw. On the other hand if one side has a minimal fortress and the other has a fortress and any extra piece as long as that piece can safely cross the river without being captured and join the attack on the fortress it's almost always a win for the side with the extra piece.
+
+### Other defenses
+
+#### Jaguar
+
+In a lone Jaguar vs a Divine King endgame either side can force a draw by repetition
+![JaguarPerpetual](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual.png)
+
+except when the side with the Jaguar can just ignore their Jaguar being under attack and run their king towards the altar like in this position.
+
+![JaguarPerpetual2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual2.png)
+
+White wins by just moving their king to c4 or c2 and to the altar on the next move.
+
+With the offering still there it's a different story. 
+
+![JaguarvsKO](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarvsKO.png)
+
+In this position green can go 1. Jf9 white's only move to keep attacking the Jaguar is Df7, but after 2. Je9+ Dg7 3. Jd9 and there is no way to attack the Jaguar in one move and if white spends 2 moves to do so green has one tempo to do something meaningful on the other side of the board. If white gets their king to f9 then after Jd8 there is again no way to attack in one move, so it's better to get the king to d7 so again we can force the Jaguar to move twice. If the draw by 50 move rule is close it might be important to remember those exact lines to enforce wasting as many moves as possible as green or save as many as white.
+
+#### Serpent
+
+![SerpentFortress](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortress.png)
+
+Serpent as a long range piece can easily move back and forth along the second rank keeping an eye on the altar. If Divine King stays on squares from which it can reach the altar directly the Serpent has to stay there and is usually useless in breaking through enemy fortress, so if green has a fortress as well it's usually a draw.
+
+![SerpentFortressTrap](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortressTrap.png)
+
+However moving away from the highlighted squares to harass the Serpent can be costly, like in this position
+
+![SerpentFortressTrap2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortressTrap2.png)
+
+White has abandoned the altar allowing green to go Re8 skewering both Shamans. If white moves the king back to e.g. d7 green takes on e2 and as the Serpent still defends the altar green is winning,
+if white tries something different green can take on of the Shamans and still win.
