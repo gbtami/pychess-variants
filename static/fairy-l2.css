@@ -318,32 +318,8 @@ padding: 10px;
     }
 
 
-    /* Army */ 
+    /* After adding Chak Army layout is the same as Fairy */ 
 
-    #layer2armycont {
-
-    grid-template-rows: repeat(6, auto); 
-
-    }
-
-    #layer2armycont .schess {
-    
-    grid-column: 1/2;
-
-    }
-
-    #layer2armycont .generic-fairy {
-
-    grid-column: 2/3;
-    grid-row: 5/7;
-
-    }
-
-    #layer2armycont .layer-two-category-info {
-
-    justify-content: center;
-
-    }
 
     /* Makruk and Xiangqi*/
 

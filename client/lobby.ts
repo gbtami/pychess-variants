@@ -374,7 +374,8 @@ export class LobbyController {
 
     renderSeekButtons() {
         const vVariant = this.model.variant || localStorage.seek_variant || "chess";
-        const vMin = localStorage.seek_min ?? "5";
+        // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
+        const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vRated = localStorage.seek_rated ?? "0";
