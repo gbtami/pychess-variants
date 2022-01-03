@@ -52,6 +52,15 @@ minigame .name {
 minigame.with-pockets .row {
     padding-bottom: 44px;
 }
+minigame.with-pockets.dobutsu .row {
+    padding-bottom: 74px;
+}
 minigame.with-pockets .name {
     padding-top: 44px;
+}
+minigame.with-pockets.dobutsu .name {
+    padding-top: 74px;
+}
+minigame.with-pockets.dobutsu .cg-wrap.cg-156.mini {
+  width: 196px!important;
 }
