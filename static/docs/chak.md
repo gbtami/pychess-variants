@@ -123,7 +123,7 @@ The Offering does not move or capture; it blocks the altar until captured. The p
 
 Accurate piece values are unknown.  However, the following piece ranking is generally accepted: Jaguar > Quetzal > Serpent > Vulture > Shaman > Warrior > Pawn.
 
-## Strategy
+## Strategy - Pieces and Basics
 
 **Quetzal**: One primary tip for beginners is always pay attention to the lines of sight for the quetzal. Specifically, at the beginning of the game, any piece that moves in front of the quetzal opens it up to an attack on the opposing jaguar, which is a slightly favorable move.
 
@@ -133,40 +133,50 @@ Accurate piece values are unknown.  However, the following piece ranking is gene
 
 Tempo is very, very important in Chak, as it ultimately boils down to a race to get your king to the other side. Positional play is also very important. 
 
-## Endgames
+## Strategy - Endgames
 
 Endgames often boil down to getting the king to the Altar faster then our opponent. In this section we'll focus mostly on endgames where Divine King is the only attacking piece.
 
 ### King vs King
 ![KvsKzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKzugzwang.png)
 
-With the king being the only defender's piece the win is pretty easy. Attacker only needs to reach a position with their king on the side of the altar, enemy king in the corner with enemy to move. Then defender is forced to move the king away from the temple and attacker can move the king to the altar. 
+With the king being the only defender's piece, the win is pretty easy. The attacker only needs to reach a position with their king on the side of the altar, enemy king in the corner with enemy to move. Then the defender is forced to move the king away from the temple and the attacker can move the king to the altar. 
 
-With the offering still there attacker still can win, but it's much more tricky. What attacker should be aiming for is not altar mate, but rather this stalemate
+With the offering still there, the attacker can still win, but it's trickier. What the attacker should be aiming for is not altar mate, but rather this stalemate:
 
 ![KvsKStalemate](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKStalemate.png)
 
-Example line how to force this position goes like this
+An example line on how to force this position goes like this
 
 ![KvsKO](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKO.png)
 
-1. Dd6+ 2. Kf7 Dd7+ 3. Kf2 De8 4. Kf9 Df7+ 5. Ke9 De7! and we've reached the following position
+1. Dd6+ 
+
+2. Kf7 Dd7+ 
+
+3. Kf2 De8
+
+4. Kf9 Df7+
+
+5. Ke9 De7!
+
+...and we've reached the following position:
 
 ![KvsKOzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKOzugzwang.png)
 
-where green is in zugzwang, moving the king to either side allows white to respond with a stalemate.
+where green is in zugzwang; moving the king to either side allows white to respond with a stalemate.
 
 ![KvsKdraw](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKdraw.png)
 
-However if defender has one more piece (except for an immobile Quetzal) things change dramatically. No matter if the offering is still there or not there is no way for the Divine King to  check defender's king and cut off all squares within the temple it could go in one move, so green can always either move their other piece, or move the king within the temple. The only thing to be concerned about is blundering the other piece, so it's recommended to keep it on last 4 ranks as divine king can never get there, once it's there defender can just move (and safely premove) either moving the piece around last 4 ranks, or the king within the temple and attacker is helpless.
+However. if the defender has one more piece (except for an immobile quetzal) things change dramatically. No matter if the offering is still there or not, there is no way for the divine king to check the defender's king and cut off all squares within the temple it could go in one move, so green can always either move their other piece, or move the king within the temple. The only thing to be concerned about is blundering the other piece, so it's recommended to keep it on the last 4 ranks as the divine king can never get there. Once it's there defender, can just move (and safely premove) either moving the piece around the last 4 ranks, or the king within the temple, and the attacker is then helpless.
 
 ### Fortresses 
 
-Fortress is setup with a piece defending the altar and every piece being defended. Against such a setup lone king is helpless. 
+Fortress is set up with a piece defending the altar and every piece being defended. Against such a setup, a lone king is helpless. 
 
 ![Fortresses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Fortresses.png)
 
-All those example are minimal in a sense that if either side decided to move any of their pieces away from around the temple they can no longer form a fortress. If both sides have a minimal fortress like in above diagrams the game is a dead draw. On the other hand if one side has a minimal fortress and the other has a fortress and any extra piece as long as that piece can safely cross the river without being captured and join the attack on the fortress it's almost always a win for the side with the extra piece.
+All those examples are bareboned in a sense that if either side decided to move any of their pieces away from around the temple, they can no longer form a fortress. If both sides have a bareboned fortress like in above diagrams the game is a dead draw. On the other hand, if one side has a bareboned fortress and the other has a fortress plus any extra piece, as long as that extra piece can safely cross the river without being captured and join the attack on the fortress, it's almost always a win for the side with the extra piece.
 
 ### Other defenses
 
@@ -175,29 +185,28 @@ All those example are minimal in a sense that if either side decided to move any
 In a lone Jaguar vs a Divine King endgame either side can force a draw by repetition
 ![JaguarPerpetual](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual.png)
 
-except when the side with the Jaguar can just ignore their Jaguar being under attack and run their king towards the altar like in this position.
+...except when the side with the Jaguar can just ignore their Jaguar being under attack and run their King towards the altar like in this position.
 
 ![JaguarPerpetual2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual2.png)
 
-White wins by just moving their king to c4 or c2 and to the altar on the next move.
+White wins by just moving their King to c4 or c2 and to the altar on the next move.
 
-With the offering still there it's a different story. 
+With the Offering still alive, it's a different story. 
 
 ![JaguarvsKO](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarvsKO.png)
 
-In this position green can go 1. Jf9 white's only move to keep attacking the Jaguar is Df7, but after 2. Je9+ Dg7 3. Jd9 and there is no way to attack the Jaguar in one move and if white spends 2 moves to do so green has one tempo to do something meaningful on the other side of the board. If white gets their king to f9 then after Jd8 there is again no way to attack in one move, so it's better to get the king to d7 so again we can force the Jaguar to move twice. If the draw by 50 move rule is close it might be important to remember those exact lines to enforce wasting as many moves as possible as green or save as many as white.
+In this position, green can go 1. Jf9; white's only move to keep attacking the Jaguar is Df7, but after 2. Je9+ Dg then 3. Jd9, then there is no way to attack the Jaguar in one move, and if white spends 2 moves to do so, green has one tempo to do something meaningful on the other side of the board. If white gets their King to f9, then after Jd8, there is again no way to attack in one move, so it's better to get the King to d7 so again we can force the Jaguar to move twice. If the draw by 50 move rule is close it might be important to remember those exact lines to enforce wasting as many moves as possible as green or save as many as white.
 
 #### Serpent
 
 ![SerpentFortress](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortress.png)
 
-Serpent as a long range piece can easily move back and forth along the second rank keeping an eye on the altar. If Divine King stays on squares from which it can reach the altar directly the Serpent has to stay there and is usually useless in breaking through enemy fortress, so if green has a fortress as well it's usually a draw.
+The Serpent as a long range piece can easily move back and forth along the second rank, keeping an eye on the altar. If the Divine King stays on squares from which it can reach the altar directly, the Serpent has to stay there and is usually useless in breaking through the enemy fortress. So if green has a fortress as well, it's usually a draw.
 
 ![SerpentFortressTrap](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortressTrap.png)
 
-However moving away from the highlighted squares to harass the Serpent can be costly, like in this position
+However, moving away from the highlighted squares to harass the Serpent can be costly, like in this position:
 
 ![SerpentFortressTrap2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortressTrap2.png)
 
-White has abandoned the altar allowing green to go Re8 skewering both Shamans. If white moves the king back to e.g. d7 green takes on e2 and as the Serpent still defends the altar green is winning,
-if white tries something different green can take on of the Shamans and still win.
+White has abandoned the altar, allowing green to go Re8 and skewering both Shamans. If white moves the King back, e.g. to d7, green takes on e2, and as the Serpent still defends the altar, green is winning. If white tries something different, green can take one of the Shamans and still win.
