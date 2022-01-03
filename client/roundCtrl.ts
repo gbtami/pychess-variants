@@ -1115,7 +1115,7 @@ export default class RoundController {
 
     private onMove = () => {
         return (orig: cg.Key, dest: cg.Key, capturedPiece: cg.Piece) => {
-            // console.log("   ground.onMove()", orig, dest, capturedPiece);
+            console.log("   ground.onMove()", orig, dest, capturedPiece);
             sound.moveSound(this.variant, !!capturedPiece);
         }
     }
