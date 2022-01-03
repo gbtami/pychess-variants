@@ -9,7 +9,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView } from './chat';
 //import { sound } from './sound';
-import { VARIANTS, uci2cg } from './chess';
+import { VARIANTS, uci2LastMove } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
 import { gameType } from './profile';
@@ -487,29 +487,34 @@ export default class TournamentController {
 
         const game = this.topGame;
         const variant = VARIANTS[game.variant];
-        const element = h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
+        const elements = [
+        h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
+        h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
+            class: { "with-pockets": variant.pocketRoles('white') !== undefined },
             on: { click: () => window.location.assign('/' + game.gameId) }
-        }, h('div', [
-            h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
-            h(`div.cg-wrap.${variant.cg}`, {
-                hook: {
-                    insert: vnode => {
-                        const cg = Chessground(vnode.elm as HTMLElement,  {
-                            fen: game.fen,
-                            // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
-                            geometry: variant.geometry,
-                            coordinates: false,
-                            viewOnly: true
-                        });
-                        this.topGameChessground = cg;
-                        this.topGameId = game.gameId;
+            }, [
+                h(`div.cg-wrap.${variant.cg}.mini`, {
+                    hook: {
+                        insert: vnode => {
+                            const cg = Chessground(vnode.elm as HTMLElement,  {
+                                fen: game.fen,
+                                // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
+                                geometry: variant.geometry,
+                                coordinates: false,
+                                viewOnly: true,
+                                addDimensionsCssVars: true,
+                                pocketRoles: color => variant.pocketRoles(color),
+                            });
+                            this.topGameChessground = cg;
+                            this.topGameId = game.gameId;
+                        }
                     }
-                }
-            }),
-            h('div.player', [h('user', [h('rank', '#' + game.wr), game.w]), h('div#wresult')]),
-        ]));
+                }),
+        ]),
+        h('div.player', [h('user', [h('rank', '#' + game.wr), game.w]), h('div#wresult')]),
+        ];
 
-        patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', element));
+        patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', elements));
     }
 
     calcRate(nbGames: number, nbWin: number) {
@@ -701,18 +706,11 @@ export default class TournamentController {
             return;
         };
 
-        let lastMove: cg.Key[] = [];
-        if (msg.lastMove !== undefined) {
-            const lastMoveStr = uci2cg(msg.lastMove);
-            // drop lastMove causing scrollbar flicker,
-            // so we remove from part to avoid that
-            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
-        }
         this.topGameChessground.set({
             fen: msg.fen,
             turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
             check: msg.check,
-            lastMove: lastMove,
+            lastMove: uci2LastMove(msg.lastMove),
         });
     }
 
@@ -812,7 +810,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-
+    document.body.setAttribute('style', `--ranks: ${variant.boardHeight}; --files: ${variant.boardWidth};`);
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [

@@ -15,6 +15,7 @@ from settings import URI
 LOBBY_URL = f'{URI}/wsl'
 ROUND_URL = f'{URI}/wsr'
 URLS = ("about", "players", "games", "tv", "variants")
+TEST_VARIANTS = ("chess", "dobutsu", "minishogi", "gorogoroplus", "torishogi", "shogi", "crazyhouse", "capahouse", "grandhouse", "shinobi")
 
 
 def profile_me(fn):
@@ -26,6 +27,14 @@ def profile_me(fn):
         ps.print_stats(60)
         return ret
     return profiled_fn
+
+
+def get_variant():
+    for variant in TEST_VARIANTS:
+        yield variant
+
+
+vari = get_variant()
 
 
 class TestUser:
@@ -76,7 +85,8 @@ class TestUser:
 
                         elif data["type"] == "lobby_user_connected":
                             print("Connected as %s" % data["username"])
-                            variant = random.choice(VARIANTS).rstrip("960")
+                            # variant = random.choice(VARIANTS).rstrip("960")
+                            variant = next(vari)
                             data = {
                                 "type": "create_ai_challenge",
                                 "variant": variant,
@@ -135,6 +145,7 @@ class TestUser:
                             turn_color = parts[1]
                             if data["rm"] and turn_color == mycolor:
                                 await wsr.send_json({"type": "move", "gameId": game_id, "move": data["rm"], "clocks": data["clocks"], "ply": data["ply"] + 1})
+                                await asyncio.sleep(0)
 
                         elif data["type"] == "setup":
                             response = {"type": "setup", "gameId": game_id, "color": mycolor, "fen": data["fen"]}

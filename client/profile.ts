@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import { Chessground } from 'chessgroundx';
 
 import { _, ngettext, pgettext } from './i18n';
-import { VARIANTS, Variant } from './chess';
+import { uci2LastMove, VARIANTS, Variant } from './chess';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
@@ -134,6 +134,7 @@ interface Game {
     z: number;
     v: string;
     f: cg.FEN;
+    lm: string;
 
     b: number;
     i: number;
@@ -178,8 +179,9 @@ function renderGames(model: PyChessModel, games: Game[]) {
     const rows = games.map(game => {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
+
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', [
+            h('td.board', { class: { "with-pockets": variant.pocketRoles('white') !== undefined } }, [
                 h(`selection.${variant.board}.${variant.piece}`, [
                     h(`div.cg-wrap.${variant.cg}.mini`, {
                         hook: {
@@ -187,7 +189,10 @@ function renderGames(model: PyChessModel, games: Game[]) {
                                 coordinates: false,
                                 viewOnly: true,
                                 fen: game["f"],
+                                lastMove: uci2LastMove(game.lm),
                                 geometry: variant.geometry,
+                                addDimensionsCssVars: true,
+                                pocketRoles: color => variant.pocketRoles(color),
                             })
                         }
                     }),

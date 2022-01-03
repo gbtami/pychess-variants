@@ -16,7 +16,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { updateMaterial } from './material';
 import { sound } from './sound';
-import { uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap, notation } from './chess';
+import { uci2LastMove, cg2uci, VARIANTS, Variant, getCounting, isHandicap, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -895,21 +895,12 @@ export default class RoundController {
             if (container) patch(container, h('div'));
         }
 
-        let lastMove: cg.Key[] | null = null;
-        if (msg.lastMove !== null) {
-            const lastMoveStr = uci2cg(msg.lastMove);
-            // drop lastMove causing scrollbar flicker,
-            // so we remove from part to avoid that
-            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
-        }
-
+        const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove !== null) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
+        if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
-        } else {
-            lastMove = [];
         }
         this.checkStatus(msg);
         if (!this.spectator && msg.check && !this.finishedGame) {
@@ -1015,11 +1006,9 @@ export default class RoundController {
         const step = this.steps[ply];
         if (step === undefined) return;
 
-        let move : cg.Key[] | undefined = undefined;
+        const move = uci2LastMove(step.move);
         let capture = false;
-        if (step['move'] !== undefined) {
-            const moveStr = uci2cg(step['move']);
-            move = moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
+        if (move.length > 0) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
             capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
