@@ -32,9 +32,6 @@ class ArenaTournament(Tournament):
                 print("!!! TOO MUCH fail, STOP PAIRING !!!", failed)
                 break
 
-            x = waiting_players[0]
-            print("pairing...", x.username)
-
             def pair_them(x, y):
                 if self.players[x].color_balance < self.players[y].color_balance:
                     wp, bp = x, y
@@ -101,6 +98,9 @@ class ArenaTournament(Tournament):
                     break
                 return find
 
+            x = waiting_players[0]
+            print("pairing...", x.username)
+
             find = find_opp(0)
 
             if not find:
@@ -108,7 +108,23 @@ class ArenaTournament(Tournament):
                 find = find_opp(-1)
                 if not find:
                     failed += 1
-                    print("   OH NO, I can't find an opp :(")
+                    print("   1. OH NO, I can't find an opp for %s :(" % x.username)
+
+                    waiting_players.remove(x)
+
+                    if len(waiting_players) > 1:
+                        # OK try the second player now
+                        x = waiting_players[0]
+                        print("pairing...", x.username)
+
+                        find = find_opp(0)
+
+                        if not find:
+                            failed += 1
+                            find = find_opp(-1)
+                            if not find:
+                                failed += 1
+                                print("   2. OH NO, I can't find an opp for %s :(" % x.username)
 
         print("=== PAIRINGS === failed", failed)
         for p in pairing:
