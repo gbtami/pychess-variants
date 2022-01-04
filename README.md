@@ -8,17 +8,17 @@ Currently supported games are:
 
 - [Antichess](https://liantichess.herokuapp.com/variants/antichess)
 - [Antichess960](https://liantichess.herokuapp.com/variants/antichess960)
+- [loserschess](https://liantichess.herokuapp.com/variants/losers)
+- [loserschess960](https://liantichess.herokuapp.com/variants/losers960)
 
-Additionally you can check Chess960 option in for Antichess
-[Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
+Additionally you can check Chess960 option in for Antichess and loserschess [Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/niklasf/fishnet)
 - [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/careless25/lichess-bot)
 
-On client side it is based on
-[chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/ornicar/chessground)
+On client side it is based on [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/ornicar/chessground)
 
 ##
 
