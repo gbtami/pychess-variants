@@ -26,6 +26,8 @@ from utils import play_move
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
+ONE_TEST_ONLY = False
+
 
 class TestTournament(Tournament):
 
@@ -186,6 +188,7 @@ class TournamentTestCase(AioHTTPTestCase):
         app = make_app(with_db=False)
         return app
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
         self.app["db"] = None
         tid = id8()
@@ -202,6 +205,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
         await self.tournament.clock_task
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):
         self.app["db"] = None
         NB_PLAYERS = 15
@@ -223,6 +227,29 @@ class TournamentTestCase(AioHTTPTestCase):
 
         self.assertEqual(self.tournament.status, T_FINISHED)
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_tournament_with_3_active_players(self):
+        self.app["db"] = None
+        NB_PLAYERS = 15
+        tid = id8()
+        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
+        self.app["tournaments"][tid] = self.tournament
+        await self.tournament.join_players(NB_PLAYERS)
+
+        # 12 player leave the tournament lobby
+        for i in range(12):
+            print(i)
+            del list(self.tournament.players.keys())[i].tournament_sockets[self.tournament.id]
+        self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 12)
+
+        await self.tournament.clock_task
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+
+        for user in self.tournament.players:
+            self.assertTrue(self.tournament.players[user].nb_not_paired <= 1)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_SWISS(self):
         self.app["db"] = None
         NB_PLAYERS = 15
@@ -237,6 +264,7 @@ class TournamentTestCase(AioHTTPTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
         self.app["db"] = None
         NB_PLAYERS = 15
@@ -258,6 +286,7 @@ class TournamentTestCase(AioHTTPTestCase):
 
         self.assertEqual(self.tournament.status, T_FINISHED)
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_RR(self):
         self.app["db"] = None
         NB_PLAYERS = 5

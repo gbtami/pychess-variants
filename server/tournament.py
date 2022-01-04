@@ -353,7 +353,7 @@ class Tournament(ABC):
                         if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
                             waiting_players = self.waiting_players()
                             nb_waiting_players = len(waiting_players)
-                            if nb_waiting_players == 2 or nb_waiting_players >= (4 if len(self.players) > 20 else 3):
+                            if nb_waiting_players == 2 or nb_waiting_players >= (4 if len(self.players) > 20 or self.ongoing_games > 0 else 3):
                                 log.debug("Enough player (%s), do pairing", nb_waiting_players)
                                 await self.create_new_pairings(waiting_players)
                                 self.prev_pairing = now
