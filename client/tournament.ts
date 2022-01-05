@@ -185,7 +185,7 @@ export default class TournamentController {
             onerror: (e: Event) => console.log('Error:', e),
         };
 
-        const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
+        const ws = location.protocol.indexOf('https') === -1 ? 'wss://' : 'ws://';
         this.sock = new Sockette(ws + location.host + "/wst", opts);
 
         const variant = VARIANTS[this.model.variant];
