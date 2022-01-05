@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-05 17:24+0100\n"
+"POT-Creation-Date: 2022-01-05 23:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -126,7 +126,7 @@ msgid "Download game to PGN file"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:413
-msgid " Download PGN"
+msgid "Download PGN"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:415
@@ -134,7 +134,7 @@ msgid "Copy USI/UCI to clipboard"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:415
-msgid " Copy UCI/USI"
+msgid "Copy UCI/USI"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:417
@@ -142,15 +142,11 @@ msgid "Download position to PNG image file"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:417
-msgid " PNG image"
+msgid "PNG image"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:425
 msgid "Delete game"
-msgstr ""
-
-#: ../client/analysisCtrl.ts:425
-msgid " Delete game"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:431
@@ -158,7 +154,7 @@ msgid "Request Computer Analysis"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:431
-msgid " Request Analysis"
+msgid "Request Analysis"
 msgstr ""
 
 #: ../client/analysisCtrl.ts:445
