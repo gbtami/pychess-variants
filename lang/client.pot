@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-05 23:14+0100\n"
+"POT-Creation-Date: 2022-01-06 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1512,7 +1512,7 @@ msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:108
-msgid "Promotion is a double-edged sword."
+msgid "Promoting the king prematurely can be dangerous."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:111
