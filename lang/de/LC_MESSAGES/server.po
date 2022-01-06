@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
 # ubdip <hsart.liam@gmail.com>, 2020
@@ -14,34 +14,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2022-01-05 23:14+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2021\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.8.0\n"
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#: ../templates/404.html:19
-msgid "404 GAME NOT FOUND"
-msgstr "404 PARTIE NICHT GEFUNDEN"
-
-#: ../templates/404.html:21
-msgid "Sorry, not all games are saved on the Pychess server."
-msgstr ""
-"Es tut uns leid, nicht alle Partien werden auf dem PyChess-Server "
-"gespeichert."
-
-#: ../templates/404.html:22
-msgid "Probably it was abandoned or stopped before the third move."
-msgstr "Sie wurde wahrscheinlich vor dem dritten Zug verlassen oder beendet. "
-
-#: ../templates/404.html:23
-msgid "Return to the main page"
-msgstr "Zur Hauptseite zurückkehren"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -77,30 +59,30 @@ msgstr "Turnier Sieger"
 msgid "Tournament shields"
 msgstr "Turnier Schilder"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)sSpiel"
 msgstr[1] "%(count)s Spiele"
 
-#: ../templates/profile.html:40
+#: ../templates/profile.html:42
 msgid "Watch games"
 msgstr "Partien zusehen"
 
-#: ../templates/profile.html:42
+#: ../templates/profile.html:44
 msgid "Challenge to a game"
 msgstr "Zu einer Partie herausfordern"
 
-#: ../templates/profile.html:45
+#: ../templates/profile.html:47
 msgid "Import game"
 msgstr "Spiel importieren"
 
-#: ../templates/profile.html:48
+#: ../templates/profile.html:50
 msgid "Export games"
 msgstr "Partien exportieren"
 
-#: ../templates/profile.html:51
+#: ../templates/profile.html:53
 msgid "Lichess profile"
 msgstr "Lichess Profil"
 

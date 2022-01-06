@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
 # a b <kezsulap@gmail.com>, 2021
@@ -11,33 +11,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 18:42+0200\n"
+"POT-Creation-Date: 2022-01-05 23:14+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2021\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.8.0\n"
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-
-#: ../templates/404.html:19
-msgid "404 GAME NOT FOUND"
-msgstr "404 NIE ZNALEZIONO PARTII"
-
-#: ../templates/404.html:21
-msgid "Sorry, not all games are saved on the Pychess server."
-msgstr "Przepraszamy, nie przechowujemy wszystkich partii na serwerze Pychess"
-
-#: ../templates/404.html:22
-msgid "Probably it was abandoned or stopped before the third move."
-msgstr ""
-"Prawdopodobnie została ona przerwana lub porzucona przed trzecim ruchem."
-
-#: ../templates/404.html:23
-msgid "Return to the main page"
-msgstr "Powrót do strony głównej"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -73,7 +56,7 @@ msgstr "Zwycięzcy turniejów"
 msgid "Tournament shields"
 msgstr "Shieldy"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
@@ -82,23 +65,23 @@ msgstr[1] "%(count)spartie"
 msgstr[2] "%(count)spartii"
 msgstr[3] "%(count)spartii"
 
-#: ../templates/profile.html:40
+#: ../templates/profile.html:42
 msgid "Watch games"
 msgstr "Oglądaj partie"
 
-#: ../templates/profile.html:42
+#: ../templates/profile.html:44
 msgid "Challenge to a game"
 msgstr "Zaproś do gry"
 
-#: ../templates/profile.html:45
+#: ../templates/profile.html:47
 msgid "Import game"
 msgstr "Wgraj partię."
 
-#: ../templates/profile.html:48
+#: ../templates/profile.html:50
 msgid "Export games"
 msgstr "Pobierz partie"
 
-#: ../templates/profile.html:51
+#: ../templates/profile.html:53
 msgid "Lichess profile"
 msgstr "Profil na Lichessie"
 
