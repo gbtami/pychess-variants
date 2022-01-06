@@ -709,7 +709,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),
 
     chennis: new Variant({
-        name: "chennis", tooltip: () => _("https://www.chessvariants.com/rules/chennis"),
+        name: "chennis", tooltip: () => _("Pieces alternate between two forms with each move."),
         startFen: "p1m1s1f/1k5/7/7/7/5K1/F1S1M1P[] w - 0 1",
         board: "chennis7x7", piece: "chennis",
         pieceRoles: ["k", "p", "m", "s", "f"],
