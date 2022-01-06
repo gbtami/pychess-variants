@@ -7,7 +7,6 @@ import cProfile
 
 import aiohttp
 
-from const import VARIANTS
 from newid import id8
 from settings import URI
 
