@@ -1,6 +1,7 @@
+## [PyChess-Variants](https://www.pychess.org)
+
 [![Python-CI](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml)
 [![Nodejs-CI](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml)
-## PyChess-Variants
 
 PyChess-Variants is a free, open-source chess server designed to play chess variants.
 
