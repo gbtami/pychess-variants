@@ -47,7 +47,7 @@ class ByeGame:
         self.date = datetime.now(timezone.utc)
         self.status = BYEGAME
 
-    def game_json(self, player):
+    def game_json(self):
         return {
             "gameId": "",
             "title": "",
