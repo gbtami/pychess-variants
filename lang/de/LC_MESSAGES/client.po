@@ -9,18 +9,18 @@
 # Lichess Chess960 <lichess960training@gmail.com>, 2021
 # asdfas sadfasdf <oksarfert@gmail.com>, 2021
 # Bodhi Baum <lotusblume.h2@googlemail.com>, 2021
-# Jonathan Kubik <j.kubik97@gmail.com>, 2021
 # FS Schach, 2021
 # gbtami <gbtami@gmail.com>, 2022
+# Jonathan Kubik <j.kubik97@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-05 23:14+0100\n"
+"POT-Creation-Date: 2022-01-06 22:34+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2022\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -194,7 +194,7 @@ msgstr "PNG Bild"
 
 #: ../client/analysisCtrl.ts:425
 msgid "Delete game"
-msgstr ""
+msgstr "Partie löschen"
 
 #: ../client/analysisCtrl.ts:431
 msgid "Request Computer Analysis"
@@ -206,7 +206,7 @@ msgstr "Analyse anfordern"
 
 #: ../client/analysisCtrl.ts:445
 msgid "Are you sure you want to delete this game?"
-msgstr ""
+msgstr "Bist du sicher, dass du diese Partie löschen möchtest?"
 
 #: ../client/analysisCtrl.ts:575
 msgid "Selected variant %1 is not supported by stockfish.wasm"
@@ -344,6 +344,7 @@ msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
 msgstr ""
+"Makruk mit Brett, Figuren und Bauernumwandlung aus dem westlichen Schach."
 
 #: ../client/chess.ts:350
 msgid ""
@@ -506,11 +507,11 @@ msgstr ""
 
 #: ../client/chess.ts:708
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
-msgstr ""
+msgstr "Maya-Schach. Inspiriert von kulturellen Elementen Mesoamerikas. "
 
 #: ../client/chess.ts:719
-msgid "https://www.chessvariants.com/rules/chennis"
-msgstr ""
+msgid "Pieces alternate between two forms with each move."
+msgstr "Figuren wechseln mit jedem Zug ziwschen zwei Formen hin und her."
 
 #: ../client/chess.ts:736
 msgid "Like Capablanca Chess but with Grand starting setup."
@@ -712,7 +713,7 @@ msgstr "Pink"
 
 #: ../client/i18n.ts:60
 msgid "Green"
-msgstr ""
+msgstr "Grün"
 
 #: ../client/i18n.ts:64
 msgid "chess"
@@ -720,107 +721,107 @@ msgstr "Schach"
 
 #: ../client/i18n.ts:64
 msgid "crazyhouse"
-msgstr ""
+msgstr "crazyhouse"
 
 #: ../client/i18n.ts:64
 msgid "placement"
-msgstr ""
+msgstr "placement"
 
 #: ../client/i18n.ts:64
 msgid "atomic"
-msgstr ""
+msgstr "atomic"
 
 #: ../client/i18n.ts:66
 msgid "makruk"
-msgstr ""
+msgstr "makruk"
 
 #: ../client/i18n.ts:66
 msgid "makpong"
-msgstr ""
+msgstr "makpong"
 
 #: ../client/i18n.ts:66
 msgid "ouk chatrang"
-msgstr ""
+msgstr "ouk chatrang"
 
 #: ../client/i18n.ts:66
 msgid "sittuyin"
-msgstr ""
+msgstr "sittuyin"
 
 #: ../client/i18n.ts:66
 msgid "asean"
-msgstr ""
+msgstr "asean"
 
 #: ../client/i18n.ts:68
 msgid "shogi"
-msgstr ""
+msgstr "shogi"
 
 #: ../client/i18n.ts:68
 msgid "minishogi"
-msgstr ""
+msgstr "minishogi"
 
 #: ../client/i18n.ts:68
 msgid "kyoto shogi"
-msgstr ""
+msgstr "kyoto shogi"
 
 #: ../client/i18n.ts:69
 msgid "dobutsu"
-msgstr ""
+msgstr "dobutsu"
 
 #: ../client/i18n.ts:69
 msgid "gorogoro"
-msgstr ""
+msgstr "gorogoro"
 
 #: ../client/i18n.ts:69
 msgid "tori shogi"
-msgstr ""
+msgstr "tori shogi"
 
 #: ../client/i18n.ts:71
 msgid "xiangqi"
-msgstr ""
+msgstr "xiangqi"
 
 #: ../client/i18n.ts:71
 msgid "manchu"
-msgstr ""
+msgstr "manchu"
 
 #: ../client/i18n.ts:71
 msgid "janggi"
-msgstr ""
+msgstr "janggi"
 
 #: ../client/i18n.ts:71
 msgid "minixiangqi"
-msgstr ""
+msgstr "minixiangqi"
 
 #: ../client/i18n.ts:73
 msgid "capablanca"
-msgstr ""
+msgstr "capablanca"
 
 #: ../client/i18n.ts:73
 msgid "capahouse"
-msgstr ""
+msgstr "capahouse"
 
 #: ../client/i18n.ts:73
 msgid "s-chess"
-msgstr ""
+msgstr "s-chess"
 
 #: ../client/i18n.ts:73
 msgid "s-house"
-msgstr ""
+msgstr "s-house"
 
 #: ../client/i18n.ts:74
 msgid "grand"
-msgstr ""
+msgstr "grand"
 
 #: ../client/i18n.ts:74
 msgid "grandhouse"
-msgstr ""
+msgstr "grandhouse"
 
 #: ../client/i18n.ts:74
 msgid "shako"
-msgstr ""
+msgstr "shako"
 
 #: ../client/i18n.ts:74
 msgid "shogun"
-msgstr ""
+msgstr "shogun"
 
 #: ../client/i18n.ts:74
 msgid "hoppel-poppel"
@@ -828,15 +829,15 @@ msgstr "Hoppel Poppel"
 
 #: ../client/i18n.ts:76
 msgid "orda"
-msgstr ""
+msgstr "orda"
 
 #: ../client/i18n.ts:76
 msgid "synochess"
-msgstr ""
+msgstr "synochess"
 
 #: ../client/i18n.ts:76
 msgid "shinobi"
-msgstr ""
+msgstr "shinobi"
 
 #: ../client/i18n.ts:76
 msgid "empire"
@@ -844,11 +845,11 @@ msgstr "Imperium"
 
 #: ../client/i18n.ts:76
 msgid "orda mirror"
-msgstr ""
+msgstr "orda mirror"
 
 #: ../client/i18n.ts:76
 msgid "chak"
-msgstr ""
+msgstr "chak"
 
 #: ../client/invite.ts:34 ../client/lobby.ts:514
 msgid "Host a game for others"
@@ -1098,7 +1099,7 @@ msgstr "Eindrungsmatt"
 
 #: ../client/profile.ts:92
 msgid "Altar mate"
-msgstr ""
+msgstr "Altarmatt"
 
 #: ../client/profile.ts:95
 msgid "Explosion of king"
@@ -1145,7 +1146,7 @@ msgstr "Gebe 15 Sekunden"
 
 #: ../client/roundCtrl.ts:451
 msgid "Berserk"
-msgstr ""
+msgstr "Berserk"
 
 #: ../client/roundCtrl.ts:501
 msgid "Abort"
@@ -1365,7 +1366,7 @@ msgstr "Durchschnittlicher Gegner"
 
 #: ../client/tournament.ts:640
 msgid "Defender:"
-msgstr ""
+msgstr "Verteidiger:"
 
 #: ../client/tournament.ts:667
 msgid "Custom position"
@@ -1425,7 +1426,7 @@ msgstr "Dynasty: Auf Xiangqi basierende Armee"
 
 #: ../client/lobby/layer2army.ts:62
 msgid "Mayan chess"
-msgstr ""
+msgstr "Maya-Schach"
 
 #: ../client/lobby/layer2chess.ts:20
 msgid "Variants using a basic chess set but with different rules."
@@ -1628,12 +1629,12 @@ msgstr ""
 "vordringt, ist das Spiel gewonnen."
 
 #: ../client/lobby/layer3.ts:108
-msgid "Promotion is a double-edged sword."
-msgstr ""
+msgid "Promoting the king prematurely can be dangerous."
+msgstr "Es kann gefährlich sein, den König vorzeitig zu befördern"
 
 #: ../client/lobby/layer3.ts:111
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr ""
+msgstr "Es ist wichtig, den Khon und Met so effektiv wie möglich einzusetzen."
 
 #: ../client/lobby/layer3.ts:113
 msgid "Watch out for knight checks, since they cannot be blocked."
@@ -1644,6 +1645,7 @@ msgstr ""
 #: ../client/lobby/layer3.ts:115
 msgid "You can use placement to utilize your bigger pieces since the start."
 msgstr ""
+"Mit der Platzierung kanns du stärkere Figuren gleich von Anfang an benutzen."
 
 #: ../client/lobby/layer3.ts:117
 msgid "King safety is important. Use the king leap move to save time."
