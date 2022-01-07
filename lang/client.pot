@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-06 22:34+0100\n"
+"POT-Creation-Date: 2022-01-07 22:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1524,7 +1524,7 @@ msgid "Watch out for knight checks, since they cannot be blocked."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:115
-msgid "You can use placement to utilize your bigger pieces since the start."
+msgid "You can use placement to utilize your stronger pieces from the start."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:117
