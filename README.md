@@ -3,6 +3,8 @@
 [![Python-CI](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml)
 [![Nodejs-CI](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml)
 
+<img src="https://raw.githubusercontent.com/gbtami/pychess-variants/master/static/images/pychess.png" alt="Pychess homepage" title="Pychess comes with light and dark theme, this screenshot shows both." />
+
 PyChess-Variants is a free, open-source chess server designed to play chess variants.
 
 Currently supported games are:
