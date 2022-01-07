@@ -112,7 +112,7 @@ function proTip (variant: string, chess960: boolean) {
     case 'makpong':
         return _('Watch out for knight checks, since they cannot be blocked.');
     case 'sittuyin':
-        return _('You can use placement to utilize your bigger pieces since the start.');
+        return _('You can use placement to utilize your stronger pieces from the start.');
     case 'cambodian':
         return _('King safety is important. Use the king leap move to save time.');
     case 'asean':
