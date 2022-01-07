@@ -6,6 +6,7 @@
   "main": "static/pychess-variants.js",
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
+  "funding": "patreon.com/pychess", 
   "dependencies": {
     "chessgroundx": "^9.1.7",
     "ffish-es6": "^0.6.5",
