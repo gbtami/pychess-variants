@@ -105,7 +105,7 @@ function proTip (variant: string, chess960: boolean) {
     case 'ordamirror':
         return _('Be aware of campmate - victory by moving your king into the 8th rank.');
     case 'chak':
-        return _('Promotion is a double-edged sword.');
+        return _('Promoting the king prematurely can be dangerous.');
 // makruk
     case 'makruk':
         return _('Maximizing khon and met\'s effectiveness is the key.');

@@ -399,24 +399,24 @@ export default class AnalysisController {
         if (container !== null) {
             const buttons = [
                 h('a.i-pgn', { on: { click: () => downloadPgnText("pychess-variants_" + this.gameId) } }, [
-                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
+                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _('Download PGN'))]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
-                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
+                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _('Copy UCI/USI'))]),
                 h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
-                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
+                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
                 ]
 
             // Enable to delete imported games
             if (this.model["rated"] === '2' && this.importedBy === this.model["username"]) {
                 buttons.push(
                     h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
-                        h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _(' Delete game'))])
+                        h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
                 );
             }
 
             if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
                 buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
-                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
+                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
                 );
             }
             patch(container, h('div', buttons));
