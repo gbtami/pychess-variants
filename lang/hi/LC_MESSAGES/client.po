@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-05 23:14+0100\n"
+"POT-Creation-Date: 2022-01-07 22:07+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Sarang Sule, 2021\n"
 "Language-Team: Hindi (https://www.transifex.com/gbtami/teams/14790/hi/)\n"
@@ -435,7 +435,7 @@ msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr ""
 
 #: ../client/chess.ts:719
-msgid "https://www.chessvariants.com/rules/chennis"
+msgid "Pieces alternate between two forms with each move."
 msgstr ""
 
 #: ../client/chess.ts:736
@@ -1529,7 +1529,7 @@ msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:108
-msgid "Promotion is a double-edged sword."
+msgid "Promoting the king prematurely can be dangerous."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:111
@@ -1541,7 +1541,7 @@ msgid "Watch out for knight checks, since they cannot be blocked."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:115
-msgid "You can use placement to utilize your bigger pieces since the start."
+msgid "You can use placement to utilize your stronger pieces from the start."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:117
