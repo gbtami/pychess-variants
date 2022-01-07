@@ -2,7 +2,7 @@
   "name": "pychess-variants",
   "version": "0.0.2",
   "private": true,
-  "description": "Play different chess variants not available on lichess",
+  "description": "free, open-source chess server designed to play chess variants.",
   "main": "static/pychess-variants.js",
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
