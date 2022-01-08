@@ -80,7 +80,7 @@ function proTip (variant: string, chess960: boolean) {
         if (chess960) {
             return _('Move the king on top of the rook to castle.');
         } else {
-            return _('You can play more at www.lichess.org.');
+            return _('You can play more at lichess.org.');
         }
     case 'placement':
         return _('Castling is only possible if the king and rook are dropped to their usual places like in standard Chess.');
