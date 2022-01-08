@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-07 22:07+0100\n"
+"POT-Creation-Date: 2022-01-08 19:05+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
@@ -1487,8 +1487,8 @@ msgid "Move the king on top of the rook to castle."
 msgstr "룩 위로 킹을 옮겨 캐슬링합니다."
 
 #: ../client/lobby/layer3.ts:83
-msgid "You can play more at www.lichess.org."
-msgstr "www.lichess.org 에서 더 많은 게임을 즐길 수 있습니다."
+msgid "You can play more at lichess.org."
+msgstr "lichess.org 에서 더 많은 게임을 즐길 수 있습니다."
 
 #: ../client/lobby/layer3.ts:86
 msgid ""

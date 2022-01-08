@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-07 22:07+0100\n"
+"POT-Creation-Date: 2022-01-08 19:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1472,7 +1472,7 @@ msgid "Move the king on top of the rook to castle."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:83
-msgid "You can play more at www.lichess.org."
+msgid "You can play more at lichess.org."
 msgstr ""
 
 #: ../client/lobby/layer3.ts:86
