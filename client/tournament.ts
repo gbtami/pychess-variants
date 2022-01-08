@@ -660,7 +660,7 @@ export default class TournamentController {
         if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
 
         const defender = document.getElementById('defender') as Element;
-        if (msg.defender_name.length > 0 && defender) patch(defender, this.renderDefender(msg.defender_name, msg.defender_title));
+        if (msg.defender_name && defender) patch(defender, this.renderDefender(msg.defender_name, msg.defender_title));
 
         this.model.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
