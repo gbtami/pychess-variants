@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-07 22:07+0100\n"
+"POT-Creation-Date: 2022-01-08 19:05+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -1600,8 +1600,8 @@ msgid "Move the king on top of the rook to castle."
 msgstr "Roszuj grając królem na wieżę."
 
 #: ../client/lobby/layer3.ts:83
-msgid "You can play more at www.lichess.org."
-msgstr "Możesz więcej pograć na www.lichess.org."
+msgid "You can play more at lichess.org."
+msgstr "Możesz więcej pograć na lichess.org."
 
 #: ../client/lobby/layer3.ts:86
 msgid ""
