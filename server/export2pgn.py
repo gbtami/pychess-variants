@@ -9,7 +9,7 @@ from compress import C2V
 
 log = logging.getLogger(__name__)
 
-YEAR = 2021
+YEAR = 2022
 MONTHS = (6, 7, 8, 9, 10, 11)
 
 
