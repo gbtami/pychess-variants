@@ -18,7 +18,7 @@ TWITCH_STREAMERS = {
     "gbtami": "gbtami",
 }
 
-# TODO
+# TODO: support youtube
 YOUTUBE_STREAMERS = {
     "UCksfz2MkgxAKNJDvzemO3iA": "Janggi-France",
     "UCCeCZHAoTr4TGDt3hr_AQig": "kalavas",
