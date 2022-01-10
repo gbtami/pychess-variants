@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="synochess-rook.svg"
+   id="svg2428"
+   version="1.1"
+   height="45"
+   width="45">
+  <path
+     id="rect4664"
+     style="fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 32.874189,14.826605 h 1.730589 c 1.699067,0 3.066908,0.944051 3.066908,2.116707 v 10.926739 c 0,1.172655 -1.367841,2.116706 -3.066908,2.116706 H 10.39523 c -1.6990663,0 -4.0038137,-0.04076 -3.9706649,-1.212948 0.075313,-2.663176 1.8722649,-8.074802 4.4811319,-9.119223 8.131771,-3.255434 18.185472,-1.363577 21.968492,-4.827981 z"
+     sodipodi:nodetypes="csssssssc" />
+  <circle
+     id="path979"
+     style="display:inline;fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:2.96184;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     r="12.330165"
+     cy="29.169834"
+     cx="22.5" />
+  <circle
+     style="display:inline;fill:#888888;stroke:#888888;stroke-width:2.28642;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;fill-opacity:1"
+     id="circle995"
+     cx="22.5"
+     cy="29.169834"
+     r="9.5186787" />
+  <path
+     id="path1027"
+     d="M 13.132345,28.318575 H 31.86766 v 1.798196 H 13.132345 Z"
+     style="display:inline;fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:0.344977px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  <path
+     style="display:inline;fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:0.344977px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 16.511826,21.957981 29.759694,35.20585 28.488178,36.477366 15.24031,23.229497 Z"
+     id="path1035" />
+  <path
+     id="path1037"
+     d="M 28.488178,21.957981 15.24031,35.20585 16.511826,36.477366 29.759694,23.229497 Z"
+     style="display:inline;fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:0.344977px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  <path
+     style="display:inline;fill:#888888;fill-opacity:1;stroke:#888888;stroke-width:0.344977px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 23.399099,19.850015 V 38.585332 H 21.600903 V 19.850015 Z"
+     id="path1039" />
+  <path
+     sodipodi:nodetypes="cc"
+     style="fill:#888888;stroke:#888888;stroke-width:1.66847;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+     d="M 21.833123,16.807355 23.857447,6.331938"
+     id="path4668" />
+  <path
+     style="fill:#888888;stroke:#888888;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+     d="M 6.8415734,5.5472001 C 15.749441,7.5668398 22.258074,8.7297666 40.310675,10.74183 40.865459,8.94958 29.884011,4.8135852 24.002703,4.0071422 18.378188,3.2359105 7.0819481,4.1049459 6.8415734,5.5472001 Z"
+     id="path4672"
+     sodipodi:nodetypes="ccsc" />
+  <metadata
+     id="metadata2434">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2432" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg2428"
+     inkscape:window-maximized="1"
+     inkscape:window-y="27"
+     inkscape:window-x="72"
+     inkscape:cy="5.5627455"
+     inkscape:cx="27.316459"
+     inkscape:zoom="9.388889"
+     showgrid="false"
+     id="namedview2430"
+     inkscape:window-height="1016"
+     inkscape:window-width="1848"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     inkscape:document-rotation="0" />
+</svg>

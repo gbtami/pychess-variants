@@ -101,6 +101,22 @@ mpiece.p {
     background-image: url('../../images/pieces/mono/falcon.svg');
 }
 
+.synochess mpiece.e {
+    background-image: url('../../images/pieces/mono/shako-elephant.svg');
+}
+.synochess mpiece.a {
+    background-image: url('../../images/pieces/mono/advisor.svg');
+}
+.synochess mpiece.s {
+    background-image: url('../../images/pieces/mono/soldier.svg');
+}
+.synochess mpiece.c {
+    background-image: url('../../images/pieces/mono/synochess-cannon.svg');
+}
+.synochess.black mpiece.r {
+    background-image: url('../../images/pieces/mono/synochess-rook.svg');
+}
+
 .shinobi mpiece.l {
     background-image: url('../../images/pieces/mono/lance.svg');
 }
