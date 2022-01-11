@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-08 19:05+0100\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
@@ -417,75 +417,75 @@ msgid ""
 "capture differently."
 msgstr "한쪽 군대에 나이트처럼 움직이지만 다른 방식으로 포획하는 기물들이 있는 비대칭 변형."
 
-#: ../client/chess.ts:651
+#: ../client/chess.ts:649
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr "샹치 및 장기류 군대와 서양 체스 군대가 겨루는 동양 대 서양의 비대칭 변형."
 
-#: ../client/chess.ts:665
+#: ../client/chess.ts:661
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr "서양 체스 군대와 투입 기반의 쇼기류 군대가 겨루는 비대칭 변형."
 
-#: ../client/chess.ts:683
+#: ../client/chess.ts:677
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr "한쪽 군대에 퀸처럼 움직이지만 평소처럼 포획하는 기물들이 있는 비대칭 변형."
 
-#: ../client/chess.ts:697
+#: ../client/chess.ts:689
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr "두 개의 호드 군대가 있는 오르다 체스 변형. 팔콘은 유르트를 대체합니다."
 
-#: ../client/chess.ts:708
+#: ../client/chess.ts:700
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr ""
 
-#: ../client/chess.ts:719
+#: ../client/chess.ts:711
 msgid "Pieces alternate between two forms with each move."
 msgstr ""
 
-#: ../client/chess.ts:736
+#: ../client/chess.ts:728
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr "카파블랑카 체스와 비슷하지만 그랜드 체스의 기물 차림이 있습니다."
 
-#: ../client/chess.ts:746
+#: ../client/chess.ts:738
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "카파블랑카 체스와 비슷하지만 기물 차림이 다릅니다."
 
-#: ../client/chess.ts:756
+#: ../client/chess.ts:748
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "크레이지하우스의 투입 규칙이 있는 고딕 체스."
 
-#: ../client/chess.ts:781 ../client/lobby/layer1.ts:54
+#: ../client/chess.ts:773 ../client/lobby/layer1.ts:54
 #: ../client/lobby/layer2chess.ts:18
 msgid "Chess Variants"
 msgstr "체스 변형"
 
-#: ../client/chess.ts:782 ../client/lobby/layer1.ts:78
+#: ../client/chess.ts:774 ../client/lobby/layer1.ts:78
 #: ../client/lobby/layer2makruk.ts:16
 msgid "Makruk Variants"
 msgstr "막룩 변형"
 
-#: ../client/chess.ts:783 ../client/lobby/layer1.ts:86
+#: ../client/chess.ts:775 ../client/lobby/layer1.ts:86
 #: ../client/lobby/layer2shogi.ts:17
 msgid "Shogi Variants"
 msgstr "쇼기 변형"
 
-#: ../client/chess.ts:784 ../client/lobby/layer1.ts:94
+#: ../client/chess.ts:776 ../client/lobby/layer1.ts:94
 #: ../client/lobby/layer2xiangqi.ts:16
 msgid "Xiangqi Variants"
 msgstr "샹치 변형"
 
-#: ../client/chess.ts:785 ../client/lobby/layer1.ts:62
+#: ../client/chess.ts:777 ../client/lobby/layer1.ts:62
 #: ../client/lobby/layer2fairy.ts:16
 msgid "Fairy Piece Variants"
 msgstr "요정 기물 변형"
 
-#: ../client/chess.ts:786 ../client/lobby/layer1.ts:70
+#: ../client/chess.ts:778 ../client/lobby/layer1.ts:70
 #: ../client/lobby/layer2army.ts:16
 msgid "New Army Variants"
 msgstr "새로운 군대 변형"
@@ -1048,7 +1048,7 @@ msgstr "게임"
 #: ../client/profile.ts:309
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
-msgstr ""
+msgstr "승강전"
 
 #: ../client/profile.ts:310
 msgid "Imported"

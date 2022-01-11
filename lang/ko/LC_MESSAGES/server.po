@@ -7,15 +7,16 @@
 # Leo Ha <yeoha123@gmail.com>, 2020
 # 이상백 <esangbaek@ajou.ac.kr>, 2020
 # 설월신서향雪月申瑞香, 2021
+# gbtami <gbtami@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-05 23:14+0100\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: 설월신서향雪月申瑞香, 2021\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -133,3 +134,17 @@ msgstr "곧 시작"
 #: ../templates/tournaments.html:22
 msgid "Finished"
 msgstr "끝남"
+
+#: ../templates/tournaments.html:43
+msgid "Rated"
+msgstr "승강전"
+
+#: ../templates/tournaments.html:43
+msgid "Casual"
+msgstr "친선전"
+
+#: ../templates/tournaments.html:50
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s 명의 플레이어"

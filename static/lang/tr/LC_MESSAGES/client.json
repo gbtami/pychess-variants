@@ -173,6 +173,7 @@
     "Sound": "Ses",
     "Background": "Arkaplan",
     "Board Settings": "Tahta ayarları",
+    "UsePluralFormIfNeeded\u0004Rated": "Puanlı",
     "": {
         "language": "tr",
         "plural-forms": "nplurals=2; plural=(n > 1);"

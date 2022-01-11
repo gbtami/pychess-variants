@@ -227,6 +227,7 @@
     "Off": "Desactivado",
     "On": "Activado",
     "ZEN MODE": "MODO ZEN",
+    "UsePluralFormIfNeeded\u0004Rated": "Por puntos",
     "": {
         "language": "gl_ES",
         "plural-forms": "nplurals=2; plural=(n != 1);"

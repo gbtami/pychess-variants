@@ -5,17 +5,17 @@
 # 
 # Translators:
 # Стримы с шахами и матами, 2021
-# Артем Артем, 2022
 # gbtami <gbtami@gmail.com>, 2022
+# Артем Артем, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-08 19:05+0100\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: Артем Артем, 2022\n"
 "Language-Team: Russian (https://www.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -466,7 +466,7 @@ msgstr ""
 "Асимметричный вариант, где у одной армии есть фигуры, которые ходят как "
 "кони, но рубят по-разному."
 
-#: ../client/chess.ts:651
+#: ../client/chess.ts:649
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
@@ -474,7 +474,7 @@ msgstr ""
 "Асимметричный вариант Восток против Запада, который противопоставляет "
 "западную шахматную армию восточной армии в стиле Сянци и Чанги."
 
-#: ../client/chess.ts:665
+#: ../client/chess.ts:661
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
@@ -482,7 +482,7 @@ msgstr ""
 "Асимметричный вариант, который противопоставляет западную шахматную армию "
 "восточной армии, основанной на выставлении фигур в стиле Сёги."
 
-#: ../client/chess.ts:683
+#: ../client/chess.ts:677
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -490,59 +490,59 @@ msgstr ""
 "Асимметричный вариант, где у одной армии есть фигуры, которые ходят как "
 "ферзи, но рубят как обычно."
 
-#: ../client/chess.ts:697
+#: ../client/chess.ts:689
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
 "Вариант Ордынских шахмат с двумя ордынскими армиями. Сокол заменяет Юрту."
 
-#: ../client/chess.ts:708
+#: ../client/chess.ts:700
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr "Шахматы майя. Вдохновлены культурными элементами Мезоамерики."
 
-#: ../client/chess.ts:719
+#: ../client/chess.ts:711
 msgid "Pieces alternate between two forms with each move."
 msgstr "Фигуры чередуются между двумя формами с каждым ходом."
 
-#: ../client/chess.ts:736
+#: ../client/chess.ts:728
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr ""
 "Как Шахматы Капабланки, но с начальной расстановкой как в Гранд шахматах."
 
-#: ../client/chess.ts:746
+#: ../client/chess.ts:738
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "Как Шахматы Капабланки, но с другой начальной расстановкой."
 
-#: ../client/chess.ts:756
+#: ../client/chess.ts:748
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Готические шахматы с правилами выставления фигур как в Крейзихаус."
 
-#: ../client/chess.ts:781 ../client/lobby/layer1.ts:54
+#: ../client/chess.ts:773 ../client/lobby/layer1.ts:54
 #: ../client/lobby/layer2chess.ts:18
 msgid "Chess Variants"
-msgstr "Варианты шахмат"
+msgstr "Варианты Шахмат"
 
-#: ../client/chess.ts:782 ../client/lobby/layer1.ts:78
+#: ../client/chess.ts:774 ../client/lobby/layer1.ts:78
 #: ../client/lobby/layer2makruk.ts:16
 msgid "Makruk Variants"
 msgstr "Варианты Макрука"
 
-#: ../client/chess.ts:783 ../client/lobby/layer1.ts:86
+#: ../client/chess.ts:775 ../client/lobby/layer1.ts:86
 #: ../client/lobby/layer2shogi.ts:17
 msgid "Shogi Variants"
 msgstr "Варианты Сёги"
 
-#: ../client/chess.ts:784 ../client/lobby/layer1.ts:94
+#: ../client/chess.ts:776 ../client/lobby/layer1.ts:94
 #: ../client/lobby/layer2xiangqi.ts:16
 msgid "Xiangqi Variants"
 msgstr "Варианты Сянци"
 
-#: ../client/chess.ts:785 ../client/lobby/layer1.ts:62
+#: ../client/chess.ts:777 ../client/lobby/layer1.ts:62
 #: ../client/lobby/layer2fairy.ts:16
 msgid "Fairy Piece Variants"
 msgstr "Варианты со сказочными фигурами"
 
-#: ../client/chess.ts:786 ../client/lobby/layer1.ts:70
+#: ../client/chess.ts:778 ../client/lobby/layer1.ts:70
 #: ../client/lobby/layer2army.ts:16
 msgid "New Army Variants"
 msgstr "Варианты новых армий"
