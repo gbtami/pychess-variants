@@ -13,7 +13,7 @@ MAX_NAMED_SPECTATORS = 20
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
 
 # tournament frequency
-DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
+DAILY, WEEKLY, MONTHLY, YEARLY, SHIELD = "d", "w", "y", "a", "s"
 
 # tournament pairing
 ARENA, RR, SWISS = range(3)
