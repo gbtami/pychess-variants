@@ -40,14 +40,14 @@
                     </a>
                 </td>
                 <td class="infos">
-                    <span class="system">{{ pairing_system_name(tourney.system) }} • {{ "Rated" if tourney.rated else "Casual" }}</span>
+                    <span class="system">{{ pairing_system_name(tourney.system) }} • {% trans rated="Rated" if tourney.rated else "Casual" %}{{ rated }}{% endtrans %}</span>
                     <span>{{ time_control_str(tourney.base, tourney.inc, tourney.byoyomi_period) }} • {{ variant_display_name(tourney.variant + ('960' if tourney.chess960 else '')) }}</span>
                 </td>
                 <td>
                     <span class="starts">
                         <info-date timestamp="{{ tourney.starts_at }}"></info-date>
                     </span>
-                    <span>{{ tourney.nb_players }} players</span>
+                    <span>{% trans count=tourney.nb_players %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
                 </td>
             </tr>
             {% endfor %}
