@@ -10,9 +10,9 @@ Chennis is a game designed by Couch Tomato in 2021 primarily designed as a varia
 
 There are two sides, designated white and black, respectively. White moves first. Each piece (other than the king) has *two sides*; after each move, the piece changes to its counterpart piece (typically marked as red on the white pieces and marked as blue on the black pieces).
 
-When pieces are captured, they go into your hand 
-
 ![Piece Swaps](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Swap.png)
+
+When you capture a piece, it goes into your hand. On a future turn, you can drop that piece onto the board *as either side of the piece*. For example, for the Rook-Pawn combo, you can drop it as a rook or as a pawn.
 
 ### Board
 
