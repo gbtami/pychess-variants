@@ -10,6 +10,7 @@ The general rules are extremely similar to Chess, so this guide will focus on th
 
 * For starters, the feudal lords (pawns) start on staggered ranks (as you can see in the board above). 
 * To start the game, the players (starting with the red player) alternate back and forth placing the remainder of their pieces on their halves of the boards.
+* The rooks are allowed to place only at the back rank.
 * Pawn (feudal lord) promotion works much differently. See the movement section below. 
 
 ## The Pieces
