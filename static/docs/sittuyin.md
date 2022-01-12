@@ -8,8 +8,9 @@
 
 The general rules are extremely similar to Chess, so this guide will focus on the few differences. The boards are slightly different, with Sittuyin having two big diagonal lines dividing through the board. The sides are also red and black, with the red player moving first. The piece position in Sittuyin is much different compared to chess or Makruk. Key differences are as follows:
 
-* For starters, the feudal lords (pawns) start on staggered ranks (as you can see in the board above). 
+* For starters, the feudal lords (pawns) start on staggered ranks (as you can see in the board above).
 * To start the game, the players (starting with the red player) alternate back and forth placing the remainder of their pieces on their halves of the boards.
+* The rooks can only be placed on the back rank.
 * Pawn (feudal lord) promotion works much differently. See the movement section below. 
 
 ## The Pieces
