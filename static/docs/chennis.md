@@ -12,7 +12,7 @@ There are two sides, designated white and black, respectively. White moves first
 
 ![Piece Swaps](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Swap.png)
 
-When you capture a piece, it goes into your hand. On a future turn, you can drop that piece onto the board *as either side of the piece*. For example, for the Rook-Pawn combo, you can drop it as a rook or as a pawn.
+When you capture a piece, it goes into your hand. On a future turn, you can drop that piece onto the board on any open square *as either side of the piece*. For example, for the Rook-Pawn combo, you can drop it as a rook or as a pawn.
 
 ### Board
 
