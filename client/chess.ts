@@ -639,7 +639,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         promotionOrder: ["q", "h"],
         enPassant: true,
         boardMark: 'campmate',
-        //materialDifference: false,
         icon: "R",
     }),
 
@@ -652,7 +651,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
         pocketRoles: [], pocketRoles2: ["s"],
         boardMark: 'campmate',
-        //materialDifference: false,
         icon: "_",
     }),
 
@@ -669,7 +667,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         promoteablePieces: ["p", "l", "h", "m"],
         enPassant: true,
         boardMark: 'campmate',
-        //materialDifference: false,
         icon: "🐢",
     }),
 
@@ -682,7 +679,6 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles2: ["k", "q", "r", "b", "n", "p"],
         enPassant: true,
         boardMark: 'campmate',
-        //materialDifference: false,
         icon: "♚",
     }),
 

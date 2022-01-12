@@ -5,15 +5,16 @@
 # 
 # Translators:
 # Jose Doval Gonzalez <pepellou@gmail.com>, 2021
+# gbtami <gbtami@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-05 23:14+0100\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Jose Doval Gonzalez <pepellou@gmail.com>, 2021\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Galician (Spain) (https://www.transifex.com/gbtami/teams/14790/gl_ES/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -132,3 +133,18 @@ msgstr "Comezando cedo"
 #: ../templates/tournaments.html:22
 msgid "Finished"
 msgstr "Completados"
+
+#: ../templates/tournaments.html:43
+msgid "Rated"
+msgstr "Por puntos"
+
+#: ../templates/tournaments.html:43
+msgid "Casual"
+msgstr "Amistosa"
+
+#: ../templates/tournaments.html:50
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s xogador"
+msgstr[1] "%(count)s xogadores"

@@ -143,11 +143,13 @@ class Game:
                             counting_player = self.bplayer if counting_ply % 2 == 0 else self.wplayer
                             self.draw_offers.add(counting_player.username)
 
+        disabled_fen = ""
         if self.chess960 and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
+                disabled_fen = self.initial_fen
                 self.initial_fen = ""
 
-        self.board = self.create_board(self.variant, self.initial_fen, self.chess960, count_started)
+        self.board = FairyBoard(self.variant, self.initial_fen, self.chess960, count_started, disabled_fen)
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -199,10 +201,6 @@ class Game:
         self.bberserk = False
 
         self.move_lock = asyncio.Lock()
-
-    @staticmethod
-    def create_board(variant, initial_fen, chess960, count_started):
-        return FairyBoard(variant, initial_fen, chess960, count_started)
 
     def berserk(self, color):
         if color == "white" and not self.wberserk:

@@ -19,7 +19,7 @@ done
 
 SRC='https://github.com/gbtami/pychess-variants/blob/master'; 
 #DST='https://www.pychess.org';
-DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants\@1.6.73';
+DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants\@1.6.74';
 find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 
 mkdir -p ../../templates/docs

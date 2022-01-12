@@ -171,6 +171,7 @@
     "Off": "Uit",
     "On": "Aan",
     "ZEN MODE": "ZEN MODUS",
+    "UsePluralFormIfNeeded\u0004Rated": "Met rating",
     "": {
         "language": "nl",
         "plural-forms": "nplurals=2; plural=(n != 1);"
