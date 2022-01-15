@@ -4,7 +4,7 @@
 
 ## Background
 
-Chennis is a game designed by Couch Tomato in 2021 primarily designed as a variant of Kyoto Shogi. Since Kyoto Shogi is a solved game, the goal was to create a more balanced game as well as something more accessible to international chess players. To use less shogi-like pieces, more long-range pieces were needed and thus a larger board. And to keep the king easy enough to mate, restrictions were created. These restrictions coincidentally resulted in a tennis court-shaped board, and hence Chennis was born! Also, the game is near balanced (approximately 60-40, in favor of white).
+Chennis is a game designed by Couch Tomato in 2021 primarily designed as a variant of Kyoto Shogi. Since Kyoto Shogi is a solved game, the goal was to create a more balanced game as well as something more accessible to international chess players. To use less shogi-like pieces, more long-range pieces were needed and thus a larger board. And to keep the king easy enough to mate, restrictions were created. These restrictions coincidentally resulted in a tennis court-shaped board, and hence Chennis was born! Due to the use of cannons and restricted king areas, the game can also be said to feature elements of Xiangqi, making it a game that combines multiple historical chess variants. In terms of balance, the game is approximately 60-40, in favor of white, which achieves what it sets out to do from the initial design.
 
 ## Introduction and General Rules
 
