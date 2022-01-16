@@ -176,6 +176,8 @@ TROPHIES = {
     "top50": (static_url("images/trophy/Fancy-Gold-Cup.png"), "Top 50!"),
     "top100": (static_url("images/trophy/Gold-Cup.png"), "Top 100!"),
     "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
+    # an example custom trophy from lichess
+    "acwc19": (static_url("images/trophy/acwc19.png"), "World Champion 2019"),
 }
 
 
