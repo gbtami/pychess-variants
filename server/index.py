@@ -29,6 +29,7 @@ from news import NEWS
 from user import User
 from utils import load_game, join_seek, tv_game, tv_game_user
 from tournaments import get_winners, get_latest_tournaments, load_tournament, create_or_update_tournament, get_tournament_name
+from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
 log = logging.getLogger(__name__)
 
@@ -315,6 +316,11 @@ async def index(request):
 
             shield_owners = request.app["shield_owners"]
             render["trophies"] += [(v, "shield") for v in shield_owners if shield_owners[v] == profileId]
+
+            if profileId in CUSTOM_TROPHY_OWNERS:
+                v, kind = CUSTOM_TROPHY_OWNERS[profileId]
+                if v in VARIANTS:
+                    render["trophies"].append((v, kind))
 
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
