@@ -301,13 +301,13 @@ export const VARIANTS: { [name: string]: Variant } = {
             chess960: true, icon: "♔", icon960: "♔",
         }),
             
-    threecheck: new Variant({
-            name: "threecheck", tooltip: () => _("Keep Threechecks."),
-            startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0",
+    antiantichess: new Variant({
+            name: "anti-antichess", tooltip: () => _("loose at antichess"),
+            startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             board: "standard8x8", piece: "standard",
             pieceRoles: ["k", "q", "r", "b", "n", "p"],
             enPassant: true,
-            icon: "♟",
+            chess960: true, icon: "♔", icon960: "♔",
           }),
           
     antichess: new Variant({
@@ -761,7 +761,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "antichess", "losers"] },
+    standard: { variants: [ "antichess", "losers", "anti-antichess"] },
     //sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     //shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },

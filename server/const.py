@@ -46,7 +46,9 @@ VARIANTS = (
     "antichess",
     "antichess960",
     "losers",
-    "losers960"
+    "losers960",
+    "anti-antichess",
+    "anti-antichess960"
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
     # "gothic",
@@ -73,7 +75,8 @@ VARIANT_ICONS = {
     "antichess960": "♔",
     "losers": "♔",
     "losers960": "♔",
-    "threecheck": "♟",
+    "anti-antichess": "♔",
+    "anti-antichess960": "♔",
     "capablanca": "P",
     "capahouse": "&",
     "seirawan": "L",
@@ -117,7 +120,8 @@ VARIANT_960_TO_PGN = {
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "atomic": "Atomic",          # to let lichess import work
     "antichess": "Antichess",          # to let lichess import work    
-    "losers": "Losers960",     
+    "losers": "Losers960",
+    "anti-antichess": "Anti-antichess960",     
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
