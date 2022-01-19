@@ -47,8 +47,8 @@ VARIANTS = (
     "antichess960",
     "losers",
     "losers960",
-    "anti-antichess",
-    "anti-antichess960"
+#    "anti-antichess", until its fully tested 
+#    "anti-antichess960" until its fully tested 
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
     # "gothic",

@@ -37,9 +37,10 @@ div.info0 {
 .description a {
     color: var(--blue-hover);
 }
-.defender {
+/*.defender {
     margin-bottom: 2vmin;
 }
+*/
 table#players {
     grid-area: main;
     margin-bottom: 3vmin;
