@@ -8,8 +8,9 @@ from aiohttp import web
 import aiohttp_session
 from aiohttp_sse import sse_response
 
-from const import STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
-from compress import C2V, V2C, C2R
+from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
+from compress import decode_moves, C2V, V2C, C2R
+from convert import zero2grand
 from utils import pgn
 from settings import ADMINS
 from tournaments import get_tournament_name
@@ -22,8 +23,13 @@ GAME_PAGE_SIZE = 12
 async def get_variant_stats(request):
     cur_period = datetime.now().isoformat()[:7]
 
-    if cur_period in request.app["stats"]:
-        series = request.app["stats"][cur_period]
+    if "/humans" in request.path:
+        stats = "stats_humans"
+    else:
+        stats = "stats"
+
+    if cur_period in request.app[stats]:
+        series = request.app[stats][cur_period]
     else:
         db = request.app["db"]
 
@@ -41,6 +47,13 @@ async def get_variant_stats(request):
             },
             {"$sort": {"_id": 1}}
         ]
+        if "/humans" in request.path:
+            pipeline.insert(0, {"$match": {
+                "us": {
+                    "$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}
+                }
+            }
+            })
         cursor = db.game.aggregate(pipeline)
 
         variant_counts = {variant: [] for variant in VARIANTS}
@@ -67,7 +80,7 @@ async def get_variant_stats(request):
                 pass
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
-        request.app["stats"][cur_period] = series
+        request.app[stats][cur_period] = series
 
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
 
@@ -137,6 +150,9 @@ async def get_user_games(request):
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
+            doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
+            if doc["v"] in GRANDS and doc["lm"] != "":
+                doc["lm"] = zero2grand(doc["lm"])
 
             tournament_id = doc.get("tid")
             if tournament_id is not None:

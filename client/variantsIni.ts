@@ -11,6 +11,12 @@ startFen = rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 
 pieceDrops = true
 capturesToHand = true
 
+[gorogoroplus:gorogoro]
+startFen = sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1
+lance = l
+shogiKnight = n
+promotedPieceType = l:g n:g
+
 [shogun:crazyhouse]
 startFen = rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR[] w KQkq - 0 1
 commoner = c
@@ -133,4 +139,30 @@ blackFlag = e2
 nMoveRule = 50
 nFoldRule = 3
 nFoldValue = draw
-stalemateValue = win`
+stalemateValue = loss
+
+[chennis]
+maxRank = 7
+maxFile = 7
+mobilityRegionWhiteKing = b1 c1 d1 e1 f1 b2 c2 d2 e2 f2 b3 c3 d3 e3 f3 b4 c4 d4 e4 f4
+mobilityRegionBlackKing = b4 c4 d4 e4 f4 b5 c5 d5 e5 f5 b6 c6 d6 e6 f6 b7 c7 d7 e7 f7
+customPiece1 = p:fmWfceF
+cannon = c
+commoner = m
+fers = f
+soldier = s
+king = k
+bishop = b
+knight = n
+rook = r
+promotionPieceTypes = -
+promotedPieceType = p:r f:c s:b m:n
+promotionRank = 1
+startFen = 1fkm3/1p1s3/7/7/7/3S1P1/3MKF1[] w - 0 1
+pieceDrops = true
+capturesToHand = true
+pieceDemotion = true
+mandatoryPiecePromotion = true
+dropPromoted = true
+castling = false
+stalemateValue = loss`

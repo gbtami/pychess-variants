@@ -2,7 +2,7 @@
 
 ![Empire](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empire.png)
 
-Empire Chess is a chess variant designed in 2020 by Couch Tomato, third in the series of asymmetric games (although available to play on Pychess later than the fourth game due to unique pieces that were not yet available). The mighty Empire (Gold army) has heard stories of the mighty queen of the Kingdom (Black army) and has proposed a marriage with its Duke. However, the Kingdom refused, leading to an Imperial invasion led by the Kaiser himself! 
+Empire Chess is a chess variant designed in 2020 by Couch Tomato, third in the series of asymmetric games (although available to play on Pychess later than the fourth game due to unique pieces that were not yet available). The mighty Empire (Gold army) has heard stories of a mighty lady with great powers on the battlefield and has proposed a marriage with its Duke. However, the king of the chess kingdom (black) married her instead. Humiliated, the Kaiser leads the imperial army to teach the Kingdom a lesson! 
 
 The Imperial army is incredibly powerful, with all its pieces stronger than the Royal counterpart as they can all move like queens, but attack like the standard Royal counterparts; the only exception is the counterpart to the Queen, the Duke, which can only attack like a King. For those who have played Orda Chess, this is similar except replace knight movement with Queen movement. 
 
@@ -15,7 +15,7 @@ The game itself is incredibly balanced by engine evaluation (even more than stan
 2.	The Empire (gold) always moves first.
 3.  As Imperial pawns start on the third rank, they do not have the option to move two spaces or be captured by en passant. Royal pawns retain the ability to move two spaces initially and to be captured via en passant.
 4.	Pawns on either side can only promote to a queen.
-5.	**King-Kaiser Faceoff** - The King and Kaiser (the Imperial "king") cannot face each other on any rank or file, much like rook attack.
+5.	**King-Kaiser Faceoff** - The King and Kaiser (the Imperial "king") cannot face each other on any open rank or file without intervening pieces, much like a rook attack.
 6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
 7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
 8.	**Repetition** - loss for the player who repeats a board position 3 times. Typically this is done through chasing a king or piece.

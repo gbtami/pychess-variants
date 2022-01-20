@@ -17,6 +17,7 @@ else:
 
 import jinja2
 from aiohttp import web
+from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 from motor import motor_asyncio as ma
@@ -31,6 +32,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
+from index import handle_404
 from routes import get_routes, post_routes
 from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
 from user import User
@@ -58,7 +60,7 @@ async def on_prepare(request, response):
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
 
-def make_app(with_db=True):
+def make_app(with_db=True) -> Application:
     app = web.Application()
     parts = urlparse(URI)
     setup(app, EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"))
@@ -76,6 +78,7 @@ def make_app(with_db=True):
     for route in post_routes:
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
+    app.middlewares.append(handle_404)
 
     return app
 
@@ -119,6 +122,7 @@ async def init_state(app):
     app["shield_owners"] = {}  # {variant: username, ...}
 
     app["stats"] = {}
+    app["stats_humans"] = {}
 
     # counters for games
     app["g_cnt"] = [0]
@@ -310,4 +314,4 @@ if __name__ == "__main__":
 
     app = make_app()
 
-    web.run_app(app, port=os.environ.get("PORT", 8080))
+    web.run_app(app, port=int(os.environ.get("PORT", 8080)))

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="ChennisBoard.svg"
+   id="svg913"
+   viewBox="0 0 700 700"
+   version="1.1"
+   width="700"
+   height="700"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <metadata
+     id="metadata919">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs917" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     id="namedview915"
+     showgrid="false"
+     inkscape:zoom="1.5998291"
+     inkscape:cx="145.16764"
+     inkscape:cy="315.32414"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg913" />
+  <rect
+     width="700.11047"
+     height="700.99445"
+     fill="#8ca2ad"
+     id="rect896"
+     x="-0.055236816"
+     y="0.136365"
+     style="fill:#648361;fill-opacity:1" />
+  <g
+     id="d"
+     style="fill:#dee3e6"
+     transform="translate(-0.05523682,0.136365)">
+    <rect
+       width="100"
+       height="100"
+       id="e"
+       style="fill:#4a6948;fill-opacity:1"
+       x="0"
+       y="0" />
+    <use
+       x="200"
+       xlink:href="#e"
+       id="use899"
+       y="0"
+       width="100%"
+       height="100%" />
+  </g>
+  <use
+     x="400"
+     xlink:href="#d"
+     id="use902"
+     y="0"
+     width="100%"
+     height="100%"
+     style="fill:#dee3e6" />
+  <g
+     id="g2284"
+     style="fill:#dee3e6"
+     transform="translate(-0.05523682,200.13637)">
+    <g
+       id="g2280">
+      <rect
+         width="100"
+         height="100"
+         id="rect2276"
+         style="fill:#4a6948;fill-opacity:1"
+         x="0"
+         y="0" />
+      <use
+         x="200"
+         xlink:href="#e"
+         id="use2278"
+         y="0"
+         width="100%"
+         height="100%" />
+    </g>
+    <use
+       x="400"
+       xlink:href="#d"
+       id="use2282"
+       y="0"
+       width="100%"
+       height="100%"
+       transform="translate(0.05523682,-0.136365)" />
+  </g>
+  <g
+     id="g2258"
+     style="fill:#dee3e6;fill-opacity:1"
+     transform="translate(-0.05523682,400.13637)">
+    <g
+       id="g2254">
+      <rect
+         width="100"
+         height="100"
+         id="rect2250"
+         style="fill:#4a6948;fill-opacity:1"
+         x="0"
+         y="0" />
+      <use
+         x="200"
+         xlink:href="#e"
+         id="use2252"
+         y="0"
+         width="100%"
+         height="100%" />
+    </g>
+    <use
+       x="400"
+       xlink:href="#d"
+       id="use2256"
+       y="0"
+       width="100%"
+       height="100%"
+       transform="translate(0.05523682,-0.136365)" />
+  </g>
+  <g
+     id="g2415"
+     transform="translate(-0.05523682,-199.86363)">
+    <rect
+       width="100"
+       height="100"
+       id="rect2409"
+       style="fill:#4a6948;fill-opacity:1"
+       x="100"
+       y="500" />
+    <use
+       x="200"
+       xlink:href="#e"
+       id="use2411"
+       y="0"
+       width="100%"
+       height="100%"
+       style="fill:#dee3e6;fill-opacity:1"
+       transform="translate(100,500)" />
+    <use
+       x="200"
+       xlink:href="#e"
+       id="use2413"
+       y="0"
+       width="100%"
+       height="100%"
+       style="fill:#dee3e6;fill-opacity:1"
+       transform="translate(300,500)" />
+  </g>
+  <rect
+     style="fill:none;fill-opacity:1;stroke:none;stroke-width:2.236;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+     id="rect962"
+     width="697.57452"
+     height="100.63575"
+     x="-0.055236816"
+     y="300.08295" />
+  <rect
+     style="fill:none;fill-opacity:1;stroke:none;stroke-width:2.236;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+     id="rect2240"
+     width="700"
+     height="100"
+     x="-0.055236816"
+     y="400.71869" />
+  <path
+     d="M 100.57821,299.38036 V 399.50292 M 114.82773,299.38036 V 399.50292 M 129.07725,299.38036 V 399.50292 M 143.32676,299.38036 V 399.50292 M 157.57628,299.38036 V 399.50292 M 171.8258,299.38036 v 100.12256 m 14.24952,-100.12257 v 100.12257 m 14.24952,-100.12257 v 100.12257 m 14.2495,-100.12257 V 399.50292 M 228.82387,299.38036 V 399.50292 M 243.07338,299.38036 V 399.50292 M 257.3229,299.38036 V 399.50292 M 271.57242,299.38036 V 399.50292 M 285.82193,299.38036 V 399.50292 M 300.07145,299.38036 V 399.50292 M 314.32097,299.38036 V 399.50292 M 328.57048,299.38036 V 399.50292 M 342.82,299.38036 v 100.12256 m 14.24952,-100.12257 v 100.12257 m 14.24952,-100.12257 v 100.12257 m 14.24952,-100.12257 v 100.12257 m 14.24951,-100.12257 v 100.12257 m 14.24952,-100.12257 v 100.12257 m 14.24952,-100.12257 v 100.12257 m 14.24952,-100.12257 v 100.12257 m 14.2495,-100.12257 V 399.50292 M 471.06566,299.38036 V 399.50292 M 485.31517,299.38036 V 399.50292 M 499.56469,299.38036 V 399.50292 M 513.81421,299.38036 V 399.50292 M 528.06372,299.38036 V 399.50292 M 542.31324,299.38036 V 399.50292 M 556.56276,299.38036 V 399.50292 M 570.81227,299.38036 V 399.50292 M 585.06179,299.38036 V 399.50292 M 599.31131,299.38036 V 399.50292 M 100.57821,299.38036 h 498.7331 m -498.7331,20.02451 h 498.7331 m -498.7331,20.02451 h 498.7331 m -498.7331,20.02452 h 498.7331 m -498.7331,20.02451 h 498.7331 m -498.7331,20.02451 h 498.7331"
+     style="fill:none;stroke:#000000;stroke-width:1.2669px"
+     id="path2244" />
+  <g
+     id="g2407"
+     transform="translate(-0.05523682,0.136365)">
+    <rect
+       width="100"
+       height="100"
+       id="rect2320"
+       style="fill:#4a6948;fill-opacity:1"
+       x="100"
+       y="500" />
+    <use
+       x="200"
+       xlink:href="#e"
+       id="use2322"
+       y="0"
+       width="100%"
+       height="100%"
+       style="fill:#dee3e6;fill-opacity:1"
+       transform="translate(100,500)" />
+    <use
+       x="200"
+       xlink:href="#e"
+       id="use2402"
+       y="0"
+       width="100%"
+       height="100%"
+       style="fill:#dee3e6;fill-opacity:1"
+       transform="translate(300,500)" />
+  </g>
+  <g
+     id="g2429"
+     transform="translate(-0.05523682,-399.86363)">
+    <rect
+       width="100"
+       height="100"
+       id="rect2423"
+       style="fill:#4a6948;fill-opacity:1"
+       x="100"
+       y="500" />
+    <use
+       x="200"
+       xlink:href="#e"
+       id="use2425"
+       y="0"
+       width="100%"
+       height="100%"
+       style="fill:#dee3e6;fill-opacity:1"
+       transform="translate(100,500)" />
+    <use
+       x="200"
+       xlink:href="#e"
+       id="use2427"
+       y="0"
+       width="100%"
+       height="100%"
+       style="fill:#dee3e6;fill-opacity:1"
+       transform="translate(300,500)" />
+  </g>
+  <path
+     style="fill:none;stroke:#ffffff;stroke-width:4.31111;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 102.10032,-0.605475 c 0,698.543485 0.0107,700.731305 0.0107,700.731305"
+     id="path2246" />
+  <g
+     id="g2439"
+     style="fill:#dee3e6;fill-opacity:1"
+     transform="translate(-0.05523682,601.13081)">
+    <g
+       id="g2435">
+      <rect
+         width="100"
+         height="100"
+         id="rect2431"
+         style="fill:#4a6948;fill-opacity:1"
+         x="0"
+         y="0" />
+      <use
+         x="200"
+         xlink:href="#e"
+         id="use2433"
+         y="0"
+         width="100%"
+         height="100%" />
+    </g>
+    <use
+       x="400"
+       xlink:href="#d"
+       id="use2437"
+       y="0"
+       width="100%"
+       height="100%"
+       transform="translate(0.05523682,-0.136365)" />
+  </g>
+  <path
+     style="fill:none;stroke:#ffffff;stroke-width:4.31268;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 601.94478,-1.130815 c 0,699.067185 0.0107,701.256645 0.0107,701.256645"
+     id="path2248" />
+</svg>

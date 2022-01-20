@@ -1,8 +1,9 @@
+## [www.pychess.org](https://www.pychess.org)
+
 [![Python-CI](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml)
 [![Nodejs-CI](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml)
-## PyChess-Variants
 
-PyChess-Variants is a free, open-source chess server designed to play chess variants.
+pychess-variants is a free, open-source chess server designed to play chess variants.
 
 Currently supported games are:
 
@@ -36,12 +37,13 @@ Currently supported games are:
 - [Shinobi](https://www.pychess.org/variants/shinobi)
 - [Empire Chess](https://www.pychess.org/variants/empire)
 - [Orda Mirror](https://www.pychess.org/variants/ordamirror)
+- [Chak](https://www.pychess.org/variants/chak)
 - [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variants/shouse)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variants/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
-- [Standard chess](https://www.pychess.org/variants/chess)
+- [Chess](https://www.pychess.org/variants/chess)
 
-Additionally you can check Chess960 option in for Standard, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
+Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
 [Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses

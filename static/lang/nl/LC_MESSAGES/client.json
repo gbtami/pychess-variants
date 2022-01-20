@@ -4,11 +4,10 @@
     "in local browser": "in lokale browser",
     "You need an account to do that.": "Je hebt hier een account voor nodig.",
     "Download game to PGN file": "Download partij naar PGN file",
-    " Download PGN": "Download PGN",
-    " Copy UCI/USI": "Kopieer UCI/USI",
-    " PNG image": "PGN afbeelding",
+    "Download PGN": "Download PGN",
+    "Copy UCI/USI": "Kopieer UCI/USI",
+    "PNG image": "PGN afbeelding",
     "Request Computer Analysis": "Verzoek Een Computeranalyse",
-    " Request Analysis": "Verzoek Analyse",
     "Depth": "Diepte",
     "Go deeper": "Ga dieper",
     "Spectators: ": "Toeschouwers:",
@@ -172,6 +171,7 @@
     "Off": "Uit",
     "On": "Aan",
     "ZEN MODE": "ZEN MODUS",
+    "UsePluralFormIfNeeded\u0004Rated": "Met rating",
     "": {
         "language": "nl",
         "plural-forms": "nplurals=2; plural=(n != 1);"

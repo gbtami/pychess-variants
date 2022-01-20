@@ -1,27 +1,93 @@
-<!doctype html>
-<html>
-<head>
-<title>404</title>
-<meta charset="utf-8"/>
-<meta name="robots" content="noindex"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body { text-align: center; padding: 150px; }
-  h1 { font-size: 50px; }
-  body { font: 20px Helvetica, sans-serif; color: #333; }
-  article { display: block; text-align: left; width: 650px; margin: 0 auto; }
-  a { text-decoration: none; }
-  a:hover { text-decoration: none; }
-</style>
-</head>
-<body>
-<article>
-    <h2>{% trans %}404 GAME NOT FOUND{% endtrans %}</h2>
-    <div>
-        <p>{% trans %}Sorry, not all games are saved on the Pychess server.{% endtrans %}</p>
-        <p>{% trans %}Probably it was abandoned or stopped before the third move.{% endtrans %}</p>
-        <p>{% trans %}Return to the main page{% endtrans %}<a href="{{ home }}"/> pychess.org</p>
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+  <div class="not-found">
+    <div class="header">
+        <h1>404</h1>
+        <div>
+            <strong>Page not found!</strong><p>Return to <a href="/">the homepage</a></p>
+            <span>or play this mini game</span>
+        </div>
     </div>
-</article>
-</body>
-</html>
+    <div class="memory-game">
+        <div class="memory-card" data-framework = "1">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0FU-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "1">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0FU-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "2">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0GI-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "2">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0GI-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "3">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0GY-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "3">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0GY-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "4">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0HI-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "4">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0HI-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "5">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KA-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "5">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KA-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "6">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KE-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "6">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KE-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "7">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KI-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "7">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KI-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "8">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KY-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+        <div class="memory-card" data-framework = "8">
+            <img class="front-face" src={{ static("images/pieces/shogi/bw/0KY-1.svg") }} alt="">
+            <img class="back-face" src={{ static("images/pieces/shogi/bw/piece-backface-01.svg") }} alt="">
+        </div>
+
+
+        <div class="radio">
+            <input label="zen" type="radio" id="zen" name="game-bg" checked>
+            <input label="kinkaku" type="radio" id="kinkaku" name="game-bg">
+            <input label="oak" type="radio" id="oak" name="game-bg">
+            <input label="zen2" type="radio" id="zen2" name="game-bg">
+        </div>
+    </div>
+    <button id="replay" style="order: 1000;">Play again?</button>
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+    <script src={{ static("cardgame.js") }}></script>    
+    <script src="{{ js }}"></script>
+{% endblock %}

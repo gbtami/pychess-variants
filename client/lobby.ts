@@ -374,7 +374,8 @@ export class LobbyController {
 
     renderSeekButtons() {
         const vVariant = this.model.variant || localStorage.seek_variant || "chess";
-        const vMin = localStorage.seek_min ?? "5";
+        // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
+        const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vRated = localStorage.seek_rated ?? "0";
@@ -742,6 +743,7 @@ export class LobbyController {
     private spotlightView(spotlight: Spotlight) {
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
+        const variantName = variant.displayName(chess960);
         const dataIcon = variant.icon(chess960);
 
         return h('a.tour-spotlight', { attrs: { "href": "/tournament/" + spotlight.tid } }, [
@@ -749,6 +751,7 @@ export class LobbyController {
             h('span.content', [
                 h('span.name', spotlight.name),
                 h('span.more', [
+                    h('variant', variantName + ' • '),
                     h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
                     h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
                 ])
@@ -940,6 +943,22 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/QuetzalinTikal.png'} }),
+                    h('span.text', [
+                        h('strong', "Christmas gift from PyChess"),
+                        h('span', 'Merry Chak-mas!'),
+                    ]),
+                    h('time', '2021.12.24'),
+                ]),
+                h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/board/ChakArt.jpg'} }),
+                    h('span.text', [
+                        h('strong', "Summary of latest changes"),
+                        h('span', 'Cold winter'),
+                    ]),
+                    h('time', '2021.12.21'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/AngryBirds.png'} }),
                     h('span.text', [
@@ -948,6 +967,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.09.02'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/Darth-Vader-Comic.jpg'} }),
                     h('span.text', [
@@ -964,7 +984,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.04.21'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
                     h('span.text', [

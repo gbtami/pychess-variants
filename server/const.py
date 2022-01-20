@@ -59,7 +59,9 @@ VARIANTS = (
     "minishogi",
     "kyotoshogi",
     "dobutsu",
-    "gorogoro",
+    # Gorogoro is superseded by Gorogoro Plus
+    # "gorogoro",
+    "gorogoroplus",
     "torishogi",
     "xiangqi",
     "manchu",
@@ -87,7 +89,8 @@ VARIANTS = (
     "shinobi",
     "empire",
     "ordamirror",
-    # "chak"
+    "chak",
+    # "chennis"
 )
 
 VARIANT_ICONS = {
@@ -113,6 +116,7 @@ VARIANT_ICONS = {
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
+    "gorogoroplus": "🐱",
     "torishogi": "🐦",
     "cambodian": "!",
     "shako": "9",
@@ -134,6 +138,7 @@ VARIANT_ICONS = {
     "ordamirror": "◩",
     "asean": "♻",
     "chak": "🐬",
+    # "chennis": "🎾",
 }
 
 VARIANT_960_TO_PGN = {
@@ -154,9 +159,9 @@ VARIANT_960_TO_PGN = {
 CATEGORIES = {
     "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
-    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak"),
+    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
+    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 
@@ -171,6 +176,8 @@ TROPHIES = {
     "top50": (static_url("images/trophy/Fancy-Gold-Cup.png"), "Top 50!"),
     "top100": (static_url("images/trophy/Gold-Cup.png"), "Top 100!"),
     "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
+    # an example custom trophy from lichess
+    "acwc19": (static_url("images/trophy/acwc19.png"), "World Champion 2019"),
 }
 
 
@@ -185,6 +192,8 @@ def variant_display_name(variant):
         return "OUK CHATRANG"
     elif variant == "ordamirror":
         return "ORDA MIRROR"
+    elif variant == "gorogoroplus":
+        return "GOROGORO+"
     elif variant == "kyotoshogi":
         return "KYOTO SHOGI"
     elif variant == "torishogi":

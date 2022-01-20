@@ -1,44 +1,28 @@
 # Translations template for PROJECT.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# Armando Gagliardi <armandogagliardi0@gmail.com>, 2020
-# gbtami <gbtami@gmail.com>, 2020
 # renyhp r <renyhp@disroot.org>, 2020
+# Armando Gagliardi <armandogagliardi0@gmail.com>, 2021
+# gbtami <gbtami@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 18:42+0200\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: renyhp r <renyhp@disroot.org>, 2020\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.8.0\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#: ../templates/404.html:19
-msgid "404 GAME NOT FOUND"
-msgstr "404 PARTITA NON TROVATA"
-
-#: ../templates/404.html:21
-msgid "Sorry, not all games are saved on the Pychess server."
-msgstr ""
-
-#: ../templates/404.html:22
-msgid "Probably it was abandoned or stopped before the third move."
-msgstr "Probabilmente è stata abbandonata o fermata prima della terza mossa."
-
-#: ../templates/404.html:23
-msgid "Return to the main page"
-msgstr "Ritorna alla pagina principale."
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -66,38 +50,38 @@ msgstr "Tutti i giocatori"
 
 #: ../templates/players.html:36 ../templates/winners.html:6
 msgid "Tournament winners"
-msgstr ""
+msgstr "Vincitori del torneo"
 
 #: ../templates/players.html:37 ../templates/shields.html:6
 msgid "Tournament shields"
-msgstr ""
+msgstr "Tornei Shield"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partita"
 msgstr[1] "%(count)s partite"
 
-#: ../templates/profile.html:40
-msgid "Watch games"
-msgstr ""
-
 #: ../templates/profile.html:42
+msgid "Watch games"
+msgstr "Guarda partite"
+
+#: ../templates/profile.html:44
 msgid "Challenge to a game"
-msgstr ""
+msgstr "Sfida ad una partita"
 
-#: ../templates/profile.html:45
+#: ../templates/profile.html:47
 msgid "Import game"
-msgstr ""
+msgstr "Importa partita"
 
-#: ../templates/profile.html:48
+#: ../templates/profile.html:50
 msgid "Export games"
-msgstr ""
+msgstr "Esporta partite"
 
-#: ../templates/profile.html:51
+#: ../templates/profile.html:53
 msgid "Lichess profile"
-msgstr ""
+msgstr "Profilo Lichess"
 
 #: ../templates/template.html:17
 msgid "Tv"
@@ -109,7 +93,7 @@ msgstr "Partite in corso"
 
 #: ../templates/template.html:19 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "Tornei"
 
 #: ../templates/template.html:20
 msgid "Players"
@@ -125,7 +109,7 @@ msgstr "Analisi"
 
 #: ../templates/template.html:23
 msgid "Variants"
-msgstr ""
+msgstr "Varianti"
 
 #: ../templates/template.html:29
 msgid "Login with Lichess"
@@ -137,16 +121,31 @@ msgstr "Log in"
 
 #: ../templates/tournaments.html:9
 msgid "CREATE A NEW TOURNAMENT"
-msgstr ""
+msgstr "CREA NUOVO TORNEO"
 
 #: ../templates/tournaments.html:18
 msgid "Now playing"
-msgstr ""
+msgstr "In partita adesso"
 
 #: ../templates/tournaments.html:20
 msgid "Starting soon"
-msgstr ""
+msgstr "Comincia fra poco"
 
 #: ../templates/tournaments.html:22
 msgid "Finished"
-msgstr ""
+msgstr "Finito"
+
+#: ../templates/tournaments.html:43
+msgid "Rated"
+msgstr "Classificata"
+
+#: ../templates/tournaments.html:43
+msgid "Casual"
+msgstr "Amichevole"
+
+#: ../templates/tournaments.html:50
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s giocatore"
+msgstr[1] "%(count)s giocatori"

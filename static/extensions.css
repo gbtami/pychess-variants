@@ -13,6 +13,26 @@
   --pocketMargin: 10px;
   --movelist-max-height: 8rem;
 }
+.mini .pocket {
+    width: 100%;
+    justify-content: center;
+}
+.mini .pocket piece {
+    flex: 0 0 calc(100% / var(--files));
+}
+.mini .pocket.top {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    top: calc(-100% / var(--ranks));
+}
+.mini .pocket.bottom {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    bottom: calc(-100% / var(--ranks));
+}
+.mini .pocket piece::after {
+    padding: 1px 0.1em;
+}
 #extension_choice {
   position: absolute;
   top: 0;
@@ -167,4 +187,30 @@
   text-shadow: 0 1px 0 #000 !important;
   background: #d85000 !important;
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
+}
+
+.campmate .cg-512 cg-container::before {
+  width: 100%;
+  height: 12.5%;
+  top: 0%;
+  left: 0%;
+  background: rgba(230, 230, 230, 0.2);
+  box-shadow: 0 0 10px rgb(0 0 0 / 70%);
+  content: '';
+  z-index: 1;
+  position: absolute;
+  pointer-events: none;
+}
+
+.campmate .cg-512 cg-container::after {
+  width: 100%;
+  height: 12.5%;
+  top: 87.5%;
+  left: 0%;
+  background: rgba(230, 230, 230, 0.2);
+  box-shadow: 0 0 10px rgb(0 0 0 / 70%);
+  content: '';
+  z-index: 1;
+  position: absolute;
+  pointer-events: none;
 }

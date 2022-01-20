@@ -80,7 +80,7 @@ function proTip (variant: string, chess960: boolean) {
         if (chess960) {
             return _('Move the king on top of the rook to castle.');
         } else {
-            return _('You can play more at www.lichess.org.');
+            return _('You can play more at lichess.org.');
         }
     case 'placement':
         return _('Castling is only possible if the king and rook are dropped to their usual places like in standard Chess.');
@@ -104,13 +104,15 @@ function proTip (variant: string, chess960: boolean) {
     case 'synochess':
     case 'ordamirror':
         return _('Be aware of campmate - victory by moving your king into the 8th rank.');
+    case 'chak':
+        return _('Promoting the king prematurely can be dangerous.');
 // makruk
     case 'makruk':
         return _('Maximizing khon and met\'s effectiveness is the key.');
     case 'makpong':
         return _('Watch out for knight checks, since they cannot be blocked.');
     case 'sittuyin':
-        return _('You can use placement to utilize your bigger pieces since the start.');
+        return _('You can use placement to utilize your stronger pieces from the start.');
     case 'cambodian':
         return _('King safety is important. Use the king leap move to save time.');
     case 'asean':
@@ -118,7 +120,7 @@ function proTip (variant: string, chess960: boolean) {
 // shogi
     case 'shogi':
     case 'minishogi':
-    case 'gorogoro':
+    case 'gorogoroplus':
         return _('Internationalized sets are available by going to settings.');
     case 'dobutsu':
         return _('Despite the simple appearance, there is still quite a bit of depth underlying this game.');

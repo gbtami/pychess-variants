@@ -35,7 +35,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     standard10x8: { geometry: cg.Geometry.dim10x8, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
     standard10x10: { geometry: cg.Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
     grand10x10: { geometry: cg.Geometry.dim10x10, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
-    makruk8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["makruk2.svg", "makruk.svg", "makruk.jpg", "makrukWood.png"] },
+    makruk8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["makruk2.svg", "makruk.svg", "makrukWhite.svg", "makruk.jpg", "makrukWood.png"] },
     sittuyin8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["sittuyin2.svg", "sittuyin.svg", "sittuyin.jpg", "sittuyingreen.svg", "sittuyinGrainBrown.svg", "sittuyinWood.png"] },
     shogi9x9: { geometry: cg.Geometry.dim9x9, cg: "cg-576", boardCSS: ["shogi.svg", "Shogiban1.png", "Shogiban2.png", "shogic.svg", "ShogiMaple.png", 'ShogiGrayTexture.png', "ShogiSpace1.png", "doubutsu.svg", "ShogiOak.png"] },
     shogi7x7: { geometry: cg.Geometry.dim7x7, cg: "cg-448-516", boardCSS: ["ToriPlain.svg", "ToriWood.svg", "ToriDaySky.svg", "ToriNightSky.svg"] },
@@ -47,6 +47,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     janggi9x10: { geometry: cg.Geometry.dim9x10, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
     shogun8x8: { geometry: cg.Geometry.dim8x8, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ geometry: cg.Geometry.dim9x9, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
+    chennis7x7:{ geometry: cg.Geometry.dim7x7, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -71,6 +72,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     empire: { pieceCSS: ["empire0", "empire1"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
     chak: { pieceCSS: ["chak0"] },
+    chennis: { pieceCSS: ["chennis0"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
@@ -131,6 +133,7 @@ export class Variant {
     readonly drop: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
+    readonly boardMark: 'campmate' | 'none';
     readonly showPromoted: boolean;
     readonly materialDifference : boolean;
     readonly initialMaterialImbalance : MaterialImbalance;
@@ -174,6 +177,7 @@ export class Variant {
         this.drop = data.drop ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
+        this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
         this.materialDifference = data.materialDifference ?? !this.drop;
         this.initialMaterialImbalance = this.materialDifference ? calculateInitialImbalance(this) : {};
@@ -216,6 +220,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     drop?: boolean;
     gate?: boolean;
     pass?: boolean;
+    boardMark?: 'campmate' | 'none';
     materialDifference?: boolean;
     pieceSound?: string;
     showPromoted?: boolean;
@@ -430,6 +435,26 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐱",
     }),
 
+    gorogoroplus: new Variant({
+        name: "gorogoroplus", displayName: "gorogoro+", tooltip: () => _("5x6 Shogi designed to introduce tactics with the generals."),
+        startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1",
+        board: "shogi5x6", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["k", "g", "s", "n", "l", "p"],
+        pocketRoles: ["p", "l", "n", "s", "g"],
+        promotion: "shogi",
+        promoteablePieces: ["p", "s", "n", "l"],
+        isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 6),
+        timeControl: "byoyomi",
+        pieceSound: "shogi",
+        drop: true,
+        alternateStart: {
+            'Gorogoro Plus N+L': '',
+            'Original (No N+L)': 'sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1'
+        },
+        icon: "🐱",
+    }),
+
     torishogi: new Variant({
         name: "torishogi", displayName: "tori shogi", tooltip: () => _("A confrontational 7x7 variant with unique pieces each named after different birds."),
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
@@ -613,7 +638,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles2: ["k", "y", "l", "a", "h", "p", "q"],
         promotionOrder: ["q", "h"],
         enPassant: true,
-        //materialDifference: false,
+        boardMark: 'campmate',
         icon: "R",
     }),
 
@@ -625,7 +650,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
         pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
         pocketRoles: [], pocketRoles2: ["s"],
-        materialDifference: false,
+        boardMark: 'campmate',
         icon: "_",
     }),
 
@@ -641,7 +666,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promotion: "shogi",
         promoteablePieces: ["p", "l", "h", "m"],
         enPassant: true,
-        //materialDifference: false,
+        boardMark: 'campmate',
         icon: "🐢",
     }),
 
@@ -653,7 +678,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles: ["k", "d", "t", "c", "e", "p", "s", "q"],
         pieceRoles2: ["k", "q", "r", "b", "n", "p"],
         enPassant: true,
-        //materialDifference: false,
+        boardMark: 'campmate',
         icon: "♚",
     }),
 
@@ -664,11 +689,12 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "White", secondColor: "Gold",
         pieceRoles: ["k", "f", "l", "a", "h", "p"],
         promotionOrder: ["h", "l", "f", "a"],
+        boardMark: 'campmate',
         icon: "◩",
     }),
 
     chak: new Variant({
-        name: "chak", tooltip: () => _("https://www.chessvariants.com/rules/chak"),
+        name: "chak", tooltip: () => _("Mayan chess. Inspired by cultural elements of Mesoamerica."),
         startFen: "rvsqkjsvr/4o4/p1p1p1p1p/9/9/9/P1P1P1P1P/4O4/RVSJKQSVR w - - 0 1",
         board: "chak9x9", piece: "chak",
         firstColor: "White", secondColor: "Green",
@@ -676,6 +702,19 @@ export const VARIANTS: { [name: string]: Variant } = {
         promotion: "shogi",
         promoteablePieces: ["p", "k"],
         icon: "🐬",
+    }),
+
+    chennis: new Variant({
+        name: "chennis", tooltip: () => _("Pieces alternate between two forms with each move."),
+        startFen: "p1m1s1f/1k5/7/7/7/5K1/F1S1M1P[] w - 0 1",
+        board: "chennis7x7", piece: "chennis",
+        pieceRoles: ["k", "p", "m", "s", "f"],
+        pocketRoles: ["p", "m", "s", "f"],
+        promotion: "kyoto",
+        promoteablePieces: ["p", "m", "s", "f"],
+        isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
+        drop: true,
+        icon: "🎾",
     }),
 
     // We support to import/store/analyze some variants
@@ -712,16 +751,16 @@ export const VARIANTS: { [name: string]: Variant } = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak" ] },
 };
 
 function variantGroupLabel(group: string): string {
@@ -774,6 +813,12 @@ export function uci2cg(move: string): string {
     return move.replace(/10/g, ":");
 }
 
+export function uci2LastMove(move: string | undefined): cg.Key[] {
+    if (!move) return [];
+    const moveStr = uci2cg(move!);
+    return moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
+}
+
 export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
@@ -795,7 +840,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
-    let good = startPlacement + ((variantName === "orda") ? "Hq" : "") + ((variantName === "dobutsu") ? "Hh" : "") + "~+0123456789[]";
+    let good = startPlacement + ((variantName === "orda") ? "Hq" : "") + ((variantName === "dobutsu") ? "Hh" : "") + "~+0123456789[]-";
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
 
@@ -1049,6 +1094,7 @@ export function notation(variant: Variant): cg.Notation {
         case 'kyotoshogi':
         case 'dobutsu':
         case 'gorogoro':
+        case 'gorogoroplus':
         case 'torishogi':
             cgNotation = cg.Notation.SHOGI_ARBNUM;
             break;

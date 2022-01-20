@@ -19,20 +19,18 @@ log = logging.getLogger(__name__)
 
 
 class FairyBoard:
-    def __init__(self, variant, initial_fen="", chess960=False, count_started=0):
+    def __init__(self, variant, initial_fen="", chess960=False, count_started=0, disabled_fen=""):
         if variant == "shogun":
             sf.set_option("Protocol", "uci")
         self.variant = variant
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian")
-        self.initial_fen = initial_fen if initial_fen else self.start_fen(variant, chess960)
+        self.initial_fen = initial_fen if initial_fen else self.start_fen(variant, chess960, disabled_fen)
         self.move_stack = []
         self.ply = 0
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
         self.fen = self.initial_fen
-        if chess960 and initial_fen == self.start_fen(variant):
-            self.chess960 = False
         self.manual_count = count_started != 0
         self.count_started = count_started
 
@@ -45,9 +43,12 @@ class FairyBoard:
         else:
             self.notation = sf.NOTATION_SAN
 
-    def start_fen(self, variant, chess960=False):
+    def start_fen(self, variant, chess960=False, disabled_fen=""):
         if chess960:
-            return self.shuffle_start()
+            new_fen = self.shuffle_start()
+            while new_fen == disabled_fen:
+                new_fen = self.shuffle_start()
+            return new_fen
         return sf.start_fen(variant)
 
     @property
