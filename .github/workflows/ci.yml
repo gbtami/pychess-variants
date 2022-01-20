@@ -35,5 +35,6 @@ jobs:
       run: |
         mypy server/
         PYTHONPATH=server python tests/test.py
+        PYTHONPATH=server python tests/test_compress.py
         PYTHONPATH=server python tests/test_tournament.py
         PYTHONPATH=server python tests/test_disaster.py
