@@ -34,6 +34,7 @@ from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
 from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
+from seek import Seek
 from user import User
 from tournaments import load_tournament
 from twitch import Twitch
@@ -144,6 +145,14 @@ async def init_state(app):
         app["fishnet_monitor"][FISHNET_KEYS[key]] = collections.deque([], 50)
 
     rm = app["users"]["Random-Mover"]
+
+    for variant in VARIANTS:
+        variant960 = variant.endswith("960")
+        variant_name = variant[:-3] if variant960 else variant
+        seek = Seek(rm, variant_name, base=5, inc=30, level=0, chess960=variant960)
+        app["seeks"][seek.id] = seek
+        rm.seeks[seek.id] = seek
+
     ai = app["users"]["Fairy-Stockfish"]
 
     asyncio.create_task(BOT_task(ai, app))
