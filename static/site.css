@@ -1159,7 +1159,7 @@ table#seeks-header, table#seeks {
     background-blend-mode: overlay;
     background-size: 100% 100%;
     width: 100%;
-    height: 100%;
+    height: 600;
 }
 #seeks-wrapper {
     height: 320px;
