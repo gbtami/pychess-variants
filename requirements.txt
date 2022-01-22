@@ -2,7 +2,7 @@ aiohttp-session==2.10.0
 aiohttp-sse==2.1.0
 aiohttp==3.8.1
 brotli==1.0.9
-yarl==1.6.2
+yarl==1.7.2
 cryptography==3.4.4
 dnspython==2.1.0
 htmlmin==0.1.12
