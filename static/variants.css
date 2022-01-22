@@ -14,3 +14,8 @@ iframe {
     text-align: center;
     padding: 4px;
 }
+div.guide ol, div.guide ul {
+    list-style-position: inside;
+    padding: 1.2rem;
+    margin: 0;
+}
