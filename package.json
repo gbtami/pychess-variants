@@ -24,7 +24,7 @@
     "@types/chai": "^4.2.12",
     "@types/gettext.js": "^1.0.0",
     "@types/howler": "^2.2.4",
-    "@types/mocha": "^8.0.1",
+    "@types/mocha": "^9.1.0",
     "chai": "^4.2.0",
     "esm": "^3.2.25",
     "jsdom": "^19.0.0",
