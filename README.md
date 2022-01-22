@@ -4,16 +4,7 @@
 
 Liantichess is a free, open-source antichess server designed to play antichess and antichess variants.
 
-Currently supported games are:
-
-- [Antichess](https://liantichess.herokuapp.com/variants/antichess)
-- [Antichess960](https://liantichess.herokuapp.com/variants/antichess960)
-- [loserschess](https://liantichess.herokuapp.com/variants/losers)
-- [loserschess960](https://liantichess.herokuapp.com/variants/losers960)
-- [anti-antichess](https://liantichess.herokuapp.com/variants/anti_antichess)
-- [anti-antichess960](https://liantichess.herokuapp.com/variants/anti_antichess960)
-
-Additionally you can check the Chess960 option for antichess variants [Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
+All supported games on Liantichess can be seen [here](https://liantichess.herokuapp.com/variants)
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)

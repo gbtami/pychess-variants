@@ -15,10 +15,8 @@ export function aboutView(): VNode[] {
             h('p', _('Liantichess is a free, open-source antichess server derived from pychess.')),
             h('p', [
                 // TODO Automate the generation of this list
-                _("Currently supported games are "),
-                h('a', { attrs: { href: 'https://liantichess.herokuapp.com/variants/antichess' } }, 'Antichess'),
-                ", ",
-                h('a', { attrs: { href: 'https://liantichess.herokuapp.com/variants/antichess960' } }, 'Antichess960'),
+                _("All supported games on Liantichess can be seen "),
+                h('a', { attrs: { href: 'https://liantichess.herokuapp.com/variants' } }, 'here'),
                 ", ",
 
             h('hr'),

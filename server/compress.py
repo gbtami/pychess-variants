@@ -11,9 +11,9 @@ https://lichess.org/blog/Wqa7GiAAAOIpBLoY/developer-update-275-improved-game-com
 V2C = {
     "chess": "n",
     "capablanca": "c",
-    "capahouse": "i",
+    "antihouse": "i",
     "atomic_giveaway_hill": "h",
-    "anti_hill": "A",
+    "coffeehill": "A",
     "coffeehouse": "L",
     "antiatomic": "F",
     "antichess": "f",

@@ -283,12 +283,13 @@ export const VARIANTS: { [name: string]: Variant } = {
         chess960: true, icon: "~", icon960: "\\",
     }),
     
-    koth: new Variant({
-            name: "koth", tooltip: () => _("bring king to center."),
+    antihouse: new Variant({
+            name: "antihouse", tooltip: () => _("antichess + crazyhouse."),
             startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             board: "standard8x8", piece: "standard",
             pieceRoles: ["k", "q", "r", "b", "n", "p"],
-            enPassant: true,
+            pocketRoles: ["p", "n", "b", "r", "q", "k"],
+            enPassant: true, drop: true,
             chess960: true, icon: "♔", icon960: "♔",
           }),
     
@@ -338,8 +339,8 @@ export const VARIANTS: { [name: string]: Variant } = {
       chess960: true, icon: "♔", icon960: "♔",
     }),
 
-    anti_hill: new Variant({
-        name: "anti_hill", displayName: "anti-hill", tooltip: () => _("Antichess + koth"),
+    coffeehill: new Variant({
+        name: "coffeehill", tooltip: () => _("Antichess + koth"),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceRoles: ["k", "q", "r", "b", "n", "p"],
@@ -767,7 +768,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "coffeehouse", "anti_hill", "atomic_giveaway_hill"] },
+    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antihouse", "coffeehouse", "coffeehill", "atomic_giveaway_hill"] },
     //sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     //shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
