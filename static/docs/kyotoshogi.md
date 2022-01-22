@@ -42,7 +42,9 @@ The king moves exactly like a chess king: one step in any direction. Both black 
 
 ### Pawn and Rook
 
-![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoP.png) ![Rook](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoR.png) 
+Pawn | Rook
+--- | ---
+![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoP.png) | ![Rook](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoR.png) 
 
 The pawn moves exactly one step forward.
 
@@ -50,7 +52,9 @@ The rook moves any number of squares orthogonally (up, down, left, or right).
 
 ### Gold and Knight
 
-![Gold](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoG.png) ![Rook](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoN.png) 
+Gold | Knight
+--- | ---
+![Gold](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoG.png) | ![Knight](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoN.png) 
 
 The gold moves one step orthogonally or one step diagonally forward. In the international set, the gold's moves correspond to the protrusions of the helmet.
 
@@ -58,7 +62,9 @@ The knight can jump two squares only. These are the squares reached by moving tw
 
 ### Silver and Bishop
 
-![Silver](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoS.png) ![Rook](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoB.png) 
+Silver | Bishop
+--- | ---
+![Silver](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoS.png) | ![Bishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoB.png) 
 
 The silver moves one step diagonally or one step forward. In the international set, the silver's moves correspond to the protrusions of the helmet.
 
@@ -66,7 +72,9 @@ The bishop moves any number of squares diagonally.
 
 ### Tokin and Lance
 
-![Tokin](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoT.png) ![Rook](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoL.png) 
+Tokin | Lance
+--- | ---
+![Tokin](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoT.png) | ![Lance](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KyotoL.png) 
 
 The *tokin* moves exactly like a gold. In Shogi, the *tokin* represents a promoted pawn. In the international set, it is a pawn wearing a gold helmet to symbolize this.
 
