@@ -283,13 +283,13 @@ export const VARIANTS: { [name: string]: Variant } = {
         chess960: true, icon: "~", icon960: "\\",
     }),
     
-    kingofthehill: new Variant({
-            name: "kingofthehill", tooltip: () => _("bring king to center."),
+    antikoth: new Variant({
+            name: "antikoth", tooltip: () => _("bring king to center."),
             startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             board: "standard8x8", piece: "standard",
             pieceRoles: ["k", "q", "r", "b", "n", "p"],
             enPassant: true,
-            icon: "🏳️",
+            chess960: true, icon: "♔", icon960: "♔",
           }),
     
     losers: new Variant({
@@ -771,7 +771,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antizh"] },
+    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antizh", "antikoth"] },
     //sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     //shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },

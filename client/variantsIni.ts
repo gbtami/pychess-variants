@@ -11,4 +11,8 @@ blastOnCapture = true
 [antizh:crazyhouse]
 startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1
 pieceDrops = true
+mustCapture = true
+
+[antikoth:kingofthehill]
+startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 mustCapture = true`
