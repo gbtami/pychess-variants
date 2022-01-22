@@ -1,9 +1,9 @@
 CUSTOM_TROPHY_OWNERS = {
     # "username": ("variant", "key in TROPHIES")
-    "GrohochetGrom": ("antichess", "acwc21"),
-    "SriMethan": ("losers", "developer"),
-    "SriMethan": ("cofeehill", "moderator"),
-    "cFlour": ("antichess", "developer"),
-    "cFlour": ("antiatomic", "moderator"),
-    "YohaanSethNathan": ("cofeehouse", "developer")
+    "GrohochetGrom": ("acwc21"),
+    "SriMethan": ("developer"),
+    "SriMethan": ("moderator"),
+    "cFlour": ("developer"),
+    "cFlour": ("moderator"),
+    "YohaanSethNathan": ("developer")
 }
