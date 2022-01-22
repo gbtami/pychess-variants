@@ -283,8 +283,8 @@ export const VARIANTS: { [name: string]: Variant } = {
         chess960: true, icon: "~", icon960: "\\",
     }),
     
-    antikoth: new Variant({
-            name: "antikoth", tooltip: () => _("bring king to center."),
+    koth: new Variant({
+            name: "koth", tooltip: () => _("bring king to center."),
             startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             board: "standard8x8", piece: "standard",
             pieceRoles: ["k", "q", "r", "b", "n", "p"],
@@ -328,9 +328,9 @@ export const VARIANTS: { [name: string]: Variant } = {
         chess960: true, icon: "♔", icon960: "♔",
     }),    
     
-    antizh: new Variant({
-      name: "antizh", tooltip: () => _("anticrazyhouse."),
-      startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
+    coffeehouse: new Variant({
+      name: "coffeehouse", tooltip: () => _("antichess + crazyhouse."),
+      startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
       board: "standard8x8", piece: "standard",
       pieceRoles: ["k", "q", "r", "b", "n", "p"],
       pocketRoles: ["p", "n", "b", "r", "q"],
@@ -338,26 +338,22 @@ export const VARIANTS: { [name: string]: Variant } = {
       chess960: true, icon: "♔", icon960: "♔",
     }),
 
-    makruk: new Variant({
-        name: "makruk", tooltip: () => _("Thai Chess. A game closely resembling the original Chaturanga. Similar to Chess but with a different queen and bishop."),
-        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
-        board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
-        promotionOrder: ["m"],
-        counting: "makruk",
-        showPromoted: true,
-        icon: "Q",
+    anti_hill: new Variant({
+        name: "anti_hill", displayName: "anti-hill", tooltip: () => _("Antichess + koth"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true,
+        chess960: true, icon: "♔", icon960: "♔",
     }),
 
-    makpong: new Variant({
-        name: "makpong", tooltip: () => _("Makruk variant where kings cannot move to escape out of check."),
-        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
-        board: "makruk8x8", piece: "makruk",
-        pieceRoles: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
-        promotionOrder: ["m"],
-        counting: "makruk",
-        showPromoted: true,
-        icon: "O",
+    atomic_giveaway_hill: new Variant({
+        name: "atomic_giveaway_hill", displayName: "atomic-giveaway-hill", tooltip: () => _("Atomic + Antichess + koth"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true,
+        chess960: true, icon: "♔", icon960: "♔",
     }),
 
     cambodian: new Variant({
@@ -771,7 +767,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antizh", "antikoth"] },
+    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "coffeehouse", "anti_hill", "atomic_giveaway_hill"] },
     //sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     //shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },

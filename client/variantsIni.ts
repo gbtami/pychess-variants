@@ -8,11 +8,17 @@ stalemateValue = loss
 [antiatomic:giveaway]
 blastOnCapture = true
 
-[antizh:crazyhouse]
-startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1
-pieceDrops = true
+# Hybrid of antichess and zh
+[coffeehouse:crazyhouse]
 mustCapture = true
 
-[antikoth:kingofthehill]
-startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-mustCapture = true`
+# Hybrid variant of antichess and king of the hill
+[anti_hill:kingofthehill]
+mustCapture = true
+
+# Hybrid variant of antichess, atomic and king of the hill
+[atomic_giveaway_hill:giveaway]
+blastOnCapture = true
+flagPiece = k
+whiteFlag = d4 e4 d5 e5
+blackFlag = d4 e4 d5 e5`
