@@ -9,7 +9,7 @@ https://lichess.org/blog/Wqa7GiAAAOIpBLoY/developer-update-275-improved-game-com
 
 # Create mappings to compress variant, result and uci/usi move lists a little
 V2C = {
-    "chess": "n",
+    "liantichess": "n",
     "capablanca": "c",
     "antihouse": "i",
     "atomic_giveaway_hill": "h",

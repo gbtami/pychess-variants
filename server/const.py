@@ -43,6 +43,7 @@ GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
 
 VARIANTS = (
+    "liantichess",
     "antichess",
     "antichess960",
     "losers",
@@ -177,8 +178,8 @@ TROPHIES = {
     "top100": (static_url("images/trophy/Gold-Cup.png"), "Top 100!"),
     "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
     "acwc21": (static_url("images/trophy/acwc21.png"), "World Champion 2021"),
-    "developer": (static_url("images/trophy/developer.png"), "Liantichess Developer"),
-    "moderator": (static_url("images/trophy/moderator.png"), "Liantichess Moderator")    
+    "developer": (static_url("images/trophy/developer.png"), "Developer"),
+    "moderator": (static_url("images/trophy/moderator.png"), "Moderator")    
 }
 
 

@@ -1,7 +1,9 @@
 CUSTOM_TROPHY_OWNERS = {
     # "username": ("variant", "key in TROPHIES")
+    # if not for any particular variant put in "liantichess".
     "GrohochetGrom": ("antichess", "acwc21"),
-    "SriMethan": ("losers", "developer"),
-    "SriMethan": ("cofeehill", "moderator"),
-    "cFlour": ("antiatomic", "moderator")
+    "SriMethan": ("liantichess", "developer"),
+    "SriMethan": ("liantichess", "moderator"),
+    "cFlour": ("liantichess", "moderator"),
+    "YohaanSethNathan": ("liantichess", "developer")
 }
