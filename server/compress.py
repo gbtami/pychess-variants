@@ -14,7 +14,7 @@ V2C = {
     "capahouse": "i",
     "crazyhouse": "h",
     "atomic": "A",
-    "kingofthehill": "L",
+    "antizh": "L",
     "antiatomic": "F",
     "antichess": "f",
     "losers": "H",

@@ -6,4 +6,9 @@ stalemateValue = loss
 
 # Hybrid of antichess and atomic
 [antiatomic:giveaway]
-blastOnCapture = true`
+blastOnCapture = true
+
+[antizh:crazyhouse]
+startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1
+pieceDrops = true
+mustCapture = true`

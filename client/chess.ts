@@ -328,13 +328,14 @@ export const VARIANTS: { [name: string]: Variant } = {
         chess960: true, icon: "♔", icon960: "♔",
     }),    
     
-    racingkings: new Variant({
-      name: "racingkings", tooltip: () => _("Bring your king to other side."),
-      startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
+    antizh: new Variant({
+      name: "antizh", tooltip: () => _("anticrazyhouse."),
+      startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
       board: "standard8x8", piece: "standard",
       pieceRoles: ["k", "q", "r", "b", "n", "p"],
-      enPassant: true,
-      icon: "♔",
+      pocketRoles: ["p", "n", "b", "r", "q"],
+      enPassant: true, drop: true,
+      chess960: true, icon: "♔", icon960: "♔",
     }),
 
     makruk: new Variant({
