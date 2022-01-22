@@ -318,8 +318,9 @@ async def index(request):
             render["trophies"] += [(v, "shield") for v in shield_owners if shield_owners[v] == profileId]
 
             if profileId in CUSTOM_TROPHY_OWNERS:
-                kind = CUSTOM_TROPHY_OWNERS[profileId]
-                render["trophies"].append((kind))
+                v, kind = CUSTOM_TROPHY_OWNERS[profileId]
+                if v in VARIANTS:
+                    render["trophies"].append((v, kind))
 
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
