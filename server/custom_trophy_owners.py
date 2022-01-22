@@ -3,5 +3,5 @@ CUSTOM_TROPHY_OWNERS = {
     "GrohochetGrom": ("antichess", "acwc21"),
     "SriMethan": ("losers", "developer"),
     "SriMethan": ("cofeehill", "moderator"),
-    "cFlour": ("antiatomic", "moderator"),
+    "cFlour": ("antiatomic", "moderator")
 }
