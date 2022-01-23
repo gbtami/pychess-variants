@@ -43,7 +43,6 @@ GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
 
 VARIANTS = (
-    "liantichess",
     "antichess",
     "antichess960",
     "losers",
@@ -181,6 +180,26 @@ TROPHIES = {
     "developer": (static_url("images/trophy/developer.png"), "Developer"),
     "moderator": (static_url("images/trophy/moderator.png"), "Moderator")    
 }
+
+TROPHY_KIND = (
+    "liantichess",
+    "antichess",
+    "antichess960",
+    "losers",
+    "losers960",
+    "anti_antichess",
+    "anti_antichess960",
+    "antiatomic",
+    "antiatomic960",
+    "antihouse",
+    "antihouse960",
+    "coffeehouse",
+    "coffeehouse960",
+    "coffeehill",
+    "coffeehill960",
+    "atomic_giveaway_hill",
+    "atomic_giveaway_hill960"
+)
 
 
 def variant_display_name(variant):

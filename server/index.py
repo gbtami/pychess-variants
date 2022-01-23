@@ -19,7 +19,7 @@ except ImportError:
     warnings.warn("Not using HTML minification, htmlmin not imported.")
     sys.exit(0)
 
-from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, VARIANT_GROUPS, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
+from const import LANGUAGES, TROPHIES, VARIANTS, VARIANT_ICONS, VARIANT_GROUPS, TROPHY_KIND, RATED, IMPORTED, variant_display_name, pairing_system_name, T_CREATED
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -319,7 +319,7 @@ async def index(request):
 
             if profileId in CUSTOM_TROPHY_OWNERS:
                 v, kind = CUSTOM_TROPHY_OWNERS[profileId]
-                if v in VARIANTS:
+                if v in TROPHY_KIND:
                     render["trophies"].append((v, kind))
 
         render["title"] = "Profile • " + profileId
