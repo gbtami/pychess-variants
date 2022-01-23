@@ -808,23 +808,23 @@ msgstr "chak"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPushed"
-msgstr ""
+msgstr "เบี้ยดัน"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPassed"
-msgstr ""
+msgstr "เบี้ยผ่าน"
 
 #: ../client/i18n.ts:80
 msgid "UpsideDown"
-msgstr ""
+msgstr "กลับหัว"
 
 #: ../client/i18n.ts:80
 msgid "Theban"
-msgstr ""
+msgstr "ศึกแห่งธีบส์"
 
 #: ../client/i18n.ts:80
 msgid "No castle"
-msgstr ""
+msgstr "ไม่มีเข้าป้อม"
 
 #: ../client/i18n.ts:82
 msgid "Lance HC"
@@ -868,27 +868,27 @@ msgstr "ลด 10 ตัว"
 
 #: ../client/i18n.ts:84
 msgid "Gorogoro Plus N+L"
-msgstr ""
+msgstr "เพิ่มม้าและหอก"
 
 #: ../client/i18n.ts:84
 msgid "Original (No N+L)"
-msgstr ""
+msgstr "ดั้งเดิม (ไม่มีม้าและหอก)"
 
 #: ../client/i18n.ts:86
 msgid "Left Quail HC"
-msgstr ""
+msgstr "ลดนกกระทาซ้าย"
 
 #: ../client/i18n.ts:86
 msgid "Falcon HC"
-msgstr ""
+msgstr "ลดเหยี่ยว"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Left Quail HC"
-msgstr ""
+msgstr "ลดเหยี่ยวและนกกระทาซ้าย"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Both Quails HC"
-msgstr ""
+msgstr "ลดเหยี่ยวและนกกระทาทั้งคู่"
 
 #: ../client/i18n.ts:88
 msgid "Bird"
@@ -1628,7 +1628,7 @@ msgstr "เข้าป้อมด้วยการเดินคิงใส
 
 #: ../client/lobby/layer3.ts:83
 msgid "You can play more at lichess.org."
-msgstr "เล่นได้ที่ lichess.org"
+msgstr "สามารถเล่นได้ที่ lichess.org"
 
 #: ../client/lobby/layer3.ts:86
 msgid ""
