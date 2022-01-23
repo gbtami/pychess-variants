@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-08 19:05+0100\n"
+"POT-Creation-Date: 2022-01-23 09:40+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
@@ -475,7 +475,7 @@ msgstr ""
 "Une variante asymétrique où un camp dirige des pièces qui se déplacent comme"
 " des cavaliers mais capturent différemment."
 
-#: ../client/chess.ts:651
+#: ../client/chess.ts:649
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
@@ -483,7 +483,7 @@ msgstr ""
 "Une variante asymétrique, l'Est contre l'Ouest, où l'armée des échecs "
 "occidentaux se bat contre une armée dérivée du Xiangqi et du Janggi."
 
-#: ../client/chess.ts:665
+#: ../client/chess.ts:661
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
@@ -491,7 +491,7 @@ msgstr ""
 "Une variante asymétrique où l'armée des échecs occidentaux se bat contre une"
 " armée avec le parachutage et dérivée du shogi."
 
-#: ../client/chess.ts:683
+#: ../client/chess.ts:677
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -499,61 +499,61 @@ msgstr ""
 "Une variante asymétrique où un camp dirige des pièces qui se déplacent comme"
 " des dames mais capturent normalement."
 
-#: ../client/chess.ts:697
+#: ../client/chess.ts:689
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
 "La variante Orda mais tous les deux côtés sont la Horde. Le Faucon remplace "
 "le Yurt."
 
-#: ../client/chess.ts:708
+#: ../client/chess.ts:700
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr ""
 
-#: ../client/chess.ts:719
+#: ../client/chess.ts:711
 msgid "Pieces alternate between two forms with each move."
 msgstr ""
 
-#: ../client/chess.ts:736
+#: ../client/chess.ts:728
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr ""
 "Comme les échecs Capablanca mais avec la position de départ du Grand Chess."
 
-#: ../client/chess.ts:746
+#: ../client/chess.ts:738
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr ""
 "Comme les échecs Capablanca mais avec une position de départ différente."
 
-#: ../client/chess.ts:756
+#: ../client/chess.ts:748
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Les échecs Gothiques avec la règle de parachutage de Crazyhouse."
 
-#: ../client/chess.ts:781 ../client/lobby/layer1.ts:54
+#: ../client/chess.ts:773 ../client/lobby/layer1.ts:54
 #: ../client/lobby/layer2chess.ts:18
 msgid "Chess Variants"
 msgstr "Variantes des échecs"
 
-#: ../client/chess.ts:782 ../client/lobby/layer1.ts:78
+#: ../client/chess.ts:774 ../client/lobby/layer1.ts:78
 #: ../client/lobby/layer2makruk.ts:16
 msgid "Makruk Variants"
 msgstr "Variantes du Makruk"
 
-#: ../client/chess.ts:783 ../client/lobby/layer1.ts:86
+#: ../client/chess.ts:775 ../client/lobby/layer1.ts:86
 #: ../client/lobby/layer2shogi.ts:17
 msgid "Shogi Variants"
 msgstr "Variantes du Shogi"
 
-#: ../client/chess.ts:784 ../client/lobby/layer1.ts:94
+#: ../client/chess.ts:776 ../client/lobby/layer1.ts:94
 #: ../client/lobby/layer2xiangqi.ts:16
 msgid "Xiangqi Variants"
 msgstr "Variantes du Xiangqi"
 
-#: ../client/chess.ts:785 ../client/lobby/layer1.ts:62
+#: ../client/chess.ts:777 ../client/lobby/layer1.ts:62
 #: ../client/lobby/layer2fairy.ts:16
 msgid "Fairy Piece Variants"
 msgstr "Variantes aux pièces féeriques"
 
-#: ../client/chess.ts:786 ../client/lobby/layer1.ts:70
+#: ../client/chess.ts:778 ../client/lobby/layer1.ts:70
 #: ../client/lobby/layer2army.ts:16
 msgid "New Army Variants"
 msgstr "Variantes aux nouvelles armées"
@@ -852,6 +852,110 @@ msgstr ""
 
 #: ../client/i18n.ts:76
 msgid "chak"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "PawnsPushed"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "PawnsPassed"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "UpsideDown"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "Theban"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "No castle"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Lance HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Bishop HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Rook HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Rook+Lance HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "2-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "4-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "6-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "8-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "9-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "10-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:84
+msgid "Gorogoro Plus N+L"
+msgstr ""
+
+#: ../client/i18n.ts:84
+msgid "Original (No N+L)"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Left Quail HC"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Falcon HC"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Falcon + Left Quail HC"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Falcon + Both Quails HC"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Bird"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Carrera"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Gothic"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Embassy"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Conservative"
 msgstr ""
 
 #: ../client/invite.ts:34 ../client/lobby.ts:514

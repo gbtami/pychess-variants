@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-11 22:23+0100\n"
+"POT-Creation-Date: 2022-01-23 09:40+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Turkish (https://www.transifex.com/gbtami/teams/14790/tr/)\n"
@@ -798,6 +798,110 @@ msgstr ""
 
 #: ../client/i18n.ts:76
 msgid "chak"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "PawnsPushed"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "PawnsPassed"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "UpsideDown"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "Theban"
+msgstr ""
+
+#: ../client/i18n.ts:80
+msgid "No castle"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Lance HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Bishop HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Rook HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "Rook+Lance HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "2-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "4-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "6-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "8-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "9-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:82
+msgid "10-Piece HC"
+msgstr ""
+
+#: ../client/i18n.ts:84
+msgid "Gorogoro Plus N+L"
+msgstr ""
+
+#: ../client/i18n.ts:84
+msgid "Original (No N+L)"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Left Quail HC"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Falcon HC"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Falcon + Left Quail HC"
+msgstr ""
+
+#: ../client/i18n.ts:86
+msgid "Falcon + Both Quails HC"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Bird"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Carrera"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Gothic"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Embassy"
+msgstr ""
+
+#: ../client/i18n.ts:88
+msgid "Conservative"
 msgstr ""
 
 #: ../client/invite.ts:34 ../client/lobby.ts:514

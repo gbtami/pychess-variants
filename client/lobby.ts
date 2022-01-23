@@ -723,7 +723,7 @@ export class LobbyController {
     }
     private mode(seek: Seek) {
         if (seek.alternateStart)
-            return seek.alternateStart;
+            return _(seek.alternateStart);
         else if (seek.fen)
             return _("Custom");
         else if (seek.rated)
