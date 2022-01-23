@@ -4,7 +4,7 @@ This is basically Antichess with a royal king. Hence, the aim is to get checkmat
 
 ![Losers](https://i.imgur.com/X2ACM09.png)
 
-## Opening Traps
+**Opening Traps**
 
 As you all may have figured out, most of the opening traps which work in Antichess, don't work here. In fact, the most common opening trap here is after 1.c3, which is a lost opening in antichess.
 In this opening trap, after 1. c3 e6 2. a3 Bxa3 3. Rxa3, if black doesn't play one of the moves marked by the blue arrows here, its lost for black:
