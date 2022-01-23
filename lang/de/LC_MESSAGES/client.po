@@ -885,7 +885,7 @@ msgstr "Turm Vorgabe"
 
 #: ../client/i18n.ts:82
 msgid "Rook+Lance HC"
-msgstr "Turm+Lanze Vorgabe"
+msgstr "Turm + Lanze Vorgabe"
 
 #: ../client/i18n.ts:82
 msgid "2-Piece HC"
@@ -921,23 +921,23 @@ msgstr "Original (Ohne S+L)"
 
 #: ../client/i18n.ts:86
 msgid "Left Quail HC"
-msgstr ""
+msgstr "Linke Wachtel Vorgabe"
 
 #: ../client/i18n.ts:86
 msgid "Falcon HC"
-msgstr ""
+msgstr "Falken Vorgabe"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Left Quail HC"
-msgstr ""
+msgstr "Falke + Linke Wachtel Vorgabe"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Both Quails HC"
-msgstr ""
+msgstr "Falke + Beide Wachteln Vorgabe"
 
 #: ../client/i18n.ts:88
 msgid "Bird"
-msgstr ""
+msgstr "Bird"
 
 #: ../client/i18n.ts:88
 msgid "Carrera"
@@ -949,11 +949,11 @@ msgstr "Gothic"
 
 #: ../client/i18n.ts:88
 msgid "Embassy"
-msgstr ""
+msgstr "Embassy"
 
 #: ../client/i18n.ts:88
 msgid "Conservative"
-msgstr ""
+msgstr "Konservativ"
 
 #: ../client/invite.ts:34 ../client/lobby.ts:514
 msgid "Host a game for others"
