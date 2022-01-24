@@ -14,7 +14,6 @@ mustCapture = true
 stalemateValue = win
 extinctionValue = win
 promotionPieceTypes = nbrqk
-commoner = k
 extinctionPieceTypes = *
 extinctionPseudoRoyal = false
 castling = false
@@ -28,6 +27,8 @@ castling = false
 
 # antichess with a pawn structure following horde rules.
 [antipawns:horde]
+king = -
+commoner = k
 startFen = pppppppp/pppppppp/pppppppp/8/8/PPPPPPPP/PPPPPPPP/PPPPPPPP w - - 0 1
 promotionPieceTypes = nbrqk
 stalemateValue = win
