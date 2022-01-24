@@ -277,7 +277,7 @@ export const VARIANTS: { [name: string]: Variant } = {
             name: "antipawns", tooltip: () => _("antichess + horde but diff pawn structure."),
             startFen: "pppppppp/pppppppp/pppppppp/8/8/PPPPPPPP/PPPPPPPP/PPPPPPPP w - - 0 1",
             board: "standard8x8", piece: "standard",
-            pieceRoles: ["p"],
+            pieceRoles: ["k", "q", "r", "b", "n", "p"],
             enPassant: true,
             icon: "♔",
     }),
