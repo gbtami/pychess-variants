@@ -279,7 +279,7 @@ export const VARIANTS: { [name: string]: Variant } = {
             board: "standard8x8", piece: "standard",
             pieceRoles: ["p"],
             enPassant: true,
-            chess960: true, icon: "♔", icon960: "♔",
+            icon: "♔",
     }),
     
     antihouse: new Variant({
