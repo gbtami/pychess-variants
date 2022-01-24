@@ -1,3 +1,7 @@
 # Anti-antichess
 
-This is [Antichess](https://liantichess.herokuapp.com/variants/antichess), but your goal is to lose the game. Losing an antichess game is equivalent to winning an anti-antichess game.
+Lose in [Antichess](https://liantichess.herokuapp.com/variants/antichess) to win the game. 
+
+[tolius](https://lichess.org/@/tolius) has an opening study for  this variant: https://lichess.org/study/dICuQJO3
+
+This variant was invented by [townes-paycheck](https://lichess.org/@/townes-paycheck).
