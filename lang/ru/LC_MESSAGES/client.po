@@ -873,39 +873,39 @@ msgstr "чак"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPushed"
-msgstr ""
+msgstr "Пешки дошли до центра"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPassed"
-msgstr ""
+msgstr "Пешки перешли центр"
 
 #: ../client/i18n.ts:80
 msgid "UpsideDown"
-msgstr ""
+msgstr "Пешки у последней горизонтали"
 
 #: ../client/i18n.ts:80
 msgid "Theban"
-msgstr ""
+msgstr "Фиванский"
 
 #: ../client/i18n.ts:80
 msgid "No castle"
-msgstr ""
+msgstr "Без рокировки"
 
 #: ../client/i18n.ts:82
 msgid "Lance HC"
-msgstr ""
+msgstr "Копье ГК"
 
 #: ../client/i18n.ts:82
 msgid "Bishop HC"
-msgstr ""
+msgstr "Слон ГК"
 
 #: ../client/i18n.ts:82
 msgid "Rook HC"
-msgstr ""
+msgstr "Ладья ГК"
 
 #: ../client/i18n.ts:82
 msgid "Rook+Lance HC"
-msgstr ""
+msgstr "Ладья+Копье ГК"
 
 #: ../client/i18n.ts:82
 msgid "2-Piece HC"
@@ -937,43 +937,43 @@ msgstr ""
 
 #: ../client/i18n.ts:84
 msgid "Original (No N+L)"
-msgstr ""
+msgstr "Оригинальный (Без N+L)"
 
 #: ../client/i18n.ts:86
 msgid "Left Quail HC"
-msgstr ""
+msgstr "Левый Перепел ГК"
 
 #: ../client/i18n.ts:86
 msgid "Falcon HC"
-msgstr ""
+msgstr "Сокол ГК"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Left Quail HC"
-msgstr ""
+msgstr "Сокол + Левый Перепел ГК"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Both Quails HC"
-msgstr ""
+msgstr "Сокол + Оба Перепела ГК"
 
 #: ../client/i18n.ts:88
 msgid "Bird"
-msgstr ""
+msgstr "Птичий"
 
 #: ../client/i18n.ts:88
 msgid "Carrera"
-msgstr ""
+msgstr "Каррера"
 
 #: ../client/i18n.ts:88
 msgid "Gothic"
-msgstr ""
+msgstr "Готический"
 
 #: ../client/i18n.ts:88
 msgid "Embassy"
-msgstr ""
+msgstr "Посольский"
 
 #: ../client/i18n.ts:88
 msgid "Conservative"
-msgstr ""
+msgstr "Консервативный"
 
 #: ../client/invite.ts:34 ../client/lobby.ts:514
 msgid "Host a game for others"
