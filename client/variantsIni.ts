@@ -34,6 +34,7 @@ stalemateValue = win
 extinctionValue = win
 mustCapture = true
 extinctionPieceTypes = *
+extinctionPseudoRoyal = false
 castling = false
 
 # Hybrid of antichess and zh. Zh is th base variant.
