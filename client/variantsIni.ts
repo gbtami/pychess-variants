@@ -28,7 +28,7 @@ castling = false
 
 # antichess with a pawn structure following horde rules.
 [antipawns:horde]
-startFen = "pppppppp/pppppppp/pppppppp/8/8/PPPPPPPP/PPPPPPPP/PPPPPPPP w - - 0 1"
+startFen = pppppppp/pppppppp/pppppppp/8/8/PPPPPPPP/PPPPPPPP/PPPPPPPP w - - 0 1
 promotionPieceTypes = nbrqk
 stalemateValue = win
 extinctionValue = win
