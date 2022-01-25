@@ -885,7 +885,7 @@ msgstr "Пешки у последней горизонтали"
 
 #: ../client/i18n.ts:80
 msgid "Theban"
-msgstr "Фиванский"
+msgstr "Фиванские шахматы"
 
 #: ../client/i18n.ts:80
 msgid "No castle"
@@ -893,87 +893,87 @@ msgstr "Без рокировки"
 
 #: ../client/i18n.ts:82
 msgid "Lance HC"
-msgstr "Копье ГК"
+msgstr "Белые без Копья"
 
 #: ../client/i18n.ts:82
 msgid "Bishop HC"
-msgstr "Слон ГК"
+msgstr "Белые без Слона"
 
 #: ../client/i18n.ts:82
 msgid "Rook HC"
-msgstr "Ладья ГК"
+msgstr "Белые без Ладьи"
 
 #: ../client/i18n.ts:82
 msgid "Rook+Lance HC"
-msgstr "Ладья+Копье ГК"
+msgstr "Белые без Ладья+Копье"
 
 #: ../client/i18n.ts:82
 msgid "2-Piece HC"
-msgstr ""
+msgstr "Белые без 2 фигур"
 
 #: ../client/i18n.ts:82
 msgid "4-Piece HC"
-msgstr ""
+msgstr "Белые без 4 фигур"
 
 #: ../client/i18n.ts:82
 msgid "6-Piece HC"
-msgstr ""
+msgstr "Белые без 6 фигур"
 
 #: ../client/i18n.ts:82
 msgid "8-Piece HC"
-msgstr ""
+msgstr "Белые без 8 фигур"
 
 #: ../client/i18n.ts:82
 msgid "9-Piece HC"
-msgstr ""
+msgstr "Белые без 9 фигур"
 
 #: ../client/i18n.ts:82
 msgid "10-Piece HC"
-msgstr ""
+msgstr "Белые без 10 фигур"
 
 #: ../client/i18n.ts:84
 msgid "Gorogoro Plus N+L"
-msgstr ""
+msgstr "С добавлением (Конь+Копье)"
 
 #: ../client/i18n.ts:84
 msgid "Original (No N+L)"
-msgstr "Оригинальный (Без N+L)"
+msgstr "Без добавления (Конь+Копье)"
 
 #: ../client/i18n.ts:86
 msgid "Left Quail HC"
-msgstr "Левый Перепел ГК"
+msgstr "Белые без левого Перепела"
 
 #: ../client/i18n.ts:86
 msgid "Falcon HC"
-msgstr "Сокол ГК"
+msgstr "Белые без Сокола"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Left Quail HC"
-msgstr "Сокол + Левый Перепел ГК"
+msgstr "Белые без Сокол + левый Перепел"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Both Quails HC"
-msgstr "Сокол + Оба Перепела ГК"
+msgstr "Белые без Сокол + оба Перепела"
 
 #: ../client/i18n.ts:88
 msgid "Bird"
-msgstr "Птичий"
+msgstr "Расстановка Генри Берда"
 
 #: ../client/i18n.ts:88
 msgid "Carrera"
-msgstr "Каррера"
+msgstr "Расстановка Пьетро Карреры"
 
 #: ../client/i18n.ts:88
 msgid "Gothic"
-msgstr "Готический"
+msgstr "Готические шахматы"
 
 #: ../client/i18n.ts:88
 msgid "Embassy"
-msgstr "Посольский"
+msgstr "Посольские шахматы"
 
 #: ../client/i18n.ts:88
 msgid "Conservative"
-msgstr "Консервативный"
+msgstr "Консервативный вариант"
 
 #: ../client/invite.ts:34 ../client/lobby.ts:514
 msgid "Host a game for others"
