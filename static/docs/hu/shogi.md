@@ -288,15 +288,15 @@ Kialakítható a másik oldalon is, amikor statikus bástyával játszuk, ilyenk
 
 Nem egyfajta védelem, hanem egy statikus bástya megnyitás (ami ellen védekezni kell). Mindkét fél előretolja a bástyája előtti gyalogot mely kölcsönös leütéshez (cseréhez) vezet. A dzsoszeki része, hogy az ezüsttábornoknak védenie kell a futó előtti gyalogot, mielőtt az ellefél bástya előtti gyalogja elérné azt.
 
-## Hendikep
+## Előnyadás
 
-A hendikep fontos része a tanításnak és nem úgy kell rá tekinteni, mintha egy játékos könyörületet tanusítana ellenfele irányába. Nagyszerű módja a játék megtanulásának és vannak a "standard" stratégiák is a kölönböző hendikep játszmákra.
+Az előnyadás fontos része a tanításnak és nem úgy kell rá tekinteni, mintha egy játékos könyörületet tanusítana ellenfele irányába. Nagyszerű módja a játék megtanulásának és vannak "standard" stratégiák is a kölönböző előnyadásos játszmákra.
 
-Míg normál esetben a "sötét" játékos (*sente*) lép először, a hendikepes játszmákban a "világos" játékos lép elsőnek. A hendikep ellenére az anyag miatti különbség kiküszöbölhető a behozási szabály miatt.
+Míg normál esetben a "sötét" játékos (*sente*) lép először, az előnyadásos játszmákban a "világos" játékos kezd. Az előnyadás ellenére az anyag miatti különbség kiküszöbölhető a behozási szabály miatt.
 
-A leggyakoribb hendikepek:
+A leggyakoribb előnyadások:
 
-Név | hiányzó bábu
+Név | Hiányzó bábu(k)
 -- | --
 Lándzsás | bal oldali lándzsás
 Futó | futó
