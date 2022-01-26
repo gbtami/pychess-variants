@@ -7,7 +7,7 @@ import logging
 import os
 from operator import neg
 from urllib.parse import urlparse
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from sys import platform
 
 if platform != "win32":
@@ -27,7 +27,7 @@ from pythongettext.msgfmt import PoSyntaxError
 
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
-from const import VARIANTS, STARTED, LANGUAGES, T_CREATED, T_STARTED, MAX_CHAT_LINES
+from const import VARIANTS, STARTED, LANGUAGES, T_CREATED, T_STARTED, MAX_CHAT_LINES, SCHEDULE_MAX_DAYS
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -36,8 +36,9 @@ from index import handle_404
 from routes import get_routes, post_routes
 from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNET_KEYS, URI, static_url
 from user import User
-from tournaments import load_tournament
+from tournaments import load_tournament, get_scheduled_tournaments
 from twitch import Twitch
+from scheduler import create_scheduled_tournaments, new_scheduled_tournaments
 
 log = logging.getLogger(__name__)
 
@@ -207,15 +208,22 @@ async def init_state(app):
                     enabled=doc.get("enabled", True)
                 )
 
-        cursor = app["db"].tournament.find()
+        await app["db"].tournament.create_index("startsAt")
+        await app["db"].tournament.create_index("status")
+
+        cursor = app["db"].tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
         cursor.sort('startsAt', -1)
-        counter = 0
+        to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
         async for doc in cursor:
-            if doc["status"] in (T_CREATED, T_STARTED):
+            if doc["status"] == T_STARTED or (
+                    doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date):
                 await load_tournament(app, doc["_id"])
-                counter += 1
-                if counter > 3:
-                    break
+
+        # TODO: Enable on prod pychess when time comes
+        if DEV:
+            already_scheduled = await get_scheduled_tournaments(app)
+            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+            await create_scheduled_tournaments(app, new_tournaments_data)
 
         await generate_shield(app)
 
