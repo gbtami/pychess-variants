@@ -5,8 +5,8 @@
 # 
 # Translators:
 # renyhp r <renyhp@disroot.org>, 2020
-# Armando Gagliardi <armandogagliardi0@gmail.com>, 2022
 # gbtami <gbtami@gmail.com>, 2022
+# Armando Gagliardi <armandogagliardi0@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-01-23 09:40+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: Armando Gagliardi <armandogagliardi0@gmail.com>, 2022\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -843,107 +843,107 @@ msgstr "chak"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPushed"
-msgstr ""
+msgstr "PedoniSpinti"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPassed"
-msgstr ""
+msgstr "PedoniPassati"
 
 #: ../client/i18n.ts:80
 msgid "UpsideDown"
-msgstr ""
+msgstr "SottoSopra"
 
 #: ../client/i18n.ts:80
 msgid "Theban"
-msgstr ""
+msgstr "Tebano"
 
 #: ../client/i18n.ts:80
 msgid "No castle"
-msgstr ""
+msgstr "Niente arrocco"
 
 #: ../client/i18n.ts:82
 msgid "Lance HC"
-msgstr ""
+msgstr "Handicap Lancia"
 
 #: ../client/i18n.ts:82
 msgid "Bishop HC"
-msgstr ""
+msgstr "Handicap Alfiere"
 
 #: ../client/i18n.ts:82
 msgid "Rook HC"
-msgstr ""
+msgstr "Handicap Torre"
 
 #: ../client/i18n.ts:82
 msgid "Rook+Lance HC"
-msgstr ""
+msgstr "Handicap Torre + Lancia"
 
 #: ../client/i18n.ts:82
 msgid "2-Piece HC"
-msgstr ""
+msgstr "Handicap di 2 pezzi"
 
 #: ../client/i18n.ts:82
 msgid "4-Piece HC"
-msgstr ""
+msgstr "Handicap di 4 pezzi"
 
 #: ../client/i18n.ts:82
 msgid "6-Piece HC"
-msgstr ""
+msgstr "Handicap di 6 pezzi"
 
 #: ../client/i18n.ts:82
 msgid "8-Piece HC"
-msgstr ""
+msgstr "Handicap di 8 pezzi"
 
 #: ../client/i18n.ts:82
 msgid "9-Piece HC"
-msgstr ""
+msgstr "Handicap di 9 pezzi"
 
 #: ../client/i18n.ts:82
 msgid "10-Piece HC"
-msgstr ""
+msgstr "Handicap di 10 pezzi"
 
 #: ../client/i18n.ts:84
 msgid "Gorogoro Plus N+L"
-msgstr ""
+msgstr "Gorogoro Plus C+L"
 
 #: ../client/i18n.ts:84
 msgid "Original (No N+L)"
-msgstr ""
+msgstr "Originale (No C+L)"
 
 #: ../client/i18n.ts:86
 msgid "Left Quail HC"
-msgstr ""
+msgstr "Handicap Quaglia sinistra"
 
 #: ../client/i18n.ts:86
 msgid "Falcon HC"
-msgstr ""
+msgstr "Handicap Falco"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Left Quail HC"
-msgstr ""
+msgstr "Handicap Falco + Quaglia sinistra"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Both Quails HC"
-msgstr ""
+msgstr "Handicap Falco + 2 Quaglie"
 
 #: ../client/i18n.ts:88
 msgid "Bird"
-msgstr ""
+msgstr "Bird"
 
 #: ../client/i18n.ts:88
 msgid "Carrera"
-msgstr ""
+msgstr "Carrera"
 
 #: ../client/i18n.ts:88
 msgid "Gothic"
-msgstr ""
+msgstr "Gotico"
 
 #: ../client/i18n.ts:88
 msgid "Embassy"
-msgstr ""
+msgstr "Embassy"
 
 #: ../client/i18n.ts:88
 msgid "Conservative"
-msgstr ""
+msgstr "Conservative"
 
 #: ../client/invite.ts:34 ../client/lobby.ts:514
 msgid "Host a game for others"
