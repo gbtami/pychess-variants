@@ -15,7 +15,7 @@ from broadcast import lobby_broadcast
 from compress import R2C
 from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
     ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED, SHIELD,\
-    MAX_CHAT_LINES
+    MAX_CHAT_LINES, TOURNAMENT_SPOTLIGHTS_MAX, SCHEDULE_MAX_DAYS
 from game import Game
 from user import User
 from glicko2.glicko2 import gl2
@@ -25,7 +25,6 @@ from utils import insert_game_to_db
 from spectators import spectators
 
 log = logging.getLogger(__name__)
-
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 
@@ -375,7 +374,7 @@ class Tournament(ABC):
                     else:
                         print("%s has %s ongoing game(s)..." % ("RR" if self.system == RR else "Swiss", self.ongoing_games))
 
-                log.debug("%s CLOCK %s", self.id, now.strftime("%H:%M:%S"))
+                    log.debug("%s CLOCK %s", self.id, now.strftime("%H:%M:%S"))
                 await asyncio.sleep(1)
         except Exception:
             log.exception("Exception in tournament clock()")
@@ -1005,9 +1004,11 @@ class Tournament(ABC):
 
 
 def tournament_spotlights(tournaments):
+    to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
     items = []
-    for tid, tournament in tournaments.items():
-        if tournament.status in (T_CREATED, T_STARTED):
+    for tid, tournament in sorted(tournaments.items(), key=lambda item: item[1].starts_at):
+        if tournament.status == T_STARTED or (
+                tournament.status == T_CREATED and tournament.starts_at.date() <= to_date):
             items.append({
                 "tid": tournament.id,
                 "name": tournament.name,
@@ -1016,4 +1017,6 @@ def tournament_spotlights(tournaments):
                 "nbPlayers": tournament.nb_players,
                 "startsAt": tournament.starts_at.isoformat(),
             })
+            if len(items) == TOURNAMENT_SPOTLIGHTS_MAX:
+                break
     return items

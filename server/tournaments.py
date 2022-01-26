@@ -11,8 +11,6 @@ from tournament import GameData, PlayerData, SCORE_SHIFT
 from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
-from settings import ADMINS
-from misc import time_control_str
 
 log = logging.getLogger(__name__)
 
@@ -34,16 +32,11 @@ async def create_or_update_tournament(app, username, form, tournament=None):
 
     name = form["name"]
     # Create meningful tournament name in case we forget to change it :)
-    if name in ADMINS:
-        name = "%s %s Arena" % (variant_display_name(variant).title(), time_control_str(base, inc, bp))
+    if name == "":
+        name = "%s Arena" % variant_display_name(variant).title()
 
     if frequency == SHIELD:
         name = "%s Shield Arena" % variant_display_name(variant).title()
-        description = """
-This Shield trophy is unique.
-The winner keeps it for one month,
-then must defend it during the next %s Shield tournament!
-""" % variant_display_name(variant).title()
     else:
         description = form["description"]
 
@@ -114,7 +107,7 @@ async def new_tournament(app, data):
         starts_at=data.get("startDate"),
         frequency=data.get("frequency", ""),
         name=data["name"],
-        description=data["description"],
+        description=data.get("description", ""),
         created_at=data.get("createdAt"),
         status=data.get("status"),
         with_clock=data.get("with_clock", True)
@@ -189,6 +182,23 @@ async def get_winners(app, shield):
     return wi
 
 
+async def get_scheduled_tournaments(app, nb_max=30):
+    """ Return max 30 already scheduled tournaments from mongodb """
+    cursor = app["db"].tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
+    cursor.sort('startsAt', -1)
+    nb_tournament = 0
+    tournaments = []
+
+    async for doc in cursor:
+        if doc["status"] in (T_CREATED, T_STARTED) and doc["createdBy"] == "PyChess" and doc.get("fr", "") != "":
+            nb_tournament += 1
+            if nb_tournament > nb_max:
+                break
+            else:
+                tournaments.append((doc["fr"], C2V[doc["v"]], bool(doc["z"]), doc["startsAt"]))
+    return tournaments
+
+
 async def get_latest_tournaments(app):
     tournaments = app["tournaments"]
     started, scheduled, completed = [], [], []
@@ -198,7 +208,7 @@ async def get_latest_tournaments(app):
     nb_tournament = 0
     async for doc in cursor:
         nb_tournament += 1
-        if nb_tournament > 20:
+        if nb_tournament > 31:
             break
 
         tid = doc["_id"]
@@ -285,6 +295,13 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
     elif tournament_klass is not None:
         tournament_class = tournament_klass
 
+    if doc.get("fr") == SHIELD:
+        doc["d"] = """
+This Shield trophy is unique.
+The winner keeps it for one month,
+then must defend it during the next %s Shield tournament!
+""" % variant_display_name(C2V[doc["v"]]).title()
+
     tournament = tournament_class(
         app, doc["_id"], C2V[doc["v"]],
         base=doc["b"],
@@ -301,7 +318,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
         starts_at=doc.get("startsAt"),
         name=doc["name"],
         description=doc.get("d", ""),
-        frequency=doc.get("fr", False),
+        frequency=doc.get("fr", ""),
         status=doc["status"],
     )
 

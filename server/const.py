@@ -1,5 +1,8 @@
 from settings import static_url
 
+SCHEDULE_MAX_DAYS = 7
+TOURNAMENT_SPOTLIGHTS_MAX = 4
+
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
 
