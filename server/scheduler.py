@@ -85,25 +85,25 @@ class Scheduler:
             plans.append(Plan(MONTHLY, dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc), 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         plans += [
-            Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),
-            Plan(SHIELD, self.second_monthly(MONDAY) + dt.timedelta(days=THURSDAY), 16, "shinobi", False, 3, 4, 0, 180),
-            Plan(SHIELD, self.second_monthly(MONDAY) + dt.timedelta(days=SATURDAY), 11, "makruk", False, 5, 3, 0, 180),
-            Plan(SHIELD, self.second_monthly(MONDAY) + dt.timedelta(days=SUNDAY), 16, "atomic", True, 3, 2, 0, 180),
+            Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),     # 960
+            Plan(SHIELD, self.second_monthly(THURSDAY), 16, "shinobi", False, 3, 4, 0, 180),
+            Plan(SHIELD, self.second_monthly(SATURDAY), 11, "makruk", False, 5, 3, 0, 180),
+            Plan(SHIELD, self.third_monthly(SUNDAY), 16, "atomic", True, 3, 2, 0, 180),          # 960
 
             Plan(MONTHLY, self.first_monthly(SATURDAY), 11, "asean", False, 3, 2, 0, 90),
-            # Plan(MONTHLY, self.second_monthly(SATURDAY), 11, "makruk", False, 3, 2, 0, 90),  # this is the Makruk shield above
+            # Plan(MONTHLY, self.second_monthly(SATURDAY), 11, "makruk", False, 3, 2, 0, 90),    # this is the Makruk shield above
             Plan(MONTHLY, self.third_monthly(SATURDAY), 11, SEA, False, 3, 2, 0, 90),
             Plan(MONTHLY, self.forth_monthly(SATURDAY), 11, "makpong", False, 3, 2, 0, 90),
 
-            Plan(WEEKLY, self.next_day_of_week(SATURDAY), 18, "crazyhouse", True, 3, 0, 0, 60),
-            Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),
+            Plan(WEEKLY, self.next_day_of_week(SATURDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
+            Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),       # 960
         ]
 
         return plans
 
 
 def new_scheduled_tournaments(already_scheduled, now=None):
-    """ Create list for scheduled tournament date for one week from now on compared to what we already have """
+    """ Create list for scheduled tournament data for one week from now on compared to what we already have """
     if now is None:
         now = dt.datetime.now(dt.timezone.utc)
         # set time info to 0:0:0
