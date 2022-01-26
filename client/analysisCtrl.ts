@@ -507,10 +507,6 @@ export default class AnalysisController {
         }
     }
 
-    moveIndex = (ply: number) => {
-      return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
-    }
-
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
             case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
