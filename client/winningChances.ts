@@ -1,4 +1,4 @@
-// https://github.com/ornicar/lila/blob/master/ui/ceval/src/winningChances.ts
+// https://github.com/lichess-org/lila/blob/master/ui/ceval/src/winningChances.ts
 
 import * as cg from 'chessgroundx/types';
 
