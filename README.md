@@ -7,43 +7,9 @@ pychess-variants is a free, open-source chess server designed to play chess vari
 
 Currently supported games are:
 
-- [Makruk](https://www.pychess.org/variants/makruk)
-- [Makpong](https://www.pychess.org/variants/makpong)
-- [Ouk Chatrang](https://www.pychess.org/variants/cambodian)
-- [Sittuyin](https://www.pychess.org/variants/sittuyin)
-- [ASEAN Chess](https://www.pychess.org/variants/asean)
-- [Shogi](https://www.pychess.org/variants/shogi)
-- [Minishogi](https://www.pychess.org/variants/minishogi)
-- [Kyoto shogi](https://www.pychess.org/variants/kyotoshogi)
-- [Dobutsu shogi](https://www.pychess.org/variants/dobutsu)
-- [Goro-Goro shogi](https://www.pychess.org/variants/gorogoro)
-- [Tori Shogi](https://www.pychess.org/variants/torishogi)
-- [Xiangqi](https://www.pychess.org/variants/xiangqi)
-- [Manchu](https://www.pychess.org/variants/manchu)
-- [Janggi](https://www.pychess.org/variants/janggi)
-- [Minixiangqi](https://www.pychess.org/variants/minixiangqi)
-- [Placement chess](https://www.pychess.org/variants/placement)
-- [Crazyhouse](https://www.pychess.org/variants/crazyhouse)
-- [Atomic](https://www.pychess.org/variants/atomic)
-- [S-chess](https://www.pychess.org/variants/seirawan)
-- [Capablanca](https://www.pychess.org/variants/capablanca)
-- [Gothic](https://www.pychess.org/variants/gothic)
-- [Grand](https://www.pychess.org/variants/grand)
-- [Shako](https://www.pychess.org/variants/shako)
-- [Shogun](https://www.pychess.org/variants/shogun)
-- [Orda](https://www.pychess.org/variants/orda)
-- [Synochess](https://www.pychess.org/variants/synochess)
-- [Hoppel-Poppel](https://www.pychess.org/variants/hoppelpoppel)
-- [Shinobi](https://www.pychess.org/variants/shinobi)
-- [Empire Chess](https://www.pychess.org/variants/empire)
-- [Orda Mirror](https://www.pychess.org/variants/ordamirror)
-- [Chak](https://www.pychess.org/variants/chak)
-- [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variants/shouse)
-- [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variants/capahouse)
-- [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
-- [Chess](https://www.pychess.org/variants/chess)
+All supported games on Pychess can be seen [here](https://www.pychess.org/variants)
 
-Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
+Additionally you can check the Chess960 option for chess variants
 [Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
