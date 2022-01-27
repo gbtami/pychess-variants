@@ -48,8 +48,8 @@ Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-c
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
-- [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/niklasf/fishnet)
-- [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/careless25/lichess-bot)
+- [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
+- [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/ShailChoksi/lichess-bot)
 
 On client side it is based on
 [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/lichess-org/chessground)
