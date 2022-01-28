@@ -176,7 +176,7 @@ class Game:
         self.initial_fen = self.board.initial_fen
         self.wplayer.fen960_as_white = self.initial_fen
 
-        self.random_mover = self.wplayer.username == "Random-Mover" or self.bplayer.username == "Random-Mover"
+        self.random_mover = "Random-Mover" in (self.wplayer.username, self.bplayer.username)
         self.random_move = ""
 
         self.set_dests()
@@ -635,7 +635,7 @@ class Game:
                 dests[source] = [dest]
 
             if not move[-1].isdigit():
-                if not (self.variant in ("seirawan", "shouse") and (move[1] == '1' or move[1] == '8')):
+                if not (self.variant in ("seirawan", "shouse") and move[1] in ('1', '8')):
                     promotions.append(move)
 
             if self.variant in ("kyotoshogi", "chennis") and move[0] == "+":

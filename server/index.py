@@ -254,7 +254,7 @@ async def index(request):
             if (ply is not None) and (view != "embed"):
                 view = "analysis"
 
-            if user.username != game.wplayer.username and user.username != game.bplayer.username:
+            if user.username not in (game.wplayer.username, game.bplayer.username):
                 game.spectators.add(user)
 
             if game.tournamentId is not None:
