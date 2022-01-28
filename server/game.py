@@ -235,7 +235,6 @@ class Game:
         # BOT players doesn't send times used for moves
         if self.bot_game:
             movetime = int(round((cur_time - self.last_server_clock) * 1000))
-            # print(self.board.ply, move, movetime)
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
@@ -316,8 +315,6 @@ class Game:
 
             # TODO: this causes random game abort
             if False:  # not self.bot_game:
-                # print("--------------ply-", ply)
-                # print(self.board.color, clocks, self.ply_clocks)
                 opp_color = self.steps[-1]["turnColor"]
                 if clocks[opp_color] < self.ply_clocks[ply - 1][opp_color] and self.status <= STARTED:
                     self.update_status(ABORTED)
@@ -380,7 +377,6 @@ class Game:
                 except Exception:
                     log.exception("Exception in tournament game_update()")
 
-            # self.print_game()
 
             new_data = {
                 "d": self.date,
@@ -500,7 +496,6 @@ class Game:
 
         wr = gl2.rate(self.white_rating, [(white_score, self.black_rating)])
         br = gl2.rate(self.black_rating, [(black_score, self.white_rating)])
-        # print("ratings after updated:", wr, br)
 
         await self.wplayer.set_rating(self.variant, self.chess960, wr)
         await self.bplayer.set_rating(self.variant, self.chess960, br)
@@ -549,7 +544,6 @@ class Game:
 
         w, b = self.board.insufficient_material()
         if w and b:
-            # print("1/2 by board.insufficient_material()")
             self.status = DRAW
             self.result = "1/2-1/2"
 
@@ -559,7 +553,6 @@ class Game:
 
             if self.board.is_immediate_game_end()[0]:
                 self.status = VARIANTEND
-                # print(self.result, "variant end")
             elif self.check:
                 self.status = MATE
 
@@ -578,10 +571,8 @@ class Game:
                 # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
                 if self.board.move_stack[-1][0:2] == "P@" and self.variant in ("shogi", "minishogi", "gorogoro", "gorogoroplus"):
                     self.status = INVALIDMOVE
-                # print(self.result, "checkmate")
             else:
                 self.status = STALEMATE
-                # print(self.result, "stalemate")
 
         elif self.variant in ('makruk', 'makpong', 'cambodian', 'sittuyin', 'asean'):
             parts = self.board.fen.split()
@@ -591,7 +582,6 @@ class Game:
                 if counting_ply > counting_limit:
                     self.status = DRAW
                     self.result = "1/2-1/2"
-                    # print(self.result, "counting limit reached")
 
         else:
             # end the game by 50 move rule and repetition automatically
@@ -600,12 +590,10 @@ class Game:
             if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
-                # print(self.result, "claim")
 
         if self.board.ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
-            # print(self.result, "Ply %s reached" % MAX_PLY)
 
         if self.status > STARTED:
             self.set_crosstable()
@@ -619,10 +607,8 @@ class Game:
         dests = {}
         promotions = []
         moves = self.board.legal_moves()
-        # print("self.board.legal_moves()", moves)
         if self.random_mover:
             self.random_move = random.choice(moves) if moves else ""
-            # print("RM: %s" % self.random_move)
 
         for move in moves:
             # chessgroundx key uses ":" for tenth rank
@@ -647,11 +633,6 @@ class Game:
     def print_game(self):
         print(self.pgn)
         print(self.board.print_pos())
-        # print(self.board.move_stack)
-        # print("---CLOCKS---")
-        # for ply, clocks in enumerate(self.ply_clocks):
-        #     print(ply, self.board.move_stack[ply - 1] if ply > 0 else "", self.ply_clocks[ply]["movetime"], self.ply_clocks[ply]["black"], self.ply_clocks[ply]["white"])
-        # print(self.result)
 
     @property
     def pgn(self):
