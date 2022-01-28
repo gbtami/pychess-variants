@@ -3,9 +3,16 @@
   "version": "0.0.2",
   "private": true,
   "description": "free, open-source chess server designed to play chess variants.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gbtami/pychess-variants.git"
+  },  
   "main": "static/pychess-variants.js",
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/gbtami/pychess-variants/issues"
+  },
   "funding": "patreon.com/pychess", 
   "dependencies": {
     "chessgroundx": "^9.1.8",
