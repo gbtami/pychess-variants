@@ -11,6 +11,7 @@ from index import index, robots, select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from wst import tournament_socket_handler
+from tournament_calendar import tournament_calendar
 from twitch import twitch
 
 
@@ -24,6 +25,7 @@ get_routes = (
     ("/stats", index),
     ("/players", index),
     ("/allplayers", index),
+    ("/calendar", index),
     ("/games", index),
     ("/tv", index),
     ("/analysis/{variant}", index),
@@ -68,6 +70,7 @@ get_routes = (
     ("/api/{profileId}/rated", get_user_games),
     ("/api/{profileId}/import", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
+    ("/api/calendar", tournament_calendar),
     ("/api/stats", get_variant_stats),
     ("/api/stats/humans", get_variant_stats),
     ("/api/games", get_games),

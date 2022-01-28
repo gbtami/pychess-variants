@@ -176,6 +176,8 @@ async def index(request):
 
         if request.path.endswith("/pause") and user in tournament.players:
             await tournament.pause(user)
+    elif request.path.startswith("/calendar"):
+        view = "calendar"
 
     profileId = request.match_info.get("profileId")
     if profileId is not None and profileId not in users:

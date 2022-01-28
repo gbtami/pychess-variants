@@ -45,7 +45,7 @@ h1 {
     display: flex;
     flex-flow: row wrap;
 }
-a.button.icon-plus-square {
+a.button.icon-plus-square, a.button.calendar {
     color: #fff;
     background: var(--green-switch);
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.225);
@@ -56,6 +56,7 @@ a.button.icon-plus-square {
     text-align: center;
     white-space: nowrap;
     transition: all 150ms;
+    margin-left: 4px;
 }
 .text::before {
     margin-right: 0.4em;
