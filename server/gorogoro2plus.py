@@ -9,11 +9,10 @@ async def main():
     db = client[MONGO_DB_NAME]
 
     # Add starting FEN to original gorogoro games before we make gorogoropus default
-    filter_cond = {}
-    filter_cond["$and"] = [
+    filter_cond = {"$and": [
         {"v": "G"},
         {"if": {"$exists": False}},
-    ]
+    ]}
 
     cursor = db.game.find(filter_cond)
     async for doc in cursor:

@@ -258,11 +258,10 @@ async def export(request):
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")
         print("---", yearmonth[:4], yearmonth[4:])
-        filter_cond = {}
-        filter_cond["$and"] = [
+        filter_cond = {"$and": [
             {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
             {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
-        ]
+        ]}
         cursor = db.game.find(filter_cond)
 
     if cursor is not None:
