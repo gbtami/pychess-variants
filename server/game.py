@@ -377,7 +377,6 @@ class Game:
                 except Exception:
                     log.exception("Exception in tournament game_update()")
 
-
             new_data = {
                 "d": self.date,
                 "f": self.board.fen,
