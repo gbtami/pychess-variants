@@ -7,7 +7,9 @@ from aiohttp import web
 from scheduler import new_scheduled_tournaments
 
 
-def create_scheduled_data(year, month, day, already_scheduled=[]):
+def create_scheduled_data(year, month, day, already_scheduled=None):
+    if already_scheduled is None:
+        already_scheduled = []
     start = dt.datetime(year, month, day, tzinfo=dt.timezone.utc)
     data = new_scheduled_tournaments(already_scheduled, start)
     return [(e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"]) for e in data]
