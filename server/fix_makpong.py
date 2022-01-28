@@ -10,8 +10,7 @@ async def main():
     db = client[MONGO_DB_NAME]
 
     # Not 100% accurate hack to detect early makpong games saved as chess ("n")
-    filter_cond = {}
-    filter_cond["$and"] = [
+    filter_cond = {"$and": [
         {"v": "n"},
         {"d": {"$gt": datetime(2020, 4, 20)}},
         {"$or": [
@@ -20,7 +19,7 @@ async def main():
             {"$expr": {"$gt": [{"$indexOfBytes": ["$f", "s"]}, -1]}},
             {"$expr": {"$gt": [{"$indexOfBytes": ["$f", "S"]}, -1]}},
         ]}
-    ]
+    ]}
 
     cursor = db.game.find(filter_cond)
     async for doc in cursor:
