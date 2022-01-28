@@ -32,7 +32,6 @@ async def get_work(request, data):
             log.error("task_done() called more times than there were items placed in the queue in fishnet.py get_work()")
 
         work = request.app["works"][work_id]
-        # print("FISHNET ACQUIRE we have work for you:", work)
         if priority == ANALYSIS:
             fm[worker].append("%s %s %s %s of %s moves" % (datetime.now(timezone.utc), work_id, "request", "analysis", work["moves"].count(" ") + 1))
 
@@ -102,7 +101,6 @@ async def fishnet_analysis(request):
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
 
-    # print(json.dumps(data, sort_keys=True, indent=4))
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
@@ -112,7 +110,6 @@ async def fishnet_analysis(request):
     gameId = work["game_id"]
     game = await load_game(request.app, gameId)
 
-    # bot_name = data["stockfish"]["name"]
 
     users = request.app["users"]
     username = work["username"]
@@ -172,7 +169,6 @@ async def fishnet_move(request):
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
 
-    # print(json.dumps(data, sort_keys=True, indent=4))
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 

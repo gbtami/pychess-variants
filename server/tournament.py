@@ -889,7 +889,6 @@ class Tournament(ABC):
             }
         else:
             full_score = self.leaderboard[user]
-            # print("%s %20s %s %s %s" % (i, user.title + user.username, player_data.points, int(full_score / SCORE_SHIFT), player_data.performance))
             new_data = {
                 "_id": player_id,
                 "tid": self.id,

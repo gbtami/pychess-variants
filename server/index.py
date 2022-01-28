@@ -254,7 +254,7 @@ async def index(request):
             if (ply is not None) and (view != "embed"):
                 view = "analysis"
 
-            if user.username != game.wplayer.username and user.username != game.bplayer.username:
+            if user.username not in (game.wplayer.username, game.bplayer.username):
                 game.spectators.add(user)
 
             if game.tournamentId is not None:
@@ -357,7 +357,6 @@ async def index(request):
         render["users"] = users
         render["online_users"] = online_users
         render["anon_online"] = anon_online
-        # render["offline_users"] = offline_users
         hs = request.app["highscore"]
         render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
 
@@ -487,7 +486,6 @@ async def index(request):
     except Exception:
         return web.HTTPFound("/")
 
-    # log.debug("Response: %s" % text)
     response = web.Response(text=html_minify(text), content_type="text/html")
     parts = urlparse(URI)
     response.set_cookie("user", session["user_name"], domain=parts.hostname, secure=parts.scheme == "https", samesite="Lax", max_age=None if user.anon else MAX_AGE)

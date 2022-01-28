@@ -390,10 +390,10 @@ async def round_socket_handler(request):
 
                         # remove user seeks
                         if len(user.lobby_sockets) == 0 or (
-                                game.status <= STARTED and (user.username == game.wplayer.username or user.username == game.bplayer.username)):
+                                game.status <= STARTED and user.username in (game.wplayer.username, game.bplayer.username)):
                             await user.clear_seeks(sockets, seeks)
 
-                        if user.username != game.wplayer.username and user.username != game.bplayer.username:
+                        if user.username not in (game.wplayer.username, game.bplayer.username):
                             game.spectators.add(user)
                             await round_broadcast(game, users, game.spectator_list, full=True)
 
@@ -550,7 +550,7 @@ async def round_socket_handler(request):
                 del user.game_sockets[game.id]
                 user.update_online()
 
-            if user.username != game.wplayer.username and user.username != game.bplayer.username:
+            if user.username not in (game.wplayer.username, game.bplayer.username):
                 game.spectators.discard(user)
                 await round_broadcast(game, users, game.spectator_list, full=True)
 

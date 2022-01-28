@@ -130,8 +130,8 @@ class FairyBoard:
             Same for queen and archbishop in caparandom."""
 
         castl = ""
-        capa = self.variant == "capablanca" or self.variant == "capahouse"
-        seirawan = self.variant == "seirawan" or self.variant == "shouse"
+        capa = self.variant in ("capablanca", "capahouse")
+        seirawan = self.variant in ("seirawan", "shouse")
 
         # https://www.chessvariants.com/contests/10/crc.html
         # we don't skip spositions that have unprotected pawns
@@ -220,7 +220,7 @@ class FairyBoard:
         else:
             body = '/pppppppp/8/8/8/8/PPPPPPPP/'
 
-        if self.variant == "crazyhouse" or self.variant == "capahouse":
+        if self.variant in ("crazyhouse", "capahouse"):
             holdings = "[]"
         elif seirawan:
             holdings = "[HEhe]"
