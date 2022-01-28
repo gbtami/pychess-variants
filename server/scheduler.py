@@ -7,7 +7,7 @@ from const import ARENA, CATEGORIES, GRANDS, VARIANTS, WEEKLY, MONTHLY, SHIELD, 
 from tournaments import new_tournament
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
-Plan = namedtuple('Plan', 'freq, at, hour, variant, is960, base, inc, byo, duration')
+Plan = namedtuple('Plan', 'freq, date, hour, variant, is960, base, inc, byo, duration')
 
 NO_TOURNEY = ["chess", "chess960", "crazyhouse", "atomic", "shogi", "minishogi"]  # tournaments are available on lichess/lishogi
 SHIELDS = ["crazyhouse960", "atomic960", "makruk", "shinobi"]
@@ -82,11 +82,12 @@ class Scheduler:
         for i, v in enumerate(MONTHLY_VARIANTS):
             is_960 = v.endswith("960")
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
-            plans.append(Plan(MONTHLY, dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc), 16, v.rstrip("960"), is_960, base, inc, byo, 90))
+            date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
+            plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         plans += [
             Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),     # 960
-            Plan(SHIELD, self.second_monthly(THURSDAY), 16, "shinobi", False, 3, 4, 0, 180),
+            Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
             Plan(SHIELD, self.second_monthly(SATURDAY), 11, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(SUNDAY), 16, "atomic", True, 3, 2, 0, 180),          # 960
 
@@ -95,7 +96,7 @@ class Scheduler:
             Plan(MONTHLY, self.third_monthly(SATURDAY), 11, SEA, False, 3, 2, 0, 90),
             Plan(MONTHLY, self.forth_monthly(SATURDAY), 11, "makpong", False, 3, 2, 0, 90),
 
-            Plan(WEEKLY, self.next_day_of_week(SATURDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
+            Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),    # 960
             Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),       # 960
         ]
 
@@ -117,7 +118,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     new_tournaments_data = []
 
     for plan in plans:
-        starts_at = dt.datetime(plan.at.year, plan.at.month, plan.at.day, hour=plan.hour, tzinfo=dt.timezone.utc)
+        starts_at = dt.datetime(plan.date.year, plan.date.month, plan.date.day, hour=plan.hour, tzinfo=dt.timezone.utc)
 
         variant_name = variant_display_name(plan.variant).title()
         if plan.freq == MONTHLY and plan.variant in CATEGORIES["makruk"]:
@@ -127,7 +128,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
         else:
             name = "%s Arena" % variant_name
 
-        if starts_at > now and starts_at <= to_date and (plan.freq, plan.variant, plan.is960, starts_at) not in already_scheduled:
+        if starts_at >= now and starts_at <= to_date and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration) not in already_scheduled:
             new_tournaments_data.append({
                 "name": name,
                 "createdBy": "PyChess",

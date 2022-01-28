@@ -3,9 +3,16 @@
   "version": "0.0.2",
   "private": true,
   "description": "free, open-source chess server designed to play chess variants.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gbtami/pychess-variants.git"
+  },  
   "main": "static/pychess-variants.js",
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/gbtami/pychess-variants/issues"
+  },
   "funding": "patreon.com/pychess", 
   "dependencies": {
     "chessgroundx": "^9.1.8",
@@ -15,12 +22,18 @@
     "howler": "^2.1.3",
     "html-to-image": "^1.8.5",
     "snabbdom": "^3.1.0",
-    "sockette": "^2.0"
+    "sockette": "^2.0",
+    "@fullcalendar/core": "^5.10.1",
+    "@fullcalendar/daygrid": "^5.10.1",
+    "@fullcalendar/interaction": "^5.10.1",
+    "@fullcalendar/list": "^5.10.1",
+    "@fullcalendar/timegrid": "^5.10.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-typescript": "^8.2.5",
+    "rollup-plugin-postcss": "^2.8.2",
     "@types/chai": "^4.2.12",
     "@types/gettext.js": "^1.0.0",
     "@types/howler": "^2.2.4",

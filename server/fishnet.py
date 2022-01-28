@@ -130,7 +130,7 @@ async def fishnet_analysis(request):
             try:
                 if "analysis" not in game.steps[i]:
                     # TODO: save PV only for inaccuracy, mistake and blunder
-                    # see https://github.com/ornicar/lila/blob/master/modules/analyse/src/main/Advice.scala
+                    # see https://github.com/lichess-org/lila/blob/master/modules/analyse/src/main/Advice.scala
                     vp_in_san = "pv_san" in analysis.keys()
                     game.steps[i]["analysis"] = {
                         "s": analysis["score"],
