@@ -90,7 +90,7 @@ class RRTournament(Tournament):
         berger = BERGER_TABLES[int(n / 2) - 2][self.current_round - 1]
 
         for wpn, bpn in berger:
-            if odd and (wpn == n or bpn == n):
+            if odd and n in (wpn, bpn):
                 sit = wpn if bpn == n else bpn
                 self.players[players[sit - 1]].games.append(ByeGame())
                 self.players[players[sit - 1]].points.append("-")
