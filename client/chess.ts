@@ -72,7 +72,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     empire: { pieceCSS: ["empire0", "empire1"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
     chak: { pieceCSS: ["chak0"] },
-    chennis: { pieceCSS: ["chennis0"] },
+    chennis: { pieceCSS: ["chennis0", "chennis1"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
@@ -760,7 +760,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis" ] },
 };
 
 function variantGroupLabel(group: string): string {
