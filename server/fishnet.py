@@ -110,7 +110,6 @@ async def fishnet_analysis(request):
     gameId = work["game_id"]
     game = await load_game(request.app, gameId)
 
-
     users = request.app["users"]
     username = work["username"]
 
