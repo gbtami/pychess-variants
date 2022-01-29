@@ -1,0 +1,35 @@
+name: Bug report
+description: Report something not working on the website.
+labels:
+  - content
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <!-- Thank you for reporting an issue. First, please search for duplicate existing issues. -->
+
+        * For questions, ask in [Discussions](https://github.com/gbtami/pychess-variants/discussions).
+
+  - type: textarea
+    attributes:
+      label: Exact URL where the bug happened?
+      description: Include links to articles where you're seeing a problem, screenshots, what browser you're using, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What changes are you suggesting?
+      description: |
+        - Give as much detail as you can to help us understand the change you want to see. 
+        - Why should the it be changed? What use cases does it support? 
+        - What is the expected outcome?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Any additional information, configuration, or data that might be necessary to reproduce the issue.
+    validations:
+      required: false
