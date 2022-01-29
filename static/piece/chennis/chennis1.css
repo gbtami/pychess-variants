@@ -1,0 +1,55 @@
+.chennis .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/green/wK.svg');
+}
+.chennis .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/green/wP.svg');
+}
+.chennis .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/green/wR.svg');
+}
+.chennis .cg-wrap piece.m-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/mono/wC.svg');
+}
+.chennis .cg-wrap piece.pm-piece.white {
+    background-image: url('../../images/pieces/green/wN.svg');
+}
+.chennis .cg-wrap piece.s-piece.white {
+    background-image: url('../../images/pieces/green/synoshako/wP.svg');
+}
+.chennis .cg-wrap piece.ps-piece.white {
+    background-image: url('../../images/pieces/green/wB.svg');
+}
+.chennis .cg-wrap piece.f-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/blue/wF.svg');
+}
+.chennis .cg-wrap piece.pf-piece.white {
+    background-image: url('../../images/pieces/green/synoshako/wC.svg');
+}
+
+.chennis .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/green/bK.svg');
+}
+.chennis .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/green/bP.svg');
+}
+.chennis .cg-wrap piece.pp-piece.black {
+    background-image: url('../../images/pieces/green/bR.svg');
+}
+.chennis .cg-wrap piece.m-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/mono/bC.svg');
+}
+.chennis .cg-wrap piece.pm-piece.black {
+    background-image: url('../../images/pieces/green/bN.svg');
+}
+.chennis .cg-wrap piece.s-piece.black {
+    background-image: url('../../images/pieces/green/synoshako/bP.svg');
+}
+.chennis .cg-wrap piece.ps-piece.black {
+    background-image: url('../../images/pieces/green/bB.svg');
+}
+.chennis .cg-wrap piece.f-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/blue/bF.svg');
+}
+.chennis .cg-wrap piece.pf-piece.black {
+    background-image: url('../../images/pieces/green/synoshako/bC.svg');
+}
