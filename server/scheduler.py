@@ -2,7 +2,7 @@ import calendar
 from collections import namedtuple
 import datetime as dt
 
-from const import ARENA, CATEGORIES, GRANDS, VARIANTS, WEEKLY, MONTHLY, SHIELD, variant_display_name, SCHEDULE_MAX_DAYS
+from const import ARENA, CATEGORIES, GRANDS, VARIANTS, DAILY, WEEKLY, MONTHLY, SHIELD, variant_display_name, SCHEDULE_MAX_DAYS
 
 from tournaments import new_tournament
 
@@ -89,7 +89,7 @@ class Scheduler:
             Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),     # 960
             Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
             Plan(SHIELD, self.second_monthly(SATURDAY), 11, "makruk", False, 5, 3, 0, 180),
-            Plan(SHIELD, self.third_monthly(SUNDAY), 16, "atomic", True, 3, 2, 0, 180),          # 960
+            Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),          # 960
 
             Plan(MONTHLY, self.first_monthly(SATURDAY), 11, "asean", False, 3, 2, 0, 90),
             # Plan(MONTHLY, self.second_monthly(SATURDAY), 11, "makruk", False, 3, 2, 0, 90),    # this is the Makruk shield above
@@ -105,6 +105,11 @@ class Scheduler:
 
 def new_scheduled_tournaments(already_scheduled, now=None):
     """ Create list for scheduled tournament data for one week from now on compared to what we already have """
+
+    # Cut off the latest element (_id) from all tournament data first
+    # to let test if new plan data is already in already_scheduled or not.
+    already_scheduled = [t[:5] for t in already_scheduled]
+
     if now is None:
         now = dt.datetime.now(dt.timezone.utc)
         # set time info to 0:0:0
@@ -121,10 +126,17 @@ def new_scheduled_tournaments(already_scheduled, now=None):
         starts_at = dt.datetime(plan.date.year, plan.date.month, plan.date.day, hour=plan.hour, tzinfo=dt.timezone.utc)
 
         variant_name = variant_display_name(plan.variant).title()
-        if plan.freq == MONTHLY and plan.variant in CATEGORIES["makruk"]:
-            name = "SEAturday %s Arena" % variant_name
-        elif plan.freq == SHIELD:
+        if plan.freq == SHIELD:
             name = "%s Shield Arena" % variant_name
+        elif plan.freq == MONTHLY:
+            if plan.variant in CATEGORIES["makruk"]:
+                name = "SEAturday %s Arena" % variant_name
+            else:
+                name = "Monthly %s Arena" % variant_name
+        elif plan.freq == WEEKLY:
+            name = "Weekly %s Arena" % variant_name
+        elif plan.freq == DAILY:
+            name = "Daily %s Arena" % variant_name
         else:
             name = "%s Arena" % variant_name
 

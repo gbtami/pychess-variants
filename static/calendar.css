@@ -2,3 +2,18 @@
   max-width: 900px;
   margin: 0 auto;
 }
+a.s, a.m, a.w, a.d {
+    color: var(--font-color);
+}
+a.s {
+    background: var(--gold);
+}
+a.m {
+    background: var(--green-hover);
+}
+a.w {
+    background: var(--blue-active);
+}
+a.d {
+    background: back;
+}
