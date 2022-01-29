@@ -1,7 +1,7 @@
 name: Bug report
 description: Report something not working on the website.
 labels:
-  - content
+  - bug
 body:
   - type: markdown
     attributes:
