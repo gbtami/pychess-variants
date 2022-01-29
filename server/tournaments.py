@@ -195,7 +195,7 @@ async def get_scheduled_tournaments(app, nb_max=30):
             if nb_tournament > nb_max:
                 break
             else:
-                tournaments.append((doc["fr"], C2V[doc["v"]], bool(doc["z"]), doc["startsAt"], doc["minutes"]))
+                tournaments.append((doc["fr"], C2V[doc["v"]], bool(doc["z"]), doc["startsAt"], doc["minutes"], doc["_id"]))
     return tournaments
 
 
