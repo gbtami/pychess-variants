@@ -16,10 +16,10 @@ SHIELD_ZH_2021_12 = (SHIELD, "crazyhouse", True, dt.datetime(2021, 12, 13, 18, t
 SHIELD_ZH_2022_01 = (SHIELD, "crazyhouse", True, dt.datetime(2022, 1, 10, 18, tzinfo=dt.timezone.utc), 180)
 
 # Atomic960 Shield scheduled at third SUNDAY of month
-SHIELD_ATOMIC_2021_10 = (SHIELD, "atomic", True, dt.datetime(2021, 10, 17, 16, tzinfo=dt.timezone.utc), 180)
-SHIELD_ATOMIC_2021_11 = (SHIELD, "atomic", True, dt.datetime(2021, 11, 14, 16, tzinfo=dt.timezone.utc), 180)
-SHIELD_ATOMIC_2021_12 = (SHIELD, "atomic", True, dt.datetime(2021, 12, 19, 16, tzinfo=dt.timezone.utc), 180)
-SHIELD_ATOMIC_2022_01 = (SHIELD, "atomic", True, dt.datetime(2022, 1, 16, 16, tzinfo=dt.timezone.utc), 180)
+SHIELD_ATOMIC_2021_10 = (SHIELD, "atomic", True, dt.datetime(2021, 10, 17, 12, tzinfo=dt.timezone.utc), 180)
+SHIELD_ATOMIC_2021_11 = (SHIELD, "atomic", True, dt.datetime(2021, 11, 14, 12, tzinfo=dt.timezone.utc), 180)
+SHIELD_ATOMIC_2021_12 = (SHIELD, "atomic", True, dt.datetime(2021, 12, 19, 12, tzinfo=dt.timezone.utc), 180)
+SHIELD_ATOMIC_2022_01 = (SHIELD, "atomic", True, dt.datetime(2022, 1, 16, 12, tzinfo=dt.timezone.utc), 180)
 
 ONE_TEST_ONLY = False
 
