@@ -66,7 +66,7 @@ class Scheduler:
     def third_monthly(self, weekday):
         return self.first_monthly(weekday) + dt.timedelta(days=14)
 
-    def forth_monthly(self, weekday):
+    def fourth_monthly(self, weekday):
         return self.first_monthly(weekday) + dt.timedelta(days=21)
 
     def next_day_of_week(self, weekday):
@@ -75,7 +75,7 @@ class Scheduler:
     def get_next_variant(self, period, variants):
         return variants[period % len(variants)]
 
-    def shedule_plan(self):
+    def schedule_plan(self):
         """ Create planned tournament plan list for one full month """
         SEA = self.get_next_variant(self.now.month, ("sittuyin", "cambodian"))
         plans = []
@@ -88,16 +88,17 @@ class Scheduler:
         plans += [
             Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),     # 960
             Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
-            Plan(SHIELD, self.second_monthly(SATURDAY), 11, "makruk", False, 5, 3, 0, 180),
+            Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),          # 960
 
-            Plan(MONTHLY, self.first_monthly(SATURDAY), 11, "asean", False, 3, 2, 0, 90),
-            # Plan(MONTHLY, self.second_monthly(SATURDAY), 11, "makruk", False, 3, 2, 0, 90),    # this is the Makruk shield above
-            Plan(MONTHLY, self.third_monthly(SATURDAY), 11, SEA, False, 3, 2, 0, 90),
-            Plan(MONTHLY, self.forth_monthly(SATURDAY), 11, "makpong", False, 3, 2, 0, 90),
+            Plan(MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90),
+            # The second Saturday is Makruk Shield
+            Plan(MONTHLY, self.third_monthly(SATURDAY), 12, SEA, False, 3, 2, 0, 90),
+            Plan(MONTHLY, self.fourth_monthly(SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
 
             Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),    # 960
             Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),       # 960
+            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 14, "makruk", False, 3, 2, 0, 90),
         ]
 
         return plans
@@ -118,7 +119,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     to_date = dt.datetime.combine(now, dt.time.max, tzinfo=dt.timezone.utc) + dt.timedelta(days=SCHEDULE_MAX_DAYS)
 
     # 2 full month list of scheduled tournaments
-    plans = Scheduler(now).shedule_plan() + Scheduler(go_month(now)).shedule_plan()
+    plans = Scheduler(now).schedule_plan() + Scheduler(go_month(now)).schedule_plan()
 
     new_tournaments_data = []
 

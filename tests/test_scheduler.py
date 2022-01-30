@@ -105,7 +105,7 @@ class TournamentSchedulerTestCase(unittest.TestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     def test_shedule_plan(self):
-        plans = Scheduler().shedule_plan()
+        plans = Scheduler().schedule_plan()
 
         self.assertTrue(len(plans) > len(MONTHLY_VARIANTS) + len(SHIELDS))
 

@@ -7,6 +7,7 @@ import allLocales from '@fullcalendar/core/locales-all';
 
 import { h, VNode } from 'snabbdom';
 
+import { VARIANTS } from './chess';
 
 function buildCalendar() {
 
@@ -19,6 +20,12 @@ function buildCalendar() {
 
             if (!response.length) {
                 return;
+            }
+
+            for (const i in response) {
+                const variant = response[i].title.replace('960', '');
+                const chess960 = response[i].title.includes('960');
+                response[i].title = VARIANTS[variant].displayName(chess960);
             }
 
         // console.log(response);
