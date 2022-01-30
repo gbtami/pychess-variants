@@ -98,7 +98,7 @@ class Scheduler:
 
             Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),    # 960
             Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),       # 960
-            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 13, "makruk", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 14, "makruk", False, 3, 2, 0, 90),
         ]
 
         return plans
