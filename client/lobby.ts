@@ -877,7 +877,10 @@ export class LobbyController {
     }
 
     private onMsgSpotlights(msg: MsgSpotlights) {
-        this.spotlights = patch(this.spotlights, h('div#spotlights', msg.items.map(spotlight => this.spotlightView(spotlight))));
+        this.spotlights = patch(this.spotlights, h('div#spotlights', [
+            h('div', msg.items.map(spotlight => this.spotlightView(spotlight))),
+            h('a.cont-link', { attrs: { href: '/calendar' } }, _('Tournament calendar') + ' »'),
+        ]));
     }
 }
 
