@@ -17,8 +17,12 @@ As Chess pieces had more range, I needed a slightly bigger board to accomodate t
 
 The pieces in Chennis are all a combination of short-ranged and long-ranged pieces. To allow for more options, I also used the soldier/pawn and cannon from xiangqi. In addition to the restricted king area, you could say this game also features a lot of xiangqi. And in combination, this game is an amalgamation of Chess, Xiangqi, and (Kyoto) Shogi!
 
+As for the balance, that took a lot of tries, but thanks to Procyon and his help in testing multiple setups, I was able to reach an approximately 60-40 balance by AI, slightly in favor of white, which was more than reasonable (humans are unlikely to feel any imbalance especially since the armies are not asymmetric). And thanks to e-pluszak and Untitled Entity as usual for vigorous playtesting. 
+
 As with Chak, Chennis will be in the "New Army Variants" menu for now, despite not being a "New Army Variant." At some point, we may rework how the catalog and categorization works, but just keep in mind that that's where Chennis will be sitting for now.
 
 Hope you all enjoy!
+
+Also, in other news, we now have a calendar where you can see what tournaments are planned in advance! Many of these are now automated. As always, if you want to play a specific tournament, we're welcome to create one, but it's also recommended to recruit other people who are willing to play, especially if in it's a different time zone than usual.
 
 -Couch Tomato
