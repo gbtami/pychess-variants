@@ -179,13 +179,14 @@ TROPHIES = {
     "top50": (static_url("images/trophy/Fancy-Gold-Cup.png"), "Top 50!"),
     "top100": (static_url("images/trophy/Gold-Cup.png"), "Top 100!"),
     "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
-    "acwc21": (static_url("images/trophy/acwc21.png"), "World Champion 2021"),
+    "acwc21": (static_url("images/trophy/acwc21.png"), "2021 World Champion"),
     "developer": (static_url("images/trophy/developer.png"), "Developer"),
     "moderator": (static_url("images/trophy/moderator.png"), "Moderator")    
 }
 
 TROPHY_KIND = (
     "liantichess",
+    "LAWC", 
     "antichess",
     "antichess960",
     "losers",
