@@ -45,6 +45,7 @@ function buildCalendar() {
             fixedWeekCount: false,
             navLinks: true, // can click day/week names to navigate views
             dayMaxEvents: true, // allow "more" link when too many events
+            nextDayThreshold: '06:00:00', // events only considered to take up the next day if it ends after this time
             events: response
         });
 
