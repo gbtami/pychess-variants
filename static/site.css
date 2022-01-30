@@ -242,6 +242,12 @@ iframe {
     background-color: var(--bg-color0);
     padding: 1em;
 }
+
+.cont-link {
+    display: block;
+    text-align: right;
+}
+
 @media (min-width: 320px) {
     html {
         font-size: calc( 12px + 2 * ((100vw - 320px) / 880));
@@ -1965,6 +1971,9 @@ div#ctable-container {
 }
 
 /* tournaments */
+#spotlights {
+    margin-bottom: 1em;
+}
 .tour-spotlight {
     display: flex;
     flex-flow: row nowrap;
@@ -1978,9 +1987,6 @@ div#ctable-container {
     overflow: hidden;
     background: linear-gradient(to bottom, var(--blue-active), var(--blue-passive) 100%);
     box-shadow: var(--base-shadow);
-}
-.tour-spotlight:last-child {
-    margin-bottom: 1em;
 }
 .tour-spotlight:hover {
  opacity:1
@@ -2005,6 +2011,7 @@ div#ctable-container {
 .tour-spotlight .more {
     font-size: 0.85em;
 }
+
 a#zen-button {
     display: none;
 }
