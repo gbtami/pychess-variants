@@ -246,6 +246,7 @@ iframe {
 .cont-link {
     display: block;
     text-align: right;
+    margin: 0.5em 1em 0.5em 0;
 }
 
 @media (min-width: 320px) {
@@ -1971,9 +1972,6 @@ div#ctable-container {
 }
 
 /* tournaments */
-#spotlights {
-    margin-bottom: 1em;
-}
 .tour-spotlight {
     display: flex;
     flex-flow: row nowrap;
