@@ -91,7 +91,7 @@ class Scheduler:
         """ Create planned tournament plan list for one full month """
         SEA = self.get_next_variant(self.now.month, ("sittuyin", "cambodian"))
         plans = []
-        for i, v in enumerate(MONTHLY_VARIANTS):
+        for i in enumerate(MONTHLY_VARIANTS):
             is_960 = v.endswith("960")
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
