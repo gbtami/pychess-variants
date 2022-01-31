@@ -250,6 +250,8 @@ async def get_latest_tournaments(app):
         elif doc["status"] > T_STARTED:
             completed.append(tournament)
 
+    scheduled = sorted(scheduled, key=lambda tournament: tournament.starts_at)
+
     return (started, scheduled, completed)
 
 
