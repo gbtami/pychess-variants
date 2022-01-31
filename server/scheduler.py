@@ -25,7 +25,7 @@ TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
-TC_MONTHLY_VARIANTS["shogun"] = (3, 3, 1)
+TC_MONTHLY_VARIANTS["shogun"] = (3, 10, 1)
 
 for v in CATEGORIES["army"]:
     TC_MONTHLY_VARIANTS[v] = (3, 4, 0)
