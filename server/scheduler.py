@@ -2,7 +2,7 @@ import calendar
 from collections import namedtuple
 import datetime as dt
 
-from const import ARENA, CATEGORIES, GRANDS, VARIANTS, DAILY, WEEKLY, MONTHLY, SHIELD, variant_display_name, SCHEDULE_MAX_DAYS
+from const import ARENA, CATEGORIES, GRANDS, DAILY, WEEKLY, MONTHLY, SHIELD, variant_display_name, SCHEDULE_MAX_DAYS
 
 from tournaments import new_tournament
 
@@ -13,7 +13,12 @@ NO_TOURNEY = ["chess", "chess960", "crazyhouse", "atomic", "shogi", "minishogi"]
 SHIELDS = ["crazyhouse960", "atomic960", "makruk", "shinobi"]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
-MONTHLY_VARIANTS = [v for v in VARIANTS if v not in NO_TOURNEY + SHIELDS + SEATURDAY]
+MONTHLY_VARIANTS = (
+    "dobutsu", "capahouse", "chak", "shogun", "orda", "gorogoroplus", "shouse",
+    "capablanca960", "hoppelpoppel", "grand", "janggi", "seirawan", "empire", "kyotoshogi",
+    "placement", "ordamirror", "capahouse960", "minixiangqi", "synochess", "grandhouse", "shako",
+    "manchu", "torishogi", "seirawan960", "chennis", "capablanca", "xiangqi",
+)
 
 # Tournaments need different TC
 TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}

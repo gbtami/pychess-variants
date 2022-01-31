@@ -1,4 +1,5 @@
 NEWS = {
+    "Serving_a_New_Variant": "2022-02-01",
     "Merry_Chakmas": "2021-12-24",
     "Cold_Winter": "2021-12-21",
     "Hot_Summer": "2021-09-02",
