@@ -29,15 +29,14 @@ TC_MONTHLY_VARIANTS["shogun"] = (3, 10, 1)
 
 for v in CATEGORIES["army"]:
     TC_MONTHLY_VARIANTS[v] = (3, 4, 0)
-
 TC_MONTHLY_VARIANTS["chak"] = (5, 3, 0)
-for v in GRANDS:
+
+for v in GRANDS: # anything with ten ranks, Grand, Xiangqi, etc
     TC_MONTHLY_VARIANTS[v] = (5, 3, 0)
+TC_MONTHLY_VARIANTS["janggi"] = (5, 15, 1)
 
 for v in CATEGORIES["shogi"]:
     TC_MONTHLY_VARIANTS[v] = (2, 15, 1)
-
-TC_MONTHLY_VARIANTS["janggi"] = (5, 15, 1)
 
 
 def go_month(orig_date, month=1):
