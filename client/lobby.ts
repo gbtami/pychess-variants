@@ -946,6 +946,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/ChessTennis.jpg'} }),
+                    h('span.text', [
+                        h('strong', "Tennis and chess"),
+                        h('span', 'Serving a New Variant'),
+                    ]),
+                    h('time', '2022.02.01'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/QuetzalinTikal.png'} }),
                     h('span.text', [
@@ -962,6 +970,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.12.21'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/AngryBirds.png'} }),
                     h('span.text', [
@@ -970,7 +979,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.09.02'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/Darth-Vader-Comic.jpg'} }),
                     h('span.text', [
