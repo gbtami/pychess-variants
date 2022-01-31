@@ -20,17 +20,24 @@ MONTHLY_VARIANTS = (
     "manchu", "torishogi", "seirawan960", "chennis", "capablanca", "xiangqi",
 )
 
-# Tournaments need different TC
+# Monthly Variant Tournaments need different TC
 TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
+
+for v in CATEGORIES["fairy"]:
+    TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
+TC_MONTHLY_VARIANTS["shogun"] = (3, 3, 1)
+
+for v in CATEGORIES["army"]:
+    TC_MONTHLY_VARIANTS[v] = (3, 4, 0)
 
 TC_MONTHLY_VARIANTS["chak"] = (5, 3, 0)
 for v in GRANDS:
     TC_MONTHLY_VARIANTS[v] = (5, 3, 0)
 
 for v in CATEGORIES["shogi"]:
-    TC_MONTHLY_VARIANTS[v] = (1, 15, 1)
+    TC_MONTHLY_VARIANTS[v] = (2, 15, 1)
 
-TC_MONTHLY_VARIANTS["janggi"] = (3, 15, 1)
+TC_MONTHLY_VARIANTS["janggi"] = (5, 15, 1)
 
 
 def go_month(orig_date, month=1):
