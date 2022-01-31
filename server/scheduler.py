@@ -31,7 +31,7 @@ for v in CATEGORIES["army"]:
     TC_MONTHLY_VARIANTS[v] = (3, 4, 0)
 TC_MONTHLY_VARIANTS["chak"] = (5, 3, 0)
 
-for v in GRANDS: # anything with ten ranks, Grand, Xiangqi, etc
+for v in GRANDS:  # anything with ten ranks, Grand, Xiangqi, etc
     TC_MONTHLY_VARIANTS[v] = (5, 3, 0)
 TC_MONTHLY_VARIANTS["janggi"] = (5, 15, 1)
 
@@ -137,22 +137,23 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     for plan in plans:
         starts_at = dt.datetime(plan.date.year, plan.date.month, plan.date.day, hour=plan.hour, tzinfo=dt.timezone.utc)
 
-        variant_name = variant_display_name(plan.variant).title()
-        if plan.freq == SHIELD:
-            name = "%s Shield Arena" % variant_name
-        elif plan.freq == MONTHLY:
-            if plan.variant in CATEGORIES["makruk"]:
-                name = "SEAturday %s Arena" % variant_name
-            else:
-                name = "Monthly %s Arena" % variant_name
-        elif plan.freq == WEEKLY:
-            name = "Weekly %s Arena" % variant_name
-        elif plan.freq == DAILY:
-            name = "Daily %s Arena" % variant_name
-        else:
-            name = "%s Arena" % variant_name
-
         if starts_at >= now and starts_at <= to_date and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration) not in already_scheduled:
+
+            variant_name = variant_display_name(plan.variant).title()
+            if plan.freq == SHIELD:
+                name = "%s Shield Arena" % variant_name
+            elif plan.freq == MONTHLY:
+                if plan.variant in CATEGORIES["makruk"]:
+                    name = "SEAturday %s Arena" % variant_name
+                else:
+                    name = "Monthly %s Arena" % variant_name
+            elif plan.freq == WEEKLY:
+                name = "Weekly %s Arena" % variant_name
+            elif plan.freq == DAILY:
+                name = "Daily %s Arena" % variant_name
+            else:
+                name = "%s Arena" % variant_name
+
             new_tournaments_data.append({
                 "name": name,
                 "createdBy": "PyChess",
