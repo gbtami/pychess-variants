@@ -1,10 +1,10 @@
 {
-  "name": "pychess-variants",
+  "name": "liantichess",
   "version": "0.0.2",
   "private": true,
-  "description": "Play different chess variants not available on lichess",
+  "description": "Antichess Variants Server",
   "main": "static/pychess-variants.js",
-  "author": "Bajusz Tamás",
+  "author": "Bajusz Tamás And SriMethan",
   "license": "AGPL-3.0",
   "dependencies": {
     "chessgroundx": "^9.1.4",
