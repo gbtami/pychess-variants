@@ -31,7 +31,7 @@ for v in CATEGORIES["army"]:
     TC_MONTHLY_VARIANTS[v] = (3, 4, 0)
 TC_MONTHLY_VARIANTS["chak"] = (5, 3, 0)
 
-for v in GRANDS: # anything with ten ranks, Grand, Xiangqi, etc
+for v in GRANDS:  # anything with ten ranks, Grand, Xiangqi, etc
     TC_MONTHLY_VARIANTS[v] = (5, 3, 0)
 TC_MONTHLY_VARIANTS["janggi"] = (5, 15, 1)
 
