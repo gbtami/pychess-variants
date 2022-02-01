@@ -47,6 +47,8 @@ VARIANTS = (
     "antichess960",
     "losers",
     "losers960",
+    "anti3check",
+    "anti3check960",    
     "anti_antichess",
     "anti_antichess960",
     "antiatomic",
@@ -86,6 +88,8 @@ VARIANT_ICONS = {
     "antichess960": "♔",
     "losers": "♔",
     "losers960": "♔",
+    "anti3check": "♔",
+    "anti3check960": "♔",    
     "anti_antichess": "♔",
     "anti_antichess960": "♔",
     "antiatomic": "♔",
@@ -143,6 +147,7 @@ VARIANT_960_TO_PGN = {
     "atomic": "Atomic",          # to let lichess import work
     "antichess": "Antichess",          # to let lichess import work    
     "losers": "Losers960",
+    "anti3check": "Anti3check960",
     "anti_antichess": "Anti_antichess960",
     "antiatomic": "Antiatomic960",
     "antihouse": "Antihouse960",

@@ -18,6 +18,7 @@ V2C = {
     "antiatomic": "F",
     "antichess": "f",
     "losers": "H",
+    "anti3check": "X",    
     "anti_antichess": "V",
     "makruk": "m",
     "placement": "p",

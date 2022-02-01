@@ -300,6 +300,15 @@ export const VARIANTS: { [name: string]: Variant } = {
             enPassant: true,
             chess960: true, icon: "♔", icon960: "♔",
         }),
+
+    anti3check: new Variant({
+            name: "anti3check", tooltip: () => _("Keep three checks."),
+            startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
+            board: "standard8x8", piece: "standard",
+            pieceRoles: ["k", "q", "r", "b", "n", "p"],
+            enPassant: true,
+            chess960: true, icon: "♔", icon960: "♔",
+        }),        
             
     anti_antichess: new Variant({
             name: "anti_antichess", displayName: "anti-antichess", tooltip: () => _("loose at antichess"),
@@ -767,7 +776,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antihouse", "antipawns", "coffeehouse", "coffeehill", "atomic_giveaway_hill"] },
+    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antihouse", "antipawns", "coffeehouse", "coffeehill", "atomic_giveaway_hill", "anti3check"] },
     //sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     //shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
