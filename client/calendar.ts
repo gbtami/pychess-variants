@@ -39,7 +39,6 @@ function buildCalendar() {
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
             },
-            initialDate: '2022-01-01',
             firstDay: 1,
             showNonCurrentDates: false,
             fixedWeekCount: false,
