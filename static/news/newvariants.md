@@ -3,10 +3,10 @@
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2021.19.12</span>
-        <span class="text"><a href="/@/SriMethan">@SriMethan</a></span>
+        <span class="text"><a>Developers</a></span>
         <span class="text">Liantichess</span>
     </div>
-    <div class= "headline">many variant are now available on liantichess. But also other new features and many bug fixes.</div>
+    <div class= "headline">many variants are now available on liantichess. But also other new features and many bug fixes.</div>
 </div>
 </br>
 

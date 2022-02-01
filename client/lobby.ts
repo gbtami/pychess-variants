@@ -947,7 +947,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('img', { attrs: {src: model["asset-url"] + '/images/newblog.png'} }),
                 h('span.text', [
                     h('strong', "New variants and much more!"),
-                    h('span', 'many variant are now available on liantichess. But also other new features and many bug fixes.'),
+                    h('span', 'many variants are now available on liantichess. But also other new features and many bug fixes.'),
                 ]),
                 h('time', '2022.01.01'),
             ]),
