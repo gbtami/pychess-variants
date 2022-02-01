@@ -942,6 +942,16 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('icon', { attrs: {"data-icon": '2'} }),
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
+
+            h('a.post', { attrs: {href: '/news/Liantichess'} }, [
+                h('img', { attrs: {src: model["asset-url"] + '/images/newblog.png'} }),
+                h('span.text', [
+                    h('strong', "New variants and much more!"),
+                    h('span', 'many variant are now available on liantichess. But also other new features and many bug fixes.'),
+                ]),
+                h('time', '2022.01.01'),
+            ]),
+
                 h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
                     h('a.post', { attrs: {href: '/news/Loserschess'} }, [
@@ -952,14 +962,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         ]),
                         h('time', '2022.01.01'),
                 
-                ]),
-                h('a.post', { attrs: {href: '/news/Liantichess'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/liantichess.png'} }),
-                    h('span.text', [
-                        h('strong', "Liantichess"),
-                        h('span', 'I really appreciate everyone who offered to help, donated, reported a bug or made me aware of some possible improvements.'),
-                    ]),
-                    h('time', '2021.12.17'),
                 ]),
                 h('posts', [
                     // TODO: create news documents in mongodb and load latest 3 dinamically here
