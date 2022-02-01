@@ -943,7 +943,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
 
-            h('a.post', { attrs: {href: '/news/Liantichess'} }, [
+            h('a.post', { attrs: {href: '/news/newvariants'} }, [
                 h('img', { attrs: {src: model["asset-url"] + '/images/newblog.png'} }),
                 h('span.text', [
                     h('strong', "New variants and much more!"),

@@ -3,7 +3,7 @@
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2021.19.12</span>
-        <span class="text"><a href="/@/cFlour">@cFlour</a></span>
+        <span class="text"><a href="/@/SriMethan">@SriMethan</a></span>
         <span class="text">Liantichess</span>
     </div>
     <div class= "headline">many variant are now available on liantichess. But also other new features and many bug fixes.</div>
@@ -25,7 +25,7 @@ Currently other variants are planned on discord. If you are familiar with these 
 
 Liantichess now supports Analysis for Antichess and Antichess/Coffee Variants. Do feel free to analyse any game on Liantichess now.
 
-Do note that Liantichess uses a fork of fairyfishnet ( https://github.com/gbtami/fairyfishnet ) which you can find here https://github.com/TheYoBots/fairyfishnet . So only as long as someone is running it analysis in Liantichess will work.
+Do note that Liantichess uses a fork of fairyfishnet (https://github.com/gbtami/fairyfishnet) which you can find here https://github.com/TheYoBots/fairyfishnet . So only as long as someone is running it analysis in Liantichess will work.
 
 ![image](https://imgur.com/SabVssy.png)
 
