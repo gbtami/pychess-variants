@@ -219,11 +219,9 @@ async def init_state(app):
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date):
                 await load_tournament(app, doc["_id"])
 
-        # TODO: Enable on prod pychess when time comes
-        if DEV:
-            already_scheduled = await get_scheduled_tournaments(app)
-            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-            await create_scheduled_tournaments(app, new_tournaments_data)
+        already_scheduled = await get_scheduled_tournaments(app)
+        new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+        await create_scheduled_tournaments(app, new_tournaments_data)
 
         await generate_shield(app)
 
