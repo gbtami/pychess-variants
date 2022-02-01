@@ -4,7 +4,7 @@ import datetime as dt
 
 from const import ARENA, CATEGORIES, GRANDS, DAILY, WEEKLY, MONTHLY, SHIELD, variant_display_name, SCHEDULE_MAX_DAYS
 
-from tournaments import new_tournament
+from tournaments import new_tournament, broadcast_tournament_creation
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple('Plan', 'freq, date, hour, variant, is960, base, inc, byo, duration')
@@ -173,4 +173,5 @@ def new_scheduled_tournaments(already_scheduled, now=None):
 
 async def create_scheduled_tournaments(app, new_tournaments_data):
     for data in new_tournaments_data:
-        await new_tournament(app, data)
+        tournament = await new_tournament(app, data)
+        await broadcast_tournament_creation(app, tournament)

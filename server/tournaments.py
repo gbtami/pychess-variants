@@ -16,6 +16,8 @@ log = logging.getLogger(__name__)
 
 
 async def create_or_update_tournament(app, username, form, tournament=None):
+    """ Manual tournament creation from https://www.pychess.org/tournaments/new form input values """
+
     variant = form["variant"]
     variant960 = variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
@@ -64,6 +66,10 @@ async def create_or_update_tournament(app, username, form, tournament=None):
         # upsert=True will do this update at the end of upsert_tournament_to_db()
         await upsert_tournament_to_db(tournament, app)
 
+    await broadcast_tournament_creation(app, tournament)
+
+
+async def broadcast_tournament_creation(app, tournament):
     await tournament.broadcast_spotlight()
 
     # Send msg to discord-relay BOT
