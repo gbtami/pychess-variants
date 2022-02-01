@@ -10,6 +10,9 @@ startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1
 checkCounting = true
 mustCapture = true
 
+[antirk:racingkings]
+mustCapture = true
+
 # Hybrid of antichess and atomic
 # This might look like what you'd call coffeeatomic, but it isn't.
 [antiatomic:atomic]
