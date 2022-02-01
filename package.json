@@ -6,14 +6,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/gbtami/pychess-variants.git"
-  },  
+  },
   "main": "static/pychess-variants.js",
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/gbtami/pychess-variants/issues"
   },
-  "funding": "patreon.com/pychess", 
+  "funding": "patreon.com/pychess",
   "dependencies": {
     "chessgroundx": "^9.1.8",
     "ffish-es6": "^0.6.5",
@@ -33,7 +33,6 @@
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-typescript": "^8.2.5",
-    "rollup-plugin-postcss": "^4.0.2",
     "@types/chai": "^4.2.12",
     "@types/gettext.js": "^1.0.0",
     "@types/howler": "^2.2.4",
@@ -44,14 +43,16 @@
     "jsdom-global": "^3.0.2",
     "mocha": "^9.1.4",
     "po2json": "^0.4.5",
+    "postcss": "8.x",
     "rollup": "^2.57.0",
     "rollup-plugin-brotli": "^3.1.0",
+    "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-terser": "^7.0.2",
     "showdown": "^1.9.1",
     "ts-mocha": "^9.0.2",
     "tslib": "^2.3.1",
     "typescript": "^4.1",
-    "yarn": "^1.17.3",
+    "yarn": "^1.22.17",
     "zlib": "^1.0.5"
   },
   "scripts": {

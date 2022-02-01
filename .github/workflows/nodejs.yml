@@ -20,4 +20,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn install
+    - run: yarn dev
+    - run: yarn md
     # Disable until it's fixed - run: yarn test
