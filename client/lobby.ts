@@ -942,7 +942,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('icon', { attrs: {"data-icon": '2'} }),
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
-
+        h('posts', [
             h('a.post', { attrs: {href: '/news/newvariants'} }, [
                 h('img', { attrs: {src: model["asset-url"] + '/images/newblog.png'} }),
                 h('span.text', [
