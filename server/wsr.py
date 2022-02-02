@@ -73,7 +73,7 @@ async def round_socket_handler(request):
                     elif data["type"] == "berserk":
                         game.berserk(data["color"])
                         response = {"type": "berserk", "color": data["color"]}
-                        await round_broadcast(game, users, response, full=True)
+                        await round_broadcast(game, response, full=True)
 
                     elif data["type"] == "analysis_move":
 
@@ -95,7 +95,7 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
 
                             response = {"type": "user_present", "username": user.username}
-                            await round_broadcast(game, users, game.spectator_list, full=True)
+                            await round_broadcast(game, game.spectator_list, full=True)
 
                     elif data["type"] == "board":
 
@@ -269,14 +269,14 @@ async def round_socket_handler(request):
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
                         if rematch_id:
-                            await round_broadcast(game, users, {"type": "view_rematch", "gameId": rematch_id})
+                            await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})
 
                     elif data["type"] == "reject_rematch":
 
                         opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
 
                         if opp_name in game.rematch_offers:
-                            await round_broadcast(game, users, {"type": "rematch_rejected", "message": "Rematch offer rejected"}, full=True)
+                            await round_broadcast(game, {"type": "rematch_rejected", "message": "Rematch offer rejected"}, full=True)
 
                     elif data["type"] == "draw":
 
@@ -300,7 +300,7 @@ async def round_socket_handler(request):
                         if opp_name not in game.draw_offers:
                             game.draw_offers.add(user.username)
 
-                        await round_broadcast(game, users, response)
+                        await round_broadcast(game, response)
 
                     elif data["type"] == "reject_draw":
 
@@ -309,7 +309,7 @@ async def round_socket_handler(request):
 
                         response = reject_draw(game, opp_name)
                         if response is not None:
-                            await round_broadcast(game, users, response, full=True)
+                            await round_broadcast(game, response, full=True)
 
                     elif data["type"] == "logout":
                         await ws.close()
@@ -345,7 +345,7 @@ async def round_socket_handler(request):
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)
 
-                        await round_broadcast(game, users, response)
+                        await round_broadcast(game, response)
 
                     elif data["type"] == "embed_user_connected":
 
@@ -395,7 +395,7 @@ async def round_socket_handler(request):
 
                         if user.username not in (game.wplayer.username, game.bplayer.username):
                             game.spectators.add(user)
-                            await round_broadcast(game, users, game.spectator_list, full=True)
+                            await round_broadcast(game, game.spectator_list, full=True)
 
                         response = {"type": "game_user_connected", "username": user.username, "gameId": data["gameId"], "ply": game.board.ply, "firstmovetime": game.stopwatch.secs}
                         await ws.send_json(response)
@@ -407,7 +407,7 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                         response = {"type": "user_present", "username": user.username}
-                        await round_broadcast(game, users, response, full=True)
+                        await round_broadcast(game, response, full=True)
 
                         # not connected to lobby socket but connected to game socket
                         if len(user.game_sockets) == 1 and user.username not in sockets:
@@ -439,9 +439,12 @@ async def round_socket_handler(request):
                             opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             response = {"type": "moretime", "username": opp_name}
                             await opp_ws.send_json(response)
-                            await round_broadcast(game, users, response)
+                            await round_broadcast(game, response)
 
                     elif data["type"] == "roundchat":
+                        if user.username.startswith("Anon-"):
+                            continue
+
                         gameId = data["gameId"]
 
                         # Users running a fishnet worker can ask server side analysis with chat message: !analysis
@@ -465,7 +468,7 @@ async def round_socket_handler(request):
                                     player_ws = player.game_sockets[gameId]
                                     await player_ws.send_json(response)
 
-                        await round_broadcast(game, users, response)
+                        await round_broadcast(game, response)
 
                     elif data["type"] == "leave":
                         gameId = data["gameId"]
@@ -482,7 +485,7 @@ async def round_socket_handler(request):
                             response = {"type": "user_disconnected", "username": user.username}
                             await opp_player_ws.send_json(response)
 
-                        await round_broadcast(game, users, response)
+                        await round_broadcast(game, response)
 
                     elif data["type"] == "updateTV":
                         if "profileId" in data and data["profileId"] != "":
@@ -507,13 +510,13 @@ async def round_socket_handler(request):
                                 response = {"type": "count", "message": "Board's honor counting started", "room": "player", "user": ""}
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
-                                await round_broadcast(game, users, response)
+                                await round_broadcast(game, response)
                             elif data["mode"] == "stop":
                                 game.stop_manual_count()
                                 response = {"type": "count", "message": "Board's honor counting stopped", "room": "player", "user": ""}
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
-                                await round_broadcast(game, users, response)
+                                await round_broadcast(game, response)
                         else:
                             response = {"type": "count", "message": "You can only start/stop board's honor counting on your own turn!", "room": "player", "user": ""}
                             await ws.send_json(response)
@@ -552,7 +555,7 @@ async def round_socket_handler(request):
 
             if user.username not in (game.wplayer.username, game.bplayer.username):
                 game.spectators.discard(user)
-                await round_broadcast(game, users, game.spectator_list, full=True)
+                await round_broadcast(game, game.spectator_list, full=True)
 
             # not connected to lobby socket and not connected to game socket
             if len(user.game_sockets) == 0 and user.username not in sockets:
@@ -561,6 +564,6 @@ async def round_socket_handler(request):
 
         if game is not None and user is not None:
             response = {"type": "user_disconnected", "username": user.username}
-            await round_broadcast(game, users, response, full=True)
+            await round_broadcast(game, response, full=True)
 
     return ws

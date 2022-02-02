@@ -171,7 +171,7 @@ async def logout(request):
                 game = request.app["games"][gameId]
                 if game.status <= STARTED:
                     response = await game.game_ended(user, "abandone")
-                    await round_broadcast(game, users, response, full=True)
+                    await round_broadcast(game, response, full=True)
 
     session.invalidate()
 

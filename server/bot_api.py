@@ -342,7 +342,7 @@ async def bot_abort(request):
         opp_ws = users[opp_name].game_sockets[gameId]
         await opp_ws.send_json(response)
 
-    await round_broadcast(game, users, response)
+    await round_broadcast(game, response)
 
     return web.json_response({"ok": True})
 

@@ -249,6 +249,9 @@ async def lobby_socket_handler(request):
                             await ws.send_json({"type": "streams", "items": streams})
 
                     elif data["type"] == "lobbychat":
+                        if user.username.startswith("Anon-"):
+                            continue
+
                         message = data["message"]
                         response = None
 

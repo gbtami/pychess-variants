@@ -228,7 +228,7 @@ class Game:
         # Move cancels draw offer
         response = reject_draw(self, opp_player.username)
         if response is not None:
-            await round_broadcast(self, self.app["users"], response, full=True)
+            await round_broadcast(self, response, full=True)
 
         cur_time = monotonic()
 

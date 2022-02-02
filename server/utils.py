@@ -575,7 +575,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             pass
 
     if not invalid_move:
-        await round_broadcast(game, users, board_response, channels=app["game_channels"])
+        await round_broadcast(game, board_response, channels=app["game_channels"])
 
         if game.tournamentId is not None:
             tournament = app["tournaments"][game.tournamentId]
