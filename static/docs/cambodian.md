@@ -10,5 +10,5 @@ If you are not familiar with the rules of Makruk, please see that first.
 
 The only difference from Makruk is that when no pieces have been captured, the players have the following options:
 
-* on the king's first move, and only if not in check, of moving the king like a knight ;aterally to the second rank; and
+* on the king's first move, and only if not in check, of moving the king like a knight laterally to the second rank; and
 * on the queen's first move, of moving the queen two squares straight ahead
