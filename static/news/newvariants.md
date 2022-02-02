@@ -2,7 +2,7 @@
 
 <div class="meta-headline">
     <div class= "meta">
-        <span class="text">2021.19.12</span>
+        <span class="text">2022.01.02</span>
         <span class="text"><a>Developers</a></span>
         <span class="text">Liantichess</span>
     </div>
