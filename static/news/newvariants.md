@@ -10,7 +10,7 @@
 </div>
 </br>
 
-![Trafic](https://imgur.com/ScbMdRN.png)
+![Trafic](https://imgur.com/e0pekqB.png)
 
 
 **New Variants**
