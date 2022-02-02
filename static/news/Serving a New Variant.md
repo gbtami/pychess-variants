@@ -14,12 +14,12 @@
 
 Hi chess fans! Tomato here, and bringing my final (!?) planned variant: Chennis!
 
-For all of my variants, I have a particular background or challenge in mind when making this variant. Much like Shogun was a reaction to the archbishop/chancellor games that are so prevalent, Chenniis a reaction to Kyoto Shogi, one of our favorite variants (if you haven't played it, try it out!). In Kyoto Shogi, pieces flip between unpromoted and promoted sides after each move, which makes for a wild experience. One of the problems for Kyoto Shogi is that it is a solved game. Another is that it is harder for non-shogi players to get into, as they also have to learn the shogi pieces first.
+For all of my variants, I have a particular background or challenge in mind when making this variant. Much like Shogun was a reaction to the archbishop/chancellor games that are so prevalent, Chennis is a reaction to Kyoto Shogi, one of our favorite variants (if you haven't played it, try it out!). In Kyoto Shogi, pieces flip between unpromoted and promoted sides after each move, which makes for a wild experience. One of the problems for Kyoto Shogi is that it is a solved game. Another is that it is harder for non-shogi players to get into, as they also have to learn the Shogi pieces first.
 
 So my goal was to:
 
 A) Create a game that was relatively balanced
-B) Create a game that was more accessible to nonshogi players.
+B) Create a game that was more accessible to non-shogi players.
 
 As Chess pieces had more range, I needed a slightly bigger board to accomodate them, resulting in a 7x7 board. However, to keep the game as fast-paced as Kyoto, I also had to restrict the kings. This resulted in sectioned-off regions of the board that coincidentally resembled a tennis court. Because of the back-and-forth nature of the game, the parallels to tennis were embraced, and the game became "Chennis" (as opposed to "Kyoto Chess")!
 

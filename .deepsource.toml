@@ -8,13 +8,13 @@ test_patterns = [
 name = "python"
 enabled = true
 
-  [analyzers.meta]
-  runtime_version = "3.x.x"
+[analyzers.meta]
+runtime_version = "3.x.x"
 
 [[analyzers]]
 name = "javascript"
 enabled = true
 
-  [analyzers.meta]
-  environment = ["browser"]
-  dialect = "typescript"
+[analyzers.meta]
+environment = ["browser"]
+dialect = "typescript"

@@ -269,7 +269,7 @@ async def shutdown(app):
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in app["games"].values():
-        await round_broadcast(game, app["users"], response, full=True)
+        await round_broadcast(game, response, full=True)
 
     # No need to wait in dev mode and in unit tests
     if not DEV and app["db"] is not None:

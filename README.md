@@ -44,7 +44,7 @@ Currently supported games are:
 - [Chess](https://www.pychess.org/variants/chess)
 
 Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
-[Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
+[Chess960 castling rules](https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)

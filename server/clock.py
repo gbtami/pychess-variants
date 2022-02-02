@@ -57,7 +57,7 @@ class Clock:
                         reason = "abort" if (self.ply < 2) and (self.game.tournamentId is None) else "flag"
                         async with self.game.move_lock:
                             response = await self.game.game_ended(user, reason)
-                            await round_broadcast(self.game, self.game.users, response, full=True)
+                            await round_broadcast(self.game, response, full=True)
                         return
 
             # After stop() we are just waiting for next restart

@@ -183,6 +183,9 @@ async def tournament_socket_handler(request):
                             await lobby_broadcast(lobby_sockets, response)
 
                     elif data["type"] == "lobbychat":
+                        if user.username.startswith("Anon-"):
+                            continue
+
                         tournamentId = data["tournamentId"]
                         tournament = await load_tournament(request.app, tournamentId)
                         message = data["message"]

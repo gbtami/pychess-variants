@@ -15,7 +15,7 @@ from broadcast import lobby_broadcast
 from compress import R2C
 from const import CASUAL, RATED, CREATED, STARTED, BYEGAME, VARIANTEND, FLAG,\
     ARENA, RR, T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED, SHIELD,\
-    MAX_CHAT_LINES, TOURNAMENT_SPOTLIGHTS_MAX, SCHEDULE_MAX_DAYS
+    MAX_CHAT_LINES, TOURNAMENT_SPOTLIGHTS_MAX
 from game import Game
 from user import User
 from glicko2.glicko2 import gl2
