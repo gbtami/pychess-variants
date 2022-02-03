@@ -7,7 +7,7 @@ from aiohttp import web
 import aiohttp_session
 
 from admin import silence
-from broadcast import lobby_broadcast
+from broadcast import lobby_broadcast, discord_message
 from chat import chat_response
 from const import STARTED
 from settings import ADMINS, TOURNAMENT_DIRECTORS
@@ -121,15 +121,7 @@ async def lobby_socket_handler(request):
                         print("create_seek", data)
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
-
-                        # Send msg to discord-relay BOT
-                        try:
-                            for dr_ws in sockets["Discord-Relay"]:
-                                await dr_ws.send_json({"type": "create_seek", "message": seek.discord_msg})
-                                break
-                        except (KeyError, ConnectionResetError):
-                            # BOT disconnected
-                            log.error("--- Discord-Relay disconnected!")
+                        await discord_message(request.app, "create_seek", seek.discord_msg)
 
                     elif data["type"] == "create_invite":
                         no = await is_playing(request, user, ws)

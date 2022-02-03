@@ -2,6 +2,7 @@ import collections
 import logging
 from datetime import datetime, timezone
 
+from broadcast import discord_message
 from compress import C2V, V2C, C2R
 from const import CASUAL, RATED, ARENA, RR, SWISS, variant_display_name, T_STARTED, T_CREATED, T_FINISHED, T_ARCHIVED, SHIELD, VARIANTS, MAX_CHAT_LINES
 from newid import new_id
@@ -71,17 +72,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
 
 async def broadcast_tournament_creation(app, tournament):
     await tournament.broadcast_spotlight()
-
-    # Send msg to discord-relay BOT
-    try:
-        lobby_sockets = app["lobbysockets"]
-        msg = tournament.discord_msg
-        for dr_ws in lobby_sockets["Discord-Relay"]:
-            await dr_ws.send_json({"type": "create_tournament", "message": msg})
-            break
-    except (KeyError, ConnectionResetError):
-        # BOT disconnected
-        log.error("--- Discord-Relay disconnected!")
+    await discord_message(app, "create_tournament", tournament.discord_msg)
 
 
 async def new_tournament(app, data):
