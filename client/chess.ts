@@ -365,6 +365,36 @@ export const VARIANTS: { [name: string]: Variant } = {
         chess960: true, icon: "♔", icon960: "♔",
     }),    
     
+    antishogi: new Variant({
+        name: "antishogi", tooltip: () => _("Japanese Chess, and the standard 9x9 version played today with drops and promotions. "),
+        startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
+        board: "shogi9x9", piece: "shogi",
+        firstColor: "Black", secondColor: "White",
+        pieceRoles: ["k", "g", "r", "b", "s", "n", "l", "p"],
+        pocketRoles: ["p", "l", "n", "s", "g", "b", "r"],
+        promotion: "shogi",
+        promoteablePieces: ["p", "l", "n", "s", "r", "b"],
+        isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
+        timeControl: "byoyomi",
+        pieceSound: "shogi",
+        drop: true,
+        alternateStart: {
+            '': '',
+            'Lance HC': 'lnsgkgsn1/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            'Bishop HC': 'lnsgkgsnl/1r7/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            'Rook HC': 'lnsgkgsnl/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            'Rook+Lance HC': 'lnsgkgsn1/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '2-Piece HC': 'lnsgkgsnl/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '4-Piece HC': '1nsgkgsn1/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '6-Piece HC': '2sgkgs2/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '8-Piece HC': '3gkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '9-Piece HC': '3gk4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
+            '10-Piece HC': '4k4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1'
+        },
+        icon: "♔",
+    }),
+
+
     coffeehouse: new Variant({
       name: "coffeehouse", tooltip: () => _("antichess + crazyhouse."),
       startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",

@@ -51,6 +51,7 @@ VARIANTS = (
     "anti_antichess960",
     "antiatomic",
     "antiatomic960",
+    "antishogi",
     "antihouse",
     "antihouse960",
     "antipawns",
@@ -90,6 +91,7 @@ VARIANT_ICONS = {
     "antichess960": "♔",
     "losers": "♔",
     "losers960": "♔",
+    "antishogi": "♔",
     "coffeerace": "♔",
     "coffee_3check": "♔",
     "coffee_3check960": "♔",    
@@ -176,7 +178,7 @@ CATEGORIES = {
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("synochess", "shinobi", "empire", "chak"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi"),
+    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi", "antishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 
