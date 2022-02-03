@@ -5,29 +5,10 @@ extinctionValue = loss
 stalemateValue = loss
 castling = false
 
-# Hybrid of 3 check and antichess.
-[coffee_3check:3check]
-startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1
-checkCounting = true
-mustCapture = true
-
-# Hybrid of rk and antichess
-[coffeerace:racingkings]
-mustCapture = true
-
 # Hybrid of antichess and atomic.
 [antiatomic:giveaway]
 blastOnCapture = true
 castling = false
-
-[antiplacement:placement]
-mustCapture = true
-
-[antihoppelpoppel:hoppelpoppel]
-mustCapture = true
-
-[antishogi:shogi]
-mustCapture = true
 
 # Hybrid of antichess and zh. Antichess is the base variant.
 [antihouse:giveaway]
@@ -48,6 +29,40 @@ mustCapture = true
 extinctionPieceTypes = *
 extinctionPseudoRoyal = false
 castling = false
+
+# Hybrid of antichess and placement.
+[antiplacement:placement]
+king = -
+commoner = k
+promotionPieceTypes = nrqk
+mustCapture = true
+stalemateValue = win
+extinctionValue = win
+extinctionPieceTypes = *
+extinctionPseudoRoyal = false
+castling = false
+
+# Hybrid of antichess and hoppelpoppel
+[antihoppelpoppel:hoppelpoppel]
+king = -
+commoner = k
+promotionPieceTypes = nrqk
+mustCapture = true
+stalemateValue = win
+extinctionValue = win
+extinctionPieceTypes = *
+extinctionPseudoRoyal = false
+castling = false
+
+# Hybrid of 3 check and antichess.
+[coffee_3check:3check]
+startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1
+checkCounting = true
+mustCapture = true
+
+# Hybrid of rk and antichess
+[coffeerace:racingkings]
+mustCapture = true
 
 # Hybrid of antichess and zh. Zh is th base variant.
 [coffeehouse:crazyhouse]
