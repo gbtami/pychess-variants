@@ -133,7 +133,7 @@ async def init_state(app):
 
     app["twitch"] = Twitch(app)
     if not DEV:
-        await app["twitch"].init_subscriptions()
+        asyncio.create_task(app["twitch"].init_subscriptions())
 
     # fishnet active workers
     app["workers"] = set()
