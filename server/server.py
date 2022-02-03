@@ -223,7 +223,7 @@ async def init_state(app):
         new_tournaments_data = new_scheduled_tournaments(already_scheduled)
         await create_scheduled_tournaments(app, new_tournaments_data)
 
-        await generate_shield(app)
+        asyncio.create_task(generate_shield(app))
 
         db_collections = await app["db"].list_collection_names()
 
