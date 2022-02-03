@@ -72,7 +72,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
 
 async def broadcast_tournament_creation(app, tournament):
     await tournament.broadcast_spotlight()
-    await discord_message(app, "create_tournament", tournament.discord_msg)
+    await discord_message(app, "create_tournament", tournament.create_discord_msg)
 
 
 async def new_tournament(app, data):
