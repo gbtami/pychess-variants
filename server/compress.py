@@ -12,6 +12,7 @@ V2C = {
     "liantichess": "n",
     "antipawns": "c",
     "antihouse": "i",
+    "antiplacement": "Q",
     "atomic_giveaway_hill": "h",
     "coffeehill": "A",
     "coffeehouse": "L",
