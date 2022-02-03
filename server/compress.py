@@ -17,6 +17,7 @@ V2C = {
     "coffeehill": "A",
     "coffeehouse": "L",
     "antiatomic": "F",
+    "antihoppelpoppel": "Y",
     "antichess": "f",
     "losers": "H",
     "coffee_3check": "X",

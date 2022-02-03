@@ -21,6 +21,9 @@ castling = false
 [antiplacement:placement]
 mustCapture = true
 
+[antihoppelpoppel:hoppelpoppel]
+mustCapture = true
+
 # Hybrid of antichess and zh. Antichess is the base variant.
 [antihouse:giveaway]
 pieceDrops = true

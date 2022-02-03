@@ -283,6 +283,15 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "♔",
     }),    
 
+    antihoppelpoppel: new Variant({
+        name: "antihoppelpoppel", displayName: "antihoppel-poppel", tooltip: () => _("Knights capture as bishops; bishops  capture as knights."),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "hoppel",
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true,
+        icon: "♔",
+    }),
+
     antipawns: new Variant({
             name: "antipawns", tooltip: () => _("antichess + horde but diff pawn structure."),
             startFen: "pppppppp/pppppppp/pppppppp/8/8/PPPPPPPP/PPPPPPPP/PPPPPPPP w - - 0 1",
@@ -795,7 +804,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antihouse", "antipawns", "coffeehouse", "coffeehill", "atomic_giveaway_hill", "coffee_3check", "coffeerace", "antiplacement"] },
+    standard: { variants: [ "antichess", "losers", "anti_antichess", "antiatomic", "antihouse", "antipawns", "coffeehouse", "coffeehill", "atomic_giveaway_hill", "coffee_3check", "coffeerace", "antiplacement", "antihoppelpoppel"] },
     //sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     //shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },

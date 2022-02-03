@@ -57,6 +57,7 @@ VARIANTS = (
     "coffee_3check",
     "coffee_3check960",
     "coffeerace",
+    "antihoppelpoppel",
     "coffeehouse",
     "coffeehouse960",
     "coffeehill",
@@ -104,6 +105,7 @@ VARIANT_ICONS = {
     "coffeehill": "♔",
     "coffeehill960": "♔",
     "antiplacement": "♔",
+    "antihoppelpoppel": "♔",
     "atomic_giveaway_hill": "♔",
     "atomic_giveaway_hill960": "♔",       
     "capablanca": "P",
@@ -170,7 +172,7 @@ VARIANT_960_TO_PGN = {
 }
 
 CATEGORIES = {
-    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960", "antiatomic", "antiatomic", "coffeehouse", "coffeehouse960"),
+    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960", "antiatomic", "antiatomic", "coffeehouse", "coffeehouse960", "antihoppelpoppel"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("synochess", "shinobi", "empire", "chak"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
