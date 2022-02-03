@@ -1,0 +1,5 @@
+# CoffeeRace
+
+CoffeeRace is a hybrid variant of [antichess](https://lichess.org/variant/antichess) and [Racing Kings](https://lichess.org/variant/racingKings). The aim here, is similar to the racing kings variant (get your king to the last rank to win). Like racing kings, if white reaches first with the black king on 7th rank, black gets an extra move in which black can move their king to the 8th rank to force a draw (assuming there is atleast one unprotected square the black knig can move to on the 8th rank).
+
+The only difference between Racing Kings and Cofferace is, there are forced captures (like antichess). If you can capture a piece, you must. The captures should be legal according to racing kings rules (the king cannot be put into check after the capture happens). For more information, please see the lichess page for the rules of racing kings.
