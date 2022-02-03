@@ -330,7 +330,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         }),        
 
     coffee_3check: new Variant({
-            name: "coffee_3check", displayName: "cofee-3check", tooltip: () => _("Keep three checks."),
+            name: "coffee_3check", displayName: "coffee-3check", tooltip: () => _("Keep three checks."),
             startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
             board: "standard8x8", piece: "standard",
             pieceRoles: ["k", "q", "r", "b", "n", "p"],
