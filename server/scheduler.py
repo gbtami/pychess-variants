@@ -4,7 +4,7 @@ import datetime as dt
 
 from const import ARENA, CATEGORIES, GRANDS, DAILY, WEEKLY, MONTHLY, SHIELD, variant_display_name, SCHEDULE_MAX_DAYS
 
-from tournaments import new_tournament, broadcast_tournament_creation
+from tournaments import new_tournament
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple('Plan', 'freq, date, hour, variant, is960, base, inc, byo, duration')
@@ -139,7 +139,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
 
         if starts_at >= now and starts_at <= to_date and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration) not in already_scheduled:
 
-            variant_name = variant_display_name(plan.variant).title()
+            variant_name = variant_display_name(plan.variant + ("960" if plan.is960 else "")).title()
             if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name
             elif plan.freq == MONTHLY:
@@ -173,5 +173,4 @@ def new_scheduled_tournaments(already_scheduled, now=None):
 
 async def create_scheduled_tournaments(app, new_tournaments_data):
     for data in new_tournaments_data:
-        tournament = await new_tournament(app, data)
-        await broadcast_tournament_creation(app, tournament)
+        await new_tournament(app, data)

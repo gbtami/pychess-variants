@@ -1,4 +1,19 @@
 import json
+import logging
+
+log = logging.getLogger(__name__)
+
+
+async def discord_message(app, msg_type, msg):
+    """ Send msg to discord-relay BOT """
+    try:
+        lobby_sockets = app["lobbysockets"]
+        for dr_ws in lobby_sockets["Discord-Relay"]:
+            await dr_ws.send_json({"type": msg_type, "message": msg})
+            break
+    except (KeyError, ConnectionResetError):
+        # BOT disconnected
+        log.error("--- Discord-Relay disconnected!")
 
 
 async def lobby_broadcast(sockets, response):
