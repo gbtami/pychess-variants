@@ -139,7 +139,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
 
         if starts_at >= now and starts_at <= to_date and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration) not in already_scheduled:
 
-            variant_name = variant_display_name(plan.variant).title()
+            variant_name = variant_display_name(plan.variant + ("960" if plan.is960 else "")).title()
             if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name
             elif plan.freq == MONTHLY:
