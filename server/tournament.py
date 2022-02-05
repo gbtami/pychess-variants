@@ -335,7 +335,8 @@ class Tournament(ABC):
                 now = datetime.now(timezone.utc)
 
                 if self.status == T_CREATED:
-                    remaining_to_start = int((self.starts_at - now).seconds / 60)
+                    remaining_time = self.starts_at - now
+                    remaining_mins_to_start = int(((remaining_time.days * 3600 * 24) + remaining_time.seconds) / 60)
                     if now >= self.starts_at:
                         if self.system != ARENA and len(self.players) < 3:
                             # Swiss and RR Tournaments need at least 3 players to start
@@ -346,15 +347,15 @@ class Tournament(ABC):
                         await self.start(now)
                         continue
 
-                    elif (not self.notify2) and remaining_to_start <= NOTIFY2_MINUTES:
+                    elif (not self.notify2) and remaining_mins_to_start <= NOTIFY2_MINUTES:
                         self.notify1 = True
                         self.notify2 = True
-                        await discord_message(self.app, "notify_tournament", self.notify_discord_msg(remaining_to_start))
+                        await discord_message(self.app, "notify_tournament", self.notify_discord_msg(remaining_mins_to_start))
                         continue
 
-                    elif (not self.notify1) and remaining_to_start <= NOTIFY1_MINUTES:
+                    elif (not self.notify1) and remaining_mins_to_start <= NOTIFY1_MINUTES:
                         self.notify1 = True
-                        await discord_message(self.app, "notify_tournament", self.notify_discord_msg(remaining_to_start))
+                        await discord_message(self.app, "notify_tournament", self.notify_discord_msg(remaining_mins_to_start))
                         continue
 
                 elif (self.minutes is not None) and now >= self.ends_at:

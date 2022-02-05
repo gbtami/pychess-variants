@@ -63,7 +63,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
     if tournament is None:
         tournament = await new_tournament(app, data)
     else:
-        # We want to update some data of the tournament created by new_tournament() befor
+        # We want to update some data of the tournament created by new_tournament() before.
         # upsert=True will do this update at the end of upsert_tournament_to_db()
         await upsert_tournament_to_db(tournament, app)
 
