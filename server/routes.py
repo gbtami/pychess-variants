@@ -12,7 +12,7 @@ from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
-from twitch import twitch
+from twitch import twitch_request_handler
 
 
 get_routes = (
@@ -107,5 +107,5 @@ post_routes = (
     ("/import", import_game),
     ("/tournaments/arena", index),
     (r"/tournament/{tournamentId:\w{8}}/edit", index),
-    ("/twitch", twitch),
+    ("/twitch", twitch_request_handler),
 )

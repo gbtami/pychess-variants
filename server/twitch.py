@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 import aiohttp
 from aiohttp import web
 
-from broadcast import lobby_broadcast
+from broadcast import broadcast_streams
 from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
 from streamers import TWITCH_STREAMERS
 
@@ -78,7 +78,7 @@ class Twitch:
             await self.request_subscription(uid, "channel.update")
 
         if len(self.streams) > 0:
-            await self.broadcast_streams()
+            await broadcast_streams(self.app)
 
     async def get_oauth_token(self):
         log.debug("--- get_oauth_token from twitch ---")
@@ -186,13 +186,8 @@ class Twitch:
 
             return uids
 
-    async def broadcast_streams(self):
-        lobby_sockets = self.app["lobbysockets"]
-        response = {"type": "streams", "items": self.live_streams}
-        await lobby_broadcast(lobby_sockets, response)
 
-
-async def twitch(request):
+async def twitch_request_handler(request):
     """ Twitch POST request handler """
 
     json = await request.json()
@@ -228,12 +223,12 @@ async def twitch(request):
                         "site": "twitch",
                         "title": "",
                     }
-                    await twitch.broadcast_streams()
+                    await broadcast_streams(request.app)
 
         elif header_sub_type == 'stream.offline':
             if streamer in twitch.streams:
                 del twitch.streams[streamer]
-                await twitch.broadcast_streams()
+                await broadcast_streams(request.app)
 
         elif header_sub_type == 'channel.update':
             title = event["title"]
@@ -246,6 +241,6 @@ async def twitch(request):
                     "site": "twitch",
                     "title": title,
                 }
-            await twitch.broadcast_streams()
+            await broadcast_streams(request.app)
 
         return web.Response()

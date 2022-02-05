@@ -16,6 +16,14 @@ async def discord_message(app, msg_type, msg):
         log.error("--- Discord-Relay disconnected!")
 
 
+async def broadcast_streams(app):
+    lobby_sockets = app["lobbysockets"]
+    live_streams = app["twitch"].live_streams + app["youtube"].live_streams
+    response = {"type": "streams", "items": live_streams}
+    print(response)
+    await lobby_broadcast(lobby_sockets, response)
+
+
 async def lobby_broadcast(sockets, response):
     for ws_set in sockets.values():
         for ws in ws_set:
