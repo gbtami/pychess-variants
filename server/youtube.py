@@ -8,7 +8,7 @@ class Youtube:
 
     @property
     def live_streams(self):
-#        return [self.streams[streamer] for streamer in self.streams if "pychess" in self.streams[streamer]["title"].lower()]
+        # return [self.streams[streamer] for streamer in self.streams if "pychess" in self.streams[streamer]["title"].lower()]
         return [self.streams[streamer] for streamer in self.streams]
 
     def add(self, channel, username="unknown", title="PyChess stream"):
