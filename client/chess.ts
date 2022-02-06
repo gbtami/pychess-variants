@@ -724,6 +724,16 @@ export const VARIANTS: { [name: string]: Variant } = {
       enPassant: true,
       chess960: true, icon: "♔", icon960: "♔",
     }),
+    
+    antiatomic: new Variant({
+        name: "antiatomic", tooltip: () => _("Antichess+Atomic"),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true,
+        pieceSound: "atomic",
+        chess960: true, icon: "~", icon960: "\\",
+    }),
 
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
