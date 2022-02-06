@@ -1,22 +1,18 @@
 # Frequently Asked Questions
 
-## Pychess
+## Livariants
 
-<details><summary>What is Pychess?</summary>
+<details><summary>What is Livariants?</summary>
 
-Pychess is a website dedicated to allowing people to play major and interesting chess variants (both regional and more modern chess variants). Please see [the about page](https://www.pychess.org/about).</details>
+Livariants is a website dedicated to allowing people to play major and interesting chess variants (both regional and more modern chess variants). Derived From Pychess and Credits to Gbtami .</details>
 
-<details><summary>Why is it called Pychess?</summary>
+<details><summary>Why is it called Livariants?</summary>
 
-The server code is written in Python.</details>
-
-<details><summary>What is the difference between this and the software?</summary>
-
-Both are designed to play chess variants, and both share the same developer ([gbtami](https://www.github.com/gbtami)). However, the similitudes end there. The full name for this site is "Pychess Variants" for distinction, but is often just called Pychess. The site for the desktop application is [here](https://pychess.github.io/).</details>
+Livariants is free for all and it will be available forever.</details>
 
 <details><summary>What is the relationship to [Lichess](https://lichess.org/)?</summary>
 
-Pychess's design is heavily influenced by Lichess and is meant to be comfortable for Lichess users. Pychess has no official relationship to Lichess. However, it does use Lichess accounts to facilitate user management.</details>
+Livariants's design is heavily influenced by Lichess and is meant to be comfortable for Lichess users. Livariants has no official relationship to Lichess. However, it does use Lichess accounts to facilitate user management.</details>
 
 <details><summary>What is Fairy-Stockfish?</summary>
 
@@ -28,7 +24,7 @@ It is the strongest available on this site, but does not represent Fairy-Stockfi
 
 <details><summary>I found a bug! Where do I report it?</summary>
 
-[Make an issue](https://github.com/gbtami/pychess-variants/issues/new). Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.</details>
+[Make an issue](https://github.com/Hyper-Stockfish/livariants/issues/new). Ultimately it needs to be filed in Github issue tracker. Ideally, try to find a way to reproduce this bug in your description (if necessary, include the browser and OS). If you're not on Github, you can also mention it on Discord, and someone can file it.</details>
 
 ## Variants
 
@@ -90,7 +86,7 @@ No! That is done via OAuth and your password isn't revealed to Pychess, just lik
 
 <details><summary>What's the best way to contact the developers?</summary>
 
-You can try the lobby chat, although the developers might not be on to answer. More reliably, we use [Discord](https://discord.gg/aPs8RKr).</details>
+You can try the lobby chat, although the developers might not be on to answer. More reliably, we use [Discord](https://discord.gg/ah7tzRssGu).</details>
 
 <details><summary>How is the site supported?</summary>
 
@@ -98,7 +94,7 @@ Purely through donations. You can [become a patron](https://www.pychess.org/patr
 
 <details><summary>Can I contribute?</summary>
 
-You sure can! Pychess is open source. Please communicate your suggestions by [Github](https://github.com/gbtami/pychess-variants) or [Discord](https://discord.gg/aPs8RKr) </details>
+You sure can! Livariants is open source. Please communicate your suggestions by [Github](https://github.com/Hyper-Stockfish/livariants) or [Discord](https://discord.gg/ah7tzRssGu) </details>
 
 
 

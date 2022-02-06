@@ -93,7 +93,9 @@ VARIANTS = (
     "empire",
     "ordamirror",
     "chak",
-    "chennis"
+    "chennis",
+    "antichess",
+    "antichess960"
 )
 
 VARIANT_ICONS = {
@@ -142,6 +144,8 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "antichess": "♔",
+    "antichess960": "♔"
 }
 
 VARIANT_960_TO_PGN = {
@@ -157,10 +161,11 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
+    "antichess": "Antichess960"
 }
 
 CATEGORIES = {
-    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
+    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
