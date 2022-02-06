@@ -21,9 +21,9 @@ import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 
 // redirect to correct URL except Heroku preview apps
-if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
-    window.location.assign('http://livariants.herokuapp.com/');
-}
+//if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
+//    window.location.assign('http://livariants.herokuapp.com/');
+//}
 
 export type PyChessModel = {
     username: string;
