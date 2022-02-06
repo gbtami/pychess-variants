@@ -182,6 +182,9 @@
 .mini .pocket piece::after {
   font-size: 0.4em;
 }
+.shogi3x4 .mini .pocket piece::after, .shogi5x5 .mini .pocket piece::after, .shogi5x6 .mini .pocket piece::after {
+  font-size: 0.3em;
+}
 .pocket piece[data-nb='0']::after {
   content: none;
 }
