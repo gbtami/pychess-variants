@@ -2,7 +2,7 @@
 
 ## Livariants
 
-<details><summary>What is Pychess?</summary>
+<details><summary>What is Livariants?</summary>
 
 Livariants is a website dedicated to allowing people to play major and interesting chess variants (both regional and more modern chess variants). Derived From Pychess and Credits to Gbtami .</details>
 
