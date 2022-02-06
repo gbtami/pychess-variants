@@ -8,7 +8,7 @@ import { JSONObject } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView } from './chat';
-//import { sound } from './sound';
+import { sound } from './sound';
 import { VARIANTS, uci2LastMove } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
@@ -187,8 +187,8 @@ export default class TournamentController {
             onerror: (e: Event) => console.log('Error:', e),
         };
 
-        //const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
-        const ws = (location.host.indexOf('0.0.0.0') === -1) ? 'wss://' : 'ws://'
+        const ws = location.host.includes('pychess') ? 'wss://' : 'ws://';
+        //const ws = (location.host.indexOf('0.0.0.0') === -1) ? 'wss://' : 'ws://'
         this.sock = new Sockette(ws + location.host + "/wst", opts);
 
         const variant = VARIANTS[this.model.variant];
