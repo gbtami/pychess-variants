@@ -12,7 +12,7 @@ URI = os.getenv("URI", "http://127.0.0.1:8080")
 DEV = ("z" in URI) or URI.startswith("http:")
 BR_EXTENSION = ".br" if URI.startswith("https") else ""
 
-REDIRECT_PATH = "/oauth"  # path of oauth callback in app
+REDIRECT_PATH = "oauth"  # path of oauth callback in app
 # lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth
 REDIRECT_URI = URI + REDIRECT_PATH
 
