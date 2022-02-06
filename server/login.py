@@ -15,7 +15,7 @@ from settings import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, REDIRECT_PATH, \
 
 log = logging.getLogger(__name__)
 
-RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-friend", "PyChess")
+RESERVED_USERS = ("Random-Mover", "Fairy-Stockfish", "Discord-Relay", "Invite-friend", "Livariants")
 
 
 async def oauth(request):
