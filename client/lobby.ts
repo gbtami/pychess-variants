@@ -934,9 +934,9 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div#variants-catalog'),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),
         h('under-left', [
-            h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),
-            h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants' } }, 'Github'),
-            h('a.reflist', { attrs: { href: '/patron' } }, _("Donate")),
+            h('a.reflist', { attrs: { href: 'https://discord.gg/ah7tzRssGu' } }, 'Discord'),
+            h('a.reflist', { attrs: { href: 'https://github.com/Hyper-Stockfish/livariants' } }, 'Github'),
+            //h('a.reflist', { attrs: { href: '/patron' } }, _("Donate")),
             h('a.reflist', { attrs: { href: '/faq' } }, _("FAQ")),
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
@@ -948,30 +948,30 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
-                h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/ChessTennis.jpg'} }),
-                    h('span.text', [
-                        h('strong', "Tennis and chess"),
-                        h('span', 'Serving a New Variant'),
-                    ]),
-                    h('time', '2022.02.01'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/QuetzalinTikal.png'} }),
-                    h('span.text', [
-                        h('strong', "Christmas gift from PyChess"),
-                        h('span', 'Merry Chak-mas!'),
-                    ]),
-                    h('time', '2021.12.24'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/board/ChakArt.jpg'} }),
-                    h('span.text', [
-                        h('strong', "Summary of latest changes"),
-                        h('span', 'Cold winter'),
-                    ]),
-                    h('time', '2021.12.21'),
-                ]),
+                //h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
+                //    h('img', { attrs: {src: model["asset-url"] + '/images/ChessTennis.jpg'} }),
+                //    h('span.text', [
+                //        h('strong', "Tennis and chess"),
+                //        h('span', 'Serving a New Variant'),
+                //    ]),
+                //    h('time', '2022.02.01'),
+                //]),
+                //h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
+                //    h('img', { attrs: {src: model["asset-url"] + '/images/QuetzalinTikal.png'} }),
+                //    h('span.text', [
+                //        h('strong', "Christmas gift from PyChess"),
+                //        h('span', 'Merry Chak-mas!'),
+                //    ]),
+                //    h('time', '2021.12.24'),
+                //]),
+                //h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
+                //    h('img', { attrs: {src: model["asset-url"] + '/images/board/ChakArt.jpg'} }),
+                //    h('span.text', [
+                //        h('strong', "Summary of latest changes"),
+                //        h('span', 'Cold winter'),
+                //   ]),
+                //    h('time', '2021.12.21'),
+                //]),
                 /*
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model["asset-url"] + '/images/AngryBirds.png'} }),
