@@ -50,7 +50,7 @@ async def handle_404(request, handler):
             })
             return web.Response(text=html_minify(text), content_type="text/html")
         else:
-            return web.Response(ex.status)
+            raise
 
 
 async def index(request):

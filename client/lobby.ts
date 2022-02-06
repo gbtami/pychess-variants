@@ -734,7 +734,8 @@ export class LobbyController {
 
     private streamView(stream: Stream) {
         const url = (stream.site === 'twitch') ? 'https://www.twitch.tv/' : 'https://www.youtube.com/channel/';
-        return h('a.stream', { attrs: { "href": url + stream.streamer, "rel": "noopener nofollow", "target": "_blank" } }, [
+        const tail = (stream.site === 'youtube') ? '/live' : '';
+        return h('a.stream', { attrs: { "href": url + stream.streamer + tail, "rel": "noopener nofollow", "target": "_blank" } }, [
             h('strong.text', {class: {"icon": true, "icon-mic": true} }, stream.username),
             stream.title,
         ]);

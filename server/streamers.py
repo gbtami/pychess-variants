@@ -22,4 +22,7 @@ TWITCH_STREAMERS = {
 YOUTUBE_STREAMERS = {
     "UCksfz2MkgxAKNJDvzemO3iA": "Janggi-France",
     "UCCeCZHAoTr4TGDt3hr_AQig": "kalavas",
+#    "UCUJw1rIb9A8E4bB6ZbMkUww": "CM ShahMatKanal",
+#    "UCM-ONC2bCHytG2mYtKDmIeA": "LM SaintLouisChessClub",
+    "UCr6RfQga70yMM9-nuzAYTsA": "lichess",
 }

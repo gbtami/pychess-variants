@@ -7,7 +7,7 @@ from aiohttp import web
 import aiohttp_session
 
 from admin import silence
-from broadcast import lobby_broadcast, discord_message
+from broadcast import lobby_broadcast, discord_message, broadcast_streams
 from chat import chat_response
 from const import STARTED
 from settings import ADMINS, TOURNAMENT_DIRECTORS
@@ -42,6 +42,7 @@ async def lobby_socket_handler(request):
     db = request.app["db"]
     invites = request.app["invites"]
     twitch = request.app["twitch"]
+    youtube = request.app["youtube"]
     lobbychat = request.app["lobbychat"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
@@ -236,7 +237,7 @@ async def lobby_socket_handler(request):
                         if len(spotlights) > 0:
                             await ws.send_json({"type": "spotlights", "items": spotlights})
 
-                        streams = twitch.live_streams
+                        streams = twitch.live_streams + youtube.live_streams
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
 
@@ -251,15 +252,34 @@ async def lobby_socket_handler(request):
                             if message.startswith("/silence"):
                                 response = silence(message, lobbychat, users)
                                 # silence message was already added to lobbychat in silence()
+
+                            elif message.startswith("/stream"):
+                                parts = message.split()
+                                if len(parts) >= 3:
+                                    if parts[1] == "add":
+                                        if len(parts) >= 5:
+                                            youtube.add(parts[2], parts[3], parts[4])
+                                        elif len(parts) >= 4:
+                                            youtube.add(parts[2], parts[3])
+                                        else:
+                                            youtube.add(parts[2])
+                                    elif parts[1] == "remove":
+                                        youtube.remove(parts[2])
+                                    await broadcast_streams(request.app)
+
                             elif message == "/growth":
                                 server_growth()
+
                             elif message == "/state":
                                 server_state(request.app)
+
                             else:
                                 response = chat_response("lobbychat", user.username, data["message"])
                                 lobbychat.append(response)
+
                         elif user.anon and user.username != "Discord-Relay":
                             pass
+
                         else:
                             if user.silence == 0:
                                 response = chat_response("lobbychat", user.username, data["message"])

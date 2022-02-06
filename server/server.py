@@ -38,6 +38,7 @@ from settings import DEV, MAX_AGE, SECRET_KEY, MONGO_HOST, MONGO_DB_NAME, FISHNE
 from user import User
 from tournaments import load_tournament, get_scheduled_tournaments
 from twitch import Twitch
+from youtube import Youtube
 from scheduler import create_scheduled_tournaments, new_scheduled_tournaments
 
 log = logging.getLogger(__name__)
@@ -134,6 +135,8 @@ async def init_state(app):
     app["twitch"] = Twitch(app)
     if not DEV:
         asyncio.create_task(app["twitch"].init_subscriptions())
+
+    app["youtube"] = Youtube(app)
 
     # fishnet active workers
     app["workers"] = set()

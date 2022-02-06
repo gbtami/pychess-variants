@@ -362,8 +362,6 @@ iframe {
     display: flex;
     flex-flow: column nowrap;
     justify-content: right;
-    overflow: hidden;
-    box-shadow: var(--base-shadow);
 }
 .sidebar-second{
     grid-area: table;
@@ -1666,6 +1664,7 @@ label {
     background: var(--bg-color0);
     min-height: 15em;
     border-radius: 3px;
+    box-shadow: var(--base-shadow);
 }
 
 .chat .time {
