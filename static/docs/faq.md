@@ -100,8 +100,8 @@ Purely through donations. You can [become a patron](https://www.pychess.org/patr
 
 You sure can! Pychess is open source. Please communicate your suggestions by [Github](https://github.com/gbtami/pychess-variants) or [Discord](https://discord.gg/aPs8RKr) </details>
 
-<details><summary>Is there any sites based on pychess?</summary>
+<details><summary>Are there any sites based on pychess?</summary>
 
- yes there are 2 sites based on pychess [liantichess](https://liantichess.herokuapp.com/) and [liatomic](https://liatomic.herokuapp.com/) are based on PyChess
+ Yes there are 2 sites based on pychess [liantichess](https://liantichess.herokuapp.com/) and [liatomic](https://liatomic.herokuapp.com/) are based on PyChess
 </details>
 
