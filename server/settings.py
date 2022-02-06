@@ -39,7 +39,7 @@ FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
 ADMINS = os.getenv("ADMINS", "").split(",")
 TOURNAMENT_DIRECTORS = os.getenv("TOURNAMENT_DIRECTORS", "").split(",")
 
-STATIC_ROOT = os.getenv("STATIC_ROOT", "static")
+STATIC_ROOT = os.getenv("STATIC_ROOT", "/static")
 
 TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID", "")
 TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET", "")
