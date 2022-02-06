@@ -9,7 +9,7 @@ from newid import id8
 logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
-DEV = ("heroku" in URI) or URI.startswith("http:")
+DEV = ("z" in URI) or URI.startswith("http:")
 BR_EXTENSION = ".br" if URI.startswith("https") else ""
 
 REDIRECT_PATH = "/oauth"  # path of oauth callback in app
@@ -31,7 +31,7 @@ SECRET_KEY = base64.urlsafe_b64decode(FERNET_KEY)
 MAX_AGE = 3600 * 24 * 365
 
 MONGO_HOST = os.getenv("MONGO_HOST", "mongodb://127.0.0.1:27017")
-MONGO_DB_NAME = "pychess-variants"
+MONGO_DB_NAME = "livariants"
 
 BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS", "{}"))
 FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
