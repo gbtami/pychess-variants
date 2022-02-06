@@ -76,9 +76,9 @@ VARIANTS = (
     "capahouse960",
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
-    "gothic",
-    "gothhouse",
-    "embassy",
+    # "gothic",
+    # "gothhouse",
+    # "embassy",
     "seirawan",
     "seirawan960",
     "shouse",
@@ -95,9 +95,7 @@ VARIANTS = (
     "chak",
     "chennis",
     "antichess",
-    "antichess960",
-    "antiatomic",
-    "antiatomic"
+    "antichess960"
 )
 
 VARIANT_ICONS = {
@@ -147,9 +145,7 @@ VARIANT_ICONS = {
     "chak": "🐬",
     "chennis": "🎾",
     "antichess": "♔",
-    "antichess960": "♔",
-    "antiatomic": "~",
-    "antiatomic960": "\\"
+    "antichess960": "♔"
 }
 
 VARIANT_960_TO_PGN = {
@@ -165,12 +161,11 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
-    "antichess": "Antichess960",
-    "antiatomic": "Antiatomic960"
+    "antichess": "Antichess960"
 }
 
 CATEGORIES = {
-    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960", "antiatomic", "antiatomic960"),
+    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
