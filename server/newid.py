@@ -14,6 +14,6 @@ async def new_id(table):
 
     while True:
         new_id = id8()
-        existing = await table.find_one({'_id': {'$eq': new_id}})
+        existing = await table.find_one({"_id": {"$eq": new_id}})
         if not existing:
             return new_id

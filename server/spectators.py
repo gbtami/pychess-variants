@@ -4,7 +4,9 @@ from const import MAX_NAMED_SPECTATORS
 
 
 def spectators(spectated):
-    spectators = (spectator.username for spectator in spectated.spectators if not spectator.anon)
+    spectators = (
+        spectator.username for spectator in spectated.spectators if not spectator.anon
+    )
     anons = ()
     anon = sum(1 for user in spectated.spectators if user.anon)
 

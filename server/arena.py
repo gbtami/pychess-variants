@@ -8,7 +8,10 @@ class ArenaTournament(Tournament):
     system = ARENA
 
     def just_played_together(self, x, y):
-        return y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp
+        return (
+            y.username == self.players[x].prev_opp
+            or x.username == self.players[y].prev_opp
+        )
 
     def create_pairing(self, waiting_players):
         start = time.time()
@@ -51,7 +54,12 @@ class ArenaTournament(Tournament):
                 if nb_waiting_players == 2:
                     y = waiting_players[1]
 
-                    if y.username not in (g.wplayer.username if g.bplayer.username == x.username else g.bplayer.username for g in self.players[x].games):
+                    if y.username not in (
+                        g.wplayer.username
+                        if g.bplayer.username == x.username
+                        else g.bplayer.username
+                        for g in self.players[x].games
+                    ):
                         print("   find OK opp (they never played before!)", y.username)
                         pair_them(x, y)
                         return True
@@ -62,7 +70,11 @@ class ArenaTournament(Tournament):
                     a = waiting_players[-1]
                     b = waiting_players[-2]
 
-                    y = a if self.players[a].nb_not_paired > self.players[b].nb_not_paired else b
+                    y = (
+                        a
+                        if self.players[a].nb_not_paired > self.players[b].nb_not_paired
+                        else b
+                    )
 
                     if not self.just_played_together(x, y):
                         print("   find OK opp from other remaining 2", y.username)
@@ -80,8 +92,15 @@ class ArenaTournament(Tournament):
 
                     if self.players[x].color_balance < color_balance_limit:
                         # player x played more black games
-                        if self.players[x].color_balance >= self.players[y].color_balance:
-                            print("   FAILED color_balance x vs y", self.players[x].color_balance, self.players[y].color_balance)
+                        if (
+                            self.players[x].color_balance
+                            >= self.players[y].color_balance
+                        ):
+                            print(
+                                "   FAILED color_balance x vs y",
+                                self.players[x].color_balance,
+                                self.players[y].color_balance,
+                            )
                             continue
                         else:
                             find = True
@@ -124,7 +143,10 @@ class ArenaTournament(Tournament):
                             find = find_opp(-1)
                             if not find:
                                 failed += 1
-                                print("   2. OH NO, I can't find an opp for %s :(" % x.username)
+                                print(
+                                    "   2. OH NO, I can't find an opp for %s :("
+                                    % x.username
+                                )
 
         print("=== PAIRINGS === failed", failed)
         for p in pairing:

@@ -19,7 +19,7 @@ async def account(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
@@ -34,7 +34,7 @@ async def playing(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
@@ -48,7 +48,7 @@ async def challenge_create(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
@@ -61,7 +61,7 @@ async def challenge_accept(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
@@ -74,7 +74,7 @@ async def challenge_decline(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
@@ -87,13 +87,13 @@ async def create_bot_seek(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
 
     data = await request.post()
 
@@ -110,7 +110,13 @@ async def create_bot_seek(request):
     matching_seek = None
     if test_TV:
         for seek in seeks.values():
-            if seek.variant == data["variant"] and seek.creator.bot and seek.creator.online and seek.creator.username != username and seek.level > 0:
+            if (
+                seek.variant == data["variant"]
+                and seek.creator.bot
+                and seek.creator.online
+                and seek.creator.username != username
+                and seek.level > 0
+            ):
                 log.debug("MATCHING BOT SEEK %s FOUND!", seek.id)
                 matching_seek = seek
                 break
@@ -118,7 +124,10 @@ async def create_bot_seek(request):
     if matching_seek is None:
         seek = None
         for existing_seek in seeks.values():
-            if existing_seek.creator == bot_player and existing_seek.variant == data["variant"]:
+            if (
+                existing_seek.creator == bot_player
+                and existing_seek.variant == data["variant"]
+            ):
                 seek = existing_seek
                 break
         if seek is None:
@@ -154,13 +163,13 @@ async def event_stream(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
 
     users = request.app["users"]
     seeks = request.app["seeks"]
@@ -186,10 +195,12 @@ async def event_stream(request):
 
         doc = await db.user.find_one({"_id": username})
         if doc is None:
-            result = await db.user.insert_one({
-                "_id": username,
-                "title": "BOT",
-            })
+            result = await db.user.insert_one(
+                {
+                    "_id": username,
+                    "title": "BOT",
+                }
+            )
             print("db insert user result %s" % repr(result.inserted_id))
 
     bot_player.online = True
@@ -208,10 +219,15 @@ async def event_stream(request):
         try:
             bot_player.event_queue.task_done()
         except ValueError:
-            log.error("task_done() called more times than there were items placed in the queue in bot_api.py event_stream()")
+            log.error(
+                "task_done() called more times than there were items placed in the queue in bot_api.py event_stream()"
+            )
         try:
             if request.protocol.transport.is_closing():
-                log.error("BOT %s request.protocol.transport.is_closing() == True ...", username)
+                log.error(
+                    "BOT %s request.protocol.transport.is_closing() == True ...",
+                    username,
+                )
                 break
             else:
                 await resp.write(answer.encode("utf-8"))
@@ -230,13 +246,13 @@ async def game_stream(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
 
     gameId = request.match_info["gameId"]
 
@@ -256,7 +272,7 @@ async def game_stream(request):
     await bot_player.game_queues[gameId].put(game.game_full)
 
     async def pinger():
-        """ To help lichess-bot.py abort games showing no activity. """
+        """To help lichess-bot.py abort games showing no activity."""
         while True:
             if gameId in bot_player.game_queues:
                 await bot_player.game_queues[gameId].put("\n")
@@ -271,7 +287,9 @@ async def game_stream(request):
         try:
             bot_player.game_queues[gameId].task_done()
         except ValueError:
-            log.error("task_done() called more times than there were items placed in the queue in bot_api.py game_stream()")
+            log.error(
+                "task_done() called more times than there were items placed in the queue in bot_api.py game_stream()"
+            )
         try:
             await resp.write(answer.encode("utf-8"))
             await resp.drain()
@@ -293,13 +311,13 @@ async def bot_move(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
@@ -316,13 +334,13 @@ async def bot_abort(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
 
     games = request.app["games"]
     gameId = request.match_info["gameId"]
@@ -331,7 +349,11 @@ async def bot_abort(request):
     users = request.app["users"]
     bot_player = users[username]
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    opp_name = (
+        game.wplayer.username
+        if username == game.bplayer.username
+        else game.bplayer.username
+    )
     opp_player = users[opp_name]
 
     response = await game.abort()
@@ -352,13 +374,13 @@ async def bot_resign(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
 
     games = request.app["games"]
     gameId = request.match_info["gameId"]
@@ -373,13 +395,13 @@ async def bot_analysis(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    bot_name = user_agent[user_agent.find("user:") + 5:]
+    bot_name = user_agent[user_agent.find("user:") + 5 :]
 
     data = await request.post()
 
@@ -399,10 +421,20 @@ async def bot_analysis(request):
             game.steps[int(ply)]["eval"] = ceval["score"]
 
         user_ws = users[username].game_sockets[gameId]
-        response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(ceval)}
+        response = {
+            "type": "roundchat",
+            "user": bot_name,
+            "room": "spectator",
+            "message": ply + " " + json.dumps(ceval),
+        }
         await user_ws.send_json(response)
 
-        response = {"type": "analysis", "ply": ply, "color": data["color"], "ceval": ceval}
+        response = {
+            "type": "analysis",
+            "ply": ply,
+            "color": data["color"],
+            "ceval": ceval,
+        }
         await user_ws.send_json(response)
 
     return web.json_response({"ok": True})
@@ -413,13 +445,13 @@ async def bot_chat(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()
 
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
 
     data = await request.post()
 
@@ -430,11 +462,20 @@ async def bot_chat(request):
 
     game = games[gameId]
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    opp_name = (
+        game.wplayer.username
+        if username == game.bplayer.username
+        else game.bplayer.username
+    )
 
     if not users[opp_name].bot:
         opp_ws = users[opp_name].game_sockets[gameId]
-        response = {"type": "roundchat", "user": username, "room": data["room"], "message": data["text"]}
+        response = {
+            "type": "roundchat",
+            "user": username,
+            "room": data["room"],
+            "message": data["text"],
+        }
         await opp_ws.send_json(response)
 
     return web.json_response({"ok": True})
@@ -445,7 +486,7 @@ async def bot_pong(request):
     if auth is None:
         return web.HTTPForbidden()
 
-    token = auth[auth.find("Bearer") + 7:]
+    token = auth[auth.find("Bearer") + 7 :]
     if token not in BOT_TOKENS:
         log.error("BOT account auth with token %s failed", token)
         return web.HTTPForbidden()

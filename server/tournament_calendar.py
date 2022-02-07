@@ -13,7 +13,10 @@ def create_scheduled_data(year, month, day, already_scheduled=None):
         already_scheduled = []
     start = dt.datetime(year, month, day, tzinfo=dt.timezone.utc)
     data = new_scheduled_tournaments(already_scheduled, start)
-    return [(e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"]) for e in data]
+    return [
+        (e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"])
+        for e in data
+    ]
 
 
 def go_day(day):
@@ -41,7 +44,9 @@ def event(data, created_tournaments):
 async def tournament_calendar(request):
     if "calendar" in request.app:
         events = request.app["calendar"]
-        return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
+        return web.json_response(
+            events, dumps=partial(json.dumps, default=dt.datetime.isoformat)
+        )
 
     scheduled_tournaments = await get_scheduled_tournaments(request.app)
     created_tournaments = {t[:5]: t[5] for t in scheduled_tournaments}
@@ -66,4 +71,6 @@ async def tournament_calendar(request):
 
     request.app["calendar"] = events
 
-    return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
+    return web.json_response(
+        events, dumps=partial(json.dumps, default=dt.datetime.isoformat)
+    )

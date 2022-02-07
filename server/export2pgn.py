@@ -26,10 +26,12 @@ async def main():
         cursor = None
 
         print("---", yearmonth[:4], yearmonth[4:])
-        filter_cond = {"$and": [
-            {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
-            {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
-        ]}
+        filter_cond = {
+            "$and": [
+                {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
+                {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
+            ]
+        }
         cursor = db.game.find(filter_cond)
 
         if cursor is not None:
@@ -43,9 +45,14 @@ async def main():
                     game_counter += 1
                 except Exception:
                     failed += 1
-                    log.error("Failed to load game %s %s %s (early games may contain invalid moves)", doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d"))
+                    log.error(
+                        "Failed to load game %s %s %s (early games may contain invalid moves)",
+                        doc["_id"],
+                        C2V[doc["v"]],
+                        doc["d"].strftime("%Y.%m.%d"),
+                    )
                     continue
-            print('failed/all:', failed, game_counter)
+            print("failed/all:", failed, game_counter)
         pgn_text = "\n".join(game_list)
 
         with bz2.open(yearmonth + ".pgn", "wt") as f:

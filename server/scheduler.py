@@ -2,22 +2,62 @@ import calendar
 from collections import namedtuple
 import datetime as dt
 
-from const import ARENA, CATEGORIES, GRANDS, DAILY, WEEKLY, MONTHLY, SHIELD, variant_display_name, SCHEDULE_MAX_DAYS
+from const import (
+    ARENA,
+    CATEGORIES,
+    GRANDS,
+    DAILY,
+    WEEKLY,
+    MONTHLY,
+    SHIELD,
+    variant_display_name,
+    SCHEDULE_MAX_DAYS,
+)
 
 from tournaments import new_tournament
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
-Plan = namedtuple('Plan', 'freq, date, hour, variant, is960, base, inc, byo, duration')
+Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
-NO_TOURNEY = ["chess", "chess960", "crazyhouse", "atomic", "shogi", "minishogi"]  # tournaments are available on lichess/lishogi
+NO_TOURNEY = [
+    "chess",
+    "chess960",
+    "crazyhouse",
+    "atomic",
+    "shogi",
+    "minishogi",
+]  # tournaments are available on lichess/lishogi
 SHIELDS = ["crazyhouse960", "atomic960", "makruk", "shinobi"]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
 MONTHLY_VARIANTS = (
-    "dobutsu", "capahouse", "chak", "shogun", "orda", "gorogoroplus", "shouse",
-    "capablanca960", "hoppelpoppel", "grand", "janggi", "seirawan", "empire", "kyotoshogi",
-    "placement", "ordamirror", "capahouse960", "minixiangqi", "synochess", "grandhouse", "shako",
-    "manchu", "torishogi", "seirawan960", "chennis", "capablanca", "xiangqi",
+    "dobutsu",
+    "capahouse",
+    "chak",
+    "shogun",
+    "orda",
+    "gorogoroplus",
+    "shouse",
+    "capablanca960",
+    "hoppelpoppel",
+    "grand",
+    "janggi",
+    "seirawan",
+    "empire",
+    "kyotoshogi",
+    "placement",
+    "ordamirror",
+    "capahouse960",
+    "minixiangqi",
+    "synochess",
+    "grandhouse",
+    "shako",
+    "manchu",
+    "torishogi",
+    "seirawan960",
+    "chennis",
+    "capablanca",
+    "xiangqi",
 )
 
 # Monthly Variant Tournaments need different TC
@@ -69,7 +109,10 @@ class Scheduler:
         return date + dt.timedelta(days=days_ahead)
 
     def first_monthly(self, weekday):
-        return self.next_weekday(dt.datetime(self.now.year, self.now.month, 1, tzinfo=dt.timezone.utc), weekday)
+        return self.next_weekday(
+            dt.datetime(self.now.year, self.now.month, 1, tzinfo=dt.timezone.utc),
+            weekday,
+        )
 
     def second_monthly(self, weekday):
         return self.first_monthly(weekday) + dt.timedelta(days=7)
@@ -87,36 +130,96 @@ class Scheduler:
         return variants[period % len(variants)]
 
     def schedule_plan(self):
-        """ Create planned tournament plan list for one full month """
+        """Create planned tournament plan list for one full month"""
         SEA = self.get_next_variant(self.now.month, ("sittuyin", "cambodian"))
         plans = []
         for i, v in enumerate(MONTHLY_VARIANTS):
             is_960 = v.endswith("960")
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
-            date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
-            plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
+            date = dt.datetime(
+                self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc
+            )
+            plans.append(
+                Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90)
+            )
 
         plans += [
-            Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),     # 960
-            Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
-            Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
-            Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),          # 960
-
-            Plan(MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90),
+            Plan(
+                SHIELD,
+                self.second_monthly(MONDAY),
+                18,
+                "crazyhouse",
+                True,
+                3,
+                2,
+                0,
+                180,
+            ),  # 960
+            Plan(
+                SHIELD,
+                self.second_monthly(THURSDAY),
+                18,
+                "shinobi",
+                False,
+                3,
+                4,
+                0,
+                180,
+            ),
+            Plan(
+                SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180
+            ),
+            Plan(
+                SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180
+            ),  # 960
+            Plan(
+                MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90
+            ),
             # The second Saturday is Makruk Shield
             Plan(MONTHLY, self.third_monthly(SATURDAY), 12, SEA, False, 3, 2, 0, 90),
-            Plan(MONTHLY, self.fourth_monthly(SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
-
-            Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),    # 960
-            Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),       # 960
-            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 14, "makruk", False, 3, 2, 0, 90),
+            Plan(
+                MONTHLY,
+                self.fourth_monthly(SATURDAY),
+                12,
+                "makpong",
+                False,
+                3,
+                2,
+                0,
+                90,
+            ),
+            Plan(
+                WEEKLY,
+                self.next_day_of_week(FRIDAY),
+                18,
+                "crazyhouse",
+                True,
+                3,
+                0,
+                0,
+                60,
+            ),  # 960
+            Plan(
+                WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60
+            ),  # 960
+            Plan(
+                WEEKLY,
+                self.next_day_of_week(THURSDAY),
+                14,
+                "makruk",
+                False,
+                3,
+                2,
+                0,
+                90,
+            ),
         ]
 
         return plans
 
 
 def new_scheduled_tournaments(already_scheduled, now=None):
-    """ Create list for scheduled tournament data for one week from now on compared to what we already have """
+    """Create list for scheduled tournament data for one week from now on compared to what we already have"""
 
     # Cut off the latest element (_id) from all tournament data first
     # to let test if new plan data is already in already_scheduled or not.
@@ -127,7 +230,9 @@ def new_scheduled_tournaments(already_scheduled, now=None):
         # set time info to 0:0:0
         now = dt.datetime.combine(now, dt.time.min, tzinfo=dt.timezone.utc)
 
-    to_date = dt.datetime.combine(now, dt.time.max, tzinfo=dt.timezone.utc) + dt.timedelta(days=SCHEDULE_MAX_DAYS)
+    to_date = dt.datetime.combine(
+        now, dt.time.max, tzinfo=dt.timezone.utc
+    ) + dt.timedelta(days=SCHEDULE_MAX_DAYS)
 
     # 2 full month list of scheduled tournaments
     plans = Scheduler(now).schedule_plan() + Scheduler(go_month(now)).schedule_plan()
@@ -135,11 +240,24 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     new_tournaments_data = []
 
     for plan in plans:
-        starts_at = dt.datetime(plan.date.year, plan.date.month, plan.date.day, hour=plan.hour, tzinfo=dt.timezone.utc)
+        starts_at = dt.datetime(
+            plan.date.year,
+            plan.date.month,
+            plan.date.day,
+            hour=plan.hour,
+            tzinfo=dt.timezone.utc,
+        )
 
-        if starts_at >= now and starts_at <= to_date and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration) not in already_scheduled:
+        if (
+            starts_at >= now
+            and starts_at <= to_date
+            and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration)
+            not in already_scheduled
+        ):
 
-            variant_name = variant_display_name(plan.variant + ("960" if plan.is960 else "")).title()
+            variant_name = variant_display_name(
+                plan.variant + ("960" if plan.is960 else "")
+            ).title()
             if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name
             elif plan.freq == MONTHLY:
@@ -154,19 +272,21 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             else:
                 name = "%s Arena" % variant_name
 
-            new_tournaments_data.append({
-                "name": name,
-                "createdBy": "PyChess",
-                "frequency": plan.freq,
-                "variant": plan.variant,
-                "chess960": plan.is960,
-                "base": plan.base,
-                "inc": plan.inc,
-                "bp": plan.byo,
-                "system": ARENA,
-                "startDate": starts_at,
-                "minutes": plan.duration,
-            })
+            new_tournaments_data.append(
+                {
+                    "name": name,
+                    "createdBy": "PyChess",
+                    "frequency": plan.freq,
+                    "variant": plan.variant,
+                    "chess960": plan.is960,
+                    "base": plan.base,
+                    "inc": plan.inc,
+                    "bp": plan.byo,
+                    "system": ARENA,
+                    "startDate": starts_at,
+                    "minutes": plan.duration,
+                }
+            )
 
     return new_tournaments_data
 

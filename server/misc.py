@@ -24,17 +24,18 @@ def timeit(func):
         # Test normal function route...
         # result = await process(lambda *a, **p: print(*a, **p), *args, **params)
 
-        print('>>>', time.time() - start)
+        print(">>>", time.time() - start)
         return result
 
     return helper
 
 
 class OnDemand:
-    """ Helper class to conditionally logging expensive tasks
-        if get_object_counts() is expensive to calculate
-        instead of doing: logging.debug("total number: %r", get_object_counts())
-        you can do: logging.debug("total number: %r", OnDemand(get_object_counts))"""
+    """Helper class to conditionally logging expensive tasks
+    if get_object_counts() is expensive to calculate
+    instead of doing: logging.debug("total number: %r", get_object_counts())
+    you can do: logging.debug("total number: %r", OnDemand(get_object_counts))"""
+
     def __init__(self, callable):
         self.callable = callable
 
@@ -47,9 +48,10 @@ def profile_me(fn):
         prof = cProfile.Profile()
         ret = prof.runcall(fn, *args, **kwargs)
         ps = pstats.Stats(prof)
-        ps.sort_stats('cumulative')
+        ps.sort_stats("cumulative")
         ps.print_stats(60)
         return ret
+
     return profiled_fn
 
 
@@ -66,7 +68,7 @@ class Timer:
         end = self.timer()
         self.elapsed_secs = end - self.start
         self.elapsed = self.elapsed_secs * 1000  # millisecs
-        print('---- elapsed time: %f ms - %s' % (self.elapsed, self.text))
+        print("---- elapsed time: %f ms - %s" % (self.elapsed, self.text))
 
 
 def time_control_str(base, inc, byo):
@@ -93,11 +95,11 @@ def server_state(app, amount=3):
         length = len(app[akey]) if hasattr(app[akey], "__len__") else 1
         print("--- %s %s ---" % (akey, length))
         if isinstance(app[akey], dict):
-            items = list(app[akey].items())[:min(length, amount)]
+            items = list(app[akey].items())[: min(length, amount)]
             for key, value in items:
                 print("   %s %s" % (key, value))
         elif isinstance(app[akey], list):
-            for item in app[akey][:min(length, amount)]:
+            for item in app[akey][: min(length, amount)]:
                 print("   %s" % item)
         else:
             print(app[akey])

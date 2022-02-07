@@ -5,7 +5,7 @@ log = logging.getLogger(__name__)
 
 
 async def discord_message(app, msg_type, msg):
-    """ Send msg to discord-relay BOT """
+    """Send msg to discord-relay BOT"""
     try:
         lobby_sockets = app["lobbysockets"]
         for dr_ws in lobby_sockets["Discord-Relay"]:
