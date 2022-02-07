@@ -52,8 +52,8 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa"] },
-    capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"] },
-    seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"] },
+    capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5"] },
+    seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"] },
     asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans"] },
