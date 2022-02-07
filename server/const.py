@@ -61,6 +61,8 @@ VARIANTS = (
     "coffeehouse960",
     "coffeehill",
     "coffeehill960",
+    "antiplacement",
+    "antihoppelpoppel",
     "atomic_giveaway_hill",
     "atomic_giveaway_hill960"  
     # We support to import/store/analyze these variants
