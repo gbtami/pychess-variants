@@ -1030,8 +1030,7 @@ class Tournament(ABC):
         else:
             time = minutes
             time_text = "minutes"
-        return "%s: **%s%s** %s tournament starts in **%s** %s!" % (
-            self.created_by, self.variant, tail960, tc, time, time_text)
+        return "**%s%s** %s tournament starts in **%s** %s!" % (self.variant, tail960, tc, time, time_text)
 
 
 def tournament_spotlights(tournaments):
