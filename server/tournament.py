@@ -224,9 +224,7 @@ class Tournament(ABC):
         self.frequency = frequency
 
         self.created_by = created_by
-        self.created_at = (
-            datetime.now(timezone.utc) if created_at is None else created_at
-        )
+        self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
         if starts_at == "" or starts_at is None:
             self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
         else:
@@ -326,9 +324,7 @@ class Tournament(ABC):
 
         def player_json(player, full_score):
             return {
-                "paused": self.players[player].paused
-                if self.status == T_STARTED
-                else False,
+                "paused": self.players[player].paused if self.status == T_STARTED else False,
                 "title": player.title,
                 "name": player.username,
                 "rating": self.players[player].rating,
@@ -420,8 +416,7 @@ class Tournament(ABC):
                 if self.status == T_CREATED:
                     remaining_time = self.starts_at - now
                     remaining_mins_to_start = int(
-                        ((remaining_time.days * 3600 * 24) + remaining_time.seconds)
-                        / 60
+                        ((remaining_time.days * 3600 * 24) + remaining_time.seconds) / 60
                     )
                     if now >= self.starts_at:
                         if self.system != ARENA and len(self.players) < 3:
@@ -433,9 +428,7 @@ class Tournament(ABC):
                         await self.start(now)
                         continue
 
-                    elif (
-                        not self.notify2
-                    ) and remaining_mins_to_start <= NOTIFY2_MINUTES:
+                    elif (not self.notify2) and remaining_mins_to_start <= NOTIFY2_MINUTES:
                         self.notify1 = True
                         self.notify2 = True
                         await discord_message(
@@ -445,9 +438,7 @@ class Tournament(ABC):
                         )
                         continue
 
-                    elif (
-                        not self.notify1
-                    ) and remaining_mins_to_start <= NOTIFY1_MINUTES:
+                    elif (not self.notify1) and remaining_mins_to_start <= NOTIFY1_MINUTES:
                         self.notify1 = True
                         await discord_message(
                             self.app,
@@ -473,13 +464,9 @@ class Tournament(ABC):
                             waiting_players = self.waiting_players()
                             nb_waiting_players = len(waiting_players)
                             if nb_waiting_players == 2 or nb_waiting_players >= (
-                                4
-                                if len(self.players) > 20 or self.ongoing_games > 0
-                                else 3
+                                4 if len(self.players) > 20 or self.ongoing_games > 0 else 3
                             ):
-                                log.debug(
-                                    "Enough player (%s), do pairing", nb_waiting_players
-                                )
+                                log.debug("Enough player (%s), do pairing", nb_waiting_players)
                                 await self.create_new_pairings(waiting_players)
                                 self.prev_pairing = now
                             else:
@@ -607,15 +594,11 @@ class Tournament(ABC):
 
         if user not in self.players:
             # new player joined
-            rating, provisional = user.get_rating(
-                self.variant, self.chess960
-            ).rating_prov
+            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
             self.players[user] = PlayerData(rating, provisional)
         elif self.players[user].withdrawn:
             # withdrawn player joined again
-            rating, provisional = user.get_rating(
-                self.variant, self.chess960
-            ).rating_prov
+            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
 
         if user not in self.leaderboard:
             # new player joined or withdrawn player joined again
@@ -783,8 +766,7 @@ class Tournament(ABC):
             if (
                 check_top_game
                 and (self.top_player is not None)
-                and self.top_player.username
-                in (game.wplayer.username, game.bplayer.username)
+                and self.top_player.username in (game.wplayer.username, game.bplayer.username)
                 and game.status != BYEGAME
             ):  # Bye game
                 self.top_game = game
@@ -956,23 +938,15 @@ class Tournament(ABC):
         if bpoint[1] == STREAK and len(bplayer.points) >= 2:
             bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
 
-        wplayer.rating = game.white_rating.rating_prov[0] + (
-            int(game.wrdiff) if game.wrdiff else 0
-        )
-        bplayer.rating = game.black_rating.rating_prov[0] + (
-            int(game.brdiff) if game.brdiff else 0
-        )
+        wplayer.rating = game.white_rating.rating_prov[0] + (int(game.wrdiff) if game.wrdiff else 0)
+        bplayer.rating = game.black_rating.rating_prov[0] + (int(game.brdiff) if game.brdiff else 0)
 
         # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
         nb = wplayer.nb_games
-        wplayer.performance = int(
-            round((wplayer.performance * (nb - 1) + wperf) / nb, 0)
-        )
+        wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
 
         nb = bplayer.nb_games
-        bplayer.performance = int(
-            round((bplayer.performance * (nb - 1) + bperf) / nb, 0)
-        )
+        bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
         wpscore = self.leaderboard.get(game.wplayer) // SCORE_SHIFT
         self.leaderboard.update(
@@ -1026,9 +1000,7 @@ class Tournament(ABC):
                 top_game_candidate = self.players[self.top_player].games[-1]
                 if top_game_candidate.status != BYEGAME:
                     self.top_game = top_game_candidate
-                    if (self.top_game is not None) and (
-                        self.top_game.status <= STARTED
-                    ):
+                    if (self.top_game is not None) and (self.top_game.status <= STARTED):
                         tgj = self.top_game_json
                         await self.broadcast(tgj)
 
@@ -1199,16 +1171,13 @@ class Tournament(ABC):
     def create_discord_msg(self):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
-        return (
-            "%s: **%s%s** %s tournament starts at UTC %s, duration will be **%s** minutes"
-            % (
-                self.created_by,
-                self.variant,
-                tail960,
-                tc,
-                self.starts_at.strftime("%Y.%m.%d %H:%M"),
-                self.minutes,
-            )
+        return "%s: **%s%s** %s tournament starts at UTC %s, duration will be **%s** minutes" % (
+            self.created_by,
+            self.variant,
+            tail960,
+            tc,
+            self.starts_at.strftime("%Y.%m.%d %H:%M"),
+            self.minutes,
         )
 
     def notify_discord_msg(self, minutes):
@@ -1232,9 +1201,7 @@ class Tournament(ABC):
 def tournament_spotlights(tournaments):
     to_date = datetime.now().date()
     items = []
-    for tid, tournament in sorted(
-        tournaments.items(), key=lambda item: item[1].starts_at
-    ):
+    for tid, tournament in sorted(tournaments.items(), key=lambda item: item[1].starts_at):
         if tournament.status == T_STARTED or (
             tournament.status == T_CREATED and tournament.starts_at.date() <= to_date
         ):

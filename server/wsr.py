@@ -48,11 +48,7 @@ async def round_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = (
-        users[session_user]
-        if session_user is not None and session_user in users
-        else None
-    )
+    user = users[session_user] if session_user is not None and session_user in users else None
 
     game = None
     opp_ws = None
@@ -120,9 +116,7 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
                         if opp_player.bot:
                             # Janggi game start have to wait for human player setup!
-                            if game.variant != "janggi" or not (
-                                game.bsetup or game.wsetup
-                            ):
+                            if game.variant != "janggi" or not (game.bsetup or game.wsetup):
                                 await opp_player.event_queue.put(game.game_start)
 
                             response = {"type": "gameStart", "gameId": data["gameId"]}
@@ -239,9 +233,7 @@ async def round_socket_handler(request):
                                 "position": game.board.initial_fen,  # start position (X-FEN)
                                 "variant": game.variant,
                                 "chess960": game.chess960,
-                                "moves": " ".join(
-                                    game.board.move_stack
-                                ),  # moves of the game (UCI)
+                                "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
                                 "nodes": 500000,  # optional limit
                                 #  "skipPositions": [1, 4, 5]  # 0 is the first position
                             }
@@ -252,9 +244,7 @@ async def round_socket_handler(request):
 
                             if (engine is not None) and engine.online:
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
-                                await engine.event_queue.put(
-                                    game.analysis_start(data["username"])
-                                )
+                                await engine.event_queue.put(game.analysis_start(data["username"]))
 
                         response = chat_response(
                             "roundchat",
@@ -320,9 +310,7 @@ async def round_socket_handler(request):
                                 continue
 
                             if opp_name in game.rematch_offers:
-                                color = (
-                                    "w" if game.wplayer.username == opp_name else "b"
-                                )
+                                color = "w" if game.wplayer.username == opp_name else "b"
                                 if handicap:
                                     color = "w" if color == "b" else "b"
                                 seek = Seek(
@@ -340,9 +328,7 @@ async def round_socket_handler(request):
                                 )
                                 seeks[seek.id] = seek
 
-                                response = await join_seek(
-                                    request.app, opp_player, seek.id
-                                )
+                                response = await join_seek(request.app, opp_player, seek.id)
                                 rematch_id = response["gameId"]
                                 await ws.send_json(response)
                                 await opp_ws.send_json(response)
@@ -383,13 +369,9 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "draw":
 
-                        color = (
-                            WHITE if user.username == game.wplayer.username else BLACK
-                        )
+                        color = WHITE if user.username == game.wplayer.username else BLACK
                         opp_name = (
-                            game.wplayer.username
-                            if color == BLACK
-                            else game.bplayer.username
+                            game.wplayer.username if color == BLACK else game.bplayer.username
                         )
                         opp_player = users[opp_name]
 
@@ -398,13 +380,8 @@ async def round_socket_handler(request):
                         )
                         await ws.send_json(response)
                         if opp_player.bot:
-                            if (
-                                game.status > STARTED
-                                and data["gameId"] in opp_player.game_queues
-                            ):
-                                await opp_player.game_queues[data["gameId"]].put(
-                                    game.game_end
-                                )
+                            if game.status > STARTED and data["gameId"] in opp_player.game_queues:
+                                await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             try:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
@@ -420,13 +397,9 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "reject_draw":
 
-                        color = (
-                            WHITE if user.username == game.wplayer.username else BLACK
-                        )
+                        color = WHITE if user.username == game.wplayer.username else BLACK
                         opp_name = (
-                            game.wplayer.username
-                            if color == BLACK
-                            else game.bplayer.username
+                            game.wplayer.username if color == BLACK else game.bplayer.username
                         )
 
                         response = reject_draw(game, opp_name)
@@ -444,11 +417,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
 
-                        if (
-                            data["type"] == "abort"
-                            and (game is not None)
-                            and game.board.ply > 2
-                        ):
+                        if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
                         if game.status > STARTED:
@@ -469,9 +438,7 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
                         if opp_player.bot:
                             if data["gameId"] in opp_player.game_queues:
-                                await opp_player.game_queues[data["gameId"]].put(
-                                    game.game_end
-                                )
+                                await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             if data["gameId"] in users[opp_name].game_sockets:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
@@ -546,8 +513,7 @@ async def round_socket_handler(request):
                         # remove user seeks
                         if len(user.lobby_sockets) == 0 or (
                             game.status <= STARTED
-                            and user.username
-                            in (game.wplayer.username, game.bplayer.username)
+                            and user.username in (game.wplayer.username, game.bplayer.username)
                         ):
                             await user.clear_seeks(sockets, seeks)
 
@@ -599,9 +565,7 @@ async def round_socket_handler(request):
                     elif data["type"] == "moretime":
                         # TODO: stop and update game stopwatch time with updated secs
 
-                        opp_color = (
-                            WHITE if user.username == game.bplayer.username else BLACK
-                        )
+                        opp_color = WHITE if user.username == game.bplayer.username else BLACK
                         if opp_color == game.stopwatch.color:
                             opp_time = game.stopwatch.stop()
                             game.stopwatch.restart(opp_time + MORE_TIME)
@@ -700,9 +664,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "count":
 
-                        cur_player = (
-                            game.bplayer if game.board.color == BLACK else game.wplayer
-                        )
+                        cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
                         opp_name = (
                             game.wplayer.username
                             if user.username == game.bplayer.username
@@ -764,14 +726,10 @@ async def round_socket_handler(request):
 
     except OSError:
         # disconnected?
-        log.exception(
-            "ERROR: OSError in round_socket_handler() owned by %s ", session_user
-        )
+        log.exception("ERROR: OSError in round_socket_handler() owned by %s ", session_user)
 
     except Exception:
-        log.exception(
-            "ERROR: Exception in round_socket_handler() owned by %s ", session_user
-        )
+        log.exception("ERROR: Exception in round_socket_handler() owned by %s ", session_user)
 
     finally:
         log.debug("--- wsr.py fianlly: await ws.close() %s", session_user)

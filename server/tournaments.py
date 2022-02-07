@@ -188,14 +188,10 @@ async def get_winners(app, shield):
             filter_cond["fr"] = SHIELD
 
         winners = []
-        cursor = app["db"].tournament.find(
-            filter_cond, sort=[("startsAt", -1)], limit=5
-        )
+        cursor = app["db"].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=5)
         async for doc in cursor:
             print("---", doc)
-            winners.append(
-                (doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"])
-            )
+            winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
 
         wi[variant] = winners
 
@@ -204,9 +200,7 @@ async def get_winners(app, shield):
 
 async def get_scheduled_tournaments(app, nb_max=30):
     """Return max 30 already scheduled tournaments from mongodb"""
-    cursor = app["db"].tournament.find(
-        {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
-    )
+    cursor = app["db"].tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
     cursor.sort("startsAt", -1)
     nb_tournament = 0
     tournaments = []
@@ -388,9 +382,7 @@ then must defend it during the next %s Shield tournament!
         if uid in users:
             user = users[uid]
         else:
-            user = User(
-                app, username=uid, title="TEST" if tournament_id == "12345678" else ""
-            )
+            user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
             users[uid] = user
 
         withdrawn = doc.get("wd", False)

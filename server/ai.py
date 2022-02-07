@@ -22,9 +22,7 @@ async def BOT_task(bot, app):
                     "task_done() called more times than there were items placed in the queue in ai.py game_task()"
                 )
             except KeyError:
-                log.error(
-                    "Break in BOT_task() game_task(). %s not in ai.game_queues", game.id
-                )
+                log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id)
                 if game.status <= STARTED:
                     await game.abort()
                 break
@@ -39,9 +37,7 @@ async def BOT_task(bot, app):
                 AI_move(game, level)
 
     def AI_move(game, level):
-        work_id = "".join(
-            random.choice(string.ascii_letters + string.digits) for x in range(6)
-        )
+        work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
         work = {
             "work": {
                 "type": "move",

@@ -84,8 +84,7 @@ def create_scheduled_data(year, month, day, already_scheduled=None):
     start = dt.datetime(year, month, day, tzinfo=dt.timezone.utc)
     data = new_scheduled_tournaments(already_scheduled, start)
     return [
-        (e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"])
-        for e in data
+        (e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"]) for e in data
     ]
 
 
@@ -196,9 +195,7 @@ class TournamentSchedulerTestCase(unittest.TestCase):
         already_scheduled = prev_data
         for i in range(365):
             y, m, d = self.go_day(i + 1)
-            next_data = create_scheduled_data(
-                y, m, d, already_scheduled=already_scheduled
-            )
+            next_data = create_scheduled_data(y, m, d, already_scheduled=already_scheduled)
             print("---", y, m, d, "---")
 
             for data in next_data:

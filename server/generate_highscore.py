@@ -19,9 +19,7 @@ async def generate_highscore(db):
         scores = {}
         cursor = db.user.find(filt, sort=[(r, -1)], limit=10)
         async for doc in cursor:
-            scores[doc["_id"]] = int(
-                round(Decimal(doc["perfs"][variant]["gl"]["r"]), 0)
-            )
+            scores[doc["_id"]] = int(round(Decimal(doc["perfs"][variant]["gl"]["r"]), 0))
 
         hs.append({"_id": variant, "scores": scores})
 

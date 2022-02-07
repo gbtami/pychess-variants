@@ -109,11 +109,7 @@ async def load_game(app, game_id):
             if len(parts) > 3 and parts[1] in "wb":
                 pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
                 initial_fen = (
-                    parts[0]
-                    + pockets
-                    + (" w" if parts[1] == "b" else " b")
-                    + " 0 "
-                    + parts[3]
+                    parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
                 )
             else:
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
@@ -308,9 +304,7 @@ async def import_game(request):
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
-    moves = encode_moves(
-        map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant
-    )
+    moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
 
     game_id = await new_id(None if db is None else db.game)
     existing = await db.game.find_one({"_id": {"$eq": game_id}})
@@ -452,9 +446,7 @@ async def new_game(app, seek_id, game_id=None):
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
             level=seek.level,
-            rated=RATED
-            if (seek.rated and (not wplayer.anon) and (not bplayer.anon))
-            else CASUAL,
+            rated=RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL,
             chess960=seek.chess960,
             create=True,
         )
@@ -553,9 +545,7 @@ def get_dests(board):
             dests[source] = [dest]
 
         if not move[-1].isdigit():
-            if not (
-                board.variant in ("seirawan", "shouse") and (move[1] in ("1", "8"))
-            ):
+            if not (board.variant in ("seirawan", "shouse") and (move[1] in ("1", "8"))):
                 promotions.append(move)
 
         if board.variant in ("kyotoshogi", "chennis") and move[0] == "+":
@@ -639,9 +629,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         await user.game_queues[gameId].put(game.game_end)
 
     opp_name = (
-        game.wplayer.username
-        if user.username == game.bplayer.username
-        else game.bplayer.username
+        game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
     if users[opp_name].bot:
         if game.status > STARTED:
@@ -704,11 +692,7 @@ def pgn(doc):
             if len(parts) > 3 and parts[1] in "wb":
                 pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
                 initial_fen = (
-                    parts[0]
-                    + pockets
-                    + (" w" if parts[1] == "b" else " b")
-                    + " 0 "
-                    + parts[3]
+                    parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
                 )
             else:
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
@@ -731,13 +715,9 @@ def pgn(doc):
         mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
     except Exception:
         try:
-            mlist = sf.get_san_moves(
-                variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN
-            )
+            mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
-            log.exception(
-                "%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"]
-            )
+            log.exception("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
             mlist = mlist[0]
 
     moves = " ".join(

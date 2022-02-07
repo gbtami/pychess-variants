@@ -51,17 +51,11 @@ class Clock:
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
                     if self.ply >= 2:
-                        await asyncio.sleep(
-                            20 + self.game.byoyomi_period * self.game.inc
-                        )
+                        await asyncio.sleep(20 + self.game.byoyomi_period * self.game.inc)
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        user = (
-                            self.game.bplayer
-                            if self.color == BLACK
-                            else self.game.wplayer
-                        )
+                        user = self.game.bplayer if self.color == BLACK else self.game.wplayer
                         reason = (
                             "abort"
                             if (self.ply < 2) and (self.game.tournamentId is None)

@@ -25,9 +25,7 @@ pairings["borjigin"] = (
 )
 
 pairings["ubdip"] = (
-    GameRecord(
-        "b", "0-1", "tt2ZVMFD", "Adasko65"
-    ),  # VARIANTEND bikjang, point counting
+    GameRecord("b", "0-1", "tt2ZVMFD", "Adasko65"),  # VARIANTEND bikjang, point counting
     GameRecord("b", "0-1", "hB935gjd", "Fairy-Stockfish"),
     GameRecord("w", "1-0", "LErk3AUQ", "Totonno_o_coreano"),
     GameRecord("b", "1-0", "IgYr6c86", "Dimarr"),
@@ -145,16 +143,10 @@ async def add_games(app):
                 print("!!! Result issue! %s" % record.id)
 
             if record.color == "w":
-                if (
-                    game.wplayer.username != player
-                    or game.bplayer.username != record.oppname
-                ):
+                if game.wplayer.username != player or game.bplayer.username != record.oppname:
                     print("!!! Player name issue! %s" % record.id)
             else:
-                if (
-                    game.bplayer.username != player
-                    or game.wplayer.username != record.oppname
-                ):
+                if game.bplayer.username != player or game.wplayer.username != record.oppname:
                     print("!!! Player name issue! %s" % record.id)
 
     print("======= Loading games ======")
@@ -172,8 +164,7 @@ async def add_games(app):
             if game_id not in updated_games:
                 game = await load_game(app, game_id)
                 print(
-                    "--- %s - %s --- %s"
-                    % (game.wplayer.username, game.bplayer.username, game.date)
+                    "--- %s - %s --- %s" % (game.wplayer.username, game.bplayer.username, game.date)
                 )
                 wp = game.wplayer
                 bp = game.bplayer

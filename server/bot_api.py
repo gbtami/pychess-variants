@@ -124,10 +124,7 @@ async def create_bot_seek(request):
     if matching_seek is None:
         seek = None
         for existing_seek in seeks.values():
-            if (
-                existing_seek.creator == bot_player
-                and existing_seek.variant == data["variant"]
-            ):
+            if existing_seek.creator == bot_player and existing_seek.variant == data["variant"]:
                 seek = existing_seek
                 break
         if seek is None:
@@ -349,11 +346,7 @@ async def bot_abort(request):
     users = request.app["users"]
     bot_player = users[username]
 
-    opp_name = (
-        game.wplayer.username
-        if username == game.bplayer.username
-        else game.bplayer.username
-    )
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
     opp_player = users[opp_name]
 
     response = await game.abort()
@@ -462,11 +455,7 @@ async def bot_chat(request):
 
     game = games[gameId]
 
-    opp_name = (
-        game.wplayer.username
-        if username == game.bplayer.username
-        else game.bplayer.username
-    )
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 
     if not users[opp_name].bot:
         opp_ws = users[opp_name].game_sockets[gameId]

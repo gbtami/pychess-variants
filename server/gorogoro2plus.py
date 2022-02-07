@@ -20,9 +20,7 @@ async def main():
     async for doc in cursor:
         print(doc["d"], doc["v"], doc["us"], "---", doc["f"])
 
-    await db.game.update_many(
-        filter_cond, {"$set": {"if": "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1"}}
-    )
+    await db.game.update_many(filter_cond, {"$set": {"if": "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1"}})
 
     await db.user.update_many({}, {"$rename": {"perfs.gorogoro": "perfs.gorogoroplus"}})
 

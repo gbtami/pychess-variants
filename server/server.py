@@ -84,9 +84,7 @@ def make_app(with_db=True) -> Application:
     parts = urlparse(URI)
     setup(
         app,
-        EncryptedCookieStorage(
-            SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"
-        ),
+        EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"),
     )
 
     if with_db:
@@ -130,9 +128,7 @@ async def init_state(app):
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
     app["users"]["Random-Mover"].online = True
-    app[
-        "lobbysockets"
-    ] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
+    app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
     app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
 
     app[
@@ -146,9 +142,7 @@ async def init_state(app):
     app["tournaments"] = {}
     app[
         "tourneychat"
-    ] = (
-        {}
-    )  # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
+    ] = {}  # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
 
     app["seeks"] = {}
     app["games"] = {}
@@ -212,9 +206,7 @@ async def init_state(app):
 
         # Create translation class
         try:
-            translation = gettext.translation(
-                "server", localedir="lang", languages=[lang]
-            )
+            translation = gettext.translation("server", localedir="lang", languages=[lang])
         except FileNotFoundError:
             log.warning("Missing translations file for lang %s", lang)
             translation = gettext.NullTranslations()
@@ -254,9 +246,7 @@ async def init_state(app):
         await app["db"].tournament.create_index("startsAt")
         await app["db"].tournament.create_index("status")
 
-        cursor = app["db"].tournament.find(
-            {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
-        )
+        cursor = app["db"].tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
         cursor.sort("startsAt", -1)
         to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
         async for doc in cursor:
@@ -336,10 +326,7 @@ async def shutdown(app):
                     try:
                         await ws.send_json(response)
                     except Exception:
-                        print(
-                            "Failed to send game %s abort to %s"
-                            % (game.id, player.username)
-                        )
+                        print("Failed to send game %s abort to %s" % (game.id, player.username))
 
     # close lobbysockets
     for user in app["users"].values():

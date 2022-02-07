@@ -161,9 +161,7 @@ class Twitch:
     async def get_subscriptions(self):
         log.debug("--- get_subscriptions from twitch ---")
         async with aiohttp.ClientSession() as client_session:
-            async with client_session.get(
-                TWITCH_EVENTSUB_API_URL, headers=self.headers
-            ) as resp:
+            async with client_session.get(TWITCH_EVENTSUB_API_URL, headers=self.headers) as resp:
                 response_data = await resp.json()
                 for subs in response_data["data"]:
                     self.subscriptions[subs["id"]] = subs
@@ -185,9 +183,7 @@ class Twitch:
                     for user in json["data"]:
                         uids.append(user["id"])
 
-            query_params = "&".join(
-                ["user_login=%s" % username for username in usernames]
-            )
+            query_params = "&".join(["user_login=%s" % username for username in usernames])
             async with client_session.get(
                 "%s?%s" % (TWITCH_STREAMS_API_URL, query_params), headers=self.headers
             ) as resp:

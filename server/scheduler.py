@@ -136,12 +136,8 @@ class Scheduler:
         for i, v in enumerate(MONTHLY_VARIANTS):
             is_960 = v.endswith("960")
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
-            date = dt.datetime(
-                self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc
-            )
-            plans.append(
-                Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90)
-            )
+            date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
+            plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         plans += [
             Plan(
@@ -166,15 +162,9 @@ class Scheduler:
                 0,
                 180,
             ),
-            Plan(
-                SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180
-            ),
-            Plan(
-                SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180
-            ),  # 960
-            Plan(
-                MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90
-            ),
+            Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
+            Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),  # 960
+            Plan(MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90),
             # The second Saturday is Makruk Shield
             Plan(MONTHLY, self.third_monthly(SATURDAY), 12, SEA, False, 3, 2, 0, 90),
             Plan(
@@ -199,9 +189,7 @@ class Scheduler:
                 0,
                 60,
             ),  # 960
-            Plan(
-                WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60
-            ),  # 960
+            Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
             Plan(
                 WEEKLY,
                 self.next_day_of_week(THURSDAY),
@@ -230,9 +218,9 @@ def new_scheduled_tournaments(already_scheduled, now=None):
         # set time info to 0:0:0
         now = dt.datetime.combine(now, dt.time.min, tzinfo=dt.timezone.utc)
 
-    to_date = dt.datetime.combine(
-        now, dt.time.max, tzinfo=dt.timezone.utc
-    ) + dt.timedelta(days=SCHEDULE_MAX_DAYS)
+    to_date = dt.datetime.combine(now, dt.time.max, tzinfo=dt.timezone.utc) + dt.timedelta(
+        days=SCHEDULE_MAX_DAYS
+    )
 
     # 2 full month list of scheduled tournaments
     plans = Scheduler(now).schedule_plan() + Scheduler(go_month(now)).schedule_plan()

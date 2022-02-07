@@ -13,9 +13,7 @@ import aiohttp_session
 try:
     import htmlmin
 
-    html_minify = functools.partial(
-        htmlmin.minify, remove_optional_attribute_quotes=False
-    )
+    html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
 except ImportError:
     warnings.warn("Not using HTML minification, htmlmin not imported.")
     sys.exit(0)
@@ -74,8 +72,7 @@ async def handle_404(request, handler):
                     "home": URI,
                     "view_css": "404.css",
                     "asseturl": STATIC_ROOT,
-                    "js": "/static/pychess-variants.js%s%s"
-                    % (BR_EXTENSION, SOURCE_VERSION),
+                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
                 }
             )
             return web.Response(text=html_minify(text), content_type="text/html")
@@ -223,9 +220,7 @@ async def index(request):
         raise web.HTTPNotFound()
 
     variant = request.match_info.get("variant")
-    if (variant is not None) and (
-        (variant not in VARIANTS) and variant != "terminology"
-    ):
+    if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
         log.debug("Invalid variant %s in request", variant)
         raise web.HTTPNotFound()
 
@@ -261,9 +256,7 @@ async def index(request):
             seek = request.app["seeks"][seek_id]
             if request.path.startswith("/invite/accept/"):
                 player = request.match_info.get("player")
-                seek_status = await join_seek(
-                    request.app, user, seek_id, gameId, join_as=player
-                )
+                seek_status = await join_seek(request.app, user, seek_id, gameId, join_as=player)
 
                 if seek_status["type"] == "seek_joined":
                     view = "invite"
@@ -286,11 +279,7 @@ async def index(request):
 
             else:
                 view = "invite"
-                inviter = (
-                    seek.creator.username
-                    if user.username != seek.creator.username
-                    else ""
-                )
+                inviter = seek.creator.username if user.username != seek.creator.username else ""
 
         if view != "invite":
             game = await load_game(request.app, gameId)
@@ -304,9 +293,7 @@ async def index(request):
                 game.spectators.add(user)
 
             if game.tournamentId is not None:
-                tournament_name = await get_tournament_name(
-                    request.app, game.tournamentId
-                )
+                tournament_name = await get_tournament_name(request.app, game.tournamentId)
 
     if view in ("profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
@@ -369,9 +356,7 @@ async def index(request):
             render["trophies"] = []
         else:
             hs = request.app["highscore"]
-            render["trophies"] = [
-                (v, "top10") for v in hs if profileId in hs[v].keys()[:10]
-            ]
+            render["trophies"] = [(v, "top10") for v in hs if profileId in hs[v].keys()[:10]]
             for i, (v, kind) in enumerate(render["trophies"]):
                 if hs[v].peekitem(0)[0] == profileId:
                     render["trophies"][i] = (v, "top1")
@@ -415,9 +400,7 @@ async def index(request):
 
     elif view == "players":
         online_users = [
-            u
-            for u in users.values()
-            if u.username == user.username or (u.online and not u.anon)
+            u for u in users.values() if u.username == user.username or (u.online and not u.anon)
         ]
         anon_online = sum((1 for u in users.values() if u.anon and u.online))
 
@@ -426,9 +409,7 @@ async def index(request):
         render["online_users"] = online_users
         render["anon_online"] = anon_online
         hs = request.app["highscore"]
-        render["highscore"] = {
-            variant: dict(hs[variant].items()[:10]) for variant in hs
-        }
+        render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
 
     elif view in ("shields", "winners"):
         wi = await get_winners(request.app, shield=(view == "shields"))
@@ -524,9 +505,7 @@ async def index(request):
             render["variant"] = "docs/terminology%s.html" % locale
         else:
             render["variant"] = (
-                "docs/"
-                + ("terminology" if variant is None else variant)
-                + "%s.html" % locale
+                "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
             )
 
     elif view == "news":

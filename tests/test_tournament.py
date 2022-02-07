@@ -253,18 +253,14 @@ class TournamentTestCase(AioHTTPTestCase):
         self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(
-            self.app, tid, before_start=0.1, minutes=1
-        )
+        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
         self.app["tournaments"][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         # 12 player leave the tournament lobby
         for i in range(12):
             print(i)
-            del list(self.tournament.players.keys())[i].tournament_sockets[
-                self.tournament.id
-            ]
+            del list(self.tournament.players.keys())[i].tournament_sockets[self.tournament.id]
         self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 12)
 
         await self.tournament.clock_task
@@ -280,9 +276,7 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
-        self.tournament = SwissTestTournament(
-            self.app, tid, before_start=0, rounds=NB_ROUNDS
-        )
+        self.tournament = SwissTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -299,9 +293,7 @@ class TournamentTestCase(AioHTTPTestCase):
         self.app["db"] = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(
-            self.app, tid, before_start=0.1, minutes=1
-        )
+        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
         self.app["tournaments"][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -310,9 +302,7 @@ class TournamentTestCase(AioHTTPTestCase):
         self.assertEqual(self.tournament.nb_players, NB_PLAYERS - 1)
 
         # make the first player leave the tournament lobby
-        del list(self.tournament.players.keys())[0].tournament_sockets[
-            self.tournament.id
-        ]
+        del list(self.tournament.players.keys())[0].tournament_sockets[self.tournament.id]
 
         self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 2)
 
@@ -327,9 +317,7 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_ROUNDS = 5
 
         tid = id8()
-        self.tournament = RRTestTournament(
-            self.app, tid, before_start=0, rounds=NB_ROUNDS
-        )
+        self.tournament = RRTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
         self.app["tournaments"][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 

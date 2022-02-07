@@ -87,9 +87,7 @@ class GameResultTestCase(AioHTTPTestCase):
 
     async def test_atomic_stalemate(self):
         FEN = "K7/Rk6/2B5/8/8/8/7Q/8 w - - 0 1"
-        game = Game(
-            self.app, "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False
-        )
+        game = Game(self.app, "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
         await game.play_move("h2b8")
 
         self.assertEqual(game.result, "1/2-1/2")
@@ -97,9 +95,7 @@ class GameResultTestCase(AioHTTPTestCase):
 
     async def test_atomic_checkmate(self):
         FEN = "B6Q/Rk6/8/8/8/8/8/4K3 w - - 0 1"
-        game = Game(
-            self.app, "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False
-        )
+        game = Game(self.app, "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
         await game.play_move("h8b8")
 
         self.assertEqual(game.result, "1-0")
@@ -176,9 +172,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
 
 class GamePlayTestCase(AioHTTPTestCase):
     async def startup(self, app):
-        self.test_player = User(
-            self.app, username="test_player", perfs=PERFS["newplayer"]
-        )
+        self.test_player = User(self.app, username="test_player", perfs=PERFS["newplayer"])
         self.random_mover = self.app["users"]["Random-Mover"]
 
     async def get_application(self):
@@ -231,12 +225,8 @@ class HighscoreTestCase(AioHTTPTestCase):
 
         self.wplayer = User(self.app, username="user7", perfs=PERFS["user7"])
         self.bplayer = User(self.app, username="newplayer", perfs=PERFS["newplayer"])
-        self.strong_player = User(
-            self.app, username="strongplayer", perfs=PERFS["strongplayer"]
-        )
-        self.weak_player = User(
-            self.app, username="weakplayer", perfs=PERFS["weakplayer"]
-        )
+        self.strong_player = User(self.app, username="strongplayer", perfs=PERFS["strongplayer"])
+        self.weak_player = User(self.app, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
         app = make_app(with_db=False)
@@ -319,9 +309,7 @@ class HighscoreTestCase(AioHTTPTestCase):
 
         self.assertEqual(len(game.crosstable["r"]), 1)
         self.assertNotEqual(highscore0, highscore1)
-        self.assertTrue(
-            self.wplayer.username not in game.highscore["crazyhouse960"].keys()[:10]
-        )
+        self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"].keys()[:10])
 
     async def test_win_and_in_then_lost_and_out(self):
         game_id = id8()
@@ -352,9 +340,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertTrue(
             self.weak_player.username not in game.highscore["crazyhouse960"].keys()[:10]
         )
-        self.assertTrue(
-            self.strong_player.username in game.highscore["crazyhouse960"].keys()[:10]
-        )
+        self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"].keys()[:10])
 
         # now strong player will lose to weak_player and should be out from leaderboard
         game_id = id8()
@@ -383,8 +369,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             self.weak_player.username not in game.highscore["crazyhouse960"].keys()[:10]
         )
         self.assertTrue(
-            self.strong_player.username
-            not in game.highscore["crazyhouse960"].keys()[:10]
+            self.strong_player.username not in game.highscore["crazyhouse960"].keys()[:10]
         )
 
 
@@ -504,9 +489,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def test_ratings(self):
-        game = Game(
-            self.app, "12345678", "chess", "", self.wplayer1, self.bplayer1, rated=True
-        )
+        game = Game(self.app, "12345678", "chess", "", self.wplayer1, self.bplayer1, rated=True)
         game.board.ply = 3
         await game.game_ended(self.bplayer1, "flag")
 
@@ -516,9 +499,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.assertEqual(round(rw.mu, 3), 1662.212)
         self.assertEqual(round(rb.mu, 3), 1337.788)
 
-        game = Game(
-            self.app, "12345678", "chess", "", self.wplayer2, self.bplayer2, rated=True
-        )
+        game = Game(self.app, "12345678", "chess", "", self.wplayer2, self.bplayer2, rated=True)
         game.board.ply = 3
         await game.game_ended(self.wplayer2, "flag")
 
@@ -568,9 +549,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         rematch_id = response["gameId"]
 
         game_even = self.app["games"][rematch_id]
-        print(
-            "%s - %s %s" % (game_even.wplayer, game_even.bplayer, game_even.initial_fen)
-        )
+        print("%s - %s %s" % (game_even.wplayer, game_even.bplayer, game_even.initial_fen))
         self.assertEqual(game_odd.initial_fen, game_even.initial_fen)
 
         await game_even.game_ended(game_even.wplayer, "flag")

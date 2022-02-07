@@ -76,9 +76,7 @@ class TestUser:
         async with aiohttp.ClientSession() as session:
             async with session.ws_connect(LOBBY_URL) as wsl:
 
-                await wsl.send_json(
-                    {"type": "lobby_user_connected", "username": self.username}
-                )
+                await wsl.send_json({"type": "lobby_user_connected", "username": self.username})
                 await self.send_lobby_chat(wsl, "Hi all!")
                 await wsl.send_json({"type": "get_seeks"})
 
@@ -211,9 +209,7 @@ class TestUser:
             await wsr.close()
 
     async def send_lobby_chat(self, ws, message):
-        await ws.send_json(
-            {"type": "lobbychat", "user": self.username, "message": message}
-        )
+        await ws.send_json({"type": "lobbychat", "user": self.username, "message": message})
 
     async def send_round_chat(self, ws, message, game_id, room):
         await ws.send_json(

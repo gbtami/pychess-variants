@@ -19,9 +19,7 @@ log = logging.getLogger(__name__)
 
 
 class FairyBoard:
-    def __init__(
-        self, variant, initial_fen="", chess960=False, count_started=0, disabled_fen=""
-    ):
+    def __init__(self, variant, initial_fen="", chess960=False, count_started=0, disabled_fen=""):
         if variant == "shogun":
             sf.set_option("Protocol", "uci")
         self.variant = variant
@@ -29,9 +27,7 @@ class FairyBoard:
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian")
         self.initial_fen = (
-            initial_fen
-            if initial_fen
-            else self.start_fen(variant, chess960, disabled_fen)
+            initial_fen if initial_fen else self.start_fen(variant, chess960, disabled_fen)
         )
         self.move_stack = []
         self.ply = 0
@@ -95,9 +91,7 @@ class FairyBoard:
 
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang
-        return sf.legal_moves(
-            self.variant, self.initial_fen, self.move_stack, self.chess960
-        )
+        return sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def is_checked(self):
         return sf.gives_check(self.variant, self.fen, [], self.chess960)
@@ -125,9 +119,7 @@ class FairyBoard:
         return optional_end and result == 0
 
     def game_result(self):
-        return sf.game_result(
-            self.variant, self.initial_fen, self.move_stack, self.chess960
-        )
+        return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def print_pos(self):
         print()
@@ -160,9 +152,9 @@ class FairyBoard:
         if color == "b":
             left = random.choice(("nb", "bn"))
             right = random.choice(("nb", "bn"))
-            fen = (
-                "r%sa1a%sr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1"
-                % (left, right)
+            fen = "r%sa1a%sr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1" % (
+                left,
+                right,
             )
         else:
             left = random.choice(("NB", "BN"))
@@ -278,16 +270,7 @@ class FairyBoard:
         else:
             holdings = ""
 
-        fen = (
-            fen
-            + body
-            + fen.upper()
-            + holdings
-            + " w "
-            + castl.upper()
-            + castl
-            + " - 0 1"
-        )
+        fen = fen + body + fen.upper() + holdings + " w " + castl.upper() + castl + " - 0 1"
         return fen
 
 
@@ -334,9 +317,7 @@ if __name__ == "__main__":
         print(board.fen)
     print(board.legal_moves())
 
-    FEN = (
-        "r8r/1nbqkcabn1/ppppppp1pp/10/9P/10/10/PPPPPPPPp1/1NBQKC2N1/R5RAB1[p] b - - 0 5"
-    )
+    FEN = "r8r/1nbqkcabn1/ppppppp1pp/10/9P/10/10/PPPPPPPPp1/1NBQKC2N1/R5RAB1[p] b - - 0 5"
     board = FairyBoard("grandhouse", initial_fen=FEN)
     print(board.fen)
     board.print_pos()

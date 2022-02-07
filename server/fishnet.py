@@ -87,9 +87,7 @@ async def get_work(request, data):
         now = monotonic()
         for work_id in pending_works:
             work = pending_works[work_id]
-            if work["work"]["type"] == "move" and (
-                now - work["time"] > MOVE_WORK_TIME_OUT
-            ):
+            if work["work"]["type"] == "move" and (now - work["time"] > MOVE_WORK_TIME_OUT):
                 fm[worker].append(
                     "%s %s %s %s for level %s"
                     % (
@@ -202,9 +200,7 @@ async def fishnet_analysis(request):
     if all(data["analysis"]):
         del request.app["works"][work_id]
         new_data = {"a": [step["analysis"] for step in game.steps]}
-        await request.app["db"].game.find_one_and_update(
-            {"_id": game.id}, {"$set": new_data}
-        )
+        await request.app["db"].game.find_one_and_update({"_id": game.id}, {"$set": new_data})
 
     return web.Response(status=204)
 
@@ -285,9 +281,5 @@ async def fishnet_key(request):
 async def fishnet_monitor(request):
     fm = request.app["fishnet_monitor"]
     fv = request.app["fishnet_versions"]
-    workers = {
-        worker + " v" + fv[worker]: list(fm[worker]) for worker in fm if fm[worker]
-    }
-    return web.json_response(
-        workers, dumps=partial(json.dumps, default=datetime.isoformat)
-    )
+    workers = {worker + " v" + fv[worker]: list(fm[worker]) for worker in fm if fm[worker]}
+    return web.json_response(workers, dumps=partial(json.dumps, default=datetime.isoformat))

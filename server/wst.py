@@ -37,11 +37,7 @@ async def tournament_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = (
-        users[session_user]
-        if session_user is not None and session_user in users
-        else None
-    )
+    user = users[session_user] if session_user is not None and session_user in users else None
 
     if (user is not None) and (not user.enabled):
         await ws.close()
@@ -62,23 +58,16 @@ async def tournament_socket_handler(request):
                         log.debug("Websocket (%s) message: %s", id(ws), msg)
 
                     if data["type"] == "get_players":
-                        tournament = await load_tournament(
-                            request.app, data["tournamentId"]
-                        )
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             page = data["page"]
-                            if (
-                                user in tournament.players
-                                and tournament.players[user].page != page
-                            ):
+                            if user in tournament.players and tournament.players[user].page != page:
                                 tournament.players[user].page = page
                             response = tournament.players_json(page=page)
                             await ws.send_json(response)
 
                     elif data["type"] == "my_page":
-                        tournament = await load_tournament(
-                            request.app, data["tournamentId"]
-                        )
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             if user in tournament.players:
                                 # force to get users current page by leaderbord status
@@ -87,17 +76,13 @@ async def tournament_socket_handler(request):
                             await ws.send_json(response)
 
                     elif data["type"] == "get_games":
-                        tournament = await load_tournament(
-                            request.app, data["tournamentId"]
-                        )
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             response = tournament.games_json(data["player"])
                             await ws.send_json(response)
 
                     elif data["type"] == "join":
-                        tournament = await load_tournament(
-                            request.app, data["tournamentId"]
-                        )
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             await tournament.join(user)
                             response = {
@@ -108,9 +93,7 @@ async def tournament_socket_handler(request):
                             await ws.send_json(response)
 
                     elif data["type"] == "pause":
-                        tournament = await load_tournament(
-                            request.app, data["tournamentId"]
-                        )
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             await tournament.pause(user)
                             response = {
@@ -121,9 +104,7 @@ async def tournament_socket_handler(request):
                             await ws.send_json(response)
 
                     elif data["type"] == "withdraw":
-                        tournament = await load_tournament(
-                            request.app, data["tournamentId"]
-                        )
+                        tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
                             await tournament.withdraw(user)
                             response = {
@@ -189,9 +170,7 @@ async def tournament_socket_handler(request):
 
                         user.update_online()
 
-                        sockets[tournamentId][user.username] = user.tournament_sockets[
-                            tournamentId
-                        ]
+                        sockets[tournamentId][user.username] = user.tournament_sockets[tournamentId]
 
                         now = datetime.now(timezone.utc)
                         response = {
@@ -206,14 +185,10 @@ async def tournament_socket_handler(request):
                             "startFen": tournament.fen,
                             "description": tournament.description,
                             "frequency": tournament.frequency,
-                            "secondsToStart": (
-                                tournament.starts_at - now
-                            ).total_seconds()
+                            "secondsToStart": (tournament.starts_at - now).total_seconds()
                             if tournament.starts_at > now
                             else 0,
-                            "secondsToFinish": (
-                                tournament.ends_at - now
-                            ).total_seconds()
+                            "secondsToFinish": (tournament.ends_at - now).total_seconds()
                             if tournament.starts_at < now
                             else 0,
                         }
@@ -260,9 +235,7 @@ async def tournament_socket_handler(request):
 
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
-                                response = silence(
-                                    message, tourneychat[tournamentId], users
-                                )
+                                response = silence(message, tourneychat[tournamentId], users)
                             elif message.startswith("/abort"):
                                 if tournament.status in (T_CREATED, T_STARTED):
                                     await tournament.abort()
@@ -295,9 +268,7 @@ async def tournament_socket_handler(request):
                 break
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.error(
-                    "--- Tournament ws %s msg.type == aiohttp.WSMsgType.ERROR", id(ws)
-                )
+                log.error("--- Tournament ws %s msg.type == aiohttp.WSMsgType.ERROR", id(ws))
                 break
 
             else:
@@ -308,9 +279,7 @@ async def tournament_socket_handler(request):
         pass
 
     except Exception:
-        log.exception(
-            "ERROR: Exception in tournament_socket_handler() owned by %s ", session_user
-        )
+        log.exception("ERROR: Exception in tournament_socket_handler() owned by %s ", session_user)
 
     finally:
         log.debug("--- wsl.py fianlly: await ws.close() %s", session_user)
@@ -325,14 +294,9 @@ async def tournament_socket_handler(request):
                         del user.tournament_sockets[tournamentId]
                         user.update_online()
 
-                        if (
-                            tournamentId in sockets
-                            and user.username in sockets[tournamentId]
-                        ):
+                        if tournamentId in sockets and user.username in sockets[tournamentId]:
                             del sockets[tournamentId][user.username]
-                            tournament = await load_tournament(
-                                request.app, tournamentId
-                            )
+                            tournament = await load_tournament(request.app, tournamentId)
                             tournament.spactator_leave(user)
                             await tournament.broadcast(tournament.spectator_list)
 

@@ -94,9 +94,7 @@ class Game:
         self.berserk_time = self.base * 1000 * 30
 
         self.browser_title = "%s • %s vs %s" % (
-            variant_display_name(
-                self.variant + ("960" if self.chess960 else "")
-            ).title(),
+            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
             self.wplayer.username,
             self.bplayer.username,
         )
@@ -162,9 +160,7 @@ class Game:
                 parts = self.initial_fen.split()
                 board_state = parts[0]
                 side_to_move = parts[1]
-                counting_limit = (
-                    int(parts[3]) if len(parts) >= 4 and parts[3].isdigit() else 0
-                )
+                counting_limit = int(parts[3]) if len(parts) >= 4 and parts[3].isdigit() else 0
                 counting_ply = int(parts[4]) if len(parts) >= 5 else 0
                 move_number = int(parts[5]) if len(parts) >= 6 else 0
 
@@ -368,9 +364,7 @@ class Game:
                 self.stopwatch.restart()
 
             except Exception:
-                log.exception(
-                    "ERROR: Exception in game %s play_move() %s", self.id, move
-                )
+                log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
@@ -437,11 +431,7 @@ class Game:
             if self.result != "*":
                 if self.rated == RATED:
                     await self.update_ratings()
-                if (
-                    (not self.bot_game)
-                    and (not self.wplayer.anon)
-                    and (not self.bplayer.anon)
-                ):
+                if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
                     await self.save_crosstable()
 
             if self.tournamentId is not None:
@@ -481,15 +471,11 @@ class Game:
 
             if self.manual_count:
                 if self.board.count_started > 0:
-                    self.manual_count_toggled.append(
-                        (self.board.count_started, self.board.ply + 1)
-                    )
+                    self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
                 new_data["mct"] = self.manual_count_toggled
 
             if self.db is not None:
-                await self.db.game.find_one_and_update(
-                    {"_id": self.id}, {"$set": new_data}
-                )
+                await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     def set_crosstable(self):
         if (
@@ -501,9 +487,7 @@ class Game:
         ):
             return
 
-        if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(
-            self.id
-        ):
+        if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
             log.info("Crosstable was already updated with %s result", self.id)
             return
 
@@ -573,9 +557,7 @@ class Game:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
         new_data = {
-            "scores": dict(
-                self.highscore[variant + ("960" if chess960 else "")].items()[:10]
-            )
+            "scores": dict(self.highscore[variant + ("960" if chess960 else "")].items()[:10])
         }
         try:
             await self.db.highscore.find_one_and_update(
@@ -703,12 +685,8 @@ class Game:
             # end the game by 50 move rule and repetition automatically
             # for non-draw results and bot games
             is_game_end, game_result_value = self.board.is_optional_game_end()
-            if is_game_end and (
-                game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)
-            ):
-                self.result = result_string_from_value(
-                    self.board.color, game_result_value
-                )
+            if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
+                self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
 
         if self.board.ply > MAX_PLY:
@@ -741,9 +719,7 @@ class Game:
                 dests[source] = [dest]
 
             if not move[-1].isdigit():
-                if not (
-                    self.variant in ("seirawan", "shouse") and move[1] in ("1", "8")
-                ):
+                if not (self.variant in ("seirawan", "shouse") and move[1] in ("1", "8")):
                     promotions.append(move)
 
             if self.variant in ("kyotoshogi", "chennis") and move[0] == "+":
@@ -775,29 +751,15 @@ class Game:
                 for ind, move in enumerate(mlist)
             )
         )
-        no_setup = (
-            self.initial_fen == self.board.start_fen("chess") and not self.chess960
-        )
+        no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = (
-            self.initial_fen
-            if self.variant != "crazyhouse"
-            else self.initial_fen.replace("[]", "")
+            self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
         )
-        tc = (
-            "-"
-            if self.base + self.inc == 0
-            else "%s+%s" % (int(self.base * 60), self.inc)
-        )
+        tc = "-" if self.base + self.inc == 0 else "%s+%s" % (int(self.base * 60), self.inc)
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
             "PyChess "
-            + (
-                "rated"
-                if self.rated == RATED
-                else "casual"
-                if self.rated == CASUAL
-                else "imported"
-            )
+            + ("rated" if self.rated == RATED else "casual" if self.rated == CASUAL else "imported")
             + " game",
             URI + "/" + self.id,
             self.date.strftime("%Y.%m.%d"),
@@ -807,9 +769,7 @@ class Game:
             tc,
             self.wrating,
             self.brating,
-            self.variant.capitalize()
-            if not self.chess960
-            else VARIANT_960_TO_PGN[self.variant],
+            self.variant.capitalize() if not self.chess960 else VARIANT_960_TO_PGN[self.variant],
             moves,
             self.result,
             fen="" if no_setup else '[FEN "%s"]\n' % setup_fen,
@@ -915,9 +875,7 @@ class Game:
                     ):
                         result = "1/2-1/2"
                     else:
-                        result = (
-                            "0-1" if user.username == self.wplayer.username else "1-0"
-                        )
+                        result = "0-1" if user.username == self.wplayer.username else "1-0"
                 else:
                     result = "0-1" if user.username == self.wplayer.username else "1-0"
 
@@ -950,9 +908,7 @@ class Game:
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
             self.draw_offers.discard(cur_player.username)
             self.draw_offers.discard(opp_player.username)
-            self.manual_count_toggled.append(
-                (self.board.count_started, self.board.ply + 1)
-            )
+            self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
             self.board.count_started = -1
 
     def get_board(self, full=False):
@@ -971,9 +927,7 @@ class Game:
                 elapsed = int(round((cur_time - self.last_server_clock) * 1000))
 
                 cur_color = "black" if self.board.color == BLACK else "white"
-                clocks[cur_color] = max(
-                    0, clocks[cur_color] + self.byo_correction - elapsed
-                )
+                clocks[cur_color] = max(0, clocks[cur_color] + self.byo_correction - elapsed)
             crosstable = self.crosstable
         else:
             clocks = self.clocks

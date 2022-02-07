@@ -197,9 +197,7 @@ class Glicko2:
             expected_score = self.expect_score(rating, other_rating, impact)
             variance_inv += impact**2 * expected_score * (1 - expected_score)
             difference += impact * (actual_score - expected_score)
-            d_square_inv += (
-                expected_score * (1 - expected_score) * (Q**2) * (impact**2)
-            )
+            d_square_inv += expected_score * (1 - expected_score) * (Q**2) * (impact**2)
 
         difference /= variance_inv
         variance = 1.0 / variance_inv
@@ -225,12 +223,8 @@ class Glicko2:
         )
 
     def quality_1vs1(self, rating1, rating2):
-        expected_score1 = self.expect_score(
-            rating1, rating2, self.reduce_impact(rating1)
-        )
-        expected_score2 = self.expect_score(
-            rating2, rating1, self.reduce_impact(rating2)
-        )
+        expected_score1 = self.expect_score(rating1, rating2, self.reduce_impact(rating1))
+        expected_score2 = self.expect_score(rating2, rating1, self.reduce_impact(rating2))
         expected_score = (expected_score1 + expected_score2) / 2
         return 2 * (0.5 - abs(0.5 - expected_score))
 

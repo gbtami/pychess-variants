@@ -18,9 +18,7 @@ async def generate_shield(app):
         )
         async for doc in cursor:
             if doc["status"] > T_STARTED:
-                app["shield"][variant].append(
-                    (doc["winner"], doc["startsAt"], doc["_id"])
-                )
+                app["shield"][variant].append((doc["winner"], doc["startsAt"], doc["_id"]))
 
         if len(app["shield"][variant]) > 0:
             app["shield_owners"][variant] = app["shield"][variant][0][0]

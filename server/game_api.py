@@ -51,13 +51,7 @@ async def get_variant_stats(request):
                 0,
                 {
                     "$match": {
-                        "us": {
-                            "$not": {
-                                "$elemMatch": {
-                                    "$in": ["Fairy-Stockfish", "Random-Mover"]
-                                }
-                            }
-                        }
+                        "us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}
                     }
                 },
             )
@@ -86,14 +80,10 @@ async def get_variant_stats(request):
                 # support of variant discontinued
                 pass
 
-        series = [
-            {"name": variant, "data": variant_counts[variant]} for variant in VARIANTS
-        ]
+        series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
         request.app[stats][cur_period] = series
 
-    return web.json_response(
-        series, dumps=partial(json.dumps, default=datetime.isoformat)
-    )
+    return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def get_user_games(request):
@@ -125,9 +115,7 @@ async def get_user_games(request):
             filter_cond["$and"] = [
                 {"$or": [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]},
                 {"x": int(level)},
-                {
-                    "$or": [{"if": None}, {"v": "j"}]
-                },  # Janggi games always have initial FEN!
+                {"$or": [{"if": None}, {"v": "j"}]},  # Janggi games always have initial FEN!
                 {
                     "$or": [
                         {"s": MATE},
@@ -184,9 +172,7 @@ async def get_user_games(request):
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
-            doc["lm"] = (
-                decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
-            )
+            doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
             if doc["v"] in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 
@@ -196,9 +182,7 @@ async def get_user_games(request):
 
             game_doc_list.append(doc)
 
-    return web.json_response(
-        game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat)
-    )
+    return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def cancel_invite(request):
