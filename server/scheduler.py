@@ -149,7 +149,7 @@ class Scheduler:
                 3,
                 2,
                 0,
-                180,
+                180
             ),  # 960
             Plan(
                 SHIELD,
@@ -160,7 +160,7 @@ class Scheduler:
                 3,
                 4,
                 0,
-                180,
+                180
             ),
             Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),  # 960
@@ -176,7 +176,7 @@ class Scheduler:
                 3,
                 2,
                 0,
-                90,
+                90
             ),
             Plan(
                 WEEKLY,
@@ -187,7 +187,7 @@ class Scheduler:
                 3,
                 0,
                 0,
-                60,
+                60
             ),  # 960
             Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
             Plan(
@@ -199,7 +199,7 @@ class Scheduler:
                 3,
                 2,
                 0,
-                90,
+                90
             ),
         ]
 
