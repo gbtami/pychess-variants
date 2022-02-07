@@ -47,6 +47,9 @@ label.piece.piece3.capa {
 label.piece.piece4.capa {
     background-image: url('images/pieces/kaneo/wA.svg');
 }
+label.piece.piece5.capa {
+    background-image: url('images/pieces/shogun/merida/mono/wM.svg');
+}
 
 label.piece.piece0.seirawan {
     background-image: url('images/pieces/merida/wH.svg');
@@ -63,6 +66,10 @@ label.piece.piece3.seirawan {
 label.piece.piece4.seirawan {
     background-image: url('images/pieces/kaneo/wH.svg');
 }
+label.piece.piece5.seirawan {
+    background-image: url('images/pieces/shogun/merida/mono/wM.svg');
+}
+
 
 label.piece.piece0.makruk {
     background-image: url('images/pieces/makruk/ada/bB.svg');
