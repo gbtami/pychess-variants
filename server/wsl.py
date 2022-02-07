@@ -92,7 +92,8 @@ async def lobby_socket_handler(request):
                             engine = users.get("Random-Mover")
 
                         seek = Seek(
-                            user, variant,
+                            user,
+                            variant,
                             fen=data["fen"],
                             color=data["color"],
                             base=data["minutes"],
@@ -102,7 +103,8 @@ async def lobby_socket_handler(request):
                             player1=user,
                             rated=False,
                             chess960=data["chess960"],
-                            alternate_start=data["alternateStart"])
+                            alternate_start=data["alternateStart"],
+                        )
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 
@@ -189,26 +191,45 @@ async def lobby_socket_handler(request):
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
-                                log.info("+++ Existing lobby_user %s socket connected as %s.", session_user, data["username"])
+                                log.info(
+                                    "+++ Existing lobby_user %s socket connected as %s.",
+                                    session_user,
+                                    data["username"],
+                                )
                                 session_user = data["username"]
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
-                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                    user = User(
+                                        request.app,
+                                        username=data["username"],
+                                        anon=data["username"].startswith("Anon-"),
+                                    )
                                     users[user.username] = user
                             else:
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
-                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                    user = User(
+                                        request.app,
+                                        username=data["username"],
+                                        anon=data["username"].startswith("Anon-"),
+                                    )
                                     users[user.username] = user
                         else:
-                            log.info("+++ Existing lobby_user %s socket reconnected.", data["username"])
+                            log.info(
+                                "+++ Existing lobby_user %s socket reconnected.",
+                                data["username"],
+                            )
                             session_user = data["username"]
                             if session_user in users:
                                 user = users[session_user]
                             else:
-                                user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                user = User(
+                                    request.app,
+                                    username=data["username"],
+                                    anon=data["username"].startswith("Anon-"),
+                                )
                                 users[user.username] = user
 
                         # update websocket
@@ -216,7 +237,10 @@ async def lobby_socket_handler(request):
                         user.update_online()
                         sockets[user.username] = user.lobby_sockets
 
-                        response = {"type": "lobby_user_connected", "username": user.username}
+                        response = {
+                            "type": "lobby_user_connected",
+                            "username": user.username,
+                        }
                         await ws.send_json(response)
 
                         response = {"type": "fullchat", "lines": list(lobbychat)}
@@ -274,7 +298,9 @@ async def lobby_socket_handler(request):
                                 server_state(request.app)
 
                             else:
-                                response = chat_response("lobbychat", user.username, data["message"])
+                                response = chat_response(
+                                    "lobbychat", user.username, data["message"]
+                                )
                                 lobbychat.append(response)
 
                         elif user.anon and user.username != "Discord-Relay":
@@ -282,7 +308,9 @@ async def lobby_socket_handler(request):
 
                         else:
                             if user.silence == 0:
-                                response = chat_response("lobbychat", user.username, data["message"])
+                                response = chat_response(
+                                    "lobbychat", user.username, data["message"]
+                                )
                                 lobbychat.append(response)
 
                         if response is not None:
@@ -296,7 +324,10 @@ async def lobby_socket_handler(request):
                         await ws.close(code=1009)
 
             elif msg.type == aiohttp.WSMsgType.CLOSED:
-                log.debug("--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED", id(ws))
+                log.debug(
+                    "--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED",
+                    id(ws),
+                )
                 break
 
             elif msg.type == aiohttp.WSMsgType.ERROR:

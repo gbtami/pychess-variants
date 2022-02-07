@@ -11,6 +11,12 @@ def silence(message, lobbychat, users):
                 del lobbychat[i - 1]
             i -= 1
 
-        lobbychat.append({"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer})
+        lobbychat.append(
+            {
+                "type": "lobbychat",
+                "user": "",
+                "message": "%s was timed out 10 minutes for spamming the chat." % spammer,
+            }
+        )
         response = {"type": "fullchat", "lines": list(lobbychat)}
     return response
