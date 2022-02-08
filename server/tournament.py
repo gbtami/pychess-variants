@@ -1196,7 +1196,7 @@ class Tournament(ABC):
             tc,
             time,
             time_text,
-            url
+            url,
         )
 
 
