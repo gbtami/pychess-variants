@@ -366,6 +366,6 @@ async def lobby_socket_handler(request):
                 # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
                 # await lobby_broadcast(sockets, response)
 
-                await user.clear_seeks(sockets, seeks)
+                await user.clear_seeks()
 
     return ws

@@ -138,9 +138,11 @@ class User:
             "online": True if self.username == requester else self.online,
         }
 
-    async def clear_seeks(self, sockets, seeks):
+    async def clear_seeks(self, force=False):
         has_seek = len(self.seeks) > 0
-        if has_seek and len(self.lobby_sockets) == 0:
+        if has_seek and (len(self.lobby_sockets) == 0 or force):
+            seeks = self.app["seeks"]
+            sockets = self.app["lobbysockets"]
             for seek in self.seeks:
                 game_id = self.seeks[seek].game_id
                 # preserve invites (seek with game_id)!
