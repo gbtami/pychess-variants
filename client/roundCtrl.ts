@@ -535,7 +535,8 @@ export default class RoundController {
 
     private draw = () => {
         // console.log("Draw");
-        if (confirm(_('Are you sure you want to draw?'))) {
+        const doOfferDraw = ( localStorage.getItem("confirmdraw") === "false" ) || confirm(_('Are you sure you want to draw?')) 
+        if (doOfferDraw) {
             this.doSend({ type: "draw", gameId: this.gameId });
             this.setDialog(_("Draw offer sent"));
         }

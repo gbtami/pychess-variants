@@ -25,6 +25,7 @@ class BoardSettings {
     constructor() {
         this.settings = {};
         this.settings["animation"] = new AnimationSettings(this);
+        this.settings["confirmdraw"] = new ConfirmDrawSettings(this);        
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
@@ -120,6 +121,8 @@ class BoardSettings {
 
         settingsList.push(this.settings["animation"].view());
 
+        settingsList.push(this.settings["confirmdraw"].view());        
+
         settingsList.push(this.settings["showDests"].view());
 
         if (variant.autoPromoteable)
@@ -204,6 +207,23 @@ class AnimationSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'animation', _("Piece animation")));
+    }
+}
+
+class ConfirmDrawSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('confirmdraw', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'confirmdraw', _("Confirm draw offer")));
     }
 }
 
