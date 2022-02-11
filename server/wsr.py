@@ -515,7 +515,8 @@ async def round_socket_handler(request):
                             game.status <= STARTED
                             and user.username in (game.wplayer.username, game.bplayer.username)
                         ):
-                            await user.clear_seeks(sockets, seeks)
+                            await game.wplayer.clear_seeks(force=True)
+                            await game.bplayer.clear_seeks(force=True)
 
                         if user.username not in (
                             game.wplayer.username,
