@@ -14,84 +14,60 @@ from settings import BOT_TOKENS
 log = logging.getLogger(__name__)
 
 
+def authorized(func):
+    """Authorization decorator"""
+
+    async def inner(request):
+        auth = request.headers.get("Authorization")
+        if auth is None:
+            log.error("BOT request without Authorization header!")
+            raise web.HTTPForbidden()
+
+        token = auth[auth.find("Bearer") + 7 :]
+        if token not in BOT_TOKENS:
+            log.error("BOT account token %s is not in BOT_TOKENS!", token)
+            raise web.HTTPForbidden()
+
+        await func(request)
+
+    return inner
+
+
+@authorized
+async def bot_pong(request):
+    return web.json_response({"ok": True})
+
+
+@authorized
 async def account(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
-    resp = {"username": BOT_TOKENS[token], "title": "BOT"}
-    log.info("ACCOUNT for token %s for %s is OK", token, BOT_TOKENS[token])
-    return web.json_response(resp)
+    user_agent = request.headers.get("User-Agent")
+    username = user_agent[user_agent.find("user:") + 5 :]
+    return web.json_response({"username": username, "title": "BOT"})
 
 
+@authorized
 async def playing(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     resp = {"nowPlaying": []}
     return web.json_response(resp)
 
 
+@authorized
 async def challenge_create(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     return web.json_response({"ok": True})
 
 
+@authorized
 async def challenge_accept(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     return web.json_response({"ok": True})
 
 
+@authorized
 async def challenge_decline(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     return web.json_response({"ok": True})
 
 
+@authorized
 async def create_bot_seek(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
@@ -155,16 +131,8 @@ async def create_bot_seek(request):
     return web.json_response({"ok": True})
 
 
+@authorized
 async def event_stream(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
@@ -238,16 +206,8 @@ async def event_stream(request):
     return resp
 
 
+@authorized
 async def game_stream(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
@@ -303,16 +263,8 @@ async def game_stream(request):
     return resp
 
 
+@authorized
 async def bot_move(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
     gameId = request.match_info["gameId"]
@@ -326,16 +278,8 @@ async def bot_move(request):
     return web.json_response({"ok": True})
 
 
+@authorized
 async def bot_abort(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
@@ -362,16 +306,8 @@ async def bot_abort(request):
     return web.json_response({"ok": True})
 
 
+@authorized
 async def bot_resign(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
@@ -383,16 +319,8 @@ async def bot_resign(request):
     return web.json_response({"ok": True})
 
 
+@authorized
 async def bot_analysis(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     bot_name = user_agent[user_agent.find("user:") + 5 :]
 
@@ -433,16 +361,8 @@ async def bot_analysis(request):
     return web.json_response({"ok": True})
 
 
+@authorized
 async def bot_chat(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
-
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
@@ -466,18 +386,5 @@ async def bot_chat(request):
             "message": data["text"],
         }
         await opp_ws.send_json(response)
-
-    return web.json_response({"ok": True})
-
-
-async def bot_pong(request):
-    auth = request.headers.get("Authorization")
-    if auth is None:
-        return web.HTTPForbidden()
-
-    token = auth[auth.find("Bearer") + 7 :]
-    if token not in BOT_TOKENS:
-        log.error("BOT account auth with token %s failed", token)
-        return web.HTTPForbidden()
 
     return web.json_response({"ok": True})
