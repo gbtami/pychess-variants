@@ -471,12 +471,15 @@ export default class RoundController {
         const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             const pass = this.variant.pass;
-            this.gameControls = patch(container, h('div.btn-controls', [
-                h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
-                h('button#count', _('Count')),
-                h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? _('Pass') : _("Draw")} }, [(pass) ? _('Pass') : h('i', '½')]),
-                h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
-            ]));
+            let buttons = [];
+            if (!this.tournamentGame) {
+                buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
+            }
+            buttons.push(h('button#count', _('Count')));
+            buttons.push(h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? _('Pass') : _("Draw")} }, [(pass) ? _('Pass') : h('i', '½')]));
+            buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
+            
+            this.gameControls = patch(container, h('div.btn-controls', buttons));
 
             const manualCount = this.variant.counting === 'makruk' && !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT');
             if (!manualCount)
