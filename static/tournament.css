@@ -172,7 +172,6 @@ td.sheet {
     text-align: right;
     padding-right: 0px;
     padding-left: 0px;
-    letter-spacing: 0.1em;
     width: 100%;
 }
 td.sheet > * {
@@ -182,6 +181,9 @@ td.sheet div {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
+}
+td.sheet score, td.sheet streak, td.sheet double {
+    margin-left: 1.5em;
 }
 td.sheet score {
     opacity: 0.7;
