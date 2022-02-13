@@ -960,6 +960,9 @@ div.info2 {
     padding-left: 10px;
     padding-bottom: 6px;
 }
+div.info2 a {
+    color: var(--link-color-blue);
+}
 div.info2.games {
     padding-top: 26px;
 }
