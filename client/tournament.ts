@@ -851,7 +851,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
             ]),
             h('div#lobbychat')
         ]),
-        h('div.players', [
+        h(`div.players.${model["variant"]}`, [
             h('div.box', [
                 h('div.tour-header', [
                     h('div#trophy'),
