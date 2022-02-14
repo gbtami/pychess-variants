@@ -15,7 +15,7 @@ TWITCH_STREAMERS = {
     "mugwortcrazyhouse": "Mugwort",
     "jannleecrazyhouse": "LM JannLee",
     "okeizh": "okei",
-    "krazy8_chess": "Crazy_Eight",
+    "krazy8_chess": "FM Crazy_Eight",
     "gbtami": "gbtami",
 }
 
