@@ -4,8 +4,6 @@ import cProfile
 import pstats
 from timeit import default_timer
 
-import objgraph
-
 
 def timeit(func):
     async def process(func, *args, **params):
@@ -111,7 +109,3 @@ def server_state(app, amount=3):
     q = app["users"]["Fairy-Stockfish"].event_queue
     print(" ... Fairy-Stockfish ...")
     print(q)
-
-
-def server_growth():
-    objgraph.show_growth()
