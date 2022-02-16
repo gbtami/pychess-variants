@@ -956,7 +956,6 @@ class Tournament(ABC):
             {game.bplayer: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance}
         )
 
-        self.ongoing_games -= 1
         self.nb_games_finished += 1
 
         if game.result == "1-0":
@@ -1015,6 +1014,8 @@ class Tournament(ABC):
                 wplayer.paused = True
             elif game.board.ply == 1:
                 bplayer.paused = True
+
+        self.ongoing_games -= 1
 
     async def broadcast(self, response):
         for spectator in self.spectators:
