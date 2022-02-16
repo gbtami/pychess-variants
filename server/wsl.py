@@ -14,7 +14,7 @@ from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
 from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
-from misc import server_growth, server_state
+from misc import server_state
 from tournament import tournament_spotlights
 
 log = logging.getLogger(__name__)
@@ -290,9 +290,6 @@ async def lobby_socket_handler(request):
                                     elif parts[1] == "remove":
                                         youtube.remove(parts[2])
                                     await broadcast_streams(request.app)
-
-                            elif message == "/growth":
-                                server_growth()
 
                             elif message == "/state":
                                 server_state(request.app)
