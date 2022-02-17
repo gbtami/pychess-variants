@@ -1,5 +1,8 @@
 .shogi .cg-wrap piece {
-    background-position: center; 
+    background-position: center;
+}
+.shogi .cg-wrap piece.ally {
+    background-position: center 2;
 }
 .shogi .cg-wrap piece.p-piece.ally {
     background-image: url('../../images/pieces/shogi/Portella/Intl/0FU.png');
