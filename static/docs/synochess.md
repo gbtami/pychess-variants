@@ -18,7 +18,7 @@ There are five additional rules that new players must be especially aware of! (A
 
 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 
-1.	**King Faceoff** – As in Xiangqi, **Kings may not face each other (on a file OR rank) without intervening pieces**, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king. Additionally, **the black king cannot castle through a king faceoff**.
+1.	**King Faceoff** – As in Xiangqi, **Kings may not face each other (on a file OR rank) without intervening pieces**, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king. Additionally, **the white king cannot castle through a king faceoff**.
 2.	**Reinforcement Soldiers** – Red starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.
 3.	**Campmate** – A king that reaches the final rank (without moving into check) wins the game.
 4.	**Stalemate** – As in Xiangqi, stalemates are a loss (in Chess, they are a draw).
