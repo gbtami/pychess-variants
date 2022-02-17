@@ -145,6 +145,12 @@ label.piece.piece8.shogi {
 label.piece.piece9.shogi {
     background-image: url('images/pieces/shogi/bw/0KA.svg');
 }
+label.piece.piece10.shogi {
+    background-image: url('images/pieces/shogi/Portella/Kanji/0KA.png');
+}
+label.piece.piece11.shogi {
+    background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
+}
 
 label.piece.piece0.kyoto {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');
