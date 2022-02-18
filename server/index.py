@@ -174,23 +174,24 @@ async def index(request):
         view = "embed"
     elif request.path == "/paste":
         view = "paste"
-    elif request.path.endswith("/shields"):
-        view = "shields"
-    elif request.path.endswith("/winners"):
-        view = "winners"
     elif request.path.startswith("/tournaments"):
-        view = "tournaments"
-        if user.username in ADMINS:
-            if request.path.endswith("/new"):
-                view = "arena-new"
-            elif request.path.endswith("/edit"):
-                view = "arena-new"
-                tournament = await load_tournament(request.app, tournamentId)
-                if tournament is None or tournament.status != T_CREATED:
-                    view = "tournaments"
-            elif request.path.endswith("/arena"):
-                data = await request.post()
-                await create_or_update_tournament(request.app, user.username, data)
+        if request.path.startswith("/tournaments/shields"):
+            view = "shields"
+        elif request.path.startswith("/tournaments/winners"):
+            view = "winners"
+        else:
+            view = "tournaments"
+            if user.username in ADMINS:
+                if request.path.endswith("/new"):
+                    view = "arena-new"
+                elif request.path.endswith("/edit"):
+                    view = "arena-new"
+                    tournament = await load_tournament(request.app, tournamentId)
+                    if tournament is None or tournament.status != T_CREATED:
+                        view = "tournaments"
+                elif request.path.endswith("/arena"):
+                    data = await request.post()
+                    await create_or_update_tournament(request.app, user.username, data)
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
@@ -412,7 +413,7 @@ async def index(request):
         render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
 
     elif view in ("shields", "winners"):
-        wi = await get_winners(request.app, shield=(view == "shields"))
+        wi = await get_winners(request.app, shield=(view == "shields"), variant=variant)
         render["view_css"] = "players.css"
         render["users"] = users
         render["icons"] = VARIANT_ICONS
