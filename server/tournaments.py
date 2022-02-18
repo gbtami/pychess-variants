@@ -181,7 +181,7 @@ async def get_winners(app, shield, variant):
         variants = VARIANTS
         limit = 5
 
-    for variant in variants:
+    for variant:
         if variant.endswith("960"):
             v = variant[:-3]
             z = 1
