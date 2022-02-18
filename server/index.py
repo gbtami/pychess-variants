@@ -43,6 +43,7 @@ from settings import (
     SOURCE_VERSION,
     DEV,
 )
+from generate_highscore import generate_highscore
 from misc import time_control_str
 from news import NEWS
 from user import User
@@ -151,7 +152,7 @@ async def index(request):
         view = "news"
     elif request.path.startswith("/variants"):
         view = "variants"
-    elif request.path == "/players":
+    elif request.path.startswith("/players"):
         view = "players"
     elif request.path == "/allplayers":
         view = "allplayers"
@@ -174,23 +175,24 @@ async def index(request):
         view = "embed"
     elif request.path == "/paste":
         view = "paste"
-    elif request.path.endswith("/shields"):
-        view = "shields"
-    elif request.path.endswith("/winners"):
-        view = "winners"
     elif request.path.startswith("/tournaments"):
-        view = "tournaments"
-        if user.username in ADMINS:
-            if request.path.endswith("/new"):
-                view = "arena-new"
-            elif request.path.endswith("/edit"):
-                view = "arena-new"
-                tournament = await load_tournament(request.app, tournamentId)
-                if tournament is None or tournament.status != T_CREATED:
-                    view = "tournaments"
-            elif request.path.endswith("/arena"):
-                data = await request.post()
-                await create_or_update_tournament(request.app, user.username, data)
+        if request.path.startswith("/tournaments/shields"):
+            view = "shields"
+        elif request.path.startswith("/tournaments/winners"):
+            view = "winners"
+        else:
+            view = "tournaments"
+            if user.username in ADMINS:
+                if request.path.endswith("/new"):
+                    view = "arena-new"
+                elif request.path.endswith("/edit"):
+                    view = "arena-new"
+                    tournament = await load_tournament(request.app, tournamentId)
+                    if tournament is None or tournament.status != T_CREATED:
+                        view = "tournaments"
+                elif request.path.endswith("/arena"):
+                    data = await request.post()
+                    await create_or_update_tournament(request.app, user.username, data)
     elif request.path.startswith("/tournament"):
         view = "tournament"
         tournament = await load_tournament(request.app, tournamentId)
@@ -301,7 +303,10 @@ async def index(request):
         else:
             template = get_template("profile.html")
     elif view == "players":
-        template = get_template("players.html")
+        if variant is None:
+            template = get_template("players.html")
+        else:
+            template = get_template("players50.html")
     elif view == "shields":
         template = get_template("shields.html")
     elif view == "winners":
@@ -408,11 +413,17 @@ async def index(request):
         render["users"] = users
         render["online_users"] = online_users
         render["anon_online"] = anon_online
-        hs = request.app["highscore"]
-        render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
+        if variant is None:
+            hs = request.app["highscore"]
+            render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
+        else:
+            hs = await generate_highscore(request.app["db"], variant)
+            print(hs)
+            render["highscore"] = hs
+            view = "players50"
 
     elif view in ("shields", "winners"):
-        wi = await get_winners(request.app, shield=(view == "shields"))
+        wi = await get_winners(request.app, shield=(view == "shields"), variant=variant)
         render["view_css"] = "players.css"
         render["users"] = users
         render["icons"] = VARIANT_ICONS

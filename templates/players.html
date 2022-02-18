@@ -41,7 +41,7 @@
         {% for key in highscore %}
         <div class="card">
             <div class="info0 icon" data-icon="{{ icons[key] }}">
-                <div class="variant">{{ variant_display_name(key) }}</div>
+                <a href="{{ home }}/players/{{ key }}"><div class="variant">{{ variant_display_name(key) }}</div></a>
             </div>
             {% for user, score in highscore[key].items() %}
                 <div class="player-data {{ loop.cycle('odd', 'even') }}">

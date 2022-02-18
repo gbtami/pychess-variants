@@ -172,10 +172,16 @@ async def upsert_tournament_to_db(tournament, app):
             log.error("Failed to save tournament data to mongodb!")
 
 
-async def get_winners(app, shield):
+async def get_winners(app, shield, variant=None):
     wi = {}
+    if variant is None:
+        variants = VARIANTS
+        limit = 5
+    else:
+        variants = (variant,)
+        limit = 50
 
-    for variant in VARIANTS:
+    for variant in variants:
         if variant.endswith("960"):
             v = variant[:-3]
             z = 1
@@ -188,7 +194,7 @@ async def get_winners(app, shield):
             filter_cond["fr"] = SHIELD
 
         winners = []
-        cursor = app["db"].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=5)
+        cursor = app["db"].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
             print("---", doc)
             winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
