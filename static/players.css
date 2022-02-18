@@ -1,3 +1,25 @@
+.page-menu.small {
+    max-width: 1000px;
+    width:100%;
+    margin: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+tr.player-data {
+    display: table-row;
+}
+td {
+    padding: 1rem;
+}
+td rank {
+    padding-left: 2rem;
+}
+td rating {
+    padding-right: 5rem;
+}
 .page-menu.players {
     grid-gap: 0;
 }
@@ -10,20 +32,23 @@
     grid-gap: 6px;
     padding-left: 2px;
 }
-.shields, .winners {
+.highscore, .shields, .winners {
     grid-gap: 0;
     border: 1px solid var(--border-color);
     padding: 0;
+}
+.small aside .highscore {
+    border: 0;
 }
 .card {
     border: 1px solid var(--leaderboard);
     border-radius: .25rem;
     background-color: var(--bg-color1);
 }
-.shields, .winners {
+.highscore, .shields, .winners {
     border-radius: none;
 }
-.shields h1, .winners h1 {
+.highscore h1, .shields h1, .winners h1 {
     font-size: 2.5em;
 }
 .shields .card, .winners .card {

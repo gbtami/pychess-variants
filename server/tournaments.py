@@ -172,14 +172,14 @@ async def upsert_tournament_to_db(tournament, app):
             log.error("Failed to save tournament data to mongodb!")
 
 
-async def get_winners(app, shield, variant):
+async def get_winners(app, shield, variant=None):
     wi = {}
-    if variant is not None:
-        variants = (variant,)
-        limit = 50
-    else:
+    if variant is None:
         variants = VARIANTS
         limit = 5
+    else:
+        variants = (variant,)
+        limit = 50
 
     for variant in variants:
         if variant.endswith("960"):

@@ -50,6 +50,7 @@ get_routes = (
     ("/faq", index),
     ("/stats", index),
     ("/players", index),
+    ("/players/{variant}", index),
     ("/allplayers", index),
     ("/calendar", index),
     ("/games", index),

@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu highscore small">
+<aside class="flat-bg">
+    <h1>{{ variant_display_name(variant) }} {% trans %}Top 50{% endtrans %}</h1>
+    <div class="highscore">
+        <div>
+            <table>
+            <tbody>
+            {% for user, score in highscore.items() %}
+                <tr class="player-data {{ loop.cycle('odd', 'even') }}">
+                    <td><rank>{{ loop.index }}</rank></td>
+                    <td><player><a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a></player></td>
+                    <td><rating>{{ score }}</rating></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+</aside>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
+
