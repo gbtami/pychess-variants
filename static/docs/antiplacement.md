@@ -1,5 +1,5 @@
-# ![AntiPlacement](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) AntiPlacement Chess (Bronstein chess, Pre-Chess, Shuffle-Chess)
+# ![AntiPlacement](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) AntiPlacement Chess
 
-Pal Benko credited the idea of “Pre-Chess” or “Shuffle-Chess” to David Bronstein.
+Pal Benko credited the idea of “Placement-Chess” to David Bronstein.
 
-Different than the “AntiPlacementChess” described on the Chess Variants site, this variant is simply as antichess and modification where players take turns placing their back rank pieces. Castling only works when the king and the corresponding rook are in their normal position.
+Different from “Placement Chess” described on [Pychess-Variants](https://www.pychess.org/variants/placement), this variant is simply as Placement chess and modification where players must capture and to win all pieces need to be lost. Castling does not work in Antiplacement as it follows antichess rules.

@@ -62,7 +62,12 @@ VARIANTS = (
     "coffeehill",
     "coffeehill960",
     "antiplacement",
+    "antiminishogi",
     "antihoppelpoppel",
+    "antishogun",
+    "anticapablanca",
+    "antichak",
+    "antigrandhouse",
     "atomic_giveaway_hill",
     "atomic_giveaway_hill960"  
     # We support to import/store/analyze these variants
@@ -91,7 +96,7 @@ VARIANT_ICONS = {
     "antichess960": "♔",
     "losers": "♔",
     "losers960": "♔",
-    "antishogi": "♔",
+    "antiminishogi": "♔",
     "coffeerace": "♔",
     "coffee_3check": "♔",
     "coffee_3check960": "♔",    
@@ -99,8 +104,12 @@ VARIANT_ICONS = {
     "anti_antichess960": "♔",
     "antiatomic": "♔",
     "antiatomic960": "♔",
+    "antishogi": "♔",
     "antihouse": "♔",
     "antihouse960": "♔",
+    "antishogun": "♔",
+    "anticapablanca": "♔",
+    "anticapablanca960": "♔",
     "antipawns": "♔",
     "coffeehouse": "♔",
     "coffeehouse960": "♔",
@@ -108,6 +117,8 @@ VARIANT_ICONS = {
     "coffeehill960": "♔",
     "antiplacement": "♔",
     "antihoppelpoppel": "♔",
+    "antichak": "♔",
+    "antigrandhouse": "♔",
     "atomic_giveaway_hill": "♔",
     "atomic_giveaway_hill960": "♔",       
     "capablanca": "P",
@@ -163,6 +174,7 @@ VARIANT_960_TO_PGN = {
     "antipawns": "Antipawns960",
     "coffeehouse": "Coffeehouse960",
     "coffeehill": "Coffeehill960",
+    "anticapablanca": "Anticapablanca960",
     "atomic_giveaway_hill": "Atomic_giveaway_hill960",            
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
@@ -174,11 +186,11 @@ VARIANT_960_TO_PGN = {
 }
 
 CATEGORIES = {
-    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960", "antiatomic", "antiatomic", "coffeehouse", "coffeehouse960", "antihoppelpoppel"),
+    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960", "antiatomic", "antiatomic", "coffeehouse", "coffeehouse960", "antihoppelpoppel", "anticapablanca", "antichak", "antigrandhouse"),
     "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("synochess", "shinobi", "empire", "chak"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi", "antishogi"),
+    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi", "antishogi", "antiminishogi"),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 
@@ -212,13 +224,16 @@ TROPHY_KIND = (
     "antihouse",
     "antihouse960",
     "antipawns",
-    "coffeerace",
     "coffee_3check",
     "coffee_3check960",
+    "coffeerace",
     "coffeehouse",
     "coffeehouse960",
     "coffeehill",
     "coffeehill960",
+    "antiplacement",
+    "antiminishogi",
+    "antihoppelpoppel",
     "atomic_giveaway_hill",
     "atomic_giveaway_hill960"
 )
