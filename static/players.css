@@ -59,7 +59,7 @@ td rating {
 }
 .card div.info0 {
     color: WhiteSmoke;
-    background-color: var(--leaderboard);
+    background-color: var(--gold);
     padding:0.2em;
 }
 div.info0.icon::before {
@@ -112,4 +112,7 @@ div.info0.icon::before {
 }
 .user-link.tourney-date {
     color: var(--link-color-blue);
+}
+.highscore a {
+    color: fff;
 }
