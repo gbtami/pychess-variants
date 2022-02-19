@@ -358,7 +358,19 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
         pocketRoles: [], pocketRoles2: ["s"],
         materialDifference: false,
-        icon: "_",
+        icon: "♚",
+    }),
+    
+    antiempire: new Variant({
+        name: "antiempire", tooltip: () => _("Asymmetric variant where one army has pieces that move like queens but capture as usual."),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1",
+        board: "standard8x8", piece: "empire",
+        firstColor: "Gold", secondColor: "Black",
+        pieceRoles: ["k", "d", "t", "c", "e", "p", "s", "q"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true,
+        //materialDifference: false,
+        icon: "♚",
     }),    
 
     antihoppelpoppel: new Variant({
@@ -933,7 +945,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     //shogi:    { variants: [ "antiminishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants:  ["antihoppelpoppel", "antishogun", "anticapablanca", "antigrandhouse"] },
-    army:     { variants: [ "antichak", "antiorda", "antisynochess"] },
+    army:     { variants: [ "antichak", "antiorda", "antisynochess", "antiempire"] },
 };
 
 function variantGroupLabel(group: string): string {

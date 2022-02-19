@@ -55,7 +55,7 @@ V2C = {
     "dobutsu": "D",
     "gorogoro": "G",
     "shinobi": "J",
-    "empire": "P",
+    "antiempire": "P",
     "antikoth": "O",
     "torishogi": "T",
     "asean": "S",

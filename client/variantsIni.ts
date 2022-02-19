@@ -72,6 +72,26 @@ extinctionValue = win
 extinctionPieceTypes = *
 extinctionPseudoRoyal = false
 
+[empire:chess]
+customPiece1 = e:mQcN
+customPiece2 = c:mQcB
+customPiece3 = t:mQcR
+customPiece4 = d:mQcK
+soldier = s
+promotionPieceTypes = q
+startFen = rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1
+stalemateValue = loss
+nFoldValue = loss
+flagPiece = k
+whiteFlag = *8
+blackFlag = *1
+flyingGeneral = true
+mustCapture = true
+stalemateValue = win
+extinctionValue = win
+extinctionPieceTypes = *
+extinctionPseudoRoyal = false
+
 [anticapablanca:capablanca]
 # Hybrid of antichess and minishogi.
 # This might look like a coffee variant, but it isn't.
