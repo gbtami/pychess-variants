@@ -334,6 +334,19 @@ export const VARIANTS: { [name: string]: Variant } = {
         timeControl: "byoyomi",
         enPassant: true, drop: true,
         icon: "♔",
+    }),
+    
+    antiorda: new Variant({
+        name: "antiorda", tooltip: () => _("Asymmetric variant where one army has pieces that move like knights but capture differently."),
+        startFen: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+        board: "standard8x8", piece: "orda",
+        firstColor: "White", secondColor: "Gold",
+        pieceRoles: ["k", "q", "r", "b", "n", "p", "h"],
+        pieceRoles2: ["k", "y", "l", "a", "h", "p", "q"],
+        promotionOrder: ["q", "h"],
+        enPassant: true,
+        //materialDifference: false,
+        icon: "♔",
     }),    
 
     antihoppelpoppel: new Variant({
@@ -908,7 +921,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     //shogi:    { variants: [ "antiminishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants:  ["antihoppelpoppel", "antishogun", "anticapablanca", "antigrandhouse"] },
-    army:     { variants: [ "antichak"] },
+    army:     { variants: [ "antichak", "antiorda"] },
 };
 
 function variantGroupLabel(group: string): string {

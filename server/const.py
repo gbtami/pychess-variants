@@ -67,6 +67,7 @@ VARIANTS = (
     "antishogun",
     "anticapablanca",
     "antichak",
+    "antiorda",
     "antigrandhouse",
     "atomic_giveaway_hill",
     "atomic_giveaway_hill960"  
@@ -98,6 +99,7 @@ VARIANT_ICONS = {
     "losers960": "♔",
     "antiminishogi": "♔",
     "coffeerace": "♔",
+    "antiorda": "♔",
     "coffee_3check": "♔",
     "coffee_3check960": "♔",    
     "anti_antichess": "♔",

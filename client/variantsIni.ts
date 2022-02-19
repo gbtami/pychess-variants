@@ -36,6 +36,22 @@ extinctionPieceTypes = *
 extinctionPseudoRoyal = false
 castling = false
 
+[antiorda:chess]
+centaur = h
+knibis = a
+kniroo = l
+silver = y
+promotionPieceTypes = qh
+startFen = lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1
+flagPiece = k
+whiteFlag = *8
+blackFlag = *1
+mustCapture = true
+stalemateValue = win
+extinctionValue = win
+extinctionPieceTypes = *
+extinctionPseudoRoyal = false
+
 [anticapablanca:capablanca]
 # Hybrid of antichess and minishogi.
 # This might look like a coffee variant, but it isn't.
