@@ -667,6 +667,7 @@ class Game:
                     "minishogi",
                     "gorogoro",
                     "gorogoroplus",
+                    "torishogi",
                 ):
                     self.status = INVALIDMOVE
             else:
