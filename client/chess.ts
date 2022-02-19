@@ -373,6 +373,22 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "♚",
     }),    
 
+    antishinobi: new Variant({
+        name: "antishinobi", tooltip: () => _("Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army."),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
+        board: "standard8x8", piece: "shinobi",
+        firstColor: "Pink", secondColor: "Black",
+        pieceRoles: ["k", "d", "j", "c", "l", "h", "m", "p"],
+        pieceRoles2: ["k", "q", "r", "b", "n", "p"],
+        pocketRoles: ["l", "h", "m", "d", "j"],
+        pocketRoles2: [],
+        promotion: "shogi",
+        promoteablePieces: ["p", "l", "h", "m"],
+        enPassant: true,
+        //materialDifference: false,
+        icon: "♚",
+    }),
+
     antihoppelpoppel: new Variant({
         name: "antihoppelpoppel", displayName: "antihoppel-poppel", tooltip: () => _("Knights capture as bishops; bishops  capture as knights."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -945,7 +961,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     //shogi:    { variants: [ "antiminishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants:  ["antihoppelpoppel", "antishogun", "anticapablanca", "antigrandhouse"] },
-    army:     { variants: [ "antichak", "antiorda", "antisynochess", "antiempire"] },
+    army:     { variants: [ "antichak", "antiorda", "antisynochess", "antiempire", "antishinobi"] },
 };
 
 function variantGroupLabel(group: string): string {

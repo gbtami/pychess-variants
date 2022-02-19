@@ -70,6 +70,7 @@ VARIANTS = (
     "antisynochess",
     "antiempire",
     "antiorda",
+    "antishinobi",
     "antigrandhouse",
     "atomic_giveaway_hill",
     "atomic_giveaway_hill960"  
@@ -110,6 +111,7 @@ VARIANT_ICONS = {
     "antiatomic960": "♔",
     "antishogi": "♔",
     "antiempire": "♔",
+    "antishinobi": "♔",
     "antihouse": "♔",
     "antihouse960": "♔",
     "antishogun": "♔",
