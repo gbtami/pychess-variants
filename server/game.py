@@ -673,15 +673,6 @@ class Game:
             else:
                 self.status = STALEMATE
 
-        elif self.variant in ("makruk", "makpong", "cambodian", "sittuyin", "asean"):
-            parts = self.board.fen.split()
-            if parts[3].isdigit():
-                counting_limit = int(parts[3])
-                counting_ply = int(parts[4])
-                if counting_ply > counting_limit:
-                    self.status = DRAW
-                    self.result = "1/2-1/2"
-
         else:
             # end the game by 50 move rule and repetition automatically
             # for non-draw results and bot games
@@ -689,6 +680,15 @@ class Game:
             if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
+
+        if self.variant in ("makruk", "makpong", "cambodian", "sittuyin", "asean"):
+            parts = self.board.fen.split()
+            if parts[3].isdigit():
+                counting_limit = int(parts[3])
+                counting_ply = int(parts[4])
+                if counting_ply > counting_limit:
+                    self.status = DRAW
+                    self.result = "1/2-1/2"
 
         if self.board.ply > MAX_PLY:
             self.status = DRAW
