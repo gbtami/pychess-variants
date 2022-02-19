@@ -49,7 +49,7 @@ V2C = {
     "janggi": "j",
     "makpong": "l",
 #    "orda": "f",
-    "synochess": "v",
+    "antisynochess": "v",
     "hoppelpoppel": "w",
     "manchu": "M",
     "dobutsu": "D",

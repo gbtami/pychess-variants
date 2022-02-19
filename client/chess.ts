@@ -347,6 +347,18 @@ export const VARIANTS: { [name: string]: Variant } = {
         enPassant: true,
         //materialDifference: false,
         icon: "♔",
+    }),
+    
+    antisynochess: new Variant({
+        name: "antisynochess", tooltip: () => _("Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army."),
+        startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
+        board: "standard8x8", piece: "synochess",
+        firstColor: "White", secondColor: "Red",
+        pieceRoles: ["k", "q", "r", "b", "n", "p"],
+        pieceRoles2: ["k", "a", "c", "r", "e", "n", "s"],
+        pocketRoles: [], pocketRoles2: ["s"],
+        materialDifference: false,
+        icon: "_",
     }),    
 
     antihoppelpoppel: new Variant({
@@ -921,7 +933,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     //shogi:    { variants: [ "antiminishogi" ] },
     //xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants:  ["antihoppelpoppel", "antishogun", "anticapablanca", "antigrandhouse"] },
-    army:     { variants: [ "antichak", "antiorda"] },
+    army:     { variants: [ "antichak", "antiorda", "antisynochess"] },
 };
 
 function variantGroupLabel(group: string): string {
