@@ -245,7 +245,7 @@ async def index(request):
             rated = RATED
         elif "/challenge" in request.path:
             view = "lobby"
-            if user.anon:
+            if user.anon and profileId != "Fairy-Stockfish":
                 return web.HTTPFound("/")
 
     # Do we have gameId in request url?

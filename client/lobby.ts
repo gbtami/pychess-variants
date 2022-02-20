@@ -933,8 +933,9 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div#variants-catalog'),
         h('aside.sidebar-second', [ h('div#seekbuttons') ]),
         h('under-left', [
-            h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr' } }, 'Discord'),
-            h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants' } }, 'Github'),
+            h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr', rel: "noopener", target: "_blank" } }, 'Discord'),
+            h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants', rel: "noopener", target: "_blank" } }, 'Github'),
+            h('a.reflist', { attrs: { href: 'https://www.youtube.com/channel/UCj_r_FSVXQFLgZLwSeFBE8g', rel: "noopener", target: "_blank" } }, 'YouTube'),
             h('a.reflist', { attrs: { href: '/patron' } }, _("Donate")),
             h('a.reflist', { attrs: { href: '/faq' } }, _("FAQ")),
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
