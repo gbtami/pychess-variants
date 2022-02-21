@@ -8,7 +8,7 @@ All supported games on Liantichess can be seen [here](https://liantichess.heroku
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
-- [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/niklasf/fishnet)
+- [fairyfishnet](https://github.com/theyobots/fairyfishnet) fork of [fairyfishnet](https://github.com/gbtami/fairyfishnet)
 - [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/careless25/lichess-bot)
 
 On client side it is based on [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/ornicar/chessground)
