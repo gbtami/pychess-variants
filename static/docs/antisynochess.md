@@ -1,9 +1,11 @@
-# ![Synochess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/synochess.svg) Synochess
+# ![AntiSynochess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/synochess.svg) AntiSynochess
 
-![Synochess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Synochess.png)
+![AntiSynochess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Synochess.png)
 
-Synochess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a variant where the western chess army can fight against the xiangqi or Chinese chess army in a fair manner. Given that the circumstances in xiangqi are much different (larger board, overall weaker pieces), this was difficult to achieve without significant boosts to the Chinese-style army. However, this was able to be achieved, without overall losing the feel of xiangqi when playing as the Chinese army. In this game, the white army represents the western chess side and is called the Kingdom, while the red army represents an amalgamation of xiangqi and janggi (Korean chess) and is called the Dynasty. All pieces on the Dynasty side resemble their counterpart in either xiangqi or janggi and should be familiar to those who have played those games.
-The name Synochess is based off an earlier name, Sinochess, but it was changed as the Dynasty became less “Sino” (as in Chinese) and more a mixture of Chinese and Korean. Instead, the prefix syn- means together, and the game represents two different historic branches of chess coming together into one.
+**Note - This Game with must capture and the goal of the game is to lose all your pieces like antichess.**
+
+AntiSynochess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a variant where the western chess army can fight against the xiangqi or Chinese chess army in a fair manner. Given that the circumstances in xiangqi are much different (larger board, overall weaker pieces), this was difficult to achieve without significant boosts to the Chinese-style army. However, this was able to be achieved, without overall losing the feel of xiangqi when playing as the Chinese army. In this game, the white army represents the western chess side and is called the Kingdom, while the red army represents an amalgamation of xiangqi and janggi (Korean chess) and is called the Dynasty. All pieces on the Dynasty side resemble their counterpart in either xiangqi or janggi and should be familiar to those who have played those games.
+The name AntiSynochess is based off an earlier name, Sinochess, but it was changed as the Dynasty became less “Sino” (as in Chinese) and more a mixture of Chinese and Korean. Instead, the prefix syn- means together, and the game represents two different historic branches of chess coming together into one.
  
 ## General Rules
 1.	Setup is as above. 
@@ -60,12 +62,12 @@ The Cannon is a hopping piece. It is essentially a rook that requires an interve
 
 ![Advisor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Advisor.png)
 
-The Advisor moves and captures exactly like a king. Unlike the king, it can be captured. While there is no equivalent piece in Xiangqi or Janggi, there is no palace in Synochess. As such, the Advisor needed to be stronger in order to protect its king, and one might think of its movements as combining the strength of two Xiangqi advisors to cover all 8 squares.
+The Advisor moves and captures exactly like a king. Unlike the king, it can be captured. While there is no equivalent piece in Xiangqi or Janggi, there is no palace in AntiSynochess. As such, the Advisor needed to be stronger in order to protect its king, and one might think of its movements as combining the strength of two Xiangqi advisors to cover all 8 squares.
 
  
 ## Piece valuation
 
-Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to Synochess.
+Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to AntiSynochess.
 
 Kingdom piece	| Value (Early / Late) | Dynasty piece | Value (Early / Late)
 -- | -- | -- | --

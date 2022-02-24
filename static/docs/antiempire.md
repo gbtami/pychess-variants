@@ -1,14 +1,16 @@
-# ![Empire chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/empire.svg) Empire Chess
+# ![AntiEmpire chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/empire.svg) AntiEmpire Chess
 
-![Empire](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empire.png)
+![AntiEmpire](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empire.png)
 
-Empire Chess is a chess variant designed in 2020 by Couch Tomato, third in the series of asymmetric games (although available to play on Pychess later than the fourth game due to unique pieces that were not yet available). The mighty Empire (Gold army) has heard stories of the mighty queen of the Kingdom (Black army) and has proposed a marriage with its Duke. However, the Kingdom refused, leading to an Imperial invasion led by the Kaiser himself! 
+**Note - This Game with must capture and the goal of the game is to lose all your pieces like antichess.**
+
+AntiEmpire Chess is a chess variant designed in 2020 by Couch Tomato, third in the series of asymmetric games (although available to play on Pychess later than the fourth game due to unique pieces that were not yet available). The mighty AntiEmpire (Gold army) has heard stories of the mighty queen of the Kingdom (Black army) and has proposed a marriage with its Duke. However, the Kingdom refused, leading to an Imperial invasion led by the Kaiser himself! 
 
 The Imperial army is incredibly powerful, with all its pieces stronger than the Royal counterpart as they can all move like queens, but attack like the standard Royal counterparts; the only exception is the counterpart to the Queen, the Duke, which can only attack like a King. For those who have played Orda Chess, this is similar except replace knight movement with Queen movement. 
 
 Another unique feature is the King-Kaiser Faceoff rule, adding more checkmate possibilities (this may be familiar to those who have played Xiangqi or Synochess). 
 
-The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Empire.
+The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and AntiEmpire.
  
 ## General Rules
 1.	Setup is as above.

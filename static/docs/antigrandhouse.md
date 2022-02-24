@@ -1,6 +1,8 @@
-# ![Grandhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Grandhouse.svg) Grandhouse
+# ![AntiGrandhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Grandhouse.svg) AntiGrandhouse
 
-Grandhouse is a custom variant combining the rules of Grand chess with the drop rules of Crazyhouse. The same rules apply to both games. Crazyhouse and Grandhouse rules are provided below.
+AntiGrandhouse is a custom variant combining the rules of Grand chess with the drop rules of Crazyhouse. The same rules apply to both games. Crazyhouse and AntiGrandhouse rules are provided below.
+
+**Note - This Game with must capture and the goal of the game is to lose all your pieces like antichess.**
 
 ## Crazyhouse Rules
 

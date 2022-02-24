@@ -306,7 +306,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),    
 
     anticapablanca: new Variant({
-        name: "anticapablanca", displayName: "Coffecapablanca", tooltip: () => _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board."),
+        name: "anticapablanca", displayName: "anticapablanca", tooltip: () => _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board."),
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         board: "standard10x8", piece: "capa",
         pieceRoles: ["k", "q", "c", "a", "r", "b", "n", "p"],

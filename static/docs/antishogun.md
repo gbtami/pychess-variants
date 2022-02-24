@@ -1,10 +1,12 @@
-# ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogun.svg) Shogun Chess
+# ![AntiShogun](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogun.svg) AntiShogun Chess
 
-![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions3.png)
+![AntiShogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions3.png)
 
-Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in S-chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
+**Note - This Game with must capture and the goal of the game is to lose all your pieces like antichess.**
 
-The name was originally tentatively "General's Chess," based on what was then the name of the pawn's promotion, now currently the name of the knight's promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.
+AntiShogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in S-chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
+
+The name was originally tentatively "General's Chess," based on what was then the name of the pawn's promotion, now currently the name of the knight's promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," Antishogun sounded more appropriate. The sho in Antishogun being the same as the one in shogi pays tribute to that as well.
 
 ## General Rules
 
@@ -27,7 +29,7 @@ Additional minor rules for clarification:
 
 (Note that images were designed for computer play. Over the board pieces are not available but would require shogi-like designs of two-sided directional pieces to be viable.)
 
-*Timer* - Shogun chess uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time. The reason for using byo-yomi instead of the Fischer increment is that the endgame takes longer than the beginning, so byo-yomi guarantees time for each move.
+*Timer* - AntiShogun chess uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time. The reason for using byo-yomi instead of the Fischer increment is that the endgame takes longer than the beginning, so byo-yomi guarantees time for each move.
 
 ## Pieces
 
@@ -59,7 +61,7 @@ The captain is the only promotion of the pawn and moves exactly like a king. As 
 
 ![Duchess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duchess.png)
 
-The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz," hence the abbreviation used). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in Shogun chess).
+The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz," hence the abbreviation used). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in AntiShogun chess).
 
 ## Strategy
 
@@ -67,6 +69,6 @@ The game is still young, so strategy is still being developed!
 
 With the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.
 
-General strategy-wise, many players will be tempted to play this as crazyhouse. However, the game diverges quite quickly from crazyhouse due to the drop zone restriction. While players in crazyhouse will often take advantage of weaknesses in the opponents' camps to deliver devastating drops, the gameplay in shogun chess is more defensive. In shogun chess, your army needs to maneuver itself in a way to breach the opponents' camp; even the slightest breach can result in a piece promotion. Therefore, strategy relies more on chess tactics than crazyhouse tactics for this purpose, as well as for the purposes of delivering checkmate.
+General strategy-wise, many players will be tempted to play this as crazyhouse. However, the game diverges quite quickly from crazyhouse due to the drop zone restriction. While players in crazyhouse will often take advantage of weaknesses in the opponents' camps to deliver devastating drops, the gameplay in Antishogun chess is more defensive. In Antishogun chess, your army needs to maneuver itself in a way to breach the opponents' camp; even the slightest breach can result in a piece promotion. Therefore, strategy relies more on chess tactics than crazyhouse tactics for this purpose, as well as for the purposes of delivering checkmate.
 
 The ability to drop pawns on the first rank (unlike in crazyhouse) allows a player to build a much stronger castle. To crack this, focus on gaining material and promoted pieces, then push at the weak point.

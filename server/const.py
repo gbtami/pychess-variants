@@ -62,7 +62,6 @@ VARIANTS = (
     "coffeehill",
     "coffeehill960",
     "antiplacement",
-    "antiminishogi",
     "antihoppelpoppel",
     "antishogun",
     "anticapablanca",
@@ -195,7 +194,7 @@ VARIANT_960_TO_PGN = {
 
 CATEGORIES = {
     "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960", "antichess", "antichess960", "antiatomic", "antiatomic", "coffeehouse", "coffeehouse960", "antihoppelpoppel", "anticapablanca", "antichak", "antigrandhouse"),
-    "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
+    "fairy": ("anticapablanca", "anticapablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
     "army": ("synochess", "shinobi", "empire", "chak"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoro", "torishogi", "antishogi", "antiminishogi"),

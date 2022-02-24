@@ -1,8 +1,10 @@
-# ![Shinobi chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg) Shinobi Chess
+# ![AntiShinobi chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg) AntiShinobi Chess
 
-![Shinobi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobi.png)
+![AntiShinobi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobi.png)
 
-Shinobi Chess is a chess variant designed in 2021 by Couch Tomato with help from Fables, fourth in the series of asymmetric games. The Western chess army (“the Kingdom,” black) has invaded the land of the Sakura Clan (pink/sakura). While having mostly weak pieces at the start, the Clan is very resourceful and can instantly recruit and summon allies to defend at a minute’s notice. The Clan starts with many pieces in hand and can drop them on its side of the board in lieu of moving a piece. Furthermore, they can promote upon reaching the far end of the board – these abilities are similar to the game of shogi, with the major exception that captured pieces do not go into a player’s hand, so each drop counts! The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Clan.
+**Note - This Game with must capture and the goal of the game is to lose all your pieces like antichess.**
+
+AntiShinobi Chess is a chess variant designed in 2021 by Couch Tomato with help from Fables, fourth in the series of asymmetric games. The Western chess army (“the Kingdom,” black) has invaded the land of the Sakura Clan (pink/sakura). While having mostly weak pieces at the start, the Clan is very resourceful and can instantly recruit and summon allies to defend at a minute’s notice. The Clan starts with many pieces in hand and can drop them on its side of the board in lieu of moving a piece. Furthermore, they can promote upon reaching the far end of the board – these abilities are similar to the game of shogi, with the major exception that captured pieces do not go into a player’s hand, so each drop counts! The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Clan.
  
 ## General Rules
 1.	Setup is as above; the Clan player starts with additional pieces in hand.

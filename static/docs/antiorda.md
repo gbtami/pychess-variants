@@ -1,10 +1,12 @@
-# ![Orda chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/orda.svg) Orda Chess
+# ![AntiOrda chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/orda.svg) AntiOrda Chess
 
-![Orda](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Orda.png)
+![AntiOrda](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Orda.png)
 
 ![Legend](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/OrdaLegend.png)
 
-Orda Chess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a true asymmetric chess with two different armies. Ralph Betza’s Chess with Different Armies was an inspiration, but the goal was to be a little more streamlined with the theme here. In this case, the theme of the new army is knight-based movement, where most pieces have an element of knight movement. Given the knight (or horse) theme, this was modeled after the Mongol army and named the Horde. In fact, an orda was a military structure for the people of the Steppes, which also gave rise to the English word “horde.” The original chess army is named the Kingdom for contrast. The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Horde.
+**Note - This Game with must capture and the goal of the game is to lose all your pieces like antichess.**
+
+AntiOrda Chess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a true asymmetric chess with two different armies. Ralph Betza’s Chess with Different Armies was an inspiration, but the goal was to be a little more streamlined with the theme here. In this case, the theme of the new army is knight-based movement, where most pieces have an element of knight movement. Given the knight (or horse) theme, this was modeled after the Mongol army and named the Horde. In fact, an Antiorda was a military structure for the people of the Steppes, which also gave rise to the English word “horde.” The original chess army is named the Kingdom for contrast. The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Horde.
  
 ## General Rules
 1.	Setup is as above. Despite new pieces, the placement of the Horde pieces mirror their chess counterparts.
@@ -61,7 +63,7 @@ Lancers were one of the two core components of the Mongol cavalry, functioning a
  
 ## Piece valuation
 
-Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to Orda chess.
+Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to AntiOrda chess.
 
 Kingdom piece	| Value (Early / Late) | Horde piece | Value (Early / Late)
 -- | -- | -- | --
