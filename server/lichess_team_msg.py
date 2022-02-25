@@ -3,12 +3,12 @@ import logging
 
 import aiohttp
 
-from const import (
-    T_CREATED,
+from const import T_CREATED
+from misc import time_control_str
+from settings import (
+    DEV,
     LICHESS_API_TOKEN,
 )
-from misc import time_control_str
-from settings import DEV
 
 # POST
 # Responses:
