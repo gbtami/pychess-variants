@@ -8,6 +8,7 @@ from const import (
     LICHESS_API_TOKEN,
 )
 from misc import time_control_str
+from settings import DEV
 
 # POST
 # Responses:
@@ -18,6 +19,9 @@ log = logging.getLogger(__name__)
 
 
 async def lichess_team_msg(app):
+    if DEV or LICHESS_API_TOKEN is None:
+        return
+
     to_date = datetime.now().date()
     if to_date in app["sent_lichess_team_msg"]:
         print("No more lichess team msg for today!")
