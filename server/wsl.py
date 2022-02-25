@@ -15,7 +15,7 @@ from seek import challenge, create_seek, get_seeks, Seek
 from user import User
 from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
 from misc import server_state
-from tournament import tournament_spotlights
+from tournament_spotlights import tournament_spotlights
 
 log = logging.getLogger(__name__)
 

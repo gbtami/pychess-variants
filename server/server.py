@@ -131,18 +131,19 @@ async def init_state(app):
     app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
     app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
 
-    app[
-        "tourneysockets"
-    ] = (
-        {}
-    )  # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-    app[
-        "tourneynames"
-    ] = {}  # cache for profile game list page {tournamentId: tournament.name, ...}
+    # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
+    app["tourneysockets"] = {}
+
+    # cache for profile game list page {tournamentId: tournament.name, ...}
+    app["tourneynames"] = {}
+
     app["tournaments"] = {}
-    app[
-        "tourneychat"
-    ] = {}  # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
+
+    # lichess allows 7 team message per week, so we will send one (comulative) per day only
+    app["sent_lichess_team_msg"] = []
+
+    # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
+    app["tourneychat"] = {}
 
     app["seeks"] = {}
     app["games"] = {}

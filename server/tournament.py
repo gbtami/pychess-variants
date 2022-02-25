@@ -30,7 +30,6 @@ from const import (
     T_ARCHIVED,
     SHIELD,
     MAX_CHAT_LINES,
-    TOURNAMENT_SPOTLIGHTS_MAX,
 )
 from game import Game
 from user import User
@@ -39,6 +38,8 @@ from misc import time_control_str
 from newid import new_id
 from utils import insert_game_to_db
 from spectators import spectators
+from tournament_spotlights import tournament_spotlights
+from lichess_team_msg import lichess_team_msg
 
 log = logging.getLogger(__name__)
 
@@ -445,6 +446,7 @@ class Tournament(ABC):
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
+                        asyncio.create_task(lichess_team_msg(self.app))
                         continue
 
                 elif (self.minutes is not None) and now >= self.ends_at:
@@ -1196,25 +1198,3 @@ class Tournament(ABC):
             time_text,
             url,
         )
-
-
-def tournament_spotlights(tournaments):
-    to_date = datetime.now().date()
-    items = []
-    for tid, tournament in sorted(tournaments.items(), key=lambda item: item[1].starts_at):
-        if tournament.status == T_STARTED or (
-            tournament.status == T_CREATED and tournament.starts_at.date() <= to_date
-        ):
-            items.append(
-                {
-                    "tid": tournament.id,
-                    "name": tournament.name,
-                    "variant": tournament.variant,
-                    "chess960": tournament.chess960,
-                    "nbPlayers": tournament.nb_players,
-                    "startsAt": tournament.starts_at.isoformat(),
-                }
-            )
-            if len(items) == TOURNAMENT_SPOTLIGHTS_MAX:
-                break
-    return items
