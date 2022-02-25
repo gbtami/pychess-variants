@@ -17,6 +17,7 @@ async def discord_message(app, msg_type, msg):
 
 
 async def broadcast_streams(app):
+    """Send live_streams to lobby"""
     lobby_sockets = app["lobbysockets"]
     live_streams = app["twitch"].live_streams + app["youtube"].live_streams
     response = {"type": "streams", "items": live_streams}
