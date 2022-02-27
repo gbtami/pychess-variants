@@ -165,9 +165,9 @@ class RequestLobbyTestCase(AioHTTPTestCase):
 
     async def test_example(self):
         resp = await self.client.request("GET", "/")
-        assert resp.status == 200
+        self.assertEqual(resp.status, 200)
         text = await resp.text()
-        assert "<title>Lobby" in text
+        self.assertIn("<title>PyChess", text)
 
 
 class GamePlayTestCase(AioHTTPTestCase):
