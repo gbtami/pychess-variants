@@ -236,3 +236,5 @@ Red can also play his cannon to the front corner of the palace ("Palcorner Canno
 Other red opening moves are very rare.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/5EDG5RP8OZ8" frameborder="0" allowfullscreen></iframe>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/boT1qyDA5RA" frameborder="0" allowfullscreen></iframe>
