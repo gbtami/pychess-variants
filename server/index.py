@@ -332,13 +332,18 @@ async def index(request):
     else:
         template = get_template("index.html")
 
+    if view == "lobby":
+        page_title = "PyChess • Free Online Chess Variants"
+    else:
+        page_title = "%s • PyChess" % view.capitalize()
+
     render = {
         "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
         "dev": DEV,
         "app_name": "PyChess",
         "languages": LANGUAGES,
         "lang": lang,
-        "title": view.capitalize(),
+        "title": page_title,
         "view": view,
         "asseturl": STATIC_ROOT,
         "view_css": ("round" if view == "tv" else view) + ".css",
