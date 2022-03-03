@@ -305,7 +305,7 @@ async def shutdown(app):
     await lobby_broadcast(app["lobbysockets"], response)
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
-    for game in app["games"].values():
+    for game in list(app["games"].values()):
         await round_broadcast(game, response, full=True)
 
     # No need to wait in dev mode and in unit tests
@@ -313,12 +313,12 @@ async def shutdown(app):
         print("......WAIT 25")
         await asyncio.sleep(25)
 
-    for user in app["users"].values():
+    for user in list(app["users"].values()):
         if user.bot:
             await user.event_queue.put('{"type": "terminated"}')
 
     # abort games
-    for game in app["games"].values():
+    for game in list(app["games"].values()):
         for player in (game.wplayer, game.bplayer):
             if game.status <= STARTED:
                 response = await game.abort()
@@ -330,7 +330,7 @@ async def shutdown(app):
                         print("Failed to send game %s abort to %s" % (game.id, player.username))
 
     # close lobbysockets
-    for user in app["users"].values():
+    for user in list(app["users"].values()):
         if not user.bot:
             for ws in list(user.game_sockets.values()):
                 try:
@@ -338,7 +338,7 @@ async def shutdown(app):
                 except Exception:
                     pass
 
-    for ws_set in app["lobbysockets"].values():
+    for ws_set in list(app["lobbysockets"].values()):
         for ws in list(ws_set):
             await ws.close()
 
